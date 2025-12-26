@@ -3,3 +3,4 @@ mediawiki-extensions-EventBus
 KafkaSSE
 eventstreams
 eventgate
+schemas-event-primary
