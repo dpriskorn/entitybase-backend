@@ -10,7 +10,7 @@ This document tracks all schema version changes for the Wikibase immutable revis
 
 ---
 
-## 1.0 (TBD) - Major
+## 1.0 - Major
 
 **Status:** Draft
 
@@ -36,7 +36,7 @@ This document tracks all schema version changes for the Wikibase immutable revis
   "metadata": {
     "created_at": "ISO8601",
     "author_id": "string",
-    "tags": ["import-2025", "batch-42"]
+    "tags": ["import-2025", "batch-42", "invalid"]
   }
 }
 ```

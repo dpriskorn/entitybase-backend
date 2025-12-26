@@ -28,6 +28,8 @@ Everything else in the system derives from this rule.
 - [CONCURRENCY-CONTROL.md](./CONCURRENCY-CONTROL.md) - concurrency control details
 - [CONSISTENCY-MODEL.md](./CONSISTENCY-MODEL.md) - consistency model and failure recovery
 - [ENTITY-DELETION.md](./ENTITY-DELETION.md) - entity deletion
+- [JSON-VALIDATION-STRATEGY.md](./JSON-VALIDATION-STRATEGY.md) - JSON validation strategy comparison
+- [POST-PROCESSING-VALIDATION.md](./POST-PROCESSING-VALIDATION.md) - background validation service implementation
 - [REVISION-ID-STRATEGY.md](./REVISION-ID-STRATEGY.md) - revision ID strategy
 - [SCHEMA-CHANGES.md](./SCHEMA-CHANGES.md) - schema change history and migration guides
 - [SCHEMA-EVOLUTION.md](./SCHEMA-EVOLUTION.md) - schema evolution strategy
