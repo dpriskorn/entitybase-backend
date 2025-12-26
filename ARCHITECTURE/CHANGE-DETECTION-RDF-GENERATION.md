@@ -2,14 +2,13 @@
 
 ## Overview
 
-This document describes how to compute recent changes independently of MediaWiki and generate both continuous RDF change streams and weekly entity dumps (JSON + RDF formats) based on immutable S3 snapshots and Vitess metadata.
+This document describes the services for generating RDF from entity snapshots and producing both continuous RDF change streams and weekly entity dumps (JSON + RDF formats). The change detection component is documented separately in [MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md](./MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md).
 
 ## Requirements
 
-1. **MediaWiki-Independent Change Detection**: Compute recent entity changes without depending on MediaWiki EventBus
-2. **Weekly Dumps**: Generate complete dumps of all recent entities in both JSON and RDF formats weekly
-3. **Continuous Streaming**: Stream recent changes as RDF patches in real-time
-4. **Architecture Alignment**: Integrate with existing S3 + Vitess storage model
+1. **Weekly Dumps**: Generate complete dumps of all recent entities in both JSON and RDF formats weekly
+2. **Continuous Streaming**: Stream recent changes as RDF patches in real-time
+3. **Architecture Alignment**: Integrate with existing S3 + Vitess storage model
 
 ---
 
@@ -36,121 +35,7 @@ Client API → Validate → Assign revision_id → S3 snapshot → Vitess metada
 
 ---
 
-## Solution: MediaWiki-Independent Change Detection
-
-### Core Principle
-
-**Poll entity_head and fetch previous revision from entity_revisions, compare snapshots**
-
-Since S3 stores complete entity snapshots and Vitess provides ordered revision metadata, we can compute changes by:
-1. Polling entity_head for recently updated entities
-2. Querying entity_revisions for the previous revision
-3. Fetching both snapshots from S3
-4. Computing JSON diffs between snapshots
-5. Emitting rdf_change events directly
-
-**Design Decision**: No new tables required. Uses existing `entity_head` and `entity_revisions` tables only.
-
-### Implementation Design
-
-#### Service 1: Snapshot Change Detector
-
-**Purpose**: Poll Vitess and compute recent entity changes using existing S3 snapshots
-
-**Data Flow**:
-```
-                  Vitess (existing tables)
-                            ↓
-                Poll entity_head (recent updates)
-                            ↓
-                      Query entity_revisions for previous revision
-                            ↓
-                      Fetch both S3 snapshots
-                            ↓
-                      Compute JSON Diff
-                            ↓
-                      Emit json_change events
-```
-
-**Algorithm** (S3-based approach):
-```
-1. Poll entity_head for recently updated entities:
-   SELECT entity_id, head_revision_id, updated_at
-   FROM entity_head
-   WHERE updated_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR)
-   ORDER BY updated_at ASC
-   LIMIT 100000;
-
-2. For each changed entity:
-   a. Get current revision snapshot URI from entity_head
-      current_rev_id = head_revision_id
-      current_snapshot = s3.fetch(snapshot_uri)
-
-   b. Query entity_revisions for previous revision:
-      SELECT revision_id, snapshot_uri
-      FROM entity_revisions
-      WHERE entity_id = ? AND revision_id < ?
-      ORDER BY revision_id DESC
-      LIMIT 1
-
-   c. Fetch previous revision snapshot:
-      if previous_revision exists:
-         prev_snapshot = s3.fetch(previous_snapshot_uri)
-
-   d. Compute JSON diff between snapshots:
-      Use library: google-diff-match-patch, jsondiffpatch, or custom
-
-   e. Emit json_change event if diff detected
-```
-
-**Alternative Algorithm** (MediaWiki event-based - simpler):
-```
-1. Consume MediaWiki change events (from existing EventBus)
-2. Extract entity_id and revision_id from event
-3. Fetch S3 snapshot for that revision: s3.fetch(f"bucket/{entity_id}/r{rev_id}.json")
-4. Convert snapshot JSON to RDF (Turtle format)
-5. Emit rdf_change event with operation: import (for new entity) or diff (if tracking previous state)
-```
-
-**Recommendation**: Start with MediaWiki event-based approach if MediaWiki is available and emitting events. Use S3-based approach only if you need MediaWiki independence.
-
-**Key Design Decisions**:
-- **No new tables needed**: Uses existing `entity_head` and `entity_revisions`
-- **No change history stored**: Just query for recent updates and previous revision
-- **Simple checkpointing**: `entity_head.head_revision_id` is always the latest state
-
-**Event Schema** (optional, for internal use):
-```yaml
-# Internal event for JSON→RDF conversion pipeline
-# May be optional if direct pipeline from change detection to RDF
-entity_id: string
-from_revision_id: integer
-to_revision_id: integer
-json_diff: array  # JSON patch operations
-```
-
-**Technology Stack**:
-- Language: Python, Scala, or Go
-- Libraries:
-  - Vitess client: `go-vitess`, `vtgate-client`, or SQL proxy
-  - S3 client: AWS SDK, MinIO client
-  - Diff library: `google-diff-match-patch`, `jsondiffpatch`
-  - Kafka producer: `confluent-kafka`, `sarama`
-
-**Configuration**:
-| Option | Description | Default |
-|---------|-------------|---------|
-| `vitess_host` | Vitess VTGate host | localhost:15991 |
-| `s3_bucket` | S3 bucket for snapshots | wikibase-revisions |
-| `poll_interval` | How often to poll entity_head for changes | 300s (5 minutes) |
-| `batch_size` | Entities to process in parallel | 1000 |
-| `kafka_topic` | Topic to emit RDF changes | wikibase.rdf_change |
-| `change_detection_enabled` | Enable/disable change detection | true |
-| `use_mediawiki_events` | Consume MediaWiki events directly | false |
-
----
-
-### Service 2: JSON→RDF Converter
+## Service 1: JSON→RDF Converter
 
 **Purpose**: Convert Wikibase JSON snapshots to RDF (Turtle format) using streaming generation
 
@@ -248,7 +133,7 @@ def json_stream_to_rdf_turtle(json_input: io.TextIO, ttl_output: io.TextIO):
 
 ---
 
-### Service 3: Weekly Dump Generator
+## Service 2: Weekly Dump Generator
 
 **Purpose**: Generate weekly dumps of all entities in both JSON and RDF formats as standalone S3 files
 
@@ -396,62 +281,33 @@ s3://wikibase-dumps/
 
 ---
 
-### Service 4: Continuous RDF Change Streamer
+## Service 3: Continuous RDF Change Streamer
 
-**Purpose**: Convert JSON changes to RDF patches and stream continuously
+See [CONTINUOUS-RDF-CHANGE-STREAMER.md](./CONTINUOUS-RDF-CHANGE-STREAMER.md) for complete documentation.
+
+**Purpose**: Convert entity changes to RDF patches and stream continuously
 
 **Architecture**:
 ```
-Snapshot Change Detector Service
-           ↓ (json_change events)
-      JSON→RDF Converter
-           ↓
-     Compute RDF Diff (between two RDF representations)
-           ↓
-      Emit rdf_change events (Kafka)
-           ↓
-  WDQS Consumer / Other Consumers
-           ↓
-       Apply patches to Blazegraph
+Change Detection Service (see MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md)
+            ↓ (entity change events)
+       JSON→RDF Converter
+            ↓
+      Compute RDF Diff (between two RDF representations)
+            ↓
+       Emit rdf_change events (Kafka)
+            ↓
+   WDQS Consumer / Other Consumers
+            ↓
+        Apply patches to Blazegraph
 ```
 
-**Reuse Existing Schema** (`rdf_change/2.0.0`):
-```yaml
-# Continuous change event
-$schema: /mediawiki/wikibase/entity/rdf_change/2.0.0
-entity_id: "Q42"
-operation: "diff"  # or "import" for weekly dumps
-rev_id: 327
-sequence: 0
-sequence_length: 1
-rdf_added_data:
-  data: |
-    <http://www.wikidata.org/entity/Q42> rdfs:label "New Label"@en .
-    <http://www.wikidata.org/entity/Q42> p:P31 <http://www.wikidata.org/entity/Q5> .
-  mime_type: text/turtle
-rdf_deleted_data:
-  data: |
-    <http://www.wikidata.org/entity/Q42> rdfs:label "Old Label"@en .
-    <http://www.wikidata.org/entity/Q42> p:P31 <http://www.wikidata.org/entity/Q123> .
-  mime_type: text/turtle
-```
-
-**Weekly Dump as rdf_change** (operation: import):
-```yaml
-# Weekly dump can emit import events for each entity
-entity_id: "Q42"
-operation: "import"
-rev_id: 327
-rdf_added_data:
-  data: |
-    <http://www.wikidata.org/entity/Q42> a wikibase:Item ;
-      rdfs:label "Label"@en ;
-      schema:description "Description"@en ;
-      p:P31 <http://www.wikidata.org/entity/Q5> ;
-      p:P569 "1952-03-11"^^xsd:date .
-  mime_type: text/turtle
-# No rdf_deleted_data for import
-```
+**Key Features**:
+- Real-time RDF diff computation using Option A (Full RDF Convert + Diff)
+- Import mode for large entities (>10K triples)
+- Event-driven architecture with Kafka
+- Scalable parallel processing
+- Comprehensive error handling and monitoring
 
 ---
 
@@ -473,57 +329,37 @@ rdf_added_data:
 │                           ↓                                       │
 │                  Emit MediaWiki Change Event (existing)              │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    │
-                                    ▼
+                                     │
+                                     │ Change Detection Service
+                                     │ (see MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md)
+                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  [NEW] Change Detection + RDF Generation Service                 │
+│  RDF Generation Services                                         │
 │                                                                  │
-│                    Poll entity_head (recent updates)                     │
-│                            ↓                                     │
-│              Query entity_revisions for previous revision                   │
-│                            ↓                                     │
-│                    Fetch S3 snapshots (current + previous)                │
+│                    Entity Changes (from Change Detection)               │
 │                            ↓                                     │
 │              ┌──────────────┴─────────────────────────┐                 │
 │              ↓                                      │                  │
-│         Compute JSON Diff                          Convert to RDF (Turtle)    │
-│              ↓                                      │                  │
-│         Emit rdf_change events (Kafka)              Compute RDF diff          │
-│              ↓                                      │                  │
-│                                                         │            │
-│                                                         ↓            │
-│                                      Emit rdf_change events (diff or import)│
+│    Continuous RDF Change Stream          Weekly RDF Dump Service    │
+│         (Real-time)                        (Scheduled)                │
+│              ↓                                      ↓                  │
+│    JSON→RDF Converter              JSON→Turtle Dump Converter       │
+│              ↓                                      ↓                  │
+│    Compute RDF Diff                      Batch RDF Generation          │
+│              ↓                                      ↓                  │
+│    Emit rdf_change events              Write S3: full.ttl           │
+│    (Kafka)                              (with metadata)               │
 └─────────────────────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│  Weekly RDF Dump Service                                  │
-│                                                                  │
-│  Trigger: Weekly Cron                                             │
-│                     ↓                                            │
-│         Query entity_head (all entities)                             │
-│                     ↓                                            │
-│         Batch fetch S3 snapshots                                      │
-│                     ↓                                            │
-│              ┌──────────────────────────────────────┐                  │
-│              ↓                                      │                  │
-│         JSON Dump                          RDF (Turtle) Dump      │
-│              ↓                                      │                  │
-│         Write S3: full.json                  Write S3: full.ttl │
-│                                                         │            │
-│              (with metadata)                     (with metadata)    │
-└─────────────────────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
+                             │
+                             ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                       Kafka Topic                                │
 │                                                                  │
 │  Topic: wikibase.rdf_change (reuse or new)                         │
 │                                                                  │
 └─────────────────────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
+                             │
+                             ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                    Consumers                                      │
 │                                                                  │
@@ -545,39 +381,43 @@ rdf_added_data:
 
 | Component | Inputs | Outputs | Technology |
 |-----------|---------|----------|------------|
-| **Change Detection + RDF Generation** | entity_head + entity_revisions + S3 snapshots | `rdf_change` events (Kafka) | Python/Scala/Go |
+| **Change Detection** | entity_head + entity_revisions + S3 snapshots | Entity change events | See MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md |
+| **JSON→RDF Converter** | Entity JSON snapshots | RDF (Turtle format) | Python/Scala/Java |
 | **Weekly RDF Dump Service** | entity_head + S3 snapshots (all recent entities) | S3: weekly JSON + RDF dump files | Python/Scala |
+| **Continuous RDF Change Streamer** | Entity change events | `rdf_change` events (Kafka) | Python/Scala/Go |
 | **Existing WDQS Consumer** | `rdf_change` events (Kafka) | Apply patches to Blazegraph | Java (existing) |
 
 ---
 
 ## Implementation Phases
 
-### Phase 1: Foundation (1-2 weeks)
-- [ ] Implement S3 snapshot fetcher (use existing S3 URIs from Vitess)
-- [ ] Create JSON diff library wrapper
-- [ ] Set up Kafka topics for `rdf_change` events
-- [ ] Implement `entity_head` polling logic
+### Phase 1: Change Detection (2-3 weeks)
+- See [MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md](./MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md) for implementation details
+- Build Change Detector service
+- Implement entity_head polling logic
+- Add metrics and monitoring
+- Deploy to staging
 
-### Phase 2: Change Detection (2-3 weeks)
-- [ ] Build Snapshot Change Detector service
-- [ ] Implement entity_head polling logic
-- [ ] Add metrics and monitoring
-- [ ] Deploy to staging
-
-### Phase 3: RDF Conversion (2-3 weeks)
+### Phase 2: RDF Conversion (2-3 weeks)
 - [ ] Implement JSON→Turtle converter
 - [ ] Test conversion fidelity with Wikidata examples
-- [ ] Build RDF diff computation (using Jena/RDF4J)
+- [ ] Build RDF diff computation (using Jena/RDF4J) - see [RDF-DIFF-STRATEGY.md](./RDF-DIFF-STRATEGY.md)
 - [ ] Validate RDF output against Blazegraph
 
-### Phase 4: Weekly Dumps (2-3 weeks)
+### Phase 3: Weekly Dumps (2-3 weeks)
 - [ ] Implement batch fetch logic
 - [ ] Build JSON dump formatter
 - [ ] Build RDF dump formatter
 - [ ] Add compression and S3 upload
 - [ ] Set up weekly cron schedule
 - [ ] Implement manifest and checksum generation
+
+### Phase 4: Continuous RDF Streaming (2 weeks)
+- See [CONTINUOUS-RDF-CHANGE-STREAMER.md](./CONTINUOUS-RDF-CHANGE-STREAMER.md) for implementation details
+- [ ] Integrate Change Detection with RDF Converter
+- [ ] Implement event consumption and emission
+- [ ] Set up monitoring and metrics
+- [ ] Deploy to staging
 
 ### Phase 5: Integration & Testing (2 weeks)
 - [ ] Integrate all components
@@ -592,7 +432,7 @@ rdf_added_data:
 
 | Benefit | Description |
 |----------|-------------|
-| **MediaWiki Independence** | Compute changes directly from S3+Vitess, no MediaWiki API dependency |
+| **MediaWiki Independence** | See [MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md](./MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md) |
 | **Backfill Capable** | Can process historical changes from any point in time |
 | **Deterministic** | Based on immutable snapshots and ordered revision metadata |
 | **Scalable** | All services can scale independently (S3, Vitess, Kafka) |
@@ -609,35 +449,7 @@ rdf_added_data:
 4. **Performance Targets**: Latency targets for change detection? What's acceptable polling interval?
 5. **Weekly Dump Partitioning**: Single file vs. multiple partitions at 1M entities/week scale? Multiple
 6. **Consumer Coordination**: Should we use existing MediaWiki events or S3-based change detection (or both)? existing if possible at first
-7. **RDF Change Strategy**: Use Option A (Full RDF Convert + Diff) at Scale
-
-**Recommendation**: Full convert both snapshots to RDF and compute diff using proven RDF libraries (Jena, RDF4J)
-
-**Rationale over Option B (JSON→RDF operation mapping)**:
-- **Extremely error-prone** at Wikibase scale - entities have complex nested structures (claims, qualifiers, references)
-- **Edge cases are hard** - claim removal affects references, qualifier changes affect multiple triples
-- **No efficiency gain** - With streaming RDF conversion (line-by-line), you're reading full JSON anyway to generate complete RDF
-- **Mapping bugs corrupt data** - If you miss converting a dependent triple, downstream consumers get inconsistent state
-
-**Why Option A works better at scale**:
-1. **Simpler implementation** - Use proven RDF diff libraries (Jena RDF Patch, RDF4J)
-2. **Better reliability** - Correctness is more important than efficiency when dealing with 1B+ entities
-3. **Easier iteration** - Easier to debug and extend
-4. **Streaming approach mitigates memory** - Convert both revisions to RDF with streaming (line-by-line), then diff using memory-efficient algorithms
-
-**Optimized flow**:
-```
-1. Stream from_snapshot JSON → RDF (Turtle, line-by-line)
-2. Stream to_snapshot JSON → RDF (Turtle, line-by-line)
-3. Load both RDF into in-memory graph structures
-4. Compute RDF diff using proven library
-5. Emit rdf_change event with added/deleted triples
-```
-
-**Hybrid optimization for very large entities**: If an entity has > 10K triples:
-- Consider emitting `operation: import` for the new revision instead of `diff`
-- Let consumer handle full replacement (effectively a full re-convert)
-- This bypasses diff computation for the heaviest entities while still providing correct state 
+7. **RDF Change Strategy**: See [RDF-DIFF-STRATEGY.md](./RDF-DIFF-STRATEGY.md) for details on Option A (Full RDF Convert + Diff)
 
 ---
 
@@ -657,6 +469,9 @@ This requires no change detection at all - just convert MediaWiki events to RDF 
 
 - [ARCHITECTURE.md](./ARCHITECTURE.md) - Core architecture principles
 - [STORAGE-ARCHITECTURE.md](./STORAGE-ARCHITECTURE.md) - S3 + Vitess storage model
+- [MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md](./MEDIAWIKI-INDEPENDENT-CHANGE-DETECTION.md) - Change detection service documentation
+- [CONTINUOUS-RDF-CHANGE-STREAMER.md](./CONTINUOUS-RDF-CHANGE-STREAMER.md) - Continuous RDF change streamer service
+- [RDF-DIFF-STRATEGY.md](./RDF-DIFF-STRATEGY.md) - RDF diff strategy (Option A: Full Convert + Diff)
 - [CHANGE-NOTIFICATION.md](./CHANGE-NOTIFICATION.md) - Existing event notification system
 - [SCHEMAS-EVENT-PRIMARY-SUMMARY.md](../SCHEMAS-EVENT-PRIMARY-SUMMARY.md) - RDF change schema documentation
 - [STREAMING-UPDATER-PRODUCER.md](../STREAMING-UPDATER-PRODUCER.md) - Existing MediaWiki→RDF pipeline
