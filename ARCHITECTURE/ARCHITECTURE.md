@@ -24,7 +24,6 @@ Everything else in the system derives from this rule.
 - [BULK-OPERATIONS.md](./BULK-OPERATIONS.md) - bulk operations
 - [CACHING-STRATEGY.md](./CACHING-STRATEGY.md) - caching strategy and cost control
 - [ENTITY-MODEL.md](./ENTITY-MODEL.md) - Hybrid ID strategy (ulid-flake + Q123)
-- [SCHEMA-CHANGELOG.md](./SCHEMA-CHANGELOG.md) - S3 entity JSON schema changes
 - [CHANGE-NOTIFICATION.md](./CHANGE-NOTIFICATION.md) - change notification and event streaming
 - [CONCEPTUAL-MODEL.md](./CONCEPTUAL-MODEL.md) - conceptual model
 - [CONCURRENCY-CONTROL.md](./CONCURRENCY-CONTROL.md) - concurrency control details
