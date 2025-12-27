@@ -76,7 +76,7 @@ def create_entity(request: EntityCreateRequest):
     clients.s3.write_snapshot(
         entity_id=external_id,
         revision_id=new_revision_id,
-        data=json.dumps(request.data),
+        data=request.data,
         publication_state="pending"
     )
     clients.vitess.insert_revision(internal_id, new_revision_id)
@@ -115,7 +115,7 @@ def get_entity(entity_id: str):
     
     snapshot = clients.s3.read_snapshot(entity_id, head_revision_id)
     
-    return EntityResponse(id=entity_id, revision_id=head_revision_id, data=snapshot.data)
+    return EntityResponse(id=entity_id, revision_id=head_revision_id, data=json.loads(snapshot.data))
 
 
 # noinspection PyUnresolvedReferences
@@ -132,7 +132,7 @@ def get_entity_history(entity_id: str):
     
     history = clients.vitess.get_history(internal_id)
     
-    return [RevisionMetadata(revision_id=row[0], created_at=str(row[1])) for row in history]
+    return [RevisionMetadata(revision_id=record.revision_id, created_at=record.created_at) for record in history]
 
 
 # noinspection PyUnresolvedReferences
@@ -145,4 +145,4 @@ def get_entity_revision(entity_id: str, revision_id: int):
     
     snapshot = clients.s3.read_snapshot(entity_id, revision_id)
     
-    return snapshot.data
+    return json.loads(snapshot.data)
