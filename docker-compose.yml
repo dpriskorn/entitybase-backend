@@ -96,3 +96,27 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+
+  entity-api:
+    build: ./src
+    container_name: entity-api
+    ports:
+      - "8000:8000"
+    depends_on:
+      seaweedfs:
+        condition: service_healthy
+      s3-create-bucket:
+        condition: service_completed_successfully
+      vitess:
+        condition: service_healthy
+    environment:
+      S3_ENDPOINT: http://seaweedfs:8333
+      S3_ACCESS_KEY: fakekey
+      S3_SECRET_KEY: fakesecret
+      S3_BUCKET: testbucket
+      VITESS_HOST: vitess
+      VITESS_PORT: 15309
+      VITESS_DATABASE: page
+      VITESS_USER: root
+      VITESS_PASSWORD: ""
+    command: uvicorn services.entity-api.main:app --host 0.0.0.0 --port 8000

@@ -1,7 +1,12 @@
-wikidata-query-rdf
+# repo related
+df
 mediawiki-extensions-EventBus
 KafkaSSE
 eventstreams
 eventgate
 schemas-event-primary
+
+# code related
 .idea
+.env
+config.py
