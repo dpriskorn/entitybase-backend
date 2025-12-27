@@ -1,7 +1,7 @@
 import sys
-sys.path.insert(0, 'src')
-
 from fastapi.testclient import TestClient
+
+sys.path.insert(0, 'src')
 
 
 def test_app_loads():

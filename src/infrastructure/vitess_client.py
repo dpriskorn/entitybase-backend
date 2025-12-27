@@ -4,13 +4,6 @@ from pydantic import BaseModel, Field
 
 from services.shared.models.vitess_models import (
     VitessConfig,
-    RegisterEntityRequest,
-    RegisterEntityResponse,
-    GetHeadRequest,
-    GetHeadResponse,
-    CASUpdateHeadRequest,
-    InsertRevisionRequest,
-    GetHistoryRequest,
     HistoryRecord
 )
 
@@ -68,70 +61,69 @@ class VitessClient(BaseModel):
         
         cursor.close()
     
-    def register_entity(self, request: RegisterEntityRequest) -> RegisterEntityResponse:
+    def register_entity(self, external_id: str, internal_id: int) -> None:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO entity_id_mapping (external_id, internal_id) VALUES (%s, %s)",
-            (request.external_id, request.internal_id)
+            (external_id, internal_id)
         )
         cursor.close()
-        return RegisterEntityResponse(success=True)
     
-    def resolve_id(self, request: GetHeadRequest) -> GetHeadResponse:
+    def resolve_id(self, external_id: str) -> int | None:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "SELECT internal_id FROM entity_id_mapping WHERE external_id = %s",
-            (request.entity_id,)
+            (external_id,)
         )
         result = cursor.fetchone()
         cursor.close()
-        return GetHeadResponse(head_revision_id=result[0] if result else None)
+        return result[0] if result else None
     
-    def get_head(self, request: GetHeadRequest) -> GetHeadResponse:
+    def get_head(self, entity_id: int) -> int | None:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "SELECT head_revision_id FROM entity_head WHERE entity_id = %s",
-            (request.entity_id,)
+            (entity_id,)
         )
         result = cursor.fetchone()
         cursor.close()
-        return GetHeadResponse(head_revision_id=result[0] if result else None)
+        return result[0] if result else None
     
-    def cas_update_head(self, request: CASUpdateHeadRequest) -> bool:
+    def cas_update_head(self, entity_id: int, old_revision_id: int | None, new_revision_id: int) -> bool:
         conn = self.connect()
         cursor = conn.cursor()
-        if request.old_revision_id is None:
+        if old_revision_id is None:
             cursor.execute(
                 "INSERT INTO entity_head (entity_id, head_revision_id) VALUES (%s, %s)",
-                (request.entity_id, request.new_revision_id)
+                (entity_id, new_revision_id)
             )
         else:
             cursor.execute(
                 "UPDATE entity_head SET head_revision_id = %s WHERE entity_id = %s AND head_revision_id = %s",
-                (request.new_revision_id, request.entity_id, request.old_revision_id)
+                (new_revision_id, entity_id, old_revision_id)
             )
         success = cursor.rowcount > 0
         cursor.close()
         return success
     
-    def insert_revision(self, request: InsertRevisionRequest) -> None:
+    def insert_revision(self, entity_id: int, revision_id: int) -> None:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO entity_revisions (entity_id, revision_id) VALUES (%s, %s)",
-            (request.entity_id, request.revision_id)
+            (entity_id, revision_id)
         )
         cursor.close()
     
-    def get_history(self, request: GetHistoryRequest) -> list[HistoryRecord]:
+    def get_history(self, entity_id: int) -> list[HistoryRecord]:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "SELECT revision_id, created_at FROM entity_revisions WHERE entity_id = %s ORDER BY revision_id",
-            (request.entity_id,)
+            (entity_id,)
         )
         result = [HistoryRecord(revision_id=row[0], created_at=str(row[1])) for row in cursor.fetchall()]
         cursor.close()

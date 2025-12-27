@@ -7,9 +7,7 @@ from pydantic import BaseModel, Field
 from services.shared.models.s3_models import (
     S3Config,
     SnapshotMetadata,
-    SnapshotCreateRequest,
-    SnapshotReadResponse,
-    SnapshotUpdateRequest
+    SnapshotReadResponse
 )
 
 
@@ -50,14 +48,14 @@ class S3Client(BaseModel):
             print(f"Unexpected error checking/creating bucket {self.config.bucket}: {e}")
             raise
     
-    def write_snapshot(self, request: SnapshotCreateRequest) -> SnapshotMetadata:
+    def write_snapshot(self, entity_id: str, revision_id: int, data: str, publication_state: str = "pending") -> SnapshotMetadata:
         import json
-        key = f"{request.entity_id}/r{request.revision_id}.json"
+        key = f"{entity_id}/r{revision_id}.json"
         self.client.put_object(
             Bucket=self.config.bucket,
             Key=key,
-            Body=json.dumps(request.data),
-            Metadata={"publication_state": request.publication_state}
+            Body=json.dumps(data),
+            Metadata={"publication_state": publication_state}
         )
         return SnapshotMetadata(key=key)
     
@@ -70,12 +68,12 @@ class S3Client(BaseModel):
             data=response["Body"].read().decode("utf-8")
         )
     
-    def mark_published(self, request: SnapshotUpdateRequest) -> None:
-        key = f"{request.entity_id}/r{request.revision_id}.json"
+    def mark_published(self, entity_id: str, revision_id: int, publication_state: str) -> None:
+        key = f"{entity_id}/r{revision_id}.json"
         self.client.copy_object(
             Bucket=self.config.bucket,
             CopySource={"Bucket": self.config.bucket, "Key": key},
             Key=key,
-            Metadata={"publication_state": request.publication_state},
+            Metadata={"publication_state": publication_state},
             MetadataDirective="REPLACE"
         )

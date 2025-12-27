@@ -43,6 +43,7 @@ class Settings(BaseSettings):
         )
 
 
+# noinspection PyArgumentList
 settings = Settings()
 
 logger.debug("=== Settings Debug ===")

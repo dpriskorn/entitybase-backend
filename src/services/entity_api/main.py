@@ -27,7 +27,7 @@ class Clients(BaseModel):
         super().__init__(s3=S3Client(s3), vitess=VitessClient(vitess), **kwargs)
 
 
-# noinspection PyShadowingNames
+# noinspection PyShadowingNames,PyUnresolvedReferences
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     app.state.clients = Clients(
@@ -42,6 +42,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
+# noinspection PyUnresolvedReferences
 @app.get("/health")
 def health_check():
     clients = app.state.clients
@@ -52,6 +53,7 @@ def health_check():
     }
 
 
+# noinspection PyUnresolvedReferences
 @app.post("/entity", response_model=EntityResponse)
 def create_entity(request: EntityCreateRequest):
     clients = app.state.clients
@@ -92,6 +94,7 @@ def create_entity(request: EntityCreateRequest):
     return EntityResponse(id=external_id, revision_id=new_revision_id, data=request.data)
 
 
+# noinspection PyUnresolvedReferences
 @app.get("/entity/{entity_id}", response_model=EntityResponse)
 def get_entity(entity_id: str):
     clients = app.state.clients
@@ -115,6 +118,7 @@ def get_entity(entity_id: str):
     return EntityResponse(id=entity_id, revision_id=head_revision_id, data=snapshot.data)
 
 
+# noinspection PyUnresolvedReferences
 @app.get("/entity/{entity_id}/history", response_model=list[RevisionMetadata])
 def get_entity_history(entity_id: str):
     clients = app.state.clients
@@ -131,6 +135,7 @@ def get_entity_history(entity_id: str):
     return [RevisionMetadata(revision_id=row[0], created_at=str(row[1])) for row in history]
 
 
+# noinspection PyUnresolvedReferences
 @app.get("/entity/{entity_id}/revision/{revision_id}", response_model=Dict[str, Any])
 def get_entity_revision(entity_id: str, revision_id: int):
     clients = app.state.clients
