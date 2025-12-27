@@ -8,3 +8,4 @@
 - Use Python Pydantic and FastAPI framework 
 - All code is Pydantic classes except main.py in every service
 - Start small and simple, iterate in small steps
+- No threat model, everybody is playing nice
