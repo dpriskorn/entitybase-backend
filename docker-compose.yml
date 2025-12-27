@@ -1,0 +1,98 @@
+services:
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs
+    ports:
+      - "9333:9333"   # Master HTTP
+      - "8081:8080"   # Volume HTTP / UI
+      - "8888:8888"   # Filer HTTP (S3 backend)
+      - "8333:8333"   # S3 Gateway
+      - "18080:18080" # Volume / Master Web UI
+    volumes:
+      - ./seaweedfs_data:/data
+    command: server -dir=/data -s3
+    environment:
+      WEED_S3_ACCESS_KEY: fakekey
+      WEED_S3_SECRET_KEY: fakesecret
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8333"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    #restart: unless-stopped
+
+  s3-init:
+    image: minio/mc
+    depends_on:
+      seaweedfs:
+        condition: service_healthy
+    command: ["mc", "alias", "set", "s3seaweed", "http://seaweedfs:8333", "fakekey", "fakesecret"]
+
+  s3-create-bucket:
+    image: minio/mc
+    depends_on:
+      s3-init:
+        condition: service_completed_successfully
+    network_mode: "service:seaweedfs"
+    entrypoint: ["/bin/sh", "-c"]
+    command: |
+      set -e
+
+      echo "Creating bucket (if not exists)..."
+      mc mb --ignore-existing s3seaweed/testbucket
+
+      echo "Writing test object..."
+      echo "ok" | mc pipe s3seaweed/testbucket/healthcheck.txt
+
+      echo "Verifying test object..."
+      mc stat s3seaweed/testbucket/healthcheck.txt
+
+      echo "S3 health check passed"
+
+  # -- Valkey --
+  valkey:
+    image: valkey/valkey:latest
+    container_name: valkey
+    ports:
+      - "6379:6379"
+    command: >
+      valkey-server
+      --requirepass valkeypass
+    healthcheck:
+      test: ["CMD", "valkey-cli", "-a", "valkeypass", "PING"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  vitess:
+    image: vitess/vttestserver:mysql80
+    container_name: vitess
+    environment:
+      KEYSPACES: page
+      NUM_SHARDS: 2
+      PORT: 15306
+      MYSQL_BIND_HOST: 0.0.0.0
+      CHARSET: utf8mb4
+      MYSQL_MAX_CONNECTIONS: 1000
+      FOREIGN_KEY_MODE: disallow
+    ports:
+      # vtgate MySQL protocol → PORT + 3
+      - "15309:15309"
+
+      # optional: raw MySQL for debug (PORT + 1)
+      - "15307:15307"
+    healthcheck:
+      test:
+        [
+        "CMD",
+        "mysql",
+        "-h",
+        "127.0.0.1",
+        "-P",
+        "15309",
+        "-e",
+        "select 1"
+      ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
