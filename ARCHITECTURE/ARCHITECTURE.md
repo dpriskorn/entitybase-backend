@@ -30,7 +30,8 @@ Everything else in the system derives from this rule.
 - [CONSISTENCY-MODEL.md](./CONSISTENCY-MODEL.md) - consistency model and failure recovery
 - [S3-ENTITY-DELETION.md](./S3-ENTITY-DELETION.md) - entity deletion
 - [S3-REVISION-ID-STRATEGY.md](./S3-REVISION-ID-STRATEGY.md) - revision ID strategy
-- [S3-REVISION-SCHEMA-CHANGELOG.md](./S3-REVISION-SCHEMA-CHANGELOG.md) - schema change history and migration guides
-- [S3-REVISION-SCHEMA-EVOLUTION.md](./S3-REVISION-SCHEMA-EVOLUTION.md) - schema evolution and migration
-- [STORAGE-ARCHITECTURE.md](./STORAGE-ARCHITECTURE.md) - storage architecture
+ - [S3-REVISION-SCHEMA-CHANGELOG.md](./S3-REVISION-SCHEMA-CHANGELOG.md) - schema change history and migration guides
+ - [S3-REVISION-SCHEMA-EVOLUTION.md](./S3-REVISION-SCHEMA-EVOLUTION.md) - schema evolution and migration
+ - [STORAGE-ARCHITECTURE.md](./STORAGE-ARCHITECTURE.md) - storage architecture
+ - [../ARCHITECTURE-CHANGELOG.md](../ARCHITECTURE-CHANGELOG.md) - architectural changes and feature additions
 
