@@ -6,10 +6,13 @@ WORKDIR /app
 
 ENV PYTHONPATH=/app/src
 
-COPY pyproject.toml poetry.lock ./
-RUN pip install poetry && \
-    poetry config virtualenvs.create false && \
-    POETRY_NO_CACHE=1 poetry install --no-root
+RUN pip install --no-cache-dir \
+    "pydantic>=2.12.5,<3.0.0" \
+    "fastapi>=0.127.1,<0.128.0" \
+    "pydantic-settings>=2.12.0,<3.0.0" \
+    "boto3>=1.42.17,<2.0.0" \
+    "pymysql>=1.1.2,<2.0.0" \
+    "uvicorn>=0.40.0,<0.41.0"
 
 COPY ./src/ ./src/
 

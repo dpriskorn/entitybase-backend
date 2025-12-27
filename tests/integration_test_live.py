@@ -1,6 +1,6 @@
-import requests
 import time
-from typing import Dict, Any
+
+import requests
 
 
 class TestLiveIntegration:

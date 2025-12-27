@@ -1,28 +1,44 @@
+from typing import Any, Optional
 import pymysql
+from pydantic import BaseModel, Field
+
+from services.shared.models.vitess_models import (
+    VitessConfig,
+    RegisterEntityRequest,
+    RegisterEntityResponse,
+    GetHeadRequest,
+    GetHeadResponse,
+    CASUpdateHeadRequest,
+    InsertRevisionRequest,
+    GetHistoryRequest,
+    HistoryRecord
+)
 
 
-class VitessClient:
-    def __init__(self, host: str, port: int, database: str, user: str = "root", password: str = ""):
-        self.host = host
-        self.port = port
-        self.database = database
-        self.user = user
-        self.password = password
+class VitessClient(BaseModel):
+    config: VitessConfig
+    connection: Optional[Any] = Field(default=None, exclude=True)
+    
+    class Config:
+        arbitrary_types_allowed = True
+    
+    def __init__(self, config: VitessConfig, **kwargs):
+        super().__init__(config=config, **kwargs)
         self.connection = None
         self._create_tables()
-
+    
     def connect(self):
         if not self.connection:
             self.connection = pymysql.connect(
-                host=self.host,
-                port=self.port,
-                user=self.user,
-                passwd=self.password,
-                database=self.database,
+                host=self.config.host,
+                port=self.config.port,
+                user=self.config.user,
+                passwd=self.config.password,
+                database=self.config.database,
                 autocommit=True
             )
         return self.connection
-
+    
     def _create_tables(self):
         conn = self.connect()
         cursor = conn.cursor()
@@ -51,71 +67,72 @@ class VitessClient:
         """)
         
         cursor.close()
-
-    def register_entity(self, external_id: str, internal_id: int) -> None:
+    
+    def register_entity(self, request: RegisterEntityRequest) -> RegisterEntityResponse:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO entity_id_mapping (external_id, internal_id) VALUES (%s, %s)",
-            (external_id, internal_id)
+            (request.external_id, request.internal_id)
         )
         cursor.close()
-
-    def resolve_id(self, external_id: str) -> int | None:
+        return RegisterEntityResponse(success=True)
+    
+    def resolve_id(self, request: GetHeadRequest) -> GetHeadResponse:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "SELECT internal_id FROM entity_id_mapping WHERE external_id = %s",
-            (external_id,)
+            (request.entity_id,)
         )
         result = cursor.fetchone()
         cursor.close()
-        return result[0] if result else None
-
-    def get_head(self, entity_id: int) -> int | None:
+        return GetHeadResponse(head_revision_id=result[0] if result else None)
+    
+    def get_head(self, request: GetHeadRequest) -> GetHeadResponse:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "SELECT head_revision_id FROM entity_head WHERE entity_id = %s",
-            (entity_id,)
+            (request.entity_id,)
         )
         result = cursor.fetchone()
         cursor.close()
-        return result[0] if result else None
-
-    def cas_update_head(self, entity_id: int, old_revision_id: int | None, new_revision_id: int) -> bool:
+        return GetHeadResponse(head_revision_id=result[0] if result else None)
+    
+    def cas_update_head(self, request: CASUpdateHeadRequest) -> bool:
         conn = self.connect()
         cursor = conn.cursor()
-        if old_revision_id is None:
+        if request.old_revision_id is None:
             cursor.execute(
                 "INSERT INTO entity_head (entity_id, head_revision_id) VALUES (%s, %s)",
-                (entity_id, new_revision_id)
+                (request.entity_id, request.new_revision_id)
             )
         else:
             cursor.execute(
                 "UPDATE entity_head SET head_revision_id = %s WHERE entity_id = %s AND head_revision_id = %s",
-                (new_revision_id, entity_id, old_revision_id)
+                (request.new_revision_id, request.entity_id, request.old_revision_id)
             )
         success = cursor.rowcount > 0
         cursor.close()
         return success
-
-    def insert_revision(self, entity_id: int, revision_id: int) -> None:
+    
+    def insert_revision(self, request: InsertRevisionRequest) -> None:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO entity_revisions (entity_id, revision_id) VALUES (%s, %s)",
-            (entity_id, revision_id)
+            (request.entity_id, request.revision_id)
         )
         cursor.close()
-
-    def get_history(self, entity_id: int) -> list[tuple[int, str]]:
+    
+    def get_history(self, request: GetHistoryRequest) -> list[HistoryRecord]:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "SELECT revision_id, created_at FROM entity_revisions WHERE entity_id = %s ORDER BY revision_id",
-            (entity_id,)
+            (request.entity_id,)
         )
-        result = list(cursor.fetchall())
+        result = [HistoryRecord(revision_id=row[0], created_at=str(row[1])) for row in cursor.fetchall()]
         cursor.close()
         return result
