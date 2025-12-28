@@ -1,7 +1,7 @@
 import json
 from contextlib import asynccontextmanager
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from rapidhash import rapidhash
 
@@ -13,6 +13,7 @@ from infrastructure.ulid_flake import generate_ulid_flake
 from infrastructure.vitess_client import VitessClient
 from services.shared.config.settings import settings
 from services.shared.models.entity import (
+    EditType,
     EntityCreateRequest,
     EntityResponse,
     RevisionMetadata
@@ -92,9 +93,45 @@ def create_entity(request: EntityCreateRequest):
             head_revision = clients.s3.read_revision(external_id, head_revision_id)
             if head_revision.data.get("content_hash") == content_hash:
                 # Content unchanged, return existing revision
-                return EntityResponse(id=external_id, revision_id=head_revision_id, data=request.data)
+                return EntityResponse(
+                    id=external_id,
+                    revision_id=head_revision_id,
+                    data=request.data,
+                    is_semi_protected=head_revision.data.get("is_semi_protected", False),
+                    is_locked=head_revision.data.get("is_locked", False),
+                    is_archived=head_revision.data.get("is_archived", False),
+                    is_dangling=head_revision.data.get("is_dangling", False)
+                )
         except Exception:
             # Head revision not found or invalid, proceed with creation
+            pass
+    
+    # Check protection permissions
+    if head_revision_id is not None:
+        try:
+            current = clients.s3.read_revision(external_id, head_revision_id)
+            
+            # Archived items block all edits
+            if current.data.get("is_archived"):
+                raise HTTPException(403, "Item is archived and cannot be edited")
+            
+            # Locked items block all edits
+            if current.data.get("is_locked"):
+                raise HTTPException(403, "Item is locked from all edits")
+            
+            # Mass-edit protection blocks mass edits only
+            if current.data.get("is_mass_edit_protected") and request.is_mass_edit:
+                raise HTTPException(403, "Mass edits blocked on this item")
+            
+            # Semi-protection blocks not-autoconfirmed users
+            if current.data.get("is_semi_protected") and request.is_not_autoconfirmed_user:
+                raise HTTPException(
+                    403,
+                    "Semi-protected items cannot be edited by new or unconfirmed users"
+                )
+        except HTTPException:
+            raise
+        except Exception:
             pass
     
     new_revision_id = head_revision_id + 1 if head_revision_id else 1
@@ -106,8 +143,13 @@ def create_entity(request: EntityCreateRequest):
         "created_at": datetime.utcnow().isoformat() + "Z",
         "created_by": "entity-api",
         "is_mass_edit": is_mass_edit,
-        "edit_type": edit_type,
+        "edit_type": edit_type or EditType.UNSPECIFIED.value,
         "entity_type": request.data.get("type", "item"),
+        "is_semi_protected": request.is_semi_protected,
+        "is_locked": request.is_locked,
+        "is_archived": request.is_archived,
+        "is_dangling": request.is_dangling,
+        "is_mass_edit_protected": request.is_mass_edit_protected,
         "entity": request.data,
         "content_hash": content_hash
     }
@@ -118,9 +160,14 @@ def create_entity(request: EntityCreateRequest):
         data=revision_data,
         publication_state="pending"
     )
-    clients.vitess.insert_revision(internal_id, new_revision_id, is_mass_edit)
+    clients.vitess.insert_revision(internal_id, new_revision_id, is_mass_edit, edit_type or EditType.UNSPECIFIED.value)
     
-    success = clients.vitess.cas_update_head(internal_id, head_revision_id, new_revision_id)
+    success = clients.vitess.cas_update_head_with_status(
+        internal_id, head_revision_id, new_revision_id,
+        request.is_semi_protected, request.is_locked,
+        request.is_archived, request.is_dangling,
+        request.is_mass_edit_protected
+    )
     if not success:
         raise HTTPException(status_code=409, detail="Concurrent modification detected")
     
@@ -130,7 +177,16 @@ def create_entity(request: EntityCreateRequest):
         publication_state="published"
     )
     
-    return EntityResponse(id=external_id, revision_id=new_revision_id, data=request.data)
+    return EntityResponse(
+        id=external_id,
+        revision_id=new_revision_id,
+        data=request.data,
+        is_semi_protected=request.is_semi_protected,
+        is_locked=request.is_locked,
+        is_archived=request.is_archived,
+        is_dangling=request.is_dangling,
+        is_mass_edit_protected=request.is_mass_edit_protected
+    )
 
 
 # noinspection PyUnresolvedReferences
@@ -157,7 +213,16 @@ def get_entity(entity_id: str):
     # Extract entity from full revision schema (data is already parsed dict)
     entity_data = revision.data["entity"]
     
-    return EntityResponse(id=entity_id, revision_id=head_revision_id, data=entity_data)
+    return EntityResponse(
+        id=entity_id,
+        revision_id=head_revision_id,
+        data=entity_data,
+        is_semi_protected=revision.data.get("is_semi_protected", False),
+        is_locked=revision.data.get("is_locked", False),
+        is_archived=revision.data.get("is_archived", False),
+        is_dangling=revision.data.get("is_dangling", False),
+        is_mass_edit_protected=revision.data.get("is_mass_edit_protected", False)
+    )
 
 
 # noinspection PyUnresolvedReferences
@@ -243,3 +308,30 @@ def get_raw_revision(entity_id: str, revision_id: int):
     
     # Return full revision as-is (no transformation)
     return revision
+
+
+# noinspection PyUnresolvedReferences
+@app.get("/entities")
+def list_entities(
+    status: Optional[str] = None,
+    edit_type: Optional[str] = None,
+    limit: int = 100
+):
+    """Filter entities by status or edit_type"""
+    clients = app.state.clients
+    
+    if clients.vitess is None:
+        raise HTTPException(status_code=503, detail="Vitess not initialized")
+    
+    if status == "locked":
+        return clients.vitess.list_locked_entities(limit)
+    elif status == "semi_protected":
+        return clients.vitess.list_semi_protected_entities(limit)
+    elif status == "archived":
+        return clients.vitess.list_archived_entities(limit)
+    elif status == "dangling":
+        return clients.vitess.list_dangling_entities(limit)
+    elif edit_type:
+        return clients.vitess.list_by_edit_type(edit_type, limit)
+    else:
+        raise HTTPException(status_code=400, detail="Must provide status or edit_type filter")

@@ -24,6 +24,10 @@ class GetHeadRequest(BaseModel):
 
 class GetHeadResponse(BaseModel):
     head_revision_id: int | None
+    is_semi_protected: bool = False
+    is_locked: bool = False
+    is_archived: bool = False
+    is_dangling: bool = False
 
 
 class CASUpdateHeadRequest(BaseModel):

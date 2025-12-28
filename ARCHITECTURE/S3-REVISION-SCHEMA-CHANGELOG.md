@@ -50,7 +50,11 @@ This document tracks all S3 entity JSON schema version changes for Wikibase immu
 - `entity_type`: Entity type (item/property/lexeme)
 - `is_mass_edit`: Boolean flag for mass edit classification
 - `content_hash`: Rapidhash integer for deduplication
-- `edit_type`: Text classification of edit type (e.g., 'bot-import', 'cleanup-2025')
+- `edit_type`: Text classification of edit type (e.g., 'bot-import', 'cleanup-2025', 'lock-added')
+- `is_semi_protected`: Boolean for semi-protection status (locked from mass-edits only)
+- `is_locked`: Boolean for lock status (locked from all edits)
+- `is_archived`: Boolean for archive status (cannot be edited, can be excluded from exports)
+- `is_dangling`: Boolean for dangling status (no maintaining WikiProject, computed by frontend)
 
 ### Data Integrity
 

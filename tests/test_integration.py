@@ -350,3 +350,425 @@ def test_mass_edit_audit_trail(api_client: requests.Session, base_url: str) -> N
     assert raw_data2.get("edit_type") == ""
     
     logger.info("✓ Mass edit audit trail fields work correctly")
+
+
+def test_semi_protection_blocks_not_autoconfirmed_users(api_client: requests.Session, base_url: str) -> None:
+    """Semi-protected items should block not-autoconfirmed users"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90001",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Test"}}
+    }
+    
+    # Create semi-protected item
+    api_client.post(
+        f"{base_url}/entity",
+        json={**entity_data, "is_semi_protected": True}
+    )
+    
+    # Attempt edit by not-autoconfirmed user (should fail)
+    response = api_client.post(
+        f"{base_url}/entity",
+        json={
+            **entity_data,
+            "labels": {"en": {"language": "en", "value": "Updated"}},
+            "is_not_autoconfirmed_user": True
+        }
+    )
+    assert response.status_code == 403
+    assert "unconfirmed" in response.json()["detail"].lower()
+    
+    # Autoconfirmed user should be able to edit
+    response = api_client.post(
+        f"{base_url}/entity",
+        json={
+            **entity_data,
+            "labels": {"en": {"language": "en", "value": "Updated"}},
+            "is_not_autoconfirmed_user": False
+        }
+    )
+    assert response.status_code == 200
+    
+    logger.info("✓ Semi-protection blocks not-autoconfirmed users")
+
+
+def test_semi_protection_allows_autoconfirmed_users(api_client: requests.Session, base_url: str) -> None:
+    """Semi-protected items should allow autoconfirmed users to edit"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90001b",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Test"}}
+    }
+    
+    # Create semi-protected item
+    api_client.post(
+        f"{base_url}/entity",
+        json={**entity_data, "is_semi_protected": True}
+    )
+    
+    # Autoconfirmed user edit should succeed
+    response = api_client.post(
+        f"{base_url}/entity",
+        json={
+            **entity_data,
+            "labels": {"en": {"language": "en", "value": "Updated"}},
+            "is_not_autoconfirmed_user": False
+        }
+    )
+    assert response.status_code == 200
+    
+    logger.info("✓ Semi-protection allows autoconfirmed users")
+
+
+def test_locked_items_block_all_edits(api_client: requests.Session, base_url: str) -> None:
+    """Locked items should reject all edits"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90002",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Test"}}
+    }
+    
+    # Create locked item
+    api_client.post(
+        f"{base_url}/entity",
+        json={**entity_data, "is_locked": True}
+    )
+    
+    # Attempt manual edit (should fail)
+    response = api_client.post(
+        f"{base_url}/entity",
+        json={
+            **entity_data,
+            "labels": {"en": {"language": "en", "value": "Updated"}}
+        }
+    )
+    assert response.status_code == 403
+    assert "locked" in response.json()["detail"].lower()
+    
+    logger.info("✓ Locked items block all edits")
+
+
+def test_archived_items_block_all_edits(api_client: requests.Session, base_url: str) -> None:
+    """Archived items should reject all edits with distinct error"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90003",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Test"}}
+    }
+    
+    # Create archived item
+    api_client.post(
+        f"{base_url}/entity",
+        json={**entity_data, "is_archived": True}
+    )
+    
+    # Attempt edit (should fail)
+    response = api_client.post(
+        f"{base_url}/entity",
+        json={
+            **entity_data,
+            "labels": {"en": {"language": "en", "value": "Updated"}}
+        }
+    )
+    assert response.status_code == 403
+    assert "archived" in response.json()["detail"].lower()
+    
+    logger.info("✓ Archived items block all edits")
+
+
+def test_status_flags_stored_in_s3(api_client: requests.Session, base_url: str) -> None:
+    """All status flags should be stored in S3"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90004",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Test"}}
+    }
+    
+    api_client.post(
+        f"{base_url}/entity",
+        json={
+            **entity_data,
+            "is_semi_protected": True,
+            "is_locked": False,
+            "is_archived": False,
+            "is_dangling": True,
+            "is_mass_edit_protected": False
+        }
+    )
+    
+    raw = api_client.get(f"{base_url}/raw/Q90004/1").json()
+    assert raw["is_semi_protected"] == True
+    assert raw["is_locked"] == False
+    assert raw["is_archived"] == False
+    assert raw["is_dangling"] == True
+    assert raw["is_mass_edit_protected"] == False
+    
+    logger.info("✓ Status flags stored in S3")
+
+
+def test_status_flags_returned_in_response(api_client: requests.Session, base_url: str) -> None:
+    """Status flags should be returned in API response"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90005",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Test"}}
+    }
+    
+    api_client.post(
+        f"{base_url}/entity",
+        json={
+            **entity_data,
+            "is_semi_protected": True,
+            "is_locked": False,
+            "is_archived": False,
+            "is_dangling": False,
+            "is_mass_edit_protected": True
+        }
+    )
+    
+    response = api_client.get(f"{base_url}/entity/Q90005")
+    data = response.json()
+    assert data["is_semi_protected"] == True
+    assert data["is_locked"] == False
+    assert data["is_archived"] == False
+    assert data["is_dangling"] == False
+    assert data["is_mass_edit_protected"] == True
+    
+    logger.info("✓ Status flags returned in API response")
+
+
+def test_dangling_flag_set_by_frontend(api_client: requests.Session, base_url: str) -> None:
+    """is_dangling should be set by frontend, not computed by backend"""
+    logger = logging.getLogger(__name__)
+    
+    # Entity without P6104 (frontend sets is_dangling=True)
+    entity_no_wp = {
+        "id": "Q90006",
+        "type": "item",
+        "claims": {}
+    }
+    api_client.post(
+        f"{base_url}/entity",
+        json={**entity_no_wp, "is_dangling": True}
+    )
+    raw = api_client.get(f"{base_url}/raw/Q90006/1").json()
+    assert raw["is_dangling"] == True
+    
+    # Entity with P6104 (frontend sets is_dangling=False)
+    entity_with_wp = {
+        "id": "Q90007",
+        "type": "item",
+        "claims": {"P6104": []}
+    }
+    api_client.post(
+        f"{base_url}/entity",
+        json={**entity_with_wp, "is_dangling": False}
+    )
+    raw = api_client.get(f"{base_url}/raw/Q90007/1").json()
+    assert raw["is_dangling"] == False
+    
+    logger.info("✓ is_dangling flag set by frontend")
+
+
+def test_query_locked_entities(api_client: requests.Session, base_url: str) -> None:
+    """Query should return locked items"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90010",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Locked"}}
+    }
+    api_client.post(
+        f"{base_url}/entity",
+        json={**entity_data, "is_locked": True}
+    )
+    
+    response = api_client.get(f"{base_url}/entities?status=locked")
+    assert response.status_code == 200
+    entities = response.json()
+    assert "Q90010" in entities
+    
+    logger.info("✓ Query locked entities works")
+
+
+def test_query_semi_protected_entities(api_client: requests.Session, base_url: str) -> None:
+    """Query should return semi-protected items"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90011",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Protected"}}
+    }
+    api_client.post(
+        f"{base_url}/entity",
+        json={**entity_data, "is_semi_protected": True}
+    )
+    
+    response = api_client.get(f"{base_url}/entities?status=semi_protected")
+    assert response.status_code == 200
+    entities = response.json()
+    assert "Q90011" in entities
+    
+    logger.info("✓ Query semi-protected entities works")
+
+
+def test_query_archived_entities(api_client: requests.Session, base_url: str) -> None:
+    """Query should return archived items"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90012",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Archived"}}
+    }
+    api_client.post(
+        f"{base_url}/entity",
+        json={**entity_data, "is_archived": True}
+    )
+    
+    response = api_client.get(f"{base_url}/entities?status=archived")
+    assert response.status_code == 200
+    entities = response.json()
+    assert "Q90012" in entities
+    
+    logger.info("✓ Query archived entities works")
+
+
+def test_query_dangling_entities(api_client: requests.Session, base_url: str) -> None:
+    """Query should return dangling items"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90013",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Dangling"}}
+    }
+    api_client.post(
+        f"{base_url}/entity",
+        json={**entity_data, "is_dangling": True}
+    )
+    
+    response = api_client.get(f"{base_url}/entities?status=dangling")
+    assert response.status_code == 200
+    entities = response.json()
+    assert "Q90013" in entities
+    
+    logger.info("✓ Query dangling entities works")
+
+
+def test_query_by_edit_type(api_client: requests.Session, base_url: str) -> None:
+    """Query should return entities filtered by edit_type"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90014",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Test"}}
+    }
+    
+    api_client.post(
+        f"{base_url}/entity",
+        json={**entity_data, "is_locked": True, "edit_type": "lock-added"}
+    )
+    
+    response = api_client.get(f"{base_url}/entities?edit_type=lock-added")
+    assert response.status_code == 200
+    entities = response.json()
+    assert "Q90014" in entities
+    
+    logger.info("✓ Query by edit_type works")
+
+
+def test_mass_edit_protection_blocks_mass_edits(api_client: requests.Session, base_url: str) -> None:
+    """Mass-edit protected items should block mass edits"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90015",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Test"}}
+    }
+    
+    # Create mass-edit protected item
+    api_client.post(
+        f"{base_url}/entity",
+        json={**entity_data, "is_mass_edit_protected": True}
+    )
+    
+    # Attempt mass edit (should fail)
+    response = api_client.post(
+        f"{base_url}/entity",
+        json={
+            **entity_data,
+            "is_mass_edit": True,
+            "labels": {"en": {"language": "en", "value": "Updated"}}
+        }
+    )
+    assert response.status_code == 403
+    assert "mass edits blocked" in response.json()["detail"].lower()
+    
+    # Manual edit should work
+    response = api_client.post(
+        f"{base_url}/entity",
+        json={
+            **entity_data,
+            "is_mass_edit": False,
+            "labels": {"en": {"language": "en", "value": "Updated manually"}}
+        }
+    )
+    assert response.status_code == 200
+    
+    logger.info("✓ Mass-edit protection works correctly")
+
+
+def test_mass_protection_edit_types(api_client: requests.Session, base_url: str) -> None:
+    """Mass-protection edit types should work"""
+    logger = logging.getLogger(__name__)
+    
+    entity_data = {
+        "id": "Q90016",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Test"}}
+    }
+    
+    # Add mass protection
+    api_client.post(
+        f"{base_url}/entity",
+        json={
+            **entity_data,
+            "is_mass_edit_protected": True,
+            "edit_type": "mass-protection-added"
+        }
+    )
+    raw = api_client.get(f"{base_url}/raw/Q90016/1").json()
+    assert raw["edit_type"] == "mass-protection-added"
+    assert raw["is_mass_edit_protected"] == True
+    
+    # Remove mass protection
+    api_client.post(
+        f"{base_url}/entity",
+        json={
+            **entity_data,
+            "is_mass_edit_protected": False,
+            "edit_type": "mass-protection-removed"
+        }
+    )
+    raw = api_client.get(f"{base_url}/raw/Q90016/2").json()
+    assert raw["edit_type"] == "mass-protection-removed"
+    assert raw["is_mass_edit_protected"] == False
+    
+    logger.info("✓ Mass-protection edit types work")

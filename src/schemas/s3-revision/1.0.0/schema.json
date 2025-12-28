@@ -45,6 +45,31 @@
       "type": "string",
       "description": "Text classification of edit type (e.g., 'bot-import', 'cleanup-2025')"
     },
+    "is_semi_protected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Item is semi-protected (blocks new/unconfirmed users)"
+    },
+    "is_locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Item is locked from any edits"
+    },
+    "is_archived": {
+      "type": "boolean",
+      "default": false,
+      "description": "Item is archived (cannot be edited, can be excluded from exports)"
+    },
+    "is_dangling": {
+      "type": "boolean",
+      "default": false,
+      "description": "Item has no maintaining WikiProject (P6104 statement) - computed by frontend"
+    },
+    "is_mass_edit_protected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Item is protected from mass edits (bot operations)"
+    },
     "entity": {
       "type": "object",
       "description": "Complete entity content snapshot",
