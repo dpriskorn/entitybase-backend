@@ -80,6 +80,7 @@ def test_raw_endpoint_nonexistent_revision(api_client: requests.Session, base_ur
     }
     
     api_client.post(f"{base_url}/entity", json=entity_data)
+    entity_data["labels"]["en"]["value"] = "Updated Multi-Revision Test"
     api_client.post(f"{base_url}/entity", json=entity_data)
     
     # Try to retrieve non-existent revision 3
@@ -185,7 +186,7 @@ def test_raw_endpoint_nonexistent_revision_2(api_client: requests.Session, base_
     logger = logging.getLogger(__name__)
     
     # Create entity with multiple revisions
-    entity_id = "Q12346"
+    entity_id = "Q12349"
     entity_data = {
         "id": entity_id,
         "type": "item",
@@ -193,6 +194,7 @@ def test_raw_endpoint_nonexistent_revision_2(api_client: requests.Session, base_
     }
     
     api_client.post(f"{base_url}/entity", json=entity_data)
+    entity_data["labels"]["en"]["value"] = "Updated Multi-Revision Test 2"
     api_client.post(f"{base_url}/entity", json=entity_data)
     
     # Try to retrieve non-existent revision 3

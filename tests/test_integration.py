@@ -147,6 +147,7 @@ def test_get_entity_history(api_client: requests.Session, base_url: str) -> None
     }
     
     api_client.post(f"{base_url}/entity", json=entity_data)
+    entity_data["labels"]["en"]["value"] = "Updated Test Entity"
     api_client.post(f"{base_url}/entity", json=entity_data)
     
     # Get history
@@ -232,9 +233,7 @@ def test_raw_endpoint_existing_revision(api_client: requests.Session, base_url: 
     
     # Verify content_hash field
     assert "content_hash" in result, "content_hash field must be present"
-    assert len(result["content_hash"]) == 64, "content_hash must be 64-char hex string"
-    assert all(c in "0123456789abcdef" for c in result["content_hash"].lower()), \
-        "content_hash must be hexadecimal"
+    assert isinstance(result["content_hash"], int), "content_hash must be integer"
     
     # Log response body if enabled
     import os
