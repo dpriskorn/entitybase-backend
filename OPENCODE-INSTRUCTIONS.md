@@ -10,5 +10,9 @@
 - Start small and simple, iterate in small steps
 - No threat model, everybody is playing nice
 - Start with 1 shard until we get MVP working
-- Ask the user before editing
+- Ask user before editing
 - Don't run docker commands
+- Never pass unparsed json around between methods - use json.loads as soon as possible
+- All api endpoints return JSON
+- Store full S3 revision schema with metadata, entity data nested under "entity" field
+- /raw/ endpoint returns full revision schema, /entity/ endpoint extracts nested entity

@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING, Any, Dict
 
@@ -77,10 +78,21 @@ def create_entity(request: EntityCreateRequest):
     head_revision_id = clients.vitess.get_head(internal_id)
     new_revision_id = head_revision_id + 1 if head_revision_id else 1
     
-    clients.s3.write_snapshot(
+    # Construct full revision schema
+    revision_data = {
+        "schema_version": settings.s3_revision_schema_version,
+        "entity_id": external_id,
+        "revision_id": new_revision_id,
+        "created_at": datetime.utcnow().isoformat() + "Z",
+        "created_by": "entity-api",
+        "entity_type": request.data.get("type", "item"),
+        "entity": request.data
+    }
+    
+    clients.s3.write_revision(
         entity_id=external_id,
         revision_id=new_revision_id,
-        data=request.data,
+        data=revision_data,
         publication_state="pending"
     )
     clients.vitess.insert_revision(internal_id, new_revision_id)
@@ -117,9 +129,12 @@ def get_entity(entity_id: str):
     if clients.s3 is None:
         raise HTTPException(status_code=503, detail="S3 not initialized")
     
-    snapshot = clients.s3.read_snapshot(entity_id, head_revision_id)
+    revision = clients.s3.read_revision(entity_id, head_revision_id)
     
-    return EntityResponse(id=entity_id, revision_id=head_revision_id, data=json.loads(snapshot.data))
+    # Extract entity from full revision schema (data is already parsed dict)
+    entity_data = revision.data["entity"]
+    
+    return EntityResponse(id=entity_id, revision_id=head_revision_id, data=entity_data)
 
 
 # noinspection PyUnresolvedReferences
@@ -147,9 +162,12 @@ def get_entity_revision(entity_id: str, revision_id: int):
     if clients.s3 is None:
         raise HTTPException(status_code=503, detail="S3 not initialized")
     
-    snapshot = clients.s3.read_snapshot(entity_id, revision_id)
+    revision = clients.s3.read_revision(entity_id, revision_id)
     
-    return json.loads(snapshot.data)
+    # Extract entity from full revision schema (data is already parsed dict)
+    entity_data = revision.data["entity"]
+    
+    return entity_data
 
 
 # noinspection PyUnresolvedReferences
@@ -194,11 +212,11 @@ def get_raw_revision(entity_id: str, revision_id: int):
             detail=f"Revision {revision_id} not found for entity {entity_id}. Available revisions: {revision_ids}"
         )
     
-    # Read raw S3 data
+    # Read full revision schema from S3
     if clients.s3 is None:
         raise HTTPException(status_code=503, detail="S3 not initialized")
     
-    snapshot = clients.s3.read_snapshot(entity_id, revision_id)
+    revision = clients.s3.read_full_revision(entity_id, revision_id)
     
-    # Return pure raw data - no wrapper, no transformation
-    return json.loads(snapshot.data)
+    # Return full revision as-is (no transformation)
+    return revision

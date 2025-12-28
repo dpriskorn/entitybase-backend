@@ -29,7 +29,7 @@ def test_create_entity(api_client: requests.Session, base_url: str) -> None:
         }
     }
     
-    response = api_client.post(f"{base_url}/entity", json={"data": entity_data})
+    response = api_client.post(f"{base_url}/entity", json=entity_data)
     assert response.status_code == 200
     
     result = response.json()
@@ -51,7 +51,7 @@ def test_get_entity(api_client: requests.Session, base_url: str) -> None:
             "en": {"language": "en", "value": "Test Entity for Get"}
         }
     }
-    api_client.post(f"{base_url}/entity", json={"data": entity_data})
+    api_client.post(f"{base_url}/entity", json=entity_data)
     
     # Then retrieve it
     response = api_client.get(f"{base_url}/entity/Q99998")
@@ -76,7 +76,7 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
             "en": {"language": "en", "value": "Test Entity for Update"}
         }
     }
-    api_client.post(f"{base_url}/entity", json={"data": entity_data})
+    api_client.post(f"{base_url}/entity", json=entity_data)
     
     # Update entity
     updated_entity_data = {
@@ -90,7 +90,7 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
         }
     }
     
-    response = api_client.post(f"{base_url}/entity", json={"data": updated_entity_data})
+    response = api_client.post(f"{base_url}/entity", json=updated_entity_data)
     assert response.status_code == 200
     
     result = response.json()
@@ -112,8 +112,8 @@ def test_get_entity_history(api_client: requests.Session, base_url: str) -> None
         "labels": {"en": {"language": "en", "value": "Test Entity"}}
     }
     
-    api_client.post(f"{base_url}/entity", json={"data": entity_data})
-    api_client.post(f"{base_url}/entity", json={"data": entity_data})
+    api_client.post(f"{base_url}/entity", json=entity_data)
+    api_client.post(f"{base_url}/entity", json=entity_data)
     
     # Get history
     response = api_client.get(f"{base_url}/entity/{entity_id}/history")
@@ -141,11 +141,11 @@ def test_get_specific_revision(api_client: requests.Session, base_url: str) -> N
             "en": {"language": "en", "value": "Test Entity"}
         }
     }
-    api_client.post(f"{base_url}/entity", json={"data": entity_data})
+    api_client.post(f"{base_url}/entity", json=entity_data)
     
     # Create second revision
     entity_data["labels"]["en"]["value"] = "Updated"
-    api_client.post(f"{base_url}/entity", json={"data": entity_data})
+    api_client.post(f"{base_url}/entity", json=entity_data)
     
     # Get first revision
     response = api_client.get(f"{base_url}/entity/{entity_id}/revision/1")
@@ -177,13 +177,24 @@ def test_raw_endpoint_existing_revision(api_client: requests.Session, base_url: 
         "labels": {"en": {"language": "en", "value": "Raw Test Entity"}}
     }
     
-    create_response = api_client.post(f"{base_url}/entity", json={"data": entity_data})
+    create_response = api_client.post(f"{base_url}/entity", json=entity_data)
     assert create_response.status_code == 200
     
     # Get raw revision
     response = api_client.get(f"{base_url}/raw/Q55555/1")
     assert response.status_code == 200
     result = response.json()
+    
+    # Check full revision schema
+    assert result["schema_version"] == "1.0.0"
+    assert result["entity_id"] == "Q55555"
+    assert result["revision_id"] == 1
+    assert "created_at" in result
+    assert result["created_by"] == "entity-api"
+    assert result["entity_type"] == "item"
+    assert result["entity"]["id"] == "Q55555"
+    assert result["entity"]["type"] == "item"
+    assert "labels" in result["entity"]
     
     # Log response body if enabled
     import os
@@ -193,9 +204,7 @@ def test_raw_endpoint_existing_revision(api_client: requests.Session, base_url: 
             text_preview = response.text[:200]
             logger.debug(f"    Body: {text_preview}...")
     
-    assert result["id"] == "Q55555"
-    assert "type" in result
-    logger.info("✓ Raw endpoint returns existing revision")
+    logger.info("✓ Raw endpoint returns full revision schema")
 
 
 def test_raw_endpoint_nonexistent_entity(api_client: requests.Session, base_url: str) -> None:
@@ -218,7 +227,7 @@ def test_raw_endpoint_nonexistent_revision(api_client: requests.Session, base_ur
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity"}}
     }
-    api_client.post(f"{base_url}/entity", json={"data": entity_data})
+    api_client.post(f"{base_url}/entity", json=entity_data)
     
     # Try to get non-existent revision
     response = api_client.get(f"{base_url}/raw/{entity_id}/99")

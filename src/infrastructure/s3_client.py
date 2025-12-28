@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Dict
 import boto3
 from botocore.client import Config
 from botocore.exceptions import ClientError
@@ -6,8 +6,8 @@ from pydantic import BaseModel, Field
 
 from services.shared.models.s3_models import (
     S3Config,
-    SnapshotMetadata,
-    SnapshotReadResponse
+    RevisionMetadata,
+    RevisionReadResponse
 )
 
 
@@ -48,7 +48,7 @@ class S3Client(BaseModel):
             print(f"Unexpected error checking/creating bucket {self.config.bucket}: {e}")
             raise
     
-    def write_snapshot(self, entity_id: str, revision_id: int, data: str, publication_state: str = "pending") -> SnapshotMetadata:
+    def write_revision(self, entity_id: str, revision_id: int, data: dict, publication_state: str = "pending") -> RevisionMetadata:
         import json
         key = f"{entity_id}/r{revision_id}.json"
         self.client.put_object(
@@ -57,15 +57,21 @@ class S3Client(BaseModel):
             Body=json.dumps(data),
             Metadata={"publication_state": publication_state}
         )
-        return SnapshotMetadata(key=key)
+        return RevisionMetadata(key=key)
     
-    def read_snapshot(self, entity_id: str, revision_id: int) -> SnapshotReadResponse:
+    def read_revision(self, entity_id: str, revision_id: int) -> RevisionReadResponse:
+        """Read S3 object and return parsed JSON"""
+        import json
+        
         key = f"{entity_id}/r{revision_id}.json"
         response = self.client.get_object(Bucket=self.config.bucket, Key=key)
-        return SnapshotReadResponse(
+        
+        parsed_data = json.loads(response["Body"].read().decode("utf-8"))
+        
+        return RevisionReadResponse(
             entity_id=entity_id,
             revision_id=revision_id,
-            data=response["Body"].read().decode("utf-8")
+            data=parsed_data
         )
     
     def mark_published(self, entity_id: str, revision_id: int, publication_state: str) -> None:
@@ -77,3 +83,14 @@ class S3Client(BaseModel):
             Metadata={"publication_state": publication_state},
             MetadataDirective="REPLACE"
         )
+    
+    def read_full_revision(self, entity_id: str, revision_id: int) -> Dict[str, Any]:
+        """Read S3 object and return parsed full revision JSON"""
+        import json
+        
+        key = f"{entity_id}/r{revision_id}.json"
+        response = self.client.get_object(Bucket=self.config.bucket, Key=key)
+        
+        parsed_data = json.loads(response["Body"].read().decode("utf-8"))
+        
+        return parsed_data

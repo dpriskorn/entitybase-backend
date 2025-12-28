@@ -19,6 +19,7 @@ class Settings(BaseSettings):
     vitess_database: str = "wikibase"
     vitess_user: str = "root"
     vitess_password: str = ""
+    s3_revision_schema_version: str = "1.0.0"
     test_log_level: str = "INFO"
     test_log_http_requests: bool = False
     test_show_progress: bool = True

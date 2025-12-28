@@ -19,7 +19,7 @@ def test_raw_endpoint_returns_existing_revision(api_client: requests.Session, ba
     
     create_response = api_client.post(
         f"{base_url}/entity",
-        json={"data": entity_data}
+        json=entity_data
     )
     assert create_response.status_code == 200
     
@@ -27,12 +27,19 @@ def test_raw_endpoint_returns_existing_revision(api_client: requests.Session, ba
     response = api_client.get(f"{base_url}/raw/Q12345/1")
     assert response.status_code == 200
     
-    # Verify structure (not full S3 revision schema, just inner entity)
+    # Verify full revision schema
     result = response.json()
-    assert result["id"] == "Q12345"
-    assert result["type"] == "item"
-    assert "labels" in result
-    logger.info("✓ Raw endpoint returns existing revision correctly")
+    assert result["schema_version"] == "1.0.0"
+    assert result["entity_id"] == "Q12345"
+    assert result["revision_id"] == 1
+    assert "created_at" in result
+    assert result["created_by"] == "entity-api"
+    assert result["entity_type"] == "item"
+    assert "entity" in result
+    assert result["entity"]["id"] == "Q12345"
+    assert result["entity"]["type"] == "item"
+    assert "labels" in result["entity"]
+    logger.info("✓ Raw endpoint returns full revision schema")
 
 
 def test_raw_endpoint_nonexistent_entity(api_client: requests.Session, base_url: str) -> None:
@@ -58,8 +65,8 @@ def test_raw_endpoint_nonexistent_revision(api_client: requests.Session, base_ur
         "labels": {"en": {"language": "en", "value": "Multi-Revision Test"}}
     }
     
-    api_client.post(f"{base_url}/entity", json={"data": entity_data})
-    api_client.post(f"{base_url}/entity", json={"data": entity_data})
+    api_client.post(f"{base_url}/entity", json=entity_data)
+    api_client.post(f"{base_url}/entity", json=entity_data)
     
     # Try to retrieve non-existent revision 3
     response = api_client.get(f"{base_url}/raw/{entity_id}/3")
@@ -83,7 +90,7 @@ def test_raw_endpoint_pure_s3_data(api_client: requests.Session, base_url: str) 
         "labels": {"en": {"language": "en", "value": "Pure Data Test"}}
     }
     
-    api_client.post(f"{base_url}/entity", json={"data": entity_data})
+    api_client.post(f"{base_url}/entity", json=entity_data)
     
     # Get wrapped response from main endpoint
     wrapped_response = api_client.get(f"{base_url}/entity/{entity_id}")
@@ -93,9 +100,9 @@ def test_raw_endpoint_pure_s3_data(api_client: requests.Session, base_url: str) 
     raw_response = api_client.get(f"{base_url}/raw/{entity_id}/1")
     raw_data = raw_response.json()
     
-    # Verify they're identical
-    assert wrapped_data == raw_data
-    logger.info("✓ Raw endpoint returns pure S3 data (no transformation)")
+    # Verify they're identical (compare entity content)
+    assert wrapped_data == raw_data["entity"]
+    logger.info("✓ Main endpoint entity matches raw endpoint entity")
 
 
 def test_raw_endpoint_vs_history_consistency(api_client: requests.Session, base_url: str) -> None:
@@ -109,7 +116,7 @@ def test_raw_endpoint_vs_history_consistency(api_client: requests.Session, base_
         "labels": {"en": {"language": "en", "value": "Consistency Test"}}
     }
     
-    api_client.post(f"{base_url}/entity", json={"data": entity_data})
+    api_client.post(f"{base_url}/entity", json=entity_data)
     
     # Get history
     history_response = api_client.get(f"{base_url}/entity/{entity_id}/history")
@@ -122,8 +129,10 @@ def test_raw_endpoint_vs_history_consistency(api_client: requests.Session, base_
     raw_response = api_client.get(f"{base_url}/raw/{entity_id}/{revision_id}")
     assert raw_response.status_code == 200
     
-    # Verify it has required entity fields
+    # Verify it has required entity fields (nested)
     raw_data = raw_response.json()
-    assert "id" in raw_data
-    assert "type" in raw_data
+    assert "entity" in raw_data
+    assert "schema_version" in raw_data
+    assert raw_data["entity"]["id"] == entity_id
+    assert raw_data["entity"]["type"] == "item"
     logger.info("✓ Raw endpoint data consistent with history endpoint")

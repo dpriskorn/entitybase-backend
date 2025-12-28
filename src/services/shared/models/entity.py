@@ -1,10 +1,24 @@
 from enum import Enum
-from pydantic import BaseModel, Field
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class EntityCreateRequest(BaseModel):
-    data: Dict[str, Any]
+    id: str = Field(..., description="Entity ID (e.g., Q42)")
+    type: str = Field(default="item", description="Entity type")
+    labels: Optional[Dict[str, Dict[str, str]]] = None
+    descriptions: Optional[Dict[str, Dict[str, str]]] = None
+    claims: Optional[Dict[str, List]] = None
+    aliases: Optional[Dict[str, List]] = None
+    sitelinks: Optional[Dict[str, Any]] = None
+    
+    model_config = ConfigDict(extra="allow")
+    
+    @property
+    def data(self) -> Dict[str, Any]:
+        """Return entity as dict for compatibility with existing code"""
+        return self.model_dump(exclude_unset=True)
 
 
 class EntityResponse(BaseModel):

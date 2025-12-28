@@ -1,3 +1,4 @@
+from typing import Any, Dict
 from pydantic import BaseModel
 
 
@@ -8,28 +9,39 @@ class S3Config(BaseModel):
     bucket: str
 
 
-class SnapshotMetadata(BaseModel):
+class RevisionMetadata(BaseModel):
     key: str
 
 
-class SnapshotResponse(BaseModel):
+class RevisionResponse(BaseModel):
     data: str
 
 
-class SnapshotCreateRequest(BaseModel):
+class RevisionCreateRequest(BaseModel):
     entity_id: str
     revision_id: int
     data: str
     publication_state: str = "pending"
 
 
-class SnapshotReadResponse(BaseModel):
+class RevisionReadResponse(BaseModel):
     entity_id: str
     revision_id: int
-    data: str
+    data: Dict[str, Any]
 
 
-class SnapshotUpdateRequest(BaseModel):
+class RevisionUpdateRequest(BaseModel):
     entity_id: str
     revision_id: int
     publication_state: str
+
+
+class FullRevisionResponse(BaseModel):
+    """Full S3 revision schema with metadata"""
+    schema_version: str = "1.0.0"
+    entity_id: str
+    revision_id: int
+    created_at: str
+    created_by: str = "entity-api"
+    entity_type: str
+    entity: Dict[str, Any]
