@@ -13,8 +13,11 @@ from infrastructure.ulid_flake import generate_ulid_flake
 from infrastructure.vitess_client import VitessClient
 from services.shared.config.settings import settings
 from services.shared.models.entity import (
+    DeleteType,
     EditType,
     EntityCreateRequest,
+    EntityDeleteRequest,
+    EntityDeleteResponse,
     EntityResponse,
     RevisionMetadata
 )
@@ -80,6 +83,13 @@ def create_entity(request: EntityCreateRequest):
     if internal_id is None:
         internal_id = generate_ulid_flake()
         clients.vitess.register_entity(external_id, internal_id)
+    else:
+        # Check if entity is hard-deleted (block edits/undelete)
+        if clients.vitess.is_entity_deleted(internal_id):
+            raise HTTPException(
+                status_code=410,
+                detail=f"Entity {external_id} has been deleted"
+            )
     
     head_revision_id = clients.vitess.get_head(internal_id)
     
@@ -150,6 +160,7 @@ def create_entity(request: EntityCreateRequest):
         "is_archived": request.is_archived,
         "is_dangling": request.is_dangling,
         "is_mass_edit_protected": request.is_mass_edit_protected,
+        "deleted": False,
         "entity": request.data,
         "content_hash": content_hash
     }
@@ -166,7 +177,8 @@ def create_entity(request: EntityCreateRequest):
         internal_id, head_revision_id, new_revision_id,
         request.is_semi_protected, request.is_locked,
         request.is_archived, request.is_dangling,
-        request.is_mass_edit_protected
+        request.is_mass_edit_protected,
+        deleted=False
     )
     if not success:
         raise HTTPException(status_code=409, detail="Concurrent modification detected")
@@ -204,6 +216,13 @@ def get_entity(entity_id: str):
     head_revision_id = clients.vitess.get_head(internal_id)
     if head_revision_id is None:
         raise HTTPException(status_code=404, detail="Entity has no revisions")
+    
+    # Check if entity is hard-deleted
+    if clients.vitess.is_entity_deleted(internal_id):
+        raise HTTPException(
+            status_code=410,
+            detail=f"Entity {entity_id} has been deleted"
+        )
     
     if clients.s3 is None:
         raise HTTPException(status_code=503, detail="S3 not initialized")
@@ -256,6 +275,128 @@ def get_entity_revision(entity_id: str, revision_id: int):
     entity_data = revision.data["entity"]
     
     return entity_data
+
+
+# noinspection PyUnresolvedReferences
+@app.delete("/entity/{entity_id}", response_model=EntityDeleteResponse)
+def delete_entity(entity_id: str, request: EntityDeleteRequest):
+    """Delete entity (soft or hard delete)"""
+    clients = app.state.clients
+    
+    if clients.vitess is None:
+        raise HTTPException(status_code=503, detail="Vitess not initialized")
+    
+    # Resolve entity ID
+    internal_id = clients.vitess.resolve_id(entity_id)
+    if internal_id is None:
+        raise HTTPException(status_code=404, detail="Entity not found")
+    
+    # Get current head revision
+    head_revision_id = clients.vitess.get_head(internal_id)
+    if head_revision_id is None:
+        raise HTTPException(status_code=404, detail="Entity has no revisions")
+    
+    if clients.s3 is None:
+        raise HTTPException(status_code=503, detail="S3 not initialized")
+    
+    # Read current revision to preserve entity data
+    current_revision = clients.s3.read_revision(entity_id, head_revision_id)
+    
+    # Calculate next revision ID
+    new_revision_id = head_revision_id + 1
+    
+    # Prepare deletion revision data
+    deleted_at = datetime.utcnow().isoformat() + "Z"
+    edit_type = EditType.SOFT_DELETE.value if request.delete_type == DeleteType.SOFT else EditType.HARD_DELETE.value
+    
+    revision_data = {
+        "schema_version": settings.s3_revision_schema_version,
+        "revision_id": new_revision_id,
+        "created_at": deleted_at,
+        "created_by": "entity-api",
+        "is_mass_edit": False,
+        "edit_type": edit_type,
+        "entity_type": current_revision.data.get("entity_type", "item"),
+        "is_semi_protected": current_revision.data.get("is_semi_protected", False),
+        "is_locked": current_revision.data.get("is_locked", False),
+        "is_archived": current_revision.data.get("is_archived", False),
+        "is_dangling": current_revision.data.get("is_dangling", False),
+        "is_mass_edit_protected": current_revision.data.get("is_mass_edit_protected", False),
+        "deleted": True,
+        "deletion_reason": request.deletion_reason,
+        "deleted_at": deleted_at,
+        "deleted_by": request.deleted_by,
+        "entity": current_revision.data.get("entity", {})
+    }
+    
+    # Write deletion revision to S3
+    clients.s3.write_revision(
+        entity_id=entity_id,
+        revision_id=new_revision_id,
+        data=revision_data,
+        publication_state="pending"
+    )
+    
+    # Insert revision metadata into Vitess
+    clients.vitess.insert_revision(
+        internal_id, 
+        new_revision_id, 
+        is_mass_edit=False, 
+        edit_type=edit_type
+    )
+    
+    # Handle hard delete
+    if request.delete_type == DeleteType.HARD:
+        clients.vitess.hard_delete_entity(
+            internal_id=internal_id,
+            external_id=entity_id,
+            deletion_reason=request.deletion_reason,
+            deleted_by=request.deleted_by,
+            head_revision_id=new_revision_id
+        )
+    else:
+        # Log soft delete to audit
+        clients.vitess.log_soft_delete(
+            internal_id=internal_id,
+            external_id=entity_id,
+            deletion_reason=request.deletion_reason,
+            deleted_by=request.deleted_by,
+            revision_id=new_revision_id
+        )
+    
+    # Determine deleted flag for CAS update (hard delete = TRUE, soft delete = FALSE)
+    deleted_flag = True if request.delete_type == DeleteType.HARD else False
+    
+    # Update head pointer (CAS)
+    success = clients.vitess.cas_update_head_with_status(
+        internal_id, head_revision_id, new_revision_id,
+        current_revision.data.get("is_semi_protected", False),
+        current_revision.data.get("is_locked", False),
+        current_revision.data.get("is_archived", False),
+        current_revision.data.get("is_dangling", False),
+        current_revision.data.get("is_mass_edit_protected", False),
+        deleted=deleted_flag
+    )
+    
+    if not success:
+        raise HTTPException(status_code=409, detail="Concurrent modification detected")
+    
+    # Mark as published
+    clients.s3.mark_published(
+        entity_id=entity_id,
+        revision_id=new_revision_id,
+        publication_state="published"
+    )
+    
+    return EntityDeleteResponse(
+        id=entity_id,
+        revision_id=new_revision_id,
+        delete_type=request.delete_type,
+        deleted=True,
+        deleted_at=deleted_at,
+        deletion_reason=request.deletion_reason,
+        deleted_by=request.deleted_by
+    )
 
 
 # noinspection PyUnresolvedReferences

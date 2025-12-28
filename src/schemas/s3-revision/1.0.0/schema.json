@@ -70,6 +70,24 @@
       "default": false,
       "description": "Item is protected from mass edits (bot operations)"
     },
+    "deleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this entity revision is deleted (soft delete tombstone)"
+    },
+    "deletion_reason": {
+      "type": "string",
+      "description": "Reason for deletion (required if deleted=true)"
+    },
+    "deleted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of deletion (ISO-8601)"
+    },
+    "deleted_by": {
+      "type": "string",
+      "description": "User or system that requested deletion"
+    },
     "entity": {
       "type": "object",
       "description": "Complete entity content snapshot",

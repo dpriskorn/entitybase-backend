@@ -33,3 +33,12 @@ get_entity_history
 get_entity_revision
 get_raw_revision
 list_entities
+delete_entity
+SOFT_DELETE
+HARD_DELETE
+UNDELETE
+delete_type
+deleted
+deleted_at
+deletion_reason
+deleted_by

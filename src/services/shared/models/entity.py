@@ -35,6 +35,11 @@ class EditType(str, Enum):
     MIGRATION_INITIAL = "migration-initial"
     MIGRATION_BATCH = "migration-batch"
     
+    # Deletion operations
+    SOFT_DELETE = "soft-delete"
+    HARD_DELETE = "hard-delete"
+    UNDELETE = "undelete"
+    
     # Default
     UNSPECIFIED = ""
 
@@ -78,6 +83,28 @@ class EntityResponse(BaseModel):
 class RevisionMetadata(BaseModel):
     revision_id: int
     created_at: str
+
+
+class DeleteType(str, Enum):
+    """Deletion type classification"""
+    SOFT = "soft"
+    HARD = "hard"
+
+
+class EntityDeleteRequest(BaseModel):
+    delete_type: DeleteType = Field(default=DeleteType.SOFT, description="Type of deletion")
+    deletion_reason: str = Field(..., description="Reason for deletion (required)")
+    deleted_by: str = Field(..., description="User or system requesting deletion")
+
+
+class EntityDeleteResponse(BaseModel):
+    id: str
+    revision_id: int
+    delete_type: DeleteType
+    deleted: bool
+    deleted_at: str
+    deletion_reason: str
+    deleted_by: str
 
 
 

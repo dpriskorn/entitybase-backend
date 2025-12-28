@@ -2,6 +2,324 @@
 
 This file tracks architectural changes, feature additions, and modifications to the wikibase-backend system.
 
+## [2025-12-28] Entity Deletion (Soft and Hard Delete)
+
+### Summary
+
+Added entity deletion functionality supporting both soft deletes (default) and hard deletes (exceptional). Soft deletes create tombstone revisions preserving entity history, while hard deletes mark entities as hidden with full audit trail.
+
+### Motivation
+
+Wikibase requires deletion capabilities for:
+- Removing inappropriate content
+- Privacy/GDPR compliance
+- Data cleanup operations
+- Removing test/duplicate entities
+- Handling user deletion requests
+
+### Changes
+
+#### Updated S3 Revision Schema
+
+**File**: `src/schemas/s3-revision/1.0.0/schema.json`
+
+Added deletion-related fields to revision schema:
+
+```json
+{
+  "deleted": true,
+  "deletion_reason": "Privacy request",
+  "deleted_at": "2025-12-28T10:30:00Z",
+  "deleted_by": "admin-user",
+  "entity": {...}
+}
+```
+
+**Fields**:
+- `deleted`: Boolean flag indicating if revision is a deletion tombstone
+- `deletion_reason`: Human-readable reason for deletion (required if deleted=true)
+- `deleted_at`: ISO-8601 timestamp of deletion action
+- `deleted_by`: User or system that requested the deletion
+
+**Rationale**:
+- Soft delete preserves entity data in `entity` field for audit/history
+- Deletion metadata stored in revision snapshot for complete trail
+- `deleted_at` separate from `created_at` for clarity
+
+#### Updated Vitess Schema
+
+**File**: `src/infrastructure/vitess_client.py` - `_create_tables()` method
+
+**Changes to entity_head table**:
+```sql
+ALTER TABLE entity_head ADD COLUMN deleted BOOLEAN DEFAULT FALSE;
+```
+
+**New entity_delete_audit table**:
+```sql
+CREATE TABLE IF NOT EXISTS entity_delete_audit (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    entity_id BIGINT NOT NULL,
+    external_id VARCHAR(255) NOT NULL,
+    delete_type ENUM('soft', 'hard') NOT NULL,
+    deletion_reason TEXT,
+    deleted_by VARCHAR(255),
+    deleted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    head_revision_id BIGINT,
+    INDEX idx_entity_id (entity_id),
+    INDEX idx_deleted_at (deleted_at),
+    INDEX idx_delete_type (delete_type)
+)
+```
+
+**Rationale**:
+- `deleted` flag in entity_head enables fast filtering of hard-deleted entities
+- Separate audit table prevents bloating entity_head with deletion metadata
+- Indexes support reporting queries (e.g., deletion metrics, compliance reports)
+- Hard deletes are rare/exceptional - audit table is appropriate scale
+
+#### New Pydantic Models
+
+**File**: `src/services/shared/models/entity.py`
+
+Added new models and enums:
+
+```python
+class DeleteType(str, Enum):
+    SOFT = "soft"
+    HARD = "hard"
+
+
+class EntityDeleteRequest(BaseModel):
+    delete_type: DeleteType = Field(default=DeleteType.SOFT)
+    deletion_reason: str = Field(..., description="Reason for deletion")
+    deleted_by: str = Field(..., description="User requesting deletion")
+
+
+class EntityDeleteResponse(BaseModel):
+    id: str
+    revision_id: int
+    delete_type: DeleteType
+    deleted: bool
+    deleted_at: str
+    deletion_reason: str
+    deleted_by: str
+```
+
+**Updated EditType enum**:
+```python
+SOFT_DELETE = "soft-delete"
+HARD_DELETE = "hard-delete"
+UNDELETE = "undelete"
+```
+
+**Rationale**:
+- Type-safe delete type selection
+- Explicit required fields (deletion_reason, deleted_by) enforce accountability
+- Response includes all deletion metadata for client-side confirmation
+
+#### New API Endpoint
+
+**File**: `src/services/entity_api/main.py`
+
+Added `DELETE /entity/{entity_id}` endpoint:
+
+**Request**:
+```json
+{
+  "delete_type": "soft",
+  "deletion_reason": "Duplicate entity",
+  "deleted_by": "admin-user"
+}
+```
+
+**Response (200 OK)**:
+```json
+{
+  "id": "Q123",
+  "revision_id": 5,
+  "delete_type": "soft",
+  "deleted": true,
+  "deleted_at": "2025-12-28T10:30:00Z",
+  "deletion_reason": "Duplicate entity",
+  "deleted_by": "admin-user"
+}
+```
+
+**Behavior**:
+1. Resolve entity ID and get current head revision
+2. Read current revision to preserve entity data
+3. Create new revision with deletion metadata
+4. Write tombstone revision to S3 (publication_state=published)
+5. Soft delete: Log to entity_delete_audit table
+6. Hard delete: Mark `deleted=TRUE` in entity_head + log to audit
+7. Update head pointer via CAS
+8. Mark S3 revision as published
+
+**Edit Type Behavior**:
+- `delete_type=soft`: `edit_type="soft-delete"`, entity remains addressable
+- `delete_type=hard`: `edit_type="hard-delete"`, entity returns 410 Gone
+
+#### Updated GET /entity/{entity_id}
+
+**File**: `src/services/entity_api/main.py` - `get_entity()` function
+
+Added hard-delete check:
+
+```python
+if clients.vitess.is_entity_deleted(internal_id):
+    raise HTTPException(
+        status_code=410,
+        detail=f"Entity {entity_id} has been deleted"
+    )
+```
+
+**Behavior**:
+- Soft-deleted entities: Return 200 (entity still accessible)
+- Hard-deleted entities: Return 410 Gone (entity hidden)
+
+#### Updated POST /entity (Undelete Support)
+
+**File**: `src/services/entity_api/main.py` - `create_entity()` function
+
+Updated `cas_update_head_with_status()` to clear `deleted=FALSE` on new revisions:
+
+```python
+cursor.execute(
+    """UPDATE entity_head
+       SET head_revision_id = %s,
+           is_semi_protected = %s,
+           is_locked = %s,
+           is_archived = %s,
+           is_dangling = %s,
+           is_mass_edit_protected = %s,
+           deleted = FALSE  # Clear deleted flag on new revision
+       WHERE entity_id = %s AND head_revision_id = %s""",
+    ...
+)
+```
+
+**Behavior**:
+- Soft-deleted entities can be undeleted by creating new revision
+- Hard-deleted entities cannot be undeleted (GET returns 410, POST blocked)
+- New revisions always have `deleted=FALSE` in entity_head
+
+#### New Vitess Client Methods
+
+**File**: `src/infrastructure/vitess_client.py`
+
+Added three new methods:
+
+1. **is_entity_deleted(entity_id: int) -> bool**
+   - Checks if entity is hard-deleted
+   - Returns TRUE if `entity_head.deleted = TRUE`
+
+2. **hard_delete_entity(internal_id, external_id, deletion_reason, deleted_by, head_revision_id) -> bool**
+   - Marks `entity_head.deleted = TRUE`
+   - Inserts audit record with `delete_type = 'hard'`
+   - Returns success status
+
+3. **log_soft_delete(internal_id, external_id, deletion_reason, deleted_by, revision_id) -> None**
+   - Inserts audit record with `delete_type = 'soft'`
+   - Called for every soft delete operation
+
+### Deletion Behavior
+
+#### Soft Delete (Default)
+
+**Flow**:
+1. Create new revision with `deleted=true`, deletion metadata
+2. Preserve entity data in `entity` field (tombstone snapshot)
+3. Set `edit_type = "soft-delete"`
+4. Log to `entity_delete_audit` table
+5. Keep `entity_head.deleted = FALSE` (entity remains accessible)
+
+**Result**:
+- Entity ID still resolves
+- GET requests return 200 (not 404/410)
+- Revision history preserved (including tombstone)
+- Can be undeleted by creating new revision
+
+#### Hard Delete (Exceptional)
+
+**Flow**:
+1. Create new revision with `deleted=true`, deletion metadata
+2. Preserve entity data in `entity` field (audit trail)
+3. Set `edit_type = "hard-delete"`
+4. Set `entity_head.deleted = TRUE` (entity hidden)
+5. Log to `entity_delete_audit` table with `delete_type = 'hard'`
+
+**Result**:
+- Entity ID resolves, but GET returns 410 Gone
+- Revision history preserved (for audit)
+- Cannot be undeleted (new revisions blocked by deleted check)
+- Physical S3 deletion via lifecycle policies only
+
+#### Undelete
+
+**How it works**:
+1. POST new revision to soft-deleted entity
+2. New revision has `deleted=false`
+3. CAS update clears `entity_head.deleted = FALSE`
+4. Entity becomes accessible again
+
+**Limitation**:
+- Hard-deleted entities cannot be undeleted
+- Soft-deleted entities only
+
+### Testing
+
+**File**: `tests/test_integration.py`
+
+Added comprehensive test coverage:
+
+1. **test_soft_delete_entity**: Verify soft delete creates tombstone revision
+2. **test_hard_delete_entity**: Verify hard delete hides entity (410 Gone)
+3. **test_undelete_entity**: Verify new revision after soft delete works
+4. **test_hard_delete_prevents_undelete**: Verify hard delete blocks new revisions
+5. **test_delete_audit_trail**: Verify all deletion metadata recorded
+
+### Benefits
+
+1. **Audit Trail** - Complete deletion history with reasons and requesters
+2. **Flexibility** - Soft delete preserves data, hard delete hides entities
+3. **Compliance** - GDPR/privacy support with deletion reasons
+4. **Recovery** - Undelete capability via new revisions (soft delete only)
+5. **Accountability** - All deletions tracked with `deleted_by` field
+
+### Backward Compatibility
+
+- ✅ All new fields optional with defaults
+- ✅ Existing entities without deletion fields work correctly
+- ✅ No breaking API changes (new DELETE endpoint only)
+- ✅ Existing GET/POST endpoints unchanged behavior-wise
+- ✅ Database schema additive (new column, new table)
+
+### Security Considerations
+
+- Deletion reasons required for accountability
+- Deleted-by field tracks who requested deletion
+- Hard delete audit trail prevents abuse
+- No automatic undelete (manual POST required)
+
+### Future Enhancements
+
+Potential improvements not included in this implementation:
+
+1. **Bulk deletion endpoints** - `DELETE /entities?filter=...` for operations
+2. **Deletion approval workflow** - Multi-step process for hard deletes
+3. **Retention policies** - Auto-delete revisions older than X years
+4. **Deletion restoration** - Admin endpoint to restore hard-deleted entities
+5. **Deletion metrics dashboard** - Grafana panel showing deletion stats
+
+### Related Documentation
+
+- [ARCHITECTURE/S3-ENTITY-DELETION.md](./S3-ENTITY-DELETION.md) - Deletion architecture overview
+- [ARCHITECTURE/STORAGE-ARCHITECTURE.md](./STORAGE-ARCHITECTURE.md) - Storage layer design
+- [ARCHITECTURE/CONCURRENCY-CONTROL.md](./CONCURRENCY-CONTROL.md) - CAS and race conditions
+
+---
+
 ## [2025-12-28] Content Hash Deduplication
 
 ### Summary
