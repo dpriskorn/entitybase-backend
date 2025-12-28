@@ -1,6 +1,9 @@
+import json
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict
+
+from rapidhash import rapidhash
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -75,9 +78,25 @@ def create_entity(request: EntityCreateRequest):
         clients.vitess.register_entity(external_id, internal_id)
     
     head_revision_id = clients.vitess.get_head(internal_id)
+    
+    # Calculate content hash for deduplication
+    entity_json = json.dumps(request.data, sort_keys=True)
+    content_hash = rapidhash(entity_json.encode())
+    
+    # Check if head revision has same content (idempotency)
+    if head_revision_id is not None:
+        try:
+            head_revision = clients.s3.read_revision(external_id, head_revision_id)
+            if head_revision.data.get("content_hash") == content_hash:
+                # Content unchanged, return existing revision
+                return EntityResponse(id=external_id, revision_id=head_revision_id, data=request.data)
+        except Exception:
+            # Head revision not found or invalid, proceed with creation
+            pass
+    
     new_revision_id = head_revision_id + 1 if head_revision_id else 1
     
-    # Construct full revision schema
+    # Construct full revision schema with content hash
     revision_data = {
         "schema_version": settings.s3_revision_schema_version,
         "entity_id": external_id,
@@ -85,7 +104,8 @@ def create_entity(request: EntityCreateRequest):
         "created_at": datetime.utcnow().isoformat() + "Z",
         "created_by": "entity-api",
         "entity_type": request.data.get("type", "item"),
-        "entity": request.data
+        "entity": request.data,
+        "content_hash": content_hash
     }
     
     clients.s3.write_revision(

@@ -975,6 +975,35 @@ files = [
 dev = ["black", "build", "mypy", "pytest", "pytest-cov", "setuptools", "tox", "twine", "wheel"]
 
 [[package]]
+name = "rapidhash"
+version = "0.1.0"
+description = "Very fast, high quality, platform-independent hashing algorithm."
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "rapidhash-0.1.0-cp313-cp313t-musllinux_1_2_aarch64.whl", hash = "sha256:cb040fb20e79f782697b9445a27b9e0d4474dcde81d4087e0c62c507cd413de1"},
+    {file = "rapidhash-0.1.0-cp313-cp313t-musllinux_1_2_armv7l.whl", hash = "sha256:70a1a64cc7eec35c2a85dc6dab1f91ba0155c85da7dea4a7ed516d4e502091d3"},
+    {file = "rapidhash-0.1.0-cp313-cp313t-musllinux_1_2_i686.whl", hash = "sha256:396bb2d63c4cb04ea39eaa2caab91f7573ee06ed191e79aa4a3696f829214e88"},
+    {file = "rapidhash-0.1.0-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:2364de50ec251cd2645585ed47780c66ae0ddd646688bedebb9e69302b30d1a1"},
+    {file = "rapidhash-0.1.0-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:ed05fad5b1e1905672a35083a40f8d0caed7bc63af12a26d7bf077e497cce138"},
+    {file = "rapidhash-0.1.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:5695796239c91fc58658a8c2b6142f89bc95a990c08d27f762276715c71a53a0"},
+    {file = "rapidhash-0.1.0-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:fa70723042b07902102083f4f80df07273e408e38baa6e87ae7c330e91d5a0de"},
+    {file = "rapidhash-0.1.0-cp39-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:06099881a0ed022e933e67a6254c08686908ef7a0849ab060e14e01d71b5d876"},
+    {file = "rapidhash-0.1.0-cp39-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:e0de344d4e3e97279f67b5d36310f4074d16bf72f3225306f0903d17fd1d2892"},
+    {file = "rapidhash-0.1.0-cp39-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:fbccef6b787abb7399e49419f05b026846ab384bd317ba84ef2c5e6e86129187"},
+    {file = "rapidhash-0.1.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4671b64c214c7390a22bc1ed9bd34f05d103e2aec5666a326b626a1a60f1b62a"},
+    {file = "rapidhash-0.1.0-cp39-abi3-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:601d3e8453bfbabaea40b66acf3fdf0e20d656a80d156984a5291ad45e2a5776"},
+    {file = "rapidhash-0.1.0-cp39-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:152bfe07da5e16d8a81a650299eb8df7bdd2719ae03d57e4bdaefc489788cf50"},
+    {file = "rapidhash-0.1.0-cp39-abi3-musllinux_1_2_armv7l.whl", hash = "sha256:10be10945ddc0391eb2aca0037b84ca8fb0a8e1425d703b133f8f1d79677fc9e"},
+    {file = "rapidhash-0.1.0-cp39-abi3-musllinux_1_2_i686.whl", hash = "sha256:21f2d4db81ad9bfea4d11fc06047c99f0837eea274aacdd1491a0c583b2f8b8f"},
+    {file = "rapidhash-0.1.0-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:8fea79be9801258cbcdee8608fd31f48bb4e4e41c11d4b856d86d5c3a4b8eb4c"},
+    {file = "rapidhash-0.1.0-cp39-abi3-win32.whl", hash = "sha256:c62ecbc57bb7b97f7e5969940a686ef1662687988122375943d2f97008ded1f4"},
+    {file = "rapidhash-0.1.0-cp39-abi3-win_amd64.whl", hash = "sha256:e2b6e14a38bd36961f3504d94623a76e3a86d50f08654ae584455e165f674f1e"},
+    {file = "rapidhash-0.1.0.tar.gz", hash = "sha256:ae82849bf1c35f6f295234602b807b11cc7a2e853dae4807b8a099cf4a088269"},
+]
+
+[[package]]
 name = "requests"
 version = "2.32.5"
 description = "Python HTTP for Humans."
@@ -1167,4 +1196,4 @@ standard = ["colorama (>=0.4) ; sys_platform == \"win32\"", "httptools (>=0.6.3)
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.13"
-content-hash = "9b0717469af0edb6105c1be5cfc0d358b542be10744d6fb8c2a9ff5613c231cc"
+content-hash = "0beccb40755fa10b18c2db7fe1ee6a29b9f7955019ffecb5b932e8948310652f"

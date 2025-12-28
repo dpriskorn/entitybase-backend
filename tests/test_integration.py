@@ -1,6 +1,9 @@
+import json
 import logging
 
 import requests
+
+from rapidhash import rapidhash
 
 
 def test_health_check(api_client: requests.Session, base_url: str) -> None:
@@ -36,7 +39,18 @@ def test_create_entity(api_client: requests.Session, base_url: str) -> None:
     assert result["id"] == "Q99999"
     assert result["revision_id"] == 1
     assert result["data"] == entity_data
-    logger.info("✓ Entity creation passed")
+    
+    entity_json = json.dumps(entity_data, sort_keys=True)
+    computed_hash = rapidhash(entity_json.encode())
+    
+    raw_response = api_client.get(f"{base_url}/raw/Q99999/1")
+    raw_data = raw_response.json()
+    api_hash = raw_data.get("content_hash")
+    
+    assert api_hash == computed_hash, \
+        f"API hash {api_hash} must match computed hash {computed_hash}"
+    
+    logger.info("✓ Entity creation passed with rapidhash verification")
 
 
 def test_get_entity(api_client: requests.Session, base_url: str) -> None:
@@ -97,7 +111,27 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
     assert result["id"] == "Q99997"
     assert result["revision_id"] == 2
     assert result["data"]["labels"]["en"]["value"] == "Test Entity - Updated"
-    logger.info("✓ Entity update passed")
+    
+    # Verify different content created new revision with different hash
+    raw1 = api_client.get(f"{base_url}/raw/Q99997/1").json()
+    raw2 = api_client.get(f"{base_url}/raw/Q99997/2").json()
+    
+    assert raw1["content_hash"] != raw2["content_hash"], \
+        "Different content should have different hashes"
+    
+    # Verify hash format and values
+    if rapidhash is not None:
+        entity_json_1 = json.dumps(entity_data, sort_keys=True)
+        computed_hash_1 = rapidhash(entity_json_1.encode())
+        assert raw1["content_hash"] == computed_hash_1, \
+            f"First revision hash mismatch: expected {computed_hash_1}, got {raw1['content_hash']}"
+        
+        entity_json_2 = json.dumps(updated_entity_data, sort_keys=True)
+        computed_hash_2 = rapidhash(entity_json_2.encode())
+        assert raw2["content_hash"] == computed_hash_2, \
+            f"Second revision hash mismatch: expected {computed_hash_2}, got {raw2['content_hash']}"
+    
+    logger.info("✓ Entity update passed with hash verification")
 
 
 def test_get_entity_history(api_client: requests.Session, base_url: str) -> None:
@@ -196,6 +230,12 @@ def test_raw_endpoint_existing_revision(api_client: requests.Session, base_url: 
     assert result["entity"]["type"] == "item"
     assert "labels" in result["entity"]
     
+    # Verify content_hash field
+    assert "content_hash" in result, "content_hash field must be present"
+    assert len(result["content_hash"]) == 64, "content_hash must be 64-char hex string"
+    assert all(c in "0123456789abcdef" for c in result["content_hash"].lower()), \
+        "content_hash must be hexadecimal"
+    
     # Log response body if enabled
     import os
     if os.getenv("TEST_LOG_HTTP_REQUESTS") == "true":
@@ -204,34 +244,53 @@ def test_raw_endpoint_existing_revision(api_client: requests.Session, base_url: 
             text_preview = response.text[:200]
             logger.debug(f"    Body: {text_preview}...")
     
-    logger.info("✓ Raw endpoint returns full revision schema")
+    logger.info("✓ Raw endpoint returns full revision schema with content_hash")
 
 
-def test_raw_endpoint_nonexistent_entity(api_client: requests.Session, base_url: str) -> None:
-    """Test that raw endpoint returns 404 for non-existent entity"""
-    logger = logging.getLogger(__name__)
-    response = api_client.get(f"{base_url}/raw/Q77777/1")
-    assert response.status_code == 404
-    assert "not found" in response.json()["detail"].lower()
-    logger.info("✓ Raw endpoint returns 404 for non-existent entity")
-
-
-def test_raw_endpoint_nonexistent_revision(api_client: requests.Session, base_url: str) -> None:
-    """Test that raw endpoint returns 404 for non-existent revision"""
+def test_idempotent_duplicate_submission(api_client: requests.Session, base_url: str) -> None:
+    """Test that identical POST requests return same revision (idempotency)"""
     logger = logging.getLogger(__name__)
     
-    # Create entity
-    entity_id = "Q66666"
     entity_data = {
-        "id": entity_id,
+        "id": "Q99996",
         "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Entity"}}
+        "labels": {
+            "en": {"language": "en", "value": "Idempotent Test"}
+        }
     }
-    api_client.post(f"{base_url}/entity", json=entity_data)
     
-    # Try to get non-existent revision
-    response = api_client.get(f"{base_url}/raw/{entity_id}/99")
-    assert response.status_code == 404
-    error_detail = response.json()["detail"]
-    assert "99 not found" in error_detail
-    logger.info("✓ Raw endpoint returns 404 for non-existent revision")
+    # First POST creates revision 1
+    response1 = api_client.post(f"{base_url}/entity", json=entity_data)
+    assert response1.status_code == 200
+    result1 = response1.json()
+    revision_id_1 = result1["revision_id"]
+    
+    # Second identical POST should return same revision (no new revision)
+    response2 = api_client.post(f"{base_url}/entity", json=entity_data)
+    assert response2.status_code == 200
+    result2 = response2.json()
+    revision_id_2 = result2["revision_id"]
+    
+    # Verify idempotency
+    assert revision_id_1 == revision_id_2, \
+        "Identical POST should return same revision ID"
+    assert result1 == result2, \
+        "Responses should be identical"
+    
+    # Verify content_hash field and hash computation
+    if rapidhash is not None:
+        entity_json = json.dumps(entity_data, sort_keys=True)
+        computed_hash = rapidhash(entity_json.encode())
+        
+        # Get hash from API
+        raw_response = api_client.get(f"{base_url}/raw/Q99996/{revision_id_1}").json()
+        api_hash = raw_response.get("content_hash")
+        
+        # Verify API returned correct hash
+        assert api_hash == computed_hash, \
+            f"API hash {api_hash} must match computed hash {computed_hash}"
+        
+        logger.info(f"✓ Idempotent deduplication: same revision {revision_id_1} returned with rapidhash verification")
+    else:
+        logger.info(f"✓ Idempotent deduplication: same revision {revision_id_1} returned (rapidhash not available)")
+

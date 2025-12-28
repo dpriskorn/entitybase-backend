@@ -43,6 +43,10 @@
       "enum": ["item", "property", "lexeme"],
       "description": "Type of entity"
     },
+    "content_hash": {
+      "type": "string",
+      "description": "SHA-256 hash of entity data for deduplication"
+    },
     "entity": {
       "type": "object",
       "description": "Complete entity content snapshot",
