@@ -9,43 +9,6 @@ class VitessConfig(BaseModel):
     password: str = ""
 
 
-class RegisterEntityRequest(BaseModel):
-    external_id: str
-    internal_id: int
-
-
-class RegisterEntityResponse(BaseModel):
-    success: bool
-
-
-class GetHeadRequest(BaseModel):
-    entity_id: int
-
-
-class GetHeadResponse(BaseModel):
-    head_revision_id: int | None
-    is_semi_protected: bool = False
-    is_locked: bool = False
-    is_archived: bool = False
-    is_dangling: bool = False
-
-
-class CASUpdateHeadRequest(BaseModel):
-    entity_id: int
-    old_revision_id: int | None
-    new_revision_id: int
-
-
-class InsertRevisionRequest(BaseModel):
-    entity_id: int
-    revision_id: int
-    is_mass_edit: bool = False
-
-
-class GetHistoryRequest(BaseModel):
-    entity_id: int
-
-
 class HistoryRecord(BaseModel):
     revision_id: int
     created_at: str

@@ -82,3 +82,22 @@ Start with [ARCHITECTURE.md](./ARCHITECTURE/ARCHITECTURE.md) for the complete ar
 
 ## External links
 * https://www.mediawiki.org/wiki/User:So9q/Scaling_issues Implemenatation history and on-wiki details
+
+## Code Quality
+
+### Vulture (Dead Code Detection)
+
+Run vulture to detect unused code:
+
+```bash
+source .venv/bin/activate
+vulture src vulture_whitelist.txt
+```
+
+Or use the helper script:
+
+```bash
+./run_vulture.sh
+```
+
+The `vulture_whitelist.txt` file contains false positives that are not actually unused (e.g., FastAPI route functions, Pydantic model fields, etc.).

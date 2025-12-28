@@ -99,23 +99,6 @@ class VitessClient(BaseModel):
         cursor.close()
         return result[0] if result else None
     
-    def cas_update_head(self, entity_id: int, old_revision_id: int | None, new_revision_id: int) -> bool:
-        conn = self.connect()
-        cursor = conn.cursor()
-        if old_revision_id is None:
-            cursor.execute(
-                "INSERT INTO entity_head (entity_id, head_revision_id) VALUES (%s, %s)",
-                (entity_id, new_revision_id)
-            )
-        else:
-            cursor.execute(
-                "UPDATE entity_head SET head_revision_id = %s WHERE entity_id = %s AND head_revision_id = %s",
-                (new_revision_id, entity_id, old_revision_id)
-            )
-        success = cursor.rowcount > 0
-        cursor.close()
-        return success
-    
     def insert_revision(self, entity_id: int, revision_id: int, is_mass_edit: bool = False, edit_type: str = "") -> None:
         conn = self.connect()
         cursor = conn.cursor()

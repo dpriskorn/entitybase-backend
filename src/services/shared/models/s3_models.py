@@ -13,24 +13,7 @@ class RevisionMetadata(BaseModel):
     key: str
 
 
-class RevisionResponse(BaseModel):
-    data: str
-
-
-class RevisionCreateRequest(BaseModel):
-    entity_id: str
-    revision_id: int
-    data: str
-    publication_state: str = "pending"
-
-
 class RevisionReadResponse(BaseModel):
     entity_id: str
     revision_id: int
     data: Dict[str, Any]
-
-
-class RevisionUpdateRequest(BaseModel):
-    entity_id: str
-    revision_id: int
-    publication_state: str
