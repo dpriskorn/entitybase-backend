@@ -257,7 +257,194 @@ Potential improvements not included in this implementation:
 
 ---
 
-## [2025-12-27] Raw Revision Endpoint
+## [2025-12-28] Mass Edit Audit Trail
+
+### Summary
+
+Added audit trail fields to distinguish manual edits from mass edits. Enables downstream consumers to filter by edit type and retrieve detailed classification from S3.
+
+### Changes
+
+#### Updated Vitess Schema
+
+**File:** `src/infrastructure/vitess_client.py`
+
+Added `is_mass_edit` boolean to `entity_revisions` table for fast querying.
+
+```sql
+CREATE TABLE IF NOT EXISTS entity_revisions (
+    entity_id BIGINT NOT NULL,
+    revision_id BIGINT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_mass_edit BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY (entity_id, revision_id)
+)
+```
+
+**Rationale:**
+- Enables fast query: `WHERE is_mass_edit = TRUE`
+- Indexed boolean column for efficient filtering
+- Downstream consumers can quickly identify mass edits
+
+#### Updated S3 Revision Schema
+
+**File:** `src/schemas/s3-revision/1.0.0/schema.json`
+
+Added optional `edit_type` field for flexible classification.
+
+```json
+{
+  "schema_version": "1.0.0",
+  "revision_id": 1,
+  "created_at": "2025-01-15T10:30:00Z",
+  "created_by": "entity-api",
+  "entity_type": "item",
+  "edit_type": "bot-import",
+  "entity": {...},
+  "content_hash": 1234567890123456789
+}
+```
+
+**Rationale:**
+- Stores detailed classification in immutable snapshot
+- Flexible text field supports community-defined taxonomy
+- Downstream can fetch details from S3 after querying Vitess
+
+#### Updated API Endpoint
+
+**File:** `src/services/entity_api/main.py`
+
+Modified `POST /entity` to accept new fields.
+
+**Request (New Fields):**
+```json
+{
+  "id": "Q42",
+  "data": {...},
+  "is_mass_edit": true,
+  "edit_type": "bot-import"
+}
+```
+
+**Defaults:**
+- `is_mass_edit`: `false` (default to manual edit)
+- `edit_type`: `""` (empty string, flexible)
+
+**Behavior:**
+- Stores `is_mass_edit` in Vitess for fast queries
+- Stores `edit_type` in S3 for detailed classification
+- Both fields optional with sensible defaults
+
+### Field Specifications
+
+- `is_mass_edit`: Boolean, optional, default `false`
+  - Stored in: Vitess entity_revisions table
+  - Purpose: Fast query/filtering of mass edits
+  - Query: `WHERE is_mass_edit = TRUE`
+  
+- `edit_type`: String, optional, default `""`
+  - Stored in: S3 revision JSON
+  - Purpose: Detailed classification (e.g., "bot-import", "cleanup-2025")
+  - Examples: "manual", "batch", "bot", "import", "cleanup", "system"
+
+### Query Examples
+
+**Find all mass edits:**
+```sql
+SELECT revision_id, created_at 
+FROM entity_revisions 
+WHERE is_mass_edit = TRUE
+ORDER BY created_at DESC
+LIMIT 100
+```
+
+**Find specific edit type:**
+```python
+# 1. Query Vitess for mass edits
+revisions = vitess.get_history_with_filter(entity_id, is_mass_edit=True)
+
+# 2. Fetch details from S3 for edit_type
+for rev in revisions:
+    s3_data = s3.read_revision(entity_id, rev.revision_id)
+    edit_type = s3_data.data.get("edit_type")
+    if edit_type == "bot-import":
+        # Process bot imports
+        pass
+```
+
+### Benefits
+
+1. **Fast Queries** - Boolean in Vitess enables efficient filtering
+2. **Flexible Classification** - Text field in S3 supports community taxonomy
+3. **Audit Trail** - Both fields stored for compliance/debugging
+4. **Downstream-Friendly** - Query fast, fetch details from S3
+5. **Default-Safe** - Most edits classified as manual, explicit marking for mass
+
+### Backward Compatibility
+
+- ✅ Both fields optional with defaults
+- ✅ No breaking API changes
+- ✅ Old revisions without fields parse correctly
+- ✅ Default `is_mass_edit = false` matches human intuition
+- ✅ Empty `edit_type` string minimal disruption
+
+### Testing
+
+**Test Cases:**
+
+1. **Default behavior (manual edit):**
+```bash
+POST /entity
+{
+  "id": "Q42",
+  "data": {"type": "item"}
+}
+# Expected: is_mass_edit=false, edit_type=""
+```
+
+2. **Mass edit with classification:**
+```bash
+POST /entity
+{
+  "id": "Q42",
+  "data": {...},
+  "is_mass_edit": true,
+  "edit_type": "bot-import"
+}
+# Expected: is_mass_edit=true, edit_type="bot-import"
+```
+
+3. **Multiple tags in edit_type:**
+```bash
+POST /entity
+{
+  "id": "Q42",
+  "data": {...},
+  "is_mass_edit": true,
+  "edit_type": "cleanup-2025-wikidata"
+}
+# Expected: is_mass_edit=true, edit_type="cleanup-2025-wikidata"
+```
+
+4. **Query mass edits:**
+```sql
+SELECT revision_id, created_at 
+FROM entity_revisions 
+WHERE is_mass_edit = TRUE;
+```
+
+5. **Verify S3 response:**
+```bash
+GET /raw/Q42/1
+# Expected: JSON includes "edit_type": "bot-import"
+```
+
+### Related Documentation
+
+- [ARCHITECTURE/STORAGE-ARCHITECTURE.md](./STORAGE-ARCHITECTURE.md) - Database schema
+- [ARCHITECTURE/S3-REVISION-SCHEMA-CHANGELOG.md](./S3-REVISION-SCHEMA-CHANGELOG.md) - Schema version tracking
+
+---
 
 ### Summary
 

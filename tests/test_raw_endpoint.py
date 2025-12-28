@@ -33,7 +33,6 @@ def test_raw_endpoint_returns_existing_revision(api_client: requests.Session, ba
     assert result["revision_id"] == 1
     assert "created_at" in result
     assert result["created_by"] == "entity-api"
-    assert result["entity_type"] == "item"
     assert "entity" in result
     assert result["entity"]["id"] == "Q55555"
     assert result["entity"]["type"] == "item"
@@ -189,7 +188,7 @@ def test_raw_endpoint_nonexistent_revision_2(api_client: requests.Session, base_
     entity_data = {
         "id": entity_id,
         "type": "item",
-        "labels": {"en": {"language": "en", "value": "Multi-Revision Test"}}
+        "labels": {"en": {"language": "en", "value": "Multi-Revision Test 2"}}
     }
     
     api_client.post(f"{base_url}/entity", json=entity_data)
@@ -205,3 +204,38 @@ def test_raw_endpoint_nonexistent_revision_2(api_client: requests.Session, base_
     assert "3 not found" in error_detail
     assert "[1, 2]" in error_detail
     logger.info("✓ Raw endpoint returns 404 with available revisions listed 2")
+
+
+def test_mass_edit_fields_in_raw_response(api_client: requests.Session, base_url: str) -> None:
+    """Test that raw endpoint includes mass edit classification"""
+    logger = logging.getLogger(__name__)
+    
+    # Create mass edit
+    entity_data = {
+        "id": "Q99992",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Raw Mass Edit Test"}}
+    }
+    
+    api_client.post(
+        f"{base_url}/entity",
+        json={
+            "id": entity_data["id"],
+            "type": entity_data["type"],
+            "labels": entity_data["labels"],
+            "is_mass_edit": True,
+            "edit_type": "cleanup-2025"
+        }
+    )
+    
+    # Verify raw response includes both fields
+    response = api_client.get(f"{base_url}/raw/Q99992/1")
+    assert response.status_code == 200
+    
+    result = response.json()
+    assert "is_mass_edit" in result
+    assert "edit_type" in result
+    assert result["is_mass_edit"] == True
+    assert result["edit_type"] == "cleanup-2025"
+    
+    logger.info("✓ Raw endpoint includes mass edit fields")

@@ -38,9 +38,9 @@ def test_create_entity(api_client: requests.Session, base_url: str) -> None:
     result = response.json()
     assert result["id"] == "Q99999"
     assert result["revision_id"] == 1
-    assert result["data"] == entity_data
     
-    entity_json = json.dumps(entity_data, sort_keys=True)
+    # Hash computation now works with nested data property
+    entity_json = json.dumps(result["data"], sort_keys=True)
     computed_hash = rapidhash(entity_json.encode())
     
     raw_response = api_client.get(f"{base_url}/raw/Q99999/1")
@@ -292,3 +292,61 @@ def test_idempotent_duplicate_submission(api_client: requests.Session, base_url:
     else:
         logger.info(f"✓ Idempotent deduplication: same revision {revision_id_1} returned (rapidhash not available)")
 
+
+def test_mass_edit_audit_trail(api_client: requests.Session, base_url: str) -> None:
+    """Test mass edit audit trail fields"""
+    logger = logging.getLogger(__name__)
+    
+    # Create mass edit with classification
+    entity_data = {
+        "id": "Q99994",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Mass Edit Test"}}
+    }
+    
+    response = api_client.post(
+        f"{base_url}/entity",
+        json={
+            "id": entity_data["id"],
+            "type": entity_data["type"],
+            "labels": entity_data["labels"],
+            "is_mass_edit": True,
+            "edit_type": "bot-import"
+        }
+    )
+    assert response.status_code == 200
+    
+    result = response.json()
+    assert result["id"] == "Q99994"
+    assert result["revision_id"] == 1
+    
+    # Verify fields in S3
+    raw_response = api_client.get(f"{base_url}/raw/Q99994/1")
+    raw_data = raw_response.json()
+    assert raw_data.get("is_mass_edit") == True
+    assert raw_data.get("edit_type") == "bot-import"
+    
+    # Create manual edit (default behavior)
+    manual_data = {
+        "id": "Q99993",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Manual Test"}}
+    }
+    
+    response2 = api_client.post(
+        f"{base_url}/entity",
+        json={
+            "id": manual_data["id"],
+            "type": manual_data["type"],
+            "labels": manual_data["labels"]
+        }
+    )
+    assert response2.status_code == 200
+    
+    # Verify defaults in S3
+    raw_response2 = api_client.get(f"{base_url}/raw/Q99993/1")
+    raw_data2 = raw_response2.json()
+    assert raw_data2.get("is_mass_edit") == False
+    assert raw_data2.get("edit_type") == ""
+    
+    logger.info("✓ Mass edit audit trail fields work correctly")

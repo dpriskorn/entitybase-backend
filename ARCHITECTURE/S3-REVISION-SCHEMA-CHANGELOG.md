@@ -48,7 +48,9 @@ This document tracks all S3 entity JSON schema version changes for Wikibase immu
 - `created_at`: ISO-8601 timestamp
 - `created_by`: User or system identifier
 - `entity_type`: Entity type (item/property/lexeme)
+- `is_mass_edit`: Boolean flag for mass edit classification
 - `content_hash`: Rapidhash integer for deduplication
+- `edit_type`: Text classification of edit type (e.g., 'bot-import', 'cleanup-2025')
 
 ### Data Integrity
 

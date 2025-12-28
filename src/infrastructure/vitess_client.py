@@ -55,6 +55,7 @@ class VitessClient(BaseModel):
                 entity_id BIGINT NOT NULL,
                 revision_id BIGINT NOT NULL,
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                is_mass_edit BOOLEAN DEFAULT FALSE,
                 PRIMARY KEY (entity_id, revision_id)
             )
         """)
@@ -109,12 +110,12 @@ class VitessClient(BaseModel):
         cursor.close()
         return success
     
-    def insert_revision(self, entity_id: int, revision_id: int) -> None:
+    def insert_revision(self, entity_id: int, revision_id: int, is_mass_edit: bool = False) -> None:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO entity_revisions (entity_id, revision_id) VALUES (%s, %s)",
-            (entity_id, revision_id)
+            "INSERT INTO entity_revisions (entity_id, revision_id, is_mass_edit) VALUES (%s, %s, %s)",
+            (entity_id, revision_id, is_mass_edit)
         )
         cursor.close()
     
@@ -122,9 +123,9 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT revision_id, created_at FROM entity_revisions WHERE entity_id = %s ORDER BY revision_id",
+            "SELECT revision_id, created_at, is_mass_edit FROM entity_revisions WHERE entity_id = %s ORDER BY revision_id",
             (entity_id,)
         )
-        result = [HistoryRecord(revision_id=row[0], created_at=str(row[1])) for row in cursor.fetchall()]
+        result = [HistoryRecord(revision_id=row[0], created_at=str(row[1]), is_mass_edit=row[2]) for row in cursor.fetchall()]
         cursor.close()
         return result

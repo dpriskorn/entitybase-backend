@@ -69,6 +69,9 @@ def create_entity(request: EntityCreateRequest):
         raise HTTPException(status_code=503, detail="Vitess not initialized")
     
     external_id = request.data.get("id")
+    is_mass_edit = request.is_mass_edit if request.is_mass_edit is not None else False
+    edit_type = request.edit_type if request.edit_type is not None else ""
+    
     if not external_id:
         raise HTTPException(status_code=400, detail="Entity must have 'id' field")
     
@@ -102,6 +105,8 @@ def create_entity(request: EntityCreateRequest):
         "revision_id": new_revision_id,
         "created_at": datetime.utcnow().isoformat() + "Z",
         "created_by": "entity-api",
+        "is_mass_edit": is_mass_edit,
+        "edit_type": edit_type,
         "entity_type": request.data.get("type", "item"),
         "entity": request.data,
         "content_hash": content_hash
@@ -113,7 +118,7 @@ def create_entity(request: EntityCreateRequest):
         data=revision_data,
         publication_state="pending"
     )
-    clients.vitess.insert_revision(internal_id, new_revision_id)
+    clients.vitess.insert_revision(internal_id, new_revision_id, is_mass_edit)
     
     success = clients.vitess.cas_update_head(internal_id, head_revision_id, new_revision_id)
     if not success:

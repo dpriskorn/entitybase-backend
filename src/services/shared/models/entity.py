@@ -12,6 +12,8 @@ class EntityCreateRequest(BaseModel):
     claims: Optional[Dict[str, List]] = None
     aliases: Optional[Dict[str, List]] = None
     sitelinks: Optional[Dict[str, Any]] = None
+    is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
+    edit_type: str = Field(default="", description="Text classification of edit type (e.g., 'bot-import', 'cleanup')")
     
     model_config = ConfigDict(extra="allow")
     

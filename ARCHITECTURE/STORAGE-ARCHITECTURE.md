@@ -62,10 +62,7 @@ entity_revisions
 - entity_id (shard key)
 - revision_id
 - created_at
-- author_id
-- comment
-- snapshot_uri
-- content_hash
+- is_mass_edit
 
 entity_revision_meta
 - entity_id

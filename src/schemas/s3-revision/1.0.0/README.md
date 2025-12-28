@@ -19,6 +19,7 @@ See `schema.json` for complete definition.
   "created_at": "2025-01-15T10:30:00Z",
   "created_by": "user:ExampleUser",
   "entity_type": "item",
+  "edit_type": "bot-import",
   "entity": {
     "id": "Q42",
     "type": "item",
@@ -27,6 +28,7 @@ See `schema.json` for complete definition.
     "aliases": {},
     "claims": {},
     "sitelinks": {}
-  }
+  },
+  "content_hash": 1234567890123456789
 }
 ```

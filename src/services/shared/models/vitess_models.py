@@ -35,6 +35,7 @@ class CASUpdateHeadRequest(BaseModel):
 class InsertRevisionRequest(BaseModel):
     entity_id: int
     revision_id: int
+    is_mass_edit: bool = False
 
 
 class GetHistoryRequest(BaseModel):
@@ -44,3 +45,4 @@ class GetHistoryRequest(BaseModel):
 class HistoryRecord(BaseModel):
     revision_id: int
     created_at: str
+    is_mass_edit: bool = False
