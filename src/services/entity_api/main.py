@@ -7,7 +7,6 @@ from rapidhash import rapidhash
 
 from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
-from services.entity_api.rdf.serializer import serialize_entity_to_turtle
 
 from infrastructure.s3_client import S3Client
 from infrastructure.ulid_flake import generate_ulid_flake
