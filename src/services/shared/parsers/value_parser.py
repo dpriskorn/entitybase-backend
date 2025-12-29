@@ -14,8 +14,8 @@ from .values.musical_notation_value_parser import parse_musical_notation_value
 from .values.url_value_parser import parse_url_value
 from .values.math_value_parser import parse_math_value
 from .values.entity_schema_value_parser import parse_entity_schema_value
-from src.services.shared.models.internal_representation.datatypes import Datatype
-from src.services.shared.models.internal_representation.json_fields import JsonField
+from services.shared.models.internal_representation.datatypes import Datatype
+from services.shared.models.internal_representation.json_fields import JsonField
 
 
 PARSERS = {
