@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, ConfigDict
 from typing import TYPE_CHECKING
 
@@ -11,10 +13,10 @@ if TYPE_CHECKING:
 
 class Statement(BaseModel):
     property: str
-    value: "Value"
+    value: Value
     rank: Rank
-    qualifiers: list["Qualifier"]
-    references: list["Reference"]
+    qualifiers: list[Qualifier]
+    references: list[Reference]
     statement_id: str
 
     model_config = ConfigDict(frozen=True)

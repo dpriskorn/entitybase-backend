@@ -1,4 +1,7 @@
-from typing import Literal
+from enum import Enum
 
 
-Rank = Literal["preferred", "normal", "deprecated"]
+class Rank(str, Enum):
+    PREFERRED = "preferred"
+    NORMAL = "normal"
+    DEPRECATED = "deprecated"

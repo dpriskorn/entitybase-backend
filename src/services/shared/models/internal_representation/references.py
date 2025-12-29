@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, ConfigDict
 from typing import TYPE_CHECKING
 
@@ -7,7 +9,7 @@ if TYPE_CHECKING:
 
 class ReferenceValue(BaseModel):
     property: str
-    value: "Value"
+    value: Value
 
     model_config = ConfigDict(frozen=True)
 

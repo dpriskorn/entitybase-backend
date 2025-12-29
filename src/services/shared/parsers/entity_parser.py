@@ -2,17 +2,19 @@ from typing import Any
 
 from services.shared.parsers.statement_parser import parse_statement
 from services.shared.models.internal_representation.entity import Entity
+from services.shared.models.internal_representation.entity_types import EntityKind
+from services.shared.models.internal_representation.json_fields import JsonField
 
 
 def parse_entity(entity_json: dict[str, Any]) -> Entity:
-    entity_id = entity_json.get("id", "")
-    entity_type = entity_json.get("type", "item")
+    entity_id = entity_json.get(JsonField.ID.value, "")
+    entity_type = EntityKind(entity_json.get(JsonField.TYPE.value, EntityKind.ITEM.value))
 
-    labels_json = entity_json.get("labels", {})
-    descriptions_json = entity_json.get("descriptions", {})
-    aliases_json = entity_json.get("aliases", {})
-    claims_json = entity_json.get("claims", {})
-    sitelinks_json = entity_json.get("sitelinks", {})
+    labels_json = entity_json.get(JsonField.LABELS.value, {})
+    descriptions_json = entity_json.get(JsonField.DESCRIPTIONS.value, {})
+    aliases_json = entity_json.get(JsonField.ALIASES.value, {})
+    claims_json = entity_json.get(JsonField.CLAIMS.value, {})
+    sitelinks_json = entity_json.get(JsonField.SITELINKS.value, {})
 
     labels = _parse_labels(labels_json)
     descriptions = _parse_descriptions(descriptions_json)

@@ -1,4 +1,6 @@
-from typing import Literal
+from enum import Enum
 
 
-EntityKind = Literal["item", "property"]
+class EntityKind(str, Enum):
+    ITEM = "item"
+    PROPERTY = "property"

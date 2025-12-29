@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, ConfigDict, Field
 from typing import TYPE_CHECKING, Optional, Any
 
@@ -13,7 +15,7 @@ class Entity(BaseModel):
     labels: dict[str, str]
     descriptions: dict[str, str]
     aliases: dict[str, list[str]]
-    statements: list["Statement"]
+    statements: list[Statement]
     sitelinks: Optional[dict[str, dict[str, Any]]] = None
 
     model_config = ConfigDict(frozen=True)

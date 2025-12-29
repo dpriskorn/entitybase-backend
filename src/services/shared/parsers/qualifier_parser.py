@@ -2,6 +2,7 @@ from typing import Any
 
 from services.shared.parsers.value_parser import parse_value
 from services.shared.models.internal_representation.qualifiers import Qualifier
+from services.shared.models.internal_representation.json_fields import JsonField
 
 
 def parse_qualifiers(qualifiers_json: dict[str, list[dict[str, Any]]]) -> list[Qualifier]:
@@ -10,7 +11,7 @@ def parse_qualifiers(qualifiers_json: dict[str, list[dict[str, Any]]]) -> list[Q
     for property_id, qualifier_list in qualifiers_json.items():
         for qualifier_json in qualifier_list:
             qualifier = Qualifier(
-                property=qualifier_json.get("property", property_id),
+                property=qualifier_json.get(JsonField.PROPERTY.value, property_id),
                 value=parse_value(qualifier_json)
             )
             qualifiers.append(qualifier)
