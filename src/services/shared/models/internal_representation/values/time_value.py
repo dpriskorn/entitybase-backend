@@ -1,10 +1,11 @@
 import re
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator
 from typing_extensions import Literal
+from .base import Value
 
 
-class TimeValue(BaseModel):
+class TimeValue(Value):
     kind: Literal["time"] = Field(default="time", frozen=True)
     value: str
     datatype_uri: str = "http://wikiba.se/ontology#Time"

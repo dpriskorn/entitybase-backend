@@ -1,9 +1,10 @@
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator
 from typing_extensions import Literal
 from typing import Optional
+from .base import Value
 
 
-class GlobeValue(BaseModel):
+class GlobeValue(Value):
     kind: Literal["globe"] = Field(default="globe", frozen=True)
     value: str
     datatype_uri: str = "http://wikiba.se/ontology#GlobeCoordinate"

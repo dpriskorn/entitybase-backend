@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from services.shared.parsers import parse_entity, parse_statement, parse_value
+from services.shared.parsers import parse_entity, parse_statement, parse_value, parse_qualifiers, parse_references, parse_qualifiers, parse_references
 
 TEST_DATA_DIR = Path(__file__).parent.parent / "test_data"
 
@@ -757,3 +757,57 @@ def test_parse_unsupported_datatype():
 
     with pytest.raises(ValueError, match="Unsupported value type"):
         parse_value(snak_json)
+
+
+def test_parse_qualifiers_basic():
+    """Test parsing qualifiers with entity values"""
+    qualifiers_json = {
+        "P2": [
+            {
+                "snaktype": "value",
+                "property": "P2",
+                "datatype": "wikibase-item",
+                "datavalue": {
+                    "value": {"entity-type": "item", "numeric-id": 42, "id": "Q42"},
+                    "type": "wikibase-entityid"
+                }
+            }
+        ]
+    }
+
+    qualifiers = parse_qualifiers(qualifiers_json)
+    assert len(qualifiers) == 1
+    assert qualifiers[0].property == "P2"
+    assert qualifiers[0].value.kind == "entity"
+    assert qualifiers[0].value.value == "Q42"
+
+
+def test_parse_qualifiers_multiple():
+    """Test parsing qualifiers with multiple qualifiers of same property"""
+    qualifiers_json = {
+        "P2": [
+            {
+                "snaktype": "value",
+                "property": "P2",
+                "datatype": "wikibase-item",
+                "datavalue": {
+                    "value": {"entity-type": "item", "numeric-id": 42},
+                    "type": "wikibase-entityid"
+                }
+            },
+            {
+                "snaktype": "value",
+                "property": "P2",
+                "datatype": "wikibase-item",
+                "datavalue": {
+                    "value": {"entity-type": "item", "numeric-id": 666},
+                    "type": "wikibase-entityid"
+                }
+            }
+        ]
+    }
+
+    qualifiers = parse_qualifiers(qualifiers_json)
+    assert len(qualifiers) == 2
+    assert all(q.property == "P2" for q in qualifiers)
+    assert all(q.value.kind == "entity" for q in qualifiers)

@@ -1,8 +1,9 @@
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import ConfigDict, Field, field_validator
 from typing_extensions import Literal
+from .base import Value
 
 
-class MonolingualValue(BaseModel):
+class MonolingualValue(Value):
     kind: Literal["monolingual"] = Field(default="monolingual", frozen=True)
     value: str
     datatype_uri: str = "http://wikiba.se/ontology#MonolingualText"

@@ -1,8 +1,9 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 from typing_extensions import Literal
+from .base import Value
 
 
-class TabularDataValue(BaseModel):
+class TabularDataValue(Value):
     kind: Literal["tabular_data"] = Field(default="tabular_data", frozen=True)
     value: str
     datatype_uri: str = "http://wikiba.se/ontology#TabularData"
