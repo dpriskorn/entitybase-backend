@@ -21,4 +21,4 @@
 - no relative imports
 
 # Current task
-create interal representation based on wikibase json that we can build rdf from later
+Add comprehensive unit tests for IR parsers using existing test data from test_data/ directory
