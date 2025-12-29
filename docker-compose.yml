@@ -107,7 +107,7 @@ services:
       S3_REVISION_SCHEMA_VERSION: "1.0.0"
       KAFKA_BROKERS: kafka:29092
       KAFKA_TOPIC: wikibase.entity_change
-    command: uvicorn services.entity_api.main:app --host 0.0.0.0 --port 8000
+    command: uvicorn models.entity_api.main:app --host 0.0.0.0 --port 8000
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 5s
