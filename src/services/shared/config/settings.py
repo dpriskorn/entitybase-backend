@@ -26,24 +26,26 @@ class Settings(BaseSettings):
 
     class Config:
         env_file = ".env"
-    
+
     def to_s3_config(self):
         from infrastructure.s3_client import S3Config
+
         return S3Config(
             endpoint_url=self.s3_endpoint,
             access_key=self.s3_access_key,
             secret_key=self.s3_secret_key,
-            bucket=self.s3_bucket
+            bucket=self.s3_bucket,
         )
-    
+
     def to_vitess_config(self):
         from infrastructure.vitess_client import VitessConfig
+
         return VitessConfig(
             host=self.vitess_host,
             port=self.vitess_port,
             database=self.vitess_database,
             user=self.vitess_user,
-            password=self.vitess_password
+            password=self.vitess_password,
         )
 
 

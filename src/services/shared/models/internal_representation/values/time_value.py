@@ -23,9 +23,13 @@ class TimeValue(Value):
         if not (v.startswith("+") or v.startswith("-")):
             v = "+" + v
 
-        pattern = re.compile(r'^[+-][0-9]{1,16}-(?:1[0-2]|0[0-9])-(?:3[01]|0[0-9]|[12][0-9])T(?:2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]Z$')
+        pattern = re.compile(
+            r"^[+-][0-9]{1,16}-(?:1[0-2]|0[0-9])-(?:3[01]|0[0-9]|[12][0-9])T(?:2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]Z$"
+        )
         if not pattern.match(v):
-            raise ValueError(f"Time value must be in format '+%Y-%m-%dT%H:%M:%SZ', got: {v}")
+            raise ValueError(
+                f"Time value must be in format '+%Y-%m-%dT%H:%M:%SZ', got: {v}"
+            )
         return v
 
     @field_validator("calendarmodel")
@@ -35,5 +39,7 @@ class TimeValue(Value):
             if v.startswith("Q"):
                 v = "http://www.wikidata.org/entity/" + v
             else:
-                raise ValueError(f"Calendar model must be a Wikidata entity URI or QID, got: {v}")
+                raise ValueError(
+                    f"Calendar model must be a Wikidata entity URI or QID, got: {v}"
+                )
         return v

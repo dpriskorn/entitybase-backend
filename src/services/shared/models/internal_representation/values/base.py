@@ -20,7 +20,7 @@ class Value(BaseModel):
         "math",
         "entity_schema",
         "novalue",
-        "somevalue"
+        "somevalue",
     ]
     value: Any
     datatype_uri: str

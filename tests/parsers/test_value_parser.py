@@ -11,8 +11,8 @@ def test_parse_entity_value():
         "datatype": "wikibase-item",
         "datavalue": {
             "value": {"entity-type": "item", "numeric-id": 42, "id": "Q42"},
-            "type": "wikibase-entityid"
-        }
+            "type": "wikibase-entityid",
+        },
     }
 
     value = parse_value(snak_json)
@@ -27,10 +27,7 @@ def test_parse_string_value():
         "snaktype": "value",
         "property": "P1",
         "datatype": "string",
-        "datavalue": {
-            "value": "test string",
-            "type": "string"
-        }
+        "datavalue": {"value": "test string", "type": "string"},
     }
 
     value = parse_value(snak_json)
@@ -52,10 +49,10 @@ def test_parse_time_value():
                 "before": 0,
                 "after": 0,
                 "precision": 11,
-                "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
             },
-            "type": "time"
-        }
+            "type": "time",
+        },
     }
 
     value = parse_value(snak_json)
@@ -76,10 +73,10 @@ def test_parse_quantity_value():
                 "amount": "+34.5",
                 "unit": "1",
                 "upperBound": "+35.3",
-                "lowerBound": "+33.7"
+                "lowerBound": "+33.7",
             },
-            "type": "quantity"
-        }
+            "type": "quantity",
+        },
     }
 
     value = parse_value(snak_json)
@@ -102,10 +99,10 @@ def test_parse_globe_value():
                 "longitude": 12.125,
                 "altitude": None,
                 "precision": 1 / 3600,
-                "globe": "http://www.wikidata.org/entity/Q2"
+                "globe": "http://www.wikidata.org/entity/Q2",
             },
-            "type": "globecoordinate"
-        }
+            "type": "globecoordinate",
+        },
     }
 
     value = parse_value(snak_json)
@@ -121,12 +118,9 @@ def test_parse_monolingual_value():
         "property": "P8",
         "datatype": "monolingualtext",
         "datavalue": {
-            "value": {
-                "text": "Douglas Adams",
-                "language": "en"
-            },
-            "type": "monolingualtext"
-        }
+            "value": {"text": "Douglas Adams", "language": "en"},
+            "type": "monolingualtext",
+        },
     }
 
     value = parse_value(snak_json)
@@ -141,10 +135,7 @@ def test_parse_external_id_value():
         "snaktype": "value",
         "property": "P9",
         "datatype": "external-id",
-        "datavalue": {
-            "value": "12345",
-            "type": "string"
-        }
+        "datavalue": {"value": "12345", "type": "string"},
     }
 
     value = parse_value(snak_json)
@@ -158,10 +149,7 @@ def test_parse_commons_media_value():
         "snaktype": "value",
         "property": "P10",
         "datatype": "commonsMedia",
-        "datavalue": {
-            "value": "Example.jpg",
-            "type": "string"
-        }
+        "datavalue": {"value": "Example.jpg", "type": "string"},
     }
 
     value = parse_value(snak_json)
@@ -175,10 +163,7 @@ def test_parse_geo_shape_value():
         "snaktype": "value",
         "property": "P11",
         "datatype": "geo-shape",
-        "datavalue": {
-            "value": "Data:Example.map",
-            "type": "string"
-        }
+        "datavalue": {"value": "Data:Example.map", "type": "string"},
     }
 
     value = parse_value(snak_json)
@@ -192,10 +177,7 @@ def test_parse_tabular_data_value():
         "snaktype": "value",
         "property": "P12",
         "datatype": "tabular-data",
-        "datavalue": {
-            "value": "Data:Example.tab",
-            "type": "string"
-        }
+        "datavalue": {"value": "Data:Example.tab", "type": "string"},
     }
 
     value = parse_value(snak_json)
@@ -209,10 +191,7 @@ def test_parse_musical_notation_value():
         "snaktype": "value",
         "property": "P13",
         "datatype": "musical-notation",
-        "datavalue": {
-            "value": "\\relative c' { c d e f }",
-            "type": "string"
-        }
+        "datavalue": {"value": "\\relative c' { c d e f }", "type": "string"},
     }
 
     value = parse_value(snak_json)
@@ -226,10 +205,7 @@ def test_parse_url_value():
         "snaktype": "value",
         "property": "P14",
         "datatype": "url",
-        "datavalue": {
-            "value": "https://example.com",
-            "type": "string"
-        }
+        "datavalue": {"value": "https://example.com", "type": "string"},
     }
 
     value = parse_value(snak_json)
@@ -243,10 +219,7 @@ def test_parse_math_value():
         "snaktype": "value",
         "property": "P15",
         "datatype": "math",
-        "datavalue": {
-            "value": "E = mc^2",
-            "type": "string"
-        }
+        "datavalue": {"value": "E = mc^2", "type": "string"},
     }
 
     value = parse_value(snak_json)
@@ -260,10 +233,7 @@ def test_parse_entity_schema_value():
         "snaktype": "value",
         "property": "P16",
         "datatype": "entity-schema",
-        "datavalue": {
-            "value": "S1234",
-            "type": "string"
-        }
+        "datavalue": {"value": "S1234", "type": "string"},
     }
 
     value = parse_value(snak_json)
@@ -273,10 +243,7 @@ def test_parse_entity_schema_value():
 
 def test_parse_novalue_value():
     """Test parsing novalue snaktype"""
-    snak_json = {
-        "snaktype": "novalue",
-        "property": "P1"
-    }
+    snak_json = {"snaktype": "novalue", "property": "P1"}
 
     value = parse_value(snak_json)
     assert value.kind == "novalue"
@@ -286,10 +253,7 @@ def test_parse_novalue_value():
 
 def test_parse_somevalue_value():
     """Test parsing somevalue snaktype"""
-    snak_json = {
-        "snaktype": "somevalue",
-        "property": "P1"
-    }
+    snak_json = {"snaktype": "somevalue", "property": "P1"}
 
     value = parse_value(snak_json)
     assert value.kind == "somevalue"
@@ -299,10 +263,7 @@ def test_parse_somevalue_value():
 
 def test_parse_value_with_novalue_snaktype():
     """Test parsing novalue snaktype successfully"""
-    snak_json = {
-        "snaktype": "novalue",
-        "property": "P1"
-    }
+    snak_json = {"snaktype": "novalue", "property": "P1"}
 
     value = parse_value(snak_json)
     assert value.kind == "novalue"
@@ -316,10 +277,7 @@ def test_parse_unsupported_datatype():
         "snaktype": "value",
         "property": "P1",
         "datatype": "unknown-type",
-        "datavalue": {
-            "value": "test",
-            "type": "another-unknown-type"
-        }
+        "datavalue": {"value": "test", "type": "another-unknown-type"},
     }
 
     with pytest.raises(ValueError, match="Unsupported value type"):

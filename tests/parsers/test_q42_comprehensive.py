@@ -29,10 +29,19 @@ def test_parse_q42_comprehensive():
     assert entity.labels["ar"] == "دوغلاس آدمز"
 
     assert len(entity.descriptions) == 116
-    assert entity.descriptions["en"] == "British science fiction writer and humorist (1952–2001)"
-    assert entity.descriptions["fr"] == "écrivain de science-fiction et humoriste anglais (1952–2001)"
+    assert (
+        entity.descriptions["en"]
+        == "British science fiction writer and humorist (1952–2001)"
+    )
+    assert (
+        entity.descriptions["fr"]
+        == "écrivain de science-fiction et humoriste anglais (1952–2001)"
+    )
     assert entity.descriptions["de"] == "britischer Science-Fiction-Autor und Humorist"
-    assert entity.descriptions["ru"] == "английский писатель, драматург и сценарист и юморист (1952–2001)"
+    assert (
+        entity.descriptions["ru"]
+        == "английский писатель, драматург и сценарист и юморист (1952–2001)"
+    )
 
     assert len(entity.aliases) == 25
     assert "mul" in entity.aliases
@@ -60,7 +69,11 @@ def test_parse_q42_comprehensive():
 
     p106_statements = [stmt for stmt in entity.statements if stmt.property == "P106"]
     assert len(p106_statements) > 1
-    occupation_ids = [stmt.value.value for stmt in p106_statements if stmt.value.kind == ValueKind.ENTITY]
+    occupation_ids = [
+        stmt.value.value
+        for stmt in p106_statements
+        if stmt.value.kind == ValueKind.ENTITY
+    ]
     assert len(occupation_ids) > 0
 
     ranks = [stmt.rank for stmt in entity.statements]

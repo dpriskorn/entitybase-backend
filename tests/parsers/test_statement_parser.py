@@ -12,14 +12,14 @@ def test_parse_statement_basic():
             "datatype": "wikibase-item",
             "datavalue": {
                 "value": {"entity-type": "item", "numeric-id": 5, "id": "Q5"},
-                "type": "wikibase-entityid"
-            }
+                "type": "wikibase-entityid",
+            },
         },
         "type": "statement",
         "id": "Q42-F078E5B3-F9A8-480E-B7AC-D97778CBBEF9",
         "rank": "normal",
         "qualifiers": {},
-        "references": []
+        "references": [],
     }
 
     statement = parse_statement(statement_json)
@@ -41,8 +41,8 @@ def test_parse_statement_with_qualifiers():
             "datatype": "wikibase-item",
             "datavalue": {
                 "value": {"entity-type": "item", "numeric-id": 666, "id": "Q666"},
-                "type": "wikibase-entityid"
-            }
+                "type": "wikibase-entityid",
+            },
         },
         "type": "statement",
         "id": "Q6-$123",
@@ -55,12 +55,12 @@ def test_parse_statement_with_qualifiers():
                     "datatype": "wikibase-item",
                     "datavalue": {
                         "value": {"entity-type": "item", "numeric-id": 42, "id": "Q42"},
-                        "type": "wikibase-entityid"
-                    }
+                        "type": "wikibase-entityid",
+                    },
                 }
             ]
         },
-        "references": []
+        "references": [],
     }
 
     statement = parse_statement(statement_json)
@@ -76,10 +76,7 @@ def test_parse_statement_with_references():
             "snaktype": "value",
             "property": "P7",
             "datatype": "string",
-            "datavalue": {
-                "value": "test",
-                "type": "string"
-            }
+            "datavalue": {"value": "test", "type": "string"},
         },
         "type": "statement",
         "id": "Q7-$123",
@@ -95,14 +92,18 @@ def test_parse_statement_with_references():
                             "property": "P2",
                             "datatype": "wikibase-item",
                             "datavalue": {
-                                "value": {"entity-type": "item", "numeric-id": 42, "id": "Q42"},
-                                "type": "wikibase-entityid"
-                            }
+                                "value": {
+                                    "entity-type": "item",
+                                    "numeric-id": 42,
+                                    "id": "Q42",
+                                },
+                                "type": "wikibase-entityid",
+                            },
                         }
                     ]
-                }
+                },
             }
-        ]
+        ],
     }
 
     statement = parse_statement(statement_json)
@@ -114,15 +115,12 @@ def test_parse_statement_with_references():
 def test_parse_statement_with_novalue_mainsnak():
     """Test parsing statement with novalue mainsnak"""
     statement_json = {
-        "mainsnak": {
-            "snaktype": "novalue",
-            "property": "P3"
-        },
+        "mainsnak": {"snaktype": "novalue", "property": "P3"},
         "type": "statement",
         "id": "TEST-novalue",
         "rank": "normal",
         "qualifiers": {},
-        "references": []
+        "references": [],
     }
 
     statement = parse_statement(statement_json)
@@ -134,15 +132,12 @@ def test_parse_statement_with_novalue_mainsnak():
 def test_parse_statement_with_somevalue_mainsnak():
     """Test parsing statement with somevalue mainsnak"""
     statement_json = {
-        "mainsnak": {
-            "snaktype": "somevalue",
-            "property": "P5"
-        },
+        "mainsnak": {"snaktype": "somevalue", "property": "P5"},
         "type": "statement",
         "id": "TEST-somevalue",
         "rank": "normal",
         "qualifiers": {},
-        "references": []
+        "references": [],
     }
 
     statement = parse_statement(statement_json)

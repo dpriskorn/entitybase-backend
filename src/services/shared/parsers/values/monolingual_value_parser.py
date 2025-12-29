@@ -9,5 +9,5 @@ def parse_monolingual_value(datavalue: dict[str, Any]) -> MonolingualValue:
     return MonolingualValue(
         value="",
         language=mono_data.get(JsonField.LANGUAGE.value, ""),
-        text=mono_data.get(JsonField.TEXT.value, "")
+        text=mono_data.get(JsonField.TEXT.value, ""),
     )

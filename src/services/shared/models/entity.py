@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 class EditType(str, Enum):
     """Standardized edit type classifications for audit trails and filtering"""
-    
+
     # Protection management
     LOCK_ADDED = "lock-added"
     LOCK_REMOVED = "lock-removed"
@@ -14,32 +14,32 @@ class EditType(str, Enum):
     SEMI_PROTECTION_REMOVED = "semi-protection-removed"
     ARCHIVE_ADDED = "archive-added"
     ARCHIVE_REMOVED = "archive-removed"
-    
+
     # Mass edit classifications
     BOT_IMPORT = "bot-import"
     BOT_CLEANUP = "bot-cleanup"
     BOT_MERGE = "bot-merge"
     BOT_SPLIT = "bot-split"
-    
+
     # Manual edit classifications
     MANUAL_CREATE = "manual-create"
     MANUAL_UPDATE = "manual-update"
     MANUAL_CORRECTION = "manual-correction"
-    
+
     # Cleanup campaigns
     CLEANUP_2025 = "cleanup-2025"
     CLEANUP_LABELS = "cleanup-labels"
     CLEANUP_DESCRIPTIONS = "cleanup-descriptions"
-    
+
     # Migration operations
     MIGRATION_INITIAL = "migration-initial"
     MIGRATION_BATCH = "migration-batch"
-    
+
     # Deletion operations
     SOFT_DELETE = "soft-delete"
     HARD_DELETE = "hard-delete"
     UNDELETE = "undelete"
-    
+
     # Default
     UNSPECIFIED = ""
 
@@ -53,16 +53,26 @@ class EntityCreateRequest(BaseModel):
     aliases: Optional[Dict[str, List]] = None
     sitelinks: Optional[Dict[str, Any]] = None
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
-    edit_type: str = Field(default="", description="Text classification of edit type (e.g., 'bot-import', 'cleanup')")
+    edit_type: str = Field(
+        default="",
+        description="Text classification of edit type (e.g., 'bot-import', 'cleanup')",
+    )
     is_semi_protected: bool = Field(default=False, description="Item is semi-protected")
     is_locked: bool = Field(default=False, description="Item is locked from edits")
     is_archived: bool = Field(default=False, description="Item is archived")
-    is_dangling: bool = Field(default=False, description="Item has no maintaining WikiProject (computed by frontend)")
-    is_mass_edit_protected: bool = Field(default=False, description="Item is protected from mass edits")
-    is_not_autoconfirmed_user: bool = Field(default=False, description="User is not autoconfirmed (new/unconfirmed account)")
-    
+    is_dangling: bool = Field(
+        default=False,
+        description="Item has no maintaining WikiProject (computed by frontend)",
+    )
+    is_mass_edit_protected: bool = Field(
+        default=False, description="Item is protected from mass edits"
+    )
+    is_not_autoconfirmed_user: bool = Field(
+        default=False, description="User is not autoconfirmed (new/unconfirmed account)"
+    )
+
     model_config = ConfigDict(extra="allow")
-    
+
     @property
     def data(self) -> Dict[str, Any]:
         """Return entity as dict for compatibility with existing code"""
@@ -87,12 +97,15 @@ class RevisionMetadata(BaseModel):
 
 class DeleteType(str, Enum):
     """Deletion type classification"""
+
     SOFT = "soft"
     HARD = "hard"
 
 
 class EntityDeleteRequest(BaseModel):
-    delete_type: DeleteType = Field(default=DeleteType.SOFT, description="Type of deletion")
+    delete_type: DeleteType = Field(
+        default=DeleteType.SOFT, description="Type of deletion"
+    )
     deletion_reason: str = Field(..., description="Reason for deletion (required)")
     deleted_by: str = Field(..., description="User or system requesting deletion")
 
@@ -105,6 +118,3 @@ class EntityDeleteResponse(BaseModel):
     deleted_at: str
     deletion_reason: str
     deleted_by: str
-
-
-

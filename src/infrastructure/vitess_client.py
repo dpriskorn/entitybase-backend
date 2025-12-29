@@ -2,24 +2,21 @@ from typing import Any, Optional
 import pymysql
 from pydantic import BaseModel, Field
 
-from services.shared.models.vitess_models import (
-    VitessConfig,
-    HistoryRecord
-)
+from services.shared.models.vitess_models import VitessConfig, HistoryRecord
 
 
 class VitessClient(BaseModel):
     config: VitessConfig
     connection: Optional[Any] = Field(default=None, exclude=True)
-    
+
     class Config:
         arbitrary_types_allowed = True
-    
+
     def __init__(self, config: VitessConfig, **kwargs):
         super().__init__(config=config, **kwargs)
         self.connection = None
         self._create_tables()
-    
+
     def connect(self):
         if not self.connection:
             self.connection = pymysql.connect(
@@ -28,22 +25,25 @@ class VitessClient(BaseModel):
                 user=self.config.user,
                 passwd=self.config.password,
                 database=self.config.database,
-                autocommit=True
+                autocommit=True,
             )
         return self.connection
-    
+
     def _create_tables(self):
         conn = self.connect()
         cursor = conn.cursor()
-        
-        cursor.execute("""
+
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS entity_id_mapping (
                 external_id VARCHAR(255) PRIMARY KEY,
                 internal_id BIGINT NOT NULL UNIQUE
             )
-        """)
-        
-        cursor.execute("""
+        """
+        )
+
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS entity_head (
                 entity_id BIGINT PRIMARY KEY,
                 head_revision_id BIGINT NOT NULL,
@@ -54,9 +54,11 @@ class VitessClient(BaseModel):
                 is_mass_edit_protected BOOLEAN DEFAULT FALSE,
                 deleted BOOLEAN DEFAULT FALSE
             )
-        """)
-        
-        cursor.execute("""
+        """
+        )
+
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS entity_revisions (
                 entity_id BIGINT NOT NULL,
                 revision_id BIGINT NOT NULL,
@@ -65,9 +67,11 @@ class VitessClient(BaseModel):
                 edit_type VARCHAR(100) DEFAULT '',
                 PRIMARY KEY (entity_id, revision_id)
             )
-        """)
-        
-        cursor.execute("""
+        """
+        )
+
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS entity_delete_audit (
                 id BIGINT PRIMARY KEY AUTO_INCREMENT,
                 entity_id BIGINT NOT NULL,
@@ -81,61 +85,73 @@ class VitessClient(BaseModel):
                 INDEX idx_deleted_at (deleted_at),
                 INDEX idx_delete_type (delete_type)
             )
-        """)
-        
+        """
+        )
+
         cursor.close()
-    
+
     def register_entity(self, external_id: str, internal_id: int) -> None:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO entity_id_mapping (external_id, internal_id) VALUES (%s, %s)",
-            (external_id, internal_id)
+            (external_id, internal_id),
         )
         cursor.close()
-    
+
     def resolve_id(self, external_id: str) -> int | None:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "SELECT internal_id FROM entity_id_mapping WHERE external_id = %s",
-            (external_id,)
+            (external_id,),
         )
         result = cursor.fetchone()
         cursor.close()
         return result[0] if result else None
-    
+
     def get_head(self, entity_id: int) -> int | None:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "SELECT head_revision_id FROM entity_head WHERE entity_id = %s",
-            (entity_id,)
+            (entity_id,),
         )
         result = cursor.fetchone()
         cursor.close()
         return result[0] if result else None
-    
-    def insert_revision(self, entity_id: int, revision_id: int, is_mass_edit: bool = False, edit_type: str = "") -> None:
+
+    def insert_revision(
+        self,
+        entity_id: int,
+        revision_id: int,
+        is_mass_edit: bool = False,
+        edit_type: str = "",
+    ) -> None:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "INSERT INTO entity_revisions (entity_id, revision_id, is_mass_edit, edit_type) VALUES (%s, %s, %s, %s)",
-            (entity_id, revision_id, is_mass_edit, edit_type)
+            (entity_id, revision_id, is_mass_edit, edit_type),
         )
         cursor.close()
-    
+
     def get_history(self, entity_id: int) -> list[HistoryRecord]:
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
             "SELECT revision_id, created_at, is_mass_edit FROM entity_revisions WHERE entity_id = %s ORDER BY revision_id",
-            (entity_id,)
+            (entity_id,),
         )
-        result = [HistoryRecord(revision_id=row[0], created_at=str(row[1]), is_mass_edit=row[2]) for row in cursor.fetchall()]
+        result = [
+            HistoryRecord(
+                revision_id=row[0], created_at=str(row[1]), is_mass_edit=row[2]
+            )
+            for row in cursor.fetchall()
+        ]
         cursor.close()
         return result
-    
+
     def cas_update_head_with_status(
         self,
         entity_id: int,
@@ -146,18 +162,27 @@ class VitessClient(BaseModel):
         is_archived: bool,
         is_dangling: bool,
         is_mass_edit_protected: bool,
-        deleted: bool = False
+        deleted: bool = False,
     ) -> bool:
         """Atomic CAS update including status flags"""
         conn = self.connect()
         cursor = conn.cursor()
-        
+
         if old_revision_id is None:
             cursor.execute(
                 """INSERT INTO entity_head
                    (entity_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected, deleted)
                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-                (entity_id, new_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected, deleted)
+                (
+                    entity_id,
+                    new_revision_id,
+                    is_semi_protected,
+                    is_locked,
+                    is_archived,
+                    is_dangling,
+                    is_mass_edit_protected,
+                    deleted,
+                ),
             )
         else:
             cursor.execute(
@@ -170,14 +195,23 @@ class VitessClient(BaseModel):
                        is_mass_edit_protected = %s,
                        deleted = %s
                    WHERE entity_id = %s AND head_revision_id = %s""",
-                (new_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected, deleted,
-                 entity_id, old_revision_id)
+                (
+                    new_revision_id,
+                    is_semi_protected,
+                    is_locked,
+                    is_archived,
+                    is_dangling,
+                    is_mass_edit_protected,
+                    deleted,
+                    entity_id,
+                    old_revision_id,
+                ),
             )
-        
+
         success = cursor.rowcount > 0
         cursor.close()
         return success
-    
+
     def list_locked_entities(self, limit: int) -> list[str]:
         """List all locked items"""
         conn = self.connect()
@@ -188,12 +222,12 @@ class VitessClient(BaseModel):
                JOIN entity_id_mapping m ON h.entity_id = m.internal_id
                WHERE h.is_locked = TRUE
                LIMIT %s""",
-            (limit,)
+            (limit,),
         )
         result = [row[0] for row in cursor.fetchall()]
         cursor.close()
         return result
-    
+
     def list_semi_protected_entities(self, limit: int) -> list[str]:
         """List all semi-protected items"""
         conn = self.connect()
@@ -204,12 +238,12 @@ class VitessClient(BaseModel):
                JOIN entity_id_mapping m ON h.entity_id = m.internal_id
                WHERE h.is_semi_protected = TRUE
                LIMIT %s""",
-            (limit,)
+            (limit,),
         )
         result = [row[0] for row in cursor.fetchall()]
         cursor.close()
         return result
-    
+
     def list_archived_entities(self, limit: int) -> list[str]:
         """List all archived items"""
         conn = self.connect()
@@ -220,12 +254,12 @@ class VitessClient(BaseModel):
                JOIN entity_id_mapping m ON h.entity_id = m.internal_id
                WHERE h.is_archived = TRUE
                LIMIT %s""",
-            (limit,)
+            (limit,),
         )
         result = [row[0] for row in cursor.fetchall()]
         cursor.close()
         return result
-    
+
     def list_dangling_entities(self, limit: int) -> list[str]:
         """List all dangling items"""
         conn = self.connect()
@@ -236,12 +270,12 @@ class VitessClient(BaseModel):
                JOIN entity_id_mapping m ON h.entity_id = m.internal_id
                WHERE h.is_dangling = TRUE
                LIMIT %s""",
-            (limit,)
+            (limit,),
         )
         result = [row[0] for row in cursor.fetchall()]
         cursor.close()
         return result
-    
+
     def list_by_edit_type(self, edit_type: str, limit: int) -> list[str]:
         """List entities by edit_type of latest revision"""
         conn = self.connect()
@@ -253,59 +287,86 @@ class VitessClient(BaseModel):
                JOIN entity_revisions r ON h.entity_id = r.entity_id AND h.head_revision_id = r.revision_id
                WHERE r.edit_type = %s
                LIMIT %s""",
-            (edit_type, limit)
+            (edit_type, limit),
         )
         result = [row[0] for row in cursor.fetchall()]
         cursor.close()
         return result
-    
+
     def is_entity_deleted(self, entity_id: int) -> bool:
         """Check if entity is hard-deleted"""
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT deleted FROM entity_head WHERE entity_id = %s",
-            (entity_id,)
+            "SELECT deleted FROM entity_head WHERE entity_id = %s", (entity_id,)
         )
         result = cursor.fetchone()
         cursor.close()
         return result[0] if result else False
-    
-    def hard_delete_entity(self, internal_id: int, external_id: str, deletion_reason: str, deleted_by: str, head_revision_id: int) -> bool:
+
+    def hard_delete_entity(
+        self,
+        internal_id: int,
+        external_id: str,
+        deletion_reason: str,
+        deleted_by: str,
+        head_revision_id: int,
+    ) -> bool:
         """Mark entity as hard-deleted and record in audit table"""
         conn = self.connect()
         cursor = conn.cursor()
-        
+
         try:
             # Mark entity as deleted in entity_head
             cursor.execute(
                 "UPDATE entity_head SET deleted = TRUE WHERE entity_id = %s",
-                (internal_id,)
+                (internal_id,),
             )
-            
+
             # Record in audit table
             cursor.execute(
                 """INSERT INTO entity_delete_audit 
                    (entity_id, external_id, delete_type, deletion_reason, deleted_by, head_revision_id)
                    VALUES (%s, %s, %s, %s, %s, %s)""",
-                (internal_id, external_id, "hard", deletion_reason, deleted_by, head_revision_id)
+                (
+                    internal_id,
+                    external_id,
+                    "hard",
+                    deletion_reason,
+                    deleted_by,
+                    head_revision_id,
+                ),
             )
-            
+
             success = cursor.rowcount > 0
             return success
         finally:
             cursor.close()
-    
-    def log_soft_delete(self, internal_id: int, external_id: str, deletion_reason: str, deleted_by: str, revision_id: int) -> None:
+
+    def log_soft_delete(
+        self,
+        internal_id: int,
+        external_id: str,
+        deletion_reason: str,
+        deleted_by: str,
+        revision_id: int,
+    ) -> None:
         """Log soft delete to audit table"""
         conn = self.connect()
         cursor = conn.cursor()
-        
+
         cursor.execute(
             """INSERT INTO entity_delete_audit 
                (entity_id, external_id, delete_type, deletion_reason, deleted_by, head_revision_id)
                VALUES (%s, %s, %s, %s, %s, %s)""",
-            (internal_id, external_id, "soft", deletion_reason, deleted_by, revision_id)
+            (
+                internal_id,
+                external_id,
+                "soft",
+                deletion_reason,
+                deleted_by,
+                revision_id,
+            ),
         )
-        
+
         cursor.close()

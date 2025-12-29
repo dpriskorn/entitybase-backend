@@ -13,16 +13,10 @@ def test_parse_entity_basic():
     entity_json = {
         "id": "Q42",
         "type": "item",
-        "labels": {
-            "en": {"language": "en", "value": "Douglas Adams"}
-        },
-        "descriptions": {
-            "en": {"language": "en", "value": "English author"}
-        },
-        "aliases": {
-            "en": [{"language": "en", "value": "DA"}]
-        },
-        "claims": {}
+        "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
+        "descriptions": {"en": {"language": "en", "value": "English author"}},
+        "aliases": {"en": [{"language": "en", "value": "DA"}]},
+        "claims": {},
     }
 
     entity = parse_entity(entity_json)
@@ -111,8 +105,14 @@ def test_parse_q2_multilingual():
     assert entity.id == "Q2"
     assert entity.type == "item"
     assert entity.labels == {"en": "Berlin", "ru": "Берлин"}
-    assert entity.descriptions == {"en": "German city", "ru": "столица и одновременно земля Германии"}
-    assert entity.aliases == {"en": ["Berlin, Germany", "Land Berlin"], "ru": ["Berlin"]}
+    assert entity.descriptions == {
+        "en": "German city",
+        "ru": "столица и одновременно земля Германии",
+    }
+    assert entity.aliases == {
+        "en": ["Berlin, Germany", "Land Berlin"],
+        "ru": ["Berlin"],
+    }
     assert len(entity.statements) == 0
     assert entity.sitelinks is None
 
@@ -212,7 +212,6 @@ def test_parse_q6_complex_qualifiers():
     p7_statements = [stmt for stmt in entity.statements if stmt.property == "P7"]
     assert len(p7_statements) == 1
 
-
     qualifiers = p7_statements[0].qualifiers
     assert len(qualifiers) == 13
 
@@ -261,19 +260,11 @@ def test_parse_entity_with_sitelinks():
     entity_json = {
         "id": "Q3",
         "type": "item",
-        "labels": {
-            "en": {"language": "en", "value": "Test"}
-        },
+        "labels": {"en": {"language": "en", "value": "Test"}},
         "descriptions": {},
         "aliases": {},
         "claims": {},
-        "sitelinks": {
-            "enwiki": {
-                "site": "enwiki",
-                "title": "Test",
-                "badges": []
-            }
-        }
+        "sitelinks": {"enwiki": {"site": "enwiki", "title": "Test", "badges": []}},
     }
 
     entity = parse_entity(entity_json)

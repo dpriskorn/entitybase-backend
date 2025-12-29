@@ -13,5 +13,7 @@ def parse_globe_value(datavalue: dict[str, Any]) -> GlobeValue:
         longitude=float(globe_data.get(JsonField.LONGITUDE.value, 0.0)),
         altitude=float(altitude) if altitude is not None else None,
         precision=float(globe_data.get(JsonField.PRECISION.value, 1 / 3600)),
-        globe=globe_data.get(JsonField.GLOBE.value, "http://www.wikidata.org/entity/Q2")
+        globe=globe_data.get(
+            JsonField.GLOBE.value, "http://www.wikidata.org/entity/Q2"
+        ),
     )

@@ -5,16 +5,7 @@ from services.shared.parsers import parse_reference
 
 def test_parse_reference_with_novalue():
     """Test parsing reference with novalue snak"""
-    reference_json = {
-        "snaks": {
-            "P2": [
-                {
-                    "snaktype": "novalue",
-                    "property": "P2"
-                }
-            ]
-        }
-    }
+    reference_json = {"snaks": {"P2": [{"snaktype": "novalue", "property": "P2"}]}}
 
     reference = parse_reference(reference_json)
     assert len(reference.snaks) == 1
@@ -24,16 +15,7 @@ def test_parse_reference_with_novalue():
 
 def test_parse_reference_with_somevalue():
     """Test parsing reference with somevalue snak"""
-    reference_json = {
-        "snaks": {
-            "P3": [
-                {
-                    "snaktype": "somevalue",
-                    "property": "P3"
-                }
-            ]
-        }
-    }
+    reference_json = {"snaks": {"P3": [{"snaktype": "somevalue", "property": "P3"}]}}
 
     reference = parse_reference(reference_json)
     assert len(reference.snaks) == 1

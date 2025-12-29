@@ -12,5 +12,7 @@ def parse_time_value(datavalue: dict[str, Any]) -> TimeValue:
         before=time_data.get(JsonField.BEFORE.value, 0),
         after=time_data.get(JsonField.AFTER.value, 0),
         precision=time_data.get(JsonField.PRECISION.value, 11),
-        calendarmodel=time_data.get(JsonField.CALENDARMODEL.value, "http://www.wikidata.org/entity/Q1985727")
+        calendarmodel=time_data.get(
+            JsonField.CALENDARMODEL.value, "http://www.wikidata.org/entity/Q1985727"
+        ),
     )

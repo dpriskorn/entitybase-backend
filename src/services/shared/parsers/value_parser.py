@@ -40,13 +40,13 @@ PARSERS = {
 
 def parse_value(snak_json: dict[str, Any]):
     snaktype = snak_json.get(JsonField.SNAKTYPE.value)
-    
+
     if snaktype == "novalue":
         return parse_novalue_value()
-    
+
     if snaktype == "somevalue":
         return parse_somevalue_value()
-    
+
     if snaktype != JsonField.VALUE.value:
         raise ValueError(f"Only value snaks are supported, got snaktype: {snaktype}")
 
@@ -56,5 +56,7 @@ def parse_value(snak_json: dict[str, Any]):
 
     parser = PARSERS.get(str(datatype)) or PARSERS.get(str(datavalue_type))
     if not parser:
-        raise ValueError(f"Unsupported value type: {datavalue_type}, datatype: {datatype}")
+        raise ValueError(
+            f"Unsupported value type: {datavalue_type}, datatype: {datatype}"
+        )
     return parser(datavalue)

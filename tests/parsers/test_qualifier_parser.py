@@ -13,8 +13,8 @@ def test_parse_qualifiers_basic():
                 "datatype": "wikibase-item",
                 "datavalue": {
                     "value": {"entity-type": "item", "numeric-id": 42, "id": "Q42"},
-                    "type": "wikibase-entityid"
-                }
+                    "type": "wikibase-entityid",
+                },
             }
         ]
     }
@@ -36,8 +36,8 @@ def test_parse_qualifiers_multiple():
                 "datatype": "wikibase-item",
                 "datavalue": {
                     "value": {"entity-type": "item", "numeric-id": 42},
-                    "type": "wikibase-entityid"
-                }
+                    "type": "wikibase-entityid",
+                },
             },
             {
                 "snaktype": "value",
@@ -45,9 +45,9 @@ def test_parse_qualifiers_multiple():
                 "datatype": "wikibase-item",
                 "datavalue": {
                     "value": {"entity-type": "item", "numeric-id": 666},
-                    "type": "wikibase-entityid"
-                }
-            }
+                    "type": "wikibase-entityid",
+                },
+            },
         ]
     }
 
@@ -59,10 +59,7 @@ def test_parse_qualifiers_multiple():
 
 def test_parse_qualifier_with_novalue():
     """Test parsing qualifier with novalue"""
-    qualifier_json = {
-        "snaktype": "novalue",
-        "property": "P2"
-    }
+    qualifier_json = {"snaktype": "novalue", "property": "P2"}
 
     qualifier = parse_qualifier(qualifier_json)
     assert qualifier.property == "P2"
@@ -71,10 +68,7 @@ def test_parse_qualifier_with_novalue():
 
 def test_parse_qualifier_with_somevalue():
     """Test parsing qualifier with somevalue"""
-    qualifier_json = {
-        "snaktype": "somevalue",
-        "property": "P3"
-    }
+    qualifier_json = {"snaktype": "somevalue", "property": "P3"}
 
     qualifier = parse_qualifier(qualifier_json)
     assert qualifier.property == "P3"

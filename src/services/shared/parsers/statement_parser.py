@@ -21,5 +21,5 @@ def parse_statement(statement_json: dict[str, Any]) -> Statement:
         rank=rank,
         qualifiers=parse_qualifiers(qualifiers_json),
         references=parse_references(references_json),
-        statement_id=statement_id
+        statement_id=statement_id,
     )
