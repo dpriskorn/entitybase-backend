@@ -40,6 +40,7 @@ class Entity:
     descriptions: dict[str, str]
     aliases: dict[str, list[str]]
     statements: list[Statement]
+    sitelinks: Optional[dict[str, dict[str, Any]]  # Site links to other wikis
 ```
 
 ---
