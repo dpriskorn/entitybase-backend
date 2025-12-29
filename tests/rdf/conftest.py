@@ -5,7 +5,7 @@ import re
 # tests/rdf/conftest.py → tests/rdf → tests → project root
 # PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-TEST_DATA_JSON_DIR = Path(__file__).parent.parent.parent / "test_data" / "json"
+TEST_DATA_DIR = Path(__file__).parent.parent.parent / "test_data"
 
 def load_text(path: Path) -> str:
     return path.read_text(encoding="utf-8")

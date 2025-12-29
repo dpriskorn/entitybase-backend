@@ -1,20 +1,23 @@
-class URIGenerator:
-    """Generate URIs for entities, statements, references"""
+from pydantic import BaseModel
 
-    BASE_URI = "http://acme.test"  # From test data
-    DATA_URI = "http://data.acme.test"
+
+class URIGenerator:
+    """This is intentionally not a BaseModel class"""
+    WD: str = "http://www.wikidata.org/entity"
+    DATA: str = "http://www.wikidata.org/wiki/Special:EntityData"
+    WDS: str = "http://www.wikidata.org/entity/statement"
 
     @staticmethod
     def entity_uri(entity_id: str) -> str:
-        return f"{URIGenerator.BASE_URI}/{entity_id}"
+        return f"{URIGenerator.WD}/{entity_id}"
 
     @staticmethod
     def data_uri(entity_id: str) -> str:
-        return f"{URIGenerator.DATA_URI}/{entity_id}"
+        return f"{URIGenerator.DATA}/{entity_id}.ttl"
 
     @staticmethod
     def statement_uri(statement_id: str) -> str:
-        return f"{URIGenerator.BASE_URI}/statement/{statement_id}"
+        return f"{URIGenerator.WDS}/{statement_id}"
 
     @staticmethod
     def reference_uri(statement_uri: str, ref_index: int) -> str:
