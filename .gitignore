@@ -18,3 +18,5 @@ wikidata-query-rdf
 mediawiki-extensions-Wikibase
 /WikibaseDataModelSerialization/
 /WikibaseIntegrator/
+*.pyc
+/src/schemas/schemas-event-primary/

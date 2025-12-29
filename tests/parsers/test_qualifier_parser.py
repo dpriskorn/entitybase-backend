@@ -1,6 +1,4 @@
-import pytest
-
-from services.shared.parsers import parse_qualifiers, parse_qualifier
+from models.json_parser import parse_qualifiers, parse_qualifier
 
 
 def test_parse_qualifiers_basic():

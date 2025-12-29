@@ -1,12 +1,10 @@
 import json
 from pathlib import Path
 
-import pytest
-
-from services.shared.parsers import parse_entity
-from services.shared.models.internal_representation.entity_types import EntityKind
-from services.shared.models.internal_representation.ranks import Rank
-from services.shared.models.internal_representation.value_kinds import ValueKind
+from models.internal_representation.entity_types import EntityKind
+from models.internal_representation.ranks import Rank
+from models.internal_representation.value_kinds import ValueKind
+from models.json_parser import parse_entity
 
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "test_data"
 

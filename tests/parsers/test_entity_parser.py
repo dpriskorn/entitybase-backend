@@ -1,9 +1,7 @@
 import json
 from pathlib import Path
 
-import pytest
-
-from services.shared.parsers import parse_entity
+from models.json_parser import parse_entity
 
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "test_data"
 

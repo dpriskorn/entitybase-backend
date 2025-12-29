@@ -1,6 +1,4 @@
-import pytest
-
-from services.shared.parsers import parse_statement
+from models.json_parser import parse_statement
 
 
 def test_parse_statement_basic():

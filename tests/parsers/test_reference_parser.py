@@ -1,6 +1,4 @@
-import pytest
-
-from services.shared.parsers import parse_reference
+from models.json_parser import parse_reference
 
 
 def test_parse_reference_with_novalue():

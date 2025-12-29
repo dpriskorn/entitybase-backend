@@ -1,6 +1,6 @@
 import pytest
 
-from services.shared.parsers import parse_value
+from models.json_parser import parse_value
 
 
 def test_parse_entity_value():
