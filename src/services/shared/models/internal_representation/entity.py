@@ -1,13 +1,9 @@
-from __future__ import annotations
-
-from typing import TYPE_CHECKING, Optional, Any
+from typing import Optional, Any
 
 from pydantic import BaseModel, ConfigDict
 
-from .entity_types import EntityKind
-
-if TYPE_CHECKING:
-    from .statements import Statement
+from services.shared.models.internal_representation.entity_types import EntityKind
+from services.shared.models.internal_representation.statements import Statement
 
 
 class Entity(BaseModel):

@@ -613,8 +613,9 @@ def test_parse_q10_simple():
 def test_parse_q120248304():
     """Test parsing another real Wikidata entity"""
     with open(TEST_DATA_DIR / "entities/Q120248304.json") as f:
-        entity_json = json.load(f)
+        data = json.load(f)
 
+    entity_json = data["entities"]["Q120248304"]
     entity = parse_entity(entity_json)
     assert entity.id == "Q120248304"
     assert entity.type == "item"
@@ -750,7 +751,7 @@ def test_parse_unsupported_datatype():
         "datatype": "unknown-type",
         "datavalue": {
             "value": "test",
-            "type": "string"
+            "type": "another-unknown-type"
         }
     }
 

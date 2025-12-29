@@ -1,14 +1,9 @@
-from __future__ import annotations
-
 from pydantic import BaseModel, ConfigDict
-from typing import TYPE_CHECKING
 
-from .ranks import Rank
-
-if TYPE_CHECKING:
-    from .values import Value
-    from .qualifiers import Qualifier
-    from .references import Reference
+from services.shared.models.internal_representation.ranks import Rank
+from services.shared.models.internal_representation.values import Value
+from services.shared.models.internal_representation.qualifiers import Qualifier
+from services.shared.models.internal_representation.references import Reference
 
 
 class Statement(BaseModel):

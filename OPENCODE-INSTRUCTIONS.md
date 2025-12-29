@@ -19,6 +19,7 @@
 - after each edit lets use vulture using ./run-vulture.sh to check for dead code
 - generally one class per file for all classes with at least 1 method
 - no relative imports
+- no __future__ imports
 - no strings in code - everything is enums
 
 # Current task

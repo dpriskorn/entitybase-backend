@@ -1,10 +1,5 @@
-from __future__ import annotations
-
 from pydantic import BaseModel, ConfigDict
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from .values import Value
+from services.shared.models.internal_representation.values import Value
 
 
 class ReferenceValue(BaseModel):
