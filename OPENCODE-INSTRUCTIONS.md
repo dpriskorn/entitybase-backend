@@ -18,6 +18,7 @@
 - /raw/ endpoint returns full revision schema, /entity/ endpoint extracts nested entity
 - after each edit lets use vulture using ./run-vulture.sh to check for dead code
 - generally one class per file for all classes with at least 1 method
+- no relative imports
 
 # Current task
 create interal representation based on wikibase json that we can build rdf from later

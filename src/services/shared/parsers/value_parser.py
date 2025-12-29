@@ -1,8 +1,6 @@
 from typing import Any
 
-from pydantic import ValidationError
-
-from ..models.internal_representation.values import (
+from services.shared.models.internal_representation.values import (
     EntityValue,
     StringValue,
     TimeValue,

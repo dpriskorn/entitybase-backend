@@ -1,7 +1,7 @@
 from typing import Any
 
-from .value_parser import parse_value
-from ..models.internal_representation.references import Reference, ReferenceValue
+from services.shared.parsers.value_parser import parse_value
+from services.shared.models.internal_representation.references import Reference, ReferenceValue
 
 
 def parse_references(references_json: list[dict[str, Any]]) -> list[Reference]:

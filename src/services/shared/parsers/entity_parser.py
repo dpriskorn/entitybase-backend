@@ -1,8 +1,8 @@
 from typing import Any
 
-from .statement_parser import parse_statement
-from ..models.internal_representation.entity import Entity
-from ..models.internal_representation.entity_types import EntityKind
+from services.shared.parsers.statement_parser import parse_statement
+from services.shared.models.internal_representation.entity import Entity
+from services.shared.models.internal_representation.entity_types import EntityKind
 
 
 def parse_entity(entity_json: dict[str, Any]) -> Entity:
@@ -44,7 +44,7 @@ def _parse_aliases(aliases_json: dict[str, list[dict[str, str]]]) -> dict[str, l
 
 
 def _parse_statements(claims_json: dict[str, list[dict[str, Any]]]) -> list:
-    from .statement_parser import parse_statement
+    from services.shared.parsers.statement_parser import parse_statement
 
     statements = []
     for property_id, claim_list in claims_json.items():

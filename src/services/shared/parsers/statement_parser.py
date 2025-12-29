@@ -1,10 +1,10 @@
 from typing import Any
 
-from .value_parser import parse_value
-from .qualifier_parser import parse_qualifiers
-from .reference_parser import parse_references
-from ..models.internal_representation.statements import Statement
-from ..models.internal_representation.ranks import Rank
+from services.shared.parsers.value_parser import parse_value
+from services.shared.parsers.qualifier_parser import parse_qualifiers
+from services.shared.parsers.reference_parser import parse_references
+from services.shared.models.internal_representation.statements import Statement
+from services.shared.models.internal_representation.ranks import Rank
 
 
 def parse_statement(statement_json: dict[str, Any]) -> Statement:
