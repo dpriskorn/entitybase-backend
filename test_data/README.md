@@ -2,23 +2,9 @@
 
 This directory contains expected responses and data structures for integration testing.
 
-## Directory Structure
-
-```
-test_data/
-├── revisions/       # Expected raw entity data in full S3 revision schema format
-│   ├── Q12345_r1.json
-│   ├── Q12345_r2.json
-│   └── Q42_r1.json
-└── errors/         # Expected error responses
-    ├── entity_not_found.json
-    ├── no_revisions.json
-    └── revision_not_found.json
-```
-
 ## Revisions
 
-Files in `revisions/` follow the S3 revision schema v1.0.0 format:
+Files in `json/revisions/` follow the S3 revision schema v1.0.0 format:
 
 ```json
 {
@@ -40,7 +26,7 @@ Note: The `/raw/{entity_id}/{revision_id}` endpoint currently returns only the i
 
 ## Errors
 
-Files in `errors/` contain expected 404 error responses:
+Files in `json/errors/` contain expected 404 error responses:
 
 - `entity_not_found.json`: Entity ID not in ID mapping table
 - `no_revisions.json`: Entity exists but has no revisions in database
