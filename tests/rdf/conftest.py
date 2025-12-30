@@ -40,52 +40,32 @@ def normalize_ttl(ttl: str) -> str:
     return result
 
 def split_subject_blocks(ttl: str) -> dict[str, str]:
-    logger.debug("=== split_subject_blocks() START ===")
     blocks = {}
     current_subject = None
     current_lines = []
-    line_count = 0
 
     for line in ttl.splitlines():
-        line_count += 1
-        
-        if line_count <= 30:
-            logger.debug(f"Line {line_count:3}: '{line[:80]}'")
-        
         if not line.strip():
-            if line_count <= 30:
-                logger.debug(f"  -> Skipping (empty line)")
             continue
-        
+
         line_stripped = line.strip()
         if line_stripped.lower().startswith("@prefix"):
-            if line_count <= 30:
-                logger.debug(f"  -> Skipping (prefix): '{line[:60]}'")
             continue
-        
+
         if line_stripped.startswith("<http") or line_stripped.startswith("<https"):
-            if line_count <= 30:
-                logger.debug(f"  -> Skipping (URL): '{line[:60]}'")
             continue
-        
+
         if line and not line.startswith((" ", "\t")):
             if current_subject:
                 blocks[current_subject] = "\n".join(current_lines).strip()
-                if line_count <= 30:
-                    logger.debug(f"  -> Saved block: '{current_subject}' ({len(current_lines)} lines)")
             current_subject = line.split()[0]
             current_lines = [line]
-            if line_count <= 30:
-                logger.debug(f"  -> New subject: '{current_subject}'")
         else:
             current_lines.append(line)
 
     if current_subject:
         blocks[current_subject] = "\n".join(current_lines).strip()
-        logger.debug(f"  -> Final block: '{current_subject}' ({len(current_lines)} lines)")
-    
-    logger.debug(f"=== split_subject_blocks() END === {len(blocks)} blocks found")
-    logger.debug(f"Subject keys: {list(blocks.keys())}")
+
     return blocks
 
 

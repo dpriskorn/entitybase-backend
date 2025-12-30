@@ -16,7 +16,8 @@ class URIGenerator(BaseModel):
         return f"{self.data}/{entity_id}"
 
     def statement_uri(self, statement_id: str) -> str:
-        return f"{self.wds}/{statement_id}"
+        statement_id_normalized = statement_id.replace('$', '-')
+        return f"{self.wds}/{statement_id_normalized}"
 
     def reference_uri(self, stmt_uri: str, idx: int) -> str:
         return f"{stmt_uri}-{idx:09d}#ref"
@@ -28,4 +29,5 @@ class URIGenerator(BaseModel):
         return f"data:{entity_id}"
 
     def statement_prefixed(self, statement_id: str) -> str:
-        return f"wds:{statement_id}"
+        statement_id_normalized = statement_id.replace('$', '-')
+        return f"wds:{statement_id_normalized}"

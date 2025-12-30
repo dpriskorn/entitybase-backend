@@ -71,12 +71,15 @@ class TripleWriters:
             f'{entity_uri} p:{statement.property} {stmt_uri} .\n'
         )
 
-        output.write(f'{stmt_uri} a wikibase:Statement .\n')
+        if statement.rank == Rank.NORMAL:
+            output.write(f'{stmt_uri} a wikibase:Statement, wikibase:BestRank .\n')
+        else:
+            output.write(f'{stmt_uri} a wikibase:Statement .\n')
 
         # Statement value
         value = ValueFormatter.format_value(statement.value)
         output.write(
-            f'<{stmt_uri}> {shape.predicates.statement} {value} .\n'
+            f'{stmt_uri} {shape.predicates.statement} {value} .\n'
         )
 
         # Rank
@@ -86,7 +89,7 @@ class TripleWriters:
             "DeprecatedRank"
         )
         output.write(
-            f'<{stmt_uri}> wikibase:rank wikibase:{rank} .\n'
+            f'{stmt_uri} wikibase:rank wikibase:{rank} .\n'
         )
 
         # Qualifiers
