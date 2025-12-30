@@ -4,12 +4,14 @@ from pydantic import BaseModel
 
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.writers.triple import TripleWriters
+from models.rdf_builder.writers.prefixes import TURTLE_PREFIXES
 
 
 class EntityToRdfConverter(BaseModel):
     properties: PropertyRegistry
 
     def convert_to_turtle(self, entity, output: TextIO):
+        TripleWriters.write_header(output)
         TripleWriters.write_entity_type(output, entity.id)
         TripleWriters.write_dataset_triples(output, entity.id)
 

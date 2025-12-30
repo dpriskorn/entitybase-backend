@@ -9,6 +9,11 @@ class TripleWriters:
     uri = URIGenerator()
 
     @staticmethod
+    def write_header(output: TextIO):
+        from models.rdf_builder.writers.prefixes import TURTLE_PREFIXES
+        output.write(TURTLE_PREFIXES)
+
+    @staticmethod
     def write_entity_type(output: TextIO, entity_id: str):
         output.write(
             f'<{TripleWriters.uri.entity_uri(entity_id)}> a wikibase:Item .\n'
@@ -30,6 +35,11 @@ class TripleWriters:
     def write_label(output: TextIO, entity_id: str, lang: str, label: str):
         entity_uri = TripleWriters.uri.entity_uri(entity_id)
         output.write(f'<{entity_uri}> rdfs:label "{label}"@{lang} .\n')
+
+    @staticmethod
+    def write_description(output: TextIO, entity_id: str, lang: str, description: str):
+        entity_uri = TripleWriters.uri.entity_uri(entity_id)
+        output.write(f'<{entity_uri}> schema:description "{description}"@{lang} .\n')
 
     @staticmethod
     def write_statement(
