@@ -20,7 +20,7 @@ class PropertyOntologyWriter:
     def _generate_blank_node_id(property_id: str) -> str:
         """Generate stable blank node ID for property no-value"""
         hash_input = f"novalue-{property_id}"
-        hash_bytes = hashlib.md5(hash_input.encode()).digest()
+        hash_bytes = hashlib.sha1(hash_input.encode()).digest()
         return hash_bytes[:12].hex()
 
     @staticmethod
