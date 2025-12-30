@@ -1,0 +1,3168 @@
+{
+  "entities": {
+    "P6375": {
+      "pageid": 60522251,
+      "ns": 120,
+      "title": "Property:P6375",
+      "lastrevid": 2439647970,
+      "modified": "2025-12-08T16:23:11Z",
+      "type": "property",
+      "datatype": "monolingualtext",
+      "id": "P6375",
+      "labels": {
+        "en": {
+          "language": "en",
+          "value": "street address"
+        },
+        "de": {
+          "language": "de",
+          "value": "Adresse"
+        },
+        "ar": {
+          "language": "ar",
+          "value": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0634\u0627\u0631\u0639"
+        },
+        "zh": {
+          "language": "zh",
+          "value": "\u6240\u5728\u8857\u9053\u5730\u5740"
+        },
+        "zh-hans": {
+          "language": "zh-hans",
+          "value": "\u6240\u5728\u8857\u9053\u5730\u5740"
+        },
+        "zh-hant": {
+          "language": "zh-hant",
+          "value": "\u6240\u5728\u8857\u9053\u5730\u5740"
+        },
+        "fi": {
+          "language": "fi",
+          "value": "katuosoite"
+        },
+        "sr": {
+          "language": "sr",
+          "value": "\u0430\u0434\u0440\u0435\u0441\u0430"
+        },
+        "mk": {
+          "language": "mk",
+          "value": "\u043d\u0430 \u0430\u0434\u0440\u0435\u0441\u0430\u0442\u0430"
+        },
+        "nl": {
+          "language": "nl",
+          "value": "adres"
+        },
+        "uk": {
+          "language": "uk",
+          "value": "\u0430\u0434\u0440\u0435\u0441\u0430"
+        },
+        "ca": {
+          "language": "ca",
+          "value": "localitzat a l'adre\u00e7a"
+        },
+        "es": {
+          "language": "es",
+          "value": "situado en la direcci\u00f3n postal"
+        },
+        "fr": {
+          "language": "fr",
+          "value": "adresse"
+        },
+        "cs": {
+          "language": "cs",
+          "value": "pln\u00e1 po\u0161tovn\u00ed adresa"
+        },
+        "zh-tw": {
+          "language": "zh-tw",
+          "value": "\u6240\u5728\u8857\u9053\u5730\u5740"
+        },
+        "da": {
+          "language": "da",
+          "value": "adresse"
+        },
+        "ja": {
+          "language": "ja",
+          "value": "\u4f4f\u6240"
+        },
+        "it": {
+          "language": "it",
+          "value": "indirizzo stradale"
+        },
+        "ru": {
+          "language": "ru",
+          "value": "\u0430\u0434\u0440\u0435\u0441"
+        },
+        "pt": {
+          "language": "pt",
+          "value": "localizado no endere\u00e7o"
+        },
+        "ro": {
+          "language": "ro",
+          "value": "localizat la adresa stradal\u0103"
+        },
+        "el": {
+          "language": "el",
+          "value": "\u03b4\u03b9\u03b5\u03cd\u03b8\u03c5\u03bd\u03c3\u03b7"
+        },
+        "fa": {
+          "language": "fa",
+          "value": "\u0646\u0634\u0627\u0646\u06cc \u0628\u0627 \u0630\u06a9\u0631 \u0646\u0627\u0645 \u062e\u06cc\u0627\u0628\u0627\u0646"
+        },
+        "pl": {
+          "language": "pl",
+          "value": "adres"
+        },
+        "be-tarask": {
+          "language": "be-tarask",
+          "value": "\u0430\u0434\u0440\u0430\u0441"
+        },
+        "eo": {
+          "language": "eo",
+          "value": "strata adreso"
+        },
+        "sv": {
+          "language": "sv",
+          "value": "gatuadress"
+        },
+        "cy": {
+          "language": "cy",
+          "value": "cyfeiriad stryd"
+        },
+        "hsb": {
+          "language": "hsb",
+          "value": "p\u00f3stowa adresa"
+        },
+        "be": {
+          "language": "be",
+          "value": "\u0430\u0434\u0440\u0430\u0441"
+        },
+        "et": {
+          "language": "et",
+          "value": "aadress"
+        },
+        "nb": {
+          "language": "nb",
+          "value": "adresse"
+        },
+        "gl": {
+          "language": "gl",
+          "value": "no enderezo postal"
+        },
+        "gsw": {
+          "language": "gsw",
+          "value": "Adr\u00e4sse"
+        },
+        "lv": {
+          "language": "lv",
+          "value": "adrese"
+        },
+        "ms": {
+          "language": "ms",
+          "value": "alamat jalan"
+        },
+        "te": {
+          "language": "te",
+          "value": "\u0c08 \u0c35\u0c40\u0c27\u0c3f \u0c1a\u0c3f\u0c30\u0c41\u0c28\u0c3e\u0c2e\u0c3e\u0c32\u0c4b \u0c15\u0c32\u0c26\u0c41"
+        },
+        "hu": {
+          "language": "hu",
+          "value": "postai c\u00edm"
+        },
+        "id": {
+          "language": "id",
+          "value": "alamat lengkap"
+        },
+        "en-gb": {
+          "language": "en-gb",
+          "value": "located at street address"
+        },
+        "eu": {
+          "language": "eu",
+          "value": "helbidea"
+        },
+        "ka": {
+          "language": "ka",
+          "value": "\u10db\u10d8\u10e1\u10d0\u10db\u10d0\u10e0\u10d7\u10d8"
+        },
+        "he": {
+          "language": "he",
+          "value": "\u05db\u05ea\u05d5\u05d1\u05ea \u05e4\u05d9\u05d6\u05d9\u05ea"
+        },
+        "vi": {
+          "language": "vi",
+          "value": "\u0111\u1ecba ch\u1ec9 \u0111\u1ea7y \u0111\u1ee7"
+        },
+        "lb": {
+          "language": "lb",
+          "value": "Adress"
+        },
+        "pt-br": {
+          "language": "pt-br",
+          "value": "endere\u00e7o"
+        },
+        "ko": {
+          "language": "ko",
+          "value": "\ub3c4\ub85c\uba85 \uc8fc\uc18c"
+        },
+        "sk": {
+          "language": "sk",
+          "value": "pln\u00e1 po\u0161tov\u00e1 adresa"
+        },
+        "sl": {
+          "language": "sl",
+          "value": "naslov"
+        },
+        "nn": {
+          "language": "nn",
+          "value": "adresse"
+        },
+        "tt": {
+          "language": "tt",
+          "value": "\u0430\u0434\u0440\u0435\u0441"
+        },
+        "bg": {
+          "language": "bg",
+          "value": "\u0430\u0434\u0440\u0435\u0441"
+        },
+        "en-ca": {
+          "language": "en-ca",
+          "value": "located at street address"
+        },
+        "tg": {
+          "language": "tg",
+          "value": "\u043d\u0438\u0448\u043e\u043d\u04e3"
+        },
+        "ur": {
+          "language": "ur",
+          "value": "\u06af\u0644\u06cc \u0645\u06cc\u06ba \u0645\u062d\u0644 \u0648\u0642\u0648\u0639"
+        },
+        "ast": {
+          "language": "ast",
+          "value": "asiti\u00e1u na direici\u00f3n postal"
+        },
+        "tr": {
+          "language": "tr",
+          "value": "adres"
+        },
+        "hr": {
+          "language": "hr",
+          "value": "adresa"
+        },
+        "br": {
+          "language": "br",
+          "value": "chomlec'h"
+        },
+        "bn": {
+          "language": "bn",
+          "value": "\u09b0\u09be\u09b8\u09cd\u09a4\u09be\u09b0 \u09a0\u09bf\u0995\u09be\u09a8\u09be"
+        },
+        "ba": {
+          "language": "ba",
+          "value": "\u0430\u0434\u0440\u0435\u0441"
+        },
+        "hy": {
+          "language": "hy",
+          "value": "\u0570\u0561\u057d\u0581\u0565"
+        },
+        "vec": {
+          "language": "vec",
+          "value": "inderiso"
+        },
+        "se": {
+          "language": "se",
+          "value": "\u010dujuhus"
+        },
+        "smn": {
+          "language": "smn",
+          "value": "\u010dujott\u00e2s"
+        },
+        "sms": {
+          "language": "sms",
+          "value": "addr\u00f5s"
+        },
+        "zh-hk": {
+          "language": "zh-hk",
+          "value": "\u6240\u5728\u8857\u9053\u5730\u5740"
+        },
+        "az": {
+          "language": "az",
+          "value": "\u00fcnvan"
+        },
+        "sh": {
+          "language": "sh",
+          "value": "adresa"
+        },
+        "ms-arab": {
+          "language": "ms-arab",
+          "value": "\u0639\u0644\u0627\u0645\u062a \u062c\u0627\u0644\u0646"
+        },
+        "ta": {
+          "language": "ta",
+          "value": "\u0ba4\u0bc6\u0bb0\u0bc1 \u0bae\u0bc1\u0b95\u0bb5\u0bb0\u0bbf"
+        },
+        "zh-cn": {
+          "language": "zh-cn",
+          "value": "\u8857\u9053\u5730\u5740"
+        },
+        "udm": {
+          "language": "udm",
+          "value": "\u0438\u043d\u0442\u044b\u043f\u0443\u0441\u044d\u0437"
+        },
+        "ce": {
+          "language": "ce",
+          "value": "\u0430\u0434\u0440\u0435\u0441"
+        },
+        "ga": {
+          "language": "ga",
+          "value": "seoladh sr\u00e1ide"
+        },
+        "lt": {
+          "language": "lt",
+          "value": "adresas"
+        },
+        "mn": {
+          "language": "mn",
+          "value": "\u0433\u0443\u0434\u0430\u043c\u0436\u043d\u044b \u0445\u0430\u044f\u0433"
+        },
+        "gd": {
+          "language": "gd",
+          "value": "Se\u00f2ladh"
+        },
+        "pap": {
+          "language": "pap",
+          "value": "adres"
+        },
+        "af": {
+          "language": "af",
+          "value": "straatadres"
+        },
+        "yue": {
+          "language": "yue",
+          "value": "\u6240\u5728\u5730\u5740"
+        },
+        "rgn": {
+          "language": "rgn",
+          "value": "indir\u00e8z"
+        },
+        "dag": {
+          "language": "dag",
+          "value": "soli daadiresi"
+        },
+        "bs": {
+          "language": "bs",
+          "value": "adresa"
+        },
+        "th": {
+          "language": "th",
+          "value": "\u0e17\u0e35\u0e48\u0e2d\u0e22\u0e39\u0e48"
+        },
+        "ckb": {
+          "language": "ckb",
+          "value": "\u0646\u0627\u0648\u0646\u06cc\u0634\u0627\u0646\u06cc \u0634\u06d5\u0642\u0627\u0645"
+        },
+        "frr": {
+          "language": "frr",
+          "value": "adres"
+        },
+        "mt": {
+          "language": "mt",
+          "value": "indirizz stradali"
+        },
+        "cv": {
+          "language": "cv",
+          "value": "\u0430\u0434\u0440\u0435\u0441"
+        },
+        "lmo": {
+          "language": "lmo",
+          "value": "adressa"
+        },
+        "sr-ec": {
+          "language": "sr-ec",
+          "value": "\u0443\u043b\u0438\u0446\u0430 \u0438 \u0431\u0440\u043e\u0458"
+        },
+        "kaa": {
+          "language": "kaa",
+          "value": "k\u00f3she adresi"
+        },
+        "ml": {
+          "language": "ml",
+          "value": "\u0d35\u0d3f\u0d32\u0d3e\u0d38\u0d02"
+        },
+        "ext": {
+          "language": "ext",
+          "value": "assitiau enas se\u00f1as postalis"
+        },
+        "uz": {
+          "language": "uz",
+          "value": "manzil"
+        },
+        "mad": {
+          "language": "mad",
+          "value": "lamat ghenna'"
+        },
+        "sq": {
+          "language": "sq",
+          "value": "adresa"
+        },
+        "mzn": {
+          "language": "mzn",
+          "value": "\u0622\u062f\u0631\u0633"
+        },
+        "tok": {
+          "language": "tok",
+          "value": "ma lon pi nasin tawa"
+        },
+        "ko-kp": {
+          "language": "ko-kp",
+          "value": "\uc8fc\uc18c"
+        },
+        "is": {
+          "language": "is",
+          "value": "sta\u00f0fang"
+        },
+        "ks": {
+          "language": "ks",
+          "value": "\u06af\u064e\u0644\u06cc \u06c1\u064f\u0646\u065b\u062f \u067e\u064e\u062a\u0627"
+        }
+      },
+      "descriptions": {
+        "en": {
+          "language": "en",
+          "value": "full street address where subject is located. Include building number, city/locality, post code, but not country; use also P669 if the street has its own separate item"
+        },
+        "de": {
+          "language": "de",
+          "value": "vollst\u00e4ndige Hausanschrift des Datenobjektes einschlie\u00dflich Hausnummer, Postleitzahl, Stadt, aber nicht Land. Verwende zus\u00e4tzlich P669, wenn die Stra\u00dfe ein eigenes Datenobjekt hat."
+        },
+        "fi": {
+          "language": "fi",
+          "value": "kohteen koko katuosoite"
+        },
+        "fr": {
+          "language": "fr",
+          "value": "adresse compl\u00e8te o\u00f9 l'objet est situ\u00e9. Inclut le num\u00e9ro de b\u00e2timent ainsi que le code postal et la localit\u00e9, mais pas le pays\u202f; utiliser \u00e9galement P669 si la rue est connue comme un \u00e9l\u00e9ment s\u00e9par\u00e9"
+        },
+        "zh": {
+          "language": "zh",
+          "value": "\u4e3b\u984c\u6240\u5728\u7684\u5b8c\u6574\u8857\u9053\u5730\u5740\u3002 \u5305\u62ec\u5efa\u7bc9\u7269\u7de8\u865f\u5230\u90f5\u653f\u4ee3\u78bc\u3002 \u5982\u679c\u8857\u9053\u88ab\u7a31\u70ba\u55ae\u7368\u7684\u5143\u7d20\uff0c\u4e5f\u53ef\u4ee5\u4f7f\u7528P669"
+        },
+        "uk": {
+          "language": "uk",
+          "value": "\u043f\u043e\u0432\u043d\u0430 \u0430\u0434\u0440\u0435\u0441\u0430, \u0437\u0430 \u044f\u043a\u043e\u044e \u0437\u043d\u0430\u0445\u043e\u0434\u0438\u0442\u044c\u0441\u044f \u043e\u0431'\u0454\u043a\u0442. \u0412\u043a\u043b\u044e\u0447\u0430\u0454 \u043d\u043e\u043c\u0435\u0440 \u0431\u0443\u0434\u0456\u0432\u043b\u0456, \u043d\u0430\u0441\u0435\u043b\u0435\u043d\u0438\u0439 \u043f\u0443\u043d\u043a\u0442, \u043f\u043e\u0448\u0442\u043e\u0432\u0438\u0439 \u0456\u043d\u0434\u0435\u043a\u0441, \u043f\u0440\u043e\u0442\u0435 \u043d\u0435 \u0432\u043a\u043b\u044e\u0447\u0430\u0454 \u043a\u0440\u0430\u0457\u043d\u0443. \u0412\u0438\u043a\u043e\u0440\u0438\u0441\u0442\u043e\u0432\u0443\u0439\u0442\u0435 \u0442\u0430\u043a\u043e\u0436 P669, \u044f\u043a\u0449\u043e \u0432\u0443\u043b\u0438\u0446\u044f \u0432\u0456\u0434\u043e\u043c\u0430 \u044f\u043a \u043e\u043a\u0440\u0435\u043c\u0438\u0439 \u0435\u043b\u0435\u043c\u0435\u043d\u0442"
+        },
+        "nl": {
+          "language": "nl",
+          "value": "straatnaam, eventueel met huisnummer, zonder postcode en plaats - gebruik P669 als de straat een eigen item heeft"
+        },
+        "es": {
+          "language": "es",
+          "value": "direcci\u00f3n postal completa donde se encuentra el objeto. Incluye el n\u00famero del edificio, la ciudad/localidad, el c\u00f3digo postal, pero no el pa\u00eds; utiliza tambi\u00e9n P669 si la calle tiene una propiedad independiente"
+        },
+        "da": {
+          "language": "da",
+          "value": "emnets fulde adresse inkl. husnummer, etage, postnummer og by men ikke land. Brug ogs\u00e5 P669, hvis gaden findes som et s\u00e6rskilt emne"
+        },
+        "ja": {
+          "language": "ja",
+          "value": "\u5bfe\u8c61\u304c\u6240\u5728\u3059\u308b\u5b8c\u5168\u306a\u4f4f\u6240\u3002\u90f5\u4fbf\u756a\u53f7\u3001\u5e02\u753a\u6751\u540d\u3001\u5efa\u7269\u756a\u53f7\u3092\u542b\u3080\u304c\u3001\u56fd\u540d\u306f\u542b\u307e\u306a\u3044\u3002"
+        },
+        "cs": {
+          "language": "cs",
+          "value": "pln\u00e1 adresa zahrnuj\u00edc\u00ed ulici, \u010d\u00edsla domu, m\u00edsto a PS\u010c (ale u\u017e nikoli st\u00e1t), kde se p\u0159edm\u011bt nach\u00e1z\u00ed; pokud existuje polo\u017eka pro ulici, pou\u017eijte tak\u00e9 P669"
+        },
+        "it": {
+          "language": "it",
+          "value": "indirizzo stradale del soggetto comprensivo di numero civico, il nome della localit\u00e0 e codice postale (ma senza nazione); se la strada \u00e8 un elemento di Wikidata usare la propriet\u00e0 P669"
+        },
+        "ro": {
+          "language": "ro",
+          "value": "\u00eentreaga adres\u0103 la care se afl\u0103 subiectul. Include\u021bi num\u0103rul cl\u0103dirii \u0219i codul po\u0219tal. Utiliza\u021bi P669 dac\u0103 strada este cunoscut\u0103 ca un element separat"
+        },
+        "el": {
+          "language": "el",
+          "value": "\u03b7 \u03c0\u03bb\u03ae\u03c1\u03b7\u03c2 \u03b4\u03b9\u03b5\u03cd\u03b8\u03c5\u03bd\u03c3\u03b7 (\u03bf\u03b4\u03cc\u03c2, \u03b1\u03c1\u03b9\u03b8\u03bc\u03cc\u03c2, \u03c4\u03b1\u03c7\u03c5\u03b4\u03c1\u03bf\u03bc\u03b9\u03ba\u03cc\u03c2 \u03ba\u03ce\u03b4\u03b9\u03ba\u03b1\u03c2), \u03c7\u03c1\u03b7\u03c3\u03b9\u03bc\u03bf\u03c0\u03bf\u03b9\u03b5\u03af\u03c3\u03c4\u03b5 \u03c4\u03b7\u03bd P669 \u03b1\u03bd \u03b7 \u03bf\u03b4\u03cc\u03c2 \u03c5\u03c0\u03ac\u03c1\u03c7\u03b5\u03b9 \u03c9\u03c2 \u03c7\u03c9\u03c1\u03b9\u03c3\u03c4\u03cc \u03b1\u03bd\u03c4\u03b9\u03ba\u03b5\u03af\u03bc\u03b5\u03bd\u03bf \u03c4\u03c9\u03bd \u0392\u03b9\u03ba\u03b9\u03b4\u03b5\u03b4\u03bf\u03bc\u03ad\u03bd\u03c9\u03bd"
+        },
+        "pl": {
+          "language": "pl",
+          "value": "pe\u0142ny adres przy kt\u00f3rym znajduje si\u0119 obiekt, \u0142\u0105cznie z kodem pocztowym"
+        },
+        "be-tarask": {
+          "language": "be-tarask",
+          "value": "\u043f\u0430\u0448\u0442\u043e\u0432\u044b \u0430\u0434\u0440\u0430\u0441, \u043f\u0430 \u044f\u043a\u0456\u043c \u0437\u043d\u0430\u0445\u043e\u0434\u0437\u0456\u0446\u0446\u0430 \u0430\u0431\u2019\u0435\u043a\u0442, \u0443\u043b\u0443\u0447\u043d\u0430 \u0437\u044c \u0456\u043d\u0434\u044d\u043a\u0441\u0430\u043c. \u041a\u0430\u043b\u0456 \u0434\u043b\u044f \u0432\u0443\u043b\u0456\u0446\u044b \u0456\u0441\u043d\u0443\u0435 \u044d\u043b\u0435\u043c\u044d\u043d\u0442, \u0434\u0430\u0434\u0430\u0439\u0446\u0435 \u044f\u0433\u043e \u0442\u0430\u043a\u0441\u0430\u043c\u0430 \u045e P669"
+        },
+        "sv": {
+          "language": "sv",
+          "value": "fullst\u00e4ndig gatuadress f\u00f6r objektet, inklusive postnummer och ort, dock ej land"
+        },
+        "hsb": {
+          "language": "hsb",
+          "value": "dospo\u0142na adresa objekta"
+        },
+        "et": {
+          "language": "et",
+          "value": "t\u00e4ielik aadress (maja, t\u00e4nav, sihtnumber)"
+        },
+        "ru": {
+          "language": "ru",
+          "value": "\u043f\u043e\u043b\u043d\u044b\u0439 \u043f\u043e\u0447\u0442\u043e\u0432\u044b\u0439 \u0430\u0434\u0440\u0435\u0441"
+        },
+        "ca": {
+          "language": "ca",
+          "value": "adre\u00e7a postal completa de l'element. Es pot emprar P669 per a especificar el carrer si existeix com a element"
+        },
+        "gl": {
+          "language": "gl",
+          "value": "enderezo postal completo  (r\u00faa, edificio, andar, localidade e c\u00f3digo postal). Pode usarse tam\u00e9n a P669 para especificar a r\u00faa se esta \u00e9 un elemento independente en Wikidata"
+        },
+        "pt": {
+          "language": "pt",
+          "value": "endere\u00e7o completo onde o objeto est\u00e1 localizado. Inclui o n\u00famero do edif\u00edcio e o c\u00f3digo postal; use tamb\u00e9m o P669 se a rua for conhecida como um elemento separado"
+        },
+        "ms": {
+          "language": "ms",
+          "value": "alamat penuh"
+        },
+        "te": {
+          "language": "te",
+          "value": "\u0c07\u0c1a\u0c4d\u0c1a\u0c3f\u0c28 \u0c05\u0c02\u0c36\u0c3e\u0c28\u0c3f\u0c15\u0c3f \u0c38\u0c02\u0c2c\u0c02\u0c27\u0c3f\u0c02\u0c1a\u0c3f\u0c28 \u0c2a\u0c42\u0c30\u0c4d\u0c24\u0c3f \u0c1a\u0c3f\u0c30\u0c41\u0c28\u0c3e\u0c2e\u0c3e\u0c32\u0c4b \u0c35\u0c40\u0c27\u0c3f\u0c28\u0c3f \u0c24\u0c46\u0c32\u0c3f\u0c2a\u0c47  \u0c2d\u0c3e\u0c17\u0c02"
+        },
+        "hu": {
+          "language": "hu",
+          "value": "a teljes c\u00edm, ahol a t\u00e1rgy tal\u00e1lhat\u00f3. Tartalmaznia kell a h\u00e1zsz\u00e1mot, az utc\u00e1t, a telep\u00fcl\u00e9st, az ir\u00e1ny\u00edt\u00f3sz\u00e1mot, de az orsz\u00e1got nem; ha van elem az utc\u00e1r\u00f3l, akkor a P669-et haszn\u00e1ld"
+        },
+        "id": {
+          "language": "id",
+          "value": "alamat lengkap termasuk jalan dari suatu subjek. Tambahkan juga nomor gedung hingga kode pos. Gunakan P669 jika hanya tertera jalan saja"
+        },
+        "en-gb": {
+          "language": "en-gb",
+          "value": "full street address that the subject is located at. Include building number through to post code, use also P669 if the street is known as a separate element"
+        },
+        "eu": {
+          "language": "eu",
+          "value": "objektua kokatua dagoen kalearen helbide osoa. Atariaren zenbakia eta posta kodea barne. P669 erabili kalea aparteko elementu bat bada."
+        },
+        "ka": {
+          "language": "ka",
+          "value": "\u10e1\u10e0\u10e3\u10da\u10d8 \u10e1\u10d0\u10e4\u10dd\u10e1\u10e2\u10dd \u10db\u10d8\u10e1\u10d0\u10db\u10d0\u10e0\u10d7\u10d8"
+        },
+        "he": {
+          "language": "he",
+          "value": "\u05db\u05ea\u05d5\u05d1\u05ea \u05de\u05dc\u05d0\u05d4 \u05e9\u05dc \u05d4\u05de\u05d9\u05e7\u05d5\u05dd \u05db\u05d5\u05dc\u05dc \u05e9\u05dd \u05e8\u05d7\u05d5\u05d1 \u05de\u05e1\u05e4\u05e8 \u05d1\u05d9\u05ea \u05d5\u05de\u05d9\u05e7\u05d5\u05d3"
+        },
+        "nb": {
+          "language": "nb",
+          "value": "fullstendig gateadresse for subjektet, inkludert husnummer og poststed, bruk ogs\u00e5 P669 (gate) om gaten er kjent som et separat element"
+        },
+        "ko": {
+          "language": "ko",
+          "value": "\ud56d\ubaa9 \uc8fc\uc81c\uc778 \uc7a5\uc18c\uc758 \ub3c4\ub85c\uba85 \uc8fc\uc18c (\ubbf8\uad6d\u00b7\uc601\uad6d\ucc98\ub7fc \ub3c4\ub85c\uba85\uc8fc\uc18c\uc5d0 \uc6b0\ud3b8\ubc88\ud638\uae4c\uc9c0 \ub123\ub294 \ub098\ub77c\ub294 \uc6b0\ud3b8\ubc88\ud638\uae4c\uc9c0 \uac19\uc774 \uc801\uc5b4\uc8fc\uc138\uc694. \ub610\ud55c, \ud574\ub2f9 \ub3c4\ub85c\uba85\uc744 \ub2e4\ub8ec \ud56d\ubaa9\uc774 \uc788\uc73c\uba74 \"\ub2e4\uc74c \ub3c4\ub85c\uc5d0 \uc704\uce58\ud558\uace0 \uc788\uc74c\"(P669) \uc18d\uc131\ub3c4 \ucd94\uac00\ud574\uc8fc\uc138\uc694.)"
+        },
+        "sk": {
+          "language": "sk",
+          "value": "pln\u00e1 adresa vr\u00e1tane ulice a \u010d\u00edsla domu kde sa predmet nach\u00e1dza, pokia\u013e existuje polo\u017eka pre ulicu, pou\u017eite tie\u017e P669"
+        },
+        "zh-tw": {
+          "language": "zh-tw",
+          "value": "\u67d0\u9805\u76ee\u7684\u6240\u5728\u5730\u5740"
+        },
+        "tt": {
+          "language": "tt",
+          "value": "\u0441\u0443\u0431\u044a\u0435\u043a\u0442\u043d\u044b\u04a3 \u0443\u0440\u043d\u0430\u0448\u0443\u044b\u043d\u044b\u04a3 \u0442\u0443\u043b\u044b \u0430\u0434\u0440\u0435\u0441\u044b: \u0443\u0440\u0430\u043c, \u0431\u0438\u043d\u0430 \u043d\u043e\u043c\u0435\u0440\u044b \u04bb\u04d9\u043c \u043f\u043e\u0447\u0442\u0430 \u043a\u043e\u0434\u044b \u043a\u04af\u0440\u0441\u04d9\u0442\u0435\u043b\u0435\u0440\u0433\u04d9 \u0442\u0438\u0435\u0448. \u0423\u0440\u0430\u043c \u04e9\u0447\u0435\u043d \u0430\u0435\u0440\u044b\u043c \u0412\u0438\u043a\u0438\u043c\u04d9\u0433\u044a\u043b\u04af\u043c\u0430\u0442 \u044d\u043b\u0435\u043c\u0435\u043d\u0442\u044b \u0431\u0443\u043b\u0433\u0430\u043d\u0434\u0430, P669 \u044d\u043b\u0435\u043c\u0435\u043d\u0442\u044b\u043d \u0434\u0430 \u043a\u0443\u043b\u043b\u0430\u043d\u044b\u0433\u044b\u0437."
+        },
+        "bg": {
+          "language": "bg",
+          "value": "\u0430\u0434\u0440\u0435\u0441\u044a\u0442 (\u0443\u043b\u0438\u0446\u0430, \u0431\u0443\u043b\u0435\u0432\u0430\u0440\u0434, \u043f\u043b\u043e\u0449\u0430\u0434 \u0438 \u043d\u043e\u043c\u0435\u0440), \u043d\u0430 \u043a\u043e\u0439\u0442\u043e \u0441\u0435 \u043d\u0430\u043c\u0438\u0440\u0430 \u0434\u0430\u0434\u0435\u043d\u0438\u044f\u0442 \u043e\u0431\u0435\u043a\u0442"
+        },
+        "en-ca": {
+          "language": "en-ca",
+          "value": "full street address that the subject is located at. Include building number through to post code, use also P669 if the street is known as a separate element"
+        },
+        "tr": {
+          "language": "tr",
+          "value": "\u00f6genin bulundu\u011fu tam sokak ya da cadde adresi. Posta kodu ile birlikte bina numaras\u0131n\u0131 da ekleyin. Cadde ayr\u0131 bir yer olarak biliniyorsa P669'u da kullan\u0131n."
+        },
+        "zh-hans": {
+          "language": "zh-hans",
+          "value": "\u4e3b\u9898\u6240\u5728\u7684\u5b8c\u6574\u8857\u9053\u5730\u5740\u3002\u5305\u62ec\u5efa\u7b51\u7269\u7f16\u53f7\u5230\u90ae\u653f\u7f16\u7801\u3002\u5982\u679c\u8857\u9053\u88ab\u79f0\u4e3a\u5355\u72ec\u7684\u5143\u7d20\uff0c\u4e5f\u53ef\u4ee5\u4f7f\u7528P669"
+        },
+        "hy": {
+          "language": "hy",
+          "value": "\u0561\u0574\u0562\u0578\u0572\u057b\u0561\u056f\u0561\u0576 \u0583\u0578\u057d\u057f\u0561\u0575\u056b\u0576 \u0570\u0561\u057d\u0581\u0565"
+        },
+        "lv": {
+          "language": "lv",
+          "value": "piln\u0101 subjekta ielas adrese. Ieskaitot \u0113kas numuru, pils\u0113tu, pasta indeksu, bet bez valsts. Lietot P669, ja ielai past\u0101v atsevi\u0161\u0137s ieraksts"
+        },
+        "sl": {
+          "language": "sl",
+          "value": "Celotni naslov podatkovnega predmeta, vklju\u010dno s hi\u0161no \u0161tevilko, po\u0161tno \u0161tevilko, mestom, vendar ne z dr\u017eavo. Uporabite tudi P669, \u010de ima ulica svoj podatkovni predmet."
+        },
+        "ar": {
+          "language": "ar",
+          "value": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0634\u0627\u0631\u0639 \u0628\u0627\u0644\u0643\u0627\u0645\u0644 \u062d\u064a\u062b \u062a\u0642\u0639 \u0627\u0644\u0645\u0645\u062a\u0644\u0643\u0627\u062a.  \u0642\u0645 \u0628\u062a\u0636\u0645\u064a\u0646 \u0631\u0642\u0645 \u0627\u0644\u0645\u0628\u0646\u0649 \u0648\u0627\u0644\u0645\u062f\u064a\u0646\u0629 / \u0627\u0644\u0645\u0646\u0637\u0642\u0629 \u0648\u0627\u0644\u0631\u0645\u0632 \u0627\u0644\u0628\u0631\u064a\u062f\u064a\u060c \u0648\u0644\u0643\u0646 \u0644\u064a\u0633 \u0627\u0644\u0628\u0644\u062f.  \u0627\u0633\u062a\u062e\u062f\u0645 \u0623\u064a\u0636\u064b\u0627 P669 \u0625\u0630\u0627 \u0643\u0627\u0646 \u0644\u0644\u0634\u0627\u0631\u0639 \u0639\u0646\u0635\u0631 \u0645\u0646\u0641\u0635\u0644 \u062e\u0627\u0635 \u0628\u0647"
+        },
+        "vi": {
+          "language": "vi",
+          "value": "\u0111\u1ecba ch\u1ec9 \u0111\u1ea7y \u0111\u1ee7 n\u01a1i \u0111\u1eb7t ch\u1ee7 th\u1ec3. G\u1ed3m s\u1ed1 nh\u00e0, th\u00e0nh ph\u1ed1, m\u00e3 b\u01b0u ch\u00ednh, nh\u01b0ng kh\u00f4ng c\u00f3 qu\u1ed1c gia. D\u00f9ng th\u00eam P669 n\u1ebfu con \u0111\u01b0\u1eddng c\u00f3 m\u1ed9t kho\u1ea3n m\u1ee5c ri\u00eang"
+        },
+        "udm": {
+          "language": "udm",
+          "value": "\u0431\u044b\u0434\u044d\u0441\u0430\u043a \u0438\u043d\u0442\u044b\u043f\u0443\u0441\u044d\u0437"
+        },
+        "ce": {
+          "language": "ce",
+          "value": "\u0434\u0443\u044c\u0437\u0437\u0438\u043d\u0430 \u043f\u043e\u0447\u0442\u0430\u043d \u0430\u0434\u0440\u0435\u0441"
+        },
+        "yue": {
+          "language": "yue",
+          "value": "\u5730\u7406\u4e0a\u5605\u6e96\u78ba\u5730\u5740\uff08\u5514\u5305\u570b\u540d\uff0c\u4f46\u4fc2\u5305\u62ec\u5340\u540d\u3001\u8857\u540d\u3001\u9580\u724c\u865f\u78bc\u3001\u90f5\u653f\u7de8\u865f\u7b49\u7b49\uff1b\u5982\u679c\u689d\u8857\u6709\u81ea\u5df1\u5605\u7dad\u57fa\u6578\u64da\u9805\u61c9\u8a72\u8a2d\u5b9a\u57cb P669 \u5c6c\u6027\uff09"
+        },
+        "bs": {
+          "language": "bs",
+          "value": "puna adresa gdje se objekt nalazi"
+        },
+        "th": {
+          "language": "th",
+          "value": "\u0e17\u0e35\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e41\u0e1a\u0e1a\u0e40\u0e15\u0e47\u0e21\u0e02\u0e2d\u0e07\u0e17\u0e35\u0e48\u0e15\u0e31\u0e49\u0e07\u0e02\u0e2d\u0e07\u0e40\u0e23\u0e37\u0e48\u0e2d\u0e07 \u0e23\u0e27\u0e21\u0e2b\u0e21\u0e32\u0e22\u0e40\u0e25\u0e02\u0e2d\u0e32\u0e04\u0e32\u0e23 \u0e40\u0e21\u0e37\u0e2d\u0e07/\u0e17\u0e49\u0e2d\u0e07\u0e17\u0e35\u0e48 \u0e23\u0e2b\u0e31\u0e2a\u0e44\u0e1b\u0e23\u0e29\u0e13\u0e35\u0e22\u0e4c \u0e41\u0e15\u0e48\u0e44\u0e21\u0e48\u0e23\u0e27\u0e21\u0e1b\u0e23\u0e30\u0e40\u0e17\u0e28 \u0e43\u0e0a\u0e49 P669 \u0e14\u0e49\u0e27\u0e22\u0e2b\u0e32\u0e01\u0e16\u0e19\u0e19\u0e21\u0e35\u0e23\u0e32\u0e22\u0e01\u0e32\u0e23\u0e41\u0e22\u0e01\u0e15\u0e48\u0e32\u0e07\u0e2b\u0e32\u0e01"
+        },
+        "pt-br": {
+          "language": "pt-br",
+          "value": "endere\u00e7o completo em que o sujeto est\u00e1 situado. Inclui n\u00famero da edifica\u00e7\u00e3o, cidade/localidade, c\u00f3digo postal, mas n\u00e3o o pa\u00eds; use tamb\u00e9m P669 se a rua tem seu pr\u00f3prio registro separado"
+        },
+        "mt": {
+          "language": "mt",
+          "value": "indirizz s\u0127i\u0127 tat-triq fejn jnstab dan is-su\u0121\u0121ett, inklu\u017c in-numru tal-binja, belt/ra\u0127a, u kodi\u010bi postali, imma mhux il-pajji\u017c; u\u017ca P669 jekk it-triq te\u017cisti b\u0127ala entit\u00e0 f'Wikidata"
+        },
+        "sr-ec": {
+          "language": "sr-ec",
+          "value": "\u043f\u0443\u043d\u0430 \u0430\u0434\u0440\u0435\u0441\u0430 \u0443 \u043a\u043e\u0458\u043e\u0458 \u0441\u0435 \u043d\u0430\u043b\u0430\u0437\u0438 \u043f\u0440\u0435\u0434\u043c\u0435\u0442. \u0423\u043a\u0459\u0443\u0447\u0438\u0442\u0435 \u0431\u0440\u043e\u0458 \u0437\u0433\u0440\u0430\u0434\u0435, \u0433\u0440\u0430\u0434 / \u043b\u043e\u043a\u0430\u043b\u0438\u0442\u0435\u0442, \u043f\u043e\u0448\u0442\u0430\u043d\u0441\u043a\u0438 \u0431\u0440\u043e\u0458, \u0430\u043b\u0438 \u043d\u0435 \u0438 \u0434\u0440\u0436\u0430\u0432\u0443; \u043a\u043e\u0440\u0438\u0441\u0442\u0438\u0442\u0435 \u0438 P669 \u0430\u043a\u043e \u0443\u043b\u0438\u0446\u0430 \u0438\u043c\u0430 \u0441\u0432\u043e\u0458\u0443 \u0437\u0430\u0441\u0435\u0431\u043d\u0443 \u0441\u0442\u0430\u0432\u043a\u0443"
+        },
+        "kaa": {
+          "language": "kaa",
+          "value": "k\u00f3sheni\u0144 tol\u0131q pochta adresi"
+        },
+        "ml": {
+          "language": "ml",
+          "value": "\u0d2a\u0d4d\u0d30\u0d24\u0d3f\u0d2a\u0d3e\u0d26\u0d4d\u0d2f\u0d24\u0d4d\u0d24\u0d3f\u0d28\u0d4d\u0d31\u0d46 \u0d2a\u0d42\u0d7c\u0d23\u0d4d\u0d23 \u0d35\u0d3f\u0d32\u0d3e\u0d38\u0d02. \u0d15\u0d46\u0d1f\u0d4d\u0d1f\u0d3f\u0d1f \u0d28\u0d2e\u0d4d\u0d2a\u0d7c, \u0d2a\u0d1f\u0d4d\u0d1f\u0d23\u0d02, \u0d2a\u0d4d\u0d30\u0d26\u0d47\u0d36\u0d02 \u0d24\u0d41\u0d1f\u0d19\u0d4d\u0d19\u0d3f \u0d30\u0d3e\u0d1c\u0d4d\u0d2f\u0d02 \u0d12\u0d34\u0d3f\u0d1a\u0d4d\u0d1a\u0d41\u0d33\u0d4d\u0d33 \u0d0e\u0d32\u0d4d\u0d32\u0d3e \u0d35\u0d3f\u0d35\u0d30\u0d19\u0d4d\u0d19\u0d33\u0d41\u0d02"
+        },
+        "fa": {
+          "language": "fa",
+          "value": "\u0646\u0634\u0627\u0646\u06cc \u06a9\u0627\u0645\u0644 \u062c\u0627\u06cc\u06cc \u06a9\u0647 \u0622\u0646 \u0645\u0648\u0636\u0648\u0639 \u0645\u0633\u062a\u0642\u0631 \u0627\u0633\u062a\u060c \u0634\u0627\u0645\u0644 \u0634\u0645\u0627\u0631\u0647 \u0633\u0627\u062e\u062a\u0645\u0627\u0646\u060c \u0634\u0647\u0631/\u0631\u0648\u0633\u062a\u0627\u060c \u06a9\u062f \u067e\u0633\u062a\u06cc\u060c \u0647\u0645\u0686\u0646\u06cc\u0646 \u0627\u06af\u0631 \u062e\u06cc\u0627\u0628\u0627\u0646 \u062f\u0627\u0631\u0627\u06cc \u0622\u06cc\u062a\u0645 \u0645\u062c\u0632\u0627\u06cc \u062e\u0648\u062f \u0627\u0633\u062a\u060c \u0645\u06cc\u200c\u062a\u0648\u0627\u0646\u06cc\u062f \u0627\u0632 P669 \u0627\u0633\u062a\u0641\u0627\u062f\u0647 \u06a9\u0646\u06cc\u062f"
+        },
+        "ext": {
+          "language": "ext",
+          "value": "se\u00f1as postalis compretas enas que s'alcuentra l'ojetu. Mesmu dendi'l n\u00famiru de l'edificiu ata'l c\u00f3digu postal. Emprea P669 si la calli es un elementu desseparau."
+        },
+        "uz": {
+          "language": "uz",
+          "value": "to\u02bbliq pochta manzili"
+        },
+        "mad": {
+          "language": "mad",
+          "value": "lamat s\u00e8 ghenna' kalebbhu jh\u00e2l\u00e2n \u1e0d\u00e2ri s\u00e8 subj\u00e8k. k\u00e8ya nomor g\u00e2n\u1e0du' kangs\u00e8 kode pos. Paghuna P669 mon s\u00e8 \u00e8pobu p\u00e8ra'  jh\u00e2l\u00e2nna bh\u00e2i"
+        },
+        "sq": {
+          "language": "sq",
+          "value": "adresa e plot\u00eb e rrug\u00ebs ku ndodhet subjekti. P\u00ebrfshi numrin e nd\u00ebrtes\u00ebs, qytetin/vendndodhjen, kodin postar, por jo vendin; p\u00ebrdorni edhe P669 n\u00ebse rruga ka artikullin e vet t\u00eb ve\u00e7ant\u00eb"
+        }
+      },
+      "aliases": {
+        "fi": [
+          {
+            "language": "fi",
+            "value": "osoite"
+          },
+          {
+            "language": "fi",
+            "value": "postiosoite"
+          }
+        ],
+        "sr": [
+          {
+            "language": "sr",
+            "value": "\u043d\u0430\u043b\u0430\u0437\u0438 \u0441\u0435 \u043d\u0430 \u0430\u0434\u0440\u0435\u0441\u0438"
+          }
+        ],
+        "en": [
+          {
+            "language": "en",
+            "value": "address"
+          },
+          {
+            "language": "en",
+            "value": "physical address"
+          },
+          {
+            "language": "en",
+            "value": "mailing address"
+          },
+          {
+            "language": "en",
+            "value": "mail address"
+          },
+          {
+            "language": "en",
+            "value": "postal address"
+          },
+          {
+            "language": "en",
+            "value": "located at street address"
+          },
+          {
+            "language": "en",
+            "value": "full address"
+          }
+        ],
+        "nl": [
+          {
+            "language": "nl",
+            "value": "straat zonder Wikidata-item"
+          },
+          {
+            "language": "nl",
+            "value": "straat zonder artikel"
+          },
+          {
+            "language": "nl",
+            "value": "straatadres"
+          },
+          {
+            "language": "nl",
+            "value": "straat en huisnummer"
+          }
+        ],
+        "ja": [
+          {
+            "language": "ja",
+            "value": "\u6240\u5728\u5730"
+          },
+          {
+            "language": "ja",
+            "value": "\u30a2\u30c9\u30ec\u30b9"
+          }
+        ],
+        "cs": [
+          {
+            "language": "cs",
+            "value": "adresa"
+          },
+          {
+            "language": "cs",
+            "value": "po\u0161tovn\u00ed adresa"
+          }
+        ],
+        "be-tarask": [
+          {
+            "language": "be-tarask",
+            "value": "\u0430\u0434\u0440\u044d\u0441\u0430"
+          },
+          {
+            "language": "be-tarask",
+            "value": "\u043f\u0430\u0448\u0442\u043e\u0432\u044b \u0430\u0434\u0440\u0430\u0441"
+          },
+          {
+            "language": "be-tarask",
+            "value": "\u0444\u0456\u0437\u044b\u0447\u043d\u044b \u0430\u0434\u0440\u0430\u0441"
+          }
+        ],
+        "it": [
+          {
+            "language": "it",
+            "value": "indirizzo completo"
+          },
+          {
+            "language": "it",
+            "value": "indirizzo fisico"
+          },
+          {
+            "language": "it",
+            "value": "indirizzo stradale"
+          }
+        ],
+        "sv": [
+          {
+            "language": "sv",
+            "value": "adress"
+          },
+          {
+            "language": "sv",
+            "value": "gatuadress"
+          },
+          {
+            "language": "sv",
+            "value": "postadress"
+          }
+        ],
+        "hsb": [
+          {
+            "language": "hsb",
+            "value": "adresa"
+          }
+        ],
+        "ru": [
+          {
+            "language": "ru",
+            "value": "\u043f\u043e\u0447\u0442\u043e\u0432\u044b\u0439 \u0430\u0434\u0440\u0435\u0441"
+          }
+        ],
+        "nb": [
+          {
+            "language": "nb",
+            "value": "gateadresse"
+          },
+          {
+            "language": "nb",
+            "value": "Forretningsadresse"
+          },
+          {
+            "language": "nb",
+            "value": "Forretningsadresse:"
+          }
+        ],
+        "ca": [
+          {
+            "language": "ca",
+            "value": "adre\u00e7a postal"
+          },
+          {
+            "language": "ca",
+            "value": "adre\u00e7a"
+          }
+        ],
+        "es": [
+          {
+            "language": "es",
+            "value": "direcci\u00f3n"
+          },
+          {
+            "language": "es",
+            "value": "direccion"
+          },
+          {
+            "language": "es",
+            "value": "direcci\u00f3n postal"
+          },
+          {
+            "language": "es",
+            "value": "direcci\u00f3n f\u00edsica"
+          },
+          {
+            "language": "es",
+            "value": "direcci\u00f3n de correo"
+          },
+          {
+            "language": "es",
+            "value": "ubicado en direcci\u00f3n"
+          },
+          {
+            "language": "es",
+            "value": "direcci\u00f3n completa"
+          }
+        ],
+        "ar": [
+          {
+            "language": "ar",
+            "value": "\u0639\u0646\u0648\u0627\u0646"
+          },
+          {
+            "language": "ar",
+            "value": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0634\u0627\u0631\u0639"
+          },
+          {
+            "language": "ar",
+            "value": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0633\u0643\u0646"
+          },
+          {
+            "language": "ar",
+            "value": "\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0645\u0631\u0627\u0633\u0644\u0629"
+          },
+          {
+            "language": "ar",
+            "value": "\u0627\u0644\u0639\u0646\u0648\u0627\u0646 \u0627\u0644\u0628\u0631\u064a\u062f\u064a"
+          }
+        ],
+        "zh": [
+          {
+            "language": "zh",
+            "value": "\u5730\u5740"
+          },
+          {
+            "language": "zh",
+            "value": "\u6821\u5740"
+          },
+          {
+            "language": "zh",
+            "value": "\u9662\u5740"
+          }
+        ],
+        "te": [
+          {
+            "language": "te",
+            "value": "\u0c35\u0c40\u0c27\u0c3f \u0c1a\u0c3f\u0c30\u0c41\u0c28\u0c3e\u0c2e\u0c3e"
+          }
+        ],
+        "id": [
+          {
+            "language": "id",
+            "value": "alamat jalan"
+          },
+          {
+            "language": "id",
+            "value": "terletak di alamat"
+          }
+        ],
+        "en-gb": [
+          {
+            "language": "en-gb",
+            "value": "address"
+          },
+          {
+            "language": "en-gb",
+            "value": "street address"
+          },
+          {
+            "language": "en-gb",
+            "value": "physical address"
+          }
+        ],
+        "eu": [
+          {
+            "language": "eu",
+            "value": "helbide postala"
+          },
+          {
+            "language": "eu",
+            "value": "posta helbidea"
+          }
+        ],
+        "pt": [
+          {
+            "language": "pt",
+            "value": "logradouro"
+          },
+          {
+            "language": "pt",
+            "value": "endere\u00e7o"
+          },
+          {
+            "language": "pt",
+            "value": "morada"
+          },
+          {
+            "language": "pt",
+            "value": "situado no endere\u00e7o"
+          }
+        ],
+        "he": [
+          {
+            "language": "he",
+            "value": "\u05db\u05ea\u05d5\u05d1\u05ea"
+          }
+        ],
+        "hu": [
+          {
+            "language": "hu",
+            "value": "h\u00e1zsz\u00e1m"
+          },
+          {
+            "language": "hu",
+            "value": "lakc\u00edm"
+          },
+          {
+            "language": "hu",
+            "value": "postac\u00edm"
+          },
+          {
+            "language": "hu",
+            "value": "utca, h\u00e1zsz\u00e1m"
+          },
+          {
+            "language": "hu",
+            "value": "c\u00edm"
+          }
+        ],
+        "pt-br": [
+          {
+            "language": "pt-br",
+            "value": "rua"
+          },
+          {
+            "language": "pt-br",
+            "value": "situado no endere\u00e7o"
+          },
+          {
+            "language": "pt-br",
+            "value": "endere\u00e7o f\u00edsico"
+          },
+          {
+            "language": "pt-br",
+            "value": "endere\u00e7o postal"
+          },
+          {
+            "language": "pt-br",
+            "value": "localizado em"
+          },
+          {
+            "language": "pt-br",
+            "value": "endere\u00e7o completo"
+          }
+        ],
+        "ko": [
+          {
+            "language": "ko",
+            "value": "\ub3c4\ub85c\uba85\uc8fc\uc18c"
+          },
+          {
+            "language": "ko",
+            "value": "\ub2e4\uc74c \ub3c4\ub85c\uba85 \uc8fc\uc18c\uc5d0 \uc704\uce58\ud558\uace0 \uc788\uc74c"
+          },
+          {
+            "language": "ko",
+            "value": "\ub2e4\uc74c \ub3c4\ub85c\uba85\uc8fc\uc18c\uc5d0 \uc704\uce58\ud558\uace0 \uc788\uc74c"
+          },
+          {
+            "language": "ko",
+            "value": "\ub2e4\uc74c \ub3c4\ub85c\uba85\uc8fc\uc18c\uc5d0 \uc788\uc74c"
+          },
+          {
+            "language": "ko",
+            "value": "\ub2e4\uc74c \ub3c4\ub85c\uba85 \uc8fc\uc18c\uc5d0 \uc788\uc74c"
+          },
+          {
+            "language": "ko",
+            "value": "\uc8fc\uc18c"
+          }
+        ],
+        "tr": [
+          {
+            "language": "tr",
+            "value": "a\u00e7\u0131k adresi"
+          }
+        ],
+        "de": [
+          {
+            "language": "de",
+            "value": "Anschrift"
+          },
+          {
+            "language": "de",
+            "value": "Hausanschrift"
+          },
+          {
+            "language": "de",
+            "value": "postalische Anschrift"
+          },
+          {
+            "language": "de",
+            "value": "postalische Adresse"
+          }
+        ],
+        "vec": [
+          {
+            "language": "vec",
+            "value": "inderiso posta\u0142e"
+          },
+          {
+            "language": "vec",
+            "value": "inderiso f\u00ecxego"
+          },
+          {
+            "language": "vec",
+            "value": "inderiso conpleto"
+          },
+          {
+            "language": "vec",
+            "value": "inderiso strada\u0142e"
+          }
+        ],
+        "lv": [
+          {
+            "language": "lv",
+            "value": "ielas adrese"
+          },
+          {
+            "language": "lv",
+            "value": "fizisk\u0101 adrese"
+          },
+          {
+            "language": "lv",
+            "value": "pasta adrese"
+          }
+        ],
+        "vi": [
+          {
+            "language": "vi",
+            "value": "\u0111\u1ecba ch\u1ec9"
+          }
+        ],
+        "zh-cn": [
+          {
+            "language": "zh-cn",
+            "value": "\u5730\u5740"
+          },
+          {
+            "language": "zh-cn",
+            "value": "\u5750\u843d\u4e8e"
+          }
+        ],
+        "udm": [
+          {
+            "language": "udm",
+            "value": "\u0430\u0434\u0440\u0435\u0441\u044d\u0437"
+          }
+        ],
+        "se": [
+          {
+            "language": "se",
+            "value": "boasta\u010dujuhus"
+          },
+          {
+            "language": "se",
+            "value": "poasta\u010dujuhus"
+          }
+        ],
+        "smn": [
+          {
+            "language": "smn",
+            "value": "post\u00e2\u010dujott\u00e2s"
+          }
+        ],
+        "sms": [
+          {
+            "language": "sms",
+            "value": "p\u00e5\u00e5\u02b9\u0161taddr\u00f5s"
+          }
+        ],
+        "fr": [
+          {
+            "language": "fr",
+            "value": "adresse de rue"
+          },
+          {
+            "language": "fr",
+            "value": "adresse physique"
+          },
+          {
+            "language": "fr",
+            "value": "adresse postale"
+          }
+        ],
+        "gl": [
+          {
+            "language": "gl",
+            "value": "enderezo"
+          }
+        ],
+        "bn": [
+          {
+            "language": "bn",
+            "value": "\u09a1\u09be\u0995 \u09a0\u09bf\u0995\u09be\u09a8\u09be"
+          },
+          {
+            "language": "bn",
+            "value": "\u09b8\u09ae\u09cd\u09aa\u09c2\u09b0\u09cd\u09a3 \u09a0\u09bf\u0995\u09be\u09a8\u09be"
+          }
+        ],
+        "yue": [
+          {
+            "language": "yue",
+            "value": "\u5730\u5740"
+          }
+        ],
+        "th": [
+          {
+            "language": "th",
+            "value": "\u0e17\u0e35\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e16\u0e19\u0e19"
+          },
+          {
+            "language": "th",
+            "value": "\u0e17\u0e35\u0e48\u0e2d\u0e22\u0e39\u0e48\u0e41\u0e1a\u0e1a\u0e40\u0e15\u0e47\u0e21"
+          }
+        ],
+        "mt": [
+          {
+            "language": "mt",
+            "value": "indirizz"
+          },
+          {
+            "language": "mt",
+            "value": "indirizz tal-post"
+          },
+          {
+            "language": "mt",
+            "value": "indirizz postali"
+          }
+        ],
+        "sl": [
+          {
+            "language": "sl",
+            "value": "uli\u010dni naslov"
+          },
+          {
+            "language": "sl",
+            "value": "doma\u010di naslov"
+          },
+          {
+            "language": "sl",
+            "value": "po\u0161tni naslov"
+          }
+        ],
+        "uz": [
+          {
+            "language": "uz",
+            "value": "pochta manzili"
+          }
+        ],
+        "sq": [
+          {
+            "language": "sq",
+            "value": "adresa postare"
+          },
+          {
+            "language": "sq",
+            "value": "adresa e rrug\u00ebs"
+          },
+          {
+            "language": "sq",
+            "value": "adresa fizike"
+          },
+          {
+            "language": "sq",
+            "value": "adresa e plot\u00eb"
+          }
+        ],
+        "mzn": [
+          {
+            "language": "mzn",
+            "value": "\u0646\u0634\u0648\u0646\u06cc"
+          }
+        ]
+      },
+      "claims": {
+        "P31": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P31",
+              "hash": "3b024dfcca710e04de85bd00b74e811bd5336608",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 18615777,
+                  "id": "Q18615777"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P6375$57E8C0C5-6B61-4C55-8542-5F01FA745A59",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P31",
+              "hash": "7ed5fadc0452a58d3c5d90662e58629573550173",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 22984363,
+                  "id": "Q22984363"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P6375$23E830D9-C714-49CA-A41F-190FEF9C9A09",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P31",
+              "hash": "163d3cab8b15dca52bdb530b7fab6c97b9b85fee",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 24239898,
+                  "id": "Q24239898"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P6375$F7D8A31E-814A-415F-9C64-2235BB80A85A",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P31",
+              "hash": "cda190af3cd4cf2165f79a68f635e8bb6b667659",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 26935994,
+                  "id": "Q26935994"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P6375$526A0502-C144-445B-AAE4-A61C004EBEEB",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P31",
+              "hash": "2a5573c547d3ec0e6139cd2801247b230eb8cfb8",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 57955292,
+                  "id": "Q57955292"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P6375$7b161fc1-42bd-379c-1233-1a9b20cf6b9b",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P31",
+              "hash": "f4decee31e9752960d9623ea58d1dfd672b31341",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 19847637,
+                  "id": "Q19847637"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P6375$00748fb6-4deb-7bc1-a83b-01357ad3e973",
+            "rank": "normal"
+          }
+        ],
+        "P2302": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "a00327947c6d834f33f6ee14916142d6a2008aef",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21503250,
+                  "id": "Q21503250"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2308": [
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "2b08b5b85eff33575e56c6d684c30a310581090b",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 618123,
+                      "id": "Q618123"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "c6bf3b82e3211692b485a8c572fbd19acd1bd4a3",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 2221906,
+                      "id": "Q2221906"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "6a7b5662a5f0c4fe6061101f47de05cf9959adb1",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 1190554,
+                      "id": "Q1190554"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "dbcd1925f127866d6f4f74d9a41b0778ceaa3d38",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 43229,
+                      "id": "Q43229"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "f450ae9e8b459e8c74bcd472ef6c135f4a69d8d1",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 327333,
+                      "id": "Q327333"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "e73d9a24cb7939cf8f81443b94347373d071213f",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 41298,
+                      "id": "Q41298"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "062b9676e2b095855f986dcdaff149e7b83b4a27",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 17537576,
+                      "id": "Q17537576"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "e23fe061d65a6e6be01730e0b7b5aa0ef5b737a5",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 2668072,
+                      "id": "Q2668072"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "ebd5685d777bc1d84316e39a1f9c547a23518022",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 177634,
+                      "id": "Q177634"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "9fe2fd8dc9973963aebf6eb468acbec9c20c96fc",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 3895768,
+                      "id": "Q3895768"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "29b7bf70709e8b0bd8e1004debadacb3652b3024",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 13226383,
+                      "id": "Q13226383"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "54f420696648e5f8ec826772c74f348b3dc016b8",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 1298668,
+                      "id": "Q1298668"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ],
+              "P2309": [
+                {
+                  "snaktype": "value",
+                  "property": "P2309",
+                  "hash": "8d7afee22e0fa6211dd8c95f247e1dd7b38daf70",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 21503252,
+                      "id": "Q21503252"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2308",
+              "P2309"
+            ],
+            "id": "P6375$A8AE1E39-16DB-4061-9C11-02D823031D76",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "60d5b5bf5da8d7ec1e010402497e0015713c2bbf",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21502838,
+                  "id": "Q21502838"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2306": [
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "57e0c059ce6c4f38e5ffd260c63684eb7c6e0e87",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 31,
+                      "id": "P31"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                }
+              ],
+              "P2305": [
+                {
+                  "snaktype": "value",
+                  "property": "P2305",
+                  "hash": "3814e35e2266a3fad80051b4a02e8d6e49c60772",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 5,
+                      "id": "Q5"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ],
+              "P6607": [
+                {
+                  "snaktype": "value",
+                  "property": "P6607",
+                  "hash": "aa5652b8186e60a46d21734b322ebcc39021fbb7",
+                  "datavalue": {
+                    "value": {
+                      "text": "Use \"residence\" (P551) on main value",
+                      "language": "en"
+                    },
+                    "type": "monolingualtext"
+                  },
+                  "datatype": "monolingualtext"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2306",
+              "P2305",
+              "P6607"
+            ],
+            "id": "P6375$2AD19D00-7122-4B7A-B179-8D6D12E36996",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "793a77bb61b7ab2ebc9b8ef826c2c4c236eeccc1",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 53869507,
+                  "id": "Q53869507"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P5314": [
+                {
+                  "snaktype": "value",
+                  "property": "P5314",
+                  "hash": "a0202111cb525ed31611bf926974b74a2419b8ab",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 54828448,
+                      "id": "Q54828448"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P5314",
+                  "hash": "7f0b21bf6bef1987059626f383a532cf4375deb1",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 54828449,
+                      "id": "Q54828449"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P5314"
+            ],
+            "id": "P6375$01f4874a-4b20-6a22-5e80-6049d0b726b8",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "eba677434c5f12338ab5fd1ce6a834ab3139856a",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 52004125,
+                  "id": "Q52004125"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2305": [
+                {
+                  "snaktype": "value",
+                  "property": "P2305",
+                  "hash": "76a83209b6ab9e5ea1a1dd8e2986281a5a0479d7",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 29934200,
+                      "id": "Q29934200"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2305",
+                  "hash": "26655a7e573da17226d4244ec74f59387afbf26c",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 59712033,
+                      "id": "Q59712033"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2305"
+            ],
+            "id": "P6375$c459ac1b-47f7-98ee-98cf-83cf6bf147ec",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "55cfe775ff19641cea395be018002e38e05f3749",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21510851,
+                  "id": "Q21510851"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2306": [
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "4910ca558b9b0401e91b11626f400278702811bc",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 580,
+                      "id": "P580"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "0720109791ffbb5500cf5a98c698a3156563cb72",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 582,
+                      "id": "P582"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "a6be4e7a327c415e1c8d7d72c7fe6e7f784d4f57",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 585,
+                      "id": "P585"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "6b2485e2c2137f3688fe0dbb8af91308de46b999",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 7452,
+                      "id": "P7452"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "b7b2b2d31ff3460e580b1cbaa9444277a00ce47c",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 2241,
+                      "id": "P2241"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "07140c61c8ce2da1772b95cd4ec3b24a1a611435",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 3831,
+                      "id": "P3831"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "35bfd5bd9d5e44aa56de5075639a1bcee7fd82b3",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 669,
+                      "id": "P669"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "64261b0cfcd4b49efa7d24a633a9214c1373cddc",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 670,
+                      "id": "P670"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "70877b0595c6b85cabb09815182a6a5e3a554615",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 1534,
+                      "id": "P1534"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "3efd1f494ba2c1ac4bdc572df5784d4cca879442",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 518,
+                      "id": "P518"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "a2f97361adeb33520a1b724c8e2f1640e0713c4e",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 281,
+                      "id": "P281"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "cbd577e5fe5044f84e6be9355751a8b9a96e5dba",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 5423,
+                      "id": "P5423"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "2fdbf98aff232b861ebb2be05f9ebf0ba36e2e05",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 7532,
+                      "id": "P7532"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "749196703a56da61182d6793cc3e2dd961ce7823",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 8554,
+                      "id": "P8554"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "62da6e7fdc78975afcda0fda5d54e6d878679232",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 3680,
+                      "id": "P3680"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "23c66f02e855da94af618b291feb7498f8c121e6",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 1310,
+                      "id": "P1310"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "c9f606c2806a55e9ef9a1c11d317ba1fc396475f",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 1706,
+                      "id": "P1706"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "3d94d72b88ec42eb2f613dab3c22234e3a4e79bc",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 1329,
+                      "id": "P1329"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "5625486a231d8ce02cea4330a84a5ede389a40c2",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 276,
+                      "id": "P276"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "1c36a3ecad0d368a9dd4aa2ef884dd074696e0bf",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 706,
+                      "id": "P706"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "a267474ffabdc2e8f67d9f54f53936d86170b275",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 795,
+                      "id": "P795"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "6bd627155bf88c9343332639bf883a3054db6f47",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 206,
+                      "id": "P206"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "3888c9d2f8216e89b75e3f06cf85ab6c477bece2",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 4595,
+                      "id": "P4595"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "4c4fedd76ac0a79a8d70e2029832e696efd29a6a",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 9660,
+                      "id": "P9660"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "094d29cb54a528bcf0ec7840732b8b5a33824105",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 282,
+                      "id": "P282"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "0a2aa7939ae8c58e1cb6c5445253f0ad675c14e2",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 4856,
+                      "id": "P4856"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "ac0e25023eedfa684b0a152421e251b181054783",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 1814,
+                      "id": "P1814"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "9e2dd430c98f04fb35a124750c4df5461ef23bd2",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 2125,
+                      "id": "P2125"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "cc2b02f9ee6d4f6fff59fee25e7858dfa0192757",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 2918,
+                      "id": "P2918"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "8c59c62a652229c6fff961420ff87ae9890d4077",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 2795,
+                      "id": "P2795"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "ba9f982e717373af6707c7e88b0d66ea5fd24a17",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 3005,
+                      "id": "P3005"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "94b647e492fe9195f4f166518ef387b430a36d96",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 1480,
+                      "id": "P1480"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "a97418e03b1c9a6a329c871302e12b643c8dc209",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 4970,
+                      "id": "P4970"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "d53aa6fc223b6091453ce5ea594132f378cc4994",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 1810,
+                      "id": "P1810"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "e0ac0b33de3f5a96732365c25d02ead5ef58104c",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 625,
+                      "id": "P625"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                }
+              ],
+              "P6607": [
+                {
+                  "snaktype": "value",
+                  "property": "P6607",
+                  "hash": "b8a9f45c7013bf8aefcac7d03997edbc1918b9c4",
+                  "datavalue": {
+                    "value": {
+                      "text": "Address formats can vary quite widely, and in some countries features such as phone numbers or milestone inscriptions can be considered components of street addresses. In cases like these, it makes sense to also encode this information with appropriate qualifiers.",
+                      "language": "en"
+                    },
+                    "type": "monolingualtext"
+                  },
+                  "datatype": "monolingualtext"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2306",
+              "P6607"
+            ],
+            "id": "P6375$772a6eda-4722-2a55-5bb0-f4e34a029966",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "047db9950aaf65ff9b7f3e69dbfdee7e48c77b68",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 54554025,
+                  "id": "Q54554025"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P6375$81310652-4da8-c903-24fb-858729f2cb1d",
+            "rank": "deprecated"
+          }
+        ],
+        "P1659": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1659",
+              "hash": "ec4620593f9ce40aa2ae9ed1853e8d5979f393b7",
+              "datavalue": {
+                "value": {
+                  "entity-type": "property",
+                  "numeric-id": 669,
+                  "id": "P669"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-property"
+            },
+            "type": "statement",
+            "id": "P6375$0C8C8C19-6E2C-446E-9732-37E25D565242",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1659",
+              "hash": "308ac8c816ecc24855e9cafff1dd65c2dd7e7acd",
+              "datavalue": {
+                "value": {
+                  "entity-type": "property",
+                  "numeric-id": 670,
+                  "id": "P670"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-property"
+            },
+            "type": "statement",
+            "id": "P6375$782B6037-0122-4578-BEAA-01CD5243F4C4",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1659",
+              "hash": "b245c7dfbb3daf3067380fd69d65510746651e2c",
+              "datavalue": {
+                "value": {
+                  "entity-type": "property",
+                  "numeric-id": 4856,
+                  "id": "P4856"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-property"
+            },
+            "type": "statement",
+            "id": "P6375$BF1AE40D-537F-419C-8536-C0864D257B3D",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1659",
+              "hash": "7fb6cd7f191b9020ab98caff8c17cbd52d884f30",
+              "datavalue": {
+                "value": {
+                  "entity-type": "property",
+                  "numeric-id": 281,
+                  "id": "P281"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-property"
+            },
+            "type": "statement",
+            "id": "P6375$6C5EDF45-F6DA-4B15-9949-C30123E84F68",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1659",
+              "hash": "d4d4eb1f305023b49185602eecc7b6cbbb3aa1e6",
+              "datavalue": {
+                "value": {
+                  "entity-type": "property",
+                  "numeric-id": 2795,
+                  "id": "P2795"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-property"
+            },
+            "type": "statement",
+            "id": "P6375$49c0e582-4f5e-edb0-32ee-ea91ecb2833f",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1659",
+              "hash": "a6e45fabbeab8026ac612b08bc80cda9a05096f8",
+              "datavalue": {
+                "value": {
+                  "entity-type": "property",
+                  "numeric-id": 2918,
+                  "id": "P2918"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-property"
+            },
+            "type": "statement",
+            "id": "P6375$c50a1abf-4882-af81-5e15-aab4bc5dac05",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1659",
+              "hash": "19e73e4174f8c5ef62388f6261416947219bf91a",
+              "datavalue": {
+                "value": {
+                  "entity-type": "property",
+                  "numeric-id": 7532,
+                  "id": "P7532"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-property"
+            },
+            "type": "statement",
+            "id": "P6375$e8b1202d-4c7f-98f9-7dc7-e394d37524ec",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1659",
+              "hash": "7c116754c33719d620f203b1679583e74e6f4670",
+              "datavalue": {
+                "value": {
+                  "entity-type": "property",
+                  "numeric-id": 5423,
+                  "id": "P5423"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-property"
+            },
+            "type": "statement",
+            "id": "P6375$67d8a499-45ce-77a3-2a84-9e1cd6b43833",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1659",
+              "hash": "fed513f6e96e7218c254b226f902c895ca48188b",
+              "datavalue": {
+                "value": {
+                  "entity-type": "property",
+                  "numeric-id": 276,
+                  "id": "P276"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-property"
+            },
+            "type": "statement",
+            "id": "P6375$968dc0cc-4a26-c2dc-cdae-24a50e71b5bc",
+            "rank": "normal"
+          }
+        ],
+        "P2236": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2236",
+              "hash": "76d29375fc0f0dadb0b73486363ebba4c0235776",
+              "datavalue": {
+                "value": "http://www.w3.org/ns/org#siteAddress",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "id": "P6375$2B127DBF-6E2B-4764-B164-69EF4FB3DFF0",
+            "rank": "normal"
+          }
+        ],
+        "P1628": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1628",
+              "hash": "ff8173162c3556e0775faa2e363aa2ea11e9b81c",
+              "datavalue": {
+                "value": "http://www.w3.org/2006/vcard/ns#street-address",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "id": "P6375$EF4BEE4F-73A4-4CB9-BFE2-1536004B6492",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1628",
+              "hash": "249df1420d5d5bfadde89e7d595c40a4512581bc",
+              "datavalue": {
+                "value": "http://dati.beniculturali.it/cis/fullAddress",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "id": "P6375$acdd0ea9-478e-9236-2311-cb174e867949",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1628",
+              "hash": "9dafd7aa6971a7e6a434e43acb33b0c401cc12fd",
+              "datavalue": {
+                "value": "https://schema.org/address",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "id": "P6375$60cdd0ef-440b-45bd-eaed-dff7706d2edc",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1628",
+              "hash": "be978e6dcd820c2972a03f45f1414e833ef86f5c",
+              "datavalue": {
+                "value": "http://www.w3.org/2006/vcard/ns#hasAddress",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "id": "P6375$21f213fe-408e-637f-422b-564deb9c2caf",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1628",
+              "hash": "409e020f0c8fe3566244c6e6e7a2dec760704324",
+              "datavalue": {
+                "value": "http://www.w3.org/2006/vcard/ns#hasStreetAddress",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "id": "P6375$da600538-4574-72d2-9232-1d52736179ae",
+            "rank": "normal"
+          }
+        ],
+        "P1629": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1629",
+              "hash": "849eedc8b02a01bb49912fb6bbf6010e9ba9e7ab",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 24574749,
+                  "id": "Q24574749"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P6375$a8e0c3fc-4109-99f1-2dfb-a2c9e831dffb",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1629",
+              "hash": "5c6ea344fd9786f145cc3dacdc06984a38bcbbc5",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 319608,
+                  "id": "Q319608"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P6375$DD6E9905-DF25-448E-AB41-88480A3850F0",
+            "rank": "normal"
+          }
+        ],
+        "P1855": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1855",
+              "hash": "124741c4c7deb72246268934f3654b89ab7dd9ca",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 35525,
+                  "id": "Q35525"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P6375": [
+                {
+                  "snaktype": "value",
+                  "property": "P6375",
+                  "hash": "7d549e3cef4cf1cc959e8c4c5cdca0a3de7c843c",
+                  "datavalue": {
+                    "value": {
+                      "text": "1600 Pennsylvania Avenue NW,  Washington, DC 20500",
+                      "language": "en"
+                    },
+                    "type": "monolingualtext"
+                  },
+                  "datatype": "monolingualtext"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P6375"
+            ],
+            "id": "P6375$e0c8bb35-4f8f-7a70-b2cf-04f000e9a7e3",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1855",
+              "hash": "7283b6b006b88a39f63b8a3c1f3a1bf9d82c4d3d",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 3204568,
+                  "id": "Q3204568"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P6375": [
+                {
+                  "snaktype": "value",
+                  "property": "P6375",
+                  "hash": "c5aa6faef3a10bff21998857b16c73df728837df",
+                  "datavalue": {
+                    "value": {
+                      "text": "Palais Garnier, place Jacques-Rouch\u00e9, 75009 Paris",
+                      "language": "fr"
+                    },
+                    "type": "monolingualtext"
+                  },
+                  "datatype": "monolingualtext"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P6375"
+            ],
+            "id": "P6375$938eb4a4-427e-c2d2-55a9-03f36c4dbd24",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1855",
+              "hash": "be734847e4efb83e6a3167a7f291c23ce8c95333",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 19882251,
+                  "id": "Q19882251"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P6375": [
+                {
+                  "snaktype": "value",
+                  "property": "P6375",
+                  "hash": "483a96870c3a11b9ebf66ff91d67d04ee81475af",
+                  "datavalue": {
+                    "value": {
+                      "text": "37, Gopal Lal Tagore Road, Baranagar, Kolkata - 700036",
+                      "language": "mul"
+                    },
+                    "type": "monolingualtext"
+                  },
+                  "datatype": "monolingualtext"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P6375"
+            ],
+            "id": "P6375$9893026d-4a99-a038-5cb2-14353e444fc8",
+            "rank": "normal",
+            "references": [
+              {
+                "hash": "a05b8cb6120a875eadeec0a451d49230d55aeda1",
+                "snaks": {
+                  "P3452": [
+                    {
+                      "snaktype": "value",
+                      "property": "P3452",
+                      "hash": "fab9aaf0a3aebc3c7791e23080d06cc2ffe315ca",
+                      "datavalue": {
+                        "value": {
+                          "entity-type": "item",
+                          "numeric-id": 19882251,
+                          "id": "Q19882251"
+                        },
+                        "type": "wikibase-entityid"
+                      },
+                      "datatype": "wikibase-item"
+                    }
+                  ]
+                },
+                "snaks-order": [
+                  "P3452"
+                ]
+              }
+            ]
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1855",
+              "hash": "b1e589b71071ed1ecbd6e653be307ed381b8bce1",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 500681,
+                  "id": "Q500681"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P6375": [
+                {
+                  "snaktype": "value",
+                  "property": "P6375",
+                  "hash": "22c49eff86cb7b0c1e25b6087aba22fd4c6c0602",
+                  "datavalue": {
+                    "value": {
+                      "text": "\u3012100-8111 \u6771\u4eac\u90fd\u5343\u4ee3\u7530\u533a\u5343\u4ee3\u75301\u756a1\u53f7",
+                      "language": "ja"
+                    },
+                    "type": "monolingualtext"
+                  },
+                  "datatype": "monolingualtext"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P6375"
+            ],
+            "id": "P6375$3e35770d-4d85-c152-b0cf-f19d54d92fad",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1855",
+              "hash": "22223e9ef43daf2198ad38cdd62c4e630f8e6a8b",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 151897,
+                  "id": "Q151897"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P6375": [
+                {
+                  "snaktype": "value",
+                  "property": "P6375",
+                  "hash": "b4fe193debe5e2517c9b902a4a80cb7dbbbefae4",
+                  "datavalue": {
+                    "value": {
+                      "text": "Platz der Republik 1, 11011 Berlin",
+                      "language": "de"
+                    },
+                    "type": "monolingualtext"
+                  },
+                  "datatype": "monolingualtext"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P6375"
+            ],
+            "id": "P6375$ef78aec7-4a01-1ca3-8bef-598a58b8d4f5",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1855",
+              "hash": "ea377c0dbee26f1a7ee7d15345015498c3eb0196",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 5572,
+                  "id": "Q5572"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P6375": [
+                {
+                  "snaktype": "value",
+                  "property": "P6375",
+                  "hash": "276ee5034cf2b66e7a8d72e9b1e34faa3aa5ac49",
+                  "datavalue": {
+                    "value": {
+                      "text": "Via Martiri della Libert\u00e0, 48, 31100 Treviso TV",
+                      "language": "it"
+                    },
+                    "type": "monolingualtext"
+                  },
+                  "datatype": "monolingualtext"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P6375"
+            ],
+            "id": "P6375$784c9ee6-4f6c-dbbe-d616-a45c1cc8c5db",
+            "rank": "normal"
+          }
+        ],
+        "P3254": [
+          {
+            "mainsnak": {
+              "snaktype": "somevalue",
+              "property": "P3254",
+              "hash": "898a51e1dc17ea016659b8682ed6f2bebaed5d01",
+              "datatype": "url"
+            },
+            "type": "statement",
+            "id": "P6375$fa15d33c-4a24-ccaf-348b-6dbbfa155a6c",
+            "rank": "normal"
+          }
+        ],
+        "P2875": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2875",
+              "hash": "f0728968cc7b246c11e314f47a91ab7cfd14de47",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 61764320,
+                  "id": "Q61764320"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P6375$fb8f1b83-4902-2744-9322-6350db7a9183",
+            "rank": "normal"
+          }
+        ],
+        "P7964": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P7964",
+              "hash": "b247f79cdbde7bbf227fd839cda4af19a77b7e1d",
+              "datavalue": {
+                "value": "street-address",
+                "type": "string"
+              },
+              "datatype": "string"
+            },
+            "type": "statement",
+            "id": "P6375$aaa5fa2d-44cc-607c-60ca-2dea4e369b02",
+            "rank": "normal"
+          }
+        ],
+        "P2235": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2235",
+              "hash": "46051273fa7d8f754650916b572caf19d1684c0d",
+              "datavalue": {
+                "value": "https://schema.org/streetAddress",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "id": "P6375$3190c4a8-4382-0011-fe87-1a4eb2640086",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2235",
+              "hash": "0f3e5c6f3399aeba132a9bf149c8eff28f21c7dc",
+              "datavalue": {
+                "value": "https://schema.org/PostalAddress",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "id": "P6375$e740430a-45d4-f763-8ec8-3e45ed430ce7",
+            "rank": "normal"
+          }
+        ],
+        "P8274": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P8274",
+              "hash": "28b142eea3ea0644417d567b226afde88048f0f7",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 44601380,
+                  "id": "Q44601380"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P6375$19413022-70C7-400A-812F-D05B4E8C3437",
+            "rank": "normal"
+          }
+        ],
+        "P3303": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P3303",
+              "hash": "b290852b2c4b694c6615d12abce6766814702db1",
+              "datavalue": {
+                "value": "https://photon.komoot.io/api/?q=$1",
+                "type": "string"
+              },
+              "datatype": "string"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P407": [
+                {
+                  "snaktype": "value",
+                  "property": "P407",
+                  "hash": "daf1c4fcb58181b02dff9cc89deb084004ddae4b",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 1860,
+                      "id": "Q1860"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P407"
+            ],
+            "id": "P6375$9f742f4a-4f2d-cfa4-145d-306bb16493f6",
+            "rank": "normal"
+          }
+        ],
+        "P7930": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P7930",
+              "hash": "53ced3ced4784293870e06858557a27ddc728808",
+              "datavalue": {
+                "value": "https://www.wikidata.org/wiki/Wikidata:Requests_for_deletions/Archive/2019/Properties/1#P969",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P813": [
+                {
+                  "snaktype": "value",
+                  "property": "P813",
+                  "hash": "67bb9e110a3f832925853c871d23368d7fd0c836",
+                  "datavalue": {
+                    "value": {
+                      "time": "+2022-07-27T00:00:00Z",
+                      "timezone": 0,
+                      "before": 0,
+                      "after": 0,
+                      "precision": 11,
+                      "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                    },
+                    "type": "time"
+                  },
+                  "datatype": "time"
+                }
+              ],
+              "P407": [
+                {
+                  "snaktype": "value",
+                  "property": "P407",
+                  "hash": "daf1c4fcb58181b02dff9cc89deb084004ddae4b",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 1860,
+                      "id": "Q1860"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P813",
+              "P407"
+            ],
+            "id": "P6375$4434cdd8-4eeb-301b-91a4-cbbf5869e701",
+            "rank": "normal"
+          }
+        ],
+        "P2559": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2559",
+              "hash": "be72d6f2f3128be5c6a9ea3f1b2cc09a4dbf01e2",
+              "datavalue": {
+                "value": {
+                  "text": "full street address where subject is located. Include building number, city/locality, post code, but not country; use also P669 if the street has its own separate item.",
+                  "language": "en"
+                },
+                "type": "monolingualtext"
+              },
+              "datatype": "monolingualtext"
+            },
+            "type": "statement",
+            "id": "P6375$45feccb2-4035-6840-8bd4-2952e9c53763",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2559",
+              "hash": "5cc5c1ac801e9d266cbea73d84e864abba7d6358",
+              "datavalue": {
+                "value": {
+                  "text": "vollst\u00e4ndige Hausanschrift des Datenobjektes einschlie\u00dflich Hausnummer, Postleitzahl, Stadt, aber nicht Land. Verwende zus\u00e4tzlich P669, wenn die Stra\u00dfe ein eigenes Datenobjekt hat.",
+                  "language": "de"
+                },
+                "type": "monolingualtext"
+              },
+              "datatype": "monolingualtext"
+            },
+            "type": "statement",
+            "id": "P6375$646da10f-4649-6c23-5834-33126db1976d",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2559",
+              "hash": "10b3255ad96d9f89fd8c06760e71ef8dfdd108f8",
+              "datavalue": {
+                "value": {
+                  "text": "\u5bfe\u8c61\u304c\u6240\u5728\u3059\u308b\u5b8c\u5168\u306a\u4f4f\u6240\u3002\u90f5\u4fbf\u756a\u53f7\u3001\u5e02\u753a\u6751\u540d\u3001\u5efa\u7269\u756a\u53f7\u3092\u542b\u3080\u304c\u3001\u56fd\u540d\u306f\u542b\u307f\u307e\u305b\u3093\u3002\u3053\u306e\u30d7\u30ed\u30d1\u30c6\u30a3\u306e\u30c7\u30fc\u30bf\u306f\u3001\u90f5\u4fbf\u756a\u53f7\uff08P281\uff09\u306a\u3069\u56fa\u6709\u306e\u30d7\u30ed\u30d1\u30c6\u30a3\u306e\u5024\u3068\u4e00\u90e8\u91cd\u8907\u3057\u307e\u3059\u3002",
+                  "language": "ja"
+                },
+                "type": "monolingualtext"
+              },
+              "datatype": "monolingualtext"
+            },
+            "type": "statement",
+            "id": "P6375$757ff124-4684-1c97-eda6-183b907620ec",
+            "rank": "normal"
+          }
+        ],
+        "P2668": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2668",
+              "hash": "4572c19310f5dffc3f60e540cd40fcf6ece10ef8",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 24025284,
+                  "id": "Q24025284"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P6375$264477fe-4dc5-2228-a154-2ba39fd4db08",
+            "rank": "normal"
+          }
+        ],
+        "P10787": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P10787",
+              "hash": "9a7d7c8f121cb5d5c55ed8be481b654735d8532e",
+              "datavalue": {
+                "value": "P153",
+                "type": "string"
+              },
+              "datatype": "external-id"
+            },
+            "type": "statement",
+            "id": "P6375$c4e4b085-4213-bd4d-2122-097db7fcabf1",
+            "rank": "normal"
+          }
+        ]
+      }
+    }
+  }
+}

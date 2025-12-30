@@ -1,0 +1,1420 @@
+{
+  "entities": {
+    "P912": {
+      "pageid": 16587479,
+      "ns": 120,
+      "title": "Property:P912",
+      "lastrevid": 2419129318,
+      "modified": "2025-10-20T09:31:11Z",
+      "type": "property",
+      "datatype": "wikibase-item",
+      "id": "P912",
+      "labels": {
+        "en": {
+          "language": "en",
+          "value": "has facility"
+        },
+        "en-gb": {
+          "language": "en-gb",
+          "value": "facility"
+        },
+        "nl": {
+          "language": "nl",
+          "value": "faciliteit"
+        },
+        "fa": {
+          "language": "fa",
+          "value": "\u062a\u062c\u0647\u06cc\u0632\u0627\u062a \u0631\u0641\u0627\u0647\u06cc"
+        },
+        "pt": {
+          "language": "pt",
+          "value": "instala\u00e7\u00f5es"
+        },
+        "be-tarask": {
+          "language": "be-tarask",
+          "value": "\u043c\u0430\u0435 \u0437\u0431\u0443\u0434\u0430\u0432\u0430\u043d\u044c\u043d\u0435"
+        },
+        "sr": {
+          "language": "sr",
+          "value": "\u043e\u0431\u0458\u0435\u043a\u0430\u0442"
+        },
+        "sr-ec": {
+          "language": "sr-ec",
+          "value": "\u043e\u0431\u0458\u0435\u043a\u0430\u0442"
+        },
+        "sr-el": {
+          "language": "sr-el",
+          "value": "objekat"
+        },
+        "ca": {
+          "language": "ca",
+          "value": "instal\u00b7lacions i serveis"
+        },
+        "de": {
+          "language": "de",
+          "value": "verf\u00fcgt \u00fcber Einrichtung"
+        },
+        "es": {
+          "language": "es",
+          "value": "instalaciones"
+        },
+        "fr": {
+          "language": "fr",
+          "value": "\u00e9quipement"
+        },
+        "ru": {
+          "language": "ru",
+          "value": "\u043e\u0431\u043e\u0440\u0443\u0434\u043e\u0432\u0430\u043d"
+        },
+        "it": {
+          "language": "it",
+          "value": "struttura presente"
+        },
+        "scn": {
+          "language": "scn",
+          "value": "impiantu"
+        },
+        "mk": {
+          "language": "mk",
+          "value": "\u043e\u043f\u0440\u0435\u043c\u0435\u043d\u043e \u0441\u043e"
+        },
+        "ja": {
+          "language": "ja",
+          "value": "\u4fdd\u6709\u65bd\u8a2d"
+        },
+        "zh-hans": {
+          "language": "zh-hans",
+          "value": "\u62e5\u6709\u8bbe\u65bd"
+        },
+        "zh-hant": {
+          "language": "zh-hant",
+          "value": "\u64c1\u6709\u8a2d\u65bd"
+        },
+        "eu": {
+          "language": "eu",
+          "value": "instalazioak"
+        },
+        "nb": {
+          "language": "nb",
+          "value": "spesialfasiliteter"
+        },
+        "id": {
+          "language": "id",
+          "value": "mempunyai fasilitas"
+        },
+        "pl": {
+          "language": "pl",
+          "value": "infrastruktura"
+        },
+        "hu": {
+          "language": "hu",
+          "value": "l\u00e9tes\u00edtm\u00e9nye"
+        },
+        "uk": {
+          "language": "uk",
+          "value": "\u043e\u0431\u043b\u0430\u0434\u043d\u0430\u043d\u0438\u0439"
+        },
+        "ar": {
+          "language": "ar",
+          "value": "\u0645\u062c\u0647\u0632 \u0628\u0640"
+        },
+        "el": {
+          "language": "el",
+          "value": "\u03c0\u03b1\u03c1\u03bf\u03c7\u03ad\u03c2"
+        },
+        "cs": {
+          "language": "cs",
+          "value": "je vybaveno (\u010d\u00edm)"
+        },
+        "ko": {
+          "language": "ko",
+          "value": "\uc788\ub294 \uc2dc\uc124"
+        },
+        "eo": {
+          "language": "eo",
+          "value": "havas aparaton"
+        },
+        "gl": {
+          "language": "gl",
+          "value": "instalaci\u00f3ns"
+        },
+        "tr": {
+          "language": "tr",
+          "value": "tesisler"
+        },
+        "zh": {
+          "language": "zh",
+          "value": "\u64c1\u6709\u8a2d\u65bd"
+        },
+        "pt-br": {
+          "language": "pt-br",
+          "value": "instala\u00e7\u00f5es"
+        },
+        "sl": {
+          "language": "sl",
+          "value": "je opremljen z"
+        },
+        "ms": {
+          "language": "ms",
+          "value": "mempunyai kemudahan"
+        },
+        "br": {
+          "language": "br",
+          "value": "aveadur"
+        },
+        "fi": {
+          "language": "fi",
+          "value": "palvelu"
+        },
+        "sv": {
+          "language": "sv",
+          "value": "utrustad med"
+        },
+        "bn": {
+          "language": "bn",
+          "value": "\u09b8\u09c1\u09ac\u09bf\u09a7\u09be\u09b8\u09ae\u09cd\u09ac\u09b2\u09bf\u09a4"
+        },
+        "vec": {
+          "language": "vec",
+          "value": "servisi"
+        },
+        "cy": {
+          "language": "cy",
+          "value": "yn cynnwys y cyfleuster(au)"
+        },
+        "lv": {
+          "language": "lv",
+          "value": "apr\u012bkots ar"
+        },
+        "ms-arab": {
+          "language": "ms-arab",
+          "value": "\u0645\u0645\u06a4\u0648\u06bd\u0627\u0621\u064a \u06a9\u0645\u0648\u062f\u0647\u0646"
+        },
+        "ig": {
+          "language": "ig",
+          "value": "nwere ak\u1ee5r\u1ee5ngwa"
+        },
+        "sw": {
+          "language": "sw",
+          "value": "Ina kituo"
+        },
+        "tt": {
+          "language": "tt",
+          "value": "\u0497\u0438\u04bb\u0430\u0437\u043b\u0430\u043d\u0434\u044b\u0440\u044b\u043b\u0433\u0430\u043d"
+        },
+        "lt": {
+          "language": "lt",
+          "value": "turi \u012frengin\u012f"
+        },
+        "tt-cyrl": {
+          "language": "tt-cyrl",
+          "value": "\u0497\u0438\u04bb\u0430\u0437\u043b\u0430\u043d\u0433\u0430\u043d"
+        },
+        "af": {
+          "language": "af",
+          "value": "het fasiliteit"
+        },
+        "frr": {
+          "language": "frr",
+          "value": "h\u00e4\u00e4 iinrachtang"
+        },
+        "da": {
+          "language": "da",
+          "value": "faciliteter"
+        },
+        "ga": {
+          "language": "ga",
+          "value": "seirbh\u00eds\u00ed"
+        },
+        "lld": {
+          "language": "lld",
+          "value": "strutura a disposizion"
+        },
+        "yue": {
+          "language": "yue",
+          "value": "\u8a2d\u65bd"
+        },
+        "ext": {
+          "language": "ext",
+          "value": "estalacionis"
+        },
+        "lmo": {
+          "language": "lmo",
+          "value": "servizzi"
+        },
+        "he": {
+          "language": "he",
+          "value": "\u05de\u05e6\u05d5\u05d9\u05d3 \u05d1-"
+        },
+        "ckb": {
+          "language": "ckb",
+          "value": "\u0626\u0627\u0645\u0627\u062f\u06d5 \u06a9\u0631\u0627\u0648\u06d5 \u0628\u06d5"
+        },
+        "ks": {
+          "language": "ks",
+          "value": "\u0633\u06c1\u0648\u0657\u0644\u06cc\u062a \u062a\u06c1\u0655"
+        }
+      },
+      "descriptions": {
+        "en": {
+          "language": "en",
+          "value": "the subject item has this type of facility, e.g. toilet, car park"
+        },
+        "fa": {
+          "language": "fa",
+          "value": "\u062a\u062c\u0647\u06cc\u0632\u0627\u062a \u0631\u0641\u0627\u0647\u06cc \u0645\u0648\u062c\u0648\u062f \u062f\u0631 \u0622\u06cc\u062a\u0645 \u0645\u0648\u0631\u062f \u0646\u0638\u0631"
+        },
+        "pt": {
+          "language": "pt",
+          "value": "itens deste tipo de instala\u00e7\u00e3o, ex: banheiro, cinemas, estacionamento"
+        },
+        "sr": {
+          "language": "sr",
+          "value": "\u0441\u0442\u0430\u0432\u043a\u0430 \u0438\u043c\u0430 \u043e\u0432\u0443 \u0432\u0440\u0441\u0442\u0443 \u043e\u0431\u0458\u0435\u043a\u0442\u0430, \u043d\u043f\u0440 \u0442\u043e\u0430\u043b\u0435\u0442, \u043f\u0430\u0440\u043a\u0438\u043d\u0433"
+        },
+        "sr-ec": {
+          "language": "sr-ec",
+          "value": "\u0441\u0442\u0430\u0432\u043a\u0430 \u0438\u043c\u0430 \u043e\u0432\u0443 \u0432\u0440\u0441\u0442\u0443 \u043e\u0431\u0458\u0435\u043a\u0442\u0430, \u043d\u043f\u0440 \u0442\u043e\u0430\u043b\u0435\u0442, \u043f\u0430\u0440\u043a\u0438\u043d\u0433"
+        },
+        "sr-el": {
+          "language": "sr-el",
+          "value": "stavka ima ovu vrstu objekta, npr toalet, parking"
+        },
+        "de": {
+          "language": "de",
+          "value": "Art der Einrichtung, die dieses Objekt hat (z. B. Spielbank, WC, Parkhaus)"
+        },
+        "es": {
+          "language": "es",
+          "value": "el elemento tiene este tipo de instalaciones, Ej: aseo, aparcamiento"
+        },
+        "fr": {
+          "language": "fr",
+          "value": "\u00e9quipement dont dispose le sujet"
+        },
+        "ru": {
+          "language": "ru",
+          "value": "\u0447\u0435\u043c \u043e\u0431\u043e\u0440\u0443\u0434\u043e\u0432\u0430\u043d \u043e\u043f\u0438\u0441\u044b\u0432\u0430\u0435\u043c\u044b\u0439 \u043e\u0431\u044a\u0435\u043a\u0442 (\u043d\u0430\u043f\u0440\u0438\u043c\u0435\u0440, \u0442\u0443\u0430\u043b\u0435\u0442, \u043f\u0430\u0440\u043a\u0438\u043d\u0433 \u0438 \u043f\u0440.)"
+        },
+        "it": {
+          "language": "it",
+          "value": "struttura di cui \u00e8 dotato l'item, e.g. bagno, parcheggio, telefono, wi-fi"
+        },
+        "scn": {
+          "language": "scn",
+          "value": "impiantu ca si trova unni lu suggettu (ad esempiu bagnu, parcheggiu, ...)"
+        },
+        "ja": {
+          "language": "ja",
+          "value": "\u4e3b\u984c\u306e\u9805\u76ee\u304c\u6301\u3064\u65bd\u8a2d\u3002\u30c8\u30a4\u30ec\u3001\u99d0\u8eca\u5834\u306a\u3069"
+        },
+        "nb": {
+          "language": "nb",
+          "value": "ekstraordin\u00e6rt utstyr eller rom knyttet til elementet"
+        },
+        "id": {
+          "language": "id",
+          "value": "subjek mempunyai fasilitas ini, contoh: toilet, parkiran mobil"
+        },
+        "pl": {
+          "language": "pl",
+          "value": "elementy infrastruktury i wyposa\u017cenia dost\u0119pne w danym miejscu lub obiekcie, np. toaleta, parking, pok\u00f3j dla rodzica z dzieckiem itp."
+        },
+        "uk": {
+          "language": "uk",
+          "value": "\u0447\u0438\u043c \u043e\u0431\u043b\u0430\u0434\u043d\u0430\u043d\u0438\u0439 \u043e\u043f\u0438\u0441\u0443\u0432\u0430\u043d\u0438\u0439 \u043e\u0431'\u0454\u043a\u0442 (\u043d\u0430\u043f\u0440\u0438\u043a\u043b\u0430\u0434, \u0442\u0443\u0430\u043b\u0435\u0442, \u043f\u0430\u0440\u043a\u0456\u043d\u0433 \u0442\u043e\u0449\u043e)"
+        },
+        "el": {
+          "language": "el",
+          "value": "\u03a0\u03b1\u03c1\u03bf\u03c7\u03ad\u03c2 \u03c3\u03b5 \u03c7\u03ce\u03c1\u03bf\u03c5\u03c2 \u03c0\u03bf\u03c5 \u03b5\u03c0\u03b9\u03c3\u03ba\u03ad\u03c0\u03c4\u03b5\u03c4\u03b1\u03b9 \u03ae \u03cc\u03c0\u03bf\u03c5 \u03b4\u03b9\u03b1\u03bc\u03ad\u03bd\u03b5\u03b9 \u03c4\u03bf \u03ba\u03bf\u03b9\u03bd\u03cc \u03ae (\u03c4\u03bf\u03c5\u03b1\u03bb\u03ad\u03c4\u03b1, \u03c7\u03ce\u03c1\u03bf\u03c2 \u03c3\u03c4\u03ac\u03b8\u03bc\u03b5\u03c5\u03c3\u03b7\u03c2, \u03c3\u03cd\u03bd\u03b4\u03b5\u03c3\u03b7 \u03c3\u03c4\u03bf \u03b4\u03b9\u03b1\u03b4\u03af\u03ba\u03c4\u03c5\u03bf, \u03ba\u03bb\u03b9\u03bc\u03b1\u03c4\u03b9\u03c3\u03bc\u03cc\u03c2)"
+        },
+        "ca": {
+          "language": "ca",
+          "value": "elements, instal\u00b7lacions i serveis dels que disposa l'\u00edtem"
+        },
+        "ko": {
+          "language": "ko",
+          "value": "\ud654\uc7a5\uc2e4, \uc8fc\ucc28\uc7a5 \ub4f1\uc758 \uc2dc\uc124\uc774 \uc788\uc74c"
+        },
+        "gl": {
+          "language": "gl",
+          "value": "elementos particulares cos que conta a instalaci\u00f3n xeral"
+        },
+        "tr": {
+          "language": "tr",
+          "value": "\u00f6genin sahip oldu\u011fu tesisler"
+        },
+        "zh": {
+          "language": "zh",
+          "value": "\u4e3b\u984c\u9805\u5177\u6709\u9019\u7a2e\u985e\u578b\u7684\u8a2d\u65bd\uff0c\u4f8b\u5982 \u5ec1\u6240\uff0c\u505c\u8eca\u5834"
+        },
+        "pt-br": {
+          "language": "pt-br",
+          "value": "itens deste tipo de instala\u00e7\u00e3o, ex: banheiro, cinemas, estacionamento"
+        },
+        "en-gb": {
+          "language": "en-gb",
+          "value": "the subject item has this type of facility, e.g. toilet, car park"
+        },
+        "fi": {
+          "language": "fi",
+          "value": "kohteella on t\u00e4m\u00e4 tyyppinen palvelu esim. wc, pys\u00e4k\u00f6int"
+        },
+        "be-tarask": {
+          "language": "be-tarask",
+          "value": "\u044d\u043b\u0435\u043c\u044d\u043d\u0442\u044b \u0456\u043d\u0444\u0440\u0430\u0441\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u044b \u0434\u0430\u0434\u0437\u0435\u043d\u0430\u0433\u0430 \u044d\u043b\u0435\u043c\u044d\u043d\u0442\u0443"
+        },
+        "sv": {
+          "language": "sv",
+          "value": "objektet har denna sorts funktionalitet, t.ex. toalett, parkering"
+        },
+        "nl": {
+          "language": "nl",
+          "value": "voorzieningen van een gebouw"
+        },
+        "hu": {
+          "language": "hu",
+          "value": "a sz\u00f3ban forg\u00f3 t\u00e9tel rendelkezik ilyen t\u00edpus\u00fa l\u00e9tes\u00edtm\u00e9nnyel vagy felszerel\u00e9ssel, pl. WC-vel vagy parkol\u00f3val"
+        },
+        "ig": {
+          "language": "ig",
+          "value": "ihe isiokwu ah\u1ee5 nwere \u1ee5d\u1ecb ak\u1ee5r\u1ee5ngwa a, d\u1ecbka \u1ecdm\u1ee5maat\u1ee5. \u1ee5l\u1ecd mposi, ogige \u1ee5gb\u1ecd ala"
+        },
+        "ar": {
+          "language": "ar",
+          "value": "\u064a\u062d\u062a\u0648\u064a \u0639\u0646\u0635\u0631 \u0627\u0644\u0645\u0648\u0636\u0648\u0639 \u0639\u0644\u0649 \u0647\u0630\u0627 \u0627\u0644\u0646\u0648\u0639 \u0645\u0646 \u0627\u0644\u062a\u0633\u0647\u064a\u0644\u0627\u062a\u060c \u0639\u0644\u0649 \u0633\u0628\u064a\u0644 \u0627\u0644\u0645\u062b\u0627\u0644. \u0645\u0631\u062d\u0627\u0636\u060c \u0645\u0648\u0642\u0641 \u0644\u0644\u0633\u064a\u0627\u0631\u0627\u062a"
+        },
+        "yue": {
+          "language": "yue",
+          "value": "\u8a2d\u65bd\u3002\u5982\u5ec1\u6240\u3002\u5982\u505c\u8eca\u5834"
+        },
+        "ext": {
+          "language": "ext",
+          "value": "l'elementu tieni esta crassi d'estalacionis (Ex: asseu, aparcaeru...)"
+        },
+        "he": {
+          "language": "he",
+          "value": "\u05dc\u05e4\u05e8\u05d9\u05d8 \u05d4\u05e0\u05d3\u05d5\u05df \u05d9\u05e9 \u05de\u05ea\u05e7\u05df \u05de\u05e1\u05d5\u05d2 \u05d6\u05d4, \u05dc\u05de\u05e9\u05dc \u05e9\u05d9\u05e8\u05d5\u05ea\u05d9\u05dd, \u05d7\u05e0\u05d9\u05d5\u05df"
+        }
+      },
+      "aliases": {
+        "scn": [
+          {
+            "language": "scn",
+            "value": "sirvizzu"
+          }
+        ],
+        "en": [
+          {
+            "language": "en",
+            "value": "facility"
+          },
+          {
+            "language": "en",
+            "value": "has amenity"
+          },
+          {
+            "language": "en",
+            "value": "amenity"
+          },
+          {
+            "language": "en",
+            "value": "has feature"
+          },
+          {
+            "language": "en",
+            "value": "features"
+          }
+        ],
+        "nl": [
+          {
+            "language": "nl",
+            "value": "voorziening"
+          }
+        ],
+        "ja": [
+          {
+            "language": "ja",
+            "value": "\u65bd\u8a2d"
+          },
+          {
+            "language": "ja",
+            "value": "\u8a2d\u5099"
+          }
+        ],
+        "zh-hans": [
+          {
+            "language": "zh-hans",
+            "value": "\u62e5\u6709\u8bbe\u5907"
+          }
+        ],
+        "zh-hant": [
+          {
+            "language": "zh-hant",
+            "value": "\u64c1\u6709\u88dd\u7f6e"
+          }
+        ],
+        "id": [
+          {
+            "language": "id",
+            "value": "fasilitas"
+          }
+        ],
+        "pl": [
+          {
+            "language": "pl",
+            "value": "wyposa\u017cenie"
+          }
+        ],
+        "ar": [
+          {
+            "language": "ar",
+            "value": "\u0644\u062f\u064a\u0647 \u062a\u062c\u0647\u064a\u0632\u0627\u062a"
+          },
+          {
+            "language": "ar",
+            "value": "\u0645\u062c\u0647\u0632"
+          },
+          {
+            "language": "ar",
+            "value": "\u0644\u062f\u064a\u0647 \u0645\u0646\u0634\u0623\u0629"
+          }
+        ],
+        "cs": [
+          {
+            "language": "cs",
+            "value": "vybaven\u00ed"
+          }
+        ],
+        "ko": [
+          {
+            "language": "ko",
+            "value": "\uc2dc\uc124"
+          },
+          {
+            "language": "ko",
+            "value": "\uc2dc\uc124\uc774 \uc788\uc74c"
+          }
+        ],
+        "zh": [
+          {
+            "language": "zh",
+            "value": "\u62e5\u6709\u8bbe\u65bd"
+          },
+          {
+            "language": "zh",
+            "value": "\u64c1\u6709\u88dd\u7f6e"
+          },
+          {
+            "language": "zh",
+            "value": "\u62e5\u6709\u8bbe\u5907"
+          }
+        ],
+        "sl": [
+          {
+            "language": "sl",
+            "value": "ima opremo"
+          },
+          {
+            "language": "sl",
+            "value": "vsebuje"
+          },
+          {
+            "language": "sl",
+            "value": "ima"
+          }
+        ],
+        "ms": [
+          {
+            "language": "ms",
+            "value": "kemudahan"
+          }
+        ],
+        "en-gb": [
+          {
+            "language": "en-gb",
+            "value": "has facility"
+          },
+          {
+            "language": "en-gb",
+            "value": "has amenity"
+          },
+          {
+            "language": "en-gb",
+            "value": "has feature"
+          },
+          {
+            "language": "en-gb",
+            "value": "amenity"
+          },
+          {
+            "language": "en-gb",
+            "value": "features"
+          }
+        ],
+        "fi": [
+          {
+            "language": "fi",
+            "value": "palvelut"
+          },
+          {
+            "language": "fi",
+            "value": "tarjoaa palveluna"
+          }
+        ],
+        "be-tarask": [
+          {
+            "language": "be-tarask",
+            "value": "\u0430\u0431\u0441\u0442\u0430\u043b\u044f\u0432\u0430\u043d\u044b"
+          }
+        ],
+        "lv": [
+          {
+            "language": "lv",
+            "value": "ir iek\u0101rta"
+          },
+          {
+            "language": "lv",
+            "value": "ir meh\u0101nisms"
+          }
+        ],
+        "ca": [
+          {
+            "language": "ca",
+            "value": "serveis"
+          }
+        ],
+        "el": [
+          {
+            "language": "el",
+            "value": "\u03c0\u03b5\u03c1\u03b9\u03ad\u03c7\u03b5\u03b9"
+          },
+          {
+            "language": "el",
+            "value": "\u03c5\u03c0\u03bf\u03b4\u03bf\u03bc\u03ad\u03c2"
+          },
+          {
+            "language": "el",
+            "value": "\u03c7\u03b1\u03c1\u03b1\u03ba\u03c4\u03b7\u03c1\u03b9\u03c3\u03c4\u03b9\u03ba\u03ac"
+          }
+        ],
+        "de": [
+          {
+            "language": "de",
+            "value": "Einrichtungen"
+          }
+        ],
+        "hu": [
+          {
+            "language": "hu",
+            "value": "felszerel\u00e9se"
+          },
+          {
+            "language": "hu",
+            "value": "rendelkez\u00e9sre \u00e1ll\u00f3 lehet\u0151s\u00e9gek"
+          },
+          {
+            "language": "hu",
+            "value": "szolg\u00e1ltat\u00e1s"
+          }
+        ],
+        "ig": [
+          {
+            "language": "ig",
+            "value": "ihe owuwu"
+          },
+          {
+            "language": "ig",
+            "value": "nwere ihe eji eme ihe"
+          },
+          {
+            "language": "ig",
+            "value": "ihe oriri"
+          },
+          {
+            "language": "ig",
+            "value": "nwere at\u1ee5mat\u1ee5"
+          },
+          {
+            "language": "ig",
+            "value": "at\u1ee5mat\u1ee5"
+          }
+        ],
+        "cy": [
+          {
+            "language": "cy",
+            "value": "cyfleuster"
+          }
+        ],
+        "tt": [
+          {
+            "language": "tt",
+            "value": "\u0433\u0430\u043c\u04d9\u043b\u0434\u04d9\u0433\u0435 \u0438\u043d\u0444\u0440\u0430\u0441\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u0430"
+          }
+        ],
+        "pt-br": [
+          {
+            "language": "pt-br",
+            "value": "possui instala\u00e7\u00f5es"
+          }
+        ],
+        "es": [
+          {
+            "language": "es",
+            "value": "equipamiento"
+          }
+        ],
+        "he": [
+          {
+            "language": "he",
+            "value": "\u05d9\u05e9 \u05de\u05ea\u05e7\u05df"
+          },
+          {
+            "language": "he",
+            "value": "\u05d9\u05e9 \u05e9\u05d9\u05e8\u05d5\u05ea\u05d9\u05dd"
+          },
+          {
+            "language": "he",
+            "value": "\u05d9\u05e9 \u05ea\u05db\u05d5\u05e0\u05d4"
+          },
+          {
+            "language": "he",
+            "value": "\u05d1\u05e2\u05dc\u05d9 \u05de\u05ea\u05e7\u05e0\u05d9\u05dd \u05e6\u05d9\u05d1\u05d5\u05e8\u05d9\u05d9\u05dd"
+          }
+        ]
+      },
+      "claims": {
+        "P1855": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1855",
+              "hash": "61a85934c4654c026e752377d46f178d7e327f01",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 279459,
+                  "id": "Q279459"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P912": [
+                {
+                  "snaktype": "value",
+                  "property": "P912",
+                  "hash": "5533b4fd6fd2997574f551e7765595bfacb8598d",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 21996814,
+                      "id": "Q21996814"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P912",
+                  "hash": "fd48741cd99967656c7fba284f496fc60f140d69",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 1780834,
+                      "id": "Q1780834"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P912"
+            ],
+            "id": "P912$e37346b7-4ab3-223a-c006-2ffe47f8c9c4",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1855",
+              "hash": "b758b8bba6c6badb03840ddc2726867b1004cf39",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 5633432,
+                  "id": "Q5633432"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P912": [
+                {
+                  "snaktype": "value",
+                  "property": "P912",
+                  "hash": "554e38b375ad4ba522f7d76a92ef78a9e6d6b082",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 192375,
+                      "id": "Q192375"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P912",
+                  "hash": "850178290423fc9807c2a2f982eecac23d846930",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 534159,
+                      "id": "Q534159"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P912"
+            ],
+            "id": "P912$62ABD78D-D343-48CC-94A3-EE380E608384",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1855",
+              "hash": "c1e4f7ba1365f4260758125b5ee073d1819f7f42",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 489065,
+                  "id": "Q489065"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P912": [
+                {
+                  "snaktype": "value",
+                  "property": "P912",
+                  "hash": "d0504c3f4203246e7f624584cf6fc33e09bcecca",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 483242,
+                      "id": "Q483242"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P912"
+            ],
+            "id": "P912$0d536e31-4b21-0f35-fe0f-3c3d979e3312",
+            "rank": "normal"
+          }
+        ],
+        "P2875": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2875",
+              "hash": "2d4c6001ded66658256cf911562c569fac45f0ea",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21037804,
+                  "id": "Q21037804"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P912$7bf8b74a-41f0-51a8-4fe3-7c8873f0f7bb",
+            "rank": "normal"
+          }
+        ],
+        "P31": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P31",
+              "hash": "6adb438a068e138bf88634a242b78f18a0a1201e",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 19829914,
+                  "id": "Q19829914"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P912$ffbb6b18-4d18-d6d5-5218-be4abb6bc79d",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P31",
+              "hash": "3b0dc036b1af62815eabc576218962caa85e3fd8",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 30025373,
+                  "id": "Q30025373"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P912$15ec25f0-4374-4833-fcac-0ce90897cedd",
+            "rank": "normal"
+          }
+        ],
+        "P3254": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P3254",
+              "hash": "8fcb536d93e357b6eae22294fc51b936fa9e2630",
+              "datavalue": {
+                "value": "https://www.wikidata.org/wiki/Wikidata:Property_proposal/Archive/14#P912",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "id": "P912$4007A3A3-459A-4B23-8A13-0AA97F154A1A",
+            "rank": "normal"
+          }
+        ],
+        "P1647": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1647",
+              "hash": "e75ea5f0c82a27160f19f55cdfb6945c22168029",
+              "datavalue": {
+                "value": {
+                  "entity-type": "property",
+                  "numeric-id": 2670,
+                  "id": "P2670"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-property"
+            },
+            "type": "statement",
+            "id": "P912$46101fcc-4783-1b44-7fde-912e3d0a5618",
+            "rank": "normal"
+          }
+        ],
+        "P2302": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "a00327947c6d834f33f6ee14916142d6a2008aef",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21503250,
+                  "id": "Q21503250"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2308": [
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "29b7bf70709e8b0bd8e1004debadacb3652b3024",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 13226383,
+                      "id": "Q13226383"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "47239a163c0cb9f1c9d847c93ec05a95eff46dff",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 33506,
+                      "id": "Q33506"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "ef78cfd5ae78c2b17058fbfec6035c48a7e75aab",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 22698,
+                      "id": "Q22698"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "812802ecc7aef49af3439e11775b7bac48168496",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 811979,
+                      "id": "Q811979"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "8eb77333f2f69b1f9442e9e7e99c30d4cd285ca5",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 17334923,
+                      "id": "Q17334923"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "dbcd1925f127866d6f4f74d9a41b0778ceaa3d38",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 43229,
+                      "id": "Q43229"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "2e9637716ef3b91d97a12118977f05fb6542683d",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 867393,
+                      "id": "Q867393"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "9fe2fd8dc9973963aebf6eb468acbec9c20c96fc",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 3895768,
+                      "id": "Q3895768"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "55645d49decf263eda8cf01dc9293a69479336d5",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 14623646,
+                      "id": "Q14623646"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2308",
+                  "hash": "74b74327656b07631b183565c8077d49d22b1e1b",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 814254,
+                      "id": "Q814254"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ],
+              "P2309": [
+                {
+                  "snaktype": "value",
+                  "property": "P2309",
+                  "hash": "8fb539b5b9fd607316a1edaf9f8fd42a67a51dd2",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 30208840,
+                      "id": "Q30208840"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ],
+              "P2316": [
+                {
+                  "snaktype": "value",
+                  "property": "P2316",
+                  "hash": "0b5129f8885b62f5606bb8acf8d7c40022ac2f8e",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 62026391,
+                      "id": "Q62026391"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2308",
+              "P2309",
+              "P2316"
+            ],
+            "id": "P912$248aa364-422a-a4d8-53c6-8ce3b11d6f5e",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "60d5b5bf5da8d7ec1e010402497e0015713c2bbf",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21502838,
+                  "id": "Q21502838"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2306": [
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "57e0c059ce6c4f38e5ffd260c63684eb7c6e0e87",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 31,
+                      "id": "P31"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                }
+              ],
+              "P2305": [
+                {
+                  "snaktype": "value",
+                  "property": "P2305",
+                  "hash": "bef2f53f1856d0b9a98de473de62b3a308b53844",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 4167410,
+                      "id": "Q4167410"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ],
+              "P2316": [
+                {
+                  "snaktype": "value",
+                  "property": "P2316",
+                  "hash": "d50c571a43e6102d65b729ccc7049a0a2f867e34",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 21502408,
+                      "id": "Q21502408"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2306",
+              "P2305",
+              "P2316"
+            ],
+            "id": "P912$e0e0ede1-498b-e738-30d2-4cb0c4191103",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "eba677434c5f12338ab5fd1ce6a834ab3139856a",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 52004125,
+                  "id": "Q52004125"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2305": [
+                {
+                  "snaktype": "value",
+                  "property": "P2305",
+                  "hash": "76a83209b6ab9e5ea1a1dd8e2986281a5a0479d7",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 29934200,
+                      "id": "Q29934200"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2305"
+            ],
+            "id": "P912$96fe2f7a-4bf0-223e-8d1e-5f116bd6e10a",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "793a77bb61b7ab2ebc9b8ef826c2c4c236eeccc1",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 53869507,
+                  "id": "Q53869507"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P5314": [
+                {
+                  "snaktype": "value",
+                  "property": "P5314",
+                  "hash": "a0202111cb525ed31611bf926974b74a2419b8ab",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 54828448,
+                      "id": "Q54828448"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P5314",
+                  "hash": "7f0b21bf6bef1987059626f383a532cf4375deb1",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 54828449,
+                      "id": "Q54828449"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P5314"
+            ],
+            "id": "P912$115b71b8-41b1-caea-a48b-39cf3e96fd6c",
+            "rank": "normal",
+            "references": [
+              {
+                "hash": "3bb4296108e28762b61c3249f1d3dd92f3e87faa",
+                "snaks": {
+                  "P518": [
+                    {
+                      "snaktype": "value",
+                      "property": "P518",
+                      "hash": "17d4a0e1dc1793ae715ca4fe07a1c15fd4cb7309",
+                      "datavalue": {
+                        "value": {
+                          "entity-type": "item",
+                          "numeric-id": 54828449,
+                          "id": "Q54828449"
+                        },
+                        "type": "wikibase-entityid"
+                      },
+                      "datatype": "wikibase-item"
+                    }
+                  ],
+                  "P3452": [
+                    {
+                      "snaktype": "value",
+                      "property": "P3452",
+                      "hash": "46f2d442c648c1ea9d123dc81931c5719b32ecf0",
+                      "datavalue": {
+                        "value": {
+                          "entity-type": "item",
+                          "numeric-id": 24869193,
+                          "id": "Q24869193"
+                        },
+                        "type": "wikibase-entityid"
+                      },
+                      "datatype": "wikibase-item"
+                    }
+                  ],
+                  "P5997": [
+                    {
+                      "snaktype": "value",
+                      "property": "P5997",
+                      "hash": "df8232297b5f0013d1a38900d32030676613dad7",
+                      "datavalue": {
+                        "value": "https://www.wikidata.org/w/index.php?title=Q24869193&diff=1661180352&oldid=1628240060",
+                        "type": "string"
+                      },
+                      "datatype": "string"
+                    }
+                  ]
+                },
+                "snaks-order": [
+                  "P518",
+                  "P3452",
+                  "P5997"
+                ]
+              }
+            ]
+          }
+        ],
+        "P1629": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1629",
+              "hash": "46f33a22f67071f5aaf7a80eeb3b1879fec34d0d",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 13226383,
+                  "id": "Q13226383"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P912$f2c61b3b-4be3-a890-f21f-5047f78952d9",
+            "rank": "normal"
+          }
+        ],
+        "P10787": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P10787",
+              "hash": "4eb35f5cbce0ab30a29425e57b787deb082e4a64",
+              "datavalue": {
+                "value": "P575",
+                "type": "string"
+              },
+              "datatype": "external-id"
+            },
+            "type": "statement",
+            "id": "P912$2e450539-428c-6b3e-ea87-8694a46c0ad5",
+            "rank": "normal"
+          }
+        ],
+        "P13786": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P13786",
+              "hash": "1174b172d161fde6d67e070e9f881118dda66b33",
+              "datavalue": {
+                "value": "amenity",
+                "type": "string"
+              },
+              "datatype": "external-id"
+            },
+            "type": "statement",
+            "id": "P912$78604ed7-4e91-fe73-d1ab-0f787306dca8",
+            "rank": "normal"
+          }
+        ]
+      }
+    }
+  }
+}

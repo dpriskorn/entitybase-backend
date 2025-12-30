@@ -1,0 +1,1237 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ontolex: <http://www.w3.org/ns/lemon/ontolex#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix wikibase: <http://wikiba.se/ontology#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema: <http://schema.org/> .
+@prefix cc: <http://creativecommons.org/ns#> .
+@prefix geo: <http://www.opengis.net/ont/geosparql#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix wd: <http://www.wikidata.org/entity/> .
+@prefix data: <https://www.wikidata.org/wiki/Special:EntityData/> .
+@prefix wds: <http://www.wikidata.org/entity/statement/> .
+@prefix wdref: <http://www.wikidata.org/reference/> .
+@prefix wdv: <http://www.wikidata.org/value/> .
+@prefix wdt: <http://www.wikidata.org/prop/direct/> .
+@prefix wdtn: <http://www.wikidata.org/prop/direct-normalized/> .
+@prefix p: <http://www.wikidata.org/prop/> .
+@prefix ps: <http://www.wikidata.org/prop/statement/> .
+@prefix psv: <http://www.wikidata.org/prop/statement/value/> .
+@prefix psn: <http://www.wikidata.org/prop/statement/value-normalized/> .
+@prefix pq: <http://www.wikidata.org/prop/qualifier/> .
+@prefix pqv: <http://www.wikidata.org/prop/qualifier/value/> .
+@prefix pqn: <http://www.wikidata.org/prop/qualifier/value-normalized/> .
+@prefix pr: <http://www.wikidata.org/prop/reference/> .
+@prefix prv: <http://www.wikidata.org/prop/reference/value/> .
+@prefix prn: <http://www.wikidata.org/prop/reference/value-normalized/> .
+@prefix wdno: <http://www.wikidata.org/prop/novalue/> .
+
+data:P5017 a schema:Dataset ;
+	schema:about wd:P5017 ;
+	cc:license <http://creativecommons.org/publicdomain/zero/1.0/> ;
+	schema:softwareVersion "1.0.0" ;
+	schema:version "2362566195"^^xsd:integer ;
+	schema:dateModified "2025-06-17T12:24:08Z"^^xsd:dateTime ;
+	wikibase:statements "18"^^xsd:integer .
+
+wd:P5017 a wikibase:Property ;
+	wdt:P31 wd:Q18608359 ;
+	wdt:P3254 <https://www.wikidata.org/wiki/Wikidata:Property_proposal/last_update> ;
+	wdt:P1855 wd:Q28071746,
+		wd:Q180,
+		wd:Q1384 ;
+	wdt:P2302 wd:Q53869507 ;
+	wdt:P2559 "Use in references only"@en,
+		"Використовувати лише у посиланнях"@uk,
+		"Се користи само за наводи"@mk,
+		"Úsese solo en referencias"@es,
+		"Usar só en referencias"@gl,
+		"À n'utiliser que dans les références"@fr ;
+	wdt:P1659 wd:P7125,
+		wd:P813,
+		wd:P577,
+		wd:P11140 ;
+	wdt:P2236 <http://id.nlm.nih.gov/mesh/vocab#dateRevised> ;
+	wdt:P2875 wd:Q113553132 ;
+	p:P31 wds:P5017-57251729-C6A5-4AED-933E-712524F97094 .
+
+wds:P5017-57251729-C6A5-4AED-933E-712524F97094 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P31 wd:Q18608359 ;
+	prov:wasDerivedFrom wdref:27ec9218b54af74502ff6b35e3c52cbae2fbda34 .
+
+wd:P5017 p:P3254 wds:P5017-CCAD3A79-CE3D-43B5-A075-FEC036D175C3 .
+
+wds:P5017-CCAD3A79-CE3D-43B5-A075-FEC036D175C3 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P3254 <https://www.wikidata.org/wiki/Wikidata:Property_proposal/last_update> .
+
+wd:P5017 p:P1855 wds:P5017-28697E7E-B979-4CAB-AD51-A84A4830FF39 .
+
+wds:P5017-28697E7E-B979-4CAB-AD51-A84A4830FF39 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1855 wd:Q28071746 ;
+	prov:wasDerivedFrom wdref:27ec9218b54af74502ff6b35e3c52cbae2fbda34 .
+
+wd:P5017 p:P1855 wds:P5017-08b39cb8-4d32-15d2-1856-bd5cfd735e59 .
+
+wds:P5017-08b39cb8-4d32-15d2-1856-bd5cfd735e59 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1855 wd:Q180 ;
+	pq:P7101 <https://foundation.wikimedia.org/wiki/Privacy_policy> ;
+	pq:P5017 "2020-10-08T00:00:00Z"^^xsd:dateTime ;
+	pqv:P5017 wdv:6e0bc6ed5da15c4779bb11b469d27e55 .
+
+wd:P5017 p:P1855 wds:P5017-dbedf4de-4d1a-2891-0feb-8721d27180f1 .
+
+wds:P5017-dbedf4de-4d1a-2891-0feb-8721d27180f1 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1855 wd:Q1384 ;
+	pq:P1036 "974.7" ;
+	pq:P5017 "2020-01-07T00:00:00Z"^^xsd:dateTime ;
+	pqv:P5017 wdv:925b8733a0904d0878e3d123508be8b0 .
+
+wd:P5017 p:P2302 wds:P5017-7530d4ec-4474-d912-a7ea-479fb34bef0a .
+
+wds:P5017-7530d4ec-4474-d912-a7ea-479fb34bef0a a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2302 wd:Q53869507 ;
+	pq:P5314 wd:Q54828450,
+		wd:Q54828449,
+		wd:Q54828448 .
+
+wd:P5017 p:P2559 wds:P5017-71a0ba51-495c-ca94-70ea-4c6235d6d7e4 .
+
+wds:P5017-71a0ba51-495c-ca94-70ea-4c6235d6d7e4 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2559 "Use in references only"@en .
+
+wd:P5017 p:P2559 wds:P5017-4c34ac0c-4777-c82f-1a86-25036cf85086 .
+
+wds:P5017-4c34ac0c-4777-c82f-1a86-25036cf85086 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2559 "Використовувати лише у посиланнях"@uk .
+
+wd:P5017 p:P2559 wds:P5017-69daf420-4227-a7cb-f955-773e34defa6f .
+
+wds:P5017-69daf420-4227-a7cb-f955-773e34defa6f a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2559 "Се користи само за наводи"@mk .
+
+wd:P5017 p:P2559 wds:P5017-baca0f92-4b71-d505-63d5-3472acd99939 .
+
+wds:P5017-baca0f92-4b71-d505-63d5-3472acd99939 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2559 "Úsese solo en referencias"@es .
+
+wd:P5017 p:P2559 wds:P5017-c4f160e0-404d-1d5a-87ff-4042dfbe1b22 .
+
+wds:P5017-c4f160e0-404d-1d5a-87ff-4042dfbe1b22 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2559 "Usar só en referencias"@gl .
+
+wd:P5017 p:P2559 wds:P5017-e688fd1f-491d-bae4-227f-a8f25fd597bf .
+
+wds:P5017-e688fd1f-491d-bae4-227f-a8f25fd597bf a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2559 "À n'utiliser que dans les références"@fr .
+
+wd:P5017 p:P1659 wds:P5017-0566AAB2-AAC7-416B-8EF3-567E66C7EF66 .
+
+wds:P5017-0566AAB2-AAC7-416B-8EF3-567E66C7EF66 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P7125 ;
+	prov:wasDerivedFrom wdref:a1ba48c657257cc8497e3130ded4473602c65c11 .
+
+wd:P5017 p:P1659 wds:P5017-aace1f3a-4e2c-f940-3108-0b35c9a6ccb0 .
+
+wds:P5017-aace1f3a-4e2c-f940-3108-0b35c9a6ccb0 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P813 .
+
+wd:P5017 p:P1659 wds:P5017-fff4a40d-4a6a-bb32-507a-274d2acc5ce5 .
+
+wds:P5017-fff4a40d-4a6a-bb32-507a-274d2acc5ce5 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P577 .
+
+wd:P5017 p:P1659 wds:P5017-dfbc5862-43b1-2337-9e5d-f72fa163dddc .
+
+wds:P5017-dfbc5862-43b1-2337-9e5d-f72fa163dddc a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P11140 .
+
+wd:P5017 p:P2236 wds:P5017-5b40f5a5-417e-bea9-90d4-6b5bd300eeaa .
+
+wds:P5017-5b40f5a5-417e-bea9-90d4-6b5bd300eeaa a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2236 <http://id.nlm.nih.gov/mesh/vocab#dateRevised> .
+
+wd:P5017 p:P2875 wds:P5017-FF296B18-89FE-4F53-A371-45647A792D28 .
+
+wds:P5017-FF296B18-89FE-4F53-A371-45647A792D28 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2875 wd:Q113553132 .
+
+wd:P5017 rdfs:label "last update"@en ;
+	skos:prefLabel "last update"@en ;
+	schema:name "last update"@en ;
+	rdfs:label "آخر تحديث"@ar ;
+	skos:prefLabel "آخر تحديث"@ar ;
+	schema:name "آخر تحديث"@ar ;
+	rdfs:label "останнє оновлення"@uk ;
+	skos:prefLabel "останнє оновлення"@uk ;
+	schema:name "останнє оновлення"@uk ;
+	rdfs:label "ажурирано"@sr ;
+	skos:prefLabel "ажурирано"@sr ;
+	schema:name "ажурирано"@sr ;
+	rdfs:label "última atualização"@pt ;
+	skos:prefLabel "última atualização"@pt ;
+	schema:name "última atualização"@pt ;
+	rdfs:label "подновено"@mk ;
+	skos:prefLabel "подновено"@mk ;
+	schema:name "подновено"@mk ;
+	rdfs:label "senest opdateret"@da ;
+	skos:prefLabel "senest opdateret"@da ;
+	schema:name "senest opdateret"@da ;
+	rdfs:label "laatst bijgewerkt"@nl ;
+	skos:prefLabel "laatst bijgewerkt"@nl ;
+	schema:name "laatst bijgewerkt"@nl ;
+	rdfs:label "最終更新日"@ja ;
+	skos:prefLabel "最終更新日"@ja ;
+	schema:name "最終更新日"@ja ;
+	rdfs:label "darrera actualització"@ca ;
+	skos:prefLabel "darrera actualització"@ca ;
+	schema:name "darrera actualització"@ca ;
+	rdfs:label "date de mise à jour ou de changement"@fr ;
+	skos:prefLabel "date de mise à jour ou de changement"@fr ;
+	schema:name "date de mise à jour ou de changement"@fr ;
+	rdfs:label "data ostatniej aktualizacji"@pl ;
+	skos:prefLabel "data ostatniej aktualizacji"@pl ;
+	schema:name "data ostatniej aktualizacji"@pl ;
+	rdfs:label "viimeisin päivitys"@fi ;
+	skos:prefLabel "viimeisin päivitys"@fi ;
+	schema:name "viimeisin päivitys"@fi ;
+	rdfs:label "마지막 갱신일"@ko ;
+	skos:prefLabel "마지막 갱신일"@ko ;
+	schema:name "마지막 갱신일"@ko ;
+	rdfs:label "最后更新"@zh-hans ;
+	skos:prefLabel "最后更新"@zh-hans ;
+	schema:name "最后更新"@zh-hans ;
+	rdfs:label "letzte Aktualisierung"@de ;
+	skos:prefLabel "letzte Aktualisierung"@de ;
+	schema:name "letzte Aktualisierung"@de ;
+	rdfs:label "última actualización"@es ;
+	skos:prefLabel "última actualización"@es ;
+	schema:name "última actualización"@es ;
+	rdfs:label "lasta ĝisdatigo"@eo ;
+	skos:prefLabel "lasta ĝisdatigo"@eo ;
+	schema:name "lasta ĝisdatigo"@eo ;
+	rdfs:label "সর্বশেষ হালনাগাদ"@bn ;
+	skos:prefLabel "সর্বশেষ হালনাগাদ"@bn ;
+	schema:name "সর্বশেষ হালনাগাদ"@bn ;
+	rdfs:label "最後更新"@zh-hant ;
+	skos:prefLabel "最後更新"@zh-hant ;
+	schema:name "最後更新"@zh-hant ;
+	rdfs:label "最後更新"@zh ;
+	skos:prefLabel "最後更新"@zh ;
+	schema:name "最後更新"@zh ;
+	rdfs:label "sist oppdatert"@nb ;
+	skos:prefLabel "sist oppdatert"@nb ;
+	schema:name "sist oppdatert"@nb ;
+	rdfs:label "शेवटचे अद्यतन"@mr ;
+	skos:prefLabel "शेवटचे अद्यतन"@mr ;
+	schema:name "शेवटचे अद्यतन"@mr ;
+	rdfs:label "aggiornato al"@it ;
+	skos:prefLabel "aggiornato al"@it ;
+	schema:name "aggiornato al"@it ;
+	rdfs:label "utoljára frissítve"@hu ;
+	skos:prefLabel "utoljára frissítve"@hu ;
+	schema:name "utoljára frissítve"@hu ;
+	rdfs:label "последнее обновление"@ru ;
+	skos:prefLabel "последнее обновление"@ru ;
+	schema:name "последнее обновление"@ru ;
+	rdfs:label "апошняе абнаўленне"@be ;
+	skos:prefLabel "апошняе абнаўленне"@be ;
+	schema:name "апошняе абнаўленне"@be ;
+	rdfs:label "senast uppdaterad"@sv ;
+	skos:prefLabel "senast uppdaterad"@sv ;
+	schema:name "senast uppdaterad"@sv ;
+	rdfs:label "rojanekirina dawî"@ku-latn ;
+	skos:prefLabel "rojanekirina dawî"@ku-latn ;
+	schema:name "rojanekirina dawî"@ku-latn ;
+	rdfs:label "poslední aktualizace"@cs ;
+	skos:prefLabel "poslední aktualizace"@cs ;
+	schema:name "poslední aktualizace"@cs ;
+	rdfs:label "آخرین بروزرسانی"@fa ;
+	skos:prefLabel "آخرین بروزرسانی"@fa ;
+	schema:name "آخرین بروزرسانی"@fa ;
+	rdfs:label "última atualização"@pt-br ;
+	skos:prefLabel "última atualização"@pt-br ;
+	schema:name "última atualização"@pt-br ;
+	rdfs:label "son güncelleme"@tr ;
+	skos:prefLabel "son güncelleme"@tr ;
+	schema:name "son güncelleme"@tr ;
+	rdfs:label "última actualización"@gl ;
+	skos:prefLabel "última actualización"@gl ;
+	schema:name "última actualización"@gl ;
+	rdfs:label "תאריך עדכון אחרון"@he ;
+	skos:prefLabel "תאריך עדכון אחרון"@he ;
+	schema:name "תאריך עדכון אחרון"@he ;
+	rdfs:label "tarikh kemas kini terkini"@ms ;
+	skos:prefLabel "tarikh kemas kini terkini"@ms ;
+	schema:name "tarikh kemas kini terkini"@ms ;
+	rdfs:label "最后更新日期"@zh-cn ;
+	skos:prefLabel "最后更新日期"@zh-cn ;
+	schema:name "最后更新日期"@zh-cn ;
+	rdfs:label "ngày cập nhật cuối cùng"@vi ;
+	skos:prefLabel "ngày cập nhật cuối cùng"@vi ;
+	schema:name "ngày cập nhật cuối cùng"@vi ;
+	rdfs:label "最後更新"@zh-tw ;
+	skos:prefLabel "最後更新"@zh-tw ;
+	schema:name "最後更新"@zh-tw ;
+	rdfs:label "bahigu pahigu"@dag ;
+	skos:prefLabel "bahigu pahigu"@dag ;
+	schema:name "bahigu pahigu"@dag ;
+	rdfs:label "azken eguneraketa"@eu ;
+	skos:prefLabel "azken eguneraketa"@eu ;
+	schema:name "azken eguneraketa"@eu ;
+	rdfs:label "τελευταία ενημέρωση"@el ;
+	skos:prefLabel "τελευταία ενημέρωση"@el ;
+	schema:name "τελευταία ενημέρωση"@el ;
+	rdfs:label "апошняе абнаўленьне"@be-tarask ;
+	skos:prefLabel "апошняе абнаўленьне"@be-tarask ;
+	schema:name "апошняе абнаўленьне"@be-tarask ;
+	rdfs:label "zadnja posodobitev"@sl ;
+	skos:prefLabel "zadnja posodobitev"@sl ;
+	schema:name "zadnja posodobitev"@sl ;
+	rdfs:label "ostatná aktualizácia"@sk ;
+	skos:prefLabel "ostatná aktualizácia"@sk ;
+	schema:name "ostatná aktualizácia"@sk ;
+	rdfs:label "data ôstatnij aktualizacyje"@szl ;
+	skos:prefLabel "data ôstatnij aktualizacyje"@szl ;
+	schema:name "data ôstatnij aktualizacyje"@szl ;
+	schema:description "date a reference was modified, revised, or updated"@en,
+		"дата, коли посилання було востаннє оновлено, змінено або переглянуто. Використовувати лише у посиланнях"@uk,
+		"data em que uma referência foi atualizada, modificada ou revisada mais recentemente"@pt,
+		"出典が更新された日付"@ja,
+		"一个参考文献最后更新、修改或修订的日期"@zh-hans,
+		"fecha en que una referencia fue actualizada, modificada o revisada por última vez"@es,
+		"相關參考最後更新、修改或修訂的日期"@zh,
+		"data in cui un'informazione di riferimento è stata aggiornata"@it,
+		"дата изменения, пересмотра или обновления ссылки"@ru,
+		"дата змянення, перагляду ці абнаўлення спасылкі"@be,
+		"la date à laquelle une référence a été modifiée, révisée ou mise à jour"@fr,
+		"datum, kdy byla reference změněna, revidována nebo aktualizována"@cs,
+		"تاریخ آخرین به‌روز شدن منبع مورد نظر"@fa,
+		"Datum, an dem die Fundstelle das letzte Mal aktualisiert wurde"@de,
+		"datum waarop de bron het laatst is aangepast"@nl,
+		"kaynağın değiştirildiği, revize edildiği veya güncellendiği tarih"@tr,
+		"data na que unha referencia foi actualizada, modificada ou revisada por última vez"@gl,
+		"התאריך האחרון שבו מקור השתנה או עודכן"@he,
+		"tanggal terkini suatu rujukan dikemas kini atau disemak semula"@ms,
+		"标记参考文献修改、修订、更新的最后更改日期"@zh-cn,
+		"dahinshɛli shɛhira maa ni daa pahi, bee n labi yuli"@dag,
+		"ημερομηνία κατά την οποία μια αναφορά τροποποιήθηκε, αναθεωρήθηκε ή ενημερώθηκε"@el,
+		"дата, калі спасылка была зьмененая, перагледжаная ці абноўленая"@be-tarask ;
+	skos:altLabel "last modified"@en,
+		"last revised"@en,
+		"last updated"@en,
+		"modified"@en,
+		"revised"@en,
+		"updated"@en,
+		"changed"@en,
+		"altered"@en,
+		"updated last"@en,
+		"revised last"@en,
+		"modified last"@en,
+		"last modification"@en,
+		"last revision"@en,
+		"most recent update"@en,
+		"altered last"@en,
+		"last changed"@en,
+		"changed last"@en,
+		"last edited"@en,
+		"update date"@en,
+		"змінено"@uk,
+		"оновлено"@uk,
+		"переглянуто"@uk,
+		"остання актуалізація"@uk,
+		"остання зміна"@uk,
+		"дата оновлення"@uk,
+		"последње ажурирање"@sr,
+		"последњи пут ажурирано"@sr,
+		"последна поднова"@mk,
+		"ажурирано"@mk,
+		"redigeret på"@da,
+		"tilpasset på"@da,
+		"updated på"@da,
+		"senest opdateret"@da,
+		"sidste update"@da,
+		"opdateringsdato"@da,
+		"sidste opdatering"@da,
+		"laatste update"@nl,
+		"aangepast op"@nl,
+		"updated op"@nl,
+		"laatst gewijzigd"@nl,
+		"更新日"@ja,
+		"改版日"@ja,
+		"修正日"@ja,
+		"수정일"@ko,
+		"개정일"@ko,
+		"上次更新"@zh-hans,
+		"modificado en"@es,
+		"actualizado en"@es,
+		"revisado en"@es,
+		"última modificación"@es,
+		"última revisión"@es,
+		"ultimo aggiornamento"@it,
+		"data di aggiornamento"@it,
+		"ultima modifica"@it,
+		"data ultima modifica"@it,
+		"dernière modification"@fr,
+		"modifié"@fr,
+		"changé"@fr,
+		"actualisé"@fr,
+		"remanié"@fr,
+		"révisé"@fr,
+		"dernière mise à jour"@fr,
+		"dernière révision"@fr,
+		"date de dernière modification"@fr,
+		"date de dernière mise à jour ou de changement"@fr,
+		"date de màj"@fr,
+		"date de modification"@fr,
+		"poslední update"@cs,
+		"aktualizováno"@cs,
+		"datum aktualizace"@cs,
+		"değiştirildiği tarih"@tr,
+		"güncellendiği tarih"@tr,
+		"kaynağın güncelleme tarihi"@tr,
+		"modificado en"@gl,
+		"actualizado en"@gl,
+		"revisado en"@gl,
+		"última modificación"@gl,
+		"última revisión"@gl,
+		"עדכון אחרון"@he,
+		"עדכני ל־"@he,
+		"תאריך שינוי אחרון"@he,
+		"שינוי אחרון"@he,
+		"שונה ב־"@he,
+		"השתנה ב־"@he,
+		"kemas kini terkini"@ms,
+		"dikemas kini pada"@ms,
+		"pembaharuan terkini"@ms,
+		"tarikh kemas kini terakhir"@ms,
+		"kemas kini terakhir"@ms,
+		"tanggal pembaharuan terkini"@ms,
+		"suntingan terkini"@ms,
+		"suntingan terakhir"@ms,
+		"kemas kini terbaharu"@ms,
+		"disemak pada"@ms,
+		"semakan terkini"@ms,
+		"semakan terakhir"@ms,
+		"semakan semula terkini"@ms,
+		"semakan semula terakhir"@ms,
+		"上次更新"@zh-cn,
+		"上次修改"@zh-cn,
+		"最后更新"@zh-cn,
+		"最近更新"@zh-cn,
+		"最近修订"@zh-cn,
+		"最后修订"@zh-cn,
+		"上次修订"@zh-cn,
+		"cập nhật cuối cùng"@vi,
+		"được cập nhật vào"@vi,
+		"ngày thay đổi cuối cùng"@vi,
+		"thay đổi cuối cùng"@vi,
+		"được thay đổi vào"@vi,
+		"ngày sửa đổi cuối cùng"@vi,
+		"sửa đổi cuối cùng"@vi,
+		"được sửa đổi vào"@vi,
+		"ostatnia aktualizacja"@pl,
+		"ostatnia zmiana"@pl,
+		"labi pahi"@dag,
+		"labi yuli"@dag,
+		"labi niŋ"@dag,
+		"nayoli pahi"@dag,
+		"nayoli taɣi"@dag,
+		"puŋ"@dag,
+		"ενημερώθηκε"@el,
+		"επικαιροποιήθηκε"@el,
+		"αναθεωρήθηκε"@el,
+		"επεξεργάστηκε"@el,
+		"τελευταία επεξεργασία"@el,
+		"最新更新日期"@zh,
+		"最新修订日期"@zh,
+		"更新日期"@zh,
+		"修订日期"@zh,
+		"aktualizované"@sk,
+		"dátum ostatnej aktualizácie"@sk,
+		"zuletzt aktualisiert am"@de ;
+	wikibase:propertyType <http://wikiba.se/ontology#Time> ;
+	wikibase:directClaim wdt:P5017 ;
+	wikibase:claim p:P5017 ;
+	wikibase:statementProperty ps:P5017 ;
+	wikibase:statementValue psv:P5017 ;
+	wikibase:qualifier pq:P5017 ;
+	wikibase:qualifierValue pqv:P5017 ;
+	wikibase:reference pr:P5017 ;
+	wikibase:referenceValue prv:P5017 ;
+	wikibase:novalue wdno:P5017 .
+
+p:P5017 a owl:ObjectProperty .
+
+psv:P5017 a owl:ObjectProperty .
+
+pqv:P5017 a owl:ObjectProperty .
+
+prv:P5017 a owl:ObjectProperty .
+
+wdt:P5017 a owl:DatatypeProperty .
+
+ps:P5017 a owl:DatatypeProperty .
+
+pq:P5017 a owl:DatatypeProperty .
+
+pr:P5017 a owl:DatatypeProperty .
+
+wdno:P5017 a owl:Class ;
+	owl:complementOf _:225a2fccc4a1bac78e81c42656cca6a7 .
+
+_:225a2fccc4a1bac78e81c42656cca6a7 a owl:Restriction ;
+	owl:onProperty wdt:P5017 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q18608359 a wikibase:Item ;
+	rdfs:label "Wikidata property to indicate a source"@en ;
+	skos:prefLabel "Wikidata property to indicate a source"@en ;
+	schema:name "Wikidata property to indicate a source"@en ;
+	schema:description "property to indicate sources"@en .
+
+wd:P31 a wikibase:Property ;
+	rdfs:label "instance of"@en ;
+	skos:prefLabel "instance of"@en ;
+	schema:name "instance of"@en ;
+	schema:description "type to which this subject corresponds/belongs. Different from P279 (subclass of); for example: K2 is an instance of mountain; volcano is a subclass of mountain"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P31 ;
+	wikibase:claim p:P31 ;
+	wikibase:statementProperty ps:P31 ;
+	wikibase:statementValue psv:P31 ;
+	wikibase:qualifier pq:P31 ;
+	wikibase:qualifierValue pqv:P31 ;
+	wikibase:reference pr:P31 ;
+	wikibase:referenceValue prv:P31 ;
+	wikibase:novalue wdno:P31 .
+
+p:P31 a owl:ObjectProperty .
+
+psv:P31 a owl:ObjectProperty .
+
+pqv:P31 a owl:ObjectProperty .
+
+prv:P31 a owl:ObjectProperty .
+
+wdt:P31 a owl:ObjectProperty .
+
+ps:P31 a owl:ObjectProperty .
+
+pq:P31 a owl:ObjectProperty .
+
+pr:P31 a owl:ObjectProperty .
+
+wdno:P31 a owl:Class ;
+	owl:complementOf _:0b8bd71b926a65ca3fa72e5d9103e4d6 .
+
+_:0b8bd71b926a65ca3fa72e5d9103e4d6 a owl:Restriction ;
+	owl:onProperty wdt:P31 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P3254 a wikibase:Property ;
+	rdfs:label "property proposal discussion"@en ;
+	skos:prefLabel "property proposal discussion"@en ;
+	schema:name "property proposal discussion"@en ;
+	schema:description "URL of the page (or page section) on which the creation of the property was discussed"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Url> ;
+	wikibase:directClaim wdt:P3254 ;
+	wikibase:claim p:P3254 ;
+	wikibase:statementProperty ps:P3254 ;
+	wikibase:statementValue psv:P3254 ;
+	wikibase:qualifier pq:P3254 ;
+	wikibase:qualifierValue pqv:P3254 ;
+	wikibase:reference pr:P3254 ;
+	wikibase:referenceValue prv:P3254 ;
+	wikibase:novalue wdno:P3254 .
+
+p:P3254 a owl:ObjectProperty .
+
+psv:P3254 a owl:ObjectProperty .
+
+pqv:P3254 a owl:ObjectProperty .
+
+prv:P3254 a owl:ObjectProperty .
+
+wdt:P3254 a owl:ObjectProperty .
+
+ps:P3254 a owl:ObjectProperty .
+
+pq:P3254 a owl:ObjectProperty .
+
+pr:P3254 a owl:ObjectProperty .
+
+wdno:P3254 a owl:Class ;
+	owl:complementOf _:4e19f0f6602874b094f5a44fe32411dd .
+
+_:4e19f0f6602874b094f5a44fe32411dd a owl:Restriction ;
+	owl:onProperty wdt:P3254 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q28071746 a wikibase:Item ;
+	rdfs:label "Brugada Syndrome"@en ;
+	skos:prefLabel "Brugada Syndrome"@en ;
+	schema:name "Brugada Syndrome"@en ;
+	schema:description "scientific article (by Brugada)"@en .
+
+wd:P1855 a wikibase:Property ;
+	rdfs:label "Wikidata property example"@en ;
+	skos:prefLabel "Wikidata property example"@en ;
+	schema:name "Wikidata property example"@en ;
+	schema:description "example where this Wikidata property is used; target item is one that would use this property, with qualifier the property being described given the associated value"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P1855 ;
+	wikibase:claim p:P1855 ;
+	wikibase:statementProperty ps:P1855 ;
+	wikibase:statementValue psv:P1855 ;
+	wikibase:qualifier pq:P1855 ;
+	wikibase:qualifierValue pqv:P1855 ;
+	wikibase:reference pr:P1855 ;
+	wikibase:referenceValue prv:P1855 ;
+	wikibase:novalue wdno:P1855 .
+
+p:P1855 a owl:ObjectProperty .
+
+psv:P1855 a owl:ObjectProperty .
+
+pqv:P1855 a owl:ObjectProperty .
+
+prv:P1855 a owl:ObjectProperty .
+
+wdt:P1855 a owl:ObjectProperty .
+
+ps:P1855 a owl:ObjectProperty .
+
+pq:P1855 a owl:ObjectProperty .
+
+pr:P1855 a owl:ObjectProperty .
+
+wdno:P1855 a owl:Class ;
+	owl:complementOf _:10181e30a4678fbb6b833dfa6bcddc2b .
+
+_:10181e30a4678fbb6b833dfa6bcddc2b a owl:Restriction ;
+	owl:onProperty wdt:P1855 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q180 a wikibase:Item ;
+	rdfs:label "Wikimedia Foundation"@en ;
+	skos:prefLabel "Wikimedia Foundation"@en ;
+	schema:name "Wikimedia Foundation"@en ;
+	rdfs:label "Wikimedia Foundation"@mul ;
+	skos:prefLabel "Wikimedia Foundation"@mul ;
+	schema:name "Wikimedia Foundation"@mul ;
+	schema:description "American charitable organization"@en .
+
+wd:Q1384 a wikibase:Item ;
+	rdfs:label "New York"@en ;
+	skos:prefLabel "New York"@en ;
+	schema:name "New York"@en ;
+	rdfs:label "New York"@mul ;
+	skos:prefLabel "New York"@mul ;
+	schema:name "New York"@mul ;
+	schema:description "state of the United States of America"@en .
+
+wd:Q53869507 a wikibase:Item ;
+	rdfs:label "property scope constraint"@en ;
+	skos:prefLabel "property scope constraint"@en ;
+	schema:name "property scope constraint"@en ;
+	schema:description "constraint to define the scope of the property (as main property, as qualifier, as reference, or combination). Qualify with \"property scope\" (P5314)"@en .
+
+wd:P2302 a wikibase:Property ;
+	rdfs:label "property constraint"@en ;
+	skos:prefLabel "property constraint"@en ;
+	schema:name "property constraint"@en ;
+	schema:description "constraint applicable to a Wikidata property"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P2302 ;
+	wikibase:claim p:P2302 ;
+	wikibase:statementProperty ps:P2302 ;
+	wikibase:statementValue psv:P2302 ;
+	wikibase:qualifier pq:P2302 ;
+	wikibase:qualifierValue pqv:P2302 ;
+	wikibase:reference pr:P2302 ;
+	wikibase:referenceValue prv:P2302 ;
+	wikibase:novalue wdno:P2302 .
+
+p:P2302 a owl:ObjectProperty .
+
+psv:P2302 a owl:ObjectProperty .
+
+pqv:P2302 a owl:ObjectProperty .
+
+prv:P2302 a owl:ObjectProperty .
+
+wdt:P2302 a owl:ObjectProperty .
+
+ps:P2302 a owl:ObjectProperty .
+
+pq:P2302 a owl:ObjectProperty .
+
+pr:P2302 a owl:ObjectProperty .
+
+wdno:P2302 a owl:Class ;
+	owl:complementOf _:1d7b2aa8714addd4582f2c663eed7695 .
+
+_:1d7b2aa8714addd4582f2c663eed7695 a owl:Restriction ;
+	owl:onProperty wdt:P2302 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P2559 a wikibase:Property ;
+	rdfs:label "Wikidata usage instructions"@en ;
+	skos:prefLabel "Wikidata usage instructions"@en ;
+	schema:name "Wikidata usage instructions"@en ;
+	schema:description "text describing how to use a property or item. Eventually, this statement is to replace usage instructions currently found in description. Until the corresponding feature is implemented, do not remove it from description"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Monolingualtext> ;
+	wikibase:directClaim wdt:P2559 ;
+	wikibase:claim p:P2559 ;
+	wikibase:statementProperty ps:P2559 ;
+	wikibase:statementValue psv:P2559 ;
+	wikibase:qualifier pq:P2559 ;
+	wikibase:qualifierValue pqv:P2559 ;
+	wikibase:reference pr:P2559 ;
+	wikibase:referenceValue prv:P2559 ;
+	wikibase:novalue wdno:P2559 .
+
+p:P2559 a owl:ObjectProperty .
+
+psv:P2559 a owl:ObjectProperty .
+
+pqv:P2559 a owl:ObjectProperty .
+
+prv:P2559 a owl:ObjectProperty .
+
+wdt:P2559 a owl:DatatypeProperty .
+
+ps:P2559 a owl:DatatypeProperty .
+
+pq:P2559 a owl:DatatypeProperty .
+
+pr:P2559 a owl:DatatypeProperty .
+
+wdno:P2559 a owl:Class ;
+	owl:complementOf _:5f8d3b8c1431825b89d15f80fd705a72 .
+
+_:5f8d3b8c1431825b89d15f80fd705a72 a owl:Restriction ;
+	owl:onProperty wdt:P2559 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P7125 a wikibase:Property ;
+	rdfs:label "date of the latest one"@en ;
+	skos:prefLabel "date of the latest one"@en ;
+	schema:name "date of the latest one"@en ;
+	schema:description "qualifier: when the latest element of a quantity appeared/took place"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Time> ;
+	wikibase:directClaim wdt:P7125 ;
+	wikibase:claim p:P7125 ;
+	wikibase:statementProperty ps:P7125 ;
+	wikibase:statementValue psv:P7125 ;
+	wikibase:qualifier pq:P7125 ;
+	wikibase:qualifierValue pqv:P7125 ;
+	wikibase:reference pr:P7125 ;
+	wikibase:referenceValue prv:P7125 ;
+	wikibase:novalue wdno:P7125 .
+
+p:P7125 a owl:ObjectProperty .
+
+psv:P7125 a owl:ObjectProperty .
+
+pqv:P7125 a owl:ObjectProperty .
+
+prv:P7125 a owl:ObjectProperty .
+
+wdt:P7125 a owl:DatatypeProperty .
+
+ps:P7125 a owl:DatatypeProperty .
+
+pq:P7125 a owl:DatatypeProperty .
+
+pr:P7125 a owl:DatatypeProperty .
+
+wdno:P7125 a owl:Class ;
+	owl:complementOf _:5cee57fdc915e7b9df7a865317e61b5a .
+
+_:5cee57fdc915e7b9df7a865317e61b5a a owl:Restriction ;
+	owl:onProperty wdt:P7125 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P1659 a wikibase:Property ;
+	rdfs:label "related property"@en ;
+	skos:prefLabel "related property"@en ;
+	schema:name "related property"@en ;
+	schema:description "used to indicate another property that might provide additional information about the subject"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseProperty> ;
+	wikibase:directClaim wdt:P1659 ;
+	wikibase:claim p:P1659 ;
+	wikibase:statementProperty ps:P1659 ;
+	wikibase:statementValue psv:P1659 ;
+	wikibase:qualifier pq:P1659 ;
+	wikibase:qualifierValue pqv:P1659 ;
+	wikibase:reference pr:P1659 ;
+	wikibase:referenceValue prv:P1659 ;
+	wikibase:novalue wdno:P1659 .
+
+p:P1659 a owl:ObjectProperty .
+
+psv:P1659 a owl:ObjectProperty .
+
+pqv:P1659 a owl:ObjectProperty .
+
+prv:P1659 a owl:ObjectProperty .
+
+wdt:P1659 a owl:ObjectProperty .
+
+ps:P1659 a owl:ObjectProperty .
+
+pq:P1659 a owl:ObjectProperty .
+
+pr:P1659 a owl:ObjectProperty .
+
+wdno:P1659 a owl:Class ;
+	owl:complementOf _:395ff05eea2bfdc7d41d9858985947a9 .
+
+_:395ff05eea2bfdc7d41d9858985947a9 a owl:Restriction ;
+	owl:onProperty wdt:P1659 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P813 a wikibase:Property ;
+	rdfs:label "retrieved"@en ;
+	skos:prefLabel "retrieved"@en ;
+	schema:name "retrieved"@en ;
+	schema:description "date or point in time that information was retrieved from a database or website (for use in online sources)"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Time> ;
+	wikibase:directClaim wdt:P813 ;
+	wikibase:claim p:P813 ;
+	wikibase:statementProperty ps:P813 ;
+	wikibase:statementValue psv:P813 ;
+	wikibase:qualifier pq:P813 ;
+	wikibase:qualifierValue pqv:P813 ;
+	wikibase:reference pr:P813 ;
+	wikibase:referenceValue prv:P813 ;
+	wikibase:novalue wdno:P813 .
+
+p:P813 a owl:ObjectProperty .
+
+psv:P813 a owl:ObjectProperty .
+
+pqv:P813 a owl:ObjectProperty .
+
+prv:P813 a owl:ObjectProperty .
+
+wdt:P813 a owl:DatatypeProperty .
+
+ps:P813 a owl:DatatypeProperty .
+
+pq:P813 a owl:DatatypeProperty .
+
+pr:P813 a owl:DatatypeProperty .
+
+wdno:P813 a owl:Class ;
+	owl:complementOf _:a84dea0fd38ed74f926ea4bdef778770 .
+
+_:a84dea0fd38ed74f926ea4bdef778770 a owl:Restriction ;
+	owl:onProperty wdt:P813 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P577 a wikibase:Property ;
+	rdfs:label "publication date"@en ;
+	skos:prefLabel "publication date"@en ;
+	schema:name "publication date"@en ;
+	schema:description "date or point in time when a work or product was first published or released"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Time> ;
+	wikibase:directClaim wdt:P577 ;
+	wikibase:claim p:P577 ;
+	wikibase:statementProperty ps:P577 ;
+	wikibase:statementValue psv:P577 ;
+	wikibase:qualifier pq:P577 ;
+	wikibase:qualifierValue pqv:P577 ;
+	wikibase:reference pr:P577 ;
+	wikibase:referenceValue prv:P577 ;
+	wikibase:novalue wdno:P577 .
+
+p:P577 a owl:ObjectProperty .
+
+psv:P577 a owl:ObjectProperty .
+
+pqv:P577 a owl:ObjectProperty .
+
+prv:P577 a owl:ObjectProperty .
+
+wdt:P577 a owl:DatatypeProperty .
+
+ps:P577 a owl:DatatypeProperty .
+
+pq:P577 a owl:DatatypeProperty .
+
+pr:P577 a owl:DatatypeProperty .
+
+wdno:P577 a owl:Class ;
+	owl:complementOf _:eca5fcd2c546d0e0c20e05f61e0aa797 .
+
+_:eca5fcd2c546d0e0c20e05f61e0aa797 a owl:Restriction ;
+	owl:onProperty wdt:P577 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P11140 a wikibase:Property ;
+	rdfs:label "embargoed until"@en ;
+	skos:prefLabel "embargoed until"@en ;
+	schema:name "embargoed until"@en ;
+	schema:description "qualifier of property P953 (full work available at URL) to indicate the date after which the full work can be viewed or downloaded; typically used on items for academic journal articles and academic theses"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Time> ;
+	wikibase:directClaim wdt:P11140 ;
+	wikibase:claim p:P11140 ;
+	wikibase:statementProperty ps:P11140 ;
+	wikibase:statementValue psv:P11140 ;
+	wikibase:qualifier pq:P11140 ;
+	wikibase:qualifierValue pqv:P11140 ;
+	wikibase:reference pr:P11140 ;
+	wikibase:referenceValue prv:P11140 ;
+	wikibase:novalue wdno:P11140 .
+
+p:P11140 a owl:ObjectProperty .
+
+psv:P11140 a owl:ObjectProperty .
+
+pqv:P11140 a owl:ObjectProperty .
+
+prv:P11140 a owl:ObjectProperty .
+
+wdt:P11140 a owl:DatatypeProperty .
+
+ps:P11140 a owl:DatatypeProperty .
+
+pq:P11140 a owl:DatatypeProperty .
+
+pr:P11140 a owl:DatatypeProperty .
+
+wdno:P11140 a owl:Class ;
+	owl:complementOf _:15fb913236d940a3bd773b7eda871378 .
+
+_:15fb913236d940a3bd773b7eda871378 a owl:Restriction ;
+	owl:onProperty wdt:P11140 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P2236 a wikibase:Property ;
+	rdfs:label "external subproperty"@en ;
+	skos:prefLabel "external subproperty"@en ;
+	schema:name "external subproperty"@en ;
+	schema:description "all resources related by the property from external vocabularies are also related to this property"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Url> ;
+	wikibase:directClaim wdt:P2236 ;
+	wikibase:claim p:P2236 ;
+	wikibase:statementProperty ps:P2236 ;
+	wikibase:statementValue psv:P2236 ;
+	wikibase:qualifier pq:P2236 ;
+	wikibase:qualifierValue pqv:P2236 ;
+	wikibase:reference pr:P2236 ;
+	wikibase:referenceValue prv:P2236 ;
+	wikibase:novalue wdno:P2236 .
+
+p:P2236 a owl:ObjectProperty .
+
+psv:P2236 a owl:ObjectProperty .
+
+pqv:P2236 a owl:ObjectProperty .
+
+prv:P2236 a owl:ObjectProperty .
+
+wdt:P2236 a owl:ObjectProperty .
+
+ps:P2236 a owl:ObjectProperty .
+
+pq:P2236 a owl:ObjectProperty .
+
+pr:P2236 a owl:ObjectProperty .
+
+wdno:P2236 a owl:Class ;
+	owl:complementOf _:43899feb31dbaf91ea4d16b3b899d04d .
+
+_:43899feb31dbaf91ea4d16b3b899d04d a owl:Restriction ;
+	owl:onProperty wdt:P2236 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q113553132 a wikibase:Item ;
+	rdfs:label "Category:Pages using Wikidata property P5017"@en ;
+	skos:prefLabel "Category:Pages using Wikidata property P5017"@en ;
+	schema:name "Category:Pages using Wikidata property P5017"@en ;
+	schema:description "Wikimedia category"@en .
+
+wd:P2875 a wikibase:Property ;
+	rdfs:label "property usage tracking category"@en ;
+	skos:prefLabel "property usage tracking category"@en ;
+	schema:name "property usage tracking category"@en ;
+	schema:description "category tracking a Wikidata property in sister projects"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P2875 ;
+	wikibase:claim p:P2875 ;
+	wikibase:statementProperty ps:P2875 ;
+	wikibase:statementValue psv:P2875 ;
+	wikibase:qualifier pq:P2875 ;
+	wikibase:qualifierValue pqv:P2875 ;
+	wikibase:reference pr:P2875 ;
+	wikibase:referenceValue prv:P2875 ;
+	wikibase:novalue wdno:P2875 .
+
+p:P2875 a owl:ObjectProperty .
+
+psv:P2875 a owl:ObjectProperty .
+
+pqv:P2875 a owl:ObjectProperty .
+
+prv:P2875 a owl:ObjectProperty .
+
+wdt:P2875 a owl:ObjectProperty .
+
+ps:P2875 a owl:ObjectProperty .
+
+pq:P2875 a owl:ObjectProperty .
+
+pr:P2875 a owl:ObjectProperty .
+
+wdno:P2875 a owl:Class ;
+	owl:complementOf _:ce60c0df5bfd881adc0913cd191627b0 .
+
+_:ce60c0df5bfd881adc0913cd191627b0 a owl:Restriction ;
+	owl:onProperty wdt:P2875 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P4656 a wikibase:Property ;
+	rdfs:label "Wikimedia import URL"@en ;
+	skos:prefLabel "Wikimedia import URL"@en ;
+	schema:name "Wikimedia import URL"@en ;
+	schema:description "URL of source to indicate the page or revision of an import source from another Wikimedia project (except actual references, such as Wikisource source texts). Use instead of \"reference URL\" (P854). Permalinks are preferred."@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Url> ;
+	wikibase:directClaim wdt:P4656 ;
+	wikibase:claim p:P4656 ;
+	wikibase:statementProperty ps:P4656 ;
+	wikibase:statementValue psv:P4656 ;
+	wikibase:qualifier pq:P4656 ;
+	wikibase:qualifierValue pqv:P4656 ;
+	wikibase:reference pr:P4656 ;
+	wikibase:referenceValue prv:P4656 ;
+	wikibase:novalue wdno:P4656 .
+
+p:P4656 a owl:ObjectProperty .
+
+psv:P4656 a owl:ObjectProperty .
+
+pqv:P4656 a owl:ObjectProperty .
+
+prv:P4656 a owl:ObjectProperty .
+
+wdt:P4656 a owl:ObjectProperty .
+
+ps:P4656 a owl:ObjectProperty .
+
+pq:P4656 a owl:ObjectProperty .
+
+pr:P4656 a owl:ObjectProperty .
+
+wdno:P4656 a owl:Class ;
+	owl:complementOf _:d0914856b623ca1dd09b1f31c8eea5fe .
+
+_:d0914856b623ca1dd09b1f31c8eea5fe a owl:Restriction ;
+	owl:onProperty wdt:P4656 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P7101 a wikibase:Property ;
+	rdfs:label "privacy policy URL"@en ;
+	skos:prefLabel "privacy policy URL"@en ;
+	schema:name "privacy policy URL"@en ;
+	schema:description "privacy policy of subject"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Url> ;
+	wikibase:directClaim wdt:P7101 ;
+	wikibase:claim p:P7101 ;
+	wikibase:statementProperty ps:P7101 ;
+	wikibase:statementValue psv:P7101 ;
+	wikibase:qualifier pq:P7101 ;
+	wikibase:qualifierValue pqv:P7101 ;
+	wikibase:reference pr:P7101 ;
+	wikibase:referenceValue prv:P7101 ;
+	wikibase:novalue wdno:P7101 .
+
+p:P7101 a owl:ObjectProperty .
+
+psv:P7101 a owl:ObjectProperty .
+
+pqv:P7101 a owl:ObjectProperty .
+
+prv:P7101 a owl:ObjectProperty .
+
+wdt:P7101 a owl:ObjectProperty .
+
+ps:P7101 a owl:ObjectProperty .
+
+pq:P7101 a owl:ObjectProperty .
+
+pr:P7101 a owl:ObjectProperty .
+
+wdno:P7101 a owl:Class ;
+	owl:complementOf _:6b8a3ac883513dd9d417f597c3d929b5 .
+
+_:6b8a3ac883513dd9d417f597c3d929b5 a owl:Restriction ;
+	owl:onProperty wdt:P7101 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P1036 a wikibase:Property ;
+	rdfs:label "Dewey Decimal Classification"@en ;
+	skos:prefLabel "Dewey Decimal Classification"@en ;
+	schema:name "Dewey Decimal Classification"@en ;
+	schema:description "use with qualifier \"edition (P747)\" with item value \"DDC 23\" or create new item to represent the corresponding DDC edition"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P1036 ;
+	wikibase:claim p:P1036 ;
+	wikibase:statementProperty ps:P1036 ;
+	wikibase:statementValue psv:P1036 ;
+	wikibase:qualifier pq:P1036 ;
+	wikibase:qualifierValue pqv:P1036 ;
+	wikibase:reference pr:P1036 ;
+	wikibase:referenceValue prv:P1036 ;
+	wikibase:novalue wdno:P1036 ;
+	wikibase:directClaimNormalized wdtn:P1036 ;
+	wikibase:statementValueNormalized psn:P1036 ;
+	wikibase:qualifierValueNormalized pqn:P1036 ;
+	wikibase:referenceValueNormalized prn:P1036 .
+
+p:P1036 a owl:ObjectProperty .
+
+psv:P1036 a owl:ObjectProperty .
+
+pqv:P1036 a owl:ObjectProperty .
+
+prv:P1036 a owl:ObjectProperty .
+
+wdt:P1036 a owl:DatatypeProperty .
+
+ps:P1036 a owl:DatatypeProperty .
+
+pq:P1036 a owl:DatatypeProperty .
+
+pr:P1036 a owl:DatatypeProperty .
+
+psn:P1036 a owl:ObjectProperty .
+
+pqn:P1036 a owl:ObjectProperty .
+
+prn:P1036 a owl:ObjectProperty .
+
+wdtn:P1036 a owl:ObjectProperty .
+
+wdno:P1036 a owl:Class ;
+	owl:complementOf _:2fb5c2af36e460068b89a8ca39c8bbcd .
+
+_:2fb5c2af36e460068b89a8ca39c8bbcd a owl:Restriction ;
+	owl:onProperty wdt:P1036 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q54828450 a wikibase:Item ;
+	rdfs:label "as reference"@en ;
+	skos:prefLabel "as reference"@en ;
+	schema:name "as reference"@en ;
+	schema:description "property scope type"@en .
+
+wd:P5314 a wikibase:Property ;
+	rdfs:label "property scope"@en ;
+	skos:prefLabel "property scope"@en ;
+	schema:name "property scope"@en ;
+	schema:description "constraint system qualifier to define the scope of a property"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P5314 ;
+	wikibase:claim p:P5314 ;
+	wikibase:statementProperty ps:P5314 ;
+	wikibase:statementValue psv:P5314 ;
+	wikibase:qualifier pq:P5314 ;
+	wikibase:qualifierValue pqv:P5314 ;
+	wikibase:reference pr:P5314 ;
+	wikibase:referenceValue prv:P5314 ;
+	wikibase:novalue wdno:P5314 .
+
+p:P5314 a owl:ObjectProperty .
+
+psv:P5314 a owl:ObjectProperty .
+
+pqv:P5314 a owl:ObjectProperty .
+
+prv:P5314 a owl:ObjectProperty .
+
+wdt:P5314 a owl:ObjectProperty .
+
+ps:P5314 a owl:ObjectProperty .
+
+pq:P5314 a owl:ObjectProperty .
+
+pr:P5314 a owl:ObjectProperty .
+
+wdno:P5314 a owl:Class ;
+	owl:complementOf _:dbebc3f3ba4d0493247301fff3c12336 .
+
+_:dbebc3f3ba4d0493247301fff3c12336 a owl:Restriction ;
+	owl:onProperty wdt:P5314 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q54828449 a wikibase:Item ;
+	rdfs:label "as qualifier"@en ;
+	skos:prefLabel "as qualifier"@en ;
+	schema:name "as qualifier"@en ;
+	schema:description "property scope type"@en .
+
+wd:Q54828448 a wikibase:Item ;
+	rdfs:label "as main value"@en ;
+	skos:prefLabel "as main value"@en ;
+	schema:name "as main value"@en ;
+	schema:description "property scope type"@en .
+
+wdv:6e0bc6ed5da15c4779bb11b469d27e55 a wikibase:TimeValue ;
+	wikibase:timeValue "2020-10-08T00:00:00Z"^^xsd:dateTime ;
+	wikibase:timePrecision "11"^^xsd:integer ;
+	wikibase:timeTimezone "0"^^xsd:integer ;
+	wikibase:timeCalendarModel <http://www.wikidata.org/entity/Q1985727> .
+
+wdv:925b8733a0904d0878e3d123508be8b0 a wikibase:TimeValue ;
+	wikibase:timeValue "2020-01-07T00:00:00Z"^^xsd:dateTime ;
+	wikibase:timePrecision "11"^^xsd:integer ;
+	wikibase:timeTimezone "0"^^xsd:integer ;
+	wikibase:timeCalendarModel <http://www.wikidata.org/entity/Q1985727> .
+
+wdref:27ec9218b54af74502ff6b35e3c52cbae2fbda34 a wikibase:Reference ;
+	pr:P4656 <https://www.wikidata.org/w/index.php?title=Wikidata:Property_proposal/last_update&oldid=661870141> .
+
+wdref:a1ba48c657257cc8497e3130ded4473602c65c11 a wikibase:Reference ;
+	pr:P4656 <https://www.wikidata.org/w/index.php?title=Wikidata:Property_proposal/date_of_the_first_one_&_date_of_the_last_one&oldid=990421042> .

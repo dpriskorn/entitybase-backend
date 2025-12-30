@@ -1,0 +1,3662 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ontolex: <http://www.w3.org/ns/lemon/ontolex#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix wikibase: <http://wikiba.se/ontology#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema: <http://schema.org/> .
+@prefix cc: <http://creativecommons.org/ns#> .
+@prefix geo: <http://www.opengis.net/ont/geosparql#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix wd: <http://www.wikidata.org/entity/> .
+@prefix data: <https://www.wikidata.org/wiki/Special:EntityData/> .
+@prefix wds: <http://www.wikidata.org/entity/statement/> .
+@prefix wdref: <http://www.wikidata.org/reference/> .
+@prefix wdv: <http://www.wikidata.org/value/> .
+@prefix wdt: <http://www.wikidata.org/prop/direct/> .
+@prefix wdtn: <http://www.wikidata.org/prop/direct-normalized/> .
+@prefix p: <http://www.wikidata.org/prop/> .
+@prefix ps: <http://www.wikidata.org/prop/statement/> .
+@prefix psv: <http://www.wikidata.org/prop/statement/value/> .
+@prefix psn: <http://www.wikidata.org/prop/statement/value-normalized/> .
+@prefix pq: <http://www.wikidata.org/prop/qualifier/> .
+@prefix pqv: <http://www.wikidata.org/prop/qualifier/value/> .
+@prefix pqn: <http://www.wikidata.org/prop/qualifier/value-normalized/> .
+@prefix pr: <http://www.wikidata.org/prop/reference/> .
+@prefix prv: <http://www.wikidata.org/prop/reference/value/> .
+@prefix prn: <http://www.wikidata.org/prop/reference/value-normalized/> .
+@prefix wdno: <http://www.wikidata.org/prop/novalue/> .
+
+data:P6375 a schema:Dataset ;
+	schema:about wd:P6375 ;
+	cc:license <http://creativecommons.org/publicdomain/zero/1.0/> ;
+	schema:softwareVersion "1.0.0" ;
+	schema:version "2439647970"^^xsd:integer ;
+	schema:dateModified "2025-12-08T16:23:11Z"^^xsd:dateTime ;
+	wikibase:statements "48"^^xsd:integer .
+
+wd:P6375 a wikibase:Property ;
+	wdt:P31 wd:Q18615777,
+		wd:Q22984363,
+		wd:Q24239898,
+		wd:Q26935994,
+		wd:Q57955292,
+		wd:Q19847637 ;
+	wdt:P2302 wd:Q21503250,
+		wd:Q21502838,
+		wd:Q53869507,
+		wd:Q52004125,
+		wd:Q21510851 ;
+	wdt:P1659 wd:P669,
+		wd:P670,
+		wd:P4856,
+		wd:P281,
+		wd:P2795,
+		wd:P2918,
+		wd:P7532,
+		wd:P5423,
+		wd:P276 ;
+	wdt:P2236 <http://www.w3.org/ns/org#siteAddress> ;
+	wdt:P1628 <http://www.w3.org/2006/vcard/ns#street-address>,
+		<http://dati.beniculturali.it/cis/fullAddress>,
+		<https://schema.org/address>,
+		<http://www.w3.org/2006/vcard/ns#hasAddress>,
+		<http://www.w3.org/2006/vcard/ns#hasStreetAddress> ;
+	wdt:P1629 wd:Q24574749,
+		wd:Q319608 ;
+	wdt:P1855 wd:Q35525,
+		wd:Q3204568,
+		wd:Q19882251,
+		wd:Q500681,
+		wd:Q151897,
+		wd:Q5572 ;
+	wdt:P3254 _:64f2518e485a83d25f184186008d7a5d ;
+	wdt:P2875 wd:Q61764320 ;
+	wdt:P7964 "street-address" ;
+	wdt:P2235 <https://schema.org/streetAddress>,
+		<https://schema.org/PostalAddress> ;
+	wdt:P8274 wd:Q44601380 ;
+	wdt:P3303 "https://photon.komoot.io/api/?q=$1" ;
+	wdt:P7930 <https://www.wikidata.org/wiki/Wikidata:Requests_for_deletions/Archive/2019/Properties/1#P969> ;
+	wdt:P2559 "full street address where subject is located. Include building number, city/locality, post code, but not country; use also P669 if the street has its own separate item."@en,
+		"vollständige Hausanschrift des Datenobjektes einschließlich Hausnummer, Postleitzahl, Stadt, aber nicht Land. Verwende zusätzlich P669, wenn die Straße ein eigenes Datenobjekt hat."@de,
+		"対象が所在する完全な住所。郵便番号、市町村名、建物番号を含むが、国名は含みません。このプロパティのデータは、郵便番号（P281）など固有のプロパティの値と一部重複します。"@ja ;
+	wdt:P2668 wd:Q24025284 ;
+	wdt:P10787 "P153" ;
+	p:P31 wds:P6375-57E8C0C5-6B61-4C55-8542-5F01FA745A59 .
+
+wds:P6375-57E8C0C5-6B61-4C55-8542-5F01FA745A59 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P31 wd:Q18615777 .
+
+wd:P6375 p:P31 wds:P6375-23E830D9-C714-49CA-A41F-190FEF9C9A09 .
+
+wds:P6375-23E830D9-C714-49CA-A41F-190FEF9C9A09 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P31 wd:Q22984363 .
+
+wd:P6375 p:P31 wds:P6375-F7D8A31E-814A-415F-9C64-2235BB80A85A .
+
+wds:P6375-F7D8A31E-814A-415F-9C64-2235BB80A85A a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P31 wd:Q24239898 .
+
+wd:P6375 p:P31 wds:P6375-526A0502-C144-445B-AAE4-A61C004EBEEB .
+
+wds:P6375-526A0502-C144-445B-AAE4-A61C004EBEEB a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P31 wd:Q26935994 .
+
+wd:P6375 p:P31 wds:P6375-7b161fc1-42bd-379c-1233-1a9b20cf6b9b .
+
+wds:P6375-7b161fc1-42bd-379c-1233-1a9b20cf6b9b a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P31 wd:Q57955292 .
+
+wd:P6375 p:P31 wds:P6375-00748fb6-4deb-7bc1-a83b-01357ad3e973 .
+
+wds:P6375-00748fb6-4deb-7bc1-a83b-01357ad3e973 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P31 wd:Q19847637 .
+
+wd:P6375 p:P2302 wds:P6375-A8AE1E39-16DB-4061-9C11-02D823031D76 .
+
+wds:P6375-A8AE1E39-16DB-4061-9C11-02D823031D76 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2302 wd:Q21503250 ;
+	pq:P2308 wd:Q618123,
+		wd:Q2221906,
+		wd:Q1190554,
+		wd:Q43229,
+		wd:Q327333,
+		wd:Q41298,
+		wd:Q17537576,
+		wd:Q2668072,
+		wd:Q177634,
+		wd:Q3895768,
+		wd:Q13226383,
+		wd:Q1298668 ;
+	pq:P2309 wd:Q21503252 .
+
+wd:P6375 p:P2302 wds:P6375-2AD19D00-7122-4B7A-B179-8D6D12E36996 .
+
+wds:P6375-2AD19D00-7122-4B7A-B179-8D6D12E36996 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2302 wd:Q21502838 ;
+	pq:P2306 wd:P31 ;
+	pq:P2305 wd:Q5 ;
+	pq:P6607 "Use \"residence\" (P551) on main value"@en .
+
+wd:P6375 p:P2302 wds:P6375-01f4874a-4b20-6a22-5e80-6049d0b726b8 .
+
+wds:P6375-01f4874a-4b20-6a22-5e80-6049d0b726b8 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2302 wd:Q53869507 ;
+	pq:P5314 wd:Q54828448,
+		wd:Q54828449 .
+
+wd:P6375 p:P2302 wds:P6375-c459ac1b-47f7-98ee-98cf-83cf6bf147ec .
+
+wds:P6375-c459ac1b-47f7-98ee-98cf-83cf6bf147ec a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2302 wd:Q52004125 ;
+	pq:P2305 wd:Q29934200,
+		wd:Q59712033 .
+
+wd:P6375 p:P2302 wds:P6375-772a6eda-4722-2a55-5bb0-f4e34a029966 .
+
+wds:P6375-772a6eda-4722-2a55-5bb0-f4e34a029966 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2302 wd:Q21510851 ;
+	pq:P2306 wd:P580,
+		wd:P582,
+		wd:P585,
+		wd:P7452,
+		wd:P2241,
+		wd:P3831,
+		wd:P669,
+		wd:P670,
+		wd:P1534,
+		wd:P518,
+		wd:P281,
+		wd:P5423,
+		wd:P7532,
+		wd:P8554,
+		wd:P3680,
+		wd:P1310,
+		wd:P1706,
+		wd:P1329,
+		wd:P276,
+		wd:P706,
+		wd:P795,
+		wd:P206,
+		wd:P4595,
+		wd:P9660,
+		wd:P282,
+		wd:P4856,
+		wd:P1814,
+		wd:P2125,
+		wd:P2918,
+		wd:P2795,
+		wd:P3005,
+		wd:P1480,
+		wd:P4970,
+		wd:P1810,
+		wd:P625 ;
+	pq:P6607 "Address formats can vary quite widely, and in some countries features such as phone numbers or milestone inscriptions can be considered components of street addresses. In cases like these, it makes sense to also encode this information with appropriate qualifiers."@en .
+
+wd:P6375 p:P2302 wds:P6375-81310652-4da8-c903-24fb-858729f2cb1d .
+
+wds:P6375-81310652-4da8-c903-24fb-858729f2cb1d a wikibase:Statement ;
+	wikibase:rank wikibase:DeprecatedRank ;
+	ps:P2302 wd:Q54554025 .
+
+wd:P6375 p:P1659 wds:P6375-0C8C8C19-6E2C-446E-9732-37E25D565242 .
+
+wds:P6375-0C8C8C19-6E2C-446E-9732-37E25D565242 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P669 .
+
+wd:P6375 p:P1659 wds:P6375-782B6037-0122-4578-BEAA-01CD5243F4C4 .
+
+wds:P6375-782B6037-0122-4578-BEAA-01CD5243F4C4 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P670 .
+
+wd:P6375 p:P1659 wds:P6375-BF1AE40D-537F-419C-8536-C0864D257B3D .
+
+wds:P6375-BF1AE40D-537F-419C-8536-C0864D257B3D a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P4856 .
+
+wd:P6375 p:P1659 wds:P6375-6C5EDF45-F6DA-4B15-9949-C30123E84F68 .
+
+wds:P6375-6C5EDF45-F6DA-4B15-9949-C30123E84F68 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P281 .
+
+wd:P6375 p:P1659 wds:P6375-49c0e582-4f5e-edb0-32ee-ea91ecb2833f .
+
+wds:P6375-49c0e582-4f5e-edb0-32ee-ea91ecb2833f a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P2795 .
+
+wd:P6375 p:P1659 wds:P6375-c50a1abf-4882-af81-5e15-aab4bc5dac05 .
+
+wds:P6375-c50a1abf-4882-af81-5e15-aab4bc5dac05 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P2918 .
+
+wd:P6375 p:P1659 wds:P6375-e8b1202d-4c7f-98f9-7dc7-e394d37524ec .
+
+wds:P6375-e8b1202d-4c7f-98f9-7dc7-e394d37524ec a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P7532 .
+
+wd:P6375 p:P1659 wds:P6375-67d8a499-45ce-77a3-2a84-9e1cd6b43833 .
+
+wds:P6375-67d8a499-45ce-77a3-2a84-9e1cd6b43833 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P5423 .
+
+wd:P6375 p:P1659 wds:P6375-968dc0cc-4a26-c2dc-cdae-24a50e71b5bc .
+
+wds:P6375-968dc0cc-4a26-c2dc-cdae-24a50e71b5bc a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1659 wd:P276 .
+
+wd:P6375 p:P2236 wds:P6375-2B127DBF-6E2B-4764-B164-69EF4FB3DFF0 .
+
+wds:P6375-2B127DBF-6E2B-4764-B164-69EF4FB3DFF0 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2236 <http://www.w3.org/ns/org#siteAddress> .
+
+wd:P6375 p:P1628 wds:P6375-EF4BEE4F-73A4-4CB9-BFE2-1536004B6492 .
+
+wds:P6375-EF4BEE4F-73A4-4CB9-BFE2-1536004B6492 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1628 <http://www.w3.org/2006/vcard/ns#street-address> .
+
+wd:P6375 p:P1628 wds:P6375-acdd0ea9-478e-9236-2311-cb174e867949 .
+
+wds:P6375-acdd0ea9-478e-9236-2311-cb174e867949 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1628 <http://dati.beniculturali.it/cis/fullAddress> .
+
+wd:P6375 p:P1628 wds:P6375-60cdd0ef-440b-45bd-eaed-dff7706d2edc .
+
+wds:P6375-60cdd0ef-440b-45bd-eaed-dff7706d2edc a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1628 <https://schema.org/address> .
+
+wd:P6375 p:P1628 wds:P6375-21f213fe-408e-637f-422b-564deb9c2caf .
+
+wds:P6375-21f213fe-408e-637f-422b-564deb9c2caf a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1628 <http://www.w3.org/2006/vcard/ns#hasAddress> .
+
+wd:P6375 p:P1628 wds:P6375-da600538-4574-72d2-9232-1d52736179ae .
+
+wds:P6375-da600538-4574-72d2-9232-1d52736179ae a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1628 <http://www.w3.org/2006/vcard/ns#hasStreetAddress> .
+
+wd:P6375 p:P1629 wds:P6375-a8e0c3fc-4109-99f1-2dfb-a2c9e831dffb .
+
+wds:P6375-a8e0c3fc-4109-99f1-2dfb-a2c9e831dffb a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1629 wd:Q24574749 .
+
+wd:P6375 p:P1629 wds:P6375-DD6E9905-DF25-448E-AB41-88480A3850F0 .
+
+wds:P6375-DD6E9905-DF25-448E-AB41-88480A3850F0 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1629 wd:Q319608 .
+
+wd:P6375 p:P1855 wds:P6375-e0c8bb35-4f8f-7a70-b2cf-04f000e9a7e3 .
+
+wds:P6375-e0c8bb35-4f8f-7a70-b2cf-04f000e9a7e3 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1855 wd:Q35525 ;
+	pq:P6375 "1600 Pennsylvania Avenue NW,  Washington, DC 20500"@en .
+
+wd:P6375 p:P1855 wds:P6375-938eb4a4-427e-c2d2-55a9-03f36c4dbd24 .
+
+wds:P6375-938eb4a4-427e-c2d2-55a9-03f36c4dbd24 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1855 wd:Q3204568 ;
+	pq:P6375 "Palais Garnier, place Jacques-Rouché, 75009 Paris"@fr .
+
+wd:P6375 p:P1855 wds:P6375-9893026d-4a99-a038-5cb2-14353e444fc8 .
+
+wds:P6375-9893026d-4a99-a038-5cb2-14353e444fc8 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1855 wd:Q19882251 ;
+	pq:P6375 "37, Gopal Lal Tagore Road, Baranagar, Kolkata - 700036"@mul ;
+	prov:wasDerivedFrom wdref:a05b8cb6120a875eadeec0a451d49230d55aeda1 .
+
+wd:P6375 p:P1855 wds:P6375-3e35770d-4d85-c152-b0cf-f19d54d92fad .
+
+wds:P6375-3e35770d-4d85-c152-b0cf-f19d54d92fad a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1855 wd:Q500681 ;
+	pq:P6375 "〒100-8111 東京都千代田区千代田1番1号"@ja .
+
+wd:P6375 p:P1855 wds:P6375-ef78aec7-4a01-1ca3-8bef-598a58b8d4f5 .
+
+wds:P6375-ef78aec7-4a01-1ca3-8bef-598a58b8d4f5 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1855 wd:Q151897 ;
+	pq:P6375 "Platz der Republik 1, 11011 Berlin"@de .
+
+wd:P6375 p:P1855 wds:P6375-784c9ee6-4f6c-dbbe-d616-a45c1cc8c5db .
+
+wds:P6375-784c9ee6-4f6c-dbbe-d616-a45c1cc8c5db a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P1855 wd:Q5572 ;
+	pq:P6375 "Via Martiri della Libertà, 48, 31100 Treviso TV"@it .
+
+wd:P6375 p:P3254 wds:P6375-fa15d33c-4a24-ccaf-348b-6dbbfa155a6c .
+
+wds:P6375-fa15d33c-4a24-ccaf-348b-6dbbfa155a6c a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P3254 _:d5fbfe0082a28673809caa9e666f160b .
+
+wd:P6375 p:P2875 wds:P6375-fb8f1b83-4902-2744-9322-6350db7a9183 .
+
+wds:P6375-fb8f1b83-4902-2744-9322-6350db7a9183 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2875 wd:Q61764320 .
+
+wd:P6375 p:P7964 wds:P6375-aaa5fa2d-44cc-607c-60ca-2dea4e369b02 .
+
+wds:P6375-aaa5fa2d-44cc-607c-60ca-2dea4e369b02 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P7964 "street-address" .
+
+wd:P6375 p:P2235 wds:P6375-3190c4a8-4382-0011-fe87-1a4eb2640086 .
+
+wds:P6375-3190c4a8-4382-0011-fe87-1a4eb2640086 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2235 <https://schema.org/streetAddress> .
+
+wd:P6375 p:P2235 wds:P6375-e740430a-45d4-f763-8ec8-3e45ed430ce7 .
+
+wds:P6375-e740430a-45d4-f763-8ec8-3e45ed430ce7 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2235 <https://schema.org/PostalAddress> .
+
+wd:P6375 p:P8274 wds:P6375-19413022-70C7-400A-812F-D05B4E8C3437 .
+
+wds:P6375-19413022-70C7-400A-812F-D05B4E8C3437 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P8274 wd:Q44601380 .
+
+wd:P6375 p:P3303 wds:P6375-9f742f4a-4f2d-cfa4-145d-306bb16493f6 .
+
+wds:P6375-9f742f4a-4f2d-cfa4-145d-306bb16493f6 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P3303 "https://photon.komoot.io/api/?q=$1" ;
+	pq:P407 wd:Q1860 .
+
+wd:P6375 p:P7930 wds:P6375-4434cdd8-4eeb-301b-91a4-cbbf5869e701 .
+
+wds:P6375-4434cdd8-4eeb-301b-91a4-cbbf5869e701 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P7930 <https://www.wikidata.org/wiki/Wikidata:Requests_for_deletions/Archive/2019/Properties/1#P969> ;
+	pq:P813 "2022-07-27T00:00:00Z"^^xsd:dateTime ;
+	pqv:P813 wdv:ed6c46a98fb78df4a8680a2bcdb7c067 ;
+	pq:P407 wd:Q1860 .
+
+wd:P6375 p:P2559 wds:P6375-45feccb2-4035-6840-8bd4-2952e9c53763 .
+
+wds:P6375-45feccb2-4035-6840-8bd4-2952e9c53763 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2559 "full street address where subject is located. Include building number, city/locality, post code, but not country; use also P669 if the street has its own separate item."@en .
+
+wd:P6375 p:P2559 wds:P6375-646da10f-4649-6c23-5834-33126db1976d .
+
+wds:P6375-646da10f-4649-6c23-5834-33126db1976d a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2559 "vollständige Hausanschrift des Datenobjektes einschließlich Hausnummer, Postleitzahl, Stadt, aber nicht Land. Verwende zusätzlich P669, wenn die Straße ein eigenes Datenobjekt hat."@de .
+
+wd:P6375 p:P2559 wds:P6375-757ff124-4684-1c97-eda6-183b907620ec .
+
+wds:P6375-757ff124-4684-1c97-eda6-183b907620ec a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2559 "対象が所在する完全な住所。郵便番号、市町村名、建物番号を含むが、国名は含みません。このプロパティのデータは、郵便番号（P281）など固有のプロパティの値と一部重複します。"@ja .
+
+wd:P6375 p:P2668 wds:P6375-264477fe-4dc5-2228-a154-2ba39fd4db08 .
+
+wds:P6375-264477fe-4dc5-2228-a154-2ba39fd4db08 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2668 wd:Q24025284 .
+
+wd:P6375 p:P10787 wds:P6375-c4e4b085-4213-bd4d-2122-097db7fcabf1 .
+
+wds:P6375-c4e4b085-4213-bd4d-2122-097db7fcabf1 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P10787 "P153" .
+
+wd:P6375 rdfs:label "street address"@en ;
+	skos:prefLabel "street address"@en ;
+	schema:name "street address"@en ;
+	rdfs:label "Adresse"@de ;
+	skos:prefLabel "Adresse"@de ;
+	schema:name "Adresse"@de ;
+	rdfs:label "عنوان الشارع"@ar ;
+	skos:prefLabel "عنوان الشارع"@ar ;
+	schema:name "عنوان الشارع"@ar ;
+	rdfs:label "所在街道地址"@zh ;
+	skos:prefLabel "所在街道地址"@zh ;
+	schema:name "所在街道地址"@zh ;
+	rdfs:label "所在街道地址"@zh-hans ;
+	skos:prefLabel "所在街道地址"@zh-hans ;
+	schema:name "所在街道地址"@zh-hans ;
+	rdfs:label "所在街道地址"@zh-hant ;
+	skos:prefLabel "所在街道地址"@zh-hant ;
+	schema:name "所在街道地址"@zh-hant ;
+	rdfs:label "katuosoite"@fi ;
+	skos:prefLabel "katuosoite"@fi ;
+	schema:name "katuosoite"@fi ;
+	rdfs:label "адреса"@sr ;
+	skos:prefLabel "адреса"@sr ;
+	schema:name "адреса"@sr ;
+	rdfs:label "на адресата"@mk ;
+	skos:prefLabel "на адресата"@mk ;
+	schema:name "на адресата"@mk ;
+	rdfs:label "adres"@nl ;
+	skos:prefLabel "adres"@nl ;
+	schema:name "adres"@nl ;
+	rdfs:label "адреса"@uk ;
+	skos:prefLabel "адреса"@uk ;
+	schema:name "адреса"@uk ;
+	rdfs:label "localitzat a l'adreça"@ca ;
+	skos:prefLabel "localitzat a l'adreça"@ca ;
+	schema:name "localitzat a l'adreça"@ca ;
+	rdfs:label "situado en la dirección postal"@es ;
+	skos:prefLabel "situado en la dirección postal"@es ;
+	schema:name "situado en la dirección postal"@es ;
+	rdfs:label "adresse"@fr ;
+	skos:prefLabel "adresse"@fr ;
+	schema:name "adresse"@fr ;
+	rdfs:label "plná poštovní adresa"@cs ;
+	skos:prefLabel "plná poštovní adresa"@cs ;
+	schema:name "plná poštovní adresa"@cs ;
+	rdfs:label "所在街道地址"@zh-tw ;
+	skos:prefLabel "所在街道地址"@zh-tw ;
+	schema:name "所在街道地址"@zh-tw ;
+	rdfs:label "adresse"@da ;
+	skos:prefLabel "adresse"@da ;
+	schema:name "adresse"@da ;
+	rdfs:label "住所"@ja ;
+	skos:prefLabel "住所"@ja ;
+	schema:name "住所"@ja ;
+	rdfs:label "indirizzo stradale"@it ;
+	skos:prefLabel "indirizzo stradale"@it ;
+	schema:name "indirizzo stradale"@it ;
+	rdfs:label "адрес"@ru ;
+	skos:prefLabel "адрес"@ru ;
+	schema:name "адрес"@ru ;
+	rdfs:label "localizado no endereço"@pt ;
+	skos:prefLabel "localizado no endereço"@pt ;
+	schema:name "localizado no endereço"@pt ;
+	rdfs:label "localizat la adresa stradală"@ro ;
+	skos:prefLabel "localizat la adresa stradală"@ro ;
+	schema:name "localizat la adresa stradală"@ro ;
+	rdfs:label "διεύθυνση"@el ;
+	skos:prefLabel "διεύθυνση"@el ;
+	schema:name "διεύθυνση"@el ;
+	rdfs:label "نشانی با ذکر نام خیابان"@fa ;
+	skos:prefLabel "نشانی با ذکر نام خیابان"@fa ;
+	schema:name "نشانی با ذکر نام خیابان"@fa ;
+	rdfs:label "adres"@pl ;
+	skos:prefLabel "adres"@pl ;
+	schema:name "adres"@pl ;
+	rdfs:label "адрас"@be-tarask ;
+	skos:prefLabel "адрас"@be-tarask ;
+	schema:name "адрас"@be-tarask ;
+	rdfs:label "strata adreso"@eo ;
+	skos:prefLabel "strata adreso"@eo ;
+	schema:name "strata adreso"@eo ;
+	rdfs:label "gatuadress"@sv ;
+	skos:prefLabel "gatuadress"@sv ;
+	schema:name "gatuadress"@sv ;
+	rdfs:label "cyfeiriad stryd"@cy ;
+	skos:prefLabel "cyfeiriad stryd"@cy ;
+	schema:name "cyfeiriad stryd"@cy ;
+	rdfs:label "póstowa adresa"@hsb ;
+	skos:prefLabel "póstowa adresa"@hsb ;
+	schema:name "póstowa adresa"@hsb ;
+	rdfs:label "адрас"@be ;
+	skos:prefLabel "адрас"@be ;
+	schema:name "адрас"@be ;
+	rdfs:label "aadress"@et ;
+	skos:prefLabel "aadress"@et ;
+	schema:name "aadress"@et ;
+	rdfs:label "adresse"@nb ;
+	skos:prefLabel "adresse"@nb ;
+	schema:name "adresse"@nb ;
+	rdfs:label "no enderezo postal"@gl ;
+	skos:prefLabel "no enderezo postal"@gl ;
+	schema:name "no enderezo postal"@gl ;
+	rdfs:label "Adrässe"@gsw ;
+	skos:prefLabel "Adrässe"@gsw ;
+	schema:name "Adrässe"@gsw ;
+	rdfs:label "adrese"@lv ;
+	skos:prefLabel "adrese"@lv ;
+	schema:name "adrese"@lv ;
+	rdfs:label "alamat jalan"@ms ;
+	skos:prefLabel "alamat jalan"@ms ;
+	schema:name "alamat jalan"@ms ;
+	rdfs:label "ఈ వీధి చిరునామాలో కలదు"@te ;
+	skos:prefLabel "ఈ వీధి చిరునామాలో కలదు"@te ;
+	schema:name "ఈ వీధి చిరునామాలో కలదు"@te ;
+	rdfs:label "postai cím"@hu ;
+	skos:prefLabel "postai cím"@hu ;
+	schema:name "postai cím"@hu ;
+	rdfs:label "alamat lengkap"@id ;
+	skos:prefLabel "alamat lengkap"@id ;
+	schema:name "alamat lengkap"@id ;
+	rdfs:label "located at street address"@en-gb ;
+	skos:prefLabel "located at street address"@en-gb ;
+	schema:name "located at street address"@en-gb ;
+	rdfs:label "helbidea"@eu ;
+	skos:prefLabel "helbidea"@eu ;
+	schema:name "helbidea"@eu ;
+	rdfs:label "მისამართი"@ka ;
+	skos:prefLabel "მისამართი"@ka ;
+	schema:name "მისამართი"@ka ;
+	rdfs:label "כתובת פיזית"@he ;
+	skos:prefLabel "כתובת פיזית"@he ;
+	schema:name "כתובת פיזית"@he ;
+	rdfs:label "địa chỉ đầy đủ"@vi ;
+	skos:prefLabel "địa chỉ đầy đủ"@vi ;
+	schema:name "địa chỉ đầy đủ"@vi ;
+	rdfs:label "Adress"@lb ;
+	skos:prefLabel "Adress"@lb ;
+	schema:name "Adress"@lb ;
+	rdfs:label "endereço"@pt-br ;
+	skos:prefLabel "endereço"@pt-br ;
+	schema:name "endereço"@pt-br ;
+	rdfs:label "도로명 주소"@ko ;
+	skos:prefLabel "도로명 주소"@ko ;
+	schema:name "도로명 주소"@ko ;
+	rdfs:label "plná poštová adresa"@sk ;
+	skos:prefLabel "plná poštová adresa"@sk ;
+	schema:name "plná poštová adresa"@sk ;
+	rdfs:label "naslov"@sl ;
+	skos:prefLabel "naslov"@sl ;
+	schema:name "naslov"@sl ;
+	rdfs:label "adresse"@nn ;
+	skos:prefLabel "adresse"@nn ;
+	schema:name "adresse"@nn ;
+	rdfs:label "адрес"@tt ;
+	skos:prefLabel "адрес"@tt ;
+	schema:name "адрес"@tt ;
+	rdfs:label "адрес"@bg ;
+	skos:prefLabel "адрес"@bg ;
+	schema:name "адрес"@bg ;
+	rdfs:label "located at street address"@en-ca ;
+	skos:prefLabel "located at street address"@en-ca ;
+	schema:name "located at street address"@en-ca ;
+	rdfs:label "нишонӣ"@tg ;
+	skos:prefLabel "нишонӣ"@tg ;
+	schema:name "нишонӣ"@tg ;
+	rdfs:label "گلی میں محل وقوع"@ur ;
+	skos:prefLabel "گلی میں محل وقوع"@ur ;
+	schema:name "گلی میں محل وقوع"@ur ;
+	rdfs:label "asitiáu na direición postal"@ast ;
+	skos:prefLabel "asitiáu na direición postal"@ast ;
+	schema:name "asitiáu na direición postal"@ast ;
+	rdfs:label "adres"@tr ;
+	skos:prefLabel "adres"@tr ;
+	schema:name "adres"@tr ;
+	rdfs:label "adresa"@hr ;
+	skos:prefLabel "adresa"@hr ;
+	schema:name "adresa"@hr ;
+	rdfs:label "chomlec'h"@br ;
+	skos:prefLabel "chomlec'h"@br ;
+	schema:name "chomlec'h"@br ;
+	rdfs:label "রাস্তার ঠিকানা"@bn ;
+	skos:prefLabel "রাস্তার ঠিকানা"@bn ;
+	schema:name "রাস্তার ঠিকানা"@bn ;
+	rdfs:label "адрес"@ba ;
+	skos:prefLabel "адрес"@ba ;
+	schema:name "адрес"@ba ;
+	rdfs:label "հասցե"@hy ;
+	skos:prefLabel "հասցե"@hy ;
+	schema:name "հասցե"@hy ;
+	rdfs:label "inderiso"@vec ;
+	skos:prefLabel "inderiso"@vec ;
+	schema:name "inderiso"@vec ;
+	rdfs:label "čujuhus"@se ;
+	skos:prefLabel "čujuhus"@se ;
+	schema:name "čujuhus"@se ;
+	rdfs:label "čujottâs"@smn ;
+	skos:prefLabel "čujottâs"@smn ;
+	schema:name "čujottâs"@smn ;
+	rdfs:label "addrõs"@sms ;
+	skos:prefLabel "addrõs"@sms ;
+	schema:name "addrõs"@sms ;
+	rdfs:label "所在街道地址"@zh-hk ;
+	skos:prefLabel "所在街道地址"@zh-hk ;
+	schema:name "所在街道地址"@zh-hk ;
+	rdfs:label "ünvan"@az ;
+	skos:prefLabel "ünvan"@az ;
+	schema:name "ünvan"@az ;
+	rdfs:label "adresa"@sh ;
+	skos:prefLabel "adresa"@sh ;
+	schema:name "adresa"@sh ;
+	rdfs:label "علامت جالن"@ms-arab ;
+	skos:prefLabel "علامت جالن"@ms-arab ;
+	schema:name "علامت جالن"@ms-arab ;
+	rdfs:label "தெரு முகவரி"@ta ;
+	skos:prefLabel "தெரு முகவரி"@ta ;
+	schema:name "தெரு முகவரி"@ta ;
+	rdfs:label "街道地址"@zh-cn ;
+	skos:prefLabel "街道地址"@zh-cn ;
+	schema:name "街道地址"@zh-cn ;
+	rdfs:label "интыпусэз"@udm ;
+	skos:prefLabel "интыпусэз"@udm ;
+	schema:name "интыпусэз"@udm ;
+	rdfs:label "адрес"@ce ;
+	skos:prefLabel "адрес"@ce ;
+	schema:name "адрес"@ce ;
+	rdfs:label "seoladh sráide"@ga ;
+	skos:prefLabel "seoladh sráide"@ga ;
+	schema:name "seoladh sráide"@ga ;
+	rdfs:label "adresas"@lt ;
+	skos:prefLabel "adresas"@lt ;
+	schema:name "adresas"@lt ;
+	rdfs:label "гудамжны хаяг"@mn ;
+	skos:prefLabel "гудамжны хаяг"@mn ;
+	schema:name "гудамжны хаяг"@mn ;
+	rdfs:label "Seòladh"@gd ;
+	skos:prefLabel "Seòladh"@gd ;
+	schema:name "Seòladh"@gd ;
+	rdfs:label "adres"@pap ;
+	skos:prefLabel "adres"@pap ;
+	schema:name "adres"@pap ;
+	rdfs:label "straatadres"@af ;
+	skos:prefLabel "straatadres"@af ;
+	schema:name "straatadres"@af ;
+	rdfs:label "所在地址"@yue ;
+	skos:prefLabel "所在地址"@yue ;
+	schema:name "所在地址"@yue ;
+	rdfs:label "indirèz"@rgn ;
+	skos:prefLabel "indirèz"@rgn ;
+	schema:name "indirèz"@rgn ;
+	rdfs:label "soli daadiresi"@dag ;
+	skos:prefLabel "soli daadiresi"@dag ;
+	schema:name "soli daadiresi"@dag ;
+	rdfs:label "adresa"@bs ;
+	skos:prefLabel "adresa"@bs ;
+	schema:name "adresa"@bs ;
+	rdfs:label "ที่อยู่"@th ;
+	skos:prefLabel "ที่อยู่"@th ;
+	schema:name "ที่อยู่"@th ;
+	rdfs:label "ناونیشانی شەقام"@ckb ;
+	skos:prefLabel "ناونیشانی شەقام"@ckb ;
+	schema:name "ناونیشانی شەقام"@ckb ;
+	rdfs:label "adres"@frr ;
+	skos:prefLabel "adres"@frr ;
+	schema:name "adres"@frr ;
+	rdfs:label "indirizz stradali"@mt ;
+	skos:prefLabel "indirizz stradali"@mt ;
+	schema:name "indirizz stradali"@mt ;
+	rdfs:label "адрес"@cv ;
+	skos:prefLabel "адрес"@cv ;
+	schema:name "адрес"@cv ;
+	rdfs:label "adressa"@lmo ;
+	skos:prefLabel "adressa"@lmo ;
+	schema:name "adressa"@lmo ;
+	rdfs:label "улица и број"@sr-ec ;
+	skos:prefLabel "улица и број"@sr-ec ;
+	schema:name "улица и број"@sr-ec ;
+	rdfs:label "kóshe adresi"@kaa ;
+	skos:prefLabel "kóshe adresi"@kaa ;
+	schema:name "kóshe adresi"@kaa ;
+	rdfs:label "വിലാസം"@ml ;
+	skos:prefLabel "വിലാസം"@ml ;
+	schema:name "വിലാസം"@ml ;
+	rdfs:label "assitiau enas señas postalis"@ext ;
+	skos:prefLabel "assitiau enas señas postalis"@ext ;
+	schema:name "assitiau enas señas postalis"@ext ;
+	rdfs:label "manzil"@uz ;
+	skos:prefLabel "manzil"@uz ;
+	schema:name "manzil"@uz ;
+	rdfs:label "lamat ghenna'"@mad ;
+	skos:prefLabel "lamat ghenna'"@mad ;
+	schema:name "lamat ghenna'"@mad ;
+	rdfs:label "adresa"@sq ;
+	skos:prefLabel "adresa"@sq ;
+	schema:name "adresa"@sq ;
+	rdfs:label "آدرس"@mzn ;
+	skos:prefLabel "آدرس"@mzn ;
+	schema:name "آدرس"@mzn ;
+	rdfs:label "ma lon pi nasin tawa"@tok ;
+	skos:prefLabel "ma lon pi nasin tawa"@tok ;
+	schema:name "ma lon pi nasin tawa"@tok ;
+	rdfs:label "주소"@ko-kp ;
+	skos:prefLabel "주소"@ko-kp ;
+	schema:name "주소"@ko-kp ;
+	rdfs:label "staðfang"@is ;
+	skos:prefLabel "staðfang"@is ;
+	schema:name "staðfang"@is ;
+	rdfs:label "گَلی ہُنٛد پَتا"@ks ;
+	skos:prefLabel "گَلی ہُنٛد پَتا"@ks ;
+	schema:name "گَلی ہُنٛد پَتا"@ks ;
+	schema:description "full street address where subject is located. Include building number, city/locality, post code, but not country; use also P669 if the street has its own separate item"@en,
+		"vollständige Hausanschrift des Datenobjektes einschließlich Hausnummer, Postleitzahl, Stadt, aber nicht Land. Verwende zusätzlich P669, wenn die Straße ein eigenes Datenobjekt hat."@de,
+		"kohteen koko katuosoite"@fi,
+		"adresse complète où l'objet est situé. Inclut le numéro de bâtiment ainsi que le code postal et la localité, mais pas le pays ; utiliser également P669 si la rue est connue comme un élément séparé"@fr,
+		"主題所在的完整街道地址。 包括建築物編號到郵政代碼。 如果街道被稱為單獨的元素，也可以使用P669"@zh,
+		"повна адреса, за якою знаходиться об'єкт. Включає номер будівлі, населений пункт, поштовий індекс, проте не включає країну. Використовуйте також P669, якщо вулиця відома як окремий елемент"@uk,
+		"straatnaam, eventueel met huisnummer, zonder postcode en plaats - gebruik P669 als de straat een eigen item heeft"@nl,
+		"dirección postal completa donde se encuentra el objeto. Incluye el número del edificio, la ciudad/localidad, el código postal, pero no el país; utiliza también P669 si la calle tiene una propiedad independiente"@es,
+		"emnets fulde adresse inkl. husnummer, etage, postnummer og by men ikke land. Brug også P669, hvis gaden findes som et særskilt emne"@da,
+		"対象が所在する完全な住所。郵便番号、市町村名、建物番号を含むが、国名は含まない。"@ja,
+		"plná adresa zahrnující ulici, čísla domu, místo a PSČ (ale už nikoli stát), kde se předmět nachází; pokud existuje položka pro ulici, použijte také P669"@cs,
+		"indirizzo stradale del soggetto comprensivo di numero civico, il nome della località e codice postale (ma senza nazione); se la strada è un elemento di Wikidata usare la proprietà P669"@it,
+		"întreaga adresă la care se află subiectul. Includeți numărul clădirii și codul poștal. Utilizați P669 dacă strada este cunoscută ca un element separat"@ro,
+		"η πλήρης διεύθυνση (οδός, αριθμός, ταχυδρομικός κώδικας), χρησιμοποιείστε την P669 αν η οδός υπάρχει ως χωριστό αντικείμενο των Βικιδεδομένων"@el,
+		"pełny adres przy którym znajduje się obiekt, łącznie z kodem pocztowym"@pl,
+		"паштовы адрас, па якім знаходзіцца аб’ект, улучна зь індэксам. Калі для вуліцы існуе элемэнт, дадайце яго таксама ў P669"@be-tarask,
+		"fullständig gatuadress för objektet, inklusive postnummer och ort, dock ej land"@sv,
+		"dospołna adresa objekta"@hsb,
+		"täielik aadress (maja, tänav, sihtnumber)"@et,
+		"полный почтовый адрес"@ru,
+		"adreça postal completa de l'element. Es pot emprar P669 per a especificar el carrer si existeix com a element"@ca,
+		"enderezo postal completo  (rúa, edificio, andar, localidade e código postal). Pode usarse tamén a P669 para especificar a rúa se esta é un elemento independente en Wikidata"@gl,
+		"endereço completo onde o objeto está localizado. Inclui o número do edifício e o código postal; use também o P669 se a rua for conhecida como um elemento separado"@pt,
+		"alamat penuh"@ms,
+		"ఇచ్చిన అంశానికి సంబంధించిన పూర్తి చిరునామాలో వీధిని తెలిపే  భాగం"@te,
+		"a teljes cím, ahol a tárgy található. Tartalmaznia kell a házszámot, az utcát, a települést, az irányítószámot, de az országot nem; ha van elem az utcáról, akkor a P669-et használd"@hu,
+		"alamat lengkap termasuk jalan dari suatu subjek. Tambahkan juga nomor gedung hingga kode pos. Gunakan P669 jika hanya tertera jalan saja"@id,
+		"full street address that the subject is located at. Include building number through to post code, use also P669 if the street is known as a separate element"@en-gb,
+		"objektua kokatua dagoen kalearen helbide osoa. Atariaren zenbakia eta posta kodea barne. P669 erabili kalea aparteko elementu bat bada."@eu,
+		"სრული საფოსტო მისამართი"@ka,
+		"כתובת מלאה של המיקום כולל שם רחוב מספר בית ומיקוד"@he,
+		"fullstendig gateadresse for subjektet, inkludert husnummer og poststed, bruk også P669 (gate) om gaten er kjent som et separat element"@nb,
+		"항목 주제인 장소의 도로명 주소 (미국·영국처럼 도로명주소에 우편번호까지 넣는 나라는 우편번호까지 같이 적어주세요. 또한, 해당 도로명을 다룬 항목이 있으면 \"다음 도로에 위치하고 있음\"(P669) 속성도 추가해주세요.)"@ko,
+		"plná adresa vrátane ulice a čísla domu kde sa predmet nachádza, pokiaľ existuje položka pre ulicu, použite tiež P669"@sk,
+		"某項目的所在地址"@zh-tw,
+		"субъектның урнашуының тулы адресы: урам, бина номеры һәм почта коды күрсәтелергә тиеш. Урам өчен аерым Викимәгълүмат элементы булганда, P669 элементын да кулланыгыз."@tt,
+		"адресът (улица, булевард, площад и номер), на който се намира даденият обект"@bg,
+		"full street address that the subject is located at. Include building number through to post code, use also P669 if the street is known as a separate element"@en-ca,
+		"ögenin bulunduğu tam sokak ya da cadde adresi. Posta kodu ile birlikte bina numarasını da ekleyin. Cadde ayrı bir yer olarak biliniyorsa P669'u da kullanın."@tr,
+		"主题所在的完整街道地址。包括建筑物编号到邮政编码。如果街道被称为单独的元素，也可以使用P669"@zh-hans,
+		"ամբողջական փոստային հասցե"@hy,
+		"pilnā subjekta ielas adrese. Ieskaitot ēkas numuru, pilsētu, pasta indeksu, bet bez valsts. Lietot P669, ja ielai pastāv atsevišķs ieraksts"@lv,
+		"Celotni naslov podatkovnega predmeta, vključno s hišno številko, poštno številko, mestom, vendar ne z državo. Uporabite tudi P669, če ima ulica svoj podatkovni predmet."@sl,
+		"عنوان الشارع بالكامل حيث تقع الممتلكات.  قم بتضمين رقم المبنى والمدينة / المنطقة والرمز البريدي، ولكن ليس البلد.  استخدم أيضًا P669 إذا كان للشارع عنصر منفصل خاص به"@ar,
+		"địa chỉ đầy đủ nơi đặt chủ thể. Gồm số nhà, thành phố, mã bưu chính, nhưng không có quốc gia. Dùng thêm P669 nếu con đường có một khoản mục riêng"@vi,
+		"быдэсак интыпусэз"@udm,
+		"дуьззина почтан адрес"@ce,
+		"地理上嘅準確地址（唔包國名，但係包括區名、街名、門牌號碼、郵政編號等等；如果條街有自己嘅維基數據項應該設定埋 P669 屬性）"@yue,
+		"puna adresa gdje se objekt nalazi"@bs,
+		"ที่อยู่แบบเต็มของที่ตั้งของเรื่อง รวมหมายเลขอาคาร เมือง/ท้องที่ รหัสไปรษณีย์ แต่ไม่รวมประเทศ ใช้ P669 ด้วยหากถนนมีรายการแยกต่างหาก"@th,
+		"endereço completo em que o sujeto está situado. Inclui número da edificação, cidade/localidade, código postal, mas não o país; use também P669 se a rua tem seu próprio registro separado"@pt-br,
+		"indirizz sħiħ tat-triq fejn jnstab dan is-suġġett, inkluż in-numru tal-binja, belt/raħa, u kodiċi postali, imma mhux il-pajjiż; uża P669 jekk it-triq teżisti bħala entità f'Wikidata"@mt,
+		"пуна адреса у којој се налази предмет. Укључите број зграде, град / локалитет, поштански број, али не и државу; користите и P669 ако улица има своју засебну ставку"@sr-ec,
+		"kósheniń tolıq pochta adresi"@kaa,
+		"പ്രതിപാദ്യത്തിന്റെ പൂർണ്ണ വിലാസം. കെട്ടിട നമ്പർ, പട്ടണം, പ്രദേശം തുടങ്ങി രാജ്യം ഒഴിച്ചുള്ള എല്ലാ വിവരങ്ങളും"@ml,
+		"نشانی کامل جایی که آن موضوع مستقر است، شامل شماره ساختمان، شهر/روستا، کد پستی، همچنین اگر خیابان دارای آیتم مجزای خود است، می‌توانید از P669 استفاده کنید"@fa,
+		"señas postalis compretas enas que s'alcuentra l'ojetu. Mesmu dendi'l númiru de l'edificiu ata'l códigu postal. Emprea P669 si la calli es un elementu desseparau."@ext,
+		"toʻliq pochta manzili"@uz,
+		"lamat sè ghenna' kalebbhu jhâlân ḍâri sè subjèk. kèya nomor gânḍu' kangsè kode pos. Paghuna P669 mon sè èpobu pèra'  jhâlânna bhâi"@mad,
+		"adresa e plotë e rrugës ku ndodhet subjekti. Përfshi numrin e ndërtesës, qytetin/vendndodhjen, kodin postar, por jo vendin; përdorni edhe P669 nëse rruga ka artikullin e vet të veçantë"@sq ;
+	skos:altLabel "osoite"@fi,
+		"postiosoite"@fi,
+		"налази се на адреси"@sr,
+		"address"@en,
+		"physical address"@en,
+		"mailing address"@en,
+		"mail address"@en,
+		"postal address"@en,
+		"located at street address"@en,
+		"full address"@en,
+		"straat zonder Wikidata-item"@nl,
+		"straat zonder artikel"@nl,
+		"straatadres"@nl,
+		"straat en huisnummer"@nl,
+		"所在地"@ja,
+		"アドレス"@ja,
+		"adresa"@cs,
+		"poštovní adresa"@cs,
+		"адрэса"@be-tarask,
+		"паштовы адрас"@be-tarask,
+		"фізычны адрас"@be-tarask,
+		"indirizzo completo"@it,
+		"indirizzo fisico"@it,
+		"indirizzo stradale"@it,
+		"adress"@sv,
+		"gatuadress"@sv,
+		"postadress"@sv,
+		"adresa"@hsb,
+		"почтовый адрес"@ru,
+		"gateadresse"@nb,
+		"Forretningsadresse"@nb,
+		"Forretningsadresse:"@nb,
+		"adreça postal"@ca,
+		"adreça"@ca,
+		"dirección"@es,
+		"direccion"@es,
+		"dirección postal"@es,
+		"dirección física"@es,
+		"dirección de correo"@es,
+		"ubicado en dirección"@es,
+		"dirección completa"@es,
+		"عنوان"@ar,
+		"عنوان الشارع"@ar,
+		"عنوان السكن"@ar,
+		"عنوان المراسلة"@ar,
+		"العنوان البريدي"@ar,
+		"地址"@zh,
+		"校址"@zh,
+		"院址"@zh,
+		"వీధి చిరునామా"@te,
+		"alamat jalan"@id,
+		"terletak di alamat"@id,
+		"address"@en-gb,
+		"street address"@en-gb,
+		"physical address"@en-gb,
+		"helbide postala"@eu,
+		"posta helbidea"@eu,
+		"logradouro"@pt,
+		"endereço"@pt,
+		"morada"@pt,
+		"situado no endereço"@pt,
+		"כתובת"@he,
+		"házszám"@hu,
+		"lakcím"@hu,
+		"postacím"@hu,
+		"utca, házszám"@hu,
+		"cím"@hu,
+		"rua"@pt-br,
+		"situado no endereço"@pt-br,
+		"endereço físico"@pt-br,
+		"endereço postal"@pt-br,
+		"localizado em"@pt-br,
+		"endereço completo"@pt-br,
+		"도로명주소"@ko,
+		"다음 도로명 주소에 위치하고 있음"@ko,
+		"다음 도로명주소에 위치하고 있음"@ko,
+		"다음 도로명주소에 있음"@ko,
+		"다음 도로명 주소에 있음"@ko,
+		"주소"@ko,
+		"açık adresi"@tr,
+		"Anschrift"@de,
+		"Hausanschrift"@de,
+		"postalische Anschrift"@de,
+		"postalische Adresse"@de,
+		"inderiso postałe"@vec,
+		"inderiso fìxego"@vec,
+		"inderiso conpleto"@vec,
+		"inderiso stradałe"@vec,
+		"ielas adrese"@lv,
+		"fiziskā adrese"@lv,
+		"pasta adrese"@lv,
+		"địa chỉ"@vi,
+		"地址"@zh-cn,
+		"坐落于"@zh-cn,
+		"адресэз"@udm,
+		"boastačujuhus"@se,
+		"poastačujuhus"@se,
+		"postâčujottâs"@smn,
+		"pååʹštaddrõs"@sms,
+		"adresse de rue"@fr,
+		"adresse physique"@fr,
+		"adresse postale"@fr,
+		"enderezo"@gl,
+		"ডাক ঠিকানা"@bn,
+		"সম্পূর্ণ ঠিকানা"@bn,
+		"地址"@yue,
+		"ที่อยู่ถนน"@th,
+		"ที่อยู่แบบเต็ม"@th,
+		"indirizz"@mt,
+		"indirizz tal-post"@mt,
+		"indirizz postali"@mt,
+		"ulični naslov"@sl,
+		"domači naslov"@sl,
+		"poštni naslov"@sl,
+		"pochta manzili"@uz,
+		"adresa postare"@sq,
+		"adresa e rrugës"@sq,
+		"adresa fizike"@sq,
+		"adresa e plotë"@sq,
+		"نشونی"@mzn ;
+	wikibase:propertyType <http://wikiba.se/ontology#Monolingualtext> ;
+	wikibase:directClaim wdt:P6375 ;
+	wikibase:claim p:P6375 ;
+	wikibase:statementProperty ps:P6375 ;
+	wikibase:statementValue psv:P6375 ;
+	wikibase:qualifier pq:P6375 ;
+	wikibase:qualifierValue pqv:P6375 ;
+	wikibase:reference pr:P6375 ;
+	wikibase:referenceValue prv:P6375 ;
+	wikibase:novalue wdno:P6375 .
+
+p:P6375 a owl:ObjectProperty .
+
+psv:P6375 a owl:ObjectProperty .
+
+pqv:P6375 a owl:ObjectProperty .
+
+prv:P6375 a owl:ObjectProperty .
+
+wdt:P6375 a owl:DatatypeProperty .
+
+ps:P6375 a owl:DatatypeProperty .
+
+pq:P6375 a owl:DatatypeProperty .
+
+pr:P6375 a owl:DatatypeProperty .
+
+wdno:P6375 a owl:Class ;
+	owl:complementOf _:a98ab2116a68ecee7ed756ce61125936 .
+
+_:a98ab2116a68ecee7ed756ce61125936 a owl:Restriction ;
+	owl:onProperty wdt:P6375 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q18615777 a wikibase:Item ;
+	rdfs:label "Wikidata property to indicate a location"@en ;
+	skos:prefLabel "Wikidata property to indicate a location"@en ;
+	schema:name "Wikidata property to indicate a location"@en ;
+	schema:description "Wikidata property"@en .
+
+wd:P31 a wikibase:Property ;
+	rdfs:label "instance of"@en ;
+	skos:prefLabel "instance of"@en ;
+	schema:name "instance of"@en ;
+	schema:description "type to which this subject corresponds/belongs. Different from P279 (subclass of); for example: K2 is an instance of mountain; volcano is a subclass of mountain"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P31 ;
+	wikibase:claim p:P31 ;
+	wikibase:statementProperty ps:P31 ;
+	wikibase:statementValue psv:P31 ;
+	wikibase:qualifier pq:P31 ;
+	wikibase:qualifierValue pqv:P31 ;
+	wikibase:reference pr:P31 ;
+	wikibase:referenceValue prv:P31 ;
+	wikibase:novalue wdno:P31 .
+
+p:P31 a owl:ObjectProperty .
+
+psv:P31 a owl:ObjectProperty .
+
+pqv:P31 a owl:ObjectProperty .
+
+prv:P31 a owl:ObjectProperty .
+
+wdt:P31 a owl:ObjectProperty .
+
+ps:P31 a owl:ObjectProperty .
+
+pq:P31 a owl:ObjectProperty .
+
+pr:P31 a owl:ObjectProperty .
+
+wdno:P31 a owl:Class ;
+	owl:complementOf _:0b8bd71b926a65ca3fa72e5d9103e4d6 .
+
+_:0b8bd71b926a65ca3fa72e5d9103e4d6 a owl:Restriction ;
+	owl:onProperty wdt:P31 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q22984363 a wikibase:Item ;
+	rdfs:label "Wikidata property related to transport"@en ;
+	skos:prefLabel "Wikidata property related to transport"@en ;
+	schema:name "Wikidata property related to transport"@en ;
+	schema:description "Wikidata property"@en .
+
+wd:Q24239898 a wikibase:Item ;
+	rdfs:label "Wikidata property for Wikivoyage listings"@en ;
+	skos:prefLabel "Wikidata property for Wikivoyage listings"@en ;
+	schema:name "Wikidata property for Wikivoyage listings"@en ;
+	schema:description "type of Wikidata property"@en .
+
+wd:Q26935994 a wikibase:Item ;
+	rdfs:label "Wikidata property encoding a vCard value"@en ;
+	skos:prefLabel "Wikidata property encoding a vCard value"@en ;
+	schema:name "Wikidata property encoding a vCard value"@en ;
+	schema:description "type of Wikidata property"@en .
+
+wd:Q57955292 a wikibase:Item ;
+	rdfs:label "Wikidata property for items about people or organisations"@en ;
+	skos:prefLabel "Wikidata property for items about people or organisations"@en ;
+	schema:name "Wikidata property for items about people or organisations"@en .
+
+wd:Q19847637 a wikibase:Item ;
+	rdfs:label "Wikidata property for an identifier"@en ;
+	skos:prefLabel "Wikidata property for an identifier"@en ;
+	schema:name "Wikidata property for an identifier"@en ;
+	schema:description "Wikidata property to identify something in an external source"@en .
+
+wd:Q21503250 a wikibase:Item ;
+	rdfs:label "subject type constraint"@en ;
+	skos:prefLabel "subject type constraint"@en ;
+	schema:name "subject type constraint"@en ;
+	schema:description "type of constraint for Wikidata properties: used to specify that the item described by such properties should be a subclass or instance of a given type"@en .
+
+wd:P2302 a wikibase:Property ;
+	rdfs:label "property constraint"@en ;
+	skos:prefLabel "property constraint"@en ;
+	schema:name "property constraint"@en ;
+	schema:description "constraint applicable to a Wikidata property"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P2302 ;
+	wikibase:claim p:P2302 ;
+	wikibase:statementProperty ps:P2302 ;
+	wikibase:statementValue psv:P2302 ;
+	wikibase:qualifier pq:P2302 ;
+	wikibase:qualifierValue pqv:P2302 ;
+	wikibase:reference pr:P2302 ;
+	wikibase:referenceValue prv:P2302 ;
+	wikibase:novalue wdno:P2302 .
+
+p:P2302 a owl:ObjectProperty .
+
+psv:P2302 a owl:ObjectProperty .
+
+pqv:P2302 a owl:ObjectProperty .
+
+prv:P2302 a owl:ObjectProperty .
+
+wdt:P2302 a owl:ObjectProperty .
+
+ps:P2302 a owl:ObjectProperty .
+
+pq:P2302 a owl:ObjectProperty .
+
+pr:P2302 a owl:ObjectProperty .
+
+wdno:P2302 a owl:Class ;
+	owl:complementOf _:1d7b2aa8714addd4582f2c663eed7695 .
+
+_:1d7b2aa8714addd4582f2c663eed7695 a owl:Restriction ;
+	owl:onProperty wdt:P2302 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q21502838 a wikibase:Item ;
+	rdfs:label "conflicts-with constraint"@en ;
+	skos:prefLabel "conflicts-with constraint"@en ;
+	schema:name "conflicts-with constraint"@en ;
+	schema:description "type of constraint for Wikidata properties: used to specify that an item must not have a given statement"@en .
+
+wd:Q53869507 a wikibase:Item ;
+	rdfs:label "property scope constraint"@en ;
+	skos:prefLabel "property scope constraint"@en ;
+	schema:name "property scope constraint"@en ;
+	schema:description "constraint to define the scope of the property (as main property, as qualifier, as reference, or combination). Qualify with \"property scope\" (P5314)"@en .
+
+wd:Q52004125 a wikibase:Item ;
+	rdfs:label "allowed-entity-types constraint"@en ;
+	skos:prefLabel "allowed-entity-types constraint"@en ;
+	schema:name "allowed-entity-types constraint"@en ;
+	schema:description "type of constraint for Wikidata properties: used to specify that a property may only be used on a certain listed entity type: Wikibase item, Wikibase property, lexeme, form, sense, Wikibase MediaInfo"@en .
+
+wd:Q21510851 a wikibase:Item ;
+	rdfs:label "allowed qualifiers constraint"@en ;
+	skos:prefLabel "allowed qualifiers constraint"@en ;
+	schema:name "allowed qualifiers constraint"@en ;
+	schema:description "type of constraint for Wikidata properties: used to specify that only the listed qualifiers should be used. \"Novalue\" disallows any qualifier"@en .
+
+wd:P669 a wikibase:Property ;
+	rdfs:label "located on street"@en ;
+	skos:prefLabel "located on street"@en ;
+	schema:name "located on street"@en ;
+	schema:description "street, road, square, or trail, where the item is located. To add the number, use Property:P670 \"house number\" as qualifier. Use property P6375 \"street address\", if there is no item for the street"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P669 ;
+	wikibase:claim p:P669 ;
+	wikibase:statementProperty ps:P669 ;
+	wikibase:statementValue psv:P669 ;
+	wikibase:qualifier pq:P669 ;
+	wikibase:qualifierValue pqv:P669 ;
+	wikibase:reference pr:P669 ;
+	wikibase:referenceValue prv:P669 ;
+	wikibase:novalue wdno:P669 .
+
+p:P669 a owl:ObjectProperty .
+
+psv:P669 a owl:ObjectProperty .
+
+pqv:P669 a owl:ObjectProperty .
+
+prv:P669 a owl:ObjectProperty .
+
+wdt:P669 a owl:ObjectProperty .
+
+ps:P669 a owl:ObjectProperty .
+
+pq:P669 a owl:ObjectProperty .
+
+pr:P669 a owl:ObjectProperty .
+
+wdno:P669 a owl:Class ;
+	owl:complementOf _:67eed9a21329e9d199d03962e28114ab .
+
+_:67eed9a21329e9d199d03962e28114ab a owl:Restriction ;
+	owl:onProperty wdt:P669 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P1659 a wikibase:Property ;
+	rdfs:label "related property"@en ;
+	skos:prefLabel "related property"@en ;
+	schema:name "related property"@en ;
+	schema:description "used to indicate another property that might provide additional information about the subject"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseProperty> ;
+	wikibase:directClaim wdt:P1659 ;
+	wikibase:claim p:P1659 ;
+	wikibase:statementProperty ps:P1659 ;
+	wikibase:statementValue psv:P1659 ;
+	wikibase:qualifier pq:P1659 ;
+	wikibase:qualifierValue pqv:P1659 ;
+	wikibase:reference pr:P1659 ;
+	wikibase:referenceValue prv:P1659 ;
+	wikibase:novalue wdno:P1659 .
+
+p:P1659 a owl:ObjectProperty .
+
+psv:P1659 a owl:ObjectProperty .
+
+pqv:P1659 a owl:ObjectProperty .
+
+prv:P1659 a owl:ObjectProperty .
+
+wdt:P1659 a owl:ObjectProperty .
+
+ps:P1659 a owl:ObjectProperty .
+
+pq:P1659 a owl:ObjectProperty .
+
+pr:P1659 a owl:ObjectProperty .
+
+wdno:P1659 a owl:Class ;
+	owl:complementOf _:395ff05eea2bfdc7d41d9858985947a9 .
+
+_:395ff05eea2bfdc7d41d9858985947a9 a owl:Restriction ;
+	owl:onProperty wdt:P1659 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P670 a wikibase:Property ;
+	rdfs:label "house number"@en ;
+	skos:prefLabel "house number"@en ;
+	schema:name "house number"@en ;
+	schema:description "number in the street address. To be used as a qualifier of Property:P669 \"located on street\""@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P670 ;
+	wikibase:claim p:P670 ;
+	wikibase:statementProperty ps:P670 ;
+	wikibase:statementValue psv:P670 ;
+	wikibase:qualifier pq:P670 ;
+	wikibase:qualifierValue pqv:P670 ;
+	wikibase:reference pr:P670 ;
+	wikibase:referenceValue prv:P670 ;
+	wikibase:novalue wdno:P670 .
+
+p:P670 a owl:ObjectProperty .
+
+psv:P670 a owl:ObjectProperty .
+
+pqv:P670 a owl:ObjectProperty .
+
+prv:P670 a owl:ObjectProperty .
+
+wdt:P670 a owl:DatatypeProperty .
+
+ps:P670 a owl:DatatypeProperty .
+
+pq:P670 a owl:DatatypeProperty .
+
+pr:P670 a owl:DatatypeProperty .
+
+wdno:P670 a owl:Class ;
+	owl:complementOf _:8c3245cac9ecd2101087aea226703bc5 .
+
+_:8c3245cac9ecd2101087aea226703bc5 a owl:Restriction ;
+	owl:onProperty wdt:P670 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P4856 a wikibase:Property ;
+	rdfs:label "conscription number"@en ;
+	skos:prefLabel "conscription number"@en ;
+	schema:name "conscription number"@en ;
+	schema:description "number identifying a building in one cadastral area/village/neighborhood"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P4856 ;
+	wikibase:claim p:P4856 ;
+	wikibase:statementProperty ps:P4856 ;
+	wikibase:statementValue psv:P4856 ;
+	wikibase:qualifier pq:P4856 ;
+	wikibase:qualifierValue pqv:P4856 ;
+	wikibase:reference pr:P4856 ;
+	wikibase:referenceValue prv:P4856 ;
+	wikibase:novalue wdno:P4856 .
+
+p:P4856 a owl:ObjectProperty .
+
+psv:P4856 a owl:ObjectProperty .
+
+pqv:P4856 a owl:ObjectProperty .
+
+prv:P4856 a owl:ObjectProperty .
+
+wdt:P4856 a owl:DatatypeProperty .
+
+ps:P4856 a owl:DatatypeProperty .
+
+pq:P4856 a owl:DatatypeProperty .
+
+pr:P4856 a owl:DatatypeProperty .
+
+wdno:P4856 a owl:Class ;
+	owl:complementOf _:be5d8b963b109561d685dec8f52ea957 .
+
+_:be5d8b963b109561d685dec8f52ea957 a owl:Restriction ;
+	owl:onProperty wdt:P4856 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P281 a wikibase:Property ;
+	rdfs:label "postal code"@en ;
+	skos:prefLabel "postal code"@en ;
+	schema:name "postal code"@en ;
+	schema:description "code assigned by postal authorities for the subject area or building for the purpose of sorting and routing mail"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P281 ;
+	wikibase:claim p:P281 ;
+	wikibase:statementProperty ps:P281 ;
+	wikibase:statementValue psv:P281 ;
+	wikibase:qualifier pq:P281 ;
+	wikibase:qualifierValue pqv:P281 ;
+	wikibase:reference pr:P281 ;
+	wikibase:referenceValue prv:P281 ;
+	wikibase:novalue wdno:P281 .
+
+p:P281 a owl:ObjectProperty .
+
+psv:P281 a owl:ObjectProperty .
+
+pqv:P281 a owl:ObjectProperty .
+
+prv:P281 a owl:ObjectProperty .
+
+wdt:P281 a owl:DatatypeProperty .
+
+ps:P281 a owl:DatatypeProperty .
+
+pq:P281 a owl:DatatypeProperty .
+
+pr:P281 a owl:DatatypeProperty .
+
+wdno:P281 a owl:Class ;
+	owl:complementOf _:ac429fd23169c78451ea2bba7c1f4b50 .
+
+_:ac429fd23169c78451ea2bba7c1f4b50 a owl:Restriction ;
+	owl:onProperty wdt:P281 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P2795 a wikibase:Property ;
+	rdfs:label "directions"@en ;
+	skos:prefLabel "directions"@en ;
+	schema:name "directions"@en ;
+	schema:description "describe how to find the subject - directions, objects along way, comments"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Monolingualtext> ;
+	wikibase:directClaim wdt:P2795 ;
+	wikibase:claim p:P2795 ;
+	wikibase:statementProperty ps:P2795 ;
+	wikibase:statementValue psv:P2795 ;
+	wikibase:qualifier pq:P2795 ;
+	wikibase:qualifierValue pqv:P2795 ;
+	wikibase:reference pr:P2795 ;
+	wikibase:referenceValue prv:P2795 ;
+	wikibase:novalue wdno:P2795 .
+
+p:P2795 a owl:ObjectProperty .
+
+psv:P2795 a owl:ObjectProperty .
+
+pqv:P2795 a owl:ObjectProperty .
+
+prv:P2795 a owl:ObjectProperty .
+
+wdt:P2795 a owl:DatatypeProperty .
+
+ps:P2795 a owl:DatatypeProperty .
+
+pq:P2795 a owl:DatatypeProperty .
+
+pr:P2795 a owl:DatatypeProperty .
+
+wdno:P2795 a owl:Class ;
+	owl:complementOf _:8ec9ced689b78a3b138b11d9b54ffbec .
+
+_:8ec9ced689b78a3b138b11d9b54ffbec a owl:Restriction ;
+	owl:onProperty wdt:P2795 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P2918 a wikibase:Property ;
+	rdfs:label "post office box"@en ;
+	skos:prefLabel "post office box"@en ;
+	schema:name "post office box"@en ;
+	schema:description "post office box number, as part of an address"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P2918 ;
+	wikibase:claim p:P2918 ;
+	wikibase:statementProperty ps:P2918 ;
+	wikibase:statementValue psv:P2918 ;
+	wikibase:qualifier pq:P2918 ;
+	wikibase:qualifierValue pqv:P2918 ;
+	wikibase:reference pr:P2918 ;
+	wikibase:referenceValue prv:P2918 ;
+	wikibase:novalue wdno:P2918 .
+
+p:P2918 a owl:ObjectProperty .
+
+psv:P2918 a owl:ObjectProperty .
+
+pqv:P2918 a owl:ObjectProperty .
+
+prv:P2918 a owl:ObjectProperty .
+
+wdt:P2918 a owl:DatatypeProperty .
+
+ps:P2918 a owl:DatatypeProperty .
+
+pq:P2918 a owl:DatatypeProperty .
+
+pr:P2918 a owl:DatatypeProperty .
+
+wdno:P2918 a owl:Class ;
+	owl:complementOf _:edfd754ec0f4b6bceee8978cbe9fc6b3 .
+
+_:edfd754ec0f4b6bceee8978cbe9fc6b3 a owl:Restriction ;
+	owl:onProperty wdt:P2918 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P7532 a wikibase:Property ;
+	rdfs:label "room number"@en ;
+	skos:prefLabel "room number"@en ;
+	schema:name "room number"@en ;
+	schema:description "number or identifier of a room, which can qualify the address (P6375) of a place to complete it"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P7532 ;
+	wikibase:claim p:P7532 ;
+	wikibase:statementProperty ps:P7532 ;
+	wikibase:statementValue psv:P7532 ;
+	wikibase:qualifier pq:P7532 ;
+	wikibase:qualifierValue pqv:P7532 ;
+	wikibase:reference pr:P7532 ;
+	wikibase:referenceValue prv:P7532 ;
+	wikibase:novalue wdno:P7532 .
+
+p:P7532 a owl:ObjectProperty .
+
+psv:P7532 a owl:ObjectProperty .
+
+pqv:P7532 a owl:ObjectProperty .
+
+prv:P7532 a owl:ObjectProperty .
+
+wdt:P7532 a owl:DatatypeProperty .
+
+ps:P7532 a owl:DatatypeProperty .
+
+pq:P7532 a owl:DatatypeProperty .
+
+pr:P7532 a owl:DatatypeProperty .
+
+wdno:P7532 a owl:Class ;
+	owl:complementOf _:9343f3e763b4a9a38dc4331b1c282326 .
+
+_:9343f3e763b4a9a38dc4331b1c282326 a owl:Restriction ;
+	owl:onProperty wdt:P7532 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P5423 a wikibase:Property ;
+	rdfs:label "floor number"@en ;
+	skos:prefLabel "floor number"@en ;
+	schema:name "floor number"@en ;
+	schema:description "floor number in a street address. To be used as a qualifier of Property:P6375 \"located on street\" or as a property of a place"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P5423 ;
+	wikibase:claim p:P5423 ;
+	wikibase:statementProperty ps:P5423 ;
+	wikibase:statementValue psv:P5423 ;
+	wikibase:qualifier pq:P5423 ;
+	wikibase:qualifierValue pqv:P5423 ;
+	wikibase:reference pr:P5423 ;
+	wikibase:referenceValue prv:P5423 ;
+	wikibase:novalue wdno:P5423 .
+
+p:P5423 a owl:ObjectProperty .
+
+psv:P5423 a owl:ObjectProperty .
+
+pqv:P5423 a owl:ObjectProperty .
+
+prv:P5423 a owl:ObjectProperty .
+
+wdt:P5423 a owl:DatatypeProperty .
+
+ps:P5423 a owl:DatatypeProperty .
+
+pq:P5423 a owl:DatatypeProperty .
+
+pr:P5423 a owl:DatatypeProperty .
+
+wdno:P5423 a owl:Class ;
+	owl:complementOf _:52e703722c3c3d18d05ce94cbd6076c9 .
+
+_:52e703722c3c3d18d05ce94cbd6076c9 a owl:Restriction ;
+	owl:onProperty wdt:P5423 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P276 a wikibase:Property ;
+	rdfs:label "location"@en ;
+	skos:prefLabel "location"@en ;
+	schema:name "location"@en ;
+	schema:description "location of the object, structure or event; use P131 to indicate the containing administrative entity, P8138 for statistical entities, or P706 for geographic entities; use P7153 for locations associated with the object"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P276 ;
+	wikibase:claim p:P276 ;
+	wikibase:statementProperty ps:P276 ;
+	wikibase:statementValue psv:P276 ;
+	wikibase:qualifier pq:P276 ;
+	wikibase:qualifierValue pqv:P276 ;
+	wikibase:reference pr:P276 ;
+	wikibase:referenceValue prv:P276 ;
+	wikibase:novalue wdno:P276 .
+
+p:P276 a owl:ObjectProperty .
+
+psv:P276 a owl:ObjectProperty .
+
+pqv:P276 a owl:ObjectProperty .
+
+prv:P276 a owl:ObjectProperty .
+
+wdt:P276 a owl:ObjectProperty .
+
+ps:P276 a owl:ObjectProperty .
+
+pq:P276 a owl:ObjectProperty .
+
+pr:P276 a owl:ObjectProperty .
+
+wdno:P276 a owl:Class ;
+	owl:complementOf _:0424b97657ca4d399eff1b8cb4828569 .
+
+_:0424b97657ca4d399eff1b8cb4828569 a owl:Restriction ;
+	owl:onProperty wdt:P276 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P2236 a wikibase:Property ;
+	rdfs:label "external subproperty"@en ;
+	skos:prefLabel "external subproperty"@en ;
+	schema:name "external subproperty"@en ;
+	schema:description "all resources related by the property from external vocabularies are also related to this property"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Url> ;
+	wikibase:directClaim wdt:P2236 ;
+	wikibase:claim p:P2236 ;
+	wikibase:statementProperty ps:P2236 ;
+	wikibase:statementValue psv:P2236 ;
+	wikibase:qualifier pq:P2236 ;
+	wikibase:qualifierValue pqv:P2236 ;
+	wikibase:reference pr:P2236 ;
+	wikibase:referenceValue prv:P2236 ;
+	wikibase:novalue wdno:P2236 .
+
+p:P2236 a owl:ObjectProperty .
+
+psv:P2236 a owl:ObjectProperty .
+
+pqv:P2236 a owl:ObjectProperty .
+
+prv:P2236 a owl:ObjectProperty .
+
+wdt:P2236 a owl:ObjectProperty .
+
+ps:P2236 a owl:ObjectProperty .
+
+pq:P2236 a owl:ObjectProperty .
+
+pr:P2236 a owl:ObjectProperty .
+
+wdno:P2236 a owl:Class ;
+	owl:complementOf _:43899feb31dbaf91ea4d16b3b899d04d .
+
+_:43899feb31dbaf91ea4d16b3b899d04d a owl:Restriction ;
+	owl:onProperty wdt:P2236 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P1628 a wikibase:Property ;
+	rdfs:label "equivalent property"@en ;
+	skos:prefLabel "equivalent property"@en ;
+	schema:name "equivalent property"@en ;
+	schema:description "equivalent property in other ontologies (use in statements on properties, use property URI)"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Url> ;
+	wikibase:directClaim wdt:P1628 ;
+	wikibase:claim p:P1628 ;
+	wikibase:statementProperty ps:P1628 ;
+	wikibase:statementValue psv:P1628 ;
+	wikibase:qualifier pq:P1628 ;
+	wikibase:qualifierValue pqv:P1628 ;
+	wikibase:reference pr:P1628 ;
+	wikibase:referenceValue prv:P1628 ;
+	wikibase:novalue wdno:P1628 .
+
+p:P1628 a owl:ObjectProperty .
+
+psv:P1628 a owl:ObjectProperty .
+
+pqv:P1628 a owl:ObjectProperty .
+
+prv:P1628 a owl:ObjectProperty .
+
+wdt:P1628 a owl:ObjectProperty .
+
+ps:P1628 a owl:ObjectProperty .
+
+pq:P1628 a owl:ObjectProperty .
+
+pr:P1628 a owl:ObjectProperty .
+
+wdno:P1628 a owl:Class ;
+	owl:complementOf _:b9fb8e39f86b9c2dc19aba13182640a9 .
+
+_:b9fb8e39f86b9c2dc19aba13182640a9 a owl:Restriction ;
+	owl:onProperty wdt:P1628 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q24574749 a wikibase:Item ;
+	rdfs:label "street address"@en ;
+	skos:prefLabel "street address"@en ;
+	schema:name "street address"@en ;
+	schema:description "house number and street name of a location"@en .
+
+wd:P1629 a wikibase:Property ;
+	rdfs:label "Wikidata item of this property"@en ;
+	skos:prefLabel "Wikidata item of this property"@en ;
+	schema:name "Wikidata item of this property"@en ;
+	schema:description "item corresponding to the concept represented by the property"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P1629 ;
+	wikibase:claim p:P1629 ;
+	wikibase:statementProperty ps:P1629 ;
+	wikibase:statementValue psv:P1629 ;
+	wikibase:qualifier pq:P1629 ;
+	wikibase:qualifierValue pqv:P1629 ;
+	wikibase:reference pr:P1629 ;
+	wikibase:referenceValue prv:P1629 ;
+	wikibase:novalue wdno:P1629 .
+
+p:P1629 a owl:ObjectProperty .
+
+psv:P1629 a owl:ObjectProperty .
+
+pqv:P1629 a owl:ObjectProperty .
+
+prv:P1629 a owl:ObjectProperty .
+
+wdt:P1629 a owl:ObjectProperty .
+
+ps:P1629 a owl:ObjectProperty .
+
+pq:P1629 a owl:ObjectProperty .
+
+pr:P1629 a owl:ObjectProperty .
+
+wdno:P1629 a owl:Class ;
+	owl:complementOf _:38604192536ad0b2de7966f3f556035a .
+
+_:38604192536ad0b2de7966f3f556035a a owl:Restriction ;
+	owl:onProperty wdt:P1629 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q319608 a wikibase:Item ;
+	rdfs:label "address"@en ;
+	skos:prefLabel "address"@en ;
+	schema:name "address"@en ;
+	schema:description "collection of information that describes the location of a building, apartment, or other structure"@en .
+
+wd:Q35525 a wikibase:Item ;
+	rdfs:label "White House"@en ;
+	skos:prefLabel "White House"@en ;
+	schema:name "White House"@en ;
+	schema:description "official residence and office of the President of the United States"@en .
+
+wd:P1855 a wikibase:Property ;
+	rdfs:label "Wikidata property example"@en ;
+	skos:prefLabel "Wikidata property example"@en ;
+	schema:name "Wikidata property example"@en ;
+	schema:description "example where this Wikidata property is used; target item is one that would use this property, with qualifier the property being described given the associated value"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P1855 ;
+	wikibase:claim p:P1855 ;
+	wikibase:statementProperty ps:P1855 ;
+	wikibase:statementValue psv:P1855 ;
+	wikibase:qualifier pq:P1855 ;
+	wikibase:qualifierValue pqv:P1855 ;
+	wikibase:reference pr:P1855 ;
+	wikibase:referenceValue prv:P1855 ;
+	wikibase:novalue wdno:P1855 .
+
+p:P1855 a owl:ObjectProperty .
+
+psv:P1855 a owl:ObjectProperty .
+
+pqv:P1855 a owl:ObjectProperty .
+
+prv:P1855 a owl:ObjectProperty .
+
+wdt:P1855 a owl:ObjectProperty .
+
+ps:P1855 a owl:ObjectProperty .
+
+pq:P1855 a owl:ObjectProperty .
+
+pr:P1855 a owl:ObjectProperty .
+
+wdno:P1855 a owl:Class ;
+	owl:complementOf _:10181e30a4678fbb6b833dfa6bcddc2b .
+
+_:10181e30a4678fbb6b833dfa6bcddc2b a owl:Restriction ;
+	owl:onProperty wdt:P1855 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q3204568 a wikibase:Item ;
+	rdfs:label "L'Opéra Restaurant"@en ;
+	skos:prefLabel "L'Opéra Restaurant"@en ;
+	schema:name "L'Opéra Restaurant"@en ;
+	schema:description "restaurant in Paris, France"@en .
+
+wd:Q19882251 a wikibase:Item ;
+	rdfs:label "Baranagore Ramakrishna Mission Ashrama High School"@en ;
+	skos:prefLabel "Baranagore Ramakrishna Mission Ashrama High School"@en ;
+	schema:name "Baranagore Ramakrishna Mission Ashrama High School"@en ;
+	schema:description "Senior secondary boys' school in West Bengal, India"@en .
+
+wd:Q500681 a wikibase:Item ;
+	rdfs:label "Tokyo Imperial Palace"@en ;
+	skos:prefLabel "Tokyo Imperial Palace"@en ;
+	schema:name "Tokyo Imperial Palace"@en ;
+	schema:description "main residence of the Emperor of Japan"@en .
+
+wd:Q151897 a wikibase:Item ;
+	rdfs:label "Reichstag"@en ;
+	skos:prefLabel "Reichstag"@en ;
+	schema:name "Reichstag"@en ;
+	schema:description "seat of the German Bundestag and, before 1945, the eponymous parliament of the Weimar Republic"@en .
+
+wd:Q5572 a wikibase:Item ;
+	rdfs:label "Loggia dei Cavalieri"@en ;
+	skos:prefLabel "Loggia dei Cavalieri"@en ;
+	schema:name "Loggia dei Cavalieri"@en ;
+	schema:description "building in Treviso, Italy"@en .
+
+wd:P3254 a wikibase:Property ;
+	rdfs:label "property proposal discussion"@en ;
+	skos:prefLabel "property proposal discussion"@en ;
+	schema:name "property proposal discussion"@en ;
+	schema:description "URL of the page (or page section) on which the creation of the property was discussed"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Url> ;
+	wikibase:directClaim wdt:P3254 ;
+	wikibase:claim p:P3254 ;
+	wikibase:statementProperty ps:P3254 ;
+	wikibase:statementValue psv:P3254 ;
+	wikibase:qualifier pq:P3254 ;
+	wikibase:qualifierValue pqv:P3254 ;
+	wikibase:reference pr:P3254 ;
+	wikibase:referenceValue prv:P3254 ;
+	wikibase:novalue wdno:P3254 .
+
+p:P3254 a owl:ObjectProperty .
+
+psv:P3254 a owl:ObjectProperty .
+
+pqv:P3254 a owl:ObjectProperty .
+
+prv:P3254 a owl:ObjectProperty .
+
+wdt:P3254 a owl:ObjectProperty .
+
+ps:P3254 a owl:ObjectProperty .
+
+pq:P3254 a owl:ObjectProperty .
+
+pr:P3254 a owl:ObjectProperty .
+
+wdno:P3254 a owl:Class ;
+	owl:complementOf _:4e19f0f6602874b094f5a44fe32411dd .
+
+_:4e19f0f6602874b094f5a44fe32411dd a owl:Restriction ;
+	owl:onProperty wdt:P3254 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q61764320 a wikibase:Item ;
+	rdfs:label "Category:Pages using Wikidata property P6375"@en ;
+	skos:prefLabel "Category:Pages using Wikidata property P6375"@en ;
+	schema:name "Category:Pages using Wikidata property P6375"@en ;
+	schema:description "Wikimedia category"@en .
+
+wd:P2875 a wikibase:Property ;
+	rdfs:label "property usage tracking category"@en ;
+	skos:prefLabel "property usage tracking category"@en ;
+	schema:name "property usage tracking category"@en ;
+	schema:description "category tracking a Wikidata property in sister projects"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P2875 ;
+	wikibase:claim p:P2875 ;
+	wikibase:statementProperty ps:P2875 ;
+	wikibase:statementValue psv:P2875 ;
+	wikibase:qualifier pq:P2875 ;
+	wikibase:qualifierValue pqv:P2875 ;
+	wikibase:reference pr:P2875 ;
+	wikibase:referenceValue prv:P2875 ;
+	wikibase:novalue wdno:P2875 .
+
+p:P2875 a owl:ObjectProperty .
+
+psv:P2875 a owl:ObjectProperty .
+
+pqv:P2875 a owl:ObjectProperty .
+
+prv:P2875 a owl:ObjectProperty .
+
+wdt:P2875 a owl:ObjectProperty .
+
+ps:P2875 a owl:ObjectProperty .
+
+pq:P2875 a owl:ObjectProperty .
+
+pr:P2875 a owl:ObjectProperty .
+
+wdno:P2875 a owl:Class ;
+	owl:complementOf _:ce60c0df5bfd881adc0913cd191627b0 .
+
+_:ce60c0df5bfd881adc0913cd191627b0 a owl:Restriction ;
+	owl:onProperty wdt:P2875 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P7964 a wikibase:Property ;
+	rdfs:label "corresponding HTML autocomplete attribute"@en ;
+	skos:prefLabel "corresponding HTML autocomplete attribute"@en ;
+	schema:name "corresponding HTML autocomplete attribute"@en ;
+	schema:description "the appropriate value of the autocomplete attribute in HTML"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P7964 ;
+	wikibase:claim p:P7964 ;
+	wikibase:statementProperty ps:P7964 ;
+	wikibase:statementValue psv:P7964 ;
+	wikibase:qualifier pq:P7964 ;
+	wikibase:qualifierValue pqv:P7964 ;
+	wikibase:reference pr:P7964 ;
+	wikibase:referenceValue prv:P7964 ;
+	wikibase:novalue wdno:P7964 .
+
+p:P7964 a owl:ObjectProperty .
+
+psv:P7964 a owl:ObjectProperty .
+
+pqv:P7964 a owl:ObjectProperty .
+
+prv:P7964 a owl:ObjectProperty .
+
+wdt:P7964 a owl:DatatypeProperty .
+
+ps:P7964 a owl:DatatypeProperty .
+
+pq:P7964 a owl:DatatypeProperty .
+
+pr:P7964 a owl:DatatypeProperty .
+
+wdno:P7964 a owl:Class ;
+	owl:complementOf _:8a31e985fcfd442488e5cf6a41639558 .
+
+_:8a31e985fcfd442488e5cf6a41639558 a owl:Restriction ;
+	owl:onProperty wdt:P7964 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P2235 a wikibase:Property ;
+	rdfs:label "external superproperty"@en ;
+	skos:prefLabel "external superproperty"@en ;
+	schema:name "external superproperty"@en ;
+	schema:description "all resources related by this property are also related to that property from an external vocabulary"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Url> ;
+	wikibase:directClaim wdt:P2235 ;
+	wikibase:claim p:P2235 ;
+	wikibase:statementProperty ps:P2235 ;
+	wikibase:statementValue psv:P2235 ;
+	wikibase:qualifier pq:P2235 ;
+	wikibase:qualifierValue pqv:P2235 ;
+	wikibase:reference pr:P2235 ;
+	wikibase:referenceValue prv:P2235 ;
+	wikibase:novalue wdno:P2235 .
+
+p:P2235 a owl:ObjectProperty .
+
+psv:P2235 a owl:ObjectProperty .
+
+pqv:P2235 a owl:ObjectProperty .
+
+prv:P2235 a owl:ObjectProperty .
+
+wdt:P2235 a owl:ObjectProperty .
+
+ps:P2235 a owl:ObjectProperty .
+
+pq:P2235 a owl:ObjectProperty .
+
+pr:P2235 a owl:ObjectProperty .
+
+wdno:P2235 a owl:Class ;
+	owl:complementOf _:4d03be87489adc1cbddc35b8566ca10c .
+
+_:4d03be87489adc1cbddc35b8566ca10c a owl:Restriction ;
+	owl:onProperty wdt:P2235 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q44601380 a wikibase:Item ;
+	rdfs:label "property that may violate privacy"@en ;
+	skos:prefLabel "property that may violate privacy"@en ;
+	schema:name "property that may violate privacy"@en ;
+	schema:description "when this property is used with items of living people it may violate privacy; statements should generally not be supplied unless they can be considered widespread public knowledge or openly supplied by the individual themselves"@en .
+
+wd:P8274 a wikibase:Property ;
+	rdfs:label "living people protection class"@en ;
+	skos:prefLabel "living people protection class"@en ;
+	schema:name "living people protection class"@en ;
+	schema:description "when used with living people this project falls under the category described in Wikidata's Living People policy"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P8274 ;
+	wikibase:claim p:P8274 ;
+	wikibase:statementProperty ps:P8274 ;
+	wikibase:statementValue psv:P8274 ;
+	wikibase:qualifier pq:P8274 ;
+	wikibase:qualifierValue pqv:P8274 ;
+	wikibase:reference pr:P8274 ;
+	wikibase:referenceValue prv:P8274 ;
+	wikibase:novalue wdno:P8274 .
+
+p:P8274 a owl:ObjectProperty .
+
+psv:P8274 a owl:ObjectProperty .
+
+pqv:P8274 a owl:ObjectProperty .
+
+prv:P8274 a owl:ObjectProperty .
+
+wdt:P8274 a owl:ObjectProperty .
+
+ps:P8274 a owl:ObjectProperty .
+
+pq:P8274 a owl:ObjectProperty .
+
+pr:P8274 a owl:ObjectProperty .
+
+wdno:P8274 a owl:Class ;
+	owl:complementOf _:551fb6aad0a56d2a1effa22daee52a8e .
+
+_:551fb6aad0a56d2a1effa22daee52a8e a owl:Restriction ;
+	owl:onProperty wdt:P8274 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P3303 a wikibase:Property ;
+	rdfs:label "third-party formatter URL"@en ;
+	skos:prefLabel "third-party formatter URL"@en ;
+	schema:name "third-party formatter URL"@en ;
+	schema:description "URI template from which \"$1\" can be automatically replaced with the effective property value on items; for sites other than the primary issuing body of the identifier concerned"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P3303 ;
+	wikibase:claim p:P3303 ;
+	wikibase:statementProperty ps:P3303 ;
+	wikibase:statementValue psv:P3303 ;
+	wikibase:qualifier pq:P3303 ;
+	wikibase:qualifierValue pqv:P3303 ;
+	wikibase:reference pr:P3303 ;
+	wikibase:referenceValue prv:P3303 ;
+	wikibase:novalue wdno:P3303 .
+
+p:P3303 a owl:ObjectProperty .
+
+psv:P3303 a owl:ObjectProperty .
+
+pqv:P3303 a owl:ObjectProperty .
+
+prv:P3303 a owl:ObjectProperty .
+
+wdt:P3303 a owl:DatatypeProperty .
+
+ps:P3303 a owl:DatatypeProperty .
+
+pq:P3303 a owl:DatatypeProperty .
+
+pr:P3303 a owl:DatatypeProperty .
+
+wdno:P3303 a owl:Class ;
+	owl:complementOf _:6c52335d78325681cb544c9f9022a12b .
+
+_:6c52335d78325681cb544c9f9022a12b a owl:Restriction ;
+	owl:onProperty wdt:P3303 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P7930 a wikibase:Property ;
+	rdfs:label "Wikimedia community discussion URL"@en ;
+	skos:prefLabel "Wikimedia community discussion URL"@en ;
+	schema:name "Wikimedia community discussion URL"@en ;
+	schema:description "(usually used as reference) a community discussion (in Wikidata or other Wikimedia) about a specific statement, or (rarely) an entity in general which may affect the content of the entity"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Url> ;
+	wikibase:directClaim wdt:P7930 ;
+	wikibase:claim p:P7930 ;
+	wikibase:statementProperty ps:P7930 ;
+	wikibase:statementValue psv:P7930 ;
+	wikibase:qualifier pq:P7930 ;
+	wikibase:qualifierValue pqv:P7930 ;
+	wikibase:reference pr:P7930 ;
+	wikibase:referenceValue prv:P7930 ;
+	wikibase:novalue wdno:P7930 .
+
+p:P7930 a owl:ObjectProperty .
+
+psv:P7930 a owl:ObjectProperty .
+
+pqv:P7930 a owl:ObjectProperty .
+
+prv:P7930 a owl:ObjectProperty .
+
+wdt:P7930 a owl:ObjectProperty .
+
+ps:P7930 a owl:ObjectProperty .
+
+pq:P7930 a owl:ObjectProperty .
+
+pr:P7930 a owl:ObjectProperty .
+
+wdno:P7930 a owl:Class ;
+	owl:complementOf _:289e81ca84799b4c91755f6ddc5fe99f .
+
+_:289e81ca84799b4c91755f6ddc5fe99f a owl:Restriction ;
+	owl:onProperty wdt:P7930 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P2559 a wikibase:Property ;
+	rdfs:label "Wikidata usage instructions"@en ;
+	skos:prefLabel "Wikidata usage instructions"@en ;
+	schema:name "Wikidata usage instructions"@en ;
+	schema:description "text describing how to use a property or item. Eventually, this statement is to replace usage instructions currently found in description. Until the corresponding feature is implemented, do not remove it from description"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Monolingualtext> ;
+	wikibase:directClaim wdt:P2559 ;
+	wikibase:claim p:P2559 ;
+	wikibase:statementProperty ps:P2559 ;
+	wikibase:statementValue psv:P2559 ;
+	wikibase:qualifier pq:P2559 ;
+	wikibase:qualifierValue pqv:P2559 ;
+	wikibase:reference pr:P2559 ;
+	wikibase:referenceValue prv:P2559 ;
+	wikibase:novalue wdno:P2559 .
+
+p:P2559 a owl:ObjectProperty .
+
+psv:P2559 a owl:ObjectProperty .
+
+pqv:P2559 a owl:ObjectProperty .
+
+prv:P2559 a owl:ObjectProperty .
+
+wdt:P2559 a owl:DatatypeProperty .
+
+ps:P2559 a owl:DatatypeProperty .
+
+pq:P2559 a owl:DatatypeProperty .
+
+pr:P2559 a owl:DatatypeProperty .
+
+wdno:P2559 a owl:Class ;
+	owl:complementOf _:5f8d3b8c1431825b89d15f80fd705a72 .
+
+_:5f8d3b8c1431825b89d15f80fd705a72 a owl:Restriction ;
+	owl:onProperty wdt:P2559 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q24025284 a wikibase:Item ;
+	rdfs:label "sometimes changes"@en ;
+	skos:prefLabel "sometimes changes"@en ;
+	schema:name "sometimes changes"@en ;
+	schema:description "the value of this property is mostly stable, but can change from time to time"@en .
+
+wd:P2668 a wikibase:Property ;
+	rdfs:label "stability of property value"@en ;
+	skos:prefLabel "stability of property value"@en ;
+	schema:name "stability of property value"@en ;
+	schema:description "likelihood that statements with this property will change"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P2668 ;
+	wikibase:claim p:P2668 ;
+	wikibase:statementProperty ps:P2668 ;
+	wikibase:statementValue psv:P2668 ;
+	wikibase:qualifier pq:P2668 ;
+	wikibase:qualifierValue pqv:P2668 ;
+	wikibase:reference pr:P2668 ;
+	wikibase:referenceValue prv:P2668 ;
+	wikibase:novalue wdno:P2668 .
+
+p:P2668 a owl:ObjectProperty .
+
+psv:P2668 a owl:ObjectProperty .
+
+pqv:P2668 a owl:ObjectProperty .
+
+prv:P2668 a owl:ObjectProperty .
+
+wdt:P2668 a owl:ObjectProperty .
+
+ps:P2668 a owl:ObjectProperty .
+
+pq:P2668 a owl:ObjectProperty .
+
+pr:P2668 a owl:ObjectProperty .
+
+wdno:P2668 a owl:Class ;
+	owl:complementOf _:8a179b4cbe5bcd55002429d3d46c0ea6 .
+
+_:8a179b4cbe5bcd55002429d3d46c0ea6 a owl:Restriction ;
+	owl:onProperty wdt:P2668 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P10787 a wikibase:Property ;
+	rdfs:label "FactGrid property ID"@en ;
+	skos:prefLabel "FactGrid property ID"@en ;
+	schema:name "FactGrid property ID"@en ;
+	schema:description "identifier for the corresponding property in FactGrid"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P10787 ;
+	wikibase:claim p:P10787 ;
+	wikibase:statementProperty ps:P10787 ;
+	wikibase:statementValue psv:P10787 ;
+	wikibase:qualifier pq:P10787 ;
+	wikibase:qualifierValue pqv:P10787 ;
+	wikibase:reference pr:P10787 ;
+	wikibase:referenceValue prv:P10787 ;
+	wikibase:novalue wdno:P10787 ;
+	wikibase:directClaimNormalized wdtn:P10787 ;
+	wikibase:statementValueNormalized psn:P10787 ;
+	wikibase:qualifierValueNormalized pqn:P10787 ;
+	wikibase:referenceValueNormalized prn:P10787 .
+
+p:P10787 a owl:ObjectProperty .
+
+psv:P10787 a owl:ObjectProperty .
+
+pqv:P10787 a owl:ObjectProperty .
+
+prv:P10787 a owl:ObjectProperty .
+
+wdt:P10787 a owl:DatatypeProperty .
+
+ps:P10787 a owl:DatatypeProperty .
+
+pq:P10787 a owl:DatatypeProperty .
+
+pr:P10787 a owl:DatatypeProperty .
+
+psn:P10787 a owl:ObjectProperty .
+
+pqn:P10787 a owl:ObjectProperty .
+
+prn:P10787 a owl:ObjectProperty .
+
+wdtn:P10787 a owl:ObjectProperty .
+
+wdno:P10787 a owl:Class ;
+	owl:complementOf _:80a7efef53e6ac12afa625c951a3fef6 .
+
+_:80a7efef53e6ac12afa625c951a3fef6 a owl:Restriction ;
+	owl:onProperty wdt:P10787 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q618123 a wikibase:Item ;
+	rdfs:label "geographical feature"@en ;
+	skos:prefLabel "geographical feature"@en ;
+	schema:name "geographical feature"@en ;
+	schema:description "components of planets that can be geographically located"@en .
+
+wd:P2308 a wikibase:Property ;
+	rdfs:label "class"@en ;
+	skos:prefLabel "class"@en ;
+	schema:name "class"@en ;
+	schema:description "qualifier to define a property constraint in combination with \"property constraint\" (P2302)"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P2308 ;
+	wikibase:claim p:P2308 ;
+	wikibase:statementProperty ps:P2308 ;
+	wikibase:statementValue psv:P2308 ;
+	wikibase:qualifier pq:P2308 ;
+	wikibase:qualifierValue pqv:P2308 ;
+	wikibase:reference pr:P2308 ;
+	wikibase:referenceValue prv:P2308 ;
+	wikibase:novalue wdno:P2308 .
+
+p:P2308 a owl:ObjectProperty .
+
+psv:P2308 a owl:ObjectProperty .
+
+pqv:P2308 a owl:ObjectProperty .
+
+prv:P2308 a owl:ObjectProperty .
+
+wdt:P2308 a owl:ObjectProperty .
+
+ps:P2308 a owl:ObjectProperty .
+
+pq:P2308 a owl:ObjectProperty .
+
+pr:P2308 a owl:ObjectProperty .
+
+wdno:P2308 a owl:Class ;
+	owl:complementOf _:b67ddaeee283698897a85cb818b7a439 .
+
+_:b67ddaeee283698897a85cb818b7a439 a owl:Restriction ;
+	owl:onProperty wdt:P2308 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q2221906 a wikibase:Item ;
+	rdfs:label "geographic location"@en ;
+	skos:prefLabel "geographic location"@en ;
+	schema:name "geographic location"@en ;
+	schema:description "point, line or area on or near Earth"@en .
+
+wd:Q1190554 a wikibase:Item ;
+	rdfs:label "occurrence"@en ;
+	skos:prefLabel "occurrence"@en ;
+	schema:name "occurrence"@en ;
+	schema:description "occurrence of a fact or object in space-time; instantiation of a property in an object"@en .
+
+wd:Q43229 a wikibase:Item ;
+	rdfs:label "organization"@en ;
+	skos:prefLabel "organization"@en ;
+	schema:name "organization"@en ;
+	schema:description "social entity established to meet needs or pursue goals"@en .
+
+wd:Q327333 a wikibase:Item ;
+	rdfs:label "government agency"@en ;
+	skos:prefLabel "government agency"@en ;
+	schema:name "government agency"@en ;
+	schema:description "organisational part of a government responsible for specific public services, such as health, judiciary, education, transportation, foreign affairs, etc"@en .
+
+wd:Q41298 a wikibase:Item ;
+	rdfs:label "magazine"@en ;
+	skos:prefLabel "magazine"@en ;
+	schema:name "magazine"@en ;
+	schema:description "publication that is typically distributed at a regular interval"@en .
+
+wd:Q17537576 a wikibase:Item ;
+	rdfs:label "creative work"@en ;
+	skos:prefLabel "creative work"@en ;
+	schema:name "creative work"@en ;
+	schema:description "artistic creation"@en .
+
+wd:Q2668072 a wikibase:Item ;
+	rdfs:label "collection"@en ;
+	skos:prefLabel "collection"@en ;
+	schema:name "collection"@en ;
+	schema:description "set of purposely gathered physical or digital objects with some common characteristics"@en .
+
+wd:Q177634 a wikibase:Item ;
+	rdfs:label "community"@en ;
+	skos:prefLabel "community"@en ;
+	schema:name "community"@en ;
+	schema:description "social unit of human organisms who share common values"@en .
+
+wd:Q3895768 a wikibase:Item ;
+	rdfs:label "fictional location"@en ;
+	skos:prefLabel "fictional location"@en ;
+	schema:name "fictional location"@en ;
+	schema:description "place that exists only in fiction and not in reality"@en .
+
+wd:Q13226383 a wikibase:Item ;
+	rdfs:label "facility"@en ;
+	skos:prefLabel "facility"@en ;
+	schema:name "facility"@en ;
+	schema:description "place, equipment, or service to support a specific function"@en .
+
+wd:Q1298668 a wikibase:Item ;
+	rdfs:label "science project"@en ;
+	skos:prefLabel "science project"@en ;
+	schema:name "science project"@en ;
+	schema:description "project of one or more scientists, or of an organization in a scientific field"@en .
+
+wd:Q21503252 a wikibase:Item ;
+	rdfs:label "instance of"@en ;
+	skos:prefLabel "instance of"@en ;
+	schema:name "instance of"@en ;
+	schema:description "relation of type constraints"@en .
+
+wd:P2309 a wikibase:Property ;
+	rdfs:label "relation"@en ;
+	skos:prefLabel "relation"@en ;
+	schema:name "relation"@en ;
+	schema:description "qualifier to define a property constraint in combination with P2302. Possibly values are: \"instance of\", \"subclass of\" or \"instance or subclass of\". The qualifier to use with the property \"relative\" is \"type of kinship\" (P1039), not this"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P2309 ;
+	wikibase:claim p:P2309 ;
+	wikibase:statementProperty ps:P2309 ;
+	wikibase:statementValue psv:P2309 ;
+	wikibase:qualifier pq:P2309 ;
+	wikibase:qualifierValue pqv:P2309 ;
+	wikibase:reference pr:P2309 ;
+	wikibase:referenceValue prv:P2309 ;
+	wikibase:novalue wdno:P2309 .
+
+p:P2309 a owl:ObjectProperty .
+
+psv:P2309 a owl:ObjectProperty .
+
+pqv:P2309 a owl:ObjectProperty .
+
+prv:P2309 a owl:ObjectProperty .
+
+wdt:P2309 a owl:ObjectProperty .
+
+ps:P2309 a owl:ObjectProperty .
+
+pq:P2309 a owl:ObjectProperty .
+
+pr:P2309 a owl:ObjectProperty .
+
+wdno:P2309 a owl:Class ;
+	owl:complementOf _:f804f18840c8566390255d23073053b5 .
+
+_:f804f18840c8566390255d23073053b5 a owl:Restriction ;
+	owl:onProperty wdt:P2309 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P2306 a wikibase:Property ;
+	rdfs:label "property"@en ;
+	skos:prefLabel "property"@en ;
+	schema:name "property"@en ;
+	schema:description "qualifier to define a property constraint in combination with P2302 (property constraint), or to limit the scope of Q44292881 (wikidata statement)"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseProperty> ;
+	wikibase:directClaim wdt:P2306 ;
+	wikibase:claim p:P2306 ;
+	wikibase:statementProperty ps:P2306 ;
+	wikibase:statementValue psv:P2306 ;
+	wikibase:qualifier pq:P2306 ;
+	wikibase:qualifierValue pqv:P2306 ;
+	wikibase:reference pr:P2306 ;
+	wikibase:referenceValue prv:P2306 ;
+	wikibase:novalue wdno:P2306 .
+
+p:P2306 a owl:ObjectProperty .
+
+psv:P2306 a owl:ObjectProperty .
+
+pqv:P2306 a owl:ObjectProperty .
+
+prv:P2306 a owl:ObjectProperty .
+
+wdt:P2306 a owl:ObjectProperty .
+
+ps:P2306 a owl:ObjectProperty .
+
+pq:P2306 a owl:ObjectProperty .
+
+pr:P2306 a owl:ObjectProperty .
+
+wdno:P2306 a owl:Class ;
+	owl:complementOf _:f75686aff4f985443339146b7fb69f84 .
+
+_:f75686aff4f985443339146b7fb69f84 a owl:Restriction ;
+	owl:onProperty wdt:P2306 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q5 a wikibase:Item ;
+	rdfs:label "human"@en ;
+	skos:prefLabel "human"@en ;
+	schema:name "human"@en ;
+	schema:description "any single member of Homo sapiens, unique extant species of the genus Homo"@en .
+
+wd:P2305 a wikibase:Property ;
+	rdfs:label "item of property constraint"@en ;
+	skos:prefLabel "item of property constraint"@en ;
+	schema:name "item of property constraint"@en ;
+	schema:description "qualifier to define a property constraint in combination with \"property constraint\" (P2302)"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P2305 ;
+	wikibase:claim p:P2305 ;
+	wikibase:statementProperty ps:P2305 ;
+	wikibase:statementValue psv:P2305 ;
+	wikibase:qualifier pq:P2305 ;
+	wikibase:qualifierValue pqv:P2305 ;
+	wikibase:reference pr:P2305 ;
+	wikibase:referenceValue prv:P2305 ;
+	wikibase:novalue wdno:P2305 .
+
+p:P2305 a owl:ObjectProperty .
+
+psv:P2305 a owl:ObjectProperty .
+
+pqv:P2305 a owl:ObjectProperty .
+
+prv:P2305 a owl:ObjectProperty .
+
+wdt:P2305 a owl:ObjectProperty .
+
+ps:P2305 a owl:ObjectProperty .
+
+pq:P2305 a owl:ObjectProperty .
+
+pr:P2305 a owl:ObjectProperty .
+
+wdno:P2305 a owl:Class ;
+	owl:complementOf _:676648401b06ccfe4ac552ee17a794a3 .
+
+_:676648401b06ccfe4ac552ee17a794a3 a owl:Restriction ;
+	owl:onProperty wdt:P2305 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P6607 a wikibase:Property ;
+	rdfs:label "constraint clarification"@en ;
+	skos:prefLabel "constraint clarification"@en ;
+	schema:name "constraint clarification"@en ;
+	schema:description "qualifier to provide details on the function or purpose of a property constraint on a given property"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Monolingualtext> ;
+	wikibase:directClaim wdt:P6607 ;
+	wikibase:claim p:P6607 ;
+	wikibase:statementProperty ps:P6607 ;
+	wikibase:statementValue psv:P6607 ;
+	wikibase:qualifier pq:P6607 ;
+	wikibase:qualifierValue pqv:P6607 ;
+	wikibase:reference pr:P6607 ;
+	wikibase:referenceValue prv:P6607 ;
+	wikibase:novalue wdno:P6607 .
+
+p:P6607 a owl:ObjectProperty .
+
+psv:P6607 a owl:ObjectProperty .
+
+pqv:P6607 a owl:ObjectProperty .
+
+prv:P6607 a owl:ObjectProperty .
+
+wdt:P6607 a owl:DatatypeProperty .
+
+ps:P6607 a owl:DatatypeProperty .
+
+pq:P6607 a owl:DatatypeProperty .
+
+pr:P6607 a owl:DatatypeProperty .
+
+wdno:P6607 a owl:Class ;
+	owl:complementOf _:59a6dc7efe9796b8b6c5f4069d397a43 .
+
+_:59a6dc7efe9796b8b6c5f4069d397a43 a owl:Restriction ;
+	owl:onProperty wdt:P6607 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q54828448 a wikibase:Item ;
+	rdfs:label "as main value"@en ;
+	skos:prefLabel "as main value"@en ;
+	schema:name "as main value"@en ;
+	schema:description "property scope type"@en .
+
+wd:P5314 a wikibase:Property ;
+	rdfs:label "property scope"@en ;
+	skos:prefLabel "property scope"@en ;
+	schema:name "property scope"@en ;
+	schema:description "constraint system qualifier to define the scope of a property"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P5314 ;
+	wikibase:claim p:P5314 ;
+	wikibase:statementProperty ps:P5314 ;
+	wikibase:statementValue psv:P5314 ;
+	wikibase:qualifier pq:P5314 ;
+	wikibase:qualifierValue pqv:P5314 ;
+	wikibase:reference pr:P5314 ;
+	wikibase:referenceValue prv:P5314 ;
+	wikibase:novalue wdno:P5314 .
+
+p:P5314 a owl:ObjectProperty .
+
+psv:P5314 a owl:ObjectProperty .
+
+pqv:P5314 a owl:ObjectProperty .
+
+prv:P5314 a owl:ObjectProperty .
+
+wdt:P5314 a owl:ObjectProperty .
+
+ps:P5314 a owl:ObjectProperty .
+
+pq:P5314 a owl:ObjectProperty .
+
+pr:P5314 a owl:ObjectProperty .
+
+wdno:P5314 a owl:Class ;
+	owl:complementOf _:dbebc3f3ba4d0493247301fff3c12336 .
+
+_:dbebc3f3ba4d0493247301fff3c12336 a owl:Restriction ;
+	owl:onProperty wdt:P5314 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q54828449 a wikibase:Item ;
+	rdfs:label "as qualifier"@en ;
+	skos:prefLabel "as qualifier"@en ;
+	schema:name "as qualifier"@en ;
+	schema:description "property scope type"@en .
+
+wd:Q29934200 a wikibase:Item ;
+	rdfs:label "Wikibase item"@en ;
+	skos:prefLabel "Wikibase item"@en ;
+	schema:name "Wikibase item"@en ;
+	schema:description "entity type for Wikibase items"@en .
+
+wd:Q59712033 a wikibase:Item ;
+	rdfs:label "Wikibase MediaInfo"@mul ;
+	skos:prefLabel "Wikibase MediaInfo"@mul ;
+	schema:name "Wikibase MediaInfo"@mul ;
+	schema:description "Wikibase entity type for Wikimedia Commons"@en .
+
+wd:P580 a wikibase:Property ;
+	rdfs:label "start time"@en ;
+	skos:prefLabel "start time"@en ;
+	schema:name "start time"@en ;
+	schema:description "time an entity begins to exist or a statement starts being valid"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Time> ;
+	wikibase:directClaim wdt:P580 ;
+	wikibase:claim p:P580 ;
+	wikibase:statementProperty ps:P580 ;
+	wikibase:statementValue psv:P580 ;
+	wikibase:qualifier pq:P580 ;
+	wikibase:qualifierValue pqv:P580 ;
+	wikibase:reference pr:P580 ;
+	wikibase:referenceValue prv:P580 ;
+	wikibase:novalue wdno:P580 .
+
+p:P580 a owl:ObjectProperty .
+
+psv:P580 a owl:ObjectProperty .
+
+pqv:P580 a owl:ObjectProperty .
+
+prv:P580 a owl:ObjectProperty .
+
+wdt:P580 a owl:DatatypeProperty .
+
+ps:P580 a owl:DatatypeProperty .
+
+pq:P580 a owl:DatatypeProperty .
+
+pr:P580 a owl:DatatypeProperty .
+
+wdno:P580 a owl:Class ;
+	owl:complementOf _:a4f53844ef049c00e67a7c9b973324e1 .
+
+_:a4f53844ef049c00e67a7c9b973324e1 a owl:Restriction ;
+	owl:onProperty wdt:P580 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P582 a wikibase:Property ;
+	rdfs:label "end time"@en ;
+	skos:prefLabel "end time"@en ;
+	schema:name "end time"@en ;
+	schema:description "moment when an entity ceases to exist and a statement stops being entirely valid or no longer be true"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Time> ;
+	wikibase:directClaim wdt:P582 ;
+	wikibase:claim p:P582 ;
+	wikibase:statementProperty ps:P582 ;
+	wikibase:statementValue psv:P582 ;
+	wikibase:qualifier pq:P582 ;
+	wikibase:qualifierValue pqv:P582 ;
+	wikibase:reference pr:P582 ;
+	wikibase:referenceValue prv:P582 ;
+	wikibase:novalue wdno:P582 .
+
+p:P582 a owl:ObjectProperty .
+
+psv:P582 a owl:ObjectProperty .
+
+pqv:P582 a owl:ObjectProperty .
+
+prv:P582 a owl:ObjectProperty .
+
+wdt:P582 a owl:DatatypeProperty .
+
+ps:P582 a owl:DatatypeProperty .
+
+pq:P582 a owl:DatatypeProperty .
+
+pr:P582 a owl:DatatypeProperty .
+
+wdno:P582 a owl:Class ;
+	owl:complementOf _:e66c426b3b6d50da03204dbba7b68a2b .
+
+_:e66c426b3b6d50da03204dbba7b68a2b a owl:Restriction ;
+	owl:onProperty wdt:P582 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P585 a wikibase:Property ;
+	rdfs:label "point in time"@en ;
+	skos:prefLabel "point in time"@en ;
+	schema:name "point in time"@en ;
+	schema:description "date something took place, existed or a statement was true; for providing time use the \"refine date\" property (P4241)"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Time> ;
+	wikibase:directClaim wdt:P585 ;
+	wikibase:claim p:P585 ;
+	wikibase:statementProperty ps:P585 ;
+	wikibase:statementValue psv:P585 ;
+	wikibase:qualifier pq:P585 ;
+	wikibase:qualifierValue pqv:P585 ;
+	wikibase:reference pr:P585 ;
+	wikibase:referenceValue prv:P585 ;
+	wikibase:novalue wdno:P585 .
+
+p:P585 a owl:ObjectProperty .
+
+psv:P585 a owl:ObjectProperty .
+
+pqv:P585 a owl:ObjectProperty .
+
+prv:P585 a owl:ObjectProperty .
+
+wdt:P585 a owl:DatatypeProperty .
+
+ps:P585 a owl:DatatypeProperty .
+
+pq:P585 a owl:DatatypeProperty .
+
+pr:P585 a owl:DatatypeProperty .
+
+wdno:P585 a owl:Class ;
+	owl:complementOf _:dd1c08307a09e1466ce90c482ad42ea9 .
+
+_:dd1c08307a09e1466ce90c482ad42ea9 a owl:Restriction ;
+	owl:onProperty wdt:P585 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P7452 a wikibase:Property ;
+	rdfs:label "reason for preferred rank"@en ;
+	skos:prefLabel "reason for preferred rank"@en ;
+	schema:name "reason for preferred rank"@en ;
+	schema:description "qualifier to allow the reason to be indicated why a particular statement should be considered preferred"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P7452 ;
+	wikibase:claim p:P7452 ;
+	wikibase:statementProperty ps:P7452 ;
+	wikibase:statementValue psv:P7452 ;
+	wikibase:qualifier pq:P7452 ;
+	wikibase:qualifierValue pqv:P7452 ;
+	wikibase:reference pr:P7452 ;
+	wikibase:referenceValue prv:P7452 ;
+	wikibase:novalue wdno:P7452 .
+
+p:P7452 a owl:ObjectProperty .
+
+psv:P7452 a owl:ObjectProperty .
+
+pqv:P7452 a owl:ObjectProperty .
+
+prv:P7452 a owl:ObjectProperty .
+
+wdt:P7452 a owl:ObjectProperty .
+
+ps:P7452 a owl:ObjectProperty .
+
+pq:P7452 a owl:ObjectProperty .
+
+pr:P7452 a owl:ObjectProperty .
+
+wdno:P7452 a owl:Class ;
+	owl:complementOf _:b5e8f888c1dd8948ad2cc59371598274 .
+
+_:b5e8f888c1dd8948ad2cc59371598274 a owl:Restriction ;
+	owl:onProperty wdt:P7452 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P2241 a wikibase:Property ;
+	rdfs:label "reason for deprecated rank"@en ;
+	skos:prefLabel "reason for deprecated rank"@en ;
+	schema:name "reason for deprecated rank"@en ;
+	schema:description "qualifier to indicate why a particular statement should have deprecated rank"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P2241 ;
+	wikibase:claim p:P2241 ;
+	wikibase:statementProperty ps:P2241 ;
+	wikibase:statementValue psv:P2241 ;
+	wikibase:qualifier pq:P2241 ;
+	wikibase:qualifierValue pqv:P2241 ;
+	wikibase:reference pr:P2241 ;
+	wikibase:referenceValue prv:P2241 ;
+	wikibase:novalue wdno:P2241 .
+
+p:P2241 a owl:ObjectProperty .
+
+psv:P2241 a owl:ObjectProperty .
+
+pqv:P2241 a owl:ObjectProperty .
+
+prv:P2241 a owl:ObjectProperty .
+
+wdt:P2241 a owl:ObjectProperty .
+
+ps:P2241 a owl:ObjectProperty .
+
+pq:P2241 a owl:ObjectProperty .
+
+pr:P2241 a owl:ObjectProperty .
+
+wdno:P2241 a owl:Class ;
+	owl:complementOf _:fcd7b2b5fef47b34b991f1fe543dfcb2 .
+
+_:fcd7b2b5fef47b34b991f1fe543dfcb2 a owl:Restriction ;
+	owl:onProperty wdt:P2241 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P3831 a wikibase:Property ;
+	rdfs:label "object of statement has role"@en ;
+	skos:prefLabel "object of statement has role"@en ;
+	schema:name "object of statement has role"@en ;
+	schema:description "(qualifier) role held by the predicate value (object) of a statement in the context of that statement; for the role of the item the statement appears on (subject), use P2868"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P3831 ;
+	wikibase:claim p:P3831 ;
+	wikibase:statementProperty ps:P3831 ;
+	wikibase:statementValue psv:P3831 ;
+	wikibase:qualifier pq:P3831 ;
+	wikibase:qualifierValue pqv:P3831 ;
+	wikibase:reference pr:P3831 ;
+	wikibase:referenceValue prv:P3831 ;
+	wikibase:novalue wdno:P3831 .
+
+p:P3831 a owl:ObjectProperty .
+
+psv:P3831 a owl:ObjectProperty .
+
+pqv:P3831 a owl:ObjectProperty .
+
+prv:P3831 a owl:ObjectProperty .
+
+wdt:P3831 a owl:ObjectProperty .
+
+ps:P3831 a owl:ObjectProperty .
+
+pq:P3831 a owl:ObjectProperty .
+
+pr:P3831 a owl:ObjectProperty .
+
+wdno:P3831 a owl:Class ;
+	owl:complementOf _:4941dbdb9a38c5a500b05366e45fe45d .
+
+_:4941dbdb9a38c5a500b05366e45fe45d a owl:Restriction ;
+	owl:onProperty wdt:P3831 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P1534 a wikibase:Property ;
+	rdfs:label "end cause"@en ;
+	skos:prefLabel "end cause"@en ;
+	schema:name "end cause"@en ;
+	schema:description "qualifier used together with the end date qualifier (P582) to specify the reason for the end"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P1534 ;
+	wikibase:claim p:P1534 ;
+	wikibase:statementProperty ps:P1534 ;
+	wikibase:statementValue psv:P1534 ;
+	wikibase:qualifier pq:P1534 ;
+	wikibase:qualifierValue pqv:P1534 ;
+	wikibase:reference pr:P1534 ;
+	wikibase:referenceValue prv:P1534 ;
+	wikibase:novalue wdno:P1534 .
+
+p:P1534 a owl:ObjectProperty .
+
+psv:P1534 a owl:ObjectProperty .
+
+pqv:P1534 a owl:ObjectProperty .
+
+prv:P1534 a owl:ObjectProperty .
+
+wdt:P1534 a owl:ObjectProperty .
+
+ps:P1534 a owl:ObjectProperty .
+
+pq:P1534 a owl:ObjectProperty .
+
+pr:P1534 a owl:ObjectProperty .
+
+wdno:P1534 a owl:Class ;
+	owl:complementOf _:e3e18197a52147bae1827a3a974c9372 .
+
+_:e3e18197a52147bae1827a3a974c9372 a owl:Restriction ;
+	owl:onProperty wdt:P1534 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P518 a wikibase:Property ;
+	rdfs:label "applies to part"@en ;
+	skos:prefLabel "applies to part"@en ;
+	schema:name "applies to part"@en ;
+	schema:description "part, aspect, or form of the item to which the claim applies"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P518 ;
+	wikibase:claim p:P518 ;
+	wikibase:statementProperty ps:P518 ;
+	wikibase:statementValue psv:P518 ;
+	wikibase:qualifier pq:P518 ;
+	wikibase:qualifierValue pqv:P518 ;
+	wikibase:reference pr:P518 ;
+	wikibase:referenceValue prv:P518 ;
+	wikibase:novalue wdno:P518 .
+
+p:P518 a owl:ObjectProperty .
+
+psv:P518 a owl:ObjectProperty .
+
+pqv:P518 a owl:ObjectProperty .
+
+prv:P518 a owl:ObjectProperty .
+
+wdt:P518 a owl:ObjectProperty .
+
+ps:P518 a owl:ObjectProperty .
+
+pq:P518 a owl:ObjectProperty .
+
+pr:P518 a owl:ObjectProperty .
+
+wdno:P518 a owl:Class ;
+	owl:complementOf _:09e75a31c8d32be13e36125a65aa1c9b .
+
+_:09e75a31c8d32be13e36125a65aa1c9b a owl:Restriction ;
+	owl:onProperty wdt:P518 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P8554 a wikibase:Property ;
+	rdfs:label "earliest end date"@en ;
+	skos:prefLabel "earliest end date"@en ;
+	schema:name "earliest end date"@en ;
+	schema:description "(qualifier) earliest date on which the statement could have begun to no longer be true"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Time> ;
+	wikibase:directClaim wdt:P8554 ;
+	wikibase:claim p:P8554 ;
+	wikibase:statementProperty ps:P8554 ;
+	wikibase:statementValue psv:P8554 ;
+	wikibase:qualifier pq:P8554 ;
+	wikibase:qualifierValue pqv:P8554 ;
+	wikibase:reference pr:P8554 ;
+	wikibase:referenceValue prv:P8554 ;
+	wikibase:novalue wdno:P8554 .
+
+p:P8554 a owl:ObjectProperty .
+
+psv:P8554 a owl:ObjectProperty .
+
+pqv:P8554 a owl:ObjectProperty .
+
+prv:P8554 a owl:ObjectProperty .
+
+wdt:P8554 a owl:DatatypeProperty .
+
+ps:P8554 a owl:DatatypeProperty .
+
+pq:P8554 a owl:DatatypeProperty .
+
+pr:P8554 a owl:DatatypeProperty .
+
+wdno:P8554 a owl:Class ;
+	owl:complementOf _:57a3903d13131ac698d9cedc1351b56a .
+
+_:57a3903d13131ac698d9cedc1351b56a a owl:Restriction ;
+	owl:onProperty wdt:P8554 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P3680 a wikibase:Property ;
+	rdfs:label "statement supported by"@en ;
+	skos:prefLabel "statement supported by"@en ;
+	schema:name "statement supported by"@en ;
+	schema:description "entity that supports a given statement"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P3680 ;
+	wikibase:claim p:P3680 ;
+	wikibase:statementProperty ps:P3680 ;
+	wikibase:statementValue psv:P3680 ;
+	wikibase:qualifier pq:P3680 ;
+	wikibase:qualifierValue pqv:P3680 ;
+	wikibase:reference pr:P3680 ;
+	wikibase:referenceValue prv:P3680 ;
+	wikibase:novalue wdno:P3680 .
+
+p:P3680 a owl:ObjectProperty .
+
+psv:P3680 a owl:ObjectProperty .
+
+pqv:P3680 a owl:ObjectProperty .
+
+prv:P3680 a owl:ObjectProperty .
+
+wdt:P3680 a owl:ObjectProperty .
+
+ps:P3680 a owl:ObjectProperty .
+
+pq:P3680 a owl:ObjectProperty .
+
+pr:P3680 a owl:ObjectProperty .
+
+wdno:P3680 a owl:Class ;
+	owl:complementOf _:defe103d803d832d863457c2b15fd965 .
+
+_:defe103d803d832d863457c2b15fd965 a owl:Restriction ;
+	owl:onProperty wdt:P3680 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P1310 a wikibase:Property ;
+	rdfs:label "statement disputed by"@en ;
+	skos:prefLabel "statement disputed by"@en ;
+	schema:name "statement disputed by"@en ;
+	schema:description "entity that disputes a given statement"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P1310 ;
+	wikibase:claim p:P1310 ;
+	wikibase:statementProperty ps:P1310 ;
+	wikibase:statementValue psv:P1310 ;
+	wikibase:qualifier pq:P1310 ;
+	wikibase:qualifierValue pqv:P1310 ;
+	wikibase:reference pr:P1310 ;
+	wikibase:referenceValue prv:P1310 ;
+	wikibase:novalue wdno:P1310 .
+
+p:P1310 a owl:ObjectProperty .
+
+psv:P1310 a owl:ObjectProperty .
+
+pqv:P1310 a owl:ObjectProperty .
+
+prv:P1310 a owl:ObjectProperty .
+
+wdt:P1310 a owl:ObjectProperty .
+
+ps:P1310 a owl:ObjectProperty .
+
+pq:P1310 a owl:ObjectProperty .
+
+pr:P1310 a owl:ObjectProperty .
+
+wdno:P1310 a owl:Class ;
+	owl:complementOf _:c48eb30c6814c6832fd77b36188d54ad .
+
+_:c48eb30c6814c6832fd77b36188d54ad a owl:Restriction ;
+	owl:onProperty wdt:P1310 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P1706 a wikibase:Property ;
+	rdfs:label "together with"@en ;
+	skos:prefLabel "together with"@en ;
+	schema:name "together with"@en ;
+	schema:description "qualifier to specify the item that this property is shared with"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P1706 ;
+	wikibase:claim p:P1706 ;
+	wikibase:statementProperty ps:P1706 ;
+	wikibase:statementValue psv:P1706 ;
+	wikibase:qualifier pq:P1706 ;
+	wikibase:qualifierValue pqv:P1706 ;
+	wikibase:reference pr:P1706 ;
+	wikibase:referenceValue prv:P1706 ;
+	wikibase:novalue wdno:P1706 .
+
+p:P1706 a owl:ObjectProperty .
+
+psv:P1706 a owl:ObjectProperty .
+
+pqv:P1706 a owl:ObjectProperty .
+
+prv:P1706 a owl:ObjectProperty .
+
+wdt:P1706 a owl:ObjectProperty .
+
+ps:P1706 a owl:ObjectProperty .
+
+pq:P1706 a owl:ObjectProperty .
+
+pr:P1706 a owl:ObjectProperty .
+
+wdno:P1706 a owl:Class ;
+	owl:complementOf _:bf796e6273279671ca27f45d8562a157 .
+
+_:bf796e6273279671ca27f45d8562a157 a owl:Restriction ;
+	owl:onProperty wdt:P1706 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P1329 a wikibase:Property ;
+	rdfs:label "phone number"@en ;
+	skos:prefLabel "phone number"@en ;
+	schema:name "phone number"@en ;
+	schema:description "telephone number in standard format (RFC3966), without “tel:” prefix"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P1329 ;
+	wikibase:claim p:P1329 ;
+	wikibase:statementProperty ps:P1329 ;
+	wikibase:statementValue psv:P1329 ;
+	wikibase:qualifier pq:P1329 ;
+	wikibase:qualifierValue pqv:P1329 ;
+	wikibase:reference pr:P1329 ;
+	wikibase:referenceValue prv:P1329 ;
+	wikibase:novalue wdno:P1329 .
+
+p:P1329 a owl:ObjectProperty .
+
+psv:P1329 a owl:ObjectProperty .
+
+pqv:P1329 a owl:ObjectProperty .
+
+prv:P1329 a owl:ObjectProperty .
+
+wdt:P1329 a owl:DatatypeProperty .
+
+ps:P1329 a owl:DatatypeProperty .
+
+pq:P1329 a owl:DatatypeProperty .
+
+pr:P1329 a owl:DatatypeProperty .
+
+wdno:P1329 a owl:Class ;
+	owl:complementOf _:47ef9a0259e739d2b679026236620405 .
+
+_:47ef9a0259e739d2b679026236620405 a owl:Restriction ;
+	owl:onProperty wdt:P1329 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P706 a wikibase:Property ;
+	rdfs:label "located in/on physical feature"@en ;
+	skos:prefLabel "located in/on physical feature"@en ;
+	schema:name "located in/on physical feature"@en ;
+	schema:description "located on the specified (geo)physical feature. Should not be used when the value is only political/administrative (P131) or a mountain range (P4552). Use P206 for things in/on bodies of water."@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P706 ;
+	wikibase:claim p:P706 ;
+	wikibase:statementProperty ps:P706 ;
+	wikibase:statementValue psv:P706 ;
+	wikibase:qualifier pq:P706 ;
+	wikibase:qualifierValue pqv:P706 ;
+	wikibase:reference pr:P706 ;
+	wikibase:referenceValue prv:P706 ;
+	wikibase:novalue wdno:P706 .
+
+p:P706 a owl:ObjectProperty .
+
+psv:P706 a owl:ObjectProperty .
+
+pqv:P706 a owl:ObjectProperty .
+
+prv:P706 a owl:ObjectProperty .
+
+wdt:P706 a owl:ObjectProperty .
+
+ps:P706 a owl:ObjectProperty .
+
+pq:P706 a owl:ObjectProperty .
+
+pr:P706 a owl:ObjectProperty .
+
+wdno:P706 a owl:Class ;
+	owl:complementOf _:3534ffce878755666ff141c3491c7e8f .
+
+_:3534ffce878755666ff141c3491c7e8f a owl:Restriction ;
+	owl:onProperty wdt:P706 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P795 a wikibase:Property ;
+	rdfs:label "located on linear feature"@en ;
+	skos:prefLabel "located on linear feature"@en ;
+	schema:name "located on linear feature"@en ;
+	schema:description "linear feature along which distance is specified from a specified datum point"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P795 ;
+	wikibase:claim p:P795 ;
+	wikibase:statementProperty ps:P795 ;
+	wikibase:statementValue psv:P795 ;
+	wikibase:qualifier pq:P795 ;
+	wikibase:qualifierValue pqv:P795 ;
+	wikibase:reference pr:P795 ;
+	wikibase:referenceValue prv:P795 ;
+	wikibase:novalue wdno:P795 .
+
+p:P795 a owl:ObjectProperty .
+
+psv:P795 a owl:ObjectProperty .
+
+pqv:P795 a owl:ObjectProperty .
+
+prv:P795 a owl:ObjectProperty .
+
+wdt:P795 a owl:ObjectProperty .
+
+ps:P795 a owl:ObjectProperty .
+
+pq:P795 a owl:ObjectProperty .
+
+pr:P795 a owl:ObjectProperty .
+
+wdno:P795 a owl:Class ;
+	owl:complementOf _:a2a73c50878821502513ddc34793dcdb .
+
+_:a2a73c50878821502513ddc34793dcdb a owl:Restriction ;
+	owl:onProperty wdt:P795 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P206 a wikibase:Property ;
+	rdfs:label "located in or next to body of water"@en ;
+	skos:prefLabel "located in or next to body of water"@en ;
+	schema:name "located in or next to body of water"@en ;
+	schema:description "body of water on or next to which a place is located"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P206 ;
+	wikibase:claim p:P206 ;
+	wikibase:statementProperty ps:P206 ;
+	wikibase:statementValue psv:P206 ;
+	wikibase:qualifier pq:P206 ;
+	wikibase:qualifierValue pqv:P206 ;
+	wikibase:reference pr:P206 ;
+	wikibase:referenceValue prv:P206 ;
+	wikibase:novalue wdno:P206 .
+
+p:P206 a owl:ObjectProperty .
+
+psv:P206 a owl:ObjectProperty .
+
+pqv:P206 a owl:ObjectProperty .
+
+prv:P206 a owl:ObjectProperty .
+
+wdt:P206 a owl:ObjectProperty .
+
+ps:P206 a owl:ObjectProperty .
+
+pq:P206 a owl:ObjectProperty .
+
+pr:P206 a owl:ObjectProperty .
+
+wdno:P206 a owl:Class ;
+	owl:complementOf _:5847f0043d28c92618a435901bb15459 .
+
+_:5847f0043d28c92618a435901bb15459 a owl:Restriction ;
+	owl:onProperty wdt:P206 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P4595 a wikibase:Property ;
+	rdfs:label "post town"@en ;
+	skos:prefLabel "post town"@en ;
+	schema:name "post town"@en ;
+	schema:description "town/city part of the postal address, can be different from administrative location"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P4595 ;
+	wikibase:claim p:P4595 ;
+	wikibase:statementProperty ps:P4595 ;
+	wikibase:statementValue psv:P4595 ;
+	wikibase:qualifier pq:P4595 ;
+	wikibase:qualifierValue pqv:P4595 ;
+	wikibase:reference pr:P4595 ;
+	wikibase:referenceValue prv:P4595 ;
+	wikibase:novalue wdno:P4595 .
+
+p:P4595 a owl:ObjectProperty .
+
+psv:P4595 a owl:ObjectProperty .
+
+pqv:P4595 a owl:ObjectProperty .
+
+prv:P4595 a owl:ObjectProperty .
+
+wdt:P4595 a owl:DatatypeProperty .
+
+ps:P4595 a owl:DatatypeProperty .
+
+pq:P4595 a owl:DatatypeProperty .
+
+pr:P4595 a owl:DatatypeProperty .
+
+wdno:P4595 a owl:Class ;
+	owl:complementOf _:e4929932f3aaff8557d09023da5834c4 .
+
+_:e4929932f3aaff8557d09023da5834c4 a owl:Restriction ;
+	owl:onProperty wdt:P4595 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P9660 a wikibase:Property ;
+	rdfs:label "not found in"@en ;
+	skos:prefLabel "not found in"@en ;
+	schema:name "not found in"@en ;
+	schema:description "publication or database relevant to the topic that would generally include similar subjects, but in which the subject isn't described or attested. Use if there is no external-id property for the work."@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P9660 ;
+	wikibase:claim p:P9660 ;
+	wikibase:statementProperty ps:P9660 ;
+	wikibase:statementValue psv:P9660 ;
+	wikibase:qualifier pq:P9660 ;
+	wikibase:qualifierValue pqv:P9660 ;
+	wikibase:reference pr:P9660 ;
+	wikibase:referenceValue prv:P9660 ;
+	wikibase:novalue wdno:P9660 .
+
+p:P9660 a owl:ObjectProperty .
+
+psv:P9660 a owl:ObjectProperty .
+
+pqv:P9660 a owl:ObjectProperty .
+
+prv:P9660 a owl:ObjectProperty .
+
+wdt:P9660 a owl:ObjectProperty .
+
+ps:P9660 a owl:ObjectProperty .
+
+pq:P9660 a owl:ObjectProperty .
+
+pr:P9660 a owl:ObjectProperty .
+
+wdno:P9660 a owl:Class ;
+	owl:complementOf _:6f57c3d7034ae12b7128aecf885cd31c .
+
+_:6f57c3d7034ae12b7128aecf885cd31c a owl:Restriction ;
+	owl:onProperty wdt:P9660 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P282 a wikibase:Property ;
+	rdfs:label "writing system"@en ;
+	skos:prefLabel "writing system"@en ;
+	schema:name "writing system"@en ;
+	schema:description "alphabet, character set or other system of writing used by a language, word, or text, supported by a typeface"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P282 ;
+	wikibase:claim p:P282 ;
+	wikibase:statementProperty ps:P282 ;
+	wikibase:statementValue psv:P282 ;
+	wikibase:qualifier pq:P282 ;
+	wikibase:qualifierValue pqv:P282 ;
+	wikibase:reference pr:P282 ;
+	wikibase:referenceValue prv:P282 ;
+	wikibase:novalue wdno:P282 .
+
+p:P282 a owl:ObjectProperty .
+
+psv:P282 a owl:ObjectProperty .
+
+pqv:P282 a owl:ObjectProperty .
+
+prv:P282 a owl:ObjectProperty .
+
+wdt:P282 a owl:ObjectProperty .
+
+ps:P282 a owl:ObjectProperty .
+
+pq:P282 a owl:ObjectProperty .
+
+pr:P282 a owl:ObjectProperty .
+
+wdno:P282 a owl:Class ;
+	owl:complementOf _:f91260615838c98f5e311aef6cb855eb .
+
+_:f91260615838c98f5e311aef6cb855eb a owl:Restriction ;
+	owl:onProperty wdt:P282 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P1814 a wikibase:Property ;
+	rdfs:label "name in kana"@en ;
+	skos:prefLabel "name in kana"@en ;
+	schema:name "name in kana"@en ;
+	schema:description "the reading of a Japanese name in kana"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P1814 ;
+	wikibase:claim p:P1814 ;
+	wikibase:statementProperty ps:P1814 ;
+	wikibase:statementValue psv:P1814 ;
+	wikibase:qualifier pq:P1814 ;
+	wikibase:qualifierValue pqv:P1814 ;
+	wikibase:reference pr:P1814 ;
+	wikibase:referenceValue prv:P1814 ;
+	wikibase:novalue wdno:P1814 .
+
+p:P1814 a owl:ObjectProperty .
+
+psv:P1814 a owl:ObjectProperty .
+
+pqv:P1814 a owl:ObjectProperty .
+
+prv:P1814 a owl:ObjectProperty .
+
+wdt:P1814 a owl:DatatypeProperty .
+
+ps:P1814 a owl:DatatypeProperty .
+
+pq:P1814 a owl:DatatypeProperty .
+
+pr:P1814 a owl:DatatypeProperty .
+
+wdno:P1814 a owl:Class ;
+	owl:complementOf _:042dbe965182430f226e19216dc8a277 .
+
+_:042dbe965182430f226e19216dc8a277 a owl:Restriction ;
+	owl:onProperty wdt:P1814 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P2125 a wikibase:Property ;
+	rdfs:label "revised Hepburn romanization"@en ;
+	skos:prefLabel "revised Hepburn romanization"@en ;
+	schema:name "revised Hepburn romanization"@en ;
+	schema:description "romanized Japanese following the revised Hepburn romanization system"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P2125 ;
+	wikibase:claim p:P2125 ;
+	wikibase:statementProperty ps:P2125 ;
+	wikibase:statementValue psv:P2125 ;
+	wikibase:qualifier pq:P2125 ;
+	wikibase:qualifierValue pqv:P2125 ;
+	wikibase:reference pr:P2125 ;
+	wikibase:referenceValue prv:P2125 ;
+	wikibase:novalue wdno:P2125 .
+
+p:P2125 a owl:ObjectProperty .
+
+psv:P2125 a owl:ObjectProperty .
+
+pqv:P2125 a owl:ObjectProperty .
+
+prv:P2125 a owl:ObjectProperty .
+
+wdt:P2125 a owl:DatatypeProperty .
+
+ps:P2125 a owl:DatatypeProperty .
+
+pq:P2125 a owl:DatatypeProperty .
+
+pr:P2125 a owl:DatatypeProperty .
+
+wdno:P2125 a owl:Class ;
+	owl:complementOf _:10eecde7c132216f5681922dfad4c195 .
+
+_:10eecde7c132216f5681922dfad4c195 a owl:Restriction ;
+	owl:onProperty wdt:P2125 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P3005 a wikibase:Property ;
+	rdfs:label "valid in place"@en ;
+	skos:prefLabel "valid in place"@en ;
+	schema:name "valid in place"@en ;
+	schema:description "place where a statement is valid"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P3005 ;
+	wikibase:claim p:P3005 ;
+	wikibase:statementProperty ps:P3005 ;
+	wikibase:statementValue psv:P3005 ;
+	wikibase:qualifier pq:P3005 ;
+	wikibase:qualifierValue pqv:P3005 ;
+	wikibase:reference pr:P3005 ;
+	wikibase:referenceValue prv:P3005 ;
+	wikibase:novalue wdno:P3005 .
+
+p:P3005 a owl:ObjectProperty .
+
+psv:P3005 a owl:ObjectProperty .
+
+pqv:P3005 a owl:ObjectProperty .
+
+prv:P3005 a owl:ObjectProperty .
+
+wdt:P3005 a owl:ObjectProperty .
+
+ps:P3005 a owl:ObjectProperty .
+
+pq:P3005 a owl:ObjectProperty .
+
+pr:P3005 a owl:ObjectProperty .
+
+wdno:P3005 a owl:Class ;
+	owl:complementOf _:7c52e14c7aaf5853b9b8d5f58e05554f .
+
+_:7c52e14c7aaf5853b9b8d5f58e05554f a owl:Restriction ;
+	owl:onProperty wdt:P3005 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P1480 a wikibase:Property ;
+	rdfs:label "sourcing circumstances"@en ;
+	skos:prefLabel "sourcing circumstances"@en ;
+	schema:name "sourcing circumstances"@en ;
+	schema:description "qualification of the truth or accuracy of a source: circa (Q5727902), near (Q21818619), presumably (Q18122778), etc."@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P1480 ;
+	wikibase:claim p:P1480 ;
+	wikibase:statementProperty ps:P1480 ;
+	wikibase:statementValue psv:P1480 ;
+	wikibase:qualifier pq:P1480 ;
+	wikibase:qualifierValue pqv:P1480 ;
+	wikibase:reference pr:P1480 ;
+	wikibase:referenceValue prv:P1480 ;
+	wikibase:novalue wdno:P1480 .
+
+p:P1480 a owl:ObjectProperty .
+
+psv:P1480 a owl:ObjectProperty .
+
+pqv:P1480 a owl:ObjectProperty .
+
+prv:P1480 a owl:ObjectProperty .
+
+wdt:P1480 a owl:ObjectProperty .
+
+ps:P1480 a owl:ObjectProperty .
+
+pq:P1480 a owl:ObjectProperty .
+
+pr:P1480 a owl:ObjectProperty .
+
+wdno:P1480 a owl:Class ;
+	owl:complementOf _:b82db2f632e822d63ae1b4346252160b .
+
+_:b82db2f632e822d63ae1b4346252160b a owl:Restriction ;
+	owl:onProperty wdt:P1480 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P4970 a wikibase:Property ;
+	rdfs:label "alternative name"@en ;
+	skos:prefLabel "alternative name"@en ;
+	schema:name "alternative name"@en ;
+	schema:description "qualifier for alternative name(s), given for a subject in a database entry, or preserved in references (even these are no longer the preferred name)"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P4970 ;
+	wikibase:claim p:P4970 ;
+	wikibase:statementProperty ps:P4970 ;
+	wikibase:statementValue psv:P4970 ;
+	wikibase:qualifier pq:P4970 ;
+	wikibase:qualifierValue pqv:P4970 ;
+	wikibase:reference pr:P4970 ;
+	wikibase:referenceValue prv:P4970 ;
+	wikibase:novalue wdno:P4970 .
+
+p:P4970 a owl:ObjectProperty .
+
+psv:P4970 a owl:ObjectProperty .
+
+pqv:P4970 a owl:ObjectProperty .
+
+prv:P4970 a owl:ObjectProperty .
+
+wdt:P4970 a owl:DatatypeProperty .
+
+ps:P4970 a owl:DatatypeProperty .
+
+pq:P4970 a owl:DatatypeProperty .
+
+pr:P4970 a owl:DatatypeProperty .
+
+wdno:P4970 a owl:Class ;
+	owl:complementOf _:484844be197aed8f0c5a4453371c0807 .
+
+_:484844be197aed8f0c5a4453371c0807 a owl:Restriction ;
+	owl:onProperty wdt:P4970 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P1810 a wikibase:Property ;
+	rdfs:label "subject named as"@en ;
+	skos:prefLabel "subject named as"@en ;
+	schema:name "subject named as"@en ;
+	schema:description "name by which a subject is recorded in a database, mentioned as a contributor of a work, or is referred to in a particular context"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P1810 ;
+	wikibase:claim p:P1810 ;
+	wikibase:statementProperty ps:P1810 ;
+	wikibase:statementValue psv:P1810 ;
+	wikibase:qualifier pq:P1810 ;
+	wikibase:qualifierValue pqv:P1810 ;
+	wikibase:reference pr:P1810 ;
+	wikibase:referenceValue prv:P1810 ;
+	wikibase:novalue wdno:P1810 .
+
+p:P1810 a owl:ObjectProperty .
+
+psv:P1810 a owl:ObjectProperty .
+
+pqv:P1810 a owl:ObjectProperty .
+
+prv:P1810 a owl:ObjectProperty .
+
+wdt:P1810 a owl:DatatypeProperty .
+
+ps:P1810 a owl:DatatypeProperty .
+
+pq:P1810 a owl:DatatypeProperty .
+
+pr:P1810 a owl:DatatypeProperty .
+
+wdno:P1810 a owl:Class ;
+	owl:complementOf _:1d6e1ecf4f0164f6a3471dd66d38c9d8 .
+
+_:1d6e1ecf4f0164f6a3471dd66d38c9d8 a owl:Restriction ;
+	owl:onProperty wdt:P1810 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P625 a wikibase:Property ;
+	rdfs:label "coordinate location"@en ;
+	skos:prefLabel "coordinate location"@en ;
+	schema:name "coordinate location"@en ;
+	schema:description "geocoordinates of the subject. For Earth, please note that only the WGS84 geodetic datum is currently supported"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#GlobeCoordinate> ;
+	wikibase:directClaim wdt:P625 ;
+	wikibase:claim p:P625 ;
+	wikibase:statementProperty ps:P625 ;
+	wikibase:statementValue psv:P625 ;
+	wikibase:qualifier pq:P625 ;
+	wikibase:qualifierValue pqv:P625 ;
+	wikibase:reference pr:P625 ;
+	wikibase:referenceValue prv:P625 ;
+	wikibase:novalue wdno:P625 .
+
+p:P625 a owl:ObjectProperty .
+
+psv:P625 a owl:ObjectProperty .
+
+pqv:P625 a owl:ObjectProperty .
+
+prv:P625 a owl:ObjectProperty .
+
+wdt:P625 a owl:DatatypeProperty .
+
+ps:P625 a owl:DatatypeProperty .
+
+pq:P625 a owl:DatatypeProperty .
+
+pr:P625 a owl:DatatypeProperty .
+
+wdno:P625 a owl:Class ;
+	owl:complementOf _:098a7705e988116e3a454eda03aef6ad .
+
+_:098a7705e988116e3a454eda03aef6ad a owl:Restriction ;
+	owl:onProperty wdt:P625 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q54554025 a wikibase:Item ;
+	rdfs:label "citation-needed constraint"@en ;
+	skos:prefLabel "citation-needed constraint"@en ;
+	schema:name "citation-needed constraint"@en ;
+	schema:description "type of constraint for Wikidata properties: specifies that a property must have at least one reference"@en .
+
+wd:P3452 a wikibase:Property ;
+	rdfs:label "inferred from"@en ;
+	skos:prefLabel "inferred from"@en ;
+	schema:name "inferred from"@en ;
+	schema:description "statement added based on related statement found within the item, not the entity described by the item (to be used in a reference field)"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P3452 ;
+	wikibase:claim p:P3452 ;
+	wikibase:statementProperty ps:P3452 ;
+	wikibase:statementValue psv:P3452 ;
+	wikibase:qualifier pq:P3452 ;
+	wikibase:qualifierValue pqv:P3452 ;
+	wikibase:reference pr:P3452 ;
+	wikibase:referenceValue prv:P3452 ;
+	wikibase:novalue wdno:P3452 .
+
+p:P3452 a owl:ObjectProperty .
+
+psv:P3452 a owl:ObjectProperty .
+
+pqv:P3452 a owl:ObjectProperty .
+
+prv:P3452 a owl:ObjectProperty .
+
+wdt:P3452 a owl:ObjectProperty .
+
+ps:P3452 a owl:ObjectProperty .
+
+pq:P3452 a owl:ObjectProperty .
+
+pr:P3452 a owl:ObjectProperty .
+
+wdno:P3452 a owl:Class ;
+	owl:complementOf _:5839b6febac847e3b7df51938b87824d .
+
+_:5839b6febac847e3b7df51938b87824d a owl:Restriction ;
+	owl:onProperty wdt:P3452 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q1860 a wikibase:Item ;
+	rdfs:label "English"@en ;
+	skos:prefLabel "English"@en ;
+	schema:name "English"@en ;
+	schema:description "West Germanic language"@en .
+
+wd:P407 a wikibase:Property ;
+	rdfs:label "language of work or name"@en ;
+	skos:prefLabel "language of work or name"@en ;
+	schema:name "language of work or name"@en ;
+	schema:description "language associated with this creative work (such as books, shows, songs, broadcasts or websites) or a name (for persons use \"native language\" (P103) and \"languages spoken, written or signed\" (P1412))"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P407 ;
+	wikibase:claim p:P407 ;
+	wikibase:statementProperty ps:P407 ;
+	wikibase:statementValue psv:P407 ;
+	wikibase:qualifier pq:P407 ;
+	wikibase:qualifierValue pqv:P407 ;
+	wikibase:reference pr:P407 ;
+	wikibase:referenceValue prv:P407 ;
+	wikibase:novalue wdno:P407 .
+
+p:P407 a owl:ObjectProperty .
+
+psv:P407 a owl:ObjectProperty .
+
+pqv:P407 a owl:ObjectProperty .
+
+prv:P407 a owl:ObjectProperty .
+
+wdt:P407 a owl:ObjectProperty .
+
+ps:P407 a owl:ObjectProperty .
+
+pq:P407 a owl:ObjectProperty .
+
+pr:P407 a owl:ObjectProperty .
+
+wdno:P407 a owl:Class ;
+	owl:complementOf _:7ecb658fb35d6b90057eeb2a2a932c62 .
+
+_:7ecb658fb35d6b90057eeb2a2a932c62 a owl:Restriction ;
+	owl:onProperty wdt:P407 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P813 a wikibase:Property ;
+	rdfs:label "retrieved"@en ;
+	skos:prefLabel "retrieved"@en ;
+	schema:name "retrieved"@en ;
+	schema:description "date or point in time that information was retrieved from a database or website (for use in online sources)"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Time> ;
+	wikibase:directClaim wdt:P813 ;
+	wikibase:claim p:P813 ;
+	wikibase:statementProperty ps:P813 ;
+	wikibase:statementValue psv:P813 ;
+	wikibase:qualifier pq:P813 ;
+	wikibase:qualifierValue pqv:P813 ;
+	wikibase:reference pr:P813 ;
+	wikibase:referenceValue prv:P813 ;
+	wikibase:novalue wdno:P813 .
+
+p:P813 a owl:ObjectProperty .
+
+psv:P813 a owl:ObjectProperty .
+
+pqv:P813 a owl:ObjectProperty .
+
+prv:P813 a owl:ObjectProperty .
+
+wdt:P813 a owl:DatatypeProperty .
+
+ps:P813 a owl:DatatypeProperty .
+
+pq:P813 a owl:DatatypeProperty .
+
+pr:P813 a owl:DatatypeProperty .
+
+wdno:P813 a owl:Class ;
+	owl:complementOf _:a84dea0fd38ed74f926ea4bdef778770 .
+
+_:a84dea0fd38ed74f926ea4bdef778770 a owl:Restriction ;
+	owl:onProperty wdt:P813 ;
+	owl:someValuesFrom owl:Thing .
+
+wdv:ed6c46a98fb78df4a8680a2bcdb7c067 a wikibase:TimeValue ;
+	wikibase:timeValue "2022-07-27T00:00:00Z"^^xsd:dateTime ;
+	wikibase:timePrecision "11"^^xsd:integer ;
+	wikibase:timeTimezone "0"^^xsd:integer ;
+	wikibase:timeCalendarModel <http://www.wikidata.org/entity/Q1985727> .
+
+wdref:a05b8cb6120a875eadeec0a451d49230d55aeda1 a wikibase:Reference ;
+	pr:P3452 wd:Q19882251 .
