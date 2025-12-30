@@ -1,0 +1,14 @@
+{
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "baryonic matter"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "matter consisting of baryons (bound states with odd numbers of quarks), electrons, and possibly other leptons, but not their antiparticles"
+    }
+  }
+}

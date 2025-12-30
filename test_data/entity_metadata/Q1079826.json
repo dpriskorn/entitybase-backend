@@ -1,0 +1,14 @@
+{
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "lepton epoch"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "period (~1 to 10 seconds after the Big Bang) in the early universe in which leptons dominated the mass of the Universe, after hadron\u2013antihadron annihilation ended the hadron epoch but before Big Bang nucleosynthesis and the photon epoch"
+    }
+  }
+}

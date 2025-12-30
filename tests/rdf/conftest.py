@@ -125,3 +125,9 @@ def property_registry() -> PropertyRegistry:
 def full_property_registry() -> PropertyRegistry:
     """Full property registry with all properties from CSV cache"""
     return load_full_property_registry()
+
+
+@pytest.fixture
+def entity_cache_path() -> Path:
+    """Path to entity JSON cache for referenced entities"""
+    return TEST_DATA_DIR / "json" / "entities"

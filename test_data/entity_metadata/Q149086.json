@@ -1,0 +1,14 @@
+{
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "homicide"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "killing of a human being by another human being"
+    }
+  }
+}

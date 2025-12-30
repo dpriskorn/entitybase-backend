@@ -1,0 +1,14 @@
+{
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "musician"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "person who composes, conducts or performs music"
+    }
+  }
+}

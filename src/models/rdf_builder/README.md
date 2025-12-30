@@ -47,8 +47,8 @@ Converts internal Entity models to RDF (Turtle format) following Wikibase RDF ma
 | Property value predicates | ✓ Implemented | `write_property_metadata()` includes value predicates |
 | No value constraints | ✓ Implemented | `write_novalue_class()` generates wdno:Pxxx blocks |
 | Direct claim triples | ✓ Implemented | `write_direct_claim()` generates wdt:Pxxx for best-rank |
+| Referenced entity metadata | ✓ Implemented | Collects and writes wd:Qxxx metadata blocks |
 | **Missing Features** | | |
-| Referenced entity metadata | ✗ Not Started | Entity values need own metadata block |
 | Value nodes (structured) | ✗ Not Started | `wdv:` URIs for time/globe-coordinate decomposition |
 
 ---
@@ -93,10 +93,14 @@ Entity JSON (Wikidata API)
 
 **Class:** `EntityConverter`
 - **Required fields:** `property_registry: PropertyRegistry`
+- **Optional fields:** `entity_cache_path: Path` - Path to entity JSON files for referenced entities
 - **Methods:**
   - `convert_to_turtle(entity, output: TextIO)` - Write RDF to output stream
   - `convert_to_string(entity) -> str` - Return RDF as string
   - `_write_property_metadata(entity, output)` - Write property metadata blocks for properties used in entity
+  - `_collect_referenced_entities(entity)` - Collect unique entity IDs referenced in statement values
+  - `_load_referenced_entity(entity_id)` - Load entity from JSON cache
+  - `_write_referenced_entity_metadata(entity, output)` - Write metadata blocks for referenced entities
 
 **Usage:**
 ```python
@@ -323,6 +327,12 @@ converter = EntityConverter(property_registry=registry)
 - ✓ `test_entity_converter_generates_direct_claims_for_best_rank()` - Generates wdt:Pxxx for best-rank
 - ✓ `test_entity_converter_no_direct_claim_for_non_best_rank()` - No wdt:Pxxx for deprecated statements
 
+**Referenced Entity Tests (tests/rdf/test_referenced_entities.py):**
+- ✓ `test_collect_referenced_entities()` - Collects unique entity IDs from statement values
+- ✓ `test_write_referenced_entity_metadata()` - Writes wd:Qxxx metadata blocks
+- ✓ `test_load_referenced_entity_missing_file()` - Raises FileNotFoundError for missing JSON
+- ✓ `test_converter_with_cache_path_generates_referenced_entity()` - Integration test with full conversion
+
 Looking at `test_data/rdf/ttl/Q17948861.ttl` vs generated output, following features are still missing:
 
 ### Missing Entity Features
@@ -423,8 +433,8 @@ Looking at `test_data/rdf/ttl/Q17948861.ttl` vs generated output, following feat
 
 ## Next Steps
 
-1. **Collect referenced entities**: Scan all statement values for entity references (wd:Qxxx) and collect unique set
-2. **Generate referenced entity metadata**: For each referenced entity, write full metadata block (labels, descriptions, aliases)
+1. ~~Collect referenced entities~~ ✓ COMPLETED - Scan all statement values for entity references (wd:Qxxx) and collect unique set
+2. ~~Generate referenced entity metadata~~ ✓ COMPLETED - For each referenced entity, write full metadata block (labels, descriptions, aliases)
 3. ~~Property metadata generation~~ ✓ COMPLETED - For each property used in entity:
     - Write `wd:Pxxx a wikibase:Property` with labels, descriptions, propertyType
     - Write all 10 predicate declarations (directClaim, claim, statementProperty, etc.)

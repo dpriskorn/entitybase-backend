@@ -1,0 +1,14 @@
+{
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "spherical geometry"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "geometry of the two-dimensional surface of a sphere"
+    }
+  }
+}

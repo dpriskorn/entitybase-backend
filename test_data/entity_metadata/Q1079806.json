@@ -1,0 +1,14 @@
+{
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "photon epoch"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "period in the evolution of the early universe in which photons dominated the energy of the universe"
+    }
+  }
+}

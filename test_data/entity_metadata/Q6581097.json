@@ -1,0 +1,14 @@
+{
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "male"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "to be used in \"sex or gender\" (P21) to indicate that the human subject is a male or \"semantic gender\" (P10339) to indicate that a word refers to a male person"
+    }
+  }
+}

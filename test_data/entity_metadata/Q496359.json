@@ -1,0 +1,14 @@
+{
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "systole"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "part of the cardiac cycle when a heart chamber contracts"
+    }
+  }
+}

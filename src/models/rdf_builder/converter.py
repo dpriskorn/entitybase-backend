@@ -1,5 +1,6 @@
 import logging
 from io import StringIO
+from pathlib import Path
 from typing import TextIO
 
 from models.internal_representation.entity import Entity
@@ -7,6 +8,7 @@ from models.rdf_builder.models.rdf_statement import RDFStatement
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.writers.triple import TripleWriters
 from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
+from models.rdf_builder.entity_cache import load_entity_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -16,15 +18,17 @@ class EntityConverter:
     Converts internal Entity representation to RDF Turtle format.
     """
 
-    def __init__(self, property_registry: PropertyRegistry):
+    def __init__(self, property_registry: PropertyRegistry, entity_metadata_dir: Path | None = None):
         self.properties = property_registry
         self.writers = TripleWriters()
+        self.entity_metadata_dir = entity_metadata_dir
 
     def convert_to_turtle(self, entity: Entity, output: TextIO):
         """Convert entity to Turtle format."""
         self.writers.write_header(output)
         self._write_entity_metadata(entity, output)
         self._write_statements(entity, output)
+        self._write_referenced_entity_metadata(entity, output)
         self._write_property_metadata(entity, output)
 
     def _write_entity_metadata(self, entity: Entity, output: TextIO):
@@ -70,6 +74,44 @@ class EntityConverter:
             PropertyOntologyWriter.write_property_metadata(output, shape)
             PropertyOntologyWriter.write_property(output, shape)
             PropertyOntologyWriter.write_novalue_class(output, pid)
+
+    def _collect_referenced_entities(self, entity: Entity) -> set[str]:
+        """Collect unique entity IDs referenced in statement values."""
+        referenced = set()
+        for stmt in entity.statements:
+            if stmt.value.kind == "entity":
+                referenced.add(stmt.value.value)
+        return referenced
+
+    def _load_referenced_entity(self, entity_id: str) -> dict:
+        """Load entity metadata (labels, descriptions)."""
+        return load_entity_metadata(entity_id, self.entity_metadata_dir)
+
+    def _write_referenced_entity_metadata(self, entity: Entity, output: TextIO):
+        """Write metadata blocks for referenced entities."""
+        if not self.entity_metadata_dir:
+            return
+
+        referenced_ids = self._collect_referenced_entities(entity)
+
+        for entity_id in sorted(referenced_ids):
+            metadata = self._load_referenced_entity(entity_id)
+            if not metadata:
+                continue
+
+            self.writers.write_entity_type(output, entity_id)
+
+            labels = metadata.get("labels", {})
+            for lang, label_data in labels.items():
+                label = label_data.get("value", "")
+                if label:
+                    self.writers.write_label(output, entity_id, label_data["language"], label)
+
+            descriptions = metadata.get("descriptions", {})
+            for lang, desc_data in descriptions.items():
+                description = desc_data.get("value", "")
+                if description:
+                    self.writers.write_description(output, entity_id, desc_data["language"], description)
 
     def convert_to_string(self, entity: Entity) -> str:
         """Convert entity to Turtle string."""

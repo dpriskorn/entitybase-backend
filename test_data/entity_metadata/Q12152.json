@@ -1,0 +1,14 @@
+{
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "myocardial infarction"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "interruption of blood supply to a part of the heart"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "hadron epoch"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "period in the evolution of the early universe"
+    }
+  }
+}

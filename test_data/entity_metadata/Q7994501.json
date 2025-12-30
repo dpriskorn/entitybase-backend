@@ -1,0 +1,14 @@
+{
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "White British"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "ethnicity classification used in the 2011 United Kingdom Census"
+    }
+  }
+}

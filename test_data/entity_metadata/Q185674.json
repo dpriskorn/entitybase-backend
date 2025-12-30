@@ -1,0 +1,14 @@
+{
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "field"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "physical quantity, represented by a number or tensor, that has a value for each point in space-time"
+    }
+  }
+}
