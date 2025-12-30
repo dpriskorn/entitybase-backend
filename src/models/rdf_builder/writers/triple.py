@@ -65,22 +65,22 @@ class TripleWriters:
         from models.rdf_builder.models.rdf_reference import RDFReference
         
         entity_uri = TripleWriters.uri.entity_prefixed(entity_id)
-        stmt_uri = rdf_statement.get_statement_uri()
+        stmt_uri_prefixed = TripleWriters.uri.statement_prefixed(rdf_statement.guid)
         
         # Link entity → statement
         output.write(
-            f'{entity_uri} p:{rdf_statement.property_id} {stmt_uri} .\n'
+            f'{entity_uri} p:{rdf_statement.property_id} {stmt_uri_prefixed} .\n'
         )
         
         if rdf_statement.rank == "normal":
-            output.write(f'{stmt_uri} a wikibase:Statement, wikibase:BestRank .\n')
+            output.write(f'{stmt_uri_prefixed} a wikibase:Statement, wikibase:BestRank .\n')
         else:
-            output.write(f'{stmt_uri} a wikibase:Statement .\n')
+            output.write(f'{stmt_uri_prefixed} a wikibase:Statement .\n')
         
         # Statement value
         value = ValueFormatter.format_value(rdf_statement.value)
         output.write(
-            f'{stmt_uri} {shape.predicates.statement} {value} .\n'
+            f'{stmt_uri_prefixed} {shape.predicates.statement} {value} .\n'
         )
         
         # Rank
@@ -90,22 +90,22 @@ class TripleWriters:
             "DeprecatedRank"
         )
         output.write(
-            f'{stmt_uri} wikibase:rank wikibase:{rank} .\n'
+            f'{stmt_uri_prefixed} wikibase:rank wikibase:{rank} .\n'
         )
         
         # Qualifiers
         for qual in rdf_statement.qualifiers:
             qv = ValueFormatter.format_value(qual.value)
             output.write(
-                f'<{stmt_uri}> {shape.predicates.qualifier} {qv} .\n'
+                f'<{stmt_uri_prefixed}> {shape.predicates.qualifier} {qv} .\n'
             )
         
         # References
         for ref in rdf_statement.references:
-            rdf_ref = RDFReference(ref, stmt_uri)
+            rdf_ref = RDFReference(ref, stmt_uri_prefixed)
             ref_uri = rdf_ref.get_reference_uri()
             output.write(
-                f'<{stmt_uri}> prov:wasDerivedFrom <{ref_uri}> .\n'
+                f'<{stmt_uri_prefixed}> prov:wasDerivedFrom <{ref_uri}> .\n'
             )
             
             for snak in ref.snaks:

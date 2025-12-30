@@ -22,4 +22,4 @@ class RDFReference:
     
     def get_reference_uri(self) -> str:
         """Generate wdref: URI from hash."""
-        return f"http://www.wikidata.org/reference/{self.hash}"
+        return f"wdref:{self.hash}"

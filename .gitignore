@@ -20,3 +20,7 @@ mediawiki-extensions-Wikibase
 /WikibaseIntegrator/
 *.pyc
 /src/schemas/schemas-event-primary/
+
+# test data cache
+test_data/properties/*.csv
+test_data/properties/*.json
