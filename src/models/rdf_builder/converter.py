@@ -1,11 +1,13 @@
-from typing import TextIO
+import logging
 from io import StringIO
+from typing import TextIO
 
-from models.rdf_builder.writers.triple import TripleWriters
-from models.rdf_builder.models.rdf_statement import RDFStatement
-from models.rdf_builder.models.rdf_reference import RDFReference
-from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.internal_representation.entity import Entity
+from models.rdf_builder.models.rdf_statement import RDFStatement
+from models.rdf_builder.property_registry.registry import PropertyRegistry
+from models.rdf_builder.writers.triple import TripleWriters
+
+logger = logging.getLogger(__name__)
 
 
 class EntityConverter:
@@ -51,6 +53,7 @@ class EntityConverter:
     def _write_statement(self, entity_id: str, rdf_stmt: RDFStatement, output: TextIO):
         """Write single statement with references."""
         shape = self.properties.shape(rdf_stmt.property_id)
+        logger.debug(f"Writing statement for {rdf_stmt.property_id}, shape: {shape}")
         self.writers.write_statement(output, entity_id, rdf_stmt, shape)
 
     def convert_to_string(self, entity: Entity) -> str:

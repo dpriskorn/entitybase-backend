@@ -69,6 +69,37 @@ def split_subject_blocks(ttl: str) -> dict[str, str]:
     return blocks
 
 
+def load_full_property_registry() -> PropertyRegistry:
+    """Load property registry from CSV cache"""
+    import csv
+    import logging
+
+    logger = logging.getLogger(__name__)
+
+    cache_path = TEST_DATA_DIR / "properties" / "properties.csv"
+
+    if not cache_path.exists():
+        raise FileNotFoundError(
+            f"Property cache not found: {cache_path}\n"
+            f"Run: ./scripts/download_properties.sh"
+        )
+
+    properties = {}
+    with open(cache_path, encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            properties[row["property_id"]] = property_shape(
+                row["property_id"],
+                row["datatype"]
+            )
+
+    logger.debug(f"Loaded {len(properties)} properties from registry")
+    if "P625" in properties:
+        logger.debug(f"P625 in registry with shape: {properties['P625']}")
+
+    return PropertyRegistry(properties=properties)
+
+
 @pytest.fixture
 def property_registry() -> PropertyRegistry:
     """Minimal property registry for Q120248304 test"""
@@ -80,11 +111,17 @@ def property_registry() -> PropertyRegistry:
         "P137": property_shape("P137", "wikibase-item"),
         "P912": property_shape("P912", "wikibase-item"),
         "P248": property_shape("P248", "wikibase-item"),
-        "P1810": property_shape("P1810", "string"),
         "P11840": property_shape("P11840", "external-id"),
+        "P1810": property_shape("P1810", "string"),
         "P2561": property_shape("P2561", "monolingualtext"),
-        "P6375": property_shape("P6375", "monolingualtext"),
         "P5017": property_shape("P5017", "time"),
         "P625": property_shape("P625", "globe-coordinate"),
+        "P6375": property_shape("P6375", "monolingualtext"),
     }
     return PropertyRegistry(properties=properties)
+
+
+@pytest.fixture(scope="session")
+def full_property_registry() -> PropertyRegistry:
+    """Full property registry with all properties from CSV cache"""
+    return load_full_property_registry()

@@ -30,14 +30,20 @@ Converts internal Entity models to RDF (Turtle format) following Wikibase RDF ma
 | Descriptions | ✓ Implemented | `schema:description` triples |
 | Aliases | ✓ Implemented | `skos:altLabel` triples |
 | Statements (basic) | ✓ Implemented | `p:Pxxx`, `ps:Pxxx` triples |
-| BestRank | ✗ Not Started | Missing from statement types |
-| Direct claims | ✗ Not Started | `wdt:Pxxx` triples for truthy values |
-| Qualifiers | ⚠️ Partial | Values written, but not verified |
-| References | ⚠️ Partial | Link written, values need verification |
-| Value nodes | ✗ Not Started | `wdv:` URIs for time/globe-coordinate |
+| Statement rank types | ✓ Implemented | BestRank, NormalRank, DeprecatedRank |
+| Qualifiers | ✓ Implemented | `pq:Pxxx` triples with values |
+| References | ✓ Implemented | `pr:Pxxx` triples with values |
 | Sitelinks | ✓ Implemented | `schema:sameAs` triples |
-| Dataset metadata | ⚠️ Partial | Missing version, dateModified, counts |
+| Dataset metadata | ✓ Implemented | Software version, dateModified, counts |
 | Turtle prefixes | ✓ Implemented | 30 prefixes for output |
+| **Missing Features** | | |
+| Referenced entity metadata | ✗ Not Started | Entity values need own metadata block |
+| Property entity metadata | ✗ Not Started | Properties need `wd:Pxxx` description blocks |
+| Property predicate declarations | ✗ Not Started | `p:Pxxx`, `ps:Pxxx`, `pq:Pxxx`, `pr:Pxxx` as `owl:ObjectProperty` |
+| Property value predicates | ✗ Not Started | `psv:Pxxx`, `pqv:Pxxx`, `prv:Pxxx` as `owl:ObjectProperty` |
+| Direct claim triples | ✗ Not Started | `wdt:Pxxx` for direct entity-to-value links |
+| No value constraints | ✗ Not Started | `wdno:Pxxx` with blank node owl:complementOf |
+| Value nodes (structured) | ✗ Not Started | `wdv:` URIs for time/globe-coordinate decomposition |
 
 ---
 
@@ -47,12 +53,29 @@ Based on `doc/ARCHITECTURE/JSON-RDF-CONVERTER.md`:
 
 ```
 Entity (internal model)
-    ↓
-EntityToRdfConverter.convert_to_turtle()
-    ↓
+     ↓
+EntityConverter.convert_to_turtle()
+     ↓
 TripleWriters methods
-    ↓
+     ↓
 Turtle format RDF
+```
+Entity JSON (Wikidata API)
+          ↓
+    parse_entity() → Entity model
+          ↓
+    EntityConverter(property_registry=registry)
+          ↓
+    convert_to_turtle(entity, output)
+          ↓
+    TripleWriters methods:
+   - write_entity_type()
+   - write_dataset_triples()
+   - write_label() (per language)
+   - write_statement() (per statement)
+     → ValueFormatter.format_value()
+          ↓
+    Turtle format RDF
 ```
 
 ---
@@ -62,8 +85,8 @@ Turtle format RDF
 ### converter.py
 **Main conversion class** that orchestrates RDF generation.
 
-**Class:** `EntityToRdfConverter`
-- **Required fields:** `properties: PropertyRegistry`
+**Class:** `EntityConverter`
+- **Required fields:** `property_registry: PropertyRegistry`
 - **Methods:**
   - `convert_to_turtle(entity, output: TextIO)` - Write RDF to output stream
   - `convert_to_string(entity) -> str` - Return RDF as string
@@ -71,7 +94,7 @@ Turtle format RDF
 **Usage:**
 ```python
 registry = PropertyRegistry(properties={...})
-converter = EntityToRdfConverter(properties=registry)
+converter = EntityConverter(property_registry=registry)
 ttl = converter.convert_to_string(entity)
 ```
 
@@ -143,12 +166,61 @@ Turtle format RDF
 
 ---
 
+## Test Failures Analysis
+
+### test_q17948861_full_roundtrip
+
+**Status:** FAILING - Missing RDF blocks in generated output
+
+**Error:**
+```
+assert actual_blocks.keys() == golden_blocks.keys()
+```
+
+**Actual blocks (3):**
+- wd:Q17948861
+- data:Q17948861
+- wds:Q17948861-FA20AC3A-5627-4EC5-93CA-24F0F00C8AA6
+
+**Golden blocks (13):**
+- data:Q17948861
+- wd:Q17948861
+- wds:Q17948861-FA20AC3A-5627-4EC5-93CA-24F0F00C8AA6
+- **wd:Q17633526** (referenced entity - "Wikinews article")
+- **wd:P31** (property entity with metadata)
+- **p:P31** (predicate declaration)
+- **psv:P31** (statement value predicate)
+- **pqv:P31** (qualifier value predicate)
+- **prv:P31** (reference value predicate)
+- **wdt:P31** (direct claim predicate)
+- **ps:P31** (statement predicate)
+- **pq:P31** (qualifier predicate)
+- **pr:P31** (reference predicate)
+- **wdno:P31** (no value property)
+- **_:0b8bd71b926a65ca3fa72e5d9103e4d6** (blank node constraint)
+
+**Root cause:** Converter only generates entity and statement blocks, missing:
+1. Referenced entity metadata blocks
+2. Property entity metadata blocks
+3. Property predicate declarations (owl:ObjectProperty)
+4. Property value predicate declarations
+5. No value constraint blocks with blank nodes
+
+**Impact:** Tests fail because Wikidata's RDF dumps include full property ontology and referenced entity descriptions.
+
+**Design decision needed:** Should converter generate:
+- Full property ontology (all properties used)?
+- Only properties referenced in the entity?
+- Option to include/exclude property metadata blocks?
+
+---
+
 ## Usage Example
 
 ### Basic Entity Conversion
 
 ```python
-from models.rdf_builder.converter import EntityToRdfConverter
+from models.rdf_builder.converter import EntityConverter
 from models.rdf_builder.property_registry.loader import load_property_registry
 from models.json_parser.entity_parser import parse_entity
 
@@ -156,7 +228,7 @@ from models.json_parser.entity_parser import parse_entity
 registry = load_property_registry(Path("properties/"))
 
 # Create converter
-converter = EntityToRdfConverter(properties=registry)
+converter = EntityConverter(property_registry=registry)
 
 # Parse entity JSON
 with open("Q42.json", "r") as f:
@@ -173,7 +245,7 @@ print(ttl)
 ```python
 from io import StringIO
 
-converter = EntityToRdfConverter(properties=registry)
+converter = EntityConverter(property_registry=registry)
 
 # Write directly to file
 with open("Q42.ttl", "w") as f:
@@ -194,62 +266,87 @@ properties = {
 }
 registry = PropertyRegistry(properties=properties)
 
-converter = EntityToRdfConverter(properties=registry)
+converter = EntityConverter(property_registry=registry)
 ```
-
----
-
-## Architecture Overview
-
-Based on `doc/ARCHITECTURE/JSON-RDF-CONVERTER.md`:
-
-Entity (internal model)
-↓
-RDF Generator
-↓
-Triples (Turtle format)
-
 
 ---
 
 ## Implementation Status
 
-Looking at `test_data/rdf/ttl/Q120248304.ttl`, the following features are still missing:
+Looking at `test_data/rdf/ttl/Q17948861.ttl` vs generated output, following features are still missing:
 
 ### Missing Entity Features
 
-- **Descriptions**: `schema:description` triples (one per language)
-  ```turtle
-  <entity_uri> schema:description "A test entity"@en .
-  ```
-
-- **Aliases**: `skos:altLabel` triples (one per alias)
-  ```turtle
-  <entity_uri> skos:altLabel "An alias"@en .
-  ```
-
-- **Sitelinks**: `schema:sameAs` triples (one per sitelink)
-  ```turtle
-  <entity_uri> schema:sameAs <https://en.wikipedia.org/wiki/Q42> .
-  ```
+**All entity features implemented:**
+- ✓ Labels: `rdfs:label` triples
+- ✓ Descriptions: `schema:description` triples
+- ✓ Aliases: `skos:altLabel` triples
+- ✓ Sitelinks: `schema:sameAs` triples
 
 ### Missing Statement Features
 
-- **BestRank**: Additional type for normal-rank statements
+- **Referenced entity metadata**: Entities used as values need their own metadata blocks
   ```turtle
-  <stmt_uri> a wikibase:Statement, wikibase:BestRank ;
+  # When P31 points to Q17633526, we need:
+  wd:Q17633526 a wikibase:Item ;
+    rdfs:label "Wikinews article"@en ;
+    skos:prefLabel "Wikinews article"@en ;
+    schema:name "Wikinews article"@en ;
+    schema:description "used with property P31"@en .
   ```
 
-- **Direct claims**: `wdt:Pxxx` triples for truthy values
+- **Property entity metadata**: Properties need description blocks
   ```turtle
-  <entity_uri> wdt:P17 wd:Q142 .
-  <entity_uri> wdt:P31 wd:Q1076486 .
+  wd:P31 a wikibase:Property ;
+    rdfs:label "instance of"@en ;
+    skos:prefLabel "instance of"@en ;
+    schema:name "instance of"@en ;
+    schema:description "type to which this subject corresponds..."@en ;
+    wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+    wikibase:directClaim wdt:P31 ;
+    wikibase:claim p:P31 ;
+    wikibase:statementProperty ps:P31 ;
+    wikibase:statementValue psv:P31 ;
+    wikibase:qualifier pq:P31 ;
+    wikibase:qualifierValue pqv:P31 ;
+    wikibase:reference pr:P31 ;
+    wikibase:referenceValue prv:P31 ;
+    wikibase:novalue wdno:P31 .
   ```
 
-- **Value nodes**: Structured data for complex datatypes
+- **Property predicate declarations**: Each property needs owl:ObjectProperty declarations
+  ```turtle
+  p:P31 a owl:ObjectProperty .
+  psv:P31 a owl:ObjectProperty .
+  pqv:P31 a owl:ObjectProperty .
+  prv:P31 a owl:ObjectProperty .
+  wdt:P31 a owl:ObjectProperty .
+  ps:P31 a owl:ObjectProperty .
+  pq:P31 a owl:ObjectProperty .
+  pr:P31 a owl:ObjectProperty .
+  ```
+
+- **No value constraints**: Blank node for novalue constraints
+  ```turtle
+  wdno:P31 a owl:Class ;
+    owl:complementOf _:0b8bd71b926a65ca3fa72e5d9103e4d6 .
+
+  _:0b8bd71b926a65ca3fa72e5d9103e4d6 a owl:Restriction ;
+    owl:onProperty wdt:P31 ;
+    owl:someValuesFrom owl:Thing .
+  ```
+
+- **Direct claim triples** (optional, for truthy values):
+  ```turtle
+  <entity_uri> wdt:P31 wd:Q17633526 .
+  ```
+
+### Missing Value Node Features
+
+- **Structured value nodes**: Decompose complex datatypes into separate value nodes
   ```turtle
   <stmt_uri> psv:P625 wdv:9f0355cb43b5be5caf0570c31d4fb707 .
-  
+
   wdv:9f0355cb43b5be5caf0570c31d4fb707 a wikibase:GlobecoordinateValue ;
     wikibase:geoLatitude "50.94636"^^xsd:double ;
     wikibase:geoLongitude "1.88108"^^xsd:double ;
@@ -259,29 +356,31 @@ Looking at `test_data/rdf/ttl/Q120248304.ttl`, the following features are still 
 
 ### Missing Dataset Features
 
-- **Complete metadata**: Software version, entity version, modification date, counts
-  ```turtle
-  <data_uri> schema:softwareVersion "1.0.0" ;
-    schema:version "1954232723"^^xsd:integer ;
-    schema:dateModified "2023-08-15T09:34:22Z"^^xsd:dateTime ;
-    wikibase:statements "9"^^xsd:integer ;
-    wikibase:sitelinks "0"^^xsd:integer ;
-    wikibase:identifiers "1"^^xsd:integer .
-  ```
+**All dataset features implemented:**
+- ✓ Software version: `schema:softwareVersion "1.0.0"`
+- ✓ Entity version: `schema:version "2146196239"^^xsd:integer`
+- ✓ Modification date: `schema:dateModified "2024-05-06T01:49:59Z"^^xsd:dateTime`
+- ✓ Entity counts: `wikibase:statements`, `wikibase:sitelinks`, `wikibase:identifiers`
+- ✓ License: `cc:license`
+- ✓ Dataset type: `a schema:Dataset`
 
 ### Missing Output Features
 
-- **Turtle prefixes**: `@prefix` declarations at start of file
-- **Property ontology**: RDF describing property predicates (deferred)
+**All output features implemented:**
+- ✓ Turtle prefixes: 30 `@prefix` declarations
 
 ---
 
 ## Next Steps
 
-1. Add Turtle prefix output to `convert_to_turtle()`
-2. Implement descriptions, aliases, sitelinks writers
-3. Add BestRank to statements
-4. Generate direct claim triples
-5. Create value node writer for time and globe-coordinate
-6. Complete dataset metadata with version and counts
+1. **Collect referenced entities**: Scan all statement values for entity references (wd:Qxxx) and collect unique set
+2. **Generate referenced entity metadata**: For each referenced entity, write full metadata block (labels, descriptions, aliases)
+3. **Property metadata generation**: For each property used in entity:
+   - Write `wd:Pxxx a wikibase:Property` with labels, descriptions, propertyType
+   - Write all 10 predicate declarations (directClaim, claim, statementProperty, etc.)
+4. **Property predicate declarations**: Generate `owl:ObjectProperty` blocks for each property predicate
+5. **No value constraint blocks**: Generate `wdno:Pxxx` with blank node `owl:complementOf`
+6. **Direct claim triples**: Optional - generate `wdt:Pxxx` triples for direct entity-to-value links
+7. **Value node decomposition**: For time/globe-coordinate quantities, decompose into `wdv:` nodes with individual components
+8. **Consider property registry expansion**: Need full property metadata (labels, descriptions) in registry to generate property entity blocks
 

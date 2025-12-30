@@ -14,7 +14,7 @@ from conftest import TEST_DATA_DIR
 logger = logging.getLogger(__name__)
 
 
-def test_q42_conversion():
+def test_q42_conversion(full_property_registry):
     """Test Q42 conversion produces valid Turtle"""
     entity_id = "Q42"
 
@@ -25,15 +25,8 @@ def test_q42_conversion():
 
     logger.info(f"Parsed entity: {entity.id}, statements: {len(entity.statements)}")
 
-    # Create property registry with all properties from Q42
-    properties = {
-        "P31": property_shape("P31", "wikibase-item"),
-        "P21": property_shape("P21", "wikibase-item"),
-        "P106": property_shape("P106", "wikibase-item"),
-    }
-    registry = PropertyRegistry(properties=properties)
-
-    converter = EntityConverter(property_registry=registry)
+    # Use full property registry from CSV cache
+    converter = EntityConverter(property_registry=full_property_registry)
     actual_ttl = converter.convert_to_string(entity)
 
     logger.info(f"Generated TTL length: {len(actual_ttl)}")

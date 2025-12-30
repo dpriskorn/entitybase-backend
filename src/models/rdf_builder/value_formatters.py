@@ -1,5 +1,8 @@
+import logging
 from typing import Any
 from models.internal_representation.value_kinds import ValueKind
+
+logger = logging.getLogger(__name__)
 
 
 class ValueFormatter:
@@ -11,7 +14,7 @@ class ValueFormatter:
         kind = value.kind
 
         if kind == ValueKind.ENTITY:
-            return f"<http://acme.test/{value.value}>"
+            return f"wd:{value.value}"
 
         elif kind == ValueKind.STRING:
             escaped = ValueFormatter.escape_turtle(value.value)
@@ -24,8 +27,10 @@ class ValueFormatter:
             return f'{value.value}^^xsd:decimal'
 
         elif kind == ValueKind.GLOBE:
-            coord = f"Point({value.latitude} {value.longitude})"
-            return f'"{coord}"^^geo:wktLiteral'
+            coord = f"Point({value.longitude} {value.latitude})"
+            formatted = f'"{coord}"^^geo:wktLiteral'
+            logger.debug(f"GLOBE value formatting: lat={value.latitude}, lon={value.longitude} -> {formatted}")
+            return formatted
 
         elif kind == ValueKind.MONOLINGUAL:
             escaped = ValueFormatter.escape_turtle(value.text)

@@ -1,9 +1,8 @@
-from typing import TextIO, Any
+from typing import TextIO
 
-from models.rdf_builder.uri_generator import URIGenerator
 from models.rdf_builder.property_registry.models import PropertyShape
+from models.rdf_builder.uri_generator import URIGenerator
 from models.rdf_builder.value_formatters import ValueFormatter
-from models.rdf_builder.models.rdf_reference import RDFReference
 
 
 class TripleWriters:

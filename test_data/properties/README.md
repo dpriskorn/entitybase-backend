@@ -18,7 +18,7 @@ P800,external-id
 Run the download script to fetch property definitions:
 
 ```bash
-python scripts/download_properties.py
+./scripts/download_properties.sh
 ```
 
 ## Regenerating Cache

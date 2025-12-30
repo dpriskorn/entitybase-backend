@@ -55,8 +55,6 @@ def test_statement_uri_uses_dash_separator():
     assert "-" in prefixed_uri, f"Prefixed statement URI should use - separator: {prefixed_uri}"
     assert "wds:Q17948861-FA20AC3A-5627-4EC5-93CA-24F0F00C8AA6" == prefixed_uri
 
-
-@pytest.mark.skip("Disabled - blank node ID needs investigation")
 def test_q17948861_roundtrip_comparison():
     """Test full roundtrip: JSON → TTL → normalize → compare to golden"""
     entity_id = "Q17948861"
@@ -93,7 +91,6 @@ def test_q17948861_roundtrip_comparison():
     # Compare
     assert actual_blocks.keys() == golden_blocks.keys()
 
-@pytest.mark.skip("Disabled until missing features are implemented")
 def test_q17948861_full_roundtrip():
     """Test full roundtrip: JSON → TTL → normalize → compare to golden"""
     entity_id = "Q17948861"

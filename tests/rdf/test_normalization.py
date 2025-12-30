@@ -1,5 +1,3 @@
-import pytest
-
 from rdf.conftest import normalize_ttl, TEST_DATA_DIR
 
 
