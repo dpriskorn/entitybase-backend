@@ -35,6 +35,34 @@ def test_normalize_ttl_empty_input():
     assert result == ""
 
 
+def test_normalize_ttl_normalizes_newlines():
+    """Test that multiple consecutive newlines are normalized"""
+    input_ttl = """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+
+wd:Q42 a schema:Thing ."""
+
+    result = normalize_ttl(input_ttl)
+
+    assert "\n\n\n" not in result
+    assert "@prefix rdf:" in result
+    assert "wd:Q42" in result
+
+
+def test_normalize_ttl_preserves_rdf_content():
+    """Test that normalization preserves RDF content using real TTL file"""
+    ttl_path = TEST_DATA_DIR / "rdf" / "ttl" / "Q17948861.ttl"
+    input_ttl = ttl_path.read_text(encoding="utf-8")
+
+    result = normalize_ttl(input_ttl)
+
+    assert "@prefix" in result
+    assert "wd:Q17948861" in result
+    assert "schema:Dataset" in result
+    assert "wikibase:Item" in result
+    assert len(result) > 0
+
+
 def test_normalize_ttl_idempotent():
     """Test that running normalize twice produces the same result"""
     input_ttl = """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .

@@ -29,12 +29,8 @@ def normalize_ttl(ttl: str) -> str:
     logger.debug(f"After normalizing whitespace: {len(ttl)} chars")
     logger.debug(f"First 100 chars: {repr(ttl[:100])}")
     
-    ttl_normalized = re.sub(r"\n\n", "\n\n", ttl)
-    logger.debug(f"After normalizing newlines: {len(ttl_normalized)} chars")
-    logger.debug(f"First 100 chars of normalized: {repr(ttl_normalized[:100])}")
-    
-    ttl = re.sub(r"\n\n", "\n\n", ttl)
-    logger.debug(f"After normalizing newlines (second pass): {len(ttl)} chars")
+    ttl = re.sub(r"\n\n+", "\n\n", ttl)
+    logger.debug(f"After normalizing newlines: {len(ttl)} chars")
     logger.debug(f"First 100 chars: {repr(ttl[:100])}")
     
     result = ttl.strip()
