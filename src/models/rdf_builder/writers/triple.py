@@ -27,6 +27,11 @@ class TripleWriters:
         )
 
     @staticmethod
+    def write_label(output: TextIO, entity_id: str, lang: str, label: str):
+        entity_uri = TripleWriters.uri.entity_uri(entity_id)
+        output.write(f'<{entity_uri}> rdfs:label "{label}"@{lang} .\n')
+
+    @staticmethod
     def write_statement(
         output: TextIO,
         entity_id: str,

@@ -1,8 +1,8 @@
 # src/models/rdf_builder/writers/property.py
 
 from typing import TextIO
+
 from models.internal_representation.property_metadata import PropertyMetadata
-from models.rdf_builder.uri_generator import URIGenerator
 
 
 class PropertyWriter:
