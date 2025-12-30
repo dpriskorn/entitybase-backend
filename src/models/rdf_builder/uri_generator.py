@@ -1,24 +1,21 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
-class URIGenerator:
-    """This is intentionally not a BaseModel class"""
-    WD: str = "http://www.wikidata.org/entity"
-    DATA: str = "http://www.wikidata.org/wiki/Special:EntityData"
-    WDS: str = "http://www.wikidata.org/entity/statement"
+class URIGenerator(BaseModel):
+    wd: str = "http://www.wikidata.org/entity"
+    data: str = "https://www.wikidata.org/wiki/Special:EntityData"
+    wds: str = "http://www.wikidata.org/entity/statement"
 
-    @staticmethod
-    def entity_uri(entity_id: str) -> str:
-        return f"{URIGenerator.WD}/{entity_id}"
+    model_config = ConfigDict(frozen=True)
 
-    @staticmethod
-    def data_uri(entity_id: str) -> str:
-        return f"{URIGenerator.DATA}/{entity_id}.ttl"
+    def entity_uri(self, entity_id: str) -> str:
+        return f"{self.wd}/{entity_id}"
 
-    @staticmethod
-    def statement_uri(statement_id: str) -> str:
-        return f"{URIGenerator.WDS}/{statement_id}"
+    def data_uri(self, entity_id: str) -> str:
+        return f"{self.data}/{entity_id}.ttl"
 
-    @staticmethod
-    def reference_uri(statement_uri: str, ref_index: int) -> str:
-        return f"{statement_uri}-{ref_index:09d}#ref"
+    def statement_uri(self, statement_id: str) -> str:
+        return f"{self.wds}/{statement_id}"
+
+    def reference_uri(self, stmt_uri: str, idx: int) -> str:
+        return f"{stmt_uri}-{idx:09d}#ref"
