@@ -63,6 +63,20 @@ def test_normalize_ttl_preserves_rdf_content():
     assert len(result) > 0
 
 
+def test_normalize_ttl_strips_edges():
+    """Test that leading and trailing whitespace is removed"""
+    input_ttl = """   \n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+wd:Q42 a schema:Thing .\n   """
+
+    result = normalize_ttl(input_ttl)
+
+    assert not result.startswith(" ")
+    assert not result.startswith("\n")
+    assert not result.endswith(" ")
+    assert not result.endswith("\n")
+    assert "@prefix rdf:" in result
+
+
 def test_normalize_ttl_idempotent():
     """Test that running normalize twice produces the same result"""
     input_ttl = """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
