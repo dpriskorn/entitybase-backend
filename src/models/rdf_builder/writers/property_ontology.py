@@ -19,7 +19,10 @@ class PropertyOntologyWriter:
     @staticmethod
     def _generate_blank_node_id(property_id: str) -> str:
         """Generate stable blank node ID for property no-value"""
-        hash_input = f"novalue-{property_id}"
+        # Wikibase algorithm: hash property_id with rank info
+        # For now, we skip rank (will use empty string)
+        # This should match Wikidata's blank node generation pattern
+        hash_input = f"{property_id}"  # or potentially f"{property_id}normal" with rank
         hash_bytes = hashlib.sha1(hash_input.encode()).digest()
         return hash_bytes[:12].hex()
 

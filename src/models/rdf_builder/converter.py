@@ -1,64 +1,60 @@
 from typing import TextIO
 from io import StringIO
-from pydantic import BaseModel
 
-from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.writers.triple import TripleWriters
-from models.rdf_builder.writers.prefixes import TURTLE_PREFIXES
-from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
+from models.rdf_builder.models.rdf_statement import RDFStatement
+from models.rdf_builder.models.rdf_reference import RDFReference
+from models.rdf_builder.property_registry.registry import PropertyRegistry
+from models.internal_representation.entity import Entity
 
 
-class EntityToRdfConverter(BaseModel):
-    properties: PropertyRegistry
+class EntityConverter:
+    """
+    Converts internal Entity representation to RDF Turtle format.
+    """
 
-    def convert_to_turtle(self, entity, output: TextIO):
-        TripleWriters.write_header(output)
-        TripleWriters.write_entity_type(output, entity.id)
-        TripleWriters.write_dataset_triples(output, entity.id)
+    def __init__(self, property_registry: PropertyRegistry):
+        self.properties = property_registry
+        self.writers = TripleWriters()
+
+    def convert_to_turtle(self, entity: Entity, output: TextIO):
+        """Convert entity to Turtle format."""
+        self.writers.write_header(output)
+        self._write_entity_metadata(entity, output)
+        self._write_statements(entity, output)
+
+    def _write_entity_metadata(self, entity: Entity, output: TextIO):
+        """Write entity type, labels, descriptions, aliases, sitelinks."""
+        self.writers.write_entity_type(output, entity.id)
+        self.writers.write_dataset_triples(output, entity.id)
 
         for lang, label in entity.labels.items():
-            TripleWriters.write_label(output, entity.id, lang, label)
+            self.writers.write_label(output, entity.id, lang, label)
 
         for lang, description in entity.descriptions.items():
-            TripleWriters.write_description(output, entity.id, lang, description)
+            self.writers.write_description(output, entity.id, lang, description)
 
         for lang, aliases in entity.aliases.items():
             for alias in aliases:
-                TripleWriters.write_alias(output, entity.id, lang, alias)
+                self.writers.write_alias(output, entity.id, lang, alias)
 
         if entity.sitelinks:
             for site_key, sitelink_data in entity.sitelinks.items():
-                TripleWriters.write_sitelink(output, entity.id, sitelink_data)
+                self.writers.write_sitelink(output, entity.id, sitelink_data)
 
+    def _write_statements(self, entity: Entity, output: TextIO):
+        """Write all statements."""
         for stmt in entity.statements:
-            shape = self.properties.shape(stmt.property)
-            TripleWriters.write_statement(
-                output,
-                entity.id,
-                stmt,
-                shape,
-            )
+            rdf_stmt = RDFStatement(stmt)
+            self._write_statement(entity.id, rdf_stmt, output)
 
-        for stmt in entity.statements:
-            PropertyOntologyWriter.write_property(output, stmt.property)
-            PropertyOntologyWriter.write_novalue_class(output, stmt.property)
+    def _write_statement(self, entity_id: str, rdf_stmt: RDFStatement, output: TextIO):
+        """Write single statement with references."""
+        shape = self.properties.shape(rdf_stmt.property_id)
+        self.writers.write_statement(output, entity_id, rdf_stmt, shape)
 
-        for stmt in entity.statements:
-            shape = self.properties.shape(stmt.property)
-            if shape.datatype == "wikibase-item":
-                self._write_referenced_entity_metadata(output, stmt.value)
-
-    def _write_referenced_entity_metadata(self, output: TextIO, value):
-        """Write referenced entity metadata (hardcoded for test)"""
-        entity_id = value.value if hasattr(value, "value") else None
-        if entity_id == "Q17633526":
-            output.write('wd:Q17633526 a wikibase:Item .\n')
-            output.write('wd:Q17633526 rdfs:label "Wikinews article"@en .\n')
-            output.write('wd:Q17633526 skos:prefLabel "Wikinews article"@en .\n')
-            output.write('wd:Q17633526 schema:name "Wikinews article"@en .\n')
-            output.write('wd:Q17633526 schema:description "used with property P31"@en .\n')
-
-    def convert_to_string(self, entity) -> str:
+    def convert_to_string(self, entity: Entity) -> str:
+        """Convert entity to Turtle string."""
         buf = StringIO()
         self.convert_to_turtle(entity, buf)
         return buf.getvalue()

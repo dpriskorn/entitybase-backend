@@ -3,6 +3,7 @@ from typing import TextIO, Any
 from models.rdf_builder.uri_generator import URIGenerator
 from models.rdf_builder.property_registry.models import PropertyShape
 from models.rdf_builder.value_formatters import ValueFormatter
+from models.rdf_builder.models.rdf_reference import RDFReference
 
 
 class TripleWriters:
@@ -58,54 +59,55 @@ class TripleWriters:
     def write_statement(
         output: TextIO,
         entity_id: str,
-        statement: Any,
+        rdf_statement: "RDFStatement",
         shape: PropertyShape,
     ):
-        from models.internal_representation.ranks import Rank
-
+        from models.rdf_builder.models.rdf_reference import RDFReference
+        
         entity_uri = TripleWriters.uri.entity_prefixed(entity_id)
-        stmt_uri = TripleWriters.uri.statement_prefixed(statement.statement_id)
-
+        stmt_uri = rdf_statement.get_statement_uri()
+        
         # Link entity → statement
         output.write(
-            f'{entity_uri} p:{statement.property} {stmt_uri} .\n'
+            f'{entity_uri} p:{rdf_statement.property_id} {stmt_uri} .\n'
         )
-
-        if statement.rank == Rank.NORMAL:
+        
+        if rdf_statement.rank == "normal":
             output.write(f'{stmt_uri} a wikibase:Statement, wikibase:BestRank .\n')
         else:
             output.write(f'{stmt_uri} a wikibase:Statement .\n')
-
+        
         # Statement value
-        value = ValueFormatter.format_value(statement.value)
+        value = ValueFormatter.format_value(rdf_statement.value)
         output.write(
             f'{stmt_uri} {shape.predicates.statement} {value} .\n'
         )
-
+        
         # Rank
         rank = (
-            "NormalRank" if statement.rank == Rank.NORMAL else
-            "PreferredRank" if statement.rank == Rank.PREFERRED else
+            "NormalRank" if rdf_statement.rank == "normal" else
+            "PreferredRank" if rdf_statement.rank == "preferred" else
             "DeprecatedRank"
         )
         output.write(
             f'{stmt_uri} wikibase:rank wikibase:{rank} .\n'
         )
-
+        
         # Qualifiers
-        for qual in statement.qualifiers:
+        for qual in rdf_statement.qualifiers:
             qv = ValueFormatter.format_value(qual.value)
             output.write(
                 f'<{stmt_uri}> {shape.predicates.qualifier} {qv} .\n'
             )
-
+        
         # References
-        for idx, ref in enumerate(statement.references):
-            ref_uri = TripleWriters.uri.reference_uri(stmt_uri, idx)
+        for ref in rdf_statement.references:
+            rdf_ref = RDFReference(ref, stmt_uri)
+            ref_uri = rdf_ref.get_reference_uri()
             output.write(
                 f'<{stmt_uri}> prov:wasDerivedFrom <{ref_uri}> .\n'
             )
-
+            
             for snak in ref.snaks:
                 rv = ValueFormatter.format_value(snak.value)
                 output.write(
