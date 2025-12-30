@@ -1,6 +1,6 @@
 import pytest
 
-from rdf.conftest import normalize_ttl, split_subject_blocks, TEST_DATA_DIR
+from rdf.conftest import normalize_ttl, TEST_DATA_DIR
 
 
 def test_normalize_ttl_removes_comments():
