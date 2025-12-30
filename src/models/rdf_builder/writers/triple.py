@@ -42,6 +42,19 @@ class TripleWriters:
         output.write(f'<{entity_uri}> schema:description "{description}"@{lang} .\n')
 
     @staticmethod
+    def write_alias(output: TextIO, entity_id: str, lang: str, alias: str):
+        entity_uri = TripleWriters.uri.entity_uri(entity_id)
+        output.write(f'<{entity_uri}> skos:altLabel "{alias}"@{lang} .\n')
+
+    @staticmethod
+    def write_sitelink(output: TextIO, entity_id: str, sitelink_data: dict):
+        entity_uri = TripleWriters.uri.entity_uri(entity_id)
+        site_key = sitelink_data.get("site", "")
+        title = sitelink_data.get("title", "")
+        wiki_url = f"https://{site_key}.wikipedia.org/wiki/{title.replace(' ', '_')}"
+        output.write(f'<{entity_uri}> schema:sameAs <{wiki_url}> .\n')
+
+    @staticmethod
     def write_statement(
         output: TextIO,
         entity_id: str,

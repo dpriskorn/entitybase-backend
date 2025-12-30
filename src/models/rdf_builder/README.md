@@ -27,17 +27,17 @@ Converts internal Entity models to RDF (Turtle format) following Wikibase RDF ma
 |---------|--------|-------|
 | Entity type declaration | ✓ Implemented | `wikibase:Item` |
 | Labels | ✓ Implemented | `rdfs:label` triples |
-| Descriptions | ✗ Not Started | `schema:description` triples |
-| Aliases | ✗ Not Started | `skos:altLabel` triples |
+| Descriptions | ✓ Implemented | `schema:description` triples |
+| Aliases | ✓ Implemented | `skos:altLabel` triples |
 | Statements (basic) | ✓ Implemented | `p:Pxxx`, `ps:Pxxx` triples |
 | BestRank | ✗ Not Started | Missing from statement types |
 | Direct claims | ✗ Not Started | `wdt:Pxxx` triples for truthy values |
 | Qualifiers | ⚠️ Partial | Values written, but not verified |
 | References | ⚠️ Partial | Link written, values need verification |
 | Value nodes | ✗ Not Started | `wdv:` URIs for time/globe-coordinate |
-| Sitelinks | ✗ Not Started | `schema:sameAs` triples |
+| Sitelinks | ✓ Implemented | `schema:sameAs` triples |
 | Dataset metadata | ⚠️ Partial | Missing version, dateModified, counts |
-| Turtle prefixes | ✗ Not Started | Missing from output |
+| Turtle prefixes | ✓ Implemented | 30 prefixes for output |
 
 ---
 

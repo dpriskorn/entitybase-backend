@@ -18,6 +18,17 @@ class EntityToRdfConverter(BaseModel):
         for lang, label in entity.labels.items():
             TripleWriters.write_label(output, entity.id, lang, label)
 
+        for lang, description in entity.descriptions.items():
+            TripleWriters.write_description(output, entity.id, lang, description)
+
+        for lang, aliases in entity.aliases.items():
+            for alias in aliases:
+                TripleWriters.write_alias(output, entity.id, lang, alias)
+
+        if entity.sitelinks:
+            for site_key, sitelink_data in entity.sitelinks.items():
+                TripleWriters.write_sitelink(output, entity.id, sitelink_data)
+
         for stmt in entity.statements:
             shape = self.properties.shape(stmt.property)
             TripleWriters.write_statement(
