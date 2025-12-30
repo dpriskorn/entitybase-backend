@@ -36,13 +36,18 @@ Converts internal Entity models to RDF (Turtle format) following Wikibase RDF ma
 | Sitelinks | ✓ Implemented | `schema:sameAs` triples |
 | Dataset metadata | ✓ Implemented | Software version, dateModified, counts |
 | Turtle prefixes | ✓ Implemented | 30 prefixes for output |
+| **Structural Support** | | |
+| Property metadata structure | ✓ Implemented | PropertyShape has labels/descriptions fields |
+| Property metadata loading | ✓ Implemented | Loader merges JSON + CSV, with tests |
+| **Property Metadata Output** | | |
+| Property metadata RDF output | ✓ Implemented | `write_property_metadata()` generates wd:Pxxx blocks |
+| Property entity metadata | ✓ Implemented | Property metadata block with labels, descriptions |
+| Property predicate declarations | ✓ Implemented | `write_property()` generates owl:ObjectProperty |
+| Property value predicates | ✓ Implemented | `write_property_metadata()` includes value predicates |
+| No value constraints | ✓ Implemented | `write_novalue_class()` generates wdno:Pxxx blocks |
 | **Missing Features** | | |
 | Referenced entity metadata | ✗ Not Started | Entity values need own metadata block |
-| Property entity metadata | ✗ Not Started | Properties need `wd:Pxxx` description blocks |
-| Property predicate declarations | ✗ Not Started | `p:Pxxx`, `ps:Pxxx`, `pq:Pxxx`, `pr:Pxxx` as `owl:ObjectProperty` |
-| Property value predicates | ✗ Not Started | `psv:Pxxx`, `pqv:Pxxx`, `prv:Pxxx` as `owl:ObjectProperty` |
 | Direct claim triples | ✗ Not Started | `wdt:Pxxx` for direct entity-to-value links |
-| No value constraints | ✗ Not Started | `wdno:Pxxx` with blank node owl:complementOf |
 | Value nodes (structured) | ✗ Not Started | `wdv:` URIs for time/globe-coordinate decomposition |
 
 ---
@@ -107,18 +112,22 @@ ttl = converter.convert_to_string(entity)
 - `write_label(output, entity_id, lang, label)` - Write `rdfs:label`
 - `write_statement(output, entity_id, statement, shape)` - Write full statement block
 
+**Class:** `PropertyOntologyWriter` (static methods)
+- `write_property_metadata(output, shape)` - Write full property metadata block with labels, descriptions, predicate links
+- `write_property(output, shape)` - Write property predicate declarations (`owl:ObjectProperty`)
+- `write_novalue_class(output, property_id)` - Write no-value constraint block with blank node
+
 ### property_registry/
 **Property metadata** for RDF predicate mappings.
 
 - **registry.py** - `PropertyRegistry` lookup table
-- **loader.py** - Load from JSON files
+- **loader.py** - Load from JSON files (merges labels/descriptions from JSON with datatype from CSV)
 - **models.py** - `PropertyShape`, `PropertyPredicates` data models
 
 ### ontology/
 **Property shape factory** based on datatypes.
 
-- **datatypes.py** - `property_shape(pid, datatype)` creates predicate configurations
-- **wikibase.py** - Predicate URI generator
+- **datatypes.py** - `property_shape(pid, datatype, labels, descriptions)` creates predicate configurations with metadata
 
 ### writers/prefixes.py
 **Turtle prefix declarations** for RDF output.
@@ -272,6 +281,33 @@ converter = EntityConverter(property_registry=registry)
 ---
 
 ## Implementation Status
+
+**Recent Changes (Property Metadata Support):**
+
+### Structural Changes (COMPLETED):
+- ✓ PropertyShape model - Added `labels` and `descriptions` fields
+- ✓ Loader - Merges labels/descriptions from JSON with datatype from CSV
+- ✓ property_shape factory - Accepts optional labels/descriptions parameters
+- ✓ Tests - Added comprehensive tests in `tests/rdf/test_property_registry.py`
+
+**Property Ontology Writer Tests (tests/rdf/test_property_ontology.py):**
+- ✓ `write_property_metadata()` - Generates full property metadata blocks
+- ✓ `write_property()` - Generates predicate declarations
+- ✓ `write_novalue_class()` - Generates no-value constraints
+- ✓ Multi-language support for labels/descriptions
+- ✓ Correct handling of time datatypes with value nodes
+
+### Test Coverage:
+- `test_property_shape_with_labels_and_descriptions()` - Verify PropertyShape stores labels/descriptions
+- `test_property_shape_empty_labels_descriptions()` - Verify default empty dicts
+- `test_property_shape_factory_with_labels_descriptions()` - Factory accepts metadata
+- `test_property_shape_factory_without_labels_descriptions()` - Factory works without metadata
+- `test_property_shape_factory_time_datatype_with_metadata()` - Time datatype with value_node
+- `test_property_registry_shape_method()` - Registry returns PropertyShape with metadata
+- `test_property_registry_shape_not_found()` - Registry raises KeyError for missing properties
+- `test_loader_with_json_and_csv()` - Integration test: JSON + CSV merge
+- `test_loader_without_csv_fallback_to_string()` - Fallback to "string" when no CSV
+- `test_loader_empty_labels_descriptions()` - Handles missing labels/descriptions in JSON
 
 Looking at `test_data/rdf/ttl/Q17948861.ttl` vs generated output, following features are still missing:
 

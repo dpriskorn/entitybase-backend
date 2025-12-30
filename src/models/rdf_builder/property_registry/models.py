@@ -15,5 +15,7 @@ class PropertyShape(BaseModel):
     pid: str
     datatype: str
     predicates: PropertyPredicates
+    labels: dict[str, dict] = {}
+    descriptions: dict[str, dict] = {}
 
     model_config = ConfigDict(frozen=True)

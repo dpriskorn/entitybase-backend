@@ -4,7 +4,12 @@ from models.rdf_builder.property_registry.models import (
 )
 
 
-def property_shape(pid: str, datatype: str) -> PropertyShape:
+def property_shape(
+    pid: str,
+    datatype: str,
+    labels: dict[str, dict] | None = None,
+    descriptions: dict[str, dict] | None = None,
+) -> PropertyShape:
     base = {
         "direct": f"wdt:{pid}",
         "statement": f"ps:{pid}",
@@ -42,6 +47,8 @@ def property_shape(pid: str, datatype: str) -> PropertyShape:
             pid=pid,
             datatype=datatype,
             predicates=PropertyPredicates(**base),
+            labels=labels or {},
+            descriptions=descriptions or {},
         )
 
     if datatype in {
@@ -56,6 +63,8 @@ def property_shape(pid: str, datatype: str) -> PropertyShape:
                 **base,
                 value_node=f"psv:{pid}",
             ),
+            labels=labels or {},
+            descriptions=descriptions or {},
         )
 
     raise ValueError(f"Unsupported datatype: {datatype}")

@@ -1,3 +1,3 @@
 #!/bin/bash
 source .venv/bin/activate
-python src/scripts/download_properties_sparql.py "$@"
+python scripts/download_wikidata_entity.py "$@"

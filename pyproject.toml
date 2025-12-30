@@ -6,7 +6,7 @@ authors = [
     {name = "Nizo Priskorn",email = "68460690+dpriskorn@users.noreply.github.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.13,<4.0"
 dependencies = [
     "pydantic (>=2.12.5,<3.0.0)",
     "fastapi (>=0.127.1,<0.128.0)",
@@ -15,7 +15,7 @@ dependencies = [
     "pymysql (>=1.1.2,<2.0.0)",
     "uvicorn (>=0.40.0,<0.41.0)",
      "rapidhash (>=0.1.0,<0.2.0)",
-     "rdflib (>=7.5.0,<8.0.0)"
+     "rdflib (>=7.5.0,<8.0.0)",
  ]
 
 
