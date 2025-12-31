@@ -64,3 +64,41 @@ def test_write_globe_value_node():
     assert 'wikibase:geoLongitude "1.88108"^^xsd:double' in result
     assert 'wikibase:geoPrecision "1e-05"^^xsd:double' in result
     assert 'wikibase:geoGlobe <http://www.wikidata.org/entity/Q2>' in result
+
+
+def test_write_quantity_value_node_with_bounds():
+    """Test writing quantity value node with upper and lower bounds"""
+    quantity_val = QuantityValue(
+        value="+5",
+        unit="http://www.wikidata.org/entity/Q11573",
+        upper_bound="+5.5",
+        lower_bound="+4.5"
+    )
+
+    output = StringIO()
+    ValueNodeWriter.write_quantity_value_node(output, "testbounds", quantity_val)
+
+    result = output.getvalue()
+
+    assert 'wdv:testbounds a wikibase:QuantityValue' in result
+    assert 'wikibase:quantityAmount "+5"^^xsd:decimal' in result
+    assert 'wikibase:quantityUnit <http://www.wikidata.org/entity/Q11573>' in result
+    assert 'wikibase:quantityUpperBound "+5.5"^^xsd:decimal' in result
+    assert 'wikibase:quantityLowerBound "+4.5"^^xsd:decimal' in result
+
+
+def test_write_quantity_value_node_upper_bound_only():
+    """Test writing quantity value node with only upper bound"""
+    quantity_val = QuantityValue(
+        value="+5",
+        unit="http://www.wikidata.org/entity/Q11573",
+        upper_bound="+5.5"
+    )
+
+    output = StringIO()
+    ValueNodeWriter.write_quantity_value_node(output, "upperonly", quantity_val)
+
+    result = output.getvalue()
+
+    assert 'wikibase:quantityUpperBound "+5.5"^^xsd:decimal' in result
+    assert 'quantityLowerBound' not in result

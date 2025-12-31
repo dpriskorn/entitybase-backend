@@ -51,9 +51,12 @@ Converts internal Entity models to RDF (Turtle format) following Wikibase RDF ma
  | **Structured Value Nodes** | | |
  | Time value decomposition | ✓ Implemented | `wdv:` nodes with timeValue, timePrecision, timeTimezone, timeCalendarModel |
  | Quantity value decomposition | ✓ Implemented | `wdv:` nodes with quantityAmount, quantityUnit |
+ | Quantity value bounds | ✓ Implemented | `wdv:` nodes with optional quantityUpperBound, quantityLowerBound |
  | Globe coordinate decomposition | ✓ Implemented | `wdv:` nodes with geoLatitude, geoLongitude, geoPrecision, geoGlobe |
- | Value node linking | ✓ Implemented | psv:Pxxx predicates link statements to wdv: nodes |
+ | Value node linking | ✓ Implemented | psv:Pxxx, pqv:Pxxx, prv:Pxxx predicates linking to wdv: nodes |
  | Value node URI generation | ✓ Implemented | MD5-based hash for consistent `wdv:` IDs |
+ | Qualifier value nodes | ✓ Implemented | pqv:Pxxx predicates link qualifiers to wdv: nodes |
+ | Reference value nodes | ✓ Implemented | prv:Pxxx predicates link references to wdv: nodes |
 
 ---
 
@@ -440,17 +443,20 @@ Looking at `test_data/rdf/ttl/Q17948861.ttl` vs generated output, following feat
 ### IN PROGRESS: Missing Value Node Features
 Remaining features for complete value node support:
 
-1. **Quantity bounds** - 🟡 TODO
-   - Support `upper_bound` and `lower_bound` in QuantityValue
-   - Write `wikibase:quantityUpperBound` / `wikibase:quantityLowerBound` predicates
+1. **Quantity bounds** - ✓ Completed
+   - ✓ Support `upper_bound` and `lower_bound` in QuantityValue
+   - ✓ Write `wikibase:quantityUpperBound` / `wikibase:quantityLowerBound` predicates
+   - ✓ Tests passing for bounds handling
 
-2. **Qualifier value nodes** - 🟡 TODO
-   - Generate `pqv:Pxxx` links for structured qualifiers
-   - Write corresponding `wdv:` nodes for time/quantity/globe qualifiers
+2. **Qualifier value nodes** - ✓ Completed
+   - ✓ Generate `pqv:Pxxx` links for structured qualifiers
+   - ✓ Write corresponding `wdv:` nodes for time/quantity/globe qualifiers
+   - ✓ Added `qualifier_value` predicate to PropertyPredicates
 
-3. **Reference value nodes** - 🟡 TODO
-   - Generate `prv:Pxxx` links for structured references
-   - Write corresponding `wdv:` nodes for time/quantity/globe references
+3. **Reference value nodes** - ✓ Completed
+   - ✓ Generate `prv:Pxxx` links for structured references
+   - ✓ Write corresponding `wdv:` nodes for time/quantity/globe references
+   - ✓ Added `reference_value` predicate to PropertyPredicates
 
 ### PLANNED: Truthy Mode
 Implement lightweight RDF generation for queries:
@@ -468,8 +474,11 @@ Implement lightweight RDF generation for queries:
 - ✓ Property predicate declarations - Generate `owl:ObjectProperty` blocks for each property predicate
 - ✓ No value constraint blocks - Generate `wdno:Pxxx` with blank node `owl:complementOf`
 - ✓ Direct claim triples - Generate `wdt:Pxxx` triples for best-rank (truthy) values
-- ✓ Value node decomposition - Generate `wdv:` nodes for time, quantity, and globe coordinates
- - ✓ Value node linking - Use `psv:Pxxx` predicates to link statements to value nodes
+ - ✓ Value node decomposition - Generate `wdv:` nodes for time, quantity, and globe coordinates
+  - ✓ Value node linking - Use `psv:Pxxx` predicates to link statements to value nodes
+  - ✓ Quantity bounds - Support `upper_bound` and `lower_bound` in quantity value nodes
+  - ✓ Qualifier value nodes - Support `pqv:Pxxx` predicates for structured qualifiers
+  - ✓ Reference value nodes - Support `prv:Pxxx` predicates for structured references
 
 ### COMPLETED: Structured Value Node Implementation
 

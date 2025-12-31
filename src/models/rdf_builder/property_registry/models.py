@@ -7,6 +7,8 @@ class PropertyPredicates(BaseModel):
     qualifier: str
     reference: str
     value_node: str | None = None
+    qualifier_value: str | None = None
+    reference_value: str | None = None
 
     model_config = ConfigDict(frozen=True)
 

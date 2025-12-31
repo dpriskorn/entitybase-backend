@@ -130,9 +130,24 @@ class TripleWriters:
         # Qualifiers
         for qual in rdf_statement.qualifiers:
             qv = ValueFormatter.format_value(qual.value)
-            output.write(
-                f'<{stmt_uri_prefixed}> {shape.predicates.qualifier} {qv} .\n'
-            )
+            
+            if TripleWriters._needs_value_node(qual.value):
+                qualifier_node_id = generate_value_node_uri(qual.value, f"{rdf_statement.property_id}-q")
+                
+                output.write(
+                    f'<{stmt_uri_prefixed}> {shape.predicates.qualifier_value} wdv:{qualifier_node_id} .\n'
+                )
+                
+                if qual.value.kind == "time":
+                    ValueNodeWriter.write_time_value_node(output, qualifier_node_id, qual.value)
+                elif qual.value.kind == "quantity":
+                    ValueNodeWriter.write_quantity_value_node(output, qualifier_node_id, qual.value)
+                elif qual.value.kind == "globe":
+                    ValueNodeWriter.write_globe_value_node(output, qualifier_node_id, qual.value)
+            else:
+                output.write(
+                    f'<{stmt_uri_prefixed}> {shape.predicates.qualifier} {qv} .\n'
+                )
         
         # References
         for ref in rdf_statement.references:
@@ -144,6 +159,21 @@ class TripleWriters:
             
             for snak in ref.snaks:
                 rv = ValueFormatter.format_value(snak.value)
-                output.write(
-                    f'<{ref_uri}> {shape.predicates.reference} {rv} .\n'
-                )
+                
+                if TripleWriters._needs_value_node(snak.value):
+                    ref_node_id = generate_value_node_uri(snak.value, f"{rdf_statement.property_id}-r")
+                    
+                    output.write(
+                        f'<{ref_uri}> {shape.predicates.reference_value} wdv:{ref_node_id} .\n'
+                    )
+                    
+                    if snak.value.kind == "time":
+                        ValueNodeWriter.write_time_value_node(output, ref_node_id, snak.value)
+                    elif snak.value.kind == "quantity":
+                        ValueNodeWriter.write_quantity_value_node(output, ref_node_id, snak.value)
+                    elif snak.value.kind == "globe":
+                        ValueNodeWriter.write_globe_value_node(output, ref_node_id, snak.value)
+                else:
+                    output.write(
+                        f'<{ref_uri}> {shape.predicates.reference} {rv} .\n'
+                    )

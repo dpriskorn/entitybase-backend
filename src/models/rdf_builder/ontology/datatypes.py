@@ -25,8 +25,6 @@ def property_shape(
         "wikibase-monolingualtext",
         "monolingualtext",
         "commonsmedia",
-        "globecoordinate",
-        "quantity",
         "url",
         "math",
         "musical-notation",
@@ -55,6 +53,7 @@ def property_shape(
         "time",
         "globe-coordinate",
         "wikibase-globe-coordinate",
+        "quantity",
     }:
         return PropertyShape(
             pid=pid,
@@ -62,6 +61,8 @@ def property_shape(
             predicates=PropertyPredicates(
                 **base,
                 value_node=f"psv:{pid}",
+                qualifier_value=f"pqv:{pid}",
+                reference_value=f"prv:{pid}",
             ),
             labels=labels or {},
             descriptions=descriptions or {},

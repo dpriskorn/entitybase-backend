@@ -22,7 +22,18 @@ class ValueNodeWriter:
         """Write quantity value node block"""
         output.write(f'wdv:{value_id} a wikibase:QuantityValue ;\n')
         output.write(f'\twikibase:quantityAmount "{quantity_value.value}"^^xsd:decimal ;\n')
-        output.write(f'\twikibase:quantityUnit <{quantity_value.unit}> .\n')
+        output.write(f'\twikibase:quantityUnit <{quantity_value.unit}>')
+
+        if quantity_value.upper_bound:
+            output.write(f' ;\n')
+            output.write(f'\twikibase:quantityUpperBound "{quantity_value.upper_bound}"^^xsd:decimal')
+
+        if quantity_value.lower_bound:
+            if not quantity_value.upper_bound:
+                output.write(f' ;\n')
+            output.write(f'\twikibase:quantityLowerBound "{quantity_value.lower_bound}"^^xsd:decimal')
+
+        output.write(f' .\n')
 
     @staticmethod
     def write_globe_value_node(output: TextIO, value_id: str, globe_value):
