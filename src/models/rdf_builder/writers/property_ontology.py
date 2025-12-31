@@ -2,6 +2,7 @@ from typing import TextIO
 import hashlib
 
 from models.rdf_builder.property_registry.models import PropertyShape
+from models.config.settings import settings
 
 
 class PropertyOntologyWriter:
@@ -78,13 +79,16 @@ class PropertyOntologyWriter:
 
     @staticmethod
     def _generate_blank_node_id(property_id: str) -> str:
-        """Generate stable blank node ID for property no-value"""
-        # Wikibase algorithm: hash property_id with rank info
-        # For now, we skip rank (will use empty string)
-        # This should match Wikidata's blank node generation pattern
-        hash_input = f"{property_id}"  # or potentially f"{property_id}normal" with rank
-        hash_bytes = hashlib.sha1(hash_input.encode()).digest()
-        return hash_bytes[:16].hex()
+        """Generate stable blank node ID for property no-value
+
+        Matches MediaWiki Wikibase algorithm from PropertySpecificComponentsRdfBuilder.php:
+        md5(implode('-', ['owl:complementOf', $repositoryName, $localName]))
+
+        For wikidata.org, repositoryName is 'wikidata' (default in settings)
+        """
+        repository_name = settings.wikibase_repository_name
+        hash_input = f"owl:complementOf-{repository_name}-{property_id}"
+        return hashlib.md5(hash_input.encode()).hexdigest()
 
     @staticmethod
     def write_novalue_class(output: TextIO, property_id: str):

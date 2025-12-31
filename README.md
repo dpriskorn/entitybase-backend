@@ -59,6 +59,7 @@ Start with [ARCHITECTURE.md](./doc/ARCHITECTURE/ARCHITECTURE.md) for the complet
 
 | Document                                                                                              | Description                          |
 |-------------------------------------------------------------------------------------------------------|--------------------------------------|
+| [RDF-BUILDER-IMPLEMENTATION.md](./doc/ARCHITECTURE/RDF-BUILDER-IMPLEMENTATION.md)                         | RDF builder implementation details |
 | [CHANGE-DETECTION-RDF-GENERATION.md](./doc/ARCHITECTURE/CHANGE-DETECTION-RDF-GENERATION.md)               | RDF generation architecture overview |
 | [JSON-RDF-CONVERTER.md](./doc/ARCHITECTURE/JSON-RDF-CONVERTER.md)                                         | JSON→RDF conversion service          |
 | [WEEKLY-RDF-DUMP-GENERATOR.md](./doc/ARCHITECTURE/WEEKLY-RDF-DUMP-GENERATOR.md)                           | Weekly dump generation service       |
