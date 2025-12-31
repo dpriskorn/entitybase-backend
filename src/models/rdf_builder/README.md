@@ -4,8 +4,8 @@
 
 Converts internal Entity models to RDF (Turtle format) following Wikibase RDF mapping rules.
 
-**Parser Status:** ✓ COMPLETE  
-**RDF Generation Status:** ⚠️ IN PROGRESS
+**Parser Status:** ✓ COMPLETE
+**RDF Generation Status:** 🟡 IN PROGRESS - Value nodes remaining
 
 ### Parser Capabilities
 
@@ -47,9 +47,12 @@ Converts internal Entity models to RDF (Turtle format) following Wikibase RDF ma
 | Property value predicates | ✓ Implemented | `write_property_metadata()` includes value predicates |
 | No value constraints | ✓ Implemented | `write_novalue_class()` generates wdno:Pxxx blocks |
 | Direct claim triples | ✓ Implemented | `write_direct_claim()` generates wdt:Pxxx for best-rank |
-| Referenced entity metadata | ✓ Implemented | Collects and writes wd:Qxxx metadata blocks |
-| **Missing Features** | | |
-| Value nodes (structured) | ✗ Not Started | `wdv:` URIs for time/globe-coordinate decomposition |
+ | Referenced entity metadata | ✓ Implemented | Collects and writes wd:Qxxx metadata blocks |
+ | **Structured Value Nodes** | | |
+ | Time value decomposition | 🟡 TODO | `wdv:` nodes with timeValue, timePrecision, timeTimezone, timeCalendarModel |
+ | Quantity value decomposition | 🟡 TODO | `wdv:` nodes with quantityAmount, quantityUnit, optional bounds |
+ | Globe coordinate decomposition | 🟡 TODO | `wdv:` nodes with geoLatitude, geoLongitude, geoPrecision, geoGlobe |
+ | Value node linking | 🟡 TODO | psv:Pxxx, pqv:Pxxx, prv:Pxxx predicates linking to wdv: nodes |
 
 ---
 
@@ -433,14 +436,56 @@ Looking at `test_data/rdf/ttl/Q17948861.ttl` vs generated output, following feat
 
 ## Next Steps
 
-1. ~~Collect referenced entities~~ ✓ COMPLETED - Scan all statement values for entity references (wd:Qxxx) and collect unique set
-2. ~~Generate referenced entity metadata~~ ✓ COMPLETED - For each referenced entity, write full metadata block (labels, descriptions, aliases)
-3. ~~Property metadata generation~~ ✓ COMPLETED - For each property used in entity:
+### COMPLETED
+- ✓ Collect referenced entities - Scan all statement values for entity references (wd:Qxxx) and collect unique set
+- ✓ Generate referenced entity metadata - For each referenced entity, write full metadata block (labels, descriptions, aliases)
+- ✓ Property metadata generation - For each property used in entity:
     - Write `wd:Pxxx a wikibase:Property` with labels, descriptions, propertyType
     - Write all 10 predicate declarations (directClaim, claim, statementProperty, etc.)
-4. ~~Property predicate declarations~~ ✓ COMPLETED - Generate `owl:ObjectProperty` blocks for each property predicate
-5. ~~No value constraint blocks~~ ✓ COMPLETED - Generate `wdno:Pxxx` with blank node `owl:complementOf`
-6. ~~Direct claim triples~~ ✓ COMPLETED - Generate `wdt:Pxxx` triples for best-rank (truthy) values
-7. **Value node decomposition**: For time/globe-coordinate quantities, decompose into `wdv:` nodes with individual components
+- ✓ Property predicate declarations - Generate `owl:ObjectProperty` blocks for each property predicate
+- ✓ No value constraint blocks - Generate `wdno:Pxxx` with blank node `owl:complementOf`
+- ✓ Direct claim triples - Generate `wdt:Pxxx` triples for best-rank (truthy) values
+
+### IN PROGRESS: Value Node Decomposition
+Small incremental steps for structured value support:
+
+1. **Value node ID generation** - Create hash-based `wdv:` URIs for structured values
+2. **Time value decomposition** - Generate `wdv:` nodes for time values with:
+   - `wikibase:timeValue` - The datetime value
+   - `wikibase:timePrecision` - Precision level (0-14)
+   - `wikibase:timeTimezone` - Timezone offset
+   - `wikibase:timeCalendarModel` - Calendar model URI
+3. **Quantity value decomposition** - Generate `wdv:` nodes for quantity values with:
+   - `wikibase:quantityAmount` - The numeric value
+   - `wikibase:quantityUnit` - Unit entity URI
+   - Optional `wikibase:quantityUpperBound` / `wikibase:quantityLowerBound`
+4. **Globe coordinate decomposition** - Generate `wdv:` nodes for geo coordinates with:
+   - `wikibase:geoLatitude` - Latitude value
+   - `wikibase:geoLongitude` - Longitude value
+   - `wikibase:geoPrecision` - Precision value
+   - `wikibase:geoGlobe` - Globe entity URI
+5. **Value node linking** - Use `psv:`, `pqv:`, `prv:` predicates to link statements to value nodes
+
+### Value Node Examples
+
+Time value node:
+```turtle
+wds:Q182397-FA20AC3A-5627-4EC5-93CA-24F0F00C8AA6 psv:P569 wdv:cd6dd2e48a93286891b0753a1110ac0a .
+
+wdv:cd6dd2e48a93286891b0753a1110ac0a a wikibase:TimeValue ;
+	wikibase:timeValue "1964-05-15T00:00:00Z"^^xsd:dateTime ;
+	wikibase:timePrecision "11"^^xsd:integer ;
+	wikibase:timeTimezone "0"^^xsd:integer ;
+	wikibase:timeCalendarModel <http://www.wikidata.org/entity/Q1985727> .
+```
+
+Quantity value node:
+```turtle
+wds:Q182397-F7204F5E-AC17-4484-B35F-F3582715B77B psv:P1971 wdv:26735f5641071ce58303f506fe005a54 .
+
+wdv:26735f5641071ce58303f506fe005a54 a wikibase:QuantityValue ;
+	wikibase:quantityAmount "+3"^^xsd:decimal ;
+	wikibase:quantityUnit <http://www.wikidata.org/entity/Q199> .
+```
 
 

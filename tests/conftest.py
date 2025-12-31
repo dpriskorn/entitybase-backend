@@ -38,6 +38,10 @@ def api_client(base_url: str) -> Generator[requests.Session, None, None]:
 @pytest.fixture(scope="session", autouse=True)
 def wait_for_api(api_client: requests.Session, base_url: str) -> None:
     """Wait for API to become healthy before running tests"""
+    if os.getenv("SKIP_API_CHECK") == "true":
+        logging.info("Skipping API health check (SKIP_API_CHECK=true)")
+        return
+
     max_retries = 30
     retry_delay = 1
 

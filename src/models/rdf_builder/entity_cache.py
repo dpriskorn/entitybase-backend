@@ -57,7 +57,7 @@ def _fetch_entity_metadata_batch(entity_ids: list[str]) -> dict[str, dict]:
         except Exception as e:
             logger.error(f"Failed to fetch batch {i//batch_size + 1}: {e}")
             for entity_id in batch:
-                results[entity_id] = {}
+                results[entity_id] = None
 
     return results
 
@@ -69,7 +69,10 @@ def load_entity_metadata(entity_id: str, metadata_dir: Path) -> dict:
     if json_path.exists():
         return json.loads(json_path.read_text(encoding="utf-8"))
 
-    metadata = _fetch_entity_metadata_batch([entity_id])[entity_id]
+    metadata = _fetch_entity_metadata_batch([entity_id]).get(entity_id)
+
+    if not metadata:
+        raise FileNotFoundError(f"Entity {entity_id} not found")
 
     if metadata:
         json_path.write_text(json.dumps(metadata, indent=2), encoding="utf-8")
