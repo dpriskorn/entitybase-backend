@@ -62,7 +62,7 @@ def test_write_globe_value_node():
     assert 'wdv:test123 a wikibase:GlobecoordinateValue' in result
     assert 'wikibase:geoLatitude "50.94636"^^xsd:double' in result
     assert 'wikibase:geoLongitude "1.88108"^^xsd:double' in result
-    assert 'wikibase:geoPrecision "1e-05"^^xsd:double' in result
+    assert 'wikibase:geoPrecision "1.0E-5"^^xsd:double' in result
     assert 'wikibase:geoGlobe <http://www.wikidata.org/entity/Q2>' in result
 
 

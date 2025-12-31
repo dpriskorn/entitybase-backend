@@ -52,7 +52,7 @@ def test_serialize_globe_value():
         globe="http://www.wikidata.org/entity/Q2"
     )
     serialized = _serialize_value(value)
-    expected = "g:50.94636:1.88108:1e-05:http://www.wikidata.org/entity/Q2"
+    expected = "g:50.94636:1.88108:1.0E-5:http://www.wikidata.org/entity/Q2"
     assert serialized == expected
 
 

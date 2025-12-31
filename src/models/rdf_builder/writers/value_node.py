@@ -1,6 +1,28 @@
 from typing import TextIO
+import re
 
 from models.rdf_builder.uri_generator import URIGenerator
+
+
+def _format_scientific_notation(value: float) -> str:
+    """Format value in scientific notation without leading zeros in exponent.
+    
+    Converts Python's 1.0E-05 format to Wikidata's 1.0E-5 format.
+    
+    Args:
+        value: Numeric value to format
+        
+    Returns:
+        String in scientific notation (e.g., "1.0E-5")
+    """
+    formatted = f"{value:.1E}"
+    match = re.match(r"([+-]?[0-9.]+E)([+-])0([0-9]+)$", formatted)
+    if match:
+        mantissa = match.group(1)
+        sign = match.group(2)
+        exponent = match.group(3)
+        return f"{mantissa}{sign}{exponent}"
+    return formatted
 
 
 class ValueNodeWriter:
@@ -11,7 +33,7 @@ class ValueNodeWriter:
     @staticmethod
     def write_time_value_node(output: TextIO, value_id: str, time_value):
         """Write time value node block"""
-        time_str = time_value.value.lstrip('+')
+        time_str = time_value.value
         output.write(f'wdv:{value_id} a wikibase:TimeValue ;\n')
         output.write(f'\twikibase:timeValue "{time_str}"^^xsd:dateTime ;\n')
         output.write(f'\twikibase:timePrecision "{time_value.precision}"^^xsd:integer ;\n')
@@ -39,7 +61,7 @@ class ValueNodeWriter:
     @staticmethod
     def write_globe_value_node(output: TextIO, value_id: str, globe_value):
         """Write globe coordinate value node block"""
-        precision_formatted = f"{globe_value.precision:.1E}".replace("E-0", "E-").replace("E+0", "E+")
+        precision_formatted = _format_scientific_notation(globe_value.precision)
         output.write(f'wdv:{value_id} a wikibase:GlobecoordinateValue ;\n')
         output.write(f'\twikibase:geoLatitude "{globe_value.latitude}"^^xsd:double ;\n')
         output.write(f'\twikibase:geoLongitude "{globe_value.longitude}"^^xsd:double ;\n')

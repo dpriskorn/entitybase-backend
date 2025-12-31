@@ -1,5 +1,27 @@
 import hashlib
+import re
 from typing import Any
+
+
+def _format_scientific_notation(value: float) -> str:
+    """Format value in scientific notation without leading zeros in exponent.
+    
+    Converts Python's 1.0E-05 format to Wikidata's 1.0E-5 format.
+    
+    Args:
+        value: Numeric value to format
+        
+    Returns:
+        String in scientific notation (e.g., "1.0E-5")
+    """
+    formatted = f"{value:.1E}"
+    match = re.match(r"([+-]?[0-9.]+E)([+-])0([0-9]+)$", formatted)
+    if match:
+        mantissa = match.group(1)
+        sign = match.group(2)
+        exponent = match.group(3)
+        return f"{mantissa}{sign}{exponent}"
+    return formatted
 
 
 def generate_value_node_uri(value: Any, property_id: str) -> str:
@@ -36,8 +58,13 @@ def _serialize_value(value: Any) -> str:
         kind = value.kind
 
         if kind == "time":
-            time_str = value.value.lstrip('+')
-            return f"t:{time_str}:{value.precision}:{value.timezone}:{value.before}:{value.after}:{value.calendarmodel}"
+            parts = [f"t:{value.value}", value.precision, value.timezone]
+            if value.before != 0:
+                parts.append(value.before)
+            if value.after != 0:
+                parts.append(value.after)
+            parts.append(value.calendarmodel)
+            return ":".join(str(p) for p in parts)
 
         elif kind == "quantity":
             parts = [f"q:{value.value}:{value.unit}"]
@@ -48,7 +75,7 @@ def _serialize_value(value: Any) -> str:
             return ":".join(parts)
 
         elif kind == "globe":
-            precision_str = f"{value.precision:.1E}".replace("E-0", "E-").replace("E+0", "E+")
-            return f"g:{value.latitude}:{value.longitude}:{precision_str}:{value.globe}"
+            precision_formatted = _format_scientific_notation(value.precision)
+            return f"g:{value.latitude}:{value.longitude}:{precision_formatted}:{value.globe}"
 
     return str(value)

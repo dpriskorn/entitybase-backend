@@ -100,7 +100,7 @@ def test_write_property_predicates_with_value_node():
     assert "psv:P585 a owl:ObjectProperty" in result
     assert "pqv:P585 a owl:ObjectProperty" in result
     assert "prv:P585 a owl:ObjectProperty" in result
-    assert "wdt:P585 a owl:ObjectProperty" in result
+    assert "wdt:P585 a owl:DatatypeProperty" in result
     assert "ps:P585 a owl:ObjectProperty" in result
     assert "pq:P585 a owl:ObjectProperty" in result
     assert "pr:P585 a owl:ObjectProperty" in result

@@ -1,4 +1,5 @@
 import logging
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 from typing import TYPE_CHECKING
 
@@ -10,12 +11,14 @@ if TYPE_CHECKING:
 
 
 class Settings(BaseSettings):
-    s3_endpoint: str
-    s3_access_key: str
-    s3_secret_key: str
-    s3_bucket: str
-    vitess_host: str
-    vitess_port: int
+    model_config = ConfigDict(env_file=".env")
+
+    s3_endpoint: str = "http://minio:9000"
+    s3_access_key: str = "fakekey"
+    s3_secret_key: str = "fakesecret"
+    s3_bucket: str = "testbucket"
+    vitess_host: str = "vitess"
+    vitess_port: int = 15309
     vitess_database: str = "wikibase"
     vitess_user: str = "root"
     vitess_password: str = ""
@@ -24,9 +27,6 @@ class Settings(BaseSettings):
     test_log_level: str = "INFO"
     test_log_http_requests: bool = False
     test_show_progress: bool = True
-
-    class Config:
-        env_file = ".env"
 
     def to_s3_config(self):
         from models.infrastructure.s3_client import S3Config

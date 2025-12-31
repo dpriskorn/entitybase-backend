@@ -119,11 +119,22 @@ Start with [ARCHITECTURE.md](./doc/ARCHITECTURE/ARCHITECTURE.md) for the complet
 - **Fixed qualifier entity collection**: Entities referenced in qualifiers are now written to TTL
 - **Downloaded missing metadata**: Fetched 59 entity metadata files from Wikidata SPARQL
 
+**Phase 5: Data Model Alignment (Dec 31)**
+- **Fixed globe precision format**: Implemented `_format_scientific_notation()` to remove leading zeros from exponents (e.g., "1.0E-05" → "1.0E-5")
+- **Fixed time hash serialization**: Preserves "+" prefix in hash but omits before/after when 0 for consistency with Wikidata format
+- **Fixed OWL property types**: psv:, pqv:, prv: are always owl:ObjectProperty; wdt: follows datatype (ObjectProperty for items, DatatypeProperty for literals)
+- **Updated test expectations**: Aligned tests with golden TTL format from Wikidata
+
 **Test Status**
 - ✅ Q17948861: Perfect match (0 missing, 0 extra)
 - ✅ Q120248304: 0 missing, 2 extra (hash differences only - 100% content match)
 - ✅ Q1: 44 missing, 35 extra (9 redirects + 35 value nodes)
 - 🔴 Q42: Pending (complex entity with 293 properties)
+
+**Integration Test Status**
+- ✅ Property ontology tests (fixed OWL type declarations)
+- ✅ Globe precision formatting (matches golden TTL: "1.0E-5")
+- ✅ Time value serialization (preserves + prefix, omits before/after when 0)
 
 **Remaining Issues**
 - Redirect entities appear as "missing" but correctly use `owl:sameAs` (expected behavior)
