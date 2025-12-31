@@ -44,6 +44,7 @@ def _fetch_entity_metadata_batch(entity_ids: list[str]) -> dict[str, dict]:
                 description = row.get("description", {}).get("value", "")
 
                 metadata = {}
+                metadata["id"] = entity_id
                 if label:
                     metadata["labels"] = {"en": {"language": "en", "value": label}}
                 if description:
@@ -58,6 +59,35 @@ def _fetch_entity_metadata_batch(entity_ids: list[str]) -> dict[str, dict]:
             logger.error(f"Failed to fetch batch {i//batch_size + 1}: {e}")
             for entity_id in batch:
                 results[entity_id] = None
+
+    return results
+
+
+def load_entity_metadata_batch(entity_ids: list[str], metadata_dir: Path) -> dict[str, bool]:
+    """Fetch and save metadata for multiple entities.
+
+    Args:
+        entity_ids: List of entity IDs to fetch metadata for
+        metadata_dir: Directory to save metadata files
+
+    Returns:
+        Dictionary mapping entity_id to success status (True/False)
+    """
+    metadata_dir.mkdir(parents=True, exist_ok=True)
+
+    results = {}
+    fetched_metadata = _fetch_entity_metadata_batch(entity_ids)
+
+    for entity_id, metadata in fetched_metadata.items():
+        if metadata:
+            output_path = metadata_dir / f"{entity_id}.json"
+            with open(output_path, 'w', encoding='utf-8') as f:
+                json.dump(metadata, f, indent=2, ensure_ascii=False)
+            logger.info(f"Saved metadata for {entity_id} to {output_path}")
+            results[entity_id] = True
+        else:
+            logger.warning(f"Failed to fetch metadata for {entity_id}")
+            results[entity_id] = False
 
     return results
 

@@ -68,8 +68,7 @@ class PropertyOntologyWriter:
         """Write property ontology with all predicate declarations"""
         pid = shape.pid
         output.write(f'p:{pid} a owl:ObjectProperty .\n')
-        if shape.predicates.value_node:
-            output.write(f'psv:{pid} a owl:ObjectProperty .\n')
+        output.write(f'psv:{pid} a owl:ObjectProperty .\n')
         output.write(f'pqv:{pid} a owl:ObjectProperty .\n')
         output.write(f'prv:{pid} a owl:ObjectProperty .\n')
         output.write(f'wdt:{pid} a owl:ObjectProperty .\n')
@@ -85,7 +84,7 @@ class PropertyOntologyWriter:
         # This should match Wikidata's blank node generation pattern
         hash_input = f"{property_id}"  # or potentially f"{property_id}normal" with rank
         hash_bytes = hashlib.sha1(hash_input.encode()).digest()
-        return hash_bytes[:12].hex()
+        return hash_bytes[:16].hex()
 
     @staticmethod
     def write_novalue_class(output: TextIO, property_id: str):

@@ -1,4 +1,5 @@
 {
+  "id": "Q837317",
   "labels": {
     "en": {
       "language": "en",
@@ -8,7 +9,7 @@
   "descriptions": {
     "en": {
       "language": "en",
-      "value": "nucleosynthesis that occurred during the Big Bang (between ca. 10\u207b\u00b2 and 200 seconds after the Big Bang)"
+      "value": "nucleosynthesis that occurred during the Big Bang (between ca. 10⁻² and 200 seconds after the Big Bang)"
     }
   }
 }

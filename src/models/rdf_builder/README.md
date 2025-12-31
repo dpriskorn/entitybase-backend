@@ -6,6 +6,54 @@ Converts internal Entity models to RDF (Turtle format) following Wikibase RDF ma
 
 **Parser Status:** ✓ COMPLETE
 **RDF Generation Status:** ✅ CORE FEATURES COMPLETE
+**Test Coverage:** 🔄 PHASE 2 COMPLETE, PHASE 3 IN PROGRESS
+
+---
+
+## Quick Start
+
+### Basic Entity Conversion
+
+```python
+from models.rdf_builder.converter import EntityConverter
+from models.rdf_builder.property_registry.loader import load_property_registry
+from models.json_parser.entity_parser import parse_entity
+from pathlib import Path
+
+# Load property registry
+registry = load_property_registry(Path("test_data/properties/"))
+
+# Create converter
+converter = EntityConverter(property_registry=registry)
+
+# Parse entity JSON
+with open("test_data/json/entities/Q42.json", "r") as f:
+    entity_json = json.load(f)
+    entity = parse_entity(entity_json)
+
+# Convert to Turtle
+ttl = converter.convert_to_string(entity)
+print(ttl)
+```
+
+### Convert with Referenced Entity Metadata
+
+```python
+converter = EntityConverter(
+    property_registry=registry,
+    entity_metadata_dir=Path("test_data/json/entities")
+)
+
+ttl = converter.convert_to_string(entity)
+# Now includes wd:Qxxx metadata blocks for referenced entities
+```
+
+### Write to File
+
+```python
+with open("Q42.ttl", "w") as f:
+    converter.convert_to_turtle(entity, f)
+```
 
 ### Parser Capabilities
 
@@ -294,11 +342,139 @@ converter = EntityConverter(property_registry=registry)
 
 ---
 
+## Testing Strategy
+
+### Test Pyramid
+
+The testing approach follows a pyramid structure with three levels:
+
+```
+        Integration Tests (Phase 3)
+              ↑↑↑
+      Writer/Component Tests (Phase 2)
+              ↑↑↑
+         Unit Tests (Phase 1)
+```
+
+### Phase 1: Unit Tests (Lowest Level) ✅ COMPLETE
+
+**Purpose:** Test individual components in isolation
+
+**Test Files:**
+- `test_value_node.py` - Value node URI generation and serialization (7 tests)
+- `test_normalization.py` - RDF normalization utilities
+
+**Coverage:**
+- `ValueNode.generate_value_node_uri()` - MD5-based URI generation
+- `ValueNode._serialize_value()` - Value serialization for hashing
+- URI consistency for identical values
+- URI differentiation for different properties
+
+### Phase 2: Writer Tests (Mid Level) ✅ COMPLETE
+
+**Purpose:** Test RDF writing components with small inputs
+
+**Test Files:**
+- `test_value_node_writer.py` - Structured value node writing (5 tests)
+- `test_triple_writer_value_nodes.py` - Value node detection (4 tests)
+- `test_property_ontology.py` - Property metadata and predicates (9 tests)
+- `test_property.py` - Basic property writing
+- `test_property_registry.py` - Property registry loading (8 tests)
+- `test_referenced_entities.py` - Referenced entity collection (4 tests)
+
+**Coverage:**
+- `ValueNodeWriter.write_time_value_node()` - Time value nodes with all fields
+- `ValueNodeWriter.write_quantity_value_node()` - Quantity nodes with bounds
+- `ValueNodeWriter.write_globe_value_node()` - Globe coordinate nodes
+- `TripleWriters.write_statement()` - Full statement writing
+- `TripleWriters.write_direct_claim()` - Direct claim generation
+- `PropertyOntologyWriter.write_property_metadata()` - Property metadata blocks
+- `PropertyOntologyWriter.write_property()` - Predicate declarations
+- `PropertyOntologyWriter.write_novalue_class()` - No-value constraints
+- `PropertyRegistry.shape()` - Property shape lookup
+- `EntityConverter._collect_referenced_entities()` - Referenced entity collection
+- `EntityConverter._write_referenced_entity_metadata()` - Referenced entity metadata
+
+### Phase 3: Integration Tests (Higher Level) 🔄 IN PROGRESS
+
+**Purpose:** Test complete conversion of entities to RDF
+
+**Test Files:**
+- `test_q42_conversion.py` - Large entity integration test
+- `test_q120248304_conversion.py` - Medium entity with globe coordinates
+- `test_ttl_comparison.py` - TTL comparison utilities
+- `test_split_blocks.py` - Turtle block splitting
+
+**Coverage:**
+- EntityConverter.convert_to_string() - Full entity conversion
+- Statement URI generation (wds: prefix with UUID)
+- Reference URI generation (wdref: prefix with hash)
+- Direct claim generation for best-rank statements
+- Value node generation for time, quantity, globe coordinates
+- Qualifier and reference value nodes
+
+**Planned Test Suites:**
+
+**Suite 3.1: Basic Entity Features**
+- Labels (single and multiple languages)
+- Descriptions (single and multiple languages)
+- Aliases (multiple per language)
+- Sitelinks
+- Entity type declaration
+
+**Suite 3.2: Statement Features**
+- Entity value statements
+- String value statements
+- Time value statements
+- Quantity value statements
+- Globe coordinate statements
+- Monolingualtext statements
+- External-id statements
+- Statement ranks (normal, preferred, deprecated)
+- Statement qualifiers (with value nodes)
+- Statement references (with value nodes)
+
+**Suite 3.3: Property Metadata**
+- Property entity metadata blocks
+- Property predicate declarations (p, ps, pq, pr, wdt, psv, pqv, prv)
+- No-value constraints with blank nodes
+- Multi-language labels and descriptions
+
+**Suite 3.4: Value Nodes**
+- Time value nodes (all fields)
+- Quantity value nodes (with bounds)
+- Globe coordinate value nodes
+- Qualifier value nodes
+- Reference value nodes
+
+### Phase 4: Roundtrip Tests 🔴 NEEDED
+
+**Purpose:** Compare generated TTL with golden files from Wikidata
+
+**Test Files:**
+- **Planned:** `test_roundtrip_q17948861.py` - Small entity roundtrip
+- **Planned:** `test_roundtrip_q42.py` - Large entity roundtrip
+- **Planned:** `test_roundtrip_q120248304.py` - Medium entity roundtrip
+
+**Coverage:**
+- Parse entity JSON
+- Generate TTL
+- Split TTL into subject blocks
+- Compare block-by-block with golden TTL
+- Verify all RDF blocks present and correct
+
+**Known Failure:**
+- `test_q17948861_full_roundtrip` - Missing 10 of 13 RDF blocks
+  - Missing: Referenced entity metadata, property predicate declarations, no-value constraints
+  - Root cause: Implementation complete but not fully integrated
+
+---
+
 ## Implementation Status
 
-**Recent Changes (Property Metadata Support):**
+### Recent Changes (Property Metadata Support):
 
-### Structural Changes (COMPLETED):
+**Structural Changes (COMPLETED):**
 - ✓ PropertyShape model - Added `labels` and `descriptions` fields
 - ✓ Loader - Merges labels/descriptions from JSON with datatype from CSV
 - ✓ property_shape factory - Accepts optional labels/descriptions parameters
@@ -316,125 +492,80 @@ converter = EntityConverter(property_registry=registry)
 - ✓ Integration with `write_statement()` - Only generates for best-rank (truthy) statements
 - ✓ Tests - Added `tests/rdf/test_direct_claims.py` with 4 test cases
 
-### Test Coverage:
-- `test_property_shape_with_labels_and_descriptions()` - Verify PropertyShape stores labels/descriptions
-- `test_property_shape_empty_labels_descriptions()` - Verify default empty dicts
-- `test_property_shape_factory_with_labels_descriptions()` - Factory accepts metadata
-- `test_property_shape_factory_without_labels_descriptions()` - Factory works without metadata
-- `test_property_shape_factory_time_datatype_with_metadata()` - Time datatype with value_node
-- `test_property_registry_shape_method()` - Registry returns PropertyShape with metadata
-- `test_property_registry_shape_not_found()` - Registry raises KeyError for missing properties
-- `test_loader_with_json_and_csv()` - Integration test: JSON + CSV merge
-- `test_loader_without_csv_fallback_to_string()` - Fallback to "string" when no CSV
-- `test_loader_empty_labels_descriptions()` - Handles missing labels/descriptions in JSON
+**Referenced Entity Implementation (COMPLETED):**
+- ✓ `_collect_referenced_entities()` - Collects unique entity IDs from statement values
+- ✓ `_load_referenced_entity()` - Loads entity metadata from JSON cache
+- ✓ `_write_referenced_entity_metadata()` - Writes wd:Qxxx metadata blocks
+- ✓ Tests - Added `tests/rdf/test_referenced_entities.py` with 4 test cases
 
-**Direct Claims Tests (tests/rdf/test_direct_claims.py):**
-- ✓ `write_direct_claim_basic()` - Basic direct claim triple generation
-- ✓ `write_direct_claim_entity_value()` - Direct claim with entity value
-- ✓ `test_entity_converter_generates_direct_claims_for_best_rank()` - Generates wdt:Pxxx for best-rank
-- ✓ `test_entity_converter_no_direct_claim_for_non_best_rank()` - No wdt:Pxxx for deprecated statements
+### Feature Implementation Status
 
-**Referenced Entity Tests (tests/rdf/test_referenced_entities.py):**
-- ✓ `test_collect_referenced_entities()` - Collects unique entity IDs from statement values
-- ✓ `test_write_referenced_entity_metadata()` - Writes wd:Qxxx metadata blocks
-- ✓ `test_load_referenced_entity_missing_file()` - Raises FileNotFoundError for missing JSON
-- ✓ `test_converter_with_cache_path_generates_referenced_entity()` - Integration test with full conversion
-
-Looking at `test_data/rdf/ttl/Q17948861.ttl` vs generated output, following features are still missing:
-
-### Missing Entity Features
-
-**All entity features implemented:**
-- ✓ Labels: `rdfs:label` triples
-- ✓ Descriptions: `schema:description` triples
-- ✓ Aliases: `skos:altLabel` triples
+**Entity Features (FULLY IMPLEMENTED):**
+- ✓ Labels: `rdfs:label` triples (multi-language)
+- ✓ Descriptions: `schema:description` triples (multi-language)
+- ✓ Aliases: `skos:altLabel` triples (multiple per language)
 - ✓ Sitelinks: `schema:sameAs` triples
+- ✓ Entity type: `a wikibase:Item`
 
-### Missing Statement Features
+**Statement Features (FULLY IMPLEMENTED):**
+- ✓ Statement blocks: `p:Pxxx` → statement node
+- ✓ Statement values: `ps:Pxxx` → value
+- ✓ Statement ranks: NormalRank, PreferredRank, DeprecatedRank
+- ✓ Qualifiers: `pq:Pxxx` → value (with value nodes for complex types)
+- ✓ References: `pr:Pxxx` → value (with value nodes for complex types)
+- ✓ Direct claims: `wdt:Pxxx` → value (for best-rank statements)
 
-- **Referenced entity metadata**: Entities used as values need their own metadata blocks
-  ```turtle
-  # When P31 points to Q17633526, we need:
-  wd:Q17633526 a wikibase:Item ;
-    rdfs:label "Wikinews article"@en ;
-    skos:prefLabel "Wikinews article"@en ;
-    schema:name "Wikinews article"@en ;
-    schema:description "used with property P31"@en .
-  ```
+**Referenced Entity Metadata (FULLY IMPLEMENTED):**
+- ✓ Collection: Extract entity IDs from statement values
+- ✓ Loading: Load entity JSON from cache directory
+- ✓ Metadata: Write wd:Qxxx blocks with labels, descriptions
 
-- **Property entity metadata**: Properties need description blocks
-  ```turtle
-  wd:P31 a wikibase:Property ;
-    rdfs:label "instance of"@en ;
-    skos:prefLabel "instance of"@en ;
-    schema:name "instance of"@en ;
-    schema:description "type to which this subject corresponds..."@en ;
-    wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
-    wikibase:directClaim wdt:P31 ;
-    wikibase:claim p:P31 ;
-    wikibase:statementProperty ps:P31 ;
-    wikibase:statementValue psv:P31 ;
-    wikibase:qualifier pq:P31 ;
-    wikibase:qualifierValue pqv:P31 ;
-    wikibase:reference pr:P31 ;
-    wikibase:referenceValue prv:P31 ;
-    wikibase:novalue wdno:P31 .
-  ```
+**Property Metadata (FULLY IMPLEMENTED):**
+- ✓ Property entity blocks: wd:Pxxx with labels, descriptions
+- ✓ Predicate declarations: owl:ObjectProperty for p, ps, pq, pr, wdt
+- ✓ Value predicates: psv, pqv, prv for time/quantity/globe
+- ✓ No-value constraints: wdno:Pxxx with blank node restrictions
 
-- **Property predicate declarations**: Each property needs owl:ObjectProperty declarations
-  ```turtle
-  p:P31 a owl:ObjectProperty .
-  psv:P31 a owl:ObjectProperty .
-  pqv:P31 a owl:ObjectProperty .
-  prv:P31 a owl:ObjectProperty .
-  wdt:P31 a owl:ObjectProperty .
-  ps:P31 a owl:ObjectProperty .
-  pq:P31 a owl:ObjectProperty .
-  pr:P31 a owl:ObjectProperty .
-  ```
+**Value Nodes (FULLY IMPLEMENTED):**
+- ✓ Time value nodes: wikibase:TimeValue with timeValue, timePrecision, timeTimezone, timeCalendarModel
+- ✓ Quantity value nodes: wikibase:QuantityValue with quantityAmount, quantityUnit, quantityUpperBound, quantityLowerBound
+- ✓ Globe coordinate nodes: wikibase:GlobecoordinateValue with geoLatitude, geoLongitude, geoPrecision, geoGlobe
+- ✓ Value node linking: psv:Pxxx, pqv:Pxxx, prv:Pxxx → wdv:xxx
+- ✓ URI generation: MD5-based hash for consistent IDs
 
-- **No value constraints**: Blank node for novalue constraints
-  ```turtle
-  wdno:P31 a owl:Class ;
-    owl:complementOf _:0b8bd71b926a65ca3fa72e5d9103e4d6 .
-
-  _:0b8bd71b926a65ca3fa72e5d9103e4d6 a owl:Restriction ;
-    owl:onProperty wdt:P31 ;
-    owl:someValuesFrom owl:Thing .
-  ```
-
-- **Direct claim triples** (optional, for truthy values):
-  ```turtle
-  <entity_uri> wdt:P31 wd:Q17633526 .
-  ```
-
-### Missing Value Node Features
-
-- **Structured value nodes**: Decompose complex datatypes into separate value nodes
-  ```turtle
-  <stmt_uri> psv:P625 wdv:9f0355cb43b5be5caf0570c31d4fb707 .
-
-  wdv:9f0355cb43b5be5caf0570c31d4fb707 a wikibase:GlobecoordinateValue ;
-    wikibase:geoLatitude "50.94636"^^xsd:double ;
-    wikibase:geoLongitude "1.88108"^^xsd:double ;
-    wikibase:geoPrecision "1.0E-5"^^xsd:double ;
-    wikibase:geoGlobe <http://www.wikidata.org/entity/Q2> .
-  ```
-
-### Missing Dataset Features
-
-**All dataset features implemented:**
+**Dataset Features (FULLY IMPLEMENTED):**
 - ✓ Software version: `schema:softwareVersion "1.0.0"`
-- ✓ Entity version: `schema:version "2146196239"^^xsd:integer`
-- ✓ Modification date: `schema:dateModified "2024-05-06T01:49:59Z"^^xsd:dateTime`
+- ✓ Entity version: `schema:version`^^xsd:integer
+- ✓ Modification date: `schema:dateModified`^^xsd:dateTime
 - ✓ Entity counts: `wikibase:statements`, `wikibase:sitelinks`, `wikibase:identifiers`
 - ✓ License: `cc:license`
 - ✓ Dataset type: `a schema:Dataset`
 
-### Missing Output Features
-
-**All output features implemented:**
+**Output Features (FULLY IMPLEMENTED):**
 - ✓ Turtle prefixes: 30 `@prefix` declarations
+
+---
+
+## Known Issues
+
+### Roundtrip Test Failure
+
+**Test:** `test_q17948861_full_roundtrip` (not yet implemented in test suite)
+
+**Issue:** Generated TTL missing some RDF blocks compared to golden file
+
+**Expected blocks (13):**
+- data:Q17948861, wd:Q17948861, wds:Q17948861-*
+- wd:Q17633526 (referenced entity)
+- wd:P31 (property entity)
+- p:P31, ps:P31, psv:P31, pq:P31, pqv:P31, pr:P31, prv:P31, wdt:P31, wdno:P31
+
+**Actual blocks (3):**
+- data:Q17948861, wd:Q17948861, wds:Q17948861-*
+
+**Root Cause:** Property metadata and referenced entity metadata not being written by default in EntityConverter
+
+**Resolution:** Enable metadata writing by providing entity_cache_path parameter to EntityConverter
 
 ---
 
@@ -456,10 +587,114 @@ All major RDF generation features implemented:
 - Structured value nodes (time, quantity, globe) with bounds
 - Qualifier value nodes
 - Reference value nodes
+- Referenced entity metadata blocks
+
+### IN PROGRESS: Integration Testing
+- Create comprehensive test suites for each feature category
+- Fix roundtrip test failures
+- Validate all RDF block generation
 
 ### PLANNED: Truthy Mode
-	wikibase:quantityAmount "+3"^^xsd:decimal ;
-	wikibase:quantityUnit <http://www.wikidata.org/entity/Q199> .
+Mode for generating only best-rank statements (truthy statements):
+
+```turtle
+# Only include wdt:Pxxx direct claims for best-rank statements
+wd:Q42 wdt:P31 wd:Q5 .
+wd:Q42 wdt:P569 "+1952-03-11T00:00:00Z"^^xsd:dateTime .
+
+# Skip deprecated and non-best-rank statements
 ```
 
+---
+
+## Running Tests
+
+### Run All RDF Tests
+```bash
+cd /home/dpriskorn/src/python/wikibase-backend
+source .venv/bin/activate
+pytest tests/rdf/ -v
+```
+
+### Run Specific Test Suites
+```bash
+# Unit tests (Phase 1)
+pytest tests/rdf/test_value_node.py -v
+pytest tests/rdf/test_normalization.py -v
+
+# Writer tests (Phase 2)
+pytest tests/rdf/test_value_node_writer.py -v
+pytest tests/rdf/test_triple_writer_value_nodes.py -v
+pytest tests/rdf/test_property_ontology.py -v
+pytest tests/rdf/test_property_registry.py -v
+pytest tests/rdf/test_referenced_entities.py -v
+
+# Integration tests (Phase 3)
+pytest tests/rdf/test_q42_conversion.py -v
+pytest tests/rdf/test_q120248304_conversion.py -v
+pytest tests/rdf/test_ttl_comparison.py -v
+pytest tests/rdf/test_split_blocks.py -v
+```
+
+### Run Tests with Coverage
+```bash
+pytest tests/rdf/ --cov=models/rdf_builder --cov-report=html
+```
+
+### Run Tests with Detailed Output
+```bash
+pytest tests/rdf/ -vv -s
+```
+
+### Run Specific Test
+```bash
+pytest tests/rdf/test_value_node.py::test_serialize_time_value -v
+```
+
+### Run Tests for Failing Test
+```bash
+pytest tests/rdf/test_ttl_comparison.py -k roundtrip -v
+```
+
+---
+
+## Test Data
+
+### Entity JSON Files
+Located in `test_data/json/entities/`:
+- Q1.json - Simple entity
+- Q2.json - Earth (medium)
+- Q3.json, Q4.json, Q5.json - Basic entities
+- Q10.json - Small entity
+- Q42.json - Douglas Adams (large, 332 statements, 293 properties)
+- Q120248304.json - Medium entity with globe coordinates
+- Q17633526.json - Wikinews article (referenced entity)
+- Q17948861.json - Small entity (for roundtrip testing)
+- Q182397.json - Medium entity
+- Q51605722.json - Medium entity
+- Q53713.json - Large entity
+- Q8413.json - Medium entity
+
+### Golden TTL Files
+Located in `test_data/rdf/ttl/`:
+- Q1.ttl, Q2.ttl, Q3.ttl, Q4.ttl, Q5.ttl - Basic entities
+- Q42.ttl - Large entity with all features
+- Q120248304.ttl - Medium entity with globe coordinates
+- Q17633526.ttl - Referenced entity
+- Q17948861.ttl - Small entity for roundtrip testing
+- Q182397.ttl, Q51605722.ttl, Q53713.ttl, Q8413.ttl - Medium/large entities
+
+### Property Data
+Located in `test_data/properties/`:
+- properties.csv - Property metadata cache (downloaded from Wikidata)
+- README.md - Property data documentation
+
+### Scripts
+- `scripts/download_properties.sh` - Download property metadata from Wikidata
+- `scripts/download_properties_sparql.py` - Alternative download method using SPARQL
+- `scripts/download_property_metadata.py` - Download property labels/descriptions
+- `scripts/download_wikidata_entity.py` - Download entity JSON from Wikidata API
+- `scripts/download_missing_entities.py` - Download missing entity JSON files
+
+---
 

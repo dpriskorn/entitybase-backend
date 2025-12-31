@@ -1,0 +1,15 @@
+{
+  "id": "Q577",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "year"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "the orbital period of the Earth: the estimated period of time for the Earth's orbit around the Sun and observed at a fixed geographic point (averaging 365.24 days); base later modified to define or adjust various calendars"
+    }
+  }
+}

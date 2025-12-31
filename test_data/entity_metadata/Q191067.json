@@ -1,0 +1,15 @@
+{
+  "id": "Q191067",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "article"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "text that forms an independent part of a publication"
+    }
+  }
+}

@@ -99,6 +99,7 @@ def test_q17948861_full_roundtrip():
 
     json_path = TEST_DATA_DIR / "json" / "entities" / f"{entity_id}.json"
     ttl_path = TEST_DATA_DIR / "rdf" / "ttl" / f"{entity_id}.ttl"
+    entity_metadata_dir = TEST_DATA_DIR / "entity_metadata"
 
     # Parse JSON and generate TTL
     entity_json = json.loads(json_path.read_text(encoding="utf-8"))
@@ -109,7 +110,7 @@ def test_q17948861_full_roundtrip():
     }
     registry = PropertyRegistry(properties=properties)
 
-    converter = EntityConverter(property_registry=registry)
+    converter = EntityConverter(property_registry=registry, entity_metadata_dir=entity_metadata_dir)
     actual_ttl = converter.convert_to_string(entity)
 
     # Load golden TTL

@@ -1,0 +1,15 @@
+{
+  "id": "Q15138389",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "Wikimedia article page"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "article in the main space of a Wikimedia site (note: various wikis, do NOT use this together with \"instance of\")"
+    }
+  }
+}
