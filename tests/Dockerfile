@@ -4,7 +4,7 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-RUN pip install pytest requests fastapi httpx rapidhash rdflib
+RUN pip install pytest requests fastapi httpx rapidhash rdflib pydantic-settings
 
 COPY ./tests/ ./tests/
 COPY ./src/ ./src/

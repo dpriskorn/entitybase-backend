@@ -1,0 +1,15 @@
+{
+  "id": "Q2611",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "Elias gamma coding"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "universal encoding scheme for positive integers"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "Q11182",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "network address translation"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "protocol facilitating connection of one IP address space to another"
+    }
+  }
+}

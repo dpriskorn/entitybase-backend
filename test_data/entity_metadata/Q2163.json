@@ -1,0 +1,15 @@
+{
+  "id": "Q2163",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "UTC−10:00"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "time zone 10 hours behind UTC"
+    }
+  }
+}

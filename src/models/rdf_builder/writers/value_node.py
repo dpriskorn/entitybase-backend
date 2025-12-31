@@ -11,8 +11,9 @@ class ValueNodeWriter:
     @staticmethod
     def write_time_value_node(output: TextIO, value_id: str, time_value):
         """Write time value node block"""
+        time_str = time_value.value.lstrip('+')
         output.write(f'wdv:{value_id} a wikibase:TimeValue ;\n')
-        output.write(f'\twikibase:timeValue "{time_value.value}"^^xsd:dateTime ;\n')
+        output.write(f'\twikibase:timeValue "{time_str}"^^xsd:dateTime ;\n')
         output.write(f'\twikibase:timePrecision "{time_value.precision}"^^xsd:integer ;\n')
         output.write(f'\twikibase:timeTimezone "{time_value.timezone}"^^xsd:integer ;\n')
         output.write(f'\twikibase:timeCalendarModel <{time_value.calendarmodel}> .\n')
@@ -38,8 +39,9 @@ class ValueNodeWriter:
     @staticmethod
     def write_globe_value_node(output: TextIO, value_id: str, globe_value):
         """Write globe coordinate value node block"""
+        precision_formatted = f"{globe_value.precision:.1E}".replace("E-0", "E-").replace("E+0", "E+")
         output.write(f'wdv:{value_id} a wikibase:GlobecoordinateValue ;\n')
         output.write(f'\twikibase:geoLatitude "{globe_value.latitude}"^^xsd:double ;\n')
         output.write(f'\twikibase:geoLongitude "{globe_value.longitude}"^^xsd:double ;\n')
-        output.write(f'\twikibase:geoPrecision "{globe_value.precision}"^^xsd:double ;\n')
+        output.write(f'\twikibase:geoPrecision "{precision_formatted}"^^xsd:double ;\n')
         output.write(f'\twikibase:geoGlobe <{globe_value.globe}> .\n')

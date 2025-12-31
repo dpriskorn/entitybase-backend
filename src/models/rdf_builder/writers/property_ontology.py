@@ -1,7 +1,7 @@
 from typing import TextIO
 import hashlib
 
-from models.rdf_builder.property_registry.models import PropertyShape
+from models.rdf_builder.property_registry.models import PropertyShape, get_owl_type
 from models.config.settings import settings
 
 
@@ -36,6 +36,15 @@ class PropertyOntologyWriter:
             output.write(f'\twikibase:qualifierValue pqv:{pid} ;\n')
             output.write(f'\twikibase:referenceValue prv:{pid} ;\n')
 
+        if shape.predicates.statement_normalized:
+            output.write(f'\twikibase:statementValueNormalized psn:{pid} ;\n')
+        if shape.predicates.qualifier_normalized:
+            output.write(f'\twikibase:qualifierValueNormalized pqn:{pid} ;\n')
+        if shape.predicates.reference_normalized:
+            output.write(f'\twikibase:referenceValueNormalized prn:{pid} ;\n')
+        if shape.predicates.direct_normalized:
+            output.write(f'\twikibase:directClaimNormalized wdtn:{pid} ;\n')
+
         output.write(f'\twikibase:qualifier pq:{pid} ;\n')
         output.write(f'\twikibase:reference pr:{pid} ;\n')
         output.write(f'\twikibase:novalue wdno:{pid} .\n')
@@ -69,13 +78,21 @@ class PropertyOntologyWriter:
         """Write property ontology with all predicate declarations"""
         pid = shape.pid
         output.write(f'p:{pid} a owl:ObjectProperty .\n')
-        output.write(f'psv:{pid} a owl:ObjectProperty .\n')
+        output.write(f'psv:{pid} a {get_owl_type(shape.datatype)} .\n')
         output.write(f'pqv:{pid} a owl:ObjectProperty .\n')
         output.write(f'prv:{pid} a owl:ObjectProperty .\n')
-        output.write(f'wdt:{pid} a owl:ObjectProperty .\n')
+        output.write(f'wdt:{pid} a {get_owl_type(shape.datatype)} .\n')
         output.write(f'ps:{pid} a owl:ObjectProperty .\n')
         output.write(f'pq:{pid} a owl:ObjectProperty .\n')
         output.write(f'pr:{pid} a owl:ObjectProperty .\n')
+        if shape.predicates.statement_normalized:
+            output.write(f'psn:{pid} a owl:ObjectProperty .\n')
+        if shape.predicates.qualifier_normalized:
+            output.write(f'pqn:{pid} a owl:ObjectProperty .\n')
+        if shape.predicates.reference_normalized:
+            output.write(f'prn:{pid} a owl:ObjectProperty .\n')
+        if shape.predicates.direct_normalized:
+            output.write(f'wdtn:{pid} a owl:ObjectProperty .\n')
 
     @staticmethod
     def _generate_blank_node_id(property_id: str) -> str:

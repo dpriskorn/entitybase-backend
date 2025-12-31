@@ -8,11 +8,16 @@ from models.rdf_builder.ontology.datatypes import property_shape
 
 
 def load_property_registry(path: Path) -> PropertyRegistry:
+    """Load property registry from CSV and JSON files.
+
+    Returns PropertyRegistry with all property shapes including
+    normalization predicates for properties that need them.
+    """
     shapes = {}
 
     csv_path = path / "properties.csv"
     datatypes = {}
-    
+
     if csv_path.exists():
         with open(csv_path, encoding='utf-8') as f:
             reader = csv.DictReader(f)

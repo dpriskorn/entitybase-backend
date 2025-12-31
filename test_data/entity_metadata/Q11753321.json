@@ -1,0 +1,15 @@
+{
+  "id": "Q11753321",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "Wikimedia navigational template"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "Wikimedia template used for navigation. Use with P31 'instance of' for navigational templates"
+    }
+  }
+}

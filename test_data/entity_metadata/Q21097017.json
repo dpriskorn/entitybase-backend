@@ -1,0 +1,15 @@
+{
+  "id": "Q21097017",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "possibly approximate value"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "the source specified not-ideally-precise value (like year instead of date of birth) and did not explicitly state that value is approximate, but other sources explicitly did"
+    }
+  }
+}

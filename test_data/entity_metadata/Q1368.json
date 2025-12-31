@@ -1,0 +1,15 @@
+{
+  "id": "Q1368",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "money"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "object or record accepted as payment"
+    }
+  }
+}

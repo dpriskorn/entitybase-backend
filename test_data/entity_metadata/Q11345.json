@@ -1,0 +1,15 @@
+{
+  "id": "Q11345",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "equation"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "mathematical statement that asserts the equality of two expressions"
+    }
+  }
+}

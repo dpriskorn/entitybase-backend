@@ -1,0 +1,15 @@
+{
+  "id": "Q485",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "computer virus"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "type of computer program that, when executed, replicates itself by modifying other computer programs and inserting its own code"
+    }
+  }
+}

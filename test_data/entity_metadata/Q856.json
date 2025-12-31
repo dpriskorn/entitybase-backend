@@ -1,0 +1,15 @@
+{
+  "id": "Q856",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "barcode"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "optical machine-readable representation of data"
+    }
+  }
+}

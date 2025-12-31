@@ -1,0 +1,15 @@
+{
+  "id": "Q2626",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "Elias delta coding"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "universal code encoding positive integers"
+    }
+  }
+}

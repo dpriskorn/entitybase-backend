@@ -1,0 +1,15 @@
+{
+  "id": "Q3341",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "rubber duck debugging"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "debugging method, in which a programmer explains code, line-by-line, to an inanimate object (\"rubber duck\") or to another person, until the incongruity between what the code should do and actually does becomes apparent"
+    }
+  }
+}

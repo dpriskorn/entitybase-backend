@@ -36,7 +36,8 @@ def _serialize_value(value: Any) -> str:
         kind = value.kind
 
         if kind == "time":
-            return f"t:{value.value}:{value.precision}:{value.timezone}:{value.calendarmodel}"
+            time_str = value.value.lstrip('+')
+            return f"t:{time_str}:{value.precision}:{value.timezone}:{value.before}:{value.after}:{value.calendarmodel}"
 
         elif kind == "quantity":
             parts = [f"q:{value.value}:{value.unit}"]
@@ -47,6 +48,7 @@ def _serialize_value(value: Any) -> str:
             return ":".join(parts)
 
         elif kind == "globe":
-            return f"g:{value.latitude}:{value.longitude}:{value.precision}:{value.globe}"
+            precision_str = f"{value.precision:.1E}".replace("E-0", "E-").replace("E+0", "E+")
+            return f"g:{value.latitude}:{value.longitude}:{precision_str}:{value.globe}"
 
     return str(value)

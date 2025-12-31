@@ -1,0 +1,15 @@
+{
+  "id": "Q60070514",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "approximately"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "the source specified value and explicitly stated that value is a rough approximation or estimate. For use with qualifier P1480"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "Q107507571",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "OpenAlex"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "open catalog of scholarly papers, authors, institutions, venues, and concepts"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "Q328",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "English Wikipedia"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "English-language edition of Wikipedia"
+    }
+  }
+}

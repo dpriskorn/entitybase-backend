@@ -1,0 +1,15 @@
+{
+  "id": "Q570",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "loudspeaker"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "electroacoustic transducer that converts an electrical audio signal into a corresponding sound"
+    }
+  }
+}

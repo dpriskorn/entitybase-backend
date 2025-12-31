@@ -1,0 +1,15 @@
+{
+  "id": "Q41719",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "hypothesis"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "proposed explanation for an observation, phenomenon, or scientific problem"
+    }
+  }
+}

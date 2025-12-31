@@ -1,0 +1,15 @@
+{
+  "id": "Q136",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "knight"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "piece in the board game of chess"
+    }
+  }
+}

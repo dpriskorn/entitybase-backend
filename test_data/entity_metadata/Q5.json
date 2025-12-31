@@ -1,0 +1,15 @@
+{
+  "id": "Q5",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "human"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "any single member of Homo sapiens, unique extant species of the genus Homo"
+    }
+  }
+}

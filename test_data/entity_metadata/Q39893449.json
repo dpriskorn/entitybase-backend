@@ -1,0 +1,15 @@
+{
+  "id": "Q39893449",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "exact match"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "SKOS mapping relation (for use with P4390): two concepts have equivalent meaning, and the link can be exploited across a wide range of applications and schemes; the link is meant to be transitive"
+    }
+  }
+}

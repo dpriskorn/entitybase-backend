@@ -60,14 +60,24 @@ class EntityConverter:
         """Write single statement with references."""
         shape = self.properties.shape(rdf_stmt.property_id)
         logger.debug(f"Writing statement for {rdf_stmt.property_id}, shape: {shape}")
-        self.writers.write_statement(output, entity_id, rdf_stmt, shape)
+        self.writers.write_statement(output, entity_id, rdf_stmt, shape, self.properties)
 
     def _write_property_metadata(self, entity: Entity, output: TextIO):
         """Write property metadata blocks for properties used in entity."""
         property_ids = set()
 
+        # Collect from main statements
         for stmt in entity.statements:
             property_ids.add(stmt.property)
+
+        # Collect from qualifiers and references
+        for stmt in entity.statements:
+            for qualifier in stmt.qualifiers:
+                property_ids.add(qualifier.property)
+
+            for ref in stmt.references:
+                for ref_value in ref.snaks:
+                    property_ids.add(ref_value.property)
 
         for pid in sorted(property_ids):
             shape = self.properties.shape(pid)
@@ -76,11 +86,18 @@ class EntityConverter:
             PropertyOntologyWriter.write_novalue_class(output, pid)
 
     def _collect_referenced_entities(self, entity: Entity) -> set[str]:
-        """Collect unique entity IDs referenced in statement values."""
+        """Collect unique entity IDs referenced in statement values, qualifiers, and references."""
         referenced = set()
         for stmt in entity.statements:
             if stmt.value.kind == "entity":
                 referenced.add(stmt.value.value)
+            for qual in stmt.qualifiers:
+                if qual.value.kind == "entity":
+                    referenced.add(qual.value.value)
+            for ref in stmt.references:
+                for ref_value in ref.snaks:
+                    if ref_value.value.kind == "entity":
+                        referenced.add(ref_value.value.value)
         return referenced
 
     def _load_referenced_entity(self, entity_id: str) -> Entity:
@@ -101,7 +118,11 @@ class EntityConverter:
         referenced_ids = self._collect_referenced_entities(entity)
 
         for entity_id in sorted(referenced_ids):
-            ref_entity = self._load_referenced_entity(entity_id)
+            try:
+                ref_entity = self._load_referenced_entity(entity_id)
+            except FileNotFoundError:
+                logger.warning(f"Metadata file not found for referenced entity {entity_id}")
+                continue
 
             self.writers.write_entity_type(output, ref_entity.id)
 

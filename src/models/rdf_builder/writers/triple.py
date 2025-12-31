@@ -78,6 +78,7 @@ class TripleWriters:
         entity_id: str,
         rdf_statement: "RDFStatement",
         shape: PropertyShape,
+        property_registry,
     ):
         from models.rdf_builder.models.rdf_reference import RDFReference
 
@@ -135,7 +136,7 @@ class TripleWriters:
                 qualifier_node_id = generate_value_node_uri(qual.value, f"{rdf_statement.property_id}-q")
                 
                 output.write(
-                    f'<{stmt_uri_prefixed}> {shape.predicates.qualifier_value} wdv:{qualifier_node_id} .\n'
+                    f'{stmt_uri_prefixed} {shape.predicates.qualifier_value} wdv:{qualifier_node_id} .\n'
                 )
                 
                 if qual.value.kind == "time":
@@ -146,7 +147,7 @@ class TripleWriters:
                     ValueNodeWriter.write_globe_value_node(output, qualifier_node_id, qual.value)
             else:
                 output.write(
-                    f'<{stmt_uri_prefixed}> {shape.predicates.qualifier} {qv} .\n'
+                    f'{stmt_uri_prefixed} {shape.predicates.qualifier} {qv} .\n'
                 )
         
         # References
@@ -154,19 +155,20 @@ class TripleWriters:
             rdf_ref = RDFReference(ref, stmt_uri_prefixed)
             ref_uri = rdf_ref.get_reference_uri()
             output.write(
-                f'<{stmt_uri_prefixed}> prov:wasDerivedFrom <{ref_uri}> .\n'
+                f'{stmt_uri_prefixed} prov:wasDerivedFrom {ref_uri} .\n'
             )
-            
+
             for snak in ref.snaks:
+                snak_shape = property_registry.shape(snak.property)
                 rv = ValueFormatter.format_value(snak.value)
-                
+
                 if TripleWriters._needs_value_node(snak.value):
-                    ref_node_id = generate_value_node_uri(snak.value, f"{rdf_statement.property_id}-r")
-                    
+                    ref_node_id = generate_value_node_uri(snak.value, f"{snak.property}-r")
+
                     output.write(
-                        f'<{ref_uri}> {shape.predicates.reference_value} wdv:{ref_node_id} .\n'
+                        f'{ref_uri} {snak_shape.predicates.reference_value} wdv:{ref_node_id} .\n'
                     )
-                    
+
                     if snak.value.kind == "time":
                         ValueNodeWriter.write_time_value_node(output, ref_node_id, snak.value)
                     elif snak.value.kind == "quantity":
@@ -175,5 +177,5 @@ class TripleWriters:
                         ValueNodeWriter.write_globe_value_node(output, ref_node_id, snak.value)
                 else:
                     output.write(
-                        f'<{ref_uri}> {shape.predicates.reference} {rv} .\n'
+                        f'{ref_uri} {snak_shape.predicates.reference} {rv} .\n'
                     )

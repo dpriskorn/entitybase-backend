@@ -1,0 +1,15 @@
+{
+  "id": "Q646",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "thermometer"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "device that measures temperature or a temperature gradient"
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "Q3913",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "binary numeral system"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "system that represents numeric values using two symbols; 0 or 1"
+    }
+  }
+}

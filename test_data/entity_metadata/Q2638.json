@@ -1,0 +1,15 @@
+{
+  "id": "Q2638",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "Golomb coding"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "lossless data compression method"
+    }
+  }
+}
