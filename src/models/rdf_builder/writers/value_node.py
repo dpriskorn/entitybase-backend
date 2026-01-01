@@ -34,6 +34,8 @@ class ValueNodeWriter:
     def write_time_value_node(output: TextIO, value_id: str, time_value):
         """Write time value node block"""
         time_str = time_value.value
+        if time_value.timezone == 0 and time_str.startswith("+"):
+            time_str = time_str[1:]  # Remove leading + for timezone 0
         output.write(f'wdv:{value_id} a wikibase:TimeValue ;\n')
         output.write(f'\twikibase:timeValue "{time_str}"^^xsd:dateTime ;\n')
         output.write(f'\twikibase:timePrecision "{time_value.precision}"^^xsd:integer ;\n')

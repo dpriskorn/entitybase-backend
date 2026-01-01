@@ -58,7 +58,10 @@ def _serialize_value(value: Any) -> str:
         kind = value.kind
 
         if kind == "time":
-            parts = [f"t:{value.value}", value.precision, value.timezone]
+            time_str = value.value
+            if value.timezone == 0 and time_str.startswith("+"):
+                time_str = time_str[1:]  # Remove leading + for timezone 0
+            parts = [f"t:{time_str}", value.precision, value.timezone]
             if value.before != 0:
                 parts.append(value.before)
             if value.after != 0:

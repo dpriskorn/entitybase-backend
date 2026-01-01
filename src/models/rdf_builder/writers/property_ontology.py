@@ -78,8 +78,7 @@ class PropertyOntologyWriter:
         """Write property ontology with all predicate declarations"""
         pid = shape.pid
         output.write(f'p:{pid} a owl:ObjectProperty .\n')
-        if shape.predicates.value_node:
-            output.write(f'psv:{pid} a owl:ObjectProperty .\n')
+        output.write(f'psv:{pid} a owl:ObjectProperty .\n')
         output.write(f'pqv:{pid} a owl:ObjectProperty .\n')
         output.write(f'prv:{pid} a owl:ObjectProperty .\n')
         output.write(f'wdt:{pid} a {get_owl_type(shape.datatype)} .\n')
