@@ -24,6 +24,7 @@
 - no __future__ imports
 - no strings in code - everything is enums
 - do this before running pytest:  export PYTHONPATH=/home/dpriskorn/src/python/wikibase-backend/src:$PYTHONPATH && source .venv/bin/activate
+- avoid websearch, everything we need is in the repo already just ask where to find what you need
 
 # Current task
 improve rdf ttl builder (both full and truthy) using existing test data from test_data/ 
