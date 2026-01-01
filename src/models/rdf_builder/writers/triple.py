@@ -69,6 +69,13 @@ class TripleWriters:
         output.write(f"{entity_uri} schema:sameAs <{wiki_url}> .\n")
 
     @staticmethod
+    def write_redirect(output: TextIO, redirect_id: str, target_id: str):
+        """Write redirect triple: wd:Qredirect owl:sameAs wd:Qtarget"""
+        redirect_uri = TripleWriters.uri.entity_prefixed(redirect_id)
+        target_uri = TripleWriters.uri.entity_prefixed(target_id)
+        output.write(f"{redirect_uri} owl:sameAs {target_uri} .\n")
+
+    @staticmethod
     def write_direct_claim(
         output: TextIO, entity_id: str, property_id: str, value: str
     ):

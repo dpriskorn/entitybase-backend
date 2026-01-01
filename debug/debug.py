@@ -56,6 +56,7 @@ def main():
     json_path = Path(__file__).parent.parent / f"test_data/json/entities/{entity_id}.json"
     ttl_path = Path(__file__).parent.parent / f"test_data/rdf/ttl/{entity_id}.ttl"
     metadata_dir = Path(__file__).parent.parent / "test_data/entity_metadata"
+    redirects_dir = Path(__file__).parent.parent / "test_data/entity_redirects"
     properties_dir = Path(__file__).parent.parent / "test_data/properties"
 
     # Check if required files exist
@@ -76,7 +77,11 @@ def main():
     registry = load_property_registry(properties_dir)
     print(f"Loaded {len(registry.properties)} properties")
 
-    converter = EntityConverter(property_registry=registry, entity_metadata_dir=metadata_dir)
+    converter = EntityConverter(
+        property_registry=registry,
+        entity_metadata_dir=metadata_dir,
+        redirects_dir=redirects_dir
+    )
     actual_ttl = converter.convert_to_string(entity)
 
     # Load golden TTL

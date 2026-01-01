@@ -10,6 +10,7 @@ from models.rdf_builder.writers.triple import TripleWriters
 from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
 from models.rdf_builder.entity_cache import load_entity_metadata
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
+from models.rdf_builder.redirect_cache import load_entity_redirects
 
 logger = logging.getLogger(__name__)
 
@@ -23,11 +24,13 @@ class EntityConverter:
         self,
         property_registry: PropertyRegistry,
         entity_metadata_dir: Path | None = None,
+        redirects_dir: Path | None = None,
         enable_deduplication: bool = True,
     ):
         self.properties = property_registry
         self.writers = TripleWriters()
         self.entity_metadata_dir = entity_metadata_dir
+        self.redirects_dir = redirects_dir
         self.dedupe = HashDedupeBag() if enable_deduplication else None
 
     def convert_to_turtle(self, entity: Entity, output: TextIO):
@@ -35,6 +38,7 @@ class EntityConverter:
         self.writers.write_header(output)
         self._write_entity_metadata(entity, output)
         self._write_statements(entity, output)
+        self._write_redirects(entity, output)
         self._write_referenced_entity_metadata(entity, output)
         self._write_property_metadata(entity, output)
 
@@ -148,6 +152,24 @@ class EntityConverter:
                     self.writers.write_description(
                         output, ref_entity.id, lang, description
                     )
+
+    def _fetch_redirects(self, entity_id: str) -> list[str]:
+        """Load entity redirects from cache."""
+        if not self.redirects_dir:
+            return []
+
+        try:
+            return load_entity_redirects(entity_id, self.redirects_dir)
+        except FileNotFoundError:
+            logger.debug(f"No redirects found for {entity_id}")
+            return []
+
+    def _write_redirects(self, entity: Entity, output: TextIO):
+        """Write redirect triples for entity."""
+        redirects = self._fetch_redirects(entity.id)
+
+        for redirect_id in redirects:
+            self.writers.write_redirect(output, redirect_id, entity.id)
 
     def convert_to_string(self, entity: Entity) -> str:
         """Convert entity to Turtle string."""
