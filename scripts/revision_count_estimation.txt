@@ -1,0 +1,12 @@
+2026-01-01:
+Counting revisions 300/300 (Q15137404))
+Done.
+sample size: 300
+mean revisions:   20
+median revisions: 13
+min / max:        1 / 307
+stdev:            28
+
+real    1m35.501s
+user    0m1.741s
+sys     0m0.102s

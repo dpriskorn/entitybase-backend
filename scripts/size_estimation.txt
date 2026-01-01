@@ -1,0 +1,12 @@
+2026-01-01:
+Fetching 300/300 (Q82750653))
+Done.
+sample size (after redirects): 300
+mean bytes:   16886
+median bytes: 10804
+min / max:    394 / 198375
+stdev:        20636
+
+real    2m1.129s
+user    0m2.032s
+sys     0m0.124s
