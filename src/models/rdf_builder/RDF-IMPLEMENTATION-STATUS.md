@@ -2,6 +2,14 @@
 
 ### Recent Changes (MediaWiki Compatibility):
 
+**Deduplication Infrastructure (COMPLETED):**
+- ✓ Created `hashing/deduplication_cache.py` - MediaWiki-compatible HashDedupeBag
+- ✓ Integrated into ValueNodeWriter - All three types (time, quantity, globe)
+- ✓ Added `enable_deduplication` flag to EntityConverter for testing
+- ✓ Single namespace strategy - All value nodes use 'wdv' namespace
+- ✓ Configurable cutoff - Default 5 (16^5 slots, ~1M entries)
+- ✓ Statistics tracking - hits, misses, size, collision_rate
+
 **Hashing Infrastructure (COMPLETED):**
 - ✓ Created `value_node_hasher.py` - MediaWiki-compatible hash generation
 - ✓ Fixed precision formatting - Removes leading zero in exponent: `1.0E-05` → `1.0E-5`
@@ -9,23 +17,24 @@
 - ✓ Time value hashes - Preserve leading `+` in hash input (removed in output)
 - ✓ Statement ID normalization - Fixed `Q123$ABC-DEF` → `Q123-ABC-DEF` handling
 
-**Test Results (Q120248304):**
+**Test Results (Q120248304 with deduplication):**
 ```
-Actual blocks: 167
-Golden blocks: 167
-Missing: 2 (correct hashes now!)
-Extra: 2 (duplicate value nodes)
+Actual wdv blocks: 2
+Total wdv refs: 12
+Unique wdv IDs: 2
+Deduplication hits: 8 (duplicates prevented)
+Cache size: 2
 ```
 
-**Missing blocks (now correct):**
-- `wdv:9f0355cb43b5be5caf0570c31d4fb707` ✓ Globe coordinate hash
-- `wdv:c972163adcfbcee7eecdc4633d8ba455` ✓ Time value hash
+**Before deduplication:**
+- 10 wdv blocks written (9 time + 1 globe)
+- Same values written multiple times
+- Extra blocks: 8 duplicates
 
-**Extra blocks (deduplication issue):**
-- `wdv:b210d4fcc4a307c48e904d3600f84bf8` ❌ Time value (duplicate)
-- `wdv:cbdd5cd9651146ec5ff24078a3b84fb4` ❌ Globe coordinate (duplicate)
-
-**Root Cause:** Value node deduplication cache not working - identical values being written with different hashes.
+**After deduplication:**
+- 2 wdv blocks written (1 time + 1 globe)
+- Each unique value written exactly once
+- Duplicates prevented: 8
 
 ### Recent Changes (Property Metadata Support):
 

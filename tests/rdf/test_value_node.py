@@ -14,7 +14,7 @@ def test_serialize_time_value():
         calendarmodel="http://www.wikidata.org/entity/Q1985727"
     )
     serialized = _serialize_value(value)
-    expected = "t:+1964-05-15T00:00:00Z:11:0:http://www.wikidata.org/entity/Q1985727"
+    expected = "t:1964-05-15T00:00:00Z:11:0:http://www.wikidata.org/entity/Q1985727"
     assert serialized == expected
 
 

@@ -1,6 +1,9 @@
 # Documentation
 
 - doc/WIKIDATA/RDF-DATA-MODEL.md
+- src/models/rdf_builder/RDF-ARCHITECTURE.md
+- src/models/rdf_builder/RDF-IMPLEMENTATION-STATUS.md
+- src/models/rdf_builder/README.md
 - mediawiki-extensions-Wikibase/repo/includes/Rdf/README.md
 - mediawiki-extensions-Wikibase/repo/includes/Rdf/Values/README.md
 - doc/ARCHITECTURE/RDF-BUILDER-IMPLEMENTATION.md

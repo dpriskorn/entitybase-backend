@@ -9,6 +9,7 @@ from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.writers.triple import TripleWriters
 from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
 from models.rdf_builder.entity_cache import load_entity_metadata
+from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 
 logger = logging.getLogger(__name__)
 
@@ -18,10 +19,11 @@ class EntityConverter:
     Converts internal Entity representation to RDF Turtle format.
     """
 
-    def __init__(self, property_registry: PropertyRegistry, entity_metadata_dir: Path | None = None):
+    def __init__(self, property_registry: PropertyRegistry, entity_metadata_dir: Path | None = None, enable_deduplication: bool = True):
         self.properties = property_registry
         self.writers = TripleWriters()
         self.entity_metadata_dir = entity_metadata_dir
+        self.dedupe = HashDedupeBag() if enable_deduplication else None
 
     def convert_to_turtle(self, entity: Entity, output: TextIO):
         """Convert entity to Turtle format."""
@@ -60,7 +62,7 @@ class EntityConverter:
         """Write single statement with references."""
         shape = self.properties.shape(rdf_stmt.property_id)
         logger.debug(f"Writing statement for {rdf_stmt.property_id}, shape: {shape}")
-        self.writers.write_statement(output, entity_id, rdf_stmt, shape, self.properties)
+        self.writers.write_statement(output, entity_id, rdf_stmt, shape, self.properties, self.dedupe)
 
     def _write_property_metadata(self, entity: Entity, output: TextIO):
         """Write property metadata blocks for properties used in entity."""

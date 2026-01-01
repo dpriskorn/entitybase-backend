@@ -21,7 +21,7 @@ def test_write_time_value_node():
     result = output.getvalue()
 
     assert 'wdv:cd6dd2e48a93286891b0753a1110ac0a a wikibase:TimeValue' in result
-    assert 'wikibase:timeValue "+1964-05-15T00:00:00Z"^^xsd:dateTime' in result
+    assert 'wikibase:timeValue "1964-05-15T00:00:00Z"^^xsd:dateTime' in result
     assert 'wikibase:timePrecision "11"^^xsd:integer' in result
     assert 'wikibase:timeTimezone "0"^^xsd:integer' in result
     assert 'wikibase:timeCalendarModel <http://www.wikidata.org/entity/Q1985727>' in result

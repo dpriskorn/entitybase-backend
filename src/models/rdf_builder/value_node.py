@@ -2,6 +2,8 @@ import hashlib
 import re
 from typing import Any
 
+from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
+
 
 def _format_scientific_notation(value: float) -> str:
     """Format value in scientific notation without leading zeros in exponent.
@@ -24,7 +26,7 @@ def _format_scientific_notation(value: float) -> str:
     return formatted
 
 
-def generate_value_node_uri(value: Any, property_id: str) -> str:
+def generate_value_node_uri(value: Any, property_id: str, dedupe=None) -> str:
     """
     Generate wdv: URI for structured values using MD5 hash.
     
@@ -34,6 +36,7 @@ def generate_value_node_uri(value: Any, property_id: str) -> str:
     Args:
         value: The value object (TimeValue, QuantityValue, etc.)
         property_id: Property ID for context (e.g., "P569")
+        dedupe: Optional HashDedupeBag for deduplication tracking
     
     Returns:
         Value node ID (e.g., "cd6dd2e48a93286891b0753a1110ac0a")
@@ -45,7 +48,13 @@ def generate_value_node_uri(value: Any, property_id: str) -> str:
     """
     value_str = _serialize_value(value)
     hash_input = f"{property_id}:{value_str}".encode("utf-8")
-    return hashlib.md5(hash_input).hexdigest()
+    hash_val = hashlib.md5(hash_input).hexdigest()
+    
+    if dedupe is not None:
+        seen = dedupe.already_seen(hash_val, 'wdv')
+        print(f"DEBUG: Hash {hash_val} seen before: {seen}")
+    
+    return hash_val
 
 
 def _serialize_value(value: Any) -> str:

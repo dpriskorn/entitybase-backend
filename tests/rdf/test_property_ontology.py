@@ -106,21 +106,27 @@ def test_write_property_predicates_with_value_node():
     assert "pr:P585 a owl:ObjectProperty" in result
 
 
-def test_write_property_predicates_without_value_node():
+def test_write_property_metadata_conditional():
+    """Test that wikibase:statementValue is only written for properties with value nodes"""
+    # wikibase-item (no value node predicate)
     shape = property_shape("P31", "wikibase-item", labels={}, descriptions={})
-
     output = StringIO()
-    PropertyOntologyWriter.write_property(output, shape)
+    PropertyOntologyWriter.write_property_metadata(output, shape)
     result = output.getvalue()
-
-    assert "p:P31 a owl:ObjectProperty" in result
-    assert "psv:P31" not in result
-    assert "pqv:P31 a owl:ObjectProperty" in result
-    assert "prv:P31 a owl:ObjectProperty" in result
-    assert "wdt:P31 a owl:ObjectProperty" in result
-    assert "ps:P31 a owl:ObjectProperty" in result
-    assert "pq:P31 a owl:ObjectProperty" in result
-    assert "pr:P31 a owl:ObjectProperty" in result
+    
+    # All properties get wikibase:statementProperty
+    assert "wikibase:statementProperty ps:P31" in result
+    # But only properties with value nodes get wikibase:statementValue
+    assert "wikibase:statementValue psv:P31" not in result
+    
+    # globe-coordinate (has value node predicate)
+    shape2 = property_shape("P625", "globe-coordinate", labels={}, descriptions={})
+    output2 = StringIO()
+    PropertyOntologyWriter.write_property_metadata(output2, shape2)
+    result2 = output2.getvalue()
+    
+    # Has wikibase:statementValue for value node properties
+    assert "wikibase:statementValue psv:P625" in result2
 
 
 def test_write_property_novalue_class():

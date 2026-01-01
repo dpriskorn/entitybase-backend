@@ -6,6 +6,7 @@ from models.rdf_builder.uri_generator import URIGenerator
 from models.rdf_builder.value_formatters import ValueFormatter
 from models.rdf_builder.value_node import generate_value_node_uri
 from models.rdf_builder.writers.value_node import ValueNodeWriter
+from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 
 logger = logging.getLogger(__name__)
 
@@ -79,6 +80,7 @@ class TripleWriters:
         rdf_statement: "RDFStatement",
         shape: PropertyShape,
         property_registry,
+        dedupe: HashDedupeBag | None = None,
     ):
         from models.rdf_builder.models.rdf_reference import RDFReference
 
@@ -107,11 +109,11 @@ class TripleWriters:
             )
 
             if rdf_statement.value.kind == "time":
-                ValueNodeWriter.write_time_value_node(output, value_node_id, rdf_statement.value)
+                ValueNodeWriter.write_time_value_node(output, value_node_id, rdf_statement.value, dedupe)
             elif rdf_statement.value.kind == "quantity":
-                ValueNodeWriter.write_quantity_value_node(output, value_node_id, rdf_statement.value)
+                ValueNodeWriter.write_quantity_value_node(output, value_node_id, rdf_statement.value, dedupe)
             elif rdf_statement.value.kind == "globe":
-                ValueNodeWriter.write_globe_value_node(output, value_node_id, rdf_statement.value)
+                ValueNodeWriter.write_globe_value_node(output, value_node_id, rdf_statement.value, dedupe)
         else:
             value = ValueFormatter.format_value(rdf_statement.value)
             output.write(
@@ -140,11 +142,11 @@ class TripleWriters:
                 )
                 
                 if qual.value.kind == "time":
-                    ValueNodeWriter.write_time_value_node(output, qualifier_node_id, qual.value)
+                    ValueNodeWriter.write_time_value_node(output, qualifier_node_id, qual.value, dedupe)
                 elif qual.value.kind == "quantity":
-                    ValueNodeWriter.write_quantity_value_node(output, qualifier_node_id, qual.value)
+                    ValueNodeWriter.write_quantity_value_node(output, qualifier_node_id, qual.value, dedupe)
                 elif qual.value.kind == "globe":
-                    ValueNodeWriter.write_globe_value_node(output, qualifier_node_id, qual.value)
+                    ValueNodeWriter.write_globe_value_node(output, qualifier_node_id, qual.value, dedupe)
             else:
                 output.write(
                     f'{stmt_uri_prefixed} {shape.predicates.qualifier} {qv} .\n'
@@ -170,11 +172,11 @@ class TripleWriters:
                     )
 
                     if snak.value.kind == "time":
-                        ValueNodeWriter.write_time_value_node(output, ref_node_id, snak.value)
+                        ValueNodeWriter.write_time_value_node(output, ref_node_id, snak.value, dedupe)
                     elif snak.value.kind == "quantity":
-                        ValueNodeWriter.write_quantity_value_node(output, ref_node_id, snak.value)
+                        ValueNodeWriter.write_quantity_value_node(output, ref_node_id, snak.value, dedupe)
                     elif snak.value.kind == "globe":
-                        ValueNodeWriter.write_globe_value_node(output, ref_node_id, snak.value)
+                        ValueNodeWriter.write_globe_value_node(output, ref_node_id, snak.value, dedupe)
                 else:
                     output.write(
                         f'{ref_uri} {snak_shape.predicates.reference} {rv} .\n'

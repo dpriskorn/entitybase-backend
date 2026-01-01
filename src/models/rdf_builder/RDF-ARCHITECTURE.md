@@ -56,6 +56,33 @@ Entity JSON (Wikidata API)
 - ✓ Matched MediaWiki test hash values for globe coordinates
 - ✓ Matched MediaWiki test hash values for time values
 
+### hashing/deduplication_cache.py
+**MediaWiki-compatible deduplication cache for value nodes.**
+
+**Classes:** `HashDedupeBag` (implements `DedupeBag` protocol)
+- **Purpose:** Prevents duplicate value node blocks in RDF output
+- **Algorithm:** Truncates hash to first N chars as key, stores full hash in bag
+- **Trade-off:** Accepts false negatives (collisions) for memory efficiency
+- **Cutoff:** 5 characters = 16^5 slots, ~1M entries, 1/1M collision rate
+
+**Methods:**
+- `already_seen(hash: str, namespace: str = '') -> bool` - Check if hash seen before
+- `stats() -> dict[str, int | float]` - Get deduplication statistics
+- `clear()` - Clear the cache
+
+**Integration:**
+- `EntityConverter.__init__(enable_deduplication=True)` - Enable/disable deduplication
+- `ValueNodeWriter.write_*_value_node(..., dedupe)` - Check before writing
+- Single namespace 'wdv' for all value node types
+- Stats tracking: hits (duplicates prevented), misses (unique values), size, collision_rate
+
+**Recent Improvements:**
+- ✓ Implemented MediaWiki's HashDedupeBag algorithm
+- ✓ Integrated into all value node writers (time, quantity, globe)
+- ✓ Added configurable `enable_deduplication` flag for testing
+- ✓ Implemented statistics tracking for monitoring
+- ✓ Prevents 8 duplicate blocks in Q120248304 test case
+
 ### value_formatters.py
 **Value formatting** for RDF literals/URIs.
 

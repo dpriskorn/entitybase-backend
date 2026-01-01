@@ -2,6 +2,7 @@ from typing import TextIO
 import re
 
 from models.rdf_builder.uri_generator import URIGenerator
+from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 
 
 def _format_scientific_notation(value: float) -> str:
@@ -31,8 +32,12 @@ class ValueNodeWriter:
     uri = URIGenerator()
 
     @staticmethod
-    def write_time_value_node(output: TextIO, value_id: str, time_value):
-        """Write time value node block"""
+    def write_time_value_node(output: TextIO, value_id: str, time_value, dedupe: HashDedupeBag | None = None):
+        """Write time value node block if not already written"""
+        if dedupe is not None:
+            if dedupe.already_seen(value_id, 'wdv'):
+                return
+        
         time_str = time_value.value
         if time_value.timezone == 0 and time_str.startswith("+"):
             time_str = time_str[1:]  # Remove leading + for timezone 0
@@ -43,8 +48,12 @@ class ValueNodeWriter:
         output.write(f'\twikibase:timeCalendarModel <{time_value.calendarmodel}> .\n')
 
     @staticmethod
-    def write_quantity_value_node(output: TextIO, value_id: str, quantity_value):
-        """Write quantity value node block"""
+    def write_quantity_value_node(output: TextIO, value_id: str, quantity_value, dedupe: HashDedupeBag | None = None):
+        """Write quantity value node block if not already written"""
+        if dedupe is not None:
+            if dedupe.already_seen(value_id, 'wdv'):
+                return
+        
         output.write(f'wdv:{value_id} a wikibase:QuantityValue ;\n')
         output.write(f'\twikibase:quantityAmount "{quantity_value.value}"^^xsd:decimal ;\n')
         output.write(f'\twikibase:quantityUnit <{quantity_value.unit}>')
@@ -61,8 +70,12 @@ class ValueNodeWriter:
         output.write(f' .\n')
 
     @staticmethod
-    def write_globe_value_node(output: TextIO, value_id: str, globe_value):
-        """Write globe coordinate value node block"""
+    def write_globe_value_node(output: TextIO, value_id: str, globe_value, dedupe: HashDedupeBag | None = None):
+        """Write globe coordinate value node block if not already written"""
+        if dedupe is not None:
+            if dedupe.already_seen(value_id, 'wdv'):
+                return
+        
         precision_formatted = _format_scientific_notation(globe_value.precision)
         output.write(f'wdv:{value_id} a wikibase:GlobecoordinateValue ;\n')
         output.write(f'\twikibase:geoLatitude "{globe_value.latitude}"^^xsd:double ;\n')
