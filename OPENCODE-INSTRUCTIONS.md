@@ -26,5 +26,9 @@
 - do this before running pytest:  export PYTHONPATH=/home/dpriskorn/src/python/wikibase-backend/src:$PYTHONPATH && source .venv/bin/activate
 
 # Current task
-Add rdf ttl builder (both full and truthy) using existing test data from test_data/ 
-directory and rdf classes in wikibase at mediawiki-extensions-Wikibase/repo/includes/Rdf
+improve rdf ttl builder (both full and truthy) using existing test data from test_data/ 
+directory
+read these to understand the rdf data model and wikibase php implementation 
+- doc/WIKIDATA/RDF-DATA-MODEL.md
+- mediawiki-extensions-Wikibase/repo/includes/Rdf/README.md
+- mediawiki-extensions-Wikibase/repo/includes/Rdf/Values/README.md

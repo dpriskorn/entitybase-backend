@@ -1,6 +1,8 @@
 # Documentation
 
 - doc/WIKIDATA/RDF-DATA-MODEL.md
+- mediawiki-extensions-Wikibase/repo/includes/Rdf/README.md
+- mediawiki-extensions-Wikibase/repo/includes/Rdf/Values/README.md
 - doc/ARCHITECTURE/RDF-BUILDER-IMPLEMENTATION.md
 - doc/ARCHITECTURE/JSON-RDF-CONVERTER.md
 
