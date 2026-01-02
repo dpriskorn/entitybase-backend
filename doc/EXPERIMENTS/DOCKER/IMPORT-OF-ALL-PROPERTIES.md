@@ -55,3 +55,51 @@ Repository:
 
 ```bash
 wget https://dumps.wikimedia.org/wikidatawiki/entities/latest-all.json.bz2
+
+## Step 2: Extract Properties Only
+
+```bash
+wikidata-dump-filter \
+  --input latest-all.json.bz2 \
+  --output properties.json \
+  --entity-type property
+```
+
+This produces a valid Wikidata JSON dump containing only P* entities.
+
+## Step 3: (Optional) Recompress
+
+Recommended before upload or archival:
+
+zstd -19 properties.json
+# or
+bzip2 properties.json
+
+
+Expected size:
+
+~20–60 MB compressed
+~200–400 MB uncompressed
+
+## Step 4: Send to API Endpoint
+
+Assumes an API endpoint capable of receiving Wikidata JSON entities.
+
+Example: streaming upload
+```bash
+cat properties.json \
+| curl -X POST \
+    -H "Content-Type: application/json" \
+    --data-binary @- \
+    https://example.org/api/import/wikidata
+```
+
+Example: line-by-line ingestion
+```bash
+jq -c '.[]' properties.json | while read -r entity; do
+  curl -X POST \
+    -H "Content-Type: application/json" \
+    -d "$entity" \
+    https://example.org/api/import/wikidata/entity
+done
+```
