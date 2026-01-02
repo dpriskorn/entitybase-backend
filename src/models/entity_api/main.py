@@ -377,7 +377,6 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
     new_revision_id = head_revision_id + 1
 
     # Prepare deletion revision data
-    deleted_at = datetime.utcnow().isoformat() + "Z"
     edit_type = (
         EditType.SOFT_DELETE.value
         if request.delete_type == DeleteType.SOFT
