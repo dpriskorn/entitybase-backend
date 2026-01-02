@@ -157,7 +157,7 @@ def create_entity(request: EntityCreateRequest):
     revision_data = {
         "schema_version": settings.s3_revision_schema_version,
         "revision_id": new_revision_id,
-        "created_at": datetime.utcnow().isoformat() + "Z",
+        "created_at": datetime.now(timezone.utc).isoformat() + "Z",
         "created_by": "entity-api",
         "is_mass_edit": is_mass_edit,
         "edit_type": edit_type or EditType.UNSPECIFIED.value,
@@ -386,7 +386,7 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
     revision_data = {
         "schema_version": settings.s3_revision_schema_version,
         "revision_id": new_revision_id,
-        "created_at": datetime.utcnow().isoformat() + "Z",
+        "created_at": datetime.now(timezone.utc).isoformat() + "Z",
         "created_by": "entity-api",
         "is_mass_edit": False,
         "edit_type": edit_type,
