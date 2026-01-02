@@ -106,3 +106,43 @@ class S3Client(BaseModel):
         parsed_data = json.loads(response["Body"].read().decode("utf-8"))
 
         return parsed_data
+
+    def write_entity_revision(
+        self,
+        entity_id: str,
+        revision_id: int,
+        entity_type: str,
+        data: dict,
+        edit_type: str = "",
+        created_by: str = "entity-api",
+    ) -> int:
+        """Write revision as part of redirect operations (no mark_pending/published flow)"""
+        import json
+        from datetime import datetime
+
+        revision_data = {
+            "schema_version": "1.0.0",
+            "revision_id": revision_id,
+            "created_at": datetime.utcnow().isoformat() + "Z",
+            "created_by": created_by,
+            "is_mass_edit": False,
+            "edit_type": edit_type,
+            "entity_type": entity_type,
+            "is_semi_protected": False,
+            "is_locked": False,
+            "is_archived": False,
+            "is_dangling": False,
+            "is_mass_edit_protected": False,
+            "is_deleted": False,
+            "is_redirect": False,
+            "entity": data,
+        }
+
+        key = f"{entity_id}/r{revision_id}.json"
+        self.client.put_object(
+            Bucket=self.config.bucket,
+            Key=key,
+            Body=json.dumps(revision_data),
+            Metadata={"publication_state": "published"},
+        )
+        return revision_id

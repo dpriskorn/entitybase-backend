@@ -240,7 +240,8 @@ Added deletion-related fields to revision schema:
 
 ```json
 {
-  "deleted": true,
+  "is_deleted": true,
+  "is_redirect": false,
   "deletion_reason": "Privacy request",
   "deleted_at": "2025-12-28T10:30:00Z",
   "deleted_by": "admin-user",
@@ -249,8 +250,9 @@ Added deletion-related fields to revision schema:
 ```
 
 **Fields**:
-- `deleted`: Boolean flag indicating if revision is a deletion tombstone
-- `deletion_reason`: Human-readable reason for deletion (required if deleted=true)
+- `is_deleted`: Boolean flag indicating if revision is a deletion tombstone
+- `is_redirect`: Boolean flag indicating if entity is a redirect
+- `deletion_reason`: Human-readable reason for deletion (required if is_deleted=true)
 - `deleted_at`: ISO-8601 timestamp of deletion action
 - `deleted_by`: User or system that requested deletion
 
@@ -265,31 +267,14 @@ Added deletion-related fields to revision schema:
 
 **Changes to entity_head table**:
 ```sql
-ALTER TABLE entity_head ADD COLUMN deleted BOOLEAN DEFAULT FALSE;
-```
-
-**New entity_delete_audit table**:
-```sql
-CREATE TABLE IF NOT EXISTS entity_delete_audit (
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    entity_id BIGINT NOT NULL,
-    external_id VARCHAR(255) NOT NULL,
-    delete_type ENUM('soft', 'hard') NOT NULL,
-    deletion_reason TEXT,
-    deleted_by VARCHAR(255),
-    deleted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    head_revision_id BIGINT,
-    INDEX idx_entity_id (entity_id),
-    INDEX idx_deleted_at (deleted_at),
-    INDEX idx_delete_type (delete_type)
-)
+ALTER TABLE entity_head ADD COLUMN is_deleted BOOLEAN DEFAULT FALSE;
+ALTER TABLE entity_head ADD COLUMN is_redirect BOOLEAN DEFAULT FALSE;
 ```
 
 **Rationale**:
-- `deleted` flag in entity_head enables fast filtering of hard-deleted entities
-- Separate audit table prevents bloating entity_head with deletion metadata
-- Indexes support reporting queries (e.g., deletion metrics, compliance reports)
-- Hard deletes are rare/exceptional - audit table is appropriate scale
+- `is_deleted` flag in entity_head enables fast filtering of hard-deleted entities
+- `is_redirect` flag in entity_head enables fast checking of redirect status
+- Deletion metadata stored in revision snapshots for complete audit trail
 
 #### New Pydantic Models
 

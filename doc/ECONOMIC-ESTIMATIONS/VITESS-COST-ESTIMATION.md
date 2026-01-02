@@ -33,7 +33,6 @@ Vitess stores **pointers and metadata**, never entity content (stored in S3).
 | entity_head | Current revision pointer | 1B | 50 bytes | 50 GB |
 | entity_revisions | Revision history | 20B (avg 20/entity) | 100 bytes | 2.0 TB |
 | entity_revision_meta | Validation metadata | 20B | 150 bytes | 3.0 TB |
-| entity_delete_audit | Deletion tracking | 1M (0.1% deletion rate) | 200 bytes | 0.2 GB |
 | **Total** | - | - | **~5.05 TB** |
 
 ### Growth Model

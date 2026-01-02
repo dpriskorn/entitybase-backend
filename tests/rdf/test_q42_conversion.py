@@ -1,15 +1,9 @@
 import json
 import logging
 
-import pytest
-
-from pathlib import Path
-
-from models.rdf_builder.converter import EntityConverter
-from models.json_parser.entity_parser import parse_entity
-from models.rdf_builder.property_registry.registry import PropertyRegistry
-from models.rdf_builder.ontology.datatypes import property_shape
 from conftest import TEST_DATA_DIR
+from models.json_parser.entity_parser import parse_entity
+from models.rdf_builder.converter import EntityConverter
 
 logger = logging.getLogger(__name__)
 

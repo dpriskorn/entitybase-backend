@@ -28,12 +28,15 @@ class URIGenerator(BaseModel):
             # No boundary marker, just replace
             return f"{self.wds}/{statement_id.replace('$', '-')}"
 
-    def entity_prefixed(self, entity_id: str) -> str:
+    @staticmethod
+    def entity_prefixed(entity_id: str) -> str:
         return f"wd:{entity_id}"
 
-    def data_prefixed(self, entity_id: str) -> str:
+    @staticmethod
+    def data_prefixed(entity_id: str) -> str:
         return f"data:{entity_id}"
 
-    def statement_prefixed(self, statement_id: str) -> str:
+    @staticmethod
+    def statement_prefixed(statement_id: str) -> str:
         statement_id_normalized = statement_id.replace("$", "-")
         return f"wds:{statement_id_normalized}"

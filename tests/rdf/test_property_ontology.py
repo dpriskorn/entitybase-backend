@@ -1,10 +1,5 @@
 from io import StringIO
 
-from models.rdf_builder.property_registry.models import (
-    PropertyShape,
-    PropertyPredicates,
-)
-from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.ontology.datatypes import property_shape
 from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
 

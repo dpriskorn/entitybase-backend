@@ -293,8 +293,8 @@ def test_idempotent_duplicate_submission(
         )
 
 
-def test_mass_edit_audit_trail(api_client: requests.Session, base_url: str) -> None:
-    """Test mass edit audit trail fields"""
+def test_mass_edit_classification(api_client: requests.Session, base_url: str) -> None:
+    """Test mass edit and edit_type classification"""
     logger = logging.getLogger(__name__)
 
     # Create mass edit with classification
@@ -349,7 +349,7 @@ def test_mass_edit_audit_trail(api_client: requests.Session, base_url: str) -> N
     assert raw_data2.get("is_mass_edit") == False
     assert raw_data2.get("edit_type") == ""
 
-    logger.info("✓ Mass edit audit trail fields work correctly")
+    logger.info("✓ Mass edit classification works correctly")
 
 
 def test_semi_protection_blocks_not_autoconfirmed_users(
@@ -580,7 +580,7 @@ def test_query_locked_entities(api_client: requests.Session, base_url: str) -> N
     response = api_client.get(f"{base_url}/entities?status=locked")
     assert response.status_code == 200
     entities = response.json()
-    assert "Q90010" in entities
+    assert any(e["external_id"] == "Q90010" for e in entities)
 
     logger.info("✓ Query locked entities works")
 
@@ -769,20 +769,14 @@ def test_soft_delete_entity(api_client: requests.Session, base_url: str) -> None
     # Soft delete
     delete_response = api_client.delete(
         f"{base_url}/entity/Q99001",
-        json={
-            "delete_type": "soft",
-            "deletion_reason": "Test soft delete",
-            "deleted_by": "test-user",
-        },
+        json={"delete_type": "soft"},
     )
     assert delete_response.status_code == 200
 
     result = delete_response.json()
     assert result["id"] == "Q99001"
-    assert result["deleted"] is True
+    assert result["is_deleted"] is True
     assert result["delete_type"] == "soft"
-    assert result["deletion_reason"] == "Test soft delete"
-    assert result["deleted_by"] == "test-user"
     assert "revision_id" in result
 
     # Verify entity still accessible (soft delete doesn't hide)
@@ -792,10 +786,8 @@ def test_soft_delete_entity(api_client: requests.Session, base_url: str) -> None
     # Verify deletion revision in S3
     revision_response = api_client.get(f"{base_url}/raw/Q99001/2")
     raw_data = revision_response.json()
-    assert raw_data["deleted"] is True
-    assert raw_data["deletion_reason"] == "Test soft delete"
-    assert raw_data["deleted_by"] == "test-user"
-    assert "deleted_at" in raw_data
+    assert raw_data["is_deleted"] is True
+    assert raw_data["edit_type"] == "soft-delete"
     assert "entity" in raw_data  # Entity data preserved
 
     logger.info("✓ Soft delete works correctly")
@@ -817,17 +809,13 @@ def test_hard_delete_entity(api_client: requests.Session, base_url: str) -> None
     # Hard delete
     delete_response = api_client.delete(
         f"{base_url}/entity/Q99002",
-        json={
-            "delete_type": "hard",
-            "deletion_reason": "Test hard delete",
-            "deleted_by": "admin-user",
-        },
+        json={"delete_type": "hard"},
     )
     assert delete_response.status_code == 200
 
     result = delete_response.json()
     assert result["id"] == "Q99002"
-    assert result["deleted"] is True
+    assert result["is_deleted"] is True
     assert result["delete_type"] == "hard"
 
     # Verify entity no longer accessible (hard delete hides)
@@ -856,8 +844,6 @@ def test_undelete_entity(api_client: requests.Session, base_url: str) -> None:
         f"{base_url}/entity/Q99003",
         json={
             "delete_type": "soft",
-            "deletion_reason": "Test",
-            "deleted_by": "test-user",
         },
     )
 
@@ -905,7 +891,7 @@ def test_hard_delete_prevents_undelete(
     # Hard delete
     api_client.delete(
         f"{base_url}/entity/Q99004",
-        json={"delete_type": "hard", "deletion_reason": "Test", "deleted_by": "admin"},
+        json={"delete_type": "hard"},
     )
 
     # Try to undelete (should fail with 410)
@@ -921,37 +907,3 @@ def test_hard_delete_prevents_undelete(
 
     logger.info("✓ Hard delete prevents undelete")
 
-
-def test_delete_audit_trail(api_client: requests.Session, base_url: str) -> None:
-    """Test that deletion audit trail is recorded"""
-    logger = logging.getLogger(__name__)
-
-    # Soft delete
-    entity_data = {
-        "id": "Q99005",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test"}},
-    }
-    api_client.post(f"{base_url}/entity", json=entity_data)
-
-    api_client.delete(
-        f"{base_url}/entity/Q99005",
-        json={
-            "delete_type": "soft",
-            "deletion_reason": "Audit test",
-            "deleted_by": "auditor",
-        },
-    )
-
-    # Verify audit fields in S3
-    raw_response = api_client.get(f"{base_url}/raw/Q99005/2")
-    raw_data = raw_response.json()
-    assert raw_data["deleted"] is True
-    assert raw_data["deletion_reason"] == "Audit test"
-    assert raw_data["deleted_by"] == "auditor"
-    assert "deleted_at" in raw_data
-
-    # Verify edit_type
-    assert raw_data["edit_type"] == "soft-delete"
-
-    logger.info("✓ Deletion audit trail recorded correctly")

@@ -5,9 +5,8 @@
 Deletion is a new immutable revision:
 
 {
-  "deleted": true,
-  "reason": "...",
-  "timestamp": "..."
+  "is_deleted": true,
+  "is_redirect": false
 }
 
 Entity remains addressable
@@ -28,4 +27,4 @@ Snapshots retained for retention period
 
 Physical deletion via lifecycle rules only
 
-Hard deletes are rare and audited.
+Hard deletes are rare.

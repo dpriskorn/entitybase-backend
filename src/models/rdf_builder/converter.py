@@ -25,12 +25,14 @@ class EntityConverter:
         property_registry: PropertyRegistry,
         entity_metadata_dir: Path | None = None,
         redirects_dir: Path | None = None,
+        vitess_client=None,
         enable_deduplication: bool = True,
     ):
         self.properties = property_registry
         self.writers = TripleWriters()
         self.entity_metadata_dir = entity_metadata_dir
         self.redirects_dir = redirects_dir
+        self.vitess_client = vitess_client
         self.dedupe = HashDedupeBag() if enable_deduplication else None
 
     def convert_to_turtle(self, entity: Entity, output: TextIO):
@@ -98,7 +100,8 @@ class EntityConverter:
             PropertyOntologyWriter.write_property(output, shape)
             PropertyOntologyWriter.write_novalue_class(output, pid)
 
-    def _collect_referenced_entities(self, entity: Entity) -> set[str]:
+    @staticmethod
+    def _collect_referenced_entities(entity: Entity) -> set[str]:
         """Collect unique entity IDs referenced in statement values, qualifiers, and references."""
         referenced = set()
         for stmt in entity.statements:
@@ -154,20 +157,31 @@ class EntityConverter:
                     )
 
     def _fetch_redirects(self, entity_id: str) -> list[str]:
-        """Load entity redirects from cache."""
-        if not self.redirects_dir:
-            return []
-
-        try:
-            return load_entity_redirects(entity_id, self.redirects_dir)
-        except FileNotFoundError:
-            logger.debug(f"No redirects found for {entity_id}")
-            return []
+        """Load entity redirects from Vitess or fallback to cache."""
+        redirects = []
+        
+        if self.vitess_client:
+            try:
+                internal_id = self.vitess_client.resolve_id(entity_id)
+                if internal_id is not None:
+                    vitess_redirects = self.vitess_client.get_incoming_redirects(internal_id)
+                    redirects.extend(vitess_redirects)
+            except Exception as e:
+                logger.warning(f"Failed to load redirects from Vitess for {entity_id}: {e}")
+        
+        if self.redirects_dir:
+            try:
+                file_redirects = load_entity_redirects(entity_id, self.redirects_dir)
+                redirects.extend(file_redirects)
+            except FileNotFoundError:
+                logger.debug(f"No redirects found for {entity_id}")
+        
+        return list(set(redirects))
 
     def _write_redirects(self, entity: Entity, output: TextIO):
         """Write redirect triples for entity."""
-        redirects = self._fetch_redirects(entity.id)
 
+        redirects = self._fetch_redirects(entity.id)
         for redirect_id in redirects:
             self.writers.write_redirect(output, redirect_id, entity.id)
 

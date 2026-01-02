@@ -1,6 +1,7 @@
 from io import StringIO
 from pathlib import Path
 
+from models.internal_representation import Rank
 from models.internal_representation.entity import Entity
 from models.json_parser.entity_parser import parse_entity
 from models.rdf_builder.converter import EntityConverter
@@ -68,7 +69,7 @@ def test_entity_converter_no_direct_claim_for_non_best_rank():
             Statement(
                 property="P31",
                 value=EntityValue(value="Q5"),
-                rank="deprecated",
+                rank=Rank.DEPRECATED,
                 statement_id="Q999$12345",
                 qualifiers=[],
                 references=[],

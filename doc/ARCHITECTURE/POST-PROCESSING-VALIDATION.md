@@ -322,10 +322,9 @@ An entity is eligible for cleanup when ALL of the following are true:
      AND er.revision_id < eh.head_revision_id
    ↓
 3. For each candidate:
-   - Log to validation_metrics with action = 'marked_for_cleanup'
-   - Update entity_revision_meta.validation_status = 'cleanup_eligible'
-   - Optionally: Record in entity_delete_audit table
-   ↓
+    - Log to validation_metrics with action = 'marked_for_cleanup'
+    - Update entity_revision_meta.validation_status = 'cleanup_eligible'
+    ↓
 4. Emit cleanup_eligible event for downstream systems
    ↓
 5. (Optional) Physical deletion of S3 snapshots in separate job

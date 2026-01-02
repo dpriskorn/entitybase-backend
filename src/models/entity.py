@@ -5,7 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class EditType(str, Enum):
-    """Standardized edit type classifications for audit trails and filtering"""
+    """Standardized edit type classifications for filtering"""
 
     # Protection management
     LOCK_ADDED = "lock-added"
@@ -39,6 +39,10 @@ class EditType(str, Enum):
     SOFT_DELETE = "soft-delete"
     HARD_DELETE = "hard-delete"
     UNDELETE = "undelete"
+    
+    # Redirect operations
+    REDIRECT_CREATE = "redirect-create"
+    REDIRECT_REVERT = "redirect-revert"
 
     # Default
     UNSPECIFIED = ""
@@ -106,15 +110,42 @@ class EntityDeleteRequest(BaseModel):
     delete_type: DeleteType = Field(
         default=DeleteType.SOFT, description="Type of deletion"
     )
-    deletion_reason: str = Field(..., description="Reason for deletion (required)")
-    deleted_by: str = Field(..., description="User or system requesting deletion")
 
 
 class EntityDeleteResponse(BaseModel):
     id: str
     revision_id: int
     delete_type: DeleteType
-    deleted: bool
-    deleted_at: str
-    deletion_reason: str
-    deleted_by: str
+    is_deleted: bool
+
+
+class EntityRedirectRequest(BaseModel):
+    redirect_from_id: str = Field(
+        ..., description="Source entity ID to be marked as redirect (e.g., Q59431323)"
+    )
+    redirect_to_id: str = Field(
+        ..., description="Target entity ID (e.g., Q42)"
+    )
+    created_by: str = Field(
+        default="entity-api",
+        description="User or system creating redirect"
+    )
+
+
+class EntityRedirectResponse(BaseModel):
+    redirect_from_id: str
+    redirect_to_id: str
+    redirect_from_internal_id: int
+    redirect_to_internal_id: int
+    created_at: str
+    revision_id: int
+
+
+class RedirectRevertRequest(BaseModel):
+    revert_to_revision_id: int = Field(
+        ..., description="Revision ID to revert to (e.g., 12340)"
+    )
+    revert_reason: str = Field(
+        ..., description="Reason for reverting redirect"
+    )
+    created_by: str = Field(default="entity-api")

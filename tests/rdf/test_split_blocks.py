@@ -1,5 +1,3 @@
-import pytest
-
 from rdf.conftest import split_subject_blocks
 
 

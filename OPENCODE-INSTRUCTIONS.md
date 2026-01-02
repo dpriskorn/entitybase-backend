@@ -27,9 +27,4 @@
 - avoid websearch, everything we need is in the repo already just ask where to find what you need
 
 # Current task
-improve rdf ttl builder (both full and truthy) using existing test data from test_data/ 
-directory
-read these to understand the rdf data model and wikibase php implementation 
-- doc/WIKIDATA/RDF-DATA-MODEL.md
-- mediawiki-extensions-Wikibase/repo/includes/Rdf/README.md
-- mediawiki-extensions-Wikibase/repo/includes/Rdf/Values/README.md
+fix test failures after simplification of architecture by removing delete audit support

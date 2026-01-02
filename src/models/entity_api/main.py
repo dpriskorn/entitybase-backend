@@ -20,7 +20,11 @@ from models.entity import (
     EntityDeleteResponse,
     EntityResponse,
     RevisionMetadata,
+    EntityRedirectRequest,
+    RedirectRevertRequest,
 )
+
+from services.entity_api.redirects import RedirectService
 
 if TYPE_CHECKING:
     from models.infrastructure.s3_client import S3Config
@@ -163,7 +167,8 @@ def create_entity(request: EntityCreateRequest):
         "is_archived": request.is_archived,
         "is_dangling": request.is_dangling,
         "is_mass_edit_protected": request.is_mass_edit_protected,
-        "deleted": False,
+        "is_deleted": False,
+        "is_redirect": False,
         "entity": request.data,
         "content_hash": content_hash,
     }
@@ -181,17 +186,30 @@ def create_entity(request: EntityCreateRequest):
         edit_type or EditType.UNSPECIFIED.value,
     )
 
-    success = clients.vitess.cas_update_head_with_status(
-        internal_id,
-        head_revision_id,
-        new_revision_id,
-        request.is_semi_protected,
-        request.is_locked,
-        request.is_archived,
-        request.is_dangling,
-        request.is_mass_edit_protected,
-        deleted=False,
-    )
+    if head_revision_id is None:
+        success = clients.vitess.insert_head_with_status(
+            internal_id,
+            new_revision_id,
+            request.is_semi_protected,
+            request.is_locked,
+            request.is_archived,
+            request.is_dangling,
+            request.is_mass_edit_protected,
+            is_deleted=False,
+        )
+    else:
+        success = clients.vitess.cas_update_head_with_status(
+            internal_id,
+            head_revision_id,
+            new_revision_id,
+            request.is_semi_protected,
+            request.is_locked,
+            request.is_archived,
+            request.is_dangling,
+            request.is_mass_edit_protected,
+            is_deleted=False,
+        )
+
     if not success:
         raise HTTPException(status_code=409, detail="Concurrent modification detected")
 
@@ -298,6 +316,22 @@ async def get_entity_data_turtle(entity_id: str):
     return Response(content=turtle, media_type="text/turtle")
 
 
+@app.post("/redirects")
+async def create_entity_redirect(request: EntityRedirectRequest):
+    """Create a redirect from one entity to another"""
+    clients = app.state.clients
+    redirect_service = RedirectService(clients.s3, clients.vitess)
+    return redirect_service.create_redirect(request)
+
+
+@app.post("/entities/{entity_id}/revert-redirect")
+async def revert_entity_redirect(entity_id: str, request: RedirectRevertRequest):
+    """Revert a redirect entity back to normal using revision-based restore"""
+    clients = app.state.clients
+    redirect_service = RedirectService(clients.s3, clients.vitess)
+    return redirect_service.revert_redirect(entity_id, request.revert_to_revision_id)
+
+
 # noinspection PyUnresolvedReferences
 @app.get("/entity/{entity_id}/revision/{revision_id}", response_model=Dict[str, Any])
 def get_entity_revision(entity_id: str, revision_id: int):
@@ -353,7 +387,7 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
     revision_data = {
         "schema_version": settings.s3_revision_schema_version,
         "revision_id": new_revision_id,
-        "created_at": deleted_at,
+        "created_at": datetime.utcnow().isoformat() + "Z",
         "created_by": "entity-api",
         "is_mass_edit": False,
         "edit_type": edit_type,
@@ -365,10 +399,8 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
         "is_mass_edit_protected": current_revision.data.get(
             "is_mass_edit_protected", False
         ),
-        "deleted": True,
-        "deletion_reason": request.deletion_reason,
-        "deleted_at": deleted_at,
-        "deleted_by": request.deleted_by,
+        "is_deleted": True,
+        "is_redirect": False,
         "entity": current_revision.data.get("entity", {}),
     }
 
@@ -390,18 +422,7 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
         clients.vitess.hard_delete_entity(
             internal_id=internal_id,
             external_id=entity_id,
-            deletion_reason=request.deletion_reason,
-            deleted_by=request.deleted_by,
             head_revision_id=new_revision_id,
-        )
-    else:
-        # Log soft delete to audit
-        clients.vitess.log_soft_delete(
-            internal_id=internal_id,
-            external_id=entity_id,
-            deletion_reason=request.deletion_reason,
-            deleted_by=request.deleted_by,
-            revision_id=new_revision_id,
         )
 
     # Determine deleted flag for CAS update (hard delete = TRUE, soft delete = FALSE)
@@ -417,7 +438,7 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
         current_revision.data.get("is_archived", False),
         current_revision.data.get("is_dangling", False),
         current_revision.data.get("is_mass_edit_protected", False),
-        deleted=deleted_flag,
+        is_deleted=deleted_flag,
     )
 
     if not success:
@@ -432,12 +453,24 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
         id=entity_id,
         revision_id=new_revision_id,
         delete_type=request.delete_type,
-        deleted=True,
-        deleted_at=deleted_at,
-        deletion_reason=request.deletion_reason,
-        deleted_by=request.deleted_by,
+        is_deleted=True,
     )
 
+
+@app.post("/redirects")
+async def create_entity_redirect(request: EntityRedirectRequest):
+    """Create a redirect from one entity to another"""
+    clients = app.state.clients
+    redirect_service = RedirectService(clients.s3, clients.vitess)
+    return redirect_service.create_redirect(request)
+
+
+@app.post("/entities/{entity_id}/revert-redirect")
+async def revert_entity_redirect(entity_id: str, request: RedirectRevertRequest):
+    """Revert a redirect entity back to normal using revision-based restore"""
+    clients = app.state.clients
+    redirect_service = RedirectService(clients.s3, clients.vitess)
+    return redirect_service.revert_redirect(entity_id, request.revert_to_revision_id)
 
 # noinspection PyUnresolvedReferences
 @app.get("/raw/{entity_id}/{revision_id}")

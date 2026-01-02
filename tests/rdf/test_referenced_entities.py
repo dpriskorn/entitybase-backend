@@ -1,6 +1,7 @@
 from io import StringIO
 from pathlib import Path
 
+from models.internal_representation import Rank
 from models.internal_representation.entity import Entity
 from models.internal_representation.values.entity_value import EntityValue
 from models.internal_representation.statements import Statement
@@ -27,7 +28,7 @@ def test_collect_referenced_entities():
             Statement(
                 property="P31",
                 value=EntityValue(value="Q5"),
-                rank="normal",
+                rank=Rank.NORMAL,
                 statement_id="Q1$1",
                 qualifiers=[],
                 references=[],
@@ -35,7 +36,7 @@ def test_collect_referenced_entities():
             Statement(
                 property="P17",
                 value=EntityValue(value="Q183"),
-                rank="normal",
+                rank=Rank.NORMAL,
                 statement_id="Q1$2",
                 qualifiers=[],
                 references=[],
@@ -43,7 +44,7 @@ def test_collect_referenced_entities():
             Statement(
                 property="P127",
                 value=EntityValue(value="Q5"),
-                rank="normal",
+                rank=Rank.NORMAL,
                 statement_id="Q1$3",
                 qualifiers=[],
                 references=[],
@@ -79,7 +80,7 @@ def test_write_referenced_entity_metadata():
             Statement(
                 property="P31",
                 value=EntityValue(value="Q17633526"),
-                rank="normal",
+                rank=Rank.NORMAL,
                 statement_id="Q17948861$1",
                 qualifiers=[],
                 references=[],
@@ -120,7 +121,7 @@ def test_load_referenced_entity_missing_file():
             Statement(
                 property="P31",
                 value=EntityValue(value="Q999999"),
-                rank="normal",
+                rank=Rank.NORMAL,
                 statement_id="Q999$1",
                 qualifiers=[],
                 references=[],

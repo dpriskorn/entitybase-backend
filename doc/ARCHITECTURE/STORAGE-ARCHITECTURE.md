@@ -72,15 +72,6 @@ entity_revision_meta
 - validation_error TEXT DEFAULT NULL
 - validated_at TIMESTAMP DEFAULT NULL
 - schema_version VARCHAR(20) DEFAULT NULL
-
-entity_delete_audit
-- entity_id
-- delete_type (soft | hard)
-- requested_by
-- approved_by
-- reason
-- timestamp
-- retention_expiry
 ```
 
 ## Read/Write flow
