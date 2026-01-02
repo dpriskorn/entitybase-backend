@@ -29,9 +29,9 @@ class RedirectService:
         from_internal_id = self.vitess.resolve_id(request.redirect_from_id)
         to_internal_id = self.vitess.resolve_id(request.redirect_to_id)
 
-        if from_internal_id is None:
+        if not from_internal_id:
             raise HTTPException(status_code=404, detail="Source entity not found")
-        if to_internal_id is None:
+        if not to_internal_id:
             raise HTTPException(status_code=404, detail="Target entity not found")
 
         if from_internal_id == to_internal_id:
@@ -41,10 +41,6 @@ class RedirectService:
         if existing_target is not None:
             raise HTTPException(status_code=409, detail="Redirect already exists")
 
-        if self.vitess.is_entity_deleted(from_internal_id):
-            raise HTTPException(
-                status_code=423, detail="Source entity has been deleted"
-            )
         if self.vitess.is_entity_deleted(from_internal_id):
             raise HTTPException(
                 status_code=423, detail="Source entity has been deleted"
@@ -61,9 +57,15 @@ class RedirectService:
                 status_code=423, detail="Target entity is locked or archived"
             )
 
+        to_head_revision_id = self.vitess.get_head(to_internal_id)
+        if to_head_revision_id == 0:
+            raise HTTPException(
+                status_code=404, detail="Target entity has no revisions"
+            )
+
         target_revision = self.s3.read_full_revision(
             request.redirect_to_id,
-            self.vitess.get_head(to_internal_id),
+            to_head_revision_id,
         )
 
         redirect_revision_data = {
@@ -89,9 +91,7 @@ class RedirectService:
         )
 
         self.vitess.create_redirect(
-            redirect_from_internal_id=from_internal_id,
             redirect_from_entity_id=request.redirect_from_id,
-            redirect_to_internal_id=to_internal_id,
             redirect_to_entity_id=request.redirect_to_id,
             created_by=request.created_by,
         )

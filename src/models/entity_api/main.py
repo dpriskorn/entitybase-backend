@@ -1,6 +1,6 @@
 import json
 from contextlib import asynccontextmanager
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from rapidhash import rapidhash
@@ -100,7 +100,7 @@ def create_entity(request: EntityCreateRequest):
     content_hash = rapidhash(entity_json.encode())
 
     # Check if head revision has same content (idempotency)
-    if head_revision_id is not None:
+    if head_revision_id != 0:
         try:
             head_revision = clients.s3.read_revision(entity_id, head_revision_id)
             if head_revision.data.get("content_hash") == content_hash:
@@ -121,7 +121,7 @@ def create_entity(request: EntityCreateRequest):
             pass
 
     # Check protection permissions
-    if head_revision_id is not None:
+    if head_revision_id != 0:
         try:
             current = clients.s3.read_revision(entity_id, head_revision_id)
 
@@ -244,7 +244,7 @@ def get_entity(entity_id: str):
         raise HTTPException(status_code=404, detail="Entity not found")
 
     head_revision_id = clients.vitess.get_head(internal_id)
-    if head_revision_id is None:
+    if head_revision_id == 0:
         raise HTTPException(status_code=404, detail="Entity has no revisions")
 
     # Check if entity is hard-deleted
@@ -306,7 +306,7 @@ async def get_entity_data_turtle(entity_id: str):
         raise HTTPException(status_code=404, detail=f"Entity {entity_id} not found")
 
     head_revision_id = clients.vitess.get_head(internal_id)
-    if head_revision_id is None:
+    if head_revision_id == 0:
         raise HTTPException(status_code=404, detail="Entity has no revisions")
 
     revision = clients.s3.read_revision(entity_id, head_revision_id)
@@ -364,7 +364,7 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
 
     # Get current head revision
     head_revision_id = clients.vitess.get_head(internal_id)
-    if head_revision_id is None:
+    if head_revision_id == 0:
         raise HTTPException(status_code=404, detail="Entity has no revisions")
 
     if clients.s3 is None:

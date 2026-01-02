@@ -53,12 +53,18 @@ class MockVitessClient:
 
     def create_redirect(
         self,
-        redirect_from_internal_id: int,
         redirect_from_entity_id: str,
-        redirect_to_internal_id: int,
         redirect_to_entity_id: str,
         created_by: str = "entity-api",
     ) -> None:
+        redirect_from_internal_id = self.resolved_ids.get(redirect_from_entity_id)
+        redirect_to_internal_id = self.resolved_ids.get(redirect_to_entity_id)
+
+        if not redirect_from_internal_id:
+            raise ValueError(f"Source entity {redirect_from_entity_id} not found")
+        if not redirect_to_internal_id:
+            raise ValueError(f"Target entity {redirect_to_entity_id} not found")
+
         self.redirects[redirect_from_internal_id] = redirect_to_internal_id
         self.redirects_to[redirect_from_internal_id] = redirect_to_entity_id
 
@@ -218,9 +224,7 @@ class RedirectService:
         )
 
         vitess.create_redirect(
-            redirect_from_internal_id=from_internal_id,
             redirect_from_entity_id=request.redirect_from_id,
-            redirect_to_internal_id=to_internal_id,
             redirect_to_entity_id=request.redirect_to_id,
             created_by=request.created_by,
         )

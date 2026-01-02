@@ -91,8 +91,9 @@ class VitessClient(BaseModel):
 
         cursor.close()
 
-    def resolve_id(self, entity_id: str) -> int | None:
-        """Resolve external entity ID to internal ID"""
+    def resolve_id(self, entity_id: str) -> int:
+        """Resolve external entity ID to internal ID
+        0 means none found."""
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
@@ -101,10 +102,13 @@ class VitessClient(BaseModel):
         )
         result = cursor.fetchone()
         cursor.close()
-        return result[0] if result else None
+        return result[0] if result else 0
 
-    def get_head(self, entity_id: int) -> int | None:
-        """Get current head revision for entity"""
+    def get_head(self, entity_id: int) -> int:
+        """Get current head revision for entity
+
+        Returns 0 if entity has no revisions (entity_head row doesn't exist or head_revision_id is NULL)
+        """
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
@@ -113,7 +117,7 @@ class VitessClient(BaseModel):
         )
         result = cursor.fetchone()
         cursor.close()
-        return result[0] if result else None
+        return result[0] if result else 0
 
     def write_entity_revision(
         self,
@@ -221,17 +225,23 @@ class VitessClient(BaseModel):
 
     def create_redirect(
         self,
-        redirect_from_internal_id: int,
         redirect_from_entity_id: str,
-        redirect_to_internal_id: int,
         redirect_to_entity_id: str,
         created_by: str = "entity-api",
     ) -> None:
         """Create a redirect relationship between entities"""
+        redirect_from_internal_id = self.resolve_id(redirect_from_entity_id)
+        redirect_to_internal_id = self.resolve_id(redirect_to_entity_id)
+
+        if not redirect_from_internal_id:
+            raise ValueError(f"Source entity {redirect_from_entity_id} not found")
+        if not redirect_to_internal_id:
+            raise ValueError(f"Target entity {redirect_to_entity_id} not found")
+
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            """INSERT INTO entity_redirects 
+            """INSERT INTO entity_redirects
                    (redirect_from_id, redirect_to_id, created_by)
                    VALUES (%s, %s, %s)""",
             (redirect_from_internal_id, redirect_to_internal_id, created_by),

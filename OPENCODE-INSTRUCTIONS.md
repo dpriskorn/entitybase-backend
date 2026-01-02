@@ -25,6 +25,7 @@
 - no strings in code - everything is enums
 - do this before running pytest:  export PYTHONPATH=/home/dpriskorn/src/python/wikibase-backend/src:$PYTHONPATH && source .venv/bin/activate
 - avoid websearch, everything we need is in the repo already just ask where to find what you need
+- we don't expose internal_id outside the VitessClient class
 
 # Current task
 fix test failures after rewrite to avoid exposing internal_ids in the APIs and only use them internally for Vitess
