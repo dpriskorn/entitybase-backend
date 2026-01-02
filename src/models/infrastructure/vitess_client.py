@@ -143,14 +143,20 @@ class VitessClient(BaseModel):
         cursor.close()
         return {
             "revision_id": revision_id,
-            "data": json.loads(result[0]) if result[0] else None
+            "data": json.loads(result[0]) if result[0] else None,
         }
 
-    def insert_revision(self, entity_id: int, revision_id: int, is_mass_edit: bool = False, edit_type: str = "") -> None:
+    def insert_revision(
+        self,
+        entity_id: int,
+        revision_id: int,
+        is_mass_edit: bool = False,
+        edit_type: str = "",
+    ) -> None:
         """Insert revision metadata (without entity data). Idempotent - skips if already exists."""
         conn = self.connect()
         cursor = conn.cursor()
-        
+
         cursor.execute(
             "SELECT 1 FROM entity_revisions WHERE entity_id = %s AND revision_id = %s",
             (entity_id, revision_id),
@@ -158,7 +164,7 @@ class VitessClient(BaseModel):
         if cursor.fetchone() is not None:
             cursor.close()
             return
-        
+
         cursor.execute(
             "INSERT INTO entity_revisions (entity_id, revision_id, is_mass_edit, edit_type) VALUES (%s, %s, %s, %s)",
             (entity_id, revision_id, is_mass_edit, edit_type),
@@ -170,7 +176,8 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT is_deleted FROM entity_head WHERE entity_id = %s", (entity_id,),
+            "SELECT is_deleted FROM entity_head WHERE entity_id = %s",
+            (entity_id,),
         )
         result = cursor.fetchone()
         cursor.close()
@@ -181,7 +188,8 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT is_locked FROM entity_head WHERE entity_id = %s", (entity_id,),
+            "SELECT is_locked FROM entity_head WHERE entity_id = %s",
+            (entity_id,),
         )
         result = cursor.fetchone()
         cursor.close()
@@ -192,7 +200,8 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT is_archived FROM entity_head WHERE entity_id = %s", (entity_id,),
+            "SELECT is_archived FROM entity_head WHERE entity_id = %s",
+            (entity_id,),
         )
         result = cursor.fetchone()
         cursor.close()
@@ -368,8 +377,7 @@ class VitessClient(BaseModel):
         )
         result = [
             RevisionRecord(
-                revision_id=row[0],
-                created_at=row[1].isoformat() if row[1] else None
+                revision_id=row[0], created_at=row[1].isoformat() if row[1] else None
             )
             for row in cursor.fetchall()
         ]
@@ -406,7 +414,10 @@ class VitessClient(BaseModel):
                    LIMIT %s""",
             (limit,),
         )
-        result = [{"entity_id": row[0], "head_revision_id": row[1]} for row in cursor.fetchall()]
+        result = [
+            {"entity_id": row[0], "head_revision_id": row[1]}
+            for row in cursor.fetchall()
+        ]
         cursor.close()
         return result
 
@@ -422,7 +433,10 @@ class VitessClient(BaseModel):
                    LIMIT %s""",
             (limit,),
         )
-        result = [{"entity_id": row[0], "head_revision_id": row[1]} for row in cursor.fetchall()]
+        result = [
+            {"entity_id": row[0], "head_revision_id": row[1]}
+            for row in cursor.fetchall()
+        ]
         cursor.close()
         return result
 
@@ -438,7 +452,10 @@ class VitessClient(BaseModel):
                    LIMIT %s""",
             (limit,),
         )
-        result = [{"entity_id": row[0], "head_revision_id": row[1]} for row in cursor.fetchall()]
+        result = [
+            {"entity_id": row[0], "head_revision_id": row[1]}
+            for row in cursor.fetchall()
+        ]
         cursor.close()
         return result
 
@@ -454,7 +471,10 @@ class VitessClient(BaseModel):
                    LIMIT %s""",
             (limit,),
         )
-        result = [{"entity_id": row[0], "head_revision_id": row[1]} for row in cursor.fetchall()]
+        result = [
+            {"entity_id": row[0], "head_revision_id": row[1]}
+            for row in cursor.fetchall()
+        ]
         cursor.close()
         return result
 

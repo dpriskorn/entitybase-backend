@@ -439,7 +439,9 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
         )
 
         if not success:
-            raise HTTPException(status_code=409, detail="Concurrent modification detected")
+            raise HTTPException(
+                status_code=409, detail="Concurrent modification detected"
+            )
 
     # Mark as published
     clients.s3.mark_published(
@@ -470,6 +472,7 @@ async def revert_entity_redirect(entity_id: str, request: RedirectRevertRequest)
     clients = app.state.clients
     redirect_service = RedirectService(clients.s3, clients.vitess)
     return redirect_service.revert_redirect(entity_id, request.revert_to_revision_id)
+
 
 # noinspection PyUnresolvedReferences
 @app.get("/raw/{entity_id}/{revision_id}")

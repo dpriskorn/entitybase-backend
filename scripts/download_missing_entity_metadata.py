@@ -24,7 +24,7 @@ def find_missing_referenced_entities(entities_dir: Path) -> list[str]:
                             entity_id = datavalue.get("value", {}).get("id")
                             if entity_id:
                                 referenced.add(entity_id)
-                    
+
                     for qual_list in claim.get("qualifiers", {}).values():
                         for qual in qual_list:
                             if "datavalue" in qual:
@@ -33,7 +33,7 @@ def find_missing_referenced_entities(entities_dir: Path) -> list[str]:
                                     entity_id = datavalue.get("value", {}).get("id")
                                     if entity_id:
                                         referenced.add(entity_id)
-                    
+
                     for ref in claim.get("references", []):
                         for snak_list in ref.get("snaks", {}).values():
                             for snak in snak_list:

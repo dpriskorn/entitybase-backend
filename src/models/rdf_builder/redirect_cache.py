@@ -28,7 +28,7 @@ def _fetch_entity_redirects_batch(entity_ids: list[str]) -> dict[str, list[str]]
                     "prop": "redirects",
                     "titles": titles_param,
                     "rdlimit": "max",
-                    "format": "json"
+                    "format": "json",
                 },
                 timeout=60,
                 headers={
@@ -78,10 +78,7 @@ def load_entity_redirects_batch(
 
     for entity_id, redirects in fetched_redirects.items():
         output_path = redirects_dir / f"{entity_id}.json"
-        cache_data = {
-            "id": entity_id,
-            "redirects": redirects
-        }
+        cache_data = {"id": entity_id, "redirects": redirects}
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(cache_data, f, indent=2, ensure_ascii=False)
         logger.info(f"Saved redirects for {entity_id} to {output_path}")

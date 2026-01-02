@@ -12,7 +12,7 @@ from fastapi import HTTPException
 
 class MockVitessClient:
     """Mock Vitess client for testing without database"""
-    
+
     def __init__(self):
         self.resolved_ids = {}
         self.redirects = {}
@@ -21,23 +21,23 @@ class MockVitessClient:
         self.locked_entities = set()
         self.archived_entities = set()
         self._internal_to_entity_id = {}
-    
+
     def resolve_id(self, entity_id: str) -> int | None:
         if entity_id in self.resolved_ids:
             internal_id = self.resolved_ids[entity_id]
             self._internal_to_entity_id[internal_id] = entity_id
             return internal_id
         return None
-    
+
     def get_incoming_redirects(self, entity_internal_id: int) -> list[str]:
         return self.redirects.get(entity_internal_id, [])
-    
+
     def get_redirect_target(self, entity_internal_id: int) -> str | None:
         redirects_to = self.redirects_to.get(entity_internal_id, None)
         if redirects_to is not None and isinstance(redirects_to, int):
             return self._internal_to_entity_id.get(redirects_to, None)
         return redirects_to
-    
+
     def is_entity_deleted(self, entity_internal_id: int) -> bool:
         return entity_internal_id in self.deleted_entities
 
@@ -50,7 +50,7 @@ class MockVitessClient:
     def get_head(self, entity_id: int) -> int:
         """Get current head revision for entity (for testing)"""
         return 42
-    
+
     def create_redirect(
         self,
         redirect_from_internal_id: int,
@@ -61,7 +61,7 @@ class MockVitessClient:
     ) -> None:
         self.redirects[redirect_from_internal_id] = redirect_to_internal_id
         self.redirects_to[redirect_from_internal_id] = redirect_to_entity_id
-    
+
     def set_redirect_target(
         self,
         entity_internal_id: int,
@@ -72,24 +72,27 @@ class MockVitessClient:
 
 class MockS3Client:
     """Mock S3 client for testing without S3"""
-    
+
     def __init__(self):
         self.written_revisions = {}
-    
+
     def read_revision(self, entity_id: str, revision_id: int):
-        return self.written_revisions.get(revision_id, {
-            "revision_id": revision_id,
-            "data": {
-                "id": entity_id,
-                "type": "item",
-                "labels": {},
-                "descriptions": {},
-                "aliases": {},
-                "claims": {},
-                "sitelinks": {}
-            }
-        })
-    
+        return self.written_revisions.get(
+            revision_id,
+            {
+                "revision_id": revision_id,
+                "data": {
+                    "id": entity_id,
+                    "type": "item",
+                    "labels": {},
+                    "descriptions": {},
+                    "aliases": {},
+                    "claims": {},
+                    "sitelinks": {},
+                },
+            },
+        )
+
     def write_entity_revision(
         self,
         internal_id: int,
@@ -106,49 +109,56 @@ class MockS3Client:
 
     def read_full_revision(self, entity_id: str, revision_id: int) -> dict:
         """Read S3 object and return parsed full revision JSON (matches real client)"""
-        return self.written_revisions.get(revision_id, {
-            "schema_version": "1.0.0",
-            "revision_id": revision_id,
-            "created_at": "2024-01-01T00:00:00Z",
-            "created_by": "entity-api",
-            "is_mass_edit": False,
-            "edit_type": "",
-            "entity_type": "item",
-            "is_semi_protected": False,
-            "is_locked": False,
-            "is_archived": False,
-            "is_dangling": False,
-            "is_mass_edit_protected": False,
-            "is_deleted": False,
-            "is_redirect": False,
-            "data": {
-                "id": entity_id,
-                "type": "item",
-                "labels": {},
-                "descriptions": {},
-                "aliases": {},
-                "claims": {},
-                "sitelinks": {}
-            }
-        })
+        return self.written_revisions.get(
+            revision_id,
+            {
+                "schema_version": "1.0.0",
+                "revision_id": revision_id,
+                "created_at": "2024-01-01T00:00:00Z",
+                "created_by": "entity-api",
+                "is_mass_edit": False,
+                "edit_type": "",
+                "entity_type": "item",
+                "is_semi_protected": False,
+                "is_locked": False,
+                "is_archived": False,
+                "is_dangling": False,
+                "is_mass_edit_protected": False,
+                "is_deleted": False,
+                "is_redirect": False,
+                "data": {
+                    "id": entity_id,
+                    "type": "item",
+                    "labels": {},
+                    "descriptions": {},
+                    "aliases": {},
+                    "claims": {},
+                    "sitelinks": {},
+                },
+            },
+        )
 
 
 class RedirectService:
     """Mock RedirectService for testing"""
-    
+
     def __init__(self, s3_client, vitess_client):
         self.s3 = s3_client
         self.vitess = vitess_client
-    
+
     def create_redirect(self, request: EntityRedirectRequest):
         vitess = self.vitess
         s3 = self.s3
-        
+
         from_internal_id = vitess.resolve_id(request.redirect_from_id)
         to_internal_id = vitess.resolve_id(request.redirect_to_id)
-        
-        print(f"DEBUG: from_id={request.redirect_from_id}, to_id={request.redirect_to_id}")
-        print(f"DEBUG: from_internal_id={from_internal_id}, to_internal_id={to_internal_id}")
+
+        print(
+            f"DEBUG: from_id={request.redirect_from_id}, to_id={request.redirect_to_id}"
+        )
+        print(
+            f"DEBUG: from_internal_id={from_internal_id}, to_internal_id={to_internal_id}"
+        )
 
         if from_internal_id is None:
             raise HTTPException(status_code=404, detail="Source entity not found")
@@ -163,14 +173,24 @@ class RedirectService:
             raise HTTPException(status_code=409, detail="Redirect already exists")
 
         if vitess.is_entity_deleted(from_internal_id):
-            raise HTTPException(status_code=423, detail="Source entity has been deleted")
+            raise HTTPException(
+                status_code=423, detail="Source entity has been deleted"
+            )
         if vitess.is_entity_deleted(to_internal_id):
-            raise HTTPException(status_code=423, detail="Target entity has been deleted")
+            raise HTTPException(
+                status_code=423, detail="Target entity has been deleted"
+            )
 
-        if vitess.is_entity_locked(to_internal_id) or vitess.is_entity_archived(to_internal_id):
-            raise HTTPException(status_code=423, detail="Target entity is locked or archived")
+        if vitess.is_entity_locked(to_internal_id) or vitess.is_entity_archived(
+            to_internal_id
+        ):
+            raise HTTPException(
+                status_code=423, detail="Target entity is locked or archived"
+            )
 
-        target_revision = s3.read_full_revision(request.redirect_to_id, vitess.get_head(request.redirect_to_id))
+        target_revision = s3.read_full_revision(
+            request.redirect_to_id, vitess.get_head(request.redirect_to_id)
+        )
         target_data = target_revision
 
         redirect_revision_data = {
@@ -183,8 +203,8 @@ class RedirectService:
                 "descriptions": {},
                 "aliases": {},
                 "claims": {},
-                "sitelinks": {}
-            }
+                "sitelinks": {},
+            },
         }
 
         redirect_revision_id = s3.write_entity_revision(
@@ -211,7 +231,7 @@ class RedirectService:
         )
 
         from datetime import datetime
-        
+
         return EntityRedirectResponse(
             redirect_from_id=request.redirect_from_id,
             redirect_to_id=request.redirect_to_id,
@@ -222,7 +242,7 @@ class RedirectService:
     def revert_redirect(self, entity_id: str, revert_to_revision_id: int):
         vitess = self.vitess
         s3 = self.s3
-        
+
         internal_id = vitess.resolve_id(entity_id)
         current_redirect_target = vitess.get_redirect_target(internal_id)
 
@@ -232,16 +252,18 @@ class RedirectService:
         if vitess.is_entity_deleted(internal_id):
             raise HTTPException(status_code=423, detail="Entity has been deleted")
 
-        if vitess.is_entity_locked(internal_id) or vitess.is_entity_archived(internal_id):
+        if vitess.is_entity_locked(internal_id) or vitess.is_entity_archived(
+            internal_id
+        ):
             raise HTTPException(status_code=423, detail="Entity is locked or archived")
 
         target_revision = s3.read_full_revision(entity_id, revert_to_revision_id)
         target_data = target_revision
-        
+
         new_revision_data = {
             "schema_version": "1.1.0",
             "redirects_to": None,
-            "entity": target_data.get("data", target_data)
+            "entity": target_data.get("data", target_data),
         }
 
         new_revision_id = s3.write_entity_revision(
@@ -260,9 +282,7 @@ class RedirectService:
         )
 
         return EntityResponse(
-            id=entity_id,
-            revision_id=new_revision_id,
-            data=new_revision_data["entity"]
+            id=entity_id, revision_id=new_revision_id, data=new_revision_data["entity"]
         )
 
 
@@ -271,34 +291,32 @@ def redirect_service():
     """Fixture providing RedirectService with mock clients"""
     vitess = MockVitessClient()
     s3 = MockS3Client()
-    
+
     # Set up default Q42 entity for tests
     vitess.resolved_ids["Q42"] = 42
-    
+
     return RedirectService(s3, vitess)
 
 
 def test_create_redirect_success(redirect_service):
     """Test successful redirect creation"""
     vitess = redirect_service.vitess
-    
+
     # Set up both source and target entities
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
-    
+
     request = EntityRedirectRequest(
-        redirect_from_id="Q100",
-        redirect_to_id="Q42",
-        created_by="test-user"
+        redirect_from_id="Q100", redirect_to_id="Q42", created_by="test-user"
     )
-    
+
     response = redirect_service.create_redirect(request)
-    
+
     assert response.redirect_from_id == "Q100"
     assert response.redirect_to_id == "Q42"
     assert response.revision_id == 1
     assert response.created_at is not None
-    
+
     assert redirect_service.vitess.get_redirect_target(100) == "Q42"
     assert 100 in redirect_service.vitess.redirects
 
@@ -306,24 +324,21 @@ def test_create_redirect_success(redirect_service):
 def test_create_redirect_circular_prevention(redirect_service):
     """Test that redirecting to self is prevented"""
     vitess = redirect_service.vitess
-    
+
     vitess.resolved_ids["Q100"] = 100
     # Build reverse lookup
     vitess._internal_to_entity_id[100] = "Q100"
-    
+
     request = EntityRedirectRequest(
-        redirect_from_id="Q100",
-        redirect_to_id="Q100",
-        created_by="test-user"
+        redirect_from_id="Q100", redirect_to_id="Q100", created_by="test-user"
     )
-    
+
     request = EntityRedirectRequest(
-        redirect_from_id="Q100",
-        redirect_to_id="Q42",
-        created_by="test-user"
+        redirect_from_id="Q100", redirect_to_id="Q42", created_by="test-user"
     )
-    
+
     from fastapi import HTTPException
+
     try:
         redirect_service.create_redirect(request)
         assert False, "Should have raised HTTPException"
@@ -335,16 +350,15 @@ def test_create_redirect_circular_prevention(redirect_service):
 def test_create_redirect_source_not_found(redirect_service):
     """Test that source entity not found raises 404"""
     vitess = redirect_service.vitess
-    
+
     # Don't set Q999 in resolved_ids - source doesn't exist
-    
+
     request = EntityRedirectRequest(
-        redirect_from_id="Q999",
-        redirect_to_id="Q42",
-        created_by="test-user"
+        redirect_from_id="Q999", redirect_to_id="Q42", created_by="test-user"
     )
-    
+
     from fastapi import HTTPException
+
     try:
         redirect_service.create_redirect(request)
         assert False, "Should have raised HTTPException"
@@ -356,16 +370,15 @@ def test_create_redirect_source_not_found(redirect_service):
 def test_create_redirect_target_not_found(redirect_service):
     """Test that target entity not found raises 404"""
     vitess = redirect_service.vitess
-    
+
     vitess.resolved_ids["Q100"] = 100
-    
+
     request = EntityRedirectRequest(
-        redirect_from_id="Q100",
-        redirect_to_id="Q999",
-        created_by="test-user"
+        redirect_from_id="Q100", redirect_to_id="Q999", created_by="test-user"
     )
-    
+
     from fastapi import HTTPException
+
     try:
         redirect_service.create_redirect(request)
         assert False, "Should have raised HTTPException"
@@ -378,26 +391,25 @@ def test_create_redirect_target_already_redirect(redirect_service):
     """Test that redirecting to an entity that's already a redirect is prevented"""
     vitess = redirect_service.vitess
     s3 = redirect_service.s3
-    
+
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q200"] = 200
-    
+
     vitess.resolved_ids["Q42"] = 42
     vitess.resolved_ids["Q999"] = 999
     # Build reverse lookups
     vitess._internal_to_entity_id[100] = "Q100"
     vitess._internal_to_entity_id[200] = "Q200"
     vitess._internal_to_entity_id[42] = "Q42"
-    
+
     vitess.set_redirect_target(42, 999)
-    
+
     request = EntityRedirectRequest(
-        redirect_from_id="Q100",
-        redirect_to_id="Q42",
-        created_by="test-user"
+        redirect_from_id="Q100", redirect_to_id="Q42", created_by="test-user"
     )
-    
+
     from fastapi import HTTPException
+
     try:
         redirect_service.create_redirect(request)
         assert False, "Should have raised HTTPException"
@@ -410,18 +422,17 @@ def test_create_redirect_source_deleted(redirect_service):
     """Test that redirecting from a deleted entity is prevented"""
     vitess = redirect_service.vitess
     s3 = redirect_service.s3
-    
+
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
     vitess.deleted_entities.add(100)
-    
+
     request = EntityRedirectRequest(
-        redirect_from_id="Q100",
-        redirect_to_id="Q42",
-        created_by="test-user"
+        redirect_from_id="Q100", redirect_to_id="Q42", created_by="test-user"
     )
-    
+
     from fastapi import HTTPException
+
     try:
         redirect_service.create_redirect(request)
         assert False, "Should have raised HTTPException"
@@ -434,18 +445,17 @@ def test_create_redirect_target_deleted(redirect_service):
     """Test that redirecting to a deleted entity is prevented"""
     vitess = redirect_service.vitess
     s3 = redirect_service.s3
-    
+
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
     vitess.deleted_entities.add(42)
-    
+
     request = EntityRedirectRequest(
-        redirect_from_id="Q100",
-        redirect_to_id="Q42",
-        created_by="test-user"
+        redirect_from_id="Q100", redirect_to_id="Q42", created_by="test-user"
     )
-    
+
     from fastapi import HTTPException
+
     try:
         redirect_service.create_redirect(request)
         assert False, "Should have raised HTTPException"
@@ -458,23 +468,22 @@ def test_create_redirect_source_locked(redirect_service):
     """Test that redirecting from a locked entity is prevented"""
     vitess = redirect_service.vitess
     s3 = redirect_service.s3
-    
+
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
     # Build reverse lookups
     vitess._internal_to_entity_id[100] = "Q100"
     vitess._internal_to_entity_id[42] = "Q42"
-    
+
     # Lock TARGET entity (Q42), not source
     vitess.locked_entities.add(42)
-    
+
     request = EntityRedirectRequest(
-        redirect_from_id="Q100",
-        redirect_to_id="Q42",
-        created_by="test-user"
+        redirect_from_id="Q100", redirect_to_id="Q42", created_by="test-user"
     )
-    
+
     from fastapi import HTTPException
+
     try:
         redirect_service.create_redirect(request)
         assert False, "Should have raised HTTPException"
@@ -487,23 +496,22 @@ def test_create_redirect_source_archived(redirect_service):
     """Test that redirecting to an archived entity is prevented"""
     vitess = redirect_service.vitess
     s3 = redirect_service.s3
-    
+
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
     # Build reverse lookups
     vitess._internal_to_entity_id[100] = "Q100"
     vitess._internal_to_entity_id[42] = "Q42"
-    
+
     # Archive TARGET entity (Q42), not source
     vitess.archived_entities.add(42)
-    
+
     request = EntityRedirectRequest(
-        redirect_from_id="Q100",
-        redirect_to_id="Q42",
-        created_by="test-user"
+        redirect_from_id="Q100", redirect_to_id="Q42", created_by="test-user"
     )
-    
+
     from fastapi import HTTPException
+
     try:
         redirect_service.create_redirect(request)
         assert False, "Should have raised HTTPException"
@@ -516,7 +524,7 @@ def test_revert_redirect_success(redirect_service):
     """Test successful redirect revert"""
     vitess = redirect_service.vitess
     s3 = redirect_service.s3
-    
+
     vitess.resolved_ids["Q100"] = 100
     vitess.set_redirect_target(100, "Q42")
     s3.written_revisions[1] = {
@@ -527,23 +535,23 @@ def test_revert_redirect_success(redirect_service):
             "labels": {"en": {"language": "en", "value": "Original Label"}},
             "descriptions": {"en": {"language": "en", "value": "Original Description"}},
             "claims": {},
-            "sitelinks": {}
-        }
+            "sitelinks": {},
+        },
     }
-    
+
     request = RedirectRevertRequest(
-        revert_to_revision_id=1,
-        revert_reason="Test revert",
-        created_by="test-user"
+        revert_to_revision_id=1, revert_reason="Test revert", created_by="test-user"
     )
-    
-    response = redirect_service.revert_redirect(entity_id="Q100", revert_to_revision_id=request.revert_to_revision_id)
-    
+
+    response = redirect_service.revert_redirect(
+        entity_id="Q100", revert_to_revision_id=request.revert_to_revision_id
+    )
+
     assert response.id == "Q100"
     assert response.revision_id == 2
     assert response.data["id"] == "Q100"
     assert response.data["labels"]["en"]["value"] == "Original Label"
-    
+
     assert vitess.get_redirect_target(100) is None
 
 
@@ -551,18 +559,19 @@ def test_revert_redirect_entity_not_redirect(redirect_service):
     """Test that reverting a non-redirect entity raises 404"""
     vitess = redirect_service.vitess
     s3 = redirect_service.s3
-    
+
     vitess.resolved_ids["Q100"] = 100
-    
+
     request = RedirectRevertRequest(
-        revert_to_revision_id=1,
-        revert_reason="Test revert",
-        created_by="test-user"
+        revert_to_revision_id=1, revert_reason="Test revert", created_by="test-user"
     )
-    
+
     from fastapi import HTTPException
+
     try:
-        redirect_service.revert_redirect(entity_id="Q100", revert_to_revision_id=request.revert_to_revision_id)
+        redirect_service.revert_redirect(
+            entity_id="Q100", revert_to_revision_id=request.revert_to_revision_id
+        )
         assert False, "Should have raised HTTPException"
     except HTTPException as e:
         assert e.status_code == 404
@@ -573,20 +582,21 @@ def test_revert_redirect_entity_deleted(redirect_service):
     """Test that reverting a deleted entity raises 423"""
     vitess = redirect_service.vitess
     s3 = redirect_service.s3
-    
+
     vitess.resolved_ids["Q100"] = 100
     vitess.set_redirect_target(100, "Q42")  # Set up as redirect first
     vitess.deleted_entities.add(100)
-    
+
     request = RedirectRevertRequest(
-        revert_to_revision_id=1,
-        revert_reason="Test revert",
-        created_by="test-user"
+        revert_to_revision_id=1, revert_reason="Test revert", created_by="test-user"
     )
-    
+
     from fastapi import HTTPException
+
     try:
-        redirect_service.revert_redirect(entity_id="Q100", revert_to_revision_id=request.revert_to_revision_id)
+        redirect_service.revert_redirect(
+            entity_id="Q100", revert_to_revision_id=request.revert_to_revision_id
+        )
         assert False, "Should have raised HTTPException"
     except HTTPException as e:
         assert e.status_code == 423
@@ -597,20 +607,21 @@ def test_revert_redirect_entity_locked(redirect_service):
     """Test that reverting a locked entity raises 423"""
     vitess = redirect_service.vitess
     s3 = redirect_service.s3
-    
+
     vitess.resolved_ids["Q100"] = 100
     vitess.set_redirect_target(100, "Q42")  # Set up as redirect first
     vitess.locked_entities.add(100)
-    
+
     request = RedirectRevertRequest(
-        revert_to_revision_id=1,
-        revert_reason="Test revert",
-        created_by="test-user"
+        revert_to_revision_id=1, revert_reason="Test revert", created_by="test-user"
     )
-    
+
     from fastapi import HTTPException
+
     try:
-        redirect_service.revert_redirect(entity_id="Q100", revert_to_revision_id=request.revert_to_revision_id)
+        redirect_service.revert_redirect(
+            entity_id="Q100", revert_to_revision_id=request.revert_to_revision_id
+        )
         assert False, "Should have raised HTTPException"
     except HTTPException as e:
         assert e.status_code == 423
@@ -621,20 +632,21 @@ def test_revert_redirect_entity_archived(redirect_service):
     """Test that reverting an archived entity raises 423"""
     vitess = redirect_service.vitess
     s3 = redirect_service.s3
-    
+
     vitess.resolved_ids["Q100"] = 100
     vitess.set_redirect_target(100, "Q42")  # Set up as redirect first
     vitess.archived_entities.add(100)
-    
+
     request = RedirectRevertRequest(
-        revert_to_revision_id=1,
-        revert_reason="Test revert",
-        created_by="test-user"
+        revert_to_revision_id=1, revert_reason="Test revert", created_by="test-user"
     )
-    
+
     from fastapi import HTTPException
+
     try:
-        redirect_service.revert_redirect(entity_id="Q100", revert_to_revision_id=request.revert_to_revision_id)
+        redirect_service.revert_redirect(
+            entity_id="Q100", revert_to_revision_id=request.revert_to_revision_id
+        )
         assert False, "Should have raised HTTPException"
     except HTTPException as e:
         assert e.status_code == 423

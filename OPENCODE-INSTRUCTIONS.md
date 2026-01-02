@@ -27,4 +27,4 @@
 - avoid websearch, everything we need is in the repo already just ask where to find what you need
 
 # Current task
-fix test failures after simplification of architecture by removing delete audit support
+fix test failures after rewrite to avoid exposing internal_ids in the APIs and only use them internally for Vitess

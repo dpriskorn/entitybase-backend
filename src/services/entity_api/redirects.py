@@ -42,14 +42,24 @@ class RedirectService:
             raise HTTPException(status_code=409, detail="Redirect already exists")
 
         if self.vitess.is_entity_deleted(from_internal_id):
-            raise HTTPException(status_code=423, detail="Source entity has been deleted")
+            raise HTTPException(
+                status_code=423, detail="Source entity has been deleted"
+            )
         if self.vitess.is_entity_deleted(from_internal_id):
-            raise HTTPException(status_code=423, detail="Source entity has been deleted")
+            raise HTTPException(
+                status_code=423, detail="Source entity has been deleted"
+            )
         if self.vitess.is_entity_deleted(to_internal_id):
-            raise HTTPException(status_code=423, detail="Target entity has been deleted")
+            raise HTTPException(
+                status_code=423, detail="Target entity has been deleted"
+            )
 
-        if self.vitess.is_entity_locked(to_internal_id) or self.vitess.is_entity_archived(to_internal_id):
-            raise HTTPException(status_code=423, detail="Target entity is locked or archived")
+        if self.vitess.is_entity_locked(
+            to_internal_id
+        ) or self.vitess.is_entity_archived(to_internal_id):
+            raise HTTPException(
+                status_code=423, detail="Target entity is locked or archived"
+            )
 
         target_revision = self.s3.read_full_revision(
             request.redirect_to_id,
@@ -67,8 +77,8 @@ class RedirectService:
                 "descriptions": {},
                 "aliases": {},
                 "claims": {},
-                "sitelinks": {}
-            }
+                "sitelinks": {},
+            },
         }
 
         redirect_revision_id = self.s3.write_entity_revision(
@@ -116,7 +126,9 @@ class RedirectService:
         if self.vitess.is_entity_deleted(internal_id):
             raise HTTPException(status_code=423, detail="Entity has been deleted")
 
-        if self.vitess.is_entity_locked(internal_id) or self.vitess.is_entity_archived(internal_id):
+        if self.vitess.is_entity_locked(internal_id) or self.vitess.is_entity_archived(
+            internal_id
+        ):
             raise HTTPException(status_code=423, detail="Entity is locked or archived")
 
         target_revision = self.s3.read_full_revision(entity_id, revert_to_revision_id)
@@ -125,7 +137,7 @@ class RedirectService:
         new_revision_data = {
             "schema_version": "1.1.0",
             "redirects_to": None,
-            "entity": target_data["entity"]
+            "entity": target_data["entity"],
         }
 
         new_revision_id = self.s3.write_entity_revision(
@@ -143,7 +155,5 @@ class RedirectService:
         )
 
         return EntityResponse(
-            id=entity_id,
-            revision_id=new_revision_id,
-            data=new_revision_data["entity"]
+            id=entity_id, revision_id=new_revision_id, data=new_revision_data["entity"]
         )

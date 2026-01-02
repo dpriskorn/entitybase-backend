@@ -159,23 +159,27 @@ class EntityConverter:
     def _fetch_redirects(self, entity_id: str) -> list[str]:
         """Load entity redirects from Vitess or fallback to cache."""
         redirects = []
-        
+
         if self.vitess_client:
             try:
                 internal_id = self.vitess_client.resolve_id(entity_id)
                 if internal_id is not None:
-                    vitess_redirects = self.vitess_client.get_incoming_redirects(internal_id)
+                    vitess_redirects = self.vitess_client.get_incoming_redirects(
+                        internal_id
+                    )
                     redirects.extend(vitess_redirects)
             except Exception as e:
-                logger.warning(f"Failed to load redirects from Vitess for {entity_id}: {e}")
-        
+                logger.warning(
+                    f"Failed to load redirects from Vitess for {entity_id}: {e}"
+                )
+
         if self.redirects_dir:
             try:
                 file_redirects = load_entity_redirects(entity_id, self.redirects_dir)
                 redirects.extend(file_redirects)
             except FileNotFoundError:
                 logger.debug(f"No redirects found for {entity_id}")
-        
+
         return list(set(redirects))
 
     def _write_redirects(self, entity: Entity, output: TextIO):

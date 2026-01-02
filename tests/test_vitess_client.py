@@ -27,21 +27,21 @@ def test_insert_revision_idempotent(vitess_client):
     """Test that insert_revision is idempotent - calling twice with same params doesn't error"""
     entity_id = 123456789
     revision_id = 1
-    
+
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=revision_id,
         is_mass_edit=False,
         edit_type="test-edit",
     )
-    
+
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=revision_id,
         is_mass_edit=False,
         edit_type="test-edit",
     )
-    
+
     conn = vitess_client.connect()
     cursor = conn.cursor()
     cursor.execute(
@@ -50,28 +50,30 @@ def test_insert_revision_idempotent(vitess_client):
     )
     count = cursor.fetchone()[0]
     cursor.close()
-    
-    assert count == 1, "Should only have one record, duplicate inserts should be skipped"
+
+    assert (
+        count == 1
+    ), "Should only have one record, duplicate inserts should be skipped"
 
 
 def test_insert_revision_different_params(vitess_client):
     """Test that insert_revision creates separate records for different revisions"""
     entity_id = 987654321
-    
+
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=1,
         is_mass_edit=False,
         edit_type="first-edit",
     )
-    
+
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=2,
         is_mass_edit=True,
         edit_type="second-edit",
     )
-    
+
     conn = vitess_client.connect()
     cursor = conn.cursor()
     cursor.execute(
@@ -80,5 +82,5 @@ def test_insert_revision_different_params(vitess_client):
     )
     count = cursor.fetchone()[0]
     cursor.close()
-    
+
     assert count == 2, "Should have two separate records for different revisions"
