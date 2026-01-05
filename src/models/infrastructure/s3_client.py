@@ -108,6 +108,18 @@ class S3Client(BaseModel):
 
         return parsed_data
 
+    def check_connection(self) -> bool:
+        """Check if S3 connection is healthy
+
+        Returns:
+            True if connection is healthy, False otherwise
+        """
+        try:
+            self.client.head_bucket(Bucket=self.config.bucket)
+            return True
+        except Exception:
+            return False
+
     def write_entity_revision(
         self,
         entity_id: str,

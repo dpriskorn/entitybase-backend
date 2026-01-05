@@ -144,14 +144,14 @@ def test_get_entity_history(api_client: requests.Session, base_url: str) -> None
     entity_data["labels"]["en"]["value"] = "Updated Test Entity"
     api_client.post(f"{base_url}/entity", json=entity_data)
 
-    # Get history
+    # Get history (ordered by created_at DESC)
     response = api_client.get(f"{base_url}/entity/{entity_id}/history")
     assert response.status_code == 200
 
     history = response.json()
     assert len(history) == 2
-    assert history[0]["revision_id"] == 1
-    assert history[1]["revision_id"] == 2
+    assert history[0]["revision_id"] == 2
+    assert history[1]["revision_id"] == 1
     assert "created_at" in history[0]
     assert "created_at" in history[1]
     logger.info("✓ Entity history retrieval passed")

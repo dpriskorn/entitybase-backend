@@ -20,6 +20,12 @@ class VitessClient(BaseModel):
         self._create_tables()
 
     def connect(self):
+        if self.connection:
+            try:
+                self.connection.ping(reconnect=True)
+            except Exception:
+                self.connection = None
+
         if not self.connection:
             self.connection = pymysql.connect(
                 host=self.config.host,
@@ -30,6 +36,22 @@ class VitessClient(BaseModel):
                 autocommit=True,
             )
         return self.connection
+
+    def check_connection(self) -> bool:
+        """Check if Vitess connection is healthy
+
+        Returns:
+            True if connection is healthy, False otherwise
+        """
+        try:
+            conn = self.connect()
+            cursor = conn.cursor()
+            cursor.execute("SELECT 1")
+            cursor.fetchone()
+            cursor.close()
+            return True
+        except Exception:
+            return False
 
     def _create_tables(self):
         conn = self.connect()
@@ -450,8 +472,17 @@ class VitessClient(BaseModel):
             cursor.close()
             return False
 
-    def get_history(self, entity_id: str) -> list[Any]:
-        """Get revision history for an entity"""
+    def get_history(self, entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
+        """Get revision history for an entity
+
+        Args:
+            entity_id: Entity ID to fetch history for
+            limit: Maximum number of revisions to return (default: 20)
+            offset: Number of revisions to skip (default: 0)
+
+        Returns:
+            List of revision records ordered by created_at DESC (newest first)
+        """
         from dataclasses import dataclass
 
         @dataclass
@@ -466,8 +497,8 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT revision_id, created_at FROM entity_revisions WHERE entity_id = %s ORDER BY created_at DESC",
-            (internal_id,),
+            "SELECT revision_id, created_at FROM entity_revisions WHERE entity_id = %s ORDER BY revision_id DESC LIMIT %s OFFSET %s",
+            (internal_id, limit, offset),
         )
         result = [
             RevisionRecord(

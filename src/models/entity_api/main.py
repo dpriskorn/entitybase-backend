@@ -8,6 +8,7 @@ from rapidhash import rapidhash
 
 from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
+from starlette import status
 
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.ulid_flake import generate_ulid_flake
@@ -85,9 +86,6 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         ),
     )
     yield
-    # app.state.clients.s3 = None
-    # app.state.clients.vitess = None
-    # app.state.clients.property_registry = None
 
 
 app = FastAPI(lifespan=lifespan)
@@ -184,14 +182,17 @@ def deduplicate_and_store_statements(
 
 
 @app.get("/health")
-def health_check():
-    clients = app.state.clients
-    return {
-        "status": "ok",
-        "s3": "connected" if clients.s3 else "disconnected",
-        "vitess": "connected" if clients.vitess else "disconnected",
-    }
+async def health_check(response: Response):
+    clients = getattr(app.state, "clients", None)
 
+    if clients is None:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return {"status": "starting"}
+
+    s3_status = "connected" if clients.s3 and clients.s3.check_connection() else "disconnected"
+    vitess_status = "connected" if clients.vitess and clients.vitess.check_connection() else "disconnected"
+
+    return {"status": "ok", "s3": s3_status, "vitess": vitess_status}
 
 @app.post("/entity", response_model=EntityResponse)
 def create_entity(request: EntityCreateRequest):
@@ -408,7 +409,17 @@ def get_entity(entity_id: str):
 
 
 @app.get("/entity/{entity_id}/history", response_model=list[RevisionMetadata])
-def get_entity_history(entity_id: str):
+def get_entity_history(entity_id: str, limit: int = 20, offset: int = 0):
+    """Get revision history for an entity with paging
+
+    Args:
+        entity_id: Entity ID to fetch history for
+        limit: Maximum number of revisions to return (default: 20)
+        offset: Number of revisions to skip (default: 0)
+
+    Returns:
+        List of revision metadata ordered by created_at DESC (newest first)
+    """
     clients = app.state.clients
 
     if clients.vitess is None:
@@ -417,7 +428,7 @@ def get_entity_history(entity_id: str):
     if not clients.vitess.entity_exists(entity_id):
         raise HTTPException(status_code=404, detail="Entity not found")
 
-    history = clients.vitess.get_history(entity_id)
+    history = clients.vitess.get_history(entity_id, limit=limit, offset=offset)
 
     return [
         RevisionMetadata(revision_id=record.revision_id, created_at=record.created_at)
@@ -632,7 +643,7 @@ def get_raw_revision(entity_id: str, revision_id: int):
         )
 
     # Check if requested revision exists
-    revision_ids = [r.revision_id for r in history]
+    revision_ids = sorted([r.revision_id for r in history])
     if revision_id not in revision_ids:
         raise HTTPException(
             status_code=404,
