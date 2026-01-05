@@ -78,12 +78,26 @@ class VitessClient(BaseModel):
 
         cursor.execute(
             """
+            CREATE TABLE IF NOT EXISTS statement_content (
+                content_hash BIGINT PRIMARY KEY,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                ref_count INT DEFAULT 1,
+                INDEX idx_ref_count (ref_count DESC)
+            )
+        """
+        )
+
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS entity_revisions (
                 entity_id BIGINT NOT NULL,
                 revision_id BIGINT NOT NULL,
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 is_mass_edit BOOLEAN DEFAULT FALSE,
                 edit_type VARCHAR(100) DEFAULT '',
+                statements JSON NOT NULL,
+                properties JSON NOT NULL,
+                property_counts JSON NOT NULL,
                 PRIMARY KEY (entity_id, revision_id)
             )
         """
@@ -171,6 +185,9 @@ class VitessClient(BaseModel):
         revision_id: int,
         is_mass_edit: bool = False,
         edit_type: str = "",
+        statements: list[int] | None = None,
+        properties: list[str] | None = None,
+        property_counts: dict[str, int] | None = None,
     ) -> None:
         """Insert revision metadata (without entity data). Idempotent - skips if already exists."""
         internal_id = self._resolve_id(entity_id)
@@ -188,8 +205,16 @@ class VitessClient(BaseModel):
             return
 
         cursor.execute(
-            "INSERT INTO entity_revisions (entity_id, revision_id, is_mass_edit, edit_type) VALUES (%s, %s, %s, %s)",
-            (internal_id, revision_id, is_mass_edit, edit_type),
+            "INSERT INTO entity_revisions (entity_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            (
+                internal_id,
+                revision_id,
+                is_mass_edit,
+                edit_type,
+                json.dumps(statements or []),
+                json.dumps(properties or []),
+                json.dumps(property_counts or {}),
+            ),
         )
         cursor.close()
 
@@ -285,8 +310,12 @@ class VitessClient(BaseModel):
         )
         cursor.close()
 
-    def get_incoming_redirects(self, entity_internal_id: int) -> list[str]:
+    def get_incoming_redirects(self, entity_id: str) -> list[str]:
         """Get all entity IDs that redirect to this entity (for RDF builder)"""
+        internal_id = self._resolve_id(entity_id)
+        if not internal_id:
+            return []
+
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
@@ -294,7 +323,7 @@ class VitessClient(BaseModel):
                    FROM entity_redirects r
                    JOIN entity_id_mapping m ON r.redirect_from_id = m.internal_id
                    WHERE r.redirect_to_id = %s""",
-            (entity_internal_id,),
+            (internal_id,),
         )
         result = [row[0] for row in cursor.fetchall()]
         cursor.close()
@@ -332,7 +361,7 @@ class VitessClient(BaseModel):
 
     def cas_update_head_with_status(
         self,
-        entity_id: int,
+        entity_id: str,
         expected_head: int | None,
         new_head: int,
         is_semi_protected: bool,
@@ -344,6 +373,10 @@ class VitessClient(BaseModel):
         is_redirect: bool = False,
     ) -> bool:
         """Compare-and-swap update to entity_head with status flags"""
+        internal_id = self._resolve_id(entity_id)
+        if not internal_id:
+            return False
+
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
@@ -366,7 +399,7 @@ class VitessClient(BaseModel):
                 is_mass_edit_protected,
                 is_deleted,
                 is_redirect,
-                entity_id,
+                internal_id,
                 expected_head,
             ),
         )
@@ -376,7 +409,7 @@ class VitessClient(BaseModel):
 
     def insert_head_with_status(
         self,
-        entity_id: int,
+        entity_id: str,
         head_revision_id: int,
         is_semi_protected: bool,
         is_locked: bool,
@@ -387,6 +420,10 @@ class VitessClient(BaseModel):
         is_redirect: bool = False,
     ) -> bool:
         """Insert new entity_head row with status flags (for new entities)"""
+        internal_id = self._resolve_id(entity_id)
+        if not internal_id:
+            return False
+
         conn = self.connect()
         cursor = conn.cursor()
         try:
@@ -396,7 +433,7 @@ class VitessClient(BaseModel):
                         is_archived, is_dangling, is_mass_edit_protected, is_deleted, is_redirect)
                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                 (
-                    entity_id,
+                    internal_id,
                     head_revision_id,
                     is_semi_protected,
                     is_locked,
@@ -554,5 +591,125 @@ class VitessClient(BaseModel):
             {"entity_id": row[0], "edit_type": row[1], "revision_id": row[2]}
             for row in cursor.fetchall()
         ]
+        cursor.close()
+        return result
+
+    def insert_statement_content(self, content_hash: int) -> bool:
+        """Insert statement metadata (idempotent)
+
+        Args:
+            content_hash: 64-bit statement hash
+
+        Returns:
+            True if inserted, False if already exists
+        """
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT 1 FROM statement_content WHERE content_hash = %s",
+            (content_hash,),
+        )
+        if cursor.fetchone() is not None:
+            cursor.close()
+            return False
+
+        cursor.execute(
+            "INSERT INTO statement_content (content_hash) VALUES (%s)",
+            (content_hash,),
+        )
+        cursor.close()
+        return True
+
+    def increment_ref_count(self, content_hash: int) -> int:
+        """Increment ref_count for statement
+
+        Args:
+            content_hash: 64-bit statement hash
+
+        Returns:
+            New ref_count value
+        """
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE statement_content SET ref_count = ref_count + 1 WHERE content_hash = %s",
+            (content_hash,),
+        )
+        cursor.execute(
+            "SELECT ref_count FROM statement_content WHERE content_hash = %s",
+            (content_hash,),
+        )
+        result = cursor.fetchone()
+        cursor.close()
+        return result[0] if result else 0
+
+    def decrement_ref_count(self, content_hash: int) -> int:
+        """Decrement ref_count for statement
+
+        Args:
+            content_hash: 64-bit statement hash
+
+        Returns:
+            New ref_count value (0 if statement should be cleaned up)
+        """
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute(
+            "UPDATE statement_content SET ref_count = ref_count - 1 WHERE content_hash = %s",
+            (content_hash,),
+        )
+        cursor.execute(
+            "SELECT ref_count FROM statement_content WHERE content_hash = %s",
+            (content_hash,),
+        )
+        result = cursor.fetchone()
+        cursor.close()
+        return result[0] if result else 0
+
+    def get_orphaned_statements(self, older_than_days: int, limit: int) -> list[int]:
+        """Get statements with ref_count = 0 older than threshold for cleanup
+
+        Args:
+            older_than_days: Minimum age in days before cleanup
+            limit: Maximum number of statements to return
+
+        Returns:
+            List of content_hash values
+        """
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute(
+            """SELECT content_hash
+                    FROM statement_content
+                    WHERE ref_count = 0
+                    AND created_at < DATE_SUB(NOW(), INTERVAL %s DAY)
+                    LIMIT %s""",
+            (older_than_days, limit),
+        )
+        result = [row[0] for row in cursor.fetchall()]
+        cursor.close()
+        return result
+
+    def get_most_used_statements(self, limit: int, min_ref_count: int = 1) -> list[int]:
+        """Get most referenced statements
+
+        Args:
+            limit: Maximum number of statements to return
+            min_ref_count: Minimum ref_count threshold
+
+        Returns:
+            List of content_hash values sorted by ref_count DESC
+        """
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute(
+            """SELECT content_hash
+                    FROM statement_content
+                    WHERE ref_count >= %s
+                    ORDER BY ref_count DESC
+                    LIMIT %s""",
+            (min_ref_count, limit),
+        )
+        result = [row[0] for row in cursor.fetchall()]
         cursor.close()
         return result

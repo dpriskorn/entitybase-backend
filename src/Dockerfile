@@ -14,7 +14,8 @@ RUN pip install --no-cache-dir \
     "pymysql>=1.1.2,<2.0.0" \
     "uvicorn>=0.40.0,<0.41.0" \
     "rapidhash (>=0.1.0,<0.2.0)" \
-    "rdflib (>=7.5.0,<8.0.0)"
+    "rdflib (>=7.5.0,<8.0.0)" \
+    "requests (>=2.32.5,<3.0.0)"
 
 COPY ./src/ ./src/
 

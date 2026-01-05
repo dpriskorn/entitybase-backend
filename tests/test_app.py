@@ -1,17 +1,21 @@
 import sys
 
-from fastapi.testclient import TestClient
+import pytest
+from httpx import ASGITransport, AsyncClient
 
 sys.path.insert(0, "src")
 
 
-def test_app_loads():
+@pytest.mark.asyncio
+async def test_app_loads():
     """Test that FastAPI app can be loaded"""
     from models.entity_api.main import app
 
-    client = TestClient(app)
-    response = client.get("/health")
-    assert response.status_code in [
-        200,
-        503,
-    ], f"Unexpected status: {response.status_code}"
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get("/health")
+        assert response.status_code in [
+            200,
+            503,
+        ], f"Unexpected status: {response.status_code}"

@@ -46,6 +46,7 @@ Start with [ARCHITECTURE.md](./doc/ARCHITECTURE/ARCHITECTURE.md) for the complet
 | [S3-REVISION-SCHEMA-EVOLUTION.md](./doc/ARCHITECTURE/S3-REVISION-SCHEMA-EVOLUTION.md) | Schema versioning and migration        |
 | [S3-ENTITY-DELETION.md](./doc/ARCHITECTURE/S3-ENTITY-DELETION.md)                     | Soft and hard delete semantics         |
 | [BULK-OPERATIONS.md](./doc/ARCHITECTURE/BULK-OPERATIONS.md)                           | Import and export operations           |
+| [STATEMENT-DEDUPLICATION.md](./doc/ARCHITECTURE/STATEMENT-DEDUPLICATION.md)           | First-class statement-level tracking with deduplication |
 
 ### Validation & Data Quality
 
@@ -80,6 +81,134 @@ Start with [ARCHITECTURE.md](./doc/ARCHITECTURE/ARCHITECTURE.md) for the complet
 - **Horizontal scalability**: S3 for storage, Vitess for indexing
 - **Auditability**: Perfect revision history by design
 - **Decoupling**: MediaWiki + Wikibase becomes a stateless API client
+
+## Statement Deduplication Progress
+
+### Completed (2026-01-05)
+
+- ✅ Added JSON columns to entity_revisions table (statements, properties, property_counts)
+- ✅ Created hash_entity_statements() helper to parse and hash statements from entity data
+- ✅ Updated VitessClient.insert_revision() to accept statements/properties/counts parameters
+- ✅ Updated entity write path (POST /entity) to calculate statement hashes before Vitess insert
+- ✅ Updated entity delete path (DELETE /entity) to pass empty statement arrays
+- ✅ Updated redirect endpoints to pass empty statement arrays
+- ✅ Created simple test entity (test_data/simple_entity.json) for verification
+- ✅ statement_content table and methods already exist (insert_statement_content, increment_ref_count, decrement_ref_count, get_orphaned_statements, get_most_used_statements)
+
+### Completed (2026-01-05)
+
+- ✅ Created StatementHashResult Pydantic BaseModel (replaces tuple returns)
+- ✅ Updated hash_entity_statements() to return StatementHashResult
+- ✅ Added deduplicate_and_store_statements() function
+- ✅ Implemented statement deduplication logic:
+  - Checks statement_content table for existing hashes
+  - Writes new statements to S3 (statements/{hash}.json)
+  - Increments ref_count for existing statements
+- ✅ Integrated deduplication into entity write path (POST /entity)
+
+### Completed (2026-01-05)
+
+- ✅ Created Pydantic models for statement endpoints:
+  - StatementBatchRequest (batch fetch request)
+  - StatementResponse (single statement response)
+  - StatementBatchResponse (batch fetch response)
+- ✅ Added GET /statement/{content_hash} endpoint
+  - Fetches single statement by hash from S3
+  - Returns 404 if statement not found
+- ✅ Added POST /statements/batch endpoint
+  - Fetches multiple statements in one request
+  - Returns not_found list for missing hashes
+  - Efficient for property-based loading
+
+### Completed (2026-01-05)
+
+- ✅ Created Pydantic models for property endpoints:
+  - PropertyListResponse (list of property IDs)
+  - PropertyCountsResponse (property -> count mapping)
+  - PropertyHashesResponse (hashes for specific properties)
+- ✅ Added GET /entity/{id}/properties endpoint
+  - Returns sorted list of unique property IDs
+  - Reads from head revision in S3/Vitess
+- ✅ Added GET /entity/{id}/properties/counts endpoint
+  - Returns dict mapping property ID -> statement count
+  - Enables intelligent frontend loading based on property sizes
+- ✅ Added GET /entity/{id}/properties/{property_list} endpoint
+  - Property list format: comma-separated (e.g., P31,P569)
+  - Returns list of statement hashes for specified properties
+  - Enables demand-fetch of specific properties only
+
+### Completed (2026-01-05)
+
+- ✅ Created Pydantic models for most-used endpoint:
+  - MostUsedStatementsRequest (limit, min_ref_count params)
+  - MostUsedStatementsResponse (list of statement hashes)
+- ✅ Added GET /statement/most_used endpoint
+  - Returns statement hashes sorted by ref_count DESC
+  - Query params:
+    - limit: Maximum statements (1-10000, default 100)
+    - min_ref_count: Minimum ref_count threshold (default 1)
+  - Use case: Analytics, scientific analysis of statement usage patterns
+
+### Phase 1-5: Complete ✅
+
+All statement deduplication features implemented:
+
+✅ **Phase 1: Database Schema**
+- statement_content table (hash, ref_count, created_at)
+- entity_revisions JSON columns (statements, properties, property_counts)
+
+✅ **Phase 2: Core Write Logic**
+- hash_entity_statements() function
+- deduplicate_and_store_statements() function
+- rapidhash computation
+- S3 + Vitess integration
+
+✅ **Phase 3: Core Read Logic**
+- Statement endpoints: GET /statement/{hash}, POST /statements/batch
+- Property endpoints: GET /entity/{id}/properties, counts, filtering
+- Most-used endpoint: GET /statement/most_used
+
+✅ **Phase 4: Property-Based Loading**
+- Full property list support
+- Property counts for intelligent loading
+- Demand-fetch for specific properties
+
+✅ **Phase 5: Analytics Support**
+- Most-used statements endpoint
+- ref_count tracking for scientific analysis
+
+### Completed (2026-01-05) - Phase 6
+
+- ✅ Created Pydantic models for cleanup:
+  - CleanupOrphanedRequest (older_than_days, limit params)
+  - CleanupOrphanedResponse (cleaned_count, failed_count, errors)
+- ✅ Updated DELETE /entity path for hard delete
+  - Decrement ref_count for all statements in entity's head revision
+  - Tracks orphaned statements for cleanup
+- ✅ Added POST /statements/cleanup-orphaned endpoint
+  - Queries statement_content table for orphaned statements (ref_count=0, older_than_days)
+  - Deletes orphaned statements from S3
+  - Deletes orphaned statements from statement_content table
+  - Returns cleaned_count, failed_count, errors list
+  - Use case: Background job (cron) for periodic cleanup
+- ✅ Code quality: Black formatter, Python syntax check passed
+
+### Next Steps
+
+- [ ] Test all endpoints with docker
+- [ ] Create integration tests for statement deduplication
+
+### Manual Database Setup (for existing Vitess instances)
+
+After running `docker-compose up`, execute these SQL commands to add new columns:
+
+```sql
+ALTER TABLE entity_revisions ADD COLUMN statements JSON NOT NULL;
+ALTER TABLE entity_revisions ADD COLUMN properties JSON NOT NULL;
+ALTER TABLE entity_revisions ADD COLUMN property_counts JSON NOT NULL;
+```
+
+Note: JSON columns cannot have DEFAULT values in MySQL/Vitess. Application code will provide these values.
 
 ## RDF Testing Progress
 

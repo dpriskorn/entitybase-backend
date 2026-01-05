@@ -1,1 +1,1 @@
-black src/ tests/ scripts/
+source .venv/bin/activate && black src/ tests/ scripts/

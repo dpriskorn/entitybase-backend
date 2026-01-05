@@ -142,3 +142,133 @@ class RedirectRevertRequest(BaseModel):
     )
     revert_reason: str = Field(..., description="Reason for reverting redirect")
     created_by: str = Field(default="entity-api")
+
+
+class StatementHashResult(BaseModel):
+    """Result of hashing entity statements for deduplication"""
+
+    statements: list[int] = Field(
+        default_factory=list,
+        description="List of statement hashes (rapidhash of each statement)",
+    )
+    properties: list[str] = Field(
+        default_factory=list,
+        description="Sorted list of unique property IDs",
+    )
+    property_counts: dict[str, int] = Field(
+        default_factory=dict,
+        description="Dict mapping property ID -> count of statements",
+    )
+    full_statements: list[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="List of full statement dicts (parallel with hashes)",
+    )
+
+
+class StatementBatchRequest(BaseModel):
+    """Request to fetch multiple statements by hash"""
+
+    hashes: list[int] = Field(..., description="List of statement hashes to fetch")
+
+
+class StatementResponse(BaseModel):
+    """Response for a single statement"""
+
+    content_hash: int = Field(..., description="Statement hash")
+    statement: Dict[str, Any] = Field(..., description="Full statement JSON")
+    created_at: str = Field(..., description="Creation timestamp")
+
+
+class StatementBatchResponse(BaseModel):
+    """Response for batch statement fetch"""
+
+    statements: list[StatementResponse] = Field(..., description="List of statements")
+    not_found: list[int] = Field(
+        default_factory=list,
+        description="Hashes that were not found",
+    )
+
+
+class PropertyListResponse(BaseModel):
+    """Response for property list endpoint"""
+
+    properties: list[str] = Field(
+        default_factory=list, description="List of unique property IDs"
+    )
+
+
+class PropertyCountsResponse(BaseModel):
+    """Response for property counts endpoint"""
+
+    property_counts: dict[str, int] = Field(
+        default_factory=dict,
+        description="Dict mapping property ID -> statement count",
+    )
+
+
+class PropertyHashesResponse(BaseModel):
+    """Response for property-specific hashes endpoint"""
+
+    property_hashes: list[int] = Field(
+        default_factory=list,
+        description="List of statement hashes for specified properties",
+    )
+
+
+class MostUsedStatementsRequest(BaseModel):
+    """Request parameters for most-used statements endpoint"""
+
+    limit: int = Field(
+        default=100,
+        ge=1,
+        le=10000,
+        description="Maximum number of statements to return (1-10000, default 100)",
+    )
+    min_ref_count: int = Field(
+        default=1,
+        ge=0,
+        description="Minimum ref_count threshold (default 1)",
+    )
+
+
+class MostUsedStatementsResponse(BaseModel):
+    """Response for most-used statements endpoint"""
+
+    statements: list[int] = Field(
+        default_factory=list,
+        description="List of statement hashes sorted by ref_count DESC",
+    )
+
+
+class CleanupOrphanedRequest(BaseModel):
+    """Request parameters for orphaned statement cleanup"""
+
+    older_than_days: int = Field(
+        default=180,
+        ge=1,
+        le=365,
+        description="Minimum age in days before cleanup (default 180)",
+    )
+    limit: int = Field(
+        default=1000,
+        ge=1,
+        le=10000,
+        description="Maximum number of statements to cleanup (default 1000)",
+    )
+
+
+class CleanupOrphanedResponse(BaseModel):
+    """Response for orphaned statement cleanup"""
+
+    cleaned_count: int = Field(
+        ...,
+        description="Number of statements cleaned up from S3 and Vitess",
+    )
+    failed_count: int = Field(
+        default=0,
+        description="Number of statements that failed to clean up",
+    )
+    errors: list[str] = Field(
+        default_factory=list,
+        description="List of error messages for failed cleanups",
+    )

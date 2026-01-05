@@ -84,6 +84,9 @@ class RedirectService:
             redirect_revision_id,
             is_mass_edit=False,
             edit_type=EditType.REDIRECT_CREATE.value,
+            statements=[],
+            properties=[],
+            property_counts={},
         )
 
         self.vitess.create_redirect(
@@ -154,6 +157,9 @@ class RedirectService:
             new_revision_id,
             is_mass_edit=False,
             edit_type=EditType.REDIRECT_REVERT.value,
+            statements=[],
+            properties=[],
+            property_counts={},
         )
 
         self.vitess.set_redirect_target(

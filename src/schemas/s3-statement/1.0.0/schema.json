@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://wikibase.org/schemas/s3-statement/1.0.0.json",
+  "title": "S3 Statement Snapshot",
+  "description": "Immutable statement snapshot stored in S3. First-class citizen statements with hash-based deduplication and full revision tracking.",
+  "type": "object",
+  "required": [
+    "content_hash",
+    "statement",
+    "created_at"
+  ],
+  "properties": {
+    "content_hash": {
+      "type": "integer",
+      "description": "Rapidhash integer of statement JSON for deduplication and storage key.",
+      "minimum": -922337203685477581,
+      "examples": [
+        987654321012345678,
+        -918273876123456789
+      ]
+    },
+    "statement": {
+      "type": "object",
+      "description": "Complete statement block including mainsnak, qualifiers, and references. Full Wikidata statement structure.",
+      "required": [
+        "mainsnak"
+      ],
+      "properties": {
+        "mainsnak": {
+          "type": "object",
+          "description": "Main statement value (snak) containing property, data type, and value.",
+          "required": [
+            "snaktype",
+            "property",
+            "datatype",
+            "hash"
+          ],
+          "properties": {
+            "snaktype": {
+              "type": "string",
+              "enum": ["value", "somevalue", "novalue"],
+              "description": "Type of snak: value, somevalue, or novalue."
+            },
+            "property": {
+              "type": "string",
+              "description": "Wikidata property identifier (e.g., P31, P569, P19)."
+            },
+            "datatype": {
+              "type": "string",
+              "description": "Data type of the property value (e.g., wikibase-item, time, quantity)."
+            },
+            "hash": {
+              "type": "string",
+              "description": "Hash of the datavalue for deduplication."
+            }
+          }
+        },
+        "type": {
+          "type": "string",
+          "enum": ["statement", "statement"],
+          "description": "Type of node: statement or statement (for consistency)."
+        },
+        "rank": {
+          "type": "string",
+          "enum": ["preferred", "normal", "deprecated"],
+          "default": "normal",
+          "description": "Rank of statement among other statements for the same property (preferred > normal > deprecated)."
+        },
+        "qualifiers": {
+          "type": "object",
+          "description": "Additional qualifiers (snaks) attached to the statement.",
+          "patternProperties": {
+            "additionalProperties": false,
+            "properties": {
+              "^.*$": {
+                "type": "object",
+                "description": "Map of property IDs to qualifier snak arrays. Keys are property IDs (e.g., P805, P805, P1234).",
+                "additionalProperties": false
+              }
+            }
+          }
+        },
+        "references": {
+          "type": "array",
+          "description": "References providing sources for this statement. Each reference contains a reference node with optional qualifiers.",
+          "items": {
+            "type": "object",
+            "required": [
+              "snaks"
+            ],
+            "properties": {
+              "snaks": {
+                "type": "array",
+                "description": "Array of snaks (reference statements).",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "snaktype",
+                    "property",
+                    "datatype",
+                    "hash"
+                  ],
+                  "properties": {
+                    "snaktype": {
+                      "type": "string",
+                      "enum": ["value", "somevalue", "novalue"]
+                    },
+                    "property": {
+                      "type": "string"
+                    },
+                    "datatype": {
+                      "type": "string"
+                    },
+                    "hash": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "created_at": {
+        "type": "string",
+        "format": "date-time",
+        "description": "ISO 8601 timestamp when this statement was created.",
+        "examples": [
+          "2026-01-05T10:00:00Z"
+        ]
+      }
+    }
+  }
+}

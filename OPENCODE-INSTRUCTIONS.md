@@ -28,4 +28,4 @@
 - we don't expose internal_id outside the VitessClient class
 
 # Current task
-fix test failures after rewrite to avoid exposing internal_ids in the APIs and only use them internally for Vitess
+implement new architecture for statements, see doc/ARCHITECTURE/STATEMENT-DEDUPLICATION.md

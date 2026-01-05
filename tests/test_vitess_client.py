@@ -13,7 +13,7 @@ def vitess_client():
     """Create a real VitessClient connected to test database"""
     config = VitessConfig(
         host="vitess",
-        port=15307,
+        port=15309,
         database="page",
         user="root",
         password="",
@@ -25,15 +25,10 @@ def vitess_client():
 
 def test_insert_revision_idempotent(vitess_client):
     """Test that insert_revision is idempotent - calling twice with same params doesn't error"""
-    entity_id = 123456789
+    entity_id = "Q123456789"
     revision_id = 1
 
-    vitess_client.insert_revision(
-        entity_id=entity_id,
-        revision_id=revision_id,
-        is_mass_edit=False,
-        edit_type="test-edit",
-    )
+    vitess_client.register_entity(entity_id)
 
     vitess_client.insert_revision(
         entity_id=entity_id,
@@ -42,11 +37,19 @@ def test_insert_revision_idempotent(vitess_client):
         edit_type="test-edit",
     )
 
+    vitess_client.insert_revision(
+        entity_id=entity_id,
+        revision_id=revision_id,
+        is_mass_edit=False,
+        edit_type="test-edit",
+    )
+
+    internal_id = vitess_client._resolve_id(entity_id)
     conn = vitess_client.connect()
     cursor = conn.cursor()
     cursor.execute(
         "SELECT COUNT(*) FROM entity_revisions WHERE entity_id = %s AND revision_id = %s",
-        (entity_id, revision_id),
+        (internal_id, revision_id),
     )
     count = cursor.fetchone()[0]
     cursor.close()
@@ -58,7 +61,9 @@ def test_insert_revision_idempotent(vitess_client):
 
 def test_insert_revision_different_params(vitess_client):
     """Test that insert_revision creates separate records for different revisions"""
-    entity_id = 987654321
+    entity_id = "Q987654321"
+
+    vitess_client.register_entity(entity_id)
 
     vitess_client.insert_revision(
         entity_id=entity_id,
@@ -74,11 +79,12 @@ def test_insert_revision_different_params(vitess_client):
         edit_type="second-edit",
     )
 
+    internal_id = vitess_client._resolve_id(entity_id)
     conn = vitess_client.connect()
     cursor = conn.cursor()
     cursor.execute(
         "SELECT COUNT(*) FROM entity_revisions WHERE entity_id = %s",
-        (entity_id,),
+        (internal_id,),
     )
     count = cursor.fetchone()[0]
     cursor.close()

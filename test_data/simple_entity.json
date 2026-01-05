@@ -1,0 +1,83 @@
+{
+  "id": "Q99999",
+  "type": "item",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "Test Entity for Statement Deduplication"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "A simple test entity with a few statements"
+    }
+  },
+  "aliases": {},
+  "claims": {
+    "P31": [
+      {
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P31",
+          "datavalue": {
+            "value": {
+              "entity-type": "item",
+              "numeric-id": 5,
+              "id": "Q5"
+            },
+            "type": "wikibase-entityid"
+          },
+          "datatype": "wikibase-item"
+        },
+        "type": "statement",
+        "id": "Q99999$test1",
+        "rank": "normal",
+        "references": []
+      }
+    ],
+    "P17": [
+      {
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P17",
+          "datavalue": {
+            "value": {
+              "entity-type": "item",
+              "numeric-id": 30,
+              "id": "Q30"
+            },
+            "type": "wikibase-entityid"
+          },
+          "datatype": "wikibase-item"
+        },
+        "type": "statement",
+        "id": "Q99999$test2",
+        "rank": "preferred",
+        "references": [
+          {
+            "hash": "testref1",
+            "snaks": {
+              "P248": [
+                {
+                  "snaktype": "value",
+                  "property": "P248",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 36578,
+                      "id": "Q36578"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "sitelinks": {}
+}
