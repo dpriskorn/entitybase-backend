@@ -2,7 +2,79 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
-## [2025-01-02] Internal ID Encapsulation
+  ## [2025-01-02] Internal ID Encapsulation
+
+### Summary
+Encapsulated internal ID resolution within VitessClient, removing exposure of internal IDs to all external code. All VitessClient methods now accept `entity_id: str` instead of `internal_id: int`, handling ID resolution internally. This aligns with the goal of keeping internal implementation details private and maintaining clean API boundaries.
+
+### Motivation
+- **Encapsulation**: Internal IDs are implementation details that shouldn't leak outside VitessClient
+- **API cleanliness**: External code should work with entity IDs only (Q42, not internal ID 42)
+- **Maintainability**: Changes to internal ID handling only affect VitessClient, not all calling code
+- **Testing**: Simpler tests - no need to manage internal ID mappings
+
+### Changes
+#### VitessClient API Updates
+**File**: `src/models/infrastructure/vitess_client.py`
+
+**Private method**:
+- `resolve_id(entity_id: str) -> int`: Made private to prevent external access
+- Internal implementation: Queries entity_id_mapping table directly
+
+**Method signature changes** (all now accept `entity_id: str`):
+- `is_entity_deleted(entity_id: str) -> bool`: Check if entity is hard-deleted
+- `is_entity_locked(entity_id: str) -> bool`: Check if entity is locked
+- `is_entity_archived(entity_id: str) -> bool`: Check if entity is archived
+- `get_head(entity_id: str) -> int`: Get current head revision
+- `write_entity_revision(entity_id, revision_id, data, is_mass_edit, edit_type) -> None`: Write revision data
+- `read_full_revision(entity_id: str, revision_id) -> dict`: Read full revision data
+- `insert_revision(entity_id, revision_id, is_mass_edit, edit_type) -> None`: Insert revision metadata
+
+**Internal behavior**:
+- All methods now call `_resolve_id(entity_id)` internally to convert to internal IDs
+- Methods that require valid entities raise `ValueError` with descriptive message
+- Methods return sensible defaults (False, [], 0) if entity not found
+
+#### RedirectService Updates
+**File**: `src/services/entity_api/redirects.py`
+
+**Removed calls**:
+- No longer calls `vitess.resolve_id()` directly
+- No longer manages `from_internal_id` and `to_internal_id` variables
+- Simplified validation logic
+
+**Updated flow**:
+- All VitessClient calls use `entity_id: str` parameters
+- VitessClient handles all internal ID resolution
+- Removed manual internal ID resolution logic
+
+#### Entity API Updates
+**File**: `src/models/entity_api/main.py`
+
+**Removed calls**:
+- No longer calls `clients.vitess.resolve_id()` directly
+- No longer manages `from_internal_id` and `to_internal_id` variables
+
+**Updated methods**:
+- All VitessClient calls now pass entity IDs directly
+- Removed manual internal ID resolution logic
+- Removed imports of `_resolve_id` (no longer needed)
+
+#### Test Mocks Updates
+**Files**: 
+- `tests/test_entity_redirects.py`
+- `tests/debug_Q17948861.py`
+
+**Updated MockVitessClient**:
+- `_resolve_id()` made private (mocks match real API)
+- All methods updated to accept `entity_id: str` and resolve internally
+- Mocked `from_internal_id` and `to_internal_id` variables removed
+
+### Rationale
+- **Encapsulation**: Internal IDs are Vitess implementation detail, not API surface
+- **API cleanliness**: External code should work with entity IDs only (Q42, not internal ID 42)
+- **Maintainability**: Changes to internal ID handling only affect VitessClient, not all calling code
+- **Testing**: Simpler tests - no need to manage internal ID mappings
 
 ### Summary
 
