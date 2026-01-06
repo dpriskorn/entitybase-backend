@@ -746,3 +746,215 @@ class VitessClient(BaseModel):
         result = [row[0] for row in cursor.fetchall()]
         cursor.close()
         return result
+
+    def get_protection_info(self, entity_id: str) -> dict[str, bool]:
+        """Get protection status for an entity
+
+        Args:
+            entity_id: Entity ID to check
+
+        Returns:
+            Dict with protection status flags
+        """
+        internal_id = self._resolve_id(entity_id)
+        if not internal_id:
+            return {}
+
+        conn = self.connect()
+        cursor = conn.cursor()
+        cursor.execute(
+            """SELECT is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected
+                    FROM entity_head
+                    WHERE entity_id = %s""",
+            (internal_id,),
+        )
+        result = cursor.fetchone()
+        cursor.close()
+
+        if not result:
+            return {}
+
+        return {
+            "is_semi_protected": bool(result[0]),
+            "is_locked": bool(result[1]),
+            "is_archived": bool(result[2]),
+            "is_dangling": bool(result[3]),
+            "is_mass_edit_protected": bool(result[4]),
+        }
+
+    def create_revision_cas(
+        self, entity_id: str, revision_id: int, data: dict, expected_revision_id: int
+    ) -> bool:
+        """Create revision with compare-and-swap
+
+        Args:
+            entity_id: Entity ID
+            revision_id: New revision ID
+            data: Revision data
+            expected_revision_id: Expected current revision ID
+
+        Returns:
+            True if successful, False if CAS failed
+        """
+        internal_id = self._resolve_id(entity_id)
+        if not internal_id:
+            return False
+
+        conn = self.connect()
+        cursor = conn.cursor()
+
+        # Insert revision
+        cursor.execute(
+            """INSERT INTO entity_revisions 
+                    (entity_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+            (
+                internal_id,
+                revision_id,
+                data.get("is_mass_edit", False),
+                data.get("edit_type", ""),
+                json.dumps(data.get("hashes", [])),
+                json.dumps(data.get("properties", [])),
+                json.dumps(data.get("property_counts", {})),
+            ),
+        )
+
+        # Update head with CAS
+        cursor.execute(
+            """UPDATE entity_head
+                    SET head_revision_id = %s,
+                        is_semi_protected = %s,
+                        is_locked = %s,
+                        is_archived = %s,
+                        is_dangling = %s,
+                        is_mass_edit_protected = %s
+                    WHERE entity_id = %s AND head_revision_id = %s""",
+            (
+                revision_id,
+                data.get("is_semi_protected", False),
+                data.get("is_locked", False),
+                data.get("is_archived", False),
+                data.get("is_dangling", False),
+                data.get("is_mass_edit_protected", False),
+                internal_id,
+                expected_revision_id,
+            ),
+        )
+
+        affected_rows = int(cursor.rowcount)
+        cursor.close()
+        return affected_rows > 0
+
+    def create_revision(self, entity_id: str, revision_id: int, data: dict) -> None:
+        """Create revision without CAS (for new entities)
+
+        Args:
+            entity_id: Entity ID
+            revision_id: Revision ID
+            data: Revision data
+        """
+        internal_id = self._resolve_id(entity_id)
+        if not internal_id:
+            raise ValueError(f"Entity {entity_id} not found")
+
+        conn = self.connect()
+        cursor = conn.cursor()
+
+        # Insert revision
+        cursor.execute(
+            """INSERT INTO entity_revisions 
+                    (entity_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+            (
+                internal_id,
+                revision_id,
+                data.get("is_mass_edit", False),
+                data.get("edit_type", ""),
+                json.dumps(data.get("hashes", [])),
+                json.dumps(data.get("properties", [])),
+                json.dumps(data.get("property_counts", {})),
+            ),
+        )
+
+        # Insert head
+        cursor.execute(
+            """INSERT INTO entity_head
+                    (entity_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+            (
+                internal_id,
+                revision_id,
+                data.get("is_semi_protected", False),
+                data.get("is_locked", False),
+                data.get("is_archived", False),
+                data.get("is_dangling", False),
+                data.get("is_mass_edit_protected", False),
+            ),
+        )
+
+        cursor.close()
+
+    def upsert_entity(self, entity_id: str, data: dict) -> None:
+        """Insert or update entity record
+
+        Args:
+            entity_id: Entity ID
+            data: Entity data
+        """
+        internal_id = self._resolve_id(entity_id)
+        if not internal_id:
+            # Register new entity
+            self.register_entity(entity_id)
+            internal_id = self._resolve_id(entity_id)
+
+        conn = self.connect()
+        cursor = conn.cursor()
+
+        # Use INSERT ... ON DUPLICATE KEY UPDATE
+        cursor.execute(
+            """INSERT INTO entity_head
+                    (entity_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    head_revision_id = VALUES(head_revision_id),
+                    is_semi_protected = VALUES(is_semi_protected),
+                    is_locked = VALUES(is_locked),
+                    is_archived = VALUES(is_archived),
+                    is_dangling = VALUES(is_dangling),
+                    is_mass_edit_protected = VALUES(is_mass_edit_protected)""",
+            (
+                internal_id,
+                data.get("head_revision_id"),
+                data.get("is_semi_protected", False),
+                data.get("is_locked", False),
+                data.get("is_archived", False),
+                data.get("is_dangling", False),
+                data.get("is_mass_edit_protected", False),
+            ),
+        )
+
+        cursor.close()
+
+    def delete_entity(self, entity_id: str) -> None:
+        """Delete entity record
+
+        Args:
+            entity_id: Entity ID to delete
+        """
+        internal_id = self._resolve_id(entity_id)
+        if not internal_id:
+            raise ValueError(f"Entity {entity_id} not found")
+
+        conn = self.connect()
+        cursor = conn.cursor()
+
+        # Mark as deleted in entity_head
+        cursor.execute(
+            """UPDATE entity_head
+                    SET is_deleted = TRUE,
+                        head_revision_id = 0
+                    WHERE entity_id = %s""",
+            (internal_id,),
+        )
+
+        cursor.close()

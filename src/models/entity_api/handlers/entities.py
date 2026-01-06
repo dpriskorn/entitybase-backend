@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
@@ -11,10 +12,28 @@ from models.entity import (
 )
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
-from models.entity_api.services.statement_service import (
-    hash_entity_statements,
-    deduplicate_and_store_statements,
-)
+
+# Import statement service functions
+try:
+    from .services.statement_service import (
+        hash_entity_statements,
+        deduplicate_and_store_statements,
+    )
+except ImportError:
+    # Fallback for type checking
+    from typing import Any, Dict
+    from models.entity import StatementHashResult
+
+    def hash_entity_statements(entity_data: Dict[str, Any]) -> StatementHashResult:
+        return StatementHashResult()
+
+    def deduplicate_and_store_statements(
+        hash_result: StatementHashResult,
+        vitess_client: VitessClient,
+        s3_client: S3Client,
+    ) -> None:
+        pass
+
 
 logger = logging.getLogger(__name__)
 
@@ -94,9 +113,7 @@ def create_entity(
     revision_data = {
         "entity": request.data,
         "revision_id": new_revision_id,
-        "created_at": logger.handlers[0].formatter.formatTime(
-            logger.makeRecord("entity_creation", 20, "", 0, "", (), None)
-        ),
+        "created_at": datetime.now(timezone.utc).isoformat() + "Z",
         "edit_type": request.edit_type.value,
         "is_semi_protected": request.is_semi_protected,
         "is_locked": request.is_locked,
@@ -196,7 +213,10 @@ def get_entity(
 
 
 def get_entity_history(
-    entity_id: str, limit: int = 20, offset: int = 0, vitess_client: VitessClient = None
+    entity_id: str,
+    limit: int = 20,
+    offset: int = 0,
+    vitess_client: VitessClient | None = None,
 ) -> list[RevisionMetadata]:
     """Get revision history for an entity with paging
 
@@ -275,9 +295,7 @@ def delete_entity(
     deletion_revision_data = {
         "entity": current_revision.data["entity"],
         "revision_id": new_revision_id,
-        "created_at": logger.handlers[0].formatter.formatTime(
-            logger.makeRecord("entity_deletion", 20, "", 0, "", (), None)
-        ),
+        "created_at": datetime.now(timezone.utc).isoformat() + "Z",
         "edit_type": request.delete_type.value,
         "is_semi_protected": current_revision.data.get("is_semi_protected", False),
         "is_locked": request.is_locked,

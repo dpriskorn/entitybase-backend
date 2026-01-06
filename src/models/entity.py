@@ -57,9 +57,9 @@ class EntityCreateRequest(BaseModel):
     aliases: Optional[Dict[str, List]] = None
     sitelinks: Optional[Dict[str, Any]] = None
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
-    edit_type: str = Field(
-        default="",
-        description="Text classification of edit type (e.g., 'bot-import', 'cleanup')",
+    edit_type: EditType = Field(
+        default=EditType.UNSPECIFIED,
+        description="Classification of edit type",
     )
     is_semi_protected: bool = Field(default=False, description="Item is semi-protected")
     is_locked: bool = Field(default=False, description="Item is locked from edits")
@@ -74,6 +74,9 @@ class EntityCreateRequest(BaseModel):
     is_not_autoconfirmed_user: bool = Field(
         default=False, description="User is not autoconfirmed (new/unconfirmed account)"
     )
+    edit_summary: str = Field(default="", description="Edit summary for this change")
+    editor: str = Field(default="", description="Editor who made this change")
+    bot: bool = Field(default=False, description="Whether this was a bot edit")
 
     model_config = ConfigDict(extra="allow")
 
@@ -116,13 +119,19 @@ class EntityDeleteRequest(BaseModel):
     delete_type: DeleteType = Field(
         default=DeleteType.SOFT, description="Type of deletion"
     )
+    is_locked: bool = Field(default=False, description="User has lock permission")
+    edit_summary: str = Field(default="", description="Edit summary for deletion")
+    editor: str = Field(default="", description="Editor who performed deletion")
+    bot: bool = Field(default=False, description="Whether this was a bot edit")
 
 
 class EntityDeleteResponse(BaseModel):
     id: str
     revision_id: int
-    delete_type: DeleteType
-    is_deleted: bool
+    deletion_type: str = Field(..., description="Type of deletion performed")
+    deletion_status: str = Field(
+        ..., description="Status of deletion (soft_deleted/hard_deleted)"
+    )
 
 
 class EntityRedirectRequest(BaseModel):
