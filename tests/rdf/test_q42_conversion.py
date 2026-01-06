@@ -8,7 +8,7 @@ from models.rdf_builder.converter import EntityConverter
 logger = logging.getLogger(__name__)
 
 
-def test_q42_conversion(full_property_registry):
+def test_q42_conversion(full_property_registry) -> None:
     """Test Q42 conversion produces valid Turtle"""
     entity_id = "Q42"
 

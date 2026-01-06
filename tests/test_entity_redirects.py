@@ -154,7 +154,7 @@ class RedirectService:
         self.s3 = s3_client
         self.vitess = vitess_client
 
-    def create_redirect(self, request: EntityRedirectRequest):
+    def create_redirect(self, request: EntityRedirectRequest) -> EntityRedirectResponse:
         vitess = self.vitess
         s3 = self.s3
 
@@ -515,13 +515,14 @@ def test_create_redirect_source_archived(redirect_service: RedirectService) -> N
         assert "archived" in e.detail.lower()
 
 
-def test_revert_redirect_success(redirect_service):
+def test_revert_redirect_success(redirect_service: RedirectService) -> None:
     """Test successful redirect revert"""
     vitess = redirect_service.vitess
     s3 = redirect_service.s3
 
     vitess.resolved_ids["Q100"] = 100
-    vitess.set_redirect_target(100, "Q42")
+    vitess.resolved_ids["Q42"] = 42
+    vitess.set_redirect_target(100, 42)
     s3.written_revisions[1] = {
         "revision_id": 1,
         "data": {
@@ -550,7 +551,7 @@ def test_revert_redirect_success(redirect_service):
     assert vitess.get_redirect_target(100) is None
 
 
-def test_revert_redirect_entity_not_redirect(redirect_service):
+def test_revert_redirect_entity_not_redirect(redirect_service: RedirectService) -> None:
     """Test that reverting a non-redirect entity raises 404"""
     vitess = redirect_service.vitess
 
@@ -572,12 +573,13 @@ def test_revert_redirect_entity_not_redirect(redirect_service):
         assert "not a redirect" in e.detail.lower()
 
 
-def test_revert_redirect_entity_deleted(redirect_service):
+def test_revert_redirect_entity_deleted(redirect_service: RedirectService) -> None:
     """Test that reverting a deleted entity raises 423"""
     vitess = redirect_service.vitess
 
     vitess.resolved_ids["Q100"] = 100
-    vitess.set_redirect_target(100, "Q42")  # Set up as redirect first
+    vitess.resolved_ids["Q42"] = 42
+    vitess.set_redirect_target(100, 42)  # Set up as redirect first
     vitess.deleted_entities.add(100)
 
     request = RedirectRevertRequest(
@@ -596,12 +598,13 @@ def test_revert_redirect_entity_deleted(redirect_service):
         assert "deleted" in e.detail.lower()
 
 
-def test_revert_redirect_entity_locked(redirect_service):
+def test_revert_redirect_entity_locked(redirect_service: RedirectService) -> None:
     """Test that reverting a locked entity raises 423"""
     vitess = redirect_service.vitess
 
     vitess.resolved_ids["Q100"] = 100
-    vitess.set_redirect_target(100, "Q42")  # Set up as redirect first
+    vitess.resolved_ids["Q42"] = 42
+    vitess.set_redirect_target(100, 42)  # Set up as redirect first
     vitess.locked_entities.add(100)
 
     request = RedirectRevertRequest(
@@ -620,12 +623,13 @@ def test_revert_redirect_entity_locked(redirect_service):
         assert "locked" in e.detail.lower()
 
 
-def test_revert_redirect_entity_archived(redirect_service):
+def test_revert_redirect_entity_archived(redirect_service: RedirectService) -> None:
     """Test that reverting an archived entity raises 423"""
     vitess = redirect_service.vitess
 
     vitess.resolved_ids["Q100"] = 100
-    vitess.set_redirect_target(100, "Q42")  # Set up as redirect first
+    vitess.resolved_ids["Q42"] = 42
+    vitess.set_redirect_target(100, 42)  # Set up as redirect first
     vitess.archived_entities.add(100)
 
     request = RedirectRevertRequest(

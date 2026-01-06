@@ -1,4 +1,5 @@
 import sys
+from typing import Generator
 
 import pytest
 
@@ -9,7 +10,7 @@ from models.vitess_models import VitessConfig
 
 
 @pytest.fixture
-def vitess_client():
+def vitess_client() -> Generator[VitessClient, None, None]:
     """Create a real VitessClient connected to test database"""
     config = VitessConfig(
         host="vitess",
@@ -23,7 +24,7 @@ def vitess_client():
     client.connection = None
 
 
-def test_insert_revision_idempotent(vitess_client):
+def test_insert_revision_idempotent(vitess_client: VitessClient) -> None:
     """Test that insert_revision is idempotent - calling twice with same params doesn't error"""
     entity_id = "Q123456789"
     revision_id = 1
@@ -59,7 +60,7 @@ def test_insert_revision_idempotent(vitess_client):
     )
 
 
-def test_insert_revision_different_params(vitess_client):
+def test_insert_revision_different_params(vitess_client: VitessClient) -> None:
     """Test that insert_revision creates separate records for different revisions"""
     entity_id = "Q987654321"
 
