@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from fastapi import FastAPI, HTTPException, Response
-from pydantic import BaseModel
 from rapidhash import rapidhash
 from starlette import status
 
@@ -20,6 +19,8 @@ from models.entity import (
     EntityCreateRequest,
     EntityDeleteRequest,
     EntityDeleteResponse,
+    EntityListResponse,
+    EntityRedirectResponse,
     EntityResponse,
     EntityRedirectRequest,
     MostUsedStatementsResponse,
@@ -30,49 +31,22 @@ from models.entity import (
     RevisionMetadata,
     StatementBatchRequest,
     StatementBatchResponse,
-    StatementHashResult,
     StatementResponse,
 )
-from models.infrastructure.s3_client import S3Client
-from models.infrastructure.vitess_client import VitessClient
-from models.json_parser import parse_entity
-from models.rdf_builder.converter import EntityConverter
-from models.rdf_builder.property_registry.loader import load_property_registry
-from models.rdf_builder.property_registry.registry import PropertyRegistry
+from models.entity_api.services.rdf_service import serialize_entity_to_turtle
+from models.entity_api.services.statement_service import (
+    hash_entity_statements,
+    deduplicate_and_store_statements,
+)
+
 from services.entity_api.redirects import RedirectService
 
 logger = logging.getLogger(__name__)
 
+from models.entity_api.clients import Clients
+
 if TYPE_CHECKING:
-    from models.infrastructure.s3_client import S3Config
-    from models.infrastructure.vitess_client import VitessConfig
-
-
-class Clients(BaseModel):
-    s3: S3Client | None = None
-    vitess: VitessClient | None = None
-    property_registry: PropertyRegistry | None = None
-
-    class Config:
-        arbitrary_types_allowed = True
-
-    def __init__(
-        self,
-        s3: "S3Config",
-        vitess: "VitessConfig",
-        property_registry_path: Path | None = None,
-        **kwargs,
-    ):
-        super().__init__(
-            s3=S3Client(s3),
-            vitess=VitessClient(vitess),
-            property_registry=(
-                load_property_registry(property_registry_path)
-                if property_registry_path
-                else None
-            ),
-            **kwargs,
-        )
+    pass
 
 
 @asynccontextmanager
@@ -109,156 +83,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(lifespan=lifespan)
 
 
-def serialize_entity_to_turtle(entity_data: dict[str, Any], entity_id: str) -> str:
-    """Convert entity data dict to Turtle format string."""
-    entity = parse_entity(entity_data)
-    converter = EntityConverter(
-        property_registry=app.state.clients.property_registry
-        or PropertyRegistry(properties={}),
-        enable_deduplication=True,
-    )
-    return converter.convert_to_string(entity)
-
-
-def hash_entity_statements(
-    entity_data: dict[str, Any],
-) -> StatementHashResult:
-    """Extract and hash statements from entity data.
-
-    Returns:
-        StatementHashResult with hashes, properties, and full statements
-    """
-    statements = []
-    full_statements = []
-    properties_set = set()
-    property_counts = {}
-
-    claims = entity_data.get("claims", {})
-    logger.debug(f"Entity claims: {claims}")
-
-    if not claims:
-        logger.debug("No claims found in entity data")
-        return StatementHashResult()
-
-    claims_count = sum(len(claim_list) for claim_list in claims.values())
-    logger.debug(
-        f"Hashing statements for entity with {len(claims)} properties, {claims_count} total statements"
-    )
-
-    for property_id, claim_list in claims.items():
-        logger.debug(
-            f"Processing property {property_id} with {len(claim_list)} statements"
-        )
-
-        if not claim_list:
-            logger.debug(f"Empty claim list for property {property_id}")
-            continue
-
-        properties_set.add(property_id)
-        count = 0
-
-        for idx, statement in enumerate(claim_list):
-            logger.debug(
-                f"Processing statement {idx + 1}/{len(claim_list)} for property {property_id}"
-            )
-            try:
-                statement_for_hash = {k: v for k, v in statement.items() if k != "id"}
-                statement_json = json.dumps(statement_for_hash, sort_keys=True)
-                statement_hash = rapidhash(statement_json.encode())
-                logger.debug(
-                    f"Generated hash {statement_hash} for statement {idx + 1} in property {property_id}"
-                )
-
-                statements.append(statement_hash)
-                full_statements.append(statement)
-                count += 1
-            except Exception as e:
-                logger.error(
-                    f"Failed to hash statement {idx + 1} for property {property_id}: {e}"
-                )
-                logger.error(f"Statement data: {statement}")
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Failed to hash statement: {e}",
-                )
-
-        property_counts[property_id] = count
-        logger.debug(f"Property {property_id}: processed {count} statements")
-
-    logger.debug(
-        f"Generated {len(statements)} hashes, properties: {sorted(properties_set)}"
-    )
-    logger.debug(f"Property counts: {property_counts}")
-
-    return StatementHashResult(
-        statements=statements,
-        properties=sorted(properties_set),
-        property_counts=property_counts,
-        full_statements=full_statements,
-    )
-
-
-def deduplicate_and_store_statements(
-    hash_result: StatementHashResult,
-    vitess_client: VitessClient,
-    s3_client: S3Client,
-) -> None:
-    """Deduplicate and store statements in Vitess and S3.
-
-    For each statement:
-    - Check if hash exists in statement_content table
-    - If not exists: write to S3 and insert into statement_content
-    - If exists: increment ref_count
-
-    Args:
-        hash_result: StatementHashResult with hashes and full statements
-        vitess_client: Vitess client for statement_content operations
-        s3_client: S3 client for statement storage
-    """
-    logger.debug(f"Deduplicating and storing {len(hash_result.statements)} statements")
-
-    for idx, (statement_hash, statement_data) in enumerate(
-        zip(hash_result.statements, hash_result.full_statements)
-    ):
-        logger.debug(
-            f"Processing statement {idx + 1}/{len(hash_result.statements)} with hash {statement_hash}"
-        )
-        try:
-            is_new = vitess_client.insert_statement_content(statement_hash)
-            logger.debug(f"Statement {statement_hash} is_new: {is_new}")
-
-            if is_new:
-                statement_with_hash = {
-                    **statement_data,
-                    "content_hash": statement_hash,
-                    "created_at": datetime.now(timezone.utc).isoformat() + "Z",
-                }
-                logger.debug(f"Writing new statement {statement_hash} to S3")
-                s3_client.write_statement(statement_hash, statement_with_hash)
-                logger.debug(f"Successfully wrote statement {statement_hash} to S3")
-            else:
-                logger.debug(
-                    f"Incrementing ref_count for existing statement {statement_hash}"
-                )
-                vitess_client.increment_ref_count(statement_hash)
-                logger.debug(
-                    f"Successfully incremented ref_count for statement {statement_hash}"
-                )
-        except Exception as e:
-            logger.error(f"Failed to store statement {statement_hash}: {e}")
-            logger.error(f"Statement data: {statement_data}")
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to store statement {statement_hash}: {e}",
-            )
-
-    logger.debug(
-        f"Successfully stored all {len(hash_result.statements)} statements (new + existing)"
-    )
-
-
 @app.get("/health")
-async def health_check(response: Response):
+async def health_check(response: Response) -> dict[str, str]:
     clients = getattr(app.state, "clients", None)
 
     if clients is None:
@@ -278,7 +104,7 @@ async def health_check(response: Response):
 
 
 @app.post("/entity", response_model=EntityResponse)
-def create_entity(request: EntityCreateRequest):
+def create_entity(request: EntityCreateRequest) -> EntityResponse:
     clients = app.state.clients
 
     logger.debug("=== ENTITY CREATION START ===")
@@ -523,7 +349,7 @@ def create_entity(request: EntityCreateRequest):
 
 
 @app.get("/entity/{entity_id}", response_model=EntityResponse)
-def get_entity(entity_id: str):
+def get_entity(entity_id: str) -> EntityResponse:
     clients = app.state.clients
 
     if clients.vitess is None:
@@ -563,7 +389,9 @@ def get_entity(entity_id: str):
 
 
 @app.get("/entity/{entity_id}/history", response_model=list[RevisionMetadata])
-def get_entity_history(entity_id: str, limit: int = 20, offset: int = 0):
+def get_entity_history(
+    entity_id: str, limit: int = 20, offset: int = 0
+) -> list[RevisionMetadata]:
     """Get revision history for an entity with paging
 
     Args:
@@ -591,7 +419,7 @@ def get_entity_history(entity_id: str, limit: int = 20, offset: int = 0):
 
 
 @app.get("/wiki/Special:EntityData/{entity_id}.ttl")
-async def get_entity_data_turtle(entity_id: str):
+async def get_entity_data_turtle(entity_id: str) -> Response:
     clients = app.state.clients
 
     if clients.vitess is None:
@@ -607,12 +435,16 @@ async def get_entity_data_turtle(entity_id: str):
     revision = clients.s3.read_revision(entity_id, head_revision_id)
     entity_data = revision.data["entity"]
 
-    turtle = serialize_entity_to_turtle(entity_data, entity_id)
+    turtle = serialize_entity_to_turtle(
+        entity_data, entity_id, clients.property_registry
+    )
     return Response(content=turtle, media_type="text/turtle")
 
 
 @app.post("/redirects")
-async def create_entity_redirect(request: EntityRedirectRequest):
+async def create_entity_redirect(
+    request: EntityRedirectRequest,
+) -> EntityRedirectResponse:
     """Create a redirect from one entity to another"""
     clients = app.state.clients
     redirect_service = RedirectService(clients.s3, clients.vitess)
@@ -620,7 +452,9 @@ async def create_entity_redirect(request: EntityRedirectRequest):
 
 
 @app.post("/entities/{entity_id}/revert-redirect")
-async def revert_entity_redirect(entity_id: str, request: RedirectRevertRequest):
+async def revert_entity_redirect(
+    entity_id: str, request: RedirectRevertRequest
+) -> EntityResponse:
     """Revert a redirect entity back to normal using revision-based restore"""
     clients = app.state.clients
     redirect_service = RedirectService(clients.s3, clients.vitess)
@@ -628,7 +462,7 @@ async def revert_entity_redirect(entity_id: str, request: RedirectRevertRequest)
 
 
 @app.get("/entity/{entity_id}/revision/{revision_id}", response_model=Dict[str, Any])
-def get_entity_revision(entity_id: str, revision_id: int):
+def get_entity_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
     clients = app.state.clients
 
     if clients.s3 is None:
@@ -638,12 +472,19 @@ def get_entity_revision(entity_id: str, revision_id: int):
 
     # Extract entity from full revision schema (data is already parsed dict)
     entity_data = revision.data["entity"]
+    
+    # Type assertion to ensure MyPy compatibility
+    if not isinstance(entity_data, dict):
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Invalid entity data type: expected dict, got {type(entity_data)}"
+        )
 
-    return entity_data
+    return entity_data  # type: ignore[return-value]
 
 
 @app.delete("/entity/{entity_id}", response_model=EntityDeleteResponse)
-def delete_entity(entity_id: str, request: EntityDeleteRequest):
+def delete_entity(entity_id: str, request: EntityDeleteRequest) -> EntityDeleteResponse:
     """Delete entity (soft or hard delete)"""
     clients = app.state.clients
 
@@ -713,7 +554,9 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
     )
 
     # Deleted entities have no statements
-    statements, properties, property_counts = [], [], {}
+    statements: list[Any] = []
+    properties: list[Any] = []
+    property_counts: dict[Any, Any] = {}
 
     # Insert revision metadata into Vitess
     clients.vitess.insert_revision(
@@ -767,7 +610,7 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
 
 
 @app.get("/raw/{entity_id}/{revision_id}")
-def get_raw_revision(entity_id: str, revision_id: int):
+def get_raw_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
     """
     Returns raw S3 entity data for specific revision.
 
@@ -814,10 +657,10 @@ def get_raw_revision(entity_id: str, revision_id: int):
     return revision
 
 
-@app.get("/entities")
+@app.get("/entities", response_model=EntityListResponse)
 def list_entities(
     status: Optional[str] = None, edit_type: Optional[str] = None, limit: int = 100
-):
+) -> EntityListResponse:
     """Filter entities by status or edit_type"""
     clients = app.state.clients
 
@@ -825,23 +668,25 @@ def list_entities(
         raise HTTPException(status_code=503, detail="Vitess not initialized")
 
     if status == "locked":
-        return clients.vitess.list_locked_entities(limit)
+        entities = clients.vitess.list_locked_entities(limit)
     elif status == "semi_protected":
-        return clients.vitess.list_semi_protected_entities(limit)
+        entities = clients.vitess.list_semi_protected_entities(limit)
     elif status == "archived":
-        return clients.vitess.list_archived_entities(limit)
+        entities = clients.vitess.list_archived_entities(limit)
     elif status == "dangling":
-        return clients.vitess.list_dangling_entities(limit)
+        entities = clients.vitess.list_dangling_entities(limit)
     elif edit_type:
-        return clients.vitess.list_by_edit_type(edit_type, limit)
+        entities = clients.vitess.list_by_edit_type(edit_type, limit)
     else:
         raise HTTPException(
             status_code=400, detail="Must provide status or edit_type filter"
         )
 
+    return EntityListResponse(entities=entities, count=len(entities))
+
 
 @app.get("/statement/{content_hash}", response_model=StatementResponse)
-def get_statement(content_hash: int):
+def get_statement(content_hash: int) -> StatementResponse:
     """Get a single statement by its hash
 
     Returns the full statement JSON from S3.
@@ -865,7 +710,7 @@ def get_statement(content_hash: int):
 
 
 @app.post("/statements/batch", response_model=StatementBatchResponse)
-def get_statements_batch(request: StatementBatchRequest):
+def get_statements_batch(request: StatementBatchRequest) -> StatementBatchResponse:
     """Get multiple statements by their hashes
 
     Efficiently fetches multiple statements in one request.
@@ -896,7 +741,7 @@ def get_statements_batch(request: StatementBatchRequest):
 
 
 @app.get("/entity/{entity_id}/properties", response_model=PropertyListResponse)
-def get_entity_properties(entity_id: str):
+def get_entity_properties(entity_id: str) -> PropertyListResponse:
     """Get list of unique property IDs for an entity's head revision
 
     Returns sorted list of properties used in entity statements.
@@ -929,7 +774,7 @@ def get_entity_properties(entity_id: str):
 
 
 @app.get("/entity/{entity_id}/properties/counts", response_model=PropertyCountsResponse)
-def get_entity_property_counts(entity_id: str):
+def get_entity_property_counts(entity_id: str) -> PropertyCountsResponse:
     """Get statement counts per property for an entity's head revision
 
     Returns dict mapping property ID -> count of statements.
@@ -955,7 +800,9 @@ def get_entity_property_counts(entity_id: str):
     "/entity/{entity_id}/properties/{property_list}",
     response_model=PropertyHashesResponse,
 )
-def get_entity_property_hashes(entity_id: str, property_list: str):
+def get_entity_property_hashes(
+    entity_id: str, property_list: str
+) -> PropertyHashesResponse:
     """Get statement hashes for specific properties
 
     Property list format: comma-separated property IDs (e.g., P31,P569)
@@ -980,7 +827,7 @@ def get_entity_property_hashes(entity_id: str, property_list: str):
 
     all_properties = revision_metadata.get("properties", [])
 
-    property_hash_map = {}
+    property_hash_map: dict[Any, Any] = {}
     entity_data = clients.s3.read_revision(entity_id, head_revision_id)
     claims = entity_data.data.get("entity", {}).get("claims", {})
 
@@ -1008,7 +855,9 @@ def get_entity_property_hashes(entity_id: str, property_list: str):
 
 
 @app.get("/statement/most_used", response_model=MostUsedStatementsResponse)
-def get_most_used_statements(limit: int = 100, min_ref_count: int = 1):
+def get_most_used_statements(
+    limit: int = 100, min_ref_count: int = 1
+) -> MostUsedStatementsResponse:
     """Get most referenced statements
 
     Returns statement hashes sorted by ref_count DESC.
@@ -1035,7 +884,9 @@ def get_most_used_statements(limit: int = 100, min_ref_count: int = 1):
 
 
 @app.post("/statements/cleanup-orphaned", response_model=CleanupOrphanedResponse)
-def cleanup_orphaned_statements(request: CleanupOrphanedRequest):
+def cleanup_orphaned_statements(
+    request: CleanupOrphanedRequest,
+) -> CleanupOrphanedResponse:
     """Cleanup orphaned statements from S3 and Vitess
 
     Orphaned statements are those with ref_count = 0 and are older than

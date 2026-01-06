@@ -278,3 +278,12 @@ class CleanupOrphanedResponse(BaseModel):
         default_factory=list,
         description="List of error messages for failed cleanups",
     )
+
+
+class EntityListResponse(BaseModel):
+    """Response model for entity listing endpoints"""
+
+    entities: list[dict[str, Any]] = Field(
+        description="List of entities with their metadata"
+    )
+    count: int = Field(description="Total number of entities returned")
