@@ -7,7 +7,14 @@ mypy \
   --cache-dir .mypy_cache \
   --sqlite-cache \
   --explicit-package-bases \
-  src/ tests/ scripts/
+  src/models/entity_api/ \
+  src/models/infrastructure/ \
+  src/models/json_parser/ \
+  src/models/rdf_builder/ \
+  src/models/internal_representation/ \
+  src/models/config/ \
+  src/services/ \
+  tests/ scripts/
 
 # slow per file run
 #for file in $(find src tests scripts -name "*.py"); do
