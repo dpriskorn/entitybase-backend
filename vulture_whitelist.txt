@@ -259,3 +259,4 @@ get_protection_info
 create_revision_cas
 create_revision
 health_check_endpoint
+deletion_status
