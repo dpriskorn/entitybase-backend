@@ -1,8 +1,9 @@
 import logging
 from typing import Any
 
-from fastapi import HTTPException, Response
+from fastapi import HTTPException
 
+from models.entity import TtlResponse
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.entity_api.services.rdf_service import serialize_entity_to_turtle
@@ -19,7 +20,7 @@ class ExportHandler:
         vitess_client: VitessClient,
         s3_client: S3Client,
         property_registry: Any,
-    ) -> Response:
+    ) -> TtlResponse:
         """Get entity data in Turtle format."""
         logger.debug(f"Exporting entity {entity_id} to Turtle format")
 
@@ -37,4 +38,4 @@ class ExportHandler:
         entity_data = revision.data["entity"]
 
         turtle = serialize_entity_to_turtle(entity_data, entity_id, property_registry)
-        return Response(content=turtle, media_type="text/turtle")  # type: ignore[return-value]
+        return TtlResponse(turtle)

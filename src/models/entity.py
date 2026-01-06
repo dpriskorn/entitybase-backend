@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
+from fastapi import Response
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -256,6 +257,16 @@ class MostUsedStatementsResponse(BaseModel):
         default_factory=list,
         description="List of statement hashes sorted by ref_count DESC",
     )
+
+
+class TtlResponse(Response):
+    """Custom response for Turtle RDF data"""
+
+    def __init__(self, content: str):
+        super().__init__(
+            content=content,
+            media_type="text/turtle",
+        )
 
 
 class CleanupOrphanedRequest(BaseModel):

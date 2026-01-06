@@ -26,6 +26,7 @@ from models.entity import (
     StatementBatchRequest,
     StatementBatchResponse,
     StatementResponse,
+    TtlResponse,
 )
 from models.entity_api.clients import Clients
 from models.entity_api.handlers.admin_handler import AdminHandler
@@ -101,12 +102,12 @@ def get_entity_history(
 
 
 @app.get("/entity/{entity_id}.ttl")
-async def get_entity_data_turtle(entity_id: str) -> Response:
+async def get_entity_data_turtle(entity_id: str) -> TtlResponse:
     clients = app.state.clients
     handler = ExportHandler()
     return handler.get_entity_data_turtle(
         entity_id, clients.vitess, clients.s3, clients.property_registry
-    )  # type: ignore
+    )
 
 
 @app.post("/redirects")
