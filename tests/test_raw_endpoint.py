@@ -254,7 +254,7 @@ def test_mass_edit_fields_in_raw_response(
     result = response.json()
     assert "is_mass_edit" in result
     assert "edit_type" in result
-    assert result["is_mass_edit"] == True
+    assert result["is_mass_edit"]
     assert result["edit_type"] == "cleanup-2025"
 
     logger.info("✓ Raw endpoint includes mass edit fields")

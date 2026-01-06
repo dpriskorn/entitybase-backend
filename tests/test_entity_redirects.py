@@ -194,11 +194,6 @@ class RedirectService:
                 status_code=423, detail="Target entity is locked or archived"
             )
 
-        target_revision = s3.read_full_revision(
-            request.redirect_to_id, vitess.get_head(request.redirect_to_id)
-        )
-        target_data = target_revision
-
         redirect_revision_data = {
             "schema_version": "1.1.0",
             "redirects_to": request.redirect_to_id,
@@ -349,7 +344,6 @@ def test_create_redirect_circular_prevention(redirect_service):
 
 def test_create_redirect_source_not_found(redirect_service):
     """Test that source entity not found raises 404"""
-    vitess = redirect_service.vitess
 
     # Don't set Q999 in resolved_ids - source doesn't exist
 
@@ -390,7 +384,6 @@ def test_create_redirect_target_not_found(redirect_service):
 def test_create_redirect_target_already_redirect(redirect_service):
     """Test that redirecting to an entity that's already a redirect is prevented"""
     vitess = redirect_service.vitess
-    s3 = redirect_service.s3
 
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q200"] = 200
@@ -422,7 +415,6 @@ def test_create_redirect_target_already_redirect(redirect_service):
 def test_create_redirect_source_deleted(redirect_service):
     """Test that redirecting from a deleted entity is prevented"""
     vitess = redirect_service.vitess
-    s3 = redirect_service.s3
 
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
@@ -445,7 +437,6 @@ def test_create_redirect_source_deleted(redirect_service):
 def test_create_redirect_target_deleted(redirect_service):
     """Test that redirecting to a deleted entity is prevented"""
     vitess = redirect_service.vitess
-    s3 = redirect_service.s3
 
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
@@ -468,7 +459,6 @@ def test_create_redirect_target_deleted(redirect_service):
 def test_create_redirect_source_locked(redirect_service):
     """Test that redirecting from a locked entity is prevented"""
     vitess = redirect_service.vitess
-    s3 = redirect_service.s3
 
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
@@ -496,7 +486,6 @@ def test_create_redirect_source_locked(redirect_service):
 def test_create_redirect_source_archived(redirect_service):
     """Test that redirecting to an archived entity is prevented"""
     vitess = redirect_service.vitess
-    s3 = redirect_service.s3
 
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
@@ -559,7 +548,6 @@ def test_revert_redirect_success(redirect_service):
 def test_revert_redirect_entity_not_redirect(redirect_service):
     """Test that reverting a non-redirect entity raises 404"""
     vitess = redirect_service.vitess
-    s3 = redirect_service.s3
 
     vitess.resolved_ids["Q100"] = 100
 
@@ -582,7 +570,6 @@ def test_revert_redirect_entity_not_redirect(redirect_service):
 def test_revert_redirect_entity_deleted(redirect_service):
     """Test that reverting a deleted entity raises 423"""
     vitess = redirect_service.vitess
-    s3 = redirect_service.s3
 
     vitess.resolved_ids["Q100"] = 100
     vitess.set_redirect_target(100, "Q42")  # Set up as redirect first
@@ -607,7 +594,6 @@ def test_revert_redirect_entity_deleted(redirect_service):
 def test_revert_redirect_entity_locked(redirect_service):
     """Test that reverting a locked entity raises 423"""
     vitess = redirect_service.vitess
-    s3 = redirect_service.s3
 
     vitess.resolved_ids["Q100"] = 100
     vitess.set_redirect_target(100, "Q42")  # Set up as redirect first
@@ -632,7 +618,6 @@ def test_revert_redirect_entity_locked(redirect_service):
 def test_revert_redirect_entity_archived(redirect_service):
     """Test that reverting an archived entity raises 423"""
     vitess = redirect_service.vitess
-    s3 = redirect_service.s3
 
     vitess.resolved_ids["Q100"] = 100
     vitess.set_redirect_target(100, "Q42")  # Set up as redirect first

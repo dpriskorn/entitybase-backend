@@ -6,16 +6,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
-from rapidhash import rapidhash
-
-logger = logging.getLogger(__name__)
-
 from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
+from rapidhash import rapidhash
 from starlette import status
 
-from models.infrastructure.s3_client import S3Client
-from models.infrastructure.vitess_client import VitessClient
 from models.config.settings import settings
 from models.entity import (
     CleanupOrphanedRequest,
@@ -26,24 +21,27 @@ from models.entity import (
     EntityDeleteRequest,
     EntityDeleteResponse,
     EntityResponse,
-    RevisionMetadata,
     EntityRedirectRequest,
     MostUsedStatementsResponse,
     PropertyCountsResponse,
     PropertyHashesResponse,
     PropertyListResponse,
     RedirectRevertRequest,
+    RevisionMetadata,
     StatementBatchRequest,
     StatementBatchResponse,
     StatementHashResult,
     StatementResponse,
 )
+from models.infrastructure.s3_client import S3Client
+from models.infrastructure.vitess_client import VitessClient
 from models.json_parser import parse_entity
 from models.rdf_builder.converter import EntityConverter
 from models.rdf_builder.property_registry.loader import load_property_registry
 from models.rdf_builder.property_registry.registry import PropertyRegistry
-
 from services.entity_api.redirects import RedirectService
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from models.infrastructure.s3_client import S3Config
@@ -980,7 +978,6 @@ def get_entity_property_hashes(entity_id: str, property_list: str):
 
     property_ids = [p.strip() for p in property_list.split(",") if p.strip()]
 
-    all_statements = revision_metadata.get("statements", [])
     all_properties = revision_metadata.get("properties", [])
 
     property_hash_map = {}

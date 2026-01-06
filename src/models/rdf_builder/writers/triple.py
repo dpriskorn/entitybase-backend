@@ -1,6 +1,7 @@
 import logging
 from typing import TextIO
 
+from models.rdf_builder.models.rdf_statement import RDFStatement
 from models.rdf_builder.property_registry.models import PropertyShape
 from models.rdf_builder.uri_generator import URIGenerator
 from models.rdf_builder.value_formatters import ValueFormatter
@@ -87,7 +88,7 @@ class TripleWriters:
     def write_statement(
         output: TextIO,
         entity_id: str,
-        rdf_statement: "RDFStatement",
+        rdf_statement: RDFStatement,
         shape: PropertyShape,
         property_registry,
         dedupe: HashDedupeBag | None = None,

@@ -323,7 +323,7 @@ def test_mass_edit_classification(api_client: requests.Session, base_url: str) -
     # Verify fields in S3
     raw_response = api_client.get(f"{base_url}/raw/Q99994/1")
     raw_data = raw_response.json()
-    assert raw_data.get("is_mass_edit") == True
+    assert raw_data.get("is_mass_edit")
     assert raw_data.get("edit_type") == "bot-import"
 
     # Create manual edit (default behavior)
@@ -346,7 +346,7 @@ def test_mass_edit_classification(api_client: requests.Session, base_url: str) -
     # Verify defaults in S3
     raw_response2 = api_client.get(f"{base_url}/raw/Q99993/1")
     raw_data2 = raw_response2.json()
-    assert raw_data2.get("is_mass_edit") == False
+    assert not raw_data2.get("is_mass_edit")
     assert raw_data2.get("edit_type") == ""
 
     logger.info("✓ Mass edit classification works correctly")
@@ -501,11 +501,11 @@ def test_status_flags_stored_in_s3(api_client: requests.Session, base_url: str) 
     )
 
     raw = api_client.get(f"{base_url}/raw/Q90004/1").json()
-    assert raw["is_semi_protected"] == True
-    assert raw["is_locked"] == False
-    assert raw["is_archived"] == False
-    assert raw["is_dangling"] == True
-    assert raw["is_mass_edit_protected"] == False
+    assert raw["is_semi_protected"]
+    assert not raw["is_locked"]
+    assert not raw["is_archived"]
+    assert raw["is_dangling"]
+    assert not raw["is_mass_edit_protected"]
 
     logger.info("✓ Status flags stored in S3")
 
@@ -536,11 +536,11 @@ def test_status_flags_returned_in_response(
 
     response = api_client.get(f"{base_url}/entity/Q90005")
     data = response.json()
-    assert data["is_semi_protected"] == True
-    assert data["is_locked"] == False
-    assert data["is_archived"] == False
-    assert data["is_dangling"] == False
-    assert data["is_mass_edit_protected"] == True
+    assert data["is_semi_protected"]
+    assert not data["is_locked"]
+    assert not data["is_archived"]
+    assert not data["is_dangling"]
+    assert data["is_mass_edit_protected"]
 
     logger.info("✓ Status flags returned in API response")
 
@@ -555,13 +555,13 @@ def test_dangling_flag_set_by_frontend(
     entity_no_wp = {"id": "Q90006", "type": "item", "claims": {}}
     api_client.post(f"{base_url}/entity", json={**entity_no_wp, "is_dangling": True})
     raw = api_client.get(f"{base_url}/raw/Q90006/1").json()
-    assert raw["is_dangling"] == True
+    assert raw["is_dangling"]
 
     # Entity with P6104 (frontend sets is_dangling=False)
     entity_with_wp = {"id": "Q90007", "type": "item", "claims": {"P6104": []}}
     api_client.post(f"{base_url}/entity", json={**entity_with_wp, "is_dangling": False})
     raw = api_client.get(f"{base_url}/raw/Q90007/1").json()
-    assert raw["is_dangling"] == False
+    assert not raw["is_dangling"]
 
     logger.info("✓ is_dangling flag set by frontend")
 
@@ -735,7 +735,7 @@ def test_mass_protection_edit_types(
     )
     raw = api_client.get(f"{base_url}/raw/Q90016/1").json()
     assert raw["edit_type"] == "mass-protection-added"
-    assert raw["is_mass_edit_protected"] == True
+    assert raw["is_mass_edit_protected"]
 
     # Remove mass protection
     api_client.post(
@@ -748,7 +748,7 @@ def test_mass_protection_edit_types(
     )
     raw = api_client.get(f"{base_url}/raw/Q90016/2").json()
     assert raw["edit_type"] == "mass-protection-removed"
-    assert raw["is_mass_edit_protected"] == False
+    assert not raw["is_mass_edit_protected"]
 
     logger.info("✓ Mass-protection edit types work")
 

@@ -1,12 +1,13 @@
-from pathlib import Path
-import re
-import pytest
 import logging
+import re
+from pathlib import Path
+
+import pytest
+
+from models.rdf_builder.ontology.datatypes import property_shape
+from models.rdf_builder.property_registry.registry import PropertyRegistry
 
 logger = logging.getLogger(__name__)
-
-from models.rdf_builder.property_registry.registry import PropertyRegistry
-from models.rdf_builder.ontology.datatypes import property_shape
 
 # Resolve project root:
 # tests/rdf/conftest.py → tests/rdf → tests → project root

@@ -553,9 +553,6 @@ def test_entity_property_hashes(api_client: requests.Session, base_url: str) -> 
     assert "property_hashes" in result
     assert len(result["property_hashes"]) == 2
 
-    raw = api_client.get(f"{base_url}/raw/Q80009/1").json()
-    p31_hashes_in_raw = [h for h in raw["statements"]]
-
     assert len(result["property_hashes"]) == 2
 
     logger.info("✓ Property hashes works")

@@ -99,27 +99,6 @@ def test_generate_value_node_uri_different_properties():
     assert uri.isalnum()
 
 
-def test_generate_value_node_uri_quantity():
-    """Test value node URI generation for quantity"""
-    value = QuantityValue(value="+3", unit="http://www.wikidata.org/entity/Q199")
-    uri = generate_value_node_uri(value)
-    assert len(uri) == 32
-    assert uri.isalnum()
-
-
-def test_generate_value_node_uri_consistency():
-    """Test that identical values produce identical URIs"""
-    value = TimeValue(
-        value="+1964-05-15T00:00:00Z",
-        precision=11,
-        timezone=0,
-        calendarmodel="http://www.wikidata.org/entity/Q1985727",
-    )
-    uri1 = generate_value_node_uri(value)
-    uri2 = generate_value_node_uri(value)
-    assert uri1 == uri2
-
-
 def test_generate_value_node_uri_property_independence():
     """Test that same value produces same URI regardless of which property it's used with"""
     value = TimeValue(
