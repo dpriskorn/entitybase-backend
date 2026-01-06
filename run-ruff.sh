@@ -1,4 +1,4 @@
 #!/bin/bash
 source .venv/bin/activate
-ruff check --fix src/ tests/ scripts/
+ruff check --fix --exit-non-zero-on-fix src/ tests/ scripts/
 ruff format src/ tests/ scripts/
