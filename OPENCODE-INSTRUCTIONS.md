@@ -25,9 +25,11 @@
 - no passing tuples or dicts between methods, use pydantic basemodels
 - avoid websearch, everything we need is in the repo already just ask where to find what you need
 - we don't expose internal_id outside the VitessClient class
+- no backward compability
 
 # Current task
 fix ruff, vulture and mypy warnings
 
 # todo
+move entity endpoints out of main.py
 fix failing tests
