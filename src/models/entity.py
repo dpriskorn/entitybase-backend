@@ -12,6 +12,8 @@ class EditType(str, Enum):
     LOCK_REMOVED = "lock-removed"
     SEMI_PROTECTION_ADDED = "semi-protection-added"
     SEMI_PROTECTION_REMOVED = "semi-protection-removed"
+    MASS_PROTECTION_ADDED = "mass-protection-added"
+    MASS_PROTECTION_REMOVED = "mass-protection-removed"
     ARCHIVE_ADDED = "archive-added"
     ARCHIVE_REMOVED = "archive-removed"
 
@@ -128,6 +130,7 @@ class EntityDeleteRequest(BaseModel):
 class EntityDeleteResponse(BaseModel):
     id: str
     revision_id: int
+    is_deleted: bool = Field(..., description="Whether the entity is deleted")
     deletion_type: str = Field(..., description="Type of deletion performed")  # noqa: F841
     deletion_status: str = Field(
         ..., description="Status of deletion (soft_deleted/hard_deleted)"

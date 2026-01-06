@@ -1,6 +1,8 @@
 from datetime import timezone
 from typing import Any, Dict
 import boto3
+import logging
+import traceback
 from botocore.client import Config
 from botocore.exceptions import ClientError
 from pydantic import BaseModel, Field
@@ -133,12 +135,83 @@ class S3Client(BaseModel):
         """
         import json
 
+        logger = logging.getLogger(__name__)
+
         key = f"statements/{content_hash}.json"
-        self.client.put_object(
-            Bucket=self.config.bucket,
-            Key=key,
-            Body=json.dumps(statement_data),
-        )
+        statement_json = json.dumps(statement_data)
+
+        # Enhanced pre-write validation logging
+        logger.debug(f"S3 write_statement: bucket={self.config.bucket}, key={key}")
+        logger.debug(f"S3 client endpoint: {self.client._endpoint.host}")
+        logger.debug(f"Statement data size: {len(statement_json)} bytes")
+        logger.debug(f"Full statement data: {json.dumps(statement_data, indent=2)}")
+
+        # Verify bucket exists before write
+        try:
+            self.client.head_bucket(Bucket=self.config.bucket)
+            logger.debug(f"S3 bucket {self.config.bucket} exists and is accessible")
+        except Exception as bucket_error:
+            logger.error(
+                f"S3 bucket {self.config.bucket} not accessible: {bucket_error}"
+            )
+            raise
+
+        try:
+            response = self.client.put_object(
+                Bucket=self.config.bucket,
+                Key=key,
+                Body=statement_json,
+            )
+
+            # Enhanced response logging with S3 metadata
+            logger.debug(
+                f"S3 write_statement successful: bucket={self.config.bucket}, key={key}, "
+                f"ETag={response.get('ETag')}, RequestId={response.get('ResponseMetadata', {}).get('RequestId')}"
+            )
+
+            # High Priority: Immediate verification by reading back written object
+            try:
+                verify_response = self.client.get_object(
+                    Bucket=self.config.bucket, Key=key
+                )
+                verify_data = json.loads(verify_response["Body"].read().decode("utf-8"))
+                logger.debug(
+                    f"S3 write verification successful: data matches written content for {content_hash}"
+                )
+
+                # Verify the content hash matches what we wrote
+                if verify_data.get("content_hash") == content_hash:
+                    logger.debug(
+                        f"S3 write verification successful: content_hash matches for {content_hash}"
+                    )
+                else:
+                    logger.error(
+                        f"S3 write verification failed: content_hash mismatch for {content_hash} - got {verify_data.get('content_hash')}"
+                    )
+
+            except Exception as verify_error:
+                logger.error(
+                    f"S3 write verification failed for {content_hash}: {verify_error}"
+                )
+                raise
+
+        except Exception as e:
+            logger.error(
+                "S3 write_statement failed",
+                extra={
+                    "content_hash": content_hash,
+                    "bucket": self.config.bucket,
+                    "key": key,
+                    "error_type": type(e).__name__,
+                    "error_message": str(e),
+                    "statement_data_size": len(statement_json),
+                    "s3_endpoint": self.client._endpoint.host,
+                    "stack_trace": traceback.format_exc()
+                    if hasattr(e, "__traceback__")
+                    else None,
+                },
+            )
+            raise
 
     def read_statement(self, content_hash: int) -> Dict[str, Any]:
         """Read statement snapshot from S3
@@ -150,15 +223,48 @@ class S3Client(BaseModel):
             ClientError if statement not found
         """
         import json
+        from botocore.exceptions import ClientError
+
+        logger = logging.getLogger(__name__)
 
         key = f"statements/{content_hash}.json"
-        response = self.client.get_object(Bucket=self.config.bucket, Key=key)
+        logger.debug(f"S3 read_statement: bucket={self.config.bucket}, key={key}")
 
-        parsed_data: Dict[str, Any] = json.loads(
-            response["Body"].read().decode("utf-8")
-        )
-
-        return parsed_data
+        try:
+            response = self.client.get_object(Bucket=self.config.bucket, Key=key)
+            parsed_data: Dict[str, Any] = json.loads(
+                response["Body"].read().decode("utf-8")
+            )
+            logger.debug(
+                f"S3 read_statement successful: bucket={self.config.bucket}, key={key}"
+            )
+            return parsed_data
+        except ClientError as e:
+            error_code = e.response["Error"].get("Code", "Unknown")
+            logger.error(
+                "S3 ClientError in read_statement",
+                extra={
+                    "content_hash": content_hash,
+                    "bucket": self.config.bucket,
+                    "key": key,
+                    "error_code": error_code,
+                    "error_message": str(e),
+                    "is_not_found": error_code in ["NoSuchKey", "404"],
+                },
+            )
+            raise
+        except Exception as e:
+            logger.error(
+                "S3 read_statement failed with non-ClientError",
+                extra={
+                    "content_hash": content_hash,
+                    "bucket": self.config.bucket,
+                    "key": key,
+                    "error_type": type(e).__name__,
+                    "error_message": str(e),
+                },
+            )
+            raise
 
     def write_entity_revision(
         self,

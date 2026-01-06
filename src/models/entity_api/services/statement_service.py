@@ -126,9 +126,71 @@ def deduplicate_and_store_statements(
                     "content_hash": statement_hash,
                     "created_at": datetime.now(timezone.utc).isoformat() + "Z",
                 }
-                logger.debug(f"Writing new statement {statement_hash} to S3")
-                s3_client.write_statement(statement_hash, statement_with_hash)
-                logger.debug(f"Successfully wrote statement {statement_hash} to S3")
+                s3_key = f"statements/{statement_hash}.json"
+
+                # High Priority: Enhanced Statement Data Logging
+                logger.debug(
+                    f"Writing new statement {statement_hash} to S3 at key: {s3_key}"
+                )
+                logger.debug(
+                    f"Full statement data: {json.dumps(statement_data, indent=2)}"
+                )
+                logger.debug(
+                    f"Enhanced statement data with hash: {json.dumps(statement_with_hash, indent=2)}"
+                )
+                logger.debug(
+                    f"Statement data size: {len(json.dumps(statement_with_hash))} bytes"
+                )
+                logger.debug(f"S3 client type: {type(s3_client)}")
+                logger.debug(f"S3 client endpoint: {s3_client.client._endpoint.host}")
+
+                import time
+                import traceback
+
+                try:
+                    write_start_time = time.time()
+                    s3_client.write_statement(statement_hash, statement_with_hash)
+                    write_duration = time.time() - write_start_time
+
+                    logger.info(
+                        f"Successfully wrote statement {statement_hash} to S3 at key: {s3_key}",
+                        extra={
+                            "statement_hash": statement_hash,
+                            "s3_key": s3_key,
+                            "write_duration_seconds": write_duration,
+                            "statement_data_size": len(json.dumps(statement_with_hash)),
+                        },
+                    )
+
+                    # High Priority: Immediate verification by reading back
+                    try:
+                        s3_client.read_statement(statement_hash)
+                        logger.debug(
+                            f"Statement {statement_hash} verification successful: can read back from S3"
+                        )
+                    except Exception as verify_error:
+                        logger.error(
+                            f"Statement {statement_hash} verification failed: {verify_error}"
+                        )
+                        raise
+
+                except Exception as write_error:
+                    logger.error(
+                        f"Failed to write statement {statement_hash} to S3",
+                        extra={
+                            "statement_hash": statement_hash,
+                            "s3_key": s3_key,
+                            "error_type": type(write_error).__name__,
+                            "error_message": str(write_error),
+                            "statement_data": statement_data,
+                            "s3_bucket": s3_client.config.bucket,
+                            "s3_endpoint": s3_client.client._endpoint.host,
+                            "stack_trace": traceback.format_exc()
+                            if hasattr(write_error, "__traceback__")
+                            else None,
+                        },
+                    )
+                    raise
             else:
                 logger.debug(
                     f"Incrementing ref_count for existing statement {statement_hash}"
@@ -138,13 +200,24 @@ def deduplicate_and_store_statements(
                     f"Successfully incremented ref_count for statement {statement_hash}"
                 )
         except Exception as e:
-            logger.error(f"Failed to store statement {statement_hash}: {e}")
-            logger.error(f"Statement data: {statement_data}")
+            logger.error(
+                f"Statement storage failed for hash {statement_hash}",
+                extra={
+                    "statement_hash": statement_hash,
+                    "statement_index": idx + 1,
+                    "total_statements": len(hash_result.statements),
+                    "statement_data": statement_data,
+                    "error_type": type(e).__name__,
+                    "error_message": str(e),
+                    "stack_trace": str(e.__traceback__) if e.__traceback__ else None,
+                },
+            )
             raise HTTPException(
                 status_code=500,
                 detail=f"Failed to store statement {statement_hash}: {e}",
             )
 
-    logger.debug(
+    logger.info(
         f"Successfully stored all {len(hash_result.statements)} statements (new + existing)"
     )
+    logger.info(f"Final statement hashes: {hash_result.statements}")
