@@ -1,10 +1,14 @@
 import time
 import logging
 import os
+from pathlib import Path
 from typing import Generator
 
 import pytest
 import requests
+
+# Add TEST_DATA_DIR for test files that need it
+TEST_DATA_DIR = Path(__file__).parent.parent / "test_data"
 
 
 @pytest.fixture(scope="session", autouse=True)

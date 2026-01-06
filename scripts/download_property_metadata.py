@@ -142,7 +142,11 @@ def fetch_property_metadata(properties_csv: Path, output_dir: Path) -> None:
 
         except Exception as e:
             print(f"  ❌ Error in batch {batch_num}: {e}")
-            if "response" in locals() and hasattr(response, "text"):
+            if (
+                "response" in locals()
+                and response is not None
+                and hasattr(response, "text")
+            ):
                 print(f"  Response content: {response.text[:500]}")
             import traceback
 
@@ -158,7 +162,7 @@ def fetch_property_metadata(properties_csv: Path, output_dir: Path) -> None:
         print(f"   Path: {properties_csv}")
 
 
-def main():
+def main() -> None:
     """Main function"""
     # Paths
     project_root = Path(__file__).parent.parent

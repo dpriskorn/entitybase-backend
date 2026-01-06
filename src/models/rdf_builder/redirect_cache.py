@@ -2,6 +2,7 @@ import json
 import logging
 import time
 from pathlib import Path
+from typing import Any, List
 
 import requests
 
@@ -92,7 +93,8 @@ def load_entity_redirects(entity_id: str, redirects_dir: Path) -> list[str]:
     json_path = redirects_dir / f"{entity_id}.json"
 
     if json_path.exists():
-        data = json.loads(json_path.read_text(encoding="utf-8"))
-        return data.get("redirects", [])
+        data: Any = json.loads(json_path.read_text(encoding="utf-8"))
+        redirects: List[str] = data.get("redirects", [])
+        return redirects
 
     raise FileNotFoundError(f"Redirect data for {entity_id} not found at {json_path}")

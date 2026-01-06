@@ -13,7 +13,7 @@ session = requests.Session()
 session.headers.update(HEADERS)
 
 
-def random_qids(n, batch=50):
+def random_qids(n: int, batch: int = 50):
     qids = []
     while len(qids) < n:
         r = session.get(
@@ -32,7 +32,7 @@ def random_qids(n, batch=50):
     return qids
 
 
-def count_revisions(qid):
+def count_revisions(qid: str):
     count = 0
     params = {
         "action": "query",

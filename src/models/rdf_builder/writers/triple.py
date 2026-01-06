@@ -1,5 +1,5 @@
 import logging
-from typing import TextIO
+from typing import Any, TextIO
 
 from models.rdf_builder.models.rdf_statement import RDFStatement
 from models.rdf_builder.property_registry.models import PropertyShape
@@ -16,26 +16,26 @@ class TripleWriters:
     uri = URIGenerator()
 
     @staticmethod
-    def _needs_value_node(value) -> bool:
+    def _needs_value_node(value: Any) -> bool:
         """Check if value requires structured value node"""
         if hasattr(value, "kind"):
             return value.kind in ("time", "quantity", "globe")
         return False
 
     @staticmethod
-    def write_header(output: TextIO):
+    def write_header(output: TextIO) -> None:
         from models.rdf_builder.writers.prefixes import TURTLE_PREFIXES
 
         output.write(TURTLE_PREFIXES)
 
     @staticmethod
-    def write_entity_type(output: TextIO, entity_id: str):
+    def write_entity_type(output: TextIO, entity_id: str) -> None:
         output.write(
             f"{TripleWriters.uri.entity_prefixed(entity_id)} a wikibase:Item .\n"
         )
 
     @staticmethod
-    def write_dataset_triples(output: TextIO, entity_id: str):
+    def write_dataset_triples(output: TextIO, entity_id: str) -> None:
         data_uri = TripleWriters.uri.data_prefixed(entity_id)
         entity_uri = TripleWriters.uri.entity_prefixed(entity_id)
 
@@ -47,22 +47,24 @@ class TripleWriters:
         )
 
     @staticmethod
-    def write_label(output: TextIO, entity_id: str, lang: str, label: str):
+    def write_label(output: TextIO, entity_id: str, lang: str, label: str) -> None:
         entity_uri = TripleWriters.uri.entity_prefixed(entity_id)
         output.write(f'{entity_uri} rdfs:label "{label}"@{lang} .\n')
 
     @staticmethod
-    def write_description(output: TextIO, entity_id: str, lang: str, description: str):
+    def write_description(
+        output: TextIO, entity_id: str, lang: str, description: str
+    ) -> None:
         entity_uri = TripleWriters.uri.entity_prefixed(entity_id)
         output.write(f'{entity_uri} schema:description "{description}"@{lang} .\n')
 
     @staticmethod
-    def write_alias(output: TextIO, entity_id: str, lang: str, alias: str):
+    def write_alias(output: TextIO, entity_id: str, lang: str, alias: str) -> None:
         entity_uri = TripleWriters.uri.entity_prefixed(entity_id)
         output.write(f'{entity_uri} skos:altLabel "{alias}"@{lang} .\n')
 
     @staticmethod
-    def write_sitelink(output: TextIO, entity_id: str, sitelink_data: dict):
+    def write_sitelink(output: TextIO, entity_id: str, sitelink_data: dict) -> None:
         entity_uri = TripleWriters.uri.entity_prefixed(entity_id)
         site_key = sitelink_data.get("site", "")
         title = sitelink_data.get("title", "")
@@ -70,7 +72,7 @@ class TripleWriters:
         output.write(f"{entity_uri} schema:sameAs <{wiki_url}> .\n")
 
     @staticmethod
-    def write_redirect(output: TextIO, redirect_id: str, target_id: str):
+    def write_redirect(output: TextIO, redirect_id: str, target_id: str) -> None:
         """Write redirect triple: wd:Qredirect owl:sameAs wd:Qtarget"""
         redirect_uri = TripleWriters.uri.entity_prefixed(redirect_id)
         target_uri = TripleWriters.uri.entity_prefixed(target_id)
@@ -79,7 +81,7 @@ class TripleWriters:
     @staticmethod
     def write_direct_claim(
         output: TextIO, entity_id: str, property_id: str, value: str
-    ):
+    ) -> None:
         """Write direct claim triple: wd:Qxxx wdt:Pxxx value"""
         entity_uri = TripleWriters.uri.entity_prefixed(entity_id)
         output.write(f"{entity_uri} wdt:{property_id} {value} .\n")
@@ -90,9 +92,9 @@ class TripleWriters:
         entity_id: str,
         rdf_statement: RDFStatement,
         shape: PropertyShape,
-        property_registry,
+        property_registry: Any,
         dedupe: HashDedupeBag | None = None,
-    ):
+    ) -> None:
         from models.rdf_builder.models.rdf_reference import RDFReference
 
         entity_uri = TripleWriters.uri.entity_prefixed(entity_id)

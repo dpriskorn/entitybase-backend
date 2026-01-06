@@ -13,7 +13,7 @@ session = requests.Session()
 session.headers.update(HEADERS)
 
 
-def random_qids(n):
+def random_qids(n: int):
     r = session.get(
         API,
         params={

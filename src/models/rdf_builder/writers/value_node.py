@@ -1,4 +1,4 @@
-from typing import TextIO
+from typing import Any, TextIO
 import re
 
 from models.rdf_builder.uri_generator import URIGenerator
@@ -33,8 +33,11 @@ class ValueNodeWriter:
 
     @staticmethod
     def write_time_value_node(
-        output: TextIO, value_id: str, time_value, dedupe: HashDedupeBag | None = None
-    ):
+        output: TextIO,
+        value_id: str,
+        time_value: Any,
+        dedupe: HashDedupeBag | None = None,
+    ) -> None:
         """Write time value node block if not already written"""
         if dedupe is not None:
             if dedupe.already_seen(value_id, "wdv"):
@@ -57,9 +60,9 @@ class ValueNodeWriter:
     def write_quantity_value_node(
         output: TextIO,
         value_id: str,
-        quantity_value,
+        quantity_value: Any,
         dedupe: HashDedupeBag | None = None,
-    ):
+    ) -> None:
         """Write quantity value node block if not already written"""
         if dedupe is not None:
             if dedupe.already_seen(value_id, "wdv"):
@@ -88,8 +91,11 @@ class ValueNodeWriter:
 
     @staticmethod
     def write_globe_value_node(
-        output: TextIO, value_id: str, globe_value, dedupe: HashDedupeBag | None = None
-    ):
+        output: TextIO,
+        value_id: str,
+        globe_value: Any,
+        dedupe: HashDedupeBag | None = None,
+    ) -> None:
         """Write globe coordinate value node block if not already written"""
         if dedupe is not None:
             if dedupe.already_seen(value_id, "wdv"):

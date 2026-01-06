@@ -1,7 +1,6 @@
 import logging
-from pydantic import ConfigDict
-from pydantic_settings import BaseSettings
-from typing import TYPE_CHECKING
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Any, TYPE_CHECKING
 
 logger = logging.getLogger(__name__)
 
@@ -10,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class Settings(BaseSettings):
-    model_config = ConfigDict(env_file=".env")
+    model_config = SettingsConfigDict(env_file=".env")
 
     s3_endpoint: str = "http://minio:9000"
     s3_access_key: str = "fakekey"
@@ -27,7 +26,7 @@ class Settings(BaseSettings):
     test_log_http_requests: bool = False
     test_show_progress: bool = True
 
-    def to_s3_config(self):
+    def to_s3_config(self) -> Any:
         from models.infrastructure.s3_client import S3Config
 
         return S3Config(
@@ -37,7 +36,7 @@ class Settings(BaseSettings):
             bucket=self.s3_bucket,
         )
 
-    def to_vitess_config(self):
+    def to_vitess_config(self) -> Any:
         from models.infrastructure.vitess_client import VitessConfig
 
         return VitessConfig(

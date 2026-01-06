@@ -68,7 +68,7 @@ def test_generate_value_node_uri_time():
 def test_generate_value_node_uri_quantity():
     """Test value node URI generation for quantity"""
     value = QuantityValue(value="+3", unit="http://www.wikidata.org/entity/Q199")
-    uri = generate_value_node_uri(value, "P1971")
+    uri = generate_value_node_uri(value)
     assert len(uri) == 32
     assert uri.isalnum()
 
@@ -81,8 +81,8 @@ def test_generate_value_node_uri_consistency():
         timezone=0,
         calendarmodel="http://www.wikidata.org/entity/Q1985727",
     )
-    uri1 = generate_value_node_uri(value, "P569")
-    uri2 = generate_value_node_uri(value, "P569")
+    uri1 = generate_value_node_uri(value)
+    uri2 = generate_value_node_uri(value)
     assert uri1 == uri2
 
 

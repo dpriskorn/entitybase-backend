@@ -109,7 +109,7 @@ class HashDedupeBag:
             "collision_rate": collision_rate,
         }
 
-    def clear(self):
+    def clear(self) -> None:
         """Clears deduplication cache."""
         self.bag.clear()
         self._hits = 0

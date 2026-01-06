@@ -1,5 +1,7 @@
 from typing import Any
 
+from models.internal_representation.values.base import Value
+
 from .values.entity_value_parser import parse_entity_value
 from .values.string_value_parser import parse_string_value
 from .values.time_value_parser import parse_time_value
@@ -38,7 +40,7 @@ PARSERS = {
 }
 
 
-def parse_value(snak_json: dict[str, Any]):
+def parse_value(snak_json: dict[str, Any]) -> Value:
     snaktype = snak_json.get(JsonField.SNAKTYPE.value)
 
     if snaktype == "novalue":

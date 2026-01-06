@@ -14,12 +14,12 @@ class VitessClient(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    def __init__(self, config: VitessConfig, **kwargs):
+    def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
         self.connection = None
         self._create_tables()
 
-    def connect(self):
+    def connect(self) -> Any:
         if self.connection:
             try:
                 self.connection.ping(reconnect=True)
@@ -53,7 +53,7 @@ class VitessClient(BaseModel):
         except Exception:
             return False
 
-    def _create_tables(self):
+    def _create_tables(self) -> None:
         conn = self.connect()
         cursor = conn.cursor()
 
@@ -425,7 +425,7 @@ class VitessClient(BaseModel):
                 expected_head,
             ),
         )
-        affected_rows = cursor.rowcount
+        affected_rows = int(cursor.rowcount)
         cursor.close()
         return affected_rows > 0
 

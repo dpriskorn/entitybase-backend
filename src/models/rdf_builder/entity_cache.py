@@ -8,13 +8,13 @@ import requests
 logger = logging.getLogger(__name__)
 
 
-def _fetch_entity_metadata_batch(entity_ids: list[str]) -> dict[str, dict]:
+def _fetch_entity_metadata_batch(entity_ids: list[str]) -> dict[str, dict | None]:
     """Fetch labels and descriptions for multiple entities via SPARQL."""
     if not entity_ids:
         return {}
 
     batch_size = 100
-    results = {}
+    results: dict[str, dict | None] = {}
 
     for i in range(0, len(entity_ids), batch_size):
         batch = entity_ids[i : i + batch_size]
@@ -105,6 +105,7 @@ def load_entity_metadata(entity_id: str, metadata_dir: Path) -> dict:
     json_path = metadata_dir / f"{entity_id}.json"
 
     if json_path.exists():
-        return json.loads(json_path.read_text(encoding="utf-8"))
+        data: dict = json.loads(json_path.read_text(encoding="utf-8"))
+        return data
 
     raise FileNotFoundError(f"Entity {entity_id} not found at {json_path}")

@@ -19,7 +19,7 @@ class S3Client(BaseModel):
     class Config:
         arbitrary_types_allowed = True
 
-    def __init__(self, config: S3Config, **kwargs):
+    def __init__(self, config: S3Config, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
         self.client = boto3.client(
             "s3",
@@ -32,7 +32,7 @@ class S3Client(BaseModel):
 
         self._ensure_bucket_exists()
 
-    def _ensure_bucket_exists(self):
+    def _ensure_bucket_exists(self) -> None:
         try:
             self.client.head_bucket(Bucket=self.config.bucket)
         except ClientError as e:
@@ -104,7 +104,9 @@ class S3Client(BaseModel):
         key = f"{entity_id}/r{revision_id}.json"
         response = self.client.get_object(Bucket=self.config.bucket, Key=key)
 
-        parsed_data = json.loads(response["Body"].read().decode("utf-8"))
+        parsed_data: Dict[str, Any] = json.loads(
+            response["Body"].read().decode("utf-8")
+        )
 
         return parsed_data
 
@@ -152,7 +154,9 @@ class S3Client(BaseModel):
         key = f"statements/{content_hash}.json"
         response = self.client.get_object(Bucket=self.config.bucket, Key=key)
 
-        parsed_data = json.loads(response["Body"].read().decode("utf-8"))
+        parsed_data: Dict[str, Any] = json.loads(
+            response["Body"].read().decode("utf-8")
+        )
 
         return parsed_data
 

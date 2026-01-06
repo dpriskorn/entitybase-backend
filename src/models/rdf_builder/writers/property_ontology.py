@@ -7,7 +7,7 @@ from models.config.settings import settings
 
 class PropertyOntologyWriter:
     @staticmethod
-    def write_property_metadata(output: TextIO, shape: PropertyShape):
+    def write_property_metadata(output: TextIO, shape: PropertyShape) -> None:
         """Write property metadata block with labels, descriptions, predicate links"""
         pid = shape.pid
         wd = f"wd:{pid}"
@@ -74,7 +74,7 @@ class PropertyOntologyWriter:
         }.get(datatype, "http://wikiba.se/ontology#String")
 
     @staticmethod
-    def write_property(output: TextIO, shape: PropertyShape):
+    def write_property(output: TextIO, shape: PropertyShape) -> None:
         """Write property ontology with all predicate declarations"""
         pid = shape.pid
         output.write(f"p:{pid} a owl:ObjectProperty .\n")
@@ -108,7 +108,7 @@ class PropertyOntologyWriter:
         return hashlib.md5(hash_input.encode()).hexdigest()
 
     @staticmethod
-    def write_novalue_class(output: TextIO, property_id: str):
+    def write_novalue_class(output: TextIO, property_id: str) -> None:
         """Write no-value class with OWL complement restriction"""
         blank_node_id = PropertyOntologyWriter._generate_blank_node_id(property_id)
         output.write(f"wdno:{property_id} a owl:Class ;\n")

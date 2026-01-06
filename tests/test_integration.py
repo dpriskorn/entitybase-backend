@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Any, Dict
 
 import requests
 
@@ -141,7 +142,8 @@ def test_get_entity_history(api_client: requests.Session, base_url: str) -> None
     }
 
     api_client.post(f"{base_url}/entity", json=entity_data)
-    entity_data["labels"]["en"]["value"] = "Updated Test Entity"
+    entity_labels: Dict[str, Any] = entity_data["labels"]
+    entity_labels["en"]["value"] = "Updated Test Entity"
     api_client.post(f"{base_url}/entity", json=entity_data)
 
     # Get history (ordered by created_at DESC)
@@ -171,7 +173,8 @@ def test_get_specific_revision(api_client: requests.Session, base_url: str) -> N
     api_client.post(f"{base_url}/entity", json=entity_data)
 
     # Create second revision
-    entity_data["labels"]["en"]["value"] = "Updated"
+    entity_labels2: Dict[str, Any] = entity_data["labels"]
+    entity_labels2["en"]["value"] = "Updated"
     api_client.post(f"{base_url}/entity", json=entity_data)
 
     # Get first revision

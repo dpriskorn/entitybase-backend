@@ -1,7 +1,7 @@
 import logging
 from io import StringIO
 from pathlib import Path
-from typing import TextIO
+from typing import Any, TextIO
 
 from models.internal_representation.entity import Entity
 from models.rdf_builder.models.rdf_statement import RDFStatement
@@ -25,9 +25,9 @@ class EntityConverter:
         property_registry: PropertyRegistry,
         entity_metadata_dir: Path | None = None,
         redirects_dir: Path | None = None,
-        vitess_client=None,
+        vitess_client: Any = None,
         enable_deduplication: bool = True,
-    ):
+    ) -> None:
         self.properties = property_registry
         self.writers = TripleWriters()
         self.entity_metadata_dir = entity_metadata_dir
@@ -35,7 +35,7 @@ class EntityConverter:
         self.vitess_client = vitess_client
         self.dedupe = HashDedupeBag() if enable_deduplication else None
 
-    def convert_to_turtle(self, entity: Entity, output: TextIO):
+    def convert_to_turtle(self, entity: Entity, output: TextIO) -> None:
         """Convert entity to Turtle format."""
         self.writers.write_header(output)
         self._write_entity_metadata(entity, output)
@@ -44,7 +44,7 @@ class EntityConverter:
         self._write_referenced_entity_metadata(entity, output)
         self._write_property_metadata(entity, output)
 
-    def _write_entity_metadata(self, entity: Entity, output: TextIO):
+    def _write_entity_metadata(self, entity: Entity, output: TextIO) -> None:
         """Write entity type, labels, descriptions, aliases, sitelinks."""
         self.writers.write_entity_type(output, entity.id)
         self.writers.write_dataset_triples(output, entity.id)
@@ -63,13 +63,15 @@ class EntityConverter:
             for site_key, sitelink_data in entity.sitelinks.items():
                 self.writers.write_sitelink(output, entity.id, sitelink_data)
 
-    def _write_statements(self, entity: Entity, output: TextIO):
+    def _write_statements(self, entity: Entity, output: TextIO) -> None:
         """Write all statements."""
         for stmt in entity.statements:
             rdf_stmt = RDFStatement(stmt)
             self._write_statement(entity.id, rdf_stmt, output)
 
-    def _write_statement(self, entity_id: str, rdf_stmt: RDFStatement, output: TextIO):
+    def _write_statement(
+        self, entity_id: str, rdf_stmt: RDFStatement, output: TextIO
+    ) -> None:
         """Write single statement with references."""
         shape = self.properties.shape(rdf_stmt.property_id)
         logger.debug(f"Writing statement for {rdf_stmt.property_id}, shape: {shape}")
@@ -77,7 +79,7 @@ class EntityConverter:
             output, entity_id, rdf_stmt, shape, self.properties, self.dedupe
         )
 
-    def _write_property_metadata(self, entity: Entity, output: TextIO):
+    def _write_property_metadata(self, entity: Entity, output: TextIO) -> None:
         """Write property metadata blocks for properties used in entity."""
         property_ids = set()
 
@@ -128,7 +130,7 @@ class EntityConverter:
         entity_json = load_entity_metadata(entity_id, self.entity_metadata_dir)
         return parse_entity(entity_json)
 
-    def _write_referenced_entity_metadata(self, entity: Entity, output: TextIO):
+    def _write_referenced_entity_metadata(self, entity: Entity, output: TextIO) -> None:
         """Write metadata blocks for referenced entities."""
         if not self.entity_metadata_dir:
             return
@@ -178,7 +180,7 @@ class EntityConverter:
 
         return list(set(redirects))
 
-    def _write_redirects(self, entity: Entity, output: TextIO):
+    def _write_redirects(self, entity: Entity, output: TextIO) -> None:
         """Write redirect triples for entity."""
 
         redirects = self._fetch_redirects(entity.id)

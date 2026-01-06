@@ -62,7 +62,7 @@ def download_entity(entity_id: str) -> None:
     print(f"\n✅ Downloaded both {entity_id}.json and {entity_id}.ttl")
 
 
-def main():
+def main() -> None:
     if len(sys.argv) < 2:
         print("Usage: python download_wikidata_entity.py <entity_id> [entity_id2] ...")
         print("Example: python download_wikidata_entity.py Q42")

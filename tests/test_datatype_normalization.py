@@ -9,7 +9,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from models.internal_representation.datatypes import Datatype
 
 
-def test_camelcase_to_kebab_normalization():
+def test_camelcase_to_kebab_normalization() -> None:
     """Test CamelCase to kebab-case normalization"""
 
     # Test Wikibase prefixes
