@@ -9,6 +9,7 @@ from rapidhash import rapidhash
 from models.entity import StatementHashResult
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
+from models.s3_models import StoredStatement
 
 logger = logging.getLogger(__name__)
 
@@ -121,11 +122,11 @@ def deduplicate_and_store_statements(
             logger.debug(f"Statement {statement_hash} is_new: {is_new}")
 
             if is_new:
-                statement_with_hash = {
-                    **statement_data,
-                    "content_hash": statement_hash,
-                    "created_at": datetime.now(timezone.utc).isoformat() + "Z",
-                }
+                statement_with_hash = StoredStatement(
+                    content_hash=statement_hash,
+                    statement=statement_data,
+                    created_at=datetime.now(timezone.utc).isoformat() + "Z",
+                )
                 s3_key = f"statements/{statement_hash}.json"
 
                 # High Priority: Enhanced Statement Data Logging
@@ -149,7 +150,9 @@ def deduplicate_and_store_statements(
 
                 try:
                     write_start_time = time.time()
-                    s3_client.write_statement(statement_hash, statement_with_hash)
+                    s3_client.write_statement(
+                        statement_hash, statement_with_hash.model_dump()
+                    )
                     write_duration = time.time() - write_start_time
 
                     logger.info(

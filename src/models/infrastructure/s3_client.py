@@ -225,6 +225,8 @@ class S3Client(BaseModel):
         import json
         from botocore.exceptions import ClientError
 
+        from models.s3_models import StoredStatement
+
         logger = logging.getLogger(__name__)
 
         key = f"statements/{content_hash}.json"
@@ -235,6 +237,9 @@ class S3Client(BaseModel):
             parsed_data: Dict[str, Any] = json.loads(
                 response["Body"].read().decode("utf-8")
             )
+
+            StoredStatement.model_validate(parsed_data)
+
             logger.debug(
                 f"S3 read_statement successful: bucket={self.config.bucket}, key={key}"
             )
