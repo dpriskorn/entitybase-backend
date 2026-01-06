@@ -125,7 +125,7 @@ services:
         condition: service_healthy
     environment:
       ENTITY_API_URL: http://entity-api:8000
-      TEST_LOG_LEVEL: "INFO"
+      TEST_LOG_LEVEL: "DEBUG"
       TEST_LOG_HTTP_REQUESTS: "true"
       TEST_SHOW_PROGRESS: "true"
     networks:

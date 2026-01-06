@@ -12,4 +12,4 @@ COPY ./test_data/ ./test_data/
 
  ENV PYTHONPATH=/app/src
 
-CMD ["pytest", "tests/", "-v", "--tb=short", "--log-cli-level=INFO"]
+CMD ["pytest", "tests/", "-v", "--tb=short", "--log-cli-level=DEBUG"]

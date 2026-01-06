@@ -45,6 +45,7 @@ def test_statement_creation_and_storage(
     assert result["revision_id"] == 1
 
     raw = api_client.get(f"{base_url}/raw/Q80001/1").json()
+    logger.debug(raw)
     assert "statements" in raw, "Entity revision should have statements array"
     assert len(raw["statements"]) == 1, "Should have 1 statement hash"
 
@@ -94,7 +95,9 @@ def test_statement_deduplication(api_client: requests.Session, base_url: str) ->
     api_client.post(f"{base_url}/entity", json=entity2_data)
 
     raw1 = api_client.get(f"{base_url}/raw/Q80002/1").json()
+    logger.debug(raw1)
     raw2 = api_client.get(f"{base_url}/raw/Q80003/1").json()
+    logger.debug(raw2)
 
     hash1 = raw1["statements"][0]
     hash2 = raw2["statements"][0]
@@ -144,6 +147,7 @@ def test_get_single_statement(api_client: requests.Session, base_url: str) -> No
 
     api_client.post(f"{base_url}/entity", json=entity_data)
     raw = api_client.get(f"{base_url}/raw/Q80004/1").json()
+    logger.debug(raw)
     statement_hash = raw["statements"][0]
 
     response = api_client.get(f"{base_url}/statement/{statement_hash}")
@@ -226,6 +230,7 @@ def test_batch_statement_fetch(api_client: requests.Session, base_url: str) -> N
 
     api_client.post(f"{base_url}/entity", json=entity_data)
     raw = api_client.get(f"{base_url}/raw/Q80005/1").json()
+    logger.debug(raw)
     statement_hashes = raw["statements"]
 
     response = api_client.post(
@@ -281,6 +286,7 @@ def test_batch_fetch_with_missing_hashes(
 
     api_client.post(f"{base_url}/entity", json=entity_data)
     raw = api_client.get(f"{base_url}/raw/Q80006/1").json()
+    logger.debug(raw)
     real_hash = raw["statements"][0]
 
     fake_hashes = [1234567890123456789, 9876543210987654321]
@@ -382,6 +388,7 @@ def test_entity_properties_list(api_client: requests.Session, base_url: str) -> 
     assert response.status_code == 200
 
     result = response.json()
+    logger.debug(result)
     assert "properties" in result
     assert len(result["properties"]) == 3
     assert "P31" in result["properties"]
@@ -464,6 +471,7 @@ def test_entity_property_counts(api_client: requests.Session, base_url: str) -> 
     assert response.status_code == 200
 
     result = response.json()
+    logger.debug(result)
     assert "property_counts" in result
     assert result["property_counts"]["P31"] == 2
     assert result["property_counts"]["P279"] == 1
@@ -544,6 +552,7 @@ def test_entity_property_hashes(api_client: requests.Session, base_url: str) -> 
     assert response.status_code == 200
 
     result = response.json()
+    logger.debug(result)
     assert "property_hashes" in result
     assert len(result["property_hashes"]) == 2
 
@@ -592,6 +601,7 @@ def test_most_used_statements(api_client: requests.Session, base_url: str) -> No
     assert response.status_code == 200
 
     result = response.json()
+    logger.debug(result)
     assert "statements" in result
     assert len(result["statements"]) > 0
 
@@ -633,6 +643,7 @@ def test_hard_delete_decrements_ref_count(
 
     api_client.post(f"{base_url}/entity", json=entity_data)
     raw = api_client.get(f"{base_url}/raw/Q80020/1").json()
+    logger.debug(raw)
     statement_hash = raw["statements"][0]
 
     verify_response = api_client.get(f"{base_url}/statement/{statement_hash}")
@@ -726,6 +737,7 @@ def test_statement_with_qualifiers_and_references(
     assert response.status_code == 200
 
     raw = api_client.get(f"{base_url}/raw/Q80030/1").json()
+    logger.debug(raw)
     assert len(raw["statements"]) == 1
 
     statement_hash = raw["statements"][0]
@@ -791,6 +803,7 @@ def test_ref_count_increments_on_duplicate(
     api_client.post(f"{base_url}/entity", json=entity3_data)
 
     raw1 = api_client.get(f"{base_url}/raw/Q80040/1").json()
+    logger.debug(raw1)
     statement_hash = raw1["statements"][0]
 
     statement_response = api_client.get(f"{base_url}/statement/{statement_hash}")
@@ -857,6 +870,7 @@ def test_entity_revision_with_statements(
     api_client.post(f"{base_url}/entity", json=entity_data)
 
     raw = api_client.get(f"{base_url}/raw/Q80050/1").json()
+    logger.debug(raw)
     assert "statements" in raw
     assert "properties" in raw
     assert "property_counts" in raw

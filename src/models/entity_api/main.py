@@ -1,10 +1,13 @@
 import json
+import logging
 from collections.abc import AsyncIterator
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from rapidhash import rapidhash
+
+logger = logging.getLogger(__name__)
 
 from fastapi import FastAPI, HTTPException, Response
 from pydantic import BaseModel
@@ -119,6 +122,9 @@ def hash_entity_statements(
     if not claims:
         return StatementHashResult()
 
+    claims_count = sum(len(claim_list) for claim_list in claims.values())
+    logger.info(f"Hashing statements for entity with {len(claims)} properties, {claims_count} total statements")
+
     for property_id, claim_list in claims.items():
         if not claim_list:
             continue
@@ -142,6 +148,7 @@ def hash_entity_statements(
 
         property_counts[property_id] = count
 
+    logger.info(f"Generated {len(statements)} hashes, properties: {sorted(properties_set)}")
     return StatementHashResult(
         statements=statements,
         properties=sorted(properties_set),
@@ -167,6 +174,8 @@ def deduplicate_and_store_statements(
         vitess_client: Vitess client for statement_content operations
         s3_client: S3 client for statement storage
     """
+    logger.info(f"Deduplicating and storing {len(hash_result.statements)} statements")
+
     for statement_hash, statement_data in zip(
         hash_result.statements, hash_result.full_statements
     ):
@@ -186,6 +195,8 @@ def deduplicate_and_store_statements(
                 status_code=500,
                 detail=f"Failed to store statement {statement_hash}: {e}",
             )
+
+    logger.info(f"Successfully stored all {len(hash_result.statements)} statements (new + existing)")
 
 
 @app.get("/health")
