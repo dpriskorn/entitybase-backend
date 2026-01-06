@@ -7,7 +7,7 @@ from models.json_parser import parse_entity
 from parsers.conftest import TEST_DATA_JSON_DIR
 
 
-def test_parse_q42_comprehensive():
+def test_parse_q42_comprehensive() -> None:
     """Test comprehensive parsing of Q42.json (Douglas Adams entity)"""
     with open(TEST_DATA_JSON_DIR / "entities/Q42.json") as f:
         data = json.load(f)

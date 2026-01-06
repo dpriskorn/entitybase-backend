@@ -1,7 +1,7 @@
 from models.json_parser import parse_statement
 
 
-def test_parse_statement_basic():
+def test_parse_statement_basic() -> None:
     """Test parsing basic statement"""
     statement_json = {
         "mainsnak": {
@@ -30,7 +30,7 @@ def test_parse_statement_basic():
     assert len(statement.references) == 0
 
 
-def test_parse_statement_with_qualifiers():
+def test_parse_statement_with_qualifiers() -> None:
     """Test parsing statement with qualifiers"""
     statement_json = {
         "mainsnak": {
@@ -67,7 +67,7 @@ def test_parse_statement_with_qualifiers():
     assert statement.qualifiers[0].value.kind == "entity"
 
 
-def test_parse_statement_with_references():
+def test_parse_statement_with_references() -> None:
     """Test parsing statement with references"""
     statement_json = {
         "mainsnak": {
@@ -110,7 +110,7 @@ def test_parse_statement_with_references():
     assert len(statement.references[0].snaks) == 1
 
 
-def test_parse_statement_with_novalue_mainsnak():
+def test_parse_statement_with_novalue_mainsnak() -> None:
     """Test parsing statement with novalue mainsnak"""
     statement_json = {
         "mainsnak": {"snaktype": "novalue", "property": "P3"},
@@ -127,7 +127,7 @@ def test_parse_statement_with_novalue_mainsnak():
     assert statement.value is not None
 
 
-def test_parse_statement_with_somevalue_mainsnak():
+def test_parse_statement_with_somevalue_mainsnak() -> None:
     """Test parsing statement with somevalue mainsnak"""
     statement_json = {
         "mainsnak": {"snaktype": "somevalue", "property": "P5"},

@@ -13,7 +13,7 @@ from models.rdf_builder.ontology.datatypes import property_shape
 TEST_DATA_DIR = Path(__file__).parent.parent.parent / "test_data"
 
 
-def test_collect_referenced_entities():
+def test_collect_referenced_entities() -> None:
     """Test collecting entity IDs referenced in statements"""
     from models.internal_representation.values.entity_value import EntityValue
     from models.internal_representation.statements import Statement
@@ -66,7 +66,7 @@ def test_collect_referenced_entities():
     assert referenced == {"Q5", "Q183"}
 
 
-def test_write_referenced_entity_metadata():
+def test_write_referenced_entity_metadata() -> None:
     """Test writing metadata for referenced entities"""
     entity_metadata_dir = TEST_DATA_DIR / "json" / "entities"
 
@@ -107,7 +107,7 @@ def test_write_referenced_entity_metadata():
     assert 'schema:description "used with property P31"@en' in result
 
 
-def test_load_referenced_entity_missing_file():
+def test_load_referenced_entity_missing_file() -> None:
     """Test that missing referenced entity JSON raises FileNotFoundError"""
     entity_metadata_dir = TEST_DATA_DIR / "json" / "entities"
 
@@ -127,7 +127,7 @@ def test_load_referenced_entity_missing_file():
         assert "Q999999" in str(e)
 
 
-def test_converter_with_cache_path_generates_referenced_entity():
+def test_converter_with_cache_path_generates_referenced_entity() -> None:
     """Test that EntityConverter with entity_metadata_dir generates referenced entity metadata"""
     entity_metadata_dir = TEST_DATA_DIR / "json" / "entities"
 

@@ -101,7 +101,7 @@ def test_q17948861_roundtrip_comparison() -> None:
 
 
 @pytest.mark.skip("Disabled until missing features are implemented")
-def test_q17948861_full_roundtrip():
+def test_q17948861_full_roundtrip() -> None:
     """Test full roundtrip: JSON → TTL → normalize → compare to golden"""
     entity_id = "Q17948861"
 

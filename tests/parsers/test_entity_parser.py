@@ -5,7 +5,7 @@ from models.json_parser import parse_entity
 from parsers.conftest import TEST_DATA_JSON_DIR
 
 
-def test_parse_entity_basic():
+def test_parse_entity_basic() -> None:
     """Test parsing basic entity"""
     entity_json = {
         "id": "Q42",
@@ -26,7 +26,7 @@ def test_parse_entity_basic():
     assert entity.sitelinks is None
 
 
-def test_parse_q1_minimal():
+def test_parse_q1_minimal() -> None:
     """Test parsing minimal entity with only id and type"""
     with open(TEST_DATA_JSON_DIR / "entities/Q1.json") as f:
         entity_json = json.load(f)
@@ -42,7 +42,7 @@ def test_parse_q1_minimal():
     assert entity.sitelinks is not None  # Q1 now has sitelinks
 
 
-def test_parse_q42():
+def test_parse_q42() -> None:
     """Test parsing Douglas Adams entity from real test data - uses wrapper format"""
     with open(TEST_DATA_JSON_DIR / "entities/Q42.json") as f:
         data = json.load(f)
@@ -55,7 +55,7 @@ def test_parse_q42():
     assert len(entity.statements) > 0
 
 
-def test_parse_q42_detailed():
+def test_parse_q42_detailed() -> None:
     """Test parsing Q42 with detailed verification of content - uses wrapper format"""
     with open(TEST_DATA_JSON_DIR / "entities/Q42.json") as f:
         data = json.load(f)
@@ -82,7 +82,7 @@ def test_parse_q42_detailed():
     assert has_sitelinks
 
 
-def test_parse_p2():
+def test_parse_p2() -> None:
     """Test parsing P2.json"""
     p2_path = TEST_DATA_JSON_DIR / "entities/P2.json"
 
@@ -109,7 +109,7 @@ def test_parse_p2():
     assert entity.sitelinks is None
 
 
-def test_parse_q17948861():
+def test_parse_q17948861() -> None:
     """Test parsing entity with references from real test data - uses wrapper format"""
     with open(TEST_DATA_JSON_DIR / "entities/Q17948861.json") as f:
         data = json.load(f)
@@ -121,7 +121,7 @@ def test_parse_q17948861():
     assert len(entity.statements) > 0
 
 
-def test_parse_q3_sitelinks():
+def test_parse_q3_sitelinks() -> None:
     """Test parsing entity with sitelinks without badges"""
     with open(TEST_DATA_JSON_DIR / "entities/Q3.json") as f:
         entity_json = json.load(f)
@@ -138,7 +138,7 @@ def test_parse_q3_sitelinks():
     assert entity.sitelinks["ruwiki"]["title"] == "Сан Франциско"
 
 
-def test_parse_q5_sitelinks_with_badges():
+def test_parse_q5_sitelinks_with_badges() -> None:
     """Test parsing entity with sitelinks containing badges"""
     with open(TEST_DATA_JSON_DIR / "entities/Q5.json") as f:
         entity_json = json.load(f)
@@ -153,7 +153,7 @@ def test_parse_q5_sitelinks_with_badges():
     assert entity.sitelinks["ruwiki"]["badges"] == ["Q666", "Q42"]
 
 
-def test_parse_q4_complex_statements():
+def test_parse_q4_complex_statements() -> None:
     """Test parsing entity with complex statements including novalue, somevalue, and deprecated rank"""
     with open(TEST_DATA_JSON_DIR / "entities/Q4.json") as f:
         entity_json = json.load(f)
@@ -192,7 +192,7 @@ def test_parse_q4_complex_statements():
     assert p11_statements[0].value.kind == "external_id"
 
 
-def test_parse_q6_complex_qualifiers():
+def test_parse_q6_complex_qualifiers() -> None:
     """Test parsing entity with complex qualifiers including multiple qualifiers per property"""
     with open(TEST_DATA_JSON_DIR / "entities/Q6.json") as f:
         entity_json = json.load(f)
@@ -221,7 +221,7 @@ def test_parse_q6_complex_qualifiers():
     assert len(p9_qualifiers) == 2
 
 
-def test_parse_q10_simple():
+def test_parse_q10_simple() -> None:
     """Test parsing simple entity with single statement and preferred rank"""
     with open(TEST_DATA_JSON_DIR / "entities/Q10.json") as f:
         entity_json = json.load(f)
@@ -235,7 +235,7 @@ def test_parse_q10_simple():
     assert entity.statements[0].rank.value == "preferred"
 
 
-def test_parse_q120248304():
+def test_parse_q120248304() -> None:
     """Test parsing another real Wikidata entity"""
     with open(TEST_DATA_JSON_DIR / "entities/Q120248304.json") as f:
         data = json.load(f)
@@ -247,7 +247,7 @@ def test_parse_q120248304():
     assert len(entity.statements) > 0
 
 
-def test_parse_entity_with_sitelinks():
+def test_parse_entity_with_sitelinks() -> None:
     """Test parsing entity with sitelinks"""
     entity_json = {
         "id": "Q3",

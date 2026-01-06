@@ -11,6 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="session", autouse=True)
-def skip_api_waiter():
+def skip_api_waiter() -> None:
     """Override the API wait fixture from parent conftest"""
     pass

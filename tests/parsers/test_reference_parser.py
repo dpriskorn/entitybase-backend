@@ -1,7 +1,7 @@
 from models.json_parser import parse_reference
 
 
-def test_parse_reference_with_novalue():
+def test_parse_reference_with_novalue() -> None:
     """Test parsing reference with novalue snak"""
     reference_json = {"snaks": {"P2": [{"snaktype": "novalue", "property": "P2"}]}}
 
@@ -11,7 +11,7 @@ def test_parse_reference_with_novalue():
     assert reference.snaks[0].value.kind == "novalue"
 
 
-def test_parse_reference_with_somevalue():
+def test_parse_reference_with_somevalue() -> None:
     """Test parsing reference with somevalue snak"""
     reference_json = {"snaks": {"P3": [{"snaktype": "somevalue", "property": "P3"}]}}
 

@@ -3,7 +3,7 @@ import pytest
 from models.json_parser import parse_value
 
 
-def test_parse_entity_value():
+def test_parse_entity_value() -> None:
     """Test parsing entity value (Q42, P31)"""
     snak_json = {
         "snaktype": "value",
@@ -21,7 +21,7 @@ def test_parse_entity_value():
     assert value.datatype_uri == "http://wikiba.se/ontology#WikibaseItem"
 
 
-def test_parse_string_value():
+def test_parse_string_value() -> None:
     """Test parsing string value"""
     snak_json = {
         "snaktype": "value",
@@ -36,7 +36,7 @@ def test_parse_string_value():
     assert value.datatype_uri == "http://wikiba.se/ontology#String"
 
 
-def test_parse_time_value():
+def test_parse_time_value() -> None:
     """Test parsing time value"""
     snak_json = {
         "snaktype": "value",
@@ -62,7 +62,7 @@ def test_parse_time_value():
     assert value.precision == 11
 
 
-def test_parse_quantity_value():
+def test_parse_quantity_value() -> None:
     """Test parsing quantity value"""
     snak_json = {
         "snaktype": "value",
@@ -87,7 +87,7 @@ def test_parse_quantity_value():
     assert value.lower_bound == "+33.7"
 
 
-def test_parse_globe_value():
+def test_parse_globe_value() -> None:
     """Test parsing globe coordinate value"""
     snak_json = {
         "snaktype": "value",
@@ -111,7 +111,7 @@ def test_parse_globe_value():
     assert value.longitude == 12.125
 
 
-def test_parse_monolingual_value():
+def test_parse_monolingual_value() -> None:
     """Test parsing monolingual text value"""
     snak_json = {
         "snaktype": "value",
@@ -129,7 +129,7 @@ def test_parse_monolingual_value():
     assert value.text == "Douglas Adams"
 
 
-def test_parse_external_id_value():
+def test_parse_external_id_value() -> None:
     """Test parsing external ID value"""
     snak_json = {
         "snaktype": "value",
@@ -143,7 +143,7 @@ def test_parse_external_id_value():
     assert value.value == "12345"
 
 
-def test_parse_commons_media_value():
+def test_parse_commons_media_value() -> None:
     """Test parsing commons media value"""
     snak_json = {
         "snaktype": "value",
@@ -157,7 +157,7 @@ def test_parse_commons_media_value():
     assert value.value == "Example.jpg"
 
 
-def test_parse_geo_shape_value():
+def test_parse_geo_shape_value() -> None:
     """Test parsing geo shape value"""
     snak_json = {
         "snaktype": "value",
@@ -171,7 +171,7 @@ def test_parse_geo_shape_value():
     assert value.value == "Data:Example.map"
 
 
-def test_parse_tabular_data_value():
+def test_parse_tabular_data_value() -> None:
     """Test parsing tabular data value"""
     snak_json = {
         "snaktype": "value",
@@ -185,7 +185,7 @@ def test_parse_tabular_data_value():
     assert value.value == "Data:Example.tab"
 
 
-def test_parse_musical_notation_value():
+def test_parse_musical_notation_value() -> None:
     """Test parsing musical notation value"""
     snak_json = {
         "snaktype": "value",
@@ -199,7 +199,7 @@ def test_parse_musical_notation_value():
     assert value.value == "\\relative c' { c d e f }"
 
 
-def test_parse_url_value():
+def test_parse_url_value() -> None:
     """Test parsing URL value"""
     snak_json = {
         "snaktype": "value",
@@ -213,7 +213,7 @@ def test_parse_url_value():
     assert value.value == "https://example.com"
 
 
-def test_parse_math_value():
+def test_parse_math_value() -> None:
     """Test parsing math value"""
     snak_json = {
         "snaktype": "value",
@@ -227,7 +227,7 @@ def test_parse_math_value():
     assert value.value == "E = mc^2"
 
 
-def test_parse_entity_schema_value():
+def test_parse_entity_schema_value() -> None:
     """Test parsing entity schema value"""
     snak_json = {
         "snaktype": "value",
@@ -241,7 +241,7 @@ def test_parse_entity_schema_value():
     assert value.value == "S1234"
 
 
-def test_parse_novalue_value():
+def test_parse_novalue_value() -> None:
     """Test parsing novalue snaktype"""
     snak_json = {"snaktype": "novalue", "property": "P1"}
 
@@ -251,7 +251,7 @@ def test_parse_novalue_value():
     assert value.datatype_uri == "http://wikiba.se/ontology#NoValue"
 
 
-def test_parse_somevalue_value():
+def test_parse_somevalue_value() -> None:
     """Test parsing somevalue snaktype"""
     snak_json = {"snaktype": "somevalue", "property": "P1"}
 
@@ -261,7 +261,7 @@ def test_parse_somevalue_value():
     assert value.datatype_uri == "http://wikiba.se/ontology#SomeValue"
 
 
-def test_parse_value_with_novalue_snaktype():
+def test_parse_value_with_novalue_snaktype() -> None:
     """Test parsing novalue snaktype successfully"""
     snak_json = {"snaktype": "novalue", "property": "P1"}
 
@@ -271,7 +271,7 @@ def test_parse_value_with_novalue_snaktype():
     assert value.datatype_uri == "http://wikiba.se/ontology#NoValue"
 
 
-def test_parse_unsupported_datatype():
+def test_parse_unsupported_datatype() -> None:
     """Test that unsupported datatype raises ValueError"""
     snak_json = {
         "snaktype": "value",

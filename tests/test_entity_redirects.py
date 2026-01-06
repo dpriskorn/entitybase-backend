@@ -1,3 +1,5 @@
+from typing import Any
+
 import pytest
 
 from models.entity import (
@@ -13,14 +15,14 @@ from fastapi import HTTPException
 class MockVitessClient:
     """Mock Vitess client for testing without database"""
 
-    def __init__(self):
-        self.resolved_ids = {}
-        self.redirects = {}
-        self.redirects_to = {}
-        self.deleted_entities = set()
-        self.locked_entities = set()
-        self.archived_entities = set()
-        self._internal_to_entity_id = {}
+    def __init__(self) -> None:
+        self.resolved_ids: dict[str, int] = {}
+        self.redirects: dict[int, int] = {}
+        self.redirects_to: dict[int, int | str | None] = {}
+        self.deleted_entities: set[int] = set()
+        self.locked_entities: set[int] = set()
+        self.archived_entities: set[int] = set()
+        self._internal_to_entity_id: dict[int, str] = {}
 
     def resolve_id(self, entity_id: str) -> int | None:
         if entity_id in self.resolved_ids:
@@ -30,7 +32,7 @@ class MockVitessClient:
         return None
 
     def get_incoming_redirects(self, entity_internal_id: int) -> list[str]:
-        return self.redirects.get(entity_internal_id, [])
+        return []  # Mock implementation returning empty list
 
     def get_redirect_target(self, entity_internal_id: int) -> str | None:
         redirects_to = self.redirects_to.get(entity_internal_id, None)
@@ -79,10 +81,10 @@ class MockVitessClient:
 class MockS3Client:
     """Mock S3 client for testing without S3"""
 
-    def __init__(self):
-        self.written_revisions = {}
+    def __init__(self) -> None:
+        self.written_revisions: dict[int, dict[str, Any]] = {}
 
-    def read_revision(self, entity_id: str, revision_id: int):
+    def read_revision(self, entity_id: str, revision_id: int) -> dict[str, Any]:
         return self.written_revisions.get(
             revision_id,
             {
@@ -105,7 +107,7 @@ class MockS3Client:
         entity_id: str,
         revision_id: int,
         entity_type: str,
-        data: dict,
+        data: dict[str, Any],
         edit_type: str = "",
         created_by: str = "entity-api",
     ) -> int:
@@ -148,7 +150,7 @@ class MockS3Client:
 class RedirectService:
     """Mock RedirectService for testing"""
 
-    def __init__(self, s3_client, vitess_client):
+    def __init__(self, s3_client: MockS3Client, vitess_client: MockVitessClient) -> None:
         self.s3 = s3_client
         self.vitess = vitess_client
 
@@ -238,11 +240,14 @@ class RedirectService:
             revision_id=redirect_revision_id,
         )
 
-    def revert_redirect(self, entity_id: str, revert_to_revision_id: int):
+    def revert_redirect(self, entity_id: str, revert_to_revision_id: int) -> EntityResponse:
         vitess = self.vitess
         s3 = self.s3
 
         internal_id = vitess.resolve_id(entity_id)
+        if internal_id is None:
+            raise HTTPException(status_code=404, detail="Entity not found")
+        
         current_redirect_target = vitess.get_redirect_target(internal_id)
 
         if current_redirect_target is None:
@@ -286,7 +291,7 @@ class RedirectService:
 
 
 @pytest.fixture
-def redirect_service():
+def redirect_service() -> RedirectService:
     """Fixture providing RedirectService with mock clients"""
     vitess = MockVitessClient()
     s3 = MockS3Client()
@@ -297,7 +302,7 @@ def redirect_service():
     return RedirectService(s3, vitess)
 
 
-def test_create_redirect_success(redirect_service):
+def test_create_redirect_success(redirect_service: RedirectService) -> None:
     """Test successful redirect creation"""
     vitess = redirect_service.vitess
 
@@ -320,7 +325,7 @@ def test_create_redirect_success(redirect_service):
     assert 100 in redirect_service.vitess.redirects
 
 
-def test_create_redirect_circular_prevention(redirect_service):
+def test_create_redirect_circular_prevention(redirect_service: RedirectService) -> None:
     """Test that redirecting to self is prevented"""
     vitess = redirect_service.vitess
 
@@ -342,7 +347,7 @@ def test_create_redirect_circular_prevention(redirect_service):
         assert "cannot redirect to self" in e.detail.lower()
 
 
-def test_create_redirect_source_not_found(redirect_service):
+def test_create_redirect_source_not_found(redirect_service: RedirectService) -> None:
     """Test that source entity not found raises 404"""
 
     # Don't set Q999 in resolved_ids - source doesn't exist
@@ -361,7 +366,7 @@ def test_create_redirect_source_not_found(redirect_service):
         assert "source entity not found" in e.detail.lower()
 
 
-def test_create_redirect_target_not_found(redirect_service):
+def test_create_redirect_target_not_found(redirect_service: RedirectService) -> None:
     """Test that target entity not found raises 404"""
     vitess = redirect_service.vitess
 
@@ -381,7 +386,7 @@ def test_create_redirect_target_not_found(redirect_service):
         assert "target entity not found" in e.detail.lower()
 
 
-def test_create_redirect_target_already_redirect(redirect_service):
+def test_create_redirect_target_already_redirect(redirect_service: RedirectService) -> None:
     """Test that redirecting to an entity that's already a redirect is prevented"""
     vitess = redirect_service.vitess
 
@@ -412,7 +417,7 @@ def test_create_redirect_target_already_redirect(redirect_service):
         assert "redirect already exists" in e.detail.lower()
 
 
-def test_create_redirect_source_deleted(redirect_service):
+def test_create_redirect_source_deleted(redirect_service: RedirectService) -> None:
     """Test that redirecting from a deleted entity is prevented"""
     vitess = redirect_service.vitess
 
@@ -434,7 +439,7 @@ def test_create_redirect_source_deleted(redirect_service):
         assert "deleted" in e.detail.lower()
 
 
-def test_create_redirect_target_deleted(redirect_service):
+def test_create_redirect_target_deleted(redirect_service: RedirectService) -> None:
     """Test that redirecting to a deleted entity is prevented"""
     vitess = redirect_service.vitess
 
@@ -456,7 +461,7 @@ def test_create_redirect_target_deleted(redirect_service):
         assert "deleted" in e.detail.lower()
 
 
-def test_create_redirect_source_locked(redirect_service):
+def test_create_redirect_source_locked(redirect_service: RedirectService) -> None:
     """Test that redirecting from a locked entity is prevented"""
     vitess = redirect_service.vitess
 
@@ -483,7 +488,7 @@ def test_create_redirect_source_locked(redirect_service):
         assert "locked" in e.detail.lower()
 
 
-def test_create_redirect_source_archived(redirect_service):
+def test_create_redirect_source_archived(redirect_service: RedirectService) -> None:
     """Test that redirecting to an archived entity is prevented"""
     vitess = redirect_service.vitess
 

@@ -1,7 +1,7 @@
 from models.json_parser import parse_qualifiers, parse_qualifier
 
 
-def test_parse_qualifiers_basic():
+def test_parse_qualifiers_basic() -> None:
     """Test parsing qualifiers with entity values"""
     qualifiers_json = {
         "P2": [
@@ -24,7 +24,7 @@ def test_parse_qualifiers_basic():
     assert qualifiers[0].value.value == "Q42"
 
 
-def test_parse_qualifiers_multiple():
+def test_parse_qualifiers_multiple() -> None:
     """Test parsing qualifiers with multiple qualifiers of same property"""
     qualifiers_json = {
         "P2": [
@@ -55,7 +55,7 @@ def test_parse_qualifiers_multiple():
     assert all(q.value.kind == "entity" for q in qualifiers)
 
 
-def test_parse_qualifier_with_novalue():
+def test_parse_qualifier_with_novalue() -> None:
     """Test parsing qualifier with novalue"""
     qualifier_json = {"snaktype": "novalue", "property": "P2"}
 
@@ -64,7 +64,7 @@ def test_parse_qualifier_with_novalue():
     assert qualifier.value.kind == "novalue"
 
 
-def test_parse_qualifier_with_somevalue():
+def test_parse_qualifier_with_somevalue() -> None:
     """Test parsing qualifier with somevalue"""
     qualifier_json = {"snaktype": "somevalue", "property": "P3"}
 
