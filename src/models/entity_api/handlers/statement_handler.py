@@ -23,7 +23,9 @@ logger = logging.getLogger(__name__)
 class StatementHandler:
     """Handles all statement operations."""
 
-    def get_statement(self, content_hash: int, s3_client: S3Client) -> StatementResponse:
+    def get_statement(
+        self, content_hash: int, s3_client: S3Client
+    ) -> StatementResponse:
         """Get a single statement by its hash.
 
         Returns the full statement JSON from S3.
@@ -34,7 +36,9 @@ class StatementHandler:
             logger.error("S3 client is None - not initialized")
             raise HTTPException(status_code=503, detail="S3 not initialized")
 
-        logger.debug(f"S3 client initialized, attempting to read statement {content_hash}")
+        logger.debug(
+            f"S3 client initialized, attempting to read statement {content_hash}"
+        )
 
         try:
             statement_data = s3_client.read_statement(content_hash)

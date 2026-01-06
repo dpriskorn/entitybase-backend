@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from fastapi import HTTPException
 
@@ -109,8 +109,12 @@ class AdminHandler:
         return EntityListResponse(entities=entities, count=len(entities))
 
     def get_raw_revision(
-        self, entity_id: str, revision_id: int, vitess_client: VitessClient, s3_client: S3Client
-    ) -> Dict[str, Any]:
+        self,
+        entity_id: str,
+        revision_id: int,
+        vitess_client: VitessClient,
+        s3_client: S3Client,
+    ) -> dict[str, Any]:
         """
         Returns raw S3 entity data for specific revision.
 

@@ -22,12 +22,16 @@ class RedirectHandler:
         self, request: EntityRedirectRequest
     ) -> EntityRedirectResponse:
         """Create a redirect from one entity to another."""
-        logger.debug(f"Creating redirect from {request.redirect_from_id} to {request.redirect_to_id}")
+        logger.debug(
+            f"Creating redirect from {request.redirect_from_id} to {request.redirect_to_id}"
+        )
         return self.redirect_service.create_redirect(request)
 
     def revert_entity_redirect(
         self, entity_id: str, revert_to_revision_id: int
     ) -> EntityResponse:
         """Revert a redirect entity back to normal using revision-based restore."""
-        logger.debug(f"Reverting redirect for entity {entity_id} to revision {revert_to_revision_id}")
+        logger.debug(
+            f"Reverting redirect for entity {entity_id} to revision {revert_to_revision_id}"
+        )
         return self.redirect_service.revert_redirect(entity_id, revert_to_revision_id)

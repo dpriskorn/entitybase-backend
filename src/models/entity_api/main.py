@@ -2,7 +2,7 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from fastapi import FastAPI, Response
 
@@ -13,10 +13,10 @@ from models.entity import (
     EntityCreateRequest,
     EntityDeleteRequest,
     EntityDeleteResponse,
-    EntityListResponse,
     EntityRedirectResponse,
     EntityResponse,
     EntityRedirectRequest,
+    HealthCheckResponse,
     MostUsedStatementsResponse,
     PropertyCountsResponse,
     PropertyHashesResponse,
@@ -28,6 +28,12 @@ from models.entity import (
     StatementResponse,
 )
 from models.entity_api.clients import Clients
+from models.entity_api.handlers.admin_handler import AdminHandler
+from models.entity_api.handlers.entity_handler import EntityHandler
+from models.entity_api.handlers.export_handler import ExportHandler
+from models.entity_api.handlers.redirect_handler import RedirectHandler
+from models.entity_api.handlers.statement_handler import StatementHandler
+from models.entity_api.handlers.system_handler import health_check
 
 logger = logging.getLogger(__name__)
 
@@ -66,16 +72,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(lifespan=lifespan)
 
 
-from models.entity_api.handlers.system_handler import health_check
-from models.entity_api.handlers.entity_handler import EntityHandler
-from models.entity_api.handlers.export_handler import ExportHandler
-from models.entity_api.handlers.redirect_handler import RedirectHandler
-from models.entity_api.handlers.statement_handler import StatementHandler
-from models.entity_api.handlers.admin_handler import AdminHandler
-
-
-@app.get("/health")
-async def health_check_async(response: Response) -> dict[str, str]:
+@app.get("/health", response_model=HealthCheckResponse)
+def health_check_endpoint(response: Response) -> HealthCheckResponse:
     return health_check(response)
 
 
@@ -99,14 +97,16 @@ def get_entity_history(
 ) -> list[RevisionMetadata]:
     clients = app.state.clients
     handler = EntityHandler()
-    return handler.get_entity_history(entity_id, clients.vitess, limit, offset)
+    return handler.get_entity_history(entity_id, clients.vitess, limit, offset)  # type: ignore
 
 
-@app.get("/wiki/Special:EntityData/{entity_id}.ttl")
+@app.get("/entity/{entity_id}.ttl")
 async def get_entity_data_turtle(entity_id: str) -> Response:
     clients = app.state.clients
     handler = ExportHandler()
-    return handler.get_entity_data_turtle(entity_id, clients.vitess, clients.s3, clients.property_registry)
+    return handler.get_entity_data_turtle(
+        entity_id, clients.vitess, clients.s3, clients.property_registry
+    )  # type: ignore
 
 
 @app.post("/redirects")
@@ -131,30 +131,30 @@ async def revert_entity_redirect(
 def get_entity_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
     clients = app.state.clients
     handler = EntityHandler()
-    return handler.get_entity_revision(entity_id, revision_id, clients.s3)
+    return handler.get_entity_revision(entity_id, revision_id, clients.s3)  # type: ignore
 
 
 @app.delete("/entity/{entity_id}", response_model=EntityDeleteResponse)
 def delete_entity(entity_id: str, request: EntityDeleteRequest) -> EntityDeleteResponse:
     clients = app.state.clients
     handler = EntityHandler()
-    return handler.delete_entity(entity_id, request, clients.vitess, clients.s3)
+    return handler.delete_entity(entity_id, request, clients.vitess, clients.s3)  # type: ignore
 
 
 @app.get("/raw/{entity_id}/{revision_id}")
 def get_raw_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
     clients = app.state.clients
     handler = AdminHandler()
-    return handler.get_raw_revision(entity_id, revision_id, clients.vitess, clients.s3)
+    return handler.get_raw_revision(entity_id, revision_id, clients.vitess, clients.s3)  # type: ignore
 
 
-@app.get("/entities", response_model=EntityListResponse)
-def list_entities(
-    status: Optional[str] = None, edit_type: Optional[str] = None, limit: int = 100
-) -> EntityListResponse:
-    clients = app.state.clients
-    handler = AdminHandler()
-    return handler.list_entities(clients.vitess, status, edit_type, limit)
+# @app.get("/entities", response_model=EntityListResponse)
+# def list_entities(
+#     status: Optional[str] = None, edit_type: Optional[str] = None, limit: int = 100
+# ) -> EntityListResponse:
+#     clients = app.state.clients
+#     handler = AdminHandler()
+#     return handler.list_entities(clients.vitess, status, edit_type, limit)
 
 
 @app.get("/statement/{content_hash}", response_model=StatementResponse)
@@ -194,7 +194,9 @@ def get_entity_property_hashes(
 ) -> PropertyHashesResponse:
     clients = app.state.clients
     handler = StatementHandler()
-    return handler.get_entity_property_hashes(entity_id, property_list, clients.vitess, clients.s3)
+    return handler.get_entity_property_hashes(
+        entity_id, property_list, clients.vitess, clients.s3
+    )
 
 
 @app.get("/statement/most_used", response_model=MostUsedStatementsResponse)

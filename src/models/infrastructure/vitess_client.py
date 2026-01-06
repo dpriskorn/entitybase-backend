@@ -490,7 +490,7 @@ class VitessClient(BaseModel):
         @dataclass
         class RevisionRecord:
             revision_id: int
-            created_at: Any
+            created_at: str | None
 
         internal_id = self._resolve_id(entity_id)
         if not internal_id:
@@ -884,47 +884,6 @@ class VitessClient(BaseModel):
             (
                 internal_id,
                 revision_id,
-                data.get("is_semi_protected", False),
-                data.get("is_locked", False),
-                data.get("is_archived", False),
-                data.get("is_dangling", False),
-                data.get("is_mass_edit_protected", False),
-            ),
-        )
-
-        cursor.close()
-
-    def upsert_entity(self, entity_id: str, data: dict) -> None:
-        """Insert or update entity record
-
-        Args:
-            entity_id: Entity ID
-            data: Entity data
-        """
-        internal_id = self._resolve_id(entity_id)
-        if not internal_id:
-            # Register new entity
-            self.register_entity(entity_id)
-            internal_id = self._resolve_id(entity_id)
-
-        conn = self.connect()
-        cursor = conn.cursor()
-
-        # Use INSERT ... ON DUPLICATE KEY UPDATE
-        cursor.execute(
-            """INSERT INTO entity_head
-                    (entity_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
-                    ON DUPLICATE KEY UPDATE
-                    head_revision_id = VALUES(head_revision_id),
-                    is_semi_protected = VALUES(is_semi_protected),
-                    is_locked = VALUES(is_locked),
-                    is_archived = VALUES(is_archived),
-                    is_dangling = VALUES(is_dangling),
-                    is_mass_edit_protected = VALUES(is_mass_edit_protected)""",
-            (
-                internal_id,
-                data.get("head_revision_id"),
                 data.get("is_semi_protected", False),
                 data.get("is_locked", False),
                 data.get("is_archived", False),

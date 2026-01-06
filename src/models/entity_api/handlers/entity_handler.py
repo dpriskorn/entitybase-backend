@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any
 
 from fastapi import HTTPException
 from rapidhash import rapidhash
@@ -33,7 +33,10 @@ class EntityHandler:
     """Handles all entity CRUD operations."""
 
     def create_entity(
-        self, request: EntityCreateRequest, vitess_client: VitessClient, s3_client: S3Client
+        self,
+        request: EntityCreateRequest,
+        vitess_client: VitessClient,
+        s3_client: S3Client,
     ) -> EntityResponse:
         """Create or update an entity with statement deduplication."""
         entity_id = request.data.get("id", "unknown")
@@ -62,7 +65,9 @@ class EntityHandler:
             raise HTTPException(status_code=503, detail="Vitess not initialized")
 
         entity_id = request.id
-        is_mass_edit = request.is_mass_edit if request.is_mass_edit is not None else False
+        is_mass_edit = (
+            request.is_mass_edit if request.is_mass_edit is not None else False
+        )
         edit_type = request.edit_type if request.edit_type is not None else ""
 
         if not entity_id:
@@ -102,7 +107,9 @@ class EntityHandler:
 
         # Check if head revision has same content (idempotency)
         if head_revision_id != 0:
-            logger.debug(f"Checking idempotency against head revision {head_revision_id}")
+            logger.debug(
+                f"Checking idempotency against head revision {head_revision_id}"
+            )
             try:
                 head_revision = s3_client.read_revision(entity_id, head_revision_id)
                 head_content_hash = head_revision.data.get("content_hash")
@@ -125,30 +132,35 @@ class EntityHandler:
                         is_dangling=head_revision.data.get("is_dangling", False),
                     )
             except Exception as e:
-                logger.warning(f"Failed to read head revision for idempotency check: {e}")
+                logger.warning(
+                    f"Failed to read head revision for idempotency check: {e}"
+                )
                 # Head revision not found or invalid, proceed with creation
                 pass
 
-        # Check protection permissions
+        # Check protection permissions using database info for efficiency
         if head_revision_id != 0:
             try:
-                current = s3_client.read_revision(entity_id, head_revision_id)
+                protection_info = vitess_client.get_protection_info(entity_id)
 
                 # Archived items block all edits
-                if current.data.get("is_archived"):
+                if protection_info.get("is_archived", False):
                     raise HTTPException(403, "Item is archived and cannot be edited")
 
                 # Locked items block all edits
-                if current.data.get("is_locked"):
+                if protection_info.get("is_locked", False):
                     raise HTTPException(403, "Item is locked from all edits")
 
                 # Mass-edit protection blocks mass edits only
-                if current.data.get("is_mass_edit_protected") and request.is_mass_edit:
+                if (
+                    protection_info.get("is_mass_edit_protected", False)
+                    and request.is_mass_edit
+                ):
                     raise HTTPException(403, "Mass edits blocked on this item")
 
                 # Semi-protection blocks not-autoconfirmed users
                 if (
-                    current.data.get("is_semi_protected")
+                    protection_info.get("is_semi_protected", False)
                     and request.is_not_autoconfirmed_user
                 ):
                     raise HTTPException(
@@ -268,6 +280,9 @@ class EntityHandler:
                 "sitelinks": request.sitelinks,
             },
             "content_hash": content_hash,
+            "edit_summary": request.edit_summary,
+            "editor": request.editor,
+            "bot": request.bot,
         }
 
         logger.debug(
@@ -285,49 +300,43 @@ class EntityHandler:
         )
         logger.debug(f"Successfully wrote revision {new_revision_id} to S3")
 
+        # Create revision and update head using dedicated methods
+        revision_data = {
+            "is_mass_edit": is_mass_edit,
+            "edit_type": edit_type or EditType.UNSPECIFIED.value,
+            "hashes": hash_result.statements,
+            "properties": hash_result.properties,
+            "property_counts": hash_result.property_counts,
+            "is_semi_protected": request.is_semi_protected,
+            "is_locked": request.is_locked,
+            "is_archived": request.is_archived,
+            "is_dangling": request.is_dangling,
+            "is_mass_edit_protected": request.is_mass_edit_protected,
+        }
+
         logger.debug(
-            f"Inserting revision {new_revision_id} metadata into database for entity {entity_id}"
-        )
-        vitess_client.insert_revision(
-            entity_id,
-            new_revision_id,
-            is_mass_edit,
-            edit_type or EditType.UNSPECIFIED.value,
-            statements=hash_result.statements,
-            properties=hash_result.properties,
-            property_counts=hash_result.property_counts,
-        )
-        logger.debug(
-            f"Successfully inserted revision {new_revision_id} metadata into database"
+            f"Creating revision {new_revision_id} and updating head for entity {entity_id}"
         )
 
         if head_revision_id == 0:
-            success = vitess_client.insert_head_with_status(
-                entity_id,
-                new_revision_id,
-                request.is_semi_protected,
-                request.is_locked,
-                request.is_archived,
-                request.is_dangling,
-                request.is_mass_edit_protected,
-                is_deleted=False,
-            )
+            # New entity - use create_revision
+            vitess_client.create_revision(entity_id, new_revision_id, revision_data)
+            success = True
         else:
-            success = vitess_client.cas_update_head_with_status(
-                entity_id,
-                head_revision_id,
-                new_revision_id,
-                request.is_semi_protected,
-                request.is_locked,
-                request.is_archived,
-                request.is_dangling,
-                request.is_mass_edit_protected,
-                is_deleted=False,
+            # Existing entity - use create_revision_cas
+            success = vitess_client.create_revision_cas(
+                entity_id, new_revision_id, revision_data, head_revision_id
             )
+
+        logger.debug(
+            f"Revision {new_revision_id} creation completed for entity {entity_id}"
+        )
 
         if not success:
             logger.error(f"Concurrent modification detected for entity {entity_id}")
-            raise HTTPException(status_code=409, detail="Concurrent modification detected")
+            raise HTTPException(
+                status_code=409, detail="Concurrent modification detected"
+            )
 
         logger.debug(
             f"Marking revision {new_revision_id} for entity {entity_id} as published"
@@ -339,7 +348,9 @@ class EntityHandler:
         )
         logger.debug(f"Successfully marked revision {new_revision_id} as published")
 
-        logger.debug(f"Successfully created entity {entity_id} revision {new_revision_id}")
+        logger.debug(
+            f"Successfully created entity {entity_id} revision {new_revision_id}"
+        )
         logger.info(
             f"=== ENTITY CREATION SUCCESS: {entity_id} ===",
             extra={
@@ -407,7 +418,7 @@ class EntityHandler:
         vitess_client: VitessClient,
         limit: int = 20,
         offset: int = 0,
-    ) -> List[RevisionMetadata]:
+    ) -> list[RevisionMetadata]:
         """Get revision history for an entity with paging.
 
         Args:
@@ -428,13 +439,15 @@ class EntityHandler:
         history = vitess_client.get_history(entity_id, limit=limit, offset=offset)
 
         return [
-            RevisionMetadata(revision_id=record.revision_id, created_at=record.created_at)
+            RevisionMetadata(
+                revision_id=record.revision_id, created_at=record.created_at
+            )
             for record in history
         ]
 
     def get_entity_revision(
         self, entity_id: str, revision_id: int, s3_client: S3Client
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get entity revision data by ID and revision number."""
         if s3_client is None:
             raise HTTPException(status_code=503, detail="S3 not initialized")
@@ -507,6 +520,9 @@ class EntityHandler:
             "is_deleted": True,
             "is_redirect": False,
             "entity": current_revision.data.get("entity", {}),
+            "edit_summary": request.edit_summary,
+            "editor": request.editor,
+            "bot": request.bot,
         }
 
         # Decrement ref_count for hard delete (orphaned statement tracking)
