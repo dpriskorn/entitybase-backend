@@ -128,13 +128,17 @@ def hash_entity_statements(
 
         for statement in claim_list:
             try:
-                statement_json = json.dumps(statement, sort_keys=True)
+                statement_for_hash = {k: v for k, v in statement.items() if k != "id"}
+                statement_json = json.dumps(statement_for_hash, sort_keys=True)
                 statement_hash = rapidhash(statement_json.encode())
                 statements.append(statement_hash)
                 full_statements.append(statement)
                 count += 1
-            except Exception:
-                continue
+            except Exception as e:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to hash statement: {e}",
+                )
 
         property_counts[property_id] = count
 
@@ -177,8 +181,11 @@ def deduplicate_and_store_statements(
                 s3_client.write_statement(statement_hash, statement_with_hash)
             else:
                 vitess_client.increment_ref_count(statement_hash)
-        except Exception:
-            continue
+        except Exception as e:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Failed to store statement {statement_hash}: {e}",
+            )
 
 
 @app.get("/health")
@@ -789,7 +796,7 @@ def get_entity_properties(entity_id: str):
         )
 
     revision_metadata = clients.s3.read_full_revision(entity_id, head_revision_id)
-    properties = revision_metadata["data"].get("properties", [])
+    properties = revision_metadata.get("properties", [])
     return PropertyListResponse(properties=properties)
 
 
@@ -812,7 +819,7 @@ def get_entity_property_counts(entity_id: str):
         raise HTTPException(status_code=404, detail="Entity has no revisions")
 
     revision_metadata = clients.s3.read_full_revision(entity_id, head_revision_id)
-    property_counts = revision_metadata["data"].get("property_counts", {})
+    property_counts = revision_metadata.get("property_counts", {})
     return PropertyCountsResponse(property_counts=property_counts)
 
 
@@ -843,8 +850,8 @@ def get_entity_property_hashes(entity_id: str, property_list: str):
 
     property_ids = [p.strip() for p in property_list.split(",") if p.strip()]
 
-    all_statements = revision_metadata["data"].get("statements", [])
-    all_properties = revision_metadata["data"].get("properties", [])
+    all_statements = revision_metadata.get("statements", [])
+    all_properties = revision_metadata.get("properties", [])
 
     property_hash_map = {}
     entity_data = clients.s3.read_revision(entity_id, head_revision_id)
@@ -859,8 +866,11 @@ def get_entity_property_hashes(entity_id: str, property_list: str):
                 claim_json = json.dumps(claim, sort_keys=True)
                 claim_hash = rapidhash(claim_json.encode())
                 property_hash_map.setdefault(prop_id, []).append(claim_hash)
-            except Exception:
-                continue
+            except Exception as e:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to hash claim: {e}",
+                )
 
     flat_hashes = []
     for prop_id in property_ids:
