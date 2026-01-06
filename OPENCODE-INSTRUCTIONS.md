@@ -17,6 +17,7 @@
 - /raw/ endpoint returns full revision schema, /entity/ endpoint extracts nested entity
 - after each edit lets use ./run-vulture.sh to check for dead code
 - after each edit lets use ./run-ruff.sh to lint and format code
+- after each edit lets use ./run-mypy.sh to lint code
 - do this before running pytest:  export PYTHONPATH=/home/dpriskorn/src/python/wikibase-backend/src:$PYTHONPATH && source .venv/bin/activate
 - after each edit with new tests lets use pytest to check that new tests pass
 - generally one class per file for all classes with at least 1 method
@@ -27,5 +28,5 @@
 - we don't expose internal_id outside the VitessClient class
 
 # Current task
-run ruff and cleanup
+run mypy and cleanup
 
