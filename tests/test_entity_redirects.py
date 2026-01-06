@@ -150,7 +150,9 @@ class MockS3Client:
 class RedirectService:
     """Mock RedirectService for testing"""
 
-    def __init__(self, s3_client: MockS3Client, vitess_client: MockVitessClient) -> None:
+    def __init__(
+        self, s3_client: MockS3Client, vitess_client: MockVitessClient
+    ) -> None:
         self.s3 = s3_client
         self.vitess = vitess_client
 
@@ -240,14 +242,16 @@ class RedirectService:
             revision_id=redirect_revision_id,
         )
 
-    def revert_redirect(self, entity_id: str, revert_to_revision_id: int) -> EntityResponse:
+    def revert_redirect(
+        self, entity_id: str, revert_to_revision_id: int
+    ) -> EntityResponse:
         vitess = self.vitess
         s3 = self.s3
 
         internal_id = vitess.resolve_id(entity_id)
         if internal_id is None:
             raise HTTPException(status_code=404, detail="Entity not found")
-        
+
         current_redirect_target = vitess.get_redirect_target(internal_id)
 
         if current_redirect_target is None:
@@ -386,7 +390,9 @@ def test_create_redirect_target_not_found(redirect_service: RedirectService) -> 
         assert "target entity not found" in e.detail.lower()
 
 
-def test_create_redirect_target_already_redirect(redirect_service: RedirectService) -> None:
+def test_create_redirect_target_already_redirect(
+    redirect_service: RedirectService,
+) -> None:
     """Test that redirecting to an entity that's already a redirect is prevented"""
     vitess = redirect_service.vitess
 

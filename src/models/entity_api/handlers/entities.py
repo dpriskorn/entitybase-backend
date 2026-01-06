@@ -259,7 +259,7 @@ def get_entity_revision(
     revision = s3_client.read_revision(entity_id, revision_id)
 
     # Return full revision schema for debugging/inspection
-    return revision.data
+    return dict(revision.data)
 
 
 def delete_entity(
