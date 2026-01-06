@@ -54,9 +54,9 @@ def test_insert_revision_idempotent(vitess_client):
     count = cursor.fetchone()[0]
     cursor.close()
 
-    assert (
-        count == 1
-    ), "Should only have one record, duplicate inserts should be skipped"
+    assert count == 1, (
+        "Should only have one record, duplicate inserts should be skipped"
+    )
 
 
 def test_insert_revision_different_params(vitess_client):

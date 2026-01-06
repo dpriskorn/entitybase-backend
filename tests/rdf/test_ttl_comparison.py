@@ -45,20 +45,20 @@ def test_statement_uri_uses_dash_separator():
 
     # Full URI
     full_uri = uri_gen.statement_uri(statement_id)
-    assert (
-        "$" not in full_uri
-    ), f"Statement URI should not contain $ separator: {full_uri}"
+    assert "$" not in full_uri, (
+        f"Statement URI should not contain $ separator: {full_uri}"
+    )
     assert "-" in full_uri, f"Statement URI should use - separator: {full_uri}"
     assert "Q17948861-FA20AC3A-5627-4EC5-93CA-24F0F00C8AA6" in full_uri
 
     # Prefixed URI
     prefixed_uri = uri_gen.statement_prefixed(statement_id)
-    assert (
-        "$" not in prefixed_uri
-    ), f"Prefixed statement URI should not contain $ separator: {prefixed_uri}"
-    assert (
-        "-" in prefixed_uri
-    ), f"Prefixed statement URI should use - separator: {prefixed_uri}"
+    assert "$" not in prefixed_uri, (
+        f"Prefixed statement URI should not contain $ separator: {prefixed_uri}"
+    )
+    assert "-" in prefixed_uri, (
+        f"Prefixed statement URI should use - separator: {prefixed_uri}"
+    )
     assert "wds:Q17948861-FA20AC3A-5627-4EC5-93CA-24F0F00C8AA6" == prefixed_uri
 
 

@@ -14,21 +14,18 @@
 - Don't run docker commands
 - Never pass unparsed json around between methods - use json.loads as soon as possible
 - All api endpoints return JSON
-- Store full S3 revision schema with metadata, entity data nested under "entity" field
 - /raw/ endpoint returns full revision schema, /entity/ endpoint extracts nested entity
-- after each edit lets use vulture using ./run-vulture.sh to check for dead code
-- after each edit lets use vulture using ./run-black.sh to format code
+- after each edit lets use ./run-vulture.sh to check for dead code
+- after each edit lets use ./run-ruff.sh to lint and format code
+- do this before running pytest:  export PYTHONPATH=/home/dpriskorn/src/python/wikibase-backend/src:$PYTHONPATH && source .venv/bin/activate
 - after each edit with new tests lets use pytest to check that new tests pass
 - generally one class per file for all classes with at least 1 method
 - no relative imports
 - no __future__ imports
 - no strings in code - everything is enums
-- do this before running pytest:  export PYTHONPATH=/home/dpriskorn/src/python/wikibase-backend/src:$PYTHONPATH && source .venv/bin/activate
 - avoid websearch, everything we need is in the repo already just ask where to find what you need
 - we don't expose internal_id outside the VitessClient class
 
 # Current task
-implement new architecture for statements, see doc/ARCHITECTURE/STATEMENT-DEDUPLICATION.md
+run ruff and cleanup
 
-# TODO
-add validation on post requests to /entity

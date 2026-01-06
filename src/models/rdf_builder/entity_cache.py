@@ -57,12 +57,12 @@ def _fetch_entity_metadata_batch(entity_ids: list[str]) -> dict[str, dict]:
                 results[entity_id] = metadata
 
             logger.info(
-                f"Fetched metadata for {len(batch)} entities (batch {i//batch_size + 1})"
+                f"Fetched metadata for {len(batch)} entities (batch {i // batch_size + 1})"
             )
             time.sleep(2)
 
         except Exception as e:
-            logger.error(f"Failed to fetch batch {i//batch_size + 1}: {e}")
+            logger.error(f"Failed to fetch batch {i // batch_size + 1}: {e}")
             for entity_id in batch:
                 results[entity_id] = None
 

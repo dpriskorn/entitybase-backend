@@ -6,7 +6,6 @@ from models.internal_representation.property_metadata import PropertyMetadata
 
 
 class PropertyWriter:
-
     @staticmethod
     def write_property(output: TextIO, prop: PropertyMetadata):
         pid = prop.property_id

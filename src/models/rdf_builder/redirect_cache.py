@@ -47,12 +47,12 @@ def _fetch_entity_redirects_batch(entity_ids: list[str]) -> dict[str, list[str]]
                 results[entity_id] = redirects
 
             logger.info(
-                f"Fetched redirects for {len(batch)} entities (batch {i//batch_size + 1})"
+                f"Fetched redirects for {len(batch)} entities (batch {i // batch_size + 1})"
             )
             time.sleep(2)
 
         except Exception as e:
-            logger.error(f"Failed to fetch batch {i//batch_size + 1}: {e}")
+            logger.error(f"Failed to fetch batch {i // batch_size + 1}: {e}")
             for entity_id in batch:
                 results[entity_id] = []
 

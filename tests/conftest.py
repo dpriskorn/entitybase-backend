@@ -10,12 +10,12 @@ import requests
 @pytest.fixture(scope="session", autouse=True)
 def configure_logging():
     """Configure logging for all test sessions"""
-    log_level_str = os.getenv("TEST_LOG_LEVEL", "INFO")
+    log_level_str = os.getenv("TEST_LOG_LEVEL", "DEBUG")
     log_level = logging.DEBUG if log_level_str == "DEBUG" else logging.INFO
 
     logging.basicConfig(
         level=log_level,
-        format="%(asctime)s - %(levelname)s - %(message)s",
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         datefmt="%H:%M:%S",
         force=True,
     )

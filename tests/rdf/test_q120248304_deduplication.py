@@ -4,7 +4,7 @@ import json
 import logging
 import re
 
-from conftest import TEST_DATA_DIR, full_property_registry
+from conftest import TEST_DATA_DIR
 from models.json_parser.entity_parser import parse_entity
 from models.rdf_builder.converter import EntityConverter
 
@@ -27,9 +27,9 @@ def test_q120248304_no_duplicate_value_nodes(full_property_registry):
 
     # Each unique value node should be written exactly ONCE
     unique_block_ids = set(wdv_blocks)
-    assert len(wdv_blocks) == len(
-        unique_block_ids
-    ), f"Each unique value node should be written once. Blocks: {wdv_blocks}"
+    assert len(wdv_blocks) == len(unique_block_ids), (
+        f"Each unique value node should be written once. Blocks: {wdv_blocks}"
+    )
 
     logger.info(
         f"Q42: {len(wdv_blocks)} wdv blocks written (should equal unique values)"
@@ -39,9 +39,9 @@ def test_q120248304_no_duplicate_value_nodes(full_property_registry):
     if converter.dedupe:
         stats = converter.dedupe.stats()
         logger.info(f"Deduplication stats: {stats}")
-        assert (
-            stats["hits"] > 0
-        ), f"Deduplication prevented {stats['hits']} duplicate block writes"
+        assert stats["hits"] > 0, (
+            f"Deduplication prevented {stats['hits']} duplicate block writes"
+        )
 
 
 def test_deduplication_stats(full_property_registry):

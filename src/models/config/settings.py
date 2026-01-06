@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3_client import S3Config
-    from models.infrastructure.vitess_client import VitessConfig
+    pass
 
 
 class Settings(BaseSettings):

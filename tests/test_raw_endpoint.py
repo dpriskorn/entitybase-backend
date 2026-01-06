@@ -45,9 +45,9 @@ def test_raw_endpoint_returns_existing_revision(
     if rapidhash is not None:
         entity_json = json.dumps(entity_data, sort_keys=True)
         computed_hash = rapidhash(entity_json.encode())
-        assert (
-            result["content_hash"] == computed_hash
-        ), f"API hash must match computed hash"
+        assert result["content_hash"] == computed_hash, (
+            "API hash must match computed hash"
+        )
 
         logger.info(
             "✓ Raw endpoint returns full revision schema with rapidhash verification"
@@ -130,9 +130,9 @@ def test_raw_endpoint_pure_s3_data(api_client: requests.Session, base_url: str) 
     if rapidhash is not None:
         entity_json = json.dumps(entity_data, sort_keys=True)
         computed_hash = rapidhash(entity_json.encode())
-        assert (
-            raw_data["content_hash"] == computed_hash
-        ), f"API hash {raw_data['content_hash']} must match computed hash {computed_hash}"
+        assert raw_data["content_hash"] == computed_hash, (
+            f"API hash {raw_data['content_hash']} must match computed hash {computed_hash}"
+        )
 
         logger.info(
             "✓ Main endpoint entity matches raw endpoint entity with rapidhash verification"

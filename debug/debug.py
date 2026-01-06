@@ -53,7 +53,9 @@ def main():
     entity_id = args.entity_id
 
     # Paths
-    json_path = Path(__file__).parent.parent / f"test_data/json/entities/{entity_id}.json"
+    json_path = (
+        Path(__file__).parent.parent / f"test_data/json/entities/{entity_id}.json"
+    )
     ttl_path = Path(__file__).parent.parent / f"test_data/rdf/ttl/{entity_id}.ttl"
     metadata_dir = Path(__file__).parent.parent / "test_data/entity_metadata"
     redirects_dir = Path(__file__).parent.parent / "test_data/entity_redirects"
@@ -80,7 +82,7 @@ def main():
     converter = EntityConverter(
         property_registry=registry,
         entity_metadata_dir=metadata_dir,
-        redirects_dir=redirects_dir
+        redirects_dir=redirects_dir,
     )
     actual_ttl = converter.convert_to_string(entity)
 
@@ -117,7 +119,7 @@ Extra blocks ({len(extra)} total):
     print(f"Full TTL written to: {output_file}")
 
     # Print summary
-    print(f"\nSummary:")
+    print("\nSummary:")
     print(f"  Actual blocks: {len(actual_blocks)}")
     print(f"  Golden blocks: {len(golden_blocks)}")
     print(f"  Missing: {len(missing)}")

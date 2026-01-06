@@ -72,19 +72,19 @@ class ValueNodeWriter:
         output.write(f"\twikibase:quantityUnit <{quantity_value.unit}>")
 
         if quantity_value.upper_bound:
-            output.write(f" ;\n")
+            output.write(" ;\n")
             output.write(
                 f'\twikibase:quantityUpperBound "{quantity_value.upper_bound}"^^xsd:decimal'
             )
 
         if quantity_value.lower_bound:
             if not quantity_value.upper_bound:
-                output.write(f" ;\n")
+                output.write(" ;\n")
             output.write(
                 f'\twikibase:quantityLowerBound "{quantity_value.lower_bound}"^^xsd:decimal'
             )
 
-        output.write(f" .\n")
+        output.write(" .\n")
 
     @staticmethod
     def write_globe_value_node(

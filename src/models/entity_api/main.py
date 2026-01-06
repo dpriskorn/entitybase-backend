@@ -1,6 +1,7 @@
 import json
 import logging
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Dict, Optional
@@ -14,7 +15,6 @@ from pydantic import BaseModel
 from starlette import status
 
 from models.infrastructure.s3_client import S3Client
-from models.infrastructure.ulid_flake import generate_ulid_flake
 from models.infrastructure.vitess_client import VitessClient
 from models.config.settings import settings
 from models.entity import (
@@ -28,7 +28,6 @@ from models.entity import (
     EntityResponse,
     RevisionMetadata,
     EntityRedirectRequest,
-    MostUsedStatementsRequest,
     MostUsedStatementsResponse,
     PropertyCountsResponse,
     PropertyHashesResponse,
@@ -78,17 +77,35 @@ class Clients(BaseModel):
         )
 
 
-async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    app.state.clients = Clients(
-        s3=settings.to_s3_config(),
-        vitess=settings.to_vitess_config(),
-        property_registry_path=(
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    try:
+        logger.debug("Initializing clients...")
+        s3_config = settings.to_s3_config()
+        vitess_config = settings.to_vitess_config()
+        logger.debug(f"S3 config: {s3_config}")
+        logger.debug(f"Vitess config: {vitess_config}")
+
+        property_registry_path = (
             Path("test_data/properties")
             if Path("test_data/properties").exists()
             else None
-        ),
-    )
-    yield
+        )
+        logger.debug(f"Property registry path: {property_registry_path}")
+
+        app.state.clients = Clients(
+            s3=s3_config,
+            vitess=vitess_config,
+            property_registry_path=property_registry_path,
+        )
+        logger.debug("Clients initialized successfully")
+        yield
+    except Exception as e:
+        logger.error(f"Failed to initialize clients: {e}")
+        import traceback
+
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        raise
 
 
 app = FastAPI(lifespan=lifespan)
@@ -119,36 +136,62 @@ def hash_entity_statements(
     property_counts = {}
 
     claims = entity_data.get("claims", {})
+    logger.debug(f"Entity claims: {claims}")
+
     if not claims:
+        logger.debug("No claims found in entity data")
         return StatementHashResult()
 
     claims_count = sum(len(claim_list) for claim_list in claims.values())
-    logger.info(f"Hashing statements for entity with {len(claims)} properties, {claims_count} total statements")
+    logger.debug(
+        f"Hashing statements for entity with {len(claims)} properties, {claims_count} total statements"
+    )
 
     for property_id, claim_list in claims.items():
+        logger.debug(
+            f"Processing property {property_id} with {len(claim_list)} statements"
+        )
+
         if not claim_list:
+            logger.debug(f"Empty claim list for property {property_id}")
             continue
 
         properties_set.add(property_id)
         count = 0
 
-        for statement in claim_list:
+        for idx, statement in enumerate(claim_list):
+            logger.debug(
+                f"Processing statement {idx + 1}/{len(claim_list)} for property {property_id}"
+            )
             try:
                 statement_for_hash = {k: v for k, v in statement.items() if k != "id"}
                 statement_json = json.dumps(statement_for_hash, sort_keys=True)
                 statement_hash = rapidhash(statement_json.encode())
+                logger.debug(
+                    f"Generated hash {statement_hash} for statement {idx + 1} in property {property_id}"
+                )
+
                 statements.append(statement_hash)
                 full_statements.append(statement)
                 count += 1
             except Exception as e:
+                logger.error(
+                    f"Failed to hash statement {idx + 1} for property {property_id}: {e}"
+                )
+                logger.error(f"Statement data: {statement}")
                 raise HTTPException(
                     status_code=500,
                     detail=f"Failed to hash statement: {e}",
                 )
 
         property_counts[property_id] = count
+        logger.debug(f"Property {property_id}: processed {count} statements")
 
-    logger.info(f"Generated {len(statements)} hashes, properties: {sorted(properties_set)}")
+    logger.debug(
+        f"Generated {len(statements)} hashes, properties: {sorted(properties_set)}"
+    )
+    logger.debug(f"Property counts: {property_counts}")
+
     return StatementHashResult(
         statements=statements,
         properties=sorted(properties_set),
@@ -174,29 +217,46 @@ def deduplicate_and_store_statements(
         vitess_client: Vitess client for statement_content operations
         s3_client: S3 client for statement storage
     """
-    logger.info(f"Deduplicating and storing {len(hash_result.statements)} statements")
+    logger.debug(f"Deduplicating and storing {len(hash_result.statements)} statements")
 
-    for statement_hash, statement_data in zip(
-        hash_result.statements, hash_result.full_statements
+    for idx, (statement_hash, statement_data) in enumerate(
+        zip(hash_result.statements, hash_result.full_statements)
     ):
+        logger.debug(
+            f"Processing statement {idx + 1}/{len(hash_result.statements)} with hash {statement_hash}"
+        )
         try:
             is_new = vitess_client.insert_statement_content(statement_hash)
+            logger.debug(f"Statement {statement_hash} is_new: {is_new}")
+
             if is_new:
                 statement_with_hash = {
                     **statement_data,
                     "content_hash": statement_hash,
                     "created_at": datetime.now(timezone.utc).isoformat() + "Z",
                 }
+                logger.debug(f"Writing new statement {statement_hash} to S3")
                 s3_client.write_statement(statement_hash, statement_with_hash)
+                logger.debug(f"Successfully wrote statement {statement_hash} to S3")
             else:
+                logger.debug(
+                    f"Incrementing ref_count for existing statement {statement_hash}"
+                )
                 vitess_client.increment_ref_count(statement_hash)
+                logger.debug(
+                    f"Successfully incremented ref_count for statement {statement_hash}"
+                )
         except Exception as e:
+            logger.error(f"Failed to store statement {statement_hash}: {e}")
+            logger.error(f"Statement data: {statement_data}")
             raise HTTPException(
                 status_code=500,
                 detail=f"Failed to store statement {statement_hash}: {e}",
             )
 
-    logger.info(f"Successfully stored all {len(hash_result.statements)} statements (new + existing)")
+    logger.debug(
+        f"Successfully stored all {len(hash_result.statements)} statements (new + existing)"
+    )
 
 
 @app.get("/health")
@@ -223,37 +283,67 @@ async def health_check(response: Response):
 def create_entity(request: EntityCreateRequest):
     clients = app.state.clients
 
+    logger.debug("=== ENTITY CREATION START ===")
+    logger.debug(f"Request entity_id: {request.data.get('id')}")
+    logger.debug(f"Request data keys: {list(request.data.keys())}")
+    logger.debug(f"Request is_mass_edit: {request.is_mass_edit}")
+    logger.debug(f"Request edit_type: {request.edit_type}")
+
     if clients.vitess is None:
+        logger.error("Vitess client not initialized")
         raise HTTPException(status_code=503, detail="Vitess not initialized")
 
-    entity_id = request.data.get("id")
+    entity_id = request.id
     is_mass_edit = request.is_mass_edit if request.is_mass_edit is not None else False
     edit_type = request.edit_type if request.edit_type is not None else ""
 
     if not entity_id:
+        logger.error("Entity ID missing from request")
         raise HTTPException(status_code=400, detail="Entity must have 'id' field")
 
+    logger.debug(f"Processing entity {entity_id}")
+
     # Register entity if doesn't exist
-    if not clients.vitess.entity_exists(entity_id):
+    entity_existed = clients.vitess.entity_exists(entity_id)
+    logger.debug(f"Entity {entity_id} exists: {entity_existed}")
+
+    if not entity_existed:
+        logger.debug(f"Registering new entity {entity_id}")
         clients.vitess.register_entity(entity_id)
+        logger.debug(f"Successfully registered entity {entity_id}")
+    else:
+        logger.debug(f"Entity {entity_id} already registered")
 
     # Check if entity is hard-deleted (block edits/undelete)
-    if clients.vitess.is_entity_deleted(entity_id):
+    is_deleted = clients.vitess.is_entity_deleted(entity_id)
+    logger.debug(f"Entity {entity_id} is_deleted: {is_deleted}")
+
+    if is_deleted:
+        logger.error(f"Entity {entity_id} is hard-deleted, blocking creation")
         raise HTTPException(
             status_code=410, detail=f"Entity {entity_id} has been deleted"
         )
 
     head_revision_id = clients.vitess.get_head(entity_id)
+    logger.debug(f"Current head revision for {entity_id}: {head_revision_id}")
 
     # Calculate content hash for deduplication
     entity_json = json.dumps(request.data, sort_keys=True)
     content_hash = rapidhash(entity_json.encode())
+    logger.debug(f"Entity content hash: {content_hash}")
 
     # Check if head revision has same content (idempotency)
     if head_revision_id != 0:
+        logger.debug(f"Checking idempotency against head revision {head_revision_id}")
         try:
             head_revision = clients.s3.read_revision(entity_id, head_revision_id)
-            if head_revision.data.get("content_hash") == content_hash:
+            head_content_hash = head_revision.data.get("content_hash")
+            logger.debug(f"Head revision content hash: {head_content_hash}")
+
+            if head_content_hash == content_hash:
+                logger.debug(
+                    f"Content unchanged, returning existing revision {head_revision_id}"
+                )
                 # Content unchanged, return existing revision
                 return EntityResponse(
                     id=entity_id,
@@ -266,7 +356,8 @@ def create_entity(request: EntityCreateRequest):
                     is_archived=head_revision.data.get("is_archived", False),
                     is_dangling=head_revision.data.get("is_dangling", False),
                 )
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to read head revision for idempotency check: {e}")
             # Head revision not found or invalid, proceed with creation
             pass
 
@@ -302,16 +393,23 @@ def create_entity(request: EntityCreateRequest):
             pass
 
     new_revision_id = head_revision_id + 1 if head_revision_id else 1
+    logger.debug(f"New revision ID will be: {new_revision_id}")
 
     # Calculate statement hashes FIRST
+    logger.debug("Starting statement hashing process")
     hash_result = hash_entity_statements(request.data)
+    logger.debug(
+        f"Statement hashing complete: {len(hash_result.statements)} hashes generated"
+    )
 
     # Store statements in S3
+    logger.debug("Starting statement deduplication and storage process")
     deduplicate_and_store_statements(
         hash_result=hash_result,
         vitess_client=clients.vitess,
         s3_client=clients.s3,
     )
+    logger.debug("Statement deduplication and storage complete")
 
     # Construct full revision schema with statement metadata
     revision_data = {
@@ -321,7 +419,7 @@ def create_entity(request: EntityCreateRequest):
         "created_by": "entity-api",
         "is_mass_edit": is_mass_edit,
         "edit_type": edit_type or EditType.UNSPECIFIED.value,
-        "entity_type": request.data.get("type", "item"),
+        "entity_type": request.type,
         "is_semi_protected": request.is_semi_protected,
         "is_locked": request.is_locked,
         "is_archived": request.is_archived,
@@ -333,23 +431,34 @@ def create_entity(request: EntityCreateRequest):
         "properties": hash_result.properties,
         "property_counts": hash_result.property_counts,
         "entity": {
-            "id": request.data.get("id"),
-            "type": request.data.get("type"),
-            "labels": request.data.get("labels"),
-            "descriptions": request.data.get("descriptions"),
-            "aliases": request.data.get("aliases"),
-            "sitelinks": request.data.get("sitelinks"),
+            "id": request.id,
+            "type": request.type,
+            "labels": request.labels,
+            "descriptions": request.descriptions,
+            "aliases": request.aliases,
+            "sitelinks": request.sitelinks,
         },
         "content_hash": content_hash,
     }
 
+    logger.debug(
+        f"Revision data constructed with {len(hash_result.statements)} statements"
+    )
+    logger.debug(f"Revision properties: {hash_result.properties}")
+    logger.debug(f"Revision property_counts: {hash_result.property_counts}")
+
+    logger.debug(f"Writing revision {new_revision_id} for entity {entity_id} to S3")
     clients.s3.write_revision(
         entity_id=entity_id,
         revision_id=new_revision_id,
         data=revision_data,
         publication_state="pending",
     )
+    logger.debug(f"Successfully wrote revision {new_revision_id} to S3")
 
+    logger.debug(
+        f"Inserting revision {new_revision_id} metadata into database for entity {entity_id}"
+    )
     clients.vitess.insert_revision(
         entity_id,
         new_revision_id,
@@ -358,6 +467,9 @@ def create_entity(request: EntityCreateRequest):
         statements=hash_result.statements,
         properties=hash_result.properties,
         property_counts=hash_result.property_counts,
+    )
+    logger.debug(
+        f"Successfully inserted revision {new_revision_id} metadata into database"
     )
 
     if head_revision_id == 0:
@@ -385,14 +497,21 @@ def create_entity(request: EntityCreateRequest):
         )
 
     if not success:
+        logger.error(f"Concurrent modification detected for entity {entity_id}")
         raise HTTPException(status_code=409, detail="Concurrent modification detected")
 
+    logger.debug(
+        f"Marking revision {new_revision_id} for entity {entity_id} as published"
+    )
     clients.s3.mark_published(
         entity_id=entity_id,
         revision_id=new_revision_id,
         publication_state="published",
     )
+    logger.debug(f"Successfully marked revision {new_revision_id} as published")
 
+    logger.debug(f"Successfully created entity {entity_id} revision {new_revision_id}")
+    logger.debug("=== ENTITY CREATION END ===")
     return EntityResponse(
         id=entity_id,
         revision_id=new_revision_id,
@@ -741,7 +860,7 @@ def get_statement(content_hash: int):
             statement=statement_data["statement"],
             created_at=statement_data["created_at"],
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=404, detail=f"Statement {content_hash} not found"
         )
@@ -803,7 +922,7 @@ def get_entity_properties(entity_id: str):
 
     if not revision_record:
         raise HTTPException(
-            status_code=404, detail=f"Head revision not found in history"
+            status_code=404, detail="Head revision not found in history"
         )
 
     revision_metadata = clients.s3.read_full_revision(entity_id, head_revision_id)

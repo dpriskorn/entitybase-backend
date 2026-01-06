@@ -83,7 +83,7 @@ def fetch_property_metadata(properties_csv: Path, output_dir: Path) -> None:
         response = None
 
         try:
-            print(f"  Querying SPARQL endpoint using POST...")
+            print("  Querying SPARQL endpoint using POST...")
 
             response = requests.post(
                 SPARQL_ENDPOINT,
@@ -154,7 +154,7 @@ def fetch_property_metadata(properties_csv: Path, output_dir: Path) -> None:
 
     if total_downloaded == 0:
         print("\n⚠️  WARNING: No files were downloaded!")
-        print(f"   Check if properties.csv exists and is not empty")
+        print("   Check if properties.csv exists and is not empty")
         print(f"   Path: {properties_csv}")
 
 
@@ -167,7 +167,7 @@ def main():
 
     if not properties_csv.exists():
         print(f"❌ Properties CSV not found: {properties_csv}")
-        print(f"Run: ./scripts/download_properties.sh")
+        print("Run: ./scripts/download_properties.sh")
         sys.exit(1)
 
     print(f"Loading properties from: {properties_csv}")

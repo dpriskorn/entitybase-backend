@@ -10,8 +10,14 @@ from models.rdf_builder.entity_cache import load_entity_metadata_batch
 
 # Remaining missing entities from Q1 after first download (still need metadata)
 q1_remaining = [
-    "Q109763642", "Q13165295", "Q18710250", "Q20966898",
-    "Q22924128", "Q25636749", "Q28530019", "Q97272390",
+    "Q109763642",
+    "Q13165295",
+    "Q18710250",
+    "Q20966898",
+    "Q22924128",
+    "Q25636749",
+    "Q28530019",
+    "Q97272390",
 ]
 
 # Combine all missing entities
@@ -38,7 +44,7 @@ results = load_entity_metadata_batch(to_download, metadata_dir)
 success_count = sum(1 for v in results.values() if v)
 failed_count = sum(1 for v in results.values() if not v)
 
-print(f"\nDownload complete:")
+print("\nDownload complete:")
 print(f"  Success: {success_count}")
 print(f"  Failed: {failed_count}")
 

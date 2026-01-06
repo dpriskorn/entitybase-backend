@@ -1,9 +1,6 @@
-import json
 import logging
 
 import requests
-
-from rapidhash import rapidhash
 
 
 def test_statement_creation_and_storage(
@@ -102,9 +99,9 @@ def test_statement_deduplication(api_client: requests.Session, base_url: str) ->
     hash1 = raw1["statements"][0]
     hash2 = raw2["statements"][0]
 
-    assert (
-        hash1 == hash2
-    ), f"Identical statements should have same hash: {hash1} != {hash2}"
+    assert hash1 == hash2, (
+        f"Identical statements should have same hash: {hash1} != {hash2}"
+    )
 
     statement_response = api_client.get(f"{base_url}/statement/{hash1}")
     assert statement_response.status_code == 200, "Statement should be accessible"

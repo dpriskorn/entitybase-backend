@@ -38,7 +38,7 @@ def normalize_ttl(ttl: str) -> str:
     result = ttl.strip()
     logger.debug(f"Result length: {len(result)} chars")
     logger.debug(f"First 100 chars: {repr(result[:100])}")
-    logger.debug(f"=== normalize_ttl() END ===")
+    logger.debug("=== normalize_ttl() END ===")
     return result
 
 

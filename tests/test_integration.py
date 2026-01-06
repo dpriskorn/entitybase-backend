@@ -45,9 +45,9 @@ def test_create_entity(api_client: requests.Session, base_url: str) -> None:
     raw_data = raw_response.json()
     api_hash = raw_data.get("content_hash")
 
-    assert (
-        api_hash == computed_hash
-    ), f"API hash {api_hash} must match computed hash {computed_hash}"
+    assert api_hash == computed_hash, (
+        f"API hash {api_hash} must match computed hash {computed_hash}"
+    )
 
     logger.info("✓ Entity creation passed with rapidhash verification")
 
@@ -107,23 +107,23 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
     raw1 = api_client.get(f"{base_url}/raw/Q99997/1").json()
     raw2 = api_client.get(f"{base_url}/raw/Q99997/2").json()
 
-    assert (
-        raw1["content_hash"] != raw2["content_hash"]
-    ), "Different content should have different hashes"
+    assert raw1["content_hash"] != raw2["content_hash"], (
+        "Different content should have different hashes"
+    )
 
     # Verify hash format and values
     if rapidhash is not None:
         entity_json_1 = json.dumps(entity_data, sort_keys=True)
         computed_hash_1 = rapidhash(entity_json_1.encode())
-        assert (
-            raw1["content_hash"] == computed_hash_1
-        ), f"First revision hash mismatch: expected {computed_hash_1}, got {raw1['content_hash']}"
+        assert raw1["content_hash"] == computed_hash_1, (
+            f"First revision hash mismatch: expected {computed_hash_1}, got {raw1['content_hash']}"
+        )
 
         entity_json_2 = json.dumps(updated_entity_data, sort_keys=True)
         computed_hash_2 = rapidhash(entity_json_2.encode())
-        assert (
-            raw2["content_hash"] == computed_hash_2
-        ), f"Second revision hash mismatch: expected {computed_hash_2}, got {raw2['content_hash']}"
+        assert raw2["content_hash"] == computed_hash_2, (
+            f"Second revision hash mismatch: expected {computed_hash_2}, got {raw2['content_hash']}"
+        )
 
     logger.info("✓ Entity update passed with hash verification")
 
@@ -232,7 +232,7 @@ def test_raw_endpoint_existing_revision(
     import os
 
     if os.getenv("TEST_LOG_HTTP_REQUESTS") == "true":
-        logger.debug(f"  ← ✓ 200 OK")
+        logger.debug("  ← ✓ 200 OK")
         if response.text:
             text_preview = response.text[:200]
             logger.debug(f"    Body: {text_preview}...")
@@ -265,9 +265,9 @@ def test_idempotent_duplicate_submission(
     revision_id_2 = result2["revision_id"]
 
     # Verify idempotency
-    assert (
-        revision_id_1 == revision_id_2
-    ), "Identical POST should return same revision ID"
+    assert revision_id_1 == revision_id_2, (
+        "Identical POST should return same revision ID"
+    )
     assert result1 == result2, "Responses should be identical"
 
     # Verify content_hash field and hash computation
@@ -280,9 +280,9 @@ def test_idempotent_duplicate_submission(
         api_hash = raw_response.get("content_hash")
 
         # Verify API returned correct hash
-        assert (
-            api_hash == computed_hash
-        ), f"API hash {api_hash} must match computed hash {computed_hash}"
+        assert api_hash == computed_hash, (
+            f"API hash {api_hash} must match computed hash {computed_hash}"
+        )
 
         logger.info(
             f"✓ Idempotent deduplication: same revision {revision_id_1} returned with rapidhash verification"
