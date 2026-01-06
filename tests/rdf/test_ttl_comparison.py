@@ -13,7 +13,7 @@ from models.rdf_builder.uri_generator import URIGenerator
 logger = logging.getLogger(__name__)
 
 
-def test_q17948861_parse_and_generate():
+def test_q17948861_parse_and_generate() -> None:
     """Test parsing Q17948861 and generating TTL"""
     entity_id = "Q17948861"
 
@@ -38,7 +38,7 @@ def test_q17948861_parse_and_generate():
     assert "wd:Q17948861" in actual_ttl
 
 
-def test_statement_uri_uses_dash_separator():
+def test_statement_uri_uses_dash_separator() -> None:
     """Test that statement URIs use - separator instead of $"""
     uri_gen = URIGenerator()
     statement_id = "Q17948861$FA20AC3A-5627-4EC5-93CA-24F0F00C8AA6"
@@ -63,7 +63,7 @@ def test_statement_uri_uses_dash_separator():
 
 
 @pytest.mark.skip("Disabled - blank node ID needs investigation")
-def test_q17948861_roundtrip_comparison():
+def test_q17948861_roundtrip_comparison() -> None:
     """Test full roundtrip: JSON → TTL → normalize → compare to golden"""
     entity_id = "Q17948861"
 

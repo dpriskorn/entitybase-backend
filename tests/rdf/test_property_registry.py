@@ -11,7 +11,7 @@ from models.rdf_builder.property_registry.loader import load_property_registry
 from models.rdf_builder.ontology.datatypes import property_shape
 
 
-def test_property_shape_with_labels_and_descriptions():
+def test_property_shape_with_labels_and_descriptions() -> None:
     labels = {"en": {"language": "en", "value": "instance of"}}
     descriptions = {
         "en": {"language": "en", "value": "type to which this subject corresponds"}
@@ -34,7 +34,7 @@ def test_property_shape_with_labels_and_descriptions():
     assert shape.predicates.direct == "wdt:P31"
 
 
-def test_property_shape_empty_labels_descriptions():
+def test_property_shape_empty_labels_descriptions() -> None:
     shape = PropertyShape(
         pid="P17",
         datatype="wikibase-item",
@@ -47,7 +47,7 @@ def test_property_shape_empty_labels_descriptions():
     assert shape.descriptions == {}
 
 
-def test_property_shape_factory_with_labels_descriptions():
+def test_property_shape_factory_with_labels_descriptions() -> None:
     labels = {"en": {"language": "en", "value": "instance of"}}
     descriptions = {
         "en": {"language": "en", "value": "type to which this subject corresponds"}
@@ -64,14 +64,14 @@ def test_property_shape_factory_with_labels_descriptions():
     assert shape.predicates.direct == "wdt:P31"
 
 
-def test_property_shape_factory_without_labels_descriptions():
+def test_property_shape_factory_without_labels_descriptions() -> None:
     shape = property_shape("P31", "wikibase-item")
 
     assert shape.labels == {}
     assert shape.descriptions == {}
 
 
-def test_property_shape_factory_time_datatype_with_metadata():
+def test_property_shape_factory_time_datatype_with_metadata() -> None:
     labels = {"en": {"language": "en", "value": "point in time"}}
     descriptions = {
         "en": {"language": "en", "value": "time and date something took place"}
@@ -86,7 +86,7 @@ def test_property_shape_factory_time_datatype_with_metadata():
     assert shape.predicates.value_node == "psv:P585"
 
 
-def test_property_registry_shape_method():
+def test_property_registry_shape_method() -> None:
     properties = {
         "P31": property_shape(
             "P31",
@@ -102,7 +102,7 @@ def test_property_registry_shape_method():
     assert shape.labels == {"en": {"language": "en", "value": "instance of"}}
 
 
-def test_property_registry_shape_not_found():
+def test_property_registry_shape_not_found() -> None:
     registry = PropertyRegistry(properties={})
 
     with pytest.raises(KeyError) as exc:
@@ -111,7 +111,7 @@ def test_property_registry_shape_not_found():
     assert "Property P999 not in registry" in str(exc.value)
 
 
-def test_loader_with_json_and_csv(tmp_path: Path):
+def test_loader_with_json_and_csv(tmp_path: Path) -> None:
     csv_content = "property_id,datatype\nP31,wikibase-item\nP17,wikibase-item\n"
     csv_path = tmp_path / "properties.csv"
     csv_path.write_text(csv_content)
@@ -152,7 +152,7 @@ def test_loader_with_json_and_csv(tmp_path: Path):
     assert p17_shape.descriptions == {}
 
 
-def test_loader_without_csv_fallback_to_string(tmp_path: Path):
+def test_loader_without_csv_fallback_to_string(tmp_path: Path) -> None:
     p31_json = {
         "id": "P31",
         "labels": {"en": {"language": "en", "value": "instance of"}},
@@ -166,7 +166,7 @@ def test_loader_without_csv_fallback_to_string(tmp_path: Path):
     assert shape.datatype == "string"
 
 
-def test_loader_empty_labels_descriptions(tmp_path: Path):
+def test_loader_empty_labels_descriptions(tmp_path: Path) -> None:
     csv_content = "property_id,datatype\nP31,wikibase-item\n"
     csv_path = tmp_path / "properties.csv"
     csv_path.write_text(csv_content)

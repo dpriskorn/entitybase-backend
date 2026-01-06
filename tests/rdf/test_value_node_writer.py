@@ -6,7 +6,7 @@ from models.internal_representation.values.quantity_value import QuantityValue
 from models.internal_representation.values.globe_value import GlobeValue
 
 
-def test_write_time_value_node():
+def test_write_time_value_node() -> None:
     """Test writing time value node"""
     time_val = TimeValue(
         value="+1964-05-15T00:00:00Z",
@@ -31,7 +31,7 @@ def test_write_time_value_node():
     )
 
 
-def test_write_quantity_value_node():
+def test_write_quantity_value_node() -> None:
     """Test writing quantity value node"""
     quantity_val = QuantityValue(value="+3", unit="http://www.wikidata.org/entity/Q199")
 
@@ -47,7 +47,7 @@ def test_write_quantity_value_node():
     assert "wikibase:quantityUnit <http://www.wikidata.org/entity/Q199>" in result
 
 
-def test_write_globe_value_node():
+def test_write_globe_value_node() -> None:
     """Test writing globe coordinate value node"""
     globe_val = GlobeValue(
         value="Point(1.88108 50.94636)",
@@ -69,7 +69,7 @@ def test_write_globe_value_node():
     assert "wikibase:geoGlobe <http://www.wikidata.org/entity/Q2>" in result
 
 
-def test_write_quantity_value_node_with_bounds():
+def test_write_quantity_value_node_with_bounds() -> None:
     """Test writing quantity value node with upper and lower bounds"""
     quantity_val = QuantityValue(
         value="+5",
@@ -90,7 +90,7 @@ def test_write_quantity_value_node_with_bounds():
     assert 'wikibase:quantityLowerBound "+4.5"^^xsd:decimal' in result
 
 
-def test_write_quantity_value_node_upper_bound_only():
+def test_write_quantity_value_node_upper_bound_only() -> None:
     """Test writing quantity value node with only upper bound"""
     quantity_val = QuantityValue(
         value="+5", unit="http://www.wikidata.org/entity/Q11573", upper_bound="+5.5"

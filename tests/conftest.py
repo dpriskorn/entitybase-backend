@@ -12,7 +12,7 @@ TEST_DATA_DIR = Path(__file__).parent.parent / "test_data"
 
 
 @pytest.fixture(scope="session", autouse=True)
-def configure_logging():
+def configure_logging() -> None:
     """Configure logging for all test sessions"""
     log_level_str = os.getenv("TEST_LOG_LEVEL", "DEBUG")
     log_level = logging.DEBUG if log_level_str == "DEBUG" else logging.INFO

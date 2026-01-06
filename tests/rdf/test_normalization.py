@@ -1,7 +1,7 @@
 from rdf.conftest import normalize_ttl, TEST_DATA_DIR
 
 
-def test_normalize_ttl_removes_comments():
+def test_normalize_ttl_removes_comments() -> None:
     """Test that comments are removed from TTL"""
     input_ttl = """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 # This is a comment
@@ -16,7 +16,7 @@ wd:Q42 a schema:Thing .
     assert "wd:Q42" in result
 
 
-def test_normalize_ttl_normalizes_whitespace():
+def test_normalize_ttl_normalizes_whitespace() -> None:
     """Test that tabs and multiple spaces are normalized to single spaces"""
     input_ttl = "@prefix rdf:\t<http://www.w3.org/1999/02/22-rdf-syntax-ns#> .\nwd:Q42  a  schema:Thing ."
 
@@ -27,13 +27,13 @@ def test_normalize_ttl_normalizes_whitespace():
     assert "@prefix rdf: <" in result
 
 
-def test_normalize_ttl_empty_input():
+def test_normalize_ttl_empty_input() -> None:
     """Test that empty input is handled correctly"""
     result = normalize_ttl("")
     assert result == ""
 
 
-def test_normalize_ttl_normalizes_newlines():
+def test_normalize_ttl_normalizes_newlines() -> None:
     """Test that multiple consecutive newlines are normalized"""
     input_ttl = """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
@@ -47,7 +47,7 @@ wd:Q42 a schema:Thing ."""
     assert "wd:Q42" in result
 
 
-def test_normalize_ttl_preserves_rdf_content():
+def test_normalize_ttl_preserves_rdf_content() -> None:
     """Test that normalization preserves RDF content using real TTL file"""
     ttl_path = TEST_DATA_DIR / "rdf" / "ttl" / "Q17948861.ttl"
     input_ttl = ttl_path.read_text(encoding="utf-8")
@@ -61,7 +61,7 @@ def test_normalize_ttl_preserves_rdf_content():
     assert len(result) > 0
 
 
-def test_normalize_ttl_strips_edges():
+def test_normalize_ttl_strips_edges() -> None:
     """Test that leading and trailing whitespace is removed"""
     input_ttl = """   \n@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 wd:Q42 a schema:Thing .\n   """
@@ -75,7 +75,7 @@ wd:Q42 a schema:Thing .\n   """
     assert "@prefix rdf:" in result
 
 
-def test_normalize_ttl_idempotent():
+def test_normalize_ttl_idempotent() -> None:
     """Test that running normalize twice produces the same result"""
     input_ttl = """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 wd:Q42 a schema:Thing ."""
@@ -86,7 +86,7 @@ wd:Q42 a schema:Thing ."""
     assert result1 == result2
 
 
-def test_q17948861_load_and_normalize():
+def test_q17948861_load_and_normalize() -> None:
     """Test loading and normalizing Q17948861 files"""
     entity_id = "Q17948861"
 

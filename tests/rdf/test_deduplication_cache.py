@@ -4,14 +4,14 @@ import pytest
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 
 
-def test_basic_deduplication():
+def test_basic_deduplication() -> None:
     """Test that same hash returns True on second call."""
     dedupe = HashDedupeBag()
     assert not dedupe.already_seen("abc123def456", "wdv")
     assert dedupe.already_seen("abc123def456", "wdv") is True
 
 
-def test_different_hashes():
+def test_different_hashes() -> None:
     """Test that different hashes return False each time."""
     dedupe = HashDedupeBag()
     assert not dedupe.already_seen("abc123def456", "wdv")
@@ -19,7 +19,7 @@ def test_different_hashes():
     assert not dedupe.already_seen("ghj789klm012", "wdv")
 
 
-def test_namespace_separation():
+def test_namespace_separation() -> None:
     """Test that same hash in different namespaces is treated separately."""
     dedupe = HashDedupeBag()
     assert not dedupe.already_seen("abc123def456", "wdv")
@@ -28,7 +28,7 @@ def test_namespace_separation():
     assert dedupe.already_seen("abc123def456", "stmt") is True
 
 
-def test_cutoff_collision_false_negative():
+def test_cutoff_collision_false_negative() -> None:
     """Test that hash collisions cause false negatives (acceptable behavior)."""
     dedupe = HashDedupeBag(cutoff=2)  # Small cutoff to force collisions
 
@@ -46,7 +46,7 @@ def test_cutoff_collision_false_negative():
     assert not dedupe.already_seen(hash2, "wdv")
 
 
-def test_stats_tracking():
+def test_stats_tracking() -> None:
     """Test that deduplication statistics are tracked correctly."""
     dedupe = HashDedupeBag()
 
@@ -63,7 +63,7 @@ def test_stats_tracking():
     assert stats["collision_rate"] == 60.0  # 3 misses / 5 total = 60%
 
 
-def test_clear():
+def test_clear() -> None:
     """Test that cache can be cleared."""
     dedupe = HashDedupeBag()
 
@@ -79,19 +79,19 @@ def test_clear():
     assert dedupe.already_seen("abc123", "wdv") is True
 
 
-def test_default_cutoff():
+def test_default_cutoff() -> None:
     """Test that default cutoff of 5 is used."""
     dedupe = HashDedupeBag()
     assert dedupe.cutoff == 5
 
 
-def test_custom_cutoff():
+def test_custom_cutoff() -> None:
     """Test that custom cutoff value is used."""
     dedupe = HashDedupeBag(cutoff=10)
     assert dedupe.cutoff == 10
 
 
-def test_invalid_cutoff():
+def test_invalid_cutoff() -> None:
     """Test that invalid cutoff values raise ValueError."""
     with pytest.raises(ValueError):
         HashDedupeBag(cutoff=0)
@@ -100,7 +100,7 @@ def test_invalid_cutoff():
         HashDedupeBag(cutoff=-1)
 
 
-def test_empty_namespace():
+def test_empty_namespace() -> None:
     """Test that empty namespace string works correctly."""
     dedupe = HashDedupeBag()
 
@@ -108,7 +108,7 @@ def test_empty_namespace():
     assert dedupe.already_seen("abc123", "") is True
 
 
-def test_long_hash_truncation():
+def test_long_hash_truncation() -> None:
     """Test that long hashes are properly truncated for key."""
     dedupe = HashDedupeBag(cutoff=3)
 
@@ -121,7 +121,7 @@ def test_long_hash_truncation():
     assert not dedupe.already_seen(hash2, "wdv")  # Collides
 
 
-def test_hash_preservation():
+def test_hash_preservation() -> None:
     """Test that full hash is preserved in bag, not truncated."""
     dedupe = HashDedupeBag(cutoff=3)
 
@@ -133,7 +133,7 @@ def test_hash_preservation():
     assert dedupe.bag[key] == full_hash
 
 
-def test_multiple_namespaces():
+def test_multiple_namespaces() -> None:
     """Test tracking across multiple namespaces."""
     dedupe = HashDedupeBag()
 

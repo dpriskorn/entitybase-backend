@@ -4,7 +4,7 @@ from models.rdf_builder.ontology.datatypes import property_shape
 from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
 
 
-def test_write_property_metadata_with_english_labels():
+def test_write_property_metadata_with_english_labels() -> None:
     labels = {"en": {"language": "en", "value": "instance of"}}
     descriptions = {
         "en": {"language": "en", "value": "type to which this subject corresponds"}
@@ -31,7 +31,7 @@ def test_write_property_metadata_with_english_labels():
     assert "wikibase:novalue wdno:P31" in result
 
 
-def test_write_property_metadata_multiple_languages():
+def test_write_property_metadata_multiple_languages() -> None:
     labels = {
         "en": {"language": "en", "value": "instance of"},
         "de": {"language": "de", "value": "ist ein"},
@@ -54,7 +54,7 @@ def test_write_property_metadata_multiple_languages():
     assert 'schema:description "Typ, dem dieses Subjekt entspricht"@de' in result
 
 
-def test_write_property_metadata_empty_labels_descriptions():
+def test_write_property_metadata_empty_labels_descriptions() -> None:
     shape = property_shape("P999", "string", labels={}, descriptions={})
 
     output = StringIO()
@@ -67,7 +67,7 @@ def test_write_property_metadata_empty_labels_descriptions():
     assert "wikibase:propertyType" in result
 
 
-def test_write_property_metadata_time_datatype():
+def test_write_property_metadata_time_datatype() -> None:
     labels = {"en": {"language": "en", "value": "point in time"}}
     shape = property_shape("P585", "time", labels=labels, descriptions={})
 
@@ -80,7 +80,7 @@ def test_write_property_metadata_time_datatype():
     assert "wikibase:referenceValue prv:P585" in result
 
 
-def test_write_property_metadata_without_value_node():
+def test_write_property_metadata_without_value_node() -> None:
     labels = {"en": {"language": "en", "value": "instance of"}}
     shape = property_shape("P31", "wikibase-item", labels=labels, descriptions={})
 
@@ -93,7 +93,7 @@ def test_write_property_metadata_without_value_node():
     assert "wikibase:referenceValue" not in result
 
 
-def test_write_property_predicates_with_value_node():
+def test_write_property_predicates_with_value_node() -> None:
     shape = property_shape("P585", "time", labels={}, descriptions={})
 
     output = StringIO()
@@ -110,7 +110,7 @@ def test_write_property_predicates_with_value_node():
     assert "pr:P585 a owl:ObjectProperty" in result
 
 
-def test_write_property_metadata_conditional():
+def test_write_property_metadata_conditional() -> None:
     """Test that wikibase:statementValue is only written for properties with value nodes"""
     # wikibase-item (no value node predicate)
     shape = property_shape("P31", "wikibase-item", labels={}, descriptions={})
@@ -133,7 +133,7 @@ def test_write_property_metadata_conditional():
     assert "wikibase:statementValue psv:P625" in result2
 
 
-def test_write_property_novalue_class():
+def test_write_property_novalue_class() -> None:
     output = StringIO()
     PropertyOntologyWriter.write_novalue_class(output, "P31")
     result = output.getvalue()

@@ -4,7 +4,7 @@ from models.internal_representation.values.time_value import TimeValue
 from models.rdf_builder.value_node import generate_value_node_uri, _serialize_value
 
 
-def test_serialize_time_value():
+def test_serialize_time_value() -> None:
     """Test serialization of time values"""
     value = TimeValue(
         value="+1964-05-15T00:00:00Z",
@@ -17,7 +17,7 @@ def test_serialize_time_value():
     assert serialized == expected
 
 
-def test_serialize_quantity_value():
+def test_serialize_quantity_value() -> None:
     """Test serialization of quantity values"""
     value = QuantityValue(value="+3", unit="http://www.wikidata.org/entity/Q199")
     serialized = _serialize_value(value)
@@ -25,7 +25,7 @@ def test_serialize_quantity_value():
     assert serialized == expected
 
 
-def test_serialize_quantity_with_bounds():
+def test_serialize_quantity_with_bounds() -> None:
     """Test serialization of quantity values with bounds"""
     value = QuantityValue(
         value="+5",
@@ -38,7 +38,7 @@ def test_serialize_quantity_with_bounds():
     assert serialized == expected
 
 
-def test_serialize_globe_value():
+def test_serialize_globe_value() -> None:
     """Test serialization of globe coordinates"""
     value = GlobeValue(
         value="Point(1.88108 50.94636)",
@@ -52,7 +52,7 @@ def test_serialize_globe_value():
     assert serialized == expected
 
 
-def test_generate_value_node_uri_time():
+def test_generate_value_node_uri_time() -> None:
     """Test value node URI generation for time"""
     value = TimeValue(
         value="+1964-05-15T00:00:00Z",
@@ -65,7 +65,7 @@ def test_generate_value_node_uri_time():
     assert uri.isalnum()
 
 
-def test_generate_value_node_uri_quantity():
+def test_generate_value_node_uri_quantity() -> None:
     """Test value node URI generation for quantity"""
     value = QuantityValue(value="+3", unit="http://www.wikidata.org/entity/Q199")
     uri = generate_value_node_uri(value)
@@ -73,7 +73,7 @@ def test_generate_value_node_uri_quantity():
     assert uri.isalnum()
 
 
-def test_generate_value_node_uri_consistency():
+def test_generate_value_node_uri_consistency() -> None:
     """Test that identical values produce identical URIs"""
     value = TimeValue(
         value="+1964-05-15T00:00:00Z",
@@ -86,7 +86,7 @@ def test_generate_value_node_uri_consistency():
     assert uri1 == uri2
 
 
-def test_generate_value_node_uri_different_properties():
+def test_generate_value_node_uri_different_properties() -> None:
     """Test that same value with different properties produces different URIs"""
     value = TimeValue(
         value="+1964-05-15T00:00:00Z",
@@ -99,7 +99,7 @@ def test_generate_value_node_uri_different_properties():
     assert uri.isalnum()
 
 
-def test_generate_value_node_uri_property_independence():
+def test_generate_value_node_uri_property_independence() -> None:
     """Test that same value produces same URI regardless of which property it's used with"""
     value = TimeValue(
         value="+1964-05-15T00:00:00Z",

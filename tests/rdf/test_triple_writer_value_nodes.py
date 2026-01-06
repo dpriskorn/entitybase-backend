@@ -4,7 +4,7 @@ from models.internal_representation.values.entity_value import EntityValue
 from models.rdf_builder.writers.triple import TripleWriters
 
 
-def test_needs_value_node_time():
+def test_needs_value_node_time() -> None:
     """Test that time values require value nodes"""
     time_val = TimeValue(
         value="+1964-05-15T00:00:00Z",
@@ -15,19 +15,19 @@ def test_needs_value_node_time():
     assert TripleWriters._needs_value_node(time_val) is True
 
 
-def test_needs_value_node_quantity():
+def test_needs_value_node_quantity() -> None:
     """Test that quantity values require value nodes"""
     quantity_val = QuantityValue(value="+3", unit="http://www.wikidata.org/entity/Q199")
     assert TripleWriters._needs_value_node(quantity_val) is True
 
 
-def test_needs_value_node_entity():
+def test_needs_value_node_entity() -> None:
     """Test that entity values do not require value nodes"""
     entity_val = EntityValue(value="Q42")
     assert TripleWriters._needs_value_node(entity_val) is False
 
 
-def test_needs_value_node_object_without_kind():
+def test_needs_value_node_object_without_kind() -> None:
     """Test that objects without kind attribute return False"""
     obj = {"value": "test"}
     assert TripleWriters._needs_value_node(obj) is False

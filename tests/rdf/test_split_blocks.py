@@ -1,7 +1,7 @@
 from rdf.conftest import split_subject_blocks
 
 
-def test_split_blocks_skips_prefixes():
+def test_split_blocks_skips_prefixes() -> None:
     """Test that @prefix lines are skipped"""
     input_ttl = """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -13,7 +13,7 @@ wd:Q42 a schema:Thing ."""
     assert "wd:Q42" in blocks
 
 
-def test_split_blocks_includes_all_subjects():
+def test_split_blocks_includes_all_subjects() -> None:
     """Test that all subjects are captured"""
     input_ttl = """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 wd:Q42 a schema:Thing .
@@ -28,7 +28,7 @@ wd:Q44 a schema:Thing ."""
     assert "wd:Q44" in blocks
 
 
-def test_split_blocks_preserves_predicates():
+def test_split_blocks_preserves_predicates() -> None:
     """Test that predicate blocks are preserved"""
     input_ttl = """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 wd:Q42 a schema:Thing ;
@@ -41,7 +41,7 @@ wd:Q42 a schema:Thing ;
     assert "schema:description" in blocks["wd:Q42"]
 
 
-def test_split_blocks_empty_input():
+def test_split_blocks_empty_input() -> None:
     """Test that empty input is handled correctly"""
     blocks = split_subject_blocks("")
     assert len(blocks) == 0
