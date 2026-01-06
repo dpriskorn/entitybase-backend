@@ -24,6 +24,7 @@
 - no relative imports
 - no __future__ imports
 - no strings in code - everything is enums
+- no passing tuples or dicts between methods, use pydantic basemodels
 - avoid websearch, everything we need is in the repo already just ask where to find what you need
 - we don't expose internal_id outside the VitessClient class
 
