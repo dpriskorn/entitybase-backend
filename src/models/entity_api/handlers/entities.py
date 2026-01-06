@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timezone
+from typing import Any, Dict
 
 from fastapi import HTTPException
 
@@ -244,7 +245,7 @@ def get_entity_history(
 
 def get_entity_revision(
     entity_id: str, revision_id: int, vitess_client: VitessClient, s3_client: S3Client
-):
+) -> Dict[str, Any]:
     """Get a specific entity revision."""
     if vitess_client is None:
         raise HTTPException(status_code=503, detail="Vitess not initialized")

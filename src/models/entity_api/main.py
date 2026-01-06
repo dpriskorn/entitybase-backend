@@ -33,17 +33,15 @@ from models.entity import (
     StatementBatchResponse,
     StatementResponse,
 )
+from models.entity_api.clients import Clients
 from models.entity_api.services.rdf_service import serialize_entity_to_turtle
 from models.entity_api.services.statement_service import (
     hash_entity_statements,
     deduplicate_and_store_statements,
 )
-
 from services.entity_api.redirects import RedirectService
 
 logger = logging.getLogger(__name__)
-
-from models.entity_api.clients import Clients
 
 if TYPE_CHECKING:
     pass
@@ -604,8 +602,10 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest) -> EntityDeleteR
     return EntityDeleteResponse(
         id=entity_id,
         revision_id=new_revision_id,
-        delete_type=request.delete_type,
-        is_deleted=True,
+        deletion_type=request.delete_type,
+        deletion_status="soft_deleted"
+        if request.delete_type == "soft"
+        else "hard_deleted",
     )
 
 

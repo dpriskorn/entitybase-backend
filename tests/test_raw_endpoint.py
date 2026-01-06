@@ -85,7 +85,7 @@ def test_raw_endpoint_nonexistent_revision(
     }
 
     api_client.post(f"{base_url}/entity", json=entity_data)
-    entity_labels: Dict[str, Any] = entity_data["labels"]
+    entity_labels = entity_data["labels"]
     entity_labels["en"]["value"] = "Updated Multi-Revision Test"
     api_client.post(f"{base_url}/entity", json=entity_data)
 
@@ -211,7 +211,7 @@ def test_raw_endpoint_nonexistent_revision_2(
     }
 
     api_client.post(f"{base_url}/entity", json=entity_data)
-    entity_labels2: Dict[str, Any] = entity_data["labels"]
+    entity_labels2 = entity_data["labels"]
     entity_labels2["en"]["value"] = "Updated Multi-Revision Test 2"
     api_client.post(f"{base_url}/entity", json=entity_data)
 

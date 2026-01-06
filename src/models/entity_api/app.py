@@ -24,10 +24,14 @@ app = FastAPI(
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     try:
         logger.debug("Initializing clients...")
+        from pathlib import Path
+
         clients = Clients(
-            s3=settings.s3,
-            vitess=settings.vitess,
-            property_registry_path=settings.property_registry_path,
+            s3=settings.to_s3_config(),
+            vitess=settings.to_vitess_config(),
+            property_registry_path=Path(settings.property_registry_path)
+            if settings.property_registry_path
+            else None,
         )
         app.state.clients = clients
 

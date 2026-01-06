@@ -48,7 +48,7 @@ def find_missing_referenced_entities(entities_dir: Path) -> list[str]:
     return sorted(missing)
 
 
-def main():
+def main() -> None:
     entities_dir = Path(__file__).parent.parent / "test_data" / "json" / "entities"
     metadata_dir = Path(__file__).parent.parent / "test_data" / "entity_metadata"
     metadata_dir.mkdir(parents=True, exist_ok=True)

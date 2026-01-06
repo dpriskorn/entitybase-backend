@@ -10,7 +10,7 @@ from models.internal_representation.qualifiers import Qualifier
 from models.internal_representation.references import Reference, ReferenceValue
 
 
-def test_statement_hash_consistency():
+def test_statement_hash_consistency() -> None:
     """Same statement produces same hash"""
     statement = Statement(
         property="P31",
@@ -28,7 +28,7 @@ def test_statement_hash_consistency():
     assert isinstance(hash1, int), "Hash should be an integer"
 
 
-def test_statement_hash_different_statements():
+def test_statement_hash_different_statements() -> None:
     """Different statements produce different hashes"""
     statement1 = Statement(
         property="P31",
@@ -54,7 +54,7 @@ def test_statement_hash_different_statements():
     assert hash1 != hash2, "Different statements should produce different hashes"
 
 
-def test_statement_hash_excludes_statement_id():
+def test_statement_hash_excludes_statement_id() -> None:
     """Hash excludes statement_id (GUID)"""
     statement1 = Statement(
         property="P31",
@@ -80,7 +80,7 @@ def test_statement_hash_excludes_statement_id():
     assert hash1 == hash2, "Hash should be independent of statement_id"
 
 
-def test_statement_hash_includes_all_components():
+def test_statement_hash_includes_all_components() -> None:
     """Hash includes property, value, rank, qualifiers, references"""
     base_statement = Statement(
         property="P31",
@@ -163,7 +163,7 @@ def test_statement_hash_includes_all_components():
     assert base_hash != hash_references, "Hash should include references"
 
 
-def test_statement_hash_ordering():
+def test_statement_hash_ordering() -> None:
     """Hash is deterministic (order of qualifiers/references doesn't matter after JSON sorting)"""
     statement = Statement(
         property="P31",
