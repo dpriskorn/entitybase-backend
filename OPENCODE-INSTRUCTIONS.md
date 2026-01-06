@@ -15,9 +15,7 @@
 - Never pass unparsed json around between methods - use json.loads as soon as possible
 - All api endpoints return JSON
 - /raw/ endpoint returns full revision schema, /entity/ endpoint extracts nested entity
-- after each edit lets use ./run-vulture.sh to check for dead code
-- after each edit lets use ./run-ruff.sh to lint and format code
-- after each edit lets use ./run-mypy.sh to lint code
+- after each edit lets use ./run-linters.sh to check for ruff, dead code, mypy errors
 - do this before running pytest:  export PYTHONPATH=/home/dpriskorn/src/python/wikibase-backend/src:$PYTHONPATH && source .venv/bin/activate
 - after each edit with new tests lets use pytest to check that new tests pass
 - generally one class per file for all classes with at least 1 method
@@ -29,4 +27,7 @@
 - we don't expose internal_id outside the VitessClient class
 
 # Current task
+fix ruff, vulture and mypy warnings
+
+# todo
 fix failing tests
