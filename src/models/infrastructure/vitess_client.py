@@ -472,7 +472,9 @@ class VitessClient(BaseModel):
             cursor.close()
             return False
 
-    def get_history(self, entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
+    def get_history(
+        self, entity_id: str, limit: int = 20, offset: int = 0
+    ) -> list[Any]:
         """Get revision history for an entity
 
         Args:

@@ -182,9 +182,6 @@ POST /statements/batch
   → Request: {hashes: [hash1, hash2, ...]}
   → Returns: {results: {hash1: {...}, hash2: {...}, ...}}
 
-GET /statement/{hash}/exists
-  → Returns: {exists: true, created_at: "2026-01-05T09:00:00Z"}
-
 GET /statement/most_used
   → Query params: limit=1000&min_ref_count=10&property_range=P0-P999&sort_by=ref_count_desc
   → Returns: [hash1, hash2, ...]

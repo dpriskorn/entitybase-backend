@@ -120,6 +120,42 @@ class S3Client(BaseModel):
         except Exception:
             return False
 
+    def write_statement(
+        self,
+        content_hash: int,
+        statement_data: Dict[str, Any],
+    ) -> None:
+        """Write statement snapshot to S3
+
+        Stores statement at path: statements/{hash}.json
+        """
+        import json
+
+        key = f"statements/{content_hash}.json"
+        self.client.put_object(
+            Bucket=self.config.bucket,
+            Key=key,
+            Body=json.dumps(statement_data),
+        )
+
+    def read_statement(self, content_hash: int) -> Dict[str, Any]:
+        """Read statement snapshot from S3
+
+        Returns:
+            Dict with keys: content_hash, statement, created_at
+
+        Raises:
+            ClientError if statement not found
+        """
+        import json
+
+        key = f"statements/{content_hash}.json"
+        response = self.client.get_object(Bucket=self.config.bucket, Key=key)
+
+        parsed_data = json.loads(response["Body"].read().decode("utf-8"))
+
+        return parsed_data
+
     def write_entity_revision(
         self,
         entity_id: str,
@@ -134,7 +170,7 @@ class S3Client(BaseModel):
         from datetime import datetime
 
         revision_data = {
-            "schema_version": "1.0.0",
+            "schema_version": "1.2.0",
             "revision_id": revision_id,
             "created_at": datetime.now(timezone.utc).isoformat() + "Z",
             "created_by": created_by,
@@ -148,7 +184,17 @@ class S3Client(BaseModel):
             "is_mass_edit_protected": False,
             "is_deleted": False,
             "is_redirect": False,
-            "entity": data,
+            "statements": [],
+            "properties": [],
+            "property_counts": {},
+            "entity": {
+                "id": data.get("id"),
+                "type": entity_type,
+                "labels": data.get("labels"),
+                "descriptions": data.get("descriptions"),
+                "aliases": data.get("aliases"),
+                "sitelinks": data.get("sitelinks"),
+            },
         }
 
         key = f"{entity_id}/r{revision_id}.json"

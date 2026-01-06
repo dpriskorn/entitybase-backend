@@ -187,7 +187,6 @@ entity_head (
 
 - `GET /statement/{hash}` → Full statement JSON from S3
 - `POST /statements/batch` → Batch fetch multiple statements
-- `GET /statement/{hash}/exists` → Check if statement exists
 - `GET /statement/most_used` → Most referenced statements
 
 **Most-Used Query Parameters**

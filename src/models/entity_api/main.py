@@ -189,10 +189,17 @@ async def health_check(response: Response):
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return {"status": "starting"}
 
-    s3_status = "connected" if clients.s3 and clients.s3.check_connection() else "disconnected"
-    vitess_status = "connected" if clients.vitess and clients.vitess.check_connection() else "disconnected"
+    s3_status = (
+        "connected" if clients.s3 and clients.s3.check_connection() else "disconnected"
+    )
+    vitess_status = (
+        "connected"
+        if clients.vitess and clients.vitess.check_connection()
+        else "disconnected"
+    )
 
     return {"status": "ok", "s3": s3_status, "vitess": vitess_status}
+
 
 @app.post("/entity", response_model=EntityResponse)
 def create_entity(request: EntityCreateRequest):
@@ -278,7 +285,17 @@ def create_entity(request: EntityCreateRequest):
 
     new_revision_id = head_revision_id + 1 if head_revision_id else 1
 
-    # Construct full revision schema with content hash
+    # Calculate statement hashes FIRST
+    hash_result = hash_entity_statements(request.data)
+
+    # Store statements in S3
+    deduplicate_and_store_statements(
+        hash_result=hash_result,
+        vitess_client=clients.vitess,
+        s3_client=clients.s3,
+    )
+
+    # Construct full revision schema with statement metadata
     revision_data = {
         "schema_version": settings.s3_revision_schema_version,
         "revision_id": new_revision_id,
@@ -294,7 +311,17 @@ def create_entity(request: EntityCreateRequest):
         "is_mass_edit_protected": request.is_mass_edit_protected,
         "is_deleted": False,
         "is_redirect": False,
-        "entity": request.data,
+        "statements": hash_result.statements,
+        "properties": hash_result.properties,
+        "property_counts": hash_result.property_counts,
+        "entity": {
+            "id": request.data.get("id"),
+            "type": request.data.get("type"),
+            "labels": request.data.get("labels"),
+            "descriptions": request.data.get("descriptions"),
+            "aliases": request.data.get("aliases"),
+            "sitelinks": request.data.get("sitelinks"),
+        },
         "content_hash": content_hash,
     }
 
@@ -303,14 +330,6 @@ def create_entity(request: EntityCreateRequest):
         revision_id=new_revision_id,
         data=revision_data,
         publication_state="pending",
-    )
-
-    hash_result = hash_entity_statements(request.data)
-
-    deduplicate_and_store_statements(
-        hash_result=hash_result,
-        vitess_client=clients.vitess,
-        s3_client=clients.s3,
     )
 
     clients.vitess.insert_revision(
@@ -541,14 +560,6 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
         "entity": current_revision.data.get("entity", {}),
     }
 
-    # Write deletion revision to S3
-    clients.s3.write_revision(
-        entity_id=entity_id,
-        revision_id=new_revision_id,
-        data=revision_data,
-        publication_state="pending",
-    )
-
     # Decrement ref_count for hard delete (orphaned statement tracking)
     if request.delete_type == DeleteType.HARD:
         old_statements = current_revision.data.get("statements", [])
@@ -557,6 +568,14 @@ def delete_entity(entity_id: str, request: EntityDeleteRequest):
                 clients.vitess.decrement_ref_count(statement_hash)
             except Exception:
                 continue
+
+    # Write deletion revision to S3
+    clients.s3.write_revision(
+        entity_id=entity_id,
+        revision_id=new_revision_id,
+        data=revision_data,
+        publication_state="pending",
+    )
 
     # Deleted entities have no statements
     statements, properties, property_counts = [], [], {}

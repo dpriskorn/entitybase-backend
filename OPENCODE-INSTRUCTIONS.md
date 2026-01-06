@@ -29,3 +29,6 @@
 
 # Current task
 implement new architecture for statements, see doc/ARCHITECTURE/STATEMENT-DEDUPLICATION.md
+
+# TODO
+add validation on post requests to /entity

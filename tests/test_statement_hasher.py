@@ -135,7 +135,9 @@ def test_statement_hash_includes_all_components():
         property="P31",
         value=EntityValue(value="Q5"),
         rank=Rank.NORMAL,
-        qualifiers=[Qualifier(property="P585", value=EntityValue(value="+1952-03-03T00:00:00Z"))],
+        qualifiers=[
+            Qualifier(property="P585", value=EntityValue(value="+1952-03-03T00:00:00Z"))
+        ],
         references=[],
         statement_id="test-id",
     )
@@ -148,7 +150,14 @@ def test_statement_hash_includes_all_components():
         value=EntityValue(value="Q5"),
         rank=Rank.NORMAL,
         qualifiers=[],
-        references=[Reference(hash="ref1", snaks=[ReferenceValue(property="P248", value=EntityValue(value="Q539"))])],
+        references=[
+            Reference(
+                hash="ref1",
+                snaks=[
+                    ReferenceValue(property="P248", value=EntityValue(value="Q539"))
+                ],
+            )
+        ],
         statement_id="test-id",
     )
     hash_references = StatementHasher.compute_hash(with_references)
