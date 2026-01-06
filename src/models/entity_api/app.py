@@ -13,12 +13,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(
-    title="Wikibase Backend API",
-    description="Backend API for Wikibase entity management",
-    version="1.0.0",
-)
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
@@ -56,4 +50,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.debug("Shutting down...")
 
 
-app.router.lifespan_context = lifespan
+app = FastAPI(
+    title="Wikibase Backend API",
+    description="Backend API for Wikibase entity management",
+    version="1.0.0",
+    lifespan=lifespan,
+)

@@ -16,4 +16,4 @@ def serialize_entity_to_turtle(
         property_registry=property_registry or PropertyRegistry(properties={}),
         enable_deduplication=True,
     )
-    return converter.convert_to_string(entity)
+    return str(converter.convert_to_string(entity))

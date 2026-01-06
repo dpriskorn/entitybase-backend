@@ -128,7 +128,7 @@ class EntityDeleteRequest(BaseModel):
 class EntityDeleteResponse(BaseModel):
     id: str
     revision_id: int
-    deletion_type: str = Field(..., description="Type of deletion performed")
+    deletion_type: str = Field(..., description="Type of deletion performed")  # noqa: F841
     deletion_status: str = Field(
         ..., description="Status of deletion (soft_deleted/hard_deleted)"
     )
