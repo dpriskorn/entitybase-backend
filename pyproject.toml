@@ -25,6 +25,7 @@ requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [dependency-groups]
+# We use a version of pytest that is compatible with pytest-asyncio
 dev = [
     "pytest (>=8.2,<9.0)",
     "black (>=25.12.0,<26.0.0)",
@@ -34,6 +35,7 @@ dev = [
     "httpie (>=3.2.4,<4.0.0)",
     "vulture (>=2.14,<3.0)",
     "mypy (>=1.15.0,<2.0.0)",
+    "ruff (>=0.14.10,<0.15.0)",
 ]
 
 [tool.pytest.ini_options]
