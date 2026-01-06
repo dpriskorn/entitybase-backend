@@ -1,6 +1,9 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 source .venv/bin/activate
 
-mypy src/ tests/ scripts/
+for file in $(find src tests scripts -name "*.py"); do
+    echo "Checking $file"
+    mypy --pretty --show-error-codes --no-error-summary "$file" && continue || exit 1
+done
