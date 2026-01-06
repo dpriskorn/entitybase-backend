@@ -29,5 +29,4 @@
 - we don't expose internal_id outside the VitessClient class
 
 # Current task
-run mypy and cleanup
-
+fix failing tests
