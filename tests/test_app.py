@@ -7,7 +7,7 @@ sys.path.insert(0, "src")
 
 
 @pytest.mark.asyncio
-async def test_app_loads():
+async def test_app_loads() -> None:
     """Test that FastAPI app can be loaded"""
     from models.entity_api.main import app
 

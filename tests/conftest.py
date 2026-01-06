@@ -2,7 +2,7 @@ import time
 import logging
 import os
 from pathlib import Path
-from typing import Generator
+from typing import Generator, Any
 
 import pytest
 import requests
@@ -65,7 +65,7 @@ def wait_for_api(api_client: requests.Session, base_url: str) -> None:
 
 
 def log_request(
-    logger: logging.Logger, method: str, url: str, **kwargs
+    logger: logging.Logger, method: str, url: str, **kwargs: Any
 ) -> requests.Response:
     """Log HTTP request and make the request"""
     if os.getenv("TEST_LOG_HTTP_REQUESTS") == "true":

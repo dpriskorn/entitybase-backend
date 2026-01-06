@@ -3,6 +3,7 @@
 import json
 import logging
 import re
+from typing import Any
 
 from conftest import TEST_DATA_DIR
 from models.json_parser.entity_parser import parse_entity
@@ -11,7 +12,7 @@ from models.rdf_builder.converter import EntityConverter
 logger = logging.getLogger(__name__)
 
 
-def test_q120248304_no_duplicate_value_nodes(full_property_registry) -> None:
+def test_q120248304_no_duplicate_value_nodes(full_property_registry: Any) -> None:
     """Test that duplicate value nodes are not written for Q120248304."""
     entity_id = "Q120248304"
 
@@ -44,7 +45,7 @@ def test_q120248304_no_duplicate_value_nodes(full_property_registry) -> None:
         )
 
 
-def test_deduplication_stats(full_property_registry) -> None:
+def test_deduplication_stats(full_property_registry: Any) -> None:
     """Test that deduplication statistics are tracked."""
     entity_id = "Q120248304"
 
@@ -66,7 +67,7 @@ def test_deduplication_stats(full_property_registry) -> None:
         assert 0 <= stats["collision_rate"] <= 100
 
 
-def test_deduplication_disabled(full_property_registry) -> None:
+def test_deduplication_disabled(full_property_registry: Any) -> None:
     """Test that deduplication can be disabled."""
     entity_id = "Q120248304"
 
@@ -87,7 +88,7 @@ def test_deduplication_disabled(full_property_registry) -> None:
     assert "wd:Q120248304" in actual_ttl
 
 
-def test_q42_no_duplicate_value_nodes(full_property_registry) -> None:
+def test_q42_no_duplicate_value_nodes(full_property_registry: Any) -> None:
     """Test that Q42 (large entity) has no duplicate value nodes."""
     entity_id = "Q42"
 

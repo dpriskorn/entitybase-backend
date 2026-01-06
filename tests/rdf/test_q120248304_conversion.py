@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Any
 
 from conftest import TEST_DATA_DIR
 from models.json_parser.entity_parser import parse_entity
@@ -8,7 +9,7 @@ from models.rdf_builder.converter import EntityConverter
 logger = logging.getLogger(__name__)
 
 
-def test_q120248304_conversion(full_property_registry) -> None:
+def test_q120248304_conversion(full_property_registry: Any) -> None:
     """Test Q120248304 (medium entity) conversion produces valid Turtle"""
     entity_id = "Q120248304"
 
