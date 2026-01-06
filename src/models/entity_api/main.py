@@ -472,12 +472,12 @@ def get_entity_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
 
     # Extract entity from full revision schema (data is already parsed dict)
     entity_data = revision.data["entity"]
-    
+
     # Type assertion to ensure MyPy compatibility
     if not isinstance(entity_data, dict):
         raise HTTPException(
-            status_code=500, 
-            detail=f"Invalid entity data type: expected dict, got {type(entity_data)}"
+            status_code=500,
+            detail=f"Invalid entity data type: expected dict, got {type(entity_data)}",
         )
 
     return entity_data  # type: ignore[return-value]
@@ -652,6 +652,13 @@ def get_raw_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
         raise HTTPException(status_code=503, detail="S3 not initialized")
 
     revision = clients.s3.read_full_revision(entity_id, revision_id)
+
+    # Type assertion to ensure MyPy compatibility
+    if not isinstance(revision, dict):
+        raise HTTPException(
+            status_code=500,
+            detail=f"Invalid revision data type: expected dict, got {type(revision)}",
+        )
 
     # Return full revision as-is (no transformation)
     return revision
