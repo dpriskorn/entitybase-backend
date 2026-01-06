@@ -99,6 +99,12 @@ class RevisionMetadata(BaseModel):
     created_at: str
 
 
+class HealthCheckResponse(BaseModel):
+    status: str
+    s3: str
+    vitess: str
+
+
 class DeleteType(str, Enum):
     """Deletion type classification"""
 
