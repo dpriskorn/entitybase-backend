@@ -19,8 +19,8 @@ def random_qids(n: int) -> list[str]:
         params={
             "action": "query",
             "list": "random",
-            "rnnamespace": 0,
-            "rnlimit": n,
+            "rnnamespace": "0",
+            "rnlimit": str(n),
             "format": "json",
         },
         timeout=10,

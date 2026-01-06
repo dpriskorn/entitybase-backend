@@ -1,6 +1,12 @@
 import pytest
 
 from models.json_parser import parse_value
+from models.internal_representation.values import (
+    TimeValue,
+    QuantityValue,
+    GlobeValue,
+    MonolingualValue,
+)
 
 
 def test_parse_entity_value() -> None:
@@ -58,8 +64,9 @@ def test_parse_time_value() -> None:
     value = parse_value(snak_json)
     assert value.kind == "time"
     assert value.value == "+2023-12-31T00:00:00Z"
-    assert value.timezone == 0
-    assert value.precision == 11
+    time_value = TimeValue.model_validate(value.model_dump())
+    assert time_value.timezone == 0
+    assert time_value.precision == 11
 
 
 def test_parse_quantity_value() -> None:
@@ -82,9 +89,10 @@ def test_parse_quantity_value() -> None:
     value = parse_value(snak_json)
     assert value.kind == "quantity"
     assert value.value == "+34.5"
-    assert value.unit == "1"
-    assert value.upper_bound == "+35.3"
-    assert value.lower_bound == "+33.7"
+    quantity_value = QuantityValue.model_validate(value.model_dump())
+    assert quantity_value.unit == "1"
+    assert quantity_value.upper_bound == "+35.3"
+    assert quantity_value.lower_bound == "+33.7"
 
 
 def test_parse_globe_value() -> None:
@@ -107,8 +115,9 @@ def test_parse_globe_value() -> None:
 
     value = parse_value(snak_json)
     assert value.kind == "globe"
-    assert value.latitude == 67.25
-    assert value.longitude == 12.125
+    globe_value = GlobeValue.model_validate(value.model_dump())
+    assert globe_value.latitude == 67.25
+    assert globe_value.longitude == 12.125
 
 
 def test_parse_monolingual_value() -> None:
@@ -125,8 +134,9 @@ def test_parse_monolingual_value() -> None:
 
     value = parse_value(snak_json)
     assert value.kind == "monolingual"
-    assert value.language == "en"
-    assert value.text == "Douglas Adams"
+    monolingual_value = MonolingualValue.model_validate(value.model_dump())
+    assert monolingual_value.language == "en"
+    assert monolingual_value.text == "Douglas Adams"
 
 
 def test_parse_external_id_value() -> None:

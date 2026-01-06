@@ -21,8 +21,8 @@ def random_qids(n: int, batch: int = 50) -> list[str]:
             params={
                 "action": "query",
                 "list": "random",
-                "rnnamespace": 0,
-                "rnlimit": min(batch, n - len(qids)),
+                "rnnamespace": "0",
+                "rnlimit": str(min(batch, n - len(qids))),
                 "format": "json",
             },
             timeout=10,
