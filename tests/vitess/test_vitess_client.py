@@ -49,7 +49,7 @@ def test_insert_revision_idempotent(vitess_client: VitessClient) -> None:
     conn = vitess_client.connect()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT COUNT(*) FROM entity_revisions WHERE entity_id = %s AND revision_id = %s",
+        "SELECT COUNT(*) FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
         (internal_id, revision_id),
     )
     count = cursor.fetchone()[0]
@@ -84,7 +84,7 @@ def test_insert_revision_different_params(vitess_client: VitessClient) -> None:
     conn = vitess_client.connect()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT COUNT(*) FROM entity_revisions WHERE entity_id = %s",
+        "SELECT COUNT(*) FROM entity_revisions WHERE internal_id = %s",
         (internal_id,),
     )
     count = cursor.fetchone()[0]

@@ -243,8 +243,16 @@ class VitessClient(BaseModel):
         conn = self.connection_manager.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, data) VALUES (%s, %s, %s, %s)",
-            (internal_id, revision_id, is_mass_edit, edit_type, json.dumps(data)),
+            "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            (
+                internal_id,
+                revision_id,
+                is_mass_edit,
+                edit_type,
+                json.dumps(data.get("statements", [])),
+                json.dumps(data.get("properties", [])),
+                json.dumps(data.get("property_counts", {})),
+            ),
         )
         cursor.close()
 
@@ -255,12 +263,16 @@ class VitessClient(BaseModel):
         conn = self.connection_manager.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT data FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+            "SELECT statements, properties, property_counts FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
             (internal_id, revision_id),
         )
         result = cursor.fetchone()
         cursor.close()
+        if not result:
+            raise ValueError(f"Revision {revision_id} not found for entity {entity_id}")
         return {
             "revision_id": revision_id,
-            "data": json.loads(result[0]) if result[0] else None,
+            "statements": json.loads(result[0]) if result[0] else [],
+            "properties": json.loads(result[1]) if result[1] else [],
+            "property_counts": json.loads(result[2]) if result[2] else {},
         }
