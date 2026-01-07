@@ -87,7 +87,10 @@ class AdminHandler:
         edit_type: Optional[str] = None,
         limit: int = 100,
     ) -> EntityListResponse:
-        """Filter entities by status or edit_type."""
+        """Filter entities by status or edit_type.
+
+        DISABLED: Endpoint not yet implemented
+        """
         if vitess_client is None:
             raise HTTPException(status_code=503, detail="Vitess not initialized")
 

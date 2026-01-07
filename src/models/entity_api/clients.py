@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
@@ -14,12 +14,11 @@ if TYPE_CHECKING:
 
 
 class Clients(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     s3: S3Client | None = None
     vitess: VitessClient | None = None
     property_registry: PropertyRegistry | None = None
-
-    class Config:
-        arbitrary_types_allowed = True
 
     def __init__(
         self,

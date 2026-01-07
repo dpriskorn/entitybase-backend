@@ -5,7 +5,7 @@ import logging
 import traceback
 from botocore.client import Config
 from botocore.exceptions import ClientError
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from models.s3_models import (
     S3Config,
@@ -15,11 +15,10 @@ from models.s3_models import (
 
 
 class S3Client(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     config: S3Config
     client: Any = Field(default=None, exclude=True)
-
-    class Config:
-        arbitrary_types_allowed = True
 
     def __init__(self, config: S3Config, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)

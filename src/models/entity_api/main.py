@@ -173,13 +173,14 @@ def get_raw_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
     return handler.get_raw_revision(entity_id, revision_id, clients.vitess, clients.s3)  # type: ignore
 
 
-# @app.get("/entities", response_model=EntityListResponse)
-# def list_entities(
-#     status: Optional[str] = None, edit_type: Optional[str] = None, limit: int = 100
-# ) -> EntityListResponse:
-#     clients = app.state.clients
-#     handler = AdminHandler()
-#     return handler.list_entities(clients.vitess, status, edit_type, limit)
+# DISABLED: /entities endpoint not yet implemented
+# # @app.get("/entities", response_model=EntityListResponse)
+# # def list_entities(
+# #     status: Optional[str] = None, edit_type: Optional[str] = None, limit: int = 100
+# # ) -> EntityListResponse:
+# #     clients = app.state.clients
+# #     handler = AdminHandler()
+# #     return handler.list_entities(clients.vitess, status, edit_type, limit)
 
 
 @app.get("/statement/{content_hash}", response_model=StatementResponse)

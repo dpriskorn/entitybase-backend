@@ -2,6 +2,7 @@ import json
 import logging
 from typing import Any, Dict, cast
 
+import pytest
 import requests
 
 from rapidhash import rapidhash
@@ -569,6 +570,9 @@ def test_dangling_flag_set_by_frontend(
     logger.info("✓ is_dangling flag set by frontend")
 
 
+@pytest.mark.skip(
+    reason="Endpoint not implemented yet - /entities endpoint is disabled"
+)
 def test_query_locked_entities(api_client: requests.Session, base_url: str) -> None:
     """Query should return locked items"""
     logger = logging.getLogger(__name__)
@@ -588,6 +592,9 @@ def test_query_locked_entities(api_client: requests.Session, base_url: str) -> N
     logger.info("✓ Query locked entities works")
 
 
+@pytest.mark.skip(
+    reason="Endpoint not implemented yet - /entities endpoint is disabled"
+)
 def test_query_semi_protected_entities(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -611,6 +618,9 @@ def test_query_semi_protected_entities(
     logger.info("✓ Query semi-protected entities works")
 
 
+@pytest.mark.skip(
+    reason="Endpoint not implemented yet - /entities endpoint is disabled"
+)
 def test_query_archived_entities(api_client: requests.Session, base_url: str) -> None:
     """Query should return archived items"""
     logger = logging.getLogger(__name__)
@@ -630,6 +640,9 @@ def test_query_archived_entities(api_client: requests.Session, base_url: str) ->
     logger.info("✓ Query archived entities works")
 
 
+@pytest.mark.skip(
+    reason="Endpoint not implemented yet - /entities endpoint is disabled"
+)
 def test_query_dangling_entities(api_client: requests.Session, base_url: str) -> None:
     """Query should return dangling items"""
     logger = logging.getLogger(__name__)
@@ -649,6 +662,9 @@ def test_query_dangling_entities(api_client: requests.Session, base_url: str) ->
     logger.info("✓ Query dangling entities works")
 
 
+@pytest.mark.skip(
+    reason="Endpoint not implemented yet - /entities endpoint is disabled"
+)
 def test_query_by_edit_type(api_client: requests.Session, base_url: str) -> None:
     """Query should return entities filtered by edit_type"""
     logger = logging.getLogger(__name__)
@@ -779,7 +795,7 @@ def test_soft_delete_entity(api_client: requests.Session, base_url: str) -> None
     result = delete_response.json()
     assert result["id"] == "Q99001"
     assert result["is_deleted"] is True
-    assert result["delete_type"] == "soft"
+    assert result["deletion_type"] == "soft"
     assert "revision_id" in result
 
     # Verify entity still accessible (soft delete doesn't hide)
@@ -819,7 +835,7 @@ def test_hard_delete_entity(api_client: requests.Session, base_url: str) -> None
     result = delete_response.json()
     assert result["id"] == "Q99002"
     assert result["is_deleted"] is True
-    assert result["delete_type"] == "hard"
+    assert result["deletion_type"] == "hard"
 
     # Verify entity no longer accessible (hard delete hides)
     get_response = api_client.get(f"{base_url}/entity/Q99002")

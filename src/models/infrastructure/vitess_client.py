@@ -2,17 +2,16 @@ import json
 from typing import Any, Optional
 
 import pymysql
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from models.vitess_models import VitessConfig
 
 
 class VitessClient(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     config: VitessConfig
     connection: Optional[Any] = Field(default=None, exclude=True)
-
-    class Config:
-        arbitrary_types_allowed = True
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
@@ -532,7 +531,10 @@ class VitessClient(BaseModel):
         cursor.close()
 
     def list_locked_entities(self, limit: int) -> list[dict]:
-        """List locked entities"""
+        """List locked entities
+
+        DISABLED: /entities endpoint not yet implemented
+        """
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
@@ -551,7 +553,10 @@ class VitessClient(BaseModel):
         return result
 
     def list_semi_protected_entities(self, limit: int) -> list[dict]:
-        """List semi-protected entities"""
+        """List semi-protected entities
+
+        DISABLED: /entities endpoint not yet implemented
+        """
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
@@ -570,7 +575,10 @@ class VitessClient(BaseModel):
         return result
 
     def list_archived_entities(self, limit: int) -> list[dict]:
-        """List archived entities"""
+        """List archived entities
+
+        DISABLED: /entities endpoint not yet implemented
+        """
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
@@ -589,7 +597,10 @@ class VitessClient(BaseModel):
         return result
 
     def list_dangling_entities(self, limit: int) -> list[dict]:
-        """List dangling entities"""
+        """List dangling entities
+
+        DISABLED: /entities endpoint not yet implemented
+        """
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
@@ -608,7 +619,10 @@ class VitessClient(BaseModel):
         return result
 
     def list_by_edit_type(self, edit_type: str, limit: int) -> list[dict]:
-        """List entities by edit type"""
+        """List entities by edit type
+
+        DISABLED: /entities endpoint not yet implemented
+        """
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
