@@ -87,10 +87,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         logger.debug("Clients initialized successfully")
         yield
     except Exception as e:
-        logger.error(f"Failed to initialize clients: {e}")
-        import traceback
-
-        logger.error(f"Traceback: {traceback.format_exc()}")
+        logger.error(
+            f"Failed to initialize clients: {type(e).__name__}: {e}", exc_info=True
+        )
         raise
 
 

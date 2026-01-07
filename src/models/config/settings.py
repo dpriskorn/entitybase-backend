@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     test_log_level: str = "INFO"
     test_log_http_requests: bool = False
     test_show_progress: bool = True
+    expose_original_exceptions: bool = False
 
     def get_log_level(self) -> int:
         if os.getenv("TEST_LOG_LEVEL"):

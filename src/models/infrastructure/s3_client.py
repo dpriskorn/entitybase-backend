@@ -2,7 +2,6 @@ from datetime import timezone
 from typing import Any, Dict
 import boto3
 import logging
-import traceback
 from botocore.client import Config
 from botocore.exceptions import ClientError
 from pydantic import BaseModel, ConfigDict, Field
@@ -196,19 +195,15 @@ class S3Client(BaseModel):
 
         except Exception as e:
             logger.error(
-                "S3 write_statement failed",
+                f"S3 write_statement failed for {content_hash}: {type(e).__name__}: {e}",
                 extra={
                     "content_hash": content_hash,
                     "bucket": self.config.bucket,
                     "key": key,
-                    "error_type": type(e).__name__,
-                    "error_message": str(e),
                     "statement_data_size": len(statement_json),
                     "s3_endpoint": self.client._endpoint.host,
-                    "stack_trace": traceback.format_exc()
-                    if hasattr(e, "__traceback__")
-                    else None,
                 },
+                exc_info=True,
             )
             raise
 
@@ -259,14 +254,13 @@ class S3Client(BaseModel):
             raise
         except Exception as e:
             logger.error(
-                "S3 read_statement failed with non-ClientError",
+                f"S3 read_statement failed with non-ClientError for {content_hash}: {type(e).__name__}: {e}",
                 extra={
                     "content_hash": content_hash,
                     "bucket": self.config.bucket,
                     "key": key,
-                    "error_type": type(e).__name__,
-                    "error_message": str(e),
                 },
+                exc_info=True,
             )
             raise
 

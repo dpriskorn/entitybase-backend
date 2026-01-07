@@ -21,7 +21,6 @@ def vitess_client() -> Generator[VitessClient, None, None]:
     )
     client = VitessClient(config)
     yield client
-    client.connection = None
 
 
 def test_insert_revision_idempotent(vitess_client: VitessClient) -> None:

@@ -108,6 +108,7 @@ services:
       KAFKA_BROKERS: kafka:29092
       KAFKA_TOPIC: wikibase.entity_change
       LOG_LEVEL: "DEBUG"
+      EXPOSE_ORIGINAL_EXCEPTIONS: "true"
     command: uvicorn models.entity_api.main:app --host 0.0.0.0 --port 8000
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]

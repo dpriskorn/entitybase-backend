@@ -3,10 +3,10 @@ import logging
 from datetime import datetime, timezone
 from typing import Any
 
-from fastapi import HTTPException
 from rapidhash import rapidhash
 
 from models.entity import StatementHashResult
+from models.entity_api.utils import raise_or_convert_to_500
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.s3_models import StoredStatement
@@ -68,13 +68,11 @@ def hash_entity_statements(
                 count += 1
             except Exception as e:
                 logger.error(
-                    f"Failed to hash statement {idx + 1} for property {property_id}: {e}"
+                    f"Failed to hash statement {idx + 1} for property {property_id}: {e}",
+                    exc_info=True,
                 )
                 logger.error(f"Statement data: {statement}")
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Failed to hash statement: {e}",
-                )
+                raise_or_convert_to_500(e, f"Failed to hash statement: {e}")
 
         property_counts[property_id] = count
         logger.debug(f"Property {property_id}: processed {count} statements")
@@ -196,20 +194,17 @@ def deduplicate_and_store_statements(
 
         except Exception as e:
             logger.error(
-                f"Statement storage failed for hash {statement_hash}",
+                f"Statement storage failed for hash {statement_hash}: {type(e).__name__}: {e}",
                 extra={
                     "statement_hash": statement_hash,
                     "statement_index": idx + 1,
                     "total_statements": len(hash_result.statements),
                     "statement_data": statement_data,
-                    "error_type": type(e).__name__,
-                    "error_message": str(e),
-                    "stack_trace": str(e.__traceback__) if e.__traceback__ else None,
                 },
+                exc_info=True,
             )
-            raise HTTPException(
-                status_code=500,
-                detail=f"Failed to store statement {statement_hash}: {e}",
+            raise_or_convert_to_500(
+                e, f"Failed to store statement {statement_hash}: {e}"
             )
 
     logger.info(
