@@ -1,4 +1,3 @@
-import json
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -82,9 +81,7 @@ class VitessClient(BaseModel):
     def get_protection_info(self, entity_id: str) -> dict[str, bool]:
         return self.entity_repository.get_protection_info(entity_id)  # type: ignore[no-any-return]
 
-    def get_history(
-        self, entity_id: str, limit: int = 20, offset: int = 0
-    ) -> list[Any]:
+    def get_history(self, entity_id: str, limit: int = 20, offset: int = 0) -> list:
         return self.revision_repository.get_history(entity_id, limit, offset)  # type: ignore[no-any-return]
 
     def insert_revision(
@@ -198,21 +195,20 @@ class VitessClient(BaseModel):
     def delete_entity(self, entity_id: str) -> None:
         return self.head_repository.soft_delete(entity_id)  # type: ignore[no-any-return]
 
-    # DISABLED: /entities endpoint not implemented
-    # def list_locked_entities(self, limit: int) -> list[dict]:
-    #     return self.listing_repository.list_locked(limit)
-    #
-    # def list_semi_protected_entities(self, limit: int) -> list[dict]:
-    #     return self.listing_repository.list_semi_protected(limit)
-    #
-    # def list_archived_entities(self, limit: int) -> list[dict]:
-    #     return self.listing_repository.list_archived(limit)
-    #
-    # def list_dangling_entities(self, limit: int) -> list[dict]:
-    #     return self.listing_repository.list_dangling(limit)
-    #
-    # def list_by_edit_type(self, edit_type: str, limit: int) -> list[dict]:
-    #     return self.listing_repository.list_by_edit_type(edit_type, limit)
+    def list_locked_entities(self, limit: int) -> list[dict]:
+        return self.listing_repository.list_locked(limit)  # type: ignore[no-any-return]
+
+    def list_semi_protected_entities(self, limit: int) -> list[dict]:
+        return self.listing_repository.list_semi_protected(limit)  # type: ignore[no-any-return]
+
+    def list_archived_entities(self, limit: int) -> list[dict]:
+        return self.listing_repository.list_archived(limit)  # type: ignore[no-any-return]
+
+    def list_dangling_entities(self, limit: int) -> list[dict]:
+        return self.listing_repository.list_dangling(limit)  # type: ignore[no-any-return]
+
+    def list_by_edit_type(self, edit_type: str, limit: int) -> list[dict]:
+        return self.listing_repository.list_by_edit_type(edit_type, limit)  # type: ignore[no-any-return]
 
     def insert_statement_content(self, content_hash: int) -> bool:
         return self.statement_repository.insert_content(content_hash)  # type: ignore[no-any-return]
@@ -237,6 +233,8 @@ class VitessClient(BaseModel):
         is_mass_edit: bool = False,
         edit_type: str = "",
     ) -> None:
+        import json
+
         internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             raise ValueError(f"Entity {entity_id} not found")
@@ -249,6 +247,8 @@ class VitessClient(BaseModel):
         cursor.close()
 
     def read_full_revision(self, entity_id: str, revision_id: int) -> dict:
+        import json
+
         internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             raise ValueError(f"Entity {entity_id} not found")

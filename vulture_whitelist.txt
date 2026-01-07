@@ -1,4 +1,6 @@
 models.entity_api.handlers.admin_handler.AdminHandler.list_entities
+models.infrastructure.vitess.VitessClient._resolve_id
+models.infrastructure.vitess_client.VitessClient._resolve_id
 models.infrastructure.vitess_client.VitessClient.list_locked_entities
 models.infrastructure.vitess_client.VitessClient.list_semi_protected_entities
 models.infrastructure.vitess_client.VitessClient.list_archived_entities
