@@ -821,7 +821,7 @@ class VitessClient(BaseModel):
         # Insert revision
         cursor.execute(
             """INSERT INTO entity_revisions 
-                    (entity_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
+                    (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)""",
             (
                 internal_id,
@@ -878,7 +878,7 @@ class VitessClient(BaseModel):
         # Insert revision
         cursor.execute(
             """INSERT INTO entity_revisions 
-                    (entity_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
+                    (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)""",
             (
                 internal_id,
