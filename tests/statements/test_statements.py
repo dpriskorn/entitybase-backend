@@ -592,6 +592,9 @@ def test_most_used_statements(api_client: requests.Session, base_url: str) -> No
     response = api_client.get(
         f"{base_url}/statement/most_used?limit=10&min_ref_count=1"
     )
+    if response.status_code != 200:
+        logger.error(f"Request failed with status {response.status_code}")
+        logger.debug(f"Response body: {response.text}")
     assert response.status_code == 200
 
     result = response.json()

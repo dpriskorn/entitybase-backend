@@ -1,9 +1,6 @@
-import json
 import logging
-from typing import Any
 
 from fastapi import HTTPException
-from rapidhash import rapidhash
 
 from models.entity import (
     MostUsedStatementsResponse,
@@ -154,7 +151,8 @@ class StatementHandler:
 
         Property list format: comma-separated property IDs (e.g., P31,P569)
 
-        Returns list of statement hashes for the specified properties.
+        Returns list of statement hashes for specified properties.
+        Uses schema 1.2.0 architecture where statements are stored separately by hash.
         """
         if vitess_client is None:
             raise HTTPException(status_code=503, detail="Vitess not initialized")
@@ -168,35 +166,29 @@ class StatementHandler:
 
         revision_metadata = s3_client.read_full_revision(entity_id, head_revision_id)
 
-        property_ids = [p.strip() for p in property_list.split(",") if p.strip()]
+        requested_property_ids = [
+            p.strip() for p in property_list.split(",") if p.strip()
+        ]
 
-        all_properties = revision_metadata.get("properties", [])
+        statement_hashes = revision_metadata.get("statements", [])
 
-        property_hash_map: dict[Any, Any] = {}
-        entity_data = s3_client.read_revision(entity_id, head_revision_id)
-        claims = entity_data.data.get("entity", {}).get("claims", {})
+        matching_hashes = []
 
-        for prop_id in property_ids:
-            if prop_id not in all_properties:
-                continue
-            claim_list = claims.get(prop_id, [])
-            for claim in claim_list:
-                try:
-                    claim_json = json.dumps(claim, sort_keys=True)
-                    claim_hash = rapidhash(claim_json.encode())
-                    property_hash_map.setdefault(prop_id, []).append(claim_hash)
-                except Exception as e:
-                    raise HTTPException(
-                        status_code=500,
-                        detail=f"Failed to hash claim: {e}",
-                    )
+        for statement_hash in statement_hashes:
+            try:
+                statement_data = s3_client.read_statement(statement_hash)
 
-        flat_hashes = []
-        for prop_id in property_ids:
-            if prop_id in property_hash_map:
-                flat_hashes.extend(property_hash_map[prop_id])
+                property_id = statement_data["statement"]["mainsnak"]["property"]
 
-        return PropertyHashesResponse(property_hashes=flat_hashes)
+                if property_id in requested_property_ids:
+                    matching_hashes.append(statement_hash)
+            except Exception as e:
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Failed to read statement {statement_hash}: {e}",
+                )
+
+        return PropertyHashesResponse(property_hashes=matching_hashes)
 
     def get_most_used_statements(
         self,

@@ -157,7 +157,9 @@ def deduplicate_and_store_statements(
                             "statement_hash": statement_hash,
                             "s3_key": s3_key,
                             "write_duration_seconds": write_duration,
-                            "statement_data_size": len(json.dumps(statement_with_hash)),
+                            "statement_data_size": len(
+                                json.dumps(statement_with_hash.model_dump())
+                            ),
                         },
                     )
                 except Exception as write_error:

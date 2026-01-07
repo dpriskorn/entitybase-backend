@@ -182,6 +182,15 @@ def get_raw_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
 # #     return handler.list_entities(clients.vitess, status, edit_type, limit)
 
 
+@app.get("/statement/most_used", response_model=MostUsedStatementsResponse)
+def get_most_used_statements(
+    limit: int = 100, min_ref_count: int = 1
+) -> MostUsedStatementsResponse:
+    clients = app.state.clients
+    handler = StatementHandler()
+    return handler.get_most_used_statements(clients.vitess, limit, min_ref_count)
+
+
 @app.get("/statement/{content_hash}", response_model=StatementResponse)
 def get_statement(content_hash: int) -> StatementResponse:
     clients = app.state.clients
@@ -222,15 +231,6 @@ def get_entity_property_hashes(
     return handler.get_entity_property_hashes(
         entity_id, property_list, clients.vitess, clients.s3
     )
-
-
-@app.get("/statement/most_used", response_model=MostUsedStatementsResponse)
-def get_most_used_statements(
-    limit: int = 100, min_ref_count: int = 1
-) -> MostUsedStatementsResponse:
-    clients = app.state.clients
-    handler = StatementHandler()
-    return handler.get_most_used_statements(clients.vitess, limit, min_ref_count)
 
 
 @app.post("/statements/cleanup-orphaned", response_model=CleanupOrphanedResponse)

@@ -44,6 +44,8 @@ models.infrastructure.s3_client.model_config
 models.infrastructure.s3_client.S3Client.write_entity_revision
 models.infrastructure.vitess_client.model_config
 models.infrastructure.vitess_client.VitessClient.write_entity_revision
+models.infrastructure.vitess.VitessClient.insert_head_with_status
+models.infrastructure.vitess_client.VitessClient.insert_head_with_status
 models.internal_representation.datatypes.WIKIBASE_ITEM
 models.internal_representation.datatypes.GLOBOCOORDINATE
 models.internal_representation.datatypes.MONOLINGUALTEXT
