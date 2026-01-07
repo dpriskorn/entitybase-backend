@@ -1,5 +1,5 @@
 [project]
-name = "wikibase-backend"
+name = "entitybase-backend"
 version = "0.1.0"
 description = ""
 authors = [
