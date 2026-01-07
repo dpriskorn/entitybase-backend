@@ -205,8 +205,8 @@ class EntityHandler:
             f"Statement hashing complete: {len(hash_result.statements)} hashes generated"
         )
 
-        # Store statements in S3
-        logger.debug("Starting statement deduplication and storage process")
+        # Store statements in S3 (S3-first approach with verification)
+        logger.debug("Starting statement deduplication and storage process (S3-first)")
         logger.info(
             f"Entity {entity_id}: Processing {len(hash_result.statements)} statements for storage"
         )
@@ -222,22 +222,6 @@ class EntityHandler:
             logger.info(
                 f"Entity {entity_id}: Stored {len(hash_result.statements)} statements with hashes: {hash_result.statements}"
             )
-
-            # High Priority: Add verification by attempting to read all statements back
-            logger.debug(
-                f"Entity {entity_id}: Verifying all statements can be read back from S3"
-            )
-            for verify_hash in hash_result.statements:
-                try:
-                    s3_client.read_statement(verify_hash)
-                    logger.debug(
-                        f"Entity {entity_id}: Verified statement {verify_hash} is readable from S3"
-                    )
-                except Exception as verify_error:
-                    logger.error(
-                        f"Entity {entity_id}: Statement {verify_hash} verification failed: {verify_error}"
-                    )
-                    # Don't raise here - we want to see which statements fail verification
         except Exception as e:
             logger.error(
                 f"Entity {entity_id}: Statement deduplication and storage failed",

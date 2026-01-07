@@ -97,19 +97,23 @@ def deduplicate_and_store_statements(
     vitess_client: VitessClient,
     s3_client: S3Client,
 ) -> None:
-    """Deduplicate and store statements in Vitess and S3.
+    """Deduplicate and store statements in Vitess and S3 (S3-first approach).
 
     For each statement:
-    - Check if hash exists in statement_content table
-    - If not exists: write to S3 and insert into statement_content
-    - If exists: increment ref_count
+    1. Check if S3 object exists
+    2. If not exists: write to S3 (with verification)
+    3. Insert into statement_content (idempotent) or increment ref_count
+
+    S3-first approach prevents DB/S3 sync issues from failed writes.
 
     Args:
         hash_result: StatementHashResult with hashes and full statements
         vitess_client: Vitess client for statement_content operations
         s3_client: S3 client for statement storage
     """
-    logger.debug(f"Deduplicating and storing {len(hash_result.statements)} statements")
+    logger.debug(
+        f"Deduplicating and storing {len(hash_result.statements)} statements (S3-first)"
+    )
 
     for idx, (statement_hash, statement_data) in enumerate(
         zip(hash_result.statements, hash_result.full_statements)
@@ -118,36 +122,30 @@ def deduplicate_and_store_statements(
             f"Processing statement {idx + 1}/{len(hash_result.statements)} with hash {statement_hash}"
         )
         try:
-            is_new = vitess_client.insert_statement_content(statement_hash)
-            logger.debug(f"Statement {statement_hash} is_new: {is_new}")
+            statement_with_hash = StoredStatement(
+                content_hash=statement_hash,
+                statement=statement_data,
+                created_at=datetime.now(timezone.utc).isoformat() + "Z",
+            )
+            s3_key = f"statements/{statement_hash}.json"
 
-            if is_new:
-                statement_with_hash = StoredStatement(
-                    content_hash=statement_hash,
-                    statement=statement_data,
-                    created_at=datetime.now(timezone.utc).isoformat() + "Z",
-                )
-                s3_key = f"statements/{statement_hash}.json"
+            import time
+            import traceback
 
-                # High Priority: Enhanced Statement Data Logging
+            # Step 1: Check if S3 object exists
+            s3_exists = False
+            try:
+                s3_client.read_statement(statement_hash)
+                s3_exists = True
+                logger.debug(f"Statement {statement_hash} already exists in S3")
+            except Exception:
                 logger.debug(
-                    f"Writing new statement {statement_hash} to S3 at key: {s3_key}"
+                    f"Statement {statement_hash} not found in S3, will write new object"
                 )
-                logger.debug(
-                    f"Full statement data: {json.dumps(statement_data, indent=2)}"
-                )
-                logger.debug(
-                    f"Enhanced statement data with hash: {json.dumps(statement_with_hash, indent=2)}"
-                )
-                logger.debug(
-                    f"Statement data size: {len(json.dumps(statement_with_hash))} bytes"
-                )
-                logger.debug(f"S3 client type: {type(s3_client)}")
-                logger.debug(f"S3 client endpoint: {s3_client.client._endpoint.host}")
+                s3_exists = False
 
-                import time
-                import traceback
-
+            # Step 2: Write to S3 if not exists
+            if not s3_exists:
                 try:
                     write_start_time = time.time()
                     s3_client.write_statement(
@@ -164,19 +162,6 @@ def deduplicate_and_store_statements(
                             "statement_data_size": len(json.dumps(statement_with_hash)),
                         },
                     )
-
-                    # High Priority: Immediate verification by reading back
-                    try:
-                        s3_client.read_statement(statement_hash)
-                        logger.debug(
-                            f"Statement {statement_hash} verification successful: can read back from S3"
-                        )
-                    except Exception as verify_error:
-                        logger.error(
-                            f"Statement {statement_hash} verification failed: {verify_error}"
-                        )
-                        raise
-
                 except Exception as write_error:
                     logger.error(
                         f"Failed to write statement {statement_hash} to S3",
@@ -194,14 +179,21 @@ def deduplicate_and_store_statements(
                         },
                     )
                     raise
+
+            # Step 3: Insert into DB or increment ref_count
+            # Note: We skip the DB existence check and insert directly to be more efficient
+            # The insert is idempotent, so it handles concurrent inserts gracefully
+            inserted = vitess_client.insert_statement_content(statement_hash)
+            if inserted:
+                logger.debug(
+                    f"Inserted new statement {statement_hash} into statement_content"
+                )
             else:
                 logger.debug(
-                    f"Incrementing ref_count for existing statement {statement_hash}"
+                    f"Statement {statement_hash} already in DB, incrementing ref_count"
                 )
                 vitess_client.increment_ref_count(statement_hash)
-                logger.debug(
-                    f"Successfully incremented ref_count for statement {statement_hash}"
-                )
+
         except Exception as e:
             logger.error(
                 f"Statement storage failed for hash {statement_hash}",

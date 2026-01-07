@@ -12,4 +12,5 @@ COPY ./test_data/ ./test_data/
 
  ENV PYTHONPATH=/app/src
 
-CMD ["pytest", "tests/", "-v", "--tb=short", "--log-cli-level=DEBUG"]
+CMD sleep 10 && pytest tests/ -v --tb=short --log-cli-level=DEBUG
+#CMD ["pytest", "tests/", "-v", "--tb=short", "--log-cli-level=DEBUG"]
