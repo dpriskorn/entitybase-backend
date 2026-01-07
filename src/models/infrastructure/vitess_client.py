@@ -68,7 +68,7 @@ class VitessClient(BaseModel):
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS entity_head (
-                entity_id BIGINT PRIMARY KEY,
+                internal_id BIGINT PRIMARY KEY,
                 head_revision_id BIGINT NOT NULL,
                 is_semi_protected BOOLEAN DEFAULT FALSE,
                 is_locked BOOLEAN DEFAULT FALSE,
@@ -111,7 +111,7 @@ class VitessClient(BaseModel):
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS entity_revisions (
-                entity_id BIGINT NOT NULL,
+                internal_id BIGINT NOT NULL,
                 revision_id BIGINT NOT NULL,
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 is_mass_edit BOOLEAN DEFAULT FALSE,
@@ -119,7 +119,7 @@ class VitessClient(BaseModel):
                 statements JSON NOT NULL,
                 properties JSON NOT NULL,
                 property_counts JSON NOT NULL,
-                PRIMARY KEY (entity_id, revision_id)
+                PRIMARY KEY (internal_id, revision_id)
             )
         """
         )
@@ -156,7 +156,7 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT head_revision_id FROM entity_head WHERE entity_id = %s",
+            "SELECT head_revision_id FROM entity_head WHERE internal_id = %s",
             (internal_id,),
         )
         result = cursor.fetchone()
@@ -177,7 +177,7 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO entity_revisions (entity_id, revision_id, is_mass_edit, edit_type, data) VALUES (%s, %s, %s, %s)",
+            "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, data) VALUES (%s, %s, %s, %s)",
             (internal_id, revision_id, is_mass_edit, edit_type, json.dumps(data)),
         )
         cursor.close()
@@ -190,7 +190,7 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT data FROM entity_revisions WHERE entity_id = %s AND revision_id = %s",
+            "SELECT data FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
             (internal_id, revision_id),
         )
         result = cursor.fetchone()
@@ -218,7 +218,7 @@ class VitessClient(BaseModel):
         cursor = conn.cursor()
 
         cursor.execute(
-            "SELECT 1 FROM entity_revisions WHERE entity_id = %s AND revision_id = %s",
+            "SELECT 1 FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
             (internal_id, revision_id),
         )
         if cursor.fetchone() is not None:
@@ -226,7 +226,7 @@ class VitessClient(BaseModel):
             return
 
         cursor.execute(
-            "INSERT INTO entity_revisions (entity_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts) VALUES (%s, %s, %s, %s, %s, %s, %s)",
             (
                 internal_id,
                 revision_id,
@@ -247,7 +247,7 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT is_deleted FROM entity_head WHERE entity_id = %s",
+            "SELECT is_deleted FROM entity_head WHERE internal_id = %s",
             (internal_id,),
         )
         result = cursor.fetchone()
@@ -262,7 +262,7 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT is_locked FROM entity_head WHERE entity_id = %s",
+            "SELECT is_locked FROM entity_head WHERE internal_id = %s",
             (internal_id,),
         )
         result = cursor.fetchone()
@@ -277,7 +277,7 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT is_archived FROM entity_head WHERE entity_id = %s",
+            "SELECT is_archived FROM entity_head WHERE internal_id = %s",
             (internal_id,),
         )
         result = cursor.fetchone()
@@ -301,7 +301,7 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "UPDATE entity_head SET redirects_to = %s WHERE entity_id = %s",
+            "UPDATE entity_head SET redirects_to = %s WHERE internal_id = %s",
             (redirects_to_internal_id, internal_id),
         )
         cursor.close()
@@ -360,7 +360,8 @@ class VitessClient(BaseModel):
         cursor.execute(
             """SELECT m.entity_id
                    FROM entity_head h
-                   WHERE h.entity_id = %s AND h.redirects_to IS NOT NULL""",
+                   JOIN entity_id_mapping m ON h.redirects_to = m.internal_id
+                   WHERE h.internal_id = %s""",
             (internal_id,),
         )
         result = cursor.fetchone()
@@ -410,7 +411,7 @@ class VitessClient(BaseModel):
                        is_mass_edit_protected = %s,
                        is_deleted = %s,
                        is_redirect = %s
-                   WHERE entity_id = %s AND head_revision_id = %s""",
+                   WHERE internal_id = %s AND head_revision_id = %s""",
             (
                 new_head,
                 is_semi_protected,
@@ -450,7 +451,7 @@ class VitessClient(BaseModel):
         try:
             cursor.execute(
                 """INSERT INTO entity_head
-                       (entity_id, head_revision_id, is_semi_protected, is_locked,
+                       (internal_id, head_revision_id, is_semi_protected, is_locked,
                         is_archived, is_dangling, is_mass_edit_protected, is_deleted, is_redirect)
                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                 (
@@ -498,7 +499,7 @@ class VitessClient(BaseModel):
         conn = self.connect()
         cursor = conn.cursor()
         cursor.execute(
-            "SELECT revision_id, created_at FROM entity_revisions WHERE entity_id = %s ORDER BY revision_id DESC LIMIT %s OFFSET %s",
+            "SELECT revision_id, created_at FROM entity_revisions WHERE internal_id = %s ORDER BY revision_id DESC LIMIT %s OFFSET %s",
             (internal_id, limit, offset),
         )
         result = [
@@ -525,7 +526,7 @@ class VitessClient(BaseModel):
             """UPDATE entity_head
                    SET is_deleted = TRUE,
                        head_revision_id = %s
-                   WHERE entity_id = %s""",
+                   WHERE internal_id = %s""",
             (head_revision_id, internal_id),
         )
         cursor.close()
@@ -540,7 +541,7 @@ class VitessClient(BaseModel):
         cursor.execute(
             """SELECT m.entity_id, h.head_revision_id
                    FROM entity_head h
-                   JOIN entity_id_mapping m ON h.entity_id = m.internal_id
+                   JOIN entity_id_mapping m ON h.internal_id = m.internal_id
                    WHERE h.is_locked = TRUE
                    LIMIT %s""",
             (limit,),
@@ -562,7 +563,7 @@ class VitessClient(BaseModel):
         cursor.execute(
             """SELECT m.entity_id, h.head_revision_id
                    FROM entity_head h
-                   JOIN entity_id_mapping m ON h.entity_id = m.internal_id
+                   JOIN entity_id_mapping m ON h.internal_id = m.internal_id
                    WHERE h.is_semi_protected = TRUE
                    LIMIT %s""",
             (limit,),
@@ -584,7 +585,7 @@ class VitessClient(BaseModel):
         cursor.execute(
             """SELECT m.entity_id, h.head_revision_id
                    FROM entity_head h
-                   JOIN entity_id_mapping m ON h.entity_id = m.internal_id
+                   JOIN entity_id_mapping m ON h.internal_id = m.internal_id
                    WHERE h.is_archived = TRUE
                    LIMIT %s""",
             (limit,),
@@ -606,7 +607,7 @@ class VitessClient(BaseModel):
         cursor.execute(
             """SELECT m.entity_id, h.head_revision_id
                    FROM entity_head h
-                   JOIN entity_id_mapping m ON h.entity_id = m.internal_id
+                   JOIN entity_id_mapping m ON h.internal_id = m.internal_id
                    WHERE h.is_dangling = TRUE
                    LIMIT %s""",
             (limit,),
@@ -628,8 +629,8 @@ class VitessClient(BaseModel):
         cursor.execute(
             """SELECT DISTINCT m.entity_id, r.edit_type, r.revision_id
                    FROM entity_revisions r
-                   JOIN entity_head h ON r.entity_id = h.entity_id
-                   JOIN entity_id_mapping m ON h.entity_id = m.internal_id
+                   JOIN entity_head h ON r.internal_id = h.internal_id
+                   JOIN entity_id_mapping m ON h.internal_id = m.internal_id
                    WHERE r.edit_type = %s
                    LIMIT %s""",
             (edit_type, limit),
@@ -778,8 +779,8 @@ class VitessClient(BaseModel):
         cursor = conn.cursor()
         cursor.execute(
             """SELECT is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected
-                    FROM entity_head
-                    WHERE entity_id = %s""",
+                   FROM entity_head
+                   WHERE internal_id = %s""",
             (internal_id,),
         )
         result = cursor.fetchone()
@@ -836,13 +837,13 @@ class VitessClient(BaseModel):
         # Update head with CAS
         cursor.execute(
             """UPDATE entity_head
-                    SET head_revision_id = %s,
-                        is_semi_protected = %s,
-                        is_locked = %s,
-                        is_archived = %s,
-                        is_dangling = %s,
-                        is_mass_edit_protected = %s
-                    WHERE entity_id = %s AND head_revision_id = %s""",
+                   SET head_revision_id = %s,
+                       is_semi_protected = %s,
+                       is_locked = %s,
+                       is_archived = %s,
+                       is_dangling = %s,
+                       is_mass_edit_protected = %s
+                   WHERE internal_id = %s AND head_revision_id = %s""",
             (
                 revision_id,
                 data.get("is_semi_protected", False),
@@ -893,8 +894,8 @@ class VitessClient(BaseModel):
         # Insert head
         cursor.execute(
             """INSERT INTO entity_head
-                    (entity_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                   (internal_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s)""",
             (
                 internal_id,
                 revision_id,
@@ -924,9 +925,9 @@ class VitessClient(BaseModel):
         # Mark as deleted in entity_head
         cursor.execute(
             """UPDATE entity_head
-                    SET is_deleted = TRUE,
-                        head_revision_id = 0
-                    WHERE entity_id = %s""",
+                   SET is_deleted = TRUE,
+                       head_revision_id = 0
+                   WHERE internal_id = %s""",
             (internal_id,),
         )
 

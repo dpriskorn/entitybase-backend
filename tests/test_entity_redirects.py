@@ -18,10 +18,10 @@ class MockVitessClient:
     def __init__(self) -> None:
         self.resolved_ids: dict[str, int] = {}
         self.redirects: dict[int, int] = {}
-        self.redirects_to: dict[int, int | str | None] = {}
-        self.deleted_entities: set[int] = set()
-        self.locked_entities: set[int] = set()
-        self.archived_entities: set[int] = set()
+        self.redirects_to: dict[str, str | None] = {}
+        self.deleted_entities: set[str] = set()
+        self.locked_entities: set[str] = set()
+        self.archived_entities: set[str] = set()
         self._internal_to_entity_id: dict[int, str] = {}
 
     def resolve_id(self, entity_id: str) -> int | None:
@@ -31,23 +31,20 @@ class MockVitessClient:
             return internal_id
         return None
 
-    def get_incoming_redirects(self, entity_internal_id: int) -> list[str]:
+    def get_incoming_redirects(self, entity_id: str) -> list[str]:
         return []  # Mock implementation returning empty list
 
-    def get_redirect_target(self, entity_internal_id: int) -> str | None:
-        redirects_to = self.redirects_to.get(entity_internal_id, None)
-        if redirects_to is not None and isinstance(redirects_to, int):
-            return self._internal_to_entity_id.get(redirects_to, None)
-        return redirects_to
+    def get_redirect_target(self, entity_id: str) -> str | None:
+        return self.redirects_to.get(entity_id, None)
 
-    def is_entity_deleted(self, entity_internal_id: int) -> bool:
-        return entity_internal_id in self.deleted_entities
+    def is_entity_deleted(self, entity_id: str) -> bool:
+        return entity_id in self.deleted_entities
 
-    def is_entity_locked(self, entity_internal_id: int) -> bool:
-        return entity_internal_id in self.locked_entities
+    def is_entity_locked(self, entity_id: str) -> bool:
+        return entity_id in self.locked_entities
 
-    def is_entity_archived(self, entity_internal_id: int) -> bool:
-        return entity_internal_id in self.archived_entities
+    def is_entity_archived(self, entity_id: str) -> bool:
+        return entity_id in self.archived_entities
 
     def get_head(self, entity_id: int) -> int:
         """Get current head revision for entity (for testing)"""
@@ -68,14 +65,14 @@ class MockVitessClient:
             raise ValueError(f"Target entity {redirect_to_entity_id} not found")
 
         self.redirects[redirect_from_internal_id] = redirect_to_internal_id
-        self.redirects_to[redirect_from_internal_id] = redirect_to_entity_id
+        self.redirects_to[redirect_from_entity_id] = redirect_to_entity_id
 
     def set_redirect_target(
         self,
-        entity_internal_id: int,
-        redirects_to_internal_id: int | None,
+        entity_id: str,
+        redirects_to_entity_id: str | None,
     ) -> None:
-        self.redirects_to[entity_internal_id] = redirects_to_internal_id
+        self.redirects_to[entity_id] = redirects_to_entity_id
 
 
 class MockS3Client:
@@ -178,21 +175,21 @@ class RedirectService:
         if from_internal_id == to_internal_id:
             raise HTTPException(status_code=400, detail="Cannot redirect to self")
 
-        existing_target = vitess.get_redirect_target(to_internal_id)
+        existing_target = vitess.get_redirect_target(request.redirect_to_id)
         if existing_target is not None:
             raise HTTPException(status_code=409, detail="Redirect already exists")
 
-        if vitess.is_entity_deleted(from_internal_id):
+        if vitess.is_entity_deleted(request.redirect_from_id):
             raise HTTPException(
                 status_code=423, detail="Source entity has been deleted"
             )
-        if vitess.is_entity_deleted(to_internal_id):
+        if vitess.is_entity_deleted(request.redirect_to_id):
             raise HTTPException(
                 status_code=423, detail="Target entity has been deleted"
             )
 
-        if vitess.is_entity_locked(to_internal_id) or vitess.is_entity_archived(
-            to_internal_id
+        if vitess.is_entity_locked(request.redirect_to_id) or vitess.is_entity_archived(
+            request.redirect_to_id
         ):
             raise HTTPException(
                 status_code=423, detail="Target entity is locked or archived"
@@ -229,8 +226,8 @@ class RedirectService:
         )
 
         vitess.set_redirect_target(
-            entity_internal_id=from_internal_id,
-            redirects_to_internal_id=to_internal_id,
+            entity_id=request.redirect_from_id,
+            redirects_to_entity_id=request.redirect_to_id,
         )
 
         from datetime import datetime, timezone
@@ -252,17 +249,15 @@ class RedirectService:
         if internal_id is None:
             raise HTTPException(status_code=404, detail="Entity not found")
 
-        current_redirect_target = vitess.get_redirect_target(internal_id)
+        current_redirect_target = vitess.get_redirect_target(entity_id)
 
         if current_redirect_target is None:
             raise HTTPException(status_code=404, detail="Entity is not a redirect")
 
-        if vitess.is_entity_deleted(internal_id):
+        if vitess.is_entity_deleted(entity_id):
             raise HTTPException(status_code=423, detail="Entity has been deleted")
 
-        if vitess.is_entity_locked(internal_id) or vitess.is_entity_archived(
-            internal_id
-        ):
+        if vitess.is_entity_locked(entity_id) or vitess.is_entity_archived(entity_id):
             raise HTTPException(status_code=423, detail="Entity is locked or archived")
 
         target_revision = s3.read_full_revision(entity_id, revert_to_revision_id)
@@ -285,8 +280,8 @@ class RedirectService:
         )
 
         vitess.set_redirect_target(
-            entity_internal_id=internal_id,
-            redirects_to_internal_id=None,
+            entity_id=entity_id,
+            redirects_to_entity_id=None,
         )
 
         return EntityResponse(
@@ -325,7 +320,7 @@ def test_create_redirect_success(redirect_service: RedirectService) -> None:
     assert response.revision_id == 1
     assert response.created_at is not None
 
-    assert redirect_service.vitess.get_redirect_target(100) == "Q42"
+    assert redirect_service.vitess.get_redirect_target("Q100") == "Q42"
     assert 100 in redirect_service.vitess.redirects
 
 
@@ -407,7 +402,7 @@ def test_create_redirect_target_already_redirect(
     vitess._internal_to_entity_id[42] = "Q42"
     vitess._internal_to_entity_id[999] = "Q999"
 
-    vitess.set_redirect_target(42, 999)
+    vitess.set_redirect_target("Q42", "Q999")
 
     request = EntityRedirectRequest(
         redirect_from_id="Q100", redirect_to_id="Q42", created_by="test-user"
@@ -429,7 +424,7 @@ def test_create_redirect_source_deleted(redirect_service: RedirectService) -> No
 
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
-    vitess.deleted_entities.add(100)
+    vitess.deleted_entities.add("Q100")
 
     request = EntityRedirectRequest(
         redirect_from_id="Q100", redirect_to_id="Q42", created_by="test-user"
@@ -451,7 +446,7 @@ def test_create_redirect_target_deleted(redirect_service: RedirectService) -> No
 
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
-    vitess.deleted_entities.add(42)
+    vitess.deleted_entities.add("Q42")
 
     request = EntityRedirectRequest(
         redirect_from_id="Q100", redirect_to_id="Q42", created_by="test-user"
@@ -478,7 +473,7 @@ def test_create_redirect_source_locked(redirect_service: RedirectService) -> Non
     vitess._internal_to_entity_id[42] = "Q42"
 
     # Lock TARGET entity (Q42), not source
-    vitess.locked_entities.add(42)
+    vitess.locked_entities.add("Q42")
 
     request = EntityRedirectRequest(
         redirect_from_id="Q100", redirect_to_id="Q42", created_by="test-user"
@@ -505,7 +500,7 @@ def test_create_redirect_source_archived(redirect_service: RedirectService) -> N
     vitess._internal_to_entity_id[42] = "Q42"
 
     # Archive TARGET entity (Q42), not source
-    vitess.archived_entities.add(42)
+    vitess.archived_entities.add("Q42")
 
     request = EntityRedirectRequest(
         redirect_from_id="Q100", redirect_to_id="Q42", created_by="test-user"
@@ -528,7 +523,7 @@ def test_revert_redirect_success(redirect_service: RedirectService) -> None:
 
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
-    vitess.set_redirect_target(100, 42)
+    vitess.set_redirect_target("Q100", "Q42")
     s3.written_revisions[1] = {
         "revision_id": 1,
         "data": {
@@ -554,7 +549,7 @@ def test_revert_redirect_success(redirect_service: RedirectService) -> None:
     assert response.data["id"] == "Q100"
     assert response.data["labels"]["en"]["value"] == "Original Label"
 
-    assert vitess.get_redirect_target(100) is None
+    assert vitess.get_redirect_target("Q100") is None
 
 
 def test_revert_redirect_entity_not_redirect(redirect_service: RedirectService) -> None:
@@ -585,8 +580,8 @@ def test_revert_redirect_entity_deleted(redirect_service: RedirectService) -> No
 
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
-    vitess.set_redirect_target(100, 42)  # Set up as redirect first
-    vitess.deleted_entities.add(100)
+    vitess.set_redirect_target("Q100", "Q42")  # Set up as redirect first
+    vitess.deleted_entities.add("Q100")
 
     request = RedirectRevertRequest(
         revert_to_revision_id=1, revert_reason="Test revert", created_by="test-user"
@@ -610,8 +605,8 @@ def test_revert_redirect_entity_locked(redirect_service: RedirectService) -> Non
 
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
-    vitess.set_redirect_target(100, 42)  # Set up as redirect first
-    vitess.locked_entities.add(100)
+    vitess.set_redirect_target("Q100", "Q42")  # Set up as redirect first
+    vitess.locked_entities.add("Q100")
 
     request = RedirectRevertRequest(
         revert_to_revision_id=1, revert_reason="Test revert", created_by="test-user"
@@ -635,8 +630,8 @@ def test_revert_redirect_entity_archived(redirect_service: RedirectService) -> N
 
     vitess.resolved_ids["Q100"] = 100
     vitess.resolved_ids["Q42"] = 42
-    vitess.set_redirect_target(100, 42)  # Set up as redirect first
-    vitess.archived_entities.add(100)
+    vitess.set_redirect_target("Q100", "Q42")  # Set up as redirect first
+    vitess.archived_entities.add("Q100")
 
     request = RedirectRevertRequest(
         revert_to_revision_id=1, revert_reason="Test revert", created_by="test-user"

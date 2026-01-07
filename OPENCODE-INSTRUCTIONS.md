@@ -28,8 +28,9 @@
 - no backward compability
 
 # Current task
-fix ruff, vulture and mypy warnings
+fix failing tests using get-docker-logs.sh
 
 # todo
+fix ruff, vulture and mypy warnings
 move entity endpoints out of main.py
 fix failing tests
