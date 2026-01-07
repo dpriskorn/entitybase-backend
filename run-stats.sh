@@ -10,6 +10,10 @@ echo "# src/models" >> STATISTICS.md
 printf '```\n' >> STATISTICS.md
 scc --no-cocomo src/models >> STATISTICS.md
 printf '```\n' >> STATISTICS.md
+echo "# src/models/config" >> STATISTICS.md
+printf '```\n' >> STATISTICS.md
+scc --no-cocomo src/models/config >> STATISTICS.md
+printf '```\n' >> STATISTICS.md
 echo "# src/models/entity_api" >> STATISTICS.md
 printf '```\n' >> STATISTICS.md
 scc --no-cocomo src/models/entity_api >> STATISTICS.md
