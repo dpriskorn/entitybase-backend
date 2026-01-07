@@ -101,7 +101,7 @@ class VitessClient(BaseModel):
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS statement_content (
-                content_hash BIGINT PRIMARY KEY,
+                content_hash BIGINT UNSIGNED PRIMARY KEY,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 ref_count INT DEFAULT 1,
                 INDEX idx_ref_count (ref_count DESC)
