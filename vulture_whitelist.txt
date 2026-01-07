@@ -259,4 +259,8 @@ get_protection_info
 create_revision_cas
 create_revision
 health_check_endpoint
+deletion_type
 deletion_status
+test_log_level
+test_log_http_requests
+test_show_progress

@@ -1,15 +1,11 @@
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING
 
 from fastapi import FastAPI
 
 from models.config.settings import settings
 from models.entity_api.clients import Clients
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 

@@ -1,4 +1,5 @@
 import logging
+import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Any, TYPE_CHECKING
 
@@ -23,9 +24,15 @@ class Settings(BaseSettings):
     s3_revision_schema_version: str = "1.2.0"
     wikibase_repository_name: str = "wikidata"
     property_registry_path: str = "properties"
+    log_level: str = "INFO"
     test_log_level: str = "INFO"
     test_log_http_requests: bool = False
     test_show_progress: bool = True
+
+    def get_log_level(self) -> int:
+        if os.getenv("TEST_LOG_LEVEL"):
+            return getattr(logging, self.test_log_level.upper(), logging.INFO)
+        return getattr(logging, self.log_level.upper(), logging.INFO)
 
     def to_s3_config(self) -> Any:
         from models.infrastructure.s3_client import S3Config
@@ -51,17 +58,3 @@ class Settings(BaseSettings):
 
 # noinspection PyArgumentList
 settings = Settings()
-
-logger.debug("=== Settings Debug ===")
-logger.debug(f"S3 Endpoint: {settings.s3_endpoint}")
-logger.debug(f"S3 Bucket: {settings.s3_bucket}")
-logger.debug(f"Vitess Host: {settings.vitess_host}")
-logger.debug(f"Vitess Port: {settings.vitess_port}")
-logger.debug(f"Vitess Database: {settings.vitess_database}")
-logger.debug(f"Test Log Level: {settings.test_log_level}")
-logger.debug(f"Test Log HTTP Requests: {settings.test_log_http_requests}")
-logger.debug(f"Test Show Progress: {settings.test_show_progress}")
-logger.debug("=== End Settings Debug ===")
-logger.debug(f"Test Log Level: {settings.test_log_level}")
-logger.debug(f"Test Log HTTP Requests: {settings.test_log_http_requests}")
-logger.debug(f"Test Show Progress: {settings.test_show_progress}")

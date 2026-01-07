@@ -36,6 +36,30 @@ from models.entity_api.handlers.redirect_handler import RedirectHandler
 from models.entity_api.handlers.statement_handler import StatementHandler
 from models.entity_api.handlers.system_handler import health_check
 
+log_level = settings.get_log_level()
+
+logging.basicConfig(
+    level=log_level,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
+aws_loggers = [
+    "botocore",
+    "boto3",
+    "urllib3",
+    "s3transfer",
+    "botocore.hooks",
+    "botocore.retryhandler",
+    "botocore.utils",
+    "botocore.parsers",
+    "botocore.endpoint",
+    "botocore.auth",
+]
+
+for logger_name in aws_loggers:
+    logging.getLogger(logger_name).setLevel(logging.INFO)
+
 logger = logging.getLogger(__name__)
 
 
