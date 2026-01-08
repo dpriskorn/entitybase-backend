@@ -12,6 +12,7 @@ from models.api_models import (
 from fastapi import HTTPException
 
 
+# noinspection PyUnusedLocal
 class MockVitessClient:
     """Mock Vitess client for testing without database"""
 
@@ -54,7 +55,7 @@ class MockVitessClient:
         self,
         redirect_from_entity_id: str,
         redirect_to_entity_id: str,
-        created_by: str = "entity-api",
+        created_by: str = "rest-api",
     ) -> None:
         redirect_from_internal_id = self.resolved_ids.get(redirect_from_entity_id)
         redirect_to_internal_id = self.resolved_ids.get(redirect_to_entity_id)
@@ -98,6 +99,7 @@ class MockS3Client:
             },
         )
 
+    # noinspection PyUnusedLocal
     def write_entity_revision(
         self,
         internal_id: int,
@@ -106,7 +108,7 @@ class MockS3Client:
         entity_type: str,
         data: dict[str, Any],
         edit_type: str = "",
-        created_by: str = "entity-api",
+        created_by: str = "rest-api",
     ) -> int:
         data["revision_id"] = revision_id
         self.written_revisions[revision_id] = data
@@ -120,7 +122,7 @@ class MockS3Client:
                 "schema_version": "1.0.0",
                 "revision_id": revision_id,
                 "created_at": "2024-01-01T00:00:00Z",
-                "created_by": "entity-api",
+                "created_by": "rest-api",
                 "is_mass_edit": False,
                 "edit_type": "",
                 "entity_type": "item",
@@ -276,7 +278,7 @@ class RedirectService:
             entity_type="item",
             data=new_revision_data,
             edit_type=EditType.REDIRECT_REVERT,
-            created_by="entity-api",
+            created_by="rest-api",
         )
 
         vitess.set_redirect_target(

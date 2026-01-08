@@ -6,7 +6,7 @@ from fastapi import HTTPException
 from models.api_models import TtlResponse
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
-from models.api_models_api.services.rdf_service import serialize_entity_to_turtle
+from models.rest_api.services.rdf_service import serialize_entity_to_turtle
 
 logger = logging.getLogger(__name__)
 
@@ -37,5 +37,5 @@ class ExportHandler:
         revision = s3_client.read_revision(entity_id, head_revision_id)
         entity_data = revision.data["entity"]
 
-        turtle = serialize_entity_to_turtle(entity_data, entity_id, property_registry)
+        turtle = serialize_entity_to_turtle(entity_data, property_registry)
         return TtlResponse(turtle)

@@ -19,7 +19,7 @@ from models.api_models import (
 )
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
-from models.api_models_api.services.statement_service import (
+from models.rest_api.services.statement_service import (
     hash_entity_statements,
     deduplicate_and_store_statements,
 )
@@ -33,8 +33,8 @@ logger = logging.getLogger(__name__)
 class EntityHandler:
     """Handles all entity CRUD operations."""
 
+    @staticmethod
     def create_entity(
-        self,
         request: EntityCreateRequest,
         vitess_client: VitessClient,
         s3_client: S3Client,
@@ -257,7 +257,7 @@ class EntityHandler:
             "schema_version": settings.s3_revision_schema_version,
             "revision_id": new_revision_id,
             "created_at": datetime.now(timezone.utc).isoformat() + "Z",
-            "created_by": "entity-api",
+            "created_by": "rest-api",
             "is_mass_edit": is_mass_edit,
             "edit_type": edit_type or EditType.UNSPECIFIED.value,
             "entity_type": request.type,
@@ -373,8 +373,8 @@ class EntityHandler:
             is_mass_edit_protected=request.is_mass_edit_protected,
         )
 
+    @staticmethod
     def get_entity(
-        self,
         entity_id: str,
         vitess_client: VitessClient,
         s3_client: S3Client,
@@ -415,8 +415,8 @@ class EntityHandler:
             is_mass_edit_protected=revision.data.get("is_mass_edit_protected", False),
         )
 
+    @staticmethod
     def get_entity_history(
-        self,
         entity_id: str,
         vitess_client: VitessClient,
         limit: int = 20,
@@ -509,7 +509,7 @@ class EntityHandler:
             "schema_version": settings.s3_revision_schema_version,
             "revision_id": new_revision_id,
             "created_at": datetime.now(timezone.utc).isoformat() + "Z",
-            "created_by": "entity-api",
+            "created_by": "rest-api",
             "is_mass_edit": False,
             "edit_type": edit_type,
             "entity_type": current_revision.data.get("entity_type", "item"),

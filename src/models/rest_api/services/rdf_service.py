@@ -7,7 +7,6 @@ from models.rdf_builder.property_registry.registry import PropertyRegistry
 
 def serialize_entity_to_turtle(
     entity_data: dict[str, Any],
-    entity_id: str,
     property_registry: PropertyRegistry | None = None,
 ) -> str:
     """Convert entity data dict to Turtle format string."""

@@ -1,7 +1,7 @@
 from models.internal_representation.values.globe_value import GlobeValue
 from models.internal_representation.values.quantity_value import QuantityValue
 from models.internal_representation.values.time_value import TimeValue
-from models.rdf_builder.value_node import generate_value_node_uri, _serialize_value
+from models.rdf_builder.value_node import generate_value_node_uri, serialize_value
 
 
 def test_serialize_time_value() -> None:
@@ -12,7 +12,7 @@ def test_serialize_time_value() -> None:
         timezone=0,
         calendarmodel="http://www.wikidata.org/entity/Q1985727",
     )
-    serialized = _serialize_value(value)
+    serialized = serialize_value(value)
     expected = "t:1964-05-15T00:00:00Z:11:0:http://www.wikidata.org/entity/Q1985727"
     assert serialized == expected
 
@@ -20,7 +20,7 @@ def test_serialize_time_value() -> None:
 def test_serialize_quantity_value() -> None:
     """Test serialization of quantity values"""
     value = QuantityValue(value="+3", unit="http://www.wikidata.org/entity/Q199")
-    serialized = _serialize_value(value)
+    serialized = serialize_value(value)
     expected = "q:+3:http://www.wikidata.org/entity/Q199"
     assert serialized == expected
 
@@ -33,7 +33,7 @@ def test_serialize_quantity_with_bounds() -> None:
         upper_bound="+5.5",
         lower_bound="+4.5",
     )
-    serialized = _serialize_value(value)
+    serialized = serialize_value(value)
     expected = "q:+5:http://www.wikidata.org/entity/Q11573:+5.5:+4.5"
     assert serialized == expected
 
@@ -47,7 +47,7 @@ def test_serialize_globe_value() -> None:
         precision=0.00001,
         globe="http://www.wikidata.org/entity/Q2",
     )
-    serialized = _serialize_value(value)
+    serialized = serialize_value(value)
     expected = "g:50.94636:1.88108:1.0E-5:http://www.wikidata.org/entity/Q2"
     assert serialized == expected
 

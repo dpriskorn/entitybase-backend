@@ -1,8 +1,8 @@
-# Entity-API Streaming Integration
+# REST-API Streaming Integration
 
 ## Overview
 
-This document describes how to integrate the Python entity-api with WMF's Scala streaming-updater-producer for RDF streaming to Kafka.
+This document describes how to integrate the Python rest-api with WMF's Scala streaming-updater-producer for RDF streaming to Kafka.
 
 ---
 

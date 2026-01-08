@@ -10,14 +10,14 @@ from typing import Protocol
 class DedupeBag(Protocol):
     """Interface for hash-based deduplication."""
 
-    def already_seen(self, hash: str, namespace: str = "") -> bool:
+    def already_seen(self, hash_: str, namespace: str = "") -> bool:
         """Check if hash+namespace seen before.
 
         False negatives are acceptable (may return False even if seen before).
         False positives are NOT acceptable (must never return True if not seen before).
 
         Args:
-            hash: Full hash string to check
+            hash_: Full hash string to check
             namespace: Optional namespace for compartmentalized tracking
 
         Returns:
@@ -78,19 +78,19 @@ class HashDedupeBag:
         self._hits = 0
         self._misses = 0
 
-    def already_seen(self, hash: str, namespace: str = "") -> bool:
+    def already_seen(self, hash_: str, namespace: str = "") -> bool:
         """
         @see DedupeBag::alreadySeen
         @return bool
         """
-        key = namespace + hash[: self.cutoff]
+        key = namespace + hash_[: self.cutoff]
 
-        if key in self.bag and self.bag[key] == hash:
+        if key in self.bag and self.bag[key] == hash_:
             self._hits += 1
             return True
 
         self._misses += 1
-        self.bag[key] = hash
+        self.bag[key] = hash_
         return False
 
     def stats(self) -> dict[str, int | float]:

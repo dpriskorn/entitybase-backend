@@ -5,7 +5,8 @@ class IdResolver:
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 
-    def resolve_id(self, conn: Any, entity_id: str) -> int:
+    @staticmethod
+    def resolve_id(conn: Any, entity_id: str) -> int:
         with conn.cursor() as cursor:
             cursor.execute(
                 "SELECT internal_id FROM entity_id_mapping WHERE entity_id = %s",

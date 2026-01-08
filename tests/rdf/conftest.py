@@ -6,6 +6,7 @@ import pytest
 
 from models.rdf_builder.ontology.datatypes import property_shape
 from models.rdf_builder.property_registry.registry import PropertyRegistry
+import csv
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +63,7 @@ def split_subject_blocks(ttl: str) -> dict[str, str]:
         if line and not line.startswith((" ", "\t")):
             if current_subject:
                 blocks[current_subject] = "\n".join(current_lines).strip()
-            current_subject = line.split()[0]
+            current_subject = list(line.split())[0]
             current_lines = [line]
         else:
             current_lines.append(line)
@@ -75,11 +76,6 @@ def split_subject_blocks(ttl: str) -> dict[str, str]:
 
 def load_full_property_registry() -> PropertyRegistry:
     """Load property registry from CSV cache"""
-    import csv
-    import logging
-
-    logger = logging.getLogger(__name__)
-
     cache_path = TEST_DATA_DIR / "properties" / "properties.csv"
 
     if not cache_path.exists():

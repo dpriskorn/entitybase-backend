@@ -6,7 +6,7 @@ from models.api_models import HealthCheckResponse
 
 def health_check(response: Response) -> HealthCheckResponse:
     """Health check endpoint for monitoring system status."""
-    from models.api_models_api.main import app
+    from models.rest_api.main import app
 
     clients = getattr(app.state, "clients", None)
 
@@ -17,11 +17,11 @@ def health_check(response: Response) -> HealthCheckResponse:
         )
 
     s3_status = (
-        "connected" if clients.s3 and clients.s3.check_connection() else "disconnected"
+        "connected" if clients.s3 and clients.s3.we_have_a_connection() else "disconnected"
     )
     vitess_status = (
         "connected"
-        if clients.vitess and clients.vitess.check_connection()
+        if clients.vitess and clients.vitess.we_have_a_connection()
         else "disconnected"
     )
 

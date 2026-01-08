@@ -115,7 +115,7 @@ class EntityRedirectRequest(BaseModel):
     )
     redirect_to_id: str = Field(..., description="Target entity ID (e.g., Q42)")
     created_by: str = Field(
-        default="entity-api", description="User or system creating redirect"
+        default="rest-api", description="User or system creating redirect"
     )
 
 
@@ -131,7 +131,7 @@ class RedirectRevertRequest(BaseModel):
         ..., description="Revision ID to revert to (e.g., 12340)"
     )
     revert_reason: str = Field(..., description="Reason for reverting redirect")
-    created_by: str = Field(default="entity-api")
+    created_by: str = Field(default="rest-api")
 
 
 class StatementResponse(BaseModel):

@@ -17,5 +17,5 @@ def raise_or_convert_to_500(e: Exception, detail: str) -> None:
         detail: The detail message for HTTPException if converting
     """
     if settings.expose_original_exceptions:
-        raise
+        raise e
     raise HTTPException(status_code=500, detail=detail)

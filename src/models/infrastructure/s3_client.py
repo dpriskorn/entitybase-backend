@@ -140,6 +140,7 @@ class S3Client(BaseModel):
 
         # Enhanced pre-write validation logging
         logger.debug(f"S3 write_statement: bucket={self.config.bucket}, key={key}")
+        # noinspection PyProtectedMember
         logger.debug(f"S3 client endpoint: {self.client._endpoint.host}")
         logger.debug(f"Statement data size: {len(statement_json)} bytes")
         logger.debug(f"Full statement data: {json.dumps(statement_data, indent=2)}")
@@ -194,6 +195,7 @@ class S3Client(BaseModel):
                 raise
 
         except Exception as e:
+            # noinspection PyProtectedMember
             logger.error(
                 f"S3 write_statement failed for {content_hash}: {type(e).__name__}: {e}",
                 extra={
@@ -271,7 +273,7 @@ class S3Client(BaseModel):
         entity_type: str,
         data: dict,
         edit_type: str = "",
-        created_by: str = "entity-api",
+        created_by: str = "rest-api",
     ) -> int:
         """Write revision as part of redirect operations (no mark_pending/published flow)"""
         import json

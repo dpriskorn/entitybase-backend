@@ -1,4 +1,4 @@
-models.entity_api.handlers.admin_handler.AdminHandler.list_entities
+models.rest_api.handlers.admin_handler.AdminHandler.list_entities
 models.infrastructure.vitess.VitessClient._resolve_id
 models.infrastructure.vitess_client.VitessClient._resolve_id
 models.infrastructure.vitess_client.VitessClient.list_locked_entities
@@ -35,12 +35,12 @@ models.api_models.property_hashes
 models.config.settings.model_config
 models.config.settings.test_log_http_requests
 models.config.settings.test_show_progress
-models.entity_api.clients.model_config
-models.entity_api.handlers.system.status_code
-models.entity_api.handlers.system_handler.status_code
-models.entity_api.main.health_check_endpoint
-models.entity_api.main.validation_error_handler
-models.entity_api.main_original.status_code
+models.rest_api.clients.model_config
+models.rest_api.handlers.system.status_code
+models.rest_api.handlers.system_handler.status_code
+models.rest_api.main.health_check_endpoint
+models.rest_api.main.validation_error_handler
+models.rest_api.main_original.status_code
 models.infrastructure.s3_client.model_config
 models.infrastructure.s3_client.S3Client.write_entity_revision
 models.infrastructure.vitess_client.model_config

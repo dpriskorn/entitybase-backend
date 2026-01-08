@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 
@@ -31,13 +31,13 @@ from models.api_models import (
     StatementResponse,
     TtlResponse,
 )
-from models.api_models_api.clients import Clients
-from models.api_models_api.handlers.admin_handler import AdminHandler
-from models.api_models_api.handlers.entity_handler import EntityHandler
-from models.api_models_api.handlers.export_handler import ExportHandler
-from models.api_models_api.handlers.redirect_handler import RedirectHandler
-from models.api_models_api.handlers.statement_handler import StatementHandler
-from models.api_models_api.handlers.system_handler import health_check
+from models.rest_api.clients import Clients
+from models.rest_api.handlers.admin_handler import AdminHandler
+from models.rest_api.handlers.entity_handler import EntityHandler
+from models.rest_api.handlers.export_handler import ExportHandler
+from models.rest_api.handlers.redirect_handler import RedirectHandler
+from models.rest_api.handlers.statement_handler import StatementHandler
+from models.rest_api.handlers.system_handler import health_check
 
 log_level = settings.get_log_level()
 
@@ -67,7 +67,7 @@ logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
     try:
         logger.debug("Initializing clients...")
         s3_config = settings.to_s3_config()
@@ -82,12 +82,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         )
         logger.debug(f"Property registry path: {property_registry_path}")
 
-        app.state.clients = Clients(
+        app_.state.clients = Clients(
             s3=s3_config,
             vitess=vitess_config,
             property_registry_path=property_registry_path,
         )
-        app.state.validator = JsonSchemaValidator()
+        app_.state.validator = JsonSchemaValidator()
         logger.debug("Clients and validator initialized successfully")
         yield
     except Exception as e:
@@ -101,9 +101,7 @@ app = FastAPI(lifespan=lifespan)
 
 
 @app.exception_handler(ValidationError)
-async def validation_error_handler(
-    request: Request, exc: ValidationError
-) -> JSONResponse:
+async def validation_error_handler(exc: ValidationError) -> JSONResponse:
     error_field = f"{'/' + '/'.join(str(p) for p in exc.path) if exc.path else '/'}"
     error_message = exc.message
     return JSONResponse(

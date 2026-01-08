@@ -17,8 +17,8 @@ logger = logging.getLogger(__name__)
 class AdminHandler:
     """Handles administrative operations."""
 
+    @staticmethod
     def cleanup_orphaned_statements(
-        self,
         request: CleanupOrphanedRequest,
         vitess_client: VitessClient,
         s3_client: S3Client,

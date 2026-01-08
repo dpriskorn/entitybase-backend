@@ -13,6 +13,7 @@ session = requests.Session()
 session.headers.update(HEADERS)
 
 
+# noinspection PyShadowingNames
 def random_qids(n: int, batch: int = 50) -> list[str]:
     qids: list[str] = []
     while len(qids) < n:
@@ -32,6 +33,7 @@ def random_qids(n: int, batch: int = 50) -> list[str]:
     return qids
 
 
+# noinspection PyShadowingNames
 def count_revisions(qid: str) -> int:
     count = 0
     params = {

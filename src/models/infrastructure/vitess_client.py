@@ -58,7 +58,7 @@ class VitessClient(BaseModel):
         return self.connection_manager.connect()
 
     def check_connection(self) -> bool:
-        return self.connection_manager.check_connection()  # type: ignore[no-any-return]
+        return self.connection_manager.we_have_a_connection()  # type: ignore[no-any-return]
 
     @contextmanager
     def get_connection(self) -> Generator[Any, None, None]:
@@ -151,7 +151,7 @@ class VitessClient(BaseModel):
         self,
         redirect_from_entity_id: str,
         redirect_to_entity_id: str,
-        created_by: str = "entity-api",
+        created_by: str = "rest-api",
     ) -> None:
         with self.connection_manager.get_connection() as conn:
             return self.redirect_repository.create(  # type: ignore[no-any-return]

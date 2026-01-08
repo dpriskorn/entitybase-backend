@@ -28,7 +28,7 @@ def configure_logging() -> None:
 @pytest.fixture(scope="session")
 def base_url() -> str:
     """API base URL from environment or default"""
-    return os.getenv("ENTITY_API_URL", "http://entity-api:8000")
+    return os.getenv("REST_API_URL", "http://rest-api:8000")
 
 
 @pytest.fixture(scope="session")

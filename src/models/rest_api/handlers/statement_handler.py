@@ -1,5 +1,6 @@
 import logging
 
+from botocore.exceptions import ClientError
 from fastapi import HTTPException
 
 from models.api_models import (
@@ -83,7 +84,7 @@ class StatementHandler:
                         created_at=statement_data["created_at"],
                     )
                 )
-            except Exception:
+            except ClientError:
                 not_found.append(content_hash)
 
         return StatementBatchResponse(statements=statements, not_found=not_found)

@@ -222,7 +222,7 @@ def test_raw_endpoint_existing_revision(
     assert result["schema_version"] == "1.0.0"
     assert result["revision_id"] == 1
     assert "created_at" in result
-    assert result["created_by"] == "entity-api"
+    assert result["created_by"] == "rest-api"
     assert result["entity_type"] == "item"
     assert result["entity"]["id"] == "Q55555"
     assert result["entity"]["type"] == "item"

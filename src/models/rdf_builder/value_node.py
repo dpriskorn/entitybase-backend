@@ -43,12 +43,12 @@ def generate_value_node_uri(value: Any) -> str:
         >>> generate_value_node_uri(time_val)
         'cd6dd2e48a93286891b0753a1110ac0a'
     """
-    value_str = _serialize_value(value)
+    value_str = serialize_value(value)
     hash_val = hashlib.md5(value_str.encode("utf-8")).hexdigest()
     return hash_val
 
 
-def _serialize_value(value: Any) -> str:
+def serialize_value(value: Any) -> str:
     """
     Serialize value object to string for hashing.
 

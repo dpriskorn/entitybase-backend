@@ -20,7 +20,8 @@ class ConnectionManager:
             autocommit=True,
         )
 
-    def check_connection(self) -> bool:
+    def we_have_a_connection(self) -> bool:
+        # noinspection PyBroadException
         try:
             conn = self.connect()
             cursor = conn.cursor()

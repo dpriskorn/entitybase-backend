@@ -13,6 +13,7 @@ session = requests.Session()
 session.headers.update(HEADERS)
 
 
+# noinspection PyShadowingNames
 def random_qids(n: int) -> list[str]:
     r = session.get(
         API,

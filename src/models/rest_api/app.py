@@ -5,13 +5,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from models.config.settings import settings
-from models.api_models_api.clients import Clients
+from models.rest_api.clients import Clients
 
 logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
     try:
         logger.debug("Initializing clients...")
         from pathlib import Path
@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             if settings.property_registry_path
             else None,
         )
-        app.state.clients = clients
+        app_.state.clients = clients
 
         if clients.s3 and clients.s3.check_connection():
             logger.debug("S3 client connected successfully")

@@ -45,8 +45,7 @@ def _fetch_entity_metadata_batch(entity_ids: list[str]) -> dict[str, dict | None
                 label = row.get("label", {}).get("value", "")
                 description = row.get("description", {}).get("value", "")
 
-                metadata = {}
-                metadata["id"] = entity_id
+                metadata = {"id": entity_id}
                 if label:
                     metadata["labels"] = {"en": {"language": "en", "value": label}}
                 if description:

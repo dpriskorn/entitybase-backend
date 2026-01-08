@@ -1,8 +1,8 @@
-# Implementation Plan: Entity API Service (MVP)
+# Implementation Plan: REST API Service (MVP)
 
-## Most Essential Component: Entity API Service
+## Most Essential Component: REST API Service
 
-**Rationale:** The Entity API is the foundation that validates the entire architecture. It implements the core invariant (immutable S3 snapshots) and exercises all storage layers (S3 + Vitess).
+**Rationale:** The REST API is the foundation that validates the entire architecture. It implements the core invariant (immutable S3 snapshots) and exercises all storage layers (S3 + Vitess).
 
 **Validation Strategy:** Per `JSON-VALIDATION-STRATEGY.md`, the API accepts any syntactically valid JSON. Schema validation is deferred to a background service (post-MVP).
 
@@ -26,7 +26,7 @@
 ```
 src/
 ├── services/
-│   ├── entity-api/
+│   ├── rest-api/
 │   │   ├── main.py              # FastAPI app entry point
 │   │   ├── requirements.txt     # Dependencies
 │   │   ├── Dockerfile
@@ -84,7 +84,7 @@ src/
 
 **Validation:** FastAPI + Pydantic automatically verifies payload is valid JSON. No schema validation at API layer.
 
-## Phase 3: Entity API Service (FastAPI)
+## Phase 3: REST API Service (FastAPI)
 
 ### 3.1 Core Write Flow (POST /entity)
 
@@ -127,10 +127,10 @@ src/
 ## Phase 4: Docker Integration
 
 ### 4.1 Update docker-compose.yml
-Add entity-api service:
+Add rest-api service:
 ```yaml
-entity-api:
-  build: ./src/services/entity-api
+rest-api:
+  build: ./src/services/rest-api
   ports: ["8000:8000"]
   depends_on:
     - seaweedfs
@@ -200,7 +200,7 @@ pymysql>=1.1.0
 2. **No change events yet** - Focus on core CRUD first
 3. **Simplified ID mapping** - Use simple table, skip Redis cache
 4. **Syntactic validation only** - Accept any valid JSON, no schema validation (per JSON-VALIDATION-STRATEGY.md)
-5. **Single service** - Entity API handles all entity operations
+5. **Single service** - REST API handles all entity operations
 6. **Schema validation deferred** - Background service will validate later (post-MVP)
 7. **No threat model** - Per OPENCODE-INSTRUCTIONS.md: "everybody is playing nice"
 8. **Infrastructure-first implementation** - Build all dependencies before business logic

@@ -8,7 +8,7 @@ from models.api_models import (
 )
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
-from services.entity_api.redirects import RedirectService
+from models.rest_api.services.redirects import RedirectService
 
 if TYPE_CHECKING:
     pass

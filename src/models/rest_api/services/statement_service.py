@@ -6,7 +6,7 @@ from typing import Any
 from rapidhash import rapidhash
 
 from models.api_models import StatementHashResult
-from models.api_models_api.utils import raise_or_convert_to_500
+from models.rest_api.utils import raise_or_convert_to_500
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.s3_models import StoredStatement
@@ -135,6 +135,7 @@ def deduplicate_and_store_statements(
             import traceback
 
             # Step 1: Check if S3 object exists
+            # noinspection PyUnusedLocal
             s3_exists = False
             try:
                 s3_client.read_statement(statement_hash)
@@ -171,6 +172,7 @@ def deduplicate_and_store_statements(
                         },
                     )
                 except Exception as write_error:
+                    # noinspection PyProtectedMember
                     logger.error(
                         f"Failed to write statement {statement_hash} to S3",
                         extra={

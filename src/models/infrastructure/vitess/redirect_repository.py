@@ -32,7 +32,7 @@ class RedirectRepository:
         conn: Any,
         redirect_from_entity_id: str,
         redirect_to_entity_id: str,
-        created_by: str = "entity-api",
+        created_by: str = "rest-api",
     ) -> None:
         redirect_from_internal_id = self.id_resolver.resolve_id(
             conn, redirect_from_entity_id
