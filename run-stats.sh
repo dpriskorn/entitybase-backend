@@ -34,3 +34,7 @@ echo "# src/models/rdf_builder" >> STATISTICS.md
 printf '```\n' >> STATISTICS.md
 scc --no-cocomo src/models/rdf_builder >> STATISTICS.md
 printf '```\n' >> STATISTICS.md
+echo "# src/models/validation" >> STATISTICS.md
+printf '```\n' >> STATISTICS.md
+scc --no-cocomo src/models/validation >> STATISTICS.md
+printf '```\n' >> STATISTICS.md

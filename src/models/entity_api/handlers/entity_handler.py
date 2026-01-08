@@ -37,6 +37,7 @@ class EntityHandler:
         request: EntityCreateRequest,
         vitess_client: VitessClient,
         s3_client: S3Client,
+        validator: Any | None = None,
     ) -> EntityResponse:
         """Create or update an entity with statement deduplication."""
         entity_id = request.data.get("id", "unknown")
@@ -215,6 +216,7 @@ class EntityHandler:
                 hash_result=hash_result,
                 vitess_client=vitess_client,
                 s3_client=s3_client,
+                validator=validator,
             )
             logger.info(
                 f"Entity {entity_id}: Successfully completed statement deduplication and storage"

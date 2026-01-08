@@ -4,13 +4,13 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-RUN pip install pytest requests fastapi httpx pytest-asyncio rapidhash rdflib pydantic-settings pymysql boto3
+RUN pip install pytest requests fastapi httpx pytest-asyncio rapidhash rdflib pydantic-settings pymysql boto3 jsonschema
 
 COPY ./tests/ ./tests/
 COPY ./src/ ./src/
 COPY ./test_data/ ./test_data/
 
- ENV PYTHONPATH=/app/src
+ENV PYTHONPATH=/app/src
 
 CMD sleep 10 && pytest tests/ -v --tb=short --log-cli-level=DEBUG --exitfirst
 #CMD ["pytest", "tests/", "-v", "--tb=short", "--log-cli-level=DEBUG"]

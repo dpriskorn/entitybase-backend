@@ -70,12 +70,32 @@
           "type": "object",
           "description": "Additional qualifiers (snaks) attached to the statement.",
           "patternProperties": {
-            "additionalProperties": false,
-            "properties": {
-              "^.*$": {
+            "^.*$": {
+              "type": "array",
+              "description": "Map of property IDs to qualifier snak arrays. Keys are property IDs (e.g., P805, P805, P1234).",
+              "items": {
                 "type": "object",
-                "description": "Map of property IDs to qualifier snak arrays. Keys are property IDs (e.g., P805, P805, P1234).",
-                "additionalProperties": false
+                "required": [
+                  "snaktype",
+                  "property",
+                  "datatype",
+                  "hash"
+                ],
+                "properties": {
+                  "snaktype": {
+                    "type": "string",
+                    "enum": ["value", "somevalue", "novalue"]
+                  },
+                  "property": {
+                    "type": "string"
+                  },
+                  "datatype": {
+                    "type": "string"
+                  },
+                  "hash": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
@@ -90,29 +110,34 @@
             ],
             "properties": {
               "snaks": {
-                "type": "array",
-                "description": "Array of snaks (reference statements).",
-                "items": {
-                  "type": "object",
-                  "required": [
-                    "snaktype",
-                    "property",
-                    "datatype",
-                    "hash"
-                  ],
-                  "properties": {
-                    "snaktype": {
-                      "type": "string",
-                      "enum": ["value", "somevalue", "novalue"]
-                    },
-                    "property": {
-                      "type": "string"
-                    },
-                    "datatype": {
-                      "type": "string"
-                    },
-                    "hash": {
-                      "type": "string"
+                "type": "object",
+                "description": "Map of property IDs to reference snak arrays. Keys are property IDs (e.g., P248, P143, P813).",
+                "patternProperties": {
+                  "^.*$": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "snaktype",
+                        "property",
+                        "datatype",
+                        "hash"
+                      ],
+                      "properties": {
+                        "snaktype": {
+                          "type": "string",
+                          "enum": ["value", "somevalue", "novalue"]
+                        },
+                        "property": {
+                          "type": "string"
+                        },
+                        "datatype": {
+                          "type": "string"
+                        },
+                        "hash": {
+                          "type": "string"
+                        }
+                      }
                     }
                   }
                 }
@@ -120,15 +145,15 @@
             }
           }
         }
-      },
-      "created_at": {
-        "type": "string",
-        "format": "date-time",
-        "description": "ISO 8601 timestamp when this statement was created.",
-        "examples": [
-          "2026-01-05T10:00:00Z"
-        ]
       }
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when this statement was created.",
+      "examples": [
+        "2026-01-05T10:00:00Z"
+      ]
     }
   }
 }

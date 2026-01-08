@@ -10,6 +10,7 @@ from models.entity_api.utils import raise_or_convert_to_500
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.s3_models import StoredStatement
+from models.validation.json_schema_validator import JsonSchemaValidator
 
 logger = logging.getLogger(__name__)
 
@@ -94,13 +95,15 @@ def deduplicate_and_store_statements(
     hash_result: StatementHashResult,
     vitess_client: VitessClient,
     s3_client: S3Client,
+    validator: JsonSchemaValidator | None = None,
 ) -> None:
     """Deduplicate and store statements in Vitess and S3 (S3-first approach).
 
     For each statement:
-    1. Check if S3 object exists
-    2. If not exists: write to S3 (with verification)
-    3. Insert into statement_content (idempotent) or increment ref_count
+    1. Validate statement against schema (if validator provided)
+    2. Check if S3 object exists
+    3. If not exists: write to S3 (with verification)
+    4. Insert into statement_content (idempotent) or increment ref_count
 
     S3-first approach prevents DB/S3 sync issues from failed writes.
 
@@ -108,6 +111,7 @@ def deduplicate_and_store_statements(
         hash_result: StatementHashResult with hashes and full statements
         vitess_client: Vitess client for statement_content operations
         s3_client: S3 client for statement storage
+        validator: Optional JSON schema validator for statement validation
     """
     logger.debug(
         f"Deduplicating and storing {len(hash_result.statements)} statements (S3-first)"
@@ -142,7 +146,11 @@ def deduplicate_and_store_statements(
                 )
                 s3_exists = False
 
-            # Step 2: Write to S3 if not exists
+            # Step 2: Validate statement before storing
+            if validator is not None:
+                validator.validate_statement(statement_with_hash.model_dump())
+
+            # Step 3: Write to S3 if not exists
             if not s3_exists:
                 try:
                     write_start_time = time.time()
@@ -193,6 +201,8 @@ def deduplicate_and_store_statements(
                     f"Statement {statement_hash} already in DB, incrementing ref_count"
                 )
                 vitess_client.increment_ref_count(statement_hash)
+
+            # Step 5: Next statement
 
         except Exception as e:
             logger.error(

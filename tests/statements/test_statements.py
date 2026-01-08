@@ -877,3 +877,33 @@ def test_entity_revision_with_statements(
     assert isinstance(raw["property_counts"], dict)
 
     logger.info("✓ Entity revisions store statements metadata correctly")
+
+
+def test_invalid_statement_rejected(
+    api_client: requests.Session, base_url: str
+) -> None:
+    """Test that statements not matching schema are rejected with 400"""
+    logger = logging.getLogger(__name__)
+
+    entity_data = {
+        "id": "Q80060",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Invalid Statement"}},
+        "claims": {
+            "P31": [
+                {
+                    "type": "statement",
+                    "rank": "normal",
+                    "qualifiers": {},
+                    "references": [],
+                    "id": "Q80060$1",
+                }
+            ]
+        },
+    }
+
+    response = api_client.post(f"{base_url}/entity", json=entity_data)
+    assert response.status_code == 400, (
+        f"Expected 400 for invalid statement, got {response.status_code}"
+    )
+    logger.info("✓ Invalid statements are rejected with 400")

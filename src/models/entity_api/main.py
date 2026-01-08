@@ -4,9 +4,12 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import JSONResponse
+from jsonschema import ValidationError
 
 from models.config.settings import settings
+from models.validation.json_schema_validator import JsonSchemaValidator
 from models.entity import (
     CleanupOrphanedRequest,
     CleanupOrphanedResponse,
@@ -84,7 +87,8 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             vitess=vitess_config,
             property_registry_path=property_registry_path,
         )
-        logger.debug("Clients initialized successfully")
+        app.state.validator = JsonSchemaValidator()
+        logger.debug("Clients and validator initialized successfully")
         yield
     except Exception as e:
         logger.error(
@@ -96,6 +100,28 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(lifespan=lifespan)
 
 
+@app.exception_handler(ValidationError)
+async def validation_error_handler(
+    request: Request, exc: ValidationError
+) -> JSONResponse:
+    error_field = f"{'/' + '/'.join(str(p) for p in exc.path) if exc.path else '/'}"
+    error_message = exc.message
+    return JSONResponse(
+        status_code=400,
+        content={
+            "error": "validation_error",
+            "message": "JSON schema validation failed",
+            "details": [
+                {
+                    "field": error_field,
+                    "message": error_message,
+                    "path": list(exc.path),
+                }
+            ],
+        },
+    )
+
+
 @app.get("/health", response_model=HealthCheckResponse)
 def health_check_endpoint(response: Response) -> HealthCheckResponse:
     return health_check(response)
@@ -104,8 +130,9 @@ def health_check_endpoint(response: Response) -> HealthCheckResponse:
 @app.post("/entity", response_model=EntityResponse)
 def create_entity(request: EntityCreateRequest) -> EntityResponse:
     clients = app.state.clients
+    validator = app.state.validator
     handler = EntityHandler()
-    return handler.create_entity(request, clients.vitess, clients.s3)
+    return handler.create_entity(request, clients.vitess, clients.s3, validator)
 
 
 @app.get("/entity/{entity_id}", response_model=EntityResponse)

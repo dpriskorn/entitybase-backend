@@ -39,6 +39,7 @@ models.entity_api.clients.model_config
 models.entity_api.handlers.system.status_code
 models.entity_api.handlers.system_handler.status_code
 models.entity_api.main.health_check_endpoint
+models.entity_api.main.validation_error_handler
 models.entity_api.main_original.status_code
 models.infrastructure.s3_client.model_config
 models.infrastructure.s3_client.S3Client.write_entity_revision
@@ -122,3 +123,5 @@ models.rdf_builder.redirect_cache.load_entity_redirects_batch
 models.rdf_builder.uri_generator.UriGenerator.model_config
 models.rdf_builder.writers.turtle.TurtleWriter
 models.vitess_models.HistoryRecord
+models.validation.json_schema_validator.JsonSchemaValidator.validate_entity_revision
+models.validation.json_schema_validator.JsonSchemaValidator.validate_statement

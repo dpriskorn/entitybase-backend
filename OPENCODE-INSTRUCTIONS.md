@@ -28,9 +28,10 @@
 - no backward compability
 
 # Current task
-fix failing tests using get-docker-logs.sh
+add validation to all json input 
 
 # todo
+fix failing tests using get-docker-logs.sh
 fix ruff, vulture and mypy warnings
 move entity endpoints out of main.py
 fix failing tests
