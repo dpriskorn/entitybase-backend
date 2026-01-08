@@ -1,6 +1,9 @@
-# Wikibase Backend
+# Entitybase Backend
 
-A clean-room, billion-scale Wikibase backend architecture based on immutable S3 snapshots and Vitess indexing.
+A clean-room, billion-scale Wikibase JSON and RDF schema compatible backend architecture 
+based on immutable S3 snapshots and Vitess indexing.
+
+It is designed to support 1bn+ entities and 1tn unique statements.
 
 ## Core Principles
 
@@ -198,18 +201,6 @@ All statement deduplication features implemented:
 - [ ] Test all endpoints with docker
 - [ ] Create integration tests for statement deduplication
 
-### Manual Database Setup (for existing Vitess instances)
-
-After running `docker-compose up`, execute these SQL commands to add new columns:
-
-```sql
-ALTER TABLE entity_revisions ADD COLUMN statements JSON NOT NULL;
-ALTER TABLE entity_revisions ADD COLUMN properties JSON NOT NULL;
-ALTER TABLE entity_revisions ADD COLUMN property_counts JSON NOT NULL;
-```
-
-Note: JSON columns cannot have DEFAULT values in MySQL/Vitess. Application code will provide these values.
-
 ## RDF Testing Progress
 
 ### Test Entities
@@ -326,22 +317,3 @@ Note: JSON columns cannot have DEFAULT values in MySQL/Vitess. Application code 
 
 ## External links
 * https://www.mediawiki.org/wiki/User:So9q/Scaling_issues Implemenatation history and on-wiki details
-
-## Code Quality
-
-### Vulture (Dead Code Detection)
-
-Run vulture to detect unused code:
-
-```bash
-source .venv/bin/activate
-vulture src vulture_whitelist.txt
-```
-
-Or use the helper script:
-
-```bash
-./run_vulture.sh
-```
-
-The `vulture_whitelist.txt` file contains false positives that are not actually unused (e.g., FastAPI route functions, Pydantic model fields, etc.).
