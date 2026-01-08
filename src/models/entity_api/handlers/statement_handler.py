@@ -2,7 +2,7 @@ import logging
 
 from fastapi import HTTPException
 
-from models.entity import (
+from models.api_models import (
     MostUsedStatementsResponse,
     PropertyCountsResponse,
     PropertyHashesResponse,

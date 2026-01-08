@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from models.config.settings import settings
-from models.entity_api.clients import Clients
+from models.api_models_api.clients import Clients
 
 logger = logging.getLogger(__name__)
 

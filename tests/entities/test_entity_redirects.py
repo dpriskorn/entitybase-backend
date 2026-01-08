@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from models.entity import (
+from models.api_models import (
     EntityRedirectRequest,
     EntityRedirectResponse,
     EntityResponse,

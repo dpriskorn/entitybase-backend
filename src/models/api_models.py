@@ -172,18 +172,18 @@ class PropertyHashesResponse(BaseModel):
     )
 
 
-class MostUsedStatementsRequest(BaseModel):
-    limit: int = Field(
-        default=100,
-        ge=1,
-        le=10000,
-        description="Maximum number of statements to return (1-10000, default 100)",
-    )
-    min_ref_count: int = Field(
-        default=1,
-        ge=0,
-        description="Minimum ref_count threshold (default 1)",
-    )
+# class MostUsedStatementsRequest(BaseModel):
+#     limit: int = Field(
+#         default=100,
+#         ge=1,
+#         le=10000,
+#         description="Maximum number of statements to return (1-10000, default 100)",
+#     )
+#     min_ref_count: int = Field(
+#         default=1,
+#         ge=0,
+#         description="Minimum ref_count threshold (default 1)",
+#     )
 
 
 class MostUsedStatementsResponse(BaseModel):
@@ -231,8 +231,38 @@ class CleanupOrphanedResponse(BaseModel):
     )
 
 
-class EntityListResponse(BaseModel):
-    entities: list[dict[str, Any]] = Field(
-        description="List of entities with their metadata"
+# class EntityListResponse(BaseModel):
+#     entities: list[dict[str, Any]] = Field(
+#         description="List of entities with their metadata"
+#     )
+#     count: int = Field(description="Total number of entities returned")
+
+
+class RevisionMetadata(BaseModel):
+    revision_id: int
+    created_at: str
+
+
+class HealthCheckResponse(BaseModel):
+    status: str
+    s3: str
+    vitess: str
+
+
+class StatementHashResult(BaseModel):
+    statements: list[int] = Field(
+        default_factory=list,
+        description="List of statement hashes (rapidhash of each statement)",
     )
-    count: int = Field(description="Total number of entities returned")
+    properties: list[str] = Field(
+        default_factory=list,
+        description="Sorted list of unique property IDs",
+    )
+    property_counts: dict[str, int] = Field(
+        default_factory=dict,
+        description="Dict mapping property ID -> count of statements",
+    )
+    full_statements: list[Dict[str, Any]] = Field(
+        default_factory=list,
+        description="List of full statement dicts (parallel with hashes)",
+    )

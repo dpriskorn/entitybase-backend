@@ -1,12 +1,12 @@
 from fastapi import Response
 from starlette import status
 
-from models.entity import HealthCheckResponse
+from models.api_models import HealthCheckResponse
 
 
 def health_check(response: Response) -> HealthCheckResponse:
     """Health check endpoint for monitoring system status."""
-    from models.entity_api.main import app
+    from models.api_models_api.main import app
 
     clients = getattr(app.state, "clients", None)
 

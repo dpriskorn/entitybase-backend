@@ -9,7 +9,7 @@ sys.path.insert(0, "src")
 @pytest.mark.asyncio
 async def test_app_loads() -> None:
     """Test that FastAPI app can be loaded"""
-    from models.entity_api.main import app
+    from models.api_models_api.main import app
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"

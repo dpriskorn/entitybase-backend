@@ -8,7 +8,7 @@ from rapidhash import rapidhash
 from jsonschema.exceptions import ValidationError
 
 from models.config.settings import settings
-from models.entity import (
+from models.api_models import (
     DeleteType,
     EditType,
     EntityCreateRequest,
@@ -19,7 +19,7 @@ from models.entity import (
 )
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
-from models.entity_api.services.statement_service import (
+from models.api_models_api.services.statement_service import (
     hash_entity_statements,
     deduplicate_and_store_statements,
 )

@@ -3,7 +3,7 @@ from typing import Any
 
 from fastapi import HTTPException
 
-from models.entity import (
+from models.api_models import (
     CleanupOrphanedRequest,
     CleanupOrphanedResponse,
     # EntityListResponse,  # DISABLED: Listing not used

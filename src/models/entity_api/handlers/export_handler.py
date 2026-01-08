@@ -3,10 +3,10 @@ from typing import Any
 
 from fastapi import HTTPException
 
-from models.entity import TtlResponse
+from models.api_models import TtlResponse
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
-from models.entity_api.services.rdf_service import serialize_entity_to_turtle
+from models.api_models_api.services.rdf_service import serialize_entity_to_turtle
 
 logger = logging.getLogger(__name__)
 

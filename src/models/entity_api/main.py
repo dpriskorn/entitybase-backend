@@ -10,7 +10,7 @@ from jsonschema import ValidationError
 
 from models.config.settings import settings
 from models.validation.json_schema_validator import JsonSchemaValidator
-from models.entity import (
+from models.api_models import (
     CleanupOrphanedRequest,
     CleanupOrphanedResponse,
     EntityCreateRequest,
@@ -31,13 +31,13 @@ from models.entity import (
     StatementResponse,
     TtlResponse,
 )
-from models.entity_api.clients import Clients
-from models.entity_api.handlers.admin_handler import AdminHandler
-from models.entity_api.handlers.entity_handler import EntityHandler
-from models.entity_api.handlers.export_handler import ExportHandler
-from models.entity_api.handlers.redirect_handler import RedirectHandler
-from models.entity_api.handlers.statement_handler import StatementHandler
-from models.entity_api.handlers.system_handler import health_check
+from models.api_models_api.clients import Clients
+from models.api_models_api.handlers.admin_handler import AdminHandler
+from models.api_models_api.handlers.entity_handler import EntityHandler
+from models.api_models_api.handlers.export_handler import ExportHandler
+from models.api_models_api.handlers.redirect_handler import RedirectHandler
+from models.api_models_api.handlers.statement_handler import StatementHandler
+from models.api_models_api.handlers.system_handler import health_check
 
 log_level = settings.get_log_level()
 

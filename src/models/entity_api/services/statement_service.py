@@ -5,8 +5,8 @@ from typing import Any
 
 from rapidhash import rapidhash
 
-from models.entity import StatementHashResult
-from models.entity_api.utils import raise_or_convert_to_500
+from models.api_models import StatementHashResult
+from models.api_models_api.utils import raise_or_convert_to_500
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.s3_models import StoredStatement
