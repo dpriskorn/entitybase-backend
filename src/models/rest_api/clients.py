@@ -3,13 +3,13 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict
 
-from models.infrastructure.s3_client import S3Client
+from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.rdf_builder.property_registry.loader import load_property_registry
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3_client import S3Config
+    from models.infrastructure.s3.s3_client import S3Config
     from models.infrastructure.vitess_client import VitessConfig
 
 

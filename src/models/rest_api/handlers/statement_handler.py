@@ -12,7 +12,7 @@ from models.api_models import (
     StatementBatchResponse,
     StatementResponse,
 )
-from models.infrastructure.s3_client import S3Client
+from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)

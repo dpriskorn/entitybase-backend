@@ -2,12 +2,12 @@ import pymysql
 from contextlib import contextmanager
 from typing import Any, Generator
 
+from models.infrastructure.connection import ConnectionManager
 from models.vitess_models import VitessConfig
 
 
-class ConnectionManager:
-    def __init__(self, config: VitessConfig) -> None:
-        self.config = config
+class VitessConnectionManager(ConnectionManager):
+    config: VitessConfig
 
     def connect(self) -> Any:
         # Create a new connection each time to avoid threading issues
@@ -20,7 +20,7 @@ class ConnectionManager:
             autocommit=True,
         )
 
-    def we_have_a_connection(self) -> bool:
+    def healthy_connection(self) -> bool:
         # noinspection PyBroadException
         try:
             conn = self.connect()

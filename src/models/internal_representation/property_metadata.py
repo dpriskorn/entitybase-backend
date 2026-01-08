@@ -1,7 +1,8 @@
 # src/models/internal_representation/property_metadata.py
 
-from dataclasses import dataclass
 from enum import Enum
+
+from pydantic import BaseModel, ConfigDict
 
 
 class WikibaseDatatype(str, Enum):
@@ -14,7 +15,8 @@ class WikibaseDatatype(str, Enum):
     URL = "url"
 
 
-@dataclass(frozen=True)
-class PropertyMetadata:
-    property_id: str  # "P17"
-    datatype: WikibaseDatatype  # wikibase-item
+class PropertyMetadata(BaseModel):
+    property_id: str
+    datatype: WikibaseDatatype
+
+    model_config = ConfigDict(frozen=True)

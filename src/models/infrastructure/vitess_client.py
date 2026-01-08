@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from models.vitess_models import VitessConfig
 
-from models.infrastructure.vitess.connection import ConnectionManager
+from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.schema import SchemaManager
 from models.infrastructure.vitess.entities import IdResolver
 from models.infrastructure.vitess.entity_repository import EntityRepository
@@ -22,7 +22,7 @@ class VitessClient(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     config: VitessConfig
-    connection_manager: ConnectionManager = Field(default=None, exclude=True)
+    connection_manager: VitessConnectionManager = Field(default=None, exclude=True)
     schema_manager: SchemaManager = Field(default=None, exclude=True)
     id_resolver: IdResolver = Field(default=None, exclude=True)
     entity_repository: EntityRepository = Field(default=None, exclude=True)
@@ -34,7 +34,7 @@ class VitessClient(BaseModel):
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
-        self.connection_manager = ConnectionManager(config)
+        self.connection_manager = VitessConnectionManager(config)
         self.schema_manager = SchemaManager(self.connection_manager)
         self.id_resolver = IdResolver(self.connection_manager)
         self.entity_repository = EntityRepository(
@@ -57,8 +57,8 @@ class VitessClient(BaseModel):
     def connect(self) -> Any:
         return self.connection_manager.connect()
 
-    def check_connection(self) -> bool:
-        return self.connection_manager.we_have_a_connection()  # type: ignore[no-any-return]
+    def healthy_connection(self) -> bool:
+        return self.connection_manager.healthy_connection()  # type: ignore[no-any-return]
 
     @contextmanager
     def get_connection(self) -> Generator[Any, None, None]:

@@ -4,7 +4,7 @@ from typing import Any
 from fastapi import HTTPException
 
 from models.api_models import TtlResponse
-from models.infrastructure.s3_client import S3Client
+from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.services.rdf_service import serialize_entity_to_turtle
 

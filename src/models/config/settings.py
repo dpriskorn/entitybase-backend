@@ -36,7 +36,7 @@ class Settings(BaseSettings):
         return getattr(logging, self.log_level.upper(), logging.INFO)
 
     def to_s3_config(self) -> Any:
-        from models.infrastructure.s3_client import S3Config
+        from models.infrastructure.s3.s3_client import S3Config
 
         return S3Config(
             endpoint_url=self.s3_endpoint,

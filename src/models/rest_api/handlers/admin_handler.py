@@ -8,7 +8,7 @@ from models.api_models import (
     CleanupOrphanedResponse,
     # EntityListResponse,  # DISABLED: Listing not used
 )
-from models.infrastructure.s3_client import S3Client
+from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ class AdminHandler:
             for content_hash in orphaned_hashes:
                 try:
                     key = f"statements/{content_hash}.json"
-                    s3_client.client.delete_object(
+                    s3_client.conn.delete_object(
                         Bucket=s3_client.config.bucket, Key=key
                     )
 

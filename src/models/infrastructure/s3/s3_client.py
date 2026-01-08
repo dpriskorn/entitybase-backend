@@ -1,11 +1,11 @@
-from datetime import timezone
+import json
+from datetime import timezone, datetime
 from typing import Any, Dict
-import boto3
 import logging
-from botocore.client import Config
 from botocore.exceptions import ClientError
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
+from models.infrastructure.s3.connection import S3ConnectionManager
 from models.s3_models import (
     S3Config,
     RevisionMetadata,
@@ -13,35 +13,37 @@ from models.s3_models import (
 )
 
 
+from models.s3_models import StoredStatement
+
+logger = logging.getLogger(__name__)
+
+
 class S3Client(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
-
     config: S3Config
-    client: Any = Field(default=None, exclude=True)
+    connection_manager: S3ConnectionManager | None = None
 
     def __init__(self, config: S3Config, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
-        self.client = boto3.client(
-            "s3",
-            endpoint_url=config.endpoint_url,
-            aws_access_key_id=config.access_key,
-            aws_secret_access_key=config.secret_key,
-            config=Config(signature_version="s3v4", s3={"addressing_style": "path"}),
-            region_name="us-east-1",
-        )
-
+        manager = S3ConnectionManager(config=config)
+        manager.connect()
+        self.connection_manager = manager
         self._ensure_bucket_exists()
 
     def _ensure_bucket_exists(self) -> None:
+        if not self.connection_manager or not self.connection_manager.conn:
+            raise ConnectionError()
         try:
-            self.client.head_bucket(Bucket=self.config.bucket)
+            self.connection_manager.conn.head_bucket(Bucket=self.config.bucket)
         except ClientError as e:
             if (
                 e.response["Error"]["Code"] == "404"
                 or e.response["Error"]["Code"] == "NoSuchBucket"
             ):
                 try:
-                    self.client.create_bucket(Bucket=self.config.bucket)
+                    self.connection_manager.conn.create_bucket(
+                        Bucket=self.config.bucket
+                    )
                 except ClientError as ce:
                     print(f"Error creating bucket {self.config.bucket}: {ce}")
                     raise
@@ -61,10 +63,10 @@ class S3Client(BaseModel):
         data: dict,
         publication_state: str = "pending",
     ) -> RevisionMetadata:
-        import json
-
+        if not self.connection_manager or not self.connection_manager.conn:
+            raise ConnectionError()
         key = f"{entity_id}/r{revision_id}.json"
-        self.client.put_object(
+        self.connection_manager.conn.put_object(
             Bucket=self.config.bucket,
             Key=key,
             Body=json.dumps(data),
@@ -74,10 +76,12 @@ class S3Client(BaseModel):
 
     def read_revision(self, entity_id: str, revision_id: int) -> RevisionReadResponse:
         """Read S3 object and return parsed JSON"""
-        import json
-
+        if not self.connection_manager or not self.connection_manager.conn:
+            raise ConnectionError()
         key = f"{entity_id}/r{revision_id}.json"
-        response = self.client.get_object(Bucket=self.config.bucket, Key=key)
+        response = self.connection_manager.conn.get_object(
+            Bucket=self.config.bucket, Key=key
+        )
 
         parsed_data = json.loads(response["Body"].read().decode("utf-8"))
 
@@ -88,8 +92,10 @@ class S3Client(BaseModel):
     def mark_published(
         self, entity_id: str, revision_id: int, publication_state: str
     ) -> None:
+        if not self.connection_manager or not self.connection_manager.conn:
+            raise ConnectionError()
         key = f"{entity_id}/r{revision_id}.json"
-        self.client.copy_object(
+        self.connection_manager.conn.copy_object(
             Bucket=self.config.bucket,
             CopySource={"Bucket": self.config.bucket, "Key": key},
             Key=key,
@@ -99,29 +105,18 @@ class S3Client(BaseModel):
 
     def read_full_revision(self, entity_id: str, revision_id: int) -> Dict[str, Any]:
         """Read S3 object and return parsed full revision JSON"""
-        import json
-
+        if not self.connection_manager or not self.connection_manager.conn:
+            raise ConnectionError()
         key = f"{entity_id}/r{revision_id}.json"
-        response = self.client.get_object(Bucket=self.config.bucket, Key=key)
+        response = self.connection_manager.conn.get_object(
+            Bucket=self.config.bucket, Key=key
+        )
 
         parsed_data: Dict[str, Any] = json.loads(
             response["Body"].read().decode("utf-8")
         )
 
         return parsed_data
-
-    def healthy_connection(self) -> bool:
-        """Check if S3 connection is healthy
-
-        Returns:
-            True if connection is healthy, False otherwise
-        """
-        # noinspection PyBroadException
-        try:
-            self.client.head_bucket(Bucket=self.config.bucket)
-            return True
-        except Exception:
-            return False
 
     def write_statement(
         self,
@@ -132,23 +127,23 @@ class S3Client(BaseModel):
 
         Stores statement at path: statements/{hash}.json
         """
-        import json
-
-        logger = logging.getLogger(__name__)
-
+        if not self.connection_manager or not self.connection_manager.conn:
+            raise ConnectionError()
         key = f"statements/{content_hash}.json"
         statement_json = json.dumps(statement_data)
 
         # Enhanced pre-write validation logging
         logger.debug(f"S3 write_statement: bucket={self.config.bucket}, key={key}")
         # noinspection PyProtectedMember
-        logger.debug(f"S3 client endpoint: {self.client._endpoint.host}")
+        logger.debug(
+            f"S3 client endpoint: {self.connection_manager.conn._endpoint.host}"
+        )
         logger.debug(f"Statement data size: {len(statement_json)} bytes")
         logger.debug(f"Full statement data: {json.dumps(statement_data, indent=2)}")
 
         # Verify bucket exists before write
         try:
-            self.client.head_bucket(Bucket=self.config.bucket)
+            self.connection_manager.conn.head_bucket(Bucket=self.config.bucket)
             logger.debug(f"S3 bucket {self.config.bucket} exists and is accessible")
         except Exception as bucket_error:
             logger.error(
@@ -157,7 +152,7 @@ class S3Client(BaseModel):
             raise
 
         try:
-            response = self.client.put_object(
+            response = self.connection_manager.conn.put_object(
                 Bucket=self.config.bucket,
                 Key=key,
                 Body=statement_json,
@@ -171,7 +166,7 @@ class S3Client(BaseModel):
 
             # High Priority: Immediate verification by reading back written object
             try:
-                verify_response = self.client.get_object(
+                verify_response = self.connection_manager.conn.get_object(
                     Bucket=self.config.bucket, Key=key
                 )
                 verify_data = json.loads(verify_response["Body"].read().decode("utf-8"))
@@ -204,7 +199,7 @@ class S3Client(BaseModel):
                     "bucket": self.config.bucket,
                     "key": key,
                     "statement_data_size": len(statement_json),
-                    "s3_endpoint": self.client._endpoint.host,
+                    "s3_endpoint": self.connection_manager.conn._endpoint.host,
                 },
                 exc_info=True,
             )
@@ -219,18 +214,15 @@ class S3Client(BaseModel):
         Raises:
             ClientError if statement not found
         """
-        import json
-        from botocore.exceptions import ClientError
-
-        from models.s3_models import StoredStatement
-
-        logger = logging.getLogger(__name__)
-
+        if not self.connection_manager or not self.connection_manager.conn:
+            raise ConnectionError()
         key = f"statements/{content_hash}.json"
         logger.debug(f"S3 read_statement: bucket={self.config.bucket}, key={key}")
 
         try:
-            response = self.client.get_object(Bucket=self.config.bucket, Key=key)
+            response = self.connection_manager.conn.get_object(
+                Bucket=self.config.bucket, Key=key
+            )
             parsed_data: Dict[str, Any] = json.loads(
                 response["Body"].read().decode("utf-8")
             )
@@ -277,9 +269,8 @@ class S3Client(BaseModel):
         created_by: str = "rest-api",
     ) -> int:
         """Write revision as part of redirect operations (no mark_pending/published flow)"""
-        import json
-        from datetime import datetime
-
+        if not self.connection_manager or not self.connection_manager.conn:
+            raise ConnectionError()
         revision_data = {
             "schema_version": "1.2.0",
             "revision_id": revision_id,
@@ -309,7 +300,7 @@ class S3Client(BaseModel):
         }
 
         key = f"{entity_id}/r{revision_id}.json"
-        self.client.put_object(
+        self.connection_manager.conn.put_object(
             Bucket=self.config.bucket,
             Key=key,
             Body=json.dumps(revision_data),

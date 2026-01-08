@@ -7,7 +7,7 @@ from rapidhash import rapidhash
 
 from models.api_models import StatementHashResult
 from models.rest_api.utils import raise_or_convert_to_500
-from models.infrastructure.s3_client import S3Client
+from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.s3_models import StoredStatement
 from models.validation.json_schema_validator import JsonSchemaValidator
@@ -182,7 +182,7 @@ def deduplicate_and_store_statements(
                             "error_message": str(write_error),
                             "statement_data": statement_data,
                             "s3_bucket": s3_client.config.bucket,
-                            "s3_endpoint": s3_client.client._endpoint.host,
+                            "s3_endpoint": s3_client.conn._endpoint.host,
                             "stack_trace": traceback.format_exc()
                             if hasattr(write_error, "__traceback__")
                             else None,

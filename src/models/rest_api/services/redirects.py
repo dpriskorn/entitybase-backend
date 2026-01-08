@@ -8,7 +8,7 @@ from models.api_models import (
     EntityRedirectResponse,
     EntityResponse,
 )
-from models.infrastructure.s3_client import S3Client
+from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 
 

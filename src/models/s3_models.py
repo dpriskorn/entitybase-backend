@@ -3,9 +3,10 @@ from typing import Any, Dict
 from pydantic import BaseModel
 
 from models.api_models import StatementResponse
+from models.infrastructure.config import Config
 
 
-class S3Config(BaseModel):
+class S3Config(Config):
     endpoint_url: str
     access_key: str
     secret_key: str

@@ -1,7 +1,9 @@
 from pydantic import BaseModel
 
+from models.infrastructure.config import Config
 
-class VitessConfig(BaseModel):
+
+class VitessConfig(Config):
     host: str
     port: int
     database: str
