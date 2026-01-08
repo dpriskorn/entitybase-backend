@@ -2,6 +2,7 @@ from fastapi import Response
 from starlette import status
 
 from models.api_models import HealthCheckResponse
+from models.infrastructure import S3Client, VitessClient
 
 
 def health_check(response: Response) -> HealthCheckResponse:
@@ -15,13 +16,20 @@ def health_check(response: Response) -> HealthCheckResponse:
         return HealthCheckResponse(
             status="starting", s3="disconnected", vitess="disconnected"
         )
-
+    # print(type(clients.s3))
+    # exit()
+    s3: S3Client = clients.s3
     s3_status = (
-        "connected" if clients.s3 and clients.s3.healthy_connection else "disconnected"
+        "connected"
+        if s3 and isinstance(s3, S3Client) and s3.healthy_connection
+        else "disconnected"
     )
+    vitess: VitessClient = clients.vitess
     vitess_status = (
         "connected"
-        if clients.vitess and clients.vitess.healthy_connection
+        if vitess
+        and isinstance(vitess, VitessClient)
+        and clients.vitess.healthy_connection
         else "disconnected"
     )
 

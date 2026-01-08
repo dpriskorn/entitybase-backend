@@ -8,7 +8,7 @@ from models.rdf_builder.writers.property import PropertyWriter
 
 
 def test_property_p17_scaffolding() -> None:
-    prop = PropertyMetadata("P17", WikibaseDatatype.WIKIBASE_ITEM)
+    prop = PropertyMetadata(property_id="P17", datatype=WikibaseDatatype.WIKIBASE_ITEM)
     out = StringIO()
     PropertyWriter.write_property(out, prop)
 

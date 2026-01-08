@@ -14,6 +14,6 @@ class Client(ABC, BaseModel):
     @property
     def healthy_connection(self) -> bool:
         """Helper method"""
-        if not self.connection_manager or not self.connection_manager.conn:
+        if not self.connection_manager:
             raise ConnectionError()
-        return bool(self.connection_manager.conn.healthy_connection)
+        return bool(self.connection_manager.healthy_connection)

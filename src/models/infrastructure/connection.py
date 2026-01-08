@@ -15,6 +15,6 @@ class ConnectionManager(ABC, BaseModel):
     def connect(self) -> Any:
         pass
 
-    @abc.abstractmethod
+    @property
     def healthy_connection(self) -> bool:
-        pass
+        raise NotImplementedError()

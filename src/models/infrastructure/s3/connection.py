@@ -1,6 +1,7 @@
 import boto3
 from botocore.client import BaseClient
 from botocore.config import Config
+from pydantic import Field
 
 from models.infrastructure.connection import ConnectionManager
 from models.s3_models import S3Config
@@ -10,11 +11,11 @@ class S3ConnectionManager(ConnectionManager):
     """Handles S3 connection and healthcheck"""
 
     config: S3Config
-    conn: BaseClient | None = None
+    boto_client: BaseClient = Field(default=None, exclude=True)
 
     def connect(self) -> None:
-        if self.conn is None:
-            self.conn = boto3.client(
+        if self.boto_client is None:
+            self.boto_client = boto3.client(
                 "s3",
                 endpoint_url=self.config.endpoint_url,
                 aws_access_key_id=self.config.access_key,
@@ -35,8 +36,8 @@ class S3ConnectionManager(ConnectionManager):
         # noinspection PyBroadException
         try:
             self.connect()
-            if self.conn:
-                self.conn.head_bucket(Bucket=self.config.bucket)
+            if self.boto_client is not None:
+                self.boto_client.head_bucket(Bucket=self.config.bucket)
                 return True
             return False
         except Exception:
