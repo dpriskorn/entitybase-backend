@@ -2,6 +2,7 @@ from fastapi import Response
 from starlette import status
 
 from models.api_models import HealthCheckResponse
+from models.infrastructure import S3Client, VitessClient
 
 
 def health_check(response: Response) -> HealthCheckResponse:
@@ -9,6 +10,8 @@ def health_check(response: Response) -> HealthCheckResponse:
     from models.rest_api.main import app
 
     clients = getattr(app.state, "clients", None)
+    clients.s3: S3Client
+    clients.vitess: VitessClient
 
     if clients is None:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
@@ -17,11 +20,13 @@ def health_check(response: Response) -> HealthCheckResponse:
         )
 
     s3_status = (
-        "connected" if clients.s3 and clients.s3.we_have_a_connection() else "disconnected"
+        "connected"
+        if clients.s3 and clients.s3.healthy_connection()
+        else "disconnected"
     )
     vitess_status = (
         "connected"
-        if clients.vitess and clients.vitess.we_have_a_connection()
+        if clients.vitess and clients.vitess.healthy_connection()
         else "disconnected"
     )
 

@@ -110,12 +110,13 @@ class S3Client(BaseModel):
 
         return parsed_data
 
-    def check_connection(self) -> bool:
+    def healthy_connection(self) -> bool:
         """Check if S3 connection is healthy
 
         Returns:
             True if connection is healthy, False otherwise
         """
+        # noinspection PyBroadException
         try:
             self.client.head_bucket(Bucket=self.config.bucket)
             return True

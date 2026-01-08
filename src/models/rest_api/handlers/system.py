@@ -17,7 +17,9 @@ def health_check(response: Response) -> HealthCheckResponse:
         )
 
     s3_status = (
-        "connected" if clients.s3 and clients.s3.we_have_a_connection() else "disconnected"
+        "connected"
+        if clients.s3 and clients.s3.we_have_a_connection()
+        else "disconnected"
     )
     vitess_status = (
         "connected"

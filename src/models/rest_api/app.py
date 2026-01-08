@@ -25,7 +25,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         )
         app_.state.clients = clients
 
-        if clients.s3 and clients.s3.check_connection():
+        if clients.s3 and clients.s3.healthy_connection():
             logger.debug("S3 client connected successfully")
         else:
             logger.warning("S3 client connection failed")
