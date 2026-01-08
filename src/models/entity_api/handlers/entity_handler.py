@@ -236,8 +236,7 @@ class EntityHandler:
                 },
             )
             raise HTTPException(
-                status_code=400, 
-                detail=f"Statement validation failed: {e.message}"
+                status_code=400, detail=f"Statement validation failed: {e.message}"
             )
         except Exception as e:
             logger.error(
