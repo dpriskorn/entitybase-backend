@@ -16,7 +16,8 @@ RUN pip install --no-cache-dir \
     "rapidhash (>=0.1.0,<0.2.0)" \
     "rdflib (>=7.5.0,<8.0.0)" \
     "requests (>=2.32.5,<3.0.0)" \
-    "jsonschema (>=4.23.0,<5.0.0)"
+    "jsonschema (>=4.23.0,<5.0.0)" \
+    "aiokafka (>=0.11.0,<1.0.0)"
 
 COPY ./src/ ./src/
 

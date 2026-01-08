@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     test_log_http_requests: bool = False
     test_show_progress: bool = True
     expose_original_exceptions: bool = False
+    kafka_brokers: str = "redpanda:9092"
+    kafka_topic: str = "wikibase.entity_change"
 
     def get_log_level(self) -> int:
         if os.getenv("TEST_LOG_LEVEL"):

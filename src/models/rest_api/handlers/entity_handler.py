@@ -18,6 +18,11 @@ from models.api_models import (
     RevisionMetadata,
 )
 from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.stream import (
+    ChangeType,
+    EntityChangeEvent,
+    StreamProducerClient,
+)
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.services.statement_service import (
     hash_entity_statements,
@@ -30,14 +35,70 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def edit_type_to_change_type(edit_type: EditType | str) -> ChangeType:
+    """Map EditType to ChangeType for event streaming."""
+    edit_type_str = str(edit_type)
+
+    if edit_type_str in (EditType.MANUAL_CREATE.value, "manual-create"):
+        return ChangeType.CREATION
+    elif edit_type_str in (EditType.MANUAL_UPDATE.value, "manual-update"):
+        return ChangeType.EDIT
+    elif edit_type_str in (EditType.REDIRECT_CREATE.value, "redirect-create"):
+        return ChangeType.REDIRECT
+    elif edit_type_str in (EditType.REDIRECT_REVERT.value, "redirect-revert"):
+        return ChangeType.UNREDIRECT
+    elif edit_type_str in (EditType.ARCHIVE_ADDED.value, "archive-added"):
+        return ChangeType.ARCHIVAL
+    elif edit_type_str in (EditType.ARCHIVE_REMOVED.value, "archive-removed"):
+        return ChangeType.UNARCHIVAL
+    elif edit_type_str in (EditType.LOCK_ADDED.value, "lock-added"):
+        return ChangeType.LOCK
+    elif edit_type_str in (EditType.LOCK_REMOVED.value, "lock-removed"):
+        return ChangeType.UNLOCK
+    elif edit_type_str in (EditType.SOFT_DELETE.value, "soft-delete"):
+        return ChangeType.SOFT_DELETE
+    elif edit_type_str in (EditType.HARD_DELETE.value, "hard-delete"):
+        return ChangeType.HARD_DELETE
+    else:
+        return ChangeType.EDIT
+
+
 class EntityHandler:
     """Handles all entity CRUD operations."""
 
     @staticmethod
-    def create_entity(
+    async def _publish_change(
+        stream_producer: StreamProducerClient | None,
+        entity_id: str,
+        revision_id: int,
+        change_type: ChangeType,
+        from_revision_id: int | None,
+        editor: str | None,
+        edit_summary: str | None,
+        bot: bool,
+    ) -> None:
+        """Publish change event to stream."""
+        if stream_producer is None:
+            return
+
+        event = EntityChangeEvent(
+            entity_id=entity_id,
+            revision_id=revision_id,
+            change_type=change_type,
+            from_revision_id=from_revision_id,
+            changed_at=datetime.now(timezone.utc),
+            editor=editor,
+            edit_summary=edit_summary,
+            bot=bot,
+        )
+        await stream_producer.publish_change(event)
+
+    @staticmethod
+    async def create_entity(
         request: EntityCreateRequest,
         vitess_client: VitessClient,
         s3_client: S3Client,
+        stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Create or update an entity with statement deduplication."""
@@ -362,6 +423,24 @@ class EntityHandler:
             },
         )
         logger.debug("=== ENTITY CREATION END ===")
+
+        change_type = (
+            ChangeType.CREATION
+            if head_revision_id == 0
+            else edit_type_to_change_type(edit_type)
+        )
+
+        await EntityHandler._publish_change(
+            stream_producer=stream_producer,
+            entity_id=entity_id,
+            revision_id=new_revision_id,
+            change_type=change_type,
+            from_revision_id=head_revision_id if head_revision_id != 0 else None,
+            editor=request.editor,
+            edit_summary=request.edit_summary,
+            bot=request.bot,
+        )
+
         return EntityResponse(
             id=entity_id,
             revision_id=new_revision_id,
@@ -469,12 +548,13 @@ class EntityHandler:
 
         return entity_data  # type: ignore[return-value]
 
-    def delete_entity(
+    async def delete_entity(
         self,
         entity_id: str,
         request: EntityDeleteRequest,
         vitess_client: VitessClient,
         s3_client: S3Client,
+        stream_producer: StreamProducerClient | None,
     ) -> EntityDeleteResponse:
         """Delete entity (soft or hard delete)."""
         if vitess_client is None:
@@ -589,6 +669,22 @@ class EntityHandler:
             entity_id=entity_id,
             revision_id=new_revision_id,
             publication_state="published",
+        )
+
+        change_type = (
+            ChangeType.SOFT_DELETE
+            if request.delete_type == DeleteType.SOFT
+            else ChangeType.HARD_DELETE
+        )
+        await EntityHandler._publish_change(
+            stream_producer=stream_producer,
+            entity_id=entity_id,
+            revision_id=new_revision_id,
+            change_type=change_type,
+            from_revision_id=head_revision_id,
+            editor=request.editor,
+            edit_summary=request.edit_summary,
+            bot=request.bot,
         )
 
         return EntityDeleteResponse(

@@ -72,8 +72,11 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         logger.debug("Initializing clients...")
         s3_config = settings.to_s3_config()
         vitess_config = settings.to_vitess_config()
+        kafka_brokers = settings.kafka_brokers
+        kafka_topic = settings.kafka_topic
         logger.debug(f"S3 config: {s3_config}")
         logger.debug(f"Vitess config: {vitess_config}")
+        logger.debug(f"Kafka config: brokers={kafka_brokers}, topic={kafka_topic}")
 
         property_registry_path = (
             Path("test_data/properties")
@@ -85,8 +88,15 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         app_.state.clients = Clients(
             s3=s3_config,
             vitess=vitess_config,
+            kafka_brokers=kafka_brokers,
+            kafka_topic=kafka_topic,
             property_registry_path=property_registry_path,
         )
+
+        if app_.state.clients.stream_producer:
+            await app_.state.clients.stream_producer.start()
+            logger.info("Stream producer started")
+
         app_.state.validator = JsonSchemaValidator()
         logger.debug("Clients and validator initialized successfully")
         yield
@@ -95,6 +105,10 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             f"Failed to initialize clients: {type(e).__name__}: {e}", exc_info=True
         )
         raise
+    finally:
+        if app_.state.clients.stream_producer:
+            await app_.state.clients.stream_producer.stop()
+            logger.info("Stream producer stopped")
 
 
 app = FastAPI(lifespan=lifespan)
@@ -126,11 +140,13 @@ def health_check_endpoint(response: Response) -> HealthCheckResponse:
 
 
 @app.post("/entity", response_model=EntityResponse)
-def create_entity(request: EntityCreateRequest) -> EntityResponse:
+async def create_entity(request: EntityCreateRequest) -> EntityResponse:
     clients = app.state.clients
     validator = app.state.validator
     handler = EntityHandler()
-    return handler.create_entity(request, clients.vitess, clients.s3, validator)
+    return await handler.create_entity(
+        request, clients.vitess, clients.s3, clients.stream_producer, validator
+    )
 
 
 @app.get("/entity/{entity_id}", response_model=EntityResponse)
@@ -163,8 +179,8 @@ async def create_entity_redirect(
     request: EntityRedirectRequest,
 ) -> EntityRedirectResponse:
     clients = app.state.clients
-    handler = RedirectHandler(clients.s3, clients.vitess)
-    return handler.create_entity_redirect(request)
+    handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
+    return await handler.create_entity_redirect(request)
 
 
 @app.post("/entities/{entity_id}/revert-redirect")
@@ -172,8 +188,10 @@ async def revert_entity_redirect(
     entity_id: str, request: RedirectRevertRequest
 ) -> EntityResponse:
     clients = app.state.clients
-    handler = RedirectHandler(clients.s3, clients.vitess)
-    return handler.revert_entity_redirect(entity_id, request.revert_to_revision_id)
+    handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
+    return await handler.revert_entity_redirect(
+        entity_id, request.revert_to_revision_id
+    )
 
 
 @app.get("/entity/{entity_id}/revision/{revision_id}", response_model=Dict[str, Any])
@@ -184,10 +202,14 @@ def get_entity_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
 
 
 @app.delete("/entity/{entity_id}", response_model=EntityDeleteResponse)
-def delete_entity(entity_id: str, request: EntityDeleteRequest) -> EntityDeleteResponse:
+async def delete_entity(
+    entity_id: str, request: EntityDeleteRequest
+) -> EntityDeleteResponse:
     clients = app.state.clients
     handler = EntityHandler()
-    return handler.delete_entity(entity_id, request, clients.vitess, clients.s3)  # type: ignore
+    return await handler.delete_entity(
+        entity_id, request, clients.vitess, clients.s3, clients.stream_producer
+    )
 
 
 @app.get("/raw/{entity_id}/{revision_id}")

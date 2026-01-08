@@ -1,4 +1,4 @@
-from datetime import timezone
+from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
@@ -9,17 +9,28 @@ from models.api_models import (
     EntityResponse,
 )
 from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.stream import (
+    ChangeType,
+    EntityChangeEvent,
+    StreamProducerClient,
+)
 from models.infrastructure.vitess_client import VitessClient
 
 
 class RedirectService:
     """Service for managing entity redirects"""
 
-    def __init__(self, s3_client: S3Client, vitess_client: VitessClient):
+    def __init__(
+        self,
+        s3_client: S3Client,
+        vitess_client: VitessClient,
+        stream_producer: StreamProducerClient | None = None,
+    ):
         self.s3 = s3_client
         self.vitess = vitess_client
+        self.stream_producer = stream_producer
 
-    def create_redirect(
+    async def create_redirect(
         self,
         request: EntityRedirectRequest,
     ) -> EntityRedirectResponse:
@@ -106,6 +117,19 @@ class RedirectService:
             publication_state="published",
         )
 
+        if self.stream_producer:
+            event = EntityChangeEvent(
+                entity_id=request.redirect_from_id,
+                revision_id=redirect_revision_id,
+                change_type=ChangeType.REDIRECT,
+                from_revision_id=from_head_revision_id
+                if from_head_revision_id
+                else None,
+                changed_at=datetime.now(timezone.utc),
+                editor=request.created_by,
+            )
+            await self.stream_producer.publish_change(event)
+
         return EntityRedirectResponse(
             redirect_from_id=request.redirect_from_id,
             redirect_to_id=request.redirect_to_id,
@@ -113,7 +137,7 @@ class RedirectService:
             revision_id=redirect_revision_id,
         )
 
-    def revert_redirect(
+    async def revert_redirect(
         self,
         entity_id: str,
         revert_to_revision_id: int,
@@ -172,6 +196,16 @@ class RedirectService:
             revision_id=new_revision_id,
             publication_state="published",
         )
+
+        if self.stream_producer:
+            event = EntityChangeEvent(
+                entity_id=entity_id,
+                revision_id=new_revision_id,
+                change_type=ChangeType.UNREDIRECT,
+                from_revision_id=head_revision_id,
+                changed_at=datetime.now(timezone.utc),
+            )
+            await self.stream_producer.publish_change(event)
 
         return EntityResponse(
             id=entity_id, revision_id=new_revision_id, data=new_revision_data["entity"]

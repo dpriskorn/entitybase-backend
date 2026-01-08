@@ -126,3 +126,6 @@ models.vitess_models.HistoryRecord
 models.validation.json_schema_validator.JsonSchemaValidator.validate_entity_revision
 models.validation.json_schema_validator.JsonSchemaValidator.validate_statement
 models.infrastructure.vitess.listing_repository.ListingRepository
+models.infrastructure.stream.producer.StreamProducerClient.publish_change_sync
+models.infrastructure.stream.producer.EntityChangeEvent.changed_at
+models.infrastructure.stream.producer.EntityChangeEvent.serialize_changed_at

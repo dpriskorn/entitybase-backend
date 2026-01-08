@@ -1,11 +1,18 @@
 import time
 import logging
 import os
+import json
+import uuid
 from pathlib import Path
-from typing import Generator, Any
+from typing import Generator, Any, AsyncGenerator
 
 import pytest
 import requests
+from aiokafka import AIOKafkaConsumer
+
+KAFKA_BOOTSTRAP_SERVERS = "redpanda:9092"
+KAFKA_TOPIC = "wikibase.entity_change"
+TEST_ENTITY_BASE = "Q888888"
 
 # Add TEST_DATA_DIR for test files that need it
 TEST_DATA_DIR = Path(__file__).parent.parent / "test_data"
@@ -62,6 +69,36 @@ def wait_for_api(api_client: requests.Session, base_url: str) -> None:
         time.sleep(retry_delay)
 
     raise Exception("API did not become healthy within timeout")
+
+
+@pytest.fixture
+async def kafka_consumer() -> AsyncGenerator[AIOKafkaConsumer, None]:
+    """Create a Kafka consumer for reading events"""
+    consumer = AIOKafkaConsumer(
+        KAFKA_TOPIC,
+        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+        auto_offset_reset="latest",
+        group_id="test-stream-integration",
+        value_deserializer=lambda v: json.loads(v.decode("utf-8")),
+    )
+    await consumer.start()
+    yield consumer
+    await consumer.stop()
+
+
+@pytest.fixture
+async def clean_consumer() -> AsyncGenerator[AIOKafkaConsumer, None]:
+    """Create a Kafka consumer that starts fresh (latest offset)"""
+    consumer = AIOKafkaConsumer(
+        KAFKA_TOPIC,
+        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
+        auto_offset_reset="latest",
+        group_id=f"test-clean-{TEST_ENTITY_BASE}-{str(uuid.uuid4())[:6]}",
+        value_deserializer=lambda v: json.loads(v.decode("utf-8")),
+    )
+    await consumer.start()
+    yield consumer
+    await consumer.stop()
 
 
 def log_request(
