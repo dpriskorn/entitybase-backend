@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Any
 
 from fastapi import HTTPException
 from rapidhash import rapidhash
+from jsonschema.exceptions import ValidationError
 
 from models.config.settings import settings
 from models.entity import (
@@ -223,6 +224,20 @@ class EntityHandler:
             )
             logger.info(
                 f"Entity {entity_id}: Stored {len(hash_result.statements)} statements with hashes: {hash_result.statements}"
+            )
+        except ValidationError as e:
+            logger.error(
+                f"Entity {entity_id}: Statement validation failed",
+                extra={
+                    "entity_id": entity_id,
+                    "statements_count": len(hash_result.statements),
+                    "validation_error": str(e),
+                    "operation": "statement_validation_failed",
+                },
+            )
+            raise HTTPException(
+                status_code=400, 
+                detail=f"Statement validation failed: {e.message}"
             )
         except Exception as e:
             logger.error(

@@ -28,10 +28,10 @@
 - no backward compability
 
 # Current task
-add validation to all json input 
+split large files approaching 1k lines
 
 # todo
+move entity endpoints out of main.py
 fix failing tests using get-docker-logs.sh
 fix ruff, vulture and mypy warnings
-move entity endpoints out of main.py
 fix failing tests
