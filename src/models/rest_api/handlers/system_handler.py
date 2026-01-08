@@ -2,7 +2,6 @@ from fastapi import Response
 from starlette import status
 
 from models.api_models import HealthCheckResponse
-from models.infrastructure import S3Client, VitessClient
 
 
 def health_check(response: Response) -> HealthCheckResponse:
@@ -10,8 +9,6 @@ def health_check(response: Response) -> HealthCheckResponse:
     from models.rest_api.main import app
 
     clients = getattr(app.state, "clients", None)
-    clients.s3: S3Client
-    clients.vitess: VitessClient
 
     if clients is None:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
