@@ -31,6 +31,9 @@ def configure_logging() -> None:
         force=True,
     )
 
+    # Lower aiokafka verbosity to INFO to reduce noise
+    logging.getLogger("aiokafka").setLevel(logging.INFO)
+
 
 @pytest.fixture(scope="session")
 def base_url() -> str:
@@ -88,11 +91,11 @@ async def kafka_consumer() -> AsyncGenerator[AIOKafkaConsumer, None]:
 
 @pytest.fixture
 async def clean_consumer() -> AsyncGenerator[AIOKafkaConsumer, None]:
-    """Create a Kafka consumer that starts fresh (latest offset)"""
+    """Create a Kafka consumer that starts fresh (earliest offset)"""
     consumer = AIOKafkaConsumer(
         KAFKA_TOPIC,
         bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-        auto_offset_reset="latest",
+        auto_offset_reset="earliest",
         group_id=f"test-clean-{TEST_ENTITY_BASE}-{str(uuid.uuid4())[:6]}",
         value_deserializer=lambda v: json.loads(v.decode("utf-8")),
     )

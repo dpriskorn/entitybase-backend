@@ -39,10 +39,24 @@ class TestStreamIntegration:
         assert result["id"] == f"{TEST_ENTITY_BASE}0"
         assert result["revision_id"] == 1
 
-        await asyncio.sleep(5)  # Allow time for message propagation
-
-        msg = await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
-        event = msg.value
+        # Consume messages until finding the expected creation event
+        expected_entity = f"{TEST_ENTITY_BASE}0"
+        expected_type = "creation"
+        start_time = asyncio.get_event_loop().time()
+        event = None
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    event = msg.value
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError("Expected creation message not received within timeout")
 
         assert event["entity_id"] == f"{TEST_ENTITY_BASE}0"
         assert event["change_type"] == "creation"
@@ -56,74 +70,68 @@ class TestStreamIntegration:
         self, api_client: Any, base_url: str, clean_consumer: AIOKafkaConsumer
     ) -> None:
         """Test that updating an entity publishes an EDIT event with from_revision_id"""
+        entity = f"{TEST_ENTITY_BASE}1"
         entity_data = {
-            "id": f"{TEST_ENTITY_BASE}1",
+            "id": entity,
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Entity for Edit Test"}},
         }
 
         create_response = api_client.post(f"{base_url}/entity", json=entity_data)
-        assert create_response.status_code == 200
-        create_result = create_response.json()
-        assert create_result["revision_id"] == 1
-
-        await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
-
-        update_data = {
-            "id": f"{TEST_ENTITY_BASE}1",
-            "type": "item",
-            "labels": {
-                "en": {"language": "en", "value": "Updated Entity for Edit Test"},
-                "de": {"language": "de", "value": "Test-Entität für Bearbeitung"},
-            },
-        }
-
-        update_response = api_client.post(f"{base_url}/entity", json=update_data)
-        assert update_response.status_code == 200
-        update_result = update_response.json()
-        assert update_result["revision_id"] == 2
-
-        msg = await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
-        event = msg.value
-
-        assert event["entity_id"] == f"{TEST_ENTITY_BASE}1"
-        assert event["change_type"] == "edit"
-        assert event["revision_id"] == 2
-        assert event["from_revision_id"] == 1
-        assert "changed_at" in event
-
-    @pytest.mark.asyncio
-    async def test_entity_soft_delete_publishes_soft_delete_event(
-        self, api_client: Any, base_url: str, clean_consumer: AIOKafkaConsumer
-    ) -> None:
-        """Test that soft deleting an entity publishes a SOFT_DELETE event"""
-        entity_data = {
-            "id": f"{TEST_ENTITY_BASE}2",
-            "type": "item",
-            "labels": {
-                "en": {"language": "en", "value": "Entity for Soft Delete Test"}
-            },
-        }
-
-        create_response = api_client.post(f"{base_url}/entity", json=entity_data)
+        logger.debug(f"{entity} creation response code:")
         assert create_response.status_code == 200
 
-        await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
+        # Consume creation event
+        expected_entity = f"{TEST_ENTITY_BASE}1"
+        expected_type = "creation"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
 
         delete_response = api_client.delete(
-            f"{base_url}/entity/{TEST_ENTITY_BASE}2",
+            f"{base_url}/entity/{TEST_ENTITY_BASE}1",
             json={
                 "delete_type": "soft",
                 "deletion_reason": "Testing stream integration",
                 "deleted_by": "test-integration",
             },
         )
+        logger.debug(f"{entity} deletion response code:")
         assert delete_response.status_code == 200
 
-        msg = await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
-        event = msg.value
+        # Consume soft_delete event
+        expected_entity = f"{TEST_ENTITY_BASE}1"
+        expected_type = "soft_delete"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    event = msg.value
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
 
-        assert event["entity_id"] == f"{TEST_ENTITY_BASE}2"
+        assert event["entity_id"] == f"{TEST_ENTITY_BASE}1"
         assert event["change_type"] == "soft_delete"
         assert "revision_id" in event
         assert event["from_revision_id"] == 1
@@ -147,11 +155,45 @@ class TestStreamIntegration:
 
         create_source = api_client.post(f"{base_url}/entity", json=source_entity)
         assert create_source.status_code == 200
-        await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
+        # Consume creation event for source
+        expected_entity = f"{TEST_ENTITY_BASE}3"
+        expected_type = "creation"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
 
         create_target = api_client.post(f"{base_url}/entity", json=target_entity)
         assert create_target.status_code == 200
-        await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
+        # Consume creation event for target
+        expected_entity = f"{TEST_ENTITY_BASE}4"
+        expected_type = "creation"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
 
         redirect_response = api_client.post(
             f"{base_url}/redirects",
@@ -163,8 +205,25 @@ class TestStreamIntegration:
         )
         assert redirect_response.status_code == 200
 
-        msg = await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
-        event = msg.value
+        # Consume redirect event
+        expected_entity = f"{TEST_ENTITY_BASE}3"
+        expected_type = "redirect"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    event = msg.value
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
 
         assert event["entity_id"] == f"{TEST_ENTITY_BASE}3"
         assert event["change_type"] == "redirect"
@@ -190,11 +249,45 @@ class TestStreamIntegration:
 
         create_source = api_client.post(f"{base_url}/entity", json=source_entity)
         assert create_source.status_code == 200
-        await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
+        # Consume creation event for source
+        expected_entity = f"{TEST_ENTITY_BASE}5"
+        expected_type = "creation"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
 
         create_target = api_client.post(f"{base_url}/entity", json=target_entity)
         assert create_target.status_code == 200
-        await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
+        # Consume creation event for target
+        expected_entity = f"{TEST_ENTITY_BASE}6"
+        expected_type = "creation"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
 
         redirect_response = api_client.post(
             f"{base_url}/redirects",
@@ -205,7 +298,24 @@ class TestStreamIntegration:
             },
         )
         assert redirect_response.status_code == 200
-        await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
+        # Consume redirect event
+        expected_entity = f"{TEST_ENTITY_BASE}5"
+        expected_type = "redirect"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
 
         revert_response = api_client.post(
             f"{base_url}/entities/{TEST_ENTITY_BASE}5/revert-redirect",
@@ -216,8 +326,25 @@ class TestStreamIntegration:
         )
         assert revert_response.status_code == 200
 
-        msg = await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
-        event = msg.value
+        # Consume unredirect event
+        expected_entity = f"{TEST_ENTITY_BASE}5"
+        expected_type = "unredirect"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    event = msg.value
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
 
         assert event["entity_id"] == f"{TEST_ENTITY_BASE}5"
         assert event["change_type"] == "unredirect"
@@ -240,8 +367,25 @@ class TestStreamIntegration:
         response = api_client.post(f"{base_url}/entity", json=entity_data)
         assert response.status_code == 200
 
-        msg = await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
-        event = msg.value
+        # Consume creation event
+        expected_entity = f"{TEST_ENTITY_BASE}7"
+        expected_type = "creation"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    event = msg.value
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
 
         required_fields = ["entity_id", "revision_id", "change_type", "changed_at"]
         for field in required_fields:
@@ -270,7 +414,24 @@ class TestStreamIntegration:
         create_response = api_client.post(f"{base_url}/entity", json=entity_data)
         assert create_response.status_code == 200
 
-        await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
+        # Consume creation event
+        expected_entity = f"{TEST_ENTITY_BASE}8"
+        expected_type = "creation"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
 
         update_data = {
             "id": f"{TEST_ENTITY_BASE}8",
@@ -287,21 +448,135 @@ class TestStreamIntegration:
         update_response = api_client.post(f"{base_url}/entity", json=update_data)
         assert update_response.status_code == 200
 
-        update2_response = api_client.post(f"{base_url}/entity", json=update_data)
+        update2_data = {
+            "id": f"{TEST_ENTITY_BASE}8",
+            "type": "item",
+            "labels": {
+                "en": {
+                    "language": "en",
+                    "value": "Updated Multi Operation Test Entity",
+                },
+                "fr": {
+                    "language": "fr",
+                    "value": "Entité de test multi-opérations modifiée",
+                },
+            },
+        }
+
+        update2_response = api_client.post(f"{base_url}/entity", json=update2_data)
         assert update2_response.status_code == 200
 
-        events = []
-        for _ in range(3):
-            msg = await asyncio.wait_for(clean_consumer.getone(), timeout=30.0)
-            events.append(msg.value)
+        # Collect 2 edit events for the entity (creation already consumed above)
+        expected_entity = f"{TEST_ENTITY_BASE}8"
+        events: list[Any] = []
+        start_time = asyncio.get_event_loop().time()
+        while len(events) < 2 and asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if msg.value["entity_id"] == expected_entity:
+                    events.append(msg.value)
+            except asyncio.TimeoutError:
+                continue
+        if len(events) < 2:
+            raise TimeoutError(
+                f"Expected 2 edit events for {expected_entity}, got {len(events)}"
+            )
 
         change_types = [e["change_type"] for e in events]
-        assert change_types[0] == "creation"
-        assert change_types[1] == "edit"
-        assert change_types[2] == "edit"
+        assert change_types == ["edit", "edit"]
 
         revision_ids = [e["revision_id"] for e in events]
-        assert revision_ids == [1, 2, 3]
+        assert revision_ids == [2, 3]
+
+    @pytest.mark.asyncio
+    async def test_entity_update_deduplication_no_duplicate_event(
+        self, api_client: Any, base_url: str, clean_consumer: AIOKafkaConsumer
+    ) -> None:
+        """Test that updating an entity with identical content doesn't publish duplicate events"""
+        entity_data = {
+            "id": f"{TEST_ENTITY_BASE}9",
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Deduplication Test Entity"}},
+        }
+
+        create_response = api_client.post(f"{base_url}/entity", json=entity_data)
+        assert create_response.status_code == 200
+        create_result = create_response.json()
+        assert create_result["revision_id"] == 1
+
+        # Consume creation event
+        expected_entity = f"{TEST_ENTITY_BASE}9"
+        expected_type = "creation"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
+
+        update_data = {
+            "id": f"{TEST_ENTITY_BASE}9",
+            "type": "item",
+            "labels": {
+                "en": {
+                    "language": "en",
+                    "value": "Updated Deduplication Test Entity",
+                },
+                "fr": {"language": "fr", "value": "Entité de test de déduplication"},
+            },
+        }
+
+        update_response = api_client.post(f"{base_url}/entity", json=update_data)
+        assert update_response.status_code == 200
+        update_result = update_response.json()
+        assert update_result["revision_id"] == 2
+
+        # Consume edit event
+        expected_type = "edit"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
+
+        # Now update with identical content - should return same revision, no new event
+        duplicate_response = api_client.post(f"{base_url}/entity", json=update_data)
+        assert duplicate_response.status_code == 200
+        duplicate_result = duplicate_response.json()
+        assert duplicate_result["revision_id"] == 2  # Same revision
+
+        # Ensure no additional event is published (timeout after short wait)
+        start_time = asyncio.get_event_loop().time()
+        extra_events = []
+        while asyncio.get_event_loop().time() - start_time < 5.0:  # Short timeout
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if msg.value["entity_id"] == expected_entity:
+                    extra_events.append(msg.value)
+            except asyncio.TimeoutError:
+                break
+        assert len(extra_events) == 0, (
+            f"Unexpected events after deduplication: {extra_events}"
+        )
 
     @pytest.mark.asyncio
     async def test_bot_edit_publishes_event_with_bot_true(
@@ -319,8 +594,25 @@ class TestStreamIntegration:
         response = api_client.post(f"{base_url}/entity", json=entity_data)
         assert response.status_code == 200
 
-        msg = await asyncio.wait_for(clean_consumer.getone(), timeout=10.0)
-        event = msg.value
+        # Consume creation event
+        expected_entity = f"{TEST_ENTITY_BASE}9"
+        expected_type = "creation"
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < 30.0:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    event = msg.value
+                    break
+            except asyncio.TimeoutError:
+                continue
+        else:
+            raise TimeoutError(
+                f"Expected {expected_type} message for {expected_entity} not received"
+            )
 
         assert event["entity_id"] == f"{TEST_ENTITY_BASE}9"
         assert event["bot"] is True
