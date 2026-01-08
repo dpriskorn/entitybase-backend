@@ -25,6 +25,7 @@ class S3ConnectionManager(ConnectionManager):
                 region_name="us-east-1",
             )
 
+    @property
     def healthy_connection(self) -> bool:
         """Check if S3 connection is healthy
 

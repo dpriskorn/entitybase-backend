@@ -7,6 +7,8 @@ from models.vitess_models import VitessConfig
 
 
 class VitessConnectionManager(ConnectionManager):
+    """Vitess connection manager that ensures connections are properly opened and closed"""
+
     config: VitessConfig
 
     def connect(self) -> Any:
@@ -20,6 +22,7 @@ class VitessConnectionManager(ConnectionManager):
             autocommit=True,
         )
 
+    @property
     def healthy_connection(self) -> bool:
         # noinspection PyBroadException
         try:

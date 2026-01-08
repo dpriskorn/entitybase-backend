@@ -3,8 +3,9 @@ from datetime import timezone, datetime
 from typing import Any, Dict
 import logging
 from botocore.exceptions import ClientError
-from pydantic import BaseModel
+from pydantic import Field
 
+from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
 from models.s3_models import (
     S3Config,
@@ -18,9 +19,9 @@ from models.s3_models import StoredStatement
 logger = logging.getLogger(__name__)
 
 
-class S3Client(BaseModel):
+class S3Client(Client):
     config: S3Config
-    connection_manager: S3ConnectionManager | None = None
+    connection_manager: S3ConnectionManager = Field(default=None, exclude=True)
 
     def __init__(self, config: S3Config, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)

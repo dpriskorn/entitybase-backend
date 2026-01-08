@@ -532,10 +532,8 @@ class EntityHandler:
         if request.delete_type == DeleteType.HARD:
             old_statements = current_revision.data.get("statements", [])
             for statement_hash in old_statements:
-                try:
-                    vitess_client.decrement_ref_count(statement_hash)
-                except Exception:
-                    continue
+                # TODO catch relevant exceptions here depending on settings
+                vitess_client.decrement_ref_count(statement_hash)
 
         # Write deletion revision to S3
         s3_client.write_revision(

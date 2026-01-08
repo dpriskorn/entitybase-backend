@@ -28,8 +28,8 @@ class Clients(BaseModel):
         **kwargs: str,
     ) -> None:
         super().__init__(
-            s3=S3Client(s3),
-            vitess=VitessClient(vitess),
+            s3=S3Client(config=s3),
+            vitess=VitessClient(config=vitess),
             property_registry=(
                 load_property_registry(property_registry_path)
                 if property_registry_path

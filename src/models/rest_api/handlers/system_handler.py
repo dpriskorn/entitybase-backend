@@ -18,12 +18,13 @@ def health_check(response: Response) -> HealthCheckResponse:
 
     s3_status = (
         "connected"
-        if clients.s3 and clients.s3.healthy_connection()
+        if clients.s3 and clients.s3.connection_manager.conn.healthy_connection()
         else "disconnected"
     )
     vitess_status = (
         "connected"
-        if clients.vitess and clients.vitess.healthy_connection()
+        if clients.vitess
+        and clients.vitess.connection_manager.conn.healthy_connection()
         else "disconnected"
     )
 

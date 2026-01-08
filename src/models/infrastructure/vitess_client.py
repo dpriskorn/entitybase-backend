@@ -2,8 +2,9 @@ from contextlib import contextmanager
 import json
 from typing import Any, Generator
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import Field
 
+from models.infrastructure.client import Client
 from models.vitess_models import VitessConfig
 
 from models.infrastructure.vitess.connection import VitessConnectionManager
@@ -18,9 +19,7 @@ from models.infrastructure.vitess.head_repository import HeadRepository
 from models.infrastructure.vitess.statement_repository import StatementRepository
 
 
-class VitessClient(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
+class VitessClient(Client):
     config: VitessConfig
     connection_manager: VitessConnectionManager = Field(default=None, exclude=True)
     schema_manager: SchemaManager = Field(default=None, exclude=True)
@@ -34,7 +33,7 @@ class VitessClient(BaseModel):
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
-        self.connection_manager = VitessConnectionManager(config)
+        self.connection_manager = VitessConnectionManager(config=config)
         self.schema_manager = SchemaManager(self.connection_manager)
         self.id_resolver = IdResolver(self.connection_manager)
         self.entity_repository = EntityRepository(
