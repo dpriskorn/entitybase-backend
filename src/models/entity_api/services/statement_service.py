@@ -188,7 +188,7 @@ def deduplicate_and_store_statements(
                     )
                     raise
 
-            # Step 3: Insert into DB or increment ref_count
+            # Step 4: Insert into DB or increment ref_count
             # Note: We skip the DB existence check and insert directly to be more efficient
             # The insert is idempotent, so it handles concurrent inserts gracefully
             inserted = vitess_client.insert_statement_content(statement_hash)

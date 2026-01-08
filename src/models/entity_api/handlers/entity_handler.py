@@ -360,7 +360,10 @@ class EntityHandler:
         )
 
     def get_entity(
-        self, entity_id: str, vitess_client: VitessClient, s3_client: S3Client
+        self,
+        entity_id: str,
+        vitess_client: VitessClient,
+        s3_client: S3Client,
     ) -> EntityResponse:
         """Get entity by ID."""
         if vitess_client is None:

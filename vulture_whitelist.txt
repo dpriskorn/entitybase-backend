@@ -125,3 +125,4 @@ models.rdf_builder.writers.turtle.TurtleWriter
 models.vitess_models.HistoryRecord
 models.validation.json_schema_validator.JsonSchemaValidator.validate_entity_revision
 models.validation.json_schema_validator.JsonSchemaValidator.validate_statement
+models.infrastructure.vitess.listing_repository.ListingRepository

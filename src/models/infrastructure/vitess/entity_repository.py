@@ -6,77 +6,67 @@ class EntityRepository:
         self.connection_manager = connection_manager
         self.id_resolver = id_resolver
 
-    def get_head(self, entity_id: str) -> int:
-        internal_id = self.id_resolver.resolve_id(entity_id)
+    def get_head(self, conn: Any, entity_id: str) -> int:
+        internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return 0
-        conn = self.connection_manager.connect()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT head_revision_id FROM entity_head WHERE internal_id = %s",
-            (internal_id,),
-        )
-        result = cursor.fetchone()
-        cursor.close()
-        return result[0] if result else 0
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT head_revision_id FROM entity_head WHERE internal_id = %s",
+                (internal_id,),
+            )
+            result = cursor.fetchone()
+            return result[0] if result else 0
 
-    def is_deleted(self, entity_id: str) -> bool:
-        internal_id = self.id_resolver.resolve_id(entity_id)
+    def is_deleted(self, conn: Any, entity_id: str) -> bool:
+        internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return False
-        conn = self.connection_manager.connect()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT is_deleted FROM entity_head WHERE internal_id = %s",
-            (internal_id,),
-        )
-        result = cursor.fetchone()
-        cursor.close()
-        return result[0] if result else False
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT is_deleted FROM entity_head WHERE internal_id = %s",
+                (internal_id,),
+            )
+            result = cursor.fetchone()
+            return result[0] if result else False
 
-    def is_locked(self, entity_id: str) -> bool:
-        internal_id = self.id_resolver.resolve_id(entity_id)
+    def is_locked(self, conn: Any, entity_id: str) -> bool:
+        internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return False
-        conn = self.connection_manager.connect()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT is_locked FROM entity_head WHERE internal_id = %s",
-            (internal_id,),
-        )
-        result = cursor.fetchone()
-        cursor.close()
-        return result[0] if result else False
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT is_locked FROM entity_head WHERE internal_id = %s",
+                (internal_id,),
+            )
+            result = cursor.fetchone()
+            return result[0] if result else False
 
-    def is_archived(self, entity_id: str) -> bool:
-        internal_id = self.id_resolver.resolve_id(entity_id)
+    def is_archived(self, conn: Any, entity_id: str) -> bool:
+        internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return False
-        conn = self.connection_manager.connect()
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT is_archived FROM entity_head WHERE internal_id = %s",
-            (internal_id,),
-        )
-        result = cursor.fetchone()
-        cursor.close()
-        return result[0] if result else False
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT is_archived FROM entity_head WHERE internal_id = %s",
+                (internal_id,),
+            )
+            result = cursor.fetchone()
+            return result[0] if result else False
 
-    def get_protection_info(self, entity_id: str) -> dict[str, bool]:
-        internal_id = self.id_resolver.resolve_id(entity_id)
+    def get_protection_info(self, conn: Any, entity_id: str) -> dict[str, bool]:
+        internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return {}
 
-        conn = self.connection_manager.connect()
-        cursor = conn.cursor()
-        cursor.execute(
-            """SELECT is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected
-                   FROM entity_head
-                   WHERE internal_id = %s""",
-            (internal_id,),
-        )
-        result = cursor.fetchone()
-        cursor.close()
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """SELECT is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected
+                       FROM entity_head
+                       WHERE internal_id = %s""",
+                (internal_id,),
+            )
+            result = cursor.fetchone()
 
         if not result:
             return {}

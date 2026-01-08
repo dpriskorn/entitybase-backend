@@ -169,7 +169,6 @@ class StatementHandler:
         requested_property_ids = [
             p.strip() for p in property_list.split(",") if p.strip()
         ]
-
         statement_hashes = revision_metadata.get("statements", [])
 
         matching_hashes = []
@@ -208,12 +207,7 @@ class StatementHandler:
         if vitess_client is None:
             raise HTTPException(status_code=503, detail="Vitess not initialized")
 
-        try:
-            statement_hashes = vitess_client.get_most_used_statements(
-                limit=limit, min_ref_count=min_ref_count
-            )
-            return MostUsedStatementsResponse(statements=statement_hashes)
-        except Exception as e:
-            raise HTTPException(
-                status_code=500, detail=f"Error fetching most-used statements: {e}"
-            )
+        statement_hashes = vitess_client.get_most_used_statements(
+            limit=limit, min_ref_count=min_ref_count
+        )
+        return MostUsedStatementsResponse(statements=statement_hashes)

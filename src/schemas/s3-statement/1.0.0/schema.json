@@ -32,8 +32,7 @@
           "required": [
             "snaktype",
             "property",
-            "datatype",
-            "hash"
+            "datatype"
           ],
           "properties": {
             "snaktype": {
@@ -78,8 +77,7 @@
                 "required": [
                   "snaktype",
                   "property",
-                  "datatype",
-                  "hash"
+                  "datatype"
                 ],
                 "properties": {
                   "snaktype": {
@@ -120,8 +118,7 @@
                       "required": [
                         "snaktype",
                         "property",
-                        "datatype",
-                        "hash"
+                        "datatype"
                       ],
                       "properties": {
                         "snaktype": {

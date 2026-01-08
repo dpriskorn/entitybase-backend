@@ -1,12 +1,12 @@
 import logging
-from typing import Any, Optional
+from typing import Any
 
 from fastapi import HTTPException
 
 from models.entity import (
     CleanupOrphanedRequest,
     CleanupOrphanedResponse,
-    EntityListResponse,
+    # EntityListResponse,  # DISABLED: Listing not used
 )
 from models.infrastructure.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
@@ -26,7 +26,7 @@ class AdminHandler:
         """Cleanup orphaned statements from S3 and Vitess.
 
         Orphaned statements are those with ref_count = 0 and are older than
-        the specified threshold. This endpoint is typically called by a
+        specified threshold. This endpoint is typically called by a
         background job (e.g., cron) to clean up unused data.
 
         Query params (in request body):
@@ -57,13 +57,14 @@ class AdminHandler:
                         Bucket=s3_client.config.bucket, Key=key
                     )
 
-                    conn = vitess_client.connect()
-                    cursor = conn.cursor()
-                    cursor.execute(
-                        "DELETE FROM statement_content WHERE content_hash = %s",
-                        (content_hash,),
-                    )
-                    cursor.close()
+                    # Use context manager for direct SQL delete
+                    with vitess_client.get_connection() as conn:
+                        cursor = conn.cursor()
+                        cursor.execute(
+                            "DELETE FROM statement_content WHERE content_hash = %s",
+                            (content_hash,),
+                        )
+                        cursor.close()
                     cleaned_count += 1
                 except Exception as e:
                     failed_count += 1
@@ -80,36 +81,38 @@ class AdminHandler:
                 detail=f"Error during orphaned statement cleanup: {e}",
             )
 
-    def list_entities(
-        self,
-        vitess_client: VitessClient,
-        status: Optional[str] = None,
-        edit_type: Optional[str] = None,
-        limit: int = 100,
-    ) -> EntityListResponse:
-        """Filter entities by status or edit_type.
-
-        DISABLED: Endpoint not yet implemented
-        """
-        if vitess_client is None:
-            raise HTTPException(status_code=503, detail="Vitess not initialized")
-
-        if status == "locked":
-            entities = vitess_client.list_locked_entities(limit)
-        elif status == "semi_protected":
-            entities = vitess_client.list_semi_protected_entities(limit)
-        elif status == "archived":
-            entities = vitess_client.list_archived_entities(limit)
-        elif status == "dangling":
-            entities = vitess_client.list_dangling_entities(limit)
-        elif edit_type:
-            entities = vitess_client.list_by_edit_type(edit_type, limit)
-        else:
-            raise HTTPException(
-                status_code=400, detail="Must provide status or edit_type filter"
-            )
-
-        return EntityListResponse(entities=entities, count=len(entities))
+    # def list_entities(
+    #     self,
+    #     vitess_client: VitessClient,
+    #     status: Optional[str] = None,
+    #     edit_type: Optional[str] = None,
+    #     limit: int = 100,
+    # ) -> EntityListResponse:
+    #     """Filter entities by status or edit_type.
+    #
+    #     DISABLED: Endpoint not yet implemented
+    #     """
+    #     if vitess_client is None:
+    #         raise HTTPException(status_code=503, detail="Vitess not initialized")
+    #
+    #     # Note: Listing methods are disabled until implemented
+    #     entities: list[Any] = []  # Type annotation for linter
+    #     if status == "locked":
+    #         entities = []  # vitess_client.list_locked_entities(limit)
+    #     elif status == "semi_protected":
+    #         entities = []  # vitess_client.list_semi_protected_entities(limit)
+    #     elif status == "archived":
+    #         entities = []  # vitess_client.list_archived_entities(limit)
+    #     elif status == "dangling":
+    #         entities = []  # vitess_client.list_dangling_entities(limit)
+    #     elif edit_type:
+    #         entities = []  # vitess_client.list_by_edit_type(edit_type, limit)
+    #     else:
+    #         raise HTTPException(
+    #             status_code=400, detail="Must provide status or edit_type filter"
+    #         )
+    #
+    #     return EntityListResponse(entities=entities, count=len(entities))
 
     def get_raw_revision(
         self,
@@ -131,10 +134,11 @@ class AdminHandler:
         if vitess_client is None:
             raise HTTPException(status_code=503, detail="Vitess not initialized")
 
-        # Check if entity exists
+        # Check if entity exists and get history
         if not vitess_client.entity_exists(entity_id):
             raise HTTPException(
-                status_code=404, detail=f"Entity {entity_id} not found in ID mapping"
+                status_code=404,
+                detail=f"Entity {entity_id} not found in ID mapping",
             )
 
         # Check if revisions exist for entity

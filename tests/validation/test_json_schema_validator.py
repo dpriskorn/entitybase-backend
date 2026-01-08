@@ -179,3 +179,26 @@ def test_invalid_statement_wrong_enum(validator: JsonSchemaValidator) -> None:
     }
     with pytest.raises(ValidationError):
         validator.validate_statement(invalid_statement)
+
+
+def test_valid_statement_without_hash(validator: JsonSchemaValidator) -> None:
+    valid_statement = {
+        "content_hash": 123456789,
+        "statement": {
+            "mainsnak": {
+                "snaktype": "value",
+                "property": "P31",
+                "datatype": "wikibase-item",
+                "datavalue": {
+                    "value": {"entity-type": "item", "id": "Q5"},
+                    "type": "wikibase-entityid",
+                },
+            },
+            "type": "statement",
+            "rank": "normal",
+            "qualifiers": {},
+            "references": [],
+        },
+        "created_at": "2026-01-07T10:00:00Z",
+    }
+    validator.validate_statement(valid_statement)

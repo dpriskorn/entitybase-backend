@@ -1,5 +1,6 @@
 import pymysql
-from typing import Any, Optional
+from contextlib import contextmanager
+from typing import Any, Generator
 
 from models.vitess_models import VitessConfig
 
@@ -7,25 +8,17 @@ from models.vitess_models import VitessConfig
 class ConnectionManager:
     def __init__(self, config: VitessConfig) -> None:
         self.config = config
-        self._connection: Optional[Any] = None
 
     def connect(self) -> Any:
-        if self._connection:
-            try:
-                self._connection.ping(reconnect=True)
-            except Exception:
-                self._connection = None
-
-        if not self._connection:
-            self._connection = pymysql.connect(
-                host=self.config.host,
-                port=self.config.port,
-                user=self.config.user,
-                passwd=self.config.password,
-                database=self.config.database,
-                autocommit=True,
-            )
-        return self._connection
+        # Create a new connection each time to avoid threading issues
+        return pymysql.connect(
+            host=self.config.host,
+            port=self.config.port,
+            user=self.config.user,
+            passwd=self.config.password,
+            database=self.config.database,
+            autocommit=True,
+        )
 
     def check_connection(self) -> bool:
         try:
@@ -37,3 +30,12 @@ class ConnectionManager:
             return True
         except Exception:
             return False
+
+    @contextmanager
+    def get_connection(self) -> Generator[Any, None, None]:
+        """Context manager for database connection"""
+        conn = self.connect()
+        try:
+            yield conn
+        finally:
+            conn.close()  # Close connection after use

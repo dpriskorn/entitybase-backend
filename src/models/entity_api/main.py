@@ -143,12 +143,12 @@ def get_entity(entity_id: str) -> EntityResponse:
 
 
 @app.get("/entity/{entity_id}/history", response_model=list[RevisionMetadata])
-def get_entity_history(
-    entity_id: str, limit: int = 20, offset: int = 0
-) -> list[RevisionMetadata]:
+def get_entity_history(entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
     clients = app.state.clients
     handler = EntityHandler()
-    return handler.get_entity_history(entity_id, clients.vitess, limit, offset)  # type: ignore
+    return handler.get_entity_history(  # type: ignore[no-any-return]
+        entity_id, clients.vitess, limit, offset
+    )
 
 
 @app.get("/entity/{entity_id}.ttl")
