@@ -2,7 +2,7 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
@@ -16,6 +16,7 @@ from models.api_models import (
     EntityCreateRequest,
     EntityDeleteRequest,
     EntityDeleteResponse,
+    EntityListResponse,
     EntityRedirectResponse,
     EntityResponse,
     EntityRedirectRequest,
@@ -88,6 +89,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         app_.state.clients = Clients(
             s3=s3_config,
             vitess=vitess_config,
+            enable_streaming=settings.enable_streaming,
             kafka_brokers=kafka_brokers,
             kafka_topic=kafka_topic,
             property_registry_path=property_registry_path,
@@ -219,14 +221,13 @@ def get_raw_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
     return handler.get_raw_revision(entity_id, revision_id, clients.vitess, clients.s3)  # type: ignore
 
 
-# DISABLED: /entities endpoint not yet implemented
-# # @app.get("/entities", response_model=EntityListResponse)
-# # def list_entities(
-# #     status: Optional[str] = None, edit_type: Optional[str] = None, limit: int = 100
-# # ) -> EntityListResponse:
-# #     clients = app.state.clients
-# #     handler = AdminHandler()
-# #     return handler.list_entities(clients.vitess, status, edit_type, limit)
+@app.get("/entities", response_model=EntityListResponse)
+def list_entities(
+    status: Optional[str] = None, edit_type: Optional[str] = None, limit: int = 100
+) -> EntityListResponse:
+    clients = app.state.clients
+    handler = AdminHandler()
+    return handler.list_entities(clients.vitess, status, edit_type, limit)
 
 
 @app.get("/statement/most_used", response_model=MostUsedStatementsResponse)

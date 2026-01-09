@@ -6,4 +6,5 @@ set -e
 ./run-vulture.sh
 docker compose down --remove-orphans -v
 nice -20 docker compose build
-docker compose up --build
+docker compose up --build -d
+docker logs -f integration-tests

@@ -91,7 +91,6 @@ class EntityChangeEvent(BaseModel):
     changed_at: datetime = Field(..., description="Timestamp of change")
     editor: str | None = Field(None, description="Editor who made the change")
     edit_summary: str | None = Field(None, description="Edit summary")
-    bot: bool = Field(False, description="Whether this was a bot edit")
 
     @field_serializer("changed_at")
     def serialize_changed_at(self, value: datetime) -> str:

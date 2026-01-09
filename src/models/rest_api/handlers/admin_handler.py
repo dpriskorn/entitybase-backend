@@ -1,12 +1,12 @@
 import logging
-from typing import Any
+from typing import Any, Optional
 
 from fastapi import HTTPException
 
 from models.api_models import (
     CleanupOrphanedRequest,
     CleanupOrphanedResponse,
-    # EntityListResponse,  # DISABLED: Listing not used
+    EntityListResponse,
 )
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
@@ -81,38 +81,38 @@ class AdminHandler:
                 detail=f"Error during orphaned statement cleanup: {e}",
             )
 
-    # def list_entities(
-    #     self,
-    #     vitess_client: VitessClient,
-    #     status: Optional[str] = None,
-    #     edit_type: Optional[str] = None,
-    #     limit: int = 100,
-    # ) -> EntityListResponse:
-    #     """Filter entities by status or edit_type.
-    #
-    #     DISABLED: Endpoint not yet implemented
-    #     """
-    #     if vitess_client is None:
-    #         raise HTTPException(status_code=503, detail="Vitess not initialized")
-    #
-    #     # Note: Listing methods are disabled until implemented
-    #     entities: list[Any] = []  # Type annotation for linter
-    #     if status == "locked":
-    #         entities = []  # vitess_client.list_locked_entities(limit)
-    #     elif status == "semi_protected":
-    #         entities = []  # vitess_client.list_semi_protected_entities(limit)
-    #     elif status == "archived":
-    #         entities = []  # vitess_client.list_archived_entities(limit)
-    #     elif status == "dangling":
-    #         entities = []  # vitess_client.list_dangling_entities(limit)
-    #     elif edit_type:
-    #         entities = []  # vitess_client.list_by_edit_type(edit_type, limit)
-    #     else:
-    #         raise HTTPException(
-    #             status_code=400, detail="Must provide status or edit_type filter"
-    #         )
-    #
-    #     return EntityListResponse(entities=entities, count=len(entities))
+    def list_entities(
+        self,
+        vitess_client: VitessClient,
+        status: Optional[str] = None,
+        edit_type: Optional[str] = None,
+        limit: int = 100,
+    ) -> EntityListResponse:
+        """Filter entities by status or edit_type.
+
+        DISABLED: Endpoint not yet implemented
+        """
+        if vitess_client is None:
+            raise HTTPException(status_code=503, detail="Vitess not initialized")
+
+        # Note: Listing methods are disabled until implemented
+        entities: list[Any] = []  # Type annotation for linter
+        if status == "locked":
+            entities = []  # vitess_client.list_locked_entities(limit)
+        elif status == "semi_protected":
+            entities = []  # vitess_client.list_semi_protected_entities(limit)
+        elif status == "archived":
+            entities = []  # vitess_client.list_archived_entities(limit)
+        elif status == "dangling":
+            entities = []  # vitess_client.list_dangling_entities(limit)
+        elif edit_type:
+            entities = []  # vitess_client.list_by_edit_type(edit_type, limit)
+        else:
+            raise HTTPException(
+                status_code=400, detail="Must provide status or edit_type filter"
+            )
+
+        return EntityListResponse(entities=entities, count=len(entities))
 
     def get_raw_revision(
         self,

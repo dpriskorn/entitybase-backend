@@ -1,13 +1,9 @@
 import logging
 
-import pytest
 
 import requests
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_entities_endpoint_requires_filter(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -21,9 +17,6 @@ def test_entities_endpoint_requires_filter(
     logger.info("✓ /entities requires filter parameter")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_entities_invalid_status(api_client: requests.Session, base_url: str) -> None:
     """Test that /entities returns 400 for invalid status value"""
     logger = logging.getLogger(__name__)
@@ -34,9 +27,6 @@ def test_entities_invalid_status(api_client: requests.Session, base_url: str) ->
     logger.info("✓ /entities validates status parameter")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_locked_entities(api_client: requests.Session, base_url: str) -> None:
     """Test that /entities?status=locked returns locked items"""
     logger = logging.getLogger(__name__)
@@ -64,9 +54,6 @@ def test_list_locked_entities(api_client: requests.Session, base_url: str) -> No
     logger.info("✓ List locked entities works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_semi_protected_entities(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -92,9 +79,6 @@ def test_list_semi_protected_entities(
     logger.info("✓ List semi-protected entities works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_archived_entities(api_client: requests.Session, base_url: str) -> None:
     """Test that /entities?status=archived returns archived items"""
     logger = logging.getLogger(__name__)
@@ -116,9 +100,6 @@ def test_list_archived_entities(api_client: requests.Session, base_url: str) -> 
     logger.info("✓ List archived entities works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_dangling_entities(api_client: requests.Session, base_url: str) -> None:
     """Test that /entities?status=dangling returns dangling items"""
     logger = logging.getLogger(__name__)
@@ -140,9 +121,6 @@ def test_list_dangling_entities(api_client: requests.Session, base_url: str) -> 
     logger.info("✓ List dangling entities works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_by_edit_type_lock_added(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -175,9 +153,6 @@ def test_list_by_edit_type_lock_added(
     logger.info("✓ List by edit_type lock-added works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_by_edit_type_lock_removed(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -203,9 +178,6 @@ def test_list_by_edit_type_lock_removed(
     logger.info("✓ List by edit_type lock-removed works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_by_edit_type_mass_protection_added(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -235,9 +207,6 @@ def test_list_by_edit_type_mass_protection_added(
     logger.info("✓ List by edit_type mass-protection-added works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_by_edit_type_mass_protection_removed(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -267,9 +236,6 @@ def test_list_by_edit_type_mass_protection_removed(
     logger.info("✓ List by edit_type mass-protection-removed works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_by_edit_type_soft_delete(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -293,9 +259,6 @@ def test_list_by_edit_type_soft_delete(
     logger.info("✓ List by edit_type soft-delete works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_by_edit_type_redirect_create(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -326,9 +289,6 @@ def test_list_by_edit_type_redirect_create(
     logger.info("✓ List by edit_type redirect-create works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_by_edit_type_redirect_revert(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -367,9 +327,6 @@ def test_list_by_edit_type_redirect_revert(
     logger.info("✓ List by edit_type redirect-revert works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_respects_limit(api_client: requests.Session, base_url: str) -> None:
     """Test that /entities respects the limit parameter"""
     logger = logging.getLogger(__name__)
@@ -391,9 +348,6 @@ def test_list_respects_limit(api_client: requests.Session, base_url: str) -> Non
     logger.info("✓ List respects limit parameter")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_default_limit(api_client: requests.Session, base_url: str) -> None:
     """Test that /entities has a sensible default limit"""
     logger = logging.getLogger(__name__)
@@ -407,9 +361,6 @@ def test_list_default_limit(api_client: requests.Session, base_url: str) -> None
     logger.info("✓ List uses default limit")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_empty_results(api_client: requests.Session, base_url: str) -> None:
     """Test that /entities returns empty array when no entities match filter"""
     logger = logging.getLogger(__name__)
@@ -423,9 +374,6 @@ def test_list_empty_results(api_client: requests.Session, base_url: str) -> None
     logger.info("✓ List returns empty results correctly")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_response_structure(api_client: requests.Session, base_url: str) -> None:
     """Test that /entities returns correct response structure"""
     logger = logging.getLogger(__name__)
@@ -453,9 +401,6 @@ def test_list_response_structure(api_client: requests.Session, base_url: str) ->
     logger.info("✓ List returns correct response structure")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_edit_type_response_includes_edit_type(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -485,9 +430,6 @@ def test_list_edit_type_response_includes_edit_type(
     logger.info("✓ List by edit_type includes edit_type field")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_multiple_filters_behavior(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -511,9 +453,6 @@ def test_list_multiple_filters_behavior(
     logger.info("✓ List handles multiple filters")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
 def test_list_large_limit(api_client: requests.Session, base_url: str) -> None:
     """Test that /entities handles large limit values"""
     logger = logging.getLogger(__name__)

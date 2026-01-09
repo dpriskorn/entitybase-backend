@@ -63,7 +63,6 @@ class TestStreamIntegration:
         assert event["revision_id"] == 1
         assert event["from_revision_id"] is None
         assert "changed_at" in event
-        assert event["bot"] is False
 
     @pytest.mark.asyncio
     async def test_entity_update_publishes_edit_event(
@@ -579,15 +578,14 @@ class TestStreamIntegration:
         )
 
     @pytest.mark.asyncio
-    async def test_bot_edit_publishes_event_with_bot_true(
+    async def test_edit_publishes_event_with_editor(
         self, api_client: Any, base_url: str, clean_consumer: AIOKafkaConsumer
     ) -> None:
-        """Test that bot edits publish events with bot=True"""
+        """Test that edits publish events with editor"""
         entity_data = {
-            "id": f"{TEST_ENTITY_BASE}9",
+            "id": f"{TEST_ENTITY_BASE}10",
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Bot Edit Test Entity"}},
-            "bot": True,
             "editor": "admin-bot",
         }
 
@@ -595,7 +593,7 @@ class TestStreamIntegration:
         assert response.status_code == 200
 
         # Consume creation event
-        expected_entity = f"{TEST_ENTITY_BASE}9"
+        expected_entity = f"{TEST_ENTITY_BASE}10"
         expected_type = "creation"
         start_time = asyncio.get_event_loop().time()
         while asyncio.get_event_loop().time() - start_time < 30.0:
@@ -614,6 +612,5 @@ class TestStreamIntegration:
                 f"Expected {expected_type} message for {expected_entity} not received"
             )
 
-        assert event["entity_id"] == f"{TEST_ENTITY_BASE}9"
-        assert event["bot"] is True
+        assert event["entity_id"] == f"{TEST_ENTITY_BASE}10"
         assert event["editor"] == "admin-bot"

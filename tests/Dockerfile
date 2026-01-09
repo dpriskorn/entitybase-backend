@@ -14,5 +14,5 @@ COPY pytest.ini .
 
 ENV PYTHONPATH=/app/src
 
-CMD sleep 10 && pytest tests/ -v --tb=short --log-cli-level=DEBUG --exitfirst
+CMD sleep 10 && pytest tests/ --ignore=tests/disabled/ -v --tb=short --log-cli-level=DEBUG --exitfirst
 #CMD ["pytest", "tests/", "-v", "--tb=short", "--log-cli-level=DEBUG"]

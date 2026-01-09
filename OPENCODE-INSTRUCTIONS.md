@@ -26,14 +26,11 @@
 - avoid websearch, everything we need is in the repo already just ask where to find what you need
 - we don't expose internal_id outside the VitessClient class
 - no backward compability
+- never use Optional for typing
+- str defaults to "" and never None
 
 # Current task
-add stream production to each API operation including tests
+fix
+- never use Optional for typing
+- str defaults to "" and never None
 
-# todo
-a soft delete can be restored, lets add that also to the change type and make a new endpoint if we dont already have one
-split large files approaching 1k lines
-move entity endpoints out of main.py
-fix failing tests using get-docker-logs.sh
-fix ruff, vulture and mypy warnings
-fix failing tests

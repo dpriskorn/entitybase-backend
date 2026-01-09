@@ -64,7 +64,6 @@ class EntityCreateRequest(BaseModel):
     )
     edit_summary: str = Field(default="", description="Edit summary for this change")
     editor: str = Field(default="", description="Editor who made this change")
-    bot: bool = Field(default=False, description="Whether this was a bot edit")
 
     model_config = ConfigDict(extra="allow")
 
@@ -231,11 +230,11 @@ class CleanupOrphanedResponse(BaseModel):
     )
 
 
-# class EntityListResponse(BaseModel):
-#     entities: list[dict[str, Any]] = Field(
-#         description="List of entities with their metadata"
-#     )
-#     count: int = Field(description="Total number of entities returned")
+class EntityListResponse(BaseModel):
+    entities: list[dict[str, Any]] = Field(
+        description="List of entities with their metadata"
+    )
+    count: int = Field(description="Total number of entities returned")
 
 
 class RevisionMetadata(BaseModel):

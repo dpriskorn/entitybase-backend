@@ -29,7 +29,7 @@ def test_raw_endpoint_returns_existing_revision(
 
     # Verify full revision schema
     result = response.json()
-    assert result["schema_version"] == "1.0.0"
+    assert result["schema_version"] == "1.2.0"
     assert result["revision_id"] == 1
     assert "created_at" in result
     assert result["created_by"] == "rest-api"

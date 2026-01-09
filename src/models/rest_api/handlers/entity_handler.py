@@ -75,7 +75,6 @@ class EntityHandler:
         from_revision_id: int | None,
         editor: str | None,
         edit_summary: str | None,
-        bot: bool,
     ) -> None:
         """Publish change event to stream."""
         if stream_producer is None:
@@ -89,7 +88,6 @@ class EntityHandler:
             changed_at=datetime.now(timezone.utc),
             editor=editor,
             edit_summary=edit_summary,
-            bot=bot,
         )
         await stream_producer.publish_change(event)
 
@@ -314,14 +312,22 @@ class EntityHandler:
         logger.debug("Statement deduplication and storage complete")
 
         # Construct full revision schema with statement metadata
+        created_at = datetime.now(timezone.utc).isoformat() + "Z"
         revision_data = {
             "schema_version": settings.s3_revision_schema_version,
             "revision_id": new_revision_id,
-            "created_at": datetime.now(timezone.utc).isoformat() + "Z",
+            "created_at": created_at,
             "created_by": "rest-api",
-            "is_mass_edit": is_mass_edit,
-            "edit_type": edit_type or EditType.UNSPECIFIED.value,
             "entity_type": request.type,
+            "entity": request.data,
+            "statements": hash_result.statements,
+            "properties": hash_result.properties,
+            "property_counts": hash_result.property_counts,
+            "content_hash": content_hash,
+            "edit_summary": request.edit_summary,
+            "editor": request.editor,
+            "is_mass_edit": request.is_mass_edit,
+            "edit_type": request.edit_type or "",
             "is_semi_protected": request.is_semi_protected,
             "is_locked": request.is_locked,
             "is_archived": request.is_archived,
@@ -329,21 +335,7 @@ class EntityHandler:
             "is_mass_edit_protected": request.is_mass_edit_protected,
             "is_deleted": False,
             "is_redirect": False,
-            "statements": hash_result.statements,
-            "properties": hash_result.properties,
-            "property_counts": hash_result.property_counts,
-            "entity": {
-                "id": request.id,
-                "type": request.type,
-                "labels": request.labels,
-                "descriptions": request.descriptions,
-                "aliases": request.aliases,
-                "sitelinks": request.sitelinks,
-            },
-            "content_hash": content_hash,
-            "edit_summary": request.edit_summary,
-            "editor": request.editor,
-            "bot": request.bot,
+            "redirects_to": None,
         }
 
         logger.debug(
@@ -438,7 +430,6 @@ class EntityHandler:
             from_revision_id=head_revision_id if head_revision_id != 0 else None,
             editor=request.editor,
             edit_summary=request.edit_summary,
-            bot=request.bot,
         )
 
         return EntityResponse(
@@ -684,7 +675,6 @@ class EntityHandler:
             from_revision_id=head_revision_id,
             editor=request.editor,
             edit_summary=request.edit_summary,
-            bot=request.bot,
         )
 
         return EntityDeleteResponse(
