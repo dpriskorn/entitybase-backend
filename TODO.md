@@ -8,5 +8,6 @@ fix failing tests using get-docker-logs.sh
 fix ruff, vulture and mypy warnings
 fix failing tests
 add types-requests types-PyMySQL to poetry dev group
-implement new architecture for statements, see doc/ARCHITECTURE/STATEMENT-DEDUPLICATION.md
-add validation on post requests to /entity
+ implement new architecture for statements, see doc/ARCHITECTURE/STATEMENT-DEDUPLICATION.md
+ add validation on post requests to /entity
+ implement validate_recentchange usage in change streaming handlers when WMF recentchange events are consumed

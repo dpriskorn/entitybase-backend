@@ -96,6 +96,7 @@ def deduplicate_and_store_statements(
     vitess_client: VitessClient,
     s3_client: S3Client,
     validator: JsonSchemaValidator | None = None,
+    schema_version: str = "latest",
 ) -> None:
     """Deduplicate and store statements in Vitess and S3 (S3-first approach).
 
@@ -125,6 +126,7 @@ def deduplicate_and_store_statements(
         )
         try:
             statement_with_hash = StoredStatement(
+                schema_version=schema_version,
                 content_hash=statement_hash,
                 statement=statement_data,
                 created_at=datetime.now(timezone.utc).isoformat() + "Z",

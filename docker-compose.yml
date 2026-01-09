@@ -85,7 +85,9 @@ services:
       VITESS_DATABASE: page
       VITESS_USER: root
       VITESS_PASSWORD: ""
-      S3_REVISION_SCHEMA_VERSION: "latest"
+      S3_REVISION_VERSION: "latest"
+      S3_STATEMENT_VERSION: "latest"
+      WMF_RECENTCHANGE_VERSION: "latest"
       ENABLE_STREAMING: "false"
       KAFKA_BROKERS: redpanda:9092
       KAFKA_TOPIC: wikibase.entity_change

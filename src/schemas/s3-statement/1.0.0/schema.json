@@ -5,11 +5,17 @@
   "description": "Immutable statement snapshot stored in S3. First-class citizen statements with hash-based deduplication and full revision tracking.",
   "type": "object",
   "required": [
+    "schema_version",
     "content_hash",
     "statement",
     "created_at"
   ],
   "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Schema version (MAJOR.MINOR.PATCH)"
+    },
     "content_hash": {
       "type": "integer",
       "description": "Rapidhash integer of statement JSON for deduplication and storage key.",

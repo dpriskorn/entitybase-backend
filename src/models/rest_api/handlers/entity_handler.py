@@ -277,6 +277,7 @@ class EntityHandler:
                 vitess_client=vitess_client,
                 s3_client=s3_client,
                 validator=validator,
+                schema_version=settings.s3_statement_schema_version,
             )
             logger.info(
                 f"Entity {entity_id}: Successfully completed statement deduplication and storage"

@@ -99,7 +99,11 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             await app_.state.clients.stream_producer.start()
             logger.info("Stream producer started")
 
-        app_.state.validator = JsonSchemaValidator()
+        app_.state.validator = JsonSchemaValidator(
+            s3_revision_version=settings.s3_revision_version,
+            s3_statement_version=settings.s3_statement_version,
+            wmf_recentchange_version=settings.wmf_recentchange_version,
+        )
         logger.debug("Clients and validator initialized successfully")
         yield
     except Exception as e:

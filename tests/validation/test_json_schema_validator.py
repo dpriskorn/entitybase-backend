@@ -130,6 +130,7 @@ def test_invalid_entity_type_enum(validator: JsonSchemaValidator) -> None:
 
 def test_valid_statement(validator: JsonSchemaValidator) -> None:
     valid_statement = {
+        "schema_version": "1.0.0",
         "content_hash": 123456789,
         "statement": {
             "mainsnak": {

@@ -134,6 +134,7 @@ class RedirectRevertRequest(BaseModel):
 
 
 class StatementResponse(BaseModel):
+    schema_version: str = Field(..., description="Schema version")
     content_hash: int = Field(..., description="Statement hash")
     statement: Dict[str, Any] = Field(..., description="Full statement JSON")
     created_at: str = Field(..., description="Creation timestamp")
