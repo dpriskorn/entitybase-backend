@@ -8,6 +8,7 @@ from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from . import EntityHandler
+from .update_transaction import UpdateTransaction
 
 logger = logging.getLogger(__name__)
 
@@ -24,55 +25,72 @@ class EntityUpdateHandler(EntityHandler):
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
     ) -> EntityResponse:
-        """Update an existing entity. Fails if entity doesn't exist."""
-        logger.info(
-            f"=== ENTITY UPDATE START: {entity_id} ===",
-            extra={
-                "entity_id": entity_id,
-                "entity_type": request.type,
-                "is_mass_edit": request.is_mass_edit,
-                "edit_type": request.edit_type,
-                "data_keys": list(request.data.keys()),
-                "has_claims": bool(request.data.get("claims")),
-                "operation": "update_entity_start",
-            },
-        )
-
-        # Check if entity exists - for update, this is required
-        entity_existed = vitess_client.entity_exists(entity_id)
-        if not entity_existed:
-            logger.error(f"Entity {entity_id} does not exist, cannot update")
+        """Update an existing entity with transaction rollback."""
+        # Check entity exists (404 if not)
+        if not vitess_client.entity_exists(entity_id):
             raise HTTPException(status_code=404, detail="Entity not found")
 
-        # Check deletion status
-        is_deleted = vitess_client.is_entity_deleted(entity_id)
-        if is_deleted:
-            raise HTTPException(
-                status_code=410, detail=f"Entity {entity_id} has been deleted"
+        # Check deletion status (410 if deleted)
+        if vitess_client.is_entity_deleted(entity_id):
+            raise HTTPException(status_code=410, detail="Entity deleted")
+
+        # Check lock status (423 if locked)
+        if vitess_client.is_entity_locked(entity_id):
+            raise HTTPException(status_code=423, detail="Entity locked")
+
+        # Validate JSON (Pydantic)
+        # Already handled by FastAPI
+
+        # Create transaction
+        tx = UpdateTransaction()
+        tx.entity_id = entity_id
+        try:
+            # Get head revision
+            tx.get_head(vitess_client)
+            # Prepare data
+            request_data = request.data.copy()
+            request_data["id"] = entity_id
+            # Process statements
+            hash_result = tx.process_statements(
+                entity_id, request_data, vitess_client, s3_client, validator
             )
-
-        # Add entity_id to request data for consistency
-        request_data = request.data
-        request_data["id"] = entity_id
-
-        # Common processing logic
-        return await self._process_entity_revision(
-            entity_id=entity_id,
-            request_data=request_data,
-            entity_type=request.type,
-            is_mass_edit=request.is_mass_edit,
-            edit_type=request.edit_type,
-            edit_summary=request.edit_summary,
-            editor=request.editor,
-            is_semi_protected=request.is_semi_protected,
-            is_locked=request.is_locked,
-            is_archived=request.is_archived,
-            is_dangling=request.is_dangling,
-            is_mass_edit_protected=request.is_mass_edit_protected,
-            is_not_autoconfirmed_user=request.is_not_autoconfirmed_user,
-            vitess_client=vitess_client,
-            s3_client=s3_client,
-            stream_producer=stream_producer,
-            validator=validator,
-            is_creation=False,
-        )
+            # Create revision
+            response = await tx.create_revision(
+                entity_id=entity_id,
+                new_revision_id=tx.head_revision_id + 1,
+                head_revision_id=tx.head_revision_id,
+                request_data=request_data,
+                entity_type=request.type,
+                hash_result=hash_result,
+                content_hash=0,  # TODO: calculate
+                is_mass_edit=request.is_mass_edit,
+                edit_type=request.edit_type,
+                edit_summary=request.edit_summary,
+                editor=request.editor,
+                is_semi_protected=request.is_semi_protected,
+                is_locked=request.is_locked,
+                is_archived=request.is_archived,
+                is_dangling=request.is_dangling,
+                is_mass_edit_protected=request.is_mass_edit_protected,
+                vitess_client=vitess_client,
+                stream_producer=stream_producer,
+                is_creation=False,
+            )
+            # Publish event
+            tx.publish_event(
+                entity_id=entity_id,
+                revision_id=response.revision_id,
+                change_type="edit",
+                from_revision_id=tx.head_revision_id,
+                changed_at=None,  # TODO
+                editor=request.editor,
+                edit_summary=request.edit_summary,
+                stream_producer=stream_producer,
+            )
+            # Commit
+            tx.commit()
+            return response
+        except Exception as e:
+            logger.error(f"Entity update failed for {entity_id}: {e}")
+            tx.rollback()
+            raise HTTPException(status_code=500, detail="Update failed")

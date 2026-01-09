@@ -22,6 +22,7 @@ from models.api_models import (
     EntityResponse,
     EntityRedirectRequest,
     HealthCheckResponse,
+    ItemCreateRequest,
     MostUsedStatementsResponse,
     PropertyCountsResponse,
     PropertyHashesResponse,
@@ -35,14 +36,18 @@ from models.api_models import (
 )
 from models.rest_api.clients import Clients
 from models.rest_api.handlers.admin import AdminHandler
-from models.rest_api.handlers.entity.create import EntityCreateHandler
 from models.rest_api.handlers.entity.read import EntityReadHandler
 from models.rest_api.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.handlers.entity.delete import EntityDeleteHandler
+from models.rest_api.handlers.entity.types import (
+    ItemCreateHandler,
+    PropertyCreateHandler,
+)
 from models.rest_api.handlers.export import ExportHandler
 from models.rest_api.handlers.redirect import RedirectHandler
 from models.rest_api.handlers.statement import StatementHandler
 from models.rest_api.handlers.system import health_check
+from models.rest_api.services.enumeration_service import EnumerationService
 
 log_level = settings.get_log_level()
 
@@ -149,14 +154,55 @@ def health_check_endpoint(response: Response) -> HealthCheckResponse:
     return health_check(response)
 
 
-@app.post("/entity", response_model=EntityResponse)
-async def create_entity(request: EntityCreateRequest) -> EntityResponse:
+# Type-specific entity creation endpoints
+@app.post("/entities/items", response_model=EntityResponse)
+async def create_item(request: ItemCreateRequest) -> EntityResponse:
     clients = app.state.clients
     validator = app.state.validator
-    handler = EntityCreateHandler()
-    return await handler.create_entity(
+    enumeration_service = EnumerationService(clients.vitess, "rest-api")
+    handler = ItemCreateHandler(enumeration_service)
+    return await handler.create_item(
         request, clients.vitess, clients.s3, clients.stream_producer, validator
     )
+
+
+@app.post("/entities/properties", response_model=EntityResponse)
+async def create_property(request: EntityCreateRequest) -> EntityResponse:
+    clients = app.state.clients
+    validator = app.state.validator
+    enumeration_service = EnumerationService(clients.vitess, "rest-api")
+    handler = PropertyCreateHandler(enumeration_service)
+    return await handler.create_property(
+        request, clients.vitess, clients.s3, clients.stream_producer, validator
+    )
+
+
+#     return await handler.create_entity(
+#         entity_request, clients.vitess, clients.s3, clients.stream_producer, validator, auto_assign_id=True
+#     )
+
+# Update endpoints - TODO: Uncomment after fixing imports
+# @app.put("/item/{entity_id}", response_model=EntityResponse)
+# async def update_item(entity_id: str, request: ItemUpdateRequest) -> EntityResponse:
+#     clients = app.state.clients
+#     validator = app.state.validator
+#     handler = EntityUpdateHandler()
+#     # Convert to EntityUpdateRequest
+#     entity_request = EntityUpdateRequest(**request.model_dump())
+#     return await handler.update_entity(
+#         entity_id, entity_request, clients.vitess, clients.s3, clients.stream_producer, validator
+#     )
+
+# @app.put("/property/{entity_id}", response_model=EntityResponse)
+# async def update_property(entity_id: str, request: ItemUpdateRequest) -> EntityResponse:
+#     clients = app.state.clients
+#     validator = app.state.validator
+#     handler = EntityUpdateHandler()
+#     entity_request = EntityUpdateRequest(**request.model_dump())
+#     entity_request.type = "property"
+#     return await handler.update_entity(
+#         entity_id, entity_request, clients.vitess, clients.s3, clients.stream_producer, validator
+#     )
 
 
 @app.put("/entity/{entity_id}", response_model=EntityResponse)

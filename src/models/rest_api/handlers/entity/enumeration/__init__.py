@@ -1,10 +1,8 @@
-from .enumeration import (
-    EntitySchemaEnumerationHandler,
-    EnumerationHandler,
-    ItemEnumerationHandler,
-    LexemeEnumerationHandler,
-    PropertyEnumerationHandler,
-)
+from .enumeration import EnumerationHandler
+from .entityschema import EntitySchemaEnumerationHandler
+from .item import ItemEnumerationHandler
+from .lexeme import LexemeEnumerationHandler
+from .property import PropertyEnumerationHandler
 
 __all__ = [
     "EnumerationHandler",

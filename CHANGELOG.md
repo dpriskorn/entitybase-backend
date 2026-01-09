@@ -34,11 +34,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `PUT /entityschema/E{id}` - Update entity schema
   - `DELETE /entityschema/E{id}` - Delete entity schema
 
-- **Entity ID Enumeration System**:
-  - Automatic ID assignment for new entities
-  - Permanent ID allocation (no reuse)
-  - Thread-safe ID generation via database
-  - Support for Wikibase ID formats (Q/P/L/E prefixes)
+- **Scalable Entity ID Enumeration System**:
+  - Range-based ID allocation to prevent write hotspots
+  - Configurable worker architecture for horizontal scaling
+  - Permanent ID allocation (no reuse, even after deletion)
+  - Support for 777K+ entities/day growth rate
+  - Database-backed range management with atomic operations
+
+- **Worker Service Architecture**:
+  - Dedicated ID generation workers with Docker containerization
+  - Configurable worker count for scaling (starts with 1 worker)
+  - Health checks and monitoring for worker instances
+  - Range pre-allocation to minimize latency
 
 ### Changed
 - **Schema Version Configuration**: Shortened parameter names

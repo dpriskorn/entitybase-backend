@@ -71,6 +71,22 @@ class RevisionRepository:
             ]
             return result
 
+    def delete(self, conn: Any, entity_id: str, revision_id: int) -> None:
+        """Delete a revision (for rollback)."""
+        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        if not internal_id:
+            return
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "DELETE FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                (internal_id, revision_id),
+            )
+            # Also delete from entity_head if it's the head
+            cursor.execute(
+                "UPDATE entity_head SET head_revision_id = head_revision_id - 1 WHERE internal_id = %s AND head_revision_id = %s",
+                (internal_id, revision_id),
+            )
+
     def create_with_cas(
         self,
         conn: Any,

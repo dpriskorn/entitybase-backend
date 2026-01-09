@@ -18,7 +18,7 @@ The **external entity ID** (e.g., `Q123`, `P42`, `L999`) is the permanent public
 - **RDF/JSON data**: Cross-entity references in claims use Q123
 - **RDF triples**: `<http://www.wikidata.org/entity/Q42> a wikibase:Item`
 - **RDF change events**: `entity_id: "Q42"` in event schemas
-- **S3 paths**: Human-readable inspection (e.g., `s3://wikibase-revisions/Q123/r42.json`)
+- **S3 paths**: Human-readable inspection (e.g., `s3://wikibase-revisions/Q123/42.json`)
 
 **Characteristics:**
 
@@ -120,19 +120,21 @@ POST /entities
 }
 ↓
 API Layer
-1. Validate external_id format (Q123, P42, L999)
-2. Generate internal_id via ulid-flake service
-3. Write S3 snapshot: s3://wikibase-revisions/Q123/r42.json
-4. Insert entity_id_mapping: (internal_id=1424675744195114, external_id="Q123", entity_type="item")
-5. Insert entity_head: (internal_id=1424675744195114, head_revision_id=42, updated_at=NOW())
-6. Insert entity_revisions: (internal_id=1424675744195114, revision_id=42, created_at=NOW(), snapshot_uri="s3://...")
-7. Emit change event: {external_id="Q123", revision_id=42, operation="diff"}
+1. Validate JSON schema (Pydantic)
+2. Create CreationTransaction
+3. Allocate unique ID via EnumerationService (Q123)
+4. Register entity in Vitess (entity_id_mapping)
+5. Process statements: hash, deduplicate, store in S3/Vitess (increment ref_counts)
+6. Create revision: store in S3/Vitess (entity_head, entity_revisions)
+7. Publish change event (optional)
+8. Commit transaction (confirm ID usage to worker)
+9. On failure: Rollback all operations (delete from Vitess/S3, decrement ref_counts)
 ↓
 Client Response
 {
-  "external_id": "Q123",     // Echo back
+  "external_id": "Q123",
   "internal_id": 1424675744195114,
-  "revision_id": 42,
+  "revision_id": 1,
   "created_at": "2025-01-15T10:30:00Z"
 }
 ```
@@ -148,8 +150,8 @@ API Layer
    SELECT internal_id FROM entity_id_mapping WHERE external_id = "Q123"
 2. Query entity_head: 
    SELECT head_revision_id, updated_at FROM entity_head WHERE internal_id = 1424675744195114
-3. Fetch S3 snapshot: 
-   GET s3://wikibase-revisions/Q123/r42.json
+3. Fetch S3 snapshot:
+   GET s3://wikibase-revisions/Q123/42.json
 4. Attach external_id to response
 ↓
 Client Response
@@ -168,7 +170,7 @@ Change Detection Service
    SELECT internal_id, head_revision_id FROM entity_head WHERE updated_at >= %s
 2. Query entity_id_mapping: 
    SELECT external_id FROM entity_id_mapping WHERE internal_id = 1424675744195114
-3. Fetch S3 snapshot: GET s3://wikibase-revisions/Q123/r42.json
+3. Fetch S3 snapshot: GET s3://wikibase-revisions/Q123/42.json
 4. Generate RDF: 
    <http://www.wikidata.org/entity/Q123> a wikibase:Item .
    <http://www.wikidata.org/entity/Q123> rdfs:label "Douglas Adams"@en .
@@ -193,7 +195,7 @@ Change Detection Service
 
 ```text
 S3 Object Path:
-  s3://wikibase-revisions/Q123/r42.json
+  s3://wikibase-revisions/Q123/42.json
 
 Vitess Tables:
   entity_id_mapping:

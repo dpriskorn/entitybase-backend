@@ -1,0 +1,1165 @@
+{
+  "entities": {
+    "P3111": {
+      "pageid": 28653342,
+      "ns": 120,
+      "title": "Property:P3111",
+      "lastrevid": 2345585555,
+      "modified": "2025-05-07T02:50:12Z",
+      "type": "property",
+      "datatype": "external-id",
+      "id": "P3111",
+      "labels": {
+        "en": {
+          "language": "en",
+          "value": "FEI athlete ID"
+        },
+        "fr": {
+          "language": "fr",
+          "value": "identifiant F\u00e9d\u00e9ration \u00e9questre internationale d'athl\u00e8te"
+        },
+        "hu": {
+          "language": "hu",
+          "value": "FEI-azonos\u00edt\u00f3"
+        },
+        "en-gb": {
+          "language": "en-gb",
+          "value": "FEI ID"
+        },
+        "ko": {
+          "language": "ko",
+          "value": "\uad6d\uc81c\uc2b9\ub9c8\uc5f0\ub9f9 ID"
+        },
+        "nl": {
+          "language": "nl",
+          "value": "FEI-identificatiecode"
+        },
+        "pl": {
+          "language": "pl",
+          "value": "identyfikator FEI"
+        },
+        "mk": {
+          "language": "mk",
+          "value": "FEI-\u043d\u0430\u0437\u043d\u0430\u043a\u0430"
+        },
+        "ru": {
+          "language": "ru",
+          "value": "\u043a\u043e\u0434 FEI"
+        },
+        "es": {
+          "language": "es",
+          "value": "identificador Federaci\u00f3n Ecuestre Internacional"
+        },
+        "uk": {
+          "language": "uk",
+          "value": "\u0456\u0434\u0435\u043d\u0442\u0438\u0444\u0456\u043a\u0430\u0442\u043e\u0440 FEI"
+        },
+        "ar": {
+          "language": "ar",
+          "value": "\u0645\u0639\u0631\u0641 \u0627\u0644\u0627\u062a\u062d\u0627\u062f \u0627\u0644\u062f\u0648\u0644\u064a \u0644\u0644\u0641\u0631\u0648\u0633\u064a\u0629"
+        },
+        "he": {
+          "language": "he",
+          "value": "\u05de\u05d6\u05d4\u05d4 FEI"
+        },
+        "da": {
+          "language": "da",
+          "value": "FEI ID"
+        },
+        "de": {
+          "language": "de",
+          "value": "FEI-ID"
+        },
+        "ca": {
+          "language": "ca",
+          "value": "identificador FEI de persona"
+        },
+        "zh-hans": {
+          "language": "zh-hans",
+          "value": "FEI\u4eba\u7269\u7f16\u53f7"
+        },
+        "zh-hant": {
+          "language": "zh-hant",
+          "value": "FEI\u4eba\u7269\u7de8\u865f"
+        },
+        "ja": {
+          "language": "ja",
+          "value": "\u56fd\u969b\u99ac\u8853\u9023\u76df \u4eba\u7269ID"
+        },
+        "nb": {
+          "language": "nb",
+          "value": "FEI ut\u00f8ver-ID"
+        },
+        "it": {
+          "language": "it",
+          "value": "identificativo FEI di un atleta"
+        },
+        "th": {
+          "language": "th",
+          "value": "\u0e23\u0e2b\u0e31\u0e2a\u0e19\u0e31\u0e01\u0e01\u0e35\u0e2c\u0e32 FEI"
+        },
+        "ig": {
+          "language": "ig",
+          "value": "NJ FEI athlete"
+        }
+      },
+      "descriptions": {
+        "en": {
+          "language": "en",
+          "value": "identifier of athlete at the FEI website"
+        },
+        "en-gb": {
+          "language": "en-gb",
+          "value": "identifier of athlete in the FEI database"
+        },
+        "ko": {
+          "language": "ko",
+          "value": "\ud56d\ubaa9 \uc8fc\uc81c\uc778 \uc2b9\ub9c8 \uc120\uc218\uc5d0 \ub300\ud574 \uad6d\uc81c \uc2b9\ub9c8 \uc5f0\ub9f9(FEI)\uc758 \ub370\uc774\ud130\ubca0\uc774\uc2a4\uc5d0\uc11c \uc0ac\uc6a9\ud558\ub294 \uc2dd\ubcc4\uc790"
+        },
+        "uk": {
+          "language": "uk",
+          "value": "\u0456\u0434\u0435\u043d\u0442\u0438\u0444\u0456\u043a\u0430\u0442\u043e\u0440 \u0434\u043b\u044f \u0441\u043f\u043e\u0440\u0442\u0441\u043c\u0435\u043d\u0430 \u0432 \u0431\u0430\u0437\u0456 \u0434\u0430\u043d\u0438\u0445 F\u00e9d\u00e9ration \u00c9questre Internationale (FEI)"
+        },
+        "he": {
+          "language": "he",
+          "value": "\u05de\u05d6\u05d4\u05d4 \u05d1\u05e4\u05d3\u05e8\u05e6\u05d9\u05d9\u05ea \u05d4\u05e8\u05db\u05d9\u05d1\u05d4 \u05d4\u05d1\u05d9\u05e0\u05dc\u05d0\u05d5\u05de\u05d9\u05ea"
+        },
+        "it": {
+          "language": "it",
+          "value": "identificativo di un atleta sul sito web della Federazione Equestre Internazionale"
+        },
+        "ca": {
+          "language": "ca",
+          "value": "identificador de l'esportista al web de la FEI"
+        },
+        "pl": {
+          "language": "pl",
+          "value": "identyfikator zawodnika na stronie internetowej FEI"
+        },
+        "de": {
+          "language": "de",
+          "value": "Identifikator der F\u00e9d\u00e9ration \u00c9questre Internationale"
+        },
+        "ig": {
+          "language": "ig",
+          "value": "njirimara nke nd\u1ecb na-eme egwuregwu na web\u1ee5sa\u1ecbt\u1ecb FEI"
+        }
+      },
+      "aliases": {
+        "en": [
+          {
+            "language": "en",
+            "value": "F\u00e9d\u00e9ration \u00c9questre Internationale"
+          },
+          {
+            "language": "en",
+            "value": "FEI ID"
+          },
+          {
+            "language": "en",
+            "value": "FEI person ID"
+          }
+        ],
+        "fr": [
+          {
+            "language": "fr",
+            "value": "identifiant FEI"
+          }
+        ],
+        "en-gb": [
+          {
+            "language": "en-gb",
+            "value": "F\u00e9d\u00e9ration \u00c9questre Internationale"
+          }
+        ],
+        "ko": [
+          {
+            "language": "ko",
+            "value": "\uad6d\uc81c \uc2b9\ub9c8 \uc5f0\ub9f9 ID"
+          },
+          {
+            "language": "ko",
+            "value": "FEI \uc2dd\ubcc4\uc790"
+          }
+        ],
+        "es": [
+          {
+            "language": "es",
+            "value": "FEI id"
+          },
+          {
+            "language": "es",
+            "value": "identificador FEI"
+          },
+          {
+            "language": "es",
+            "value": "Federaci\u00f3n Ecuestre Internacional"
+          }
+        ],
+        "ar": [
+          {
+            "language": "ar",
+            "value": "\u0627\u0644\u0627\u062a\u062d\u0627\u062f \u0627\u0644\u062f\u0648\u0644\u064a \u0644\u0644\u0641\u0631\u0648\u0633\u064a\u0629"
+          }
+        ],
+        "ja": [
+          {
+            "language": "ja",
+            "value": "FEI \u4eba\u7269ID"
+          }
+        ],
+        "it": [
+          {
+            "language": "it",
+            "value": "identificativo Federazione Equestre Internazionale"
+          }
+        ],
+        "pl": [
+          {
+            "language": "pl",
+            "value": "F\u00e9d\u00e9ration \u00c9questre Internationale"
+          },
+          {
+            "language": "pl",
+            "value": "ID FEI"
+          },
+          {
+            "language": "pl",
+            "value": "ID osoby FEI"
+          }
+        ],
+        "ig": [
+          {
+            "language": "ig",
+            "value": "F\u00e9d\u00e9ration \u00c9questre Internationale"
+          },
+          {
+            "language": "ig",
+            "value": "FEI ID"
+          },
+          {
+            "language": "ig",
+            "value": "FEI person ID"
+          }
+        ]
+      },
+      "claims": {
+        "P31": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P31",
+              "hash": "49aa90414269a60562351e386c32ba913cc95050",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 63871246,
+                  "id": "Q63871246"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P3111$6b3ae62a-48a8-70cc-f283-c89972a905e1",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P31",
+              "hash": "d8c5cd7a35822e94032b887a8a8eea811dcebecc",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 93436926,
+                  "id": "Q93436926"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P3111$1D799EFB-96CD-4DAE-ABB2-487A82CA3AC0",
+            "rank": "normal"
+          }
+        ],
+        "P1855": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1855",
+              "hash": "dfd0967e0ce2ea5070b2b446c31ce781819b5729",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 26262340,
+                  "id": "Q26262340"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P3111": [
+                {
+                  "snaktype": "value",
+                  "property": "P3111",
+                  "hash": "2c79f739aa0f717d6a7df6eba505331c390d0ef5",
+                  "datavalue": {
+                    "value": "10093657",
+                    "type": "string"
+                  },
+                  "datatype": "external-id"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P3111"
+            ],
+            "id": "P3111$481c6461-4942-9e64-f254-4a335d833b02",
+            "rank": "normal",
+            "references": [
+              {
+                "hash": "aeb3651c7b35e83245fa737d53a5161812b9de8e",
+                "snaks": {
+                  "P854": [
+                    {
+                      "snaktype": "value",
+                      "property": "P854",
+                      "hash": "496534b8d4a159e1c0337b0be7488fcc3243d1c7",
+                      "datavalue": {
+                        "value": "https://data.fei.org/Person/Detail.aspx?p=1F9D07BCB987D55C99041586A2A19490",
+                        "type": "string"
+                      },
+                      "datatype": "url"
+                    }
+                  ]
+                },
+                "snaks-order": [
+                  "P854"
+                ]
+              }
+            ]
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1855",
+              "hash": "5a0194b3bd910c1e6b0fda1a4cd077f99fcf7662",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 364494,
+                  "id": "Q364494"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P3111": [
+                {
+                  "snaktype": "value",
+                  "property": "P3111",
+                  "hash": "80074f42733482a418aa96bda607abd94ccdb2b1",
+                  "datavalue": {
+                    "value": "10000156",
+                    "type": "string"
+                  },
+                  "datatype": "external-id"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P3111"
+            ],
+            "id": "P3111$4a27afdb-4154-f175-95f9-ad132b7a916f",
+            "rank": "normal",
+            "references": [
+              {
+                "hash": "fb3acb169acd091a30a522d8a2269d0fb3aac863",
+                "snaks": {
+                  "P854": [
+                    {
+                      "snaktype": "value",
+                      "property": "P854",
+                      "hash": "dfa69a5ff69bcc7fff7119e6e74577c5285bbd6f",
+                      "datavalue": {
+                        "value": "https://data.fei.org/Person/Detail.aspx?p=6D77DF804E5117C94D70184D6102C365",
+                        "type": "string"
+                      },
+                      "datatype": "url"
+                    }
+                  ]
+                },
+                "snaks-order": [
+                  "P854"
+                ]
+              }
+            ]
+          }
+        ],
+        "P1793": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1793",
+              "hash": "c722ba9cb94af13d8d9bf04088413dadd1edb7a9",
+              "datavalue": {
+                "value": "[0-9]+",
+                "type": "string"
+              },
+              "datatype": "string"
+            },
+            "type": "statement",
+            "id": "P3111$51e4f0ff-42f3-126a-b53e-5f2284043342",
+            "rank": "normal"
+          }
+        ],
+        "P1896": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1896",
+              "hash": "619a8560149bb7575625dc36127a1149fa8c2391",
+              "datavalue": {
+                "value": "https://bios.fei.org/bios/",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P407": [
+                {
+                  "snaktype": "value",
+                  "property": "P407",
+                  "hash": "daf1c4fcb58181b02dff9cc89deb084004ddae4b",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 1860,
+                      "id": "Q1860"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P407"
+            ],
+            "id": "P3111$b56f9e7d-48f8-8a60-4c17-76f9b5f2cd44",
+            "rank": "normal"
+          }
+        ],
+        "P2378": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2378",
+              "hash": "b28ddc9dfc17d0c39df0e160a6e78be901056170",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 477657,
+                  "id": "Q477657"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P3111$0dd494e4-44be-177a-9f51-6c99686f8ac2",
+            "rank": "normal"
+          }
+        ],
+        "P2875": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2875",
+              "hash": "bdd0e5d966c936252cb9901c63146451a0f2076e",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 28365899,
+                  "id": "Q28365899"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P3111$06d9f72c-49c7-d186-deae-644b509f0ece",
+            "rank": "normal"
+          }
+        ],
+        "P2667": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2667",
+              "hash": "a2db05e9358c0daa79669626b403856c47e17624",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 28739720,
+                  "id": "Q28739720"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "P3111$394b106a-42c8-66d3-0e27-27a45756eeed",
+            "rank": "normal"
+          }
+        ],
+        "P3254": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P3254",
+              "hash": "fc6fe185c069fce8d1f9ba70b18bc86b76fc06ef",
+              "datavalue": {
+                "value": "https://www.wikidata.org/wiki/Wikidata:Property_proposal/FEI_ID",
+                "type": "string"
+              },
+              "datatype": "url"
+            },
+            "type": "statement",
+            "id": "P3111$D4CBF1A3-7B56-4916-8069-E4B1E7687A80",
+            "rank": "normal"
+          }
+        ],
+        "P2302": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "3ab788a79997cfb672590fc69472661329379611",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21502404,
+                  "id": "Q21502404"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P1793": [
+                {
+                  "snaktype": "value",
+                  "property": "P1793",
+                  "hash": "fa5b26975174e7a24b563b6db6ce9af773b64adb",
+                  "datavalue": {
+                    "value": "10\\d{6}",
+                    "type": "string"
+                  },
+                  "datatype": "string"
+                }
+              ],
+              "P2316": [
+                {
+                  "snaktype": "value",
+                  "property": "P2316",
+                  "hash": "d50c571a43e6102d65b729ccc7049a0a2f867e34",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 21502408,
+                      "id": "Q21502408"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P1793",
+              "P2316"
+            ],
+            "id": "P3111$76EE9D36-F232-40E6-8441-4217E0A53A24",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "fede01024807ea412f925e250a71651eda314b38",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21503247,
+                  "id": "Q21503247"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2316": [
+                {
+                  "snaktype": "value",
+                  "property": "P2316",
+                  "hash": "d50c571a43e6102d65b729ccc7049a0a2f867e34",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 21502408,
+                      "id": "Q21502408"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ],
+              "P2306": [
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "57e0c059ce6c4f38e5ffd260c63684eb7c6e0e87",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 31,
+                      "id": "P31"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                }
+              ],
+              "P2305": [
+                {
+                  "snaktype": "value",
+                  "property": "P2305",
+                  "hash": "3814e35e2266a3fad80051b4a02e8d6e49c60772",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 5,
+                      "id": "Q5"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2316",
+              "P2306",
+              "P2305"
+            ],
+            "id": "P3111$CD3A9B47-A32F-4AB2-8E90-A3514B79F7F1",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "bc9f04ae1b17d1f0be97eae471d20ac6a83546ed",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 19474404,
+                  "id": "Q19474404"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2316": [
+                {
+                  "snaktype": "value",
+                  "property": "P2316",
+                  "hash": "d50c571a43e6102d65b729ccc7049a0a2f867e34",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 21502408,
+                      "id": "Q21502408"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2316"
+            ],
+            "id": "P3111$AAA5E88F-92B3-42C5-AE38-7B63E2951EE3",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "21338c72d362b7921eb042484db5c6e29d245add",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21502410,
+                  "id": "Q21502410"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2316": [
+                {
+                  "snaktype": "value",
+                  "property": "P2316",
+                  "hash": "d50c571a43e6102d65b729ccc7049a0a2f867e34",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 21502408,
+                      "id": "Q21502408"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2316"
+            ],
+            "id": "P3111$EAA90C2E-2C6E-40B3-9F59-FEF04DC9B1BD",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "fede01024807ea412f925e250a71651eda314b38",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21503247,
+                  "id": "Q21503247"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2306": [
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "350f400b4dc6ee351968a7da9bead33b477969de",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 106,
+                      "id": "P106"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2306"
+            ],
+            "id": "P3111$c9301b04-4644-cec6-0278-69863dce74c0",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "eba677434c5f12338ab5fd1ce6a834ab3139856a",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 52004125,
+                  "id": "Q52004125"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2305": [
+                {
+                  "snaktype": "value",
+                  "property": "P2305",
+                  "hash": "76a83209b6ab9e5ea1a1dd8e2986281a5a0479d7",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 29934200,
+                      "id": "Q29934200"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2305"
+            ],
+            "id": "P3111$DF69E8A3-F4E2-4F58-B67E-4851EBD43395",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "793a77bb61b7ab2ebc9b8ef826c2c4c236eeccc1",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 53869507,
+                  "id": "Q53869507"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P5314": [
+                {
+                  "snaktype": "value",
+                  "property": "P5314",
+                  "hash": "a0202111cb525ed31611bf926974b74a2419b8ab",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 54828448,
+                      "id": "Q54828448"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P5314",
+                  "hash": "9031ca220e943517fb8d671c4ad4f3f1a25b6a0b",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 54828450,
+                      "id": "Q54828450"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P5314"
+            ],
+            "id": "P3111$11D413E9-447E-4C2A-B1B6-8542021F760F",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P2302",
+              "hash": "fede01024807ea412f925e250a71651eda314b38",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 21503247,
+                  "id": "Q21503247"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P2306": [
+                {
+                  "snaktype": "value",
+                  "property": "P2306",
+                  "hash": "a7eae4661a1b2239445e6d3396c2519433b09ab1",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "property",
+                      "numeric-id": 641,
+                      "id": "P641"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-property"
+                }
+              ],
+              "P2305": [
+                {
+                  "snaktype": "value",
+                  "property": "P2305",
+                  "hash": "6a283e84f3724215ecedff5e9eb925782fd02ca5",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 902378,
+                      "id": "Q902378"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2305",
+                  "hash": "bc4d5158bb0d0b60155ca995253daa4c63b2f465",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 179226,
+                      "id": "Q179226"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2305",
+                  "hash": "0f6f7ff63dd4f80b1b920e8211f812a428e8fd32",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 7133630,
+                      "id": "Q7133630"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                {
+                  "snaktype": "value",
+                  "property": "P2305",
+                  "hash": "cd67cdce9cab636fff562e0b58e11606edd451db",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 211773,
+                      "id": "Q211773"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P2306",
+              "P2305"
+            ],
+            "id": "P3111$29230102-21F6-49A5-9B67-134FCC4EDBEE",
+            "rank": "normal"
+          }
+        ],
+        "P1630": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1630",
+              "hash": "a4b9b2d073503a83c3019d3f5fe7b022828c592b",
+              "datavalue": {
+                "value": "https://www.fei.org/athlete/$1",
+                "type": "string"
+              },
+              "datatype": "string"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P407": [
+                {
+                  "snaktype": "value",
+                  "property": "P407",
+                  "hash": "daf1c4fcb58181b02dff9cc89deb084004ddae4b",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 1860,
+                      "id": "Q1860"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P407"
+            ],
+            "id": "P3111$73b69a59-46e9-d25d-83f8-35a8a2d3e43f",
+            "rank": "preferred"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1630",
+              "hash": "c627bf1bc2d7481efbb3a6c776adcf0da07a4ec7",
+              "datavalue": {
+                "value": "https://bios.fei.org/bios/Person/$1",
+                "type": "string"
+              },
+              "datatype": "string"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P407": [
+                {
+                  "snaktype": "value",
+                  "property": "P407",
+                  "hash": "daf1c4fcb58181b02dff9cc89deb084004ddae4b",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 1860,
+                      "id": "Q1860"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P407"
+            ],
+            "id": "P3111$d425145e-4965-68ef-b78f-6bf9a95c9796",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1630",
+              "hash": "5ce3b8fe196523b6b07a8ca89c0e4bf1ce0a2e7f",
+              "datavalue": {
+                "value": "https://data.fei.org/Person/Detail.aspx?personfeiid=$1",
+                "type": "string"
+              },
+              "datatype": "string"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P407": [
+                {
+                  "snaktype": "value",
+                  "property": "P407",
+                  "hash": "daf1c4fcb58181b02dff9cc89deb084004ddae4b",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 1860,
+                      "id": "Q1860"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P407"
+            ],
+            "id": "P3111$401dc866-4206-d431-5a19-6af54474523a",
+            "rank": "normal"
+          },
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1630",
+              "hash": "8edf0702d7029824a054d8fa97e3e4dfcad5fdff",
+              "datavalue": {
+                "value": "https://data.fei.org/Person/Performance.aspx?personfeiid=$1",
+                "type": "string"
+              },
+              "datatype": "string"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P407": [
+                {
+                  "snaktype": "value",
+                  "property": "P407",
+                  "hash": "daf1c4fcb58181b02dff9cc89deb084004ddae4b",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 1860,
+                      "id": "Q1860"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P407"
+            ],
+            "id": "P3111$59f44160-4674-cfbb-88ce-4d834846e23a",
+            "rank": "normal"
+          }
+        ],
+        "P8966": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P8966",
+              "hash": "da4455ba0c0eb97f618987cff8b13704553519f3",
+              "datavalue": {
+                "value": "^https?:\\/\\/(?:www\\.)?fei\\.org\\/athlete\\/(\\d+)",
+                "type": "string"
+              },
+              "datatype": "string"
+            },
+            "type": "statement",
+            "qualifiers": {
+              "P13337": [
+                {
+                  "snaktype": "value",
+                  "property": "P13337",
+                  "hash": "1eecb248aa7738e12a851be0928492fbf5d3ecfc",
+                  "datavalue": {
+                    "value": "fei.org",
+                    "type": "string"
+                  },
+                  "datatype": "external-id"
+                }
+              ]
+            },
+            "qualifiers-order": [
+              "P13337"
+            ],
+            "id": "P3111$15cec5b5-43fc-c71d-287f-988920471803",
+            "rank": "normal"
+          }
+        ]
+      }
+    }
+  }
+}

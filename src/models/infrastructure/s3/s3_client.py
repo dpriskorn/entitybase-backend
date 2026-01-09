@@ -118,6 +118,15 @@ class S3Client(Client):
 
         return parsed_data
 
+    def delete_statement(self, content_hash: int) -> None:
+        """Delete statement from S3"""
+        if not self.connection_manager or not self.connection_manager.boto_client:
+            raise ConnectionError()
+        key = f"statements/{content_hash}.json"
+        self.connection_manager.boto_client.delete_object(
+            Bucket=self.config.bucket, Key=key
+        )
+
     def write_statement(
         self,
         content_hash: int,

@@ -231,6 +231,14 @@ class VitessClient(Client):
         with self.connection_manager.get_connection() as conn:
             return self.head_repository.soft_delete(conn, entity_id)  # type: ignore[no-any-return]
 
+    def get_ref_count(self, content_hash: int) -> int:
+        with self.connection_manager.get_connection() as conn:
+            return self.statement_repository.get_ref_count(conn, content_hash)  # type: ignore[no-any-return]
+
+    def delete_revision(self, entity_id: str, revision_id: int) -> None:
+        with self.connection_manager.get_connection() as conn:
+            return self.revision_repository.delete(conn, entity_id, revision_id)  # type: ignore[no-any-return]
+
     # DISABLED: /entities endpoint not implemented
     # def list_locked_entities(self, limit: int) -> list[dict]:
     #     return self.listing_repository.list_locked(limit)

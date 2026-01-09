@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://wikibase.org/schemas/s3-revision/1.2.0.json",
-  "title": "S3 Revision Snapshot with Statement-Level Architecture",
-  "description": "Immutable entity revision snapshot with statement-level deduplication. Statements stored separately by hash, entity contains only metadata (labels, descriptions, aliases, sitelinks).",
+  "$id": "https://wikibase.org/schemas/s3-revision/1.1.0.json",
+  "title": "S3 Revision Snapshot with Redirect Support",
+  "description": "Immutable entity revision snapshot stored in S3 with redirect metadata",
   "type": "object",
   "required": [
     "schema_version",
@@ -10,145 +10,104 @@
     "created_at",
     "created_by",
     "entity_type",
-    "entity",
-    "statements",
-    "properties",
-    "property_counts"
+    "entity"
   ],
   "properties": {
     "schema_version": {
       "type": "string",
-      "pattern": "^\\d+\\.\\d+\\.\\d+$",
-      "description": "Schema version (MAJOR.MINOR.PATCH)"
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
     },
     "revision_id": {
       "type": "integer",
-      "minimum": 0,
-      "description": "Monotonically increasing revision number"
+      "minimum": 0
     },
     "created_at": {
       "type": "string",
-      "format": "date-time",
-      "description": "ISO-8601 timestamp when revision was created"
+      "format": "date-time"
     },
     "created_by": {
-      "type": "string",
-      "description": "User or system that created this revision"
+      "type": "string"
     },
     "entity_type": {
       "type": "string",
-      "enum": ["item", "property", "lexeme"],
-      "description": "Type of entity"
+      "enum": ["item", "property", "lexeme"]
+    },
+    "redirects_to": {
+      "type": ["null", "string"],
+      "pattern": "^[A-Z]\\d+$",
+      "description": "If this entity is a redirect, target entity ID it points to (e.g., 'Q42')"
     },
     "content_hash": {
       "type": "integer",
       "description": "Rapidhash integer of entity data for deduplication"
     },
-    "statements": {
-      "type": "array",
-      "items": {
-        "type": "integer"
-      },
-      "description": "Array of statement hashes for this revision"
-    },
-    "properties": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "pattern": "^[A-Z]\\d+$"
-      },
-      "description": "Sorted list of unique property IDs used in this revision"
-    },
-    "property_counts": {
-      "type": "object",
-      "patternProperties": {
-        "^[A-Z]\\d+$": {
-          "type": "integer",
-          "minimum": 0
-        }
-      },
-      "description": "Mapping of property ID to number of statements"
-    },
     "edit_type": {
       "type": "string",
-      "description": "Text classification of edit type (e.g., 'bot-import', 'cleanup-2025')"
+      "description": "Text classification of edit type (e.g., 'bot-import', 'cleanup-2025', 'redirect-create', 'redirect-revert')"
     },
     "is_semi_protected": {
       "type": "boolean",
-      "default": false,
-      "description": "Item is semi-protected (blocks new/unconfirmed users)"
+      "default": false
     },
     "is_locked": {
       "type": "boolean",
-      "default": false,
-      "description": "Item is locked from any edits"
+      "default": false
     },
     "is_archived": {
       "type": "boolean",
-      "default": false,
-      "description": "Item is archived (cannot be edited, can be excluded from exports)"
+      "default": false
     },
     "is_dangling": {
       "type": "boolean",
-      "default": false,
-      "description": "Item has no maintaining WikiProject (P6104 statement) - computed by frontend"
+      "default": false
     },
     "is_mass_edit_protected": {
       "type": "boolean",
-      "default": false,
-      "description": "Item is protected from mass edits (bot operations)"
+      "default": false
     },
-    "is_deleted": {
+    "deleted": {
       "type": "boolean",
-      "default": false,
-      "description": "Whether this entity revision is deleted (soft delete tombstone)"
+      "default": false
     },
-    "is_redirect": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether this entity is a redirect"
+    "deletion_reason": {
+      "type": "string"
+    },
+    "deleted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "deleted_by": {
+      "type": "string"
     },
     "entity": {
       "type": "object",
-      "description": "Entity metadata only (labels, descriptions, aliases, sitelinks). No claims - statements are stored separately.",
+      "description": "Complete entity content snapshot",
       "required": ["id", "type"],
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^[A-Z]\\d+$",
-          "description": "External entity identifier"
+          "pattern": "^[A-Z]\\d+$"
         },
         "type": {
-          "type": "string",
-          "description": "Entity type"
+          "type": "string"
         },
         "labels": {
           "type": "object",
           "patternProperties": {
             "^[a-z-]+$": {
               "type": "object",
-              "required": ["language", "value"],
-              "properties": {
-                "language": { "type": "string" },
-                "value": { "type": "string" }
-              }
+              "required": ["language", "value"]
             }
-          },
-          "description": "Entity labels by language"
+          }
         },
         "descriptions": {
           "type": "object",
           "patternProperties": {
             "^[a-z-]+$": {
               "type": "object",
-              "required": ["language", "value"],
-              "properties": {
-                "language": { "type": "string" },
-                "value": { "type": "string" }
-              }
+              "required": ["language", "value"]
             }
-          },
-          "description": "Entity descriptions by language"
+          }
         },
         "aliases": {
           "type": "object",
@@ -157,30 +116,40 @@
               "type": "array",
               "items": {
                 "type": "object",
-                "required": ["language", "value"],
+                "required": ["language", "value"]
+              }
+            }
+          }
+        },
+        "claims": {
+          "type": "object",
+          "patternProperties": {
+            "^[A-Z]\\d+$": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["mainsnak", "type", "id", "rank"],
                 "properties": {
-                  "language": { "type": "string" },
-                  "value": { "type": "string" }
+                  "mainsnak": { "type": "object" },
+                  "type": { "type": "string" },
+                  "id": { "type": "string" },
+                  "rank": { "type": "string", "enum": ["preferred", "normal", "deprecated"] },
+                  "qualifiers": { "type": "object" },
+                  "qualifiers-order": { "type": "array", "items": { "type": "string" } },
+                  "references": { "type": "array", "items": { "type": "object" } }
                 }
               }
             }
-          },
-          "description": "Entity aliases by language"
+          }
         },
         "sitelinks": {
           "type": "object",
           "patternProperties": {
             "^[a-z-]+$": {
               "type": "object",
-              "required": ["site", "title"],
-              "properties": {
-                "site": { "type": "string" },
-                "title": { "type": "string" },
-                "badges": { "type": "array", "items": { "type": "string" } }
-              }
+              "required": ["site", "title"]
             }
-          },
-          "description": "Sitelinks to external sites (e.g., Wikipedia)"
+          }
         }
       }
     }

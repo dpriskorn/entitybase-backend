@@ -77,4 +77,29 @@ class SchemaManager:
         """
         )
 
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS id_ranges (
+                entity_type VARCHAR(1) PRIMARY KEY,
+                current_range_start BIGINT NOT NULL DEFAULT 1,
+                current_range_end BIGINT NOT NULL DEFAULT 1000000,
+                range_size BIGINT DEFAULT 1000000,
+                allocated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                worker_id VARCHAR(64),
+                version BIGINT DEFAULT 0
+            )
+        """
+        )
+
+        # Initialize ID ranges for each entity type
+        cursor.execute(
+            """
+            INSERT IGNORE INTO id_ranges (entity_type, current_range_start, current_range_end, range_size) VALUES
+            ('Q', 1, 1000000, 1000000),
+            ('P', 1, 1000000, 1000000),
+            ('L', 1, 1000000, 1000000),
+            ('E', 1, 1000000, 1000000)
+        """
+        )
+
         cursor.close()

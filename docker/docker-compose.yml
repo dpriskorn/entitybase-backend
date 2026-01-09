@@ -66,7 +66,7 @@ services:
   rest-api:
     build:
       context: .
-      dockerfile: src/Dockerfile
+      dockerfile: docker/workers/Dockerfile.rest-api
     container_name: rest-api
     ports:
       - "8000:8000"
@@ -100,6 +100,8 @@ services:
       timeout: 3s
       retries: 10
       start_period: 10s
+    deploy:
+      replicas: 1  # Can be scaled up for production (e.g., replicas: 3)
 
   integration-tests:
     build:
@@ -116,6 +118,24 @@ services:
       TEST_SHOW_PROGRESS: "true"
     networks:
       - default
+
+  id-worker:
+    build:
+      context: .
+      dockerfile: docker/workers/Dockerfile.id-generator
+    environment:
+      WORKER_ID: id_worker_1
+      WORKER_COUNT: 1
+      VITESS_HOST: vitess
+      VITESS_PORT: 15309
+      VITESS_DATABASE: page
+      VITESS_USER: root
+      VITESS_PASSWORD: ""
+    depends_on:
+      - vitess
+    restart: unless-stopped
+    deploy:
+      replicas: 1  # Can be scaled up for production (e.g., replicas: 3)
 
 volumes:
   minio-data:

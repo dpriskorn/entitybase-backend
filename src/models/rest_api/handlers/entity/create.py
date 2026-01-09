@@ -7,6 +7,7 @@ from models.api_models import EntityCreateRequest, EntityResponse
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
+from ..services.enumeration_service import EnumerationService
 from . import EntityHandler
 
 logger = logging.getLogger(__name__)
@@ -15,6 +16,9 @@ logger = logging.getLogger(__name__)
 class EntityCreateHandler(EntityHandler):
     """Handler for entity creation operations"""
 
+    def __init__(self, enumeration_service: EnumerationService | None = None):
+        self.enumeration_service = enumeration_service
+
     async def create_entity(
         self,
         request: EntityCreateRequest,
@@ -22,9 +26,24 @@ class EntityCreateHandler(EntityHandler):
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
+        auto_assign_id: bool = False,
     ) -> EntityResponse:
         """Create a new entity. Fails if entity already exists."""
-        entity_id = request.id
+
+        # Auto-assign ID if requested (for type-specific endpoints)
+        if auto_assign_id:
+            if self.enumeration_service is None:
+                raise HTTPException(
+                    status_code=500, detail="Enumeration service not available"
+                )
+            entity_id = self.enumeration_service.get_next_entity_id(request.type)
+            request.id = entity_id
+            # Add ID to request data
+            request_data = request.data.copy()
+            request_data["id"] = entity_id
+        else:
+            entity_id = request.id
+            request_data = request.data
 
         logger.info(
             f"=== ENTITY CREATION START: {entity_id} ===",
@@ -33,8 +52,8 @@ class EntityCreateHandler(EntityHandler):
                 "entity_type": request.type,
                 "is_mass_edit": request.is_mass_edit,
                 "edit_type": request.edit_type,
-                "data_keys": list(request.data.keys()),
-                "has_claims": bool(request.data.get("claims")),
+                "data_keys": list(request_data.keys()),
+                "has_claims": bool(request_data.get("claims")),
                 "operation": "create_entity_start",
             },
         )
@@ -58,7 +77,7 @@ class EntityCreateHandler(EntityHandler):
         # Common processing logic
         return await self._process_entity_revision(
             entity_id=entity_id,
-            request_data=request.data,
+            request_data=request_data,
             entity_type=request.type,
             is_mass_edit=request.is_mass_edit,
             edit_type=request.edit_type,

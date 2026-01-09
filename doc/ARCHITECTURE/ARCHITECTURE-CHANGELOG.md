@@ -2,6 +2,145 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-09] Transaction-Based Item Creation with Rollback
+
+### Summary
+
+Implemented atomic item creation using a Pydantic `CreationTransaction` class that manages operations with full rollback on failure. Includes per-statement rollback, worker handshake for ID confirmation, and removal of redundant checks. Updated enumeration handlers with high minimum IDs to avoid Wikidata collisions.
+
+### Motivation
+
+- **Atomicity**: Ensure creation is all-or-nothing; rollback on S3/Vitess failures prevents orphaned data.
+- **Reliability**: Trust worker for unique IDs, but confirm usage; rollback statements individually.
+- **Simplicity**: Remove existence/deletion checks; direct revision ID = 1 for creations.
+- **Collision Avoidance**: Set minimum IDs above Wikidata ranges (Q: 300M, P: 30K, L: 5M, E: 50K).
+
+### Changes
+
+#### New CreationTransaction Class
+
+**File**: `src/models/rest_api/handlers/entity/creation_transaction.py`
+
+Pydantic BaseModel for managing creation operations:
+
+- `register_entity()`: Reserves ID in Vitess.
+- `process_statements()`: Hashes/deduplicates statements, stores in S3/Vitess.
+- `create_revision()`: Stores revision snapshot.
+- `publish_event()`: Emits change event.
+- `commit()`: Confirms ID usage; clears rollback operations.
+- `rollback()`: Undoes all operations in reverse (deletes from Vitess/S3, decrements ref_counts).
+
+**Features**:
+- Per-statement rollback: Tracks hashes, decrements ref_counts, deletes orphaned S3 objects.
+- Logging: Info logs at method starts for tracing.
+- Reusable: Designed for future extension to updates/deletes.
+
+#### Updated Item Creation Flow
+
+**File**: `src/models/rest_api/handlers/entity/types.py`
+
+- Removed existence/deletion checks (trust worker).
+- Removed idempotency check (no prior revisions).
+- Direct `new_revision_id = 1` for creations.
+- Wrapped operations in `CreationTransaction` with try/except rollback.
+
+#### Enumeration Handler Updates
+
+**Files**: `src/models/rest_api/handlers/entity/enumeration/*.py`
+
+- Moved classes to individual files with high minimum IDs.
+- Updated base classes: `min_id` set to avoid Wikidata collisions.
+
+#### Documentation Updates
+
+**File**: `doc/ARCHITECTURE/ENTITY-MODEL.md`
+
+- Updated entity creation flow diagram to reflect transaction-based approach.
+- Emphasized rollback and worker handshake.
+
+### Impact
+
+- **Reliability**: Atomic creation with full rollback; no orphaned data.
+- **Performance**: Removed unnecessary checks; faster for new items.
+- **ID Safety**: Minimum IDs prevent Wikidata conflicts.
+- **Maintainability**: Transaction class encapsulates rollback logic.
+
+### Backward Compatibility
+
+- **Non-breaking**: API unchanged; internal flow improved.
+- **Rollbacks**: Graceful failure handling; logs warnings on rollback errors.
+
+---
+
+## [2026-01-09] Enumeration Handler Updates and Documentation Refinements
+
+### Summary
+
+Updated enumeration handlers with correct minimum ID values to prevent collisions with Wikidata.org entities, refined S3 storage paths by removing the "r" prefix for consistency, and updated documentation to reflect 1-based revision indexing. Bumped S3 revision schema to v1.2.0 for documentation alignment.
+
+### Motivation
+
+- **Collision Prevention**: Ensure new entity IDs start above existing Wikidata ranges to avoid conflicts during migration or coexistence.
+- **Path Consistency**: Standardize S3 object paths to use clean integer revision IDs without prefixes.
+- **Documentation Accuracy**: Align docs with 1-based revision indexing and updated minimum ID values.
+
+### Changes
+
+#### Updated Enumeration Handlers
+
+**Files**: `src/models/rest_api/handlers/entity/enumeration/*.py`
+
+Updated minimum ID values in base handler classes to safe ranges above Wikidata maximums:
+
+- Item: `min_id = 300_000_000` (above Q120M+)
+- Property: `min_id = 30_000` (above P10K+)
+- Lexeme: `min_id = 5_000_000` (above L1M+)
+- EntitySchema: `min_id = 50_000` (conservative buffer)
+
+**Rationale**:
+- Prevents ID collisions when integrating with or migrating from Wikidata.
+- Values set conservatively above current Wikidata ranges with buffers for growth.
+
+#### S3 Path Standardization
+
+**Files**: Documentation files (`doc/ARCHITECTURE/ENTITY-MODEL.md`, etc.)
+
+Removed "r" prefix from S3 revision paths:
+- Before: `s3://wikibase-revisions/Q123/r42.json`
+- After: `s3://wikibase-revisions/Q123/42.json`
+
+**Rationale**:
+- Simplifies paths to use raw integer revision IDs.
+- Consistent with schema expectations of integer revision identifiers.
+
+
+
+**Rationale**:
+- Marks documentation refinements and minimum ID awareness.
+- No breaking changes to JSON structure.
+
+#### Documentation Updates
+
+**File**: `doc/ARCHITECTURE/ENTITY-MODEL.md`
+
+- Updated entity creation examples to use revision_id=1 and clean S3 paths.
+- Emphasized 1-based revision indexing.
+- Added notes on minimum ID collision avoidance.
+
+### Impact
+
+- **ID Safety**: New entities use safe starting IDs preventing Wikidata conflicts.
+- **Storage Consistency**: S3 paths use clean integer revision IDs.
+- **Developer Experience**: Documentation accurately reflects implementation details.
+
+### Backward Compatibility
+
+- **Non-breaking**: Enumeration changes affect only new entity creation.
+- **S3 Paths**: Existing paths remain functional; new paths follow updated convention.
+- **Schema**: v1.2.0 compatible with v1.1.0 (no structural changes).
+
+---
+
 ## [2026-01-08] Change Event Producer for Redpanda
 
 ### Summary

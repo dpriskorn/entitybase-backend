@@ -71,3 +71,13 @@ class StatementRepository:
             )
             result = [row[0] for row in cursor.fetchall()]
             return result
+
+    def get_ref_count(self, conn: Any, content_hash: int) -> int:
+        """Get the reference count for a statement."""
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT ref_count FROM statement_content WHERE content_hash = %s",
+                (content_hash,),
+            )
+            result = cursor.fetchone()
+            return result[0] if result else 0
