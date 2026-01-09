@@ -91,13 +91,12 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
 
     # Update entity
     updated_entity_data = {
-        "id": "Q99997",
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity - Updated"}},
         "descriptions": {"en": {"language": "en", "value": "Updated description"}},
     }
 
-    response = api_client.post(f"{base_url}/entity", json=updated_entity_data)
+    response = api_client.put(f"{base_url}/entity/Q99997", json=updated_entity_data)
     assert response.status_code == 200
 
     result = response.json()
@@ -130,6 +129,44 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
     logger.info("✓ Entity update passed with hash verification")
 
 
+def test_create_entity_already_exists(
+    api_client: requests.Session, base_url: str
+) -> None:
+    """Test that POST /entity fails with 409 when entity already exists"""
+    logger = logging.getLogger(__name__)
+
+    # Create initial entity
+    entity_data = {
+        "id": "Q99998",
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Test Entity"}},
+    }
+    api_client.post(f"{base_url}/entity", json=entity_data)
+
+    # Try to create the same entity again - should fail
+    response = api_client.post(f"{base_url}/entity", json=entity_data)
+    assert response.status_code == 409
+    assert "already exists" in response.json().get("detail", "")
+
+    logger.info("✓ POST with existing entity correctly returns 409")
+
+
+def test_update_entity_not_found(api_client: requests.Session, base_url: str) -> None:
+    """Test that PUT /entity/{id} fails with 404 when entity doesn't exist"""
+    logger = logging.getLogger(__name__)
+
+    # Try to update non-existent entity
+    update_data = {
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Updated Entity"}},
+    }
+    response = api_client.put(f"{base_url}/entity/Q99999", json=update_data)
+    assert response.status_code == 404
+    assert "not found" in response.json().get("detail", "").lower()
+
+    logger.info("✓ PUT with non-existent entity correctly returns 404")
+
+
 def test_get_entity_history(api_client: requests.Session, base_url: str) -> None:
     """Test retrieving entity history"""
     logger = logging.getLogger(__name__)
@@ -143,9 +180,12 @@ def test_get_entity_history(api_client: requests.Session, base_url: str) -> None
     }
 
     api_client.post(f"{base_url}/entity", json=entity_data)
-    entity_labels: Dict[str, Any] = cast(Dict[str, Any], entity_data["labels"]).copy()
-    entity_labels["en"]["value"] = "Updated Test Entity"
-    api_client.post(f"{base_url}/entity", json=entity_data)
+    # Update entity for second revision
+    update_data = {
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Updated Test Entity"}},
+    }
+    api_client.put(f"{base_url}/entity/{entity_id}", json=update_data)
 
     # Get history (ordered by created_at DESC)
     response = api_client.get(f"{base_url}/entity/{entity_id}/history")

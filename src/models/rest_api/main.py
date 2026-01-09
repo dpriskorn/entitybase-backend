@@ -15,6 +15,7 @@ from models.api_models import (
     CleanupOrphanedResponse,
     EntityCreateRequest,
     EntityDeleteRequest,
+    EntityUpdateRequest,
     EntityDeleteResponse,
     EntityListResponse,
     EntityRedirectResponse,
@@ -33,12 +34,15 @@ from models.api_models import (
     TtlResponse,
 )
 from models.rest_api.clients import Clients
-from models.rest_api.handlers.admin_handler import AdminHandler
-from models.rest_api.handlers.entity_handler import EntityHandler
-from models.rest_api.handlers.export_handler import ExportHandler
-from models.rest_api.handlers.redirect_handler import RedirectHandler
-from models.rest_api.handlers.statement_handler import StatementHandler
-from models.rest_api.handlers.system_handler import health_check
+from models.rest_api.handlers.admin import AdminHandler
+from models.rest_api.handlers.entity.create import EntityCreateHandler
+from models.rest_api.handlers.entity.read import EntityReadHandler
+from models.rest_api.handlers.entity.update import EntityUpdateHandler
+from models.rest_api.handlers.entity.delete import EntityDeleteHandler
+from models.rest_api.handlers.export import ExportHandler
+from models.rest_api.handlers.redirect import RedirectHandler
+from models.rest_api.handlers.statement import StatementHandler
+from models.rest_api.handlers.system import health_check
 
 log_level = settings.get_log_level()
 
@@ -149,25 +153,40 @@ def health_check_endpoint(response: Response) -> HealthCheckResponse:
 async def create_entity(request: EntityCreateRequest) -> EntityResponse:
     clients = app.state.clients
     validator = app.state.validator
-    handler = EntityHandler()
+    handler = EntityCreateHandler()
     return await handler.create_entity(
         request, clients.vitess, clients.s3, clients.stream_producer, validator
+    )
+
+
+@app.put("/entity/{entity_id}", response_model=EntityResponse)
+async def update_entity(entity_id: str, request: EntityUpdateRequest) -> EntityResponse:
+    clients = app.state.clients
+    validator = app.state.validator
+    handler = EntityUpdateHandler()
+    return await handler.update_entity(
+        entity_id,
+        request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
     )
 
 
 @app.get("/entity/{entity_id}", response_model=EntityResponse)
 def get_entity(entity_id: str) -> EntityResponse:
     clients = app.state.clients
-    handler = EntityHandler()
+    handler = EntityReadHandler()
     return handler.get_entity(entity_id, clients.vitess, clients.s3)
 
 
 @app.get("/entity/{entity_id}/history", response_model=list[RevisionMetadata])
 def get_entity_history(entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
     clients = app.state.clients
-    handler = EntityHandler()
+    handler = EntityReadHandler()
     return handler.get_entity_history(  # type: ignore[no-any-return]
-        entity_id, clients.vitess, limit, offset
+        entity_id, clients.vitess, clients.s3, limit, offset
     )
 
 
@@ -203,7 +222,7 @@ async def revert_entity_redirect(
 @app.get("/entity/{entity_id}/revision/{revision_id}", response_model=Dict[str, Any])
 def get_entity_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
     clients = app.state.clients
-    handler = EntityHandler()
+    handler = EntityReadHandler()
     return handler.get_entity_revision(entity_id, revision_id, clients.s3)  # type: ignore
 
 
@@ -212,7 +231,7 @@ async def delete_entity(
     entity_id: str, request: EntityDeleteRequest
 ) -> EntityDeleteResponse:
     clients = app.state.clients
-    handler = EntityHandler()
+    handler = EntityDeleteHandler()
     return await handler.delete_entity(
         entity_id, request, clients.vitess, clients.s3, clients.stream_producer
     )
