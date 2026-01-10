@@ -38,3 +38,7 @@ echo "# src/models/validation" >> STATISTICS.md
 printf '```\n' >> STATISTICS.md
 scc --no-cocomo src/models/validation >> STATISTICS.md
 printf '```\n' >> STATISTICS.md
+echo "# tests" >> STATISTICS.md
+printf '```\n' >> STATISTICS.md
+scc --no-cocomo tests >> STATISTICS.md
+printf '```\n' >> STATISTICS.md

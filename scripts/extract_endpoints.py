@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 
-def extract_endpoints_from_file(file_path):
+def extract_endpoints_from_file(file_path: Path) -> list[dict[str, str]]:
     """Extract FastAPI endpoints from a Python file."""
     endpoints = []
 
@@ -31,19 +31,28 @@ def extract_endpoints_from_file(file_path):
 
     for method, path in matches:
         full_path = prefix + path
+        file_rel = str(file_path.relative_to(Path(__file__).parent.parent))
+        # Determine if implemented
+        if "wikibase/v1" in file_str:
+            implemented = False
+        elif file_rel == "src/models/rest_api/entitybase/v1/entities.py" and path == "/entities":
+            implemented = False
+        else:
+            implemented = True
         endpoints.append(
             {
                 "method": method.upper(),
                 "path": path,
                 "full_path": full_path,
-                "file": str(file_path.relative_to(Path(__file__).parent.parent)),
+                "file": file_rel,
+                "implemented": implemented,
             }
         )
 
     return endpoints
 
 
-def main():
+def main() -> None:
     """Main function to extract all endpoints."""
     rest_api_dir = Path(__file__).parent.parent / "src" / "models" / "rest_api"
 
@@ -64,22 +73,24 @@ def main():
 
     # Print results
     print("# REST API Endpoints\n")
-    print("| Method | Path | Full Path | File |")
-    print("|--------|------|-----------|------|")
+    print("| Implemented | Method | Full Path | File |")
+    print("|-------------|--------|-----------|------|")
 
-    current_file = None
     for endpoint in all_endpoints:
-        if endpoint["file"] != current_file:
-            if current_file is not None:
-                print()  # Add blank line between files
-            current_file = endpoint["file"]
-            print(f"**{current_file}:**")
-
+        status = "✅" if endpoint["implemented"] else "❌"
         print(
-            f"| {endpoint['method']} | `{endpoint['path']}` | `{endpoint['full_path']}` | {endpoint['file']} |"
+            f"| {status} | {endpoint['method']} | `{endpoint['full_path']}` | {endpoint['file']} |"
         )
 
-    print(f"\nTotal endpoints found: {len(all_endpoints)}")
+    # Count implemented vs not
+    implemented_count = sum(1 for e in all_endpoints if e["implemented"])
+    not_implemented_count = len(all_endpoints) - implemented_count
+
+    print(f"\n| Status | Count |")
+    print(f"|--------|-------|")
+    print(f"| Implemented | {implemented_count} |")
+    print(f"| Not Implemented | {not_implemented_count} |")
+    print(f"| Total | {len(all_endpoints)} |")
 
 
 if __name__ == "__main__":
