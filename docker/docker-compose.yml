@@ -31,7 +31,7 @@ services:
       MYSQL_BIND_HOST: 0.0.0.0
       CHARSET: utf8mb4
       MYSQL_MAX_CONNECTIONS: 1000
-      FOREIGN_KEY_MODE: disallow
+      FOREIGN_KEY_MODE: allow
     ports:
       - "15309:15309"
       - "15307:15307"

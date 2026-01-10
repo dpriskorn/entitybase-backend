@@ -149,12 +149,18 @@ class IdGeneratorWorker(BaseModel):
         Used by external monitoring systems to verify worker availability and
         ID generation capacity.
         """
+        try:
+            range_status = (
+                self.enumeration_service.get_range_status()
+                if self.enumeration_service is not None
+                else {}
+            )
+        except Exception:
+            range_status = {}
         return WorkerHealthCheck(
             status="healthy" if self.running else "unhealthy",
             worker_id=self.worker_id,
-            range_status=self.enumeration_service.get_range_status()
-            if self.enumeration_service is not None
-            else {},
+            range_status=range_status,
         )
 
     def get_next_id(self, entity_type: str) -> str:
