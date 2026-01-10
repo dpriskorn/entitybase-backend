@@ -24,6 +24,7 @@ from models.rest_api.services.statement_service import (
 from models.internal_representation.statement_backlink_extractor import (
     StatementBacklinkExtractor,
 )
+from models.internal_representation.metadata_extractor import MetadataExtractor
 
 logger = logging.getLogger(__name__)
 
@@ -343,6 +344,43 @@ class EntityHandler(BaseModel):
         is_creation: bool,
     ) -> EntityResponse:
         """Create revision data, store it, and publish events."""
+        # Process and deduplicate metadata
+        labels = MetadataExtractor.extract_labels(request_data)
+        descriptions = MetadataExtractor.extract_descriptions(request_data)
+        aliases = MetadataExtractor.extract_aliases(request_data)
+
+        labels_hash = MetadataExtractor.hash_metadata(labels) if labels else 0
+        descriptions_hash = (
+            MetadataExtractor.hash_metadata(descriptions) if descriptions else 0
+        )
+        aliases_hash = MetadataExtractor.hash_metadata(aliases) if aliases else 0
+
+        # Store metadata in S3 and update ref counts
+        with vitess_client.connection_manager.get_connection() as conn:
+            if labels_hash:
+                vitess_client.s3_client.store_metadata("labels", labels_hash, labels)
+                vitess_client.metadata_repository.insert_metadata_content(
+                    conn, labels_hash, "labels"
+                )
+            if descriptions_hash:
+                vitess_client.s3_client.store_metadata(
+                    "descriptions", descriptions_hash, descriptions
+                )
+                vitess_client.metadata_repository.insert_metadata_content(
+                    conn, descriptions_hash, "descriptions"
+                )
+            if aliases_hash:
+                vitess_client.s3_client.store_metadata("aliases", aliases_hash, aliases)
+                vitess_client.metadata_repository.insert_metadata_content(
+                    conn, aliases_hash, "aliases"
+                )
+
+        # Remove metadata from request_data to avoid duplication
+        request_data_copy = request_data.copy()
+        request_data_copy.pop("labels", None)
+        request_data_copy.pop("descriptions", None)
+        request_data_copy.pop("aliases", None)
+
         # Create revision data
         created_at = datetime.now(timezone.utc).isoformat() + "Z"
         revision_is_mass_edit = is_mass_edit if is_mass_edit is not None else False
@@ -356,10 +394,13 @@ class EntityHandler(BaseModel):
             "created_at": created_at,
             "created_by": "rest-api",
             "entity_type": entity_type,
-            "entity": request_data,
+            "entity": request_data_copy,
             "statements": hash_result.statements,
             "properties": hash_result.properties,
             "property_counts": hash_result.property_counts,
+            "labels_hash": labels_hash,
+            "descriptions_hash": descriptions_hash,
+            "aliases_hash": aliases_hash,
             "content_hash": content_hash,
             "edit_summary": edit_summary,
             "editor": editor,

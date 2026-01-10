@@ -148,6 +148,7 @@ services:
     cpus: "0.5"
 
   idworker:
+    container_name: idworker
     build:
       context: ..
       dockerfile: docker/containers/Dockerfile.id-generator
@@ -160,7 +161,8 @@ services:
       VITESS_USER: root
       VITESS_PASSWORD: ""
     depends_on:
-      - vitess
+      vitess:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
       interval: 30s

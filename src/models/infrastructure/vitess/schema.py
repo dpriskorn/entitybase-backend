@@ -57,7 +57,7 @@ class SchemaManager:
                 referencing_internal_id BIGINT NOT NULL,
                 statement_hash BIGINT NOT NULL,
                 property_id VARCHAR(32) NOT NULL,
-                rank ENUM('preferred', 'normal', 'deprecated') NOT NULL,
+                `rank` ENUM('preferred', 'normal', 'deprecated') NOT NULL,
                 PRIMARY KEY (referenced_internal_id, referencing_internal_id, statement_hash),
                 FOREIGN KEY (referenced_internal_id) REFERENCES entity_id_mapping(internal_id),
                 FOREIGN KEY (referencing_internal_id) REFERENCES entity_id_mapping(internal_id),
@@ -80,6 +80,20 @@ class SchemaManager:
 
         cursor.execute(
             """
+            CREATE TABLE IF NOT EXISTS metadata_content (
+                content_hash BIGINT UNSIGNED NOT NULL,
+                content_type ENUM('labels', 'descriptions', 'aliases') NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                ref_count INT DEFAULT 1,
+                PRIMARY KEY (content_hash, content_type),
+                INDEX idx_type_hash (content_type, content_hash),
+                INDEX idx_ref_count (ref_count DESC)
+            )
+        """
+        )
+
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS entity_revisions (
                 internal_id BIGINT NOT NULL,
                 revision_id BIGINT NOT NULL,
@@ -89,8 +103,21 @@ class SchemaManager:
                 statements JSON NOT NULL,
                 properties JSON NOT NULL,
                 property_counts JSON NOT NULL,
+                labels_hash BIGINT UNSIGNED,
+                descriptions_hash BIGINT UNSIGNED,
+                aliases_hash BIGINT UNSIGNED,
                 PRIMARY KEY (internal_id, revision_id)
             )
+        """
+        )
+
+        # Add hash columns to existing table if they don't exist
+        cursor.execute(
+            """
+            ALTER TABLE entity_revisions
+            ADD COLUMN IF NOT EXISTS labels_hash BIGINT UNSIGNED,
+            ADD COLUMN IF NOT EXISTS descriptions_hash BIGINT UNSIGNED,
+            ADD COLUMN IF NOT EXISTS aliases_hash BIGINT UNSIGNED
         """
         )
 

@@ -1,13 +1,7 @@
 from .entity import (
-    Backlink,
-    BacklinksResponse,
-    EntityAliases,
     EntityCreateRequest,
     EntityDeleteRequest,
     EntityDeleteResponse,
-    EntityDescriptions,
-    EntityJsonImportRequest,
-    EntityJsonImportResponse,
     EntityLabels,
     EntityListResponse,
     EntityMetadata,
@@ -19,6 +13,7 @@ from .entity import (
     EntityUpdateRequest,
     ProtectionInfo,
     RedirectRevertRequest,
+    WikibaseEntityResponse,
 )
 from .health import HealthCheckResponse, HealthResponse, WorkerHealthCheck
 from .rdf import (
@@ -32,7 +27,6 @@ from .misc import (
     CleanupOrphanedRequest,
     CleanupOrphanedResponse,
     DeleteType,
-    EditType,
     RevisionMetadata,
     TtlResponse,
 )
@@ -56,7 +50,6 @@ __all__ = [
     "CleanupOrphanedResponse",
     "DeduplicationStats",
     "DeleteType",
-    "EditType",
     "EntityAliases",
     "EntityCreateRequest",
     "EntityDeleteRequest",
@@ -74,6 +67,7 @@ __all__ = [
     "EntityRevisionResponse",
     "EntityUpdateRequest",
     "FullRevisionData",
+    "WikibaseEntityResponse",
     "HealthCheckResponse",
     "HealthResponse",
     "MetadataLoadResponse",

@@ -36,6 +36,15 @@ class FullRevisionData(BaseModel):
     statements: list[int] = Field(description="List of statement hashes")
     properties: list[str] = Field(description="List of unique properties")
     property_counts: dict[str, int] = Field(description="Property counts")
+    labels: dict[str, dict[str, str]] = Field(
+        default_factory=dict, description="Entity labels"
+    )
+    descriptions: dict[str, dict[str, str]] = Field(
+        default_factory=dict, description="Entity descriptions"
+    )
+    aliases: dict[str, list[str]] = Field(
+        default_factory=dict, description="Entity aliases"
+    )
 
 
 class MetadataLoadResponse(BaseModel):

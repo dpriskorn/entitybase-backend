@@ -12,7 +12,9 @@ def get_entity(entity_id: str, req: Request) -> EntityResponse:
     """Retrieve a single entity by its ID."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    return handler.get_entity(entity_id, clients.vitess, clients.s3)
+    return handler.get_entity(
+        entity_id, clients.vitess, clients.s3, fetch_metadata=True
+    )
 
 
 @router.get("/entities/{entity_id}/history", response_model=list[RevisionMetadata])

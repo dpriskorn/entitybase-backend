@@ -10,6 +10,8 @@ from models.api import (
     StatementBatchRequest,
     StatementBatchResponse,
     StatementResponse,
+    CleanupOrphanedRequest,
+    CleanupOrphanedResponse,
 )
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
@@ -211,3 +213,49 @@ class StatementHandler:
             limit=limit, min_ref_count=min_ref_count
         )
         return MostUsedStatementsResponse(statements=statement_hashes)
+
+    def cleanup_orphaned_statements(
+        self,
+        request: CleanupOrphanedRequest,
+        vitess_client: VitessClient,
+        s3_client: S3Client,
+    ) -> CleanupOrphanedResponse:
+        """Clean up orphaned statements that are no longer referenced.
+
+        Removes statements with ref_count <= 0 that are older than the specified days.
+        Limited to the specified number to avoid long-running operations.
+        """
+        if vitess_client is None:
+            raise_validation_error("Vitess not initialized", status_code=503)
+
+        if s3_client is None:
+            raise_validation_error("S3 not initialized", status_code=503)
+
+        # Get orphaned statements older than specified days
+        orphaned_hashes = vitess_client.get_orphaned_statements(
+            request.older_than_days, request.limit
+        )
+
+        cleaned_count = 0
+        failed_count = 0
+        errors = []
+
+        for statement_hash in orphaned_hashes:
+            try:
+                # Delete from S3 first
+                s3_client.delete_statement(statement_hash)
+                # Then delete from Vitess
+                vitess_client.delete_statement(statement_hash)
+                cleaned_count += 1
+                logger.info(f"Cleaned up orphaned statement {statement_hash}")
+            except Exception as e:
+                failed_count += 1
+                error_msg = f"Failed to cleanup statement {statement_hash}: {e}"
+                errors.append(error_msg)
+                logger.error(error_msg)
+
+        return CleanupOrphanedResponse(
+            cleaned_count=cleaned_count,
+            failed_count=failed_count,
+            errors=errors,
+        )

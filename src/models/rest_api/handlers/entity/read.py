@@ -20,6 +20,7 @@ class EntityReadHandler:
         entity_id: str,
         vitess_client: VitessClient,
         s3_client: S3Client,
+        fetch_metadata: bool = False,
     ) -> EntityResponse:
         """Get entity by ID."""
         if vitess_client is None:
@@ -37,10 +38,48 @@ class EntityReadHandler:
 
         try:
             revision = s3_client.read_revision(entity_id, head_revision_id)
+            data = revision.data.get("entity", {}).copy()
+
+            # Load metadata from S3
+            if fetch_metadata:
+                labels_hash = revision.data.get("labels_hash")
+                if labels_hash:
+                    data["labels"] = s3_client.load_metadata("labels", labels_hash)
+
+                descriptions_hash = revision.data.get("descriptions_hash")
+                if descriptions_hash:
+                    data["descriptions"] = s3_client.load_metadata(
+                        "descriptions", descriptions_hash
+                    )
+
+                aliases_hash = revision.data.get("aliases_hash")
+                if aliases_hash:
+                    data["aliases"] = s3_client.load_metadata("aliases", aliases_hash)
+            else:
+                # For legacy compatibility, merge metadata into entity data
+                entity_data = data["entity"]
+                labels_hash = revision.data.get("labels_hash")
+                if labels_hash:
+                    entity_data["labels"] = s3_client.load_metadata(
+                        "labels", labels_hash
+                    )
+
+                descriptions_hash = revision.data.get("descriptions_hash")
+                if descriptions_hash:
+                    entity_data["descriptions"] = s3_client.load_metadata(
+                        "descriptions", descriptions_hash
+                    )
+
+                aliases_hash = revision.data.get("aliases_hash")
+                if aliases_hash:
+                    entity_data["aliases"] = s3_client.load_metadata(
+                        "aliases", aliases_hash
+                    )
+
             return EntityResponse(
                 id=entity_id,
                 revision_id=head_revision_id,
-                data=revision.data.get("entity", {}),
+                data=data,
                 is_semi_protected=revision.data.get("is_semi_protected", False),
                 is_locked=revision.data.get("is_locked", False),
                 is_archived=revision.data.get("is_archived", False),
@@ -92,10 +131,32 @@ class EntityReadHandler:
 
         try:
             revision = s3_client.read_revision(entity_id, revision_id)
+            data = revision.data.copy()
+            entity_data = data.get("entity", {}).copy()
+
+            # Load metadata from S3
+            labels_hash = data.get("labels_hash")
+            if labels_hash:
+                entity_data["labels"] = s3_client.load_metadata("labels", labels_hash)
+
+            descriptions_hash = data.get("descriptions_hash")
+            if descriptions_hash:
+                entity_data["descriptions"] = s3_client.load_metadata(
+                    "descriptions", descriptions_hash
+                )
+
+            aliases_hash = data.get("aliases_hash")
+            if aliases_hash:
+                entity_data["aliases"] = s3_client.load_metadata(
+                    "aliases", aliases_hash
+                )
+
+            data["entity"] = entity_data
+
             return EntityRevisionResponse(
                 entity_id=entity_id,
                 revision_id=revision_id,
-                data=revision.data,
+                data=data,
             )
         except Exception as e:
             logger.error(

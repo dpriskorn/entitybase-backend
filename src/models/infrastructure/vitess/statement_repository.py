@@ -81,3 +81,11 @@ class StatementRepository:
             )
             result = cursor.fetchone()
             return result[0] if result else 0
+
+    def delete_content(self, conn: Any, content_hash: int) -> None:
+        """Delete statement content when ref_count reaches 0."""
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "DELETE FROM statement_content WHERE content_hash = %s AND ref_count <= 0",
+                (content_hash,),
+            )

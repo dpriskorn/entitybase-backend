@@ -19,6 +19,7 @@ from models.infrastructure.vitess.head_repository import HeadRepository
 # from models.infrastructure.vitess.listing_repository import ListingRepository  # DISABLED: Listing not used
 from models.infrastructure.vitess.statement_repository import StatementRepository
 from models.infrastructure.vitess.backlink_repository import BacklinkRepository
+from models.infrastructure.vitess.metadata_repository import MetadataRepository
 
 
 class VitessClient(Client):
@@ -33,6 +34,7 @@ class VitessClient(Client):
     # listing_repository: ListingRepository = Field(default=None, exclude=True)  # DISABLED: Not used
     statement_repository: StatementRepository = Field(default=None, exclude=True)
     backlink_repository: BacklinkRepository = Field(default=None, exclude=True)
+    metadata_repository: MetadataRepository = Field(default=None, exclude=True)
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
@@ -52,6 +54,7 @@ class VitessClient(Client):
         # self.listing_repository = ListingRepository(self.connection_manager)  # DISABLED: Listing not used
         self.statement_repository = StatementRepository(self.connection_manager)
         self.backlink_repository = BacklinkRepository(self.connection_manager)
+        self.metadata_repository = MetadataRepository(self.connection_manager)
         self._create_tables()
 
     def _create_tables(self) -> None:
@@ -301,6 +304,11 @@ class VitessClient(Client):
         with self.connection_manager.get_connection() as conn:
             return self.statement_repository.get_most_used(conn, limit, min_ref_count)  # type: ignore[no-any-return]
 
+    def delete_statement(self, content_hash: int) -> None:
+        """Delete a statement from the database."""
+        with self.connection_manager.get_connection() as conn:
+            self.statement_repository.delete_content(conn, content_hash)
+
     def write_entity_revision(
         self,
         entity_id: str,
@@ -334,7 +342,7 @@ class VitessClient(Client):
                 raise_validation_error(f"Entity {entity_id} not found", status_code=404)
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT statements, properties, property_counts FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                    "SELECT statements, properties, property_counts, labels_hash, descriptions_hash, aliases_hash FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
                     (internal_id, revision_id),
                 )
                 result = cursor.fetchone()
@@ -343,11 +351,32 @@ class VitessClient(Client):
                         f"Revision {revision_id} not found for entity {entity_id}",
                         status_code=404,
                     )
+
+                # Load metadata from S3
+                labels = (
+                    self.s3_client.load_metadata("labels", result[3])
+                    if result[3]
+                    else {}
+                )
+                descriptions = (
+                    self.s3_client.load_metadata("descriptions", result[4])
+                    if result[4]
+                    else {}
+                )
+                aliases = (
+                    self.s3_client.load_metadata("aliases", result[5])
+                    if result[5]
+                    else {}
+                )
+
                 return FullRevisionData(
                     revision_id=revision_id,
                     statements=json.loads(result[0]) if result[0] else [],
                     properties=json.loads(result[1]) if result[1] else [],
                     property_counts=json.loads(result[2]) if result[2] else {},
+                    labels=labels,
+                    descriptions=descriptions,
+                    aliases=aliases,
                 )
 
     def insert_backlinks(self, backlinks: list[tuple[int, int, int, str, str]]) -> None:

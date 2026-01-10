@@ -2,9 +2,9 @@ import asyncio
 import logging
 import os
 import signal
-from typing import Any
+from typing import Any, cast
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from fastapi import FastAPI
 import uvicorn
 
@@ -26,30 +26,29 @@ class IdGeneratorWorker(BaseModel):
     The worker initializes Vitess and Enumeration services, then runs a continuous loop
     checking ID range availability. IDs are allocated from pre-reserved ranges to ensure
     efficient, low-latency ID generation.
-
-    Attributes:
-        worker_id: Unique identifier for this worker instance.
-        vitess_client: Database client for Vitess operations.
-        enumeration_service: Service managing ID range allocation.
-        running: Flag indicating if the worker loop is active.
     """
 
-    def __init__(self, /, worker_id: str = "", **data: Any):
+    worker_id: str = Field(
+        default_factory=lambda: os.getenv("WORKER_ID", f"worker-{os.getpid()}")
+    )
+    vitess_client: Any = None
+    enumeration_service: Any = None
+    running: bool = False
+
+    def __init__(self, worker_id: str = "", **data: Any):
         """Initialize the ID generator worker.
 
         Args:
             worker_id: Unique identifier. Defaults to WORKER_ID env var
-                       or auto-generated "worker-{pid}".
+                        or auto-generated "worker-{pid}".
             **data: Additional Pydantic model data.
 
         Sets up signal handlers for SIGTERM/SIGINT to enable graceful shutdown.
         Services (VitessClient, EnumerationService) are initialized in start().
         """
+        if worker_id:
+            data["worker_id"] = worker_id
         super().__init__(**data)
-        self.worker_id = worker_id or os.getenv("WORKER_ID", f"worker-{os.getpid()}")
-        self.vitess_client = None
-        self.enumeration_service = None
-        self.running = False
 
         # Setup signal handlers for graceful shutdown
         signal.signal(signal.SIGTERM, self._signal_handler)
@@ -177,7 +176,7 @@ class IdGeneratorWorker(BaseModel):
             raise_validation_error("Worker not initialized", status_code=500)
 
         assert self.enumeration_service is not None
-        return self.enumeration_service.get_next_entity_id(entity_type)
+        return cast(str, self.enumeration_service.get_next_entity_id(entity_type))
 
 
 async def run_worker(worker: IdGeneratorWorker) -> None:

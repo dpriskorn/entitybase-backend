@@ -19,9 +19,9 @@
 | ✅ | GET | `/entitybase/v1/statements/most_used` | Get the most used statements based on reference count. |
 | ✅ | GET | `/entitybase/v1/statements/{content_hash}` | Retrieve a single statement by its content hash. |
 | ❌ | GET | `/wikibase/v1/entities` | Search entities - stub |
-| ❌ | POST | `/wikibase/v1/entities/items` | Create item - redirects to entitybase endpoint |
-| ❌ | GET | `/wikibase/v1/entities/items/{item_id}` | Get item |
-| ❌ | PUT | `/wikibase/v1/entities/items/{item_id}` | Update item - stub |
+| ✅ | POST | `/wikibase/v1/entities/items` | Create item - redirects to entitybase endpoint |
+| ✅ | GET | `/wikibase/v1/entities/items/{item_id}` | Get item |
+| ✅ | PUT | `/wikibase/v1/entities/items/{item_id}` | Update item - redirects to entitybase endpoint |
 | ❌ | GET | `/wikibase/v1/entities/items/{item_id}/aliases` | Get item aliases - stub |
 | ❌ | GET | `/wikibase/v1/entities/items/{item_id}/aliases/{language_code}` | Get item aliases for language - stub |
 | ❌ | PUT | `/wikibase/v1/entities/items/{item_id}/aliases/{language_code}` | Set item aliases for language - stub |
@@ -38,12 +38,12 @@
 | ❌ | GET | `/wikibase/v1/entities/items/{item_id}/properties` | Get item properties - stub |
 | ❌ | POST | `/wikibase/v1/entities/items/{item_id}/properties` | Add item property - stub |
 | ❌ | GET | `/wikibase/v1/entities/items/{item_id}/sitelinks` | Get item sitelinks - stub |
-| ❌ | POST | `/wikibase/v1/entities/lexemes` | Create lexeme - redirects to entitybase endpoint |
-| ❌ | GET | `/wikibase/v1/entities/lexemes/{lexeme_id}` | Get lexeme |
-| ❌ | PUT | `/wikibase/v1/entities/lexemes/{lexeme_id}` | Update lexeme - stub |
-| ❌ | POST | `/wikibase/v1/entities/properties` | Create property - redirects to entitybase endpoint |
-| ❌ | GET | `/wikibase/v1/entities/properties/{property_id}` | Get property |
-| ❌ | PUT | `/wikibase/v1/entities/properties/{property_id}` | Update property - stub |
+| ✅ | POST | `/wikibase/v1/entities/lexemes` | Create lexeme - redirects to entitybase endpoint |
+| ✅ | GET | `/wikibase/v1/entities/lexemes/{lexeme_id}` | Get lexeme |
+| ✅ | PUT | `/wikibase/v1/entities/lexemes/{lexeme_id}` | Update lexeme - redirects to entitybase endpoint |
+| ✅ | POST | `/wikibase/v1/entities/properties` | Create property - redirects to entitybase endpoint |
+| ✅ | GET | `/wikibase/v1/entities/properties/{property_id}` | Get property |
+| ✅ | PUT | `/wikibase/v1/entities/properties/{property_id}` | Update property - redirects to entitybase endpoint |
 | ❌ | GET | `/wikibase/v1/entities/properties/{property_id}/aliases` | Get property aliases - stub |
 | ❌ | GET | `/wikibase/v1/entities/properties/{property_id}/aliases/{language_code}` | Get property aliases for language - stub |
 | ❌ | PUT | `/wikibase/v1/entities/properties/{property_id}/aliases/{language_code}` | Set property aliases for language - stub |
@@ -63,6 +63,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 16 |
-| Not Implemented | 42 |
+| Implemented | 25 |
+| Not Implemented | 33 |
 | Total | 58 |

@@ -56,8 +56,8 @@ def extract_endpoints_from_file(file_path: Path) -> list[dict[str, Any]]:
                 doc = doc_match.group(1).strip().split("\n")[0]  # First line
                 description = doc[:100]  # Truncate to 100 chars
 
-        # Determine if implemented (default true, check for stubs)
-        implemented = not (
+        # Determine if implemented (default true, check for stubs or redirects)
+        implemented = "RedirectResponse" in func_body or not (
             "status_code=501" in func_body or "Not implemented" in func_body
         )
 

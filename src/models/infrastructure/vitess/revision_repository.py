@@ -25,6 +25,9 @@ class RevisionRepository:
             statements = data.get("statements", [])
             properties = data.get("properties", [])
             property_counts = data.get("property_counts", {})
+            labels_hash = data.get("labels_hash")
+            descriptions_hash = data.get("descriptions_hash")
+            aliases_hash = data.get("aliases_hash")
 
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -35,7 +38,7 @@ class RevisionRepository:
                     return
 
                 cursor.execute(
-                    "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                    "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hash, descriptions_hash, aliases_hash) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (
                         internal_id,
                         revision_id,
@@ -44,6 +47,9 @@ class RevisionRepository:
                         json.dumps(statements or []),
                         json.dumps(properties or []),
                         json.dumps(property_counts or {}),
+                        labels_hash,
+                        descriptions_hash,
+                        aliases_hash,
                     ),
                 )
 

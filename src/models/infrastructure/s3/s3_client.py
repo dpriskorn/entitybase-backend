@@ -317,3 +317,49 @@ class S3Client(Client):
             Metadata={"publication_state": "published"},
         )
         return revision_id
+
+    def store_metadata(
+        self, metadata_type: str, content_hash: int, metadata: Any
+    ) -> None:
+        """Store metadata content in S3 with deduplication."""
+        key = f"metadata/{metadata_type}/{content_hash}.json"
+        self.connection_manager.boto_client.put_object(
+            Bucket=self.config.bucket,
+            Key=key,
+            Body=json.dumps(metadata),
+            Metadata={"content_type": metadata_type, "content_hash": str(content_hash)},
+        )
+        logger.debug(f"S3 store_metadata: bucket={self.config.bucket}, key={key}")
+
+    def load_metadata(self, metadata_type: str, content_hash: int) -> Any:
+        """Load metadata content from S3."""
+        key = f"metadata/{metadata_type}/{content_hash}.json"
+        try:
+            response = self.connection_manager.boto_client.get_object(
+                Bucket=self.config.bucket, Key=key
+            )
+            content = response["Body"].read()
+            return json.loads(content)
+        except self.connection_manager.boto_client.exceptions.NoSuchKey:
+            logger.warning(
+                f"S3 metadata not found: bucket={self.config.bucket}, key={key}"
+            )
+            return {}
+        except Exception as e:
+            logger.error(
+                f"S3 load_metadata failed: bucket={self.config.bucket}, key={key}, error={e}"
+            )
+            return {}
+
+    def delete_metadata(self, metadata_type: str, content_hash: int) -> None:
+        """Delete metadata content from S3 when ref_count reaches 0."""
+        key = f"metadata/{metadata_type}/{content_hash}.json"
+        try:
+            self.connection_manager.boto_client.delete_object(
+                Bucket=self.config.bucket, Key=key
+            )
+            logger.debug(f"S3 delete_metadata: bucket={self.config.bucket}, key={key}")
+        except Exception as e:
+            logger.error(
+                f"S3 delete_metadata failed: bucket={self.config.bucket}, key={key}, error={e}"
+            )
