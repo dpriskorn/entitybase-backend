@@ -3,7 +3,6 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, Field
 
-from typing import Optional
 
 from fastapi import Response
 
@@ -44,11 +43,11 @@ class EditType(Enum):
 class EntityCreateRequest(BaseModel):
     id: str = Field(..., description="Entity ID (e.g., Q42)")
     type: str = Field(default="item", description="Entity type")
-    labels: Optional[Dict[str, Dict[str, str]]] = None
-    descriptions: Optional[Dict[str, Dict[str, str]]] = None
-    claims: Optional[Dict[str, Any]] = None
-    aliases: Optional[Dict[str, Any]] = None
-    sitelinks: Optional[Dict[str, Any]] = None
+    labels: Dict[str, Dict[str, str]] = {}
+    descriptions: Dict[str, Dict[str, str]] = {}
+    claims: Dict[str, Any] = {}
+    aliases: Dict[str, Any] = {}
+    sitelinks: Dict[str, Any] = {}
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     edit_type: EditType = Field(
         default=EditType.UNSPECIFIED,
@@ -275,11 +274,11 @@ class EntityUpdateRequest(BaseModel):
     """Request model for updating an entity."""
 
     type: str = Field(default="item", description="Entity type")
-    labels: Dict[str, Dict[str, str]] | None = None
-    descriptions: Dict[str, Dict[str, str]] | None = None
-    claims: Dict[str, Any] | None = None
-    aliases: Dict[str, Any] | None = None
-    sitelinks: Dict[str, Any] | None = None
+    labels: Dict[str, Dict[str, str]] = {}
+    descriptions: Dict[str, Dict[str, str]] = {}
+    claims: Dict[str, Any] = {}
+    aliases: Dict[str, Any] = {}
+    sitelinks: Dict[str, Any] = {}
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     edit_type: EditType = Field(
         default=EditType.UNSPECIFIED,

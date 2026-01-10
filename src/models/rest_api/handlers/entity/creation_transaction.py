@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 from abc import ABC, abstractmethod
-from typing import List, Callable, Optional, Any
+from typing import List, Callable, Any
 import logging
 
 from models.api_models import StatementHashResult
@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class EntityTransaction(BaseModel, ABC):
     """Base class for entity transactions with shared rollback logic."""
 
-    entity_id: Optional[str] = None
+    entity_id: str = ""
     operations: List[Callable[[], None]] = Field(default_factory=list)
     statement_hashes: List[int] = Field(default_factory=list)
 
@@ -57,11 +57,11 @@ class EntityTransaction(BaseModel, ABC):
         entity_id: str,
         revision_id: int,
         change_type: Any,
-        from_revision_id: Optional[int],
         changed_at: Any,
-        editor: Optional[str],
-        edit_summary: Optional[str],
         stream_producer: Any,
+        from_revision_id: int = 0,
+        editor: str = "",
+        edit_summary: str = "",
     ) -> None:
         pass
 
@@ -194,11 +194,11 @@ class CreationTransaction(EntityTransaction):
         entity_id: str,
         revision_id: int,
         change_type: Any,
-        from_revision_id: Optional[int],
         changed_at: Any,
-        editor: Optional[str],
-        edit_summary: Optional[str],
         stream_producer: Any,
+        from_revision_id: int = 0,
+        editor: str = "",
+        edit_summary: str = "",
     ) -> None:
         logger.info(f"[CreationTransaction] Starting event publishing for {entity_id}")
         if stream_producer:

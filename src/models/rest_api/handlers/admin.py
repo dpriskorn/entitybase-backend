@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from models.api_models import (
     EntityListResponse,
@@ -17,7 +17,7 @@ class AdminHandler:
     def list_entities(
         self,
         vitess_client: VitessClient,
-        entity_type: Optional[str] = None,
+        entity_type: str = "",
         limit: int = 100,
         offset: int = 0,
     ) -> EntityListResponse:
