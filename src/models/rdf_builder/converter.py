@@ -11,6 +11,7 @@ from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
 from models.rdf_builder.entity_cache import load_entity_metadata
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 from models.rdf_builder.redirect_cache import load_entity_redirects
+from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
@@ -123,10 +124,12 @@ class EntityConverter:
         from models.json_parser.entity_parser import parse_entity
 
         if not self.entity_metadata_dir:
-            raise FileNotFoundError(
-                f"No entity_metadata_dir set, cannot load {entity_id}"
+            raise_validation_error(
+                f"No entity_metadata_dir set, cannot load {entity_id}",
+                exception_class=ValueError,
             )
 
+        assert self.entity_metadata_dir is not None
         entity_json = load_entity_metadata(entity_id, self.entity_metadata_dir)
         return parse_entity(entity_json)
 
@@ -140,7 +143,7 @@ class EntityConverter:
         for entity_id in sorted(referenced_ids):
             try:
                 ref_entity = self._load_referenced_entity(entity_id)
-            except FileNotFoundError:
+            except Exception:
                 logger.warning(
                     f"Metadata file not found for referenced entity {entity_id}"
                 )

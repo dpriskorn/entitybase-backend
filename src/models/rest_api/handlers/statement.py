@@ -11,7 +11,7 @@ from models.api_models import (
     StatementBatchResponse,
     StatementResponse,
 )
-from models.config.settings import raise_validation_error
+from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 

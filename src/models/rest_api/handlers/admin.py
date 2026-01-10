@@ -1,12 +1,12 @@
 import logging
-from typing import Any, Optional
+from typing import Any, Optional, cast
 
 from models.api_models import (
     CleanupOrphanedRequest,
     CleanupOrphanedResponse,
     EntityListResponse,
 )
-from models.config.settings import raise_validation_error
+from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 
@@ -167,4 +167,4 @@ class AdminHandler:
             )
 
         # Return full revision as-is (no transformation)
-        return revision
+        return cast(dict[str, Any], revision)

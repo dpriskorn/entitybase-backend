@@ -4,7 +4,7 @@ from typing import Any, Dict
 import logging
 from botocore.exceptions import ClientError
 from pydantic import Field
-from models.config.settings import raise_validation_error
+from models.validation.utils import raise_validation_error
 
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager

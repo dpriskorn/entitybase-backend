@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING, Any, Dict
 from fastapi import HTTPException
 from rapidhash import rapidhash
 
-from models.config.settings import raise_validation_error, settings
+from models.config.settings import settings
+from models.validation.utils import raise_validation_error
 from models.api_models import (
     EditType,
     EntityCreateRequest,

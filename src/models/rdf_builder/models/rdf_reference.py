@@ -1,7 +1,6 @@
 from models.internal_representation.references import Reference
 
-
-from models.config.settings import raise_validation_error
+from models.validation.utils import raise_validation_error
 
 
 class RDFReference:

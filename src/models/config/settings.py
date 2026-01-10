@@ -62,16 +62,5 @@ class Settings(BaseSettings):
         )
 
 
-def raise_validation_error(message: str, status_code: int = 400) -> None:
-    """Raise ValueError or HTTPException based on ENVIRONMENT envvar."""
-    from fastapi import HTTPException
-
-    is_prod = os.getenv("ENVIRONMENT", "dev").lower() == "prod"
-    if is_prod:
-        raise HTTPException(status_code=status_code, detail=message)
-    else:
-        raise ValueError(message)
-
-
 # noinspection PyArgumentList
 settings = Settings()

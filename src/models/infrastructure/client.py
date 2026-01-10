@@ -1,7 +1,7 @@
 from abc import ABC
 
 from pydantic import BaseModel, ConfigDict, Field
-from models.config.settings import raise_validation_error
+from models.validation.utils import raise_validation_error
 
 from models.infrastructure.config import Config
 from models.infrastructure.connection import ConnectionManager

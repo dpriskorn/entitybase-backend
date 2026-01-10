@@ -1,6 +1,7 @@
 from typing import Any, Dict
 
-from models.config.settings import raise_validation_error
+
+from models.validation.utils import raise_validation_error
 
 from models.api_models import EntityResponse
 from models.infrastructure.s3.s3_client import S3Client
@@ -53,7 +54,7 @@ class EntityReadHandler:
             raise_validation_error("Failed to read entity", status_code=500)
 
     @staticmethod
-    def get_entity_history(
+    def get_entity_history(  # type: ignore[return]
         entity_id: str,
         vitess_client: VitessClient,
         s3_client: S3Client,
@@ -80,7 +81,7 @@ class EntityReadHandler:
             raise_validation_error("Failed to get entity history", status_code=500)
 
     @staticmethod
-    def get_entity_revision(
+    def get_entity_revision(  # type: ignore[return]
         entity_id: str,
         revision_id: int,
         s3_client: S3Client,

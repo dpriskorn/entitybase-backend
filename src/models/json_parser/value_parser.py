@@ -1,6 +1,6 @@
 from typing import Any
 
-from models.config.settings import raise_validation_error
+from ..validation.utils import raise_validation_error
 from models.internal_representation.values.base import Value
 
 from .values.entity_value_parser import parse_entity_value
@@ -56,6 +56,8 @@ def parse_value(snak_json: dict[str, Any]) -> Value:
         )
 
     datavalue = snak_json.get(JsonField.DATAVALUE.value, {})
+    if not datavalue or not isinstance(datavalue, dict):
+        raise_validation_error("Invalid or empty datavalue in snak")
     datatype = snak_json.get(JsonField.DATATYPE.value)
     datavalue_type = datavalue.get("type", datatype)
 
@@ -64,4 +66,5 @@ def parse_value(snak_json: dict[str, Any]) -> Value:
         raise_validation_error(
             f"Unsupported value type: {datavalue_type}, datatype: {datatype}"
         )
+    assert parser is not None
     return parser(datavalue)

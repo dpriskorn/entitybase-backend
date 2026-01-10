@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 
-from models.config.settings import raise_validation_error
+from models.validation.utils import raise_validation_error
 
 from models.api_models import EntityUpdateRequest, EntityResponse
 from models.infrastructure.s3.s3_client import S3Client

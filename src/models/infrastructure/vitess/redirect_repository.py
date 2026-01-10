@@ -1,6 +1,6 @@
 from typing import Any
 
-from models.config.settings import raise_validation_error
+from models.validation.utils import raise_validation_error
 
 
 class RedirectRepository:

@@ -1,4 +1,4 @@
-from models.config.settings import raise_validation_error
+from models.validation.utils import raise_validation_error
 from models.rdf_builder.property_registry.models import (
     PropertyShape,
     PropertyPredicates,

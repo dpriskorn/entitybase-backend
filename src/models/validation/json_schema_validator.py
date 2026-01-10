@@ -1,9 +1,9 @@
 import json
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
-from models.config.settings import raise_validation_error
+from models.validation.utils import raise_validation_error
 from jsonschema import Draft202012Validator
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ class JsonSchemaValidator:
                     f"Schema file must contain a JSON object: {schema_path}",
                     status_code=500,
                 )
-            return data
+            return cast(dict[str, Any], data)
 
     def _get_entity_revision_schema(self) -> dict:
         if self._entity_revision_schema is None:

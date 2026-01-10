@@ -1,4 +1,4 @@
-from models.config.settings import raise_validation_error
+from ...validation.utils import raise_validation_error
 from models.infrastructure.vitess_client import VitessClient
 from .id_range_manager import IdRangeManager
 

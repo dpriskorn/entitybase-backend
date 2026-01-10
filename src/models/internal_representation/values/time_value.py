@@ -2,7 +2,7 @@ import re
 
 from pydantic import ConfigDict, Field, field_validator
 from typing_extensions import Literal
-from models.config.settings import raise_validation_error
+from ...validation.utils import raise_validation_error
 from .base import Value
 
 

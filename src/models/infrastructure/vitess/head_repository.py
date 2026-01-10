@@ -2,7 +2,7 @@ from typing import Any
 
 import pymysql
 
-from models.config.settings import raise_validation_error
+from models.validation.utils import raise_validation_error
 
 
 class HeadRepository:

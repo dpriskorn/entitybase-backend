@@ -8,7 +8,8 @@ from pydantic import BaseModel
 from rapidhash import rapidhash
 
 from models.api_models import EditType, EntityResponse, StatementHashResult
-from models.config.settings import raise_validation_error, settings
+from models.config.settings import settings
+from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import (
     ChangeType,
