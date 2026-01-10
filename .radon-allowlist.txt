@@ -49,6 +49,7 @@ write_header
 write_property
 write_statement
 delete_backlinks_for_entity
+delete_statement
 get_backlinks
 health_check
 insert_backlinks
