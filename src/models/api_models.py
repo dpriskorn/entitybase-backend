@@ -3,10 +3,9 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, Field
 
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import Response
-from pydantic import ConfigDict
 
 
 class EditType(Enum):
@@ -70,43 +69,6 @@ class EntityCreateRequest(BaseModel):
     )
     edit_summary: str = Field(default="", description="Edit summary for this change")
     editor: str = Field(default="", description="Editor who made this change")
-
-    @property
-    def data(self) -> Dict[str, Any]:
-        return self.model_dump(exclude_unset=True)
-
-
-class ItemUpdateRequest(BaseModel):
-    """Request model for updating an existing Wikibase item."""
-
-    type: str = Field(default="item", description="Entity type (must be 'item')")
-    labels: Optional[Dict[str, Dict[str, str]]] = None
-    descriptions: Optional[Dict[str, Dict[str, str]]] = None
-    claims: Optional[Dict[str, List]] = None
-    aliases: Optional[Dict[str, List]] = None
-    sitelinks: Optional[Dict[str, Any]] = None
-    is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
-    edit_type: EditType = Field(
-        default=EditType.UNSPECIFIED,
-        description="Classification of edit type",
-    )
-    is_semi_protected: bool = Field(default=False, description="Item is semi-protected")
-    is_locked: bool = Field(default=False, description="Item is locked from edits")
-    is_archived: bool = Field(default=False, description="Item is archived")
-    is_dangling: bool = Field(
-        default=False,
-        description="Item has no maintaining WikiProject (computed by frontend)",
-    )
-    is_mass_edit_protected: bool = Field(
-        default=False, description="Item is protected from mass edits"
-    )
-    is_not_autoconfirmed_user: bool = Field(
-        default=False, description="User is not autoconfirmed (new/unconfirmed account)"
-    )
-    edit_summary: str = Field(default="", description="Edit summary for this change")
-    editor: str = Field(default="", description="Editor who made this change")
-
-    model_config = ConfigDict(extra="allow")
 
     @property
     def data(self) -> Dict[str, Any]:
