@@ -177,7 +177,9 @@ class EntityHandler(BaseModel):
         try:
             # Archived items block all edits
             if protection_info.get("is_archived", False):
-                raise_validation_error("Item is archived and cannot be edited", status_code=403)
+                raise_validation_error(
+                    "Item is archived and cannot be edited", status_code=403
+                )
 
             # Locked items block all edits
             if protection_info.get("is_locked", False):
@@ -185,7 +187,9 @@ class EntityHandler(BaseModel):
 
             # Mass-edit protection blocks mass edits only
             if protection_info.get("is_mass_edit_protected", False) and is_mass_edit:
-                raise_validation_error("Mass edits blocked on this item", status_code=403)
+                raise_validation_error(
+                    "Mass edits blocked on this item", status_code=403
+                )
 
             # Semi-protection blocks not-autoconfirmed users
             if (

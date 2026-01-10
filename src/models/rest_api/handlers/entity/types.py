@@ -145,7 +145,9 @@ class PropertyCreateHandler(EntityHandler):
         # Check deletion status
         is_deleted = vitess_client.is_entity_deleted(entity_id)
         if is_deleted:
-            raise_validation_error(f"Property {entity_id} has been deleted", status_code=410)
+            raise_validation_error(
+                f"Property {entity_id} has been deleted", status_code=410
+            )
 
         # Common processing logic
         return await self._process_entity_revision(

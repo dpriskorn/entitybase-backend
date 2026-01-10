@@ -56,7 +56,9 @@ class StatementHandler:
                     "s3_client_initialized": s3_client is not None,
                 },
             )
-            raise_validation_error(f"Statement {content_hash} not found", status_code=404)
+            raise_validation_error(
+                f"Statement {content_hash} not found", status_code=404
+            )
 
     def get_statements_batch(
         self, request: StatementBatchRequest, s3_client: S3Client
@@ -110,7 +112,9 @@ class StatementHandler:
         )
 
         if not revision_record:
-            raise_validation_error("Head revision not found in history", status_code=404)
+            raise_validation_error(
+                "Head revision not found in history", status_code=404
+            )
 
         revision_metadata = s3_client.read_full_revision(entity_id, head_revision_id)
         properties = revision_metadata.get("properties", [])
@@ -179,7 +183,9 @@ class StatementHandler:
                 if property_id in requested_property_ids:
                     matching_hashes.append(statement_hash)
             except Exception as e:
-                raise_validation_error(f"Failed to read statement {statement_hash}: {e}", status_code=500)
+                raise_validation_error(
+                    f"Failed to read statement {statement_hash}: {e}", status_code=500
+                )
 
         return PropertyHashesResponse(property_hashes=matching_hashes)
 

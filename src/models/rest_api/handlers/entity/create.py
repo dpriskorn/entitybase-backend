@@ -35,7 +35,10 @@ class EntityCreateHandler(EntityHandler):
         # Auto-assign ID if requested (for type-specific endpoints)
         if auto_assign_id:
             if self.enumeration_service is None:
-                raise_validation_error("Enumeration service not available", status_code=500)
+                raise_validation_error(
+                    "Enumeration service not available", status_code=500
+                )
+            assert self.enumeration_service is not None
             entity_id = self.enumeration_service.get_next_entity_id(request.type)
             request.id = entity_id
             # Add ID to request data
@@ -70,7 +73,9 @@ class EntityCreateHandler(EntityHandler):
         # Check deletion status
         is_deleted = vitess_client.is_entity_deleted(entity_id)
         if is_deleted:
-            raise_validation_error(f"Entity {entity_id} has been deleted", status_code=410)
+            raise_validation_error(
+                f"Entity {entity_id} has been deleted", status_code=410
+            )
 
         # Common processing logic
         return await self._process_entity_revision(

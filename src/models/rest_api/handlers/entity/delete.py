@@ -52,7 +52,9 @@ class EntityDeleteHandler:
 
         # Check if entity is already deleted
         if vitess_client.is_entity_deleted(entity_id):
-            raise_validation_error(f"Entity {entity_id} has been deleted", status_code=410)
+            raise_validation_error(
+                f"Entity {entity_id} has been deleted", status_code=410
+            )
 
         head_revision_id = vitess_client.get_head(entity_id)
         if head_revision_id == 0:
@@ -67,7 +69,9 @@ class EntityDeleteHandler:
         try:
             # Archived items block all edits
             if protection_info.get("is_archived", False):
-                raise_validation_error("Item is archived and cannot be edited", status_code=403)
+                raise_validation_error(
+                    "Item is archived and cannot be edited", status_code=403
+                )
 
             # Locked items block all edits
             if protection_info.get("is_locked", False):

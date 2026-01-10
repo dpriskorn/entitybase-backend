@@ -75,7 +75,9 @@ class AdminHandler:
                 errors=errors,
             )
         except Exception as e:
-            raise_validation_error(f"Error during orphaned statement cleanup: {e}", status_code=500)
+            raise_validation_error(
+                f"Error during orphaned statement cleanup: {e}", status_code=500
+            )
 
     def list_entities(
         self,
@@ -104,7 +106,9 @@ class AdminHandler:
         elif edit_type:
             entities = []  # vitess_client.list_by_edit_type(edit_type, limit)
         else:
-            raise_validation_error("Must provide status or edit_type filter", status_code=400)
+            raise_validation_error(
+                "Must provide status or edit_type filter", status_code=400
+            )
 
         return EntityListResponse(entities=entities, count=len(entities))
 
@@ -130,12 +134,16 @@ class AdminHandler:
 
         # Check if entity exists and get history
         if not vitess_client.entity_exists(entity_id):
-            raise_validation_error(f"Entity {entity_id} not found in ID mapping", status_code=404)
+            raise_validation_error(
+                f"Entity {entity_id} not found in ID mapping", status_code=404
+            )
 
         # Check if revisions exist for entity
         history = vitess_client.get_history(entity_id)
         if not history:
-            raise_validation_error(f"Entity {entity_id} has no revisions", status_code=404)
+            raise_validation_error(
+                f"Entity {entity_id} has no revisions", status_code=404
+            )
 
         # Check if requested revision exists
         revision_ids = sorted([r.revision_id for r in history])
@@ -153,7 +161,10 @@ class AdminHandler:
 
         # Type assertion to ensure MyPy compatibility
         if not isinstance(revision, dict):
-            raise_validation_error(f"Invalid revision data type: expected dict, got {type(revision)}", status_code=500)
+            raise_validation_error(
+                f"Invalid revision data type: expected dict, got {type(revision)}",
+                status_code=500,
+            )
 
         # Return full revision as-is (no transformation)
         return revision

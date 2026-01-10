@@ -25,7 +25,9 @@ class ItemUpdateHandler(EntityUpdateHandler):
         """Update an existing item with validation that entity_id starts with Q."""
         # Validate entity type (must be item)
         if not entity_id.startswith("Q"):
-            raise_validation_error("Entity ID must be an item (start with Q)", status_code=400)
+            raise_validation_error(
+                "Entity ID must be an item (start with Q)", status_code=400
+            )
 
         # Delegate to parent implementation
         return await super().update_entity(

@@ -51,7 +51,9 @@ class RedirectService:
         if self.vitess.is_entity_locked(
             request.redirect_to_id
         ) or self.vitess.is_entity_archived(request.redirect_to_id):
-            raise_validation_error("Target entity is locked or archived", status_code=423)
+            raise_validation_error(
+                "Target entity is locked or archived", status_code=423
+            )
 
         to_head_revision_id = self.vitess.get_head(request.redirect_to_id)
         if to_head_revision_id == 0:
