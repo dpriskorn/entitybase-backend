@@ -1,4 +1,4 @@
-# Guiding principles for new wikibase-backend
+# Guiding principles for new entitybase -backend
 
 - Keep it simple, stupid 
 - Less is more
@@ -28,9 +28,9 @@
 - no backward compability
 - never use Optional for typing
 - str defaults to "" and never None
+- use pydantic models for all dict-style returns from functions
 
 # Current task
-fix
-- never use Optional for typing
-- str defaults to "" and never None
+fix pydantic models for all dict-style returns from functions
+lets work on supporting backlinks, we need a new table and find all qids in statements
 fix lint errors and warnings
