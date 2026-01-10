@@ -55,8 +55,6 @@ class HeadRepository:
             affected_rows = int(cursor.rowcount)
             return affected_rows > 0
 
-
-
     def hard_delete(self, conn: Any, entity_id: str, head_revision_id: int) -> None:
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:

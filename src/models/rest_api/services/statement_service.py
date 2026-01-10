@@ -3,7 +3,6 @@ import logging
 from datetime import datetime, timezone
 from typing import Any
 
-from rapidhash import rapidhash
 
 from models.api_models import StatementHashResult
 from models.rest_api.utils import raise_or_convert_to_500
@@ -11,6 +10,8 @@ from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.s3_models import StoredStatement
 from models.validation.json_schema_validator import JsonSchemaValidator
+from models.internal_representation.statement_extractor import StatementExtractor
+from models.internal_representation.statement_hasher import StatementHasher
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +26,6 @@ def hash_entity_statements(
     """
     statements = []
     full_statements = []
-    properties_set = set()
-    property_counts = {}
 
     claims = entity_data.get("claims", {})
     logger.debug(f"Entity claims: {claims}")
@@ -34,6 +33,9 @@ def hash_entity_statements(
     if not claims:
         logger.debug("No claims found in entity data")
         return StatementHashResult()
+
+    properties = StatementExtractor.extract_properties_from_claims(claims)
+    property_counts = StatementExtractor.compute_property_counts_from_claims(claims)
 
     claims_count = sum(len(claim_list) for claim_list in claims.values())
     logger.debug(
@@ -49,24 +51,20 @@ def hash_entity_statements(
             logger.debug(f"Empty claim list for property {property_id}")
             continue
 
-        properties_set.add(property_id)
-        count = 0
+        count = len(claim_list)
 
         for idx, statement in enumerate(claim_list):
             logger.debug(
                 f"Processing statement {idx + 1}/{len(claim_list)} for property {property_id}"
             )
             try:
-                statement_for_hash = {k: v for k, v in statement.items() if k != "id"}
-                statement_json = json.dumps(statement_for_hash, sort_keys=True)
-                statement_hash = rapidhash(statement_json.encode())
+                statement_hash = StatementHasher.compute_hash(statement)
                 logger.debug(
                     f"Generated hash {statement_hash} for statement {idx + 1} in property {property_id}"
                 )
 
                 statements.append(statement_hash)
                 full_statements.append(statement)
-                count += 1
             except Exception as e:
                 logger.error(
                     f"Failed to hash statement {idx + 1} for property {property_id}: {e}",
@@ -75,17 +73,14 @@ def hash_entity_statements(
                 logger.error(f"Statement data: {statement}")
                 raise_or_convert_to_500(e, f"Failed to hash statement: {e}")
 
-        property_counts[property_id] = count
         logger.debug(f"Property {property_id}: processed {count} statements")
 
-    logger.debug(
-        f"Generated {len(statements)} hashes, properties: {sorted(properties_set)}"
-    )
+    logger.debug(f"Generated {len(statements)} hashes, properties: {properties}")
     logger.debug(f"Property counts: {property_counts}")
 
     return StatementHashResult(
         statements=statements,
-        properties=sorted(properties_set),
+        properties=properties,
         property_counts=property_counts,
         full_statements=full_statements,
     )

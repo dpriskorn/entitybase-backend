@@ -1,13 +1,12 @@
 import json
+from typing import Any
 
 from rapidhash import rapidhash
-
-from models.internal_representation.statements import Statement
 
 
 class StatementHasher:
     @staticmethod
-    def compute_hash(statement: Statement) -> int:
+    def compute_hash(statement_dict: dict[str, Any]) -> int:
         """Compute rapidhash of full statement JSON (mainsnak + qualifiers + references)
 
         Hash includes:
@@ -18,14 +17,14 @@ class StatementHasher:
         - references (sources)
 
         Hash excludes:
-        - statement_id (GUID, not content)
+        - id (GUID, not content)
 
         Args:
-            statement: Statement object to hash
+            statement_dict: Statement dict to hash
 
         Returns:
             64-bit rapidhash integer
         """
-        statement_dict = statement.model_dump(exclude={"statement_id"})
-        canonical_json = json.dumps(statement_dict, sort_keys=True)
+        statement_for_hash = {k: v for k, v in statement_dict.items() if k != "id"}
+        canonical_json = json.dumps(statement_for_hash, sort_keys=True)
         return rapidhash(canonical_json.encode())

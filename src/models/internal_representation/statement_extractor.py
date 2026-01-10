@@ -1,31 +1,30 @@
-from collections import Counter
-
-from models.internal_representation.entity import Entity
-
-
 class StatementExtractor:
     @staticmethod
-    def extract_properties(entity: Entity) -> list[str]:
-        """Extract unique property IDs from entity statements
+    def extract_properties_from_claims(claims: dict[str, list]) -> list[str]:
+        """Extract unique property IDs from raw claims dict
 
         Args:
-            entity: Entity with statements
+            claims: Dict mapping property ID to list of statements
 
         Returns:
-            Sorted list of unique property IDs (e.g., ["P31", "P569", "P19"])
+            Sorted list of unique property IDs with non-empty claim lists
         """
-        properties = {stmt.property for stmt in entity.statements}
-        return sorted(properties)
+        return sorted(
+            [property_id for property_id, claim_list in claims.items() if claim_list]
+        )
 
     @staticmethod
-    def compute_property_counts(entity: Entity) -> dict[str, int]:
-        """Count statements per property
+    def compute_property_counts_from_claims(claims: dict[str, list]) -> dict[str, int]:
+        """Count statements per property from raw claims dict
 
         Args:
-            entity: Entity with statements
+            claims: Dict mapping property ID to list of statements
 
         Returns:
-            Dict mapping property ID -> statement count (e.g., {"P31": 2, "P569": 1})
+            Dict mapping property ID -> statement count for non-empty claim lists
         """
-        counter = Counter(stmt.property for stmt in entity.statements)
-        return dict(counter)
+        return {
+            property_id: len(claim_list)
+            for property_id, claim_list in claims.items()
+            if claim_list
+        }
