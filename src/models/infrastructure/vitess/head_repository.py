@@ -1,3 +1,4 @@
+import pymysql
 from typing import Any
 
 from fastapi import HTTPException

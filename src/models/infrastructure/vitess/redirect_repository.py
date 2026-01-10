@@ -1,5 +1,7 @@
 from typing import Any
 
+from fastapi import HTTPException
+
 
 class RedirectRepository:
     def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
@@ -11,7 +13,7 @@ class RedirectRepository:
     ) -> None:
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            raise ValueError(f"Entity {entity_id} not found")
+            raise HTTPException(status_code=404, detail=f"Entity {entity_id} not found")
 
         redirects_to_internal_id = None
         if redirects_to_entity_id:
@@ -19,7 +21,7 @@ class RedirectRepository:
                 conn, redirects_to_entity_id
             )
             if not redirects_to_internal_id:
-                raise ValueError(f"Entity {redirects_to_entity_id} not found")
+                raise HTTPException(status_code=404, detail=f"Entity {redirects_to_entity_id} not found")
 
         with conn.cursor() as cursor:
             cursor.execute(
@@ -42,9 +44,9 @@ class RedirectRepository:
         )
 
         if not redirect_from_internal_id:
-            raise ValueError(f"Source entity {redirect_from_entity_id} not found")
+            raise HTTPException(status_code=404, detail=f"Source entity {redirect_from_entity_id} not found")
         if not redirect_to_internal_id:
-            raise ValueError(f"Target entity {redirect_to_entity_id} not found")
+            raise HTTPException(status_code=404, detail=f"Target entity {redirect_to_entity_id} not found")
 
         with conn.cursor() as cursor:
             cursor.execute(
