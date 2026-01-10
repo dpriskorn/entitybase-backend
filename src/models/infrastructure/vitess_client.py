@@ -209,32 +209,6 @@ class VitessClient(Client):
                 is_redirect,
             )
 
-    def insert_head_with_status(
-        self,
-        entity_id: str,
-        head_revision_id: int,
-        is_semi_protected: bool,
-        is_locked: bool,
-        is_archived: bool,
-        is_dangling: bool,
-        is_mass_edit_protected: bool,
-        is_deleted: bool,
-        is_redirect: bool = False,
-    ) -> bool:
-        with self.connection_manager.get_connection() as conn:
-            return self.head_repository.insert_with_status(  # type: ignore[no-any-return]
-                conn,
-                entity_id,
-                head_revision_id,
-                is_semi_protected,
-                is_locked,
-                is_archived,
-                is_dangling,
-                is_mass_edit_protected,
-                is_deleted,
-                is_redirect,
-            )
-
     def hard_delete_entity(
         self,
         entity_id: str,

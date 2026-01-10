@@ -1,6 +1,5 @@
 from typing import Any
 
-import pymysql
 
 from models.validation.utils import raise_validation_error
 
@@ -56,45 +55,7 @@ class HeadRepository:
             affected_rows = int(cursor.rowcount)
             return affected_rows > 0
 
-    def insert_with_status(
-        self,
-        conn: Any,
-        entity_id: str,
-        head_revision_id: int,
-        is_semi_protected: bool,
-        is_locked: bool,
-        is_archived: bool,
-        is_dangling: bool,
-        is_mass_edit_protected: bool,
-        is_deleted: bool,
-        is_redirect: bool = False,
-    ) -> bool:
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
-        if not internal_id:
-            return False
 
-        try:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """INSERT INTO entity_head
-                           (internal_id, head_revision_id, is_semi_protected, is_locked,
-                            is_archived, is_dangling, is_mass_edit_protected, is_deleted, is_redirect)
-                           VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                    (
-                        internal_id,
-                        head_revision_id,
-                        is_semi_protected,
-                        is_locked,
-                        is_archived,
-                        is_dangling,
-                        is_mass_edit_protected,
-                        is_deleted,
-                        is_redirect,
-                    ),
-                )
-                return True
-        except pymysql.IntegrityError:
-            return False
 
     def hard_delete(self, conn: Any, entity_id: str, head_revision_id: int) -> None:
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
