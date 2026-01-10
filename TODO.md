@@ -1,5 +1,4 @@
 # TODO
-# todo
 add stream production to each API operation including tests
 split large files approaching 1k lines
 move entity endpoints out of main.py

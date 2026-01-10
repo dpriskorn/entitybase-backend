@@ -33,6 +33,12 @@ src/schemas/
 │       │   └── schema.json
 │       └── latest/
 │           └── latest.json -> ../1.0.0/schema.json
+└── wikibase/
+    └── entity/           # Wikibase REST API entity schemas
+        ├── 1.0.0/
+        │   └── schema.json
+        └── latest/
+            └── latest.json -> ../1.0.0/schema.json
 ```
 
 ## Rules
@@ -100,3 +106,11 @@ Statement data stored in S3.
 Version: `1.0.0` (latest: `latest` symlink)
 
 See `entitybase/s3-statement/` directory.
+
+### Wikibase Entity Schema
+
+JSON Schema for Wikibase REST API entity objects.
+
+Version: `1.0.0` (latest: `latest` symlink)
+
+See `wikibase/entity/` directory.
