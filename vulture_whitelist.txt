@@ -1,11 +1,3 @@
-models.rest_api.handlers.admin_handler.AdminHandler.list_entities
-models.infrastructure.vitess.VitessClient._resolve_id
-models.infrastructure.vitess_client.VitessClient._resolve_id
-models.infrastructure.vitess_client.VitessClient.list_locked_entities
-models.infrastructure.vitess_client.VitessClient.list_semi_protected_entities
-models.infrastructure.vitess_client.VitessClient.list_archived_entities
-models.infrastructure.vitess_client.VitessClient.list_dangling_entities
-models.infrastructure.vitess_client.VitessClient.list_by_edit_type
 models.api_models.LOCK_ADDED
 models.api_models.LOCK_REMOVED
 models.api_models.SEMI_PROTECTION_ADDED
@@ -42,11 +34,7 @@ models.rest_api.main.health_check_endpoint
 models.rest_api.main.validation_error_handler
 models.rest_api.main_original.status_code
 models.infrastructure.s3_client.model_config
-models.infrastructure.s3_client.S3Client.write_entity_revision
 models.infrastructure.vitess_client.model_config
-models.infrastructure.vitess_client.VitessClient.write_entity_revision
-models.infrastructure.vitess.VitessClient.insert_head_with_status
-models.infrastructure.vitess_client.VitessClient.insert_head_with_status
 models.internal_representation.datatypes.WIKIBASE_ITEM
 models.internal_representation.datatypes.GLOBOCOORDINATE
 models.internal_representation.datatypes.MONOLINGUALTEXT
@@ -62,11 +50,6 @@ models.internal_representation.ranks.PREFERRED
 models.internal_representation.ranks.DEPRECATED
 models.internal_representation.references.model_config
 models.internal_representation.references.References.model_config
-models.internal_representation.statement_extractor.StatementExtractor
-models.internal_representation.statement_extractor.StatementExtractor.extract_properties
-models.internal_representation.statement_extractor.StatementExtractor.compute_property_counts
-models.internal_representation.statement_hasher.StatementHasher
-models.internal_representation.statement_hasher.StatementHasher.compute_hash
 models.internal_representation.statements.model_config
 models.internal_representation.values.base.Value.model_config
 models.internal_representation.values.commons_media_value.CommonsMediaValue.model_config
@@ -123,8 +106,6 @@ models.rdf_builder.redirect_cache.load_entity_redirects_batch
 models.rdf_builder.uri_generator.UriGenerator.model_config
 models.rdf_builder.writers.turtle.TurtleWriter
 models.vitess_models.HistoryRecord
-models.validation.json_schema_validator.JsonSchemaValidator.validate_entity_revision
-models.validation.json_schema_validator.JsonSchemaValidator.validate_statement
 models.validation.json_schema_validator.JsonSchemaValidator.validate_recentchange
 models.infrastructure.vitess.listing_repository.ListingRepository
 models.infrastructure.stream.producer.StreamProducerClient.publish_change_sync
@@ -132,3 +113,8 @@ models.infrastructure.stream.producer.EntityChangeEvent.changed_at
 models.infrastructure.stream.producer.EntityChangeEvent.serialize_changed_at
 models.infrastructure.vitess_client.VitessClient.cas_update_head_with_status
 models.infrastructure.vitess_client.VitessClient.hard_delete_entity
+models.rest_api.main.health_redirect
+models.rest_api.main.create_item
+models.rest_api.main.update_item_v1
+models.rest_api.main.update_item
+models.rest_api.main.update_property
