@@ -21,7 +21,7 @@ from models.api_models import (
     EntityResponse,
     EntityRedirectRequest,
     HealthCheckResponse,
-    ItemCreateRequest,
+    EntityCreateRequest,
     ItemUpdateRequest,
     MostUsedStatementsRequest,
     MostUsedStatementsResponse,
@@ -40,7 +40,7 @@ from models.rest_api.services.enumeration_service import EnumerationService
 from models.rest_api.handlers.admin import AdminHandler
 from models.rest_api.handlers.entity.read import EntityReadHandler
 from models.rest_api.handlers.entity.delete import EntityDeleteHandler
-from models.rest_api.handlers.entity.types import ItemCreateHandler
+from models.rest_api.handlers.entity.item import ItemCreateHandler
 from models.rest_api.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.handlers.entity.items.update import ItemUpdateHandler
 from models.rest_api.handlers.export import ExportHandler
@@ -169,12 +169,12 @@ def health_redirect() -> Any:
 
 
 @v1_router.post("/entities/items", response_model=EntityResponse)
-async def create_item(request: ItemCreateRequest) -> EntityResponse:
+async def create_item(request: EntityCreateRequest) -> EntityResponse:
     clients = app.state.clients
     validator = app.state.validator
     enumeration_service = app.state.enumeration_service
     handler = ItemCreateHandler(enumeration_service)
-    return await handler.create_item(
+    return await handler.create_entity(
         request,
         clients.vitess,
         clients.s3,

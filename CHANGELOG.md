@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Revision updates/deletions and redirect modifications now use CAS
   - Prevents lost updates during concurrent modifications
   - Returns HTTP 409 on concurrent modification conflicts
+  - Added unit tests for CAS success and failure scenarios
 - **Type-Specific Endpoints**:
   - `POST /item` - Create new item (Q ID)
   - `GET /item/Q{id}` - Get item

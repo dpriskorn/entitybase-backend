@@ -132,7 +132,9 @@ def test_create_revision_cas_success(vitess_client: VitessClient) -> None:
     data2["revision_id"] = revision_id2
 
     # Should succeed since expected=1 matches current head
-    vitess_client.create_revision(entity_id, revision_id2, data2, expected_revision_id=1)
+    vitess_client.create_revision(
+        entity_id, revision_id2, data2, expected_revision_id=1
+    )
 
     # Verify head is now 2
     head = vitess_client.get_head(entity_id)
@@ -180,7 +182,9 @@ def test_create_revision_cas_failure(vitess_client: VitessClient) -> None:
     data2["revision_id"] = revision_id2
 
     with pytest.raises(ValidationError) as exc_info:
-        vitess_client.create_revision(entity_id, revision_id2, data2, expected_revision_id=2)
+        vitess_client.create_revision(
+            entity_id, revision_id2, data2, expected_revision_id=2
+        )
 
     assert "Concurrent modification detected" in str(exc_info.value)
 
@@ -207,7 +211,9 @@ def test_set_redirect_target_cas_success(vitess_client: VitessClient) -> None:
     assert internal_redirect_to is not None
 
     # This should succeed
-    vitess_client.set_redirect_target(entity_id, redirect_to, expected_redirects_to=internal_redirect_to)
+    vitess_client.set_redirect_target(
+        entity_id, redirect_to, expected_redirects_to=internal_redirect_to
+    )
 
     # Verify it's still set
     target = vitess_client.get_redirect_target(entity_id)
@@ -231,6 +237,8 @@ def test_set_redirect_target_cas_failure(vitess_client: VitessClient) -> None:
 
     # Try to set to redirect_to2 with wrong expected (e.g., None or wrong id)
     with pytest.raises(ValidationError) as exc_info:
-        vitess_client.set_redirect_target(entity_id, redirect_to2, expected_redirects_to=999)  # Wrong expected
+        vitess_client.set_redirect_target(
+            entity_id, redirect_to2, expected_redirects_to=999
+        )  # Wrong expected
 
     assert "Concurrent redirect modification detected" in str(exc_info.value)

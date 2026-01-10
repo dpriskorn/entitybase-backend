@@ -8,14 +8,40 @@ from pydantic import BaseModel
 
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.services.enumeration_service import EnumerationService
+from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
 
 class IdGeneratorWorker(BaseModel):
-    """Worker service for generating entity IDs using range-based allocation."""
+    """Asynchronous worker service for generating Wikibase entity IDs using range-based allocation.
+
+    This worker reserves blocks (ranges) of IDs from the database to minimize contention
+    during high-volume entity creation. It monitors range status, handles graceful shutdown,
+    and provides health checks for monitoring.
+
+    The worker initializes Vitess and Enumeration services, then runs a continuous loop
+    checking ID range availability. IDs are allocated from pre-reserved ranges to ensure
+    efficient, low-latency ID generation.
+
+    Attributes:
+        worker_id: Unique identifier for this worker instance.
+        vitess_client: Database client for Vitess operations.
+        enumeration_service: Service managing ID range allocation.
+        running: Flag indicating if the worker loop is active.
+    """
 
     def __init__(self, /, worker_id: Optional[str] = None, **data: Any):
+        """Initialize the ID generator worker.
+
+        Args:
+            worker_id: Optional unique identifier. Defaults to WORKER_ID env var
+                      or auto-generated "worker-{pid}".
+            **data: Additional Pydantic model data.
+
+        Sets up signal handlers for SIGTERM/SIGINT to enable graceful shutdown.
+        Services (VitessClient, EnumerationService) are initialized in start().
+        """
         super().__init__(**data)
         self.worker_id = worker_id or os.getenv("WORKER_ID", f"worker-{os.getpid()}")
         self.vitess_client = None
@@ -27,12 +53,31 @@ class IdGeneratorWorker(BaseModel):
         signal.signal(signal.SIGINT, self._signal_handler)
 
     def _signal_handler(self, signum: int, frame: Any) -> None:
-        """Handle shutdown signals gracefully."""
+        """Handle shutdown signals (SIGTERM/SIGINT) for graceful termination.
+
+        Sets the running flag to False, allowing the worker loop to exit cleanly.
+        Called automatically when the process receives termination signals.
+
+        Args:
+            signum: Signal number (e.g., signal.SIGTERM.value).
+            frame: Current stack frame (unused, required by signal handler signature).
+        """
         logger.info(f"Received signal {signum}, shutting down...")
         self.running = False
 
     async def start(self) -> None:
-        """Start the ID generation worker."""
+        """Start the ID generation worker and begin the main processing loop.
+
+        Initializes VitessClient and EnumerationService with configuration from
+        environment variables (VITESS_HOST, VITESS_PORT, etc.). Runs a continuous
+        loop monitoring ID range status every 60 seconds.
+
+        Raises:
+            Exception: If initialization fails or critical errors occur.
+
+        The worker will run until a shutdown signal is received or an unrecoverable
+        error occurs. Uses exponential backoff for transient errors.
+        """
         logger.info(f"Starting ID Generator Worker {self.worker_id}")
 
         try:
@@ -80,7 +125,11 @@ class IdGeneratorWorker(BaseModel):
             await self._shutdown()
 
     async def _shutdown(self) -> None:
-        """Clean shutdown of worker resources."""
+        """Perform clean shutdown of worker resources.
+
+        Closes database connections, releases locks, and ensures all pending
+        operations complete before termination. Called automatically on shutdown.
+        """
         logger.info("Shutting down ID Generator Worker")
 
         if self.vitess_client:
@@ -90,7 +139,17 @@ class IdGeneratorWorker(BaseModel):
         logger.info("ID Generator Worker shutdown complete")
 
     async def health_check(self) -> dict:
-        """Health check endpoint for monitoring."""
+        """Perform health check for monitoring and load balancer integration.
+
+        Returns:
+            dict: Health status with keys:
+                - status: "healthy" or "unhealthy"
+                - worker_id: This worker's unique identifier
+                - range_status: Current ID range allocation status from enumeration service
+
+        Used by external monitoring systems to verify worker availability and
+        ID generation capacity.
+        """
         return {
             "status": "healthy" if self.running else "unhealthy",
             "worker_id": self.worker_id,
@@ -100,15 +159,38 @@ class IdGeneratorWorker(BaseModel):
         }
 
     def get_next_id(self, entity_type: str) -> str:
-        """Get next ID for entity type (synchronous wrapper)."""
-        if not self.enumeration_service:
-            raise RuntimeError("Worker not initialized")
+        """Get the next available ID for a given entity type.
 
+        Synchronous wrapper around EnumerationService.get_next_entity_id().
+        Allocates IDs from pre-reserved ranges to ensure efficient generation.
+
+        Args:
+            entity_type: Type of entity ("item", "property", "lexeme").
+
+        Returns:
+            str: Next available ID for the entity type (e.g., "Q123", "P456").
+
+        Raises:
+            ValidationError: If the worker is not properly initialized.
+        """
+        if not self.enumeration_service:
+            raise_validation_error("Worker not initialized", status_code=500)
+
+        assert self.enumeration_service is not None
         return self.enumeration_service.get_next_entity_id(entity_type)
 
 
 async def main() -> None:
-    """Main entry point for the worker."""
+    """Main entry point for running the ID generator worker.
+
+    Configures logging, creates a worker instance, and starts the ID generation
+    service. The worker will run indefinitely until terminated by a signal.
+
+    Environment Variables:
+        WORKER_ID: Optional unique worker identifier.
+        VITESS_HOST, VITESS_PORT, VITESS_DATABASE, VITESS_USER, VITESS_PASSWORD:
+        Database connection parameters.
+    """
     # Configure logging
     logging.basicConfig(
         level=logging.INFO,

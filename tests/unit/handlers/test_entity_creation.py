@@ -5,7 +5,7 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from models.api_models import ItemCreateRequest, EntityCreateRequest
+from models.api_models import EntityCreateRequest
 from models.rest_api.handlers.entity.types import (
     ItemCreateHandler,
     PropertyCreateHandler,
@@ -59,7 +59,8 @@ class TestItemCreateHandler:
         mock_stream_producer: AsyncMock,
     ) -> None:
         """Test successful item creation"""
-        request = ItemCreateRequest(
+        request = EntityCreateRequest(
+            id="Q123",
             labels={"en": {"language": "en", "value": "Test Item"}},
             edit_summary="Test creation",
             editor="test_user",
