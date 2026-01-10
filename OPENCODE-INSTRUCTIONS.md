@@ -31,6 +31,3 @@
 - use pydantic models for all dict-style returns from functions
 
 # Current task
-fix pydantic models for all dict-style returns from functions
-lets work on supporting backlinks, we need a new table and find all qids in statements
-fix lint errors and warnings

@@ -205,3 +205,23 @@ class ProtectionInfo(BaseModel):
     is_mass_edit_protected: bool = Field(
         description="Whether entity is mass edit protected"
     )
+
+
+class EntityImportRequest(BaseModel):
+    """Request model for importing Wikidata entities."""
+
+    entity_ids: list[str] = Field(
+        ..., description="List of Wikidata entity IDs to import (e.g., ['Q42', 'P31'])"
+    )
+    overwrite_existing: bool = Field(
+        default=False, description="Whether to overwrite existing entities"
+    )
+
+
+class EntityImportResponse(BaseModel):
+    """Response model for entity import operations."""
+
+    imported_count: int = Field(description="Number of entities successfully imported")
+    failed_count: int = Field(description="Number of entities that failed to import")
+    errors: list[str] = Field(description="List of error messages for failed imports")
+    log_file: str = Field(description="Path to detailed log file")
