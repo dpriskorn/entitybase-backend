@@ -326,7 +326,9 @@ class EntityHandler(BaseModel):
         # Store revision in S3 and update head
         logger.info(f"Entity {entity_id}: Creating revision {new_revision_id}")
         try:
-            vitess_client.create_revision(entity_id, new_revision_id, revision_data)
+            vitess_client.create_revision(
+                entity_id, new_revision_id, revision_data, head_revision_id
+            )
             vitess_client.write_entity_revision(
                 entity_id, new_revision_id, revision_data
             )

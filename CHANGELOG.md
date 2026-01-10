@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New entities auto-assign next available ID for their type
 
 ### Added
+- **Concurrency Protection**: Implemented Compare-And-Swap (CAS) for all Vitess write operations
+  - Revision updates/deletions and redirect modifications now use CAS
+  - Prevents lost updates during concurrent modifications
+  - Returns HTTP 409 on concurrent modification conflicts
 - **Type-Specific Endpoints**:
   - `POST /item` - Create new item (Q ID)
   - `GET /item/Q{id}` - Get item

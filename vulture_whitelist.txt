@@ -130,3 +130,5 @@ models.infrastructure.vitess.listing_repository.ListingRepository
 models.infrastructure.stream.producer.StreamProducerClient.publish_change_sync
 models.infrastructure.stream.producer.EntityChangeEvent.changed_at
 models.infrastructure.stream.producer.EntityChangeEvent.serialize_changed_at
+models.infrastructure.vitess_client.VitessClient.cas_update_head_with_status
+models.infrastructure.vitess_client.VitessClient.hard_delete_entity

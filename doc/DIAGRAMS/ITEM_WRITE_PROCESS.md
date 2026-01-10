@@ -8,7 +8,7 @@
 |    +--> Register Entity: tx.register_entity(vitess_client, entity_id)
 |    +--> Prepare Data
 |    +--> Process Statements: tx.process_statements(entity_id, request_data, vitess_client, s3_client)
-|    +--> Create Revision: tx.create_revision(entity_id, revision_data, vitess_client, s3_client)
+|    +--> Create Revision: tx.create_revision(entity_id, revision_data, vitess_client, s3_client) [CAS protected]
 |    +--> Publish Event: tx.publish_event(entity_id, stream_producer)
 |    +--> Commit: tx.commit()  // Mark success, confirm ID usage
 +--> Except (Any Failure):

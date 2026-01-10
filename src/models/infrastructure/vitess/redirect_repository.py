@@ -9,8 +9,12 @@ class RedirectRepository:
         self.id_resolver = id_resolver
 
     def set_target(
-        self, conn: Any, entity_id: str, redirects_to_entity_id: str | None
-    ) -> None:
+        self,
+        conn: Any,
+        entity_id: str,
+        redirects_to_entity_id: str | None,
+        expected_redirects_to: int | None = None,
+    ) -> bool:
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
@@ -26,10 +30,18 @@ class RedirectRepository:
                 )
 
         with conn.cursor() as cursor:
-            cursor.execute(
-                "UPDATE entity_head SET redirects_to = %s WHERE internal_id = %s",
-                (redirects_to_internal_id, internal_id),
-            )
+            if expected_redirects_to is not None:
+                cursor.execute(
+                    "UPDATE entity_head SET redirects_to = %s WHERE internal_id = %s AND redirects_to = %s",
+                    (redirects_to_internal_id, internal_id, expected_redirects_to),
+                )
+            else:
+                cursor.execute(
+                    "UPDATE entity_head SET redirects_to = %s WHERE internal_id = %s",
+                    (redirects_to_internal_id, internal_id),
+                )
+            affected_rows = int(cursor.rowcount)
+            return affected_rows > 0
 
     def create(
         self,

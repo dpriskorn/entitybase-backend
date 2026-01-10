@@ -25,7 +25,7 @@ Pydantic BaseModel for managing creation operations:
 
 - `register_entity()`: Reserves ID in Vitess.
 - `process_statements()`: Hashes/deduplicates statements, stores in S3/Vitess.
-- `create_revision()`: Stores revision snapshot.
+- `create_revision()`: Stores revision snapshot with CAS protection against concurrent modifications.
 - `publish_event()`: Emits change event.
 - `commit()`: Confirms ID usage; clears rollback operations.
 - `rollback()`: Undoes all operations in reverse (deletes from Vitess/S3, decrements ref_counts).

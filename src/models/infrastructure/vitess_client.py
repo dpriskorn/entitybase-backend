@@ -128,28 +128,39 @@ class VitessClient(Client):
                 property_counts,
             )
 
-    def create_revision_cas(
+    def create_revision(
         self,
         entity_id: str,
         revision_id: int,
         data: dict,
-        is_mass_edit: bool = False,
-        edit_type: str = "",
+        expected_revision_id: int | None = None,
     ) -> None:
         with self.connection_manager.get_connection() as conn:
-            internal_id = self.id_resolver.resolve_id(conn, entity_id)
-            if not internal_id:
-                raise_validation_error(f"Entity {entity_id} not found", status_code=404)
-
-    def create_revision(self, entity_id: str, revision_id: int, data: dict) -> None:
-        with self.connection_manager.get_connection() as conn:
+            if expected_revision_id is not None:
+                success = self.revision_repository.create_with_cas(
+                    conn, entity_id, revision_id, data, expected_revision_id
+                )
+                if not success:
+                    raise_validation_error(
+                        "Concurrent modification detected", status_code=409
+                    )
+                return
             return self.revision_repository.create(conn, entity_id, revision_id, data)  # type: ignore[no-any-return]
 
     def set_redirect_target(
-        self, entity_id: str, redirects_to_entity_id: str | None
+        self,
+        entity_id: str,
+        redirects_to_entity_id: str | None,
+        expected_redirects_to: int | None = None,
     ) -> None:
         with self.connection_manager.get_connection() as conn:
-            self.redirect_repository.set_target(conn, entity_id, redirects_to_entity_id)
+            success = self.redirect_repository.set_target(
+                conn, entity_id, redirects_to_entity_id, expected_redirects_to
+            )
+            if not success:
+                raise_validation_error(
+                    "Concurrent redirect modification detected", status_code=409
+                )
 
     def create_redirect(
         self,

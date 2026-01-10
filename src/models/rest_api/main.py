@@ -22,6 +22,8 @@ from models.api_models import (
     EntityRedirectRequest,
     HealthCheckResponse,
     ItemCreateRequest,
+    ItemUpdateRequest,
+    MostUsedStatementsRequest,
     MostUsedStatementsResponse,
     PropertyCountsResponse,
     PropertyHashesResponse,
@@ -39,6 +41,7 @@ from models.rest_api.handlers.admin import AdminHandler
 from models.rest_api.handlers.entity.read import EntityReadHandler
 from models.rest_api.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.handlers.entity.types import ItemCreateHandler
+from models.rest_api.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.handlers.entity.items.update import ItemUpdateHandler
 from models.rest_api.handlers.export import ExportHandler
 from models.rest_api.handlers.redirect import RedirectHandler
@@ -181,7 +184,9 @@ async def create_item(request: ItemCreateRequest) -> EntityResponse:
 
 
 @v1_router.put("/entities/items/{entity_id}", response_model=EntityResponse)
-async def update_item(entity_id: str, request: EntityUpdateRequest) -> EntityResponse:
+async def update_item_v1(
+    entity_id: str, request: EntityUpdateRequest
+) -> EntityResponse:
     clients = app.state.clients
     validator = app.state.validator
     handler = ItemUpdateHandler()
@@ -195,28 +200,38 @@ async def update_item(entity_id: str, request: EntityUpdateRequest) -> EntityRes
     )
 
 
-# Update endpoints - TODO: Uncomment after fixing imports
-# @app.put("/item/{entity_id}", response_model=EntityResponse)
-# async def update_item(entity_id: str, request: ItemUpdateRequest) -> EntityResponse:
-#     clients = app.state.clients
-#     validator = app.state.validator
-#     handler = EntityUpdateHandler()
-#     # Convert to EntityUpdateRequest
-#     entity_request = EntityUpdateRequest(**request.model_dump())
-#     return await handler.update_entity(
-#         entity_id, entity_request, clients.vitess, clients.s3, clients.stream_producer, validator
-#     )
+@app.put("/item/{entity_id}", response_model=EntityResponse)
+async def update_item(entity_id: str, request: ItemUpdateRequest) -> EntityResponse:
+    clients = app.state.clients
+    validator = app.state.validator
+    handler = EntityUpdateHandler()
+    # Convert to EntityUpdateRequest
+    entity_request = EntityUpdateRequest(**request.model_dump())
+    return await handler.update_entity(
+        entity_id,
+        entity_request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
+    )
 
-# @app.put("/property/{entity_id}", response_model=EntityResponse)
-# async def update_property(entity_id: str, request: ItemUpdateRequest) -> EntityResponse:
-#     clients = app.state.clients
-#     validator = app.state.validator
-#     handler = EntityUpdateHandler()
-#     entity_request = EntityUpdateRequest(**request.model_dump())
-#     entity_request.type = "property"
-#     return await handler.update_entity(
-#         entity_id, entity_request, clients.vitess, clients.s3, clients.stream_producer, validator
-#     )
+
+@app.put("/property/{entity_id}", response_model=EntityResponse)
+async def update_property(entity_id: str, request: ItemUpdateRequest) -> EntityResponse:
+    clients = app.state.clients
+    validator = app.state.validator
+    handler = EntityUpdateHandler()
+    entity_request = EntityUpdateRequest(**request.model_dump())
+    entity_request.type = "property"
+    return await handler.update_entity(
+        entity_id,
+        entity_request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
+    )
 
 
 @v1_router.get("/entities/{entity_id}", response_model=EntityResponse)
@@ -302,11 +317,13 @@ def list_entities(
 
 @app.get("/statement/most_used", response_model=MostUsedStatementsResponse)
 def get_most_used_statements(
-    limit: int = 100, min_ref_count: int = 1
+    request: MostUsedStatementsRequest,
 ) -> MostUsedStatementsResponse:
     clients = app.state.clients
     handler = StatementHandler()
-    return handler.get_most_used_statements(clients.vitess, limit, min_ref_count)
+    return handler.get_most_used_statements(
+        clients.vitess, request.limit, request.min_ref_count
+    )
 
 
 @app.get("/statement/{content_hash}", response_model=StatementResponse)

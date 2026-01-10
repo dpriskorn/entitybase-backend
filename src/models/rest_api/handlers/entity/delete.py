@@ -135,7 +135,9 @@ class EntityDeleteHandler:
         )
 
         # Update head pointer
-        vitess_client.create_revision(entity_id, new_revision_id, revision_data)
+        vitess_client.create_revision(
+            entity_id, new_revision_id, revision_data, head_revision_id
+        )
 
         # Publish change event
         if stream_producer:

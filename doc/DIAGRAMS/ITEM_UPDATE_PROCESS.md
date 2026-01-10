@@ -10,7 +10,7 @@
 |    +--> Get Head: head_revision_id = vitess_client.get_head(entity_id)
 |    +--> Prepare Data: request_data["id"] = entity_id
 |    +--> Process Statements: tx.process_statements(entity_id, request_data, vitess_client, s3_client)
-|    +--> Create Revision: tx.create_revision(entity_id, new_revision_id=head+1, ..., is_creation=False)
+|    +--> Create Revision: tx.create_revision(entity_id, new_revision_id=head+1, ..., is_creation=False) [CAS protected]
 |    +--> Publish Event: tx.publish_event(entity_id, stream_producer)
 |    +--> Commit: tx.commit()
 +--> Except (Any Failure):
