@@ -62,5 +62,16 @@ class Settings(BaseSettings):
         )
 
 
+def raise_validation_error(message: str) -> None:
+    """Raise ValueError or HTTPException based on EXPOSE_ORIGINAL_EXCEPTIONS envvar."""
+    from fastapi import HTTPException
+
+    expose_original = os.getenv("EXPOSE_ORIGINAL_EXCEPTIONS", "true").lower() == "true"
+    if expose_original:
+        raise ValueError(message)
+    else:
+        raise HTTPException(status_code=400, detail=message)
+
+
 # noinspection PyArgumentList
 settings = Settings()

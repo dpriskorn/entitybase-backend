@@ -1,3 +1,4 @@
+from models.config.settings import raise_validation_error
 from models.infrastructure.vitess_client import VitessClient
 from .id_range_manager import IdRangeManager
 
@@ -37,7 +38,7 @@ class EnumerationService:
         }
 
         if entity_type not in type_mapping:
-            raise ValueError(f"Unsupported entity type: {entity_type}")
+            raise_validation_error(f"Unsupported entity type: {entity_type}")
 
         entity_prefix = type_mapping[entity_type]
         return self.range_manager.get_next_id(entity_prefix)

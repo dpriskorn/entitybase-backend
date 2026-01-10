@@ -1,5 +1,6 @@
-import pymysql
 from typing import Any
+
+from fastapi import HTTPException
 
 
 class HeadRepository:
@@ -96,7 +97,7 @@ class HeadRepository:
     def hard_delete(self, conn: Any, entity_id: str, head_revision_id: int) -> None:
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            raise ValueError(f"Entity {entity_id} not found")
+            raise HTTPException(status_code=404, detail=f"Entity {entity_id} not found")
 
         with conn.cursor() as cursor:
             cursor.execute(
@@ -110,7 +111,7 @@ class HeadRepository:
     def soft_delete(self, conn: Any, entity_id: str) -> None:
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            raise ValueError(f"Entity {entity_id} not found")
+            raise HTTPException(status_code=404, detail=f"Entity {entity_id} not found")
 
         with conn.cursor() as cursor:
             cursor.execute(

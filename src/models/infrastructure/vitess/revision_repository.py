@@ -1,6 +1,8 @@
 import json
 from typing import Any
 
+from fastapi import HTTPException
+
 
 class RevisionRepository:
     def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
@@ -9,39 +11,43 @@ class RevisionRepository:
 
     def insert(
         self,
-        conn: Any,
         entity_id: str,
         revision_id: int,
-        is_mass_edit: bool = False,
-        edit_type: str = "",
-        statements: list[int] | None = None,
-        properties: list[str] | None = None,
-        property_counts: dict[str, int] | None = None,
+        data: dict,
     ) -> None:
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
-        if not internal_id:
-            raise ValueError(f"Entity {entity_id} not found")
+        with self.connection_manager.get_connection() as conn:
+            internal_id = self.id_resolver.resolve_id(conn, entity_id)
+            if not internal_id:
+                raise HTTPException(
+                    status_code=404, detail=f"Entity {entity_id} not found"
+                )
 
-        with conn.cursor() as cursor:
-            cursor.execute(
-                "SELECT 1 FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
-                (internal_id, revision_id),
-            )
-            if cursor.fetchone() is not None:
-                return
+            is_mass_edit = data.get("is_mass_edit", False)
+            edit_type = data.get("edit_type", "")
+            statements = data.get("statements", [])
+            properties = data.get("properties", [])
+            property_counts = data.get("property_counts", {})
 
-            cursor.execute(
-                "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-                (
-                    internal_id,
-                    revision_id,
-                    is_mass_edit,
-                    edit_type,
-                    json.dumps(statements or []),
-                    json.dumps(properties or []),
-                    json.dumps(property_counts or {}),
-                ),
-            )
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT 1 FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                    (internal_id, revision_id),
+                )
+                if cursor.fetchone() is not None:
+                    return
+
+                cursor.execute(
+                    "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                    (
+                        internal_id,
+                        revision_id,
+                        is_mass_edit,
+                        edit_type,
+                        json.dumps(statements or []),
+                        json.dumps(properties or []),
+                        json.dumps(property_counts or {}),
+                    ),
+                )
 
     def get_history(
         self, conn: Any, entity_id: str, limit: int = 20, offset: int = 0
@@ -142,7 +148,7 @@ class RevisionRepository:
     def create(self, conn: Any, entity_id: str, revision_id: int, data: dict) -> None:
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            raise ValueError(f"Entity {entity_id} not found")
+            raise HTTPException(status_code=404, detail=f"Entity {entity_id} not found")
 
         with conn.cursor() as cursor:
             cursor.execute(

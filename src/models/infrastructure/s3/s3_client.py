@@ -4,6 +4,7 @@ from typing import Any, Dict
 import logging
 from botocore.exceptions import ClientError
 from pydantic import Field
+from fastapi import HTTPException
 
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
@@ -32,7 +33,7 @@ class S3Client(Client):
 
     def _ensure_bucket_exists(self) -> None:
         if not self.connection_manager or not self.connection_manager.boto_client:
-            raise ConnectionError()
+            raise HTTPException(status_code=503, detail="S3 service unavailable")
         try:
             self.connection_manager.boto_client.head_bucket(Bucket=self.config.bucket)
         except ClientError as e:
@@ -60,11 +61,11 @@ class S3Client(Client):
         self,
         entity_id: str,
         revision_id: int,
-        data: dict,
-        publication_state: str = "pending",
+        data: Dict[str, Any],
+        publication_state: str,
     ) -> RevisionMetadata:
         if not self.connection_manager or not self.connection_manager.boto_client:
-            raise ConnectionError()
+            raise HTTPException(status_code=503, detail="S3 service unavailable")
         key = f"{entity_id}/r{revision_id}.json"
         self.connection_manager.boto_client.put_object(
             Bucket=self.config.bucket,
@@ -77,7 +78,7 @@ class S3Client(Client):
     def read_revision(self, entity_id: str, revision_id: int) -> RevisionReadResponse:
         """Read S3 object and return parsed JSON"""
         if not self.connection_manager or not self.connection_manager.boto_client:
-            raise ConnectionError()
+            raise HTTPException(status_code=503, detail="S3 service unavailable")
         key = f"{entity_id}/r{revision_id}.json"
         response = self.connection_manager.boto_client.get_object(
             Bucket=self.config.bucket, Key=key
@@ -93,7 +94,7 @@ class S3Client(Client):
         self, entity_id: str, revision_id: int, publication_state: str
     ) -> None:
         if not self.connection_manager or not self.connection_manager.boto_client:
-            raise ConnectionError()
+            raise HTTPException(status_code=503, detail="S3 service unavailable")
         key = f"{entity_id}/r{revision_id}.json"
         self.connection_manager.boto_client.copy_object(
             Bucket=self.config.bucket,
@@ -106,7 +107,7 @@ class S3Client(Client):
     def read_full_revision(self, entity_id: str, revision_id: int) -> Dict[str, Any]:
         """Read S3 object and return parsed full revision JSON"""
         if not self.connection_manager or not self.connection_manager.boto_client:
-            raise ConnectionError()
+            raise HTTPException(status_code=503, detail="S3 service unavailable")
         key = f"{entity_id}/r{revision_id}.json"
         response = self.connection_manager.boto_client.get_object(
             Bucket=self.config.bucket, Key=key
@@ -121,7 +122,7 @@ class S3Client(Client):
     def delete_statement(self, content_hash: int) -> None:
         """Delete statement from S3"""
         if not self.connection_manager or not self.connection_manager.boto_client:
-            raise ConnectionError()
+            raise HTTPException(status_code=503, detail="S3 service unavailable")
         key = f"statements/{content_hash}.json"
         self.connection_manager.boto_client.delete_object(
             Bucket=self.config.bucket, Key=key
@@ -137,7 +138,7 @@ class S3Client(Client):
         Stores statement at path: statements/{hash}.json
         """
         if not self.connection_manager or not self.connection_manager.boto_client:
-            raise ConnectionError()
+            raise HTTPException(status_code=503, detail="S3 service unavailable")
         key = f"statements/{content_hash}.json"
         statement_json = json.dumps(statement_data)
 
@@ -224,7 +225,7 @@ class S3Client(Client):
             ClientError if statement not found
         """
         if not self.connection_manager or not self.connection_manager.boto_client:
-            raise ConnectionError()
+            raise HTTPException(status_code=503, detail="S3 service unavailable")
         key = f"statements/{content_hash}.json"
         logger.debug(f"S3 read_statement: bucket={self.config.bucket}, key={key}")
 
@@ -279,7 +280,7 @@ class S3Client(Client):
     ) -> int:
         """Write revision as part of redirect operations (no mark_pending/published flow)"""
         if not self.connection_manager or not self.connection_manager.boto_client:
-            raise ConnectionError()
+            raise HTTPException(status_code=503, detail="S3 service unavailable")
         revision_data = {
             "schema_version": "1.2.0",
             "revision_id": revision_id,

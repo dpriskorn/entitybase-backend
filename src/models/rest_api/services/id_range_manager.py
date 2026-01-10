@@ -2,6 +2,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
+from models.config.settings import raise_validation_error
 from models.infrastructure.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)
@@ -101,7 +102,7 @@ class IdRangeManager:
 
                     result = cursor.fetchone()
                     if not result:
-                        raise ValueError(
+                        raise_validation_error(
                             f"No range configuration found for entity type {entity_type}"
                         )
 
