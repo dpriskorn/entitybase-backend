@@ -3,7 +3,7 @@ from typing import Any, Dict
 
 from models.validation.utils import raise_validation_error
 
-from models.api_models import EntityResponse
+from models.api_models import EntityResponse, EntityRevisionResponse
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 
@@ -85,18 +85,18 @@ class EntityReadHandler:
         entity_id: str,
         revision_id: int,
         s3_client: S3Client,
-    ) -> Dict[str, Any]:
+    ) -> EntityRevisionResponse:
         """Get specific entity revision."""
         if s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
 
         try:
             revision = s3_client.read_revision(entity_id, revision_id)
-            return {
-                "entity_id": entity_id,
-                "revision_id": revision_id,
-                "data": revision.data,
-            }
+            return EntityRevisionResponse(
+                entity_id=entity_id,
+                revision_id=revision_id,
+                data=revision.data,
+            )
         except Exception as e:
             logger.error(
                 f"Failed to read revision {revision_id} for entity {entity_id}: {e}"

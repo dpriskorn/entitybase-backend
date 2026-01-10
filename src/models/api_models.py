@@ -245,6 +245,10 @@ class RevisionMetadata(BaseModel):
     created_at: str
 
 
+class HealthResponse(BaseModel):
+    status: str
+
+
 class HealthCheckResponse(BaseModel):
     status: str
     s3: str
@@ -319,3 +323,120 @@ class BacklinksResponse(BaseModel):
     backlinks: list[Backlink] = Field(description="List of backlinks")
     limit: int = Field(description="Requested limit")
     offset: int = Field(description="Requested offset")
+
+
+class MetadataLoadResponse(BaseModel):
+    """Response model for metadata loading operations."""
+
+    results: dict[str, bool] = Field(
+        description="Dictionary mapping entity_id to success status"
+    )
+
+
+class EntityMetadata(BaseModel):
+    """Model for entity metadata."""
+
+    id: str
+    labels: dict[str, dict[str, str]] = Field(default_factory=dict)
+    descriptions: dict[str, dict[str, str]] = Field(default_factory=dict)
+
+
+class EntityMetadataBatchResponse(BaseModel):
+    """Response model for batch entity metadata fetching."""
+
+    metadata: dict[str, EntityMetadata | None] = Field(
+        description="Dictionary mapping entity_id to metadata or None"
+    )
+
+
+class RedirectBatchResponse(BaseModel):
+    """Response model for batch entity redirects fetching."""
+
+    redirects: dict[str, list[str]] = Field(
+        description="Dictionary mapping entity_id to list of redirect titles"
+    )
+
+
+class WikibasePredicates(BaseModel):
+    """Model for Wikibase predicate URIs for a property."""
+
+    direct: str = Field(description="Direct property predicate")
+    statement: str = Field(description="Statement property predicate")
+    statement_value: str = Field(description="Statement value property predicate")
+    qualifier: str = Field(description="Qualifier property predicate")
+    reference: str = Field(description="Reference property predicate")
+    statement_value_node: str = Field(description="Statement value node predicate")
+
+
+class EntityLabels(BaseModel):
+    """Model for entity labels."""
+
+    labels: dict[str, str] = Field(default_factory=dict)
+
+
+class EntityDescriptions(BaseModel):
+    """Model for entity descriptions."""
+
+    descriptions: dict[str, str] = Field(default_factory=dict)
+
+
+class EntityAliases(BaseModel):
+    """Model for entity aliases."""
+
+    aliases: dict[str, list[str]] = Field(default_factory=dict)
+
+
+class PropertyCounts(BaseModel):
+    """Model for property statement counts."""
+
+    counts: dict[str, int] = Field(
+        description="Dictionary mapping property ID to statement count"
+    )
+
+
+class WorkerHealthCheck(BaseModel):
+    """Model for worker health check response."""
+
+    status: str = Field(description="Health status: healthy or unhealthy")
+    worker_id: str = Field(description="Unique worker identifier")
+    range_status: dict[str, Any] = Field(
+        description="Current ID range allocation status"
+    )
+
+
+class EntityRevisionResponse(BaseModel):
+    """Model for entity revision response."""
+
+    entity_id: str = Field(description="Entity ID")
+    revision_id: int = Field(description="Revision ID")
+    data: dict[str, Any] = Field(description="Revision data")
+
+
+class DeduplicationStats(BaseModel):
+    """Model for deduplication cache statistics."""
+
+    hits: int = Field(description="Number of cache hits")
+    misses: int = Field(description="Number of cache misses")
+    size: int = Field(description="Current cache size")
+    collision_rate: float = Field(description="Collision rate percentage")
+
+
+class FullRevisionData(BaseModel):
+    """Model for full revision data from database."""
+
+    revision_id: int = Field(description="Revision ID")
+    statements: list[int] = Field(description="List of statement hashes")
+    properties: list[str] = Field(description="List of unique properties")
+    property_counts: dict[str, int] = Field(description="Property counts")
+
+
+class ProtectionInfo(BaseModel):
+    """Model for entity protection information."""
+
+    is_semi_protected: bool = Field(description="Whether entity is semi-protected")
+    is_locked: bool = Field(description="Whether entity is locked")
+    is_archived: bool = Field(description="Whether entity is archived")
+    is_dangling: bool = Field(description="Whether entity is dangling")
+    is_mass_edit_protected: bool = Field(
+        description="Whether entity is mass edit protected"
+    )

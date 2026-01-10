@@ -1,5 +1,7 @@
 from typing import Any
 
+from models.api_models import ProtectionInfo
+
 
 class EntityRepository:
     def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
@@ -54,10 +56,10 @@ class EntityRepository:
             result = cursor.fetchone()
             return result[0] if result else False
 
-    def get_protection_info(self, conn: Any, entity_id: str) -> dict[str, bool]:
+    def get_protection_info(self, conn: Any, entity_id: str) -> ProtectionInfo | None:
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            return {}
+            return None
 
         with conn.cursor() as cursor:
             cursor.execute(
@@ -69,12 +71,12 @@ class EntityRepository:
             result = cursor.fetchone()
 
         if not result:
-            return {}
+            return None
 
-        return {
-            "is_semi_protected": bool(result[0]),
-            "is_locked": bool(result[1]),
-            "is_archived": bool(result[2]),
-            "is_dangling": bool(result[3]),
-            "is_mass_edit_protected": bool(result[4]),
-        }
+        return ProtectionInfo(
+            is_semi_protected=bool(result[0]),
+            is_locked=bool(result[1]),
+            is_archived=bool(result[2]),
+            is_dangling=bool(result[3]),
+            is_mass_edit_protected=bool(result[4]),
+        )

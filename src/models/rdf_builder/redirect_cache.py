@@ -6,13 +6,15 @@ from typing import Any, List
 
 import requests
 
+from models.api_models import MetadataLoadResponse, RedirectBatchResponse
+
 logger = logging.getLogger(__name__)
 
 
-def _fetch_entity_redirects_batch(entity_ids: list[str]) -> dict[str, list[str]]:
+def _fetch_entity_redirects_batch(entity_ids: list[str]) -> RedirectBatchResponse:
     """Fetch redirects for multiple entities via MediaWiki API."""
     if not entity_ids:
-        return {}
+        return RedirectBatchResponse(redirects={})
 
     batch_size = 50
     results = {}
@@ -57,12 +59,12 @@ def _fetch_entity_redirects_batch(entity_ids: list[str]) -> dict[str, list[str]]
             for entity_id in batch:
                 results[entity_id] = []
 
-    return results
+    return RedirectBatchResponse(redirects=results)
 
 
 def load_entity_redirects_batch(
     entity_ids: list[str], redirects_dir: Path
-) -> dict[str, bool]:
+) -> MetadataLoadResponse:
     """Fetch and save redirects for multiple entities.
 
     Args:
@@ -70,14 +72,14 @@ def load_entity_redirects_batch(
         redirects_dir: Directory to save redirect files
 
     Returns:
-        Dictionary mapping entity_id to success status (True/False)
+        MetadataLoadResponse with results mapping entity_id to success status (True/False)
     """
     redirects_dir.mkdir(parents=True, exist_ok=True)
 
     results = {}
     fetched_redirects = _fetch_entity_redirects_batch(entity_ids)
 
-    for entity_id, redirects in fetched_redirects.items():
+    for entity_id, redirects in fetched_redirects.redirects.items():
         output_path = redirects_dir / f"{entity_id}.json"
         cache_data = {"id": entity_id, "redirects": redirects}
         with open(output_path, "w", encoding="utf-8") as f:
@@ -85,7 +87,7 @@ def load_entity_redirects_batch(
         logger.info(f"Saved redirects for {entity_id} to {output_path}")
         results[entity_id] = True
 
-    return results
+    return MetadataLoadResponse(results=results)
 
 
 def load_entity_redirects(entity_id: str, redirects_dir: Path) -> list[str]:

@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from fastapi import FastAPI
 import uvicorn
 
+from models.api_models import WorkerHealthCheck
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.services.enumeration_service import EnumerationService
 from models.validation.utils import raise_validation_error
@@ -140,25 +141,22 @@ class IdGeneratorWorker(BaseModel):
 
         logger.info("ID Generator Worker shutdown complete")
 
-    def health_check(self) -> dict:
+    def health_check(self) -> WorkerHealthCheck:
         """Perform health check for monitoring and load balancer integration.
 
         Returns:
-            dict: Health status with keys:
-                - status: "healthy" or "unhealthy"
-                - worker_id: This worker's unique identifier
-                - range_status: Current ID range allocation status from enumeration service
+            WorkerHealthCheck: Health status with status, worker_id, and range_status
 
         Used by external monitoring systems to verify worker availability and
         ID generation capacity.
         """
-        return {
-            "status": "healthy" if self.running else "unhealthy",
-            "worker_id": self.worker_id,
-            "range_status": self.enumeration_service.get_range_status()
+        return WorkerHealthCheck(
+            status="healthy" if self.running else "unhealthy",
+            worker_id=self.worker_id,
+            range_status=self.enumeration_service.get_range_status()
             if self.enumeration_service is not None
             else {},
-        }
+        )
 
     def get_next_id(self, entity_type: str) -> str:
         """Get the next available ID for a given entity type.
@@ -218,7 +216,7 @@ async def main() -> None:
     app = FastAPI()
 
     @app.get("/health")
-    def health() -> dict:
+    def health() -> WorkerHealthCheck:
         """Health check endpoint returning JSON status."""
         return worker.health_check()
 

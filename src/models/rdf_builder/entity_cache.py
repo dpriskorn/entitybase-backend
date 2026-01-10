@@ -5,16 +5,22 @@ from pathlib import Path
 
 import requests
 
+from models.api_models import (
+    EntityMetadata,
+    EntityMetadataBatchResponse,
+    MetadataLoadResponse,
+)
+
 logger = logging.getLogger(__name__)
 
 
-def _fetch_entity_metadata_batch(entity_ids: list[str]) -> dict[str, dict | None]:
+def _fetch_entity_metadata_batch(entity_ids: list[str]) -> EntityMetadataBatchResponse:
     """Fetch labels and descriptions for multiple entities via SPARQL."""
     if not entity_ids:
-        return {}
+        return EntityMetadataBatchResponse(metadata={})
 
     batch_size = 100
-    results: dict[str, dict | None] = {}
+    results: dict[str, EntityMetadata | None] = {}
 
     for i in range(0, len(entity_ids), batch_size):
         batch = entity_ids[i : i + batch_size]
@@ -53,7 +59,7 @@ def _fetch_entity_metadata_batch(entity_ids: list[str]) -> dict[str, dict | None
                         "en": {"language": "en", "value": description}
                     }
 
-                results[entity_id] = metadata
+                results[entity_id] = EntityMetadata(**metadata)
 
             logger.info(
                 f"Fetched metadata for {len(batch)} entities (batch {i // batch_size + 1})"
@@ -65,12 +71,12 @@ def _fetch_entity_metadata_batch(entity_ids: list[str]) -> dict[str, dict | None
             for entity_id in batch:
                 results[entity_id] = None
 
-    return results
+    return EntityMetadataBatchResponse(metadata=results)
 
 
 def load_entity_metadata_batch(
     entity_ids: list[str], metadata_dir: Path
-) -> dict[str, bool]:
+) -> MetadataLoadResponse:
     """Fetch and save metadata for multiple entities.
 
     Args:
@@ -78,33 +84,33 @@ def load_entity_metadata_batch(
         metadata_dir: Directory to save metadata files
 
     Returns:
-        Dictionary mapping entity_id to success status (True/False)
+        MetadataLoadResponse with results mapping entity_id to success status (True/False)
     """
     metadata_dir.mkdir(parents=True, exist_ok=True)
 
     results = {}
     fetched_metadata = _fetch_entity_metadata_batch(entity_ids)
 
-    for entity_id, metadata in fetched_metadata.items():
+    for entity_id, metadata in fetched_metadata.metadata.items():
         if metadata:
             output_path = metadata_dir / f"{entity_id}.json"
             with open(output_path, "w", encoding="utf-8") as f:
-                json.dump(metadata, f, indent=2, ensure_ascii=False)
+                json.dump(metadata.model_dump(), f, indent=2, ensure_ascii=False)
             logger.info(f"Saved metadata for {entity_id} to {output_path}")
             results[entity_id] = True
         else:
             logger.warning(f"Failed to fetch metadata for {entity_id}")
             results[entity_id] = False
 
-    return results
+    return MetadataLoadResponse(results=results)
 
 
-def load_entity_metadata(entity_id: str, metadata_dir: Path) -> dict:
+def load_entity_metadata(entity_id: str, metadata_dir: Path) -> EntityMetadata:
     """Load entity metadata (labels, descriptions) from disk only."""
     json_path = metadata_dir / f"{entity_id}.json"
 
     if json_path.exists():
         data: dict = json.loads(json_path.read_text(encoding="utf-8"))
-        return data
+        return EntityMetadata(**data)
 
     raise FileNotFoundError(f"Entity {entity_id} not found at {json_path}")

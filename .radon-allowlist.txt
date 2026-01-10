@@ -48,3 +48,7 @@ write_entity_revision
 write_header
 write_property
 write_statement
+delete_backlinks_for_entity
+get_backlinks
+health_check
+insert_backlinks

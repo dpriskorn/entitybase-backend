@@ -6,6 +6,7 @@ Follows same algorithm as mediawiki-extensions-Wikibase/repo/includes/Rdf/HashDe
 
 from typing import Protocol
 
+from models.api_models import DeduplicationStats
 from models.validation.utils import raise_validation_error
 
 
@@ -95,21 +96,21 @@ class HashDedupeBag:
         self.bag[key] = hash_
         return False
 
-    def stats(self) -> dict[str, int | float]:
+    def stats(self) -> DeduplicationStats:
         """Get deduplication statistics.
 
         Returns:
-            Dict with 'hits', 'misses', 'size', 'collision_rate'
+            DeduplicationStats with hits, misses, size, collision_rate
         """
         total = self._hits + self._misses
         collision_rate = (self._misses / total * 100) if total > 0 else 0
 
-        return {
-            "hits": self._hits,
-            "misses": self._misses,
-            "size": len(self.bag),
-            "collision_rate": collision_rate,
-        }
+        return DeduplicationStats(
+            hits=self._hits,
+            misses=self._misses,
+            size=len(self.bag),
+            collision_rate=collision_rate,
+        )
 
     def clear(self) -> None:
         """Clears deduplication cache."""

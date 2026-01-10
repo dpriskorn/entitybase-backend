@@ -2,6 +2,7 @@ import logging
 
 from typing import Any
 
+from models.api_models import EntityAliases, EntityDescriptions, EntityLabels
 from models.json_parser.statement_parser import parse_statement
 from models.internal_representation.entity import Entity
 from models.internal_representation.entity_types import EntityKind
@@ -46,26 +47,31 @@ def parse_entity(entity_json: dict[str, Any]) -> Entity:
     )
 
 
-def _parse_labels(labels_json: dict[str, dict[str, str]]) -> dict[str, str]:
-    return {
+def _parse_labels(labels_json: dict[str, dict[str, str]]) -> EntityLabels:
+    labels = {
         lang: label_data.get("value", "") for lang, label_data in labels_json.items()
     }
+    return EntityLabels(labels=labels)
 
 
-def _parse_descriptions(descriptions_json: dict[str, dict[str, str]]) -> dict[str, str]:
-    return {
+def _parse_descriptions(
+    descriptions_json: dict[str, dict[str, str]],
+) -> EntityDescriptions:
+    descriptions = {
         lang: desc_data.get("value", "")
         for lang, desc_data in descriptions_json.items()
     }
+    return EntityDescriptions(descriptions=descriptions)
 
 
 def _parse_aliases(
     aliases_json: dict[str, list[dict[str, str]]],
-) -> dict[str, list[str]]:
-    return {
+) -> EntityAliases:
+    aliases = {
         lang: [alias_data.get("value", "") for alias_data in alias_list]
         for lang, alias_list in aliases_json.items()
     }
+    return EntityAliases(aliases=aliases)
 
 
 def _parse_statements(claims_json: dict[str, list[dict[str, Any]]]) -> list:

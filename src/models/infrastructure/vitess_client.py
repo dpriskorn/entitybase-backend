@@ -1,8 +1,9 @@
 from contextlib import contextmanager
 import json
-from typing import Any, Generator, Union
+from typing import Any, Generator, Union, cast
 
 from pydantic import Field
+from models.api_models import FullRevisionData
 from models.validation.utils import raise_validation_error
 from models.infrastructure.client import Client
 from models.vitess_models import VitessConfig
@@ -326,7 +327,7 @@ class VitessClient(Client):
                     ),
                 )
 
-    def read_full_revision(self, entity_id: str, revision_id: int) -> dict:
+    def read_full_revision(self, entity_id: str, revision_id: int) -> FullRevisionData:
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:
@@ -342,12 +343,12 @@ class VitessClient(Client):
                         f"Revision {revision_id} not found for entity {entity_id}",
                         status_code=404,
                     )
-                return {
-                    "revision_id": revision_id,
-                    "statements": json.loads(result[0]) if result[0] else [],
-                    "properties": json.loads(result[1]) if result[1] else [],
-                    "property_counts": json.loads(result[2]) if result[2] else {},
-                }
+                return FullRevisionData(
+                    revision_id=revision_id,
+                    statements=json.loads(result[0]) if result[0] else [],
+                    properties=json.loads(result[1]) if result[1] else [],
+                    property_counts=json.loads(result[2]) if result[2] else {},
+                )
 
     def insert_backlinks(self, backlinks: list[tuple[int, int, int, str, str]]) -> None:
         """Insert backlinks into entity_backlinks table."""
@@ -366,6 +367,9 @@ class VitessClient(Client):
     ) -> list[dict[str, Union[int, str]]]:
         """Get backlinks for an entity."""
         with self.connection_manager.get_connection() as conn:
-            return self.backlink_repository.get_backlinks(
-                conn, referenced_internal_id, limit, offset
+            return cast(
+                list[dict[str, Union[int, str]]],
+                self.backlink_repository.get_backlinks(
+                    conn, referenced_internal_id, limit, offset
+                ),
             )
