@@ -80,17 +80,19 @@ services:
   #      mem_limit: 1g
   #      cpus: "1.0"
 
-  rest-api:
+  api:
     build:
-      context: .
-      dockerfile: containers/Dockerfile.rest-api
-    container_name: rest-api
+      context: ..
+      dockerfile: docker/containers/Dockerfile.rest-api
+    container_name: api
     ports:
       - "8000:8000"
     depends_on:
      minio:
        condition: service_healthy
      vitess:
+       condition: service_healthy
+     idworker:
        condition: service_healthy
     environment:
        S3_ENDPOINT: http://minio:9000
@@ -129,11 +131,11 @@ services:
 
   tests:
     build:
-      context: .
-      dockerfile: containers/Dockerfile.tests
+      context: ..
+      dockerfile: docker/containers/Dockerfile.tests
     container_name: tests
     depends_on:
-      rest-api:
+      api:
         condition: service_healthy
     environment:
       REST_API_URL: http://rest-api:8000
@@ -147,8 +149,8 @@ services:
 
   idworker:
     build:
-      context: .
-      dockerfile: containers/Dockerfile.id-generator
+      context: ..
+      dockerfile: docker/containers/Dockerfile.id-generator
     environment:
       WORKER_ID: id_worker_1
       WORKER_COUNT: 1
@@ -159,6 +161,12 @@ services:
       VITESS_PASSWORD: ""
     depends_on:
       - vitess
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 #    restart: unless-stopped
 #    deploy:
 #      replicas: 1  # Can be scaled up for production (e.g., replicas: 3)
