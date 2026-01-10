@@ -1,6 +1,6 @@
 from typing import Any, Dict
 
-from fastapi import HTTPException
+from models.config.settings import raise_validation_error
 
 from models.api_models import EntityResponse
 from models.infrastructure.s3.s3_client import S3Client
@@ -22,17 +22,17 @@ class EntityReadHandler:
     ) -> EntityResponse:
         """Get entity by ID."""
         if vitess_client is None:
-            raise HTTPException(status_code=503, detail="Vitess not initialized")
+            raise_validation_error("Vitess not initialized", status_code=503)
 
         if s3_client is None:
-            raise HTTPException(status_code=503, detail="S3 not initialized")
+            raise_validation_error("S3 not initialized", status_code=503)
 
         if not vitess_client.entity_exists(entity_id):
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         head_revision_id = vitess_client.get_head(entity_id)
         if head_revision_id == 0:
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         try:
             revision = s3_client.read_revision(entity_id, head_revision_id)
@@ -50,7 +50,7 @@ class EntityReadHandler:
             )
         except Exception as e:
             logger.error(f"Failed to read entity {entity_id}: {e}")
-            raise HTTPException(status_code=500, detail="Failed to read entity")
+            raise_validation_error("Failed to read entity", status_code=500)
 
     @staticmethod
     def get_entity_history(
@@ -62,10 +62,10 @@ class EntityReadHandler:
     ) -> list[Dict[str, Any]]:
         """Get entity revision history."""
         if vitess_client is None:
-            raise HTTPException(status_code=503, detail="Vitess not initialized")
+            raise_validation_error("Vitess not initialized", status_code=503)
 
         if not vitess_client.entity_exists(entity_id):
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         try:
             # For now, return a simple list. In a real implementation,
@@ -77,7 +77,7 @@ class EntityReadHandler:
             return revisions
         except Exception as e:
             logger.error(f"Failed to get entity history for {entity_id}: {e}")
-            raise HTTPException(status_code=500, detail="Failed to get entity history")
+            raise_validation_error("Failed to get entity history", status_code=500)
 
     @staticmethod
     def get_entity_revision(
@@ -87,7 +87,7 @@ class EntityReadHandler:
     ) -> Dict[str, Any]:
         """Get specific entity revision."""
         if s3_client is None:
-            raise HTTPException(status_code=503, detail="S3 not initialized")
+            raise_validation_error("S3 not initialized", status_code=503)
 
         try:
             revision = s3_client.read_revision(entity_id, revision_id)
@@ -100,4 +100,4 @@ class EntityReadHandler:
             logger.error(
                 f"Failed to read revision {revision_id} for entity {entity_id}: {e}"
             )
-            raise HTTPException(status_code=404, detail="Revision not found")
+            raise_validation_error("Revision not found", status_code=404)

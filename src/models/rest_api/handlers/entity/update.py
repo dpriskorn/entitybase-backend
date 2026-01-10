@@ -1,7 +1,7 @@
 import logging
 from typing import Any
 
-from fastapi import HTTPException
+from models.config.settings import raise_validation_error
 
 from models.api_models import EntityUpdateRequest, EntityResponse
 from models.infrastructure.s3.s3_client import S3Client
@@ -28,15 +28,15 @@ class EntityUpdateHandler(EntityHandler):
         """Update an existing entity with transaction rollback."""
         # Check entity exists (404 if not)
         if not vitess_client.entity_exists(entity_id):
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         # Check deletion status (410 if deleted)
         if vitess_client.is_entity_deleted(entity_id):
-            raise HTTPException(status_code=410, detail="Entity deleted")
+            raise_validation_error("Entity deleted", status_code=410)
 
         # Check lock status (423 if locked)
         if vitess_client.is_entity_locked(entity_id):
-            raise HTTPException(status_code=423, detail="Entity locked")
+            raise_validation_error("Entity locked", status_code=423)
 
         # Validate JSON (Pydantic)
         # Already handled by FastAPI
@@ -93,4 +93,4 @@ class EntityUpdateHandler(EntityHandler):
         except Exception as e:
             logger.error(f"Entity update failed for {entity_id}: {e}")
             tx.rollback()
-            raise HTTPException(status_code=500, detail="Update failed")
+            raise_validation_error(status_code=500, detail="Update failed")

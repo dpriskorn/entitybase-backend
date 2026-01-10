@@ -1,7 +1,7 @@
 from abc import ABC
 
 from pydantic import BaseModel, ConfigDict, Field
-from fastapi import HTTPException
+from models.config.settings import raise_validation_error
 
 from models.infrastructure.config import Config
 from models.infrastructure.connection import ConnectionManager
@@ -16,5 +16,5 @@ class Client(ABC, BaseModel):
     def healthy_connection(self) -> bool:
         """Helper method"""
         if not self.connection_manager:
-            raise HTTPException(status_code=503, detail="Service unavailable")
+            raise_validation_error("Service unavailable", status_code=503)
         return bool(self.connection_manager.healthy_connection)

@@ -1,5 +1,7 @@
 from typing import Any
 
+import pymysql
+
 from models.config.settings import raise_validation_error
 
 
