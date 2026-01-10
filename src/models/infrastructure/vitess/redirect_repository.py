@@ -21,7 +21,9 @@ class RedirectRepository:
                 conn, redirects_to_entity_id
             )
             if not redirects_to_internal_id:
-                raise HTTPException(status_code=404, detail=f"Entity {redirects_to_entity_id} not found")
+                raise HTTPException(
+                    status_code=404, detail=f"Entity {redirects_to_entity_id} not found"
+                )
 
         with conn.cursor() as cursor:
             cursor.execute(
@@ -44,9 +46,15 @@ class RedirectRepository:
         )
 
         if not redirect_from_internal_id:
-            raise HTTPException(status_code=404, detail=f"Source entity {redirect_from_entity_id} not found")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Source entity {redirect_from_entity_id} not found",
+            )
         if not redirect_to_internal_id:
-            raise HTTPException(status_code=404, detail=f"Target entity {redirect_to_entity_id} not found")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Target entity {redirect_to_entity_id} not found",
+            )
 
         with conn.cursor() as cursor:
             cursor.execute(

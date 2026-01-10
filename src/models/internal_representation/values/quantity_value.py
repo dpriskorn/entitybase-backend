@@ -1,6 +1,7 @@
 from pydantic import ConfigDict, Field, field_validator, model_validator
 from typing_extensions import Literal
 from typing import Optional
+from models.config.settings import raise_validation_error
 from .base import Value
 
 
@@ -28,7 +29,7 @@ class QuantityValue(Value):
             try:
                 float(v)
             except ValueError:
-                raise ValueError(f"Value must be a valid number, got: {v}")
+                raise_validation_error(f"Value must be a valid number, got: {v}")
         return v
 
     @model_validator(mode="after")
@@ -39,9 +40,9 @@ class QuantityValue(Value):
 
         if lower is not None and upper is not None:
             if lower > upper:
-                raise ValueError("Lower bound cannot be greater than upper bound")
+                raise_validation_error("Lower bound cannot be greater than upper bound")
             if lower > amount:
-                raise ValueError("Lower bound cannot be greater than amount")
+                raise_validation_error("Lower bound cannot be greater than amount")
         if upper is not None and upper < amount:
-            raise ValueError("Upper bound cannot be less than amount")
+            raise_validation_error("Upper bound cannot be less than amount")
         return self

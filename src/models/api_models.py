@@ -3,13 +3,10 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, Field
 
-from enum import Enum
-from typing import Any, Dict, List, Optional
-from typing import Any, Dict, Optional
+from typing import List, Optional
 
 from fastapi import Response
-from pydantic import BaseModel, ConfigDict, Field
-from pydantic import BaseModel, Field
+from pydantic import ConfigDict
 
 
 class EditType(Enum):
@@ -55,6 +52,7 @@ class EditType(Enum):
 
 class ItemCreateRequest(BaseModel):
     """Request model for creating a new Wikibase item."""
+
 
 class EntityCreateRequest(BaseModel):
     id: str = Field(..., description="Entity ID (e.g., Q42)")

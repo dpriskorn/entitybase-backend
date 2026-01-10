@@ -17,6 +17,7 @@ from models.api_models import (
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream import (
     ChangeType,
+    EntityChangeEvent,
     StreamProducerClient,
 )
 from models.infrastructure.vitess_client import VitessClient
@@ -369,14 +370,18 @@ class EntityHandler:
                     if is_creation
                     else edit_type_to_change_type(revision_edit_type)
                 )
-                await EntityHandler._publish_change(
-                    stream_producer,
-                    entity_id,
-                    new_revision_id,
-                    change_type,
-                    head_revision_id if head_revision_id != 0 else None,
-                    editor,
-                    edit_summary,
+                await stream_producer.publish_change(
+                    EntityChangeEvent(
+                        entity_id=entity_id,
+                        revision_id=new_revision_id,
+                        change_type=change_type,
+                        from_revision_id=head_revision_id
+                        if head_revision_id != 0
+                        else None,
+                        changed_at=datetime.now(timezone.utc),
+                        editor=editor,
+                        edit_summary=edit_summary,
+                    )
                 )
                 logger.debug(
                     f"Entity {entity_id}: Published change event for revision {new_revision_id}"
