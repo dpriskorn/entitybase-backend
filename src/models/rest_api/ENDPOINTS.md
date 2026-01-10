@@ -2,7 +2,7 @@
 
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
-| ❌ | GET | `/entitybase/v1/entities` | List entities, optionally filtered by type. |
+| ✅ | GET | `/entitybase/v1/entities` | List entities, optionally filtered by type (or all entities if no type specified). |
 | ✅ | POST | `/entitybase/v1/entities/items` | Create a new item entity. |
 | ✅ | POST | `/entitybase/v1/entities/lexemes` | Create a new lexeme entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}` | Retrieve a single entity by its ID. |
@@ -58,6 +58,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 13 |
-| Not Implemented | 40 |
+| Implemented | 14 |
+| Not Implemented | 39 |
 | Total | 53 |
