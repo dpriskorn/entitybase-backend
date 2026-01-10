@@ -115,6 +115,7 @@ models.infrastructure.vitess_client.VitessClient.cas_update_head_with_status
 models.infrastructure.vitess_client.VitessClient.hard_delete_entity
 models.rest_api.main.health_redirect
 models.rest_api.main.create_item
+models.rest_api.main.create_lexeme
 models.rest_api.main.update_item_v1
 models.rest_api.main.update_item
 models.rest_api.main.update_property

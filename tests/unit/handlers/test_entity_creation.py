@@ -66,7 +66,7 @@ class TestItemCreateHandler:
             editor="test_user",
         )
 
-        result = await handler.create_item(
+        result = await handler.create_entity(
             request=request,
             vitess_client=mock_vitess_client,
             s3_client=mock_s3_client,
@@ -98,10 +98,10 @@ class TestItemCreateHandler:
         """Test item creation fails if entity already exists"""
         mock_vitess_client.entity_exists.return_value = True
 
-        request = ItemCreateRequest()
+        request = EntityCreateRequest(id="Q123")
 
         with pytest.raises(Exception) as exc_info:
-            await handler.create_item(
+            await handler.create_entity(
                 request=request,
                 vitess_client=mock_vitess_client,
                 s3_client=mock_s3_client,

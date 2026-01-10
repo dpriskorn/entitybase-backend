@@ -41,6 +41,7 @@ from models.rest_api.handlers.admin import AdminHandler
 from models.rest_api.handlers.entity.read import EntityReadHandler
 from models.rest_api.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.handlers.entity.item import ItemCreateHandler
+from models.rest_api.handlers.entity.lexeme import LexemeCreateHandler
 from models.rest_api.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.handlers.entity.items.update import ItemUpdateHandler
 from models.rest_api.handlers.export import ExportHandler
@@ -174,6 +175,21 @@ async def create_item(request: EntityCreateRequest) -> EntityResponse:
     validator = app.state.validator
     enumeration_service = app.state.enumeration_service
     handler = ItemCreateHandler(enumeration_service)
+    return await handler.create_entity(
+        request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
+    )
+
+
+@v1_router.post("/entities/lexemes", response_model=EntityResponse)
+async def create_lexeme(request: EntityCreateRequest) -> EntityResponse:
+    clients = app.state.clients
+    validator = app.state.validator
+    enumeration_service = app.state.enumeration_service
+    handler = LexemeCreateHandler(enumeration_service)
     return await handler.create_entity(
         request,
         clients.vitess,
