@@ -229,6 +229,38 @@ class VitessClient(Client):
         with self.connection_manager.get_connection() as conn:
             return self.revision_repository.delete(conn, entity_id, revision_id)  # type: ignore[no-any-return]
 
+    def list_entities_by_type(
+        self, entity_type: str | None, limit: int, offset: int
+    ) -> list[str]:
+        """List entity IDs by type with pagination."""
+        if entity_type == "item":
+            prefix = "Q"
+        elif entity_type == "property":
+            prefix = "P"
+        elif entity_type == "lexeme":
+            prefix = "L"
+        elif entity_type == "entityschema":
+            prefix = "E"
+        else:
+            # If no type specified, list all (no prefix filter)
+            prefix = ""
+
+        with self.connection_manager.get_connection() as conn:
+            cursor = conn.cursor()
+            if prefix:
+                cursor.execute(
+                    "SELECT DISTINCT entity_id FROM entity_revisions WHERE entity_id LIKE %s ORDER BY entity_id LIMIT %s OFFSET %s",
+                    (f"{prefix}%", limit, offset),
+                )
+            else:
+                cursor.execute(
+                    "SELECT DISTINCT entity_id FROM entity_revisions ORDER BY entity_id LIMIT %s OFFSET %s",
+                    (limit, offset),
+                )
+            results = cursor.fetchall()
+            cursor.close()
+            return [row[0] for row in results]
+
     # DISABLED: /entities endpoint not implemented
     # def list_locked_entities(self, limit: int) -> list[dict]:
     #     return self.listing_repository.list_locked(limit)

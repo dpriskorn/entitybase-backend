@@ -42,7 +42,9 @@ def get_entities(
     limit: int = 100,
     offset: int = 0,
 ) -> EntityListResponse:
-    """List entities, optionally filtered by type."""
+    """List entities, optionally filtered by type (or all entities if no type specified)."""
     clients = req.app.state.clients
     handler = AdminHandler()
-    return handler.list_entities(clients.vitess, entity_type, limit, offset)
+    return handler.list_entities(
+        clients.vitess, entity_type=entity_type, limit=limit, offset=offset
+    )

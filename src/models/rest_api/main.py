@@ -11,8 +11,6 @@ from jsonschema import ValidationError
 from models.config.settings import settings
 from models.validation.json_schema_validator import JsonSchemaValidator
 from models.api_models import (
-    CleanupOrphanedRequest,
-    CleanupOrphanedResponse,
     EntityDeleteRequest,
     EntityDeleteResponse,
     EntityListResponse,
@@ -25,9 +23,6 @@ from models.api_models import (
     PropertyListResponse,
     RedirectRevertRequest,
     RevisionMetadata,
-    StatementBatchRequest,
-    StatementBatchResponse,
-    StatementResponse,
     TtlResponse,
 )
 from models.rest_api.clients import Clients
@@ -232,9 +227,6 @@ def list_entities(
     return handler.list_entities(clients.vitess, status, edit_type, limit)
 
 
-
-
-
 @v1_router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)
 def get_entity_properties(entity_id: str) -> PropertyListResponse:
     clients = app.state.clients
@@ -263,9 +255,6 @@ def get_entity_property_hashes(
     return handler.get_entity_property_hashes(
         entity_id, property_list, clients.vitess, clients.s3
     )
-
-
-
 
 
 app.include_router(v1_router, prefix="/entitybase/v1")

@@ -2,8 +2,6 @@ import logging
 from typing import Any, Optional, cast
 
 from models.api_models import (
-    CleanupOrphanedRequest,
-    CleanupOrphanedResponse,
     EntityListResponse,
 )
 from models.validation.utils import raise_validation_error
@@ -16,99 +14,34 @@ logger = logging.getLogger(__name__)
 class AdminHandler:
     """Handles administrative operations."""
 
-    @staticmethod
-    def cleanup_orphaned_statements(
-        request: CleanupOrphanedRequest,
-        vitess_client: VitessClient,
-        s3_client: S3Client,
-    ) -> CleanupOrphanedResponse:
-        """Cleanup orphaned statements from S3 and Vitess.
-
-        Orphaned statements are those with ref_count = 0 and are older than
-        specified threshold. This endpoint is typically called by a
-        background job (e.g., cron) to clean up unused data.
-
-        Query params (in request body):
-        - older_than_days: Minimum age in days (default 180)
-        - limit: Maximum statements to cleanup (default 1000)
-
-        Returns count of cleaned and failed statements.
-        """
-        if vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
-
-        if s3_client is None:
-            raise_validation_error("S3 not initialized", status_code=503)
-
-        cleaned_count = 0
-        failed_count = 0
-        errors = []
-
-        try:
-            orphaned_hashes = vitess_client.get_orphaned_statements(
-                older_than_days=request.older_than_days, limit=request.limit
-            )
-
-            for content_hash in orphaned_hashes:
-                try:
-                    key = f"statements/{content_hash}.json"
-                    s3_client.conn.delete_object(
-                        Bucket=s3_client.config.bucket, Key=key
-                    )
-
-                    # Use context manager for direct SQL delete
-                    with vitess_client.get_connection() as conn:
-                        cursor = conn.cursor()
-                        cursor.execute(
-                            "DELETE FROM statement_content WHERE content_hash = %s",
-                            (content_hash,),
-                        )
-                        cursor.close()
-                    cleaned_count += 1
-                except Exception as e:
-                    failed_count += 1
-                    errors.append(f"Hash {content_hash}: {str(e)}")
-
-            return CleanupOrphanedResponse(
-                cleaned_count=cleaned_count,
-                failed_count=failed_count,
-                errors=errors,
-            )
-        except Exception as e:
-            raise_validation_error(
-                f"Error during orphaned statement cleanup: {e}", status_code=500
-            )
-
     def list_entities(
         self,
         vitess_client: VitessClient,
-        status: Optional[str] = None,
-        edit_type: Optional[str] = None,
+        entity_type: Optional[str] = None,
         limit: int = 100,
+        offset: int = 0,
     ) -> EntityListResponse:
-        """Filter entities by status or edit_type.
-
-        DISABLED: Endpoint not yet implemented
-        """
+        """List entities by type or all entities."""
         if vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
-        # Note: Listing methods are disabled until implemented
-        entities: list[Any] = []  # Type annotation for linter
-        if status == "locked":
-            entities = []  # vitess_client.list_locked_entities(limit)
-        elif status == "semi_protected":
-            entities = []  # vitess_client.list_semi_protected_entities(limit)
-        elif status == "archived":
-            entities = []  # vitess_client.list_archived_entities(limit)
-        elif status == "dangling":
-            entities = []  # vitess_client.list_dangling_entities(limit)
-        elif edit_type:
-            entities = []  # vitess_client.list_by_edit_type(edit_type, limit)
-        else:
-            raise_validation_error(
-                "Must provide status or edit_type filter", status_code=400
-            )
+        # Get entity IDs
+        entity_ids = vitess_client.list_entities_by_type(entity_type, limit, offset)
+
+        # Build response with ID and revision info
+        entities = []
+        for entity_id in entity_ids:
+            try:
+                head_revision_id = vitess_client.get_head(entity_id)
+                entities.append(
+                    {
+                        "id": entity_id,
+                        "revision_id": head_revision_id,
+                    }
+                )
+            except Exception:
+                # Skip entities with issues
+                continue
 
         return EntityListResponse(entities=entities, count=len(entities))
 

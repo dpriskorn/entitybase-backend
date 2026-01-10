@@ -706,6 +706,51 @@ def test_query_dangling_entities(api_client: requests.Session, base_url: str) ->
     logger.info("✓ Query dangling entities works")
 
 
+def test_list_entities_by_type(api_client: requests.Session, base_url: str) -> None:
+    """Test listing entities by type"""
+    logger = logging.getLogger(__name__)
+
+    # Create some test entities
+    api_client.post(
+        f"{base_url}/entitybase/v1/entities/items",
+        json={
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Test Item"}},
+        },
+    )
+    api_client.post(
+        f"{base_url}/entitybase/v1/entities/lexemes",
+        json={
+            "type": "lexeme",
+            "lemmas": {"en": {"language": "en", "value": "test"}},
+            "lexicalCategory": "Q1084",
+            "language": "Q1860",
+        },
+    )
+
+    # List items
+    response = api_client.get(f"{base_url}/entitybase/v1/entities?entity_type=item")
+    assert response.status_code == 200
+    result = response.json()
+    assert "entities" in result
+    assert "count" in result
+    assert result["count"] > 0
+    for entity in result["entities"]:
+        assert "id" in entity
+        assert "revision_id" in entity
+        assert entity["id"].startswith("Q")
+
+    # List lexemes
+    response = api_client.get(f"{base_url}/entitybase/v1/entities?entity_type=lexeme")
+    assert response.status_code == 200
+    result = response.json()
+    assert result["count"] > 0
+    for entity in result["entities"]:
+        assert entity["id"].startswith("L")
+
+    logger.info("✓ List entities by type works")
+
+
 @pytest.mark.skip(
     reason="Endpoint not implemented yet - /entities endpoint is disabled"
 )
@@ -969,3 +1014,44 @@ def test_hard_delete_prevents_undelete(
     assert response.status_code == 410
 
     logger.info("✓ Hard delete prevents undelete")
+
+
+def test_update_lexeme(api_client: requests.Session, base_url: str) -> None:
+    """Test updating a lexeme entity"""
+    logger = logging.getLogger(__name__)
+
+    # Create lexeme
+    lexeme_data = {
+        "type": "lexeme",
+        "lemmas": {"en": {"language": "en", "value": "test"}},
+        "lexicalCategory": "Q1084",  # noun
+        "language": "Q1860",  # English
+    }
+
+    create_response = api_client.post(
+        f"{base_url}/entitybase/v1/entities/lexemes", json=lexeme_data
+    )
+    assert create_response.status_code == 200
+    lexeme_id = create_response.json()["id"]
+
+    # Update lexeme
+    updated_lexeme_data = {
+        "data": {
+            "type": "lexeme",
+            "lemmas": {"en": {"language": "en", "value": "updated test"}},
+            "lexicalCategory": "Q1084",
+            "language": "Q1860",
+        }
+    }
+
+    response = api_client.put(
+        f"{base_url}/entitybase/v1/lexeme/{lexeme_id}", json=updated_lexeme_data
+    )
+    assert response.status_code == 200
+
+    result = response.json()
+    assert result["id"] == lexeme_id
+    assert result["revision_id"] == 2
+    assert result["data"]["lemmas"]["en"]["value"] == "updated test"
+
+    logger.info("✓ Lexeme update works correctly")
