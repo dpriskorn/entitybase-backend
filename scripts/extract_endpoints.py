@@ -23,15 +23,16 @@ def extract_endpoints_from_file(file_path: Path) -> list[dict[str, str]]:
     else:
         prefix = ""
 
-    # Find all router decorators
-    pattern = (
-        r'@router\.(get|post|put|delete|patch|head|options)\s*\(\s*["\']([^"\']+)["\']'
-    )
-    matches = re.findall(pattern, content)
+    # Find all router decorators and their functions
+    decorator_pattern = r'@router\.(get|post|put|delete|patch|head|options)\s*\(\s*["\']([^"\']+)["\']'
+    decorator_matches = re.finditer(decorator_pattern, content)
 
-    for method, path in matches:
+    for match in decorator_matches:
+        method = match.group(1).upper()
+        path = match.group(2)
         full_path = prefix + path
         file_rel = str(file_path.relative_to(Path(__file__).parent.parent))
+
         # Determine if implemented
         if "wikibase/v1" in file_str:
             implemented = False
@@ -39,13 +40,29 @@ def extract_endpoints_from_file(file_path: Path) -> list[dict[str, str]]:
             implemented = False
         else:
             implemented = True
+
+        # Find the function name and docstring
+        start_pos = match.end()
+        # Find next def
+        def_match = re.search(r'def\s+(\w+)\s*\(', content[start_pos:])
+        description = "No description"
+        if def_match:
+            func_name = def_match.group(1)
+            func_start = start_pos + def_match.start()
+            # Find docstring: triple quotes after def
+            doc_match = re.search(r'\s*"""(.*?)"""', content[func_start:], re.DOTALL)
+            if doc_match:
+                doc = doc_match.group(1).strip().split('\n')[0]  # First line
+                description = doc[:100]  # Truncate to 100 chars
+
         endpoints.append(
             {
-                "method": method.upper(),
+                "method": method,
                 "path": path,
                 "full_path": full_path,
                 "file": file_rel,
                 "implemented": implemented,
+                "description": description,
             }
         )
 
@@ -68,18 +85,18 @@ def main() -> None:
             endpoints = extract_endpoints_from_file(py_file)
             all_endpoints.extend(endpoints)
 
-    # Sort by file, then by path
-    all_endpoints.sort(key=lambda x: (x["file"], x["path"]))
+    # Sort by full path
+    all_endpoints.sort(key=lambda x: x["full_path"])
 
     # Print results
     print("# REST API Endpoints\n")
-    print("| Implemented | Method | Full Path | File |")
-    print("|-------------|--------|-----------|------|")
+    print("| Implemented | Method | Full Path | Description |")
+    print("|-------------|--------|-----------|-------------|")
 
     for endpoint in all_endpoints:
         status = "✅" if endpoint["implemented"] else "❌"
         print(
-            f"| {status} | {endpoint['method']} | `{endpoint['full_path']}` | {endpoint['file']} |"
+            f"| {status} | {endpoint['method']} | `{endpoint['full_path']}` | {endpoint['description']} |"
         )
 
     # Count implemented vs not

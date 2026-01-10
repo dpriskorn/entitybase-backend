@@ -232,18 +232,7 @@ def list_entities(
     return handler.list_entities(clients.vitess, status, edit_type, limit)
 
 
-@app.get("/statement/{content_hash}", response_model=StatementResponse)
-def get_statement(content_hash: int) -> StatementResponse:
-    clients = app.state.clients
-    handler = StatementHandler()
-    return handler.get_statement(content_hash, clients.s3)
 
-
-@app.post("/statements/batch", response_model=StatementBatchResponse)
-def get_statements_batch(request: StatementBatchRequest) -> StatementBatchResponse:
-    clients = app.state.clients
-    handler = StatementHandler()
-    return handler.get_statements_batch(request, clients.s3)
 
 
 @v1_router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)
@@ -276,13 +265,7 @@ def get_entity_property_hashes(
     )
 
 
-@app.post("/statements/cleanup-orphaned", response_model=CleanupOrphanedResponse)
-def cleanup_orphaned_statements(
-    request: CleanupOrphanedRequest,
-) -> CleanupOrphanedResponse:
-    clients = app.state.clients
-    handler = AdminHandler()
-    return handler.cleanup_orphaned_statements(request, clients.vitess, clients.s3)
+
 
 
 app.include_router(v1_router, prefix="/entitybase/v1")

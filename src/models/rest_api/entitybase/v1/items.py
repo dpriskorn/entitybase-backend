@@ -11,6 +11,7 @@ router = APIRouter()
 
 @router.post("/entities/items", response_model=EntityResponse)
 async def create_item(request: EntityCreateRequest, req: Request) -> EntityResponse:
+    """Create a new item entity."""
     clients = req.app.state.clients
     validator = req.app.state.validator
     enumeration_service = req.app.state.enumeration_service
@@ -28,6 +29,7 @@ async def create_item(request: EntityCreateRequest, req: Request) -> EntityRespo
 async def update_item(
     entity_id: str, request: EntityUpdateRequest, req: Request
 ) -> EntityResponse:
+    """Update an existing item entity."""
     clients = req.app.state.clients
     validator = req.app.state.validator
     handler = ItemUpdateHandler()
@@ -47,6 +49,7 @@ async def update_item(
 async def update_property(
     entity_id: str, request: EntityUpdateRequest, req: Request
 ) -> EntityResponse:
+    """Update an existing property entity."""
     clients = req.app.state.clients
     validator = req.app.state.validator
     handler = PropertyUpdateHandler()
@@ -66,6 +69,7 @@ async def update_property(
 async def update_lexeme(
     entity_id: str, request: EntityUpdateRequest, req: Request
 ) -> EntityResponse:
+    """Update an existing lexeme entity."""
     clients = req.app.state.clients
     validator = req.app.state.validator
     handler = LexemeUpdateHandler()
