@@ -1,3 +1,5 @@
+"""Enumeration of JSON field names used in Wikibase entities."""
+
 from enum import Enum
 
 

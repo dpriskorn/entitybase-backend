@@ -6,26 +6,33 @@ class MetadataExtractor:
     """Extracts and prepares metadata (labels, descriptions, aliases) from entity JSON for deduplication."""
 
     @staticmethod
-    def extract_labels(entity: dict[str, Any]) -> dict[str, dict[str, str]]:
-        """Extract labels from entity JSON."""
-        labels: dict[str, dict[str, str]] = entity.get("labels", {})
-        return labels
+    def extract_labels(entity: dict[str, Any]) -> dict[str, str]:
+        """Extract label values from entity JSON."""
+        labels = entity.get("labels", {})
+        return {lang: label_data["value"] for lang, label_data in labels.items() if "value" in label_data}
 
     @staticmethod
-    def extract_descriptions(entity: dict[str, Any]) -> dict[str, dict[str, str]]:
-        """Extract descriptions from entity JSON."""
-        descriptions: dict[str, dict[str, str]] = entity.get("descriptions", {})
-        return descriptions
+    def extract_descriptions(entity: dict[str, Any]) -> dict[str, str]:
+        """Extract description values from entity JSON."""
+        descriptions = entity.get("descriptions", {})
+        return {lang: desc_data["value"] for lang, desc_data in descriptions.items() if "value" in desc_data}
 
     @staticmethod
     def extract_aliases(entity: dict[str, Any]) -> dict[str, list[str]]:
-        """Extract aliases from entity JSON."""
-        aliases: dict[str, list[str]] = entity.get("aliases", {})
-        return aliases
+        """Extract alias values from entity JSON."""
+        aliases = entity.get("aliases", {})
+        return {lang: [alias_data["value"] for alias_data in alias_list if "value" in alias_data]
+                for lang, alias_list in aliases.items()}
+
+    @staticmethod
+    def hash_string(content: str) -> int:
+        """Generate a 64-bit rapidhash for a string."""
+        from rapidhash import rapidhash
+        return rapidhash(content.encode("utf-8"))
 
     @staticmethod
     def hash_metadata(metadata: Any) -> int:
-        """Generate a hash for metadata content using rapidhash."""
+        """Generate a hash for metadata content using rapidhash (deprecated - use hash_string for individual strings)."""
         from rapidhash import rapidhash
 
         # Serialize to JSON for consistent hashing

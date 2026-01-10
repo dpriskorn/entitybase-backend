@@ -350,7 +350,6 @@ def test_create_redirect_circular_prevention(redirect_service: RedirectService) 
 
 def test_create_redirect_source_not_found(redirect_service: RedirectService) -> None:
     """Test that source entity not found raises 404"""
-
     # Don't set Q999 in resolved_ids - source doesn't exist
 
     request = EntityRedirectRequest(

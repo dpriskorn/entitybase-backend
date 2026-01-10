@@ -1,11 +1,8 @@
 import logging
 from typing import TYPE_CHECKING
 
-from models.api import (
-    EntityRedirectRequest,
-    EntityRedirectResponse,
-    EntityResponse,
-)
+from models.rest_api.request.entity import EntityRedirectRequest
+from models.rest_api.response.entity import EntityRedirectResponse, EntityResponse
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient

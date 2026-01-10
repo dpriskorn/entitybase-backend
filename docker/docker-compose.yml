@@ -83,8 +83,8 @@ services:
   api:
     build:
       context: ..
-      dockerfile: docker/containers/Dockerfile.rest-api
-    container_name: rest-api
+      dockerfile: docker/containers/Dockerfile.api
+    container_name: api
     ports:
       - "8000:8000"
     depends_on:

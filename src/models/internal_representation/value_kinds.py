@@ -1,3 +1,5 @@
+"""Enumeration of Wikibase value types."""
+
 from enum import Enum
 
 

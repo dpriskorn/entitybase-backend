@@ -7,7 +7,9 @@ from fastapi import HTTPException
 from pydantic import BaseModel
 from rapidhash import rapidhash
 
-from models.api import EditType, EntityResponse, StatementHashResult
+from models.rest_api.misc import EditType
+from models.rest_api.response.entity import EntityResponse
+from models.rest_api.response.statement import StatementHashResult
 from models.config.settings import settings
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
@@ -17,6 +19,7 @@ from models.infrastructure.stream.producer import (
     StreamProducerClient,
 )
 from models.infrastructure.vitess_client import VitessClient
+from models.infrastructure.vitess.terms_repository import TermsRepository
 from models.rest_api.services.statement_service import (
     deduplicate_and_store_statements,
     hash_entity_statements,
@@ -121,6 +124,7 @@ class EntityHandler(BaseModel):
             is_dangling=is_dangling,
             is_mass_edit_protected=is_mass_edit_protected,
             vitess_client=vitess_client,
+            s3_client=s3_client,
             stream_producer=stream_producer,
             is_creation=is_creation,
         )
@@ -340,40 +344,47 @@ class EntityHandler(BaseModel):
         is_dangling: bool | None,
         is_mass_edit_protected: bool | None,
         vitess_client: VitessClient,
+        s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
         is_creation: bool,
     ) -> EntityResponse:
         """Create revision data, store it, and publish events."""
-        # Process and deduplicate metadata
+        # Process and deduplicate metadata per language
         labels = MetadataExtractor.extract_labels(request_data)
         descriptions = MetadataExtractor.extract_descriptions(request_data)
         aliases = MetadataExtractor.extract_aliases(request_data)
 
-        labels_hash = MetadataExtractor.hash_metadata(labels) if labels else 0
-        descriptions_hash = (
-            MetadataExtractor.hash_metadata(descriptions) if descriptions else 0
-        )
-        aliases_hash = MetadataExtractor.hash_metadata(aliases) if aliases else 0
+        # Build per-language hash maps
+        labels_hashes = {}
+        descriptions_hashes = {}
+        aliases_hashes = {}
 
-        # Store metadata in S3 and update ref counts
+        terms_repo = TermsRepository(vitess_client.connection_manager)
+
         with vitess_client.connection_manager.get_connection() as conn:
-            if labels_hash:
-                vitess_client.s3_client.store_metadata("labels", labels_hash, labels)
+            # Hash and store individual label strings in Vitess
+            for lang, label_value in labels.items():
+                hash_value = MetadataExtractor.hash_string(label_value)
+                labels_hashes[lang] = hash_value
+                terms_repo.insert_term(hash_value, label_value, "label")
+
+            # Hash and store individual description strings in S3
+            for lang, desc_value in descriptions.items():
+                hash_value = MetadataExtractor.hash_string(desc_value)
+                descriptions_hashes[lang] = hash_value
+                s3_client.store_metadata("descriptions", hash_value, desc_value)
                 vitess_client.metadata_repository.insert_metadata_content(
-                    conn, labels_hash, "labels"
+                    conn, hash_value, "descriptions"
                 )
-            if descriptions_hash:
-                vitess_client.s3_client.store_metadata(
-                    "descriptions", descriptions_hash, descriptions
-                )
-                vitess_client.metadata_repository.insert_metadata_content(
-                    conn, descriptions_hash, "descriptions"
-                )
-            if aliases_hash:
-                vitess_client.s3_client.store_metadata("aliases", aliases_hash, aliases)
-                vitess_client.metadata_repository.insert_metadata_content(
-                    conn, aliases_hash, "aliases"
-                )
+
+            # Hash and store individual alias strings in Vitess
+            for lang, alias_list in aliases.items():
+                alias_hashes = []
+                for alias_value in alias_list:
+                    hash_value = MetadataExtractor.hash_string(alias_value)
+                    alias_hashes.append(hash_value)
+                    terms_repo.insert_term(hash_value, alias_value, "alias")
+                aliases_hashes[lang] = alias_hashes
 
         # Remove metadata from request_data to avoid duplication
         request_data_copy = request_data.copy()
@@ -398,9 +409,9 @@ class EntityHandler(BaseModel):
             "statements": hash_result.statements,
             "properties": hash_result.properties,
             "property_counts": hash_result.property_counts,
-            "labels_hash": labels_hash,
-            "descriptions_hash": descriptions_hash,
-            "aliases_hash": aliases_hash,
+            "labels_hashes": labels_hashes,
+            "descriptions_hashes": descriptions_hashes,
+            "aliases_hashes": aliases_hashes,
             "content_hash": content_hash,
             "edit_summary": edit_summary,
             "editor": editor,
@@ -419,10 +430,15 @@ class EntityHandler(BaseModel):
         logger.info(f"Entity {entity_id}: Creating revision {new_revision_id}")
         try:
             vitess_client.create_revision(
-                entity_id, new_revision_id, revision_data, head_revision_id
+                entity_id=entity_id,
+                revision_id=new_revision_id,
+                data=revision_data,
+                expected_revision_id=head_revision_id,
             )
             vitess_client.write_entity_revision(
-                entity_id, new_revision_id, revision_data
+                entity_id=entity_id,
+                revision_id=new_revision_id,
+                data=revision_data,
             )
             logger.info(
                 f"Entity {entity_id}: Successfully created revision {new_revision_id}"

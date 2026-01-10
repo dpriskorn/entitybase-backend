@@ -31,7 +31,6 @@ class EntityCreateHandler(EntityHandler):
         auto_assign_id: bool = False,
     ) -> EntityResponse:
         """Create a new entity. Fails if entity already exists."""
-
         # Auto-assign ID if requested (for type-specific endpoints)
         if auto_assign_id:
             if self.enumeration_service is None:

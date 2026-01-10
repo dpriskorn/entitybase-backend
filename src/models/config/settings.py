@@ -1,4 +1,6 @@
 import logging
+"""Application configuration and settings management."""
+
 import os
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import Any, TYPE_CHECKING
@@ -10,6 +12,8 @@ if TYPE_CHECKING:
 
 
 class Settings(BaseSettings):
+    """Application settings with environment variable support."""
+
     model_config = SettingsConfigDict(env_file=".env")
 
     s3_endpoint: str = "http://minio:9000"
@@ -36,11 +40,13 @@ class Settings(BaseSettings):
     kafka_topic: str = "wikibase.entity_change"
 
     def get_log_level(self) -> int:
+        """Get the appropriate logging level based on configuration."""
         if os.getenv("TEST_LOG_LEVEL"):
             return getattr(logging, self.test_log_level.upper(), logging.INFO)
         return getattr(logging, self.log_level.upper(), logging.INFO)
 
     def to_s3_config(self) -> Any:
+        """Convert settings to S3 configuration object."""
         from models.infrastructure.s3.s3_client import S3Config
 
         return S3Config(
@@ -51,6 +57,7 @@ class Settings(BaseSettings):
         )
 
     def to_vitess_config(self) -> Any:
+        """Convert settings to Vitess configuration object."""
         from models.infrastructure.vitess_client import VitessConfig
 
         return VitessConfig(

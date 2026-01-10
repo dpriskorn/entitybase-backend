@@ -38,8 +38,7 @@ class IdRangeManager:
         self.worker_id = worker_id
 
     def get_next_id(self, entity_type: str) -> str:
-        """
-        Get the next available ID for the given entity type.
+        """Get the next available ID for the given entity type.
         Allocates new ranges automatically when current range is exhausted.
         """
         if entity_type not in self._local_ranges:
@@ -78,8 +77,7 @@ class IdRangeManager:
         return ids_used > (range_obj.current_end - range_obj.current_start) * 0.8
 
     def _allocate_new_range(self, entity_type: str) -> IdRange:
-        """
-        Atomically allocate a new ID range from the database.
+        """Atomically allocate a new ID range from the database.
         Uses optimistic locking to prevent conflicts between workers.
         """
         max_retries = 3

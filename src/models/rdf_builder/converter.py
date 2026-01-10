@@ -17,8 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 class EntityConverter:
-    """
-    Converts internal Entity representation to RDF Turtle format.
+    """Converts internal Entity representation to RDF Turtle format.
     """
 
     def __init__(
@@ -131,7 +130,7 @@ class EntityConverter:
 
         assert self.entity_metadata_dir is not None
         entity_json = load_entity_metadata(entity_id, self.entity_metadata_dir)
-        return parse_entity(entity_json)
+        return parse_entity(metadata=entity_json)
 
     def _write_referenced_entity_metadata(self, entity: Entity, output: TextIO) -> None:
         """Write metadata blocks for referenced entities."""
@@ -185,7 +184,6 @@ class EntityConverter:
 
     def _write_redirects(self, entity: Entity, output: TextIO) -> None:
         """Write redirect triples for entity."""
-
         redirects = self._fetch_redirects(entity.id)
         for redirect_id in redirects:
             self.writers.write_redirect(output, redirect_id, entity.id)

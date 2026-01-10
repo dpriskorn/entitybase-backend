@@ -3,8 +3,8 @@ from typing import Any, Dict
 
 import requests
 
-from models.api.entity import EntityCreateRequest
-from models.api.misc import EditType
+from models.rest_api.api import EntityCreateRequest, EditType
+
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,6 @@ class WikidataImportService:
             response.raise_for_status()
 
             data: Dict[str, Any] = response.json()
-            return data
 
             # Check for API errors
             if "error" in data:
@@ -71,7 +70,7 @@ class WikidataImportService:
                     logger.info(f"Entity {entity_id} redirects to {redirected_to}")
                     # For now, just proceed with the data (API returns the target entity)
 
-            return entity_data  # type: ignore[return-value]
+            return entity_data  # type: ignore[no-any-return]
 
         except requests.RequestException as e:
             raise ValueError(f"Failed to fetch {entity_id} from Wikidata: {e}")

@@ -4,27 +4,31 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Query, Response
 from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 
 from models.config.settings import settings
 from models.validation.json_schema_validator import JsonSchemaValidator
-from models.api import (
+from models.rest_api.request.entity import (
     EntityDeleteRequest,
+    EntityRedirectRequest,
+    RedirectRevertRequest,
+)
+from models.rest_api.response.entity import (
     EntityDeleteResponse,
     EntityListResponse,
     EntityRedirectResponse,
     EntityResponse,
-    EntityRedirectRequest,
-    HealthCheckResponse,
+)
+from models.rest_api.response.health import HealthCheckResponse
+from models.rest_api.response.statement import (
     PropertyCountsResponse,
     PropertyHashesResponse,
     PropertyListResponse,
-    RedirectRevertRequest,
-    RevisionMetadata,
-    TtlResponse,
 )
+from models.rest_api.misc import RevisionMetadata
+from models.rest_api.response.misc import TtlResponse
 from models.rest_api.clients import Clients
 from models.rest_api.services.enumeration_service import EnumerationService
 from models.rest_api.handlers.admin import AdminHandler
@@ -66,6 +70,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
+    """Application lifespan manager for startup and shutdown tasks."""
     try:
         logger.debug("Initializing clients...")
         s3_config = settings.to_s3_config()
@@ -125,6 +130,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.exception_handler(ValidationError)
 async def validation_error_handler(exc: ValidationError) -> JSONResponse:
+    """Handle JSON schema validation errors and return formatted response."""
     error_field = f"{'/' + '/'.join(str(p) for p in exc.path) if exc.path else '/'}"
     error_message = exc.message
     return JSONResponse(
@@ -145,11 +151,13 @@ async def validation_error_handler(exc: ValidationError) -> JSONResponse:
 
 @app.get("/health", response_model=HealthCheckResponse)
 def health_check_endpoint(response: Response) -> HealthCheckResponse:
+    """Health check endpoint for monitoring service status."""
     return health_check(response)
 
 
 @app.get("/v1/health")
 def health_redirect() -> Any:
+    """Redirect legacy /v1/health endpoint to /health."""
     from fastapi.responses import RedirectResponse
 
     return RedirectResponse(url="/health", status_code=302)
@@ -157,13 +165,21 @@ def health_redirect() -> Any:
 
 @v1_router.get("/entities/{entity_id}", response_model=EntityResponse)
 def get_entity(entity_id: str) -> EntityResponse:
+    """Retrieve a single entity by its ID."""
     clients = app.state.clients
     handler = EntityReadHandler()
     return handler.get_entity(entity_id, clients.vitess, clients.s3)
 
 
 @v1_router.get("/entities/{entity_id}/history", response_model=list[RevisionMetadata])
-def get_entity_history(entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
+def get_entity_history(
+    entity_id: str,
+    limit: int = Query(
+        20, ge=1, le=100, description="Maximum number of revisions to return"
+    ),
+    offset: int = Query(0, ge=0, description="Number of revisions to skip"),
+) -> list[Any]:
+    """Get the revision history for an entity."""
     clients = app.state.clients
     handler = EntityReadHandler()
     return handler.get_entity_history(  # type: ignore[no-any-return]
@@ -213,6 +229,7 @@ async def delete_entity(
 
 @v1_router.get("/entities/{entity_id}/revisions/raw/{revision_id}")
 def get_raw_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
+    """Retrieve raw revision data from storage."""
     clients = app.state.clients
     handler = AdminHandler()
     return handler.get_raw_revision(entity_id, revision_id, clients.vitess, clients.s3)  # type: ignore
@@ -220,15 +237,28 @@ def get_raw_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
 
 @app.get("/entities", response_model=EntityListResponse)
 def list_entities(
-    status: str = "", edit_type: str = "", limit: int = 100
+    entity_type: str = Query(
+        "",
+        description="Entity type to filter by (item, property, lexeme, entityschema). Leave empty for all types",
+    ),
+    limit: int = Query(
+        100, ge=1, le=1000, description="Maximum number of entities to return"
+    ),
+    offset: int = Query(0, ge=0, description="Number of entities to skip"),
 ) -> EntityListResponse:
     clients = app.state.clients
     handler = AdminHandler()
-    return handler.list_entities(clients.vitess, status, edit_type, limit)
+    return handler.list_entities(
+        vitess_client=clients.vitess,
+        entity_type=entity_type,
+        limit=limit,
+        offset=offset,
+    )
 
 
 @v1_router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)
 def get_entity_properties(entity_id: str) -> PropertyListResponse:
+    """Get list of properties used by an entity."""
     clients = app.state.clients
     handler = StatementHandler()
     return handler.get_entity_properties(entity_id, clients.vitess, clients.s3)
@@ -238,6 +268,7 @@ def get_entity_properties(entity_id: str) -> PropertyListResponse:
     "/entities/{entity_id}/properties/counts", response_model=PropertyCountsResponse
 )
 def get_entity_property_counts(entity_id: str) -> PropertyCountsResponse:
+    """Get statement counts for each property in an entity."""
     clients = app.state.clients
     handler = StatementHandler()
     return handler.get_entity_property_counts(entity_id, clients.vitess, clients.s3)
@@ -250,6 +281,7 @@ def get_entity_property_counts(entity_id: str) -> PropertyCountsResponse:
 def get_entity_property_hashes(
     entity_id: str, property_list: str
 ) -> PropertyHashesResponse:
+    """Get statement hashes for specified properties in an entity."""
     clients = app.state.clients
     handler = StatementHandler()
     return handler.get_entity_property_hashes(

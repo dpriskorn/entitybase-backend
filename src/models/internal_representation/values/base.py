@@ -1,9 +1,13 @@
 from typing import Any, Literal
 
+"""Base class for Wikibase data values."""
+
 from pydantic import BaseModel, ConfigDict
 
 
 class Value(BaseModel):
+    """Base class for all Wikibase data values."""
+
     kind: Literal[
         "entity",
         "string",

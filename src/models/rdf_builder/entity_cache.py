@@ -5,11 +5,11 @@ from pathlib import Path
 
 import requests
 
-from models.api import (
+from models.rest_api.response.entity import (
     EntityMetadata,
     EntityMetadataBatchResponse,
-    MetadataLoadResponse,
 )
+from models.rest_api.response.rdf import MetadataLoadResponse
 
 logger = logging.getLogger(__name__)
 

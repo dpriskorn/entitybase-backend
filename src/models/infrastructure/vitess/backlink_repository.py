@@ -1,7 +1,11 @@
+"""Repository for managing entity backlinks in Vitess."""
+
 from typing import Any, Union
 
 
 class BacklinkRepository:
+    """Repository for managing entity backlinks in Vitess."""
+
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 

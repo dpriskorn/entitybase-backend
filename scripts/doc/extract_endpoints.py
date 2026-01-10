@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
-"""
-Script to extract all FastAPI endpoints from the REST API directory.
-"""
+"""Script to extract all FastAPI endpoints from the REST API directory."""
 
 import re
 from pathlib import Path

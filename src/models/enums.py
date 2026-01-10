@@ -1,0 +1,1 @@
+"""Common enumerations used across the application."""

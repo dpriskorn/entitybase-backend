@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Script to download entity redirects from Wikidata."""
+
 import sys
 from pathlib import Path
 
@@ -14,6 +16,7 @@ def find_entities_with_redirects(entities_dir: Path) -> list[str]:
 
 
 def main() -> None:
+    """Main function to download entity redirects."""
     entities_dir = Path(__file__).parent.parent / "test_data" / "json" / "entities"
     redirects_dir = Path(__file__).parent.parent / "test_data" / "entity_redirects"
     redirects_dir.mkdir(parents=True, exist_ok=True)

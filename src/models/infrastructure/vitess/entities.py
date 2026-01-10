@@ -2,11 +2,14 @@ from typing import Any
 
 
 class IdResolver:
+    """Handles mapping between external entity IDs and internal database IDs."""
+
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 
     @staticmethod
     def resolve_id(conn: Any, entity_id: str) -> int:
+        """Resolve external entity ID to internal database ID."""
         with conn.cursor() as cursor:
             cursor.execute(
                 "SELECT internal_id FROM entity_id_mapping WHERE entity_id = %s",
@@ -16,10 +19,12 @@ class IdResolver:
             return result[0] if result else 0
 
     def entity_exists(self, conn: Any, entity_id: str) -> bool:
+        """Check if an entity exists in the database."""
         return self.resolve_id(conn, entity_id) != 0
 
     @staticmethod
     def resolve_entity_id(conn: Any, internal_id: int) -> str:
+        """Resolve internal database ID to external entity ID."""
         with conn.cursor() as cursor:
             cursor.execute(
                 "SELECT entity_id FROM entity_id_mapping WHERE internal_id = %s",
@@ -29,6 +34,7 @@ class IdResolver:
             return result[0] if result else ""
 
     def register_entity(self, conn: Any, entity_id: str) -> None:
+        """Register a new entity in the database with a unique internal ID."""
         from models.infrastructure.ulid_flake import generate_ulid_flake
 
         # Check if entity already exists

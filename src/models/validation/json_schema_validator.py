@@ -45,7 +45,7 @@ class JsonSchemaValidator:
     def _get_entity_revision_schema(self) -> dict:
         if self._entity_revision_schema is None:
             self._entity_revision_schema = self._load_schema(
-                f"src/schemas/s3-revision/{self.s3_revision_version}/schema.json"
+                f"src/schemas/entitybase/s3-revision/{self.s3_revision_version}/schema.json"
             )
         return self._entity_revision_schema
 

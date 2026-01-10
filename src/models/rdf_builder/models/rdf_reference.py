@@ -4,8 +4,7 @@ from models.validation.utils import raise_validation_error
 
 
 class RDFReference:
-    """
-    RDF reference model for Turtle generation.
+    """RDF reference model for Turtle generation.
     Concern: Generate reference URI from hash (stored in IR).
 
     Wikidata uses wdref: prefix with SHA1 hash.

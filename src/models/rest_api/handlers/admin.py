@@ -1,9 +1,7 @@
 import logging
 from typing import Any, cast
 
-from models.api import (
-    EntityListResponse,
-)
+from models.rest_api.response.entity import EntityListResponse
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
@@ -52,8 +50,7 @@ class AdminHandler:
         vitess_client: VitessClient,
         s3_client: S3Client,
     ) -> dict[str, Any]:
-        """
-        Returns raw S3 entity data for specific revision.
+        """Returns raw S3 entity data for specific revision.
 
         Pure S3 data - no wrapper, no transformation.
 

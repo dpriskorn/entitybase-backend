@@ -2,7 +2,11 @@ import logging
 
 from typing import Any
 
-from models.api import EntityAliases, EntityDescriptions, EntityLabels
+from models.rest_api.response.entity import (
+    EntityAliases,
+    EntityDescriptions,
+    EntityLabels,
+)
 from models.json_parser.statement_parser import parse_statement
 from models.internal_representation.entity import Entity
 from models.internal_representation.entity_types import EntityKind
@@ -12,24 +16,22 @@ from models.internal_representation.json_fields import JsonField
 logger = logging.getLogger(__name__)
 
 
-def parse_entity(entity_json: dict[str, Any]) -> Entity:
+def parse_entity(metadata: dict[str, Any]) -> Entity:
     # Handle nested structure {"entities": {"Q42": {...}}}
-    if "entities" in entity_json:
-        entities = entity_json["entities"]
+    if "entities" in metadata:
+        entities = metadata["entities"]
         entity_ids = list(entities.keys())
         if entity_ids:
-            entity_json = entities[entity_ids[0]]
+            metadata = entities[entity_ids[0]]
 
-    entity_id = entity_json.get(JsonField.ID.value, "")
-    entity_type = EntityKind(
-        entity_json.get(JsonField.TYPE.value, EntityKind.ITEM.value)
-    )
+    entity_id = metadata.get(JsonField.ID.value, "")
+    entity_type = EntityKind(metadata.get(JsonField.TYPE.value, EntityKind.ITEM.value))
 
-    labels_json = entity_json.get(JsonField.LABELS.value, {})
-    descriptions_json = entity_json.get(JsonField.DESCRIPTIONS.value, {})
-    aliases_json = entity_json.get(JsonField.ALIASES.value, {})
-    claims_json = entity_json.get(JsonField.CLAIMS.value, {})
-    sitelinks_json = entity_json.get(JsonField.SITELINKS.value, {})
+    labels_json = metadata.get(JsonField.LABELS.value, {})
+    descriptions_json = metadata.get(JsonField.DESCRIPTIONS.value, {})
+    aliases_json = metadata.get(JsonField.ALIASES.value, {})
+    claims_json = metadata.get(JsonField.CLAIMS.value, {})
+    sitelinks_json = metadata.get(JsonField.SITELINKS.value, {})
 
     labels = _parse_labels(labels_json)
     descriptions = _parse_descriptions(descriptions_json)

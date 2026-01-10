@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Download property metadata from Wikidata SPARQL endpoint.
+"""Download property metadata from Wikidata SPARQL endpoint.
 
 Fetches labels and descriptions for all properties in properties.csv.
 Saves each property as individual JSON file: test_data/properties/{Pxxx}.json
@@ -20,8 +19,7 @@ SPARQL_ENDPOINT = "https://query.wikidata.org/sparql"
 
 
 def fetch_property_metadata(properties_csv: Path, output_dir: Path) -> None:
-    """
-    Fetch metadata for all properties from CSV via SPARQL.
+    """Fetch metadata for all properties from CSV via SPARQL.
 
     Args:
         properties_csv: Path to properties.csv file
@@ -163,7 +161,7 @@ def fetch_property_metadata(properties_csv: Path, output_dir: Path) -> None:
 
 
 def main() -> None:
-    """Main function"""
+    """Main function."""
     # Paths
     project_root = Path(__file__).parent.parent
     properties_csv = project_root / "test_data" / "properties" / "properties.csv"

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
-from typing import Dict, Any
+from typing import Dict, Any, List
 
-from models.api import WikibaseEntityResponse
+from models.rest_api.response.entity import WikibaseEntityResponse
 from models.rest_api.handlers.entity.read import EntityReadHandler
 
 router = APIRouter()
@@ -59,9 +59,20 @@ async def get_item_labels(item_id: str) -> Dict[str, Any]:
 
 
 @router.get("/entities/items/{item_id}/labels/{language_code}")
-async def get_item_label(item_id: str, language_code: str) -> Dict[str, Any]:
-    """Get item label for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def get_item_label(item_id: str, language_code: str, req: Request) -> Dict[str, Any]:
+    """Get item label for language"""
+    clients = req.app.state.clients
+    handler = EntityReadHandler()
+    response = handler.get_entity(
+        item_id, clients.vitess, clients.s3
+    )
+    labels = response.data.get("labels", {})
+    if language_code not in labels:
+        raise HTTPException(status_code=404, detail=f"Label not found for language {language_code}")
+    return labels[language_code]
+
+
+
 
 
 @router.put("/entities/items/{item_id}/labels/{language_code}")
@@ -93,11 +104,17 @@ async def get_item_aliases(item_id: str) -> Dict[str, Any]:
 
 
 @router.get("/entities/items/{item_id}/aliases/{language_code}")
-async def get_item_aliases_for_language(
-    item_id: str, language_code: str
-) -> Dict[str, Any]:
-    """Get item aliases for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def get_item_aliases_for_language(item_id: str, language_code: str, req: Request) -> List[Dict[str, Any]]:
+    """Get item aliases for language"""
+    clients = req.app.state.clients
+    handler = EntityReadHandler()
+    response = handler.get_entity(
+        item_id, clients.vitess, clients.s3
+    )
+    aliases = response.data.get("aliases", {})
+    if language_code not in aliases:
+        raise HTTPException(status_code=404, detail=f"Aliases not found for language {language_code}")
+    return aliases[language_code]
 
 
 @router.put("/entities/items/{item_id}/aliases/{language_code}")
@@ -123,9 +140,17 @@ async def get_item_descriptions(item_id: str) -> Dict[str, Any]:
 
 
 @router.get("/entities/items/{item_id}/descriptions/{language_code}")
-async def get_item_description(item_id: str, language_code: str) -> Dict[str, Any]:
-    """Get item description for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def get_item_description(item_id: str, language_code: str, req: Request) -> Dict[str, Any]:
+    """Get item description for language"""
+    clients = req.app.state.clients
+    handler = EntityReadHandler()
+    response = handler.get_entity(
+        item_id, clients.vitess, clients.s3
+    )
+    descriptions = response.data.get("descriptions", {})
+    if language_code not in descriptions:
+        raise HTTPException(status_code=404, detail=f"Description not found for language {language_code}")
+    return descriptions[language_code]
 
 
 @router.put("/entities/items/{item_id}/descriptions/{language_code}")

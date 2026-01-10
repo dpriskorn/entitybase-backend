@@ -9,12 +9,12 @@ COPY requirements-dev.txt ./
 RUN pip install --no-cache-dir -r requirements-dev.txt
 
 COPY ./tests/ ./tests/
-COPY ./src/ ./src/
+COPY ./src/ ./
 COPY ./test_data/ ./test_data/
 COPY pytest.ini .
 
-ENV PYTHONPATH=/app/src
-ENV REST_API_URL=http://rest-api:8000
+ENV PYTHONPATH=/app
+ENV REST_API_URL=http://api:8000
 
-CMD sleep 10 && PYTHONPATH=/app/src pytest tests/ --ignore=tests/disabled/ -v --tb=short --log-cli-level=DEBUG --exitfirst
+CMD sleep 10 && PYTHONPATH=/app pytest tests/ --ignore=tests/disabled/ -v --tb=short --log-cli-level=DEBUG --exitfirst
 #CMD ["pytest", "tests/", "-v", "--tb=short", "--log-cli-level=DEBUG"]

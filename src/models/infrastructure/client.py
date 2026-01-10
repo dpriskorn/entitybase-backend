@@ -1,3 +1,5 @@
+"""Base client classes for external service connections."""
+
 from abc import ABC
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -8,13 +10,15 @@ from models.infrastructure.connection import ConnectionManager
 
 
 class Client(ABC, BaseModel):
+    """Abstract base class for service clients."""
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
     config: Config
     connection_manager: ConnectionManager = Field(default=None, exclude=True)
 
     @property
     def healthy_connection(self) -> bool:
-        """Helper method"""
+        """Check if the client has a healthy connection."""
         if not self.connection_manager:
             raise_validation_error("Service unavailable", status_code=503)
         return bool(self.connection_manager.healthy_connection)

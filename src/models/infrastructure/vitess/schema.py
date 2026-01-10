@@ -1,11 +1,16 @@
+"""Manager for Vitess database schema operations."""
+
 from typing import Any
 
 
 class SchemaManager:
+    """Manager for creating and managing Vitess database schema."""
+
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 
     def create_tables(self) -> None:
+        """Create all required database tables."""
         conn = self.connection_manager.connect()
         cursor = conn.cursor()
 
@@ -103,10 +108,21 @@ class SchemaManager:
                 statements JSON NOT NULL,
                 properties JSON NOT NULL,
                 property_counts JSON NOT NULL,
-                labels_hash BIGINT UNSIGNED,
-                descriptions_hash BIGINT UNSIGNED,
-                aliases_hash BIGINT UNSIGNED,
+                labels_hashes JSON,
+                descriptions_hashes JSON,
+                aliases_hashes JSON,
                 PRIMARY KEY (internal_id, revision_id)
+            )
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS entity_terms (
+                hash BIGINT PRIMARY KEY,
+                term TEXT NOT NULL,
+                term_type ENUM('label', 'alias') NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """
         )

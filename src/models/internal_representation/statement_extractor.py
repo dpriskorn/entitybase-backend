@@ -1,4 +1,4 @@
-from models.api import PropertyCounts
+from models.rest_api.response.statement import PropertyCounts
 
 
 class StatementExtractor:

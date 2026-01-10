@@ -1,5 +1,4 @@
-"""
-Test CamelCase to kebab-case normalization
+"""Test CamelCase to kebab-case normalization
 """
 
 import sys
@@ -11,7 +10,6 @@ from models.internal_representation.datatypes import Datatype
 
 def test_camelcase_to_kebab_normalization() -> None:
     """Test CamelCase to kebab-case normalization"""
-
     # Test Wikibase prefixes
     assert Datatype.normalize_from_sparql("WikibaseItem") == "wikibase-item"
     assert Datatype.normalize_from_sparql("WikibaseString") == "wikibase-string"

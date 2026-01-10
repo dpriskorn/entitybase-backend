@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Download Wikidata entity data (JSON and TTL) for testing.
+"""Download Wikidata entity data (JSON and TTL) for testing.
 
 Usage:
     python scripts/download_wikidata_entity.py Q42
@@ -14,7 +13,7 @@ from pathlib import Path
 
 
 def download_entity_json(entity_id: str, output_dir: Path) -> None:
-    """Download entity JSON from Wikidata"""
+    """Download entity JSON from Wikidata."""
     url = f"https://www.wikidata.org/wiki/Special:EntityData/{entity_id}.json"
 
     headers = {"User-Agent": "WikibaseBackend/1.0 (research@wikibase-backend.org)"}
@@ -31,7 +30,7 @@ def download_entity_json(entity_id: str, output_dir: Path) -> None:
 
 
 def download_entity_ttl(entity_id: str, output_dir: Path) -> None:
-    """Download entity TTL from Wikidata"""
+    """Download entity TTL from Wikidata."""
     url = f"https://www.wikidata.org/wiki/Special:EntityData/{entity_id}.ttl"
 
     headers = {"User-Agent": "WikibaseBackend/1.0 (research@wikibase-backend.org)"}
@@ -48,7 +47,7 @@ def download_entity_ttl(entity_id: str, output_dir: Path) -> None:
 
 
 def download_entity(entity_id: str) -> None:
-    """Download both JSON and TTL for an entity"""
+    """Download both JSON and TTL for an entity."""
     json_output_dir = Path(__file__).parent.parent / "test_data" / "json" / "entities"
     json_output_dir.mkdir(parents=True, exist_ok=True)
     ttl_output_dir = Path(__file__).parent.parent / "test_data" / "rdf" / "ttl"

@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from fastapi import FastAPI
 import uvicorn
 
-from models.api import WorkerHealthCheck
+from models.rest_api.response.health import WorkerHealthCheck
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.services.enumeration_service import EnumerationService
 from models.validation.utils import raise_validation_error

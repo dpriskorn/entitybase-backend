@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Script to download missing entity metadata from Wikidata."""
+
 import json
 import sys
 from pathlib import Path
@@ -49,6 +51,7 @@ def find_missing_referenced_entities(entities_dir: Path) -> list[str]:
 
 
 def main() -> None:
+    """Main function to download missing entity metadata."""
     entities_dir = Path(__file__).parent.parent / "test_data" / "json" / "entities"
     metadata_dir = Path(__file__).parent.parent / "test_data" / "entity_metadata"
     metadata_dir.mkdir(parents=True, exist_ok=True)

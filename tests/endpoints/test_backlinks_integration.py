@@ -18,17 +18,22 @@ class TestBacklinksIntegration:
 
         # For now, just test the API structure
         entity_data = {
-            "id": "Q5",
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Test Entity"}},
             "claims": {},
         }
 
-        response = api_client.post(f"{base_url}/entitybase/v1/entities", json=entity_data)
+        response = api_client.post(
+            f"{base_url}/entitybase/v1/entities/items", json=entity_data
+        )
         assert response.status_code == 200
+        result = response.json()
+        entity_id = result["id"]
 
-        # Query backlinks for Q5 (should be empty initially)
-        backlinks_response = api_client.get(f"{base_url}/entitybase/v1/entities/Q5/backlinks")
+        # Query backlinks for the created entity (should be empty initially)
+        backlinks_response = api_client.get(
+            f"{base_url}/entitybase/v1/entities/{entity_id}/backlinks"
+        )
         # This endpoint doesn't exist yet in the router, so this will fail
         # Once the router is updated, this can be a real integration test
         assert backlinks_response.status_code in [

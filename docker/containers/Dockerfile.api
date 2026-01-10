@@ -4,13 +4,13 @@ RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-ENV PYTHONPATH=/app/src
+ENV PYTHONPATH=/app
 
 COPY requirements.txt ./
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY ./src/ ./src/
+COPY ./src/ ./
 
 EXPOSE 8000
 

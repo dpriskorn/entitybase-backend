@@ -2,8 +2,7 @@ from models.internal_representation.statements import Statement as InternalState
 
 
 class RDFStatement:
-    """
-    RDF statement model for Turtle generation.
+    """RDF statement model for Turtle generation.
     Concern: Generate statement URI from GUID.
 
     Wikidata uses wds: prefix with GUID (not hash).

@@ -1,4 +1,6 @@
 import requests
+"""Script to estimate revision counts for Wikidata entities."""
+
 import statistics
 import sys
 import time
@@ -15,6 +17,7 @@ session.headers.update(HEADERS)
 
 # noinspection PyShadowingNames
 def random_qids(n: int, batch: int = 50) -> list[str]:
+    """Get random Wikidata entity IDs."""
     qids: list[str] = []
     while len(qids) < n:
         r = session.get(
@@ -35,6 +38,7 @@ def random_qids(n: int, batch: int = 50) -> list[str]:
 
 # noinspection PyShadowingNames
 def count_revisions(qid: str) -> int:
+    """Count total revisions for a Wikidata entity."""
     count = 0
     params = {
         "action": "query",

@@ -1,4 +1,6 @@
 import re
+"""Enumeration of Wikibase datatype identifiers."""
+
 from enum import Enum
 
 
@@ -20,8 +22,7 @@ class Datatype(str, Enum):
 
     @classmethod
     def normalize_from_sparql(cls, datatype: str) -> str:
-        """
-        Normalize Wikidata SPARQL datatype CamelCase to kebab-case format.
+        """Normalize Wikidata SPARQL datatype CamelCase to kebab-case format.
 
         Converts:
           - WikibaseItem -> wikibase-item

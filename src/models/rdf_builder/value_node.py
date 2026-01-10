@@ -25,8 +25,7 @@ def _format_scientific_notation(value: float) -> str:
 
 
 def generate_value_node_uri(value: Any) -> str:
-    """
-    Generate wdv: URI for structured values using MD5 hash.
+    """Generate wdv: URI for structured values using MD5 hash.
 
     The hash is based on the serialized value representation only,
     ensuring consistent URIs for identical values across entities,
@@ -49,8 +48,7 @@ def generate_value_node_uri(value: Any) -> str:
 
 
 def serialize_value(value: Any) -> str:
-    """
-    Serialize value object to string for hashing.
+    """Serialize value object to string for hashing.
 
     Different value types have different serialization formats.
     """

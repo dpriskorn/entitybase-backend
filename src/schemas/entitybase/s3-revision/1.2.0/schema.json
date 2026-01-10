@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://wikibase.org/schemas/s3-revision/1.1.0.json",
-  "title": "S3 Revision Snapshot with Redirect Support",
-  "description": "Immutable entity revision snapshot stored in S3 with redirect metadata",
+  "$id": "https://wikibase.org/schemas/s3-revision/2.0.0.json",
+  "title": "S3 Revision Snapshot with Term Deduplication",
+  "description": "Immutable entity revision snapshot stored in S3 with per-language term deduplication",
   "type": "object",
   "required": [
     "schema_version",
@@ -79,9 +79,39 @@
     "deleted_by": {
       "type": "string"
     },
+    "labels_hashes": {
+      "type": "object",
+      "description": "Per-language hashes for individual label strings",
+      "patternProperties": {
+        "^[a-z-]+$": {
+          "type": "integer"
+        }
+      }
+    },
+    "descriptions_hashes": {
+      "type": "object",
+      "description": "Per-language hashes for individual description strings",
+      "patternProperties": {
+        "^[a-z-]+$": {
+          "type": "integer"
+        }
+      }
+    },
+    "aliases_hashes": {
+      "type": "object",
+      "description": "Per-language arrays of hashes for individual alias strings",
+      "patternProperties": {
+        "^[a-z-]+$": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
     "entity": {
       "type": "object",
-      "description": "Complete entity content snapshot",
+      "description": "Complete entity content snapshot (without terms)",
       "required": ["id", "type"],
       "properties": {
         "id": {
@@ -90,36 +120,6 @@
         },
         "type": {
           "type": "string"
-        },
-        "labels": {
-          "type": "object",
-          "patternProperties": {
-            "^[a-z-]+$": {
-              "type": "object",
-              "required": ["language", "value"]
-            }
-          }
-        },
-        "descriptions": {
-          "type": "object",
-          "patternProperties": {
-            "^[a-z-]+$": {
-              "type": "object",
-              "required": ["language", "value"]
-            }
-          }
-        },
-        "aliases": {
-          "type": "object",
-          "patternProperties": {
-            "^[a-z-]+$": {
-              "type": "array",
-              "items": {
-                "type": "object",
-                "required": ["language", "value"]
-              }
-            }
-          }
         },
         "claims": {
           "type": "object",

@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 
-from models.api import StatementHashResult
+from models.rest_api.response.statement import StatementHashResult
 from models.rest_api.utils import raise_or_convert_to_500
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient

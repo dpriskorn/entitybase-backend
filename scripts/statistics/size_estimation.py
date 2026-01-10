@@ -1,4 +1,6 @@
 import requests
+"""Script to estimate size statistics for Wikidata entities."""
+
 import statistics
 import sys
 
@@ -15,6 +17,7 @@ session.headers.update(HEADERS)
 
 # noinspection PyShadowingNames
 def random_qids(n: int) -> list[str]:
+    """Get random Wikidata entity IDs."""
     r = session.get(
         API,
         params={

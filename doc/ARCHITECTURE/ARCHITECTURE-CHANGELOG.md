@@ -2,6 +2,67 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-11] S3 Revision Schema 2.0.0 - Term Deduplication
+
+### Summary
+
+Updated S3 revision schema to version 2.0.0 with per-language hash-based deduplication for labels, descriptions, and aliases. Implemented language-specific API endpoints for term retrieval. Documented hash collision risks.
+
+### Motivation
+
+- **Storage Efficiency**: Enable granular deduplication of term strings across languages/entities
+- **API Completeness**: Provide language-specific endpoints for labels/aliases/descriptions
+- **Scalability**: Reduce storage overhead for multilingual content
+
+### Changes
+
+#### Schema Update
+
+**File**: `src/schemas/entitybase/s3-revision/2.0.0/schema.json` (renamed from 1.2.0)
+
+- Bumped version to 2.0.0 for breaking changes
+- Removed full `labels`, `descriptions`, `aliases` from `entity` object
+- Added per-language hash maps:
+  - `labels_hashes`: `{"en": hash, "fr": hash}`
+  - `descriptions_hashes`: `{"en": hash}`
+  - `aliases_hashes`: `{"en": [hash1, hash2]}`
+
+#### Hashing Logic Update
+
+**File**: `src/models/internal_representation/metadata_extractor.py`
+
+Modified `hash_metadata()` to compute individual 64-bit rapidhashes for each term string instead of entire objects.
+
+#### Revision Storage Changes
+
+**File**: `src/models/rest_api/handlers/entity/__init__.py`
+
+Updated revision creation to:
+- Extract terms per language from entity data
+- Hash individual strings and store in language-keyed maps
+- Store term strings in S3 keyed by hash for deduplication
+
+#### Retrieval Logic Update
+
+**File**: `src/models/rest_api/handlers/entity/read.py`
+
+Modified entity loading to reconstruct full term objects by loading strings from S3 using hash maps.
+
+#### API Endpoints Implementation
+
+**Files**: `src/models/rest_api/wikibase/v1/entity/items.py`, `properties.py`
+
+Replaced 501 stubs with functional endpoints for:
+- `GET /entities/items/{id}/labels/{lang}`
+- `GET /entities/items/{id}/descriptions/{lang}`
+- `GET /entities/items/{id}/aliases/{lang}`
+
+#### Risk Documentation
+
+**File**: `doc/RISK/HASH-COLLISION.md` (new)
+
+Documented 64-bit hash collision probability and accepted risks for deduplication.
+
 ## [2026-01-10] Backlinks Support Implementation
 
 ### Summary

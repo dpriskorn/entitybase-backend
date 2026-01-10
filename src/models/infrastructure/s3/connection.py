@@ -8,7 +8,7 @@ from models.s3_models import S3Config
 
 
 class S3ConnectionManager(ConnectionManager):
-    """Handles S3 connection and healthcheck"""
+    """Handles S3 connection and healthcheck."""
 
     config: S3Config
     boto_client: BaseClient = Field(default=None, exclude=True)
@@ -28,10 +28,10 @@ class S3ConnectionManager(ConnectionManager):
 
     @property
     def healthy_connection(self) -> bool:
-        """Check if S3 connection is healthy
+        """Check if S3 connection is healthy.
 
         Returns:
-            True if connection is healthy, False otherwise
+            True if connection is healthy, False otherwise.
         """
         # noinspection PyBroadException
         try:

@@ -6,7 +6,7 @@ Follows same algorithm as mediawiki-extensions-Wikibase/repo/includes/Rdf/HashDe
 
 from typing import Protocol
 
-from models.api import DeduplicationStats
+from models.rest_api.response.rdf import DeduplicationStats
 from models.validation.utils import raise_validation_error
 
 
@@ -82,8 +82,7 @@ class HashDedupeBag:
         self._misses = 0
 
     def already_seen(self, hash_: str, namespace: str = "") -> bool:
-        """
-        @see DedupeBag::alreadySeen
+        """@see DedupeBag::alreadySeen
         @return bool
         """
         key = namespace + hash_[: self.cutoff]

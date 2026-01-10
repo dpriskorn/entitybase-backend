@@ -3,7 +3,7 @@ import json
 from typing import Any, Generator, Union, cast
 
 from pydantic import Field
-from models.api import FullRevisionData
+from models.rest_api.response.rdf import FullRevisionData
 from models.validation.utils import raise_validation_error
 from models.infrastructure.client import Client
 from models.vitess_models import VitessConfig
@@ -80,14 +80,17 @@ class VitessClient(Client):
             return self.id_resolver.resolve_id(conn, entity_id)  # type: ignore[no-any-return]
 
     def entity_exists(self, entity_id: str) -> bool:
+        """Check if an entity exists in the database."""
         with self.connection_manager.get_connection() as conn:
             return self.id_resolver.entity_exists(conn, entity_id)  # type: ignore[no-any-return]
 
     def register_entity(self, entity_id: str) -> None:
+        """Register a new entity in the database."""
         with self.connection_manager.get_connection() as conn:
             return self.id_resolver.register_entity(conn, entity_id)  # type: ignore[no-any-return]
 
     def get_head(self, entity_id: str) -> int:
+        """Get the current head revision ID for an entity."""
         with self.connection_manager.get_connection() as conn:
             return self.entity_repository.get_head(conn, entity_id)  # type: ignore[no-any-return]
 
@@ -128,11 +131,6 @@ class VitessClient(Client):
                 conn,
                 entity_id,
                 revision_id,
-                is_mass_edit,
-                edit_type,
-                statements,
-                properties,
-                property_counts,
             )
 
     def create_revision(
@@ -335,14 +333,14 @@ class VitessClient(Client):
                     ),
                 )
 
-    def read_full_revision(self, entity_id: str, revision_id: int) -> FullRevisionData:
+    def read_full_revision(self, entity_id: str, revision_id: int, s3_client = None) -> FullRevisionData:
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:
                 raise_validation_error(f"Entity {entity_id} not found", status_code=404)
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT statements, properties, property_counts, labels_hash, descriptions_hash, aliases_hash FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                    "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
                     (internal_id, revision_id),
                 )
                 result = cursor.fetchone()
@@ -352,22 +350,30 @@ class VitessClient(Client):
                         status_code=404,
                     )
 
-                # Load metadata from S3
-                labels = (
-                    self.s3_client.load_metadata("labels", result[3])
-                    if result[3]
-                    else {}
-                )
-                descriptions = (
-                    self.s3_client.load_metadata("descriptions", result[4])
-                    if result[4]
-                    else {}
-                )
-                aliases = (
-                    self.s3_client.load_metadata("aliases", result[5])
-                    if result[5]
-                    else {}
-                )
+                # Load metadata from S3 using hash maps
+                labels_hashes = json.loads(result[3]) if result[3] else {}
+                descriptions_hashes = json.loads(result[4]) if result[4] else {}
+                aliases_hashes = json.loads(result[5]) if result[5] else {}
+
+                # Reconstruct labels from per-language hashes
+                labels = {}
+                for lang, hash_value in labels_hashes.items():
+                    label_value = self.s3_client.load_metadata("labels", hash_value)
+                    labels[lang] = {"language": lang, "value": label_value}
+
+                # Reconstruct descriptions from per-language hashes
+                descriptions = {}
+                for lang, hash_value in descriptions_hashes.items():
+                    desc_value = s3_client.load_metadata("descriptions", hash_value)
+                    descriptions[lang] = {"language": lang, "value": desc_value}
+
+                # Reconstruct aliases from per-language hash arrays
+                aliases = {}
+                for lang, hash_list in aliases_hashes.items():
+                    aliases[lang] = []
+                    for hash_value in hash_list:
+                        alias_value = self.s3_client.load_metadata("aliases", hash_value)
+                        aliases[lang].append({"language": lang, "value": alias_value})
 
                 return FullRevisionData(
                     revision_id=revision_id,

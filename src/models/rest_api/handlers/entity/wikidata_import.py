@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 
 from fastapi import HTTPException
 
-from models.api.entity import EntityJsonImportRequest, EntityJsonImportResponse
+from models.rest_api.api import EntityJsonImportRequest, EntityJsonImportResponse
 from models.services.wikidata_import_service import WikidataImportService
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient

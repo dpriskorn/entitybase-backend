@@ -3,9 +3,10 @@ from typing import Any, Dict
 
 from models.validation.utils import raise_validation_error
 
-from models.api import EntityResponse, EntityRevisionResponse
+from models.rest_api.response.entity import EntityResponse, EntityRevisionResponse
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
+from models.infrastructure.vitess.terms_repository import TermsRepository
 
 import logging
 
@@ -40,41 +41,64 @@ class EntityReadHandler:
             revision = s3_client.read_revision(entity_id, head_revision_id)
             data = revision.data.get("entity", {}).copy()
 
-            # Load metadata from S3
+            terms_repo = TermsRepository(vitess_client.connection_manager)
+
+            # Load metadata from Vitess/S3
             if fetch_metadata:
-                labels_hash = revision.data.get("labels_hash")
-                if labels_hash:
-                    data["labels"] = s3_client.load_metadata("labels", labels_hash)
+                # Reconstruct labels from per-language hashes (Vitess)
+                labels_hashes = revision.data.get("labels_hashes", {})
+                if labels_hashes:
+                    data["labels"] = {}
+                    for lang, hash_value in labels_hashes.items():
+                        label_value = terms_repo.get_term(hash_value)
+                        if label_value is not None:
+                            data["labels"][lang] = {"language": lang, "value": label_value}
 
-                descriptions_hash = revision.data.get("descriptions_hash")
-                if descriptions_hash:
-                    data["descriptions"] = s3_client.load_metadata(
-                        "descriptions", descriptions_hash
-                    )
+                # Reconstruct descriptions from per-language hashes (S3)
+                descriptions_hashes = revision.data.get("descriptions_hashes", {})
+                if descriptions_hashes:
+                    data["descriptions"] = {}
+                    for lang, hash_value in descriptions_hashes.items():
+                        desc_value = s3_client.load_metadata("descriptions", hash_value)
+                        data["descriptions"][lang] = {"language": lang, "value": desc_value}
 
-                aliases_hash = revision.data.get("aliases_hash")
-                if aliases_hash:
-                    data["aliases"] = s3_client.load_metadata("aliases", aliases_hash)
+                # Reconstruct aliases from per-language hash arrays (Vitess)
+                aliases_hashes = revision.data.get("aliases_hashes", {})
+                if aliases_hashes:
+                    data["aliases"] = {}
+                    for lang, hash_list in aliases_hashes.items():
+                        data["aliases"][lang] = []
+                        for hash_value in hash_list:
+                            alias_value = terms_repo.get_term(hash_value)
+                            if alias_value is not None:
+                                data["aliases"][lang].append({"language": lang, "value": alias_value})
             else:
                 # For legacy compatibility, merge metadata into entity data
                 entity_data = data["entity"]
-                labels_hash = revision.data.get("labels_hash")
-                if labels_hash:
-                    entity_data["labels"] = s3_client.load_metadata(
-                        "labels", labels_hash
-                    )
+                labels_hashes = revision.data.get("labels_hashes", {})
+                if labels_hashes:
+                    entity_data["labels"] = {}
+                    for lang, hash_value in labels_hashes.items():
+                        label_value = terms_repo.get_term(hash_value)
+                        if label_value is not None:
+                            entity_data["labels"][lang] = {"language": lang, "value": label_value}
 
-                descriptions_hash = revision.data.get("descriptions_hash")
-                if descriptions_hash:
-                    entity_data["descriptions"] = s3_client.load_metadata(
-                        "descriptions", descriptions_hash
-                    )
+                descriptions_hashes = revision.data.get("descriptions_hashes", {})
+                if descriptions_hashes:
+                    entity_data["descriptions"] = {}
+                    for lang, hash_value in descriptions_hashes.items():
+                        desc_value = s3_client.load_metadata("descriptions", hash_value)
+                        entity_data["descriptions"][lang] = {"language": lang, "value": desc_value}
 
-                aliases_hash = revision.data.get("aliases_hash")
-                if aliases_hash:
-                    entity_data["aliases"] = s3_client.load_metadata(
-                        "aliases", aliases_hash
-                    )
+                aliases_hashes = revision.data.get("aliases_hashes", {})
+                if aliases_hashes:
+                    entity_data["aliases"] = {}
+                    for lang, hash_list in aliases_hashes.items():
+                        entity_data["aliases"][lang] = []
+                        for hash_value in hash_list:
+                            alias_value = terms_repo.get_term(hash_value)
+                            if alias_value is not None:
+                                entity_data["aliases"][lang].append({"language": lang, "value": alias_value})
 
             return EntityResponse(
                 id=entity_id,

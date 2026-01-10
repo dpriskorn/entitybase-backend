@@ -1,11 +1,8 @@
 from datetime import datetime, timezone
 
-from models.api import (
-    EditType,
-    EntityRedirectRequest,
-    EntityRedirectResponse,
-    EntityResponse,
-)
+from models.rest_api.misc import EditType
+from models.rest_api.request.entity import EntityRedirectRequest
+from models.rest_api.response.entity import EntityRedirectResponse, EntityResponse
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream import (
@@ -120,6 +117,7 @@ class RedirectService:
                 else None,
                 changed_at=datetime.now(timezone.utc),
                 editor=request.created_by,
+                edit_summary=None,
             )
             await self.stream_producer.publish_change(event)
 
@@ -136,7 +134,6 @@ class RedirectService:
         revert_to_revision_id: int,
     ) -> EntityResponse:
         """Revert a redirect entity back to normal using revision-based restore"""
-
         current_redirect_target = self.vitess.get_redirect_target(entity_id)
 
         if current_redirect_target is None:
@@ -197,6 +194,8 @@ class RedirectService:
                 change_type=ChangeType.UNREDIRECT,
                 from_revision_id=head_revision_id,
                 changed_at=datetime.now(timezone.utc),
+                editor=None,
+                edit_summary=None,
             )
             await self.stream_producer.publish_change(event)
 

@@ -2,17 +2,17 @@ import logging
 
 from botocore.exceptions import ClientError
 
-from models.api import (
+from models.rest_api.request.statement import StatementBatchRequest
+from models.rest_api.request.misc import CleanupOrphanedRequest
+from models.rest_api.response.statement import (
     MostUsedStatementsResponse,
     PropertyCountsResponse,
     PropertyHashesResponse,
     PropertyListResponse,
-    StatementBatchRequest,
     StatementBatchResponse,
     StatementResponse,
-    CleanupOrphanedRequest,
-    CleanupOrphanedResponse,
 )
+from models.rest_api.response.misc import CleanupOrphanedResponse
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
@@ -44,6 +44,7 @@ class StatementHandler:
             statement_data = s3_client.read_statement(content_hash)
             logger.debug(f"Successfully retrieved statement {content_hash} from S3")
             return StatementResponse(
+                schema_version=statement_data["schema_version"],
                 content_hash=content_hash,
                 statement=statement_data["statement"],
                 created_at=statement_data["created_at"],
@@ -81,6 +82,7 @@ class StatementHandler:
                 statement_data = s3_client.read_statement(content_hash)
                 statements.append(
                     StatementResponse(
+                        schema_version=statement_data["schema_version"],
                         content_hash=content_hash,
                         statement=statement_data["statement"],
                         created_at=statement_data["created_at"],

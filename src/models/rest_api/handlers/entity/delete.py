@@ -3,7 +3,9 @@ from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
-from models.api import DeleteType, EntityDeleteRequest, EntityDeleteResponse
+from models.rest_api.misc import DeleteType
+from models.rest_api.request.entity import EntityDeleteRequest
+from models.rest_api.response.entity import EntityDeleteResponse
 from models.config.settings import settings
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
@@ -131,12 +133,18 @@ class EntityDeleteHandler:
 
         # Write deletion revision to S3
         s3_client.write_revision(
-            entity_id=entity_id, revision_id=new_revision_id, data=revision_data
+            entity_id=entity_id,
+            revision_id=new_revision_id,
+            data=revision_data,
+            publication_state="published",
         )
 
         # Update head pointer
         vitess_client.create_revision(
-            entity_id, new_revision_id, revision_data, head_revision_id
+            entity_id=entity_id,
+            revision_id=new_revision_id,
+            data=revision_data,
+            expected_revision_id=head_revision_id,
         )
 
         # Publish change event

@@ -57,3 +57,17 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = "src/models/rest_api/main.py"
 warn_return_any = false
+
+[tool.ruff]
+# General rules to check: pydocstyle rules
+select = ["D", "D100", "D101", "D102", "D103"]
+
+# Max line length
+line-length = 88
+
+# Optional: ignore private functions/methods
+ignore = ["D105", "D106", "D107"]
+
+[tool.ruff.pydocstyle]
+# Use Google style
+convention = "google"

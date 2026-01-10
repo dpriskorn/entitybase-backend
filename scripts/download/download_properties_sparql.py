@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Download all Wikidata property datatypes via SPARQL and save to CSV.
+"""Download all Wikidata property datatypes via SPARQL and save to CSV.
 
 Usage:
     python scripts/download_properties_sparql.py
@@ -15,7 +14,7 @@ SPARQL_ENDPOINT = "https://query.wikidata.org/sparql"
 
 
 def main() -> None:
-    """Download all properties and save to CSV"""
+    """Download all properties and save to CSV."""
     # Query to get all properties with their datatypes
     query = """
     SELECT ?property ?datatype WHERE {

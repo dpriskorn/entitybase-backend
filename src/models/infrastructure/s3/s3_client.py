@@ -1,4 +1,6 @@
 import json
+"""S3 storage client for entity and statement data."""
+
 from datetime import timezone, datetime
 from typing import Any, Dict
 import logging
@@ -21,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 
 class S3Client(Client):
+    """Client for S3 storage operations."""
+
     config: S3Config
     connection_manager: S3ConnectionManager = Field(default=None, exclude=True)
 
@@ -32,6 +36,7 @@ class S3Client(Client):
         self._ensure_bucket_exists()
 
     def _ensure_bucket_exists(self) -> None:
+        """Ensure the S3 bucket exists, creating it if necessary."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         try:
@@ -64,6 +69,7 @@ class S3Client(Client):
         data: Dict[str, Any],
         publication_state: str,
     ) -> RevisionMetadata:
+        """Write entity revision data to S3."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         key = f"{entity_id}/r{revision_id}.json"
@@ -76,7 +82,7 @@ class S3Client(Client):
         return RevisionMetadata(key=key)
 
     def read_revision(self, entity_id: str, revision_id: int) -> RevisionReadResponse:
-        """Read S3 object and return parsed JSON"""
+        """Read S3 object and return parsed JSON."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         key = f"{entity_id}/r{revision_id}.json"
@@ -93,6 +99,7 @@ class S3Client(Client):
     def mark_published(
         self, entity_id: str, revision_id: int, publication_state: str
     ) -> None:
+        """Update the publication state of an entity revision."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         key = f"{entity_id}/r{revision_id}.json"
@@ -105,7 +112,7 @@ class S3Client(Client):
         )
 
     def read_full_revision(self, entity_id: str, revision_id: int) -> Dict[str, Any]:
-        """Read S3 object and return parsed full revision JSON"""
+        """Read S3 object and return parsed full revision JSON."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         key = f"{entity_id}/r{revision_id}.json"
@@ -120,7 +127,7 @@ class S3Client(Client):
         return parsed_data
 
     def delete_statement(self, content_hash: int) -> None:
-        """Delete statement from S3"""
+        """Delete statement from S3."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         key = f"statements/{content_hash}.json"
@@ -133,9 +140,9 @@ class S3Client(Client):
         content_hash: int,
         statement_data: Dict[str, Any],
     ) -> None:
-        """Write statement snapshot to S3
+        """Write statement snapshot to S3.
 
-        Stores statement at path: statements/{hash}.json
+        Stores statement at path: statements/{hash}.json.
         """
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
@@ -216,13 +223,13 @@ class S3Client(Client):
             raise
 
     def read_statement(self, content_hash: int) -> Dict[str, Any]:
-        """Read statement snapshot from S3
+        """Read statement snapshot from S3.
 
         Returns:
-            Dict with keys: content_hash, statement, created_at
+            Dict with keys: content_hash, statement, created_at.
 
         Raises:
-            ClientError if statement not found
+            ClientError if statement not found.
         """
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
@@ -278,7 +285,7 @@ class S3Client(Client):
         edit_type: str = "",
         created_by: str = "rest-api",
     ) -> int:
-        """Write revision as part of redirect operations (no mark_pending/published flow)"""
+        """Write revision as part of redirect operations (no mark_pending/published flow)."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         revision_data = {

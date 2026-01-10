@@ -1,14 +1,17 @@
 from typing import Any
 
-from models.api import ProtectionInfo
+from models.rest_api.response.entity import ProtectionInfo
 
 
 class EntityRepository:
+    """Repository for entity-related database operations."""
+
     def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
         self.connection_manager = connection_manager
         self.id_resolver = id_resolver
 
     def get_head(self, conn: Any, entity_id: str) -> int:
+        """Get the current head revision ID for an entity."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return 0
@@ -21,6 +24,7 @@ class EntityRepository:
             return result[0] if result else 0
 
     def is_deleted(self, conn: Any, entity_id: str) -> bool:
+        """Check if an entity is marked as deleted."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return False
@@ -33,6 +37,7 @@ class EntityRepository:
             return result[0] if result else False
 
     def is_locked(self, conn: Any, entity_id: str) -> bool:
+        """Check if an entity is locked for editing."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return False
@@ -45,6 +50,7 @@ class EntityRepository:
             return result[0] if result else False
 
     def is_archived(self, conn: Any, entity_id: str) -> bool:
+        """Check if an entity is archived."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return False
@@ -57,6 +63,7 @@ class EntityRepository:
             return result[0] if result else False
 
     def get_protection_info(self, conn: Any, entity_id: str) -> ProtectionInfo | None:
+        """Get protection status information for an entity."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return None

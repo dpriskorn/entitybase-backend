@@ -5,6 +5,8 @@ from models.validation.utils import raise_validation_error
 
 
 class RevisionRepository:
+    """Repository for entity revision database operations."""
+
     def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
         self.connection_manager = connection_manager
         self.id_resolver = id_resolver
@@ -15,6 +17,7 @@ class RevisionRepository:
         revision_id: int,
         data: dict,
     ) -> None:
+        """Insert a new revision for an entity."""
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:
@@ -25,9 +28,9 @@ class RevisionRepository:
             statements = data.get("statements", [])
             properties = data.get("properties", [])
             property_counts = data.get("property_counts", {})
-            labels_hash = data.get("labels_hash")
-            descriptions_hash = data.get("descriptions_hash")
-            aliases_hash = data.get("aliases_hash")
+            labels_hashes = data.get("labels_hashes")
+            descriptions_hashes = data.get("descriptions_hashes")
+            aliases_hashes = data.get("aliases_hashes")
 
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -38,7 +41,7 @@ class RevisionRepository:
                     return
 
                 cursor.execute(
-                    "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hash, descriptions_hash, aliases_hash) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                    "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                     (
                         internal_id,
                         revision_id,
@@ -47,15 +50,16 @@ class RevisionRepository:
                         json.dumps(statements or []),
                         json.dumps(properties or []),
                         json.dumps(property_counts or {}),
-                        labels_hash,
-                        descriptions_hash,
-                        aliases_hash,
+                        json.dumps(labels_hashes or {}),
+                        json.dumps(descriptions_hashes or {}),
+                        json.dumps(aliases_hashes or {}),
                     ),
                 )
 
     def get_history(
         self, conn: Any, entity_id: str, limit: int = 20, offset: int = 0
     ) -> list[Any]:
+        """Get revision history for an entity."""
         from dataclasses import dataclass
 
         @dataclass
@@ -105,6 +109,7 @@ class RevisionRepository:
         data: dict,
         expected_revision_id: int,
     ) -> bool:
+        """Create a revision with compare-and-swap semantics."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return False
@@ -150,6 +155,7 @@ class RevisionRepository:
             return affected_rows > 0
 
     def create(self, conn: Any, entity_id: str, revision_id: int, data: dict) -> None:
+        """Create a new revision for an entity."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
