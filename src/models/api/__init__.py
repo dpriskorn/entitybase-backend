@@ -1,4 +1,6 @@
 from .entity import (
+    Backlink,
+    BacklinksResponse,
     EntityCreateRequest,
     EntityDeleteRequest,
     EntityDeleteResponse,

@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock
+from unittest.mock import Mock, MagicMock
 from fastapi import HTTPException
 from models.rest_api.handlers.entity.backlinks import BacklinkHandler
 
@@ -10,7 +10,8 @@ class TestBacklinkAPI:
         self.handler = BacklinkHandler()
         self.vitess_client = Mock()
 
-    def test_get_backlinks_success(self) -> None:
+    @pytest.mark.asyncio
+    async def test_get_backlinks_success(self) -> None:
         """Test successful backlinks retrieval."""
         entity_id = "Q5"
         mock_results = [
@@ -30,14 +31,17 @@ class TestBacklinkAPI:
 
         # Mock connection and resolvers
         mock_conn = Mock()
-        self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_cm = MagicMock()
+        mock_cm.__enter__.return_value = mock_conn
+        mock_cm.__exit__.return_value = None
+        self.vitess_client.connection_manager.get_connection.return_value = mock_cm
         self.vitess_client.id_resolver.resolve_id.return_value = 555  # Q5 -> 555
         self.vitess_client.get_backlinks.return_value = mock_results
         self.vitess_client.id_resolver.resolve_entity_id.side_effect = (
             lambda conn, iid: {123: "Q123", 124: "Q124"}.get(iid, "")
         )
 
-        result = self.handler.get(entity_id, self.vitess_client)
+        result = await self.handler.get(entity_id, self.vitess_client)
 
         expected = {
             "backlinks": [
@@ -47,37 +51,46 @@ class TestBacklinkAPI:
             "limit": 100,
             "offset": 0,
         }
-        assert result == expected
+        assert result.model_dump() == expected
 
-    def test_get_backlinks_entity_not_found(self) -> None:
+    @pytest.mark.asyncio
+    async def test_get_backlinks_entity_not_found(self) -> None:
         """Test 404 when entity doesn't exist."""
         entity_id = "Q999"
 
         mock_conn = Mock()
-        self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_cm = MagicMock()
+        mock_cm.__enter__.return_value = mock_conn
+        mock_cm.__exit__.return_value = None
+        self.vitess_client.connection_manager.get_connection.return_value = mock_cm
         self.vitess_client.id_resolver.resolve_id.return_value = 0  # not found
 
         with pytest.raises(HTTPException) as exc_info:
-            self.handler.get(entity_id, self.vitess_client)
+            await self.handler.get(entity_id, self.vitess_client)
 
         assert exc_info.value.status_code == 404
         assert "Entity not found" in str(exc_info.value.detail)
 
-    def test_get_backlinks_empty_results(self) -> None:
+    @pytest.mark.asyncio
+    async def test_get_backlinks_empty_results(self) -> None:
         """Test empty backlinks list."""
         entity_id = "Q5"
 
         mock_conn = Mock()
-        self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_cm = MagicMock()
+        mock_cm.__enter__.return_value = mock_conn
+        mock_cm.__exit__.return_value = None
+        self.vitess_client.connection_manager.get_connection.return_value = mock_cm
         self.vitess_client.id_resolver.resolve_id.return_value = 555
         self.vitess_client.get_backlinks.return_value = []
 
-        result = self.handler.get(entity_id, self.vitess_client)
+        result = await self.handler.get(entity_id, self.vitess_client)
 
         expected = {"backlinks": [], "limit": 100, "offset": 0}
-        assert result == expected
+        assert result.model_dump() == expected
 
-    def test_get_backlinks_with_pagination(self) -> None:
+    @pytest.mark.asyncio
+    async def test_get_backlinks_with_pagination(self) -> None:
         """Test backlinks with custom pagination."""
         entity_id = "Q5"
         limit = 50
@@ -92,12 +105,15 @@ class TestBacklinkAPI:
         ]
 
         mock_conn = Mock()
-        self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_cm = MagicMock()
+        mock_cm.__enter__.return_value = mock_conn
+        mock_cm.__exit__.return_value = None
+        self.vitess_client.connection_manager.get_connection.return_value = mock_cm
         self.vitess_client.id_resolver.resolve_id.return_value = 555
         self.vitess_client.get_backlinks.return_value = mock_results
         self.vitess_client.id_resolver.resolve_entity_id.return_value = "Q123"
 
-        result = self.handler.get(entity_id, self.vitess_client, limit, offset)
+        result = await self.handler.get(entity_id, self.vitess_client, limit, offset)
 
         expected = {
             "backlinks": [
@@ -106,9 +122,10 @@ class TestBacklinkAPI:
             "limit": 50,
             "offset": 25,
         }
-        assert result == expected
+        assert result.model_dump() == expected
 
-    def test_get_backlinks_referencing_entity_not_found(self) -> None:
+    @pytest.mark.asyncio
+    async def test_get_backlinks_referencing_entity_not_found(self) -> None:
         """Test handling when referencing entity cannot be resolved."""
         entity_id = "Q5"
         mock_results = [
@@ -127,7 +144,10 @@ class TestBacklinkAPI:
         ]
 
         mock_conn = Mock()
-        self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_cm = MagicMock()
+        mock_cm.__enter__.return_value = mock_conn
+        mock_cm.__exit__.return_value = None
+        self.vitess_client.connection_manager.get_connection.return_value = mock_cm
         self.vitess_client.id_resolver.resolve_id.return_value = 555
         self.vitess_client.get_backlinks.return_value = mock_results
         self.vitess_client.id_resolver.resolve_entity_id.side_effect = (
@@ -137,7 +157,7 @@ class TestBacklinkAPI:
             }.get(iid, "")
         )
 
-        result = self.handler.get(entity_id, self.vitess_client)
+        result = await self.handler.get(entity_id, self.vitess_client)
 
         # Should only include resolvable entities
         expected = {
@@ -147,9 +167,10 @@ class TestBacklinkAPI:
             "limit": 100,
             "offset": 0,
         }
-        assert result == expected
+        assert result.model_dump() == expected
 
-    def test_get_backlinks_large_result_set(self) -> None:
+    @pytest.mark.asyncio
+    async def test_get_backlinks_large_result_set(self) -> None:
         """Test handling of large result sets."""
         entity_id = "Q5"
         # Simulate 150 results (more than default limit)
@@ -164,7 +185,10 @@ class TestBacklinkAPI:
         ]
 
         mock_conn = Mock()
-        self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_cm = MagicMock()
+        mock_cm.__enter__.return_value = mock_conn
+        mock_cm.__exit__.return_value = None
+        self.vitess_client.connection_manager.get_connection.return_value = mock_cm
         self.vitess_client.id_resolver.resolve_id.return_value = 555
         self.vitess_client.get_backlinks.return_value = mock_results[
             :100
@@ -173,23 +197,26 @@ class TestBacklinkAPI:
             lambda conn, iid: f"Q{iid}"
         )
 
-        result = self.handler.get(entity_id, self.vitess_client)
+        result = await self.handler.get(entity_id, self.vitess_client)
 
-        assert len(result["backlinks"]) == 100
-        assert result["limit"] == 100
-        assert result["offset"] == 0
+        assert len(result.backlinks) == 100
+        assert result.limit == 100
+        assert result.offset == 0
 
-    def test_connection_context_management(self) -> None:
+    @pytest.mark.asyncio
+    async def test_connection_context_management(self) -> None:
         """Test that database connections are properly managed."""
         entity_id = "Q5"
 
         mock_conn = Mock()
-        self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
-        self.vitess_client.connection_manager.get_connection.return_value.__exit__.return_value = None
+        mock_cm = MagicMock()
+        mock_cm.__enter__.return_value = mock_conn
+        mock_cm.__exit__.return_value = None
+        self.vitess_client.connection_manager.get_connection.return_value = mock_cm
         self.vitess_client.id_resolver.resolve_id.return_value = 555
         self.vitess_client.get_backlinks.return_value = []
 
-        self.handler.get(entity_id, self.vitess_client)
+        await self.handler.get(entity_id, self.vitess_client)
 
         # Verify context manager usage
         self.vitess_client.connection_manager.get_connection.assert_called_once()

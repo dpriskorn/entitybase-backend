@@ -84,7 +84,7 @@ services:
     build:
       context: ..
       dockerfile: docker/containers/Dockerfile.rest-api
-    container_name: api
+    container_name: rest-api
     ports:
       - "8000:8000"
     depends_on:
@@ -111,7 +111,7 @@ services:
        KAFKA_BROKERS: redpanda:9092
        KAFKA_TOPIC: wikibase.entity_change
        LOG_LEVEL: "DEBUG"
-       ENVIRONMENT: "dev" # ENVIRONMENT: "dev" for development (exposes original exceptions), "prod" for production (raises HTTP exceptions)
+       ENVIRONMENT: "dev"
     command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -137,11 +137,6 @@ services:
     depends_on:
       api:
         condition: service_healthy
-    environment:
-      REST_API_URL: http://rest-api:8000
-      TEST_LOG_LEVEL: "DEBUG"
-      TEST_LOG_HTTP_REQUESTS: "true"
-      TEST_SHOW_PROGRESS: "true"
     networks:
       - default
     mem_limit: 0.5g
