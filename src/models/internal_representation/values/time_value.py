@@ -2,6 +2,7 @@ import re
 
 from pydantic import ConfigDict, Field, field_validator
 from typing_extensions import Literal
+from models.config.settings import raise_validation_error
 from .base import Value
 
 
@@ -27,7 +28,7 @@ class TimeValue(Value):
             r"^[+-][0-9]{1,16}-(?:1[0-2]|0[0-9])-(?:3[01]|0[0-9]|[12][0-9])T(?:2[0-3]|[01][0-9]):[0-5][0-9]:[0-5][0-9]Z$"
         )
         if not pattern.match(v):
-            raise ValueError(
+            raise_validation_error(
                 f"Time value must be in format '+%Y-%m-%dT%H:%M:%SZ', got: {v}"
             )
         return v
@@ -39,7 +40,7 @@ class TimeValue(Value):
             if v.startswith("Q"):
                 v = "http://www.wikidata.org/entity/" + v
             else:
-                raise ValueError(
+                raise_validation_error(
                     f"Calendar model must be a Wikidata entity URI or QID, got: {v}"
                 )
         return v

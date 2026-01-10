@@ -6,6 +6,8 @@ Follows same algorithm as mediawiki-extensions-Wikibase/repo/includes/Rdf/HashDe
 
 from typing import Protocol
 
+from models.config.settings import raise_validation_error
+
 
 class DedupeBag(Protocol):
     """Interface for hash-based deduplication."""
@@ -71,7 +73,7 @@ class HashDedupeBag:
             The number of hash characters to use as key.
         """
         if cutoff <= 0:
-            raise ValueError(f"cutoff must be positive, got {cutoff}")
+            raise_validation_error(f"cutoff must be positive, got {cutoff}")
 
         self.bag: dict[str, str] = {}
         self.cutoff = cutoff

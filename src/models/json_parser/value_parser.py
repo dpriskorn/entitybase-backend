@@ -1,5 +1,6 @@
 from typing import Any
 
+from models.config.settings import raise_validation_error
 from models.internal_representation.values.base import Value
 
 from .values.entity_value_parser import parse_entity_value
@@ -50,7 +51,7 @@ def parse_value(snak_json: dict[str, Any]) -> Value:
         return parse_somevalue_value()
 
     if snaktype != JsonField.VALUE.value:
-        raise ValueError(f"Only value snaks are supported, got snaktype: {snaktype}")
+        raise_validation_error(f"Only value snaks are supported, got snaktype: {snaktype}")
 
     datavalue = snak_json.get(JsonField.DATAVALUE.value, {})
     datatype = snak_json.get(JsonField.DATATYPE.value)

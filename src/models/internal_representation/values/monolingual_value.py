@@ -1,5 +1,6 @@
 from pydantic import ConfigDict, Field, field_validator
 from typing_extensions import Literal
+from models.config.settings import raise_validation_error
 from .base import Value
 
 
@@ -16,5 +17,7 @@ class MonolingualValue(Value):
     @classmethod
     def validate_text(cls, v: str) -> str:
         if "\n" in v or "\r" in v:
-            raise ValueError("MonolingualText text must not contain newline characters")
+            raise_validation_error(
+                "MonolingualText text must not contain newline characters"
+            )
         return v
