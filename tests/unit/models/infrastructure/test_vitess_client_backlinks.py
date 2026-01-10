@@ -1,4 +1,5 @@
 from unittest.mock import Mock, patch
+from typing import Union
 from models.infrastructure.vitess_client import VitessClient
 from models.vitess_models import VitessConfig
 
@@ -24,7 +25,9 @@ class TestVitessClientBacklinks:
 
     def test_insert_backlinks(self) -> None:
         """Test insert_backlinks delegates to repository."""
-        backlinks = [(123, 456, 789, "P31", "normal")]
+        backlinks: list[tuple[int, int, int, str, str]] = [
+            (123, 456, 789, "P31", "normal")
+        ]
 
         mock_conn = Mock()
         self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
@@ -37,7 +40,7 @@ class TestVitessClientBacklinks:
 
     def test_insert_backlinks_empty_list(self) -> None:
         """Test insert_backlinks handles empty list."""
-        backlinks = []
+        backlinks: list[tuple[int, int, int, str, str]] = []
 
         self.vitess_client.insert_backlinks(backlinks)
 
@@ -64,7 +67,7 @@ class TestVitessClientBacklinks:
     def test_get_backlinks(self) -> None:
         """Test get_backlinks delegates to repository and returns results."""
         referenced_internal_id = 123
-        mock_results = [
+        mock_results: list[dict[str, Union[int, str]]] = [
             {
                 "referencing_internal_id": 456,
                 "statement_hash": 789,
@@ -89,7 +92,7 @@ class TestVitessClientBacklinks:
         referenced_internal_id = 123
         limit = 50
         offset = 25
-        mock_results = []
+        mock_results: list[dict[str, Union[int, str]]] = []
 
         mock_conn = Mock()
         self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
@@ -104,7 +107,9 @@ class TestVitessClientBacklinks:
 
     def test_connection_context_management(self) -> None:
         """Test that connections are properly managed with context managers."""
-        backlinks = [(123, 456, 789, "P31", "normal")]
+        backlinks: list[tuple[int, int, int, str, str]] = [
+            (123, 456, 789, "P31", "normal")
+        ]
 
         mock_conn_manager = self.vitess_client.connection_manager
         mock_conn = Mock()

@@ -11,13 +11,15 @@ class TestBacklinkRepository:
 
     def test_insert_backlinks_empty_list(self) -> None:
         """Test inserting empty backlinks list does nothing."""
-        backlinks = []
+        backlinks: list[tuple[int, int, int, str, str]] = []
         self.repository.insert_backlinks(self.conn, backlinks)
         self.conn.cursor.assert_not_called()
 
     def test_insert_backlinks_single(self) -> None:
         """Test inserting a single backlink."""
-        backlinks = [(123, 456, 789, "P31", "normal")]
+        backlinks: list[tuple[int, int, int, str, str]] = [
+            (123, 456, 789, "P31", "normal")
+        ]
 
         cursor_mock = Mock()
         self.conn.cursor.return_value.__enter__.return_value = cursor_mock
@@ -37,7 +39,7 @@ class TestBacklinkRepository:
 
     def test_insert_backlinks_multiple(self) -> None:
         """Test inserting multiple backlinks."""
-        backlinks = [
+        backlinks: list[tuple[int, int, int, str, str]] = [
             (123, 456, 789, "P31", "normal"),
             (124, 457, 790, "P32", "preferred"),
         ]
@@ -151,7 +153,9 @@ class TestBacklinkRepository:
 
     def test_connection_context_manager(self) -> None:
         """Test that cursor is properly used as context manager."""
-        backlinks = [(123, 456, 789, "P31", "normal")]
+        backlinks: list[tuple[int, int, int, str, str]] = [
+            (123, 456, 789, "P31", "normal")
+        ]
 
         cursor_mock = Mock()
         self.conn.cursor.return_value.__enter__.return_value = cursor_mock

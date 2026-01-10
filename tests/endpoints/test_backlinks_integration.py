@@ -1,3 +1,6 @@
+from typing import Any
+
+
 class TestBacklinksIntegration:
     """Integration tests for backlinks functionality.
 
@@ -5,7 +8,7 @@ class TestBacklinksIntegration:
     They should be run separately from unit tests.
     """
 
-    def test_create_entity_with_backlinks(self, api_client, base_url):
+    def test_create_entity_with_backlinks(self, api_client: Any, base_url: str) -> None:
         """Integration test: Create entity with statements that create backlinks."""
         # This is a placeholder for full integration testing
         # Would require:

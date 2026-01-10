@@ -13,7 +13,9 @@ class TestBacklinkPopulation:
 
     @patch("models.rest_api.handlers.entity.hash_entity_statements")
     @patch("models.rest_api.handlers.entity.deduplicate_and_store_statements")
-    def test_backlink_population_creation_success(self, mock_dedup, mock_hash):
+    def test_backlink_population_creation_success(
+        self, mock_dedup: Mock, mock_hash: Mock
+    ) -> None:
         """Test successful backlink population during entity creation."""
         entity_id = "Q123"
         request_data = {
@@ -92,7 +94,9 @@ class TestBacklinkPopulation:
 
     @patch("models.rest_api.handlers.entity.hash_entity_statements")
     @patch("models.rest_api.handlers.entity.deduplicate_and_store_statements")
-    def test_backlink_population_no_statements(self, mock_dedup, mock_hash):
+    def test_backlink_population_no_statements(
+        self, mock_dedup: Mock, mock_hash: Mock
+    ) -> None:
         """Test backlink population when entity has no statements."""
         entity_id = "Q123"
         request_data = {"id": entity_id, "type": "item", "claims": {}}
@@ -113,7 +117,9 @@ class TestBacklinkPopulation:
 
     @patch("models.rest_api.handlers.entity.hash_entity_statements")
     @patch("models.rest_api.handlers.entity.deduplicate_and_store_statements")
-    def test_backlink_population_entity_not_found(self, mock_dedup, mock_hash):
+    def test_backlink_population_entity_not_found(
+        self, mock_dedup: Mock, mock_hash: Mock
+    ) -> None:
         """Test backlink population when entity internal_id cannot be resolved."""
         entity_id = "Q123"
         request_data = {
@@ -176,8 +182,8 @@ class TestBacklinkPopulation:
     @patch("models.rest_api.handlers.entity.hash_entity_statements")
     @patch("models.rest_api.handlers.entity.deduplicate_and_store_statements")
     def test_backlink_population_referenced_entity_not_found(
-        self, mock_dedup, mock_hash
-    ):
+        self, mock_dedup: Mock, mock_hash: Mock
+    ) -> None:
         """Test backlink population when referenced entity cannot be resolved."""
         entity_id = "Q123"
         request_data = {
@@ -249,7 +255,9 @@ class TestBacklinkPopulation:
 
     @patch("models.rest_api.handlers.entity.hash_entity_statements")
     @patch("models.rest_api.handlers.entity.deduplicate_and_store_statements")
-    def test_backlink_population_multiple_statements(self, mock_dedup, mock_hash):
+    def test_backlink_population_multiple_statements(
+        self, mock_dedup: Mock, mock_hash: Mock
+    ) -> None:
         """Test backlink population with multiple statements and references."""
         entity_id = "Q123"
         request_data = {
