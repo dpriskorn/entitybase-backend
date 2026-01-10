@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import APIRouter, FastAPI, Response
+from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 
@@ -14,17 +14,12 @@ from models.api_models import (
     CleanupOrphanedRequest,
     CleanupOrphanedResponse,
     EntityDeleteRequest,
-    EntityUpdateRequest,
     EntityDeleteResponse,
     EntityListResponse,
     EntityRedirectResponse,
     EntityResponse,
     EntityRedirectRequest,
     HealthCheckResponse,
-    EntityCreateRequest,
-    ItemUpdateRequest,
-    MostUsedStatementsRequest,
-    MostUsedStatementsResponse,
     PropertyCountsResponse,
     PropertyHashesResponse,
     PropertyListResponse,
@@ -40,10 +35,7 @@ from models.rest_api.services.enumeration_service import EnumerationService
 from models.rest_api.handlers.admin import AdminHandler
 from models.rest_api.handlers.entity.read import EntityReadHandler
 from models.rest_api.handlers.entity.delete import EntityDeleteHandler
-from models.rest_api.handlers.entity.item import ItemCreateHandler
-from models.rest_api.handlers.entity.lexeme import LexemeCreateHandler
-from models.rest_api.handlers.entity.update import EntityUpdateHandler
-from models.rest_api.handlers.entity.items.update import ItemUpdateHandler
+from .v1 import v1_router
 from models.rest_api.handlers.export import ExportHandler
 from models.rest_api.handlers.redirect import RedirectHandler
 from models.rest_api.handlers.statement import StatementHandler
@@ -134,8 +126,6 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(lifespan=lifespan)
 
-v1_router = APIRouter(prefix="/v1")
-
 
 @app.exception_handler(ValidationError)
 async def validation_error_handler(exc: ValidationError) -> JSONResponse:
@@ -167,87 +157,6 @@ def health_redirect() -> Any:
     from fastapi.responses import RedirectResponse
 
     return RedirectResponse(url="/health", status_code=302)
-
-
-@v1_router.post("/entities/items", response_model=EntityResponse)
-async def create_item(request: EntityCreateRequest) -> EntityResponse:
-    clients = app.state.clients
-    validator = app.state.validator
-    enumeration_service = app.state.enumeration_service
-    handler = ItemCreateHandler(enumeration_service)
-    return await handler.create_entity(
-        request,
-        clients.vitess,
-        clients.s3,
-        clients.stream_producer,
-        validator,
-    )
-
-
-@v1_router.post("/entities/lexemes", response_model=EntityResponse)
-async def create_lexeme(request: EntityCreateRequest) -> EntityResponse:
-    clients = app.state.clients
-    validator = app.state.validator
-    enumeration_service = app.state.enumeration_service
-    handler = LexemeCreateHandler(enumeration_service)
-    return await handler.create_entity(
-        request,
-        clients.vitess,
-        clients.s3,
-        clients.stream_producer,
-        validator,
-    )
-
-
-@v1_router.put("/entities/items/{entity_id}", response_model=EntityResponse)
-async def update_item_v1(
-    entity_id: str, request: EntityUpdateRequest
-) -> EntityResponse:
-    clients = app.state.clients
-    validator = app.state.validator
-    handler = ItemUpdateHandler()
-    return await handler.update_entity(
-        entity_id,
-        request,
-        clients.vitess,
-        clients.s3,
-        clients.stream_producer,
-        validator,
-    )
-
-
-@app.put("/item/{entity_id}", response_model=EntityResponse)
-async def update_item(entity_id: str, request: ItemUpdateRequest) -> EntityResponse:
-    clients = app.state.clients
-    validator = app.state.validator
-    handler = EntityUpdateHandler()
-    # Convert to EntityUpdateRequest
-    entity_request = EntityUpdateRequest(**request.model_dump())
-    return await handler.update_entity(
-        entity_id,
-        entity_request,
-        clients.vitess,
-        clients.s3,
-        clients.stream_producer,
-        validator,
-    )
-
-
-@app.put("/property/{entity_id}", response_model=EntityResponse)
-async def update_property(entity_id: str, request: ItemUpdateRequest) -> EntityResponse:
-    clients = app.state.clients
-    validator = app.state.validator
-    handler = EntityUpdateHandler()
-    entity_request = EntityUpdateRequest(**request.model_dump())
-    entity_request.type = "property"
-    return await handler.update_entity(
-        entity_id,
-        entity_request,
-        clients.vitess,
-        clients.s3,
-        clients.stream_producer,
-        validator,
-    )
 
 
 @v1_router.get("/entities/{entity_id}", response_model=EntityResponse)
@@ -295,15 +204,6 @@ async def revert_entity_redirect(
     )
 
 
-@v1_router.get(
-    "/entities/{entity_id}/revision/{revision_id}", response_model=Dict[str, Any]
-)
-def get_entity_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
-    clients = app.state.clients
-    handler = EntityReadHandler()
-    return handler.get_entity_revision(entity_id, revision_id, clients.s3)  # type: ignore
-
-
 @v1_router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)
 async def delete_entity(
     entity_id: str, request: EntityDeleteRequest
@@ -329,17 +229,6 @@ def list_entities(
     clients = app.state.clients
     handler = AdminHandler()
     return handler.list_entities(clients.vitess, status, edit_type, limit)
-
-
-@app.get("/statement/most_used", response_model=MostUsedStatementsResponse)
-def get_most_used_statements(
-    request: MostUsedStatementsRequest,
-) -> MostUsedStatementsResponse:
-    clients = app.state.clients
-    handler = StatementHandler()
-    return handler.get_most_used_statements(
-        clients.vitess, request.limit, request.min_ref_count
-    )
 
 
 @app.get("/statement/{content_hash}", response_model=StatementResponse)
