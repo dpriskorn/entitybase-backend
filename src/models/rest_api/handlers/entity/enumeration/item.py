@@ -1,6 +1,4 @@
-from abc import ABC, abstractmethod
-
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from models.rest_api.handlers.entity.enumeration import EnumerationHandler
 
@@ -19,4 +17,3 @@ class ItemEnumerationHandler(EnumerationHandler):
         # TODO: Implement database-backed ID generation
         # For now, return a placeholder
         return f"Q{self.min_id}"
-

@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 class IdGeneratorWorker(BaseModel):
     """Worker service for generating entity IDs using range-based allocation."""
 
-    def __init__(self, worker_id: Optional[str] = None):
+    def __init__(self, /, worker_id: Optional[str] = None, **data: Any):
+        super().__init__(**data)
         self.worker_id = worker_id or os.getenv("WORKER_ID", f"worker-{os.getpid()}")
         self.vitess_client = None
         self.enumeration_service = None

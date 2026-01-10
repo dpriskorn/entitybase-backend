@@ -1,6 +1,4 @@
-from abc import ABC, abstractmethod
-
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from models.rest_api.handlers.entity.enumeration import EnumerationHandler
 

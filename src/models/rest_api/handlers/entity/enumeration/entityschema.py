@@ -1,6 +1,4 @@
-from abc import ABC, abstractmethod
-
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from models.rest_api.handlers.entity.enumeration import EnumerationHandler
 
@@ -18,4 +16,3 @@ class EntitySchemaEnumerationHandler(EnumerationHandler):
     def next_entity_id(self) -> str:
         # TODO: Implement database-backed ID generation
         return f"E{self.min_id}"
-

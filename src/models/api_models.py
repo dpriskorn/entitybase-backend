@@ -30,8 +30,8 @@ class EditType(Enum):
 class DeleteType(Enum):
     """Enumeration of different types of deletions."""
 
-    SOFT_DELETE = "soft-delete"
-    HARD_DELETE = "hard-delete"
+    SOFT = "soft-delete"
+    HARD = "hard-delete"
 
 
 class ItemCreateRequest(BaseModel):
@@ -164,19 +164,27 @@ ItemResponse = EntityResponse
 class CleanupOrphanedRequest(BaseModel):
     """Request model for cleanup orphaned entities."""
 
-    pass
+    older_than_days: int = Field(default=180, description="Minimum age in days")
+    limit: int = Field(default=1000, description="Maximum statements to cleanup")
 
 
 class CleanupOrphanedResponse(BaseModel):
     """Response model for cleanup orphaned entities."""
 
-    pass
+    cleaned_count: int = Field(description="Number of statements cleaned")
+    failed_count: int = Field(description="Number of statements that failed to clean")
+    errors: list[str] = Field(
+        default_factory=list, description="List of error messages"
+    )
 
 
 class EntityDeleteRequest(BaseModel):
     """Request model for deleting an entity."""
 
-    pass
+    delete_type: DeleteType = Field(description="Type of deletion")
+    edit_summary: str = Field(default="", description="Edit summary")
+    editor: str = Field(default="", description="Editor who performed the deletion")
+    bot: bool = Field(default=False, description="Whether the editor is a bot")
 
 
 class EntityUpdateRequest(BaseModel):

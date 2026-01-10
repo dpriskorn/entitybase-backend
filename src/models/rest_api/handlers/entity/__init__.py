@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict
 
 from fastapi import HTTPException
+from pydantic import BaseModel
 from rapidhash import rapidhash
 
 from models.api_models import EditType, EntityResponse, StatementHashResult
@@ -23,26 +24,26 @@ from models.rest_api.services.statement_service import (
 logger = logging.getLogger(__name__)
 
 
-def edit_type_to_change_type(edit_type: str) -> ChangeType:
-    """Convert edit type string to ChangeType enum."""
-    mapping = {
-        "unspecified": ChangeType.EDIT,
-        "bot_import": ChangeType.CREATION,
-        "cleanup_2025": ChangeType.EDIT,
-        "manual_create": ChangeType.CREATION,
-        "manual_update": ChangeType.EDIT,
-        "manual_correction": ChangeType.EDIT,
-        "bot_cleanup": ChangeType.EDIT,
-        "bot_merge": ChangeType.EDIT,
-        "bot_split": ChangeType.EDIT,
-        "migration_initial": ChangeType.CREATION,
-        "migration_batch": ChangeType.EDIT,
-    }
-    return mapping.get(edit_type, ChangeType.EDIT)
-
-
-class EntityHandler:
+class EntityHandler(BaseModel):
     """Base entity handler with common functionality"""
+
+    @staticmethod
+    def edit_type_to_change_type(edit_type: str) -> ChangeType:
+        """Convert edit type string to ChangeType enum."""
+        mapping = {
+            "unspecified": ChangeType.EDIT,
+            "bot_import": ChangeType.CREATION,
+            "cleanup_2025": ChangeType.EDIT,
+            "manual_create": ChangeType.CREATION,
+            "manual_update": ChangeType.EDIT,
+            "manual_correction": ChangeType.EDIT,
+            "bot_cleanup": ChangeType.EDIT,
+            "bot_merge": ChangeType.EDIT,
+            "bot_split": ChangeType.EDIT,
+            "migration_initial": ChangeType.CREATION,
+            "migration_batch": ChangeType.EDIT,
+        }
+        return mapping.get(edit_type, ChangeType.EDIT)
 
     async def _process_entity_revision(
         self,
@@ -325,7 +326,9 @@ class EntityHandler:
         logger.info(f"Entity {entity_id}: Creating revision {new_revision_id}")
         try:
             vitess_client.create_revision(entity_id, new_revision_id, revision_data)
-            vitess_client.write_entity_revision(entity_id, revision_data)
+            vitess_client.write_entity_revision(
+                entity_id, new_revision_id, revision_data
+            )
             logger.info(
                 f"Entity {entity_id}: Successfully created revision {new_revision_id}"
             )
@@ -349,7 +352,7 @@ class EntityHandler:
                 change_type = (
                     ChangeType.CREATION
                     if is_creation
-                    else edit_type_to_change_type(revision_edit_type)
+                    else self.edit_type_to_change_type(revision_edit_type)
                 )
                 await stream_producer.publish_change(
                     EntityChangeEvent(

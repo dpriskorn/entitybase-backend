@@ -7,8 +7,8 @@ from models.api_models import EntityCreateRequest, EntityResponse
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
-from ..services.enumeration_service import EnumerationService
 from . import EntityHandler
+from ...services.enumeration_service import EnumerationService
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,10 @@ logger = logging.getLogger(__name__)
 class EntityCreateHandler(EntityHandler):
     """Handler for entity creation operations"""
 
-    def __init__(self, enumeration_service: EnumerationService | None = None):
+    def __init__(
+        self, /, enumeration_service: EnumerationService | None = None, **data: Any
+    ):
+        super().__init__(**data)
         self.enumeration_service = enumeration_service
 
     async def create_entity(

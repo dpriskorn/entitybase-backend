@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 class ItemCreateHandler(EntityHandler):
     """Handler for item creation operations"""
 
-    def __init__(self, enumeration_service: EnumerationService):
+    def __init__(self, enumeration_service: EnumerationService, /, **data: Any):
+        super().__init__(**data)
         self.enumeration_service = enumeration_service
 
     async def create_item(
@@ -99,7 +100,8 @@ class ItemCreateHandler(EntityHandler):
 class PropertyCreateHandler(EntityHandler):
     """Handler for property creation operations"""
 
-    def __init__(self, enumeration_service: EnumerationService):
+    def __init__(self, enumeration_service: EnumerationService, /, **data: Any):
+        super().__init__(**data)
         self.enumeration_service = enumeration_service
 
     async def create_property(
