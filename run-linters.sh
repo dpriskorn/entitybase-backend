@@ -4,3 +4,4 @@ set -e
 ./run-ruff.sh
 ./run-mypy.sh
 ./run-vulture.sh
+./run-radon.py

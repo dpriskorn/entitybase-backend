@@ -40,13 +40,13 @@ def load_allowlist(filepath):
     # Combine with defaults
     return allowlist.union(default_allowlist)
 
-def find_duplicate_methods(directory, allowlist_file):
+def find_duplicate_methods(directory, allowlist_file, exclude_dirs):
     """Find duplicate method names across Python files"""
     methods = defaultdict(list)
     
     for root, dirs, files in os.walk(directory):
-        # Skip virtual environments and common ignore directories
-        dirs[:] = [d for d in dirs if d not in {'.venv', 'venv', 'node_modules', '.git', '__pycache__'}]
+        # Skip excluded directories
+        dirs[:] = [d for d in dirs if d not in exclude_dirs]
         
         for file in files:
             if file.endswith('.py'):
@@ -102,13 +102,26 @@ def main():
         default='.radon-allowlist.txt',
         help='Path to allowlist file (default: .radon-allowlist.txt)'
     )
+    parser.add_argument(
+        '--exclude',
+        action='append',
+        default=None,
+        help='Directory names to exclude (can be used multiple times, default: .venv)'
+    )
     
     args = parser.parse_args()
     
+    # Set default excludes if none provided
+    if args.exclude is None:
+        exclude_dirs = {'.venv'}
+    else:
+        exclude_dirs = set(args.exclude)
+    
     print(f"Checking for duplicate methods in: {args.directory}")
+    print(f"Excluding directories: {', '.join(sorted(exclude_dirs))}")
     print("----------------------------------------")
     
-    if find_duplicate_methods(args.directory, args.allow_list):
+    if find_duplicate_methods(args.directory, args.allow_list, exclude_dirs):
         sys.exit(1)
     else:
         print("\n✅ No duplicate methods found")
