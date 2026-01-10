@@ -218,8 +218,7 @@ class CreationTransaction(EntityTransaction):
 
     def commit(self) -> None:
         logger.info(f"[CreationTransaction] Committing creation for {self.entity_id}")
-        # TODO: Confirm ID usage to worker
-        # enumeration_service.confirm_id_usage(self.entity_id)
+
         self.operations.clear()  # Prevent rollback after commit
 
     def rollback(self) -> None:

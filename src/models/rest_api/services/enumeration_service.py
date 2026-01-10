@@ -1,6 +1,10 @@
+import logging
+
 from ...validation.utils import raise_validation_error
 from models.infrastructure.vitess_client import VitessClient
 from .id_range_manager import IdRangeManager
+
+logger = logging.getLogger(__name__)
 
 
 class EnumerationService:
@@ -43,36 +47,22 @@ class EnumerationService:
         entity_prefix = type_mapping[entity_type]
         return self.range_manager.get_next_id(entity_prefix)
 
-    def validate_entity_id(self, entity_id: str, entity_type: str) -> bool:
-        """Validate that an entity ID matches the expected format for its type."""
-        # Map entity types to single-character codes
-        type_mapping = {
-            "item": "Q",
-            "property": "P",
-            "lexeme": "L",
-            "entityschema": "E",
-        }
-
-        if entity_type not in type_mapping:
-            return False
-
-        expected_prefix = type_mapping[entity_type]
-
-        if not entity_id.startswith(expected_prefix):
-            return False
-
-        # Extract numeric part
-        try:
-            id_number = int(entity_id[1:])  # Skip the prefix
-            return id_number >= 1  # All IDs start from 1
-        except ValueError:
-            return False
-
     def get_range_status(self) -> dict:
         """Get status of ID ranges for monitoring."""
         return self.range_manager.get_range_status()
 
     def confirm_id_usage(self, entity_id: str) -> None:
         """Confirm that an ID has been successfully used (handshake with worker)."""
-        # TODO: Implement handshake, e.g., mark in range metadata
-        pass
+        # Extract prefix and number
+        prefix = entity_id[0]
+        try:
+            number = int(entity_id[1:])
+        except ValueError:
+            logger.warning(f"Invalid entity ID format for confirmation: {entity_id}")
+            return
+
+        # Mark in range metadata (placeholder for future implementation)
+        logger.info(
+            f"Confirmed usage of ID {entity_id} (prefix {prefix}, number {number})"
+        )
+        # TODO: Update range metadata, e.g., self.range_manager.mark_used(prefix, number)

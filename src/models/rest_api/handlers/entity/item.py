@@ -89,6 +89,10 @@ class ItemCreateHandler(EntityCreateHandler):
 
             # Commit
             tx.commit()
+
+            # Confirm ID usage to worker
+            self.enumeration_service.confirm_id_usage(entity_id)
+
             return response
         except Exception as e:
             logger.error(f"Item creation failed for {entity_id}: {e}")
