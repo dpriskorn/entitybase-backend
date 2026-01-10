@@ -18,6 +18,16 @@ class IdResolver:
     def entity_exists(self, conn: Any, entity_id: str) -> bool:
         return self.resolve_id(conn, entity_id) != 0
 
+    @staticmethod
+    def resolve_entity_id(conn: Any, internal_id: int) -> str:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT entity_id FROM entity_id_mapping WHERE internal_id = %s",
+                (internal_id,),
+            )
+            result = cursor.fetchone()
+            return result[0] if result else ""
+
     def register_entity(self, conn: Any, entity_id: str) -> None:
         from models.infrastructure.ulid_flake import generate_ulid_flake
 

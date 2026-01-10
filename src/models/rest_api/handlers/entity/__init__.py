@@ -21,6 +21,9 @@ from models.rest_api.services.statement_service import (
     deduplicate_and_store_statements,
     hash_entity_statements,
 )
+from models.internal_representation.statement_backlink_extractor import (
+    StatementBacklinkExtractor,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -256,6 +259,54 @@ class EntityHandler(BaseModel):
             logger.info(
                 f"Entity {entity_id}: Stored {len(hash_result.statements)} statements with hashes: {hash_result.statements}"
             )
+
+            # Populate backlinks
+            logger.debug(f"Entity {entity_id}: Starting backlink population")
+            with vitess_client.connection_manager.get_connection() as conn:
+                referencing_internal_id = vitess_client.id_resolver.resolve_id(
+                    conn, entity_id
+                )
+                if referencing_internal_id:
+                    # Delete existing backlinks (for updates)
+                    vitess_client.backlink_repository.delete_backlinks_for_entity(
+                        conn, referencing_internal_id
+                    )
+
+                    all_backlinks = []
+                    for statement, statement_hash in zip(
+                        hash_result.full_statements, hash_result.statements
+                    ):
+                        backlinks = StatementBacklinkExtractor.extract_backlink_data(
+                            statement
+                        )
+                        for referenced_entity_id, property_id, rank in backlinks:
+                            referenced_internal_id = (
+                                vitess_client.id_resolver.resolve_id(
+                                    conn, referenced_entity_id
+                                )
+                            )
+                            if referenced_internal_id:
+                                all_backlinks.append(
+                                    (
+                                        referenced_internal_id,
+                                        referencing_internal_id,
+                                        statement_hash,
+                                        property_id,
+                                        rank,
+                                    )
+                                )
+                    if all_backlinks:
+                        vitess_client.insert_backlinks(all_backlinks)
+                        logger.info(
+                            f"Entity {entity_id}: Inserted {len(all_backlinks)} backlinks"
+                        )
+                    else:
+                        logger.debug(f"Entity {entity_id}: No backlinks to insert")
+                else:
+                    logger.warning(
+                        f"Entity {entity_id}: Could not resolve internal_id for backlinks"
+                    )
+
         except Exception as e:
             logger.error(
                 f"Entity {entity_id}: Statement deduplication and storage failed",

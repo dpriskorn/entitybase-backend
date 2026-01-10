@@ -2,6 +2,52 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-10] Backlinks Support Implementation
+
+### Summary
+
+Added `entity_backlinks` table to track incoming references between entities, enabling efficient backlink queries. Implemented QID extraction from statement JSON to identify referenced entities in mainsnak, qualifiers, and references.
+
+### Motivation
+
+- **Query Efficiency**: Enable fast lookup of entities that reference a given entity in their statements
+- **Scalability**: Use BIGINT internal_ids for FKs, with sharding on referenced_internal_id
+- **Completeness**: Support full Wikibase backlinks functionality for entity relationships
+
+### Changes
+
+#### New entity_backlinks Table
+
+**File**: `src/models/infrastructure/vitess/schema.py`
+
+Added table to track backlinks with composite primary key for uniqueness:
+
+- `referenced_internal_id` BIGINT (entity being referenced)
+- `referencing_internal_id` BIGINT (entity making the reference)
+- `statement_hash` BIGINT (links to specific statement)
+- `property_id` VARCHAR(32) (property used in statement)
+- `rank` ENUM (preferred/normal/deprecated)
+
+Includes foreign key constraints and indexes for query performance.
+
+#### QID Extraction Logic
+
+**File**: `src/models/domain/entity/statement_parser.py` (new)
+
+Recursive function to extract entity IDs from statement JSON structures.
+
+#### Updated Entity Write Logic
+
+**File**: `src/models/rest_api/handlers/entity/types.py`
+
+Modified entity update/create to populate backlinks table during statement processing.
+
+#### New API Endpoint
+
+**File**: `src/models/rest_api/handlers/entity/backlinks.py` (new)
+
+`GET /entities/{id}/backlinks` returns paginated list of referencing entities.
+
 ## [2026-01-09] Transaction-Based Item Creation with Rollback
 
 ### Summary

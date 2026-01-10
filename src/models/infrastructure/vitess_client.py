@@ -1,6 +1,6 @@
 from contextlib import contextmanager
 import json
-from typing import Any, Generator
+from typing import Any, Generator, Union
 
 from pydantic import Field
 from models.validation.utils import raise_validation_error
@@ -17,6 +17,7 @@ from models.infrastructure.vitess.head_repository import HeadRepository
 
 # from models.infrastructure.vitess.listing_repository import ListingRepository  # DISABLED: Listing not used
 from models.infrastructure.vitess.statement_repository import StatementRepository
+from models.infrastructure.vitess.backlink_repository import BacklinkRepository
 
 
 class VitessClient(Client):
@@ -30,6 +31,7 @@ class VitessClient(Client):
     head_repository: HeadRepository = Field(default=None, exclude=True)
     # listing_repository: ListingRepository = Field(default=None, exclude=True)  # DISABLED: Not used
     statement_repository: StatementRepository = Field(default=None, exclude=True)
+    backlink_repository: BacklinkRepository = Field(default=None, exclude=True)
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
@@ -48,6 +50,7 @@ class VitessClient(Client):
         self.head_repository = HeadRepository(self.connection_manager, self.id_resolver)
         # self.listing_repository = ListingRepository(self.connection_manager)  # DISABLED: Listing not used
         self.statement_repository = StatementRepository(self.connection_manager)
+        self.backlink_repository = BacklinkRepository(self.connection_manager)
         self._create_tables()
 
     def _create_tables(self) -> None:
@@ -345,3 +348,24 @@ class VitessClient(Client):
                     "properties": json.loads(result[1]) if result[1] else [],
                     "property_counts": json.loads(result[2]) if result[2] else {},
                 }
+
+    def insert_backlinks(self, backlinks: list[tuple[int, int, int, str, str]]) -> None:
+        """Insert backlinks into entity_backlinks table."""
+        with self.connection_manager.get_connection() as conn:
+            self.backlink_repository.insert_backlinks(conn, backlinks)
+
+    def delete_backlinks_for_entity(self, referencing_internal_id: int) -> None:
+        """Delete all backlinks for a referencing entity."""
+        with self.connection_manager.get_connection() as conn:
+            self.backlink_repository.delete_backlinks_for_entity(
+                conn, referencing_internal_id
+            )
+
+    def get_backlinks(
+        self, referenced_internal_id: int, limit: int = 100, offset: int = 0
+    ) -> list[dict[str, Union[int, str]]]:
+        """Get backlinks for an entity."""
+        with self.connection_manager.get_connection() as conn:
+            return self.backlink_repository.get_backlinks(
+                conn, referenced_internal_id, limit, offset
+            )

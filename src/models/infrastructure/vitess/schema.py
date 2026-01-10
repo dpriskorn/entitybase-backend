@@ -52,6 +52,23 @@ class SchemaManager:
 
         cursor.execute(
             """
+            CREATE TABLE IF NOT EXISTS entity_backlinks (
+                referenced_internal_id BIGINT NOT NULL,
+                referencing_internal_id BIGINT NOT NULL,
+                statement_hash BIGINT NOT NULL,
+                property_id VARCHAR(32) NOT NULL,
+                rank ENUM('preferred', 'normal', 'deprecated') NOT NULL,
+                PRIMARY KEY (referenced_internal_id, referencing_internal_id, statement_hash),
+                FOREIGN KEY (referenced_internal_id) REFERENCES entity_id_mapping(internal_id),
+                FOREIGN KEY (referencing_internal_id) REFERENCES entity_id_mapping(internal_id),
+                FOREIGN KEY (statement_hash) REFERENCES statement_content(content_hash),
+                INDEX idx_backlinks_property (referencing_internal_id, property_id)
+            )
+        """
+        )
+
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS statement_content (
                 content_hash BIGINT UNSIGNED PRIMARY KEY,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
