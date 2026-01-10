@@ -88,3 +88,4 @@ models.rest_api.main.create_lexeme
 models.rest_api.main.update_item_v1
 models.rest_api.main.update_item
 models.rest_api.main.update_property
+models.infrastructure.vitess_client.VitessClient._resolve_id

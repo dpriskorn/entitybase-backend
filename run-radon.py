@@ -94,7 +94,7 @@ def main():
     parser.add_argument(
         'directory',
         nargs='?',
-        default='.',
+        default='src',
         help='Directory to scan for Python files (default: current directory)'
     )
     parser.add_argument(

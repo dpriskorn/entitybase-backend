@@ -44,6 +44,7 @@ dev = [
 paths = ["src"]
 exclude = ["tests"]
 ignore_names = ["arbitrary_types_allowed", "model_config"]
+# Note: Vulture whitelist is configured in run-vulture.sh, not here
 
 [tool.mypy]
 python_version = "3.13"
