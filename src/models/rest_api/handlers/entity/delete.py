@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from fastapi import HTTPException
 
 from models.api_models import DeleteType, EntityDeleteRequest, EntityDeleteResponse
-from models.config.settings import settings
+from models.config.settings import raise_validation_error, settings
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import (
     ChangeType,
@@ -29,10 +29,10 @@ class EntityDeleteHandler:
     ) -> EntityDeleteResponse:
         """Delete entity (soft or hard delete)."""
         if vitess_client is None:
-            raise HTTPException(status_code=503, detail="Vitess not initialized")
+            raise_validation_error("Vitess not initialized", status_code=503)
 
         if s3_client is None:
-            raise HTTPException(status_code=503, detail="S3 not initialized")
+            raise_validation_error("S3 not initialized", status_code=503)
 
         logger.info(
             f"=== ENTITY DELETE START: {entity_id} ===",
@@ -48,17 +48,15 @@ class EntityDeleteHandler:
 
         # Check entity exists
         if not vitess_client.entity_exists(entity_id):
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         # Check if entity is already deleted
         if vitess_client.is_entity_deleted(entity_id):
-            raise HTTPException(
-                status_code=410, detail=f"Entity {entity_id} has been deleted"
-            )
+            raise_validation_error(f"Entity {entity_id} has been deleted", status_code=410)
 
         head_revision_id = vitess_client.get_head(entity_id)
         if head_revision_id == 0:
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         logger.debug(f"Current head revision for {entity_id}: {head_revision_id}")
 
@@ -69,12 +67,12 @@ class EntityDeleteHandler:
         try:
             # Archived items block all edits
             if protection_info.get("is_archived", False):
-                raise HTTPException(403, "Item is archived and cannot be edited")
+                raise_validation_error("Item is archived and cannot be edited", status_code=403)
 
             # Locked items block all edits
             if protection_info.get("is_locked", False):
-                raise HTTPException(403, "Item is locked from all edits")
-        except HTTPException:
+                raise_validation_error("Item is locked from all edits", status_code=403)
+        except (HTTPException, ValueError):
             raise
         except Exception:
             pass

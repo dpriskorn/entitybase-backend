@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from rapidhash import rapidhash
 
 from models.api_models import EditType, EntityResponse, StatementHashResult
-from models.config.settings import settings
+from models.config.settings import raise_validation_error, settings
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import (
     ChangeType,
@@ -177,26 +177,26 @@ class EntityHandler(BaseModel):
         try:
             # Archived items block all edits
             if protection_info.get("is_archived", False):
-                raise HTTPException(403, "Item is archived and cannot be edited")
+                raise_validation_error("Item is archived and cannot be edited", status_code=403)
 
             # Locked items block all edits
             if protection_info.get("is_locked", False):
-                raise HTTPException(403, "Item is locked from all edits")
+                raise_validation_error("Item is locked from all edits", status_code=403)
 
             # Mass-edit protection blocks mass edits only
             if protection_info.get("is_mass_edit_protected", False) and is_mass_edit:
-                raise HTTPException(403, "Mass edits blocked on this item")
+                raise_validation_error("Mass edits blocked on this item", status_code=403)
 
             # Semi-protection blocks not-autoconfirmed users
             if (
                 protection_info.get("is_semi_protected", False)
                 and is_not_autoconfirmed_user
             ):
-                raise HTTPException(
-                    403,
+                raise_validation_error(
                     "Semi-protected items cannot be edited by new or unconfirmed users",
+                    status_code=403,
                 )
-        except HTTPException:
+        except (HTTPException, ValueError):
             raise
         except Exception:
             pass
@@ -233,9 +233,7 @@ class EntityHandler(BaseModel):
                     "operation": "statement_hashing_failed",
                 },
             )
-            raise HTTPException(
-                status_code=400, detail=f"Statement processing failed: {e}"
-            )
+            raise_validation_error(f"Statement processing failed: {e}", status_code=400)
 
         # Deduplicate and store statements
         logger.info(f"Entity {entity_id}: Starting statement deduplication and storage")
@@ -262,9 +260,7 @@ class EntityHandler(BaseModel):
                     "operation": "statement_storage_failed",
                 },
             )
-            raise HTTPException(
-                status_code=500, detail=f"Statement storage failed: {e}"
-            )
+            raise_validation_error(f"Statement storage failed: {e}", status_code=500)
 
         return hash_result
 
@@ -342,9 +338,7 @@ class EntityHandler(BaseModel):
                     "operation": "revision_creation_failed",
                 },
             )
-            raise HTTPException(
-                status_code=500, detail=f"Revision creation failed: {e}"
-            )
+            raise_validation_error(f"Revision creation failed: {e}", status_code=500)
 
         # Publish change event
         if stream_producer:

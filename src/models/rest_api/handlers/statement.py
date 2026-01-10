@@ -1,7 +1,6 @@
 import logging
 
 from botocore.exceptions import ClientError
-from fastapi import HTTPException
 
 from models.api_models import (
     MostUsedStatementsResponse,
@@ -12,6 +11,7 @@ from models.api_models import (
     StatementBatchResponse,
     StatementResponse,
 )
+from models.config.settings import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 
@@ -32,7 +32,7 @@ class StatementHandler:
 
         if s3_client is None:
             logger.error("S3 client is None - not initialized")
-            raise HTTPException(status_code=503, detail="S3 not initialized")
+            raise_validation_error("S3 not initialized", status_code=503)
 
         logger.debug(
             f"S3 client initialized, attempting to read statement {content_hash}"
@@ -56,9 +56,7 @@ class StatementHandler:
                     "s3_client_initialized": s3_client is not None,
                 },
             )
-            raise HTTPException(
-                status_code=404, detail=f"Statement {content_hash} not found"
-            )
+            raise_validation_error(f"Statement {content_hash} not found", status_code=404)
 
     def get_statements_batch(
         self, request: StatementBatchRequest, s3_client: S3Client
@@ -69,7 +67,7 @@ class StatementHandler:
         Returns not_found list for any hashes that don't exist.
         """
         if s3_client is None:
-            raise HTTPException(status_code=503, detail="S3 not initialized")
+            raise_validation_error("S3 not initialized", status_code=503)
 
         statements = []
         not_found = []
@@ -97,14 +95,14 @@ class StatementHandler:
         Returns sorted list of properties used in entity statements.
         """
         if vitess_client is None:
-            raise HTTPException(status_code=503, detail="Vitess not initialized")
+            raise_validation_error("Vitess not initialized", status_code=503)
 
         if not vitess_client.entity_exists(entity_id):
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         head_revision_id = vitess_client.get_head(entity_id)
         if head_revision_id == 0:
-            raise HTTPException(status_code=404, detail="Entity has no revisions")
+            raise_validation_error("Entity has no revisions", status_code=404)
 
         history = vitess_client.get_history(entity_id)
         revision_record = next(
@@ -112,9 +110,7 @@ class StatementHandler:
         )
 
         if not revision_record:
-            raise HTTPException(
-                status_code=404, detail="Head revision not found in history"
-            )
+            raise_validation_error("Head revision not found in history", status_code=404)
 
         revision_metadata = s3_client.read_full_revision(entity_id, head_revision_id)
         properties = revision_metadata.get("properties", [])
@@ -128,14 +124,14 @@ class StatementHandler:
         Returns dict mapping property ID -> count of statements.
         """
         if vitess_client is None:
-            raise HTTPException(status_code=503, detail="Vitess not initialized")
+            raise_validation_error("Vitess not initialized", status_code=503)
 
         if not vitess_client.entity_exists(entity_id):
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         head_revision_id = vitess_client.get_head(entity_id)
         if head_revision_id == 0:
-            raise HTTPException(status_code=404, detail="Entity has no revisions")
+            raise_validation_error("Entity has no revisions", status_code=404)
 
         revision_metadata = s3_client.read_full_revision(entity_id, head_revision_id)
         property_counts = revision_metadata.get("property_counts", {})
@@ -156,14 +152,14 @@ class StatementHandler:
         Uses schema 1.2.0 architecture where statements are stored separately by hash.
         """
         if vitess_client is None:
-            raise HTTPException(status_code=503, detail="Vitess not initialized")
+            raise_validation_error("Vitess not initialized", status_code=503)
 
         if not vitess_client.entity_exists(entity_id):
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         head_revision_id = vitess_client.get_head(entity_id)
         if head_revision_id == 0:
-            raise HTTPException(status_code=404, detail="Entity has no revisions")
+            raise_validation_error("Entity has no revisions", status_code=404)
 
         revision_metadata = s3_client.read_full_revision(entity_id, head_revision_id)
 
@@ -183,10 +179,7 @@ class StatementHandler:
                 if property_id in requested_property_ids:
                     matching_hashes.append(statement_hash)
             except Exception as e:
-                raise HTTPException(
-                    status_code=500,
-                    detail=f"Failed to read statement {statement_hash}: {e}",
-                )
+                raise_validation_error(f"Failed to read statement {statement_hash}: {e}", status_code=500)
 
         return PropertyHashesResponse(property_hashes=matching_hashes)
 
@@ -206,7 +199,7 @@ class StatementHandler:
         - min_ref_count: Minimum ref_count threshold (default 1)
         """
         if vitess_client is None:
-            raise HTTPException(status_code=503, detail="Vitess not initialized")
+            raise_validation_error("Vitess not initialized", status_code=503)
 
         statement_hashes = vitess_client.get_most_used_statements(
             limit=limit, min_ref_count=min_ref_count

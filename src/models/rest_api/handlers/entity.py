@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Dict
 from fastapi import HTTPException
 from rapidhash import rapidhash
 
-from models.config.settings import settings
+from models.config.settings import raise_validation_error, settings
 from models.api_models import (
     EditType,
     EntityCreateRequest,
@@ -195,26 +195,26 @@ class EntityHandler:
         try:
             # Archived items block all edits
             if protection_info.get("is_archived", False):
-                raise HTTPException(403, "Item is archived and cannot be edited")
+                raise_validation_error("Item is archived and cannot be edited", status_code=403)
 
             # Locked items block all edits
             if protection_info.get("is_locked", False):
-                raise HTTPException(403, "Item is locked from all edits")
+                raise_validation_error("Item is locked from all edits", status_code=403)
 
             # Mass-edit protection blocks mass edits only
             if protection_info.get("is_mass_edit_protected", False) and is_mass_edit:
-                raise HTTPException(403, "Mass edits blocked on this item")
+                raise_validation_error("Mass edits blocked on this item", status_code=403)
 
             # Semi-protection blocks not-autoconfirmed users
             if (
                 protection_info.get("is_semi_protected", False)
                 and is_not_autoconfirmed_user
             ):
-                raise HTTPException(
-                    403,
+                raise_validation_error(
                     "Semi-protected items cannot be edited by new or unconfirmed users",
+                    status_code=403,
                 )
-        except HTTPException:
+        except (HTTPException, ValueError):
             raise
         except Exception:
             pass
@@ -251,9 +251,7 @@ class EntityHandler:
                     "operation": "statement_hashing_failed",
                 },
             )
-            raise HTTPException(
-                status_code=400, detail=f"Statement processing failed: {e}"
-            )
+            raise_validation_error(f"Statement processing failed: {e}", status_code=400)
 
         # Deduplicate and store statements
         logger.info(f"Entity {entity_id}: Starting statement deduplication and storage")
@@ -280,9 +278,7 @@ class EntityHandler:
                     "operation": "statement_storage_failed",
                 },
             )
-            raise HTTPException(
-                status_code=500, detail=f"Statement storage failed: {e}"
-            )
+            raise_validation_error(f"Statement storage failed: {e}", status_code=500)
 
         return hash_result
 
@@ -358,9 +354,7 @@ class EntityHandler:
                     "operation": "revision_creation_failed",
                 },
             )
-            raise HTTPException(
-                status_code=500, detail=f"Revision creation failed: {e}"
-            )
+            raise_validation_error(f"Revision creation failed: {e}", status_code=500)
 
         # Publish change event
         if stream_producer:
@@ -441,7 +435,7 @@ class EntityCreateHandler(EntityHandler):
         entity_existed = vitess_client.entity_exists(entity_id)
         if entity_existed:
             logger.error(f"Entity {entity_id} already exists, cannot create")
-            raise HTTPException(status_code=409, detail="Entity already exists")
+            raise_validation_error("Entity already exists", status_code=409)
 
         # Register the new entity
         vitess_client.register_entity(entity_id)
@@ -449,9 +443,7 @@ class EntityCreateHandler(EntityHandler):
         # Check deletion status
         is_deleted = vitess_client.is_entity_deleted(entity_id)
         if is_deleted:
-            raise HTTPException(
-                status_code=410, detail=f"Entity {entity_id} has been deleted"
-            )
+            raise_validation_error(f"Entity {entity_id} has been deleted", status_code=410)
 
         # Common processing logic
         return await self._process_entity_revision(
@@ -506,14 +498,12 @@ class EntityUpdateHandler(EntityHandler):
         entity_existed = vitess_client.entity_exists(entity_id)
         if not entity_existed:
             logger.error(f"Entity {entity_id} does not exist, cannot update")
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         # Check deletion status
         is_deleted = vitess_client.is_entity_deleted(entity_id)
         if is_deleted:
-            raise HTTPException(
-                status_code=410, detail=f"Entity {entity_id} has been deleted"
-            )
+            raise_validation_error(f"Entity {entity_id} has been deleted", status_code=410)
 
         # Add entity_id to request data for consistency
         request_data = request.data
@@ -553,17 +543,17 @@ class EntityReadHandler:
     ) -> EntityResponse:
         """Get entity by ID."""
         if vitess_client is None:
-            raise HTTPException(status_code=503, detail="Vitess not initialized")
+            raise_validation_error("Vitess not initialized", status_code=503)
 
         if s3_client is None:
-            raise HTTPException(status_code=503, detail="S3 not initialized")
+            raise_validation_error("S3 not initialized", status_code=503)
 
         if not vitess_client.entity_exists(entity_id):
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         head_revision_id = vitess_client.get_head(entity_id)
         if head_revision_id == 0:
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         try:
             revision = s3_client.read_revision(entity_id, head_revision_id)
@@ -581,7 +571,7 @@ class EntityReadHandler:
             )
         except Exception as e:
             logger.error(f"Failed to read entity {entity_id}: {e}")
-            raise HTTPException(status_code=500, detail="Failed to read entity")
+            raise_validation_error("Failed to read entity", status_code=500)
 
     @staticmethod
     def get_entity_history(
@@ -596,7 +586,7 @@ class EntityReadHandler:
             raise HTTPException(status_code=503, detail="Vitess not initialized")
 
         if not vitess_client.entity_exists(entity_id):
-            raise HTTPException(status_code=404, detail="Entity not found")
+            raise_validation_error("Entity not found", status_code=404)
 
         try:
             # Get all revision IDs for this entity
@@ -626,7 +616,7 @@ class EntityReadHandler:
             return revisions
         except Exception as e:
             logger.error(f"Failed to get entity history for {entity_id}: {e}")
-            raise HTTPException(status_code=500, detail="Failed to get entity history")
+            raise_validation_error("Failed to get entity history", status_code=500)
 
     @staticmethod
     def get_entity_revision(
@@ -649,4 +639,4 @@ class EntityReadHandler:
             logger.error(
                 f"Failed to read revision {revision_id} for entity {entity_id}: {e}"
             )
-            raise HTTPException(status_code=404, detail="Revision not found")
+            raise_validation_error("Revision not found", status_code=404)

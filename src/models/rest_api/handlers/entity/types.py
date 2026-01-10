@@ -1,9 +1,8 @@
 import logging
 from typing import Any
 
-from fastapi import HTTPException
-
 from models.api_models import ItemCreateRequest, EntityCreateRequest, EntityResponse
+from models.config.settings import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
@@ -138,7 +137,7 @@ class PropertyCreateHandler(EntityHandler):
         entity_existed = vitess_client.entity_exists(entity_id)
         if entity_existed:
             logger.error(f"Property {entity_id} already exists, cannot create")
-            raise HTTPException(status_code=409, detail="Property already exists")
+            raise_validation_error("Property already exists", status_code=409)
 
         # Register the new entity
         vitess_client.register_entity(entity_id)
@@ -146,9 +145,7 @@ class PropertyCreateHandler(EntityHandler):
         # Check deletion status
         is_deleted = vitess_client.is_entity_deleted(entity_id)
         if is_deleted:
-            raise HTTPException(
-                status_code=410, detail=f"Property {entity_id} has been deleted"
-            )
+            raise_validation_error(f"Property {entity_id} has been deleted", status_code=410)
 
         # Common processing logic
         return await self._process_entity_revision(

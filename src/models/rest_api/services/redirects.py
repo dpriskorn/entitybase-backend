@@ -1,13 +1,12 @@
 from datetime import datetime, timezone
 
-from fastapi import HTTPException
-
 from models.api_models import (
     EditType,
     EntityRedirectRequest,
     EntityRedirectResponse,
     EntityResponse,
 )
+from models.config.settings import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream import (
     ChangeType,
@@ -38,33 +37,25 @@ class RedirectService:
         from datetime import datetime
 
         if request.redirect_from_id == request.redirect_to_id:
-            raise HTTPException(status_code=400, detail="Cannot redirect to self")
+            raise_validation_error("Cannot redirect to self", status_code=400)
 
         existing_target = self.vitess.get_redirect_target(request.redirect_from_id)
         if existing_target is not None:
-            raise HTTPException(status_code=409, detail="Redirect already exists")
+            raise_validation_error("Redirect already exists", status_code=409)
 
         if self.vitess.is_entity_deleted(request.redirect_from_id):
-            raise HTTPException(
-                status_code=423, detail="Source entity has been deleted"
-            )
+            raise_validation_error("Source entity has been deleted", status_code=423)
         if self.vitess.is_entity_deleted(request.redirect_to_id):
-            raise HTTPException(
-                status_code=423, detail="Target entity has been deleted"
-            )
+            raise_validation_error("Target entity has been deleted", status_code=423)
 
         if self.vitess.is_entity_locked(
             request.redirect_to_id
         ) or self.vitess.is_entity_archived(request.redirect_to_id):
-            raise HTTPException(
-                status_code=423, detail="Target entity is locked or archived"
-            )
+            raise_validation_error("Target entity is locked or archived", status_code=423)
 
         to_head_revision_id = self.vitess.get_head(request.redirect_to_id)
         if to_head_revision_id == 0:
-            raise HTTPException(
-                status_code=404, detail="Target entity has no revisions"
-            )
+            raise_validation_error("Target entity has no revisions", status_code=404)
 
         from_head_revision_id = self.vitess.get_head(request.redirect_from_id)
         redirect_revision_id = from_head_revision_id + 1 if from_head_revision_id else 1
@@ -147,15 +138,15 @@ class RedirectService:
         current_redirect_target = self.vitess.get_redirect_target(entity_id)
 
         if current_redirect_target is None:
-            raise HTTPException(status_code=404, detail="Entity is not a redirect")
+            raise_validation_error("Entity is not a redirect", status_code=404)
 
         if self.vitess.is_entity_deleted(entity_id):
-            raise HTTPException(status_code=423, detail="Entity has been deleted")
+            raise_validation_error("Entity has been deleted", status_code=423)
 
         if self.vitess.is_entity_locked(entity_id) or self.vitess.is_entity_archived(
             entity_id
         ):
-            raise HTTPException(status_code=423, detail="Entity is locked or archived")
+            raise_validation_error("Entity is locked or archived", status_code=423)
 
         head_revision_id = self.vitess.get_head(entity_id)
         new_revision_id = head_revision_id + 1 if head_revision_id else 1

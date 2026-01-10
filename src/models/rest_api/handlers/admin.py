@@ -1,13 +1,12 @@
 import logging
 from typing import Any, Optional
 
-from fastapi import HTTPException
-
 from models.api_models import (
     CleanupOrphanedRequest,
     CleanupOrphanedResponse,
     EntityListResponse,
 )
+from models.config.settings import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 
@@ -36,10 +35,10 @@ class AdminHandler:
         Returns count of cleaned and failed statements.
         """
         if vitess_client is None:
-            raise HTTPException(status_code=503, detail="Vitess not initialized")
+            raise_validation_error("Vitess not initialized", status_code=503)
 
         if s3_client is None:
-            raise HTTPException(status_code=503, detail="S3 not initialized")
+            raise_validation_error("S3 not initialized", status_code=503)
 
         cleaned_count = 0
         failed_count = 0
@@ -76,10 +75,7 @@ class AdminHandler:
                 errors=errors,
             )
         except Exception as e:
-            raise HTTPException(
-                status_code=500,
-                detail=f"Error during orphaned statement cleanup: {e}",
-            )
+            raise_validation_error(f"Error during orphaned statement cleanup: {e}", status_code=500)
 
     def list_entities(
         self,
@@ -93,7 +89,7 @@ class AdminHandler:
         DISABLED: Endpoint not yet implemented
         """
         if vitess_client is None:
-            raise HTTPException(status_code=503, detail="Vitess not initialized")
+            raise_validation_error("Vitess not initialized", status_code=503)
 
         # Note: Listing methods are disabled until implemented
         entities: list[Any] = []  # Type annotation for linter
@@ -108,9 +104,7 @@ class AdminHandler:
         elif edit_type:
             entities = []  # vitess_client.list_by_edit_type(edit_type, limit)
         else:
-            raise HTTPException(
-                status_code=400, detail="Must provide status or edit_type filter"
-            )
+            raise_validation_error("Must provide status or edit_type filter", status_code=400)
 
         return EntityListResponse(entities=entities, count=len(entities))
 
@@ -132,42 +126,34 @@ class AdminHandler:
         - Requested revision doesn't exist (REVISION_NOT_FOUND)
         """
         if vitess_client is None:
-            raise HTTPException(status_code=503, detail="Vitess not initialized")
+            raise_validation_error("Vitess not initialized", status_code=503)
 
         # Check if entity exists and get history
         if not vitess_client.entity_exists(entity_id):
-            raise HTTPException(
-                status_code=404,
-                detail=f"Entity {entity_id} not found in ID mapping",
-            )
+            raise_validation_error(f"Entity {entity_id} not found in ID mapping", status_code=404)
 
         # Check if revisions exist for entity
         history = vitess_client.get_history(entity_id)
         if not history:
-            raise HTTPException(
-                status_code=404, detail=f"Entity {entity_id} has no revisions"
-            )
+            raise_validation_error(f"Entity {entity_id} has no revisions", status_code=404)
 
         # Check if requested revision exists
         revision_ids = sorted([r.revision_id for r in history])
         if revision_id not in revision_ids:
-            raise HTTPException(
+            raise_validation_error(
+                f"Revision {revision_id} not found for entity {entity_id}. Available revisions: {revision_ids}",
                 status_code=404,
-                detail=f"Revision {revision_id} not found for entity {entity_id}. Available revisions: {revision_ids}",
             )
 
         # Read full revision schema from S3
         if s3_client is None:
-            raise HTTPException(status_code=503, detail="S3 not initialized")
+            raise_validation_error("S3 not initialized", status_code=503)
 
         revision = s3_client.read_full_revision(entity_id, revision_id)
 
         # Type assertion to ensure MyPy compatibility
         if not isinstance(revision, dict):
-            raise HTTPException(
-                status_code=500,
-                detail=f"Invalid revision data type: expected dict, got {type(revision)}",
-            )
+            raise_validation_error(f"Invalid revision data type: expected dict, got {type(revision)}", status_code=500)
 
         # Return full revision as-is (no transformation)
         return revision

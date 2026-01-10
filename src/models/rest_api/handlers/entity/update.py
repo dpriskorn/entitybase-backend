@@ -93,4 +93,4 @@ class EntityUpdateHandler(EntityHandler):
         except Exception as e:
             logger.error(f"Entity update failed for {entity_id}: {e}")
             tx.rollback()
-            raise_validation_error(status_code=500, detail="Update failed")
+            raise_validation_error("Update failed", status_code=500)

@@ -1,9 +1,8 @@
 import logging
 from typing import Any
 
-from fastapi import HTTPException
-
 from models.api_models import EntityCreateRequest, EntityResponse
+from models.config.settings import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
@@ -36,9 +35,7 @@ class EntityCreateHandler(EntityHandler):
         # Auto-assign ID if requested (for type-specific endpoints)
         if auto_assign_id:
             if self.enumeration_service is None:
-                raise HTTPException(
-                    status_code=500, detail="Enumeration service not available"
-                )
+                raise_validation_error("Enumeration service not available", status_code=500)
             entity_id = self.enumeration_service.get_next_entity_id(request.type)
             request.id = entity_id
             # Add ID to request data
@@ -65,7 +62,7 @@ class EntityCreateHandler(EntityHandler):
         entity_existed = vitess_client.entity_exists(entity_id)
         if entity_existed:
             logger.error(f"Entity {entity_id} already exists, cannot create")
-            raise HTTPException(status_code=409, detail="Entity already exists")
+            raise_validation_error("Entity already exists", status_code=409)
 
         # Register the new entity
         vitess_client.register_entity(entity_id)
@@ -73,9 +70,7 @@ class EntityCreateHandler(EntityHandler):
         # Check deletion status
         is_deleted = vitess_client.is_entity_deleted(entity_id)
         if is_deleted:
-            raise HTTPException(
-                status_code=410, detail=f"Entity {entity_id} has been deleted"
-            )
+            raise_validation_error(f"Entity {entity_id} has been deleted", status_code=410)
 
         # Common processing logic
         return await self._process_entity_revision(
