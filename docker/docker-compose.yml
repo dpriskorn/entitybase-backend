@@ -18,6 +18,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    mem_limit: 1g
+    cpus: "0.5"
 
   vitess:
     image: vitess/vttestserver:mysql80
@@ -38,6 +40,14 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+    deploy:
+      resources:
+        limits:
+          cpus: "1.5"
+          memory: 1.5g
+    mem_limit: 1.5g
+    cpus: "1.5"
+
 
   # Lightweight Kafka alternative for MVP
   # redpanda:
@@ -62,6 +72,13 @@ services:
   #     interval: 10s
   #     timeout: 5s
   #     retries: 5
+  #     deploy:
+  #        resources:
+  #          limits:
+  #            cpus: "1.0"
+  #            memory: 1g
+  #      mem_limit: 1g
+  #      cpus: "1.0"
 
   rest-api:
     build:
@@ -102,6 +119,13 @@ services:
       start_period: 10s
     deploy:
       replicas: 1  # Can be scaled up for production (e.g., replicas: 3)
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512m
+    mem_limit: 1g
+    cpus: "1.0"
+
 
   integration-tests:
     build:
@@ -118,6 +142,8 @@ services:
       TEST_SHOW_PROGRESS: "true"
     networks:
       - default
+    mem_limit: 0.5g
+    cpus: "0.5"
 
   id-worker:
     build:
@@ -136,6 +162,9 @@ services:
     restart: unless-stopped
     deploy:
       replicas: 1  # Can be scaled up for production (e.g., replicas: 3)
+    mem_limit: 0.5g
+    cpus: "0.5"
+
 
 volumes:
   minio-data:
