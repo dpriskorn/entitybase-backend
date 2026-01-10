@@ -2,7 +2,7 @@ from typing import Optional, Any
 
 from pydantic import BaseModel, ConfigDict
 
-from models.api_models import EntityAliases, EntityDescriptions, EntityLabels
+from models.api import EntityAliases, EntityDescriptions, EntityLabels
 from models.internal_representation.entity_types import EntityKind
 from models.internal_representation.statements import Statement
 
