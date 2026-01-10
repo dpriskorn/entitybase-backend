@@ -3,7 +3,7 @@ import json
 from typing import Any, Generator, Union, cast
 
 from pydantic import Field
-from models.api_models import FullRevisionData
+from models.api import FullRevisionData
 from models.validation.utils import raise_validation_error
 from models.infrastructure.client import Client
 from models.vitess_models import VitessConfig

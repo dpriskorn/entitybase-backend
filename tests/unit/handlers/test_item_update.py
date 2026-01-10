@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 from fastapi import HTTPException
 
-from models.api_models import EntityUpdateRequest, EntityResponse
+from models.api import EntityUpdateRequest, EntityResponse
 from models.rest_api.handlers.entity.items.update import ItemUpdateHandler
 
 

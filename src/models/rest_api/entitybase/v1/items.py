@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Request
 
-from models.api_models import EntityCreateRequest, EntityResponse, EntityUpdateRequest
-from ..handlers.entity.item import ItemCreateHandler
-from ..handlers.entity.items.update import ItemUpdateHandler
-from ..handlers.entity.property.update import PropertyUpdateHandler
-from ..handlers.entity.lexeme.update import LexemeUpdateHandler
+from models.api import EntityCreateRequest, EntityResponse, EntityUpdateRequest
+from ...handlers.entity.item import ItemCreateHandler
+from ...handlers.entity.items.update import ItemUpdateHandler
+from ...handlers.entity.property.update import PropertyUpdateHandler
+from ...handlers.entity.lexeme.update import LexemeUpdateHandler
 
 router = APIRouter()
 

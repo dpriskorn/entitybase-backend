@@ -2,7 +2,7 @@ import logging
 
 from botocore.exceptions import ClientError
 
-from models.api_models import (
+from models.api import (
     MostUsedStatementsResponse,
     PropertyCountsResponse,
     PropertyHashesResponse,

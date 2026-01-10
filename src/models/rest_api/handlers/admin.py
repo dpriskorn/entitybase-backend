@@ -1,7 +1,7 @@
 import logging
 from typing import Any, cast
 
-from models.api_models import (
+from models.api import (
     EntityListResponse,
 )
 from models.validation.utils import raise_validation_error

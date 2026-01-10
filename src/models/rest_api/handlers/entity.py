@@ -8,7 +8,7 @@ from rapidhash import rapidhash
 
 from models.config.settings import settings
 from models.validation.utils import raise_validation_error
-from models.api_models import (
+from models.api import (
     EditType,
     EntityCreateRequest,
     EntityResponse,

@@ -5,7 +5,7 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from models.api_models import EntityCreateRequest
+from models.api import EntityCreateRequest
 from models.rest_api.handlers.entity.types import (
     ItemCreateHandler,
     PropertyCreateHandler,

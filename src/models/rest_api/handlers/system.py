@@ -1,7 +1,7 @@
 from fastapi import Response
 from starlette import status
 
-from models.api_models import HealthCheckResponse
+from models.api import HealthCheckResponse
 from models.infrastructure import S3Client, VitessClient
 
 

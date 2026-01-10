@@ -1,7 +1,7 @@
 import logging
 from typing import TYPE_CHECKING
 
-from models.api_models import (
+from models.api import (
     EntityRedirectRequest,
     EntityRedirectResponse,
     EntityResponse,

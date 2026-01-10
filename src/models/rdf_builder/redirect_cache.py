@@ -6,7 +6,7 @@ from typing import Any, List
 
 import requests
 
-from models.api_models import MetadataLoadResponse, RedirectBatchResponse
+from models.api import MetadataLoadResponse, RedirectBatchResponse
 
 logger = logging.getLogger(__name__)
 

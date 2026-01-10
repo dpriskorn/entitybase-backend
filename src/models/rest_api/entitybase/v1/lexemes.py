@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 
-from models.api_models import EntityCreateRequest, EntityResponse
-from ..handlers.entity.lexeme import LexemeCreateHandler
+from models.api import EntityCreateRequest, EntityResponse
+from ...handlers.entity.lexeme import LexemeCreateHandler
 
 router = APIRouter()
 

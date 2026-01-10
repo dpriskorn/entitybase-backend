@@ -6,7 +6,7 @@ Follows same algorithm as mediawiki-extensions-Wikibase/repo/includes/Rdf/HashDe
 
 from typing import Protocol
 
-from models.api_models import DeduplicationStats
+from models.api import DeduplicationStats
 from models.validation.utils import raise_validation_error
 
 

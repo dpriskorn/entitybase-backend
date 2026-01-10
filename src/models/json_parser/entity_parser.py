@@ -2,7 +2,7 @@ import logging
 
 from typing import Any
 
-from models.api_models import EntityAliases, EntityDescriptions, EntityLabels
+from models.api import EntityAliases, EntityDescriptions, EntityLabels
 from models.json_parser.statement_parser import parse_statement
 from models.internal_representation.entity import Entity
 from models.internal_representation.entity_types import EntityKind

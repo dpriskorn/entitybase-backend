@@ -10,7 +10,7 @@ from jsonschema import ValidationError
 
 from models.config.settings import settings
 from models.validation.json_schema_validator import JsonSchemaValidator
-from models.api_models import (
+from models.api import (
     EntityDeleteRequest,
     EntityDeleteResponse,
     EntityListResponse,

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
 
-from models.api_models import (
+from models.api import (
     MostUsedStatementsRequest,
     MostUsedStatementsResponse,
     StatementResponse,
@@ -9,7 +9,7 @@ from models.api_models import (
     CleanupOrphanedRequest,
     CleanupOrphanedResponse,
 )
-from ..handlers.statement import StatementHandler
+from ...handlers.statement import StatementHandler
 
 router = APIRouter()
 

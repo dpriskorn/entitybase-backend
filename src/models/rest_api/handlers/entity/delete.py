@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
-from models.api_models import DeleteType, EntityDeleteRequest, EntityDeleteResponse
+from models.api import DeleteType, EntityDeleteRequest, EntityDeleteResponse
 from models.config.settings import settings
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client

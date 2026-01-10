@@ -1,4 +1,4 @@
-from models.api_models import WikibasePredicates
+from models.api import WikibasePredicates
 
 
 def wikibase_predicates(pid: str) -> WikibasePredicates:

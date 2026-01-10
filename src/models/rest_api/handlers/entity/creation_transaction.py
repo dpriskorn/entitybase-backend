@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import List, Callable, Any
 import logging
 
-from models.api_models import StatementHashResult
+from models.api import StatementHashResult
 
 logger = logging.getLogger(__name__)
 

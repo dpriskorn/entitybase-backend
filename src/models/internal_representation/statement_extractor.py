@@ -1,4 +1,4 @@
-from models.api_models import PropertyCounts
+from models.api import PropertyCounts
 
 
 class StatementExtractor:

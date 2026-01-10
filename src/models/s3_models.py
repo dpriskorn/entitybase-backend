@@ -2,7 +2,7 @@ from typing import Any, Dict
 
 from pydantic import BaseModel
 
-from models.api_models import StatementResponse
+from models.api import StatementResponse
 from models.infrastructure.config import Config
 
 

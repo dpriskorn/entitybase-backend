@@ -3,7 +3,7 @@ from typing import Any
 
 from models.validation.utils import raise_validation_error
 
-from models.api_models import EntityUpdateRequest, EntityResponse
+from models.api import EntityUpdateRequest, EntityResponse
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient

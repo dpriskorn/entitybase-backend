@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from models.api_models import (
+from models.api import (
     EditType,
     EntityRedirectRequest,
     EntityRedirectResponse,

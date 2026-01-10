@@ -5,7 +5,7 @@ from pathlib import Path
 
 import requests
 
-from models.api_models import (
+from models.api import (
     EntityMetadata,
     EntityMetadataBatchResponse,
     MetadataLoadResponse,

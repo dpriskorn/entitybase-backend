@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Request
 
-from models.api_models import EntityListResponse, EntityResponse, RevisionMetadata
+from models.api import EntityListResponse, EntityResponse, RevisionMetadata
 from models.rest_api.handlers.admin import AdminHandler
-from ..handlers.entity.read import EntityReadHandler
+from ...handlers.entity.read import EntityReadHandler
 
 router = APIRouter()
 

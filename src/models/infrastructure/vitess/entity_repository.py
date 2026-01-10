@@ -1,6 +1,6 @@
 from typing import Any
 
-from models.api_models import ProtectionInfo
+from models.api import ProtectionInfo
 
 
 class EntityRepository:

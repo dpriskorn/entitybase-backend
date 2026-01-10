@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from fastapi import HTTPException
 
 from models.infrastructure.vitess_client import VitessClient
-from models.api_models import BacklinksResponse, Backlink
+from models.api import BacklinksResponse, Backlink
 
 
 class BacklinkHandler(BaseModel):
