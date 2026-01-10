@@ -8,6 +8,10 @@
 |    +--> Register Entity: tx.register_entity(vitess_client, entity_id)
 |    +--> Prepare Data
 |    +--> Process Statements: tx.process_statements(entity_id, request_data, vitess_client, s3_client)
+    |    |    +--> Extract Properties: StatementExtractor.extract_properties_from_claims(claims)
+    |    |    +--> Compute Property Counts: StatementExtractor.compute_property_counts_from_claims(claims)
+    |    |    +--> Hash Statements: StatementHasher.compute_hash(statement) for each statement
+    |    |    +--> Deduplicate and Store: deduplicate_and_store_statements(hash_result, vitess_client, s3_client)
 |    +--> Create Revision: tx.create_revision(entity_id, revision_data, vitess_client, s3_client) [CAS protected]
 |    +--> Publish Event: tx.publish_event(entity_id, stream_producer)
 |    +--> Commit: tx.commit()  // Mark success, confirm ID usage

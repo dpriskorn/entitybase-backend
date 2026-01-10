@@ -33,4 +33,4 @@
 fix
 - never use Optional for typing
 - str defaults to "" and never None
-
+fix lint errors and warnings

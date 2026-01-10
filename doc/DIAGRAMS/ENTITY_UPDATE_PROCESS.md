@@ -10,6 +10,10 @@
 |    +--> Get Head: head_revision_id = vitess_client.get_head(entity_id)
 |    +--> Prepare Data: request_data["id"] = entity_id
 |    +--> Process Statements: tx.process_statements(entity_id, request_data, vitess_client, s3_client)
+    |    |    +--> Extract Properties: StatementExtractor.extract_properties_from_claims(claims)
+    |    |    +--> Compute Property Counts: StatementExtractor.compute_property_counts_from_claims(claims)
+    |    |    +--> Hash Statements: StatementHasher.compute_hash(statement) for each statement
+    |    |    +--> Deduplicate and Store: deduplicate_and_store_statements(hash_result, vitess_client, s3_client)
 |    +--> Create Revision: tx.create_revision(entity_id, new_revision_id=head+1, ..., is_creation=False) [CAS protected]
 |    +--> Publish Event: tx.publish_event(entity_id, stream_producer)
 |    +--> Commit: tx.commit()
