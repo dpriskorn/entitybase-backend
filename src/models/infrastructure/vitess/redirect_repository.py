@@ -1,6 +1,6 @@
 from typing import Any
 
-from fastapi import HTTPException
+from models.config.settings import raise_validation_error
 
 
 class RedirectRepository:
@@ -13,7 +13,7 @@ class RedirectRepository:
     ) -> None:
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            raise HTTPException(status_code=404, detail=f"Entity {entity_id} not found")
+            raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
         redirects_to_internal_id = None
         if redirects_to_entity_id:
@@ -21,8 +21,8 @@ class RedirectRepository:
                 conn, redirects_to_entity_id
             )
             if not redirects_to_internal_id:
-                raise HTTPException(
-                    status_code=404, detail=f"Entity {redirects_to_entity_id} not found"
+                raise_validation_error(
+                    f"Entity {redirects_to_entity_id} not found", status_code=404
                 )
 
         with conn.cursor() as cursor:
@@ -46,14 +46,12 @@ class RedirectRepository:
         )
 
         if not redirect_from_internal_id:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Source entity {redirect_from_entity_id} not found",
+            raise_validation_error(
+                f"Source entity {redirect_from_entity_id} not found", status_code=404
             )
         if not redirect_to_internal_id:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Target entity {redirect_to_entity_id} not found",
+            raise_validation_error(
+                f"Target entity {redirect_to_entity_id} not found", status_code=404
             )
 
         with conn.cursor() as cursor:

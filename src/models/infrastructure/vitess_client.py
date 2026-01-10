@@ -3,8 +3,7 @@ import json
 from typing import Any, Generator
 
 from pydantic import Field
-from fastapi import HTTPException
-
+from models.config.settings import raise_validation_error
 from models.infrastructure.client import Client
 from models.vitess_models import VitessConfig
 
@@ -130,12 +129,17 @@ class VitessClient(Client):
             )
 
     def create_revision_cas(
-        self, entity_id: str, revision_id: int, data: dict, expected_revision_id: int
-    ) -> bool:
+        self,
+        entity_id: str,
+        revision_id: int,
+        data: dict,
+        is_mass_edit: bool = False,
+        edit_type: str = "",
+    ) -> None:
         with self.connection_manager.get_connection() as conn:
-            return self.revision_repository.create_with_cas(  # type: ignore[no-any-return]
-                conn, entity_id, revision_id, data, expected_revision_id
-            )
+            internal_id = self.id_resolver.resolve_id(conn, entity_id)
+            if not internal_id:
+                raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
     def create_revision(self, entity_id: str, revision_id: int, data: dict) -> None:
         with self.connection_manager.get_connection() as conn:
@@ -287,9 +291,7 @@ class VitessClient(Client):
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:
-                raise HTTPException(
-                    status_code=404, detail=f"Entity {entity_id} not found"
-                )
+                raise_validation_error(f"Entity {entity_id} not found", status_code=404)
             with conn.cursor() as cursor:
                 cursor.execute(
                     "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts) VALUES (%s, %s, %s, %s, %s, %s, %s)",
@@ -308,9 +310,7 @@ class VitessClient(Client):
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:
-                raise HTTPException(
-                    status_code=404, detail=f"Entity {entity_id} not found"
-                )
+                raise_validation_error(f"Entity {entity_id} not found", status_code=404)
             with conn.cursor() as cursor:
                 cursor.execute(
                     "SELECT statements, properties, property_counts FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
@@ -318,9 +318,9 @@ class VitessClient(Client):
                 )
                 result = cursor.fetchone()
                 if not result:
-                    raise HTTPException(
+                    raise_validation_error(
+                        f"Revision {revision_id} not found for entity {entity_id}",
                         status_code=404,
-                        detail=f"Revision {revision_id} not found for entity {entity_id}",
                     )
                 return {
                     "revision_id": revision_id,

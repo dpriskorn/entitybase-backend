@@ -29,7 +29,8 @@ class TimeValue(Value):
         )
         if not pattern.match(v):
             raise_validation_error(
-                f"Time value must be in format '+%Y-%m-%dT%H:%M:%SZ', got: {v}"
+                f"Time value must be in format '+%Y-%m-%dT%H:%M:%SZ', got: {v}",
+                status_code=500,
             )
         return v
 

@@ -1,7 +1,7 @@
 import json
 from typing import Any
 
-from fastapi import HTTPException
+from models.config.settings import raise_validation_error
 
 
 class RevisionRepository:
@@ -18,9 +18,7 @@ class RevisionRepository:
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:
-                raise HTTPException(
-                    status_code=404, detail=f"Entity {entity_id} not found"
-                )
+                raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
             is_mass_edit = data.get("is_mass_edit", False)
             edit_type = data.get("edit_type", "")
@@ -148,7 +146,7 @@ class RevisionRepository:
     def create(self, conn: Any, entity_id: str, revision_id: int, data: dict) -> None:
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            raise HTTPException(status_code=404, detail=f"Entity {entity_id} not found")
+            raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
         with conn.cursor() as cursor:
             cursor.execute(
