@@ -2,9 +2,11 @@ import asyncio
 import logging
 import os
 import signal
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel
+from fastapi import FastAPI
+import uvicorn
 
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.services.enumeration_service import EnumerationService
@@ -31,12 +33,12 @@ class IdGeneratorWorker(BaseModel):
         running: Flag indicating if the worker loop is active.
     """
 
-    def __init__(self, /, worker_id: Optional[str] = None, **data: Any):
+    def __init__(self, /, worker_id: str = "", **data: Any):
         """Initialize the ID generator worker.
 
         Args:
-            worker_id: Optional unique identifier. Defaults to WORKER_ID env var
-                      or auto-generated "worker-{pid}".
+            worker_id: Unique identifier. Defaults to WORKER_ID env var
+                       or auto-generated "worker-{pid}".
             **data: Additional Pydantic model data.
 
         Sets up signal handlers for SIGTERM/SIGINT to enable graceful shutdown.
@@ -138,7 +140,7 @@ class IdGeneratorWorker(BaseModel):
 
         logger.info("ID Generator Worker shutdown complete")
 
-    async def health_check(self) -> dict:
+    def health_check(self) -> dict:
         """Perform health check for monitoring and load balancer integration.
 
         Returns:
@@ -180,14 +182,26 @@ class IdGeneratorWorker(BaseModel):
         return self.enumeration_service.get_next_entity_id(entity_type)
 
 
-async def main() -> None:
-    """Main entry point for running the ID generator worker.
+async def run_worker(worker: IdGeneratorWorker) -> None:
+    """Run the worker loop."""
+    await worker.start()
 
-    Configures logging, creates a worker instance, and starts the ID generation
-    service. The worker will run indefinitely until terminated by a signal.
+
+async def run_server(app: FastAPI) -> None:
+    """Run the FastAPI server."""
+    config = uvicorn.Config(app, host="0.0.0.0", port=8001, loop="asyncio")
+    server = uvicorn.Server(config)
+    await server.serve()
+
+
+async def main() -> None:
+    """Main entry point for running the ID generator worker with health endpoint.
+
+    Configures logging, creates a worker instance, sets up FastAPI app with /health,
+    and runs both the worker loop and HTTP server concurrently.
 
     Environment Variables:
-        WORKER_ID: Optional unique worker identifier.
+        WORKER_ID: Unique worker identifier.
         VITESS_HOST, VITESS_PORT, VITESS_DATABASE, VITESS_USER, VITESS_PASSWORD:
         Database connection parameters.
     """
@@ -197,9 +211,22 @@ async def main() -> None:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
-    # Create and start worker
+    # Create worker
     worker = IdGeneratorWorker()
-    await worker.start()
+
+    # Create FastAPI app
+    app = FastAPI()
+
+    @app.get("/health")
+    def health() -> dict:
+        """Health check endpoint returning JSON status."""
+        return worker.health_check()
+
+    # Run worker and server concurrently
+    await asyncio.gather(
+        run_worker(worker),
+        run_server(app),
+    )
 
 
 if __name__ == "__main__":

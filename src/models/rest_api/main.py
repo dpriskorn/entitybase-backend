@@ -2,7 +2,7 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 from fastapi import FastAPI, Response
 from fastapi.responses import JSONResponse
@@ -220,7 +220,7 @@ def get_raw_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
 
 @app.get("/entities", response_model=EntityListResponse)
 def list_entities(
-    status: Optional[str] = None, edit_type: Optional[str] = None, limit: int = 100
+    status: str = "", edit_type: str = "", limit: int = 100
 ) -> EntityListResponse:
     clients = app.state.clients
     handler = AdminHandler()
