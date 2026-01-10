@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY src/ ./src/
+COPY src/models/workers/id_generation/healthcheck.py ./healthcheck.py
 
 # Set environment variables
 ENV PYTHONPATH=/app/src
@@ -27,18 +28,7 @@ EXPOSE 8001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
-  CMD python -c "
-import asyncio
-from worker.id_generator import IdGeneratorWorker
-
-async def check():
-    worker = IdGeneratorWorker()
-    health = await worker.health_check()
-    if health['status'] != 'healthy':
-        exit(1)
-
-asyncio.run(check())
-" || exit 1
+  CMD python ./healthcheck.py || exit 1
 
 # Run the worker
-CMD ["python", "-m", "worker.id_generator"]
+CMD ["python", "-m", "models.workers.id_generation.id_generator"]
