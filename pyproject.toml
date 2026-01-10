@@ -37,12 +37,13 @@ dev = [
     "vulture (>=2.14,<3.0)",
     "mypy (>=1.15.0,<2.0.0)",
     "ruff (>=0.14.10,<0.15.0)",
+    "radon (>=6.0.1,<7.0.0)",
 ]
 
 [tool.vulture]
 paths = ["src"]
 exclude = ["tests"]
-ignore_names = ["arbitrary_types_allowed"]
+ignore_names = ["arbitrary_types_allowed", "model_config"]
 
 [tool.mypy]
 python_version = "3.13"
