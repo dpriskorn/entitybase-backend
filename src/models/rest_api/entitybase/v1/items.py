@@ -2,8 +2,8 @@ from fastapi import APIRouter, Request
 
 from models.api import (
     EntityCreateRequest,
-    EntityImportRequest,
-    EntityImportResponse,
+    EntityJsonImportRequest,
+    EntityJsonImportResponse,
     EntityResponse,
     EntityUpdateRequest,
 )
@@ -11,7 +11,7 @@ from ...handlers.entity.item import ItemCreateHandler
 from ...handlers.entity.items.update import ItemUpdateHandler
 from ...handlers.entity.property.update import PropertyUpdateHandler
 from ...handlers.entity.lexeme.update import LexemeUpdateHandler
-from ...handlers.entity.wikidata_import import EntityImportHandler
+from ...handlers.entity.wikidata_import import EntityJsonImportHandler
 
 router = APIRouter()
 
@@ -92,14 +92,14 @@ async def update_lexeme(
     )
 
 
-@router.post("/entities/import", response_model=EntityImportResponse)
-async def import_entities(
-    request: EntityImportRequest, req: Request
-) -> EntityImportResponse:
-    """Import entities from Wikidata."""
+@router.post("/json-import", response_model=EntityJsonImportResponse)
+async def import_entities_from_jsonl(
+    request: EntityJsonImportRequest, req: Request
+) -> EntityJsonImportResponse:
+    """Import entities from Wikidata JSONL dump file."""
     clients = req.app.state.clients
     validator = req.app.state.validator
-    return await EntityImportHandler.import_entities(
+    return await EntityJsonImportHandler.import_entities_from_jsonl(
         request,
         clients.vitess,
         clients.s3,

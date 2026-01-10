@@ -45,7 +45,7 @@ class WikidataImportService:
             )
             response.raise_for_status()
 
-            data = response.json()
+            data: Dict[str, Any] = response.json()
             return data
 
             # Check for API errors

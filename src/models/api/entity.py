@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field
 
@@ -207,21 +207,32 @@ class ProtectionInfo(BaseModel):
     )
 
 
-class EntityImportRequest(BaseModel):
-    """Request model for importing Wikidata entities."""
+class EntityJsonImportRequest(BaseModel):
+    """Request model for importing entities from Wikidata JSONL dump."""
 
-    entity_ids: list[str] = Field(
-        ..., description="List of Wikidata entity IDs to import (e.g., ['Q42', 'P31'])"
+    jsonl_file_path: str = Field(
+        ..., description="Path to JSONL file containing Wikidata entities"
+    )
+    start_line: int = Field(
+        default=2, description="Starting line number (default 2, skips header)"
+    )
+    end_line: Optional[int] = Field(
+        default=None, description="Ending line number (None = to end)"
     )
     overwrite_existing: bool = Field(
         default=False, description="Whether to overwrite existing entities"
     )
+    worker_id: Optional[str] = Field(
+        default=None, description="Worker identifier for logging"
+    )
 
 
-class EntityImportResponse(BaseModel):
-    """Response model for entity import operations."""
+class EntityJsonImportResponse(BaseModel):
+    """Response model for JSONL entity import operations."""
 
+    processed_count: int = Field(description="Number of lines processed")
     imported_count: int = Field(description="Number of entities successfully imported")
     failed_count: int = Field(description="Number of entities that failed to import")
-    errors: list[str] = Field(description="List of error messages for failed imports")
-    log_file: str = Field(description="Path to detailed log file")
+    error_log_path: str = Field(
+        description="Path to error log file for malformed lines"
+    )
