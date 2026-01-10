@@ -42,10 +42,6 @@ class EditType(Enum):
     UNDELETE = "undelete"
 
 
-class ItemCreateRequest(BaseModel):
-    """Request model for creating a new Wikibase item."""
-
-
 class EntityCreateRequest(BaseModel):
     id: str = Field(..., description="Entity ID (e.g., Q42)")
     type: str = Field(default="item", description="Entity type")
