@@ -35,7 +35,7 @@ from models.rest_api.services.enumeration_service import EnumerationService
 from models.rest_api.handlers.admin import AdminHandler
 from models.rest_api.handlers.entity.read import EntityReadHandler
 from models.rest_api.handlers.entity.delete import EntityDeleteHandler
-from .v1 import v1_router
+from .entitybase.v1 import v1_router
 from .wikibase.v1 import wikibase_v1_router
 from models.rest_api.handlers.export import ExportHandler
 from models.rest_api.handlers.redirect import RedirectHandler

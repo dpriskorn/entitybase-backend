@@ -1,4 +1,5 @@
 import logging
+import re
 
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
@@ -24,9 +25,10 @@ class ItemUpdateHandler(EntityUpdateHandler):
     ) -> EntityResponse:
         """Update an existing item with validation that entity_id starts with Q."""
         # Validate entity type (must be item)
-        if not entity_id.startswith("Q"):
+        if not re.match(r"^Q\d+$", entity_id):
             raise_validation_error(
-                "Entity ID must be an item (start with Q)", status_code=400
+                "Entity ID must be an item (format: Q followed by digits)",
+                status_code=400,
             )
 
         # Delegate to parent implementation

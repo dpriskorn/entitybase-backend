@@ -1,5 +1,7 @@
 import logging
 
+import re
+
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
@@ -24,9 +26,10 @@ class LexemeUpdateHandler(EntityUpdateHandler):
     ) -> EntityResponse:
         """Update an existing lexeme with validation that entity_id starts with L."""
         # Validate entity type (must be lexeme)
-        if not entity_id.startswith("L"):
+        if not re.match(r"^L\d+$", entity_id):
             raise_validation_error(
-                "Entity ID must be a lexeme (start with L)", status_code=400
+                "Entity ID must be a lexeme (format: L followed by digits)",
+                status_code=400,
             )
 
         # Delegate to parent implementation

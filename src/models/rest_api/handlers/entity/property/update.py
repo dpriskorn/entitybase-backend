@@ -1,5 +1,7 @@
 import logging
 
+import re
+
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
@@ -24,9 +26,10 @@ class PropertyUpdateHandler(EntityUpdateHandler):
     ) -> EntityResponse:
         """Update an existing property with validation that entity_id starts with P."""
         # Validate entity type (must be property)
-        if not entity_id.startswith("P"):
+        if not re.match(r"^P\d+$", entity_id):
             raise_validation_error(
-                "Entity ID must be a property (start with P)", status_code=400
+                "Entity ID must be a property (format: P followed by digits)",
+                status_code=400,
             )
 
         # Delegate to parent implementation
