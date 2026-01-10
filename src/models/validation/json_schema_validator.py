@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
+from fastapi import HTTPException
 from jsonschema import Draft202012Validator
 
 logger = logging.getLogger(__name__)
@@ -28,13 +29,16 @@ class JsonSchemaValidator:
     def _load_schema(self, schema_path: str) -> dict[str, Any]:
         schema_file = Path(schema_path)
         if not schema_file.exists():
-            raise FileNotFoundError(f"Schema file not found: {schema_path}")
+            raise HTTPException(
+                status_code=500, detail=f"Schema file not found: {schema_path}"
+            )
 
         with open(schema_file, encoding="utf-8") as f:
             data = json.load(f)
             if not isinstance(data, dict):
-                raise TypeError(
-                    f"Schema file must contain a JSON object: {schema_path}"
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Schema file must contain a JSON object: {schema_path}",
                 )
             return data
 
@@ -90,7 +94,7 @@ class JsonSchemaValidator:
                 for error in errors
             ]
             logger.error(f"Entity validation failed: {error_messages}")
-            raise errors[0]
+            raise HTTPException(status_code=400, detail=str(errors[0]))
 
     def validate_statement(self, data: dict) -> None:
         validator = self._get_statement_validator()
@@ -105,7 +109,7 @@ class JsonSchemaValidator:
                 for error in errors
             ]
             logger.error(f"Statement validation failed: {error_messages}")
-            raise errors[0]
+            raise HTTPException(status_code=400, detail=str(errors[0]))
 
     # TODO: Implement usage in change streaming handlers when WMF recentchange events are consumed
     def validate_recentchange(self, data: dict) -> None:
@@ -121,4 +125,4 @@ class JsonSchemaValidator:
                 for error in errors
             ]
             logger.error(f"RecentChange validation failed: {error_messages}")
-            raise errors[0]
+            raise HTTPException(status_code=400, detail=str(errors[0]))
