@@ -26,17 +26,12 @@ class EditType(Enum):
     REDIRECT_REVERT = "redirect-revert"
     ARCHIVE_ADDED = "archive-added"
     ARCHIVE_REMOVED = "archive-removed"
-    LOCK_ADDED = "lock-added"
-    LOCK_REMOVED = "lock-removed"
     SOFT_DELETE = "soft-delete"
     HARD_DELETE = "hard-delete"
     BOT_IMPORT = "bot-import"
     BOT_CLEANUP = "bot-cleanup"
     BOT_MERGE = "bot-merge"
     BOT_SPLIT = "bot-split"
-    MANUAL_CREATE = "manual-create"
-    MANUAL_UPDATE = "manual-update"
-    MANUAL_CORRECTION = "manual-correction"
     CLEANUP_2025 = "cleanup-2025"
     CLEANUP_LABELS = "cleanup-labels"
     CLEANUP_DESCRIPTIONS = "cleanup-descriptions"
@@ -45,9 +40,6 @@ class EditType(Enum):
     SOFT = "soft-delete"
     HARD = "hard-delete"
     UNDELETE = "undelete"
-    REDIRECT_CREATE = "redirect-create"
-    REDIRECT_REVERT = "redirect-revert"
-    UNSPECIFIED = ""
 
 
 class ItemCreateRequest(BaseModel):
