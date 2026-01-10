@@ -3,6 +3,7 @@ import json
 from typing import Any, Generator
 
 from pydantic import Field
+from fastapi import HTTPException
 
 from models.infrastructure.client import Client
 from models.vitess_models import VitessConfig
@@ -286,7 +287,9 @@ class VitessClient(Client):
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:
-                raise ValueError(f"Entity {entity_id} not found")
+                raise HTTPException(
+                    status_code=404, detail=f"Entity {entity_id} not found"
+                )
             with conn.cursor() as cursor:
                 cursor.execute(
                     "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts) VALUES (%s, %s, %s, %s, %s, %s, %s)",
@@ -305,7 +308,9 @@ class VitessClient(Client):
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:
-                raise ValueError(f"Entity {entity_id} not found")
+                raise HTTPException(
+                    status_code=404, detail=f"Entity {entity_id} not found"
+                )
             with conn.cursor() as cursor:
                 cursor.execute(
                     "SELECT statements, properties, property_counts FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
@@ -313,8 +318,9 @@ class VitessClient(Client):
                 )
                 result = cursor.fetchone()
                 if not result:
-                    raise ValueError(
-                        f"Revision {revision_id} not found for entity {entity_id}"
+                    raise HTTPException(
+                        status_code=404,
+                        detail=f"Revision {revision_id} not found for entity {entity_id}",
                     )
                 return {
                     "revision_id": revision_id,
