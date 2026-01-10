@@ -28,6 +28,6 @@
 - no backward compability
 - never use Optional for typing
 - str defaults to "" and never None
-- use pydantic models for all dict-style returns from functions
+- use pydantic models for all dict-style returns from functions in src/
 
 # Current task
