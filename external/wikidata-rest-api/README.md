@@ -1,0 +1,1 @@
+source https://www.wikidata.org/w/rest.php/wikibase/v1/openapi.json

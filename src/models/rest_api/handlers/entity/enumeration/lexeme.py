@@ -2,23 +2,7 @@ from abc import ABC, abstractmethod
 
 from pydantic import BaseModel, Field
 
-
-class EnumerationHandler(ABC, BaseModel):
-    """Abstract base class for entity ID enumeration handlers."""
-
-    min_id: int = Field(..., description="Minimum ID value (inclusive)")
-
-    @property
-    @abstractmethod
-    def next_entity_id(self) -> str:
-        """Generate and return the next available entity ID."""
-        raise NotImplementedError()
-
-    @property
-    @abstractmethod
-    def entity_type_prefix(self) -> str:
-        """Return the single-character prefix for this entity type."""
-        raise NotImplementedError()
+from models.rest_api.handlers.entity.enumeration import EnumerationHandler
 
 
 class LexemeEnumerationHandler(EnumerationHandler):
@@ -29,15 +13,6 @@ class LexemeEnumerationHandler(EnumerationHandler):
     @property
     def entity_type_prefix(self) -> str:
         return "L"
-
-    @property
-    def next_entity_id(self) -> str:
-        # TODO: Implement database-backed ID generation
-        return f"L{self.min_id}"
-
-
-class LexemeHandler(LexemeEnumerationHandler):
-    """Handler for lexeme ID enumeration."""
 
     @property
     def next_entity_id(self) -> str:

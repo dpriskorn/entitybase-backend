@@ -24,7 +24,6 @@ def test_create_entity(api_client: requests.Session, base_url: str) -> None:
     """Test creating a new entity"""
     logger = logging.getLogger(__name__)
     entity_data = {
-        "id": "Q99999",
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
         "descriptions": {
@@ -32,18 +31,19 @@ def test_create_entity(api_client: requests.Session, base_url: str) -> None:
         },
     }
 
-    response = api_client.post(f"{base_url}/entity", json=entity_data)
+    response = api_client.post(f"{base_url}/v1/entities/items", json=entity_data)
     assert response.status_code == 200
 
     result = response.json()
-    assert result["id"] == "Q99999"
+    entity_id = result["id"]
+    assert entity_id.startswith("Q")
     assert result["revision_id"] == 1
 
     # Hash computation now works with nested data property
     entity_json = json.dumps(result["data"], sort_keys=True)
     computed_hash = rapidhash(entity_json.encode())
 
-    raw_response = api_client.get(f"{base_url}/raw/Q99999/1")
+    raw_response = api_client.get(f"{base_url}/raw/{entity_id}/1")
     raw_data = raw_response.json()
     api_hash = raw_data.get("content_hash")
 
@@ -83,30 +83,34 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
 
     # Create initial entity
     entity_data = {
-        "id": "Q99997",
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity for Update"}},
     }
-    api_client.post(f"{base_url}/entity", json=entity_data)
+    create_response = api_client.post(f"{base_url}/v1/entities/items", json=entity_data)
+    entity_id = create_response.json()["id"]
 
     # Update entity
     updated_entity_data = {
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Entity - Updated"}},
-        "descriptions": {"en": {"language": "en", "value": "Updated description"}},
+        "data": {
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Test Entity - Updated"}},
+            "descriptions": {"en": {"language": "en", "value": "Updated description"}},
+        }
     }
 
-    response = api_client.put(f"{base_url}/entity/Q99997", json=updated_entity_data)
+    response = api_client.put(
+        f"{base_url}/v1/entities/items/{entity_id}", json=updated_entity_data
+    )
     assert response.status_code == 200
 
     result = response.json()
-    assert result["id"] == "Q99997"
+    assert result["id"] == entity_id
     assert result["revision_id"] == 2
     assert result["data"]["labels"]["en"]["value"] == "Test Entity - Updated"
 
     # Verify different content created new revision with different hash
-    raw1 = api_client.get(f"{base_url}/raw/Q99997/1").json()
-    raw2 = api_client.get(f"{base_url}/raw/Q99997/2").json()
+    raw1 = api_client.get(f"{base_url}/raw/{entity_id}/1").json()
+    raw2 = api_client.get(f"{base_url}/raw/{entity_id}/2").json()
 
     assert raw1["content_hash"] != raw2["content_hash"], (
         "Different content should have different hashes"

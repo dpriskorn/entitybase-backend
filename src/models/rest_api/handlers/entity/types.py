@@ -34,7 +34,7 @@ class ItemCreateHandler(EntityHandler):
         request.id = entity_id
 
         # Prepare request data
-        request_data = request.data.copy()
+        request_data = request.model_dump()
         request_data["id"] = entity_id
 
         logger.info(

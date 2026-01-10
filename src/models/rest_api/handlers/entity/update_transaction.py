@@ -112,7 +112,7 @@ class UpdateTransaction(EntityTransaction):
         self.statement_hashes.extend(hash_result.statements)
         for hash_val in hash_result.statements:
             self.operations.append(
-                lambda h=hash_val: self._rollback_statement(h, vitess_client, s3_client)
+                lambda h=hash_val: self._rollback_statement(h, vitess_client, s3_client)  # type: ignore[misc]
             )
         return hash_result
 

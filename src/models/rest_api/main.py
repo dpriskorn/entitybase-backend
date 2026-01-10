@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from fastapi import FastAPI, Response
+from fastapi import APIRouter, FastAPI, Response
 from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 
@@ -13,7 +13,6 @@ from models.validation.json_schema_validator import JsonSchemaValidator
 from models.api_models import (
     CleanupOrphanedRequest,
     CleanupOrphanedResponse,
-    EntityCreateRequest,
     EntityDeleteRequest,
     EntityUpdateRequest,
     EntityDeleteResponse,
@@ -35,19 +34,16 @@ from models.api_models import (
     TtlResponse,
 )
 from models.rest_api.clients import Clients
+from models.rest_api.services.enumeration_service import EnumerationService
 from models.rest_api.handlers.admin import AdminHandler
 from models.rest_api.handlers.entity.read import EntityReadHandler
-from models.rest_api.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.handlers.entity.delete import EntityDeleteHandler
-from models.rest_api.handlers.entity.types import (
-    ItemCreateHandler,
-    PropertyCreateHandler,
-)
+from models.rest_api.handlers.entity.types import ItemCreateHandler
+from models.rest_api.handlers.entity.items.update import ItemUpdateHandler
 from models.rest_api.handlers.export import ExportHandler
 from models.rest_api.handlers.redirect import RedirectHandler
 from models.rest_api.handlers.statement import StatementHandler
 from models.rest_api.handlers.system import health_check
-from models.rest_api.services.enumeration_service import EnumerationService
 
 log_level = settings.get_log_level()
 
@@ -113,7 +109,13 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             s3_statement_version=settings.s3_statement_version,
             wmf_recentchange_version=settings.wmf_recentchange_version,
         )
-        logger.debug("Clients and validator initialized successfully")
+
+        app_.state.enumeration_service = EnumerationService(
+            app_.state.clients.vitess, worker_id="rest-api"
+        )
+        logger.debug(
+            "Clients, validator, and enumeration service initialized successfully"
+        )
         yield
     except Exception as e:
         logger.error(
@@ -127,6 +129,8 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(lifespan=lifespan)
+
+v1_router = APIRouter(prefix="/v1")
 
 
 @app.exception_handler(ValidationError)
@@ -154,32 +158,42 @@ def health_check_endpoint(response: Response) -> HealthCheckResponse:
     return health_check(response)
 
 
-# Type-specific entity creation endpoints
-@app.post("/entities/items", response_model=EntityResponse)
+@app.get("/v1/health")
+def health_redirect() -> Any:
+    from fastapi.responses import RedirectResponse
+
+    return RedirectResponse(url="/health", status_code=302)
+
+
+@v1_router.post("/entities/items", response_model=EntityResponse)
 async def create_item(request: ItemCreateRequest) -> EntityResponse:
     clients = app.state.clients
     validator = app.state.validator
-    enumeration_service = EnumerationService(clients.vitess, "rest-api")
+    enumeration_service = app.state.enumeration_service
     handler = ItemCreateHandler(enumeration_service)
     return await handler.create_item(
-        request, clients.vitess, clients.s3, clients.stream_producer, validator
+        request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
     )
 
 
-@app.post("/entities/properties", response_model=EntityResponse)
-async def create_property(request: EntityCreateRequest) -> EntityResponse:
+@v1_router.put("/entities/items/{entity_id}", response_model=EntityResponse)
+async def update_item(entity_id: str, request: EntityUpdateRequest) -> EntityResponse:
     clients = app.state.clients
     validator = app.state.validator
-    enumeration_service = EnumerationService(clients.vitess, "rest-api")
-    handler = PropertyCreateHandler(enumeration_service)
-    return await handler.create_property(
-        request, clients.vitess, clients.s3, clients.stream_producer, validator
+    handler = ItemUpdateHandler()
+    return await handler.update_entity(
+        entity_id,
+        request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
     )
 
-
-#     return await handler.create_entity(
-#         entity_request, clients.vitess, clients.s3, clients.stream_producer, validator, auto_assign_id=True
-#     )
 
 # Update endpoints - TODO: Uncomment after fixing imports
 # @app.put("/item/{entity_id}", response_model=EntityResponse)
@@ -205,29 +219,14 @@ async def create_property(request: EntityCreateRequest) -> EntityResponse:
 #     )
 
 
-@app.put("/entity/{entity_id}", response_model=EntityResponse)
-async def update_entity(entity_id: str, request: EntityUpdateRequest) -> EntityResponse:
-    clients = app.state.clients
-    validator = app.state.validator
-    handler = EntityUpdateHandler()
-    return await handler.update_entity(
-        entity_id,
-        request,
-        clients.vitess,
-        clients.s3,
-        clients.stream_producer,
-        validator,
-    )
-
-
-@app.get("/entity/{entity_id}", response_model=EntityResponse)
+@v1_router.get("/entities/{entity_id}", response_model=EntityResponse)
 def get_entity(entity_id: str) -> EntityResponse:
     clients = app.state.clients
     handler = EntityReadHandler()
     return handler.get_entity(entity_id, clients.vitess, clients.s3)
 
 
-@app.get("/entity/{entity_id}/history", response_model=list[RevisionMetadata])
+@v1_router.get("/entities/{entity_id}/history", response_model=list[RevisionMetadata])
 def get_entity_history(entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
     clients = app.state.clients
     handler = EntityReadHandler()
@@ -236,7 +235,7 @@ def get_entity_history(entity_id: str, limit: int = 20, offset: int = 0) -> list
     )
 
 
-@app.get("/entity/{entity_id}.ttl")
+@v1_router.get("/entities/{entity_id}.ttl")
 async def get_entity_data_turtle(entity_id: str) -> TtlResponse:
     clients = app.state.clients
     handler = ExportHandler()
@@ -265,14 +264,16 @@ async def revert_entity_redirect(
     )
 
 
-@app.get("/entity/{entity_id}/revision/{revision_id}", response_model=Dict[str, Any])
+@v1_router.get(
+    "/entities/{entity_id}/revision/{revision_id}", response_model=Dict[str, Any]
+)
 def get_entity_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
     clients = app.state.clients
     handler = EntityReadHandler()
     return handler.get_entity_revision(entity_id, revision_id, clients.s3)  # type: ignore
 
 
-@app.delete("/entity/{entity_id}", response_model=EntityDeleteResponse)
+@v1_router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)
 async def delete_entity(
     entity_id: str, request: EntityDeleteRequest
 ) -> EntityDeleteResponse:
@@ -283,7 +284,7 @@ async def delete_entity(
     )
 
 
-@app.get("/raw/{entity_id}/{revision_id}")
+@v1_router.get("/entities/{entity_id}/revisions/raw/{revision_id}")
 def get_raw_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
     clients = app.state.clients
     handler = AdminHandler()
@@ -322,14 +323,16 @@ def get_statements_batch(request: StatementBatchRequest) -> StatementBatchRespon
     return handler.get_statements_batch(request, clients.s3)
 
 
-@app.get("/entity/{entity_id}/properties", response_model=PropertyListResponse)
+@v1_router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)
 def get_entity_properties(entity_id: str) -> PropertyListResponse:
     clients = app.state.clients
     handler = StatementHandler()
     return handler.get_entity_properties(entity_id, clients.vitess, clients.s3)
 
 
-@app.get("/entity/{entity_id}/properties/counts", response_model=PropertyCountsResponse)
+@v1_router.get(
+    "/entities/{entity_id}/properties/counts", response_model=PropertyCountsResponse
+)
 def get_entity_property_counts(entity_id: str) -> PropertyCountsResponse:
     clients = app.state.clients
     handler = StatementHandler()
@@ -357,3 +360,6 @@ def cleanup_orphaned_statements(
     clients = app.state.clients
     handler = AdminHandler()
     return handler.cleanup_orphaned_statements(request, clients.vitess, clients.s3)
+
+
+app.include_router(v1_router)
