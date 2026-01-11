@@ -3,7 +3,7 @@
 from contextlib import contextmanager
 
 import json
-from typing import Any, Generator, Union, cast
+from typing import Any, Generator, Optional, Union, cast
 
 from pydantic import Field
 from models.rest_api.response.rdf import FullRevisionData
@@ -383,7 +383,7 @@ class VitessClient(Client):
                 )
 
     def read_full_revision(
-        self, entity_id: str, revision_id: int, s3_client=None
+        self, entity_id: str, revision_id: int, s3_client: Optional[Any] = None
     ) -> FullRevisionData:
         """Read full revision data including metadata from S3."""
         with self.connection_manager.get_connection() as conn:
@@ -420,7 +420,7 @@ class VitessClient(Client):
                     descriptions[lang] = {"language": lang, "value": desc_value}
 
                 # Reconstruct aliases from per-language hash arrays
-                aliases = {}
+                aliases: dict[str, list[dict[str, str]]] = {}
                 for lang, hash_list in aliases_hashes.items():
                     aliases[lang] = []
                     for hash_value in hash_list:

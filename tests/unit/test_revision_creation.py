@@ -12,7 +12,7 @@ import sys
 
 if "rapidhash" not in sys.modules:
     sys.modules["rapidhash"] = type(sys)("rapidhash")
-    sys.modules["rapidhash"].rapidhash = mock_rapidhash
+    sys.modules["rapidhash"].rapidhash = mock_rapidhash  # type: ignore[attr-defined]
 
 
 class TestRevisionCreationLogic(unittest.TestCase):

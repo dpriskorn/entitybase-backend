@@ -13,7 +13,7 @@ def mock_rapidhash(data):
 import sys
 
 sys.modules["rapidhash"] = Mock()
-sys.modules["rapidhash"].rapidhash = mock_rapidhash
+sys.modules["rapidhash"].rapidhash = mock_rapidhash  # type: ignore[attr-defined]
 
 
 class TestTermDeduplicationIntegration(unittest.TestCase):

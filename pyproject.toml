@@ -58,22 +58,23 @@ module = "src/models/rest_api/main.py"
 warn_return_any = false
 
 [tool.ruff]
-# General rules to check: exclude docstring rules (handled by custom script)
-select = []
-
 # Max line length
 line-length = 88
 
 # Exclude test files from docstring requirements
 exclude = ["tests/", "scripts/"]
 
+[tool.ruff.lint]
+# General rules to check: exclude docstring rules (handled by custom script)
+select = []
+
 # Optional: ignore private functions/methods
 ignore = ["D105", "D106", "D107"]
 
-[tool.ruff.pydocstyle]
+[tool.ruff.lint.pydocstyle]
 # Use Google style
 # convention = "google"
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 # Skip docstring requirements for frozen models (data classes) and enums
 # "src/models/**/*.py" = ["D101"]

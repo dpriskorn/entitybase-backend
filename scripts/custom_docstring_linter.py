@@ -48,12 +48,12 @@ def is_frozen_model(node: ast.ClassDef) -> bool:
 
 def get_docstring(node: ast.AST) -> str | None:
     """Extract docstring from an AST node."""
-    return ast.get_docstring(node)
+    return ast.get_docstring(node)  # type: ignore[arg-type]
 
 
 def check_docstring_format(docstring: str, node: ast.AST) -> List[str]:  # type: ignore[misc]
     """Check docstring format against Google-style pydocstyle rules."""
-    errors = []
+    errors: List[str] = []
     if not docstring:
         return errors
 

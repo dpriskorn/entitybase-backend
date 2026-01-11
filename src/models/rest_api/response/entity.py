@@ -151,24 +151,6 @@ class EntityMetadataBatchResponse(BaseModel):
     )
 
 
-class EntityLabels(BaseModel):
-    """Model for entity labels."""
-
-    labels: dict[str, str] = Field(default_factory=dict)
-
-
-class EntityDescriptions(BaseModel):
-    """Model for entity descriptions."""
-
-    descriptions: dict[str, str] = Field(default_factory=dict)
-
-
-class EntityAliases(BaseModel):
-    """Model for entity aliases."""
-
-    aliases: dict[str, list[str]] = Field(default_factory=dict)
-
-
 class EntityRevisionResponse(BaseModel):
     """Model for entity revision response."""
 

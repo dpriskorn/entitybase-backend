@@ -9,7 +9,7 @@ from models.api import EntityUpdateRequest, EntityResponse
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
-from . import EntityHandler
+from .base import EntityHandler
 from .update_transaction import UpdateTransaction
 
 logger = logging.getLogger(__name__)

@@ -6,7 +6,7 @@ from models.infrastructure.vitess.terms_repository import TermsRepository
 class TestTermsRepository(unittest.TestCase):
     """Unit tests for TermsRepository"""
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test fixtures"""
         self.mock_connection_manager = Mock()
         self.mock_conn = Mock()
@@ -25,7 +25,7 @@ class TestTermsRepository(unittest.TestCase):
         )
         self.mock_conn.cursor.return_value.__exit__ = Mock(return_value=None)
 
-    def test_insert_term_new(self):
+    def test_insert_term_new(self) -> None:
         """Test inserting a new term"""
         self.terms_repo.insert_term(12345, "test term", "label")
 
@@ -38,7 +38,7 @@ class TestTermsRepository(unittest.TestCase):
             (12345, "test term", "label"),
         )
 
-    def test_get_term_found(self):
+    def test_get_term_found(self) -> None:
         """Test getting an existing term"""
         self.mock_cursor.fetchone.return_value = ("test term", "label")
 
@@ -50,7 +50,7 @@ class TestTermsRepository(unittest.TestCase):
             (12345,),
         )
 
-    def test_get_term_not_found(self):
+    def test_get_term_not_found(self) -> None:
         """Test getting a non-existent term"""
         self.mock_cursor.fetchone.return_value = None
 

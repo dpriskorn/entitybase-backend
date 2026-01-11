@@ -2,7 +2,7 @@
 
 import json
 from typing import Any
-import rapidhash
+from rapidhash import rapidhash
 
 
 class StatementHasher:
