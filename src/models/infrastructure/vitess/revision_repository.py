@@ -17,15 +17,15 @@ class RevisionRepository:
 
     def insert(
         self,
+        conn: Any,
         entity_id: str,
         revision_id: int,
         data: dict,
     ) -> None:
         """Insert a new revision for an entity."""
-        with self.connection_manager.get_connection() as conn:
-            internal_id = self.id_resolver.resolve_id(conn, entity_id)
-            if not internal_id:
-                raise_validation_error(f"Entity {entity_id} not found", status_code=404)
+        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        if not internal_id:
+            raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
             is_mass_edit = data.get("is_mass_edit", False)
             edit_type = data.get("edit_type", "")

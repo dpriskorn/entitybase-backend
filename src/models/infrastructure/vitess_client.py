@@ -5,7 +5,7 @@ from contextlib import contextmanager
 import json
 from typing import Any, Generator, Optional, Union, cast
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 from models.rest_api.response.rdf import FullRevisionData
 from models.validation.utils import raise_validation_error
 from models.infrastructure.client import Client
@@ -19,10 +19,14 @@ from models.infrastructure.vitess.revision_repository import RevisionRepository
 from models.infrastructure.vitess.redirect_repository import RedirectRepository
 from models.infrastructure.vitess.head_repository import HeadRepository
 
-# from models.infrastructure.vitess.listing_repository import ListingRepository  # DISABLED: Listing not used
-from models.infrastructure.vitess.statement_repository import StatementRepository
-from models.infrastructure.vitess.backlink_repository import BacklinkRepository
-from models.infrastructure.vitess.metadata_repository import MetadataRepository
+
+class RevisionInsertData(BaseModel):
+    """Data for inserting a revision."""
+    is_mass_edit: bool
+    edit_type: str
+    statements: list[int] | None
+    properties: list[str] | None
+    property_counts: dict[str, int] | None
 
 
 class VitessClient(Client):
@@ -159,11 +163,19 @@ class VitessClient(Client):
         property_counts: dict[str, int] | None = None,
     ) -> None:
         """Insert a new revision for an entity."""
+        data = RevisionInsertData(
+            is_mass_edit=is_mass_edit,
+            edit_type=edit_type,
+            statements=statements,
+            properties=properties,
+            property_counts=property_counts,
+        )
         with self.connection_manager.get_connection() as conn:
             return self.revision_repository.insert(  # type: ignore[no-any-return]
                 conn,
                 entity_id,
                 revision_id,
+                data.model_dump(),
             )
 
     def create_revision(

@@ -65,19 +65,13 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
 
     entity_type = EntityKind(metadata.type)
 
-    labels = metadata.labels.data
-    descriptions = metadata.descriptions.data
-    aliases = metadata.aliases.data
-    statements = metadata.statements.data
-    sitelinks = metadata.sitelinks.data
-
     return Entity(
         id=metadata.id,
         type=entity_type,
-        labels=labels,
-        descriptions=descriptions,
-        aliases=aliases,
-        statements=statements,
+        labels=metadata.labels,
+        descriptions=metadata.descriptions,
+        aliases=metadata.aliases,
+        statements=metadata.statements.data,
         sitelinks=sitelinks if sitelinks else None,
     )
 
@@ -86,7 +80,7 @@ def _parse_labels(labels_json: dict[str, dict[str, str]]) -> EntityLabels:
     labels = {
         lang: label_data.get("value", "") for lang, label_data in labels_json.items()
     }
-    return EntityLabels(labels=labels)
+    return EntityLabels(data=labels)
 
 
 def _parse_descriptions(

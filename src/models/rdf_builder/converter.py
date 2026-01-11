@@ -131,7 +131,7 @@ class EntityConverter:
 
         assert self.entity_metadata_dir is not None
         entity_json = load_entity_metadata(entity_id, self.entity_metadata_dir)
-        return parse_entity(metadata=entity_json)
+        return parse_entity(raw_entity_data=entity_json)
 
     def _write_referenced_entity_metadata(self, entity: Entity, output: TextIO) -> None:
         """Write metadata blocks for referenced entities."""
