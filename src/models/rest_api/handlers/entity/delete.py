@@ -73,7 +73,7 @@ class EntityDeleteHandler:
 
         try:
             # Archived items block all edits
-            if protection_info.get("is_archived", False):
+            if protection_info and protection_info.is_archived:
                 raise_validation_error(
                     "Item is archived and cannot be edited", status_code=403
                 )
