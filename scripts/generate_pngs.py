@@ -24,16 +24,26 @@ def generate_png_from_puml(
     if not force and not needs_regeneration(puml_file, png_file):
         return True, f"Skipped {puml_file.name} (PNG is up-to-date)"
 
-    # Use PlantUML command line tool for PNG output with explicit filename
-    cmd = [
-        "plantuml",
-        "-tpng",
-        str(puml_file),
-        str(output_dir / f"{puml_file.stem}.png")
-    ]
+    # Use PlantUML command line tool - it creates files based on title
+    # We'll rename them afterward to match our expected naming
+    cmd = ["plantuml", "-tpng", "-o", str(output_dir), str(puml_file)]
 
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+
+        # PlantUML creates files with title-based names, so we need to find and rename them
+        # Look for any .png files in the output directory
+        import glob
+        import os
+
+        png_files = glob.glob(str(output_dir / "*.png"))
+
+        if png_files:
+            # Assume the most recently modified file is the one we just created
+            latest_png = max(png_files, key=lambda f: os.path.getmtime(f))
+            if os.path.abspath(latest_png) != os.path.abspath(str(png_file)):
+                os.rename(latest_png, png_file)
+
         return True, f"Generated {png_file}"
     except subprocess.CalledProcessError as e:
         return False, f"Failed to generate {puml_file}: {e.stderr}"
@@ -57,7 +67,10 @@ def check_plantuml_installed() -> bool:
 
 def main():
     """Generate PNGs for PlantUML files that have been updated."""
-    diagrams_dir = Path("doc/DIAGRAMS")
+    # Use absolute paths to avoid issues with current working directory
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent
+    diagrams_dir = project_root / "doc" / "DIAGRAMS"
     png_dir = diagrams_dir / "png"
 
     if not diagrams_dir.exists():
@@ -73,8 +86,8 @@ def main():
     # Create PNG output directory
     png_dir.mkdir(exist_ok=True)
 
-    # Find all .puml files in the root diagrams directory (exclude subdirs)
-    puml_files = [f for f in diagrams_dir.glob("*.puml") if f.parent == diagrams_dir]
+    # Find all .puml files in the diagrams directory
+    puml_files = list(diagrams_dir.glob("*.puml"))
 
     if not puml_files:
         print("No PlantUML files found in root diagrams directory")
