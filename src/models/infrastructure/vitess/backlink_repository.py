@@ -2,7 +2,9 @@
 
 """Repository for managing entity backlinks in Vitess."""
 
-from typing import Any, Union
+from typing import Any
+
+from models.rest_api.response.entity import BacklinkData
 
 
 class BacklinkRepository:
@@ -45,7 +47,7 @@ class BacklinkRepository:
 
     def get_backlinks(
         self, conn: Any, referenced_internal_id: int, limit: int = 100, offset: int = 0
-    ) -> list[dict[str, Union[int, str]]]:
+    ) -> list[BacklinkData]:
         """Get backlinks for an entity."""
         with conn.cursor() as cursor:
             cursor.execute(
@@ -59,11 +61,11 @@ class BacklinkRepository:
                 (referenced_internal_id, limit, offset),
             )
             return [
-                {
-                    "referencing_internal_id": row[0],
-                    "statement_hash": row[1],
-                    "property_id": row[2],
-                    "rank": row[3],
-                }
+                BacklinkData(
+                    referencing_internal_id=row[0],
+                    statement_hash=str(row[1]),
+                    property_id=str(row[2]),
+                    rank=str(row[3]),
+                )
                 for row in cursor.fetchall()
             ]

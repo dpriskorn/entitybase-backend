@@ -465,15 +465,6 @@ class VitessClient(Client):
     ) -> list[BacklinkData]:
         """Get backlinks for an entity."""
         with self.connection_manager.get_connection() as conn:
-            raw_backlinks = self.backlink_repository.get_backlinks(
+            return self.backlink_repository.get_backlinks(
                 conn, referenced_internal_id, limit, offset
             )
-            return [
-                BacklinkData(
-                    referencing_internal_id=b["referencing_internal_id"],
-                    statement_hash=b["statement_hash"],
-                    property_id=b["property_id"],
-                    rank=b["rank"],
-                )
-                for b in raw_backlinks
-            ]

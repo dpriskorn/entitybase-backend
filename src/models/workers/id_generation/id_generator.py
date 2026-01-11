@@ -4,14 +4,14 @@ import asyncio
 import logging
 import os
 import signal
-from typing import Any, cast
+from typing import Any
 
-from pydantic import BaseModel, Field
-from fastapi import FastAPI
 import uvicorn
+from fastapi import FastAPI
+from pydantic import BaseModel, Field
 
-from models.rest_api.response.health import WorkerHealthCheck
 from models.infrastructure.vitess_client import VitessClient
+from models.rest_api.response.health import WorkerHealthCheck
 from models.rest_api.services.enumeration_service import EnumerationService
 from models.validation.utils import raise_validation_error
 

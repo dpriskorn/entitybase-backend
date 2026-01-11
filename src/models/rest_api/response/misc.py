@@ -65,6 +65,18 @@ class JsonSchema(BaseModel):
     data: dict[str, Any] = Field(..., description="The JSON schema dictionary")
 
 
+class AliasesDict(BaseModel):
+    """Model for extracted aliases dictionary."""
+
+    aliases: dict[str, list[str]] = Field(..., description="Aliases per language")
+
+
+class MetadataContent(BaseModel):
+    """Model for metadata content."""
+
+    ref_count: int = Field(..., description="Reference count")
+
+
 class RawRevisionResponse(BaseModel):
     """Response model for raw revision data."""
 

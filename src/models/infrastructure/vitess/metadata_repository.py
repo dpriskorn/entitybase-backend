@@ -4,6 +4,8 @@
 
 from typing import Any
 
+from models.rest_api.response.misc import MetadataContent
+
 
 class MetadataRepository:
     """Repository for metadata content operations."""
@@ -27,7 +29,7 @@ class MetadataRepository:
 
     def get_metadata_content(
         self, conn: Any, content_hash: int, content_type: str
-    ) -> dict[str, Any] | None:
+    ) -> MetadataContent | None:
         """Get metadata content by hash and type."""
         with conn.cursor() as cursor:
             cursor.execute(
@@ -35,7 +37,7 @@ class MetadataRepository:
                 (content_hash, content_type),
             )
             result = cursor.fetchone()
-            return {"ref_count": result[0]} if result else None
+            return MetadataContent(ref_count=result[0]) if result else None
 
     def decrement_ref_count(
         self, conn: Any, content_hash: int, content_type: str

@@ -205,14 +205,19 @@ class EntityHandler(BaseModel):
                 raise_validation_error("Item is locked from all edits", status_code=403)
 
             # Mass-edit protection blocks mass edits only
-            if protection_info and protection_info.is_mass_edit_protected and is_mass_edit:
+            if (
+                protection_info
+                and protection_info.is_mass_edit_protected
+                and is_mass_edit
+            ):
                 raise_validation_error(
                     "Mass edits blocked on this item", status_code=403
                 )
 
             # Semi-protection blocks not-autoconfirmed users
             if (
-                protection_info and protection_info.is_semi_protected
+                protection_info
+                and protection_info.is_semi_protected
                 and is_not_autoconfirmed_user
             ):
                 raise_validation_error(
