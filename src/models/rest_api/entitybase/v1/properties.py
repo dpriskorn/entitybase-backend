@@ -9,6 +9,7 @@ from ...handlers.entity.read import EntityReadHandler
 from ...handlers.entity.update import EntityUpdateHandler
 from ...request import EntityUpdateRequest, EntityCreateRequest
 from ...response import EntityResponse
+from ...response.misc import AliasesResponse, DescriptionResponse, LabelResponse
 
 router = APIRouter()
 
@@ -29,8 +30,13 @@ async def create_property(request: EntityCreateRequest, req: Request) -> EntityR
     )
 
 
-@router.get("/entities/properties/{property_id}/labels/{language_code}")
-async def get_property_label(property_id: str, language_code: str, req: Request) -> Any:
+@router.get(
+    "/entities/properties/{property_id}/labels/{language_code}",
+    response_model=LabelResponse,
+)
+async def get_property_label(
+    property_id: str, language_code: str, req: Request
+) -> LabelResponse:
     """Get property label for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -40,13 +46,16 @@ async def get_property_label(property_id: str, language_code: str, req: Request)
         raise HTTPException(
             status_code=404, detail=f"Label not found for language {language_code}"
         )
-    return labels[language_code]
+    return LabelResponse(value=labels[language_code])
 
 
-@router.get("/entities/properties/{property_id}/descriptions/{language_code}")
+@router.get(
+    "/entities/properties/{property_id}/descriptions/{language_code}",
+    response_model=DescriptionResponse,
+)
 async def get_property_description(
     property_id: str, language_code: str, req: Request
-) -> dict[str, str]:
+) -> DescriptionResponse:
     """Get property description for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -57,13 +66,16 @@ async def get_property_description(
             status_code=404,
             detail=f"Description not found for language {language_code}",
         )
-    return descriptions[language_code]
+    return DescriptionResponse(value=descriptions[language_code])
 
 
-@router.get("/entities/properties/{property_id}/aliases/{language_code}")
+@router.get(
+    "/entities/properties/{property_id}/aliases/{language_code}",
+    response_model=AliasesResponse,
+)
 async def get_property_aliases_for_language(
     property_id: str, language_code: str, req: Request
-) -> list[dict[str, str]]:
+) -> AliasesResponse:
     """Get property aliases for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -73,7 +85,7 @@ async def get_property_aliases_for_language(
         raise HTTPException(
             status_code=404, detail=f"Aliases not found for language {language_code}"
         )
-    return aliases[language_code]
+    return AliasesResponse(aliases=aliases[language_code])
 
 
 @router.patch("/entities/properties/{property_id}/aliases/{language_code}")

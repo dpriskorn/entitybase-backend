@@ -32,3 +32,6 @@
 
 # Current task
 replace all returns with dict[str, str] to use pydantic models postfixed with "Response" instead
+
+#todo
+lets design a backlink statistics service worker that runs once a day and generate statistics

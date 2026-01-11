@@ -29,7 +29,7 @@ from models.rest_api.response.statement import (
     PropertyHashesResponse,
     PropertyListResponse,
 )
-from models.rest_api.response.misc import RevisionMetadataResponse
+from models.rest_api.response.misc import RawRevisionResponse, RevisionMetadataResponse
 from models.rest_api.response.misc import TtlResponse
 from models.rest_api.clients import Clients
 from models.rest_api.services.enumeration_service import EnumerationService
@@ -231,8 +231,11 @@ async def delete_entity(
     )
 
 
-@v1_router.get("/entities/{entity_id}/revisions/raw/{revision_id}")
-def get_raw_revision(entity_id: str, revision_id: int) -> Dict[str, Any]:
+@v1_router.get(
+    "/entities/{entity_id}/revisions/raw/{revision_id}",
+    response_model=RawRevisionResponse,
+)
+def get_raw_revision(entity_id: str, revision_id: int) -> RawRevisionResponse:
     """Retrieve raw revision data from storage."""
     clients = app.state.clients
     handler = AdminHandler()

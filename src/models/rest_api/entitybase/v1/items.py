@@ -10,6 +10,7 @@ from models.rest_api.request.entity import (
     EntityUpdateRequest,
 )
 from models.rest_api.response.entity import EntityJsonImportResponse, EntityResponse
+from models.rest_api.response.misc import DescriptionResponse, LabelResponse
 from ...handlers.entity.item import ItemCreateHandler
 from ...handlers.entity.items.update import ItemUpdateHandler
 from ...handlers.entity.lexeme.update import LexemeUpdateHandler
@@ -113,10 +114,12 @@ async def import_entities_from_jsonl(
     )
 
 
-@router.get("/entities/items/{item_id}/labels/{language_code}")
+@router.get(
+    "/entities/items/{item_id}/labels/{language_code}", response_model=LabelResponse
+)
 async def get_item_label(
     item_id: str, language_code: str, req: Request
-) -> dict[str, str]:
+) -> LabelResponse:
     """Get item label for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -126,7 +129,7 @@ async def get_item_label(
         raise HTTPException(
             status_code=404, detail=f"Label not found for language {language_code}"
         )
-    return labels[language_code]
+    return LabelResponse(value=labels[language_code])
 
 
 @router.put("/entities/items/{item_id}/labels/{language_code}")
@@ -205,10 +208,13 @@ async def delete_item_label(
     )
 
 
-@router.get("/entities/items/{item_id}/descriptions/{language_code}")
+@router.get(
+    "/entities/items/{item_id}/descriptions/{language_code}",
+    response_model=DescriptionResponse,
+)
 async def get_item_description(
     item_id: str, language_code: str, req: Request
-) -> dict[str, str]:
+) -> DescriptionResponse:
     """Get item description for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -219,7 +225,7 @@ async def get_item_description(
             status_code=404,
             detail=f"Description not found for language {language_code}",
         )
-    return descriptions[language_code]
+    return DescriptionResponse(value=descriptions[language_code])
 
 
 @router.put("/entities/items/{item_id}/descriptions/{language_code}")

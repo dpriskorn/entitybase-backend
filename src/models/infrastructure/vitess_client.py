@@ -5,7 +5,10 @@ from contextlib import contextmanager
 import json
 from typing import Any, Generator, Optional, Union, cast
 
-from pydantic import BaseModel, Field
+from pydantic import Field
+
+from models.infrastructure.vitess.metadata_repository import MetadataRepository
+from models.rest_api.request.entity import RevisionInsertDataRequest
 from models.rest_api.response.rdf import FullRevisionData
 from models.validation.utils import raise_validation_error
 from models.infrastructure.client import Client
@@ -19,28 +22,7 @@ from models.infrastructure.vitess.revision_repository import RevisionRepository
 from models.infrastructure.vitess.redirect_repository import RedirectRepository
 from models.infrastructure.vitess.head_repository import HeadRepository
 from models.infrastructure.vitess.statement_repository import StatementRepository
-
-
-class RevisionInsertData(BaseModel):
-    """Data for inserting a revision."""
-
-    is_mass_edit: bool
-    edit_type: str
-    statements: list[int] | None
-    properties: list[str] | None
-    property_counts: dict[str, int] | None
-
-
-class MetadataRepository:
-    pass
-
-
-class BacklinkRepository:
-    pass
-
-
-class MetadataRepository:
-    pass
+from models.infrastructure.vitess.backlink_repository import BacklinkRepository
 
 
 class VitessClient(Client):
@@ -177,7 +159,7 @@ class VitessClient(Client):
         property_counts: dict[str, int] | None = None,
     ) -> None:
         """Insert a new revision for an entity."""
-        data = RevisionInsertData(
+        data = RevisionInsertDataRequest(
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
             statements=statements,

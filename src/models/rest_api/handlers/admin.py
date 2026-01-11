@@ -4,6 +4,7 @@ import logging
 from typing import Any, cast
 
 from models.rest_api.response.entity import EntityListResponse
+from models.rest_api.response.misc import RawRevisionResponse
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
@@ -51,7 +52,7 @@ class AdminHandler:
         revision_id: int,
         vitess_client: VitessClient,
         s3_client: S3Client,
-    ) -> dict[str, Any]:
+    ) -> RawRevisionResponse:
         """Returns raw S3 entity data for specific revision.
 
         Pure S3 data - no wrapper, no transformation.
@@ -98,5 +99,5 @@ class AdminHandler:
                 status_code=500,
             )
 
-        # Return full revision as-is (no transformation)
-        return cast(dict[str, Any], revision)
+        # Return full revision wrapped in response model
+        return RawRevisionResponse(data=cast(dict[str, Any], revision))

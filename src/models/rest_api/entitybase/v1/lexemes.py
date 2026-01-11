@@ -9,6 +9,7 @@ from ...handlers.entity.read import EntityReadHandler
 from ...handlers.entity.update import EntityUpdateHandler
 from ...request import EntityCreateRequest, EntityUpdateRequest
 from ...response import EntityResponse
+from ...response.misc import AliasesResponse, DescriptionResponse, LabelResponse
 
 router = APIRouter()
 
@@ -29,10 +30,12 @@ async def create_lexeme(request: EntityCreateRequest, req: Request) -> EntityRes
     )
 
 
-@router.get("/entities/lexemes/{lexeme_id}/labels/{language_code}")
+@router.get(
+    "/entities/lexemes/{lexeme_id}/labels/{language_code}", response_model=LabelResponse
+)
 async def get_lexeme_label(
     lexeme_id: str, language_code: str, req: Request
-) -> dict[str, str]:
+) -> LabelResponse:
     """Get lexeme label for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -42,13 +45,16 @@ async def get_lexeme_label(
         raise HTTPException(
             status_code=404, detail=f"Label not found for language {language_code}"
         )
-    return labels[language_code]
+    return LabelResponse(value=labels[language_code])
 
 
-@router.get("/entities/lexemes/{lexeme_id}/descriptions/{language_code}")
+@router.get(
+    "/entities/lexemes/{lexeme_id}/descriptions/{language_code}",
+    response_model=DescriptionResponse,
+)
 async def get_lexeme_description(
     lexeme_id: str, language_code: str, req: Request
-) -> dict[str, str]:
+) -> DescriptionResponse:
     """Get lexeme description for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -59,13 +65,16 @@ async def get_lexeme_description(
             status_code=404,
             detail=f"Description not found for language {language_code}",
         )
-    return descriptions[language_code]
+    return DescriptionResponse(value=descriptions[language_code])
 
 
-@router.get("/entities/lexemes/{lexeme_id}/aliases/{language_code}")
+@router.get(
+    "/entities/lexemes/{lexeme_id}/aliases/{language_code}",
+    response_model=AliasesResponse,
+)
 async def get_lexeme_aliases_for_language(
     lexeme_id: str, language_code: str, req: Request
-) -> list[dict[str, str]]:
+) -> AliasesResponse:
     """Get lexeme aliases for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -75,7 +84,7 @@ async def get_lexeme_aliases_for_language(
         raise HTTPException(
             status_code=404, detail=f"Aliases not found for language {language_code}"
         )
-    return aliases[language_code]
+    return AliasesResponse(aliases=aliases[language_code])
 
 
 @router.patch("/entities/lexemes/{lexeme_id}/aliases/{language_code}")

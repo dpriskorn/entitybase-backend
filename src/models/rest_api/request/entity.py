@@ -123,3 +123,13 @@ class EntityJsonImportRequest(BaseModel):
     worker_id: Optional[str] = Field(
         default=None, description="Worker identifier for logging"
     )
+
+
+class RevisionInsertDataRequest(BaseModel):
+    """Data for inserting a revision."""
+
+    is_mass_edit: bool
+    edit_type: str
+    statements: list[int] | None
+    properties: list[str] | None
+    property_counts: dict[str, int] | None

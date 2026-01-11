@@ -1,5 +1,7 @@
 """Miscellaneous response models."""
 
+from typing import Any
+
 from fastapi import Response
 
 from pydantic import BaseModel, Field
@@ -33,3 +35,31 @@ class RevisionMetadataResponse(BaseModel):
 
     revision_id: int
     created_at: str
+
+
+class LabelResponse(BaseModel):
+    """Response model for entity labels."""
+
+    value: str = Field(..., description="The label text for the specified language")
+
+
+class DescriptionResponse(BaseModel):
+    """Response model for entity descriptions."""
+
+    value: str = Field(
+        ..., description="The description text for the specified language"
+    )
+
+
+class AliasesResponse(BaseModel):
+    """Response model for entity aliases."""
+
+    aliases: list[str] = Field(
+        ..., description="List of alias texts for the specified language"
+    )
+
+
+class RawRevisionResponse(BaseModel):
+    """Response model for raw revision data."""
+
+    data: dict[str, Any] = Field(..., description="Raw revision data from storage")
