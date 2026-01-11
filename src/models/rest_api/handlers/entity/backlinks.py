@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from fastapi import HTTPException
 
 from models.infrastructure.vitess_client import VitessClient
-from models.rest_api.response import BacklinksResponse, Backlink
+from models.rest_api.response import BacklinksResponse, Backlink, BacklinkData
 
 
 class BacklinkHandler(BaseModel):
@@ -28,14 +28,14 @@ class BacklinkHandler(BaseModel):
             backlink_models = []
             for b in backlinks:
                 referencing_entity_id = vitess_client.id_resolver.resolve_entity_id(
-                    conn, int(b["referencing_internal_id"])
+                    conn, b.referencing_internal_id
                 )
                 if referencing_entity_id:
                     backlink_models.append(
                         Backlink(
                             entity_id=referencing_entity_id,
-                            property_id=str(b["property_id"]),
-                            rank=str(b["rank"]),
+                            property_id=b.property_id,
+                            rank=b.rank,
                         )
                     )
 

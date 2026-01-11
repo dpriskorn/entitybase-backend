@@ -9,6 +9,7 @@ from pydantic import Field
 
 from models.infrastructure.vitess.metadata_repository import MetadataRepository
 from models.rest_api.request.entity import RevisionInsertDataRequest
+from models.rest_api.response.entity import BacklinkData
 from models.rest_api.response.rdf import FullRevisionData
 from models.validation.utils import raise_validation_error
 from models.infrastructure.client import Client
@@ -461,12 +462,18 @@ class VitessClient(Client):
 
     def get_backlinks(
         self, referenced_internal_id: int, limit: int = 100, offset: int = 0
-    ) -> list[dict[str, Union[int, str]]]:
+    ) -> list[BacklinkData]:
         """Get backlinks for an entity."""
         with self.connection_manager.get_connection() as conn:
-            return cast(
-                list[dict[str, Union[int, str]]],
-                self.backlink_repository.get_backlinks(
-                    conn, referenced_internal_id, limit, offset
-                ),
+            raw_backlinks = self.backlink_repository.get_backlinks(
+                conn, referenced_internal_id, limit, offset
             )
+            return [
+                BacklinkData(
+                    referencing_internal_id=b["referencing_internal_id"],
+                    statement_hash=b["statement_hash"],
+                    property_id=b["property_id"],
+                    rank=b["rank"],
+                )
+                for b in raw_backlinks
+            ]

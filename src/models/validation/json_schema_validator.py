@@ -5,6 +5,7 @@ import logging
 from pathlib import Path
 from typing import Any, cast
 
+from models.rest_api.response.misc import JsonSchema
 from models.validation.utils import raise_validation_error
 from jsonschema import Draft202012Validator
 
@@ -30,7 +31,7 @@ class JsonSchemaValidator:
         self._statement_validator: Draft202012Validator | None = None
         self._recentchange_validator: Draft202012Validator | None = None
 
-    def _load_schema(self, schema_path: str) -> dict[str, Any]:
+    def _load_schema(self, schema_path: str) -> JsonSchema:
         schema_file = Path(schema_path)
         if not schema_file.exists():
             raise_validation_error(
@@ -44,13 +45,13 @@ class JsonSchemaValidator:
                     f"Schema file must contain a JSON object: {schema_path}",
                     status_code=500,
                 )
-            return cast(dict[str, Any], data)
+            return JsonSchema(schema=data)
 
     def _get_entity_revision_schema(self) -> dict:
         if self._entity_revision_schema is None:
             self._entity_revision_schema = self._load_schema(
-                f"src/schemas/entitybase/s3-revision/{self.s3_revision_version}/schema.json"
-            )
+                "src/models/validation/schemas/entity_revision.json"
+            ).schema
         return self._entity_revision_schema
 
     def _get_statement_schema(self) -> dict:

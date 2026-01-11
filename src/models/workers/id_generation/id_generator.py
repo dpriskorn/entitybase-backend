@@ -18,6 +18,12 @@ from models.validation.utils import raise_validation_error
 logger = logging.getLogger(__name__)
 
 
+class IdResponse(BaseModel):
+    """Response model for generated entity ID."""
+
+    id: str = Field(..., description="The generated entity ID (e.g., 'Q123', 'P456')")
+
+
 class IdGeneratorWorker(BaseModel):
     """Asynchronous worker service for generating Wikibase entity IDs using range-based allocation.
 
@@ -165,7 +171,7 @@ class IdGeneratorWorker(BaseModel):
             range_status=range_status,
         )
 
-    def get_next_id(self, entity_type: str) -> str:
+    def get_next_id(self, entity_type: str) -> IdResponse:
         """Get the next available ID for a given entity type.
 
         Synchronous wrapper around EnumerationService.get_next_entity_id().
@@ -175,7 +181,7 @@ class IdGeneratorWorker(BaseModel):
             entity_type: Type of entity ("item", "property", "lexeme").
 
         Returns:
-            str: Next available ID for the entity type (e.g., "Q123", "P456").
+            IdResponse: Response containing the next available ID for the entity type.
 
         Raises:
             ValidationError: If the worker is not properly initialized.
@@ -184,7 +190,8 @@ class IdGeneratorWorker(BaseModel):
             raise_validation_error("Worker not initialized", status_code=500)
 
         assert self.enumeration_service is not None
-        return cast(str, self.enumeration_service.get_next_entity_id(entity_type))
+        entity_id = self.enumeration_service.get_next_entity_id(entity_type)
+        return IdResponse(id=entity_id)
 
 
 async def run_worker(worker: IdGeneratorWorker) -> None:
@@ -226,6 +233,11 @@ async def main() -> None:
     def health() -> WorkerHealthCheck:
         """Health check endpoint returning JSON status."""
         return worker.health_check()
+
+    @app.get("/next-id/{entity_type}", response_model=IdResponse)
+    def get_next_id(entity_type: str) -> IdResponse:
+        """Get the next available ID for a given entity type."""
+        return worker.get_next_id(entity_type)
 
     # Run worker and server concurrently
     await asyncio.gather(

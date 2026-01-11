@@ -4,6 +4,7 @@
 
 from .entity import (
     Backlink,
+    BacklinkData,
     BacklinksResponse,
     EntityAliases,
     EntityDeleteResponse,
@@ -41,6 +42,7 @@ from .rdf import (
 
 __all__ = [
     "Backlink",
+    "BacklinkData",
     "BacklinksResponse",
     "CleanupOrphanedResponse",
     "DeduplicationStats",
