@@ -1,0 +1,1 @@
+"""ID generation for entities."""

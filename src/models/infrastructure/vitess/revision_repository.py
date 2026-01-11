@@ -66,6 +66,7 @@ class RevisionRepository:
 
         @dataclass
         class RevisionRecord:
+            """Revision record for history."""
             revision_id: int
             created_at: str | None
 

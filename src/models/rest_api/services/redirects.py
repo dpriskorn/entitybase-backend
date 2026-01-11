@@ -1,3 +1,5 @@
+"""Entity redirect service."""
+
 from datetime import datetime, timezone
 
 from models.rest_api.misc import EditType

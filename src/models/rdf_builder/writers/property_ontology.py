@@ -98,7 +98,7 @@ class PropertyOntologyWriter:
 
     @staticmethod
     def _generate_blank_node_id(property_id: str) -> str:
-        """Generate stable blank node ID for property no-value."""
+        """Generate stable blank node ID for property no-value.
 
         Matches MediaWiki Wikibase algorithm from PropertySpecificComponentsRdfBuilder.php:
         md5(implode('-', ['owl:complementOf', $repositoryName, $localName]))

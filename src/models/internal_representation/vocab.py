@@ -1,4 +1,8 @@
+"""Vocabulary constants for Wikibase."""
+
+
 class Vocab:
+    """Wikibase vocabulary prefixes."""
     WD = "http://www.wikidata.org/entity/"
     WDT = "http://www.wikidata.org/prop/direct/"
     P = "http://www.wikidata.org/prop/"

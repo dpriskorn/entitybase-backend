@@ -1,3 +1,5 @@
+"""API models and types for REST responses."""
+
 from ..request.entity import (
     EntityCreateRequest,
     EntityDeleteRequest,

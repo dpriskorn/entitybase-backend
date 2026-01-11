@@ -1,0 +1,1 @@
+"""RDF ontology definitions."""

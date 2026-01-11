@@ -1,3 +1,1 @@
-from .create import LexemeCreateHandler
-
-__all__ = ["LexemeCreateHandler"]
+"""Lexeme entity handlers."""

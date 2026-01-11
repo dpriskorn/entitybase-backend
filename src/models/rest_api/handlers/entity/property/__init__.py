@@ -1,3 +1,1 @@
-from .create import PropertyCreateHandler
-
-__all__ = ["PropertyCreateHandler"]
+"""Property entity handlers."""

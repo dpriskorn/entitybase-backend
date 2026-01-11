@@ -1,4 +1,4 @@
-"""Entity API module for Wikibase backend."""
+"""REST API for Wikibase backend."""
 
 from .main import app
 

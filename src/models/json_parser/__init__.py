@@ -1,3 +1,5 @@
+"""JSON parsing for Wikibase entities and statements."""
+
 from models.json_parser.entity_parser import parse_entity
 from models.json_parser.qualifier_parser import parse_qualifiers, parse_qualifier
 from models.json_parser.reference_parser import parse_references, parse_reference

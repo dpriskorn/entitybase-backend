@@ -1,3 +1,5 @@
+"""Wikidata import service."""
+
 import logging
 from typing import Any, Dict
 

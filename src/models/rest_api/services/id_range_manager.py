@@ -1,3 +1,5 @@
+"""ID range management service."""
+
 import logging
 from dataclasses import dataclass
 from typing import Any, Dict, Optional

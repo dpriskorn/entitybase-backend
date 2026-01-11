@@ -1,3 +1,5 @@
+"""Value parsers for different Wikibase data types."""
+
 from .entity_value_parser import parse_entity_value
 from .string_value_parser import parse_string_value
 from .time_value_parser import parse_time_value

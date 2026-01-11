@@ -1,3 +1,5 @@
+"""API handlers for REST endpoints."""
+
 from .admin import AdminHandler
 from .export import ExportHandler
 from .redirect import RedirectHandler

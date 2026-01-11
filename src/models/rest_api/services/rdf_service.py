@@ -1,3 +1,5 @@
+"""RDF serialization service."""
+
 from typing import Any
 
 from models.json_parser import parse_entity

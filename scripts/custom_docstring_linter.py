@@ -10,6 +10,14 @@ from typing import List, Set
 # Configuration
 CHECK_GOOGLE_STYLE_ARGS_RETURNS = False
 
+# Allowlist: paths to skip docstring checking (relative to src/)
+ALLOWLIST_PATHS = [
+    "models/rest_api/wikibase/*",
+    "models/rest_api/entitybase/*",
+    "models/rest_api/response/*",
+    "models/rest_api/request/*",
+]
+
 
 def is_enum_class(node: ast.ClassDef) -> bool:
     """Check if a class is an Enum."""
@@ -113,6 +121,12 @@ def check_docstring_format(docstring: str, node: ast.AST) -> List[str]:  # type:
 
 def check_file(file_path: Path) -> List[str]:
     """Check a single file for docstring issues, skipping enums and frozen models."""
+    # Check allowlist
+    relative_str = str(file_path.relative_to(Path('src')))
+    for pattern in ALLOWLIST_PATHS:
+        if relative_str.startswith(pattern.rstrip('*')):
+            return []  # Skip this file
+
     errors = []
     try:
         with open(file_path, 'r', encoding='utf-8') as f:

@@ -1,3 +1,5 @@
+"""Entity ID enumeration service."""
+
 import logging
 
 from ...validation.utils import raise_validation_error
