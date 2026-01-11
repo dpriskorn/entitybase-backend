@@ -1,29 +1,27 @@
 """Vitess client for database operations."""
 
-from contextlib import contextmanager
-
 import json
-from typing import Any, Generator, Optional, Union, cast
+from contextlib import contextmanager
+from typing import Any, Generator, Optional
 
 from pydantic import Field
 
+from models.infrastructure.client import Client
+from models.infrastructure.vitess.backlink_repository import BacklinkRepository
+from models.infrastructure.vitess.connection import VitessConnectionManager
+from models.infrastructure.vitess.entities import IdResolver
+from models.infrastructure.vitess.entity_repository import EntityRepository
+from models.infrastructure.vitess.head_repository import HeadRepository
 from models.infrastructure.vitess.metadata_repository import MetadataRepository
+from models.infrastructure.vitess.redirect_repository import RedirectRepository
+from models.infrastructure.vitess.revision_repository import RevisionRepository
+from models.infrastructure.vitess.schema import SchemaManager
+from models.infrastructure.vitess.statement_repository import StatementRepository
 from models.rest_api.request.entity import RevisionInsertDataRequest
 from models.rest_api.response.entity import BacklinkData, ProtectionInfo
 from models.rest_api.response.rdf import FullRevisionData
 from models.validation.utils import raise_validation_error
-from models.infrastructure.client import Client
 from models.vitess_models import VitessConfig
-
-from models.infrastructure.vitess.connection import VitessConnectionManager
-from models.infrastructure.vitess.schema import SchemaManager
-from models.infrastructure.vitess.entities import IdResolver
-from models.infrastructure.vitess.entity_repository import EntityRepository
-from models.infrastructure.vitess.revision_repository import RevisionRepository
-from models.infrastructure.vitess.redirect_repository import RedirectRepository
-from models.infrastructure.vitess.head_repository import HeadRepository
-from models.infrastructure.vitess.statement_repository import StatementRepository
-from models.infrastructure.vitess.backlink_repository import BacklinkRepository
 
 
 class VitessClient(Client):
