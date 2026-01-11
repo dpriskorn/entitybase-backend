@@ -33,8 +33,8 @@ class TestMetadataDeduplicationIntegration:
         descriptions = MetadataExtractor.extract_descriptions(entity_data)
         aliases = MetadataExtractor.extract_aliases(entity_data)
 
-        assert labels == {"en": {"language": "en", "value": "Test Entity"}}
-        assert descriptions == {"en": {"language": "en", "value": "A test entity"}}
+        assert labels.labels == {"en": "Test Entity"}
+        assert descriptions.descriptions == {"en": "A test entity"}
         assert aliases == {"en": ["Test", "Example"]}
 
         # Test hashing

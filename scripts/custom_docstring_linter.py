@@ -107,31 +107,31 @@ def check_docstring_format(docstring: str, node: ast.AST) -> List[str]:  # type:
 
     return errors
 
-    lines = docstring.splitlines()
-    if lines:
-        first_line = lines[0].strip()
-        if not first_line:
-            return errors  # Empty first line, but docstring exists
-        # D415: First line should end with punctuation
-        if not first_line.endswith((".", "!", "?")):
-            errors.append(
-                "D415 First line should end with a period, question mark, or exclamation point"
-            )
-
-    # D205: 1 blank line required between summary and description
-    if len(lines) > 1:
-        summary_end = 0
-        for i, line in enumerate(lines):
-            if line.strip():
-                summary_end = i
-            elif i == summary_end + 1:
-                break
-        if summary_end + 1 < len(lines) and lines[summary_end + 1].strip():
-            errors.append(
-                "D205 1 blank line required between summary line and description"
-            )
-
-    return errors
+    # lines = docstring.splitlines()
+    # if lines:
+    #     first_line = lines[0].strip()
+    #     if not first_line:
+    #         return errors  # Empty first line, but docstring exists
+    #     # D415: First line should end with punctuation
+    #     if not first_line.endswith((".", "!", "?")):
+    #         errors.append(
+    #             "D415 First line should end with a period, question mark, or exclamation point"
+    #         )
+    #
+    # # D205: 1 blank line required between summary and description
+    # if len(lines) > 1:
+    #     summary_end = 0
+    #     for i, line in enumerate(lines):
+    #         if line.strip():
+    #             summary_end = i
+    #         elif i == summary_end + 1:
+    #             break
+    #     if summary_end + 1 < len(lines) and lines[summary_end + 1].strip():
+    #         errors.append(
+    #             "D205 1 blank line required between summary line and description"
+    #         )
+    #
+    # return errors
 
 
 def check_file(file_path: Path) -> List[str]:

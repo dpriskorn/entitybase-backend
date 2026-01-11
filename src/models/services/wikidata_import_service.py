@@ -6,6 +6,8 @@ from typing import Any, Dict
 import requests
 from pydantic import BaseModel
 
+from models.rest_api.misc import EditType
+from models.rest_api.request import EntityCreateRequest
 
 logger = logging.getLogger(__name__)
 

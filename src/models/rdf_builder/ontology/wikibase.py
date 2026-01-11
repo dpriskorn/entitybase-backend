@@ -1,5 +1,7 @@
 """RDF ontology Wikibase predicates."""
 
+from models.rest_api.response import WikibasePredicates
+
 
 def wikibase_predicates(pid: str) -> WikibasePredicates:
     """Create Wikibase predicates for a property ID."""

@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 from typing import List, Callable, Optional, Any
 import logging
 
+from models.rest_api.response import StatementHashResult
 
 logger = logging.getLogger(__name__)
 

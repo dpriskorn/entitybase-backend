@@ -1,4 +1,8 @@
-from models.internal_representation.metadata_extractor import MetadataExtractor
+from models.internal_representation.metadata_extractor import (
+    MetadataExtractor,
+    LabelsResponse,
+    DescriptionsResponse,
+)
 
 
 class TestMetadataExtractor:
@@ -15,10 +19,12 @@ class TestMetadataExtractor:
         }
 
         result = MetadataExtractor.extract_labels(entity)
-        expected = {
-            "en": {"language": "en", "value": "Test Entity"},
-            "de": {"language": "de", "value": "Test Entität"},
-        }
+        expected = LabelsResponse(
+            labels={
+                "en": "Test Entity",
+                "de": "Test Entität",
+            }
+        )
         assert result == expected
 
     def test_extract_descriptions(self) -> None:
@@ -34,10 +40,12 @@ class TestMetadataExtractor:
         }
 
         result = MetadataExtractor.extract_descriptions(entity)
-        expected = {
-            "en": {"language": "en", "value": "A test entity"},
-            "de": {"language": "de", "value": "Eine Testentität"},
-        }
+        expected = DescriptionsResponse(
+            descriptions={
+                "en": "A test entity",
+                "de": "Eine Testentität",
+            }
+        )
         assert result == expected
 
     def test_extract_aliases(self) -> None:
@@ -57,8 +65,10 @@ class TestMetadataExtractor:
         """Test extracting from entity without metadata."""
         entity = {"id": "Q1"}
 
-        assert MetadataExtractor.extract_labels(entity) == {}
-        assert MetadataExtractor.extract_descriptions(entity) == {}
+        assert MetadataExtractor.extract_labels(entity) == LabelsResponse(labels={})
+        assert MetadataExtractor.extract_descriptions(entity) == DescriptionsResponse(
+            descriptions={}
+        )
         assert MetadataExtractor.extract_aliases(entity) == {}
 
     def test_hash_metadata(self) -> None:

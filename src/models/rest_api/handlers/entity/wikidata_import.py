@@ -13,6 +13,8 @@ from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from .create import EntityCreateHandler
+from ...request import EntityJsonImportRequest
+from ...response import EntityJsonImportResponse
 
 logger = logging.getLogger(__name__)
 
