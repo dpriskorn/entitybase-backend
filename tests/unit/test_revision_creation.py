@@ -48,8 +48,8 @@ class TestRevisionCreationLogic(unittest.TestCase):
         expected_descriptions = {"en": "English writer and comedian"}
         expected_aliases = {"en": ["DNA", "42"]}
 
-        self.assertEqual(labels, expected_labels)
-        self.assertEqual(descriptions, expected_descriptions)
+        self.assertEqual(labels.labels, expected_labels)
+        self.assertEqual(descriptions.descriptions, expected_descriptions)
         self.assertEqual(aliases, expected_aliases)
 
         # Hash terms (this would normally happen in the handler)

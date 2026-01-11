@@ -2,7 +2,6 @@
 """Linter to check if all public classes inherit from BaseModel."""
 
 import ast
-import os
 from pathlib import Path
 from typing import List
 

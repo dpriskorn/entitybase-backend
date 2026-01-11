@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, ConfigDict
 
-from models.internal_representation.values import Value
+from models.internal_representation.values.base import Value
 
 
 class ReferenceValue(BaseModel):

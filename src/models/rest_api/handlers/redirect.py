@@ -1,13 +1,12 @@
 """Entity redirect management handlers."""
 
 import logging
-from typing import TYPE_CHECKING
 
+from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.stream.producer import StreamProducerClient
+from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.request.entity import EntityRedirectRequest
 from models.rest_api.response.entity import EntityRedirectResponse, EntityResponse
-from models.infrastructure.s3.s3_client import S3Client
-from models.infrastructure.stream import StreamProducerClient
-from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.services.redirects import RedirectService
 
 logger = logging.getLogger(__name__)

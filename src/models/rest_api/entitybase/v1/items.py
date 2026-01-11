@@ -114,7 +114,9 @@ async def import_entities_from_jsonl(
 
 
 @router.get("/entities/items/{item_id}/labels/{language_code}")
-async def get_item_label(item_id: str, language_code: str, req: Request):
+async def get_item_label(
+    item_id: str, language_code: str, req: Request
+) -> dict[str, str]:
     """Get item label for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -204,7 +206,9 @@ async def delete_item_label(
 
 
 @router.get("/entities/items/{item_id}/descriptions/{language_code}")
-async def get_item_description(item_id: str, language_code: str, req: Request):
+async def get_item_description(
+    item_id: str, language_code: str, req: Request
+) -> dict[str, str]:
     """Get item description for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -295,7 +299,9 @@ async def delete_item_description(
 
 
 @router.get("/entities/items/{item_id}/aliases/{language_code}")
-async def get_item_aliases_for_language(item_id: str, language_code: str, req: Request):
+async def get_item_aliases_for_language(
+    item_id: str, language_code: str, req: Request
+) -> list[dict[str, str]]:
     """Get item aliases for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()

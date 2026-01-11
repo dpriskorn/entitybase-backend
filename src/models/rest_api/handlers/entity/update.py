@@ -5,12 +5,13 @@ from typing import Any
 
 from models.validation.utils import raise_validation_error
 
-from models.api import EntityUpdateRequest, EntityResponse
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from .base import EntityHandler
 from .update_transaction import UpdateTransaction
+from ...request import EntityUpdateRequest
+from ...response import EntityResponse
 
 logger = logging.getLogger(__name__)
 

@@ -3,8 +3,10 @@
 from fastapi import Response
 from starlette import status
 
+from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.vitess_client import VitessClient
+
 from models.rest_api.response.health import HealthCheckResponse
-from models.infrastructure import S3Client, VitessClient
 
 
 def health_check(response: Response) -> HealthCheckResponse:

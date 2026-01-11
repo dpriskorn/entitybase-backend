@@ -31,3 +31,4 @@
 - use pydantic models for all dict-style returns from functions in src/
 
 # Current task
+replace all returns with dict[str, str] to use pydantic models postfixed with "Response" instead

@@ -3,15 +3,12 @@
 from typing import Dict, Any
 
 from fastapi import APIRouter, HTTPException, Request
-from models.rest_api.api.entity import (
-    EntityCreateRequest,
-    EntityResponse,
-    EntityUpdateRequest,
-)
 
-from ...handlers.entity.property import PropertyCreateHandler
+from ...handlers.entity.property.create import PropertyCreateHandler
 from ...handlers.entity.read import EntityReadHandler
 from ...handlers.entity.update import EntityUpdateHandler
+from ...request import EntityUpdateRequest, EntityCreateRequest
+from ...response import EntityResponse
 
 router = APIRouter()
 
@@ -33,7 +30,7 @@ async def create_property(request: EntityCreateRequest, req: Request) -> EntityR
 
 
 @router.get("/entities/properties/{property_id}/labels/{language_code}")
-async def get_property_label(property_id: str, language_code: str, req: Request):
+async def get_property_label(property_id: str, language_code: str, req: Request) -> Any:
     """Get property label for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -47,7 +44,9 @@ async def get_property_label(property_id: str, language_code: str, req: Request)
 
 
 @router.get("/entities/properties/{property_id}/descriptions/{language_code}")
-async def get_property_description(property_id: str, language_code: str, req: Request):
+async def get_property_description(
+    property_id: str, language_code: str, req: Request
+) -> dict[str, str]:
     """Get property description for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -64,7 +63,7 @@ async def get_property_description(property_id: str, language_code: str, req: Re
 @router.get("/entities/properties/{property_id}/aliases/{language_code}")
 async def get_property_aliases_for_language(
     property_id: str, language_code: str, req: Request
-):
+) -> list[dict[str, str]]:
     """Get property aliases for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()

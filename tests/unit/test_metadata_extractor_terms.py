@@ -1,6 +1,10 @@
 import unittest
 from unittest.mock import patch
-from models.internal_representation.metadata_extractor import MetadataExtractor
+from models.internal_representation.metadata_extractor import (
+    MetadataExtractor,
+    LabelsResponse,
+    DescriptionsResponse,
+)
 
 
 class TestMetadataExtractor(unittest.TestCase):
@@ -15,14 +19,14 @@ class TestMetadataExtractor(unittest.TestCase):
             }
         }
         result = MetadataExtractor.extract_labels(entity)
-        expected = {"en": "Douglas Adams", "fr": "Douglas Adams"}
+        expected = LabelsResponse(labels={"en": "Douglas Adams", "fr": "Douglas Adams"})
         self.assertEqual(result, expected)
 
     def test_extract_labels_empty(self):
         """Test extracting labels when none exist"""
         entity = {}
         result = MetadataExtractor.extract_labels(entity)
-        self.assertEqual(result, {})
+        self.assertEqual(result, LabelsResponse(labels={}))
 
     def test_extract_descriptions(self) -> None:
         """Test extracting descriptions from entity JSON"""
@@ -33,14 +37,16 @@ class TestMetadataExtractor(unittest.TestCase):
             }
         }
         result = MetadataExtractor.extract_descriptions(entity)
-        expected = {"en": "English writer", "fr": "Écrivain anglais"}
+        expected = DescriptionsResponse(
+            descriptions={"en": "English writer", "fr": "Écrivain anglais"}
+        )
         self.assertEqual(result, expected)
 
     def test_extract_descriptions_empty(self):
         """Test extracting descriptions when none exist"""
         entity = {}
         result = MetadataExtractor.extract_descriptions(entity)
-        self.assertEqual(result, {})
+        self.assertEqual(result, DescriptionsResponse(descriptions={}))
 
     def test_extract_aliases(self):
         """Test extracting aliases from entity JSON"""

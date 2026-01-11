@@ -3,29 +3,45 @@
 import json
 from typing import Any
 
+from pydantic import BaseModel
+
+
+class LabelsResponse(BaseModel):
+    """Response model for extracted labels."""
+
+    labels: dict[str, str]
+
+
+class DescriptionsResponse(BaseModel):
+    """Response model for extracted descriptions."""
+
+    descriptions: dict[str, str]
+
 
 class MetadataExtractor:
     """Extracts and prepares metadata (labels, descriptions, aliases) from entity JSON for deduplication."""
 
     @staticmethod
-    def extract_labels(entity: dict[str, Any]) -> dict[str, str]:
+    def extract_labels(entity: dict[str, Any]) -> LabelsResponse:
         """Extract label values from entity JSON."""
         labels = entity.get("labels", {})
-        return {
+        data = {
             lang: label_data["value"]
             for lang, label_data in labels.items()
             if "value" in label_data
         }
+        return LabelsResponse(labels=data)
 
     @staticmethod
-    def extract_descriptions(entity: dict[str, Any]) -> dict[str, str]:
+    def extract_descriptions(entity: dict[str, Any]) -> DescriptionsResponse:
         """Extract description values from entity JSON."""
         descriptions = entity.get("descriptions", {})
-        return {
+        data = {
             lang: desc_data["value"]
             for lang, desc_data in descriptions.items()
             if "value" in desc_data
         }
+        return DescriptionsResponse(descriptions=data)
 
     @staticmethod
     def extract_aliases(entity: dict[str, Any]) -> dict[str, list[str]]:

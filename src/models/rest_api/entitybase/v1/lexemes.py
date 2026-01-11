@@ -20,7 +20,7 @@ async def create_lexeme(request: EntityCreateRequest, req: Request) -> EntityRes
     validator = req.app.state.validator
     enumeration_service = req.app.state.enumeration_service
     handler = LexemeCreateHandler(enumeration_service)
-    return await handler.create_entity(
+    return await handler.create_entity(  # type: ignore[return]
         request,
         clients.vitess,
         clients.s3,
@@ -30,7 +30,9 @@ async def create_lexeme(request: EntityCreateRequest, req: Request) -> EntityRes
 
 
 @router.get("/entities/lexemes/{lexeme_id}/labels/{language_code}")
-async def get_lexeme_label(lexeme_id: str, language_code: str, req: Request):
+async def get_lexeme_label(
+    lexeme_id: str, language_code: str, req: Request
+) -> dict[str, str]:
     """Get lexeme label for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -44,7 +46,9 @@ async def get_lexeme_label(lexeme_id: str, language_code: str, req: Request):
 
 
 @router.get("/entities/lexemes/{lexeme_id}/descriptions/{language_code}")
-async def get_lexeme_description(lexeme_id: str, language_code: str, req: Request):
+async def get_lexeme_description(
+    lexeme_id: str, language_code: str, req: Request
+) -> dict[str, str]:
     """Get lexeme description for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -61,7 +65,7 @@ async def get_lexeme_description(lexeme_id: str, language_code: str, req: Reques
 @router.get("/entities/lexemes/{lexeme_id}/aliases/{language_code}")
 async def get_lexeme_aliases_for_language(
     lexeme_id: str, language_code: str, req: Request
-):
+) -> list[dict[str, str]]:
     """Get lexeme aliases for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -142,7 +146,7 @@ async def patch_lexeme_aliases_for_language(
         type=current_entity.data.get("type"), **current_entity.data
     )
 
-    return await update_handler.update_entity(
+    return await update_handler.update_entity(  # type: ignore[return]
         lexeme_id,
         update_request,
         clients.vitess,

@@ -64,7 +64,6 @@ class RevisionRepository:
         self, conn: Any, entity_id: str, limit: int = 20, offset: int = 0
     ) -> list[Any]:
         """Get revision history for an entity."""
-        from dataclasses import dataclass
 
         class RevisionRecord(BaseModel):
             """Revision record for history."""

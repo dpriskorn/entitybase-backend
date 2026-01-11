@@ -2,17 +2,18 @@
 
 from fastapi import APIRouter, Request
 
-from models.api import (
-    MostUsedStatementsRequest,
-    MostUsedStatementsResponse,
-    StatementResponse,
-    StatementBatchRequest,
-    StatementBatchResponse,
-    CleanupOrphanedRequest,
-    CleanupOrphanedResponse,
-)
 from ...handlers.statement import StatementHandler
-
+from ...request import (
+    CleanupOrphanedRequest,
+    MostUsedStatementsRequest,
+    StatementBatchRequest,
+)
+from ...response import (
+    CleanupOrphanedResponse,
+    MostUsedStatementsResponse,
+    StatementBatchResponse,
+    StatementResponse,
+)
 
 router = APIRouter()
 
