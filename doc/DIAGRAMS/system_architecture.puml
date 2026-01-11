@@ -25,6 +25,7 @@ package "Service Layer" as ServiceLayer #LightGreen {
 package "Worker Layer" as WorkerLayer #LightYellow {
     "BacklinkStatisticsWorker" as BacklinkStatisticsWorker
     "IdGeneratorWorker" as IdGeneratorWorker
+    "DevWorker" as DevWorker
 }
 
 package "Infrastructure Layer" as InfrastructureLayer #LightGray {

@@ -13,6 +13,14 @@
 
 **Health Checks**: Available via worker health endpoint
 
+## Dev Worker
+
+**Class**: `DevWorker`
+**Location**: `models/workers/dev/dev_worker.py`
+**Purpose**: Development worker for MinIO bucket management and setup tasks.
+
+**Health Checks**: Available via worker health endpoint
+
 ## Id Generation Worker
 
 **Class**: `IdGeneratorWorker`

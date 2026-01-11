@@ -235,6 +235,16 @@ Model for worker health check response.
 - `worker_id` (str): Unique worker identifier
 - `range_status` (dict[str, Any]): Current ID range allocation status
 
+## models/rest_api/response/id_response.py
+
+### IdResponse
+
+Response model for generated entity ID.
+
+**Fields**:
+
+- `id` (str): The generated entity ID (e.g., 'Q123', 'P456')
+
 ## models/rest_api/response/misc.py
 
 ### AliasesDict

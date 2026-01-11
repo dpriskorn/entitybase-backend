@@ -9,7 +9,10 @@ title Wikibase Backend - Component Relationships
 [Repositories] as Repos
 [Models] as Models
 database "Vitess" as Vitess
-storage "S3" as S3
+storage "S3 Terms" as S3Terms
+storage "S3 Statements" as S3Statements
+storage "S3 Revisions" as S3Revisions
+storage "S3 Dumps" as S3Dumps
 queue "Kafka" as Kafka
 [Config] as Config
 
@@ -33,7 +36,10 @@ Handlers -- MQ
 
 ' External systems
 DBI --> Vitess : mysql
-SI --> S3 : s3
+SI --> S3Terms : terms metadata
+SI --> S3Statements : statement content
+SI --> S3Revisions : revision data
+Workers --> S3Dumps : entity dumps
 MQ --> Kafka : events
 Config --> API : configuration
 Config --> Workers : configuration

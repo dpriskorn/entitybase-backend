@@ -25,25 +25,25 @@ Everything else in the system derives from this rule.
 The Entitybase Backend implements a microservices architecture designed for billion-scale Wikibase operations:
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   API Service   │    │   ID Generator  │    │   Dump Worker   │
-│                 │    │   (Worker)      │    │   (Worker)      │
-│ • REST API      │    │ • Range-based   │    │ • RDF Dump      │
-│ • CRUD Ops      │    │   ID allocation │    │   Generation    │
-│ • Validation    │    │ • Atomic ops    │    │ • Weekly dumps  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         └───────────────────────┼───────────────────────┘
-                                 │
-                    ┌─────────────────────┐
-                    │                     │
-                    │   Storage Stack     │
-                    │                     │
-                    │ • S3 (immutable     │
-                    │   snapshots)       │
-                    │ • Vitess (indexing)│
-                    │ • Event streaming  │
-                    └─────────────────────┘
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   API Service   │    │   ID Generator  │    │   Dump Worker   │    │   Dev Worker    │
+│                 │    │   (Worker)      │    │   (Worker)      │    │   (Development) │
+│ • REST API      │    │ • Range-based   │    │ • JSONL Dump    │    │ • Bucket setup  │
+│ • CRUD Ops      │    │   ID allocation │    │   Generation    │    │ • Health checks │
+│ • Validation    │    │ • Atomic ops    │    │ • Shard export  │    │ • Environment   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │                       │
+         └───────────────────────┼───────────────────────┼───────────────────────┘
+                                 │                       │
+                    ┌─────────────────────┐    ┌─────────────────────┐
+                    │                     │    │                     │
+                    │   Storage Stack     │    │   S3 Buckets        │
+                    │                     │    │                     │
+                    │ • S3 (immutable     │    │ • terms (metadata)  │
+                    │   snapshots)       │    │ • statements (dedup)│
+                    │ • Vitess (indexing)│    │ • revisions (data)  │
+                    │ • Event streaming  │    │ • dumps (exports)   │
+                    └─────────────────────┘    └─────────────────────┘
 ```
 
 ### Service Components
@@ -107,17 +107,29 @@ The Entitybase Backend implements a microservices architecture designed for bill
 - **Write Performance**: Range-based ID allocation eliminates bottlenecks
 - **RDF Generation**: Parallel processing for dump and streaming workloads
 
-### Planned Components
+### Service Components
 
-#### **Dump Worker Service**
-- **Weekly RDF Dumps**: Generate complete Wikibase RDF exports for public consumption
-- **Change Streaming**: Real-time RDF triple streaming for live updates
-- **Bulk Operations**: Large-scale data export/import operations
-- **Parallel Processing**: Distributed dump generation across multiple workers
-- **Storage Integration**: Direct S3/Vitess access for efficient bulk operations
+#### **Dump Worker Service** ✅
+- **JSONL Entity Dumps**: Generate complete entity exports in JSON Lines format
+- **Shard-based Processing**: Process entities by Vitess shard for scalability
+- **S3 Integration**: Store dumps in dedicated S3 bucket
+- **Raw Revision Data**: Export full revision content without manipulation
 
 **Key Features**:
-- Automated weekly dump generation (following Wikidata patterns)
+- Raw revision schema export
+- Shard-parallel processing
+- S3 dump bucket storage
+
+#### **Dev Worker Service** ✅
+- **Bucket Management**: Automated MinIO bucket creation and health checks
+- **Environment Setup**: Development infrastructure provisioning
+- **CLI Interface**: Command-line tools for bucket operations
+- **Health Monitoring**: Bucket accessibility and status reporting
+
+**Key Features**:
+- Four specialized buckets (terms, statements, revisions, dumps)
+- Idempotent setup operations
+- Development workflow integration
 - Incremental change streaming for real-time RDF updates
 - Compression and partitioning for efficient storage/distribution
 - Health monitoring and progress tracking
@@ -150,12 +162,29 @@ docker-compose up -d
 # Install dependencies
 poetry install
 
+# Setup MinIO buckets (requires MinIO running)
+./scripts/setup/minio_buckets.sh
+
+# Alternative: Use the dev worker CLI
+cd src && python -m models.workers.dev setup
+
 # Run tests
 poetry run pytest
 
 # Start development server
 poetry run uvicorn src.models.rest_api.main:app --reload
 ```
+
+#### MinIO Bucket Setup
+
+The system uses four S3-compatible buckets for different data types:
+
+- **`terms`**: Stores entity metadata (labels, descriptions, aliases)
+- **`statements`**: Stores statement content with deduplication
+- **`revisions`**: Stores revision data and metadata
+- **`dumps`**: Stores entity export dumps
+
+Use either the setup script or dev worker CLI to create these buckets automatically.
 
 ## Details
 ### Core
