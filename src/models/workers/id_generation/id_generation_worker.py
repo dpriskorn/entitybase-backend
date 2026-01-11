@@ -10,18 +10,12 @@ import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.response.health import WorkerHealthCheck
+from models.rest_api.response.id_response import IdResponse
 from models.rest_api.services.enumeration_service import EnumerationService
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
-
-
-class IdResponse(BaseModel):
-    """Response model for generated entity ID."""
-
-    id: str = Field(..., description="The generated entity ID (e.g., 'Q123', 'P456')")
 
 
 class IdGeneratorWorker(BaseModel):
@@ -93,6 +87,7 @@ class IdGeneratorWorker(BaseModel):
         try:
             # Initialize Vitess client with default config
             from models.vitess_models import VitessConfig
+            from models.infrastructure.vitess_client import VitessClient
 
             vitess_config = VitessConfig(
                 host=os.getenv("VITESS_HOST", "vitess"),

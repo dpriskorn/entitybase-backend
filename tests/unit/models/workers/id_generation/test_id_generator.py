@@ -5,7 +5,10 @@ from unittest.mock import Mock, patch
 import pytest
 from pydantic import ValidationError
 
-from models.workers.id_generation.id_generator import IdGeneratorWorker, IdResponse
+from models.workers.id_generation.id_generation_worker import (
+    IdGeneratorWorker,
+    IdResponse,
+)
 
 
 class TestIdResponse:

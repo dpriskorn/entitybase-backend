@@ -87,6 +87,18 @@ class SchemaManager:
 
         cursor.execute(
             """
+            CREATE TABLE IF NOT EXISTS backlink_statistics (
+                date DATE PRIMARY KEY,
+                total_backlinks BIGINT NOT NULL,
+                unique_entities_with_backlinks BIGINT NOT NULL,
+                top_entities_by_backlinks JSON NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """
+        )
+
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS metadata_content (
                 content_hash BIGINT UNSIGNED NOT NULL,
                 content_type ENUM('labels', 'descriptions', 'aliases') NOT NULL,

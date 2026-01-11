@@ -4,7 +4,7 @@
 
 from typing import Any
 
-from models.rest_api.response.entity import BacklinkData
+from models.vitess_models import BacklinkData
 
 
 class BacklinkRepository:

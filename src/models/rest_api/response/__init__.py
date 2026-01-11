@@ -4,7 +4,6 @@
 
 from .entity import (
     Backlink,
-    BacklinkData,
     BacklinksResponse,
     EntityAliases,
     EntityDeleteResponse,
@@ -20,6 +19,7 @@ from .entity import (
     ProtectionInfo,
     WikibaseEntityResponse,
 )
+from models.vitess_models import BacklinkData
 from .statement import (
     MostUsedStatementsResponse,
     PropertyCounts,

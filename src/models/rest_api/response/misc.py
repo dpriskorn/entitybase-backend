@@ -77,6 +77,42 @@ class MetadataContent(BaseModel):
     ref_count: int = Field(..., description="Reference count")
 
 
+class TopEntityByBacklinks(BaseModel):
+    """Model for entity backlink ranking."""
+
+    entity_id: str = Field(..., description="Entity ID")
+    backlink_count: int = Field(..., description="Number of backlinks to this entity")
+
+
+class BacklinkStatisticsData(BaseModel):
+    """Container for computed backlink statistics."""
+
+    total_backlinks: int = Field(
+        ..., description="Total number of backlink relationships"
+    )
+    unique_entities_with_backlinks: int = Field(
+        ..., description="Number of entities with at least one backlink"
+    )
+    top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
+        ..., description="Top entities by backlink count"
+    )
+
+
+class BacklinkStatisticsResponse(BaseModel):
+    """API response for backlink statistics."""
+
+    date: str = Field(..., description="Date of statistics computation")
+    total_backlinks: int = Field(
+        ..., description="Total number of backlink relationships"
+    )
+    unique_entities_with_backlinks: int = Field(
+        ..., description="Number of entities with at least one backlink"
+    )
+    top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
+        ..., description="Top entities by backlink count"
+    )
+
+
 class RawRevisionResponse(BaseModel):
     """Response model for raw revision data."""
 

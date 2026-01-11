@@ -18,7 +18,8 @@ from models.infrastructure.vitess.revision_repository import RevisionRepository
 from models.infrastructure.vitess.schema import SchemaManager
 from models.infrastructure.vitess.statement_repository import StatementRepository
 from models.rest_api.request.entity import RevisionInsertDataRequest
-from models.rest_api.response.entity import BacklinkData, ProtectionInfo
+from models.rest_api.response.entity import ProtectionInfo
+from models.vitess_models import BacklinkData
 from models.rest_api.response.rdf import FullRevisionData
 from models.validation.utils import raise_validation_error
 from models.vitess_models import VitessConfig
