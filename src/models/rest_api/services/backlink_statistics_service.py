@@ -1,7 +1,5 @@
 """Service for computing backlink statistics."""
 
-from typing import Any
-
 from pydantic import BaseModel, Field
 
 from models.infrastructure.vitess_client import VitessClient

@@ -1,7 +1,7 @@
 ./run-scc.sh
 ./count-words.sh
-./run-coverage.sh
-python scripts/doc/update-coverage-stats.py
+# ./run-coverage.sh
+# python scripts/doc/update-coverage-stats.py
 python scripts/doc/extract_endpoints.py > src/models/rest_api/ENDPOINTS.md
 python scripts/doc/generate_workers_overview.py > doc/ARCHITECTURE/WORKERS.md
 python scripts/doc/generate_services_overview.py > doc/ARCHITECTURE/SERVICES.md

@@ -28,13 +28,13 @@ def extract_service_info(service_file: Path) -> Dict[str, Any]:
             if isinstance(node, ast.ClassDef) and "Service" in node.name:
                 info["class_name"] = node.name
                 # Get docstring
-                if (
-                    node.body
-                    and isinstance(node.body[0], ast.Expr)
-                    and isinstance(node.body[0].value, ast.Constant)
-                ):
-                    docstring = node.body[0].value.value
-                    info["description"] = docstring.strip()
+                if node.body and isinstance(node.body[0], ast.Expr):
+                    expr = node.body[0]
+                    if isinstance(expr.value, ast.Constant) and isinstance(
+                        expr.value.value, str
+                    ):
+                        docstring = expr.value.value
+                        info["description"] = docstring.strip()
 
                 # Extract methods
                 for item in node.body:
@@ -47,13 +47,13 @@ def extract_service_info(service_file: Path) -> Dict[str, Any]:
                             "description": "",
                         }
                         # Get method docstring
-                    if (
-                        item.body
-                        and isinstance(item.body[0], ast.Expr)
-                        and isinstance(item.body[0].value, ast.Constant)
-                    ):
-                        method_doc = item.body[0].value.value
-                        method_info["description"] = method_doc.strip()
+                    if item.body and isinstance(item.body[0], ast.Expr):
+                        expr = item.body[0]
+                        if isinstance(expr.value, ast.Constant) and isinstance(
+                            expr.value.value, str
+                        ):
+                            method_doc = expr.value.value
+                            method_info["description"] = method_doc.strip()
                         info["methods"].append(method_info)
                 break
 

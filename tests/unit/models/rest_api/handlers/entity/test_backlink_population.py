@@ -1,6 +1,6 @@
 from unittest.mock import Mock, patch
-from models.rest_api.handlers.entity import EntityHandler
-from models.api import StatementHashResult
+from models.rest_api.handlers.entity.base import EntityHandler
+from models.rest_api.response.statement import StatementHashResult
 
 
 class TestBacklinkPopulation:

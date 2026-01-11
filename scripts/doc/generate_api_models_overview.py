@@ -2,7 +2,6 @@
 """Generate overview documentation for API response models."""
 
 import ast
-import re
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -31,13 +30,13 @@ def extract_model_info(model_file: Path) -> List[Dict[str, Any]]:
                 }
 
                 # Get class docstring
-                if (
-                    node.body
-                    and isinstance(node.body[0], ast.Expr)
-                    and isinstance(node.body[0].value, ast.Constant)
-                ):
-                    docstring = node.body[0].value.value
-                    model_info["description"] = docstring.strip()
+                if node.body and isinstance(node.body[0], ast.Expr):
+                    expr = node.body[0]
+                    if isinstance(expr.value, ast.Constant) and isinstance(
+                        expr.value.value, str
+                    ):
+                        docstring = expr.value.value
+                        model_info["description"] = docstring.strip()
 
                 # Extract fields
                 for item in node.body:
@@ -56,13 +55,17 @@ def extract_model_info(model_file: Path) -> List[Dict[str, Any]]:
                         if item.value and isinstance(item.value, ast.Call):
                             # Look for Field() calls
                             for arg in item.value.args:
-                                if isinstance(arg, ast.Constant):
+                                if isinstance(arg, ast.Constant) and isinstance(
+                                    arg.value, str
+                                ):
                                     field_description = arg.value
                                     break
                             # Look for keyword arguments
                             for keyword in item.value.keywords:
-                                if keyword.arg == "description" and isinstance(
-                                    keyword.value, ast.Constant
+                                if (
+                                    keyword.arg == "description"
+                                    and isinstance(keyword.value, ast.Constant)
+                                    and isinstance(keyword.value.value, str)
                                 ):
                                     field_description = keyword.value.value
                                     break

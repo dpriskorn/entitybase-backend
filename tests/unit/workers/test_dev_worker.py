@@ -74,32 +74,6 @@ class TestDevWorker:
         assert all(status == "created" for status in results.values())
         assert set(results.keys()) == {"terms", "statements", "revisions", "dumps"}
 
-    @patch("models.workers.dev.dev_worker._boto3")
-    def test_ensure_buckets_exist_success(self, mock_boto3):
-        """Test successful bucket creation when buckets don't exist."""
-        # Setup mock S3 client
-        mock_client = MagicMock()
-        mock_boto3.client.return_value = mock_client
-
-        # Mock ClientError for 404 (bucket doesn't exist)
-        from botocore.exceptions import ClientError
-
-        not_found_error = ClientError(
-            error_response={"Error": {"Code": "404"}}, operation_name="HeadBucket"
-        )
-
-        # head_bucket raises 404, then create_bucket succeeds
-        mock_client.head_bucket.side_effect = not_found_error
-        mock_client.create_bucket.return_value = None
-
-        worker = DevWorker()
-        results = await worker.ensure_buckets_exist()
-
-        # Should attempt to create all 4 buckets
-        assert mock_client.create_bucket.call_count == 4
-        assert all(status == "created" for status in results.values())
-        assert set(results.keys()) == {"terms", "statements", "revisions", "dumps"}
-
     @pytest.mark.asyncio
     @patch("models.workers.dev.dev_worker._boto3")
     async def test_ensure_buckets_exist_already_exist(self, mock_boto3):

@@ -26,17 +26,17 @@ def extract_worker_info(worker_file: Path) -> Dict[str, Any]:
             if isinstance(node, ast.ClassDef) and "Worker" in node.name:
                 info["class_name"] = node.name
                 # Get docstring from the first string literal in the class body
-                if (
-                    node.body
-                    and isinstance(node.body[0], ast.Expr)
-                    and isinstance(node.body[0].value, ast.Constant)
-                ):
-                    docstring = node.body[0].value.value
-                    # Clean up the docstring
-                    docstring = docstring.strip()
-                    # Remove extra whitespace and normalize
-                    docstring = re.sub(r"\n\s+", " ", docstring)
-                    info["description"] = docstring
+                if node.body and isinstance(node.body[0], ast.Expr):
+                    expr = node.body[0]
+                    if isinstance(expr.value, ast.Constant) and isinstance(
+                        expr.value.value, str
+                    ):
+                        docstring = expr.value.value
+                        # Clean up the docstring
+                        docstring = docstring.strip()
+                        # Remove extra whitespace and normalize
+                        docstring = re.sub(r"\n\s+", " ", docstring)
+                        info["description"] = docstring
                 break
 
     except Exception as e:

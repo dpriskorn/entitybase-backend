@@ -1,12 +1,11 @@
 """Development worker for MinIO bucket setup and management."""
 
-import asyncio
 import logging
 import os
 from typing import Any, Dict, List
 
-from pydantic import BaseModel
 from botocore.exceptions import ClientError
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 

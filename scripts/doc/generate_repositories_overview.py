@@ -2,7 +2,6 @@
 """Generate overview documentation for repository classes."""
 
 import ast
-import re
 from pathlib import Path
 from typing import Dict, Any, List
 

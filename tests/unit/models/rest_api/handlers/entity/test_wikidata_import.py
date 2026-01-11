@@ -7,7 +7,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from models.rest_api.handlers.entity.wikidata_import import EntityJsonImportHandler
-from models.rest_api.api import EntityJsonImportRequest, EntityJsonImportResponse
+from models.rest_api.request import EntityJsonImportRequest
+from models.rest_api.response import EntityJsonImportResponse
 from models.services.wikidata_import_service import WikidataImportService
 
 

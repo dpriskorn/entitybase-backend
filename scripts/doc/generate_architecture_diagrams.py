@@ -2,10 +2,8 @@
 """Generate PlantUML architecture diagrams from codebase analysis."""
 
 import ast
-import os
 from pathlib import Path
-from typing import Any, Dict, List, Set, Tuple
-import re
+from typing import Any, Dict
 
 
 def analyze_codebase() -> Dict[str, Any]:

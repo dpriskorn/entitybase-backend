@@ -5,7 +5,7 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from models.api import EntityCreateRequest
+from models.rest_api.request.entity import EntityCreateRequest
 from models.rest_api.handlers.entity.item import ItemCreateHandler
 from models.rest_api.handlers.entity.property.create import PropertyCreateHandler
 from models.rest_api.services.enumeration_service import EnumerationService
