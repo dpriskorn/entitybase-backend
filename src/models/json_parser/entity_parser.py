@@ -1,3 +1,5 @@
+"""JSON entity parser."""
+
 import logging
 
 from typing import Any
@@ -17,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def parse_entity(metadata: dict[str, Any]) -> Entity:
+    """Parse entity from Wikidata JSON format."""
     # Handle nested structure {"entities": {"Q42": {...}}}
     if "entities" in metadata:
         entities = metadata["entities"]

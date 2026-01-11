@@ -1,7 +1,11 @@
+"""Repository for entity listing operations."""
+
 from typing import Any
 
 
 class ListingRepository:
+    """Repository for entity listing operations."""
+
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 

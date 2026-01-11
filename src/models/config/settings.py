@@ -40,13 +40,21 @@ class Settings(BaseSettings):
     kafka_topic: str = "wikibase.entity_change"
 
     def get_log_level(self) -> int:
-        """Get the appropriate logging level based on configuration."""
+        """Get the appropriate logging level based on configuration.
+
+        Returns:
+            The logging level as an integer.
+        """
         if os.getenv("TEST_LOG_LEVEL"):
             return getattr(logging, self.test_log_level.upper(), logging.INFO)
         return getattr(logging, self.log_level.upper(), logging.INFO)
 
     def to_s3_config(self) -> Any:
-        """Convert settings to S3 configuration object."""
+        """Convert settings to S3 configuration object.
+
+        Returns:
+            S3Config object with the settings.
+        """
         from models.infrastructure.s3.s3_client import S3Config
 
         return S3Config(
@@ -57,7 +65,11 @@ class Settings(BaseSettings):
         )
 
     def to_vitess_config(self) -> Any:
-        """Convert settings to Vitess configuration object."""
+        """Convert settings to Vitess configuration object.
+
+        Returns:
+            VitessConfig object with the settings.
+        """
         from models.infrastructure.vitess_client import VitessConfig
 
         return VitessConfig(

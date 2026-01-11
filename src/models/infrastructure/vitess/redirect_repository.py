@@ -1,9 +1,13 @@
+"""Vitess redirect repository for redirect operations."""
+
 from typing import Any
 
 from models.validation.utils import raise_validation_error
 
 
 class RedirectRepository:
+    """Repository for entity redirect database operations."""
+
     def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
         self.connection_manager = connection_manager
         self.id_resolver = id_resolver
@@ -15,6 +19,7 @@ class RedirectRepository:
         redirects_to_entity_id: str | None,
         expected_redirects_to: int | None = None,
     ) -> bool:
+        """Set redirect target for an entity."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
@@ -50,6 +55,7 @@ class RedirectRepository:
         redirect_to_entity_id: str,
         created_by: str = "rest-api",
     ) -> None:
+        """Create a redirect from one entity to another."""
         redirect_from_internal_id = self.id_resolver.resolve_id(
             conn, redirect_from_entity_id
         )
@@ -75,6 +81,7 @@ class RedirectRepository:
             )
 
     def get_incoming_redirects(self, conn: Any, entity_id: str) -> list[str]:
+        """Get entities that redirect to the given entity."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return []
@@ -91,6 +98,7 @@ class RedirectRepository:
             return result
 
     def get_target(self, conn: Any, entity_id: str) -> str | None:
+        """Get the redirect target for an entity."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return None

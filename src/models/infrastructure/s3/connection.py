@@ -1,3 +1,5 @@
+"""S3 connection management and client handling."""
+
 import boto3
 from botocore.client import BaseClient
 from botocore.config import Config
@@ -14,6 +16,7 @@ class S3ConnectionManager(ConnectionManager):
     boto_client: BaseClient = Field(default=None, exclude=True)
 
     def connect(self) -> None:
+        """Establish S3 client connection."""
         if self.boto_client is None:
             self.boto_client = boto3.client(
                 "s3",

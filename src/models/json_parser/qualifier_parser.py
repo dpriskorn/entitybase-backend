@@ -1,3 +1,5 @@
+"""JSON qualifier parser."""
+
 from typing import Any
 
 from models.json_parser.value_parser import parse_value
@@ -6,6 +8,7 @@ from models.internal_representation.json_fields import JsonField
 
 
 def parse_qualifier(qualifier_json: dict[str, Any], property_id: str = "") -> Qualifier:
+    """Parse qualifier from Wikidata JSON format."""
     return Qualifier(
         property=qualifier_json.get(JsonField.PROPERTY.value, property_id),
         value=parse_value(qualifier_json),
@@ -15,6 +18,7 @@ def parse_qualifier(qualifier_json: dict[str, Any], property_id: str = "") -> Qu
 def parse_qualifiers(
     qualifiers_json: dict[str, list[dict[str, Any]]],
 ) -> list[Qualifier]:
+    """Parse qualifiers from Wikidata JSON format."""
     qualifiers = []
 
     for property_id, qualifier_list in qualifiers_json.items():

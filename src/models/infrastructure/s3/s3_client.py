@@ -1,6 +1,6 @@
-import json
 """S3 storage client for entity and statement data."""
 
+import json
 from datetime import timezone, datetime
 from typing import Any, Dict
 import logging

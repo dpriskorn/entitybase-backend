@@ -64,8 +64,9 @@ class HashDedupeBag:
     """
 
     def __init__(self, cutoff: int = 5):
-        """Initialize HashDedupeBag with the given cutoff value, which is the
-        number of hash characters to use. A larger number means less collisions
+        """Initialize HashDedupeBag with the given cutoff value.
+
+        The cutoff is the number of hash characters to use. A larger number means less collisions
         (fewer false negatives), but a larger bag. The number can be read as an
         exponent to the size of the hash's alphabet, so with a hex hash and $cutoff = 5,
         you'd get a max bag size of 16^5, and a collision probability of 16^-5 = 1/32.
@@ -82,7 +83,8 @@ class HashDedupeBag:
         self._misses = 0
 
     def already_seen(self, hash_: str, namespace: str = "") -> bool:
-        """@see DedupeBag::alreadySeen
+        """@see DedupeBag::alreadySeen.
+
         @return bool
         """
         key = namespace + hash_[: self.cutoff]

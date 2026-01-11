@@ -1,3 +1,5 @@
+"""RDF property ontology writer."""
+
 from typing import TextIO
 import hashlib
 
@@ -8,7 +10,7 @@ from models.config.settings import settings
 class PropertyOntologyWriter:
     @staticmethod
     def write_property_metadata(output: TextIO, shape: PropertyShape) -> None:
-        """Write property metadata block with labels, descriptions, predicate links"""
+        """Write property metadata block with labels, descriptions, predicate links."""
         pid = shape.pid
         wd = f"wd:{pid}"
 
@@ -51,7 +53,7 @@ class PropertyOntologyWriter:
 
     @staticmethod
     def _datatype_uri(datatype: str) -> str:
-        """Convert datatype string to ontology URI"""
+        """Convert datatype string to ontology URI."""
         return {
             "wikibase-item": "http://wikiba.se/ontology#WikibaseItem",
             "wikibase-string": "http://wikiba.se/ontology#String",
@@ -75,7 +77,7 @@ class PropertyOntologyWriter:
 
     @staticmethod
     def write_property(output: TextIO, shape: PropertyShape) -> None:
-        """Write property ontology with all predicate declarations"""
+        """Write property ontology with all predicate declarations."""
         pid = shape.pid
         output.write(f"p:{pid} a owl:ObjectProperty .\n")
         output.write(f"psv:{pid} a owl:ObjectProperty .\n")
@@ -96,7 +98,7 @@ class PropertyOntologyWriter:
 
     @staticmethod
     def _generate_blank_node_id(property_id: str) -> str:
-        """Generate stable blank node ID for property no-value
+        """Generate stable blank node ID for property no-value."""
 
         Matches MediaWiki Wikibase algorithm from PropertySpecificComponentsRdfBuilder.php:
         md5(implode('-', ['owl:complementOf', $repositoryName, $localName]))
@@ -109,7 +111,7 @@ class PropertyOntologyWriter:
 
     @staticmethod
     def write_novalue_class(output: TextIO, property_id: str) -> None:
-        """Write no-value class with OWL complement restriction"""
+        """Write no-value class with OWL complement restriction."""
         blank_node_id = PropertyOntologyWriter._generate_blank_node_id(property_id)
         output.write(f"wdno:{property_id} a owl:Class ;\n")
         output.write(f"\towl:complementOf _:{blank_node_id} .\n")

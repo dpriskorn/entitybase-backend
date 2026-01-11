@@ -1,3 +1,5 @@
+"""JSON quantity value parser."""
+
 from typing import Any
 
 from models.internal_representation.values import QuantityValue
@@ -5,6 +7,7 @@ from models.internal_representation.json_fields import JsonField
 
 
 def parse_quantity_value(datavalue: dict[str, Any]) -> QuantityValue:
+    """Parse quantity value from Wikidata JSON format."""
     quantity_data = datavalue.get(JsonField.VALUE.value, {})
     return QuantityValue(
         value=str(quantity_data.get(JsonField.AMOUNT.value, "0")),

@@ -1,3 +1,5 @@
+"""Download and stream Wikidata lexemes JSON dump."""
+
 import requests
 import gzip
 

@@ -1,7 +1,13 @@
+"""Repository for metadata content operations."""
+
+"""Repository for metadata content operations."""
+
 from typing import Any
 
 
 class MetadataRepository:
+    """Repository for metadata content operations."""
+
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 

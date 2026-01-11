@@ -8,21 +8,11 @@ from .misc import DeleteType, EditType
 
 
 class EntityCreateRequest(BaseModel):
-    id: str = Field(..., description="Entity ID (e.g., Q42)")
-    type: str = Field(default="item", description="Entity type")
-    labels: Dict[str, Dict[str, str]] = {}
-    descriptions: Dict[str, Dict[str, str]] = {}
-    claims: Dict[str, Any] = {}
-    aliases: Dict[str, Any] = {}
-    sitelinks: Dict[str, Any] = {}
-    is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
-    edit_type: EditType = Field(
-        default=EditType.UNSPECIFIED,
-        description="Classification of edit type",
-    )
-    is_semi_protected: bool = Field(default=False, description="Item is semi-protected")
-    is_locked: bool = Field(default=False, description="Item is locked from edits")
-    is_archived: bool = Field(default=False, description="Item is archived")
+    id: str
+    data: Dict[str, Any]
+    is_semi_protected: bool = False
+    is_locked: bool = False
+    is_archived: bool = False
     is_dangling: bool = Field(
         default=False,
         description="Item has no maintaining WikiProject (computed by frontend)",
@@ -38,6 +28,7 @@ class EntityCreateRequest(BaseModel):
 
     @property
     def data(self) -> Dict[str, Any]:
+        """Return model data as dict."""
         return self.model_dump(exclude_unset=True)
 
 
@@ -110,22 +101,12 @@ class RedirectRevertRequest(BaseModel):
 
 
 class EntityUpdateRequest(BaseModel):
-    """Request model for updating an entity."""
-
-    type: str = Field(default="item", description="Entity type")
-    labels: Dict[str, Dict[str, str]] = {}
-    descriptions: Dict[str, Dict[str, str]] = {}
-    claims: Dict[str, Any] = {}
-    aliases: Dict[str, Any] = {}
-    sitelinks: Dict[str, Any] = {}
-    is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
-    edit_type: EditType = Field(
-        default=EditType.UNSPECIFIED,
-        description="Classification of edit type",
-    )
-    is_semi_protected: bool = Field(default=False, description="Item is semi-protected")
-    is_locked: bool = Field(default=False, description="Item is locked from edits")
-    is_archived: bool = Field(default=False, description="Item is archived")
+    id: str
+    revision_id: int
+    data: Dict[str, Any]
+    is_semi_protected: bool = False
+    is_locked: bool = False
+    is_archived: bool = False
     is_dangling: bool = Field(
         default=False,
         description="Item has no maintaining WikiProject (computed by frontend)",
@@ -141,6 +122,7 @@ class EntityUpdateRequest(BaseModel):
 
     @property
     def data(self) -> Dict[str, Any]:
+        """Return model data as dict."""
         return self.model_dump(exclude_unset=True)
 
 

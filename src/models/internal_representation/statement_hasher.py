@@ -1,13 +1,16 @@
 import json
-from typing import Any
+"""Utilities for computing statement hashes."""
 
-from rapidhash import rapidhash
+from typing import Any
+import rapidhash
 
 
 class StatementHasher:
+    """Utilities for computing statement content hashes."""
+
     @staticmethod
     def compute_hash(statement_dict: dict[str, Any]) -> int:
-        """Compute rapidhash of full statement JSON (mainsnak + qualifiers + references)
+        """Compute rapidhash of full statement JSON (mainsnak + qualifiers + references).
 
         Hash includes:
         - property (property ID)
@@ -20,10 +23,10 @@ class StatementHasher:
         - id (GUID, not content)
 
         Args:
-            statement_dict: Statement dict to hash
+            statement_dict: Statement dict to hash.
 
         Returns:
-            64-bit rapidhash integer
+            64-bit rapidhash integer.
         """
         statement_for_hash = {k: v for k, v in statement_dict.items() if k != "id"}
         canonical_json = json.dumps(statement_for_hash, sort_keys=True)

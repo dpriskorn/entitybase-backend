@@ -1,3 +1,5 @@
+"""Vitess database connection management."""
+
 import pymysql
 from contextlib import contextmanager
 from typing import Any, Generator
@@ -7,12 +9,12 @@ from models.vitess_models import VitessConfig
 
 
 class VitessConnectionManager(ConnectionManager):
-    """Vitess connection manager that ensures connections are properly opened and closed"""
+    """Vitess connection manager that ensures connections are properly opened and closed."""
 
     config: VitessConfig
 
     def connect(self) -> Any:
-        # Create a new connection each time to avoid threading issues
+        """Create a new database connection."""
         return pymysql.connect(
             host=self.config.host,
             port=self.config.port,
@@ -24,6 +26,7 @@ class VitessConnectionManager(ConnectionManager):
 
     @property
     def healthy_connection(self) -> bool:
+        """Check if the database connection is healthy."""
         # noinspection PyBroadException
         try:
             conn = self.connect()
@@ -37,7 +40,7 @@ class VitessConnectionManager(ConnectionManager):
 
     @contextmanager
     def get_connection(self) -> Generator[Any, None, None]:
-        """Context manager for database connection"""
+        """Context manager for database connection."""
         conn = self.connect()
         try:
             yield conn

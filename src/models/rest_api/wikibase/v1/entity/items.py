@@ -59,34 +59,33 @@ async def get_item_labels(item_id: str) -> Dict[str, Any]:
 
 
 @router.get("/entities/items/{item_id}/labels/{language_code}")
-async def get_item_label(item_id: str, language_code: str, req: Request) -> Dict[str, Any]:
-    """Get item label for language"""
-    clients = req.app.state.clients
-    handler = EntityReadHandler()
-    response = handler.get_entity(
-        item_id, clients.vitess, clients.s3
+async def get_item_label(item_id: str, language_code: str) -> RedirectResponse:
+    """Get item label for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/items/{item_id}/labels/{language_code}",
+        status_code=307
     )
-    labels = response.data.get("labels", {})
-    if language_code not in labels:
-        raise HTTPException(status_code=404, detail=f"Label not found for language {language_code}")
-    return labels[language_code]
 
 
 
 
 
 @router.put("/entities/items/{item_id}/labels/{language_code}")
-async def set_item_label(
-    item_id: str, language_code: str, request: Dict[str, Any]
-) -> Dict[str, Any]:
-    """Set item label for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def set_item_label(item_id: str, language_code: str) -> RedirectResponse:
+    """Set item label for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/items/{item_id}/labels/{language_code}",
+        status_code=307
+    )
 
 
 @router.delete("/entities/items/{item_id}/labels/{language_code}")
-async def delete_item_label(item_id: str, language_code: str) -> Dict[str, Any]:
-    """Delete item label for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def delete_item_label(item_id: str, language_code: str) -> RedirectResponse:
+    """Delete item label for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/items/{item_id}/labels/{language_code}",
+        status_code=307
+    )
 
 
 @router.get("/entities/items/{item_id}/labels_with_language_fallback/{language_code}")
@@ -104,33 +103,24 @@ async def get_item_aliases(item_id: str) -> Dict[str, Any]:
 
 
 @router.get("/entities/items/{item_id}/aliases/{language_code}")
-async def get_item_aliases_for_language(item_id: str, language_code: str, req: Request) -> List[Dict[str, Any]]:
-    """Get item aliases for language"""
-    clients = req.app.state.clients
-    handler = EntityReadHandler()
-    response = handler.get_entity(
-        item_id, clients.vitess, clients.s3
+async def get_item_aliases_for_language(item_id: str, language_code: str) -> RedirectResponse:
+    """Get item aliases for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/items/{item_id}/aliases/{language_code}",
+        status_code=307
     )
-    aliases = response.data.get("aliases", {})
-    if language_code not in aliases:
-        raise HTTPException(status_code=404, detail=f"Aliases not found for language {language_code}")
-    return aliases[language_code]
 
 
-@router.put("/entities/items/{item_id}/aliases/{language_code}")
-async def set_item_aliases_for_language(
+@router.patch("/entities/items/{item_id}/aliases/{language_code}")
+async def patch_item_aliases_for_language(
     item_id: str, language_code: str, request: Dict[str, Any]
-) -> Dict[str, Any]:
-    """Set item aliases for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+) -> RedirectResponse:
+    """Patch item aliases for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/items/{item_id}/aliases/{language_code}",
+        status_code=307
+    )
 
-
-@router.delete("/entities/items/{item_id}/aliases/{language_code}")
-async def delete_item_aliases_for_language(
-    item_id: str, language_code: str
-) -> Dict[str, Any]:
-    """Delete item aliases for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
 
 
 @router.get("/entities/items/{item_id}/descriptions")
@@ -140,28 +130,27 @@ async def get_item_descriptions(item_id: str) -> Dict[str, Any]:
 
 
 @router.get("/entities/items/{item_id}/descriptions/{language_code}")
-async def get_item_description(item_id: str, language_code: str, req: Request) -> Dict[str, Any]:
-    """Get item description for language"""
-    clients = req.app.state.clients
-    handler = EntityReadHandler()
-    response = handler.get_entity(
-        item_id, clients.vitess, clients.s3
+async def get_item_description(item_id: str, language_code: str) -> RedirectResponse:
+    """Get item description for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}",
+        status_code=307
     )
-    descriptions = response.data.get("descriptions", {})
-    if language_code not in descriptions:
-        raise HTTPException(status_code=404, detail=f"Description not found for language {language_code}")
-    return descriptions[language_code]
 
 
 @router.put("/entities/items/{item_id}/descriptions/{language_code}")
-async def set_item_description(
-    item_id: str, language_code: str, request: Dict[str, Any]
-) -> Dict[str, Any]:
-    """Set item description for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def set_item_description(item_id: str, language_code: str) -> RedirectResponse:
+    """Set item description for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}",
+        status_code=307
+    )
 
 
 @router.delete("/entities/items/{item_id}/descriptions/{language_code}")
-async def delete_item_description(item_id: str, language_code: str) -> Dict[str, Any]:
-    """Delete item description for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def delete_item_description(item_id: str, language_code: str) -> RedirectResponse:
+    """Delete item description for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}",
+        status_code=307
+    )

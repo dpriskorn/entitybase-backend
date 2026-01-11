@@ -1,5 +1,7 @@
 """Repository for managing entity backlinks in Vitess."""
 
+"""Repository for managing entity backlinks in Vitess."""
+
 from typing import Any, Union
 
 

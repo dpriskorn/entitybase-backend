@@ -1,5 +1,7 @@
 # src/models/internal_representation/property_metadata.py
 
+"""Property metadata and datatype definitions."""
+
 from enum import Enum
 
 from pydantic import BaseModel, ConfigDict

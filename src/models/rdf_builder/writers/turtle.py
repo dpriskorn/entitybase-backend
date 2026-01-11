@@ -1,10 +1,12 @@
+"""RDF Turtle writer."""
+
 from typing import TextIO, List
 
 from models.rdf_builder.writers.prefixes import TURTLE_PREFIXES
 
 
 class TurtleWriter:
-    """Buffered Turtle writer for efficient output"""
+    """Buffered Turtle writer for efficient output."""
 
     def __init__(self, output: TextIO, buffer_size: int = 8192):
         self.output = output
@@ -13,9 +15,11 @@ class TurtleWriter:
         self._buffer_len = 0
 
     def write_header(self) -> None:
+        """Write Turtle prefixes."""
         self._write(TURTLE_PREFIXES)
 
     def write(self, text: str) -> None:
+        """Write text to buffer."""
         self._buffer.append(text)
         self._buffer_len += len(text)
 
@@ -23,6 +27,7 @@ class TurtleWriter:
             self.flush()
 
     def flush(self) -> None:
+        """Flush buffer to output."""
         if self._buffer:
             self.output.write("".join(self._buffer))
             self._buffer = []

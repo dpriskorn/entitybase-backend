@@ -1,6 +1,6 @@
-import requests
 """Script to estimate revision counts for Wikidata entities."""
 
+import requests
 import statistics
 import sys
 import time

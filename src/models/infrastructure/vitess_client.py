@@ -1,4 +1,7 @@
+"""Vitess client for database operations."""
+
 from contextlib import contextmanager
+
 import json
 from typing import Any, Generator, Union, cast
 
@@ -23,6 +26,7 @@ from models.infrastructure.vitess.metadata_repository import MetadataRepository
 
 
 class VitessClient(Client):
+    """Vitess database client for entity operations."""
     config: VitessConfig
     connection_manager: VitessConnectionManager = Field(default=None, exclude=True)
     schema_manager: SchemaManager = Field(default=None, exclude=True)
@@ -58,17 +62,24 @@ class VitessClient(Client):
         self._create_tables()
 
     def _create_tables(self) -> None:
+        """Create database tables if they don't exist."""
         self.schema_manager.create_tables()
 
     def connect(self) -> Any:
+        """Create a new database connection.
+
+        Returns:
+            Any: A new database connection.
+        """
         return self.connection_manager.connect()
 
     def healthy_connection(self) -> bool:
+        """Check if the database connection is healthy."""
         return self.connection_manager.healthy_connection()  # type: ignore[no-any-return]
 
     @contextmanager
     def get_connection(self) -> Generator[Any, None, None]:
-        """Context manager for database connection"""
+        """Context manager for database connection."""
         conn = self.connection_manager.connect()
         try:
             yield conn
@@ -76,16 +87,31 @@ class VitessClient(Client):
             pass  # Connection is cached, don't close
 
     def _resolve_id(self, entity_id: str) -> int:
+        """Resolve external entity ID to internal database ID."""
         with self.connection_manager.get_connection() as conn:
             return self.id_resolver.resolve_id(conn, entity_id)  # type: ignore[no-any-return]
 
     def entity_exists(self, entity_id: str) -> bool:
-        """Check if an entity exists in the database."""
+        """Check if an entity exists in the database.
+
+        Args:
+            entity_id (str): The entity ID to check.
+
+        Returns:
+            bool: True if the entity exists, False otherwise.
+        """
         with self.connection_manager.get_connection() as conn:
             return self.id_resolver.entity_exists(conn, entity_id)  # type: ignore[no-any-return]
 
     def register_entity(self, entity_id: str) -> None:
-        """Register a new entity in the database."""
+        """Register a new entity in the database.
+
+        Args:
+            entity_id (str): The entity ID to register.
+
+        Returns:
+            None
+        """
         with self.connection_manager.get_connection() as conn:
             return self.id_resolver.register_entity(conn, entity_id)  # type: ignore[no-any-return]
 
@@ -95,24 +121,29 @@ class VitessClient(Client):
             return self.entity_repository.get_head(conn, entity_id)  # type: ignore[no-any-return]
 
     def is_entity_deleted(self, entity_id: str) -> bool:
+        """Check if an entity is marked as deleted."""
         with self.connection_manager.get_connection() as conn:
             return self.entity_repository.is_deleted(conn, entity_id)  # type: ignore[no-any-return]
 
     def is_entity_locked(self, entity_id: str) -> bool:
+        """Check if an entity is locked for editing."""
         with self.connection_manager.get_connection() as conn:
             return self.entity_repository.is_locked(conn, entity_id)  # type: ignore[no-any-return]
 
     def is_entity_archived(self, entity_id: str) -> bool:
+        """Check if an entity is archived."""
         with self.connection_manager.get_connection() as conn:
             return self.entity_repository.is_archived(conn, entity_id)  # type: ignore[no-any-return]
 
     def get_protection_info(self, entity_id: str) -> dict[str, bool]:
+        """Get protection information for an entity."""
         with self.connection_manager.get_connection() as conn:
             return self.entity_repository.get_protection_info(conn, entity_id)  # type: ignore[no-any-return]
 
     def get_history(
         self, entity_id: str, limit: int = 20, offset: int = 0
     ) -> list[Any]:
+        """Get revision history for an entity."""
         with self.connection_manager.get_connection() as conn:
             return self.revision_repository.get_history(conn, entity_id, limit, offset)  # type: ignore[no-any-return]
 
@@ -126,6 +157,7 @@ class VitessClient(Client):
         properties: list[str] | None = None,
         property_counts: dict[str, int] | None = None,
     ) -> None:
+        """Insert a new revision for an entity."""
         with self.connection_manager.get_connection() as conn:
             return self.revision_repository.insert(  # type: ignore[no-any-return]
                 conn,
@@ -140,6 +172,7 @@ class VitessClient(Client):
         data: dict,
         expected_revision_id: int | None = None,
     ) -> None:
+        """Create a new revision for an entity."""
         with self.connection_manager.get_connection() as conn:
             if expected_revision_id is not None:
                 success = self.revision_repository.create_with_cas(
@@ -158,6 +191,7 @@ class VitessClient(Client):
         redirects_to_entity_id: str | None,
         expected_redirects_to: int | None = None,
     ) -> None:
+        """Set the redirect target for an entity."""
         with self.connection_manager.get_connection() as conn:
             success = self.redirect_repository.set_target(
                 conn, entity_id, redirects_to_entity_id, expected_redirects_to
@@ -173,16 +207,19 @@ class VitessClient(Client):
         redirect_to_entity_id: str,
         created_by: str = "rest-api",
     ) -> None:
+        """Create a redirect from one entity to another."""
         with self.connection_manager.get_connection() as conn:
             return self.redirect_repository.create(  # type: ignore[no-any-return]
                 conn, redirect_from_entity_id, redirect_to_entity_id, created_by
             )
 
     def get_incoming_redirects(self, entity_id: str) -> list[str]:
+        """Get entities that redirect to the given entity."""
         with self.connection_manager.get_connection() as conn:
             return self.redirect_repository.get_incoming_redirects(conn, entity_id)  # type: ignore[no-any-return]
 
     def get_redirect_target(self, entity_id: str) -> str | None:
+        """Get the redirect target for an entity."""
         with self.connection_manager.get_connection() as conn:
             return self.redirect_repository.get_target(conn, entity_id)  # type: ignore[no-any-return]
 
@@ -199,6 +236,7 @@ class VitessClient(Client):
         is_deleted: bool,
         is_redirect: bool = False,
     ) -> bool:
+        """Update entity head with compare-and-swap semantics."""
         with self.connection_manager.get_connection() as conn:
             return self.head_repository.cas_update_with_status(  # type: ignore[no-any-return]
                 conn,
@@ -219,18 +257,22 @@ class VitessClient(Client):
         entity_id: str,
         head_revision_id: int,
     ) -> None:
+        """Hard delete an entity from the database."""
         with self.connection_manager.get_connection() as conn:
             return self.head_repository.hard_delete(conn, entity_id, head_revision_id)  # type: ignore[no-any-return]
 
     def delete_entity(self, entity_id: str) -> None:
+        """Soft delete an entity."""
         with self.connection_manager.get_connection() as conn:
             return self.head_repository.soft_delete(conn, entity_id)  # type: ignore[no-any-return]
 
     def get_ref_count(self, content_hash: int) -> int:
+        """Get reference count for statement content."""
         with self.connection_manager.get_connection() as conn:
             return self.statement_repository.get_ref_count(conn, content_hash)  # type: ignore[no-any-return]
 
     def delete_revision(self, entity_id: str, revision_id: int) -> None:
+        """Delete a revision for an entity."""
         with self.connection_manager.get_connection() as conn:
             return self.revision_repository.delete(conn, entity_id, revision_id)  # type: ignore[no-any-return]
 
@@ -283,22 +325,27 @@ class VitessClient(Client):
     #     return self.listing_repository.list_by_edit_type(edit_type, limit)
 
     def insert_statement_content(self, content_hash: int) -> bool:
+        """Insert statement content hash."""
         with self.connection_manager.get_connection() as conn:
             return self.statement_repository.insert_content(conn, content_hash)  # type: ignore[no-any-return]
 
     def increment_ref_count(self, content_hash: int) -> int:
+        """Increment reference count for statement content."""
         with self.connection_manager.get_connection() as conn:
             return self.statement_repository.increment_ref_count(conn, content_hash)  # type: ignore[no-any-return]
 
     def decrement_ref_count(self, content_hash: int) -> int:
+        """Decrement reference count for statement content."""
         with self.connection_manager.get_connection() as conn:
             return self.statement_repository.decrement_ref_count(conn, content_hash)  # type: ignore[no-any-return]
 
     def get_orphaned_statements(self, older_than_days: int, limit: int) -> list[int]:
+        """Get orphaned statements older than specified days."""
         with self.connection_manager.get_connection() as conn:
             return self.statement_repository.get_orphaned(conn, older_than_days, limit)  # type: ignore[no-any-return]
 
     def get_most_used_statements(self, limit: int, min_ref_count: int = 1) -> list[int]:
+        """Get most used statements by reference count."""
         with self.connection_manager.get_connection() as conn:
             return self.statement_repository.get_most_used(conn, limit, min_ref_count)  # type: ignore[no-any-return]
 
@@ -315,6 +362,7 @@ class VitessClient(Client):
         is_mass_edit: bool = False,
         edit_type: str = "",
     ) -> None:
+        """Write an entity revision to the database."""
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:
@@ -334,6 +382,7 @@ class VitessClient(Client):
                 )
 
     def read_full_revision(self, entity_id: str, revision_id: int, s3_client = None) -> FullRevisionData:
+        """Read full revision data including metadata from S3."""
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:

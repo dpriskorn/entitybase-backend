@@ -1,3 +1,5 @@
+"""RDF value node writers."""
+
 from typing import Any, TextIO
 import re
 
@@ -27,7 +29,7 @@ def _format_scientific_notation(value: float) -> str:
 
 
 class ValueNodeWriter:
-    """Write structured value nodes (wdv:) for time, quantity, globe-coordinate"""
+    """Write structured value nodes (wdv:) for time, quantity, globe-coordinate."""
 
     uri = URIGenerator()
 
@@ -38,7 +40,7 @@ class ValueNodeWriter:
         time_value: Any,
         dedupe: HashDedupeBag | None = None,
     ) -> None:
-        """Write time value node block if not already written"""
+        """Write time value node block if not already written."""
         if dedupe is not None:
             if dedupe.already_seen(value_id, "wdv"):
                 return
@@ -63,7 +65,7 @@ class ValueNodeWriter:
         quantity_value: Any,
         dedupe: HashDedupeBag | None = None,
     ) -> None:
-        """Write quantity value node block if not already written"""
+        """Write quantity value node block if not already written."""
         if dedupe is not None:
             if dedupe.already_seen(value_id, "wdv"):
                 return
@@ -96,7 +98,7 @@ class ValueNodeWriter:
         globe_value: Any,
         dedupe: HashDedupeBag | None = None,
     ) -> None:
-        """Write globe coordinate value node block if not already written"""
+        """Write globe coordinate value node block if not already written."""
         if dedupe is not None:
             if dedupe.already_seen(value_id, "wdv"):
                 return

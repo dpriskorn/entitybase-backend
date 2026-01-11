@@ -1,6 +1,6 @@
-import abc
 """Abstract base classes for database and service connections."""
 
+import abc
 from abc import ABC
 from typing import Any
 

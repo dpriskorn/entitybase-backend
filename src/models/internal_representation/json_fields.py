@@ -1,9 +1,8 @@
-"""Enumeration of JSON field names used in Wikibase entities."""
-
 from enum import Enum
 
 
 class JsonField(str, Enum):
+    """Enumeration of JSON field names used in Wikibase entities."""
     ID = "id"
     TYPE = "type"
     LABELS = "labels"

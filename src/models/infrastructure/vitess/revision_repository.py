@@ -1,3 +1,5 @@
+"""Vitess revision repository for revision operations."""
+
 import json
 from typing import Any
 

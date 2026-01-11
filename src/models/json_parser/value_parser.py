@@ -1,3 +1,5 @@
+"""JSON value parser."""
+
 from typing import Any
 
 from ..validation.utils import raise_validation_error
@@ -42,6 +44,7 @@ PARSERS = {
 
 
 def parse_value(snak_json: dict[str, Any]) -> Value:
+    """Parse value from Wikidata JSON format."""
     snaktype = snak_json.get(JsonField.SNAKTYPE.value)
 
     if snaktype == "novalue":

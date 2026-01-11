@@ -1,3 +1,5 @@
+"""Vitess head repository for entity head operations."""
+
 from typing import Any
 
 
@@ -5,6 +7,8 @@ from models.validation.utils import raise_validation_error
 
 
 class HeadRepository:
+    """Repository for entity head revision database operations."""
+
     def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
         self.connection_manager = connection_manager
         self.id_resolver = id_resolver
@@ -23,6 +27,7 @@ class HeadRepository:
         is_deleted: bool,
         is_redirect: bool = False,
     ) -> bool:
+        """Update entity head with compare-and-swap semantics and status flags."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return False
@@ -56,6 +61,7 @@ class HeadRepository:
             return affected_rows > 0
 
     def hard_delete(self, conn: Any, entity_id: str, head_revision_id: int) -> None:
+        """Mark an entity as hard deleted."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
@@ -70,6 +76,7 @@ class HeadRepository:
             )
 
     def soft_delete(self, conn: Any, entity_id: str) -> None:
+        """Mark an entity as soft deleted."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)

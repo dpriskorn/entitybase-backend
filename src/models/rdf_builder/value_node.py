@@ -1,3 +1,5 @@
+"""RDF value node writers."""
+
 import hashlib
 import re
 from typing import Any
@@ -25,23 +27,7 @@ def _format_scientific_notation(value: float) -> str:
 
 
 def generate_value_node_uri(value: Any) -> str:
-    """Generate wdv: URI for structured values using MD5 hash.
-
-    The hash is based on the serialized value representation only,
-    ensuring consistent URIs for identical values across entities,
-    properties, and contexts (statements, qualifiers, references).
-
-    Args:
-        value: The value object (TimeValue, QuantityValue, GlobeValue)
-
-    Returns:
-        Value node ID (e.g., "cd6dd2e48a93286891b0753a1110ac0a")
-
-    Examples:
-        >>> time_val = TimeValue(value="+1964-05-15T00:00:00Z", precision=11)
-        >>> generate_value_node_uri(time_val)
-        'cd6dd2e48a93286891b0753a1110ac0a'
-    """
+    """Generate wdv: URI for structured values using MD5 hash."""
     value_str = serialize_value(value)
     hash_val = hashlib.md5(value_str.encode("utf-8")).hexdigest()
     return hash_val

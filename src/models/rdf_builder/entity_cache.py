@@ -1,3 +1,5 @@
+"""RDF entity cache."""
+
 import json
 import logging
 import time

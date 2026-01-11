@@ -1,3 +1,5 @@
+"""RDF ontology datatypes."""
+
 from models.validation.utils import raise_validation_error
 from models.rdf_builder.property_registry.models import (
     PropertyShape,

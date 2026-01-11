@@ -1,6 +1,6 @@
-import requests
 """Script to estimate size statistics for Wikidata entities."""
 
+import requests
 import statistics
 import sys
 

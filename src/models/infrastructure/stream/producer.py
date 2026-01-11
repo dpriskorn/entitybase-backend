@@ -1,3 +1,5 @@
+"""Kafka streaming infrastructure for publishing change events."""
+
 import json
 import logging
 from datetime import datetime
@@ -10,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class StreamProducerClient(BaseModel):
-    """Async Kafka producer client for publishing change events"""
+    """Async Kafka producer client for publishing change events."""
 
     bootstrap_servers: str
     topic: str
@@ -18,7 +20,7 @@ class StreamProducerClient(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     async def start(self) -> None:
-        """Start the Kafka producer"""
+        """Start the Kafka producer."""
         if self.producer is None:
             self.producer = AIOKafkaProducer(
                 bootstrap_servers=self.bootstrap_servers,
@@ -31,14 +33,14 @@ class StreamProducerClient(BaseModel):
             )
 
     async def stop(self) -> None:
-        """Stop the Kafka producer"""
+        """Stop the Kafka producer."""
         if self.producer is not None:
             await self.producer.stop()
             self.producer = None
             logger.info("Kafka producer stopped")
 
     async def publish_change(self, event: "EntityChangeEvent") -> None:
-        """Publish entity change event to Kafka"""
+        """Publish entity change event to Kafka."""
         if self.producer is None:
             logger.warning("Kafka producer not started, skipping change event")
             return
@@ -60,12 +62,12 @@ class StreamProducerClient(BaseModel):
             )
 
     async def publish_change_sync(self, event: "EntityChangeEvent") -> None:
-        """Synchronous publish with delivery confirmation"""
+        """Synchronous publish with delivery confirmation."""
         await self.publish_change(event)
 
 
 class ChangeType(str, Enum):
-    """Change event types for streaming to Redpanda"""
+    """Change event types for streaming to Redpanda."""
 
     CREATION = "creation"
     EDIT = "edit"
@@ -80,7 +82,7 @@ class ChangeType(str, Enum):
 
 
 class EntityChangeEvent(BaseModel):
-    """Entity change event for publishing to Redpanda"""
+    """Entity change event for publishing to Redpanda."""
 
     entity_id: str = Field(..., description="Entity ID (e.g., Q42)")
     revision_id: int = Field(..., description="Revision ID of the change")
@@ -94,6 +96,7 @@ class EntityChangeEvent(BaseModel):
 
     @field_serializer("changed_at")
     def serialize_changed_at(self, value: datetime) -> str:
+        """Serialize datetime to ISO format with Z suffix."""
         return value.isoformat() + "Z"
 
     model_config = ConfigDict()

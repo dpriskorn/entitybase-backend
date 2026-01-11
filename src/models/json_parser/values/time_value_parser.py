@@ -1,3 +1,5 @@
+"""JSON time value parser."""
+
 from typing import Any
 
 from models.internal_representation.values import TimeValue
@@ -5,6 +7,7 @@ from models.internal_representation.json_fields import JsonField
 
 
 def parse_time_value(datavalue: dict[str, Any]) -> TimeValue:
+    """Parse time value from Wikidata JSON format."""
     time_data = datavalue.get(JsonField.VALUE.value, {})
     return TimeValue(
         value=time_data.get(JsonField.TIME.value, ""),

@@ -1,3 +1,5 @@
+"""RDF Turtle prefixes."""
+
 TURTLE_PREFIXES = """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix ontolex: <http://www.w3.org/ns/lemon/ontolex#> .

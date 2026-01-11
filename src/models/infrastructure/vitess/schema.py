@@ -1,5 +1,7 @@
 """Manager for Vitess database schema operations."""
 
+"""Manager for Vitess database schema operations."""
+
 from typing import Any
 
 

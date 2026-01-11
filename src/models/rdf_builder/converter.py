@@ -1,3 +1,5 @@
+"""RDF entity converter."""
+
 import logging
 from io import StringIO
 from pathlib import Path
@@ -17,8 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 class EntityConverter:
-    """Converts internal Entity representation to RDF Turtle format.
-    """
+    """Converts internal Entity representation to RDF Turtle format."""
 
     def __init__(
         self,

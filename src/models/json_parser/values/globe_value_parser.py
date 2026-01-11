@@ -1,3 +1,5 @@
+"""JSON globe value parser."""
+
 from typing import Any
 
 from models.internal_representation.values import GlobeValue
@@ -5,6 +7,7 @@ from models.internal_representation.json_fields import JsonField
 
 
 def parse_globe_value(datavalue: dict[str, Any]) -> GlobeValue:
+    """Parse globe value from Wikidata JSON format."""
     globe_data = datavalue.get(JsonField.VALUE.value, {})
     altitude = globe_data.get(JsonField.ALTITUDE.value)
     return GlobeValue(

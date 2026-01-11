@@ -1,3 +1,5 @@
+"""Vitess entity repository for database operations."""
+
 from typing import Any
 
 from models.rest_api.response.entity import ProtectionInfo

@@ -1,5 +1,7 @@
 """Base configuration classes for infrastructure services."""
 
+"""Base configuration classes for infrastructure services."""
+
 from pydantic import BaseModel
 
 

@@ -1,5 +1,7 @@
 import re
 
+"""Time value type."""
+
 from pydantic import ConfigDict, Field, field_validator
 from typing_extensions import Literal
 from ...validation.utils import raise_validation_error
@@ -7,6 +9,8 @@ from .base import Value
 
 
 class TimeValue(Value):
+    """Value representing a point in time with precision and uncertainty."""
+
     kind: Literal["time"] = Field(default="time", frozen=True)
     value: str
     datatype_uri: str = "http://wikiba.se/ontology#Time"
@@ -21,6 +25,7 @@ class TimeValue(Value):
     @field_validator("value")
     @classmethod
     def validate_time_format(cls, v: str) -> str:
+        """Validate time format and add leading + if missing."""
         if not (v.startswith("+") or v.startswith("-")):
             v = "+" + v
 
@@ -37,6 +42,7 @@ class TimeValue(Value):
     @field_validator("calendarmodel")
     @classmethod
     def validate_calendarmodel(cls, v: str) -> str:
+        """Validate and normalize calendar model URIs."""
         if not v.startswith("http://www.wikidata.org/entity/Q"):
             if v.startswith("Q"):
                 v = "http://www.wikidata.org/entity/" + v

@@ -1,4 +1,6 @@
 import json
+"""Metadata extraction utilities for Wikibase entities."""
+
 from typing import Any
 
 

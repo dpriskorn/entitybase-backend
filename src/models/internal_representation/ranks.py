@@ -1,3 +1,5 @@
+"""Enumeration of Wikibase statement ranks."""
+
 from enum import Enum
 
 

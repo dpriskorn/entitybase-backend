@@ -1,11 +1,16 @@
+"""Vitess statement repository for statement operations."""
+
 from typing import Any
 
 
 class StatementRepository:
+    """Repository for statement-related database operations."""
+
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 
     def insert_content(self, conn: Any, content_hash: int) -> bool:
+        """Insert statement content hash if it doesn't exist."""
         with conn.cursor() as cursor:
             cursor.execute(
                 "SELECT 1 FROM statement_content WHERE content_hash = %s",
@@ -21,6 +26,7 @@ class StatementRepository:
             return True
 
     def increment_ref_count(self, conn: Any, content_hash: int) -> int:
+        """Increment reference count for statement content."""
         with conn.cursor() as cursor:
             cursor.execute(
                 "UPDATE statement_content SET ref_count = ref_count + 1 WHERE content_hash = %s",
@@ -34,6 +40,7 @@ class StatementRepository:
             return result[0] if result else 0
 
     def decrement_ref_count(self, conn: Any, content_hash: int) -> int:
+        """Decrement reference count for statement content."""
         with conn.cursor() as cursor:
             cursor.execute(
                 "UPDATE statement_content SET ref_count = ref_count - 1 WHERE content_hash = %s",
@@ -47,6 +54,7 @@ class StatementRepository:
             return result[0] if result else 0
 
     def get_orphaned(self, conn: Any, older_than_days: int, limit: int) -> list[int]:
+        """Get orphaned statement content hashes."""
         with conn.cursor() as cursor:
             cursor.execute(
                 """SELECT content_hash
@@ -60,6 +68,7 @@ class StatementRepository:
             return result
 
     def get_most_used(self, conn: Any, limit: int, min_ref_count: int = 1) -> list[int]:
+        """Get most used statement content hashes."""
         with conn.cursor() as cursor:
             cursor.execute(
                 """SELECT content_hash

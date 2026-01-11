@@ -1,7 +1,11 @@
+"""Extracts backlink information from Wikibase statements."""
+
 from typing import Any
 
 
 class StatementBacklinkExtractor:
+    """Extracts backlink information from Wikibase statements."""
+
     @staticmethod
     def extract_backlink_data(statement: dict[str, Any]) -> list[tuple[str, str, str]]:
         """Extract backlink data from a statement JSON.

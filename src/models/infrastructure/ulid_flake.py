@@ -1,8 +1,12 @@
+"""ULID flake ID generation utilities."""
+
 import time
 import random
+import time
 
 
 def generate_ulid_flake() -> int:
+    """Generate a ULID-flake style unique identifier."""
     timestamp_ms = int(time.time() * 1000)
     timestamp_bits = timestamp_ms & ((1 << 42) - 1)
     randomness_bits = random.getrandbits(21)

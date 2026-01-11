@@ -1,4 +1,4 @@
-# src/models/rdf_builder/writers/property.py
+"""RDF property writer."""
 
 from typing import TextIO
 
@@ -8,6 +8,7 @@ from models.internal_representation.property_metadata import PropertyMetadata
 class PropertyWriter:
     @staticmethod
     def write_property(output: TextIO, prop: PropertyMetadata) -> None:
+        """Write property metadata to Turtle output."""
         pid = prop.property_id
         wd = f"wd:{pid}"
 

@@ -55,23 +55,30 @@ async def get_property_labels(property_id: str) -> Dict[str, Any]:
 
 
 @router.get("/entities/properties/{property_id}/labels/{language_code}")
-async def get_property_label(property_id: str, language_code: str) -> Dict[str, Any]:
-    """Get property label for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def get_property_label(property_id: str, language_code: str) -> RedirectResponse:
+    """Get property label for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/properties/{property_id}/labels/{language_code}",
+        status_code=307
+    )
 
 
 @router.put("/entities/properties/{property_id}/labels/{language_code}")
-async def set_property_label(
-    property_id: str, language_code: str, request: Dict[str, Any]
-) -> Dict[str, Any]:
-    """Set property label for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def set_property_label(property_id: str, language_code: str) -> RedirectResponse:
+    """Set property label for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/properties/{property_id}/labels/{language_code}",
+        status_code=307
+    )
 
 
 @router.delete("/entities/properties/{property_id}/labels/{language_code}")
-async def delete_property_label(property_id: str, language_code: str) -> Dict[str, Any]:
-    """Delete property label for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def delete_property_label(property_id: str, language_code: str) -> RedirectResponse:
+    """Delete property label for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/properties/{property_id}/labels/{language_code}",
+        status_code=307
+    )
 
 
 @router.get(
@@ -91,27 +98,24 @@ async def get_property_aliases(property_id: str) -> Dict[str, Any]:
 
 
 @router.get("/entities/properties/{property_id}/aliases/{language_code}")
-async def get_property_aliases_for_language(
-    property_id: str, language_code: str
-) -> Dict[str, Any]:
-    """Get property aliases for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def get_property_aliases_for_language(property_id: str, language_code: str) -> RedirectResponse:
+    """Get property aliases for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}",
+        status_code=307
+    )
 
 
-@router.put("/entities/properties/{property_id}/aliases/{language_code}")
-async def set_property_aliases_for_language(
+@router.patch("/entities/properties/{property_id}/aliases/{language_code}")
+async def patch_property_aliases_for_language(
     property_id: str, language_code: str, request: Dict[str, Any]
-) -> Dict[str, Any]:
-    """Set property aliases for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+) -> RedirectResponse:
+    """Patch property aliases for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}",
+        status_code=307
+    )
 
-
-@router.delete("/entities/properties/{property_id}/aliases/{language_code}")
-async def delete_property_aliases_for_language(
-    property_id: str, language_code: str
-) -> Dict[str, Any]:
-    """Delete property aliases for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
 
 
 @router.get("/entities/properties/{property_id}/descriptions")
@@ -121,24 +125,27 @@ async def get_property_descriptions(property_id: str) -> Dict[str, Any]:
 
 
 @router.get("/entities/properties/{property_id}/descriptions/{language_code}")
-async def get_property_description(
-    property_id: str, language_code: str
-) -> Dict[str, Any]:
-    """Get property description for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def get_property_description(property_id: str, language_code: str) -> RedirectResponse:
+    """Get property description for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/properties/{property_id}/descriptions/{language_code}",
+        status_code=307
+    )
 
 
 @router.put("/entities/properties/{property_id}/descriptions/{language_code}")
-async def set_property_description(
-    property_id: str, language_code: str, request: Dict[str, Any]
-) -> Dict[str, Any]:
-    """Set property description for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def set_property_description(property_id: str, language_code: str) -> RedirectResponse:
+    """Set property description for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/properties/{property_id}/descriptions/{language_code}",
+        status_code=307
+    )
 
 
 @router.delete("/entities/properties/{property_id}/descriptions/{language_code}")
-async def delete_property_description(
-    property_id: str, language_code: str
-) -> Dict[str, Any]:
-    """Delete property description for language - stub"""
-    raise HTTPException(status_code=501, detail="Not implemented")
+async def delete_property_description(property_id: str, language_code: str) -> RedirectResponse:
+    """Delete property description for language - redirects to entitybase"""
+    return RedirectResponse(
+        url=f"/entitybase/v1/entities/properties/{property_id}/descriptions/{language_code}",
+        status_code=307
+    )

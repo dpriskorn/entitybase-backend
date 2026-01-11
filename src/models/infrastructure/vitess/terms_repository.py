@@ -1,3 +1,5 @@
+"""Vitess terms repository for managing deduplicated terms."""
+
 from typing import Any, Dict, List
 
 
@@ -20,18 +22,18 @@ class TermsRepository:
                     (hash_value, term, term_type),
                 )
 
-    def get_term(self, hash_value: int) -> str | None:
-        """Retrieve a term by its hash."""
+    def get_term(self, hash_value: int) -> tuple[str, str] | None:
+        """Retrieve a term and its type by hash."""
         with self.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT term FROM entity_terms WHERE hash = %s",
+                    "SELECT term, term_type FROM entity_terms WHERE hash = %s",
                     (hash_value,),
                 )
                 result = cursor.fetchone()
-                return result[0] if result else None
+                return (result[0], result[1]) if result else None
 
-    def batch_get_terms(self, hashes: List[int]) -> Dict[int, str]:
+    def batch_get_terms(self, hashes: List[int]) -> Dict[int, tuple[str, str]]:
         """Retrieve multiple terms by their hashes."""
         if not hashes:
             return {}
@@ -41,11 +43,11 @@ class TermsRepository:
                 # Create placeholders for the IN clause
                 placeholders = ','.join(['%s'] * len(hashes))
                 cursor.execute(
-                    f"SELECT hash, term FROM entity_terms WHERE hash IN ({placeholders})",
+                    f"SELECT hash, term, term_type FROM entity_terms WHERE hash IN ({placeholders})",
                     hashes,
                 )
                 results = cursor.fetchall()
-                return {row[0]: row[1] for row in results}
+                return {row[0]: (row[1], row[2]) for row in results}
 
     def hash_exists(self, hash_value: int) -> bool:
         """Check if a hash exists in the terms table."""

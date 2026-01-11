@@ -1,3 +1,5 @@
+"""JSON statement parser."""
+
 from typing import Any
 
 from models.json_parser.value_parser import parse_value
@@ -9,6 +11,7 @@ from models.internal_representation.json_fields import JsonField
 
 
 def parse_statement(statement_json: dict[str, Any]) -> Statement:
+    """Parse statement from Wikidata JSON format."""
     mainsnak = statement_json.get(JsonField.MAINSNAK.value, {})
     rank = Rank(statement_json.get(JsonField.RANK.value, Rank.NORMAL.value))
     qualifiers_json = statement_json.get(JsonField.QUALIFIERS.value, {})

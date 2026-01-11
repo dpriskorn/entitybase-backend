@@ -1,3 +1,5 @@
+"""JSON reference parser."""
+
 from typing import Any
 
 from models.json_parser.value_parser import parse_value
@@ -9,6 +11,7 @@ from models.internal_representation.json_fields import JsonField
 
 
 def parse_reference(reference_json: dict[str, Any]) -> Reference:
+    """Parse reference from Wikidata JSON format."""
     reference_hash = reference_json.get(JsonField.HASH.value, "")
     snaks_json = reference_json.get(JsonField.SNAKS.value, {})
 
@@ -25,6 +28,7 @@ def parse_reference(reference_json: dict[str, Any]) -> Reference:
 
 
 def parse_references(references_json: list[dict[str, Any]]) -> list[Reference]:
+    """Parse references from Wikidata JSON format."""
     references = []
 
     for reference_json in references_json:

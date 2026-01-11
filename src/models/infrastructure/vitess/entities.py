@@ -1,3 +1,5 @@
+"""Vitess entity ID resolution and management."""
+
 from typing import Any
 
 

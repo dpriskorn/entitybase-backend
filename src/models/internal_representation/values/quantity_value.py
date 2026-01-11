@@ -1,4 +1,6 @@
 from pydantic import ConfigDict, Field, field_validator, model_validator
+"""Quantity value type."""
+
 from typing_extensions import Literal
 from typing import Optional
 from ...validation.utils import raise_validation_error
@@ -6,6 +8,8 @@ from .base import Value
 
 
 class QuantityValue(Value):
+    """Value representing a quantity with optional bounds."""
+
     kind: Literal["quantity"] = Field(default="quantity", frozen=True)
     value: str
     datatype_uri: str = "http://wikiba.se/ontology#Quantity"
@@ -18,6 +22,7 @@ class QuantityValue(Value):
     @field_validator("unit")
     @classmethod
     def validate_unit(cls, v: str) -> str:
+        """Validate and normalize unit URIs."""
         if v.startswith("Q"):
             v = "http://www.wikidata.org/entity/" + v
         return v
@@ -25,6 +30,7 @@ class QuantityValue(Value):
     @field_validator("value", "upper_bound", "lower_bound")
     @classmethod
     def validate_numeric(cls, v: Optional[str]) -> Optional[str]:
+        """Validate that numeric fields contain valid numbers."""
         if v is not None:
             try:
                 float(v)
@@ -36,6 +42,7 @@ class QuantityValue(Value):
 
     @model_validator(mode="after")
     def validate_bounds(self) -> "QuantityValue":
+        """Validate that bounds are logically consistent."""
         amount = float(self.value)
         upper = float(self.upper_bound) if self.upper_bound else None
         lower = float(self.lower_bound) if self.lower_bound else None

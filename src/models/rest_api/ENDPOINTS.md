@@ -4,8 +4,24 @@
 |-------------|--------|-----------|-------------|
 | ✅ | GET | `/entitybase/v1/entities` | List entities, optionally filtered by type (or all entities if no type specified). |
 | ✅ | POST | `/entitybase/v1/entities/items` | Create a new item entity. |
+| ✅ | GET | `/entitybase/v1/entities/items/{item_id}/aliases/{language_code}` | Get item aliases for language. |
+| ✅ | PATCH | `/entitybase/v1/entities/items/{item_id}/aliases/{language_code}` | Patch item aliases for language using JSON Patch. |
+| ✅ | GET | `/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}` | Get item description for language. |
+| ✅ | PUT | `/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}` | Update item description for language. |
+| ✅ | DELETE | `/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}` | Delete item description for language. |
+| ✅ | GET | `/entitybase/v1/entities/items/{item_id}/labels/{language_code}` | Get item label for language. |
+| ✅ | PUT | `/entitybase/v1/entities/items/{item_id}/labels/{language_code}` | Update item label for language. |
+| ✅ | DELETE | `/entitybase/v1/entities/items/{item_id}/labels/{language_code}` | Delete item label for language. |
 | ✅ | POST | `/entitybase/v1/entities/lexemes` | Create a new lexeme entity. |
+| ✅ | GET | `/entitybase/v1/entities/lexemes/{lexeme_id}/aliases/{language_code}` | Get lexeme aliases for language. |
+| ✅ | PATCH | `/entitybase/v1/entities/lexemes/{lexeme_id}/aliases/{language_code}` | Patch lexeme aliases for language using JSON Patch. |
+| ✅ | GET | `/entitybase/v1/entities/lexemes/{lexeme_id}/descriptions/{language_code}` | Get lexeme description for language. |
+| ✅ | GET | `/entitybase/v1/entities/lexemes/{lexeme_id}/labels/{language_code}` | Get lexeme label for language. |
 | ✅ | POST | `/entitybase/v1/entities/properties` | Create a new property entity. |
+| ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}` | Get property aliases for language. |
+| ✅ | PATCH | `/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}` | Patch property aliases for language using JSON Patch. |
+| ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/descriptions/{language_code}` | Get property description for language. |
+| ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/labels/{language_code}` | Get property label for language. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}` | Retrieve a single entity by its ID. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/history` | Get the revision history for an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}` | Get a specific revision of an entity. |
@@ -22,47 +38,45 @@
 | ✅ | POST | `/wikibase/v1/entities/items` | Create item - redirects to entitybase endpoint |
 | ✅ | GET | `/wikibase/v1/entities/items/{item_id}` | Get item |
 | ✅ | PUT | `/wikibase/v1/entities/items/{item_id}` | Update item - redirects to entitybase endpoint |
-| ❌ | GET | `/wikibase/v1/entities/items/{item_id}/aliases` | Get item aliases - stub |
-| ❌ | GET | `/wikibase/v1/entities/items/{item_id}/aliases/{language_code}` | Get item aliases for language - stub |
-| ❌ | PUT | `/wikibase/v1/entities/items/{item_id}/aliases/{language_code}` | Set item aliases for language - stub |
-| ❌ | DELETE | `/wikibase/v1/entities/items/{item_id}/aliases/{language_code}` | Delete item aliases for language - stub |
-| ❌ | GET | `/wikibase/v1/entities/items/{item_id}/descriptions` | Get item descriptions - stub |
-| ❌ | GET | `/wikibase/v1/entities/items/{item_id}/descriptions/{language_code}` | Get item description for language - stub |
-| ❌ | PUT | `/wikibase/v1/entities/items/{item_id}/descriptions/{language_code}` | Set item description for language - stub |
-| ❌ | DELETE | `/wikibase/v1/entities/items/{item_id}/descriptions/{language_code}` | Delete item description for language - stub |
-| ❌ | GET | `/wikibase/v1/entities/items/{item_id}/labels` | Get item labels - stub |
-| ❌ | GET | `/wikibase/v1/entities/items/{item_id}/labels/{language_code}` | Get item label for language - stub |
-| ❌ | PUT | `/wikibase/v1/entities/items/{item_id}/labels/{language_code}` | Set item label for language - stub |
-| ❌ | DELETE | `/wikibase/v1/entities/items/{item_id}/labels/{language_code}` | Delete item label for language - stub |
-| ❌ | GET | `/wikibase/v1/entities/items/{item_id}/labels_with_language_fallback/{language_code}` | Get item labels with language fallback - stub |
-| ❌ | GET | `/wikibase/v1/entities/items/{item_id}/properties` | Get item properties - stub |
-| ❌ | POST | `/wikibase/v1/entities/items/{item_id}/properties` | Add item property - stub |
-| ❌ | GET | `/wikibase/v1/entities/items/{item_id}/sitelinks` | Get item sitelinks - stub |
+| ✅ | GET | `/wikibase/v1/entities/items/{item_id}/aliases` | Get item aliases - stub |
+| ✅ | GET | `/wikibase/v1/entities/items/{item_id}/aliases/{language_code}` | Get item aliases for language - redirects to entitybase |
+| ✅ | PATCH | `/wikibase/v1/entities/items/{item_id}/aliases/{language_code}` | Patch item aliases for language - redirects to entitybase |
+| ✅ | GET | `/wikibase/v1/entities/items/{item_id}/descriptions` | Get item descriptions - stub |
+| ✅ | GET | `/wikibase/v1/entities/items/{item_id}/descriptions/{language_code}` | Get item description for language - redirects to entitybase |
+| ✅ | PUT | `/wikibase/v1/entities/items/{item_id}/descriptions/{language_code}` | Set item description for language - redirects to entitybase |
+| ✅ | DELETE | `/wikibase/v1/entities/items/{item_id}/descriptions/{language_code}` | Delete item description for language - redirects to entitybase |
+| ✅ | GET | `/wikibase/v1/entities/items/{item_id}/labels` | Get item labels - stub |
+| ✅ | GET | `/wikibase/v1/entities/items/{item_id}/labels/{language_code}` | Get item label for language - redirects to entitybase |
+| ✅ | PUT | `/wikibase/v1/entities/items/{item_id}/labels/{language_code}` | Set item label for language - redirects to entitybase |
+| ✅ | DELETE | `/wikibase/v1/entities/items/{item_id}/labels/{language_code}` | Delete item label for language - redirects to entitybase |
+| ✅ | GET | `/wikibase/v1/entities/items/{item_id}/labels_with_language_fallback/{language_code}` | Get item labels with language fallback - stub |
+| ✅ | GET | `/wikibase/v1/entities/items/{item_id}/properties` | Get item properties - stub |
+| ✅ | POST | `/wikibase/v1/entities/items/{item_id}/properties` | Add item property - stub |
+| ✅ | GET | `/wikibase/v1/entities/items/{item_id}/sitelinks` | Get item sitelinks - stub |
 | ✅ | POST | `/wikibase/v1/entities/lexemes` | Create lexeme - redirects to entitybase endpoint |
 | ✅ | GET | `/wikibase/v1/entities/lexemes/{lexeme_id}` | Get lexeme |
 | ✅ | PUT | `/wikibase/v1/entities/lexemes/{lexeme_id}` | Update lexeme - redirects to entitybase endpoint |
 | ✅ | POST | `/wikibase/v1/entities/properties` | Create property - redirects to entitybase endpoint |
 | ✅ | GET | `/wikibase/v1/entities/properties/{property_id}` | Get property |
 | ✅ | PUT | `/wikibase/v1/entities/properties/{property_id}` | Update property - redirects to entitybase endpoint |
-| ❌ | GET | `/wikibase/v1/entities/properties/{property_id}/aliases` | Get property aliases - stub |
-| ❌ | GET | `/wikibase/v1/entities/properties/{property_id}/aliases/{language_code}` | Get property aliases for language - stub |
-| ❌ | PUT | `/wikibase/v1/entities/properties/{property_id}/aliases/{language_code}` | Set property aliases for language - stub |
-| ❌ | DELETE | `/wikibase/v1/entities/properties/{property_id}/aliases/{language_code}` | Delete property aliases for language - stub |
-| ❌ | GET | `/wikibase/v1/entities/properties/{property_id}/descriptions` | Get property descriptions - stub |
-| ❌ | GET | `/wikibase/v1/entities/properties/{property_id}/descriptions/{language_code}` | Get property description for language - stub |
-| ❌ | PUT | `/wikibase/v1/entities/properties/{property_id}/descriptions/{language_code}` | Set property description for language - stub |
-| ❌ | DELETE | `/wikibase/v1/entities/properties/{property_id}/descriptions/{language_code}` | Delete property description for language - stub |
-| ❌ | GET | `/wikibase/v1/entities/properties/{property_id}/labels` | Get property labels - stub |
-| ❌ | GET | `/wikibase/v1/entities/properties/{property_id}/labels/{language_code}` | Get property label for language - stub |
-| ❌ | PUT | `/wikibase/v1/entities/properties/{property_id}/labels/{language_code}` | Set property label for language - stub |
-| ❌ | DELETE | `/wikibase/v1/entities/properties/{property_id}/labels/{language_code}` | Delete property label for language - stub |
-| ❌ | GET | `/wikibase/v1/entities/properties/{property_id}/labels_with_language_fallback/{language_code}` | Get property labels with language fallback - stub |
-| ❌ | GET | `/wikibase/v1/entities/properties/{property_id}/properties` | Get property properties - stub |
-| ❌ | GET | `/wikibase/v1/entities/properties/{property_id}/sitelinks` | Get property sitelinks - stub |
+| ✅ | GET | `/wikibase/v1/entities/properties/{property_id}/aliases` | Get property aliases - stub |
+| ✅ | GET | `/wikibase/v1/entities/properties/{property_id}/aliases/{language_code}` | Get property aliases for language - redirects to entitybase |
+| ✅ | PATCH | `/wikibase/v1/entities/properties/{property_id}/aliases/{language_code}` | Patch property aliases for language - redirects to entitybase |
+| ✅ | GET | `/wikibase/v1/entities/properties/{property_id}/descriptions` | Get property descriptions - stub |
+| ✅ | GET | `/wikibase/v1/entities/properties/{property_id}/descriptions/{language_code}` | Get property description for language - redirects to entitybase |
+| ✅ | PUT | `/wikibase/v1/entities/properties/{property_id}/descriptions/{language_code}` | Set property description for language - redirects to entitybase |
+| ✅ | DELETE | `/wikibase/v1/entities/properties/{property_id}/descriptions/{language_code}` | Delete property description for language - redirects to entitybase |
+| ✅ | GET | `/wikibase/v1/entities/properties/{property_id}/labels` | Get property labels - stub |
+| ✅ | GET | `/wikibase/v1/entities/properties/{property_id}/labels/{language_code}` | Get property label for language - redirects to entitybase |
+| ✅ | PUT | `/wikibase/v1/entities/properties/{property_id}/labels/{language_code}` | Set property label for language - redirects to entitybase |
+| ✅ | DELETE | `/wikibase/v1/entities/properties/{property_id}/labels/{language_code}` | Delete property label for language - redirects to entitybase |
+| ✅ | GET | `/wikibase/v1/entities/properties/{property_id}/labels_with_language_fallback/{language_code}` | Get property labels with language fallback - stub |
+| ✅ | GET | `/wikibase/v1/entities/properties/{property_id}/properties` | Get property properties - stub |
+| ✅ | GET | `/wikibase/v1/entities/properties/{property_id}/sitelinks` | Get property sitelinks - stub |
 | ❌ | GET | `/wikibase/v1/statements` | Get statements - stub |
 
 | Status | Count |
 |--------|-------|
-| Implemented | 25 |
-| Not Implemented | 33 |
-| Total | 58 |
+| Implemented | 70 |
+| Not Implemented | 2 |
+| Total | 72 |

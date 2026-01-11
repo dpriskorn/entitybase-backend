@@ -1,3 +1,5 @@
+"""Property registry models."""
+
 from pydantic import BaseModel, ConfigDict
 
 

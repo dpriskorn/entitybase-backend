@@ -1,3 +1,5 @@
+"""S3-related models and configurations."""
+
 from typing import Any, Dict
 
 from pydantic import BaseModel

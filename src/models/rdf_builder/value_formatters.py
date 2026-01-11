@@ -1,3 +1,5 @@
+"""RDF value formatters."""
+
 import logging
 from typing import Any
 from models.internal_representation.value_kinds import ValueKind
@@ -6,11 +8,11 @@ logger = logging.getLogger(__name__)
 
 
 class ValueFormatter:
-    """Format internal Value objects as RDF literals/URIs"""
+    """Format internal Value objects as RDF literals/URIs."""
 
     @staticmethod
     def format_value(value: Any) -> str:
-        """Format a Value object as RDF string"""
+        """Format a Value object as RDF string."""
         kind = value.kind
 
         if kind == ValueKind.ENTITY:
@@ -65,7 +67,7 @@ class ValueFormatter:
 
     @staticmethod
     def escape_turtle(value: str) -> str:
-        """Escape special characters for Turtle format"""
+        """Escape special characters for Turtle format."""
         value = value.replace("\\", "\\\\")
         value = value.replace('"', '\\"')
         value = value.replace("\n", "\\n")

@@ -62,6 +62,7 @@ def download_entity(entity_id: str) -> None:
 
 
 def main() -> None:
+    """Download Wikidata entities and save to test data."""
     if len(sys.argv) < 2:
         print("Usage: python download_wikidata_entity.py <entity_id> [entity_id2] ...")
         print("Example: python download_wikidata_entity.py Q42")
