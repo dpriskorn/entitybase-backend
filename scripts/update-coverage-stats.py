@@ -11,15 +11,15 @@ def parse_coverage_xml(xml_file: str) -> dict:
     tree = ET.parse(xml_file)
     root = tree.getroot()
 
-    total_lines = int(root.attrib['lines-valid'])
-    covered_lines = int(root.attrib['lines-covered'])
-    coverage_percentage = float(root.attrib['line-rate']) * 100
+    total_lines = int(root.attrib["lines-valid"])
+    covered_lines = int(root.attrib["lines-covered"])
+    coverage_percentage = float(root.attrib["line-rate"]) * 100
 
     return {
-        'total_lines': total_lines,
-        'covered_lines': covered_lines,
-        'coverage_percentage': coverage_percentage,
-        'line_rate': float(root.attrib['line-rate'])
+        "total_lines": total_lines,
+        "covered_lines": covered_lines,
+        "coverage_percentage": coverage_percentage,
+        "line_rate": float(root.attrib["line-rate"]),
     }
 
 
@@ -30,9 +30,9 @@ def update_statistics_md(stats_file: str, coverage_data: dict) -> None:
     # Create coverage section
     coverage_section = f"""# Test Coverage
 ```
-Coverage: {coverage_data['coverage_percentage']:.1f}%
-Lines covered: {coverage_data['covered_lines']:,}
-Total lines: {coverage_data['total_lines']:,}
+Coverage: {coverage_data["coverage_percentage"]:.1f}%
+Lines covered: {coverage_data["covered_lines"]:,}
+Total lines: {coverage_data["total_lines"]:,}
 ```
 
 """
@@ -40,11 +40,11 @@ Total lines: {coverage_data['total_lines']:,}
     # Check if coverage section already exists
     if "# Test Coverage" in content:
         # Replace existing section
-        pattern = r'# Test Coverage\n```.*?\n```\n\n'
+        pattern = r"# Test Coverage\n```.*?\n```\n\n"
         content = re.sub(pattern, coverage_section, content, flags=re.DOTALL)
     else:
         # Add after Overall section
-        pattern = r'(# Overall\n```.*?```\n\n)'
+        pattern = r"(# Overall\n```.*?```\n\n)"
         match = re.search(pattern, content, re.DOTALL)
         if match:
             insert_pos = match.end()
@@ -70,5 +70,7 @@ def main():
     update_statistics_md(stats_md, coverage_data)
 
     print(f"Updated coverage statistics: {coverage_data['coverage_percentage']:.1f}%")
+
+
 if __name__ == "__main__":
     main()

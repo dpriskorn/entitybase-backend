@@ -1,0 +1,39 @@
+@startuml Data Flow
+
+title Wikibase Backend - Data Flow
+
+actor "Client" as Client
+rectangle "FastAPI" as API
+rectangle "Request Handler" as Handler
+rectangle "Service Layer" as Service
+database "Vitess Client" as VitessClient
+database "Vitess DB" as Vitess
+storage "S3 Client" as S3Client
+storage "S3 Storage" as S3
+rectangle "Workers" as Workers
+rectangle "Kafka" as Kafka
+
+' Main request flow
+Client -> API : HTTP Request
+API -> Handler : Route Request
+Handler -> Service : Business Logic
+Service -> VitessClient : Database Query
+VitessClient -> Vitess : SQL Query
+
+' Background processing
+Handler -> Kafka : Change Events
+Workers -> Vitess : Background Tasks
+
+' Storage operations
+Service -> S3Client : Object Operations
+S3Client -> S3 : Store/Retrieve Data
+
+' Response flow
+S3 --> S3Client : Data
+Vitess --> VitessClient : Results
+VitessClient --> Service : Response Data
+Service --> Handler : Processed Data
+Handler --> API : JSON Response
+API --> Client : HTTP Response
+
+@enduml

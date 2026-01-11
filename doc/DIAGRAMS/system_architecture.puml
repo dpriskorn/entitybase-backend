@@ -1,0 +1,62 @@
+@startuml System Architecture
+
+title Wikibase Backend - System Architecture
+
+package "API Layer" as APILayer #LightBlue {
+    "Admin" as AdminHandler
+    "Redirect" as RedirectHandler
+    "Statement" as StatementHandler
+    "Export" as ExportHandler
+    "EntityCreate" as EntityCreateHandler
+    "ItemCreate" as ItemCreateHandler
+    "EntityUpdate" as EntityUpdateHandler
+    "Backlink" as BacklinkHandler
+    ... (26 total components)
+}
+
+package "Service Layer" as ServiceLayer #LightGreen {
+    "Enumeration" as EnumerationService
+    "BacklinkStatistics" as BacklinkStatisticsService
+    "Redirect" as RedirectService
+    "IdRange" as IdRange
+    "IdRangeManager" as IdRangeManager
+}
+
+package "Worker Layer" as WorkerLayer #LightYellow {
+    "BacklinkStatisticsWorker" as BacklinkStatisticsWorker
+    "IdResponse" as IdResponse
+    "IdGeneratorWorker" as IdGeneratorWorker
+}
+
+package "Infrastructure Layer" as InfrastructureLayer #LightGray {
+    "Metadata" as MetadataRepository
+    "Redirect" as RedirectRepository
+    "Revision" as RevisionRepository
+    "RevisionRecord" as RevisionRecord
+    "Head" as HeadRepository
+    "Listing" as ListingRepository
+    "Backlink" as BacklinkRepository
+    "Entity" as EntityRepository
+    ... (12 total components)
+}
+
+package "Data Models" as DataModels #LightCyan {
+    "WikibasePredicates" as WikibasePredicates
+    "DeduplicationStats" as DeduplicationStats
+    "RedirectBatchResponse" as RedirectBatchResponse
+    "FullRevisionData" as FullRevisionData
+    "MetadataLoadResponse" as MetadataLoadResponse
+    "HealthResponse" as HealthResponse
+    "HealthCheckResponse" as HealthCheckResponse
+    "WorkerHealthCheck" as WorkerHealthCheck
+    ... (10 total components)
+}
+
+
+' Relationships
+API -> Service : business logic
+Service -> Infrastructure : data access
+Worker -> Infrastructure : background processing
+API -> DataModels : serialization
+
+@enduml

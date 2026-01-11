@@ -2,6 +2,142 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-12] Backlink Statistics Worker
+
+### Summary
+
+Implemented a background worker service that computes and stores backlink statistics daily. The worker generates analytics on entity relationships including total backlinks, unique entities with backlinks, and top entities ranked by backlink count. Statistics are stored in a new `backlink_statistics` Vitess table for efficient querying.
+
+### Motivation
+
+- **Analytics**: Enable data-driven insights into entity connectivity and relationships
+- **Performance Monitoring**: Track backlink growth and distribution patterns
+- **Query Optimization**: Support UI features showing popular entities by connectivity
+- **Scalability**: Background computation prevents API performance impact
+- **Maintenance**: Automated daily updates ensure fresh statistics
+
+### Changes
+
+#### New Database Table
+
+**File**: `src/models/infrastructure/vitess/schema.py`
+
+Added `backlink_statistics` table:
+
+```sql
+CREATE TABLE IF NOT EXISTS backlink_statistics (
+    date DATE PRIMARY KEY,
+    total_backlinks BIGINT NOT NULL,
+    unique_entities_with_backlinks BIGINT NOT NULL,
+    top_entities_by_backlinks JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Fields**:
+- `date`: Date of computation (partition key)
+- `total_backlinks`: Total backlink relationships across all entities
+- `unique_entities_with_backlinks`: Number of entities that have at least one incoming backlink
+- `top_entities_by_backlinks`: JSON array of top 100 entities by backlink count
+
+#### Statistics Service
+
+**File**: `src/models/rest_api/services/backlink_statistics_service.py`
+
+New `BacklinkStatisticsService` class:
+
+```python
+class BacklinkStatisticsService(BaseModel):
+    def compute_daily_stats(self, vitess_client: VitessClient) -> BacklinkStatisticsData:
+        """Compute comprehensive backlink statistics for current date"""
+
+    def get_total_backlinks(self, vitess_client: VitessClient) -> int:
+        """Count total backlink relationships"""
+
+    def get_entities_with_backlinks(self, vitess_client: VitessClient) -> int:
+        """Count entities that have incoming backlinks"""
+
+    def get_top_entities_by_backlinks(
+        self, vitess_client: VitessClient, limit: int = 100
+    ) -> list[dict[str, Any]]:
+        """Get top entities ranked by backlink count"""
+```
+
+#### Worker Implementation
+
+**File**: `src/models/workers/backlink_statistics/backlink_statistics_worker.py`
+
+New `BacklinkStatisticsWorker` class following existing worker pattern:
+
+```python
+class BacklinkStatisticsWorker(BaseModel):
+    worker_id: str = Field(default_factory=lambda: os.getenv("WORKER_ID", f"backlink-stats-{os.getpid()}"))
+
+    async def start(self) -> None:
+        """Start the backlink statistics worker"""
+
+    async def run_daily_computation(self) -> None:
+        """Run daily statistics computation and storage"""
+
+    async def health_check(self) -> WorkerHealthCheck:
+        """Health check endpoint"""
+```
+
+**Features**:
+- Daily scheduled execution (configurable via environment)
+- Async processing to avoid blocking
+- Comprehensive error handling and logging
+- Health check endpoint for monitoring
+
+#### Response Models
+
+**File**: `src/models/rest_api/response/misc.py`
+
+Added models for statistics data:
+
+```python
+class BacklinkStatisticsData(BaseModel):
+    """Container for computed backlink statistics"""
+
+    total_backlinks: int
+    unique_entities_with_backlinks: int
+    top_entities_by_backlinks: list[dict[str, Any]]
+
+class BacklinkStatisticsResponse(BaseModel):
+    """API response for backlink statistics"""
+
+    date: str
+    total_backlinks: int
+    unique_entities_with_backlinks: int
+    top_entities_by_backlinks: list[dict[str, Any]]
+```
+
+#### Configuration
+
+**File**: `src/models/config/settings.py`
+
+Added worker configuration:
+
+```python
+class Settings(BaseSettings):
+    backlink_stats_enabled: bool = Field(default=True)
+    backlink_stats_schedule: str = Field(default="0 2 * * *")  # Daily at 2 AM
+    backlink_stats_top_limit: int = Field(default=100)
+```
+
+### Impact
+
+- **Storage**: Minimal additional storage (~1KB/day for statistics table)
+- **Performance**: Background computation doesn't impact API performance
+- **Analytics**: Enables insights into entity relationship patterns
+- **Monitoring**: Health checks and error logging for operational visibility
+
+### Backward Compatibility
+
+- **Non-breaking**: New table and worker don't affect existing functionality
+- **Optional**: Worker can be disabled via configuration
+- **Graceful degradation**: Statistics unavailable if worker fails
+
 ## [2026-01-11] S3 Revision Schema 2.0.0 - Term Deduplication
 
 ### Summary
