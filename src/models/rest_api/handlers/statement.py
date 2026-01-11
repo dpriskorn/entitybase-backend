@@ -1,3 +1,5 @@
+"""Statement management handlers."""
+
 import logging
 
 from botocore.exceptions import ClientError

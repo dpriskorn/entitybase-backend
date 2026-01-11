@@ -1,5 +1,4 @@
-"""Test CamelCase to kebab-case normalization
-"""
+"""Test CamelCase to kebab-case normalization"""
 
 import sys
 from pathlib import Path

@@ -3,6 +3,8 @@
 import logging
 from typing import Any, TextIO
 
+from pydantic import BaseModel
+
 from models.rdf_builder.models.rdf_statement import RDFStatement
 from models.rdf_builder.property_registry.models import PropertyShape
 from models.rdf_builder.uri_generator import URIGenerator
@@ -14,7 +16,9 @@ from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 logger = logging.getLogger(__name__)
 
 
-class TripleWriters:
+class TripleWriters(BaseModel):
+    """Collection of writers for RDF triples in various formats."""
+
     uri = URIGenerator()
 
     @staticmethod

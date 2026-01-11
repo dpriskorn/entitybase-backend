@@ -2,7 +2,9 @@
 
 from typing import Any
 
-from models.internal_representation.values import MusicalNotationValue
+from models.internal_representation.values.musical_notation_value import (
+    MusicalNotationValue,
+)
 from models.internal_representation.json_fields import JsonField
 
 

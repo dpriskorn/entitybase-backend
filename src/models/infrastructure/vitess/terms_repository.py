@@ -41,7 +41,7 @@ class TermsRepository:
         with self.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:
                 # Create placeholders for the IN clause
-                placeholders = ','.join(['%s'] * len(hashes))
+                placeholders = ",".join(["%s"] * len(hashes))
                 cursor.execute(
                     f"SELECT hash, term, term_type FROM entity_terms WHERE hash IN ({placeholders})",
                     hashes,

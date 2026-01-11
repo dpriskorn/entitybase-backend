@@ -1,4 +1,5 @@
 from pydantic import ConfigDict, Field
+
 """Mathematical expression value type."""
 
 from typing_extensions import Literal

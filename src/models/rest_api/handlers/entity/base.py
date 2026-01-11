@@ -1,35 +1,34 @@
+"""Entity CRUD operation handlers."""
+
 import json
 import logging
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Dict
+from typing import Any, Dict
 
 from fastapi import HTTPException
+from pydantic import BaseModel
 from rapidhash import rapidhash
 
 from models.config.settings import settings
-from models.validation.utils import raise_validation_error
-from models.api import (
-    EditType,
-    EntityCreateRequest,
-    EntityResponse,
-    EntityRevisionResponse,
-    EntityUpdateRequest,
-    StatementHashResult,
-)
 from models.infrastructure.s3.s3_client import S3Client
-from models.infrastructure.stream import (
+from models.infrastructure.stream.producer import (
     ChangeType,
-    EntityChangeEvent,
     StreamProducerClient,
+    EntityChangeEvent,
 )
 from models.infrastructure.vitess_client import VitessClient
+from models.rest_api.misc import EditType
+from models.rest_api.request import EntityUpdateRequest, EntityCreateRequest
+from models.rest_api.response import (
+    EntityResponse,
+    StatementHashResult,
+    EntityRevisionResponse,
+)
 from models.rest_api.services.statement_service import (
     hash_entity_statements,
     deduplicate_and_store_statements,
 )
-
-if TYPE_CHECKING:
-    pass
+from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
@@ -62,7 +61,7 @@ def edit_type_to_change_type(edit_type: EditType | str) -> ChangeType:
         return ChangeType.EDIT
 
 
-class EntityHandler:
+class EntityHandler(BaseModel):
     """Base entity handler with common functionality"""
 
     async def _process_entity_revision(
@@ -113,7 +112,7 @@ class EntityHandler:
         logger.debug(f"New revision ID will be: {new_revision_id}")
 
         # Process statements
-        hash_result = self._process_statements(
+        hash_result = self.process_statements(
             entity_id, request_data, vitess_client, s3_client, validator
         )
 
@@ -225,7 +224,7 @@ class EntityHandler:
         except Exception:
             pass
 
-    def _process_statements(
+    def process_statements(
         self,
         entity_id: str,
         request_data: Dict[str, Any],

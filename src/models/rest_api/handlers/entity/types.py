@@ -1,3 +1,5 @@
+"""Module for entity type definitions."""
+
 import logging
 
 

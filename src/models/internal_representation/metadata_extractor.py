@@ -1,6 +1,6 @@
-import json
 """Metadata extraction utilities for Wikibase entities."""
 
+import json
 from typing import Any
 
 
@@ -11,25 +11,40 @@ class MetadataExtractor:
     def extract_labels(entity: dict[str, Any]) -> dict[str, str]:
         """Extract label values from entity JSON."""
         labels = entity.get("labels", {})
-        return {lang: label_data["value"] for lang, label_data in labels.items() if "value" in label_data}
+        return {
+            lang: label_data["value"]
+            for lang, label_data in labels.items()
+            if "value" in label_data
+        }
 
     @staticmethod
     def extract_descriptions(entity: dict[str, Any]) -> dict[str, str]:
         """Extract description values from entity JSON."""
         descriptions = entity.get("descriptions", {})
-        return {lang: desc_data["value"] for lang, desc_data in descriptions.items() if "value" in desc_data}
+        return {
+            lang: desc_data["value"]
+            for lang, desc_data in descriptions.items()
+            if "value" in desc_data
+        }
 
     @staticmethod
     def extract_aliases(entity: dict[str, Any]) -> dict[str, list[str]]:
         """Extract alias values from entity JSON."""
         aliases = entity.get("aliases", {})
-        return {lang: [alias_data["value"] for alias_data in alias_list if "value" in alias_data]
-                for lang, alias_list in aliases.items()}
+        return {
+            lang: [
+                alias_data["value"]
+                for alias_data in alias_list
+                if "value" in alias_data
+            ]
+            for lang, alias_list in aliases.items()
+        }
 
     @staticmethod
     def hash_string(content: str) -> int:
         """Generate a 64-bit rapidhash for a string."""
         from rapidhash import rapidhash
+
         return rapidhash(content.encode("utf-8"))
 
     @staticmethod

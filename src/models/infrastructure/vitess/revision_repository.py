@@ -3,6 +3,8 @@
 import json
 from typing import Any
 
+from pydantic import BaseModel
+
 from models.validation.utils import raise_validation_error
 
 
@@ -64,9 +66,9 @@ class RevisionRepository:
         """Get revision history for an entity."""
         from dataclasses import dataclass
 
-        @dataclass
-        class RevisionRecord:
+        class RevisionRecord(BaseModel):
             """Revision record for history."""
+
             revision_id: int
             created_at: str | None
 

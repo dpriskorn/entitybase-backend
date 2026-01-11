@@ -79,7 +79,7 @@ class TestMetadataExtractor(unittest.TestCase):
         expected = {"en": ["DNA"]}
         self.assertEqual(result, expected)
 
-    @patch('rapidhash.rapidhash')
+    @patch("rapidhash.rapidhash")
     def test_hash_string(self, mock_rapidhash):
         """Test hashing a string"""
         mock_rapidhash.return_value = 12345
@@ -87,7 +87,7 @@ class TestMetadataExtractor(unittest.TestCase):
         self.assertEqual(result, 12345)
         mock_rapidhash.assert_called_once_with(b"test string")
 
-    @patch('rapidhash.rapidhash')
+    @patch("rapidhash.rapidhash")
     def test_hash_metadata_deprecated(self, mock_rapidhash):
         """Test the deprecated hash_metadata method"""
         mock_rapidhash.return_value = 67890

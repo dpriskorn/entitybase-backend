@@ -4,7 +4,9 @@ Implements MediaWiki's HashDedupeBag pattern to avoid duplicate value node block
 Follows same algorithm as mediawiki-extensions-Wikibase/repo/includes/Rdf/HashDedupeBag.php
 """
 
-from typing import Protocol
+from typing import Protocol, Any
+
+from pydantic import BaseModel
 
 from models.rest_api.response.rdf import DeduplicationStats
 from models.validation.utils import raise_validation_error
@@ -29,7 +31,7 @@ class DedupeBag(Protocol):
         ...
 
 
-class HashDedupeBag:
+class HashDedupeBag(BaseModel):
     """Hash-based deduplication with lossy cache (like MediaWiki).
 
     This implementation operates like a rather lossy cache; it's implemented
@@ -63,7 +65,7 @@ class HashDedupeBag:
     @author Daniel Kinzler
     """
 
-    def __init__(self, cutoff: int = 5):
+    def __init__(self, /, cutoff: int = 5, **data: Any):
         """Initialize HashDedupeBag with the given cutoff value.
 
         The cutoff is the number of hash characters to use. A larger number means less collisions
@@ -74,6 +76,7 @@ class HashDedupeBag:
         @param int $cutoff
             The number of hash characters to use as key.
         """
+        super().__init__(**data)
         if cutoff <= 0:
             raise_validation_error(f"cutoff must be positive, got {cutoff}")
 

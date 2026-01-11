@@ -1,4 +1,5 @@
 from pydantic import ConfigDict, Field, field_validator, model_validator
+
 """Quantity value type."""
 
 from typing_extensions import Literal

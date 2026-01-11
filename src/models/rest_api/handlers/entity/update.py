@@ -1,3 +1,5 @@
+"""Entity update handlers."""
+
 import logging
 from typing import Any
 

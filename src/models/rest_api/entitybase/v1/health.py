@@ -1,6 +1,8 @@
+"""Health check endpoint for Entitybase v1 API."""
+
 from fastapi import APIRouter, Request
 
-from models.api import HealthResponse
+from models.rest_api.response import HealthResponse
 
 router = APIRouter()
 

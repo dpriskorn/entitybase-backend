@@ -1,3 +1,5 @@
+"""Handler for system health check operations."""
+
 from fastapi import Response
 from starlette import status
 

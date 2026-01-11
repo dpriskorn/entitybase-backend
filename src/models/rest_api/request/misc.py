@@ -1,3 +1,5 @@
+"""Miscellaneous request models."""
+
 from pydantic import BaseModel, Field
 
 

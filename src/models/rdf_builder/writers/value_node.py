@@ -3,6 +3,8 @@
 from typing import Any, TextIO
 import re
 
+from pydantic import BaseModel
+
 from models.rdf_builder.uri_generator import URIGenerator
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 
@@ -28,7 +30,7 @@ def _format_scientific_notation(value: float) -> str:
     return formatted
 
 
-class ValueNodeWriter:
+class ValueNodeWriter(BaseModel):
     """Write structured value nodes (wdv:) for time, quantity, globe-coordinate."""
 
     uri = URIGenerator()

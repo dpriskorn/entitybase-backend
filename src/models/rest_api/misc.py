@@ -1,6 +1,6 @@
-from enum import Enum
+"""Miscellaneous enumerations and models for REST API."""
 
-from pydantic import BaseModel
+from enum import Enum
 
 
 class EditType(Enum):
@@ -39,8 +39,3 @@ class EditType(Enum):
 class DeleteType(str, Enum):
     SOFT = "soft"
     HARD = "hard"
-
-
-class RevisionMetadata(BaseModel):
-    revision_id: int
-    created_at: str

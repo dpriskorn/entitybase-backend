@@ -1,9 +1,12 @@
+"""Item operations for Wikibase v1 API."""
+
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 from models.rest_api.response.entity import WikibaseEntityResponse
 from models.rest_api.handlers.entity.read import EntityReadHandler
+
 
 router = APIRouter()
 
@@ -63,11 +66,8 @@ async def get_item_label(item_id: str, language_code: str) -> RedirectResponse:
     """Get item label for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/items/{item_id}/labels/{language_code}",
-        status_code=307
+        status_code=307,
     )
-
-
-
 
 
 @router.put("/entities/items/{item_id}/labels/{language_code}")
@@ -75,7 +75,7 @@ async def set_item_label(item_id: str, language_code: str) -> RedirectResponse:
     """Set item label for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/items/{item_id}/labels/{language_code}",
-        status_code=307
+        status_code=307,
     )
 
 
@@ -84,7 +84,7 @@ async def delete_item_label(item_id: str, language_code: str) -> RedirectRespons
     """Delete item label for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/items/{item_id}/labels/{language_code}",
-        status_code=307
+        status_code=307,
     )
 
 
@@ -103,11 +103,13 @@ async def get_item_aliases(item_id: str) -> Dict[str, Any]:
 
 
 @router.get("/entities/items/{item_id}/aliases/{language_code}")
-async def get_item_aliases_for_language(item_id: str, language_code: str) -> RedirectResponse:
+async def get_item_aliases_for_language(
+    item_id: str, language_code: str
+) -> RedirectResponse:
     """Get item aliases for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/items/{item_id}/aliases/{language_code}",
-        status_code=307
+        status_code=307,
     )
 
 
@@ -118,9 +120,8 @@ async def patch_item_aliases_for_language(
     """Patch item aliases for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/items/{item_id}/aliases/{language_code}",
-        status_code=307
+        status_code=307,
     )
-
 
 
 @router.get("/entities/items/{item_id}/descriptions")
@@ -134,7 +135,7 @@ async def get_item_description(item_id: str, language_code: str) -> RedirectResp
     """Get item description for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}",
-        status_code=307
+        status_code=307,
     )
 
 
@@ -143,7 +144,7 @@ async def set_item_description(item_id: str, language_code: str) -> RedirectResp
     """Set item description for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}",
-        status_code=307
+        status_code=307,
     )
 
 
@@ -152,5 +153,5 @@ async def delete_item_description(item_id: str, language_code: str) -> RedirectR
     """Delete item description for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}",
-        status_code=307
+        status_code=307,
     )

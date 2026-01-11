@@ -1,3 +1,5 @@
+"""Wikidata import handlers for entity migration."""
+
 import json
 import logging
 from datetime import datetime

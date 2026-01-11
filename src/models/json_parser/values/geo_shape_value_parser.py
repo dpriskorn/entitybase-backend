@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from models.internal_representation.values import GeoShapeValue
+from models.internal_representation.values.geo_shape_value import GeoShapeValue
 from models.internal_representation.json_fields import JsonField
 
 

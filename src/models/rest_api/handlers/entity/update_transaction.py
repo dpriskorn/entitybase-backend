@@ -1,3 +1,5 @@
+"""Entity update transaction management."""
+
 from abc import ABC, abstractmethod
 from pydantic import BaseModel, Field
 from typing import List, Callable, Optional, Any
@@ -24,6 +26,7 @@ class EntityTransaction(BaseModel, ABC):
         s3_client: Any,
         validator: Any,
     ) -> StatementHashResult:
+        """Process statements for the entity transaction."""
         pass
 
     @abstractmethod
@@ -63,6 +66,7 @@ class EntityTransaction(BaseModel, ABC):
         edit_summary: Optional[str],
         stream_producer: Any,
     ) -> None:
+        """Publish the change event."""
         pass
 
     def commit(self) -> None:
@@ -87,6 +91,7 @@ class UpdateTransaction(EntityTransaction):
     head_revision_id: int = 0
 
     def get_head(self, vitess_client: Any) -> None:
+        """Retrieve the head revision ID."""
         logger.info(f"[UpdateTransaction] Getting head revision for {self.entity_id}")
         self.head_revision_id = vitess_client.get_head(self.entity_id)
 
@@ -98,14 +103,15 @@ class UpdateTransaction(EntityTransaction):
         s3_client: Any,
         validator: Any,
     ) -> StatementHashResult:
+        """Process statements and prepare rollback operations."""
         logger.info(
             f"[UpdateTransaction] Starting statement processing for {entity_id}"
         )
         # Import here to avoid circular imports
-        from . import EntityHandler
+        from models.rest_api.handlers.entity.base import EntityHandler
 
         handler = EntityHandler()
-        hash_result = handler._process_statements(
+        hash_result = handler.process_statements(
             entity_id, request_data, vitess_client, s3_client, validator
         )
         # Track hashes for rollback
@@ -139,7 +145,7 @@ class UpdateTransaction(EntityTransaction):
         is_creation: bool,
     ) -> Any:
         logger.info(f"[UpdateTransaction] Starting revision creation for {entity_id}")
-        from . import EntityHandler
+        from models.rest_api.handlers.entity.base import EntityHandler
 
         handler = EntityHandler()
         response = await handler._create_and_store_revision(
@@ -179,6 +185,7 @@ class UpdateTransaction(EntityTransaction):
         edit_summary: Optional[str],
         stream_producer: Any,
     ) -> None:
+        """Publish the entity change event."""
         logger.info(f"[UpdateTransaction] Starting event publishing for {entity_id}")
         if stream_producer:
             from models.infrastructure.stream.producer import EntityChangeEvent

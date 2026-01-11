@@ -6,6 +6,8 @@ from models.internal_representation.property_metadata import PropertyMetadata
 
 
 class PropertyWriter:
+    """Writer for RDF property metadata in Turtle format."""
+
     @staticmethod
     def write_property(output: TextIO, prop: PropertyMetadata) -> None:
         """Write property metadata to Turtle output."""

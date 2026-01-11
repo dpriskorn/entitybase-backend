@@ -1,9 +1,8 @@
-from pydantic import BaseModel, ConfigDict
 """Internal representation of Wikibase qualifiers."""
 
-from models.internal_representation.values import Value
-
 from pydantic import BaseModel, ConfigDict
+
+from models.internal_representation.values import Value
 
 
 class Qualifier(BaseModel):

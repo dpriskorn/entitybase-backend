@@ -4,6 +4,7 @@ import logging
 from typing import Any, Dict
 
 import requests
+from pydantic import BaseModel
 
 from models.rest_api.api import EntityCreateRequest, EditType
 
@@ -11,7 +12,7 @@ from models.rest_api.api import EntityCreateRequest, EditType
 logger = logging.getLogger(__name__)
 
 
-class WikidataImportService:
+class WikidataImportService(BaseModel):
     """Service for importing entities from Wikidata."""
 
     WIKIDATA_API_URL = "https://www.wikidata.org/w/api.php"

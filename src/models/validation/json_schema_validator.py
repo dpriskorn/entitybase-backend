@@ -1,3 +1,5 @@
+"""JSON schema validation utilities."""
+
 import json
 import logging
 from pathlib import Path
@@ -10,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 
 class JsonSchemaValidator:
+    """Validator for JSON schemas used in entity validation."""
+
     def __init__(
         self,
         s3_revision_version: str = "latest",
@@ -82,6 +86,7 @@ class JsonSchemaValidator:
         return self._recentchange_validator
 
     def validate_entity_revision(self, data: dict) -> None:
+        """Validate entity revision data against schema."""
         validator = self._get_entity_validator()
         errors = list(validator.iter_errors(data))
         if errors:
@@ -97,6 +102,7 @@ class JsonSchemaValidator:
             raise_validation_error(str(errors[0]), status_code=400)
 
     def validate_statement(self, data: dict) -> None:
+        """Validate statement data against schema."""
         validator = self._get_statement_validator()
         errors = list(validator.iter_errors(data))
         if errors:
@@ -113,6 +119,7 @@ class JsonSchemaValidator:
 
     # TODO: Implement usage in change streaming handlers when WMF recentchange events are consumed
     def validate_recentchange(self, data: dict) -> None:
+        """Validate recent change data against schema."""
         validator = self._get_recentchange_validator()
         errors = list(validator.iter_errors(data))
         if errors:

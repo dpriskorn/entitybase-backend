@@ -7,6 +7,8 @@ from ..misc import DeleteType, EditType
 
 
 class EntityCreateRequest(BaseModel):
+    """Request model for entity creation."""
+
     id: str = Field(..., description="Entity ID (e.g., Q42)")
     type: str = Field(default="item", description="Entity type")
     labels: Dict[str, Dict[str, str]] = {}

@@ -1,3 +1,5 @@
+"""Handler for property update operations in the REST API."""
+
 import logging
 
 import re

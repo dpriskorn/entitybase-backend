@@ -1,3 +1,5 @@
+"""Miscellaneous response models."""
+
 from fastapi import Response
 
 from pydantic import BaseModel, Field
@@ -26,6 +28,8 @@ class CleanupOrphanedResponse(BaseModel):
     )
 
 
-class RevisionMetadata(BaseModel):
+class RevisionMetadataResponse(BaseModel):
+    """Metadata for entity revisions."""
+
     revision_id: int
     created_at: str

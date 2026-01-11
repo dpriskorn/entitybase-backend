@@ -27,6 +27,7 @@ from models.infrastructure.vitess.metadata_repository import MetadataRepository
 
 class VitessClient(Client):
     """Vitess database client for entity operations."""
+
     config: VitessConfig
     connection_manager: VitessConnectionManager = Field(default=None, exclude=True)
     schema_manager: SchemaManager = Field(default=None, exclude=True)
@@ -381,7 +382,9 @@ class VitessClient(Client):
                     ),
                 )
 
-    def read_full_revision(self, entity_id: str, revision_id: int, s3_client = None) -> FullRevisionData:
+    def read_full_revision(
+        self, entity_id: str, revision_id: int, s3_client=None
+    ) -> FullRevisionData:
         """Read full revision data including metadata from S3."""
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
@@ -421,7 +424,9 @@ class VitessClient(Client):
                 for lang, hash_list in aliases_hashes.items():
                     aliases[lang] = []
                     for hash_value in hash_list:
-                        alias_value = self.s3_client.load_metadata("aliases", hash_value)
+                        alias_value = self.s3_client.load_metadata(
+                            "aliases", hash_value
+                        )
                         aliases[lang].append({"language": lang, "value": alias_value})
 
                 return FullRevisionData(

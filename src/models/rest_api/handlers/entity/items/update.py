@@ -1,3 +1,5 @@
+"""Item-specific update handlers."""
+
 import logging
 import re
 

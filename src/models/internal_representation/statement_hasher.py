@@ -1,6 +1,6 @@
-import json
 """Utilities for computing statement hashes."""
 
+import json
 from typing import Any
 import rapidhash
 

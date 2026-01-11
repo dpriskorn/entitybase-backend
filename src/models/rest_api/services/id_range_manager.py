@@ -1,8 +1,9 @@
 """ID range management service."""
 
 import logging
-from dataclasses import dataclass
 from typing import Any, Dict, Optional
+
+from pydantic import BaseModel
 
 from models.validation.utils import raise_validation_error
 from models.infrastructure.vitess_client import VitessClient
@@ -10,8 +11,7 @@ from models.infrastructure.vitess_client import VitessClient
 logger = logging.getLogger(__name__)
 
 
-@dataclass
-class IdRange:
+class IdRange(BaseModel):
     """Represents an allocated range of IDs for a specific entity type."""
 
     entity_type: str

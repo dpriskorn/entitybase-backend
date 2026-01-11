@@ -1,3 +1,5 @@
+"""URI generator for Wikidata entities and statements."""
+
 from pydantic import BaseModel, ConfigDict
 
 

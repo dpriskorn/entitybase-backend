@@ -8,6 +8,8 @@ from models.config.settings import settings
 
 
 class PropertyOntologyWriter:
+    """Writer for RDF property ontology definitions."""
+
     @staticmethod
     def write_property_metadata(output: TextIO, shape: PropertyShape) -> None:
         """Write property metadata block with labels, descriptions, predicate links."""

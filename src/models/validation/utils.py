@@ -1,3 +1,5 @@
+"""Validation utilities for REST API."""
+
 import os
 
 from typing import NoReturn, Optional

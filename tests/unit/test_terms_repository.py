@@ -14,9 +14,15 @@ class TestTermsRepository(unittest.TestCase):
         self.terms_repo = TermsRepository(self.mock_connection_manager)
 
         # Set up the context manager mocks
-        self.mock_connection_manager.get_connection.return_value.__enter__ = Mock(return_value=self.mock_conn)
-        self.mock_connection_manager.get_connection.return_value.__exit__ = Mock(return_value=None)
-        self.mock_conn.cursor.return_value.__enter__ = Mock(return_value=self.mock_cursor)
+        self.mock_connection_manager.get_connection.return_value.__enter__ = Mock(
+            return_value=self.mock_conn
+        )
+        self.mock_connection_manager.get_connection.return_value.__exit__ = Mock(
+            return_value=None
+        )
+        self.mock_conn.cursor.return_value.__enter__ = Mock(
+            return_value=self.mock_cursor
+        )
         self.mock_conn.cursor.return_value.__exit__ = Mock(return_value=None)
 
     def test_insert_term_new(self):

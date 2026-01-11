@@ -1,3 +1,5 @@
+"""Statement endpoints for Entitybase v1 API."""
+
 from fastapi import APIRouter, Request
 
 from models.api import (
@@ -10,6 +12,7 @@ from models.api import (
     CleanupOrphanedResponse,
 )
 from ...handlers.statement import StatementHandler
+
 
 router = APIRouter()
 

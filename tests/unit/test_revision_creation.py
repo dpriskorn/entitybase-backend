@@ -1,15 +1,18 @@
 import unittest
 from models.internal_representation.metadata_extractor import MetadataExtractor
 
+
 # Mock rapidhash since it's not available in test environment
 def mock_rapidhash(data):
     """Mock rapidhash implementation using built-in hash"""
     return hash(data) & 0xFFFFFFFFFFFFFFFF  # 64-bit mask
 
+
 import sys
-if 'rapidhash' not in sys.modules:
-    sys.modules['rapidhash'] = type(sys)('rapidhash')
-    sys.modules['rapidhash'].rapidhash = mock_rapidhash
+
+if "rapidhash" not in sys.modules:
+    sys.modules["rapidhash"] = type(sys)("rapidhash")
+    sys.modules["rapidhash"].rapidhash = mock_rapidhash
 
 
 class TestRevisionCreationLogic(unittest.TestCase):
@@ -22,7 +25,7 @@ class TestRevisionCreationLogic(unittest.TestCase):
             "id": "Q42",
             "labels": {
                 "en": {"language": "en", "value": "Douglas Adams"},
-                "fr": {"language": "fr", "value": "Douglas Adams"}
+                "fr": {"language": "fr", "value": "Douglas Adams"},
             },
             "descriptions": {
                 "en": {"language": "en", "value": "English writer and comedian"}
@@ -30,9 +33,9 @@ class TestRevisionCreationLogic(unittest.TestCase):
             "aliases": {
                 "en": [
                     {"language": "en", "value": "DNA"},
-                    {"language": "en", "value": "42"}
+                    {"language": "en", "value": "42"},
                 ]
-            }
+            },
         }
 
         # Extract terms
@@ -97,14 +100,10 @@ class TestRevisionCreationLogic(unittest.TestCase):
             "created_at": "2024-01-01T00:00:00Z",
             "created_by": "test",
             "entity_type": "item",
-            "entity": {
-                "id": "Q42",
-                "type": "item",
-                "claims": {}
-            },
+            "entity": {"id": "Q42", "type": "item", "claims": {}},
             "labels_hashes": labels_hashes,
             "descriptions_hashes": descriptions_hashes,
-            "aliases_hashes": aliases_hashes
+            "aliases_hashes": aliases_hashes,
         }
 
         # Verify structure matches schema expectations
@@ -124,5 +123,5 @@ class TestRevisionCreationLogic(unittest.TestCase):
         self.assertIsInstance(revision_data["aliases_hashes"]["en"], list)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

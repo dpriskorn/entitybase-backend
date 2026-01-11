@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from models.internal_representation.values import ExternalIDValue
+from models.internal_representation.values.external_id_value import ExternalIDValue
 from models.internal_representation.json_fields import JsonField
 
 

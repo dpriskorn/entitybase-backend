@@ -2,8 +2,10 @@
 
 import hashlib
 
+from pydantic import BaseModel
 
-class ValueNodeHasher:
+
+class ValueNodeHasher(BaseModel):
     """Generates value node URIs (wdv:) using MediaWiki's hash format.
 
     Follows MediaWiki Wikibase's approach from Rdf/Values/README.md.

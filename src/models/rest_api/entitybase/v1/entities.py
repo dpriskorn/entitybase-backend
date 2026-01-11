@@ -1,8 +1,11 @@
+"""General entity endpoints for Entitybase v1 API."""
+
 from fastapi import APIRouter, Query, Request
 
-from models.api import EntityListResponse, EntityResponse, RevisionMetadata
 from models.rest_api.handlers.admin import AdminHandler
 from ...handlers.entity.read import EntityReadHandler
+from ...response import EntityResponse, EntityListResponse
+from ...response.misc import RevisionMetadataResponse
 
 router = APIRouter()
 
@@ -17,7 +20,9 @@ def get_entity(entity_id: str, req: Request) -> EntityResponse:
     )
 
 
-@router.get("/entities/{entity_id}/history", response_model=list[RevisionMetadata])
+@router.get(
+    "/entities/{entity_id}/history", response_model=list[RevisionMetadataResponse]
+)
 def get_entity_history(
     entity_id: str,
     req: Request,

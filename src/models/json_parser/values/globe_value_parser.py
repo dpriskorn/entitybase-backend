@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from models.internal_representation.values import GlobeValue
+from models.internal_representation.values.globe_value import GlobeValue
 from models.internal_representation.json_fields import JsonField
 
 

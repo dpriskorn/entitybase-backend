@@ -1,7 +1,8 @@
+"""Item-specific entity handlers."""
+
 import logging
 from typing import Any
 
-from models.api import EntityCreateRequest, EntityResponse
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
@@ -9,6 +10,8 @@ from models.validation.utils import raise_validation_error
 from models.rest_api.services.enumeration_service import EnumerationService
 from .create import EntityCreateHandler
 from .creation_transaction import CreationTransaction
+from ...request import EntityCreateRequest
+from ...response import EntityResponse
 
 logger = logging.getLogger(__name__)
 

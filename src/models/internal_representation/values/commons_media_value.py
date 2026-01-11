@@ -1,4 +1,5 @@
 from pydantic import ConfigDict, Field
+
 """Commons media value type."""
 
 from typing_extensions import Literal

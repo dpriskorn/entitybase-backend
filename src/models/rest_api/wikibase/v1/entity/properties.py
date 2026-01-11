@@ -1,9 +1,12 @@
+"""Property operations for Wikibase v1 API."""
+
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from typing import Dict, Any
 
-from models.api import WikibaseEntityResponse
+from models.rest_api.response.entity import WikibaseEntityResponse
 from models.rest_api.handlers.entity.read import EntityReadHandler
+
 
 router = APIRouter()
 
@@ -59,7 +62,7 @@ async def get_property_label(property_id: str, language_code: str) -> RedirectRe
     """Get property label for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/properties/{property_id}/labels/{language_code}",
-        status_code=307
+        status_code=307,
     )
 
 
@@ -68,16 +71,18 @@ async def set_property_label(property_id: str, language_code: str) -> RedirectRe
     """Set property label for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/properties/{property_id}/labels/{language_code}",
-        status_code=307
+        status_code=307,
     )
 
 
 @router.delete("/entities/properties/{property_id}/labels/{language_code}")
-async def delete_property_label(property_id: str, language_code: str) -> RedirectResponse:
+async def delete_property_label(
+    property_id: str, language_code: str
+) -> RedirectResponse:
     """Delete property label for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/properties/{property_id}/labels/{language_code}",
-        status_code=307
+        status_code=307,
     )
 
 
@@ -98,11 +103,13 @@ async def get_property_aliases(property_id: str) -> Dict[str, Any]:
 
 
 @router.get("/entities/properties/{property_id}/aliases/{language_code}")
-async def get_property_aliases_for_language(property_id: str, language_code: str) -> RedirectResponse:
+async def get_property_aliases_for_language(
+    property_id: str, language_code: str
+) -> RedirectResponse:
     """Get property aliases for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}",
-        status_code=307
+        status_code=307,
     )
 
 
@@ -113,9 +120,8 @@ async def patch_property_aliases_for_language(
     """Patch property aliases for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}",
-        status_code=307
+        status_code=307,
     )
-
 
 
 @router.get("/entities/properties/{property_id}/descriptions")
@@ -125,27 +131,33 @@ async def get_property_descriptions(property_id: str) -> Dict[str, Any]:
 
 
 @router.get("/entities/properties/{property_id}/descriptions/{language_code}")
-async def get_property_description(property_id: str, language_code: str) -> RedirectResponse:
+async def get_property_description(
+    property_id: str, language_code: str
+) -> RedirectResponse:
     """Get property description for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/properties/{property_id}/descriptions/{language_code}",
-        status_code=307
+        status_code=307,
     )
 
 
 @router.put("/entities/properties/{property_id}/descriptions/{language_code}")
-async def set_property_description(property_id: str, language_code: str) -> RedirectResponse:
+async def set_property_description(
+    property_id: str, language_code: str
+) -> RedirectResponse:
     """Set property description for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/properties/{property_id}/descriptions/{language_code}",
-        status_code=307
+        status_code=307,
     )
 
 
 @router.delete("/entities/properties/{property_id}/descriptions/{language_code}")
-async def delete_property_description(property_id: str, language_code: str) -> RedirectResponse:
+async def delete_property_description(
+    property_id: str, language_code: str
+) -> RedirectResponse:
     """Delete property description for language - redirects to entitybase"""
     return RedirectResponse(
         url=f"/entitybase/v1/entities/properties/{property_id}/descriptions/{language_code}",
-        status_code=307
+        status_code=307,
     )

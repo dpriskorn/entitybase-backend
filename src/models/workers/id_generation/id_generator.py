@@ -1,3 +1,5 @@
+"""ID generation worker for Wikibase entities."""
+
 import asyncio
 import logging
 import os

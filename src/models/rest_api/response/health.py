@@ -1,13 +1,19 @@
+"""Health check response models."""
+
 from typing import Any
 
 from pydantic import BaseModel, Field
 
 
 class HealthResponse(BaseModel):
+    """Response model for health check."""
+
     status: str
 
 
 class HealthCheckResponse(BaseModel):
+    """Detailed response model for health check."""
+
     status: str
     s3: str
     vitess: str

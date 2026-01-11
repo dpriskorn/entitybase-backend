@@ -1,9 +1,12 @@
+"""Lexeme operations for Wikibase v1 API."""
+
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 from typing import Dict, Any
 
-from models.api import WikibaseEntityResponse
+from models.rest_api.response.entity import WikibaseEntityResponse
 from models.rest_api.handlers.entity.read import EntityReadHandler
+
 
 router = APIRouter()
 

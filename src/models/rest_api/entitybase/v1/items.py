@@ -1,21 +1,22 @@
-from fastapi import APIRouter, HTTPException, Request
-from typing import List, Dict, Any
-import json
+"""Item creation endpoints for Entitybase v1 API."""
 
-from models.rest_api.api.entity import (
+from typing import Dict, Any
+
+from fastapi import APIRouter, HTTPException, Request
+
+from models.rest_api.request.entity import (
+    EntityJsonImportRequest,
     EntityCreateRequest,
-    EntityResponse,
     EntityUpdateRequest,
 )
-from models.rest_api.request.entity import EntityJsonImportRequest
-from models.rest_api.response.entity import EntityJsonImportResponse
+from models.rest_api.response.entity import EntityJsonImportResponse, EntityResponse
 from ...handlers.entity.item import ItemCreateHandler
 from ...handlers.entity.items.update import ItemUpdateHandler
-from ...handlers.entity.property.update import PropertyUpdateHandler
 from ...handlers.entity.lexeme.update import LexemeUpdateHandler
-from ...handlers.entity.wikidata_import import EntityJsonImportHandler
+from ...handlers.entity.property.update import PropertyUpdateHandler
 from ...handlers.entity.read import EntityReadHandler
 from ...handlers.entity.update import EntityUpdateHandler
+from ...handlers.entity.wikidata_import import EntityJsonImportHandler
 
 router = APIRouter()
 
@@ -117,17 +118,19 @@ async def get_item_label(item_id: str, language_code: str, req: Request):
     """Get item label for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    response = handler.get_entity(
-        item_id, clients.vitess, clients.s3
-    )
+    response = handler.get_entity(item_id, clients.vitess, clients.s3)
     labels = response.data.get("labels", {})
     if language_code not in labels:
-        raise HTTPException(status_code=404, detail=f"Label not found for language {language_code}")
+        raise HTTPException(
+            status_code=404, detail=f"Label not found for language {language_code}"
+        )
     return labels[language_code]
 
 
 @router.put("/entities/items/{item_id}/labels/{language_code}")
-async def update_item_label(item_id: str, language_code: str, update_data: Dict[str, Any], req: Request) -> EntityResponse:
+async def update_item_label(
+    item_id: str, language_code: str, update_data: Dict[str, Any], req: Request
+) -> EntityResponse:
     """Update item label for language."""
     clients = req.app.state.clients
     validator = req.app.state.validator
@@ -146,25 +149,28 @@ async def update_item_label(item_id: str, language_code: str, update_data: Dict[
         current_entity.data["labels"] = {}
     current_entity.data["labels"][language_code] = {
         "language": language_code,
-        "value": label_value
+        "value": label_value,
     }
 
     # Create new revision
     update_handler = EntityUpdateHandler()
     entity_type = current_entity.data.get("type") or "item"
-    update_request = EntityUpdateRequest(
-        type=entity_type,
-        **current_entity.data
-    )
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.data)
 
     return await update_handler.update_entity(
-        item_id, update_request, clients.vitess, clients.s3,
-        clients.stream_producer, validator
+        item_id,
+        update_request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
     )
 
 
 @router.delete("/entities/items/{item_id}/labels/{language_code}")
-async def delete_item_label(item_id: str, language_code: str, req: Request) -> EntityResponse:
+async def delete_item_label(
+    item_id: str, language_code: str, req: Request
+) -> EntityResponse:
     """Delete item label for language."""
     clients = req.app.state.clients
     validator = req.app.state.validator
@@ -185,14 +191,15 @@ async def delete_item_label(item_id: str, language_code: str, req: Request) -> E
     # Create new revision
     update_handler = EntityUpdateHandler()
     entity_type = current_entity.data.get("type") or "item"
-    update_request = EntityUpdateRequest(
-        type=entity_type,
-        **current_entity.data
-    )
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.data)
 
     return await update_handler.update_entity(
-        item_id, update_request, clients.vitess, clients.s3,
-        clients.stream_producer, validator
+        item_id,
+        update_request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
     )
 
 
@@ -201,17 +208,20 @@ async def get_item_description(item_id: str, language_code: str, req: Request):
     """Get item description for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    response = handler.get_entity(
-        item_id, clients.vitess, clients.s3
-    )
+    response = handler.get_entity(item_id, clients.vitess, clients.s3)
     descriptions = response.data.get("descriptions", {})
     if language_code not in descriptions:
-        raise HTTPException(status_code=404, detail=f"Description not found for language {language_code}")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Description not found for language {language_code}",
+        )
     return descriptions[language_code]
 
 
 @router.put("/entities/items/{item_id}/descriptions/{language_code}")
-async def update_item_description(item_id: str, language_code: str, update_data: Dict[str, Any], req: Request) -> EntityResponse:
+async def update_item_description(
+    item_id: str, language_code: str, update_data: Dict[str, Any], req: Request
+) -> EntityResponse:
     """Update item description for language."""
     clients = req.app.state.clients
     validator = req.app.state.validator
@@ -230,25 +240,28 @@ async def update_item_description(item_id: str, language_code: str, update_data:
         current_entity.data["descriptions"] = {}
     current_entity.data["descriptions"][language_code] = {
         "language": language_code,
-        "value": description_value
+        "value": description_value,
     }
 
     # Create new revision
     update_handler = EntityUpdateHandler()
     entity_type = current_entity.data.get("type") or "item"
-    update_request = EntityUpdateRequest(
-        type=entity_type,
-        **current_entity.data
-    )
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.data)
 
     return await update_handler.update_entity(
-        item_id, update_request, clients.vitess, clients.s3,
-        clients.stream_producer, validator
+        item_id,
+        update_request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
     )
 
 
 @router.delete("/entities/items/{item_id}/descriptions/{language_code}")
-async def delete_item_description(item_id: str, language_code: str, req: Request) -> EntityResponse:
+async def delete_item_description(
+    item_id: str, language_code: str, req: Request
+) -> EntityResponse:
     """Delete item description for language."""
     clients = req.app.state.clients
     validator = req.app.state.validator
@@ -269,14 +282,15 @@ async def delete_item_description(item_id: str, language_code: str, req: Request
     # Create new revision
     update_handler = EntityUpdateHandler()
     entity_type = current_entity.data.get("type") or "item"
-    update_request = EntityUpdateRequest(
-        type=entity_type,
-        **current_entity.data
-    )
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.data)
 
     return await update_handler.update_entity(
-        item_id, update_request, clients.vitess, clients.s3,
-        clients.stream_producer, validator
+        item_id,
+        update_request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
     )
 
 
@@ -285,17 +299,19 @@ async def get_item_aliases_for_language(item_id: str, language_code: str, req: R
     """Get item aliases for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    response = handler.get_entity(
-        item_id, clients.vitess, clients.s3
-    )
+    response = handler.get_entity(item_id, clients.vitess, clients.s3)
     aliases = response.data.get("aliases", {})
     if language_code not in aliases:
-        raise HTTPException(status_code=404, detail=f"Aliases not found for language {language_code}")
+        raise HTTPException(
+            status_code=404, detail=f"Aliases not found for language {language_code}"
+        )
     return aliases[language_code]
 
 
 @router.patch("/entities/items/{item_id}/aliases/{language_code}")
-async def patch_item_aliases_for_language(item_id: str, language_code: str, patch_data: Dict[str, Any], req: Request) -> EntityResponse:
+async def patch_item_aliases_for_language(
+    item_id: str, language_code: str, patch_data: Dict[str, Any], req: Request
+) -> EntityResponse:
     """Patch item aliases for language using JSON Patch."""
     clients = req.app.state.clients
     validator = req.app.state.validator
@@ -330,7 +346,9 @@ async def patch_item_aliases_for_language(item_id: str, language_code: str, patc
                 if 0 <= index < len(updated_aliases):
                     updated_aliases.pop(index)
                 else:
-                    raise HTTPException(status_code=400, detail=f"Invalid index: {index}")
+                    raise HTTPException(
+                        status_code=400, detail=f"Invalid index: {index}"
+                    )
             else:
                 raise HTTPException(status_code=400, detail=f"Unsupported path: {path}")
         elif op == "replace":
@@ -339,7 +357,9 @@ async def patch_item_aliases_for_language(item_id: str, language_code: str, patc
                 if 0 <= index < len(updated_aliases):
                     updated_aliases[index] = value
                 else:
-                    raise HTTPException(status_code=400, detail=f"Invalid index: {index}")
+                    raise HTTPException(
+                        status_code=400, detail=f"Invalid index: {index}"
+                    )
             else:
                 raise HTTPException(status_code=400, detail=f"Unsupported path: {path}")
         else:
@@ -353,12 +373,13 @@ async def patch_item_aliases_for_language(item_id: str, language_code: str, patc
     # Create new revision
     update_handler = EntityUpdateHandler()
     entity_type = current_entity.data.get("type") or "item"
-    update_request = EntityUpdateRequest(
-        type=entity_type,
-        **current_entity.data
-    )
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.data)
 
     return await update_handler.update_entity(
-        item_id, update_request, clients.vitess, clients.s3,
-        clients.stream_producer, validator
+        item_id,
+        update_request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
     )

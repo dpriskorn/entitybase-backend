@@ -1,7 +1,7 @@
+"""Test for entity to TTL conversion."""
+
 import json
 import logging
-
-logger = logging.getLogger(__name__)
 
 from models.rdf_builder.converter import EntityToRdfConverter
 from models.json_parser.entity_parser import parse_entity

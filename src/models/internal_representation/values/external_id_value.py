@@ -1,4 +1,5 @@
 from pydantic import ConfigDict, Field
+
 """External ID value type."""
 
 from typing_extensions import Literal

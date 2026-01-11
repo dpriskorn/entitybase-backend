@@ -1,6 +1,9 @@
+"""Wikibase v1 API router."""
+
 from fastapi import APIRouter
 
 from . import entities
+
 
 wikibase_v1_router = APIRouter()
 

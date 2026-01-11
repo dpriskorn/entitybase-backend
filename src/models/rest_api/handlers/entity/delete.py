@@ -1,3 +1,5 @@
+"""Entity deletion handlers."""
+
 import logging
 from datetime import datetime, timezone
 

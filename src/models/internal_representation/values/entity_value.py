@@ -1,4 +1,5 @@
 from pydantic import ConfigDict
+
 """Entity reference value type."""
 
 from typing_extensions import Literal

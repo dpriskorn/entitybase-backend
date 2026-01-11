@@ -1,10 +1,13 @@
+"""Handler for property creation operations in the REST API."""
+
 import logging
 from typing import Any
 
-from models.api import EntityCreateRequest, EntityResponse
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
+from models.rest_api.request import EntityCreateRequest
+from models.rest_api.response import EntityResponse
 from models.rest_api.services.enumeration_service import EnumerationService
 from ..create import EntityCreateHandler
 

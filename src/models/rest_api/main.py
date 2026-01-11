@@ -1,3 +1,5 @@
+"""Main REST API application module."""
+
 import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
@@ -27,7 +29,7 @@ from models.rest_api.response.statement import (
     PropertyHashesResponse,
     PropertyListResponse,
 )
-from models.rest_api.misc import RevisionMetadata
+from models.rest_api.response.misc import RevisionMetadataResponse
 from models.rest_api.response.misc import TtlResponse
 from models.rest_api.clients import Clients
 from models.rest_api.services.enumeration_service import EnumerationService
@@ -171,7 +173,9 @@ def get_entity(entity_id: str) -> EntityResponse:
     return handler.get_entity(entity_id, clients.vitess, clients.s3)
 
 
-@v1_router.get("/entities/{entity_id}/history", response_model=list[RevisionMetadata])
+@v1_router.get(
+    "/entities/{entity_id}/history", response_model=list[RevisionMetadataResponse]
+)
 def get_entity_history(
     entity_id: str,
     limit: int = Query(
@@ -246,6 +250,7 @@ def list_entities(
     ),
     offset: int = Query(0, ge=0, description="Number of entities to skip"),
 ) -> EntityListResponse:
+    """List entities based on type, limit, and offset."""
     clients = app.state.clients
     handler = AdminHandler()
     return handler.list_entities(

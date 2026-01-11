@@ -1,3 +1,5 @@
+"""Statement request models."""
+
 from pydantic import BaseModel, Field
 
 

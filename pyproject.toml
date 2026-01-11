@@ -52,7 +52,6 @@ warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 ignore_missing_imports = true
-plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
 module = "src/models/rest_api/main.py"

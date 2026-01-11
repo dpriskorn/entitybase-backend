@@ -1,6 +1,9 @@
+"""Entitybase v1 API router."""
+
 from fastapi import APIRouter
 
 from . import entities, health, items, lexemes, properties, statements
+
 
 v1_router = APIRouter()
 

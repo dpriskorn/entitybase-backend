@@ -1,3 +1,5 @@
+"""Handler for lexeme update operations in the REST API."""
+
 import logging
 
 import re

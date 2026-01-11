@@ -1,5 +1,8 @@
+"""Property registry for RDF building."""
+
 from pydantic import BaseModel, ConfigDict
-from .models import PropertyShape
+
+from models.rdf_builder.property_registry.models import PropertyShape
 
 
 class PropertyRegistry(BaseModel):

@@ -1,8 +1,11 @@
 """Vocabulary constants for Wikibase."""
 
+from pydantic import BaseModel
 
-class Vocab:
+
+class Vocab(BaseModel):
     """Wikibase vocabulary prefixes."""
+
     WD = "http://www.wikidata.org/entity/"
     WDT = "http://www.wikidata.org/prop/direct/"
     P = "http://www.wikidata.org/prop/"

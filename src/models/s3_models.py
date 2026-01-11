@@ -8,8 +8,9 @@ from models.rest_api.response.statement import StatementResponse
 from models.infrastructure.config import Config
 
 
-class S3Config(Config):
+class S3Config(BaseModel):
     """Configuration for S3 connections."""
+
     endpoint_url: str
     access_key: str
     secret_key: str
@@ -18,11 +19,13 @@ class S3Config(Config):
 
 class RevisionMetadata(BaseModel):
     """Metadata for stored revisions."""
+
     key: str
 
 
 class RevisionReadResponse(BaseModel):
     """Response model for reading revisions."""
+
     entity_id: str
     revision_id: int
     data: Dict[str, Any]

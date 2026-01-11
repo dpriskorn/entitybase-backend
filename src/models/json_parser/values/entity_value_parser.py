@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from models.internal_representation.values import EntityValue
+from models.internal_representation.values.entity_value import EntityValue
 from models.internal_representation.json_fields import JsonField
 
 

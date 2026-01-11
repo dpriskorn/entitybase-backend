@@ -11,8 +11,9 @@ def mock_rapidhash(data):
 
 # Apply the mock
 import sys
-sys.modules['rapidhash'] = Mock()
-sys.modules['rapidhash'].rapidhash = mock_rapidhash
+
+sys.modules["rapidhash"] = Mock()
+sys.modules["rapidhash"].rapidhash = mock_rapidhash
 
 
 class TestTermDeduplicationIntegration(unittest.TestCase):
@@ -35,7 +36,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
             "id": "Q42",
             "labels": {
                 "en": {"language": "en", "value": "Douglas Adams"},
-                "fr": {"language": "fr", "value": "Douglas Adams"}
+                "fr": {"language": "fr", "value": "Douglas Adams"},
             },
             "descriptions": {
                 "en": {"language": "en", "value": "English writer and comedian"}
@@ -43,9 +44,9 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
             "aliases": {
                 "en": [
                     {"language": "en", "value": "DNA"},
-                    {"language": "en", "value": "42"}
+                    {"language": "en", "value": "42"},
                 ]
-            }
+            },
         }
 
         # Step 1: Extract terms
@@ -102,7 +103,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
             label_hashes["en"]: ("Douglas Adams", "label"),
             label_hashes["fr"]: ("Douglas Adams", "label"),
             alias_hashes["en"][0]: ("DNA", "alias"),
-            alias_hashes["en"][1]: ("42", "alias")
+            alias_hashes["en"][1]: ("42", "alias"),
         }.get(h)
 
         self.mock_s3_client.load_metadata = Mock()
@@ -134,24 +135,33 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
                 term_data = self.mock_terms_repo.get_term(hash_val)
                 if term_data:
                     term, term_type = term_data
-                    reconstructed_aliases[lang].append({"language": lang, "value": term})
+                    reconstructed_aliases[lang].append(
+                        {"language": lang, "value": term}
+                    )
 
         # Verify reconstruction
-        self.assertEqual(reconstructed_labels, {
-            "en": {"language": "en", "value": "Douglas Adams"},
-            "fr": {"language": "fr", "value": "Douglas Adams"}
-        })
+        self.assertEqual(
+            reconstructed_labels,
+            {
+                "en": {"language": "en", "value": "Douglas Adams"},
+                "fr": {"language": "fr", "value": "Douglas Adams"},
+            },
+        )
 
-        self.assertEqual(reconstructed_descriptions, {
-            "en": {"language": "en", "value": "English writer and comedian"}
-        })
+        self.assertEqual(
+            reconstructed_descriptions,
+            {"en": {"language": "en", "value": "English writer and comedian"}},
+        )
 
-        self.assertEqual(reconstructed_aliases, {
-            "en": [
-                {"language": "en", "value": "DNA"},
-                {"language": "en", "value": "42"}
-            ]
-        })
+        self.assertEqual(
+            reconstructed_aliases,
+            {
+                "en": [
+                    {"language": "en", "value": "DNA"},
+                    {"language": "en", "value": "42"},
+                ]
+            },
+        )
 
     def test_deduplication_benefit(self):
         """Test that identical terms get the same hash (deduplication)"""
@@ -164,13 +174,17 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         hash1 = MetadataExtractor.hash_string(term1)
         hash2 = MetadataExtractor.hash_string(term2)
 
-        self.assertEqual(hash1, hash2, "Identical terms should produce identical hashes")
+        self.assertEqual(
+            hash1, hash2, "Identical terms should produce identical hashes"
+        )
 
         # Different terms should hash differently
         term3 = "Douglas Noel Adams"
         hash3 = MetadataExtractor.hash_string(term3)
 
-        self.assertNotEqual(hash1, hash3, "Different terms should produce different hashes")
+        self.assertNotEqual(
+            hash1, hash3, "Different terms should produce different hashes"
+        )
 
     def test_schema_validation(self):
         """Test that revision data conforms to schema 2.0.0"""
@@ -183,14 +197,10 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
             "created_at": "2024-01-01T00:00:00Z",
             "created_by": "test",
             "entity_type": "item",
-            "entity": {
-                "id": "Q42",
-                "type": "item",
-                "claims": {}
-            },
+            "entity": {"id": "Q42", "type": "item", "claims": {}},
             "labels_hashes": {"en": 12345, "fr": 67890},
             "descriptions_hashes": {"en": 11111},
-            "aliases_hashes": {"en": [22222, 33333]}
+            "aliases_hashes": {"en": [22222, 33333]},
         }
 
         # Convert to JSON string and back to ensure serializable
@@ -206,5 +216,5 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         self.assertIsInstance(parsed["aliases_hashes"]["en"], list)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

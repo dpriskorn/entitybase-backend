@@ -1,3 +1,5 @@
+"""REST API service clients container."""
+
 import logging
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -5,7 +7,7 @@ from typing import TYPE_CHECKING
 from pydantic import BaseModel, ConfigDict
 
 from models.infrastructure.s3.s3_client import S3Client
-from models.infrastructure.stream import StreamProducerClient
+from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.rdf_builder.property_registry.loader import load_property_registry
 from models.rdf_builder.property_registry.registry import PropertyRegistry
@@ -18,6 +20,8 @@ if TYPE_CHECKING:
 
 
 class Clients(BaseModel):
+    """Container for all service clients."""
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     s3: S3Client | None = None

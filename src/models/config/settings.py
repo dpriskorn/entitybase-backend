@@ -1,14 +1,10 @@
-import logging
 """Application configuration and settings management."""
 
+import logging
 import os
+from typing import Any
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Any, TYPE_CHECKING
-
-logger = logging.getLogger(__name__)
-
-if TYPE_CHECKING:
-    pass
 
 
 class Settings(BaseSettings):

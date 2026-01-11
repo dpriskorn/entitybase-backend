@@ -1,9 +1,13 @@
+"""Statement response models."""
+
 from typing import Any, Dict
 
 from pydantic import BaseModel, Field
 
 
 class StatementResponse(BaseModel):
+    """Response model for statement data."""
+
     schema_version: str = Field(..., description="Schema version")
     content_hash: int = Field(..., description="Statement hash")
     statement: Dict[str, Any] = Field(..., description="Full statement JSON")
@@ -11,6 +15,8 @@ class StatementResponse(BaseModel):
 
 
 class StatementBatchResponse(BaseModel):
+    """Response model for batch statement queries."""
+
     statements: list[StatementResponse] = Field(..., description="List of statements")
     not_found: list[int] = Field(
         default_factory=list,

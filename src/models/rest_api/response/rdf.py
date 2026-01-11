@@ -1,3 +1,5 @@
+"""RDF response models."""
+
 from pydantic import BaseModel, Field
 
 

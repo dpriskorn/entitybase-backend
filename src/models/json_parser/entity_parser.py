@@ -8,6 +8,7 @@ from models.rest_api.response.entity import (
     EntityAliases,
     EntityDescriptions,
     EntityLabels,
+    EntityMetadata,
 )
 from models.json_parser.statement_parser import parse_statement
 from models.internal_representation.entity import Entity
@@ -18,37 +19,61 @@ from models.internal_representation.json_fields import JsonField
 logger = logging.getLogger(__name__)
 
 
-def parse_entity(metadata: dict[str, Any]) -> Entity:
+def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
     """Parse entity from Wikidata JSON format."""
     # Handle nested structure {"entities": {"Q42": {...}}}
-    if "entities" in metadata:
-        entities = metadata["entities"]
+    metadata_dict = raw_entity_data
+    if "entities" in metadata_dict:
+        entities = metadata_dict["entities"]
         entity_ids = list(entities.keys())
         if entity_ids:
-            metadata = entities[entity_ids[0]]
+            metadata_dict = entities[entity_ids[0]]
 
-    entity_id = metadata.get(JsonField.ID.value, "")
-    entity_type = EntityKind(metadata.get(JsonField.TYPE.value, EntityKind.ITEM.value))
+    # Extract raw data
+    labels_dict = metadata_dict.get(JsonField.LABELS.value, {})
+    descriptions_dict = metadata_dict.get(JsonField.DESCRIPTIONS.value, {})
+    aliases_dict = metadata_dict.get(JsonField.ALIASES.value, {})
+    claims_json = metadata_dict.get(JsonField.CLAIMS.value, {})
+    sitelinks_json = metadata_dict.get(JsonField.SITELINKS.value, {})
 
-    labels_json = metadata.get(JsonField.LABELS.value, {})
-    descriptions_json = metadata.get(JsonField.DESCRIPTIONS.value, {})
-    aliases_json = metadata.get(JsonField.ALIASES.value, {})
-    claims_json = metadata.get(JsonField.CLAIMS.value, {})
-    sitelinks_json = metadata.get(JsonField.SITELINKS.value, {})
+    # Create EntityMetadata instance with structured data
+    metadata = EntityMetadata(
+        id=metadata_dict.get(JsonField.ID.value, ""),
+        type=metadata_dict.get(JsonField.TYPE.value, EntityKind.ITEM.value),
+        labels=EntityLabels(
+            data={lang: LabelValue(**val) for lang, val in labels_dict.items()}
+        ),
+        descriptions=EntityDescriptions(
+            data={
+                lang: DescriptionValue(**val) for lang, val in descriptions_dict.items()
+            }
+        ),
+        aliases=EntityAliases(
+            data={
+                lang: [AliasValue(**alias) for alias in alias_list]
+                for lang, alias_list in aliases_dict.items()
+            }
+        ),
+        statements=EntityStatements(data=claims_json),
+        sitelinks=EntitySitelinks(data=sitelinks_json),
+    )
 
-    labels = _parse_labels(labels_json)
-    descriptions = _parse_descriptions(descriptions_json)
-    aliases = _parse_aliases(aliases_json)
-    statements = _parse_statements(claims_json)
+    entity_type = EntityKind(metadata.type)
+
+    labels = metadata.labels.data
+    descriptions = metadata.descriptions.data
+    aliases = metadata.aliases.data
+    statements = metadata.statements.data
+    sitelinks = metadata.sitelinks.data
 
     return Entity(
-        id=entity_id,
+        id=metadata.id,
         type=entity_type,
         labels=labels,
         descriptions=descriptions,
         aliases=aliases,
         statements=statements,
-        sitelinks=sitelinks_json if sitelinks_json else None,
+        sitelinks=sitelinks if sitelinks else None,
     )
 
 

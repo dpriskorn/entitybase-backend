@@ -1,3 +1,5 @@
+"""Admin API handlers for system management."""
+
 import logging
 from typing import Any, cast
 

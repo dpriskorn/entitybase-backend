@@ -1,11 +1,15 @@
+"""Handler for entity backlinks operations."""
+
 from pydantic import BaseModel
 from fastapi import HTTPException
 
 from models.infrastructure.vitess_client import VitessClient
-from models.api import BacklinksResponse, Backlink
+from models.rest_api.response import BacklinksResponse, Backlink
 
 
 class BacklinkHandler(BaseModel):
+    """Handler for entity backlink operations."""
+
     async def get(
         self,
         entity_id: str,

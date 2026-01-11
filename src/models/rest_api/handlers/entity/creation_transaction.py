@@ -1,9 +1,11 @@
+"""Entity creation transaction management."""
+
 from pydantic import BaseModel, Field
 from abc import ABC, abstractmethod
 from typing import List, Callable, Any
 import logging
 
-from models.api import StatementHashResult
+from models.rest_api.response import StatementHashResult
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +26,7 @@ class EntityTransaction(BaseModel, ABC):
         s3_client: Any,
         validator: Any,
     ) -> StatementHashResult:
+        """Process statements for the entity transaction."""
         pass
 
     @abstractmethod
@@ -63,6 +66,7 @@ class EntityTransaction(BaseModel, ABC):
         editor: str = "",
         edit_summary: str = "",
     ) -> None:
+        """Publish the change event."""
         pass
 
     def commit(self) -> None:
@@ -81,6 +85,7 @@ class EntityTransaction(BaseModel, ABC):
         self.operations.clear()
 
     def register_entity(self, vitess_client: Any, entity_id: str) -> None:
+        """Register the entity in the system."""
         logger.info(
             f"[CreationTransaction] Starting entity registration for {entity_id}"
         )
@@ -102,6 +107,7 @@ class CreationTransaction(EntityTransaction):
     """Manages atomic creation operations with rollback support."""
 
     def register_entity(self, vitess_client: Any, entity_id: str) -> None:
+        """Register the new entity."""
         logger.info(
             f"[CreationTransaction] Starting entity registration for {entity_id}"
         )
@@ -119,14 +125,15 @@ class CreationTransaction(EntityTransaction):
         s3_client: Any,
         validator: Any,
     ) -> Any:
+        """Process statements for entity creation."""
         logger.info(
             f"[CreationTransaction] Starting statement processing for {entity_id}"
         )
         # Import here to avoid circular imports
-        from . import EntityHandler
+        from models.rest_api.handlers.entity.base import EntityHandler
 
         handler = EntityHandler()
-        hash_result = handler._process_statements(
+        hash_result = handler.process_statements(
             entity_id, request_data, vitess_client, s3_client, validator
         )
         # Track hashes for rollback
@@ -160,7 +167,7 @@ class CreationTransaction(EntityTransaction):
         is_creation: bool,
     ) -> Any:
         logger.info(f"[CreationTransaction] Starting revision creation for {entity_id}")
-        from . import EntityHandler
+        from models.rest_api.handlers.entity.base import EntityHandler
 
         handler = EntityHandler()
         response = await handler._create_and_store_revision(
@@ -200,6 +207,7 @@ class CreationTransaction(EntityTransaction):
         editor: str = "",
         edit_summary: str = "",
     ) -> None:
+        """Publish the entity creation event."""
         logger.info(f"[CreationTransaction] Starting event publishing for {entity_id}")
         if stream_producer:
             from models.infrastructure.stream.producer import EntityChangeEvent
@@ -217,11 +225,13 @@ class CreationTransaction(EntityTransaction):
         # Events are fire-and-forget, no rollback needed
 
     def commit(self) -> None:
+        """Commit the creation transaction."""
         logger.info(f"[CreationTransaction] Committing creation for {self.entity_id}")
 
         self.operations.clear()  # Prevent rollback after commit
 
     def rollback(self) -> None:
+        """Rollback the creation transaction."""
         logger.info(f"[CreationTransaction] Rolling back creation for {self.entity_id}")
         for op in reversed(self.operations):
             try:

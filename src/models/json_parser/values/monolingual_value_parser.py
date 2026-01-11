@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from models.internal_representation.values import MonolingualValue
+from models.internal_representation.values.monolingual_value import MonolingualValue
 from models.internal_representation.json_fields import JsonField
 
 

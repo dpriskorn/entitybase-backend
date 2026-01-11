@@ -1,4 +1,5 @@
 import re
+
 """Enumeration of Wikibase datatype identifiers."""
 
 from enum import Enum

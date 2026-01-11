@@ -71,7 +71,7 @@ class TestTermPatchOperations(unittest.TestCase):
             {"op": "add", "path": "/-", "value": "second"},
             {"op": "add", "path": "/-", "value": "third"},
             {"op": "remove", "path": "/1"},
-            {"op": "replace", "path": "/0", "value": "replaced"}
+            {"op": "replace", "path": "/0", "value": "replaced"},
         ]
 
         updated_aliases = current_aliases.copy()
@@ -98,16 +98,10 @@ class TestTermPatchOperations(unittest.TestCase):
     def test_wikibase_patch_request_format(self):
         """Test parsing Wikibase PATCH request format"""
         wikibase_request = {
-            "patch": [
-                {
-                    "op": "add",
-                    "path": "/en/-",
-                    "value": "JD"
-                }
-            ],
+            "patch": [{"op": "add", "path": "/en/-", "value": "JD"}],
             "tags": [],
             "bot": False,
-            "comment": "Add English alias"
+            "comment": "Add English alias",
         }
 
         patches = wikibase_request.get("patch", [])
@@ -140,5 +134,5 @@ class TestTermPatchOperations(unittest.TestCase):
             self.assertIn("Unsupported operation", str(e))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

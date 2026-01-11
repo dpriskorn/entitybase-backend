@@ -5,6 +5,7 @@ from models.rest_api.response.statement import PropertyCounts
 
 class StatementExtractor:
     """Extracts statement-related information."""
+
     @staticmethod
     def extract_properties_from_claims(claims: dict[str, list]) -> list[str]:
         """Extract unique property IDs from raw claims dict.

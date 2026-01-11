@@ -1,11 +1,14 @@
-from fastapi import APIRouter, HTTPException, Request
-from typing import Dict, Any
-import json
+"""Lexeme endpoints for Entitybase v1 API."""
 
-from models.api import EntityCreateRequest, EntityResponse
-from ...handlers.entity.lexeme import LexemeCreateHandler
+from typing import Dict, Any
+
+from fastapi import APIRouter, HTTPException, Request
+
+from ...handlers.entity.lexeme.create import LexemeCreateHandler
 from ...handlers.entity.read import EntityReadHandler
 from ...handlers.entity.update import EntityUpdateHandler
+from ...request import EntityCreateRequest, EntityUpdateRequest
+from ...response import EntityResponse
 
 router = APIRouter()
 
@@ -31,12 +34,12 @@ async def get_lexeme_label(lexeme_id: str, language_code: str, req: Request):
     """Get lexeme label for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    response = handler.get_entity(
-        lexeme_id, clients.vitess, clients.s3
-    )
+    response = handler.get_entity(lexeme_id, clients.vitess, clients.s3)
     labels = response.data.get("labels", {})
     if language_code not in labels:
-        raise HTTPException(status_code=404, detail=f"Label not found for language {language_code}")
+        raise HTTPException(
+            status_code=404, detail=f"Label not found for language {language_code}"
+        )
     return labels[language_code]
 
 
@@ -45,31 +48,36 @@ async def get_lexeme_description(lexeme_id: str, language_code: str, req: Reques
     """Get lexeme description for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    response = handler.get_entity(
-        lexeme_id, clients.vitess, clients.s3
-    )
+    response = handler.get_entity(lexeme_id, clients.vitess, clients.s3)
     descriptions = response.data.get("descriptions", {})
     if language_code not in descriptions:
-        raise HTTPException(status_code=404, detail=f"Description not found for language {language_code}")
+        raise HTTPException(
+            status_code=404,
+            detail=f"Description not found for language {language_code}",
+        )
     return descriptions[language_code]
 
 
 @router.get("/entities/lexemes/{lexeme_id}/aliases/{language_code}")
-async def get_lexeme_aliases_for_language(lexeme_id: str, language_code: str, req: Request):
+async def get_lexeme_aliases_for_language(
+    lexeme_id: str, language_code: str, req: Request
+):
     """Get lexeme aliases for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    response = handler.get_entity(
-        lexeme_id, clients.vitess, clients.s3
-    )
+    response = handler.get_entity(lexeme_id, clients.vitess, clients.s3)
     aliases = response.data.get("aliases", {})
     if language_code not in aliases:
-        raise HTTPException(status_code=404, detail=f"Aliases not found for language {language_code}")
+        raise HTTPException(
+            status_code=404, detail=f"Aliases not found for language {language_code}"
+        )
     return aliases[language_code]
 
 
 @router.patch("/entities/lexemes/{lexeme_id}/aliases/{language_code}")
-async def patch_lexeme_aliases_for_language(lexeme_id: str, language_code: str, patch_data: Dict[str, Any], req: Request) -> EntityResponse:
+async def patch_lexeme_aliases_for_language(
+    lexeme_id: str, language_code: str, patch_data: Dict[str, Any], req: Request
+) -> EntityResponse:
     """Patch lexeme aliases for language using JSON Patch."""
     clients = req.app.state.clients
     validator = req.app.state.validator
@@ -104,7 +112,9 @@ async def patch_lexeme_aliases_for_language(lexeme_id: str, language_code: str, 
                 if 0 <= index < len(updated_aliases):
                     updated_aliases.pop(index)
                 else:
-                    raise HTTPException(status_code=400, detail=f"Invalid index: {index}")
+                    raise HTTPException(
+                        status_code=400, detail=f"Invalid index: {index}"
+                    )
             else:
                 raise HTTPException(status_code=400, detail=f"Unsupported path: {path}")
         elif op == "replace":
@@ -113,7 +123,9 @@ async def patch_lexeme_aliases_for_language(lexeme_id: str, language_code: str, 
                 if 0 <= index < len(updated_aliases):
                     updated_aliases[index] = value
                 else:
-                    raise HTTPException(status_code=400, detail=f"Invalid index: {index}")
+                    raise HTTPException(
+                        status_code=400, detail=f"Invalid index: {index}"
+                    )
             else:
                 raise HTTPException(status_code=400, detail=f"Unsupported path: {path}")
         else:
@@ -127,11 +139,14 @@ async def patch_lexeme_aliases_for_language(lexeme_id: str, language_code: str, 
     # Create new revision
     update_handler = EntityUpdateHandler()
     update_request = EntityUpdateRequest(
-        type=current_entity.data.get("type"),
-        **current_entity.data
+        type=current_entity.data.get("type"), **current_entity.data
     )
 
     return await update_handler.update_entity(
-        lexeme_id, update_request, clients.vitess, clients.s3,
-        clients.stream_producer, validator
+        lexeme_id,
+        update_request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
     )

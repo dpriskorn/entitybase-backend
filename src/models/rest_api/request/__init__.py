@@ -1,3 +1,5 @@
+"""REST API request models."""
+
 # Request models
 
 from .entity import (

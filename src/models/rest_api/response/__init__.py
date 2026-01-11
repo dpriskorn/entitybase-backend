@@ -1,3 +1,5 @@
+"""REST API response models."""
+
 # Response models
 
 from .entity import (
@@ -28,7 +30,7 @@ from .statement import (
     StatementResponse,
 )
 from .health import HealthCheckResponse, HealthResponse, WorkerHealthCheck
-from .misc import CleanupOrphanedResponse, RevisionMetadata, TtlResponse
+from .misc import CleanupOrphanedResponse, RevisionMetadataResponse, TtlResponse
 from .rdf import (
     DeduplicationStats,
     FullRevisionData,
@@ -64,7 +66,7 @@ __all__ = [
     "PropertyListResponse",
     "ProtectionInfo",
     "RedirectBatchResponse",
-    "RevisionMetadata",
+    "RevisionMetadataResponse",
     "StatementBatchResponse",
     "StatementHashResult",
     "StatementResponse",

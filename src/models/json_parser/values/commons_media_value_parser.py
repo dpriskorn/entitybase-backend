@@ -2,8 +2,8 @@
 
 from typing import Any
 
-from models.internal_representation.values import CommonsMediaValue
 from models.internal_representation.json_fields import JsonField
+from models.internal_representation.values.commons_media_value import CommonsMediaValue
 
 
 def parse_commons_media_value(datavalue: dict[str, Any]) -> CommonsMediaValue:

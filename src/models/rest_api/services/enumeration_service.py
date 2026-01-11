@@ -30,7 +30,6 @@ class EnumerationService:
             # Log but don't fail - ranges will be allocated on demand
             import logging
 
-            logger = logging.getLogger(__name__)
             logger.warning(f"Failed to initialize ID ranges from database: {e}")
 
     def get_next_entity_id(self, entity_type: str) -> str:

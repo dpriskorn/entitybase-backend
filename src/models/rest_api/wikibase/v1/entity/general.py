@@ -1,5 +1,8 @@
+"""General entity operations for Wikibase v1 API."""
+
 from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
+
 
 router = APIRouter()
 
