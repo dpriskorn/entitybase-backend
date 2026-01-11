@@ -59,7 +59,7 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
                 for lang, alias_list in aliases_dict.items()
             }
         ),
-        statements=EntityStatements(data=claims_json),
+        statements=EntityStatements(data=[stmt for prop in claims_json.values() for stmt in prop]),
         sitelinks=EntitySitelinks(data=sitelinks_json),
     )
 

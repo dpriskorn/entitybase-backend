@@ -134,6 +134,7 @@ def check_docstring_format(docstring: str, node: ast.AST) -> List[str]:  # type:
     # return errors
 
 
+# noinspection PyTypeChecker
 def check_file(file_path: Path) -> List[str]:
     """Check a single file for docstring issues, skipping enums and frozen models."""
     # Check allowlist
