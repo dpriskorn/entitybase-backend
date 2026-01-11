@@ -22,6 +22,7 @@ from models.infrastructure.vitess.head_repository import HeadRepository
 
 class RevisionInsertData(BaseModel):
     """Data for inserting a revision."""
+
     is_mass_edit: bool
     edit_type: str
     statements: list[int] | None

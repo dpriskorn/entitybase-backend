@@ -59,11 +59,16 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
                 for lang, alias_list in aliases_dict.items()
             }
         ),
-        statements=EntityStatements(data=[stmt for prop in claims_json.values() for stmt in prop]),
+        statements=EntityStatements(
+            data=[stmt for prop in claims_json.values() for stmt in prop]
+        ),
         sitelinks=EntitySitelinks(data=sitelinks_json),
     )
 
     entity_type = EntityKind(metadata.type)
+
+    sitelinks = metadata.sitelinks.data
+    statements = [parse_statement(stmt) for stmt in metadata.statements.data]
 
     return Entity(
         id=metadata.id,
@@ -71,7 +76,7 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
         labels=metadata.labels,
         descriptions=metadata.descriptions,
         aliases=metadata.aliases,
-        statements=metadata.statements.data,
+        statements=statements,
         sitelinks=sitelinks if sitelinks else None,
     )
 
