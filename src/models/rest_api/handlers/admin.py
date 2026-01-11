@@ -100,4 +100,4 @@ class AdminHandler:
             )
 
         # Return full revision wrapped in response model
-        return RawRevisionResponse(data=cast(dict[str, Any], revision))
+        return RawRevisionResponse(data=revision)

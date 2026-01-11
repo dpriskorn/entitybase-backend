@@ -234,11 +234,6 @@ async def main() -> None:
         """Health check endpoint returning JSON status."""
         return worker.health_check()
 
-    @app.get("/next-id/{entity_type}", response_model=IdResponse)
-    def get_next_id(entity_type: str) -> IdResponse:
-        """Get the next available ID for a given entity type."""
-        return worker.get_next_id(entity_type)
-
     # Run worker and server concurrently
     await asyncio.gather(
         run_worker(worker),

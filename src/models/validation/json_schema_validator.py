@@ -57,15 +57,15 @@ class JsonSchemaValidator:
     def _get_statement_schema(self) -> dict:
         if self._statement_schema is None:
             self._statement_schema = self._load_schema(
-                f"src/schemas/s3-statement/{self.s3_statement_version}/schema.json"
-            )
+                "src/models/validation/schemas/statement.json"
+            ).schema
         return self._statement_schema
 
     def _get_recentchange_schema(self) -> dict:
         if self._recentchange_schema is None:
             self._recentchange_schema = self._load_schema(
-                f"src/schemas/wmf-recentchange/{self.wmf_recentchange_version}/schema.json"
-            )
+                "src/models/validation/schemas/recentchange.json"
+            ).schema
         return self._recentchange_schema
 
     def _get_entity_validator(self) -> Draft202012Validator:
