@@ -18,6 +18,7 @@ from models.infrastructure.vitess.entity_repository import EntityRepository
 from models.infrastructure.vitess.revision_repository import RevisionRepository
 from models.infrastructure.vitess.redirect_repository import RedirectRepository
 from models.infrastructure.vitess.head_repository import HeadRepository
+from models.infrastructure.vitess.statement_repository import StatementRepository
 
 
 class RevisionInsertData(BaseModel):
@@ -35,10 +36,6 @@ class MetadataRepository:
 
 
 class BacklinkRepository:
-    pass
-
-
-class StatementRepository:
     pass
 
 

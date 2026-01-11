@@ -221,7 +221,8 @@ class EntityHandler(BaseModel):
                 )
         except (HTTPException, ValueError):
             raise
-        except Exception:
+        except Exception as e:
+            logger.warning(f"Failed to check protection for entity {entity_id}: {e}")
             pass
 
     def process_statements(

@@ -6,13 +6,12 @@ from pathlib import Path
 from typing import Any, TextIO
 
 from models.internal_representation.entity import Entity
+from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 from models.rdf_builder.models.rdf_statement import RDFStatement
 from models.rdf_builder.property_registry.registry import PropertyRegistry
-from models.rdf_builder.writers.triple import TripleWriters
-from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
-from models.rdf_builder.entity_cache import load_entity_metadata
-from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 from models.rdf_builder.redirect_cache import load_entity_redirects
+from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
+from models.rdf_builder.writers.triple import TripleWriters
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
