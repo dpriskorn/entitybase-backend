@@ -4,11 +4,11 @@
 import ast
 import os
 from pathlib import Path
-from typing import Dict, List, Set, Tuple
+from typing import Any, Dict, List, Set, Tuple
 import re
 
 
-def analyze_codebase() -> Dict[str, any]:
+def analyze_codebase() -> Dict[str, Any]:
     """Analyze the codebase structure and relationships."""
     src_dir = Path("src")
 
@@ -50,7 +50,7 @@ def analyze_codebase() -> Dict[str, any]:
 
 def analyze_file(
     py_file: Path, tree: ast.AST, content: str, package_path: str
-) -> Dict[str, any]:
+) -> Dict[str, Any]:
     """Analyze a single Python file."""
     file_info = {
         "path": py_file,
@@ -196,7 +196,14 @@ def generate_system_architecture_diagram(analysis: Dict) -> str:
                 if not component_name:
                     continue
                 # Use quoted component names to handle special characters safely
-                safe_id = component.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace("[", "").replace("]", "")
+                safe_id = (
+                    component.replace(" ", "_")
+                    .replace("-", "_")
+                    .replace("(", "")
+                    .replace(")", "")
+                    .replace("[", "")
+                    .replace("]", "")
+                )
                 if not safe_id:
                     safe_id = f"Component_{len(lines)}"  # Fallback ID
                 lines.append(f'    "{component_name}" as {safe_id}')
@@ -299,6 +306,7 @@ def generate_component_relationship_diagram(analysis: Dict) -> str:
         "[Models] as Models",
         'database "Vitess" as Vitess',
         'storage "S3" as S3',
+        'queue "Kafka" as Kafka',
         "[Config] as Config",
     ]
 
@@ -310,7 +318,7 @@ def generate_component_relationship_diagram(analysis: Dict) -> str:
         '() "HTTP API" as HTTP',
         '() "Database Interface" as DBI',
         '() "Storage Interface" as SI',
-        '() "Message Queue" as MQ',
+        '() "Kafka Message Queue" as MQ',
     ]
 
     lines.extend(interfaces)
@@ -334,6 +342,7 @@ def generate_component_relationship_diagram(analysis: Dict) -> str:
         "' External systems",
         "DBI --> Vitess : mysql",
         "SI --> S3 : s3",
+        "MQ --> Kafka : events",
         "Config --> API : configuration",
         "Config --> Workers : configuration",
     ]

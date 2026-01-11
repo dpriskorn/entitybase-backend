@@ -73,9 +73,11 @@ Write to S3:                     Write to S3:
 
 ## Complete Integrated Architecture
 
-### Full Data Flow Diagram
+### Current Data Flow Diagram
 
-![Full Data Flow Diagram](../../diagrams/ARCHITECTURE/DATA-FLOW.svg)
+See the current data flow diagram at `doc/DIAGRAMS/data_flow.puml` (or `doc/DIAGRAMS/png/data_flow.png` for rendered version).
+
+The diagram shows the current architecture with workers, services, and data flow patterns.
 
 ---
 

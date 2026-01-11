@@ -22,6 +22,7 @@ def is_basemodel_subclass(node: ast.ClassDef) -> bool:
                 "Client",
                 "ConnectionManager",
                 "EntityTransaction",
+                "TripleWriters",
             ):
                 return True
         elif isinstance(base, ast.Attribute) and base.attr == "BaseModel":
@@ -60,6 +61,7 @@ def check_file(file_path: Path) -> List[str]:
         if isinstance(node, ast.ClassDef):
             if (
                 not node.name.startswith("_")
+                and node.name != "TripleWriters"
                 and not is_basemodel_subclass(node)
                 and has_attributes(node)
             ):

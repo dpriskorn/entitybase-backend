@@ -24,7 +24,6 @@ package "Service Layer" as ServiceLayer #LightGreen {
 
 package "Worker Layer" as WorkerLayer #LightYellow {
     "BacklinkStatisticsWorker" as BacklinkStatisticsWorker
-    "IdResponse" as IdResponse
     "IdGeneratorWorker" as IdGeneratorWorker
 }
 
@@ -41,6 +40,7 @@ package "Infrastructure Layer" as InfrastructureLayer #LightGray {
 }
 
 package "Data Models" as DataModels #LightCyan {
+    "IdResponse" as IdResponse
     "WikibasePredicates" as WikibasePredicates
     "DeduplicationStats" as DeduplicationStats
     "RedirectBatchResponse" as RedirectBatchResponse
@@ -48,7 +48,6 @@ package "Data Models" as DataModels #LightCyan {
     "MetadataLoadResponse" as MetadataLoadResponse
     "HealthResponse" as HealthResponse
     "HealthCheckResponse" as HealthCheckResponse
-    "WorkerHealthCheck" as WorkerHealthCheck
     ... (10 total components)
 }
 

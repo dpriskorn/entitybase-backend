@@ -29,4 +29,4 @@ ENV VITESS_PASSWORD=
 EXPOSE 8001
 
 # Run the worker
-CMD ["python", "-m", "models.workers.id_generation.id_generator"]
+CMD ["python", "-m", "models.workers.id_generation.id_generation_worker"]
