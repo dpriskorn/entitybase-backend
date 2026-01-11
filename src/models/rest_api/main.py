@@ -4,14 +4,21 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 from fastapi import FastAPI, Query, Response
 from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 
 from models.config.settings import settings
-from models.validation.json_schema_validator import JsonSchemaValidator
+from models.rest_api.clients import Clients
+from models.rest_api.handlers.admin import AdminHandler
+from models.rest_api.handlers.entity.delete import EntityDeleteHandler
+from models.rest_api.handlers.entity.read import EntityReadHandler
+from models.rest_api.handlers.export import ExportHandler
+from models.rest_api.handlers.redirect import RedirectHandler
+from models.rest_api.handlers.statement import StatementHandler
+from models.rest_api.handlers.system import health_check
 from models.rest_api.request.entity import (
     EntityDeleteRequest,
     EntityRedirectRequest,
@@ -24,24 +31,17 @@ from models.rest_api.response.entity import (
     EntityResponse,
 )
 from models.rest_api.response.health import HealthCheckResponse
+from models.rest_api.response.misc import RawRevisionResponse, RevisionMetadataResponse
+from models.rest_api.response.misc import TtlResponse
 from models.rest_api.response.statement import (
     PropertyCountsResponse,
     PropertyHashesResponse,
     PropertyListResponse,
 )
-from models.rest_api.response.misc import RawRevisionResponse, RevisionMetadataResponse
-from models.rest_api.response.misc import TtlResponse
-from models.rest_api.clients import Clients
 from models.rest_api.services.enumeration_service import EnumerationService
-from models.rest_api.handlers.admin import AdminHandler
-from models.rest_api.handlers.entity.read import EntityReadHandler
-from models.rest_api.handlers.entity.delete import EntityDeleteHandler
+from models.validation.json_schema_validator import JsonSchemaValidator
 from .entitybase.v1 import v1_router
 from .wikibase.v1 import wikibase_v1_router
-from models.rest_api.handlers.export import ExportHandler
-from models.rest_api.handlers.redirect import RedirectHandler
-from models.rest_api.handlers.statement import StatementHandler
-from models.rest_api.handlers.system import health_check
 
 log_level = settings.get_log_level()
 

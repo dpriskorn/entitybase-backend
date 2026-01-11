@@ -3,11 +3,12 @@
 import json
 import logging
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
+
+from jsonschema import Draft202012Validator
 
 from models.rest_api.response.misc import JsonSchema
 from models.validation.utils import raise_validation_error
-from jsonschema import Draft202012Validator
 
 logger = logging.getLogger(__name__)
 
