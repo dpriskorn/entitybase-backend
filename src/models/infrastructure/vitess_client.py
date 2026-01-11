@@ -30,6 +30,22 @@ class RevisionInsertData(BaseModel):
     property_counts: dict[str, int] | None
 
 
+class MetadataRepository:
+    pass
+
+
+class BacklinkRepository:
+    pass
+
+
+class StatementRepository:
+    pass
+
+
+class MetadataRepository:
+    pass
+
+
 class VitessClient(Client):
     """Vitess database client for entity operations."""
 

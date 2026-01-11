@@ -27,38 +27,38 @@ class RevisionRepository:
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
-            is_mass_edit = data.get("is_mass_edit", False)
-            edit_type = data.get("edit_type", "")
-            statements = data.get("statements", [])
-            properties = data.get("properties", [])
-            property_counts = data.get("property_counts", {})
-            labels_hashes = data.get("labels_hashes")
-            descriptions_hashes = data.get("descriptions_hashes")
-            aliases_hashes = data.get("aliases_hashes")
+        is_mass_edit = data.get("is_mass_edit", False)
+        edit_type = data.get("edit_type", "")
+        statements = data.get("statements", [])
+        properties = data.get("properties", [])
+        property_counts = data.get("property_counts", {})
+        labels_hashes = data.get("labels_hashes")
+        descriptions_hashes = data.get("descriptions_hashes")
+        aliases_hashes = data.get("aliases_hashes")
 
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT 1 FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
-                    (internal_id, revision_id),
-                )
-                if cursor.fetchone() is not None:
-                    return
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "SELECT 1 FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                (internal_id, revision_id),
+            )
+            if cursor.fetchone() is not None:
+                return
 
-                cursor.execute(
-                    "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                    (
-                        internal_id,
-                        revision_id,
-                        is_mass_edit,
-                        edit_type,
-                        json.dumps(statements or []),
-                        json.dumps(properties or []),
-                        json.dumps(property_counts or {}),
-                        json.dumps(labels_hashes or {}),
-                        json.dumps(descriptions_hashes or {}),
-                        json.dumps(aliases_hashes or {}),
-                    ),
-                )
+            cursor.execute(
+                "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (
+                    internal_id,
+                    revision_id,
+                    is_mass_edit,
+                    edit_type,
+                    json.dumps(statements or []),
+                    json.dumps(properties or []),
+                    json.dumps(property_counts or {}),
+                    json.dumps(labels_hashes or {}),
+                    json.dumps(descriptions_hashes or {}),
+                    json.dumps(aliases_hashes or {}),
+                ),
+            )
 
     def get_history(
         self, conn: Any, entity_id: str, limit: int = 20, offset: int = 0

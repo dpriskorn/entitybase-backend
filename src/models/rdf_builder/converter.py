@@ -130,8 +130,13 @@ class EntityConverter:
             )
 
         assert self.entity_metadata_dir is not None
-        entity_json = load_entity_metadata(entity_id, self.entity_metadata_dir)
-        return parse_entity(raw_entity_data=entity_json)
+        json_path = self.entity_metadata_dir / f"{entity_id}.json"
+        if json_path.exists():
+            import json
+
+            data = json.loads(json_path.read_text(encoding="utf-8"))
+            return parse_entity(raw_entity_data=data)
+        raise FileNotFoundError(f"Entity {entity_id} not found at {json_path}")
 
     def _write_referenced_entity_metadata(self, entity: Entity, output: TextIO) -> None:
         """Write metadata blocks for referenced entities."""
