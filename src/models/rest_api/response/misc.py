@@ -62,7 +62,7 @@ class AliasesResponse(BaseModel):
 class JsonSchema(BaseModel):
     """Model for JSON schema data."""
 
-    schema: dict[str, Any] = Field(..., description="The JSON schema dictionary")
+    data: dict[str, Any] = Field(..., description="The JSON schema dictionary")
 
 
 class RawRevisionResponse(BaseModel):

@@ -45,27 +45,27 @@ class JsonSchemaValidator:
                     f"Schema file must contain a JSON object: {schema_path}",
                     status_code=500,
                 )
-            return JsonSchema(schema=data)
+            return JsonSchema(data=data)
 
     def _get_entity_revision_schema(self) -> dict:
         if self._entity_revision_schema is None:
             self._entity_revision_schema = self._load_schema(
                 "src/models/validation/schemas/entity_revision.json"
-            ).schema
+            ).data
         return self._entity_revision_schema
 
     def _get_statement_schema(self) -> dict:
         if self._statement_schema is None:
             self._statement_schema = self._load_schema(
                 "src/models/validation/schemas/statement.json"
-            ).schema
+            ).data
         return self._statement_schema
 
     def _get_recentchange_schema(self) -> dict:
         if self._recentchange_schema is None:
             self._recentchange_schema = self._load_schema(
                 "src/models/validation/schemas/recentchange.json"
-            ).schema
+            ).data
         return self._recentchange_schema
 
     def _get_entity_validator(self) -> Draft202012Validator:

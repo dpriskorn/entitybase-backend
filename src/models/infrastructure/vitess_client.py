@@ -9,7 +9,7 @@ from pydantic import Field
 
 from models.infrastructure.vitess.metadata_repository import MetadataRepository
 from models.rest_api.request.entity import RevisionInsertDataRequest
-from models.rest_api.response.entity import BacklinkData
+from models.rest_api.response.entity import BacklinkData, ProtectionInfo
 from models.rest_api.response.rdf import FullRevisionData
 from models.validation.utils import raise_validation_error
 from models.infrastructure.client import Client
@@ -137,10 +137,10 @@ class VitessClient(Client):
         with self.connection_manager.get_connection() as conn:
             return self.entity_repository.is_archived(conn, entity_id)  # type: ignore[no-any-return]
 
-    def get_protection_info(self, entity_id: str) -> dict[str, bool]:
+    def get_protection_info(self, entity_id: str) -> ProtectionInfo | None:
         """Get protection information for an entity."""
         with self.connection_manager.get_connection() as conn:
-            return self.entity_repository.get_protection_info(conn, entity_id)  # type: ignore[no-any-return]
+            return self.entity_repository.get_protection_info(conn, entity_id)
 
     def get_history(
         self, entity_id: str, limit: int = 20, offset: int = 0
