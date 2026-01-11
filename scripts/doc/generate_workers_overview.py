@@ -29,12 +29,9 @@ def extract_worker_info(worker_file: Path) -> Dict[str, Any]:
                 if (
                     node.body
                     and isinstance(node.body[0], ast.Expr)
-                    and isinstance(node.body[0].value, (ast.Str, ast.Constant))
+                    and isinstance(node.body[0].value, ast.Constant)
                 ):
-                    if isinstance(node.body[0].value, ast.Str):
-                        docstring = node.body[0].value.s
-                    else:
-                        docstring = node.body[0].value.value
+                    docstring = node.body[0].value.value
                     # Clean up the docstring
                     docstring = docstring.strip()
                     # Remove extra whitespace and normalize

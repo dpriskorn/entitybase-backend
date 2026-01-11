@@ -40,14 +40,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
-#    deploy:
-#      resources:
-#        limits:
-#          cpus: "1.5"
-#          memory: 1.5g
     mem_limit: 1.5g
     cpus: "1.5"
-
 
   # Lightweight Kafka alternative for MVP
   # redpanda:
@@ -81,52 +75,48 @@ services:
   #      cpus: "1.0"
 
   api:
-    build:
-      context: ..
-      dockerfile: docker/containers/Dockerfile.api
-    container_name: api
-    ports:
-      - "8000:8000"
-    depends_on:
-     minio:
-       condition: service_healthy
-     vitess:
-       condition: service_healthy
-     idworker:
-       condition: service_healthy
-    environment:
-       S3_ENDPOINT: http://minio:9000
-       S3_ACCESS_KEY: fakekey
-       S3_SECRET_KEY: fakesecret
-       S3_BUCKET: testbucket
-       VITESS_HOST: vitess
-       VITESS_PORT: 15309
-       VITESS_DATABASE: page
-       VITESS_USER: root
-       VITESS_PASSWORD: ""
-       S3_REVISION_VERSION: "latest"
-       S3_STATEMENT_VERSION: "latest"
-       WMF_RECENTCHANGE_VERSION: "latest"
-       ENABLE_STREAMING: "false"
-       KAFKA_BROKERS: redpanda:9092
-       KAFKA_TOPIC: wikibase.entity_change
-       LOG_LEVEL: "DEBUG"
-       ENVIRONMENT: "dev"
-    command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-      start_period: 10s
-#    deploy:
-#      replicas: 1  # Can be scaled up for production (e.g., replicas: 3)
-#      resources:
-#        limits:
-#          cpus: "0.5"
-#          memory: 512m
-    mem_limit: 1g
-    cpus: "1.0"
+     build:
+       context: ..
+       dockerfile: docker/containers/Dockerfile.api
+     container_name: api
+     ports:
+       - "8000:8000"
+     depends_on:
+       minio:
+         condition: service_healthy
+       vitess:
+         condition: service_healthy
+       idworker:
+         condition: service_healthy
+       devworker:
+         condition: service_completed_successfully
+     environment:
+        S3_ENDPOINT: http://minio:9000
+        S3_ACCESS_KEY: fakekey
+        S3_SECRET_KEY: fakesecret
+        S3_BUCKET: testbucket
+        VITESS_HOST: vitess
+        VITESS_PORT: 15309
+        VITESS_DATABASE: page
+        VITESS_USER: root
+        VITESS_PASSWORD: ""
+        S3_REVISION_VERSION: "latest"
+        S3_STATEMENT_VERSION: "latest"
+        WMF_RECENTCHANGE_VERSION: "latest"
+        ENABLE_STREAMING: "false"
+        KAFKA_BROKERS: redpanda:9092
+        KAFKA_TOPIC: wikibase.entity_change
+        LOG_LEVEL: "DEBUG"
+        ENVIRONMENT: "dev"
+     command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000
+     healthcheck:
+       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+       interval: 5s
+       timeout: 3s
+       retries: 10
+       start_period: 10s
+     mem_limit: 1g
+     cpus: "1.0"
 
 
   tests:
@@ -143,32 +133,47 @@ services:
     cpus: "0.5"
 
   idworker:
-    container_name: idworker
-    build:
-      context: ..
-      dockerfile: docker/containers/Dockerfile.id-generator
-    environment:
-      WORKER_ID: id_worker_1
-      WORKER_COUNT: 1
-      VITESS_HOST: vitess
-      VITESS_PORT: 15309
-      VITESS_DATABASE: page
-      VITESS_USER: root
-      VITESS_PASSWORD: ""
-    depends_on:
-      vitess:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
-#    restart: unless-stopped
-#    deploy:
-#      replicas: 1  # Can be scaled up for production (e.g., replicas: 3)
-    mem_limit: 0.5g
-    cpus: "0.5"
+     container_name: idworker
+     build:
+       context: ..
+       dockerfile: docker/containers/Dockerfile.id-generator
+     environment:
+       WORKER_ID: id_worker_1
+       WORKER_COUNT: 1
+       VITESS_HOST: vitess
+       VITESS_PORT: 15309
+       VITESS_DATABASE: page
+       VITESS_USER: root
+       VITESS_PASSWORD: ""
+     depends_on:
+       vitess:
+         condition: service_healthy
+     healthcheck:
+       test: ["CMD", "curl", "-f", "http://localhost:8001/health"]
+       interval: 30s
+       timeout: 10s
+       retries: 3
+       start_period: 30s
+     mem_limit: 0.5g
+     cpus: "0.5"
+
+  devworker:
+     container_name: devworker
+     build:
+       context: ..
+       dockerfile: docker/containers/Dockerfile.api
+     environment:
+       MINIO_ENDPOINT: http://minio:9000
+       MINIO_ACCESS_KEY: fakekey
+       MINIO_SECRET_KEY: fakesecret
+       PYTHONPATH: /app/src
+     depends_on:
+       minio:
+         condition: service_healthy
+     command: python -m models.workers.dev setup
+     # No ports - runs and exits after bucket setup
+     mem_limit: 0.5g
+     cpus: "0.5"
 
 
 volumes:

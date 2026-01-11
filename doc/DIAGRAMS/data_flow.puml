@@ -14,7 +14,7 @@ storage "S3 Statements" as S3Statements
 storage "S3 Revisions" as S3Revisions
 storage "S3 Dumps" as S3Dumps
 rectangle "Workers" as Workers
-rectangle "Kafka" as Kafka
+database "Kafka" as Kafka
 
 ' Main request flow
 Client -> API : HTTP Request

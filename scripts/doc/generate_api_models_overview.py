@@ -34,12 +34,9 @@ def extract_model_info(model_file: Path) -> List[Dict[str, Any]]:
                 if (
                     node.body
                     and isinstance(node.body[0], ast.Expr)
-                    and isinstance(node.body[0].value, (ast.Str, ast.Constant))
+                    and isinstance(node.body[0].value, ast.Constant)
                 ):
-                    if isinstance(node.body[0].value, ast.Str):
-                        docstring = node.body[0].value.s
-                    else:
-                        docstring = node.body[0].value.value
+                    docstring = node.body[0].value.value
                     model_info["description"] = docstring.strip()
 
                 # Extract fields
@@ -59,15 +56,15 @@ def extract_model_info(model_file: Path) -> List[Dict[str, Any]]:
                         if item.value and isinstance(item.value, ast.Call):
                             # Look for Field() calls
                             for arg in item.value.args:
-                                if isinstance(arg, ast.Str):
-                                    field_description = arg.s
+                                if isinstance(arg, ast.Constant):
+                                    field_description = arg.value
                                     break
                             # Look for keyword arguments
                             for keyword in item.value.keywords:
                                 if keyword.arg == "description" and isinstance(
-                                    keyword.value, ast.Str
+                                    keyword.value, ast.Constant
                                 ):
-                                    field_description = keyword.value.s
+                                    field_description = keyword.value.value
                                     break
 
                         model_info["fields"].append(

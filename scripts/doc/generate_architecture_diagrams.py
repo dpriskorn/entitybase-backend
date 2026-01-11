@@ -251,7 +251,7 @@ def generate_data_flow_diagram(analysis: Dict) -> str:
         'storage "S3 Revisions" as S3Revisions',
         'storage "S3 Dumps" as S3Dumps',
         'rectangle "Workers" as Workers',
-        'rectangle "Kafka" as Kafka',
+        'database "Kafka" as Kafka',
     ]
 
     lines.extend(components)

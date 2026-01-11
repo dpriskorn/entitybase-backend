@@ -2,9 +2,11 @@
 
 import asyncio
 import logging
+import os
 from typing import Any, Dict, List
 
 from pydantic import BaseModel
+from botocore.exceptions import ClientError
 
 logger = logging.getLogger(__name__)
 
@@ -12,9 +14,9 @@ logger = logging.getLogger(__name__)
 class DevWorker(BaseModel):
     """Development worker for MinIO bucket management and setup tasks."""
 
-    minio_endpoint: str = "http://localhost:9000"
-    minio_access_key: str = "minioadmin"
-    minio_secret_key: str = "minioadmin"
+    minio_endpoint: str = os.getenv("MINIO_ENDPOINT", "http://localhost:9000")
+    minio_access_key: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
+    minio_secret_key: str = os.getenv("MINIO_SECRET_KEY", "minioadmin")
     required_buckets: List[str] = ["terms", "statements", "revisions", "dumps"]
 
     def __init__(self, **data: Any):
@@ -22,15 +24,18 @@ class DevWorker(BaseModel):
         # Lazy import boto3 to avoid import errors in environments without it
         try:
             import boto3
+
             self._boto3 = boto3
         except ImportError:
-            raise ImportError("boto3 is required for DevWorker. Install with: pip install boto3")
+            raise ImportError(
+                "boto3 is required for DevWorker. Install with: pip install boto3"
+            )
 
     @property
     def s3_client(self):
         """Get S3 client with shared credentials for all buckets."""
         return self._boto3.client(
-            's3',
+            "s3",
             endpoint_url=self.minio_endpoint,
             aws_access_key_id=self.minio_access_key,
             aws_secret_access_key=self.minio_secret_key,
@@ -46,9 +51,10 @@ class DevWorker(BaseModel):
                 self.s3_client.head_bucket(Bucket=bucket)
                 results[bucket] = "exists"
                 logger.info(f"Bucket already exists: {bucket}")
-            except self._boto3.exceptions.ClientError as e:
-                error_code = e.response['Error']['Code']
-                if error_code == '404':
+            except ClientError as e:
+                # Handle AWS/MinIO client errors
+                error_code = e.response["Error"]["Code"]
+                if error_code == "404" or error_code == "NoSuchBucket":
                     # Bucket doesn't exist, create it
                     try:
                         self.s3_client.create_bucket(Bucket=bucket)
@@ -56,7 +62,9 @@ class DevWorker(BaseModel):
                         logger.info(f"Created bucket: {bucket}")
                     except Exception as create_error:
                         results[bucket] = f"create_failed: {create_error}"
-                        logger.error(f"Failed to create bucket {bucket}: {create_error}")
+                        logger.error(
+                            f"Failed to create bucket {bucket}: {create_error}"
+                        )
                 else:
                     results[bucket] = f"error: {error_code}"
                     logger.error(f"Error checking bucket {bucket}: {error_code}")
@@ -74,17 +82,17 @@ class DevWorker(BaseModel):
             try:
                 # Delete all objects in bucket first
                 objects = self.s3_client.list_objects_v2(Bucket=bucket)
-                if 'Contents' in objects:
-                    for obj in objects['Contents']:
-                        self.s3_client.delete_object(Bucket=bucket, Key=obj['Key'])
+                if "Contents" in objects:
+                    for obj in objects["Contents"]:
+                        self.s3_client.delete_object(Bucket=bucket, Key=obj["Key"])
 
                 # Delete the bucket
                 self.s3_client.delete_bucket(Bucket=bucket)
                 results[bucket] = "deleted"
                 logger.info(f"Deleted bucket: {bucket}")
-            except self._boto3.exceptions.ClientError as e:
-                error_code = e.response['Error']['Code']
-                if error_code == 'NoSuchBucket':
+            except ClientError as e:
+                error_code = e.response["Error"]["Code"]
+                if error_code == "NoSuchBucket":
                     results[bucket] = "not_found"
                     logger.info(f"Bucket does not exist: {bucket}")
                 else:
@@ -98,25 +106,21 @@ class DevWorker(BaseModel):
 
     async def bucket_health_check(self) -> Dict[str, Any]:
         """Perform health check on all required buckets."""
-        health_status = {
-            "overall_status": "healthy",
-            "buckets": {},
-            "issues": []
-        }
+        health_status = {"overall_status": "healthy", "buckets": {}, "issues": []}
 
         for bucket in self.required_buckets:
             try:
                 self.s3_client.head_bucket(Bucket=bucket)
                 health_status["buckets"][bucket] = {
                     "status": "accessible",
-                    "accessible": True
+                    "accessible": True,
                 }
-            except self._boto3.exceptions.ClientError as e:
-                error_code = e.response['Error']['Code']
+            except ClientError as e:
+                error_code = e.response["Error"]["Code"]
                 health_status["buckets"][bucket] = {
                     "status": "error",
                     "error_code": error_code,
-                    "accessible": False
+                    "accessible": False,
                 }
                 health_status["issues"].append(f"Bucket {bucket}: {error_code}")
                 health_status["overall_status"] = "unhealthy"
@@ -136,8 +140,12 @@ class DevWorker(BaseModel):
         setup_results = {
             "buckets_created": bucket_results,
             "health_check": health_status,
-            "setup_status": "completed" if health_status["overall_status"] == "healthy" else "failed"
+            "setup_status": "completed"
+            if health_status["overall_status"] == "healthy"
+            else "failed",
         }
 
-        logger.info(f"Development setup completed with status: {setup_results['setup_status']}")
+        logger.info(
+            f"Development setup completed with status: {setup_results['setup_status']}"
+        )
         return setup_results

@@ -4,6 +4,7 @@
 import asyncio
 import argparse
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -35,16 +36,16 @@ async def run_setup(args):
 
     print(f"Setup status: {results['setup_status']}")
     print("\nBucket results:")
-    for bucket, status in results['buckets_created'].items():
+    for bucket, status in results["buckets_created"].items():
         print(f"  {bucket}: {status}")
 
     print(f"\nHealth check: {results['health_check']['overall_status']}")
-    if results['health_check']['issues']:
+    if results["health_check"]["issues"]:
         print("Issues:")
-        for issue in results['health_check']['issues']:
+        for issue in results["health_check"]["issues"]:
             print(f"  - {issue}")
 
-    return results['setup_status'] == 'completed'
+    return results["setup_status"] == "completed"
 
 
 async def run_health_check(args):
@@ -60,15 +61,15 @@ async def run_health_check(args):
 
     print(f"Overall status: {health['overall_status']}")
     print("\nBucket status:")
-    for bucket, status in health['buckets'].items():
+    for bucket, status in health["buckets"].items():
         print(f"  {bucket}: {status['status']}")
 
-    if health['issues']:
+    if health["issues"]:
         print("\nIssues:")
-        for issue in health['issues']:
+        for issue in health["issues"]:
             print(f"  - {issue}")
 
-    return health['overall_status'] == 'healthy'
+    return health["overall_status"] == "healthy"
 
 
 async def run_cleanup(args):
@@ -76,7 +77,7 @@ async def run_cleanup(args):
     if not args.force:
         print("WARNING: This will delete all buckets and their contents!")
         response = input("Are you sure? Type 'yes' to confirm: ")
-        if response != 'yes':
+        if response != "yes":
             print("Cleanup cancelled.")
             return False
 
@@ -98,21 +99,23 @@ async def run_cleanup(args):
 
 def main():
     """Main CLI entry point."""
-    parser = argparse.ArgumentParser(description="Development worker for MinIO bucket management")
+    parser = argparse.ArgumentParser(
+        description="Development worker for MinIO bucket management"
+    )
     parser.add_argument(
         "--endpoint",
-        default="http://localhost:9000",
-        help="MinIO endpoint URL"
+        default=os.getenv("MINIO_ENDPOINT", "http://localhost:9000"),
+        help="MinIO endpoint URL",
     )
     parser.add_argument(
         "--access-key",
-        default="minioadmin",
-        help="MinIO access key"
+        default=os.getenv("MINIO_ACCESS_KEY", "minioadmin"),
+        help="MinIO access key",
     )
     parser.add_argument(
         "--secret-key",
-        default="minioadmin",
-        help="MinIO secret key"
+        default=os.getenv("MINIO_SECRET_KEY", "minioadmin"),
+        help="MinIO secret key",
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -126,11 +129,11 @@ def main():
     health_parser.set_defaults(func=run_health_check)
 
     # Cleanup command
-    cleanup_parser = subparsers.add_parser("cleanup", help="Clean up buckets (dangerous)")
+    cleanup_parser = subparsers.add_parser(
+        "cleanup", help="Clean up buckets (dangerous)"
+    )
     cleanup_parser.add_argument(
-        "--force",
-        action="store_true",
-        help="Skip confirmation prompt"
+        "--force", action="store_true", help="Skip confirmation prompt"
     )
     cleanup_parser.set_defaults(func=run_cleanup)
 
