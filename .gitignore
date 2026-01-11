@@ -26,3 +26,4 @@ test_data/properties/*.json
 /safe-sh
 /debug/debug_*_comparison.txt
 /debug/debug_*_generated.ttl
+/coverage.xml
