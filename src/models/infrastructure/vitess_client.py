@@ -424,7 +424,7 @@ class VitessClient(Client):
                 for lang, hash_list in aliases_hashes.items():
                     aliases[lang] = []
                     for hash_value in hash_list:
-                        alias_value = self.s3_client.load_metadata(
+                        alias_value = self.s3_client.load_metadata(  # type: ignore[union-attr]
                             "aliases", hash_value
                         )
                         aliases[lang].append({"language": lang, "value": alias_value})

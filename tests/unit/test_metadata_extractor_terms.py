@@ -6,7 +6,7 @@ from models.internal_representation.metadata_extractor import MetadataExtractor
 class TestMetadataExtractor(unittest.TestCase):
     """Unit tests for MetadataExtractor term extraction and hashing"""
 
-    def test_extract_labels(self):
+    def test_extract_labels(self) -> None:
         """Test extracting labels from entity JSON"""
         entity = {
             "labels": {
@@ -24,7 +24,7 @@ class TestMetadataExtractor(unittest.TestCase):
         result = MetadataExtractor.extract_labels(entity)
         self.assertEqual(result, {})
 
-    def test_extract_descriptions(self):
+    def test_extract_descriptions(self) -> None:
         """Test extracting descriptions from entity JSON"""
         entity = {
             "descriptions": {

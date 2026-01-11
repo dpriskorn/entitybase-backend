@@ -96,7 +96,7 @@ class ItemCreateHandler(EntityCreateHandler):
             # Confirm ID usage to worker
             self.enumeration_service.confirm_id_usage(entity_id)
 
-            return response
+            return response  # type: ignore[return]
         except Exception as e:
             logger.error(f"Item creation failed for {entity_id}: {e}")
             tx.rollback()

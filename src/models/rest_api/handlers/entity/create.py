@@ -80,7 +80,7 @@ class EntityCreateHandler(EntityHandler):
             )
 
         # Common processing logic
-        return await self._process_entity_revision(
+        return await self._process_entity_revision(  # type: ignore[return]
             entity_id=entity_id,
             request_data=request_data,
             entity_type=request.type,

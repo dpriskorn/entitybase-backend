@@ -58,7 +58,7 @@ class TestTermsRepository(unittest.TestCase):
 
         self.assertIsNone(result)
 
-    def test_batch_get_terms(self):
+    def test_batch_get_terms(self) -> None:
         """Test batch getting multiple terms"""
         self.mock_cursor.fetchall.return_value = [
             (12345, "term1", "label"),
@@ -77,12 +77,12 @@ class TestTermsRepository(unittest.TestCase):
         self.assertIn("WHERE hash IN", call_args[0][0])
         self.assertEqual(call_args[0][1], [12345, 67890, 99999])
 
-    def test_batch_get_terms_empty(self):
+    def test_batch_get_terms_empty(self) -> None:
         """Test batch getting with empty list"""
         result = self.terms_repo.batch_get_terms([])
         self.assertEqual(result, {})
 
-    def test_hash_exists_true(self):
+    def test_hash_exists_true(self) -> None:
         """Test checking if hash exists - found"""
         self.mock_cursor.fetchone.return_value = (1,)
 
@@ -94,7 +94,7 @@ class TestTermsRepository(unittest.TestCase):
             (12345,),
         )
 
-    def test_hash_exists_false(self):
+    def test_hash_exists_false(self) -> None:
         """Test checking if hash exists - not found"""
         self.mock_cursor.fetchone.return_value = None
 

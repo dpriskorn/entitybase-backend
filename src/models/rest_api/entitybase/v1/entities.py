@@ -15,7 +15,7 @@ def get_entity(entity_id: str, req: Request) -> EntityResponse:
     """Retrieve a single entity by its ID."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    return handler.get_entity(
+    return handler.get_entity(  # type: ignore[return]
         entity_id, clients.vitess, clients.s3, fetch_metadata=True
     )
 
@@ -62,6 +62,6 @@ def get_entities(
     """List entities, optionally filtered by type (or all entities if no type specified)."""
     clients = req.app.state.clients
     handler = AdminHandler()
-    return handler.list_entities(
+    return handler.list_entities(  # type: ignore[return]
         clients.vitess, entity_type=entity_type, limit=limit, offset=offset
     )

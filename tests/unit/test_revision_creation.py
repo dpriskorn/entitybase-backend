@@ -3,7 +3,7 @@ from models.internal_representation.metadata_extractor import MetadataExtractor
 
 
 # Mock rapidhash since it's not available in test environment
-def mock_rapidhash(data):
+def mock_rapidhash(data: bytes) -> int:
     """Mock rapidhash implementation using built-in hash"""
     return hash(data) & 0xFFFFFFFFFFFFFFFF  # 64-bit mask
 
@@ -18,7 +18,7 @@ if "rapidhash" not in sys.modules:
 class TestRevisionCreationLogic(unittest.TestCase):
     """Unit tests for revision creation term processing logic"""
 
-    def test_term_hashing_logic(self):
+    def test_term_hashing_logic(self) -> None:
         """Test the core logic of term extraction and hashing"""
         # Test data matching Wikibase format
         entity_data = {
@@ -86,7 +86,7 @@ class TestRevisionCreationLogic(unittest.TestCase):
         hash3 = MetadataExtractor.hash_string("Different Term")
         self.assertNotEqual(hash1, hash3)
 
-    def test_revision_data_structure(self):
+    def test_revision_data_structure(self) -> None:
         """Test that revision data follows the expected schema 2.0.0 structure"""
         # Mock hash maps
         labels_hashes = {"en": 12345, "fr": 67890}

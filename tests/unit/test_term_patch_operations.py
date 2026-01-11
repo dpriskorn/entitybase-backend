@@ -6,7 +6,7 @@ import json
 class TestTermPatchOperations(unittest.TestCase):
     """Unit tests for JSON Patch operations on terms"""
 
-    def test_json_patch_add_operation(self):
+    def test_json_patch_add_operation(self) -> None:
         """Test adding aliases with JSON Patch"""
         current_aliases = ["existing1", "existing2"]
 
@@ -24,7 +24,7 @@ class TestTermPatchOperations(unittest.TestCase):
         expected = ["existing1", "existing2", "new_alias"]
         self.assertEqual(updated_aliases, expected)
 
-    def test_json_patch_remove_operation(self):
+    def test_json_patch_remove_operation(self) -> None:
         """Test removing aliases with JSON Patch"""
         current_aliases = ["alias1", "alias2", "alias3"]
 
@@ -43,7 +43,7 @@ class TestTermPatchOperations(unittest.TestCase):
         expected = ["alias1", "alias3"]  # Removed index 1
         self.assertEqual(updated_aliases, expected)
 
-    def test_json_patch_replace_operation(self):
+    def test_json_patch_replace_operation(self) -> None:
         """Test replacing aliases with JSON Patch"""
         current_aliases = ["old1", "old2", "old3"]
 
@@ -63,7 +63,7 @@ class TestTermPatchOperations(unittest.TestCase):
         expected = ["old1", "new2", "old3"]
         self.assertEqual(updated_aliases, expected)
 
-    def test_multiple_patch_operations(self):
+    def test_multiple_patch_operations(self) -> None:
         """Test applying multiple JSON Patch operations"""
         current_aliases = ["initial"]
 
@@ -95,7 +95,7 @@ class TestTermPatchOperations(unittest.TestCase):
         expected = ["replaced", "third"]  # After all operations
         self.assertEqual(updated_aliases, expected)
 
-    def test_wikibase_patch_request_format(self):
+    def test_wikibase_patch_request_format(self) -> None:
         """Test parsing Wikibase PATCH request format"""
         wikibase_request = {
             "patch": [{"op": "add", "path": "/en/-", "value": "JD"}],
@@ -112,7 +112,7 @@ class TestTermPatchOperations(unittest.TestCase):
         self.assertEqual(patch_op["path"], "/en/-")
         self.assertEqual(patch_op["value"], "JD")
 
-    def test_patch_validation_error_handling(self):
+    def test_patch_validation_error_handling(self) -> None:
         """Test error handling for invalid patch operations"""
         # Test invalid path
         try:
