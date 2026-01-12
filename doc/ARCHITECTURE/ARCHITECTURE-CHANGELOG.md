@@ -67,6 +67,30 @@ Comprehensive rewrite with:
 - **Future-proofing**: Can add secondary hash verification if needed
 - **Monitoring**: Collision detection logging for anomaly detection
 
+## [2026-01-12] Event JSON Schema Definitions
+
+### Summary
+
+Added JSON Schema definitions for `entitychange` and `entitypropertychange` event types to standardize and validate event payloads in the Kafka streaming system. These schemas ensure consistent event structure for consumers like watchlist services and analytics pipelines.
+
+### Motivation
+
+- **Event Standardization**: Define canonical formats for entity change events
+- **Validation**: Enable runtime validation of event payloads against schemas
+- **Consumer Safety**: Prevent malformed events from breaking downstream processing
+- **Documentation**: Provide clear contracts for event producers and consumers
+
+### Changes
+
+#### New Event Schemas
+
+**Files**: `src/schemas/events/entitychange.json`, `src/schemas/events/entitypropertychange.json`
+
+- **entitychange.json**: Base schema for all entity change events with fields: entity_id, revision_id, change_type, from_revision_id, changed_at, editor, edit_summary
+- **entitypropertychange.json**: Extended schema for property-specific changes, adding required `changed_properties` array
+
+Both schemas use JSON Schema Draft 2020-12 with validation patterns for entity/property IDs and enumerated change types.
+
 ## [2026-01-12] Backlink Statistics Worker
 
 ### Summary
