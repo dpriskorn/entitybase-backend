@@ -3,6 +3,8 @@
 import logging
 from typing import Any
 
+from pydantic import Field
+
 from models.validation.utils import raise_validation_error
 
 from models.infrastructure.s3.s3_client import S3Client
@@ -19,7 +21,7 @@ logger = logging.getLogger(__name__)
 class EntityUpdateHandler(EntityHandler):
     """Handler for entity update operations"""
 
-    async def update_entity(
+    async def update_entity(  # type: ignore[return]
         self,
         entity_id: str,
         request: EntityUpdateRequest,
@@ -27,6 +29,7 @@ class EntityUpdateHandler(EntityHandler):
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
+        user_id: int | None = None,
     ) -> EntityResponse:
         """Update an existing entity with transaction rollback."""
         # Check entity exists (404 if not)
@@ -90,6 +93,15 @@ class EntityUpdateHandler(EntityHandler):
                 edit_summary=request.edit_summary,
                 stream_producer=stream_producer,
             )
+            # Log activity
+            if user_id:
+                vitess_client.user_repository.log_user_activity(
+                    user_id=user_id,
+                    activity_type="entity_edit",
+                    entity_id=entity_id,
+                    revision_id=response.revision_id,
+                )
+
             # Commit
             tx.commit()
             return response

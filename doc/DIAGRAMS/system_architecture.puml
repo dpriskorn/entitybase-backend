@@ -3,15 +3,15 @@
 title Wikibase Backend - System Architecture
 
 package "API Layer" as APILayer #LightBlue {
+    "Watchlist" as WatchlistHandler
     "Admin" as AdminHandler
+    "UserActivity" as UserActivityHandler
     "Redirect" as RedirectHandler
+    "User" as UserHandler
     "Statement" as StatementHandler
     "Export" as ExportHandler
-    "EntityCreate" as EntityCreateHandler
-    "ItemCreate" as ItemCreateHandler
-    "EntityUpdate" as EntityUpdateHandler
-    "Backlink" as BacklinkHandler
-    ... (26 total components)
+    "UserPreferences" as UserPreferencesHandler
+    ... (31 total components)
 }
 
 package "Service Layer" as ServiceLayer #LightGreen {
@@ -24,8 +24,10 @@ package "Service Layer" as ServiceLayer #LightGreen {
 
 package "Worker Layer" as WorkerLayer #LightYellow {
     "BacklinkStatisticsWorker" as BacklinkStatisticsWorker
+    "NotificationCleanupWorker" as NotificationCleanupWorker
     "IdGeneratorWorker" as IdGeneratorWorker
     "DevWorker" as DevWorker
+    "WatchlistConsumerWorker" as WatchlistConsumerWorker
 }
 
 package "Infrastructure Layer" as InfrastructureLayer #LightGray {
@@ -36,8 +38,8 @@ package "Infrastructure Layer" as InfrastructureLayer #LightGray {
     "Head" as HeadRepository
     "Listing" as ListingRepository
     "Backlink" as BacklinkRepository
-    "Entity" as EntityRepository
-    ... (12 total components)
+    "User" as UserRepository
+    ... (14 total components)
 }
 
 package "Data Models" as DataModels #LightCyan {

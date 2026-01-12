@@ -1,0 +1,36 @@
+"""Handler for user activity operations."""
+
+from models.validation.utils import raise_validation_error
+from models.user_activity import ActivityType, UserActivityItem
+from models.rest_api.request.user_activity import UserActivityRequest
+from models.rest_api.response.user_activity import UserActivityResponse
+
+
+class UserActivityHandler:
+    """Handler for user activity operations."""
+
+    def get_user_activities(
+        self,
+        user_id: int,
+        vitess_client,
+        activity_type: str | None = None,
+        hours: int = 24,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> UserActivityResponse:
+        """Get user's activities."""
+        # Check if user exists
+        if not vitess_client.user_repository.user_exists(user_id):
+            raise_validation_error("User not registered", status_code=400)
+
+        # Validate activity_type if provided
+        if activity_type and activity_type not in [t.value for t in ActivityType]:
+            raise_validation_error(
+                f"Invalid activity type: {activity_type}", status_code=400
+            )
+
+        activities = vitess_client.user_repository.get_user_activities(
+            user_id, activity_type, hours, limit, offset
+        )
+
+        return UserActivityResponse(user_id=user_id, activities=activities)

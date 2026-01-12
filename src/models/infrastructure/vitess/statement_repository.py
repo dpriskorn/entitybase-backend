@@ -98,3 +98,10 @@ class StatementRepository:
                 "DELETE FROM statement_content WHERE content_hash = %s AND ref_count <= 0",
                 (content_hash,),
             )
+
+    def get_all_statement_hashes(self, conn: Any) -> list[int]:
+        """Get all statement content hashes."""
+        with conn.cursor() as cursor:
+            cursor.execute("SELECT content_hash FROM statement_content")
+            result = [row[0] for row in cursor.fetchall()]
+            return result

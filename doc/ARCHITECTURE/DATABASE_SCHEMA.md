@@ -4,7 +4,7 @@ This document describes the Vitess database schema used by wikibase-backend.
 
 ## Summary
 
-- **Total Tables**: 10
+- **Total Tables**: 14
 - **Database**: MySQL (via Vitess)
 - **Schema File**: `src/models/infrastructure/vitess/schema.py`
 
@@ -154,6 +154,64 @@ CREATE TABLE IF NOT EXISTS entity_terms ( hash BIGINT PRIMARY KEY, term TEXT NOT
 CREATE TABLE IF NOT EXISTS id_ranges ( entity_type VARCHAR(1) PRIMARY KEY, current_range_start BIGINT NOT NULL DEFAULT 1, current_range_end BIGINT NOT NULL DEFAULT 1000000, range_size BIGINT DEFAULT 1000000, allocated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, worker_id VARCHAR(64), version BIGINT DEFAULT 0 )
 ```
 
+### users
+
+**Columns**:
+
+- `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+- `preferences`: JSON DEFAULT NULL
+- `watchlist_enabled`: BOOLEAN DEFAULT TRUE
+- `last_activity`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+- `notification_limit`: INT DEFAULT 50
+- `retention_hours`: INT DEFAULT 24
+
+**SQL Definition**:
+
+```sql
+CREATE TABLE IF NOT EXISTS users ( user_id BIGINT PRIMARY KEY, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, preferences JSON DEFAULT NULL, watchlist_enabled BOOLEAN DEFAULT TRUE, last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP, notification_limit INT DEFAULT 50, retention_hours INT DEFAULT 24 )
+```
+
+### watchlist
+
+**Columns**:
+
+- `user_id`: BIGINT NOT NULL
+- `internal_entity_id`: BIGINT NOT NULL
+- `watched_properties`: TEXT DEFAULT NULL
+- `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+**SQL Definition**:
+
+```sql
+CREATE TABLE IF NOT EXISTS watchlist ( user_id BIGINT NOT NULL, internal_entity_id BIGINT NOT NULL, watched_properties TEXT DEFAULT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (user_id, internal_entity_id, watched_properties(255)), FOREIGN KEY (internal_entity_id) REFERENCES entity_id_mapping(internal_id) )
+```
+
+### user_notifications
+
+**Columns**:
+
+- `user_id`: BIGINT NOT NULL
+- `entity_id`: VARCHAR(50
+
+**SQL Definition**:
+
+```sql
+CREATE TABLE IF NOT EXISTS user_notifications ( id BIGINT PRIMARY KEY AUTO_INCREMENT, user_id BIGINT NOT NULL, entity_id VARCHAR(50) NOT NULL, revision_id BIGINT NOT NULL, change_type VARCHAR(50) NOT NULL, changed_properties JSON DEFAULT NULL, event_timestamp TIMESTAMP NOT NULL, is_checked BOOLEAN DEFAULT FALSE, checked_at TIMESTAMP NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, INDEX idx_user_timestamp (user_id, event_timestamp), INDEX idx_entity (entity_id) )
+```
+
+### user_activity
+
+**Columns**:
+
+- `user_id`: BIGINT NOT NULL
+- `activity_type`: VARCHAR(50
+
+**SQL Definition**:
+
+```sql
+CREATE TABLE IF NOT EXISTS user_activity ( id BIGINT PRIMARY KEY AUTO_INCREMENT, user_id BIGINT NOT NULL, activity_type VARCHAR(50) NOT NULL, entity_id VARCHAR(50), revision_id BIGINT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, INDEX idx_user_type_time (user_id, activity_type, created_at), INDEX idx_entity (entity_id) )
+```
+
 ## Entity Relationship Diagram
 
 ```mermaid
@@ -209,10 +267,33 @@ erDiagram
     id_ranges {
         - `entity_type`: VARCHAR(1
     }
+    users {
+        - `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        - `preferences`: JSON DEFAULT NULL
+        - `watchlist_enabled`: BOOLEAN DEFAULT TRUE
+        - `last_activity`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        - `notification_limit`: INT DEFAULT 50
+        ... (6 total columns)
+    }
+    watchlist {
+        - `user_id`: BIGINT NOT NULL
+        - `internal_entity_id`: BIGINT NOT NULL
+        - `watched_properties`: TEXT DEFAULT NULL
+        - `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    }
+    user_notifications {
+        - `user_id`: BIGINT NOT NULL
+        - `entity_id`: VARCHAR(50
+    }
+    user_activity {
+        - `user_id`: BIGINT NOT NULL
+        - `activity_type`: VARCHAR(50
+    }
 
     entity_backlinks ||--o{ entity_id_mapping : referenced_internal_id }
     entity_backlinks ||--o{ entity_id_mapping : referencing_internal_id }
     entity_backlinks ||--o{ statement_content : statement_hash }
+    watchlist ||--o{ entity_id_mapping : internal_entity_id }
 ```
 
 ## Notes

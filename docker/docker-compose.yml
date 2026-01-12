@@ -88,7 +88,7 @@ services:
          condition: service_healthy
        idworker:
          condition: service_healthy
-       devworker:
+       create-buckets:
          condition: service_completed_successfully
      environment:
         S3_ENDPOINT: http://minio:9000
@@ -177,8 +177,8 @@ services:
    mem_limit: 0.5g
    cpus: "0.5"
 
-  devworker:
-   container_name: devworker
+  create-buckets:
+   container_name: create-buckets
    build:
      context: ..
      dockerfile: docker/containers/Dockerfile.api

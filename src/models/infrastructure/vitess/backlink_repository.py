@@ -69,3 +69,33 @@ class BacklinkRepository:
                 )
                 for row in cursor.fetchall()
             ]
+
+    def insert_backlink_statistics(
+        self,
+        conn: Any,
+        date: str,
+        total_backlinks: int,
+        unique_entities_with_backlinks: int,
+        top_entities_by_backlinks: list[dict],
+    ) -> None:
+        """Insert daily backlink statistics."""
+        import json
+
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO backlink_statistics 
+                (date, total_backlinks, unique_entities_with_backlinks, top_entities_by_backlinks)
+                VALUES (%s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                total_backlinks = VALUES(total_backlinks),
+                unique_entities_with_backlinks = VALUES(unique_entities_with_backlinks),
+                top_entities_by_backlinks = VALUES(top_entities_by_backlinks)
+                """,
+                (
+                    date,
+                    total_backlinks,
+                    unique_entities_with_backlinks,
+                    json.dumps(top_entities_by_backlinks),
+                ),
+            )

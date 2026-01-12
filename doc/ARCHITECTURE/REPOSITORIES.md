@@ -46,6 +46,9 @@ This document describes the repository classes that handle data access to Vitess
 - `get_backlinks(conn, referenced_internal_id, limit, offset) -> list[BacklinkData]`
   - Get backlinks for an entity.
 
+- `insert_backlink_statistics(conn, date, total_backlinks, unique_entities_with_backlinks, top_entities_by_backlinks) -> None`
+  - Insert daily backlink statistics.
+
 ## Statements
 
 ### StatementRepository
@@ -75,6 +78,9 @@ This document describes the repository classes that handle data access to Vitess
 
 - `delete_content(conn, content_hash) -> None`
   - Delete statement content when ref_count reaches 0.
+
+- `get_all_statement_hashes(conn) -> list[int]`
+  - Get all statement content hashes.
 
 ## Metadata
 
@@ -149,6 +155,12 @@ This document describes the repository classes that handle data access to Vitess
 - `insert(conn, entity_id, revision_id, data) -> None`
   - Insert a new revision for an entity.
 
+- `get_revision(internal_entity_id, revision_id, vitess_client) -> dict | None`
+  - Get a specific revision data.
+
+- `revert_entity(internal_entity_id, to_revision_id, reverted_by_user_id, reason, watchlist_context, vitess_client) -> int`
+  - Revert entity to a previous revision and log the action.
+
 - `get_history(conn, entity_id, limit, offset) -> list[Any]`
   - Get revision history for an entity.
 
@@ -179,6 +191,86 @@ This document describes the repository classes that handle data access to Vitess
 
 - `hash_exists(hash_value) -> bool`
   - Check if a hash exists in the terms table.
+
+### UserRepository
+
+**Location**: `models/infrastructure/vitess/user_repository.py`
+**Purpose**: Repository for managing users in Vitess.
+
+**Methods**:
+
+- `create_user(user_id) -> None`
+  - Create a new user if not exists (idempotent).
+
+- `user_exists(user_id) -> bool`
+  - Check if user exists.
+
+- `get_user(user_id) -> User | None`
+  - Get user data by ID.
+
+- `update_user_activity(user_id) -> None`
+  - Update user's last activity timestamp.
+
+- `is_watchlist_enabled(user_id) -> bool`
+  - Check if watchlist is enabled for user.
+
+- `set_watchlist_enabled(user_id, enabled) -> None`
+  - Enable or disable watchlist for user.
+
+- `disable_watchlist(user_id) -> None`
+  - Disable watchlist for user (idempotent).
+
+- `log_user_activity(user_id, activity_type, entity_id, revision_id) -> None`
+  - Log a user activity.
+
+- `get_user_preferences(user_id) -> dict | None`
+  - Get user notification preferences.
+
+- `update_user_preferences(user_id, notification_limit, retention_hours) -> None`
+  - Update user notification preferences.
+
+- `get_user_activities(user_id, activity_type, hours, limit, offset) -> List[UserActivityItem]`
+  - Get user's activities with filtering.
+
+### WatchlistRepository
+
+**Location**: `models/infrastructure/vitess/watchlist_repository.py`
+**Purpose**: Repository for managing watchlists in Vitess.
+
+**Methods**:
+
+- `get_entity_watch_count(user_id) -> int`
+  - Get count of entity watches (whole entity, no properties) for user.
+
+- `get_property_watch_count(user_id) -> int`
+  - Get count of entity-property watches (with properties) for user.
+
+- `add_watch(user_id, entity_id, properties) -> None`
+  - Add a watchlist entry.
+
+- `remove_watch(user_id, entity_id, properties) -> None`
+  - Remove a watchlist entry.
+
+- `get_watches_for_user(user_id) -> List[dict]`
+  - Get all watchlist entries for a user.
+
+- `get_watchers_for_entity(entity_id) -> List[dict]`
+  - Get all watchers for an entity (for notifications).
+
+- `get_notification_count(user_id) -> int`
+  - Get count of active notifications for user.
+
+- `get_user_notifications(user_id, hours, limit, offset) -> List[dict]`
+  - Get recent notifications for a user within time span.
+
+- `mark_notification_checked(notification_id, user_id) -> None`
+  - Mark a notification as checked.
+
+- `get_entity_watch_count(user_id) -> int`
+  - Get count of entity watches (whole entity, no properties) for user.
+
+- `get_property_watch_count(user_id) -> int`
+  - Get count of entity-property watches (with properties) for user.
 
 ## Architecture Notes
 

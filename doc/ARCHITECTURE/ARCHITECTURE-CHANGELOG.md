@@ -2,6 +2,115 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-12] Backlink Statistics Script
+
+### Summary
+
+Implemented a daily statistics computation script that analyzes all entity statements to generate backlink analytics. The script scans statement content from S3, extracts entity references, and aggregates backlink counts stored in a new `backlink_statistics` Vitess table.
+
+### Motivation
+
+- **Analytics**: Enable insights into entity connectivity and relationship patterns at scale
+- **Performance Monitoring**: Track backlink distribution and growth metrics
+- **Query Optimization**: Support UI features showing popular entities by connectivity
+- **Scalability**: Background computation prevents API performance impact
+- **Maintenance**: Automated daily updates ensure fresh statistics
+
+### Changes
+
+#### New Database Table
+
+**File**: `src/models/infrastructure/vitess/schema.py`
+
+Added `backlink_statistics` table:
+
+```sql
+CREATE TABLE IF NOT EXISTS backlink_statistics (
+    date DATE PRIMARY KEY,
+    total_backlinks BIGINT NOT NULL,
+    unique_entities_with_backlinks BIGINT NOT NULL,
+    top_entities_by_backlinks JSON NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Fields**:
+- `date`: Date of computation (partition key)
+- `total_backlinks`: Total backlink relationships across all entities
+- `unique_entities_with_backlinks`: Number of entities that have at least one incoming backlink
+- `top_entities_by_backlinks`: JSON array of top 100 entities by backlink count
+
+#### Statistics Computation Script
+
+**File**: `scripts/statistics/backlink_statistics.py`
+
+New script with comprehensive backlink analysis:
+
+```python
+async def compute_backlinks(vitess_client, s3_client) -> None:
+    """Compute backlink statistics for all entities"""
+
+async def extract_entity_references(statement_content: dict) -> list[str]:
+    """Extract entity IDs referenced in a statement"""
+
+# Main execution
+await compute_backlinks(vitess_client, s3_client)
+```
+
+**Features**:
+- Scans all statement hashes from Vitess `statement_content` table
+- Batch fetches statement content from S3 for efficiency
+- Parses statement JSON to extract entity references from mainsnak, qualifiers, and references
+- Aggregates backlink counts per entity
+- Stores daily global statistics with top entities ranking
+
+#### Repository Extensions
+
+**File**: `src/models/infrastructure/vitess/statement_repository.py`
+
+Added `get_all_statement_hashes()` method:
+
+```python
+def get_all_statement_hashes(self, conn: Any) -> list[int]:
+    """Get all statement content hashes for backlink computation"""
+```
+
+**File**: `src/models/infrastructure/vitess/backlink_repository.py`
+
+Added `insert_backlink_statistics()` method:
+
+```python
+def insert_backlink_statistics(
+    self, conn: Any, date: str, total_backlinks: int,
+    unique_entities_with_backlinks: int, top_entities_by_backlinks: list[dict]
+) -> None:
+    """Insert daily backlink statistics with upsert logic"""
+```
+
+#### S3 Client Extensions
+
+**File**: `src/models/infrastructure/s3/s3_client.py`
+
+Added `batch_get_statements()` method:
+
+```python
+async def batch_get_statements(self, content_hashes: list[int]) -> dict[int, dict[str, Any]]:
+    """Batch read multiple statements from S3 for efficient processing"""
+```
+
+### Impact
+
+- **Storage**: Minimal additional storage (~1KB/day for statistics table)
+- **Performance**: Background computation doesn't impact API performance
+- **Analytics**: Enables insights into entity relationship patterns
+- **Monitoring**: Health checks and error logging for operational visibility
+
+### Backward Compatibility
+
+- **Non-breaking**: New table and script don't affect existing functionality
+- **Optional**: Script can be disabled or run on-demand
+- **Graceful degradation**: Statistics unavailable if script fails
+
 ## [2026-01-12] Hash Algorithm Decision: 64-bit Rapidhash
 
 ### Summary
@@ -90,6 +199,363 @@ Added JSON Schema definitions for `entitychange` and `entitypropertychange` even
 - **entitypropertychange.json**: Extended schema for property-specific changes, adding required `changed_properties` array
 
 Both schemas use JSON Schema Draft 2020-12 with validation patterns for entity/property IDs and enumerated change types.
+
+## [2026-01-12] User Registration Support
+
+### Summary
+
+Added user registration endpoint and users table to support watchlist features with MediaWiki user IDs. This enables frontend-initiated user registration without authentication, allowing users to be tracked for watchlist subscriptions and notifications.
+
+### Motivation
+
+- **User Management**: Provide a way to register users in the system using MediaWiki IDs
+- **Watchlist Foundation**: Enable user-specific watchlist operations and notifications
+- **Frontend Integration**: Allow frontend to create user entries as needed
+- **Simplicity**: No auth required, trusting frontend for valid MediaWiki user_ids
+
+### Changes
+
+#### New Users Table
+
+**File**: `src/models/infrastructure/vitess/schema.py`
+
+Added `users` table creation:
+- `user_id` (BIGINT PRIMARY KEY) - MediaWiki user ID
+- `created_at` (TIMESTAMP) - Registration timestamp
+- `preferences` (JSON) - Reserved for future user preferences
+
+#### User Registration Endpoints
+
+**File**: `src/models/rest_api/main.py`
+
+New endpoints:
+- `POST /v1/users`: Create/register user with MediaWiki ID
+  - Request: `{"user_id": 12345}`
+  - Response: `{"user_id": 12345, "created": true/false}`
+  - Idempotent, no authentication
+- `GET /v1/users/{user_id}`: Retrieve user information
+  - Returns user data or 404 if not found
+  - Allows frontend to check user existence/registration status
+
+#### Watchlist Support Implementation
+
+**Summary**
+
+Implemented core watchlist functionality for subscribing to entity changes or specific properties. Includes data models, storage, and API endpoints for managing watches.
+
+**Motivation**
+
+- **User Subscriptions**: Enable users to track changes on entities or properties
+- **Granular Watching**: Support whole-entity or property-specific watches
+- **Foundation for Notifications**: Prepare for event-driven change alerts
+
+**Changes**
+
+##### Watchlist Data Models
+
+**File**: `src/models/watchlist.py`
+
+- `WatchlistEntry`: DB model with user_id, internal_entity_id, watched_properties
+- `WatchlistAddRequest`: API request for adding watches
+- `WatchlistRemoveRequest`: API request for removing watches
+- `WatchlistResponse`: API response listing user's watches
+
+##### Watchlist Repository
+
+**File**: `src/models/infrastructure/vitess/watchlist_repository.py`
+
+New `WatchlistRepository` class with ID resolution:
+- `add_watch()`: Add watch with external→internal ID conversion
+- `remove_watch()`: Remove watch by user/entity/properties
+- `get_watches_for_user()`: Retrieve user's watchlist with resolved entity_ids
+- `get_watchers_for_entity()`: Get watchers for an entity (for notifications)
+
+##### Database Schema
+
+**File**: `src/models/infrastructure/vitess/schema.py`
+
+Added `watchlist` table:
+- `user_id` (BIGINT)
+- `internal_entity_id` (BIGINT, FK to entity_id_mapping)
+- `watched_properties` (TEXT, comma-separated)
+- Primary key: (user_id, internal_entity_id, watched_properties)
+
+##### API Endpoints
+
+**File**: `src/models/rest_api/main.py`
+
+New watchlist endpoints:
+- `POST /v1/watchlist`: Add watch
+  - Request: `{"user_id": 12345, "entity_id": "Q42", "properties": ["P31"]}`
+- `DELETE /v1/watchlist`: Remove watch
+  - Request: `{"user_id": 12345, "entity_id": "Q42", "properties": ["P31"]}`
+- `GET /v1/watchlist?user_id=12345`: Get user's watchlist
+  - Response: `{"user_id": 12345, "watches": [{"entity_id": "Q42", "properties": ["P31"]}...]}`
+
+All endpoints validate user registration and handle ID resolution internally.
+
+#### Future Integration
+
+Watchlist endpoints will validate user existence against this table to ensure only registered users can create watchlists.
+
+#### Watchlist Notifications System
+
+**Summary**
+
+Implemented event-driven notification system for watchlist changes. Includes background consumer worker, notification storage, and API endpoints for frontend to retrieve and manage notifications.
+
+**Motivation**
+
+- **Real-time Updates**: Enable users to receive notifications when watched entities/properties change
+- **Event-Driven**: Leverage existing Kafka event stream for scalable notifications
+- **User Experience**: Provide recent changes feed with check/ack functionality
+
+**Changes**
+
+##### Notification Storage
+
+**File**: `src/models/infrastructure/vitess/schema.py`
+
+Added `user_notifications` table:
+- `user_id` (BIGINT)
+- `entity_id` (VARCHAR), `revision_id` (INT), `change_type` (VARCHAR)
+- `changed_properties` (JSON), `event_timestamp` (TIMESTAMP)
+- `is_checked` (BOOLEAN), `checked_at` (TIMESTAMP)
+
+##### Event Consumer Worker
+
+**File**: `src/models/workers/watchlist_consumer/main.py`
+
+New `WatchlistConsumerWorker`:
+- Consumes `entitychange`/`entitypropertychange` events from Kafka
+- Matches events against user watchlists
+- Creates notification records for relevant users
+- Handles property-specific vs. entity-wide watches
+
+##### Notification API Endpoints
+
+**File**: `src/models/rest_api/main.py`
+
+New endpoints:
+- `GET /v1/watchlist/notifications?user_id=X&limit=30`: Retrieve recent notifications
+- `POST /v1/watchlist/notifications/check`: Mark notification as checked
+
+Response includes notification details: entity, revision, change type, properties, timestamps.
+
+##### Repository Extensions
+
+**File**: `src/models/infrastructure/vitess/watchlist_repository.py`
+
+Added methods:
+- `get_user_notifications()`: Fetch paginated notifications for user
+- `mark_notification_checked()`: Update checked status
+- `_create_notification()`: Insert notification (used by consumer)
+
+This completes the watchlist system with end-to-end notification flow.
+
+## [2026-01-12] User Notification Preferences
+
+### Summary
+
+Implemented user-configurable notification preferences with personalized limits and retention settings. Users can customize their notification experience while maintaining system scalability.
+
+### Motivation
+
+- **Personalization**: Allow users to control notification volume and retention based on their needs
+- **Scalability**: User preferences enable fine-tuned resource management
+- **User Experience**: Match individual workflows (power users vs. casual watchers)
+- **Flexibility**: Support different notification patterns for subgraph protection
+
+### Changes
+
+#### Database Schema Extensions
+
+**File**: `src/models/infrastructure/vitess/schema.py`
+
+Extended `users` table with preference fields:
+- `notification_limit` INT DEFAULT 50 (max notifications per user)
+- `retention_hours` INT DEFAULT 24 (notification retention period)
+
+#### User Preferences API
+
+**File**: `src/models/rest_api/main.py`
+
+New endpoints for preference management:
+- `GET /v1/users/{user_id}/preferences`: Retrieve current notification settings
+- `PUT /v1/users/{user_id}/preferences`: Update notification limit and retention
+
+Request validation: notification_limit (50-500), retention_hours (1-720)
+
+#### Repository Enhancements
+
+**File**: `src/models/infrastructure/vitess/user_repository.py`
+
+Added preference management methods:
+- `get_user_preferences(user_id)`: Retrieve user's notification settings
+- `update_user_preferences(user_id, limit, retention)`: Update user preferences
+
+#### Consumer Integration
+
+**File**: `src/models/workers/watchlist_consumer/main.py`
+
+- Creates all eligible notifications without limit checks
+- Cleanup worker enforces user preference limits via oldest-first deletion
+- Simplified consumer logic focused on event processing
+
+#### Handler Implementation
+
+**File**: `src/models/rest_api/handlers/user_preferences.py`
+
+- `UserPreferencesHandler`: Manages preference queries and updates
+- Validation of preference ranges
+- Integration with user repository
+
+#### Request/Response Models
+
+**Files**: `src/models/rest_api/request/user_preferences.py`, `src/models/rest_api/response/user_preferences.py`
+
+- `UserPreferencesRequest`: notification_limit, retention_hours
+- `UserPreferencesResponse`: user_id, notification_limit, retention_hours
+
+#### User Experience
+
+- Default settings: 50 notifications, 24-hour retention
+- Customizable limits: Up to 500 notifications, 30-day retention
+- Immediate effect: Preference changes apply to new notifications
+- Backward compatibility: Existing users use defaults
+
+#### Performance & Scaling
+
+- Lightweight preference storage in users table
+- Efficient queries for preference retrieval
+- Consumer respects individual limits for fair resource usage
+- No impact on existing notification processing
+
+This enables personalized notification management while maintaining system performance and scalability.
+
+## [2026-01-12] EntityBase Revert API for Subgraph Protection
+
+### Summary
+
+Added a new EntityBase API endpoint for reverting entities to previous revisions, enabling manual intervention against vandalism and problematic changes detected by the watchlist system. This supports subgraph protection workflows where users monitor large entity networks for quality issues.
+
+### Motivation
+
+- **Vandalism Response**: Provide tools for rapid reversion of damaging edits
+- **Data Integrity**: Allow restoration of subgraphs affected by bad modeling
+- **Consumer Protection**: Prevent negative impacts on downstream data users
+- **Auditability**: Full logging of revert actions for transparency
+
+### Changes
+
+#### Revert API Endpoint
+
+**File**: `src/models/rest_api/main.py`
+
+New endpoint: `POST /entitybase/v1/entities/{entity_id}/revert`
+- Reverts entity to specified revision with audit logging
+- Requires `reverted_by_user_id` for accountability
+- Includes optional watchlist context for linking to notifications
+
+#### Revert Logging
+
+**File**: `src/models/infrastructure/vitess/schema.py`
+
+Added `revert_log` table:
+- Tracks all reverts with entity, revision, user, reason details
+- Supports subgraph protection audit trails
+- Scales to trillions of entries with distributed storage
+
+#### Handler and Repository
+
+**Files**: `src/models/rest_api/handlers/entity/revert.py`, `src/models/infrastructure/vitess/revision_repository.py`
+
+- `EntityRevertHandler`: Validates requests and coordinates reversion
+- Extended `RevisionRepository.revert_entity()`: Performs data restoration and logging
+- Error handling for invalid revisions and conflicts
+
+#### API Models
+
+**Files**: `src/models/rest_api/request/entity/revert.py`, `src/models/rest_api/response/entity/revert.py`
+
+- `EntityRevertRequest`: to_revision_id, reason, reverted_by_user_id, watchlist_context
+- `EntityRevertResponse`: entity_id, new_revision_id, reverted_from_revision_id, timestamp
+
+#### Integration with Watchlist
+
+- Revert API designed for integration with watchlist notifications
+- Frontend can provide watchlist context for revert tracking
+- Supports manual protection workflows without auto-reversion
+
+## [2026-01-12] User Activity Logging System
+
+### Summary
+
+Implemented comprehensive user activity logging for entity operations, providing complete edit history and moderation trails. Activities point to revisions for detailed data storage.
+
+### Motivation
+
+- **Edit History**: Users need complete timeline of their entity operations
+- **Moderation**: Track all entity modifications for audit and oversight
+- **Transparency**: Clear record of create/edit/revert/delete operations
+- **Analytics**: Enable contribution analysis and user activity patterns
+
+### Changes
+
+#### Activity Types and Models
+
+**File**: `src/models/user_activity.py`
+
+- `ActivityType` enum: entity_create, entity_edit, entity_revert, entity_delete, entity_undelete, entity_lock, entity_unlock, entity_archive, entity_unarchive
+- `UserActivity` model: id, user_id, activity_type, entity_id, revision_id, created_at
+
+#### Activity Logging Infrastructure
+
+**File**: `src/models/infrastructure/vitess/schema.py`
+
+Added `user_activity` table:
+- `user_id` (BIGINT), `activity_type` (VARCHAR), `entity_id` (VARCHAR), `revision_id` (BIGINT)
+- `created_at` (TIMESTAMP), indexes on user_id, activity_type, entity_id
+
+**File**: `src/models/infrastructure/vitess/user_repository.py`
+
+- Added `log_user_activity()` method for consistent logging
+- Stores minimal data + revision pointer for full details
+
+#### Activity Logging Integration
+
+**File**: `src/models/rest_api/handlers/entity/revert.py`
+
+- Logs `entity_revert` activities with revision pointers
+- Includes entity_id, revision_id, user_id for audit trail
+
+#### Activity Retrieval API
+
+**File**: `src/models/rest_api/main.py`
+
+- `GET /v1/users/{user_id}/activity`: Retrieve user's activity history
+- Parameters: hours (time filter), limit (50/100/250/500), type (activity type filter)
+- Response: Activity list with revision pointers for detail access
+
+#### Handler and Repository
+
+**File**: `src/models/rest_api/handlers/user_activity.py`, `src/models/infrastructure/vitess/user_repository.py`
+
+- `UserActivityHandler`: Processes activity queries with filtering
+- Enhanced `UserRepository.get_user_activities()`: Supports time/type filtering, pagination
+
+#### Future Integration Points
+
+- Add logging to future entity create/edit/delete/lock/archive handlers
+- Consistent activity logging across all entity operations
+- Revision-based detail retrieval for rich activity views
+
+#### Performance & Scaling
+
+- Efficient indexing for user-specific queries
+- Time-based filtering leverages revision storage
+- Pagination prevents large response payloads
+- Scales to millions of activities per user
 
 ## [2026-01-12] Backlink Statistics Worker
 

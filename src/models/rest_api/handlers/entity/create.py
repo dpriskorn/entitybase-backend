@@ -3,6 +3,8 @@
 import logging
 from typing import Any
 
+from pydantic import Field
+
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
@@ -32,6 +34,7 @@ class EntityCreateHandler(EntityHandler):
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         auto_assign_id: bool = False,
+        user_id: int = Field(default=0),
     ) -> EntityResponse:
         """Create a new entity. Fails if entity already exists."""
         # Auto-assign ID if requested (for type-specific endpoints)
@@ -80,7 +83,7 @@ class EntityCreateHandler(EntityHandler):
             )
 
         # Common processing logic
-        return await self._process_entity_revision(  # type: ignore[return]
+        response = await self._process_entity_revision(  # type: ignore[assignment]
             entity_id=entity_id,
             request_data=request_data,
             entity_type=request.type,
@@ -100,3 +103,14 @@ class EntityCreateHandler(EntityHandler):
             validator=validator,
             is_creation=True,
         )
+
+        # Log activity
+        if user_id > 0:
+            vitess_client.user_repository.log_user_activity(
+                user_id=user_id,
+                activity_type="entity_create",
+                entity_id=entity_id,
+                revision_id=response.revision_id,
+            )
+
+        return response

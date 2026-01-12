@@ -3,7 +3,7 @@ from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field
 
-from ..misc import DeleteType, EditType
+from models.rest_api.misc import EditType, DeleteType
 
 
 class EntityCreateRequest(BaseModel):
@@ -95,14 +95,6 @@ class EntityUpdateRequest(BaseModel):
     @property
     def data(self) -> Dict[str, Any]:
         return self.model_dump(exclude_unset=True)
-
-
-class RedirectRevertRequest(BaseModel):
-    revert_to_revision_id: int = Field(
-        ..., description="Revision ID to revert to (e.g., 12340)"
-    )
-    revert_reason: str = Field(..., description="Reason for reverting redirect")
-    created_by: str = Field(default="rest-api")
 
 
 class EntityJsonImportRequest(BaseModel):

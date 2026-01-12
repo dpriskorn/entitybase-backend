@@ -8,6 +8,7 @@ from .entity import (
     EntityAliases,
     EntityDeleteResponse,
     EntityDescriptions,
+    EntityHistoryEntry,
     EntityJsonImportResponse,
     EntityLabels,
     EntityListResponse,

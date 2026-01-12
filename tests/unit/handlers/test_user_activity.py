@@ -1,0 +1,75 @@
+import sys
+from unittest.mock import MagicMock
+
+import pytest
+
+sys.path.insert(0, "src")
+
+from models.rest_api.handlers.user_activity import UserActivityHandler
+from models.rest_api.response.user_activity import UserActivityResponse
+
+
+class TestUserActivityHandler:
+    """Unit tests for UserActivityHandler"""
+
+    @pytest.fixture
+    def mock_vitess_client(self) -> MagicMock:
+        """Mock Vitess client"""
+        client = MagicMock()
+        client.user_repository = MagicMock()
+        return client
+
+    @pytest.fixture
+    def handler(self) -> UserActivityHandler:
+        """Create handler instance"""
+        return UserActivityHandler()
+
+    def test_get_user_activities_success(
+        self, handler: UserActivityHandler, mock_vitess_client: MagicMock
+    ) -> None:
+        """Test getting user activities successfully"""
+        from models.user_activity import UserActivityItem
+        from datetime import datetime
+
+        mock_activity = UserActivityItem(
+            id=1,
+            user_id=12345,
+            activity_type="entity_revert",
+            entity_id="Q42",
+            revision_id=123,
+            created_at=datetime(2023, 1, 1, 12, 0, 0),
+        )
+        mock_vitess_client.user_repository.user_exists.return_value = True
+        mock_vitess_client.user_repository.get_user_activities.return_value = [
+            mock_activity
+        ]
+
+        result = handler.get_user_activities(
+            12345, mock_vitess_client, limit=30, offset=0
+        )
+
+        assert isinstance(result, UserActivityResponse)
+        assert result.user_id == 12345
+        assert len(result.activities) == 1
+        assert isinstance(result.activities[0], UserActivityItem)
+        assert result.activities[0].id == 1
+
+    def test_get_user_activities_user_not_found(
+        self, handler: UserActivityHandler, mock_vitess_client: MagicMock
+    ) -> None:
+        """Test getting activities for non-existent user"""
+        mock_vitess_client.user_repository.user_exists.return_value = False
+
+        with pytest.raises(ValueError, match="User not registered"):
+            handler.get_user_activities(12345, mock_vitess_client)
+
+    def test_get_user_activities_invalid_type(
+        self, handler: UserActivityHandler, mock_vitess_client: MagicMock
+    ) -> None:
+        """Test getting activities with invalid type"""
+        mock_vitess_client.user_repository.user_exists.return_value = True
+
+        with pytest.raises(ValueError, match="Invalid activity type"):
+            handler.get_user_activities(
+                12345, mock_vitess_client, activity_type="invalid"
+            )

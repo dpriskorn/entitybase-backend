@@ -29,13 +29,11 @@ def extract_repository_info(repo_file: Path) -> Dict[str, Any]:
                 if (
                     node.body
                     and isinstance(node.body[0], ast.Expr)
-                    and isinstance(node.body[0].value, (ast.Str, ast.Constant))
+                    and isinstance(node.body[0].value, ast.Constant)
                 ):
-                    if isinstance(node.body[0].value, ast.Str):
-                        docstring = node.body[0].value.s
-                    else:
-                        docstring = node.body[0].value.value
-                    info["description"] = docstring.strip()
+                    docstring = node.body[0].value.value
+                    if isinstance(docstring, str):
+                        info["description"] = docstring.strip()
 
                 # Extract methods
                 for item in node.body:
@@ -57,13 +55,11 @@ def extract_repository_info(repo_file: Path) -> Dict[str, Any]:
                         if (
                             item.body
                             and isinstance(item.body[0], ast.Expr)
-                            and isinstance(item.body[0].value, (ast.Str, ast.Constant))
+                            and isinstance(item.body[0].value, ast.Constant)
                         ):
-                            if isinstance(item.body[0].value, ast.Str):
-                                method_doc = item.body[0].value.s
-                            else:
-                                method_doc = item.body[0].value.value
-                            method_info["description"] = method_doc.strip()
+                            method_doc = item.body[0].value.value
+                            if isinstance(method_doc, str):
+                                method_info["description"] = method_doc.strip()
 
                         info["methods"].append(method_info)
                 break

@@ -18,10 +18,10 @@ async def test_revert_entity() -> None:
         # For now, just test that the endpoint accepts requests (will fail without data)
         response = await client.post(
             "/entitybase/v1/entities/Q42/revert",
+            headers={"X-User-ID": "456"},
             json={
                 "to_revision_id": 123,
                 "reason": "Test revert",
-                "reverted_by_user_id": 456,
                 "watchlist_context": {"notification_id": 789},
             },
         )
@@ -30,6 +30,37 @@ async def test_revert_entity() -> None:
             400,
             404,
         ]  # Entity/revision not found is expected in test env
+
+
+@pytest.mark.asyncio
+async def test_revert_entity_missing_user_header() -> None:
+    """Test revert without user ID header"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.post(
+            "/entitybase/v1/entities/Q42/revert",
+            json={"to_revision_id": 123, "reason": "Test revert"},
+        )
+        assert response.status_code == 422  # Missing required header
+
+
+@pytest.mark.asyncio
+async def test_revert_entity_invalid_user_header() -> None:
+    """Test revert with invalid user ID header"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.post(
+            "/entitybase/v1/entities/Q42/revert",
+            headers={"X-User-ID": "0"},
+            json={"to_revision_id": 123, "reason": "Test revert"},
+        )
+        assert response.status_code == 400  # Invalid user ID
 
 
 @pytest.mark.asyncio
@@ -43,6 +74,7 @@ async def test_revert_entity_invalid_request() -> None:
         # Missing required field
         response = await client.post(
             "/entitybase/v1/entities/Q42/revert",
-            json={"reason": "Test revert", "reverted_by_user_id": 456},
+            headers={"X-User-ID": "456"},
+            json={"reason": "Test revert"},
         )
         assert response.status_code == 422  # Validation error

@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, Query, Response
+from fastapi import FastAPI, HTTPException, Header, Query, Response
 from fastapi.responses import JSONResponse
 from jsonschema import ValidationError
 
@@ -19,17 +19,24 @@ from models.rest_api.handlers.export import ExportHandler
 from models.rest_api.handlers.redirect import RedirectHandler
 from models.rest_api.handlers.statement import StatementHandler
 from models.rest_api.handlers.system import health_check
+from models.rest_api.handlers.user import UserHandler
+from models.rest_api.handlers.watchlist import WatchlistHandler
+from models.rest_api.handlers.entity.revert import EntityRevertHandler
+from models.rest_api.handlers.user_activity import UserActivityHandler
 from models.rest_api.request.entity import (
     EntityDeleteRequest,
     EntityRedirectRequest,
     RedirectRevertRequest,
 )
+from models.rest_api.request.entity.revert import EntityRevertRequest
+from models.rest_api.request.user import UserCreateRequest, WatchlistToggleRequest
 from models.rest_api.response.entity import (
     EntityDeleteResponse,
     EntityListResponse,
     EntityRedirectResponse,
     EntityResponse,
 )
+from models.rest_api.response.entity import EntityRevertResponse
 from models.rest_api.response.health import HealthCheckResponse
 from models.rest_api.response.misc import RawRevisionResponse, RevisionMetadataResponse
 from models.rest_api.response.misc import TtlResponse
@@ -37,6 +44,23 @@ from models.rest_api.response.statement import (
     PropertyCountsResponse,
     PropertyHashesResponse,
     PropertyListResponse,
+)
+from models.rest_api.response.user import (
+    UserCreateResponse,
+    WatchlistToggleResponse,
+    MessageResponse,
+)
+from models.rest_api.response.user_activity import UserActivityResponse
+from models.rest_api.response.user_preferences import UserPreferencesResponse
+from models.rest_api.request.user_preferences import UserPreferencesRequest
+from models.rest_api.handlers.user_preferences import UserPreferencesHandler
+from models.user import User
+from models.watchlist import (
+    WatchlistAddRequest,
+    WatchlistRemoveRequest,
+    WatchlistResponse,
+    NotificationResponse,
+    MarkCheckedRequest,
 )
 from models.rest_api.services.enumeration_service import EnumerationService
 from models.validation.json_schema_validator import JsonSchemaValidator
@@ -163,6 +187,181 @@ def health_redirect() -> Any:
     from fastapi.responses import RedirectResponse
 
     return RedirectResponse(url="/health", status_code=302)
+
+
+@app.post("/v1/users", response_model=UserCreateResponse)
+def create_user(request: UserCreateRequest) -> UserCreateResponse:
+    """Create/register a user with MediaWiki user ID."""
+    clients = app.state.clients
+    handler = UserHandler()
+    return handler.create_user(request, clients.vitess)
+
+
+@app.get("/v1/users/{user_id}", response_model=User)
+def get_user(user_id: int) -> User:
+    """Get user information by MediaWiki user ID."""
+    clients = app.state.clients
+    handler = UserHandler()
+    return handler.get_user(user_id, clients.vitess)
+
+
+@app.put("/v1/users/{user_id}/watchlist/toggle", response_model=WatchlistToggleResponse)
+def toggle_watchlist(
+    user_id: int, request: WatchlistToggleRequest
+) -> WatchlistToggleResponse:
+    """Enable or disable watchlist for user."""
+    clients = app.state.clients
+    handler = UserHandler()
+    try:
+        return handler.toggle_watchlist(user_id, request, clients.vitess)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/v1/watchlist", response_model=WatchlistToggleResponse)
+def add_watch(request: WatchlistAddRequest) -> WatchlistToggleResponse:
+    """Add a watchlist entry."""
+    clients = app.state.clients
+    handler = WatchlistHandler()
+    try:
+        return handler.add_watch(request, clients.vitess)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.delete("/v1/watchlist", response_model=WatchlistToggleResponse)
+def remove_watch(request: WatchlistRemoveRequest) -> WatchlistToggleResponse:
+    """Remove a watchlist entry."""
+    clients = app.state.clients
+    handler = WatchlistHandler()
+    return handler.remove_watch(request, clients.vitess)
+
+
+@app.get("/v1/watchlist", response_model=WatchlistResponse)
+def get_watchlist(
+    user_id: int = Query(..., description="MediaWiki user ID"),
+) -> WatchlistResponse:
+    """Get user's watchlist."""
+    clients = app.state.clients
+    handler = WatchlistHandler()
+    try:
+        return handler.get_watches(user_id, clients.vitess)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/v1/watchlist/counts")
+def get_watch_counts(
+    user_id: int = Query(..., description="MediaWiki user ID"),
+) -> dict:
+    """Get user's watch counts."""
+    clients = app.state.clients
+    handler = WatchlistHandler()
+    try:
+        return handler.get_watch_counts(user_id, clients.vitess)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/v1/watchlist/notifications", response_model=NotificationResponse)
+def get_notifications(
+    user_id: int = Query(..., description="MediaWiki user ID"),
+    hours: int = Query(24, ge=1, le=720, description="Time span in hours (1-720)"),
+    limit: int = Query(50, description="Number of notifications (50, 100, 250, 500)"),
+    offset: int = Query(0, ge=0, description="Number of notifications to skip"),
+) -> NotificationResponse:
+    """Get user's recent watchlist notifications within time span."""
+    # Validate limit
+    allowed_limits = [50, 100, 250, 500]
+    if limit not in allowed_limits:
+        raise HTTPException(
+            status_code=400, detail=f"Limit must be one of {allowed_limits}"
+        )
+
+    clients = app.state.clients
+    handler = WatchlistHandler()
+    try:
+        return handler.get_notifications(user_id, clients.vitess, hours, limit, offset)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/v1/watchlist/notifications/check", response_model=MessageResponse)
+def mark_notification_checked(
+    request: MarkCheckedRequest,
+    user_id: int = Query(..., description="MediaWiki user ID"),
+) -> MessageResponse:
+    """Mark a notification as checked."""
+    clients = app.state.clients
+    handler = WatchlistHandler()
+    return handler.mark_checked(user_id, request, clients.vitess)
+
+
+@app.get("/v1/users/{user_id}/activity", response_model=UserActivityResponse)
+def get_user_activity(
+    user_id: int,
+    type: str | None = Query(None, description="Activity type filter"),
+    hours: int = Query(24, ge=1, le=720, description="Time span in hours"),
+    limit: int = Query(50, description="Number of activities (50, 100, 250, 500)"),
+    offset: int = Query(0, ge=0, description="Number of activities to skip"),
+) -> UserActivityResponse:
+    """Get user's activity history."""
+    # Validate limit
+    allowed_limits = [50, 100, 250, 500]
+    if limit not in allowed_limits:
+        raise HTTPException(
+            status_code=400, detail=f"Limit must be one of {allowed_limits}"
+        )
+
+    clients = app.state.clients
+    handler = UserActivityHandler()
+    try:
+        return handler.get_user_activities(
+            user_id, clients.vitess, type, hours, limit, offset
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.get("/v1/users/{user_id}/preferences", response_model=UserPreferencesResponse)
+def get_user_preferences(user_id: int) -> UserPreferencesResponse:
+    """Get user's notification preferences."""
+    clients = app.state.clients
+    handler = UserPreferencesHandler()
+    try:
+        return handler.get_preferences(user_id, clients.vitess)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.put("/v1/users/{user_id}/preferences", response_model=UserPreferencesResponse)
+def update_user_preferences(
+    user_id: int, request: UserPreferencesRequest
+) -> UserPreferencesResponse:
+    """Update user's notification preferences."""
+    clients = app.state.clients
+    handler = UserPreferencesHandler()
+    try:
+        return handler.update_preferences(user_id, request, clients.vitess)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post(
+    "/entitybase/v1/entities/{entity_id}/revert", response_model=EntityRevertResponse
+)
+def revert_entity(
+    entity_id: str,
+    request: EntityRevertRequest,
+    user_id: int = Header(..., alias="X-User-ID"),
+) -> EntityRevertResponse:
+    """Revert an entity to a previous revision."""
+    if user_id <= 0:
+        raise HTTPException(status_code=400, detail="Valid user ID required")
+
+    clients = app.state.clients
+    handler = EntityRevertHandler()
+    return handler.revert_entity(entity_id, request, clients.vitess, user_id)
 
 
 @v1_router.get("/entities/{entity_id}", response_model=EntityResponse)

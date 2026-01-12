@@ -370,3 +370,35 @@ class S3Client(Client):
             logger.error(
                 f"S3 delete_metadata failed: bucket={self.config.bucket}, key={key}, error={e}"
             )
+
+    async def batch_get_statements(
+        self, content_hashes: list[int]
+    ) -> dict[int, dict[str, Any]]:
+        """Batch read multiple statements from S3.
+
+        Args:
+            content_hashes: List of statement content hashes to fetch
+
+        Returns:
+            Dict mapping hash to statement data, or empty dict if not found
+        """
+        if not self.connection_manager or not self.connection_manager.boto_client:
+            raise_validation_error("S3 service unavailable", status_code=503)
+
+        results = {}
+        for content_hash in content_hashes:
+            try:
+                statement_data = self.read_statement(content_hash)
+                results[content_hash] = statement_data
+            except ClientError as e:
+                if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
+                    # Statement not found, skip
+                    continue
+                else:
+                    logger.error(f"Error reading statement {content_hash}: {e}")
+                    continue
+            except Exception as e:
+                logger.error(f"Unexpected error reading statement {content_hash}: {e}")
+                continue
+
+        return results

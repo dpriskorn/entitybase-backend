@@ -17,6 +17,8 @@ from models.infrastructure.vitess.redirect_repository import RedirectRepository
 from models.infrastructure.vitess.revision_repository import RevisionRepository
 from models.infrastructure.vitess.schema import SchemaManager
 from models.infrastructure.vitess.statement_repository import StatementRepository
+from models.infrastructure.vitess.user_repository import UserRepository
+from models.infrastructure.vitess.watchlist_repository import WatchlistRepository
 from models.rest_api.request.entity import RevisionInsertDataRequest
 from models.rest_api.response.entity import ProtectionInfo
 from models.vitess_models import BacklinkData
@@ -40,6 +42,8 @@ class VitessClient(Client):
     statement_repository: StatementRepository = Field(default=None, exclude=True)
     backlink_repository: BacklinkRepository = Field(default=None, exclude=True)
     metadata_repository: MetadataRepository = Field(default=None, exclude=True)
+    user_repository: UserRepository = Field(default=None, exclude=True)
+    watchlist_repository: WatchlistRepository = Field(default=None, exclude=True)
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
@@ -60,6 +64,10 @@ class VitessClient(Client):
         self.statement_repository = StatementRepository(self.connection_manager)
         self.backlink_repository = BacklinkRepository(self.connection_manager)
         self.metadata_repository = MetadataRepository(self.connection_manager)
+        self.user_repository = UserRepository(self.connection_manager)
+        self.watchlist_repository = WatchlistRepository(
+            self.connection_manager, self.id_resolver
+        )
         self._create_tables()
 
     def _create_tables(self) -> None:

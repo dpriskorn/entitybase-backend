@@ -19,6 +19,7 @@ from models.infrastructure.stream.producer import (
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.misc import EditType
 from models.rest_api.request import EntityUpdateRequest, EntityCreateRequest
+from models.rest_api.response.entity import EntityHistoryEntry
 from models.rest_api.response import (
     EntityResponse,
     StatementHashResult,
@@ -604,7 +605,7 @@ class EntityReadHandler:
         s3_client: S3Client,
         limit: int = 20,
         offset: int = 0,
-    ) -> list[Any]:
+    ) -> list[EntityHistoryEntry]:
         """Get entity revision history."""
         if vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
@@ -621,15 +622,15 @@ class EntityReadHandler:
                 try:
                     revision = s3_client.read_revision(entity_id, rev_id)
                     revisions.append(
-                        {
-                            "revision_id": rev_id,
-                            "created_at": revision.data.get("created_at"),
-                            "created_by": revision.data.get("created_by"),
-                            "edit_summary": revision.data.get("edit_summary"),
-                            "editor": revision.data.get("editor"),
-                            "edit_type": revision.data.get("edit_type"),
-                            "is_mass_edit": revision.data.get("is_mass_edit", False),
-                        }
+                        EntityHistoryEntry(
+                            revision_id=rev_id,
+                            created_at=revision.data.get("created_at"),
+                            created_by=revision.data.get("created_by"),
+                            edit_summary=revision.data.get("edit_summary"),
+                            editor=revision.data.get("editor"),
+                            edit_type=revision.data.get("edit_type"),
+                            is_mass_edit=revision.data.get("is_mass_edit", False),
+                        )
                     )
                 except Exception as e:
                     logger.warning(

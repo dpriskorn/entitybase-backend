@@ -84,3 +84,127 @@ async def test_create_user_invalid() -> None:
         # Invalid user_id (negative)
         response = await client.post("/v1/users", json={"user_id": -1})
         assert response.status_code == 422  # Validation error
+
+
+@pytest.mark.asyncio
+async def test_toggle_watchlist_enable() -> None:
+    """Test enabling watchlist for user"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Register user
+        await client.post("/v1/users", json={"user_id": 12345})
+
+        # Toggle to disable first
+        await client.put("/v1/users/12345/watchlist/toggle", json={"enabled": False})
+
+        # Then enable
+        response = await client.put(
+            "/v1/users/12345/watchlist/toggle", json={"enabled": True}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["user_id"] == 12345
+        assert data["enabled"] is True
+
+
+@pytest.mark.asyncio
+async def test_toggle_watchlist_disable() -> None:
+    """Test disabling watchlist for user"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Register user
+        await client.post("/v1/users", json={"user_id": 12345})
+
+        # Disable
+        response = await client.put(
+            "/v1/users/12345/watchlist/toggle", json={"enabled": False}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["user_id"] == 12345
+        assert data["enabled"] is False
+
+
+@pytest.mark.asyncio
+async def test_toggle_watchlist_user_not_registered() -> None:
+    """Test toggle for unregistered user"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.put(
+            "/v1/users/99999/watchlist/toggle", json={"enabled": True}
+        )
+        assert response.status_code == 400
+        assert "User not registered" in response.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_get_user_activity() -> None:
+    """Test getting user activity"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Register user
+        await client.post("/v1/users", json={"user_id": 12345})
+
+        # Get activity (should be empty initially)
+        response = await client.get("/v1/users/12345/activity")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["user_id"] == 12345
+        assert data["activities"] == []
+
+
+@pytest.mark.asyncio
+async def test_get_user_activity_user_not_registered() -> None:
+    """Test getting activity for unregistered user"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get("/v1/users/99999/activity")
+        assert response.status_code == 400
+        assert "User not registered" in response.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_get_user_activity_invalid_type() -> None:
+    """Test getting activity with invalid type filter"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Register user
+        await client.post("/v1/users", json={"user_id": 12345})
+
+        response = await client.get("/v1/users/12345/activity?type=invalid")
+        assert response.status_code == 400
+        assert "Invalid activity type" in response.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_get_user_activity_invalid_limit() -> None:
+    """Test getting activity with invalid limit"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Register user
+        await client.post("/v1/users", json={"user_id": 12345})
+
+        response = await client.get("/v1/users/12345/activity?limit=1000")
+        assert response.status_code == 400
+        assert "Limit must be one of" in response.json()["detail"]

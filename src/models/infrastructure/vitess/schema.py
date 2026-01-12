@@ -171,7 +171,11 @@ class SchemaManager:
             CREATE TABLE IF NOT EXISTS users (
                 user_id BIGINT PRIMARY KEY,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                preferences JSON DEFAULT NULL
+                preferences JSON DEFAULT NULL,
+                watchlist_enabled BOOLEAN DEFAULT TRUE,
+                last_activity TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                notification_limit INT DEFAULT 50,
+                retention_hours INT DEFAULT 24
             )
         """
         )
@@ -203,6 +207,21 @@ class SchemaManager:
                 checked_at TIMESTAMP NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 INDEX idx_user_timestamp (user_id, event_timestamp),
+                INDEX idx_entity (entity_id)
+            )
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS user_activity (
+                id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                user_id BIGINT NOT NULL,
+                activity_type VARCHAR(50) NOT NULL,
+                entity_id VARCHAR(50),
+                revision_id BIGINT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_user_type_time (user_id, activity_type, created_at),
                 INDEX idx_entity (entity_id)
             )
         """

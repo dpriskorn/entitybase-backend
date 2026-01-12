@@ -6,7 +6,7 @@
 - Avoid premature optimizations. Caching can wait, let's build something that scales to 1bn+ items accessible for 1 user first, then scale to 100k+ users.
 - Keep discrete components small and apart
 - Use Python Pydantic and FastAPI framework 
-- All code is Pydantic classes except main.py in every service
+- use Pydantic classes where it makes sense and serialization is needed
 - Start small and simple, iterate in small steps
 - No threat model, everybody is playing nice
 - Start with 1 shard until we get MVP working
@@ -19,6 +19,7 @@
 - do this before running pytest:  export PYTHONPATH=/home/dpriskorn/src/python/wikibase-backend/src:$PYTHONPATH && source .venv/bin/activate
 - after each edit with new tests lets use pytest to check that new tests pass
 - generally one class per file for all classes with at least 1 method
+- add single line docstring at the minimum to new classes and methods
 - no relative imports
 - no __future__ imports
 - no strings in code - everything is enums
@@ -31,7 +32,3 @@
 - use pydantic models for all dict-style returns from functions in src/
 
 # Current task
-replace all returns with dict[str, str] to use pydantic models postfixed with "Response" instead
-
-#todo
-lets design a backlink statistics service worker that runs once a day and generate statistics

@@ -85,3 +85,38 @@ class TestUserHandler:
 
         assert exc_info.value.status_code == 404
         assert exc_info.value.detail == "User not found"
+
+    def test_toggle_watchlist_success(
+        self, handler: UserHandler, mock_vitess_client: MagicMock
+    ) -> None:
+        """Test successful watchlist toggle"""
+        from models.rest_api.request.user import WatchlistToggleRequest
+        from models.rest_api.response.user import WatchlistToggleResponse
+
+        request = WatchlistToggleRequest(enabled=False)
+        mock_vitess_client.user_repository.user_exists.return_value = True
+
+        result = handler.toggle_watchlist(12345, request, mock_vitess_client)
+
+        assert isinstance(result, WatchlistToggleResponse)
+        assert result.user_id == 12345
+        assert result.enabled is False
+        mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
+        mock_vitess_client.user_repository.set_watchlist_enabled.assert_called_once_with(
+            12345, False
+        )
+
+    def test_toggle_watchlist_user_not_found(
+        self, handler: UserHandler, mock_vitess_client: MagicMock
+    ) -> None:
+        """Test toggle for non-existent user"""
+        from models.rest_api.request.user import WatchlistToggleRequest
+
+        request = WatchlistToggleRequest(enabled=True)
+        mock_vitess_client.user_repository.user_exists.return_value = False
+
+        with pytest.raises(ValueError, match="User not registered"):
+            handler.toggle_watchlist(12345, request, mock_vitess_client)
+
+        mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
+        mock_vitess_client.user_repository.set_watchlist_enabled.assert_not_called()

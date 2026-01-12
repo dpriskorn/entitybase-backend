@@ -154,6 +154,14 @@ class RevisionRepository:
                     ),
                 )
 
+                # Log user activity
+                vitess_client.user_repository.log_user_activity(
+                    user_id=reverted_by_user_id,
+                    activity_type="entity_revert",
+                    entity_id=entity_id,
+                    revision_id=new_revision_id,
+                )
+
         return new_revision_id
 
     def get_history(

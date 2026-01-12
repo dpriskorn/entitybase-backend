@@ -205,6 +205,19 @@ Response model for Wikibase REST API entity endpoints.
 - `claims` (Dict[str, List[Dict[str, Any]]]): No description
 - `sitelinks` (Dict[str, Dict[str, Any]]): No description
 
+## models/rest_api/response/entity/revert.py
+
+### EntityRevertResponse
+
+Response for entity revert operation.
+
+**Fields**:
+
+- `entity_id` (str): No description
+- `new_revision_id` (int): No description
+- `reverted_from_revision_id` (int): No description
+- `reverted_at` (str): No description
+
 ## models/rest_api/response/health.py
 
 ### HealthCheckResponse
@@ -468,4 +481,55 @@ Response model for statement data.
 - `content_hash` (int): Statement hash
 - `statement` (Dict[str, Any]): Full statement JSON
 - `created_at` (str): Creation timestamp
+
+## models/rest_api/response/user.py
+
+### MessageResponse
+
+Generic message response.
+
+**Fields**:
+
+- `message` (str): No description
+
+### UserCreateResponse
+
+Response for user creation.
+
+**Fields**:
+
+- `user_id` (int): No description
+- `created` (bool): No description
+
+### WatchlistToggleResponse
+
+Response for watchlist toggle.
+
+**Fields**:
+
+- `user_id` (int): No description
+- `enabled` (bool): No description
+
+## models/rest_api/response/user_activity.py
+
+### UserActivityResponse
+
+Response for user activity query.
+
+**Fields**:
+
+- `user_id` (int): No description
+- `activities` (List[UserActivityItem]): No description
+
+## models/rest_api/response/user_preferences.py
+
+### UserPreferencesResponse
+
+Response for user preferences query.
+
+**Fields**:
+
+- `user_id` (int): No description
+- `notification_limit` (int): No description
+- `retention_hours` (int): No description
 

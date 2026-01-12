@@ -31,6 +31,7 @@ class EntityDeleteHandler:
         vitess_client: VitessClient,
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
+        user_id: int = 0,
     ) -> EntityDeleteResponse:
         """Delete entity (soft or hard delete)."""
         if vitess_client is None:
@@ -175,6 +176,15 @@ class EntityDeleteHandler:
                 logger.warning(
                     f"Entity {entity_id}: Failed to publish delete event: {e}"
                 )
+
+        # Log activity
+        if user_id > 0:
+            vitess_client.user_repository.log_user_activity(
+                user_id=user_id,
+                activity_type="entity_delete",
+                entity_id=entity_id,
+                revision_id=new_revision_id,
+            )
 
         return EntityDeleteResponse(
             id=entity_id,

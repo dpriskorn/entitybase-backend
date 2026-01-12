@@ -2,8 +2,8 @@
 
 from datetime import datetime
 
-from models.rest_api.request.entity.revert import EntityRevertRequest
-from models.rest_api.response.entity.revert import EntityRevertResponse
+from models.rest_api.request.entity import EntityRevertRequest
+from models.rest_api.response.entity import EntityRevertResponse
 from models.validation.utils import raise_validation_error
 
 
@@ -11,7 +11,7 @@ class EntityRevertHandler:
     """Handler for reverting entities to previous revisions."""
 
     def revert_entity(
-        self, entity_id: str, request: EntityRevertRequest, vitess_client
+        self, entity_id: str, request: EntityRevertRequest, vitess_client, user_id: int
     ) -> EntityRevertResponse:
         """Revert an entity to a specified revision."""
         # Resolve internal ID
