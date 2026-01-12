@@ -60,6 +60,102 @@ class RevisionRepository:
                 ),
             )
 
+    def get_revision(
+        self, internal_entity_id: int, revision_id: int, vitess_client
+    ) -> dict | None:
+        """Get a specific revision data."""
+        with vitess_client.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                    (internal_entity_id, revision_id),
+                )
+                row = cursor.fetchone()
+                if row:
+                    return {
+                        "statements": json.loads(row[0]) if row[0] else [],
+                        "properties": json.loads(row[1]) if row[1] else [],
+                        "property_counts": json.loads(row[2]) if row[2] else {},
+                        "labels_hashes": json.loads(row[3]) if row[3] else {},
+                        "descriptions_hashes": json.loads(row[4]) if row[4] else {},
+                        "aliases_hashes": json.loads(row[5]) if row[5] else {},
+                    }
+                return None
+
+    def revert_entity(
+        self,
+        internal_entity_id: int,
+        to_revision_id: int,
+        reverted_by_user_id: int,
+        reason: str,
+        watchlist_context: dict | None,
+        vitess_client,
+    ) -> int:
+        """Revert entity to a previous revision and log the action."""
+        # Get the target revision data
+        target_data = self.get_revision(
+            internal_entity_id, to_revision_id, vitess_client
+        )
+        if not target_data:
+            raise_validation_error(
+                f"Revision {to_revision_id} not found", status_code=404
+            )
+
+        # Get next revision ID
+        with vitess_client.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT COALESCE(MAX(revision_id), 0) + 1 FROM entity_revisions WHERE internal_id = %s",
+                    (internal_entity_id,),
+                )
+                new_revision_id = cursor.fetchone()[0]
+
+                # Insert the reverted revision
+                cursor.execute(
+                    """INSERT INTO entity_revisions
+                            (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes)
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                    (
+                        internal_entity_id,
+                        new_revision_id,
+                        False,  # is_mass_edit
+                        "revert",
+                        json.dumps(target_data["statements"]),
+                        json.dumps(target_data["properties"]),
+                        json.dumps(target_data["property_counts"]),
+                        json.dumps(target_data["labels_hashes"]),
+                        json.dumps(target_data["descriptions_hashes"]),
+                        json.dumps(target_data["aliases_hashes"]),
+                    ),
+                )
+
+                # Update head
+                cursor.execute(
+                    "UPDATE entity_head SET head_revision_id = %s WHERE internal_id = %s",
+                    (new_revision_id, internal_entity_id),
+                )
+
+                # Log the revert
+                entity_id = vitess_client.id_resolver.resolve_entity_id(
+                    conn, internal_entity_id
+                )
+                cursor.execute(
+                    """INSERT INTO revert_log
+                            (entity_id, internal_entity_id, from_revision_id, to_revision_id, reverted_by_user_id, reason, watchlist_context)
+                            VALUES (%s, %s, (SELECT head_revision_id FROM entity_head WHERE internal_id = %s), %s, %s, %s, %s)""",
+                    (
+                        entity_id,
+                        internal_entity_id,
+                        internal_entity_id,
+                        to_revision_id,
+                        reverted_by_user_id,
+                        reason,
+                        json.dumps(watchlist_context) if watchlist_context else None,
+                    ),
+                )
+
+        return new_revision_id
+
     def get_history(
         self, conn: Any, entity_id: str, limit: int = 20, offset: int = 0
     ) -> list[Any]:

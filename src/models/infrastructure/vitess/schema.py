@@ -166,4 +166,46 @@ class SchemaManager:
         """
         )
 
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                user_id BIGINT PRIMARY KEY,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                preferences JSON DEFAULT NULL
+            )
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS watchlist (
+                user_id BIGINT NOT NULL,
+                internal_entity_id BIGINT NOT NULL,
+                watched_properties TEXT DEFAULT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (user_id, internal_entity_id, watched_properties(255)),
+                FOREIGN KEY (internal_entity_id) REFERENCES entity_id_mapping(internal_id)
+            )
+        """
+        )
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS user_notifications (
+                id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                user_id BIGINT NOT NULL,
+                entity_id VARCHAR(50) NOT NULL,
+                revision_id BIGINT NOT NULL,
+                change_type VARCHAR(50) NOT NULL,
+                changed_properties JSON DEFAULT NULL,
+                event_timestamp TIMESTAMP NOT NULL,
+                is_checked BOOLEAN DEFAULT FALSE,
+                checked_at TIMESTAMP NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_user_timestamp (user_id, event_timestamp),
+                INDEX idx_entity (entity_id)
+            )
+        """
+        )
+
         cursor.close()
