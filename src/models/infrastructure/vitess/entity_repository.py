@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from models.rest_api.response.entity import ProtectionInfo
+from models.rest_api.response.entity import ProtectionResponse
 
 
 class EntityRepository:
@@ -64,7 +64,7 @@ class EntityRepository:
             result = cursor.fetchone()
             return result[0] if result else False
 
-    def get_protection_info(self, conn: Any, entity_id: str) -> ProtectionInfo | None:
+    def get_protection_info(self, conn: Any, entity_id: str) -> ProtectionResponse | None:
         """Get protection status information for an entity."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
@@ -82,7 +82,7 @@ class EntityRepository:
         if not result:
             return None
 
-        return ProtectionInfo(
+        return ProtectionResponse(
             is_semi_protected=bool(result[0]),
             is_locked=bool(result[1]),
             is_archived=bool(result[2]),

@@ -1,11 +1,20 @@
-"""Entity response models for REST API."""
-
-from typing import Any, Dict
-
-from typing import List
+from typing import Dict, Any, List
 
 from pydantic import BaseModel, Field
 
+from models.rest_api.response.entity.wikibase_json import EntityMetadata
+
+
+class EntityHistoryEntry(BaseModel):
+    """Response model for a single entity history entry."""
+
+    revision_id: int
+    created_at: str | None
+    created_by: str | None
+    edit_summary: str | None
+    editor: str | None
+    edit_type: str | None
+    is_mass_edit: bool
 
 class EntityResponse(BaseModel):
     """Response model for entity data."""
@@ -53,20 +62,6 @@ class EntityRedirectResponse(BaseModel):
     revision_id: int
 
 
-class Backlink(BaseModel):
-    """Model representing a backlink from one entity to another."""
-
-    entity_id: str = Field(description="Entity ID that references the target")
-    property_id: str = Field(description="Property used in the reference")
-    rank: str = Field(description="Rank of the statement (normal/preferred/deprecated)")
-
-
-class BacklinksResponse(BaseModel):
-    """Response model for backlinks API."""
-
-    backlinks: list[Backlink] = Field(description="List of backlinks")
-    limit: int = Field(description="Requested limit")
-    offset: int = Field(description="Requested offset")
 
 
 class EntityListResponse(BaseModel):
@@ -76,71 +71,6 @@ class EntityListResponse(BaseModel):
         description="List of entities with their metadata"
     )
     count: int = Field(description="Total number of entities returned")
-
-
-class LabelValue(BaseModel):
-    """Individual label entry with language and value."""
-
-    language: str = Field(..., min_length=1)
-    value: str = Field(..., min_length=1)
-
-
-class DescriptionValue(BaseModel):
-    """Individual description entry with language and value."""
-
-    language: str = Field(..., min_length=1)
-    value: str = Field(..., min_length=1)
-
-
-class AliasValue(BaseModel):
-    """Individual alias entry with language and value."""
-
-    language: str = Field(..., min_length=1)
-    value: str = Field(..., min_length=1)
-
-
-class EntityLabels(BaseModel):
-    """Collection of labels keyed by language code."""
-
-    data: dict[str, LabelValue] = Field(default_factory=dict)
-
-
-class EntityDescriptions(BaseModel):
-    """Collection of descriptions keyed by language code."""
-
-    data: dict[str, DescriptionValue] = Field(default_factory=dict)
-
-
-class EntityAliases(BaseModel):
-    """Collection of aliases keyed by language code."""
-
-    data: dict[str, list[AliasValue]] = Field(default_factory=dict)
-
-
-class EntityStatements(BaseModel):
-    """List of entity statements."""
-
-    data: list[dict[str, Any]] = Field(default_factory=list)
-
-
-class EntitySitelinks(BaseModel):
-    """Collection of sitelinks."""
-
-    data: dict[str, Any] = Field(default_factory=dict)
-
-
-class EntityMetadata(BaseModel):
-    """Model for entity metadata."""
-
-    id: str
-    type: str = Field(default="item")
-    labels: EntityLabels = Field(default_factory=lambda: EntityLabels())
-    descriptions: EntityDescriptions = Field(
-        default_factory=lambda: EntityDescriptions()
-    )
-    aliases: EntityAliases = Field(default_factory=lambda: EntityAliases())
-    statements: EntityStatements = Field(default_factory=lambda: EntityStatements())
-    sitelinks: EntitySitelinks = Field(default_factory=lambda: EntitySitelinks())
 
 
 class EntityMetadataBatchResponse(BaseModel):
@@ -159,7 +89,7 @@ class EntityRevisionResponse(BaseModel):
     data: dict[str, Any] = Field(description="Revision data")
 
 
-class ProtectionInfo(BaseModel):
+class ProtectionResponse(BaseModel):
     """Model for entity protection information."""
 
     is_semi_protected: bool = Field(description="Whether entity is semi-protected")

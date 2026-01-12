@@ -17,7 +17,7 @@ from .entity import (
     EntityRedirectResponse,
     EntityResponse,
     EntityRevisionResponse,
-    ProtectionInfo,
+    ProtectionResponse,
     WikibaseEntityResponse,
 )
 from models.vitess_models import BacklinkData
@@ -67,7 +67,7 @@ __all__ = [
     "PropertyCountsResponse",
     "PropertyHashesResponse",
     "PropertyListResponse",
-    "ProtectionInfo",
+    "ProtectionResponse",
     "RedirectBatchResponse",
     "RevisionMetadataResponse",
     "StatementBatchResponse",

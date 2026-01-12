@@ -68,6 +68,20 @@ Collection of descriptions keyed by language code.
 
 - `data` (dict[str, DescriptionValue]): No description
 
+### EntityHistoryEntry
+
+Response model for a single entity history entry.
+
+**Fields**:
+
+- `revision_id` (int): No description
+- `created_at` (str | None): No description
+- `created_by` (str | None): No description
+- `edit_summary` (str | None): No description
+- `editor` (str | None): No description
+- `edit_type` (str | None): No description
+- `is_mass_edit` (bool): No description
+
 ### EntityJsonImportResponse
 
 Response model for JSONL entity import operations.

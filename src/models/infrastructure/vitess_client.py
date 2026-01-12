@@ -12,6 +12,7 @@ from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.entities import IdResolver
 from models.infrastructure.vitess.entity_repository import EntityRepository
 from models.infrastructure.vitess.head_repository import HeadRepository
+from models.infrastructure.vitess.listing_repository import ListingRepository
 from models.infrastructure.vitess.metadata_repository import MetadataRepository
 from models.infrastructure.vitess.redirect_repository import RedirectRepository
 from models.infrastructure.vitess.revision_repository import RevisionRepository
@@ -20,7 +21,7 @@ from models.infrastructure.vitess.statement_repository import StatementRepositor
 from models.infrastructure.vitess.user_repository import UserRepository
 from models.infrastructure.vitess.watchlist_repository import WatchlistRepository
 from models.rest_api.request.entity import RevisionInsertDataRequest
-from models.rest_api.response.entity import ProtectionInfo
+from models.rest_api.response.entity import ProtectionResponse
 from models.vitess_models import BacklinkData
 from models.rest_api.response.rdf import FullRevisionData
 from models.validation.utils import raise_validation_error
@@ -38,7 +39,7 @@ class VitessClient(Client):
     revision_repository: RevisionRepository = Field(default=None, exclude=True)
     redirect_repository: RedirectRepository = Field(default=None, exclude=True)
     head_repository: HeadRepository = Field(default=None, exclude=True)
-    # listing_repository: ListingRepository = Field(default=None, exclude=True)  # DISABLED: Not used
+    listing_repository: ListingRepository = Field(default=None, exclude=True)  # DISABLED: Not used
     statement_repository: StatementRepository = Field(default=None, exclude=True)
     backlink_repository: BacklinkRepository = Field(default=None, exclude=True)
     metadata_repository: MetadataRepository = Field(default=None, exclude=True)
@@ -84,7 +85,7 @@ class VitessClient(Client):
 
     def healthy_connection(self) -> bool:
         """Check if the database connection is healthy."""
-        return self.connection_manager.healthy_connection()  # type: ignore[no-any-return]
+        return self.connection_manager.healthy_connection  # type: ignore[no-any-return]
 
     @contextmanager
     def get_connection(self) -> Generator[Any, None, None]:
@@ -144,7 +145,7 @@ class VitessClient(Client):
         with self.connection_manager.get_connection() as conn:
             return self.entity_repository.is_archived(conn, entity_id)  # type: ignore[no-any-return]
 
-    def get_protection_info(self, entity_id: str) -> ProtectionInfo | None:
+    def get_protection_info(self, entity_id: str) -> ProtectionResponse | None:
         """Get protection information for an entity."""
         with self.connection_manager.get_connection() as conn:
             return self.entity_repository.get_protection_info(conn, entity_id)
@@ -325,21 +326,20 @@ class VitessClient(Client):
             cursor.close()
             return [row[0] for row in results]
 
-    # DISABLED: /entities endpoint not implemented
-    # def list_locked_entities(self, limit: int) -> list[dict]:
-    #     return self.listing_repository.list_locked(limit)
-    #
-    # def list_semi_protected_entities(self, limit: int) -> list[dict]:
-    #     return self.listing_repository.list_semi_protected(limit)
-    #
-    # def list_archived_entities(self, limit: int) -> list[dict]:
-    #     return self.listing_repository.list_archived(limit)
-    #
-    # def list_dangling_entities(self, limit: int) -> list[dict]:
-    #     return self.listing_repository.list_dangling(limit)
-    #
-    # def list_by_edit_type(self, edit_type: str, limit: int) -> list[dict]:
-    #     return self.listing_repository.list_by_edit_type(edit_type, limit)
+    def list_locked_entities(self, limit: int) -> list[dict]:
+        return self.listing_repository.list_locked(limit)
+
+    def list_semi_protected_entities(self, limit: int) -> list[dict]:
+        return self.listing_repository.list_semi_protected(limit)
+
+    def list_archived_entities(self, limit: int) -> list[dict]:
+        return self.listing_repository.list_archived(limit)
+
+    def list_dangling_entities(self, limit: int) -> list[dict]:
+        return self.listing_repository.list_dangling(limit)
+
+    def list_by_edit_type(self, edit_type: str, limit: int) -> list[dict]:
+        return self.listing_repository.list_by_edit_type(edit_type, limit)
 
     def insert_statement_content(self, content_hash: int) -> bool:
         """Insert statement content hash."""
