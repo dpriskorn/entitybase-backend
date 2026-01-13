@@ -31,7 +31,7 @@ class DevWorker(BaseModel):
             )
 
     @property
-    def s3_client(self):
+    def s3_client(self) -> Any:
         """Get S3 client with shared credentials for all buckets."""
         return self._boto3.client(
             "s3",
@@ -105,7 +105,7 @@ class DevWorker(BaseModel):
 
     async def bucket_health_check(self) -> Dict[str, Any]:
         """Perform health check on all required buckets."""
-        health_status = {"overall_status": "healthy", "buckets": {}, "issues": []}
+        health_status: Dict[str, Any] = {"overall_status": "healthy", "buckets": {}, "issues": []}
 
         for bucket in self.required_buckets:
             try:

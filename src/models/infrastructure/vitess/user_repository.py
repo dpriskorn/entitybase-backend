@@ -143,7 +143,7 @@ class UserRepository:
                     FROM user_activity
                     WHERE user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
                 """
-                params = [user_id, hours]
+                params: List[Any] = [user_id, hours]
 
                 if activity_type:
                     query += " AND activity_type = %s"
