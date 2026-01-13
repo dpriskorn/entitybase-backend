@@ -5,7 +5,7 @@ import logging
 from contextlib import contextmanager
 from typing import Any, Generator
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +31,14 @@ from models.rest_api.response.entity.entitybase import ProtectionResponse
 from models.rest_api.response.rdf import FullRevisionData
 from models.validation.utils import raise_validation_error
 from models.vitess_models import VitessConfig
+
+
+class Backlink(BaseModel):
+    """Model for a backlink entry."""
+    internal_id: int
+    entity_id: str
+    property_id: str
+    statement_id: str
 
 
 class VitessClient(Client):
@@ -208,9 +216,9 @@ class VitessClient(Client):
                         "Concurrent modification detected", status_code=409
                     )
                 return
-            return self.revision_repository.create(
+            self.revision_repository.create(
                 conn, entity_id, revision_id, entity_data
-            )  # type: ignore[no-any-return]
+            )
 
     def set_redirect_target(
         self,
@@ -499,12 +507,21 @@ class VitessClient(Client):
 
     def get_backlinks(
         self, referenced_internal_id: int, limit: int = 100, offset: int = 0
-    ) -> list[tuple[int, str, str, str]]:
+    ) -> list[Backlink]:
         """Get backlinks for an entity."""
         with self.connection_manager.get_connection() as conn:
-            return self.backlink_repository.get_backlinks(
+            tuples = self.backlink_repository.get_backlinks(
                 conn, referenced_internal_id, limit, offset
-            )  # type: ignore[no-any-return]
+            )
+            return [
+                Backlink(
+                    internal_id=t[0],
+                    entity_id=t[1],
+                    property_id=t[2],
+                    statement_id=t[3],
+                )
+                for t in tuples
+            ]
 
     def get_entity_history(
         self,
