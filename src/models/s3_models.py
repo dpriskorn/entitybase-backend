@@ -2,7 +2,7 @@
 
 from typing import Any, Dict
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field
 
 from models.infrastructure.config import Config
 from models.rest_api.response.statement import StatementResponse

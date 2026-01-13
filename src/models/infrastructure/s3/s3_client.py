@@ -415,7 +415,7 @@ class S3Client(Client):
             )
             raise
 
-    def load_term_metadata(self, content_hash: int) -> str:
+    def load_term_metadata(self, content_hash: int) -> str:  # type: ignore[no-any-return]
         """Load term metadata as plain UTF-8 text from S3.
 
         Args:
@@ -480,7 +480,7 @@ class S3Client(Client):
             )
             raise
 
-    def load_sitelink_metadata(self, content_hash: int) -> str:
+    def load_sitelink_metadata(self, content_hash: int) -> str:  # type: ignore[no-any-return]
         """Load sitelink metadata as plain UTF-8 text from S3.
 
         Args:

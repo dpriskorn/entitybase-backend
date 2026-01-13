@@ -6,7 +6,6 @@ from .entity import (
     EntityCreateRequest,
     EntityDeleteRequest,
     EntityRedirectRequest,
-    EntityUpdateRequest,
     RedirectRevertRequest,
     EntityJsonImportRequest,
 )
@@ -20,7 +19,6 @@ __all__ = [
     "EntityCreateRequest",
     "EntityDeleteRequest",
     "EntityRedirectRequest",
-    "EntityUpdateRequest",
     "RedirectRevertRequest",
     "EntityJsonImportRequest",
     "StatementBatchRequest",

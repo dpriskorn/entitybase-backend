@@ -370,7 +370,7 @@ def revert_entity(
 
 
 @v1_router.get("/entities/{entity_id}", response_model=EntityResponse)
-def get_entity(entity_id: str) -> EntityResponse:
+def get_entity(entity_id: str, req: Request) -> EntityResponse:
     """Retrieve a single entity by its ID."""
     # noinspection PyUnresolvedReferences
     clients = cast(Clients, req.app.state.clients)
@@ -624,7 +624,7 @@ def get_entity_property_counts(entity_id: str) -> PropertyCountsResponse:
     "/entity/{entity_id}/properties/{property_list}",
     response_model=PropertyHashesResponse,
 )
-def get_entity_property_hashes(
+def get_entity_property_hashes_sync(
     entity_id: str, property_list: str
 ) -> PropertyHashesResponse:
     """Get statement hashes for specified properties in an entity."""
