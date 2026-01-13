@@ -15,6 +15,7 @@ set -e
 ./run-pydantic-field-lint.sh
 ./run-any-lint.sh
 ./run-cast-lint.sh
+./run-tuple-lint.sh
 
 # == external linters ==
 ./run-ruff.sh
