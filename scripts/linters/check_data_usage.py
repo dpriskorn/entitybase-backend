@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+"""
+Linter to check for data: attributes in Python files.
+"""
+
+import sys
+from pathlib import Path
+
+
+def check_file(file_path: Path) -> list[tuple[str, int, str]]:
+    """Check a single Python file for data: attributes."""
+    violations = []
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            for line_no, line in enumerate(f, 1):
+                stripped = line.strip()
+                # Skip comments and empty lines
+                if not stripped or stripped.startswith("#"):
+                    continue
+                # Look for data: (field definitions)
+                if "data:" in line:
+                    violations.append(
+                        (
+                            str(file_path),
+                            line_no,
+                            f"Found 'data:' attribute: {line.strip()}, consider using a more specific attribute name",
+                        )
+                    )
+    except Exception as e:
+        violations.append((str(file_path), 0, f"Error reading file: {e}"))
+
+    return violations
+
+
+def main() -> None:
+    """Main entry point."""
+    if len(sys.argv) < 2:
+        print("Usage: python check_data_usage.py <path>")
+        sys.exit(1)
+
+    path = Path(sys.argv[1])
+    if not path.exists():
+        print(f"Path {path} does not exist")
+        sys.exit(1)
+
+    violations = []
+
+    if path.is_file() and path.suffix == ".py":
+        violations.extend(check_file(path))
+    elif path.is_dir():
+        for py_file in path.rglob("*.py"):
+            violations.extend(check_file(py_file))
+
+    if violations:
+        print("data: attribute violations:")
+        for file_path, line_no, message in violations:
+            print(f"{file_path}:{line_no}: {message}")
+        sys.exit(1)
+    else:
+        print("No data: attribute violations found")
+
+
+if __name__ == "__main__":
+    main()
