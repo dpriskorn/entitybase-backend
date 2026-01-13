@@ -1,12 +1,12 @@
 """Entity creation transaction management."""
 
-from pydantic import BaseModel, Field
+import logging
 from abc import ABC, abstractmethod
 from typing import List, Callable, Any
-import logging
+
+from pydantic import BaseModel, Field
 
 from models.rest_api.response import StatementHashResult
-from models.rest_api.response.entity.entitybase import EntityRevisionResponse
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +50,7 @@ class EntityTransaction(BaseModel, ABC):
         is_dangling: bool,
         is_mass_edit_protected: bool,
         vitess_client: Any,
+        s3_client: Any,
         stream_producer: Any,
         is_creation: bool,
     ) -> Any:
@@ -77,6 +78,7 @@ class EntityTransaction(BaseModel, ABC):
             is_dangling=is_dangling,
             is_mass_edit_protected=is_mass_edit_protected,
             vitess_client=vitess_client,
+            s3_client=s3_client,
             stream_producer=stream_producer,
             is_creation=is_creation,
         )

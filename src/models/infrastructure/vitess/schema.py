@@ -129,6 +129,7 @@ class SchemaManager:
                 labels_hashes JSON,
                 descriptions_hashes JSON,
                 aliases_hashes JSON,
+                sitelinks_hashes JSON,
                 PRIMARY KEY (internal_id, revision_id)
             )
         """

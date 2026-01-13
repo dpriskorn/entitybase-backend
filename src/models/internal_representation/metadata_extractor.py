@@ -24,6 +24,12 @@ class AliasesResponse(BaseModel):
     aliases: dict[str, list[str]]
 
 
+class SitelinksResponse(BaseModel):
+    """Response model for extracted sitelinks."""
+
+    sitelinks: dict[str, str]
+
+
 class MetadataExtractor:
     """Extracts and prepares metadata (labels, descriptions, aliases) from entity JSON for deduplication."""
 
@@ -63,6 +69,17 @@ class MetadataExtractor:
                 for lang, alias_list in aliases.items()
             }
         )
+
+    @staticmethod
+    def extract_sitelinks(entity: dict[str, Any]) -> SitelinksResponse:
+        """Extract sitelink titles from entity JSON."""
+        sitelinks = entity.get("sitelinks", {})
+        data = {
+            wiki: sitelink_data["title"]
+            for wiki, sitelink_data in sitelinks.items()
+            if "title" in sitelink_data
+        }
+        return SitelinksResponse(sitelinks=data)
 
     @staticmethod
     def hash_string(content: str) -> int:

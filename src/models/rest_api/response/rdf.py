@@ -47,6 +47,9 @@ class FullRevisionData(BaseModel):
     aliases: dict[str, list[str]] = Field(
         default_factory=dict, description="Entity aliases"
     )
+    sitelinks: dict[str, dict[str, str]] = Field(
+        default_factory=dict, description="Entity sitelinks"
+    )
 
 
 class MetadataLoadResponse(BaseModel):

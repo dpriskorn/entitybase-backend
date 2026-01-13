@@ -2,6 +2,100 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-13] Sitelinks Deduplication, Endpoints, and Batch API
+
+### Summary
+
+Implemented sitelinks deduplication by hashing titles only, keeping wiki identifiers in revisions. Added new S3 bucket for sitelinks metadata, individual lookup endpoints, and batch endpoints for all metadata types to improve frontend performance and caching.
+
+### Motivation
+
+- **Storage Efficiency**: Deduplicate repeated sitelinks titles across entities and revisions.
+- **Consistency**: Align sitelinks with existing metadata deduplication for labels/descriptions/aliases.
+- **API Completeness**: Provide endpoints to query sitelinks and lookup titles by hash.
+- **Performance**: Add batch endpoints to reduce round-trips for multiple metadata lookups.
+- **Scalability**: Organize metadata storage for better management and caching.
+
+### Changes
+
+#### Storage and Deduplication
+- Added "sitelinks" S3 bucket created by the development worker.
+- Modified revision write logic to hash sitelinks titles and store in sitelinks/{hash}.json.
+- Updated read logic to reconstruct sitelinks from hashes.
+- Added sitelinks_hashes to entity_revisions database schema.
+
+#### API Endpoints
+- Added GET /entitybase/v1/entities/item/{id}/sitelinks/{wiki_id} to retrieve sitelink title for a specific wiki in an entity.
+- Added GET /entitybase/v1/sitelinks/{hashes} (batch, up to 20 hashes) to lookup titles by hashes.
+- Added GET /entitybase/v1/labels/{hashes} (batch) for labels.
+- Added GET /entitybase/v1/descriptions/{hashes} (batch) for descriptions.
+- Added GET /entitybase/v1/aliases/{hashes} (batch) for aliases.
+- Added GET /entitybase/v1/statements/batch?entity_ids=...&property_ids=... (batch) for statements.
+
+#### Infrastructure
+- Extended MetadataExtractor for sitelinks title hashing.
+- Updated CreateBuckets worker to include "sitelinks" bucket.
+- Added validation for sitelinks hashes in RevisionData.
+
+## [2026-01-13] RevisionData Model Addition
+
+### Summary
+
+Introduced RevisionData Pydantic model to structure and validate top-level revision JSON data, replacing raw Dict[str, Any] in RevisionReadResponse. Includes strict allowlist validation for entity keys to enforce Wikibase structure without over-parsing.
+
+### Motivation
+
+- **Type Safety**: Improve validation and error handling for revision data inputs/outputs.
+- **Consistency**: Align with Pydantic best practices for JSON-close models.
+- **Security**: Prevent invalid keys in entity data via strict allowlist, reducing malformed data risks.
+- **Maintainability**: Prepare for future enhancements while avoiding unnecessary nesting.
+
+### Changes
+
+#### Model Changes
+- Added RevisionData class in src/models/s3_models.py with fields for schema_version, entity (with allowlist validator), and optional redirects_to.
+- Validator raises validation errors for invalid entity keys using raise_validation_error.
+
+#### API Changes
+- Updated RevisionReadResponse.data to use RevisionData.
+- Modified s3_client.py to instantiate RevisionData from parsed JSON, with strict validation.
+- Adjusted handlers in read.py and admin.py to use model_dump() for dict compatibility.
+
+## [2026-01-13] Entity History API Endpoint
+
+### Summary
+
+Implemented `GET /entities/{entity_id}/history` endpoint to retrieve revision history for entities, including revision ID, timestamp, user ID, and edit summary. Added required database schema changes to store edit metadata.
+
+### Motivation
+
+- **Audit Trail**: Provide complete edit history for entities to track changes and accountability
+- **User Experience**: Allow users to see who made changes and why
+- **Compliance**: Support requirements for change tracking and transparency
+- **API Completeness**: Round out entity management capabilities with history viewing
+
+### Changes
+
+#### Database Schema Changes
+
+- Added `created_by_user_id` column to `entity_revisions` table
+- Added `edit_summary` column to `entity_revisions` table
+
+#### API Changes
+
+- Updated `RevisionMetadataResponse` model to include `user_id` and `edit_summary` fields
+- Implemented `VitessClient.get_entity_history()` method
+- Updated `EntityReadHandler.get_entity_history()` to return complete metadata
+- Enhanced `/entities/{entity_id}/history` endpoint with pagination support
+
+#### Code Changes
+
+- Modified revision insertion logic to capture user and edit summary
+- Updated history queries to include new metadata fields
+- Added filtering to skip incomplete history entries
+- Required non-empty edit_summary in entity creation, update, and delete requests
+- Removed unused editor fields from request models and tests
+
 ## [2026-01-12] Backlink Statistics Script
 
 ### Summary

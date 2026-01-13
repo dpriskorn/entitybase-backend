@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, cast
 
-from fastapi import FastAPI, HTTPException, Header, Query, Response
+from fastapi import FastAPI, HTTPException, Header, Query, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from jsonschema import ValidationError
 from pip._internal import req
@@ -371,6 +371,7 @@ def revert_entity(
 @v1_router.get("/entities/{entity_id}", response_model=EntityResponse)
 def get_entity(entity_id: str) -> EntityResponse:
     """Retrieve a single entity by its ID."""
+    # noinspection PyUnresolvedReferences
     clients = cast(Clients, req.app.state.clients)
     handler = EntityReadHandler()
     return handler.get_entity(entity_id, clients.vitess, clients.s3)
@@ -468,16 +469,132 @@ def list_entities(  # type: ignore[no-any-return]
 
 
 @v1_router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)
-def get_entity_properties(entity_id: str) -> PropertyListResponse:
-    """Get list of properties used by an entity."""
-    clients = app.state.clients
+async def get_entity_properties(entity_id: str, req: Request) -> PropertyListResponse:
+    """Get properties for an entity."""
+    clients = req.app.state.clients
     handler = StatementHandler()
     return handler.get_entity_properties(entity_id, clients.vitess, clients.s3)
 
 
 @v1_router.get(
-    "/entities/{entity_id}/properties/counts", response_model=PropertyCountsResponse
+    "/entities/{entity_id}/properties/{property_list}",
+    response_model=PropertyHashesResponse,
 )
+async def get_entity_property_hashes(
+    entity_id: str, property_list: str
+) -> PropertyHashesResponse:
+    """Get statement hashes for specified properties in an entity."""
+    clients = app.state.clients
+    handler = StatementHandler()
+    return handler.get_entity_property_hashes(
+        entity_id, property_list, clients.vitess, clients.s3
+    )
+
+
+@v1_router.get("/sitelinks/{hashes}")
+async def get_batch_sitelinks(hashes: str, req: Request) -> dict[str, str]:
+    """Get batch sitelink titles by hashes."""
+    clients = req.app.state.clients
+    hash_list = hashes.split(",")
+    if len(hash_list) > 20:
+        raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
+    result = {}
+    for h in hash_list:
+        try:
+            hash_value = int(h.strip())
+            title = clients.s3.load_sitelink_metadata(hash_value)
+            if title:
+                result[h] = title
+        except ValueError:
+            pass  # Skip invalid hashes
+    return result
+
+
+@v1_router.get("/labels/{hashes}")
+async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
+    """Get batch labels by hashes."""
+    clients = req.app.state.clients
+    hash_list = hashes.split(",")
+    if len(hash_list) > 20:
+        raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
+    result = {}
+    for h in hash_list:
+        try:
+            hash_value = int(h.strip())
+            label = clients.s3.load_metadata("labels", hash_value)
+            if label:
+                result[h] = label
+        except ValueError:
+            pass
+    return result
+
+
+@v1_router.get("/descriptions/{hashes}")
+async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
+    """Get batch descriptions by hashes."""
+    clients = req.app.state.clients
+    hash_list = hashes.split(",")
+    if len(hash_list) > 20:
+        raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
+    result = {}
+    for h in hash_list:
+        try:
+            hash_value = int(h.strip())
+            desc = clients.s3.load_metadata("descriptions", hash_value)
+            if desc:
+                result[h] = desc
+        except ValueError:
+            pass
+    return result
+
+
+@v1_router.get("/aliases/{hashes}")
+async def get_batch_aliases(hashes: str, req: Request) -> dict[str, list[str]]:
+    """Get batch aliases by hashes."""
+    clients = req.app.state.clients
+    hash_list = hashes.split(",")
+    if len(hash_list) > 20:
+        raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
+    result = {}
+    for h in hash_list:
+        try:
+            hash_value = int(h.strip())
+            aliases = clients.s3.load_metadata("aliases", hash_value)
+            if aliases:
+                result[h] = aliases
+        except ValueError:
+            pass
+    return result
+
+
+@v1_router.get("/statements/batch")
+async def get_batch_statements(
+    req: Request, entity_ids: str, property_ids: str | None = None
+) -> dict[str, dict[str, list]]:
+    """Get batch statements for entities and properties."""
+    if req is None:
+        raise HTTPException(status_code=500, detail="Request not provided")
+    clients = req.app.state.clients
+    entity_list = entity_ids.split(",")
+    property_list = property_ids.split(",") if property_ids else None
+    if len(entity_list) > 20:
+        raise HTTPException(status_code=400, detail="Too many entities (max 20)")
+    result = {}
+    for entity_id in entity_list:
+        entity_id = entity_id.strip()
+        try:
+            # Get entity revision
+            handler = EntityReadHandler()
+            entity_response = handler.get_entity(entity_id, clients.vitess, clients.s3)
+            statements = entity_response.entity_data.get("statements", {})
+            if property_list:
+                filtered = {p: statements.get(p, []) for p in property_list}
+                result[entity_id] = filtered
+            else:
+                result[entity_id] = statements
+        except Exception:
+            result[entity_id] = {}
+    return result
 def get_entity_property_counts(entity_id: str) -> PropertyCountsResponse:
     """Get statement counts for each property in an entity."""
     clients = app.state.clients
@@ -498,6 +615,9 @@ def get_entity_property_hashes(
     return handler.get_entity_property_hashes(
         entity_id, property_list, clients.vitess, clients.s3
     )
+
+
+
 
 
 app.include_router(v1_router, prefix="/entitybase/v1")

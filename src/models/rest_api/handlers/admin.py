@@ -102,4 +102,4 @@ class AdminHandler:
             )
 
         # Return full revision wrapped in response model
-        return RawRevisionResponse(data=revision)
+        return RawRevisionResponse(data=revision.data.model_dump())

@@ -16,7 +16,7 @@ class CreateBuckets(BaseModel):
     minio_endpoint: str = os.getenv("MINIO_ENDPOINT", "http://localhost:9000")
     minio_access_key: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
     minio_secret_key: str = os.getenv("MINIO_SECRET_KEY", "minioadmin")
-    required_buckets: List[str] = ["terms", "statements", "revisions", "dumps"]
+    required_buckets: List[str] = ["terms", "statements", "revisions", "dumps", "sitelinks"]
 
     def __init__(self, **data: Any):
         super().__init__(**data)

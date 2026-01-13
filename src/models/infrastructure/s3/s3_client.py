@@ -11,6 +11,7 @@ from models.validation.utils import raise_validation_error
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
 from models.s3_models import (
+    RevisionData,
     S3Config,
     RevisionMetadata,
     RevisionReadResponse,
@@ -93,7 +94,7 @@ class S3Client(Client):
         parsed_data = json.loads(response["Body"].read().decode("utf-8"))
 
         return RevisionReadResponse(
-            entity_id=entity_id, revision_id=revision_id, data=parsed_data
+            entity_id=entity_id, revision_id=revision_id, data=RevisionData(**parsed_data), content=parsed_data.get("entity", {})
         )
 
     def mark_published(
@@ -127,7 +128,7 @@ class S3Client(Client):
         )
 
         return RevisionReadResponse(
-            entity_id=entity_id, revision_id=revision_id, data=parsed_data
+            entity_id=entity_id, revision_id=revision_id, data=RevisionData(**parsed_data), content=parsed_data.get("entity", {})
         )
 
     def delete_statement(self, content_hash: int) -> None:
@@ -347,6 +348,36 @@ class S3Client(Client):
             Metadata={"content_type": metadata_type, "content_hash": str(content_hash)},
         )
         logger.debug(f"S3 store_metadata: bucket={self.config.bucket}, key={key}")
+
+    def store_sitelink_metadata(self, content_hash: int, metadata: Any) -> None:
+        """Store sitelink metadata content in S3."""
+        key = f"{content_hash}.json"
+        self.connection_manager.boto_client.put_object(
+            Bucket="sitelinks",
+            Key=key,
+            Body=json.dumps(metadata),
+            Metadata={"content_type": "sitelinks", "content_hash": str(content_hash)},
+        )
+        logger.debug(f"S3 store_sitelink_metadata: bucket=sitelinks, key={key}")
+
+    def load_sitelink_metadata(self, content_hash: int) -> str:
+        """Load sitelink title from S3."""
+        key = f"{content_hash}.json"
+        try:
+            response = self.connection_manager.boto_client.get_object(
+                Bucket="sitelinks", Key=key
+            )
+            content = response["Body"].read()
+            data = json.loads(content)
+            return data.get("title", "")
+        except self.connection_manager.boto_client.exceptions.NoSuchKey:
+            logger.warning(f"S3 sitelink not found: bucket=sitelinks, key={key}")
+            return ""
+        except Exception as e:
+            logger.error(
+                f"S3 load_sitelink_metadata failed: bucket=sitelinks, key={key}, error={e}"
+            )
+            return ""
 
     def load_metadata(self, metadata_type: str, content_hash: int) -> Any:
         """Load metadata content from S3."""

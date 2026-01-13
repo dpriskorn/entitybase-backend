@@ -10,11 +10,8 @@ class EntityHistoryEntry(BaseModel):
 
     revision_id: int
     created_at: str | None
-    created_by: str | None
+    user_id: int | None
     edit_summary: str | None
-    editor: str | None
-    edit_type: str | None
-    is_mass_edit: bool
 
 
 class EntityResponse(BaseModel):
@@ -22,7 +19,7 @@ class EntityResponse(BaseModel):
 
     id: str
     revision_id: int
-    data: Dict[str, Any]
+    entity_data: Dict[str, Any]
     is_semi_protected: bool = False
     is_locked: bool = False
     is_archived: bool = False
@@ -71,9 +68,9 @@ class EntityMetadataBatchResponse(BaseModel):
 class EntityRevisionResponse(BaseModel):
     """Model for entity revision response."""
 
-    entity_id: str = Field(description="Entity ID")
-    revision_id: int = Field(description="Revision ID")
-    data: dict[str, Any] = Field(description="Revision data")
+    entity_id: str
+    revision_id: int
+    revision_data: dict[str, Any] = Field(description="Revision data")
 
 
 class ProtectionResponse(BaseModel):

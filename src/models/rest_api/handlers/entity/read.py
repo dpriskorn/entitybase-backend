@@ -44,14 +44,14 @@ class EntityReadHandler:
 
         try:
             revision = s3_client.read_revision(entity_id, head_revision_id)
-            data = revision.data.get("entity", {}).copy()
+            data =             revision.content.get("entity", {}).copy()
 
             terms_repo = TermsRepository(vitess_client.connection_manager)
 
             # Load metadata from Vitess/S3
             if fetch_metadata:
                 # Reconstruct labels from per-language hashes (Vitess)
-                labels_hashes = revision.data.get("labels_hashes", {})
+                labels_hashes =             revision.content.get("labels_hashes", {})
                 if labels_hashes:
                     data["labels"] = {}
                     for lang, hash_value in labels_hashes.items():
@@ -63,7 +63,7 @@ class EntityReadHandler:
                             }
 
                 # Reconstruct descriptions from per-language hashes (S3)
-                descriptions_hashes = revision.data.get("descriptions_hashes", {})
+                descriptions_hashes =             revision.content.get("descriptions_hashes", {})
                 if descriptions_hashes:
                     data["descriptions"] = {}
                     for lang, hash_value in descriptions_hashes.items():
@@ -74,7 +74,7 @@ class EntityReadHandler:
                         }
 
                 # Reconstruct aliases from per-language hash arrays (Vitess)
-                aliases_hashes = revision.data.get("aliases_hashes", {})
+                aliases_hashes =             revision.content.get("aliases_hashes", {})
                 if aliases_hashes:
                     data["aliases"] = {}
                     for lang, hash_list in aliases_hashes.items():
@@ -88,7 +88,7 @@ class EntityReadHandler:
             else:
                 # For legacy compatibility, merge metadata into entity data
                 entity_data = data["entity"]
-                labels_hashes = revision.data.get("labels_hashes", {})
+                labels_hashes =             revision.content.get("labels_hashes", {})
                 if labels_hashes:
                     entity_data["labels"] = {}
                     for lang, hash_value in labels_hashes.items():
@@ -99,7 +99,7 @@ class EntityReadHandler:
                                 "value": label_value,
                             }
 
-                descriptions_hashes = revision.data.get("descriptions_hashes", {})
+                descriptions_hashes =             revision.content.get("descriptions_hashes", {})
                 if descriptions_hashes:
                     entity_data["descriptions"] = {}
                     for lang, hash_value in descriptions_hashes.items():
@@ -109,7 +109,7 @@ class EntityReadHandler:
                             "value": desc_value,
                         }
 
-                aliases_hashes = revision.data.get("aliases_hashes", {})
+                aliases_hashes =             revision.content.get("aliases_hashes", {})
                 if aliases_hashes:
                     entity_data["aliases"] = {}
                     for lang, hash_list in aliases_hashes.items():
@@ -124,12 +124,12 @@ class EntityReadHandler:
             return EntityResponse(
                 id=entity_id,
                 revision_id=head_revision_id,
-                data=data,
-                is_semi_protected=revision.data.get("is_semi_protected", False),
-                is_locked=revision.data.get("is_locked", False),
-                is_archived=revision.data.get("is_archived", False),
-                is_dangling=revision.data.get("is_dangling", False),
-                is_mass_edit_protected=revision.data.get(
+                entity_data=data,
+                is_semi_protected=            revision.content.get("is_semi_protected", False),
+                is_locked=            revision.content.get("is_locked", False),
+                is_archived=            revision.content.get("is_archived", False),
+                is_dangling=            revision.content.get("is_dangling", False),
+                is_mass_edit_protected=            revision.content.get(
                     "is_mass_edit_protected", False
                 ),
             )
@@ -138,7 +138,7 @@ class EntityReadHandler:
             raise_validation_error("Failed to read entity", status_code=500)
 
     @staticmethod
-    def get_entity_history(  # type: ignore[return]
+    def get_entity_history(
         entity_id: str,
         vitess_client: VitessClient,
         s3_client: S3Client,
@@ -153,13 +153,19 @@ class EntityReadHandler:
             raise_validation_error("Entity not found", status_code=404)
 
         try:
-            # For now, return a simple list. In a real implementation,
-            # we'd need to get revision IDs from Vitess
-            revisions: list[Dict[str, Any]] = []
-            # This is a placeholder - actual implementation would query Vitess
-            # for revision history
-            logger.info(f"Getting history for {entity_id} (placeholder implementation)")
-            return revisions
+            history = vitess_client.get_entity_history(entity_id, s3_client, limit, offset)
+            # Map to RevisionMetadataResponse and skip incomplete entries
+            from models.rest_api.response.misc import RevisionMetadataResponse
+            result = []
+            for entry in history:
+                if entry.created_at and entry.user_id is not None and entry.edit_summary:
+                    result.append(RevisionMetadataResponse(
+                        revision_id=entry.revision_id,
+                        created_at=entry.created_at,
+                        user_id=entry.user_id,
+                        edit_summary=entry.edit_summary,
+                    ))
+            return result
         except Exception as e:
             logger.error(f"Failed to get entity history for {entity_id}: {e}")
             raise_validation_error("Failed to get entity history", status_code=500)
@@ -176,8 +182,8 @@ class EntityReadHandler:
 
         try:
             revision = s3_client.read_revision(entity_id, revision_id)
-            data = revision.data.copy()
-            entity_data = data.get("entity", {}).copy()
+            data = revision.data.model_dump()
+            entity_data = revision.data.entity.copy()
 
             # Load metadata from S3
             labels_hash = data.get("labels_hash")

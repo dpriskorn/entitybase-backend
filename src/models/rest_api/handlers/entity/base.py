@@ -17,6 +17,7 @@ from models.infrastructure.stream.producer import (
     EntityChangeEvent,
 )
 from models.infrastructure.vitess_client import VitessClient
+from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.misc import EditType
 from models.rest_api.request import EntityUpdateRequest, EntityCreateRequest
 from models.rest_api.response.entity.entitybase import (
@@ -86,7 +87,7 @@ class EntityHandler(BaseModel):
         stream_producer: StreamProducerClient | None,
         validator: Any | None,
         is_creation: bool,
-    ) -> EntityRevisionResponse:
+    ) -> EntityResponse:
         """Common logic for processing entity revisions after validation."""
         # Get current head revision
         head_revision_id = vitess_client.get_head(entity_id)
@@ -313,11 +314,26 @@ class EntityHandler(BaseModel):
         is_archived: bool | None,
         is_dangling: bool | None,
         is_mass_edit_protected: bool | None,
-        vitess_client: VitessClient,
-        stream_producer: StreamProducerClient | None,
-        is_creation: bool,
+    vitess_client: VitessClient,
+    s3_client: S3Client,
+    stream_producer: StreamProducerClient | None,
+    is_creation: bool,
     ) -> EntityRevisionResponse:
         """Create revision data, store it, and publish events."""
+        # Process sitelinks: hash titles and store metadata
+        sitelinks_hashes = {}
+        if "sitelinks" in request_data:
+            for wiki, sitelink_data in request_data["sitelinks"].items():
+                if "title" in sitelink_data:
+                    title = sitelink_data["title"]
+                    hash_value = MetadataExtractor.hash_string(title)
+                    sitelinks_hashes[wiki] = hash_value
+                    # Store metadata in S3
+                    metadata = {"title": title}
+                    s3_client.store_sitelink_metadata(hash_value, metadata)
+            # Replace sitelinks with hashes in entity data
+            request_data["sitelinks"] = sitelinks_hashes
+
         # Create revision data
         created_at = datetime.now(timezone.utc).isoformat() + "Z"
         revision_is_mass_edit = is_mass_edit if is_mass_edit is not None else False
@@ -335,6 +351,7 @@ class EntityHandler(BaseModel):
             "statements": hash_result.statements,
             "properties": hash_result.properties,
             "property_counts": hash_result.property_counts,
+            "sitelinks_hashes": sitelinks_hashes,
             "content_hash": content_hash,
             "edit_summary": edit_summary,
             "editor": editor,

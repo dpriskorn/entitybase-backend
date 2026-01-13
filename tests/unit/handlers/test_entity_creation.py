@@ -61,7 +61,6 @@ class TestItemCreateHandler:
             id="Q123",
             labels={"en": {"language": "en", "value": "Test Item"}},
             edit_summary="Test creation",
-            editor="test_user",
         )
 
         result = await handler.create_entity(
@@ -158,7 +157,6 @@ class TestPropertyCreateHandler:
         request = EntityCreateRequest(
             labels={"en": {"language": "en", "value": "Test Property"}},
             edit_summary="Test property creation",
-            editor="test_user",
         )
 
         result = await handler.create_property(

@@ -64,6 +64,25 @@ async def get_item_sitelinks(item_id: str) -> SitelinksResponse:
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
+@router.get("/entities/items/{item_id}/sitelinks/{wiki_id}")
+async def get_item_sitelink(item_id: str, wiki_id: str, req: Request) -> str:
+    """Get sitelink title for a specific wiki in an item."""
+    clients = req.app.state.clients
+    handler = EntityReadHandler()
+    # Get the entity's latest revision
+    entity_response = handler.get_entity(item_id, clients.vitess, clients.s3)
+    entity_data = entity_response.revision_data["entity"]
+    sitelinks = entity_data.get("sitelinks", {})
+    if wiki_id not in sitelinks:
+        raise HTTPException(status_code=404, detail=f"Sitelink for {wiki_id} not found")
+    hash_value = sitelinks[wiki_id]
+    # Load the title from S3
+    title = clients.s3.load_sitelink_metadata(hash_value)
+    if not title:
+        raise HTTPException(status_code=404, detail="Sitelink not found")
+    return title
+
+
 @router.get("/entities/items/{item_id}/labels")
 async def get_item_labels(item_id: str) -> LabelsResponse:
     """Get item labels - stub"""

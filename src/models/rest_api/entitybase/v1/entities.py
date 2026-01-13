@@ -30,7 +30,7 @@ def get_entity_history(
         20, ge=1, le=100, description="Maximum number of revisions to return"
     ),
     offset: int = Query(0, ge=0, description="Number of revisions to skip"),
-) -> list:
+) -> list[RevisionMetadataResponse]:
     """Get the revision history for an entity."""
     clients = req.app.state.clients
     handler = EntityReadHandler()

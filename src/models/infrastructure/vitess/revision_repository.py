@@ -39,17 +39,13 @@ class RevisionRepository:
         labels_hashes = data.get("labels_hashes")
         descriptions_hashes = data.get("descriptions_hashes")
         aliases_hashes = data.get("aliases_hashes")
+        sitelinks_hashes = data.get("sitelinks_hashes")
+        created_by_user_id = data.get("created_by_user_id")
+        edit_summary = data.get("edit_summary", "")
 
         with conn.cursor() as cursor:
             cursor.execute(
-                "SELECT 1 FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
-                (internal_id, revision_id),
-            )
-            if cursor.fetchone() is not None:
-                return
-
-            cursor.execute(
-                "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes, created_by_user_id, edit_summary) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 (
                     internal_id,
                     revision_id,
@@ -61,6 +57,28 @@ class RevisionRepository:
                     json.dumps(labels_hashes or {}),
                     json.dumps(descriptions_hashes or {}),
                     json.dumps(aliases_hashes or {}),
+                    json.dumps(sitelinks_hashes or {}),
+                    created_by_user_id,
+                    edit_summary,
+                ),
+            )
+            if cursor.fetchone() is not None:
+                return
+
+            cursor.execute(
+                "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+                (
+                    internal_id,
+                    revision_id,
+                    is_mass_edit,
+                    edit_type,
+                    json.dumps(statements or []),
+                    json.dumps(properties or []),
+                    json.dumps(property_counts or {}),
+                    json.dumps(labels_hashes or {}),
+                    json.dumps(descriptions_hashes or {}),
+                    json.dumps(aliases_hashes or {}),
+                    json.dumps(sitelinks_hashes or {}),
                 ),
             )
 
@@ -72,8 +90,8 @@ class RevisionRepository:
         with vitess_client.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
-                    (internal_entity_id, revision_id),
+                    "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                    (internal_id, revision_id),
                 )
                 row = cursor.fetchone()
                 if row:
@@ -84,6 +102,7 @@ class RevisionRepository:
                         "labels_hashes": json.loads(row[3]) if row[3] else {},
                         "descriptions_hashes": json.loads(row[4]) if row[4] else {},
                         "aliases_hashes": json.loads(row[5]) if row[5] else {},
+                        "sitelinks_hashes": json.loads(row[6]) if row[6] else {},
                     }
                 return None
 
@@ -184,6 +203,8 @@ class RevisionRepository:
 
             revision_id: int
             created_at: str | None
+            created_by_user_id: int | None
+            edit_summary: str | None
 
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
@@ -191,13 +212,15 @@ class RevisionRepository:
 
         with conn.cursor() as cursor:
             cursor.execute(
-                "SELECT revision_id, created_at FROM entity_revisions WHERE internal_id = %s ORDER BY revision_id DESC LIMIT %s OFFSET %s",
+                "SELECT revision_id, created_at, created_by_user_id, edit_summary FROM entity_revisions WHERE internal_id = %s ORDER BY revision_id DESC LIMIT %s OFFSET %s",
                 (internal_id, limit, offset),
             )
             result = [
                 RevisionRecord(
                     revision_id=row[0],
                     created_at=row[1].isoformat() if row[1] else None,
+                    created_by_user_id=row[2],
+                    edit_summary=row[3],
                 )
                 for row in cursor.fetchall()
             ]

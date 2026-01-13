@@ -10,7 +10,9 @@ from pydantic import Field
 logger = logging.getLogger(__name__)
 
 from models.rest_api.response.misc import EntityListing
+from models.rest_api.response.entity.entitybase import EntityHistoryEntry
 from models.infrastructure.client import Client
+from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess.backlink_repository import BacklinkRepository
 from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.entities import IdResolver
@@ -26,7 +28,6 @@ from models.infrastructure.vitess.user_repository import UserRepository
 from models.infrastructure.vitess.watchlist_repository import WatchlistRepository
 from models.rest_api.request.entity import RevisionInsertDataRequest
 from models.rest_api.response.entity.entitybase import ProtectionResponse
-from models.vitess_models import BacklinkData
 from models.rest_api.response.rdf import FullRevisionData
 from models.validation.utils import raise_validation_error
 from models.vitess_models import VitessConfig
@@ -45,7 +46,7 @@ class VitessClient(Client):
     head_repository: HeadRepository = Field(default=None, exclude=True)
     listing_repository: ListingRepository = Field(
         default=None, exclude=True
-    )  # DISABLED: Not used
+    )
     statement_repository: StatementRepository = Field(default=None, exclude=True)
     backlink_repository: BacklinkRepository = Field(default=None, exclude=True)
     metadata_repository: MetadataRepository = Field(default=None, exclude=True)
@@ -431,7 +432,7 @@ class VitessClient(Client):
                 raise_validation_error(f"Entity {entity_id} not found", status_code=404)
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                    "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
                     (internal_id, revision_id),
                 )
                 result = cursor.fetchone()
@@ -445,6 +446,7 @@ class VitessClient(Client):
                 labels_hashes = json.loads(result[3]) if result[3] else {}
                 descriptions_hashes = json.loads(result[4]) if result[4] else {}
                 aliases_hashes = json.loads(result[5]) if result[5] else {}
+                sitelinks_hashes = json.loads(result[6]) if result[6] else {}
 
                 # Reconstruct labels from per-language hashes
                 labels = {}
@@ -466,6 +468,12 @@ class VitessClient(Client):
                         alias_value = s3_client.load_metadata("aliases", hash_value)
                         aliases[lang].append({"language": lang, "value": alias_value})
 
+                # Reconstruct sitelinks from wiki hashes
+                sitelinks = {}
+                for wiki, hash_value in sitelinks_hashes.items():
+                    title = s3_client.load_sitelink_metadata(hash_value)
+                    sitelinks[wiki] = {"site": wiki, "title": title}
+
                 return FullRevisionData(
                     revision_id=revision_id,
                     statements=json.loads(result[0]) if result[0] else [],
@@ -474,6 +482,7 @@ class VitessClient(Client):
                     labels=labels,
                     descriptions=descriptions,
                     aliases=aliases,
+                    sitelinks=sitelinks,
                 )
 
     def insert_backlinks(self, backlinks: list[tuple[int, int, int, str, str]]) -> None:
@@ -496,3 +505,25 @@ class VitessClient(Client):
             return self.backlink_repository.get_backlinks(
                 conn, referenced_internal_id, limit, offset
             )  # type: ignore[no-any-return]
+
+    def get_entity_history(
+        self,
+        entity_id: str,
+        s3_client: S3Client,
+        limit: int = 20,
+        offset: int = 0,
+    ) -> list[EntityHistoryEntry]:
+        """Get entity revision history."""
+        with self.connection_manager.get_connection() as conn:
+            history = self.revision_repository.get_history(
+                conn, entity_id, limit, offset
+            )
+            return [
+                EntityHistoryEntry(
+                    revision_id=record.revision_id,
+                    created_at=record.created_at,
+                    user_id=record.created_by_user_id,
+                    edit_summary=record.edit_summary,
+                )
+                for record in history
+            ]

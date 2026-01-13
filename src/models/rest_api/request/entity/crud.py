@@ -33,7 +33,7 @@ class EntityCreateRequest(BaseModel):
     is_not_autoconfirmed_user: bool = Field(
         default=False, description="User is not autoconfirmed (new/unconfirmed account)"
     )
-    edit_summary: str = Field(default="", description="Edit summary for this change")
+    edit_summary: str = Field(min_length=1, description="Edit summary for this change")
     editor: str = Field(default="", description="Editor who made this change")
 
     @property
@@ -46,7 +46,7 @@ class EntityDeleteRequest(BaseModel):
         default=DeleteType.SOFT, description="Type of deletion"
     )
     is_locked: bool = Field(default=False, description="User has lock permission")
-    edit_summary: str = Field(default="", description="Edit summary for deletion")
+    edit_summary: str = Field(min_length=1, description="Edit summary for deletion")
     editor: str = Field(default="", description="Editor who performed deletion")
     bot: bool = Field(default=False, description="Whether this was a bot edit")
 
@@ -78,7 +78,7 @@ class EntityUpdateRequest(BaseModel):
     is_not_autoconfirmed_user: bool = Field(
         default=False, description="User is not autoconfirmed (new/unconfirmed account)"
     )
-    edit_summary: str = Field(default="", description="Edit summary for this change")
+    edit_summary: str = Field(min_length=1, description="Edit summary for this change")
     editor: str = Field(default="", description="Editor who made this change")
 
     @property

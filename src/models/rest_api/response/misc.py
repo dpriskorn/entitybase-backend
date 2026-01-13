@@ -35,6 +35,8 @@ class RevisionMetadataResponse(BaseModel):
 
     revision_id: int
     created_at: str
+    user_id: int
+    edit_summary: str
 
 
 class LabelResponse(BaseModel):

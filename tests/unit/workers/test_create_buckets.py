@@ -16,7 +16,7 @@ class TestCreateBuckets:
         assert worker.minio_endpoint == "http://localhost:9000"
         assert worker.minio_access_key == "minioadmin"
         assert worker.minio_secret_key == "minioadmin"
-        assert worker.required_buckets == ["terms", "statements", "revisions", "dumps"]
+        assert worker.required_buckets == ["terms", "statements", "revisions", "dumps", "sitelinks"]
 
     def test_custom_initialization(self):
         """Test CreateBuckets initialization with custom values."""

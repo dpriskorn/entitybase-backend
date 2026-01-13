@@ -50,6 +50,7 @@ class EntityTransaction(BaseModel, ABC):
         is_dangling: bool,
         is_mass_edit_protected: bool,
         vitess_client: Any,
+        s3_client: Any,
         stream_producer: Any,
         is_creation: bool,
     ) -> Any:
@@ -167,6 +168,7 @@ class UpdateTransaction(EntityTransaction):
             is_dangling=is_dangling,
             is_mass_edit_protected=is_mass_edit_protected,
             vitess_client=vitess_client,
+            s3_client=s3_client,
             stream_producer=stream_producer,
             is_creation=is_creation,
         )
