@@ -138,7 +138,7 @@ class EntityReadHandler:
             raise_validation_error("Failed to read entity", status_code=500)
 
     @staticmethod
-    def get_entity_history(
+    def get_entity_history(  # type: ignore[return]
         entity_id: str,
         vitess_client: VitessClient,
         s3_client: S3Client,
