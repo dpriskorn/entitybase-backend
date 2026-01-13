@@ -3,7 +3,7 @@
 import json
 import logging
 from contextlib import contextmanager
-from typing import Any, Generator, Optional
+from typing import Any, Generator
 
 from pydantic import Field
 
@@ -25,7 +25,7 @@ from models.infrastructure.vitess.statement_repository import StatementRepositor
 from models.infrastructure.vitess.user_repository import UserRepository
 from models.infrastructure.vitess.watchlist_repository import WatchlistRepository
 from models.rest_api.request.entity import RevisionInsertDataRequest
-from models.rest_api.response.entity import ProtectionResponse
+from models.rest_api.response.entity.entitybase import ProtectionResponse
 from models.vitess_models import BacklinkData
 from models.rest_api.response.rdf import FullRevisionData
 from models.validation.utils import raise_validation_error
@@ -463,9 +463,7 @@ class VitessClient(Client):
                 for lang, hash_list in aliases_hashes.items():
                     aliases[lang] = []
                     for hash_value in hash_list:
-                        alias_value = s3_client.load_metadata(
-                            "aliases", hash_value
-                        )
+                        alias_value = s3_client.load_metadata("aliases", hash_value)
                         aliases[lang].append({"language": lang, "value": alias_value})
 
                 return FullRevisionData(
@@ -492,9 +490,9 @@ class VitessClient(Client):
 
     def get_backlinks(
         self, referenced_internal_id: int, limit: int = 100, offset: int = 0
-    ) -> list[BacklinkData]:
+    ) -> list[tuple[int, str, str, str]]:
         """Get backlinks for an entity."""
         with self.connection_manager.get_connection() as conn:
             return self.backlink_repository.get_backlinks(
                 conn, referenced_internal_id, limit, offset
-            )
+            )  # type: ignore[no-any-return]

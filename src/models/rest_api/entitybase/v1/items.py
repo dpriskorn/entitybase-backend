@@ -10,7 +10,10 @@ from models.rest_api.request.entity import (
     EntityCreateRequest,
     EntityUpdateRequest,
 )
-from models.rest_api.response.entity import EntityJsonImportResponse, EntityResponse
+from models.rest_api.response.entity.entitybase import (
+    EntityJsonImportResponse,
+    EntityResponse,
+)
 from models.rest_api.response.misc import DescriptionResponse, LabelResponse
 from ...handlers.entity.item import ItemCreateHandler
 from ...handlers.entity.items.update import ItemUpdateHandler

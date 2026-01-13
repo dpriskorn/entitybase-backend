@@ -24,7 +24,7 @@ async def create_lexeme(request: EntityCreateRequest, req: Request) -> EntityRes
     validator = req.app.state.validator
     enumeration_service = req.app.state.enumeration_service
     handler = LexemeCreateHandler(enumeration_service)
-    return await handler.create_entity(  # type: ignore[return]
+    return await handler.create_entity(  # type: ignore[no-any-return]
         request,
         clients.vitess,
         clients.s3,

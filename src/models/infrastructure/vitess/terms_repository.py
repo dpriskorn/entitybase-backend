@@ -1,6 +1,6 @@
 """Vitess terms repository for managing deduplicated terms."""
 
-from typing import Any, Dict, List
+from typing import Any, List
 
 from models.rest_api.response.misc import TermsResponse
 

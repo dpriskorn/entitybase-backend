@@ -4,8 +4,6 @@ import json
 import logging
 from typing import Any, List
 
-from models.watchlist import WatchlistEntry
-
 logger = logging.getLogger(__name__)
 
 

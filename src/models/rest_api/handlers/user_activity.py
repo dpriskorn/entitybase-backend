@@ -1,10 +1,9 @@
 """Handler for user activity operations."""
 
 from models.infrastructure.vitess_client import VitessClient
-from models.validation.utils import raise_validation_error
-from models.user_activity import ActivityType, UserActivityItem
-from models.rest_api.request.user_activity import UserActivityRequest
 from models.rest_api.response.user_activity import UserActivityResponse
+from models.user_activity import ActivityType
+from models.validation.utils import raise_validation_error
 
 
 class UserActivityHandler:

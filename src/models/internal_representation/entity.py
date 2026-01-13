@@ -4,7 +4,7 @@ from typing import Optional, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.rest_api.response.entity import (
+from models.rest_api.response.entity.wikibase import (
     EntityAliases,
     EntityDescriptions,
     EntityLabels,

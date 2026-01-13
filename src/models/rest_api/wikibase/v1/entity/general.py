@@ -1,11 +1,9 @@
 """General entity operations for Wikibase v1 API."""
 
 from fastapi import APIRouter, HTTPException
-from typing import Dict, Any
 
 from models.rest_api.response.misc import EntitiesResponse
 from models.rest_api.response.statement import StatementsResponse
-
 
 router = APIRouter()
 

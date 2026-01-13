@@ -24,8 +24,8 @@ class Clients(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    s3: S3Client | None = Field(default=None)
-    vitess: VitessClient | None = Field(default=None)
+    s3: S3Client
+    vitess: VitessClient
     property_registry: PropertyRegistry | None = Field(default=None)
     stream_producer: StreamProducerClient | None = Field(default=None)
 

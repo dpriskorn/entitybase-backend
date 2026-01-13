@@ -9,7 +9,7 @@ from models.infrastructure.vitess_client import VitessClient
 from models.validation.utils import raise_validation_error
 from models.rest_api.services.enumeration_service import EnumerationService
 from .create import EntityCreateHandler
-from .creation_transaction import CreationTransaction
+from .creation_transaction import EntityTransaction
 from ...request import EntityCreateRequest
 from ...response import EntityResponse
 
@@ -33,7 +33,7 @@ class ItemCreateHandler(EntityCreateHandler):
         auto_assign_id: bool = False,
         user_id: int = 0,
     ) -> EntityResponse:
-        """Create a new item with auto-assigned Q ID using CreationTransaction."""
+        """Create a new item with auto-assigned Q ID using EntityTransaction."""
         # Auto-assign ID
         if self.enumeration_service is None:
             raise_validation_error("Enumeration service not available", status_code=500)
@@ -46,10 +46,10 @@ class ItemCreateHandler(EntityCreateHandler):
         request_data["id"] = entity_id
 
         # Create transaction
-        tx = CreationTransaction()
+        tx = EntityTransaction()  # type: ignore[abstract]
         try:
             # Register entity
-            tx.register_entity(vitess_client, entity_id)
+            tx.register_entity(vitess_client, entity_id)  # type: ignore[attr-defined]
 
             # Process statements
             hash_result = tx.process_statements(
@@ -97,7 +97,7 @@ class ItemCreateHandler(EntityCreateHandler):
             # Confirm ID usage to worker
             self.enumeration_service.confirm_id_usage(entity_id)
 
-            return response  # type: ignore[return]
+            return response  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"Item creation failed for {entity_id}: {e}")
             tx.rollback()

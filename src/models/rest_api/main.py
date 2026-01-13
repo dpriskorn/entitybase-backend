@@ -4,11 +4,12 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from fastapi import FastAPI, HTTPException, Header, Query, Response
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from jsonschema import ValidationError
+from pip._internal import req
 
 from models.config.settings import settings
 from models.rest_api.clients import Clients
@@ -30,7 +31,7 @@ from models.rest_api.request.entity import (
     EntityRevertRequest,
 )
 from models.rest_api.request.user import UserCreateRequest, WatchlistToggleRequest
-from models.rest_api.response.entity import EntityRevertResponse
+from models.rest_api.response.entity.revert import EntityRevertResponse
 from models.rest_api.response.health import HealthCheckResponse
 from models.rest_api.response.misc import (
     RawRevisionResponse,
@@ -186,10 +187,8 @@ def health_check_endpoint(response: Response) -> HealthCheckResponse:
 
 
 @app.get("/v1/health")
-def health_redirect() -> EntityRedirectResponse:
+def health_redirect() -> RedirectResponse:
     """Redirect legacy /v1/health endpoint to /health."""
-    from fastapi.responses import RedirectResponse
-
     return RedirectResponse(url="/health", status_code=302)
 
 
@@ -372,7 +371,7 @@ def revert_entity(
 @v1_router.get("/entities/{entity_id}", response_model=EntityResponse)
 def get_entity(entity_id: str) -> EntityResponse:
     """Retrieve a single entity by its ID."""
-    clients = app.state.clients
+    clients = cast(Clients, req.app.state.clients)
     handler = EntityReadHandler()
     return handler.get_entity(entity_id, clients.vitess, clients.s3)
 
@@ -408,16 +407,16 @@ async def get_entity_data_turtle(entity_id: str) -> TtlResponse:
 async def create_entity_redirect(
     request: EntityRedirectRequest,
 ) -> EntityRedirectResponse:
-    clients = app.state.clients
+    clients = cast(Clients, app.state.clients)
     handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
     return await handler.create_entity_redirect(request)
 
 
 @app.post("/entities/{entity_id}/revert-redirect")
-async def revert_entity_redirect(
+async def revert_entity_redirect(  # type: ignore[no-any-return]
     entity_id: str, request: RedirectRevertRequest
 ) -> EntityResponse:
-    clients = app.state.clients
+    clients = cast(Clients, app.state.clients)
     handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
     return await handler.revert_entity_redirect(
         entity_id, request.revert_to_revision_id
@@ -425,10 +424,10 @@ async def revert_entity_redirect(
 
 
 @v1_router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)
-async def delete_entity(
+async def delete_entity(  # type: ignore[no-any-return]
     entity_id: str, request: EntityDeleteRequest
 ) -> EntityDeleteResponse:
-    clients = app.state.clients
+    clients = cast(Clients, app.state.clients)
     handler = EntityDeleteHandler()
     return await handler.delete_entity(
         entity_id, request, clients.vitess, clients.s3, clients.stream_producer
@@ -447,7 +446,7 @@ def get_raw_revision(entity_id: str, revision_id: int) -> RawRevisionResponse:
 
 
 @app.get("/entities", response_model=EntityListResponse)
-def list_entities(
+def list_entities(  # type: ignore[no-any-return]
     entity_type: str = Query(
         "",
         description="Entity type to filter by (item, property, lexeme, entityschema). Leave empty for all types",
@@ -458,14 +457,14 @@ def list_entities(
     offset: int = Query(0, ge=0, description="Number of entities to skip"),
 ) -> EntityListResponse:
     """List entities based on type, limit, and offset."""
-    clients = app.state.clients
+    clients = cast(Clients, app.state.clients)
     handler = AdminHandler()
     return handler.list_entities(
         vitess_client=clients.vitess,
         entity_type=entity_type,
         limit=limit,
         offset=offset,
-    )
+    )  # type: ignore
 
 
 @v1_router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)

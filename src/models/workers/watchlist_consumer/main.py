@@ -4,12 +4,12 @@ import asyncio
 import json
 import logging
 from contextlib import asynccontextmanager
-from typing import Any
+from typing import Any, AsyncGenerator
+
+from models.infrastructure.stream.consumer import Consumer
 
 from models.config.settings import settings
-from models.infrastructure.stream.consumer import Consumer
 from models.infrastructure.vitess_client import VitessClient
-from models.watchlist import WatchlistEntry
 
 
 class WatchlistConsumerWorker:
@@ -20,8 +20,8 @@ class WatchlistConsumerWorker:
         self.consumer: Consumer | None = None
         self.vitess_client: VitessClient | None = None
 
-    @asynccontextmanager  # type: ignore[no-untyped-def]
-    async def lifespan(self):
+    @asynccontextmanager
+    async def lifespan(self) -> AsyncGenerator[None, None]:
         """Lifespan context manager for startup/shutdown."""
         try:
             # Initialize clients

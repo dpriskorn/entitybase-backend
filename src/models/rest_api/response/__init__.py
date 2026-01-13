@@ -2,25 +2,25 @@
 
 # Response models
 
-from .entity import (
-    Backlink,
-    BacklinksResponse,
-    EntityAliases,
-    EntityDeleteResponse,
-    EntityDescriptions,
-    EntityHistoryEntry,
-    EntityJsonImportResponse,
-    EntityLabels,
-    EntityListResponse,
-    EntityMetadata,
-    EntityMetadataBatchResponse,
-    EntityRedirectResponse,
-    EntityResponse,
-    EntityRevisionResponse,
-    ProtectionResponse,
-    WikibaseEntityResponse,
-)
 from models.vitess_models import BacklinkData
+from .entity.backlinks import BacklinksResponse, Backlink
+from .entity.entitybase import (
+    ProtectionResponse,
+    EntityRevisionResponse,
+    EntityResponse,
+    EntityRedirectResponse,
+    EntityMetadataBatchResponse,
+    EntityListResponse,
+    EntityJsonImportResponse,
+    EntityDeleteResponse,
+)
+from .entity import WikibaseEntityResponse
+from .entity.wikibase import (
+    EntityMetadata,
+    EntityLabels,
+    EntityDescriptions,
+    EntityAliases,
+)
 from .statement import (
     MostUsedStatementsResponse,
     PropertyCounts,

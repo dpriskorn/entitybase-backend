@@ -7,7 +7,7 @@ from pathlib import Path
 
 import requests
 
-from models.rest_api.response.entity import (
+from models.rest_api.response.entity.entitybase import (
     EntityMetadata,
     EntityMetadataBatchResponse,
 )

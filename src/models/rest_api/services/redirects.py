@@ -11,7 +11,10 @@ from models.infrastructure.stream.producer import (
 )
 from models.rest_api.misc import EditType
 from models.rest_api.request.entity import EntityRedirectRequest
-from models.rest_api.response.entity import EntityRedirectResponse, EntityResponse
+from models.rest_api.response.entity.entitybase import (
+    EntityRedirectResponse,
+    EntityResponse,
+)
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient

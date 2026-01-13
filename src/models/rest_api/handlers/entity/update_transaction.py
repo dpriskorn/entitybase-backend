@@ -52,7 +52,7 @@ class EntityTransaction(BaseModel, ABC):
         vitess_client: Any,
         stream_producer: Any,
         is_creation: bool,
-    ) -> EntityRevisionResponse:
+    ) -> Any:
         pass
 
     @abstractmethod

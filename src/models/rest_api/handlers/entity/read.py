@@ -5,7 +5,10 @@ from typing import Any, Dict
 
 from models.validation.utils import raise_validation_error
 
-from models.rest_api.response.entity import EntityResponse, EntityRevisionResponse
+from models.rest_api.response.entity.entitybase import (
+    EntityResponse,
+    EntityRevisionResponse,
+)
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.infrastructure.vitess.terms_repository import TermsRepository

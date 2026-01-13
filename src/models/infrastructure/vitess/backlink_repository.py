@@ -50,7 +50,7 @@ class BacklinkRepository:
 
     def get_backlinks(
         self, conn: Any, referenced_internal_id: int, limit: int = 100, offset: int = 0
-    ) -> list[BacklinkData]:
+    ) -> list[tuple[int, str, str, str]]:
         """Get backlinks for an entity."""
         logger.debug(
             f"Getting backlinks for internal_id {referenced_internal_id}, limit {limit}"
@@ -67,12 +67,7 @@ class BacklinkRepository:
                 (referenced_internal_id, limit, offset),
             )
             return [
-                BacklinkData(
-                    referencing_internal_id=row[0],
-                    statement_hash=str(row[1]),
-                    property_id=str(row[2]),
-                    rank=str(row[3]),
-                )
+                (row[0], str(row[1]), str(row[2]), str(row[3]))
                 for row in cursor.fetchall()
             ]
 

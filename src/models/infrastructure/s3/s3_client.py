@@ -248,12 +248,17 @@ class S3Client(Client):
                 response["Body"].read().decode("utf-8")
             )
 
-            StoredStatement.model_validate(parsed_data)
+            stored_statement = StoredStatement.model_validate(parsed_data)
 
             logger.debug(
                 f"S3 read_statement successful: bucket={self.config.bucket}, key={key}"
             )
-            return StatementResponse(**parsed_data)
+            return StatementResponse(
+                schema_version=stored_statement.schema_version,
+                content_hash=stored_statement.content_hash,
+                statement=stored_statement.statement,
+                created_at=stored_statement.created_at,
+            )
         except ClientError as e:
             error_code = e.response["Error"].get("Code", "Unknown")
             logger.error(
@@ -376,9 +381,7 @@ class S3Client(Client):
                 f"S3 delete_metadata failed: bucket={self.config.bucket}, key={key}, error={e}"
             )
 
-    async def batch_get_statements(
-        self, content_hashes: list[int]
-    ) -> Any:
+    async def batch_get_statements(self, content_hashes: list[int]) -> Any:
         """Batch read multiple statements from S3.
 
         Args:

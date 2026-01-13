@@ -4,16 +4,17 @@ import logging
 
 from typing import Any
 
+from models.rest_api.response import EntityAliases, EntityDescriptions, EntityLabels
 from models.rest_api.response.entity import (
-    AliasValue,
-    DescriptionValue,
-    EntityAliases,
-    EntityDescriptions,
-    EntityLabels,
-    EntityMetadata,
     EntitySitelinks,
     EntityStatements,
+    AliasValue,
+    DescriptionValue,
     LabelValue,
+)
+
+from models.rest_api.response.entity.entitybase import (
+    EntityMetadata,
 )
 from models.json_parser.statement_parser import parse_statement
 from models.internal_representation.entity import Entity

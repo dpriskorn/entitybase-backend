@@ -4,7 +4,7 @@ import logging
 
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
-from models.rest_api.response.entity import EntityListResponse
+from models.rest_api.response.entity.entitybase import EntityListResponse
 from models.rest_api.response.misc import RawRevisionResponse
 from models.validation.utils import raise_validation_error
 

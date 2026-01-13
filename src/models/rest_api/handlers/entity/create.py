@@ -113,4 +113,4 @@ class EntityCreateHandler(EntityHandler):
                 revision_id=response.revision_id,
             )
 
-        return response
+        return response  # type: ignore[no-any-return]

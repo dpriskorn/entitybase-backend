@@ -19,11 +19,10 @@ from models.infrastructure.stream.producer import (
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.misc import EditType
 from models.rest_api.request import EntityUpdateRequest, EntityCreateRequest
-from models.rest_api.response.entity import EntityHistoryEntry
-from models.rest_api.response.entity.misc import (
-    EntityResponse,
+from models.rest_api.response.entity.entitybase import (
     EntityRevisionResponse,
     EntityHistoryEntry,
+    EntityResponse,
 )
 from models.rest_api.response.statement import StatementHashResult
 from models.rest_api.services.statement_service import (
@@ -87,7 +86,7 @@ class EntityHandler(BaseModel):
         stream_producer: StreamProducerClient | None,
         validator: Any | None,
         is_creation: bool,
-    ) -> EntityResponse:
+    ) -> EntityRevisionResponse:
         """Common logic for processing entity revisions after validation."""
         # Get current head revision
         head_revision_id = vitess_client.get_head(entity_id)
@@ -317,7 +316,7 @@ class EntityHandler(BaseModel):
         vitess_client: VitessClient,
         stream_producer: StreamProducerClient | None,
         is_creation: bool,
-    ) -> EntityResponse:
+    ) -> EntityRevisionResponse:
         """Create revision data, store it, and publish events."""
         # Create revision data
         created_at = datetime.now(timezone.utc).isoformat() + "Z"

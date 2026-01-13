@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from typing import Dict, Any
 
-from models.rest_api.response.entity import WikibaseEntityResponse
+from models.rest_api.response import WikibaseEntityResponse
 from models.rest_api.response.misc import (
     LabelsResponse,
     DescriptionsResponse,

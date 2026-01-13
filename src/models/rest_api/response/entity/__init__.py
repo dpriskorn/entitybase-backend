@@ -1,24 +1,27 @@
 """Entity response models."""
 
-from pydantic import BaseModel
-
-from .misc import (
-    Backlink,
-    BacklinksResponse,
-    EntityAliases,
+from .backlinks import Backlink, BacklinksResponse
+from .entitybase import (
     EntityDeleteResponse,
-    EntityDescriptions,
     EntityHistoryEntry,
     EntityJsonImportResponse,
-    EntityLabels,
     EntityListResponse,
-    EntityMetadata,
     EntityMetadataBatchResponse,
     EntityRedirectResponse,
     EntityResponse,
     EntityRevisionResponse,
     ProtectionResponse,
+)
+from .revert import EntityRevertResponse
+from .wikibase import (
+    AliasValue,
+    DescriptionValue,
+    EntityAliases,
+    EntityDescriptions,
+    EntityLabels,
+    EntityMetadata,
+    EntitySitelinks,
+    EntityStatements,
+    LabelValue,
     WikibaseEntityResponse,
 )
-
-from .revert import EntityRevertResponse

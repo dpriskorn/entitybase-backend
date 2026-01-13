@@ -4,6 +4,7 @@ import asyncio
 import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
+from typing import AsyncGenerator
 
 from models.config.settings import settings
 from models.infrastructure.vitess_client import VitessClient
@@ -19,8 +20,8 @@ class NotificationCleanupWorker:
         self.max_age_days = 30
         self.max_per_user = 500
 
-    @asynccontextmanager  # type: ignore[no-untyped-def]
-    async def lifespan(self):
+    @asynccontextmanager
+    async def lifespan(self) -> AsyncGenerator[None, None]:
         """Lifespan context manager for startup/shutdown."""
         try:
             # Initialize client

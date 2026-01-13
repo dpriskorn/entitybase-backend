@@ -3,13 +3,10 @@
 import logging
 from typing import Any
 
-from pydantic import Field
-
-from models.validation.utils import raise_validation_error
-
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
+from models.validation.utils import raise_validation_error
 from .base import EntityHandler
 from .update_transaction import UpdateTransaction
 from ...request import EntityUpdateRequest
@@ -104,7 +101,7 @@ class EntityUpdateHandler(EntityHandler):
 
             # Commit
             tx.commit()
-            return response
+            return response  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"Entity update failed for {entity_id}: {e}")
             tx.rollback()

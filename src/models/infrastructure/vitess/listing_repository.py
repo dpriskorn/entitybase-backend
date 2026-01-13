@@ -2,8 +2,6 @@
 
 from typing import Any
 
-from models.rest_api.response.misc import EntityListing
-
 
 class ListingRepository:
     """Repository for entity listing operations."""

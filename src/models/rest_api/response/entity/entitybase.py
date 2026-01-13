@@ -1,8 +1,8 @@
-from typing import Dict, Any, List
+from typing import Dict, Any
 
 from pydantic import BaseModel, Field
 
-from models.rest_api.response.entity.wikibase_json import EntityMetadata
+from models.rest_api.response.entity.wikibase import EntityMetadata
 
 
 class EntityHistoryEntry(BaseModel):
@@ -28,18 +28,6 @@ class EntityResponse(BaseModel):
     is_archived: bool = False
     is_dangling: bool = False
     is_mass_edit_protected: bool = False
-
-
-class WikibaseEntityResponse(BaseModel):
-    """Response model for Wikibase REST API entity endpoints."""
-
-    id: str
-    type: str  # "item", "property", "lexeme"
-    labels: Dict[str, Dict[str, str]] = Field(default_factory=dict)
-    descriptions: Dict[str, Dict[str, str]] = Field(default_factory=dict)
-    aliases: Dict[str, List[Dict[str, str]]] = Field(default_factory=dict)
-    claims: Dict[str, List[Dict[str, Any]]] = Field(default_factory=dict)
-    sitelinks: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
 
 
 class EntityDeleteResponse(BaseModel):

@@ -7,7 +7,7 @@ from fastapi import HTTPException
 
 from models.rest_api.misc import DeleteType
 from models.rest_api.request.entity import EntityDeleteRequest
-from models.rest_api.response.entity import EntityDeleteResponse
+from models.rest_api.response.entity.entitybase import EntityDeleteResponse
 from models.config.settings import settings
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client

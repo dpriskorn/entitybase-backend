@@ -24,7 +24,7 @@ async def create_property(request: EntityCreateRequest, req: Request) -> EntityR
     validator = req.app.state.validator
     enumeration_service = req.app.state.enumeration_service
     handler = PropertyCreateHandler(enumeration_service)
-    return await handler.create_entity(
+    return await handler.create_entity(  # type: ignore[no-any-return]
         request,
         clients.vitess,
         clients.s3,
