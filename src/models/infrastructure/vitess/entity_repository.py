@@ -64,7 +64,9 @@ class EntityRepository:
             result = cursor.fetchone()
             return result[0] if result else False
 
-    def get_protection_info(self, conn: Any, entity_id: str) -> ProtectionResponse | None:
+    def get_protection_info(
+        self, conn: Any, entity_id: str
+    ) -> ProtectionResponse | None:
         """Get protection status information for an entity."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:

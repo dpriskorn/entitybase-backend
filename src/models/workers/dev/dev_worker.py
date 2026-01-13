@@ -105,7 +105,11 @@ class DevWorker(BaseModel):
 
     async def bucket_health_check(self) -> Dict[str, Any]:
         """Perform health check on all required buckets."""
-        health_status: Dict[str, Any] = {"overall_status": "healthy", "buckets": {}, "issues": []}
+        health_status: Dict[str, Any] = {
+            "overall_status": "healthy",
+            "buckets": {},
+            "issues": [],
+        }
 
         for bucket in self.required_buckets:
             try:

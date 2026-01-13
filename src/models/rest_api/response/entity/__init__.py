@@ -22,5 +22,3 @@ from .misc import (
 )
 
 from .revert import EntityRevertResponse
-
-

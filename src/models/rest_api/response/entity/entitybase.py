@@ -16,6 +16,7 @@ class EntityHistoryEntry(BaseModel):
     edit_type: str | None
     is_mass_edit: bool
 
+
 class EntityResponse(BaseModel):
     """Response model for entity data."""
 
@@ -60,8 +61,6 @@ class EntityRedirectResponse(BaseModel):
     redirect_to_id: str
     created_at: str
     revision_id: int
-
-
 
 
 class EntityListResponse(BaseModel):

@@ -2,6 +2,7 @@ from typing import Dict, Any, List
 
 from pydantic import BaseModel, Field
 
+
 class LabelValue(BaseModel):
     """Individual label entry with language and value."""
 
@@ -21,6 +22,7 @@ class AliasValue(BaseModel):
 
     language: str = Field(..., min_length=1)
     value: str = Field(..., min_length=1)
+
 
 class EntityLabels(BaseModel):
     """Collection of labels keyed by language code."""

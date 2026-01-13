@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 class Backlink(BaseModel):
     """Model representing a backlink from one entity to another."""
 

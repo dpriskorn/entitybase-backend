@@ -139,6 +139,7 @@ class EntityConverter:
 
     def _write_referenced_entity_metadata(self, entity: Entity, output: TextIO) -> None:
         """Write metadata blocks for referenced entities."""
+        logger.info(f"Writing referenced entity metadata for entity {entity.id}")
         if not self.entity_metadata_dir:
             return
 

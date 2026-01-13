@@ -39,7 +39,9 @@ class VitessClient(Client):
     revision_repository: RevisionRepository = Field(default=None, exclude=True)
     redirect_repository: RedirectRepository = Field(default=None, exclude=True)
     head_repository: HeadRepository = Field(default=None, exclude=True)
-    listing_repository: ListingRepository = Field(default=None, exclude=True)  # DISABLED: Not used
+    listing_repository: ListingRepository = Field(
+        default=None, exclude=True
+    )  # DISABLED: Not used
     statement_repository: StatementRepository = Field(default=None, exclude=True)
     backlink_repository: BacklinkRepository = Field(default=None, exclude=True)
     metadata_repository: MetadataRepository = Field(default=None, exclude=True)

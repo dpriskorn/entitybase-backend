@@ -1,5 +1,6 @@
 """Handler for watchlist operations."""
 
+from models.infrastructure.vitess_client import VitessClient
 from models.validation.utils import raise_validation_error
 from models.watchlist import (
     WatchlistAddRequest,
@@ -14,7 +15,7 @@ from models.rest_api.response.user import MessageResponse
 class WatchlistHandler:
     """Handler for watchlist-related operations."""
 
-    def add_watch(self, request: WatchlistAddRequest, vitess_client) -> dict:
+    def add_watch(self, request: WatchlistAddRequest, vitess_client: VitessClient) -> dict:
         """Add a watchlist entry."""
         # Check if user exists
         if not vitess_client.user_repository.user_exists(request.user_id):
@@ -33,14 +34,14 @@ class WatchlistHandler:
         vitess_client.user_repository.update_user_activity(request.user_id)
         return {"message": "Watch added"}
 
-    def remove_watch(self, request: WatchlistRemoveRequest, vitess_client) -> dict:
+    def remove_watch(self, request: WatchlistRemoveRequest, vitess_client: VitessClient) -> dict:
         """Remove a watchlist entry."""
         vitess_client.watchlist_repository.remove_watch(
             request.user_id, request.entity_id, request.properties
         )
         return {"message": "Watch removed"}
 
-    def get_watches(self, user_id: int, vitess_client) -> WatchlistResponse:
+    def get_watches(self, user_id: int, vitess_client: VitessClient) -> WatchlistResponse:
         """Get user's watchlist."""
         # Check if user exists
         if not vitess_client.user_repository.user_exists(user_id):
@@ -60,7 +61,7 @@ class WatchlistHandler:
     def get_notifications(
         self,
         user_id: int,
-        vitess_client,
+        vitess_client: VitessClient,
         hours: int = 24,
         limit: int = 50,
         offset: int = 0,
@@ -84,7 +85,7 @@ class WatchlistHandler:
         return NotificationResponse(user_id=user_id, notifications=notifications)
 
     def mark_checked(
-        self, user_id: int, request: MarkCheckedRequest, vitess_client
+        self, user_id: int, request: MarkCheckedRequest, vitess_client: VitessClient
     ) -> MessageResponse:
         """Mark a notification as checked."""
         vitess_client.watchlist_repository.mark_notification_checked(
