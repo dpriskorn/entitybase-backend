@@ -3,7 +3,7 @@
 import asyncio
 import logging
 import os
-from datetime import datetime, date
+from datetime import datetime, date, time, timedelta
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -42,14 +42,14 @@ class BacklinkStatisticsWorker(BaseModel):
 
         self.running = True
 
-        # Run initial computation
-        await self.run_daily_computation()
-
-        # Schedule daily runs
+        # Schedule runs according to cron setting
         while self.running:
             try:
-                # Wait until next day (simplified - in production use proper scheduler)
-                await asyncio.sleep(86400)  # 24 hours
+                # Calculate seconds until next run
+                seconds_until_next = self._calculate_seconds_until_next_run()
+                logger.info(f"Next backlink statistics run in {seconds_until_next} seconds")
+
+                await asyncio.sleep(seconds_until_next)
                 await self.run_daily_computation()
             except Exception as e:
                 logger.error(f"Error in worker loop: {e}")
@@ -117,6 +117,29 @@ class BacklinkStatisticsWorker(BaseModel):
                     ),
                 )
                 conn.commit()
+
+    def _calculate_seconds_until_next_run(self) -> float:
+        """Calculate seconds until next scheduled run based on backlink_stats_schedule."""
+        # Parse the cron schedule (currently "0 2 * * *" - daily at 2:00 AM)
+        schedule_parts = settings.backlink_stats_schedule.split()
+        if len(schedule_parts) >= 2:
+            minute = int(schedule_parts[0])
+            hour = int(schedule_parts[1])
+        else:
+            # Fallback to 2 AM
+            minute, hour = 0, 2
+
+        now = datetime.utcnow()
+        target_time = time(hour, minute, 0)
+
+        # Next run is today if not yet passed, otherwise tomorrow
+        if now.time() < target_time:
+            next_run = datetime.combine(now.date(), target_time)
+        else:
+            next_run = datetime.combine(now.date() + timedelta(days=1), target_time)
+
+        seconds_until = (next_run - now).total_seconds()
+        return max(seconds_until, 0)  # Ensure non-negative
 
     async def health_check(self) -> WorkerHealthCheck:
         """Health check for the worker."""
