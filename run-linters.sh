@@ -12,6 +12,7 @@ set -e
  ./run-dict-return-lint.sh
  ./run-pydantic-field-lint.sh
  ./run-any-lint.sh
+ ./run-cast-lint.sh
 
 # == external linters ==
 ./run-ruff.sh

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Linter to check for = None assignments in Python files.
+Linter to check for cast() usage in Python files.
 """
 
 import sys
@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 def check_file(file_path: Path) -> list[tuple[str, int, str]]:
-    """Check a single Python file for = None."""
+    """Check a single Python file for cast() usage."""
     violations = []
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -17,15 +17,15 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                 # Skip comments and empty lines
                 if not stripped or stripped.startswith("#"):
                     continue
-                # Look for = None
-                if " = None" in line:
-                     violations.append(
-                         (
-                             str(file_path),
-                             line_no,
-                             f"Found '= None' assignment: {line.strip()}, consider using Field() instead",
-                         )
-                     )
+                # Look for cast(
+                if "cast(" in line:
+                    violations.append(
+                        (
+                            str(file_path),
+                            line_no,
+                            f"Found 'cast()' usage: {line.strip()}, consider using a pydantic model at the origin instead",
+                        )
+                    )
     except Exception as e:
         violations.append((str(file_path), 0, f"Error reading file: {e}"))
 
@@ -35,7 +35,7 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
 def main() -> None:
     """Main entry point."""
     if len(sys.argv) < 2:
-        print("Usage: python check_optional_fields.py <path>")
+        print("Usage: python check_cast_usage.py <path>")
         sys.exit(1)
 
     path = Path(sys.argv[1])
@@ -52,12 +52,12 @@ def main() -> None:
             violations.extend(check_file(py_file))
 
     if violations:
-        print("= None violations:")
+        print("cast() violations:")
         for file_path, line_no, message in violations:
             print(f"{file_path}:{line_no}: {message}")
         sys.exit(1)
     else:
-        print("No = None violations found")
+        print("No cast() violations found")
 
 
 if __name__ == "__main__":
