@@ -196,21 +196,21 @@ class VitessClient(Client):
         self,
         entity_id: str,
         revision_id: int,
-        data: dict,
+        entity_data: dict,
         expected_revision_id: int | None = None,
     ) -> None:
         """Create a new revision for an entity."""
         with self.connection_manager.get_connection() as conn:
             if expected_revision_id is not None:
-                success = self.revision_repository.create_with_cas(
-                    conn, entity_id, revision_id, data, expected_revision_id
-                )
+            success = self.revision_repository.create_with_cas(
+                conn, entity_id, revision_id, entity_data, expected_revision_id
+            )
                 if not success:
                     raise_validation_error(
                         "Concurrent modification detected", status_code=409
                     )
                 return
-            return self.revision_repository.create(conn, entity_id, revision_id, data)  # type: ignore[no-any-return]
+            return self.revision_repository.create(conn, entity_id, revision_id, entity_data)  # type: ignore[no-any-return]
 
     def set_redirect_target(
         self,
@@ -395,7 +395,7 @@ class VitessClient(Client):
         self,
         entity_id: str,
         revision_id: int,
-        data: dict,
+        entity_data: dict,
         is_mass_edit: bool = False,
         edit_type: str = "",
     ) -> None:
@@ -413,9 +413,9 @@ class VitessClient(Client):
                         revision_id,
                         is_mass_edit,
                         edit_type,
-                        json.dumps(data.get("statements", [])),
-                        json.dumps(data.get("properties", [])),
-                        json.dumps(data.get("property_counts", {})),
+                        json.dumps(entity_data.get("statements", [])),
+                        json.dumps(entity_data.get("properties", [])),
+                        json.dumps(entity_data.get("property_counts", {})),
                     ),
                 )
 

@@ -8,3 +8,6 @@ src/models/services/wikidata_import_service.py:84
 src/models/services/wikidata_import_service.py:89
 src/models/validation/json_schema_validator.py:89
 src/models/validation/json_schema_validator.py:105
+src/models/validation/json_schema_validator.py:122
+src/models/internal_representation/metadata_extractor.py:92
+src/models/json_parser/entity_parser.py:28
