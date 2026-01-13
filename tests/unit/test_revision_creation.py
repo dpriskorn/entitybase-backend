@@ -87,35 +87,48 @@ class TestRevisionCreationLogic(unittest.TestCase):
         self.assertNotEqual(hash1, hash3)
 
     def test_revision_data_structure(self) -> None:
-        """Test that revision data follows the expected schema 2.0.0 structure"""
+        """Test that revision data follows the expected schema 2.1.0 structure"""
         # Mock hash maps
         labels_hashes = {"en": 12345, "fr": 67890}
         descriptions_hashes = {"en": 11111}
         aliases_hashes = {"en": [22222, 33333]}
+        sitelinks_hashes = {"enwiki": 44444}
+        statements_hashes = {"P31": [55555]}
 
         # Build revision data structure
         revision_data = {
-            "schema_version": "2.0.0",
+            "schema_version": "2.1.0",
             "revision_id": 123,
             "created_at": "2024-01-01T00:00:00Z",
             "created_by": "test",
             "entity_type": "item",
-            "entity": {"id": "Q42", "type": "item", "claims": {}},
+            "entity": {"id": "Q42", "type": "item"},
             "labels_hashes": labels_hashes,
             "descriptions_hashes": descriptions_hashes,
             "aliases_hashes": aliases_hashes,
+            "sitelinks_hashes": sitelinks_hashes,
+            "statements_hashes": statements_hashes,
         }
 
         # Verify structure matches schema expectations
-        self.assertEqual(revision_data["schema_version"], "2.0.0")
+        self.assertEqual(revision_data["schema_version"], "2.1.0")
         self.assertIn("labels_hashes", revision_data)
         self.assertIn("descriptions_hashes", revision_data)
         self.assertIn("aliases_hashes", revision_data)
+        self.assertIn("sitelinks_hashes", revision_data)
+        self.assertIn("statements_hashes", revision_data)
 
         # Verify hash map structures
         self.assertIsInstance(revision_data["labels_hashes"], dict)
         self.assertIsInstance(revision_data["descriptions_hashes"], dict)
         self.assertIsInstance(revision_data["aliases_hashes"], dict)
+        self.assertIsInstance(revision_data["sitelinks_hashes"], dict)
+        self.assertIsInstance(revision_data["statements_hashes"], dict)
+
+        # Verify entity is minimal
+        self.assertNotIn("claims", revision_data["entity"])
+        self.assertNotIn("labels", revision_data["entity"])
+        self.assertNotIn("sitelinks", revision_data["entity"])
 
         # Verify hash values are integers
         self.assertIsInstance(revision_data["labels_hashes"]["en"], int)

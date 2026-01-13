@@ -187,20 +187,22 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         )
 
     def test_schema_validation(self):
-        """Test that revision data conforms to schema 2.0.0"""
+        """Test that revision data conforms to schema 2.1.0"""
         import json
 
         # Sample revision data
         revision_data = {
-            "schema_version": "2.0.0",
+            "schema_version": "2.1.0",
             "revision_id": 123,
             "created_at": "2024-01-01T00:00:00Z",
             "created_by": "test",
             "entity_type": "item",
-            "entity": {"id": "Q42", "type": "item", "claims": {}},
+            "entity": {"id": "Q42", "type": "item"},
             "labels_hashes": {"en": 12345, "fr": 67890},
             "descriptions_hashes": {"en": 11111},
             "aliases_hashes": {"en": [22222, 33333]},
+            "sitelinks_hashes": {"enwiki": 44444},
+            "statements_hashes": {"P31": [55555]},
         }
 
         # Convert to JSON string and back to ensure serializable
@@ -208,11 +210,14 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         parsed = json.loads(json_str)
 
         # Verify structure
-        self.assertEqual(parsed["schema_version"], "2.0.0")
+        self.assertEqual(parsed["schema_version"], "2.1.0")
         self.assertIn("labels_hashes", parsed)
         self.assertIn("descriptions_hashes", parsed)
         self.assertIn("aliases_hashes", parsed)
+        self.assertIn("sitelinks_hashes", parsed)
+        self.assertIn("statements_hashes", parsed)
         self.assertIsInstance(parsed["labels_hashes"]["en"], int)
+        self.assertNotIn("claims", parsed["entity"])
         self.assertIsInstance(parsed["aliases_hashes"]["en"], list)
 
 
