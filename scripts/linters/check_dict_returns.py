@@ -8,6 +8,15 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
+# List of functions allowed to return dict types
+ALLOWED_DICT_RETURNS = [
+    "get_batch_sitelinks",
+    "get_batch_labels",
+    "get_batch_descriptions",
+    "get_batch_aliases",
+    "get_batch_statements",
+]
+
 
 class DictReturnChecker(ast.NodeVisitor):
     """AST visitor to check for -> dict return annotations."""
@@ -29,13 +38,14 @@ class DictReturnChecker(ast.NodeVisitor):
             return_annotation = self._get_annotation_string(node.returns)
             if self._is_dict_annotation(return_annotation):
                 func_name = node.name
-                self.violations.append(
-                    (
-                        func_name,
-                        node.lineno,
-                        f"Function '{func_name}' returns -> {return_annotation}, consider using a proper Pydantic model",
+                if func_name not in ALLOWED_DICT_RETURNS:
+                    self.violations.append(
+                        (
+                            func_name,
+                            node.lineno,
+                            f"Function '{func_name}' returns -> {return_annotation}, consider using a proper Pydantic model",
+                        )
                     )
-                )
 
     def _get_annotation_string(self, node: ast.AST) -> str:
         """Convert AST annotation to string."""

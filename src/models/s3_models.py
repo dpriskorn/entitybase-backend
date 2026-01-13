@@ -2,7 +2,7 @@
 
 from typing import Any, Dict
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from models.infrastructure.config import Config
 from models.rest_api.response.statement import StatementResponse
@@ -12,11 +12,11 @@ class EntityData(BaseModel):
     """Typed model for entity data in revisions."""
     id: str
     type: str
-    labels: Dict[str, Any] | None = None
-    descriptions: Dict[str, Any] | None = None
-    aliases: Dict[str, Any] | None = None
-    claims: Dict[str, Any] | None = None
-    sitelinks: Dict[str, Any] | None = None
+    labels: Dict[str, Any] | None = Field(default=None)
+    descriptions: Dict[str, Any] | None = Field(default=None)
+    aliases: Dict[str, Any] | None = Field(default=None)
+    claims: Dict[str, Any] | None = Field(default=None)
+    sitelinks: Dict[str, Any] | None = Field(default=None)
 
 
 class S3Config(Config):
@@ -39,7 +39,7 @@ class RevisionData(BaseModel):
 
     schema_version: str
     entity: EntityData
-    redirects_to: str | None = None
+    redirects_to: str = Field(default="")
 
 
 class RevisionReadResponse(BaseModel):
@@ -49,9 +49,9 @@ class RevisionReadResponse(BaseModel):
     revision_id: int
     data: RevisionData
     content: Dict[str, Any]
-    created_at: str | None = None
-    user_id: int | None = None
-    edit_summary: str | None = None
+    created_at: str = Field(default="")
+    user_id: int | None = Field(default=None)
+    edit_summary: str = Field(default="")
 
 
 class StoredStatement(StatementResponse):
