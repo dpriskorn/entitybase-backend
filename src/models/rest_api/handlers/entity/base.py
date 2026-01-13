@@ -19,7 +19,7 @@ from models.infrastructure.stream.producer import (
 from models.infrastructure.vitess_client import VitessClient
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.misc import EditType
-from models.rest_api.request import EntityUpdateRequest, EntityCreateRequest
+from models.rest_api.request import EntityCreateRequest
 from models.rest_api.response.entity.entitybase import (
     EntityRevisionResponse,
     EntityHistoryEntry,
@@ -138,6 +138,7 @@ class EntityHandler(BaseModel):
             is_dangling=is_dangling,
             is_mass_edit_protected=is_mass_edit_protected,
             vitess_client=vitess_client,
+            s3_client=s3_client,
             stream_producer=stream_producer,
             is_creation=is_creation,
         )
@@ -514,7 +515,7 @@ class EntityUpdateHandler(EntityHandler):
     async def update_entity(
         self,
         entity_id: str,
-        request: EntityUpdateRequest,
+        request: EntityCreateRequest,
         vitess_client: VitessClient,
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,

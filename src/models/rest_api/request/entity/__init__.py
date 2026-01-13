@@ -3,7 +3,6 @@
 from .crud import (
     EntityCreateRequest,
     EntityDeleteRequest,
-    EntityUpdateRequest,
     RevisionInsertDataRequest,
 )
 from .misc import EntityJsonImportRequest, EntityRedirectRequest

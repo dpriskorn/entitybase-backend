@@ -35,6 +35,7 @@ from models.vitess_models import VitessConfig
 
 class Backlink(BaseModel):
     """Model for a backlink entry."""
+
     internal_id: int
     entity_id: str
     property_id: str
@@ -216,9 +217,7 @@ class VitessClient(Client):
                         "Concurrent modification detected", status_code=409
                     )
                 return
-            self.revision_repository.create(
-                conn, entity_id, revision_id, entity_data
-            )
+            self.revision_repository.create(conn, entity_id, revision_id, entity_data)
 
     def set_redirect_target(
         self,

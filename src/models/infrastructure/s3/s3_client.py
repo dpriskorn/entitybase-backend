@@ -516,5 +516,3 @@ class S3Client(Client):
                 f"S3 load_sitelink_metadata failed: bucket={bucket}, key={key}, error={e}"
             )
             raise
-
-
