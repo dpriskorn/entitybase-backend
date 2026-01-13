@@ -2,9 +2,12 @@
 
 """Repository for managing entity backlinks in Vitess."""
 
+import logging
 from typing import Any
 
 from models.vitess_models import BacklinkData
+
+logger = logging.getLogger(__name__)
 
 
 class BacklinkRepository:
@@ -49,6 +52,7 @@ class BacklinkRepository:
         self, conn: Any, referenced_internal_id: int, limit: int = 100, offset: int = 0
     ) -> list[BacklinkData]:
         """Get backlinks for an entity."""
+        logger.debug(f"Getting backlinks for internal_id {referenced_internal_id}, limit {limit}")
         with conn.cursor() as cursor:
             cursor.execute(
                 """
@@ -79,6 +83,7 @@ class BacklinkRepository:
         top_entities_by_backlinks: list[dict],
     ) -> None:
         """Insert daily backlink statistics."""
+        logger.debug(f"Inserting backlink statistics for date {date}")
         import json
 
         with conn.cursor() as cursor:

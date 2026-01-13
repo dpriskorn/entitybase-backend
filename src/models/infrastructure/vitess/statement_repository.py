@@ -1,6 +1,9 @@
 """Vitess statement repository for statement operations."""
 
+import logging
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 class StatementRepository:
@@ -41,6 +44,7 @@ class StatementRepository:
 
     def decrement_ref_count(self, conn: Any, content_hash: int) -> int:
         """Decrement reference count for statement content."""
+        logger.debug(f"Decrementing ref count for content hash {content_hash}")
         with conn.cursor() as cursor:
             cursor.execute(
                 "UPDATE statement_content SET ref_count = ref_count - 1 WHERE content_hash = %s",

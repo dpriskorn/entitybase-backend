@@ -1,8 +1,11 @@
 """Vitess entity repository for database operations."""
 
+import logging
 from typing import Any
 
 from models.rest_api.response.entity import ProtectionResponse
+
+logger = logging.getLogger(__name__)
 
 
 class EntityRepository:
@@ -68,6 +71,7 @@ class EntityRepository:
         self, conn: Any, entity_id: str
     ) -> ProtectionResponse | None:
         """Get protection status information for an entity."""
+        logger.debug(f"Getting protection info for entity {entity_id}")
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return None

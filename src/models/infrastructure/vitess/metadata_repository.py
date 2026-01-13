@@ -2,9 +2,12 @@
 
 """Repository for metadata content operations."""
 
+import logging
 from typing import Any
 
 from models.rest_api.response.misc import MetadataContent
+
+logger = logging.getLogger(__name__)
 
 
 class MetadataRepository:
@@ -43,6 +46,7 @@ class MetadataRepository:
         self, conn: Any, content_hash: int, content_type: str
     ) -> bool:
         """Decrement ref_count and return True if it reaches 0."""
+        logger.debug(f"Decrementing ref count for metadata {content_type} hash {content_hash}")
         with conn.cursor() as cursor:
             cursor.execute(
                 """

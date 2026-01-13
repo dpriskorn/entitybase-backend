@@ -1,9 +1,11 @@
 """Vitess head repository for entity head operations."""
 
+import logging
 from typing import Any
 
-
 from models.validation.utils import raise_validation_error
+
+logger = logging.getLogger(__name__)
 
 
 class HeadRepository:
@@ -28,6 +30,7 @@ class HeadRepository:
         is_redirect: bool = False,
     ) -> bool:
         """Update entity head with compare-and-swap semantics and status flags."""
+        logger.debug(f"CAS update for entity {entity_id}, expected head {expected_head}, new head {new_head}")
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return False

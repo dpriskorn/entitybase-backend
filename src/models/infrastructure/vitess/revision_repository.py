@@ -1,11 +1,14 @@
 """Vitess revision repository for revision operations."""
 
 import json
+import logging
 from typing import Any
 
 from pydantic import BaseModel
 
 from models.validation.utils import raise_validation_error
+
+logger = logging.getLogger(__name__)
 
 
 class RevisionRepository:
@@ -23,6 +26,7 @@ class RevisionRepository:
         data: dict,
     ) -> None:
         """Insert a new revision for an entity."""
+        logger.debug(f"Inserting revision {revision_id} for entity {entity_id}")
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
@@ -64,6 +68,7 @@ class RevisionRepository:
         self, internal_entity_id: int, revision_id: int, vitess_client
     ) -> dict | None:
         """Get a specific revision data."""
+        logger.debug(f"Getting revision {revision_id} for entity {internal_entity_id}")
         with vitess_client.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -92,6 +97,7 @@ class RevisionRepository:
         vitess_client,
     ) -> int:
         """Revert entity to a previous revision and log the action."""
+        logger.debug(f"Reverting entity {internal_entity_id} to revision {to_revision_id}")
         # Get the target revision data
         target_data = self.get_revision(
             internal_entity_id, to_revision_id, vitess_client
@@ -168,6 +174,7 @@ class RevisionRepository:
         self, conn: Any, entity_id: str, limit: int = 20, offset: int = 0
     ) -> list[Any]:
         """Get revision history for an entity."""
+        logger.debug(f"Getting history for entity {entity_id}, limit {limit}")
 
         class RevisionRecord(BaseModel):
             """Revision record for history."""
@@ -218,6 +225,7 @@ class RevisionRepository:
         expected_revision_id: int,
     ) -> bool:
         """Create a revision with compare-and-swap semantics."""
+        logger.debug(f"Creating revision {revision_id} for entity {entity_id} with CAS, expected {expected_revision_id}")
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return False
@@ -264,6 +272,7 @@ class RevisionRepository:
 
     def create(self, conn: Any, entity_id: str, revision_id: int, data: dict) -> None:
         """Create a new revision for an entity."""
+        logger.debug(f"Creating revision {revision_id} for entity {entity_id}")
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)

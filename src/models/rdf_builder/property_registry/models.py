@@ -1,6 +1,10 @@
 """Property registry models."""
 
+import logging
+
 from pydantic import BaseModel, ConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class PropertyPredicates(BaseModel):
@@ -25,6 +29,7 @@ def get_owl_type(datatype: str) -> str:
     Returns 'owl:DatatypeProperty' for non-item datatypes,
     'owl:ObjectProperty' for item-type properties.
     """
+    logger.debug(f"Getting OWL type for datatype {datatype}")
     object_properties = {
         "wikibase-item",
         "wikibase-lexeme",

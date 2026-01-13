@@ -2,7 +2,10 @@
 
 """Manager for Vitess database schema operations."""
 
+import logging
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 class SchemaManager:
@@ -13,6 +16,7 @@ class SchemaManager:
 
     def create_tables(self) -> None:
         """Create all required database tables."""
+        logger.debug("Creating database tables")
         conn = self.connection_manager.connect()
         cursor = conn.cursor()
 

@@ -1,10 +1,13 @@
 """RDF property ontology writer."""
 
+import logging
 from typing import TextIO
 import hashlib
 
 from models.rdf_builder.property_registry.models import PropertyShape, get_owl_type
 from models.config.settings import settings
+
+logger = logging.getLogger(__name__)
 
 
 class PropertyOntologyWriter:
@@ -13,6 +16,7 @@ class PropertyOntologyWriter:
     @staticmethod
     def write_property_metadata(output: TextIO, shape: PropertyShape) -> None:
         """Write property metadata block with labels, descriptions, predicate links."""
+        logger.debug(f"Writing property metadata for {shape.pid}")
         pid = shape.pid
         wd = f"wd:{pid}"
 
@@ -56,6 +60,7 @@ class PropertyOntologyWriter:
     @staticmethod
     def _datatype_uri(datatype: str) -> str:
         """Convert datatype string to ontology URI."""
+        logger.debug(f"Converting datatype {datatype} to ontology URI")
         return {
             "wikibase-item": "http://wikiba.se/ontology#WikibaseItem",
             "wikibase-string": "http://wikiba.se/ontology#String",

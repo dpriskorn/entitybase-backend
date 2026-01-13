@@ -158,6 +158,7 @@ class EntityJsonImportHandler:
         line: str, line_num: int, error_log_path: Path
     ) -> Optional[Dict[str, Any]]:
         """Process a single line from the JSONL file, handling trailing commas and parsing."""
+        logger.debug(f"Processing entity line {line_num}")
         line = line.strip()
         if not line:
             return None

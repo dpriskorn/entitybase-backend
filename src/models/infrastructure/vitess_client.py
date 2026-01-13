@@ -1,10 +1,13 @@
 """Vitess client for database operations."""
 
 import json
+import logging
 from contextlib import contextmanager
 from typing import Any, Generator, Optional
 
 from pydantic import Field
+
+logger = logging.getLogger(__name__)
 
 from models.infrastructure.client import Client
 from models.infrastructure.vitess.backlink_repository import BacklinkRepository
@@ -50,6 +53,7 @@ class VitessClient(Client):
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
+        logger.debug(f"Initializing VitessClient with host {config.host}")
         self.connection_manager = VitessConnectionManager(config=config)
         self.schema_manager = SchemaManager(self.connection_manager)
         self.id_resolver = IdResolver(self.connection_manager)
@@ -170,6 +174,7 @@ class VitessClient(Client):
         property_counts: dict[str, int] | None = None,
     ) -> None:
         """Insert a new revision for an entity."""
+        logger.debug(f"Inserting revision {revision_id} for entity {entity_id}")
         data = RevisionInsertDataRequest(
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
@@ -257,6 +262,7 @@ class VitessClient(Client):
         is_redirect: bool = False,
     ) -> bool:
         """Update entity head with compare-and-swap semantics."""
+        logger.debug(f"CAS updating head for entity {entity_id} from {expected_head} to {new_head}")
         with self.connection_manager.get_connection() as conn:
             return self.head_repository.cas_update_with_status(  # type: ignore[no-any-return]
                 conn,
@@ -300,6 +306,7 @@ class VitessClient(Client):
         self, entity_type: str | None, limit: int, offset: int
     ) -> list[str]:
         """List entity IDs by type with pagination."""
+        logger.debug(f"Listing entities by type {entity_type} with limit {limit} offset {offset}")
         if entity_type == "item":
             prefix = "Q"
         elif entity_type == "property":
@@ -382,6 +389,7 @@ class VitessClient(Client):
         edit_type: str = "",
     ) -> None:
         """Write an entity revision to the database."""
+        logger.debug(f"Writing entity revision {revision_id} for {entity_id}")
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:
@@ -404,6 +412,7 @@ class VitessClient(Client):
         self, entity_id: str, revision_id: int, s3_client: Optional[Any] = None
     ) -> FullRevisionData:
         """Read full revision data including metadata from S3."""
+        logger.debug(f"Reading full revision {revision_id} for entity {entity_id}")
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:

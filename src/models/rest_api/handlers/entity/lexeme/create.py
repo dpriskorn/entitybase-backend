@@ -31,6 +31,7 @@ class LexemeCreateHandler(EntityCreateHandler):
         auto_assign_id: bool = False,
     ) -> EntityResponse:
         """Create a new lexeme with auto-assigned L ID."""
+        logger.debug("Creating new lexeme")
         response = await super().create_entity(
             request,
             vitess_client,

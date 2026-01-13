@@ -36,6 +36,7 @@ logger = logging.getLogger(__name__)
 
 def edit_type_to_change_type(edit_type: EditType | str) -> ChangeType:
     """Map EditType to ChangeType for event streaming."""
+    logger.debug(f"Mapping edit type {edit_type} to change type")
     edit_type_str = str(edit_type)
 
     if edit_type_str in (EditType.MANUAL_CREATE.value, "manual-create"):

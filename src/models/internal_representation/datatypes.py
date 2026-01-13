@@ -1,8 +1,11 @@
+import logging
 import re
 
 """Enumeration of Wikibase datatype identifiers."""
 
 from enum import Enum
+
+logger = logging.getLogger(__name__)
 
 
 class Datatype(str, Enum):

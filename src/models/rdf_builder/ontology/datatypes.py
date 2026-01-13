@@ -1,10 +1,14 @@
 """RDF ontology datatypes."""
 
+import logging
+
 from models.validation.utils import raise_validation_error
 from models.rdf_builder.property_registry.models import (
     PropertyShape,
     PropertyPredicates,
 )
+
+logger = logging.getLogger(__name__)
 
 
 def property_shape(
@@ -24,6 +28,7 @@ def property_shape(
     Returns:
         PropertyShape with predicates configured for datatype
     """
+    logger.debug(f"Creating property shape for {pid} with datatype {datatype}")
     base = {
         "direct": f"wdt:{pid}",
         "statement": f"ps:{pid}",

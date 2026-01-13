@@ -1,11 +1,14 @@
 """RDF value node writers."""
 
+import logging
 from typing import Any, TextIO
 import re
 
 from pydantic import BaseModel
 
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
+
+logger = logging.getLogger(__name__)
 
 
 def _format_scientific_notation(value: float) -> str:
@@ -40,6 +43,7 @@ class ValueNodeWriter(BaseModel):
         dedupe: HashDedupeBag | None = None,
     ) -> None:
         """Write time value node block if not already written."""
+        logger.debug(f"Writing time value node for {value_id}")
         if dedupe is not None:
             if dedupe.already_seen(value_id, "wdv"):
                 return
@@ -65,6 +69,7 @@ class ValueNodeWriter(BaseModel):
         dedupe: HashDedupeBag | None = None,
     ) -> None:
         """Write quantity value node block if not already written."""
+        logger.debug(f"Writing quantity value node for {value_id}")
         if dedupe is not None:
             if dedupe.already_seen(value_id, "wdv"):
                 return

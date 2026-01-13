@@ -301,6 +301,7 @@ def get_user_activity(
     offset: int = Query(0, ge=0, description="Number of activities to skip"),
 ) -> UserActivityResponse:
     """Get user's activity history."""
+    logger.debug(f"Getting user activity for user {user_id} with type {type}")
     # Validate limit
     allowed_limits = [50, 100, 250, 500]
     if limit not in allowed_limits:

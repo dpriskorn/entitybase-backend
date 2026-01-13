@@ -29,6 +29,7 @@ class LexemeUpdateHandler(EntityUpdateHandler):
         validator: object | None = None,
     ) -> EntityResponse:
         """Update an existing lexeme with validation that entity_id starts with L."""
+        logger.debug(f"Updating lexeme {entity_id}")
         # Validate entity type (must be lexeme)
         if not re.match(r"^L\d+$", entity_id):
             raise_validation_error(

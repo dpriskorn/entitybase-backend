@@ -1,9 +1,12 @@
 """Repository for managing watchlists in Vitess."""
 
 import json
+import logging
 from typing import Any, List
 
 from models.watchlist import WatchlistEntry
+
+logger = logging.getLogger(__name__)
 
 
 class WatchlistRepository:
@@ -129,6 +132,7 @@ class WatchlistRepository:
         self, user_id: int, hours: int = 24, limit: int = 50, offset: int = 0
     ) -> List[dict]:
         """Get recent notifications for a user within time span."""
+        logger.debug(f"Getting notifications for user {user_id}, hours {hours}, limit {limit}")
         with self._get_conn() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(

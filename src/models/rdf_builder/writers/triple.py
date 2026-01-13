@@ -107,6 +107,7 @@ class TripleWriters:
         dedupe: HashDedupeBag | None = None,
     ) -> None:
         """Write statement triple."""
+        logger.debug(f"Writing statement for entity {entity_id}, property {shape.pid}")
         from models.rdf_builder.models.rdf_reference import RDFReference
 
         entity_uri = TripleWriters.uri.entity_prefixed(entity_id)

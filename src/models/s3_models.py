@@ -4,10 +4,11 @@ from typing import Any, Dict
 
 from pydantic import BaseModel
 
+from models.infrastructure.config import Config
 from models.rest_api.response.statement import StatementResponse
 
 
-class S3Config(BaseModel):
+class S3Config(Config):
     """Configuration for S3 connections."""
 
     endpoint_url: str

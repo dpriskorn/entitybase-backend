@@ -28,6 +28,7 @@ class ItemUpdateHandler(EntityUpdateHandler):
         validator: object | None = None,
     ) -> EntityResponse:
         """Update an existing item with validation that entity_id starts with Q."""
+        logger.debug(f"Updating item {entity_id}")
         # Validate entity type (must be item)
         if not re.match(r"^Q\d+$", entity_id):
             raise_validation_error(

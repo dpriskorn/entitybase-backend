@@ -37,6 +37,7 @@ class S3Client(Client):
 
     def _ensure_bucket_exists(self) -> None:
         """Ensure the S3 bucket exists, creating it if necessary."""
+        logger.debug(f"Ensuring bucket {self.config.bucket} exists")
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         try:
@@ -286,6 +287,7 @@ class S3Client(Client):
         created_by: str = "rest-api",
     ) -> int:
         """Write revision as part of redirect operations (no mark_pending/published flow)."""
+        logger.debug(f"Writing entity revision {revision_id} for {entity_id}")
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         revision_data = {

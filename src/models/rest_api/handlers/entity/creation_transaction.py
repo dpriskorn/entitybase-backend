@@ -52,6 +52,7 @@ class EntityTransaction(BaseModel, ABC):
         stream_producer: Any,
         is_creation: bool,
     ) -> Any:
+        logger.debug(f"Creating revision {new_revision_id} for {entity_id}")
         pass
 
     @abstractmethod
@@ -166,7 +167,7 @@ class CreationTransaction(EntityTransaction):
         stream_producer: Any,
         is_creation: bool,
     ) -> Any:
-        logger.info(f"[CreationTransaction] Starting revision creation for {entity_id}")
+        logger.debug(f"[CreationTransaction] Starting revision creation for {entity_id}")
         from models.rest_api.handlers.entity.base import EntityHandler
 
         handler = EntityHandler()

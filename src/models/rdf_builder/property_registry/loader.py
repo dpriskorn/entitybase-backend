@@ -2,10 +2,13 @@
 
 import csv
 import json
+import logging
 from pathlib import Path
 
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.ontology.datatypes import property_shape
+
+logger = logging.getLogger(__name__)
 
 
 def load_property_registry(path: Path) -> PropertyRegistry:
@@ -14,6 +17,7 @@ def load_property_registry(path: Path) -> PropertyRegistry:
     Returns PropertyRegistry with all property shapes including
     normalization predicates for properties that need them.
     """
+    logger.debug(f"Loading property registry from {path}")
     shapes = {}
 
     csv_path = path / "properties.csv"

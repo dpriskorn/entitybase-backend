@@ -31,6 +31,7 @@ class PropertyCreateHandler(EntityCreateHandler):
         auto_assign_id: bool = False,
     ) -> EntityResponse:
         """Create a new property with auto-assigned P ID."""
+        logger.debug("Creating new property")
         response = await super().create_entity(
             request,
             vitess_client,

@@ -1,9 +1,12 @@
 """Repository for managing users in Vitess."""
 
+import logging
 from typing import Any, List
 
 from models.user import User
 from models.user_activity import UserActivityItem
+
+logger = logging.getLogger(__name__)
 
 
 class UserRepository:
@@ -136,6 +139,7 @@ class UserRepository:
         offset: int = 0,
     ) -> List[UserActivityItem]:
         """Get user's activities with filtering."""
+        logger.debug(f"Getting activities for user {user_id}, type {activity_type}, hours {hours}")
         with self.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:
                 query = """

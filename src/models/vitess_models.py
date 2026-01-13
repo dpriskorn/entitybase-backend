@@ -2,8 +2,10 @@
 
 from pydantic import BaseModel, Field
 
+from models.infrastructure.config import Config
 
-class VitessConfig(BaseModel):
+
+class VitessConfig(Config):
     """Configuration for Vitess connections."""
 
     host: str

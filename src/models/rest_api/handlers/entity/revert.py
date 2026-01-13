@@ -1,11 +1,14 @@
 """Handler for entity revert operations."""
 
+import logging
 from datetime import datetime
 
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.request.entity import EntityRevertRequest
 from models.rest_api.response.entity import EntityRevertResponse
 from models.validation.utils import raise_validation_error
+
+logger = logging.getLogger(__name__)
 
 
 class EntityRevertHandler:
@@ -15,6 +18,7 @@ class EntityRevertHandler:
         self, entity_id: str, request: EntityRevertRequest, vitess_client: "VitessClient", user_id: int
     ) -> EntityRevertResponse:
         """Revert an entity to a specified revision."""
+        logger.debug(f"Reverting entity {entity_id} to revision {request.to_revision_id}")
         # Resolve internal ID
         with vitess_client.get_connection() as conn:
             internal_entity_id = vitess_client.id_resolver.resolve_id(conn, entity_id)
