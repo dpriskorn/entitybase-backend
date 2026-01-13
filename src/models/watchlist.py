@@ -1,7 +1,8 @@
 """Watchlist models."""
 
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
+from datetime import datetime
 
 
 class WatchlistEntry(BaseModel):
@@ -37,11 +38,24 @@ class WatchlistRemoveRequest(BaseModel):
     properties: List[str] | None = None
 
 
+class Notification(BaseModel):
+    """Notification model."""
+
+    id: int
+    entity_id: str
+    revision_id: Optional[int]
+    change_type: str
+    changed_properties: Optional[List[str]]
+    event_timestamp: datetime
+    is_checked: bool
+    checked_at: Optional[datetime]
+
+
 class NotificationResponse(BaseModel):
     """Response for user notifications."""
 
     user_id: int
-    notifications: List[dict]  # List of notification data
+    notifications: List[Notification]
 
 
 class MarkCheckedRequest(BaseModel):

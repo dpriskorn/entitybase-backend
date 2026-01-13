@@ -1,6 +1,7 @@
 """Item-specific update handlers."""
-
 import logging
+from typing import Any
+
 import re
 
 from models.rest_api.request import EntityUpdateRequest
@@ -25,7 +26,8 @@ class ItemUpdateHandler(EntityUpdateHandler):
         vitess_client: VitessClient,
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
-        validator: object | None = None,
+        validator: Any | None = None,
+        user_id: int | None = None,
     ) -> EntityResponse:
         """Update an existing item with validation that entity_id starts with Q."""
         logger.debug(f"Updating item {entity_id}")

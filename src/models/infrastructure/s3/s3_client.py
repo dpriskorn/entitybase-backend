@@ -111,7 +111,9 @@ class S3Client(Client):
             MetadataDirective="REPLACE",
         )
 
-    def read_full_revision(self, entity_id: str, revision_id: int) -> RevisionReadResponse:
+    def read_full_revision(
+        self, entity_id: str, revision_id: int
+    ) -> RevisionReadResponse:
         """Read S3 object and return parsed full revision JSON."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
@@ -124,7 +126,9 @@ class S3Client(Client):
             response["Body"].read().decode("utf-8")
         )
 
-        return RevisionReadResponse(entity_id=entity_id, revision_id=revision_id, data=parsed_data)
+        return RevisionReadResponse(
+            entity_id=entity_id, revision_id=revision_id, data=parsed_data
+        )
 
     def delete_statement(self, content_hash: int) -> None:
         """Delete statement from S3."""
@@ -374,7 +378,7 @@ class S3Client(Client):
 
     async def batch_get_statements(
         self, content_hashes: list[int]
-    ) -> dict[int, dict[str, Any]]:
+    ) -> Any:
         """Batch read multiple statements from S3.
 
         Args:

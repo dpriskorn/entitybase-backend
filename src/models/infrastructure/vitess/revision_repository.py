@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import Any
+from typing import Any, cast
 
 from pydantic import BaseModel
 
@@ -65,8 +65,8 @@ class RevisionRepository:
             )
 
     def get_revision(
-        self, internal_entity_id: int, revision_id: int, vitess_client
-    ) -> dict | None:
+        self, internal_entity_id: int, revision_id: int, vitess_client: Any
+    ) -> Any | None:
         """Get a specific revision data."""
         logger.debug(f"Getting revision {revision_id} for entity {internal_entity_id}")
         with vitess_client.get_connection() as conn:
@@ -94,10 +94,12 @@ class RevisionRepository:
         reverted_by_user_id: int,
         reason: str,
         watchlist_context: dict | None,
-        vitess_client,
+        vitess_client: Any,
     ) -> int:
         """Revert entity to a previous revision and log the action."""
-        logger.debug(f"Reverting entity {internal_entity_id} to revision {to_revision_id}")
+        logger.debug(
+            f"Reverting entity {internal_entity_id} to revision {to_revision_id}"
+        )
         # Get the target revision data
         target_data = self.get_revision(
             internal_entity_id, to_revision_id, vitess_client
@@ -106,6 +108,7 @@ class RevisionRepository:
             raise_validation_error(
                 f"Revision {to_revision_id} not found", status_code=404
             )
+        assert target_data is not None
 
         # Get next revision ID
         with vitess_client.get_connection() as conn:
@@ -168,7 +171,7 @@ class RevisionRepository:
                     revision_id=new_revision_id,
                 )
 
-        return new_revision_id
+        return cast(int, new_revision_id)
 
     def get_history(
         self, conn: Any, entity_id: str, limit: int = 20, offset: int = 0
@@ -225,7 +228,9 @@ class RevisionRepository:
         expected_revision_id: int,
     ) -> bool:
         """Create a revision with compare-and-swap semantics."""
-        logger.debug(f"Creating revision {revision_id} for entity {entity_id} with CAS, expected {expected_revision_id}")
+        logger.debug(
+            f"Creating revision {revision_id} for entity {entity_id} with CAS, expected {expected_revision_id}"
+        )
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return False

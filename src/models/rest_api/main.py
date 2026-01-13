@@ -4,7 +4,7 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from fastapi import FastAPI, HTTPException, Header, Query, Response
 from fastapi.responses import JSONResponse
@@ -32,7 +32,11 @@ from models.rest_api.request.entity import (
 from models.rest_api.request.user import UserCreateRequest, WatchlistToggleRequest
 from models.rest_api.response.entity import EntityRevertResponse
 from models.rest_api.response.health import HealthCheckResponse
-from models.rest_api.response.misc import RawRevisionResponse, RevisionMetadataResponse, WatchCounts
+from models.rest_api.response.misc import (
+    RawRevisionResponse,
+    RevisionMetadataResponse,
+    WatchCounts,
+)
 from models.rest_api.response.misc import TtlResponse
 from models.rest_api.response.statement import (
     PropertyCountsResponse,
@@ -59,7 +63,12 @@ from models.watchlist import (
 from models.rest_api.services.enumeration_service import EnumerationService
 from models.validation.json_schema_validator import JsonSchemaValidator
 from .entitybase.v1 import v1_router
-from .response.entity.entitybase import EntityResponse, EntityRedirectResponse, EntityDeleteResponse, EntityListResponse
+from .response.entity.entitybase import (
+    EntityResponse,
+    EntityRedirectResponse,
+    EntityDeleteResponse,
+    EntityListResponse,
+)
 from .wikibase.v1 import wikibase_v1_router
 
 log_level = settings.get_log_level()
@@ -177,7 +186,7 @@ def health_check_endpoint(response: Response) -> HealthCheckResponse:
 
 
 @app.get("/v1/health")
-def health_redirect() -> Any:
+def health_redirect() -> EntityRedirectResponse:
     """Redirect legacy /v1/health endpoint to /health."""
     from fastapi.responses import RedirectResponse
 
@@ -401,18 +410,18 @@ async def create_entity_redirect(
 ) -> EntityRedirectResponse:
     clients = app.state.clients
     handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
-    return await handler.create_entity_redirect(request)
+    return cast(EntityRedirectResponse, await handler.create_entity_redirect(request))
 
 
 @app.post("/entities/{entity_id}/revert-redirect")
 async def revert_entity_redirect(
     entity_id: str, request: RedirectRevertRequest
-) -> EntityResponse:
+) -> EntityRedirectResponse:
     clients = app.state.clients
     handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
-    return await handler.revert_entity_redirect(
+    return cast(EntityRedirectResponse, await handler.revert_entity_redirect(
         entity_id, request.revert_to_revision_id
-    )
+    ))
 
 
 @v1_router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)
@@ -421,9 +430,9 @@ async def delete_entity(
 ) -> EntityDeleteResponse:
     clients = app.state.clients
     handler = EntityDeleteHandler()
-    return await handler.delete_entity(
+    return cast(EntityDeleteResponse, await handler.delete_entity(
         entity_id, request, clients.vitess, clients.s3, clients.stream_producer
-    )
+    ))
 
 
 @v1_router.get(
@@ -447,16 +456,16 @@ def list_entities(
         100, ge=1, le=1000, description="Maximum number of entities to return"
     ),
     offset: int = Query(0, ge=0, description="Number of entities to skip"),
-) -> EntityListResponse:
+) -> EntityRedirectResponse:
     """List entities based on type, limit, and offset."""
     clients = app.state.clients
     handler = AdminHandler()
-    return handler.list_entities(
+    return cast(EntityListResponse, handler.list_entities(
         vitess_client=clients.vitess,
         entity_type=entity_type,
         limit=limit,
         offset=offset,
-    )
+    ))
 
 
 @v1_router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)

@@ -310,7 +310,7 @@ async def delete_item_description(
 @router.get("/entities/items/{item_id}/aliases/{language_code}")
 async def get_item_aliases_for_language(
     item_id: str, language_code: str, req: Request
-) -> list[dict[str, str]]:
+) -> list[str]:
     """Get item aliases for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
@@ -320,7 +320,7 @@ async def get_item_aliases_for_language(
         raise HTTPException(
             status_code=404, detail=f"Aliases not found for language {language_code}"
         )
-    return aliases[language_code]
+    return [alias["value"] for alias in aliases[language_code]]
 
 
 @router.patch("/entities/items/{item_id}/aliases/{language_code}")

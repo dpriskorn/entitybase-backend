@@ -71,7 +71,7 @@ class WatchlistRepository:
                     (user_id, internal_entity_id, properties_json),
                 )
 
-    def get_watches_for_user(self, user_id: int) -> List[dict]:
+    def get_watches_for_user(self, user_id: int) -> List[Any]:
         """Get all watchlist entries for a user."""
         with self._get_conn() as conn:
             with conn.cursor() as cursor:
@@ -94,7 +94,7 @@ class WatchlistRepository:
 
         return watches
 
-    def get_watchers_for_entity(self, entity_id: str) -> List[dict]:
+    def get_watchers_for_entity(self, entity_id: str) -> List[Any]:
         """Get all watchers for an entity (for notifications)."""
         internal_entity_id = self.id_resolver.resolve_id(self._get_conn(), entity_id)
 
@@ -130,9 +130,11 @@ class WatchlistRepository:
 
     def get_user_notifications(
         self, user_id: int, hours: int = 24, limit: int = 50, offset: int = 0
-    ) -> List[dict]:
+    ) -> List[Any]:
         """Get recent notifications for a user within time span."""
-        logger.debug(f"Getting notifications for user {user_id}, hours {hours}, limit {limit}")
+        logger.debug(
+            f"Getting notifications for user {user_id}, hours {hours}, limit {limit}"
+        )
         with self._get_conn() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(

@@ -274,7 +274,7 @@ Response model for generated entity ID.
 
 ## models/rest_api/response/misc.py
 
-### AliasesDict
+### Aliases
 
 Model for extracted aliases dictionary.
 

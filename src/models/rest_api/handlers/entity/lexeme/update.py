@@ -1,6 +1,7 @@
 """Handler for lexeme update operations in the REST API."""
 
 import logging
+from typing import Any
 
 import re
 
@@ -26,7 +27,8 @@ class LexemeUpdateHandler(EntityUpdateHandler):
         vitess_client: VitessClient,
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
-        validator: object | None = None,
+        validator: Any | None = None,
+        user_id: int | None = None,
     ) -> EntityResponse:
         """Update an existing lexeme with validation that entity_id starts with L."""
         logger.debug(f"Updating lexeme {entity_id}")

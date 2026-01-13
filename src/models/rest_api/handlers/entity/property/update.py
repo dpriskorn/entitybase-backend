@@ -1,6 +1,7 @@
 """Handler for property update operations in the REST API."""
 
 import logging
+from typing import Any
 
 import re
 
@@ -26,7 +27,8 @@ class PropertyUpdateHandler(EntityUpdateHandler):
         vitess_client: VitessClient,
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
-        validator: object | None = None,
+        validator: Any | None = None,
+        user_id: int | None = None,
     ) -> EntityResponse:
         """Update an existing property with validation that entity_id starts with P."""
         logger.debug(f"Updating property {entity_id}")

@@ -1,6 +1,7 @@
 """Statement management handlers."""
 
 import logging
+from typing import cast
 
 from botocore.exceptions import ClientError
 
@@ -45,12 +46,12 @@ class StatementHandler:
         try:
             statement_data = s3_client.read_statement(content_hash)
             logger.debug(f"Successfully retrieved statement {content_hash} from S3")
-            return StatementResponse(
+            return cast(StatementResponse, StatementResponse(
                 schema_version=statement_data.schema_version,
                 content_hash=content_hash,
                 statement=statement_data.statement,
                 created_at=statement_data.created_at,
-            )
+            ))
         except Exception as e:
             logger.error(
                 f"Failed to retrieve statement {content_hash} from S3",
@@ -93,7 +94,7 @@ class StatementHandler:
             except ClientError:
                 not_found.append(content_hash)
 
-        return StatementBatchResponse(statements=statements, not_found=not_found)
+        return cast(StatementBatchResponse, StatementBatchResponse(statements=statements, not_found=not_found))
 
     def get_entity_properties(
         self, entity_id: str, vitess_client: VitessClient, s3_client: S3Client
@@ -217,7 +218,7 @@ class StatementHandler:
         statement_hashes = vitess_client.get_most_used_statements(
             limit=limit, min_ref_count=min_ref_count
         )
-        return MostUsedStatementsResponse(statements=statement_hashes)
+        return cast(MostUsedStatementsResponse, MostUsedStatementsResponse(statements=statement_hashes))
 
     def cleanup_orphaned_statements(
         self,
@@ -259,8 +260,8 @@ class StatementHandler:
                 errors.append(error_msg)
                 logger.error(error_msg)
 
-        return CleanupOrphanedResponse(
+        return cast(CleanupOrphanedResponse, CleanupOrphanedResponse(
             cleaned_count=cleaned_count,
             failed_count=failed_count,
             errors=errors,
-        )
+        ))

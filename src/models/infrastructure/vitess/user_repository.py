@@ -106,7 +106,7 @@ class UserRepository:
                     (user_id, activity_type, entity_id, revision_id),
                 )
 
-    def get_user_preferences(self, user_id: int) -> dict | None:
+    def get_user_preferences(self, user_id: int) -> Any | None:
         """Get user notification preferences."""
         with self.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:
@@ -139,7 +139,9 @@ class UserRepository:
         offset: int = 0,
     ) -> List[UserActivityItem]:
         """Get user's activities with filtering."""
-        logger.debug(f"Getting activities for user {user_id}, type {activity_type}, hours {hours}")
+        logger.debug(
+            f"Getting activities for user {user_id}, type {activity_type}, hours {hours}"
+        )
         with self.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:
                 query = """

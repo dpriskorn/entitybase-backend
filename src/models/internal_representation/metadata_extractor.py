@@ -5,8 +5,6 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from models.rest_api.response.misc import AliasesDict
-
 
 class LabelsResponse(BaseModel):
     """Response model for extracted labels."""
@@ -18,6 +16,12 @@ class DescriptionsResponse(BaseModel):
     """Response model for extracted descriptions."""
 
     descriptions: dict[str, str]
+
+
+class AliasesResponse(BaseModel):
+    """Response model for extracted aliases."""
+
+    aliases: dict[str, list[str]]
 
 
 class MetadataExtractor:
@@ -46,10 +50,10 @@ class MetadataExtractor:
         return DescriptionsResponse(descriptions=data)
 
     @staticmethod
-    def extract_aliases(entity: dict[str, Any]) -> AliasesDict:
+    def extract_aliases(entity: dict[str, Any]) -> AliasesResponse:
         """Extract alias values from entity JSON."""
         aliases = entity.get("aliases", {})
-        return AliasesDict(
+        return AliasesResponse(
             aliases={
                 lang: [
                     alias_data["value"]

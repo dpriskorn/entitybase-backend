@@ -49,7 +49,9 @@ class TermsRepository:
                     hashes,
                 )
                 results = cursor.fetchall()
-                return TermsResponse(terms={row[0]: (row[1], row[2]) for row in results})
+                return TermsResponse(
+                    terms={row[0]: (row[1], row[2]) for row in results}
+                )
 
     def hash_exists(self, hash_value: int) -> bool:
         """Check if a hash exists in the terms table."""

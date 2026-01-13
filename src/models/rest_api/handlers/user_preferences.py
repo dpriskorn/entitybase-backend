@@ -9,7 +9,9 @@ from models.rest_api.response.user_preferences import UserPreferencesResponse
 class UserPreferencesHandler:
     """Handler for user preference operations."""
 
-    def get_preferences(self, user_id: int, vitess_client: VitessClient) -> UserPreferencesResponse:
+    def get_preferences(
+        self, user_id: int, vitess_client: VitessClient
+    ) -> UserPreferencesResponse:
         """Get user's notification preferences."""
         # Check if user exists
         if not vitess_client.user_repository.user_exists(user_id):

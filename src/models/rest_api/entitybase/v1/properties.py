@@ -96,7 +96,9 @@ async def patch_property_aliases_for_language(
     property_id: str, language_code: str, patch_data: Dict[str, Any], req: Request
 ) -> EntityResponse:
     """Patch property aliases for language using JSON Patch."""
-    logger.debug(f"Patching aliases for property {property_id}, language {language_code}")
+    logger.debug(
+        f"Patching aliases for property {property_id}, language {language_code}"
+    )
     clients = req.app.state.clients
     validator = req.app.state.validator
 

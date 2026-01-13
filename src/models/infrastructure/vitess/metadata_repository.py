@@ -46,7 +46,9 @@ class MetadataRepository:
         self, conn: Any, content_hash: int, content_type: str
     ) -> bool:
         """Decrement ref_count and return True if it reaches 0."""
-        logger.debug(f"Decrementing ref count for metadata {content_type} hash {content_hash}")
+        logger.debug(
+            f"Decrementing ref count for metadata {content_type} hash {content_hash}"
+        )
         with conn.cursor() as cursor:
             cursor.execute(
                 """

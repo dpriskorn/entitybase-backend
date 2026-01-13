@@ -29,7 +29,7 @@ def get_statement(content_hash: int, req: Request) -> StatementResponse:
 @router.post("/statements/batch", response_model=StatementBatchResponse)
 def get_statements_batch(
     request: StatementBatchRequest, req: Request
-) -> StatementBatchResponse:
+) -> MostUsedStatementsResponse:
     """Retrieve multiple statements by their content hashes in a batch request."""
     clients = req.app.state.clients
     handler = StatementHandler()

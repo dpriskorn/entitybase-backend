@@ -16,7 +16,9 @@ from models.rest_api.response.user import MessageResponse
 class WatchlistHandler:
     """Handler for watchlist-related operations."""
 
-    def add_watch(self, request: WatchlistAddRequest, vitess_client: VitessClient) -> MessageResponse:
+    def add_watch(
+        self, request: WatchlistAddRequest, vitess_client: VitessClient
+    ) -> MessageResponse:
         """Add a watchlist entry."""
         # Check if user exists
         if not vitess_client.user_repository.user_exists(request.user_id):
@@ -36,14 +38,18 @@ class WatchlistHandler:
         vitess_client.user_repository.update_user_activity(request.user_id)
         return MessageResponse(message="Watch added")
 
-    def remove_watch(self, request: WatchlistRemoveRequest, vitess_client: VitessClient) -> MessageResponse:
+    def remove_watch(
+        self, request: WatchlistRemoveRequest, vitess_client: VitessClient
+    ) -> MessageResponse:
         """Remove a watchlist entry."""
         vitess_client.watchlist_repository.remove_watch(
             request.user_id, request.entity_id, request.properties
         )
         return MessageResponse(message="Watch removed")
 
-    def get_watches(self, user_id: int, vitess_client: VitessClient) -> WatchlistResponse:
+    def get_watches(
+        self, user_id: int, vitess_client: VitessClient
+    ) -> WatchlistResponse:
         """Get user's watchlist."""
         # Check if user exists
         if not vitess_client.user_repository.user_exists(user_id):
@@ -95,8 +101,14 @@ class WatchlistHandler:
         )
         return MessageResponse(message="Notification marked as checked")
 
-    def get_watch_counts(self, user_id: int, vitess_client: VitessClient) -> WatchCounts:
+    def get_watch_counts(
+        self, user_id: int, vitess_client: VitessClient
+    ) -> WatchCounts:
         """Get user's watch counts."""
-        entity_count = vitess_client.watchlist_repository.get_entity_watch_count(user_id)
-        property_count = vitess_client.watchlist_repository.get_property_watch_count(user_id)
+        entity_count = vitess_client.watchlist_repository.get_entity_watch_count(
+            user_id
+        )
+        property_count = vitess_client.watchlist_repository.get_property_watch_count(
+            user_id
+        )
         return WatchCounts(entity_count=entity_count, property_count=property_count)

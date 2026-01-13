@@ -2,7 +2,8 @@
 
 import asyncio
 import logging
-from contextlib import asynccontextmanager, AsyncContextManager
+from contextlib import asynccontextmanager
+from typing import cast
 from datetime import datetime, timedelta
 
 from models.config.settings import settings
@@ -20,7 +21,7 @@ class NotificationCleanupWorker:
         self.max_per_user = 500
 
     @asynccontextmanager
-    async def lifespan(self) -> AsyncContextManager[None]:
+    async def lifespan(self):
         """Lifespan context manager for startup/shutdown."""
         try:
             # Initialize client
@@ -64,19 +65,21 @@ class NotificationCleanupWorker:
 
     def _delete_old_notifications(self, cutoff_date: datetime) -> int:
         """Delete notifications older than cutoff date."""
+        assert self.vitess_client is not None
         with self.vitess_client.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     "DELETE FROM user_notifications WHERE event_timestamp < %s",
                     (cutoff_date.isoformat() + "Z",),
                 )
-                return cursor.rowcount
+                return cast(int, cursor.rowcount)
 
     def _enforce_user_limits(self) -> int:
         """For each user with > max_per_user notifications, keep only the latest max_per_user."""
         total_deleted = 0
 
         # Get users with excess notifications
+        assert self.vitess_client is not None
         with self.vitess_client.get_connection() as conn:
             with conn.cursor() as cursor:
                 # Find users with too many notifications

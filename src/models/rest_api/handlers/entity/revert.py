@@ -15,10 +15,16 @@ class EntityRevertHandler:
     """Handler for reverting entities to previous revisions."""
 
     def revert_entity(
-        self, entity_id: str, request: EntityRevertRequest, vitess_client: "VitessClient", user_id: int
+        self,
+        entity_id: str,
+        request: EntityRevertRequest,
+        vitess_client: "VitessClient",
+        user_id: int,
     ) -> EntityRevertResponse:
         """Revert an entity to a specified revision."""
-        logger.debug(f"Reverting entity {entity_id} to revision {request.to_revision_id}")
+        logger.debug(
+            f"Reverting entity {entity_id} to revision {request.to_revision_id}"
+        )
         # Resolve internal ID
         with vitess_client.get_connection() as conn:
             internal_entity_id = vitess_client.id_resolver.resolve_id(conn, entity_id)

@@ -65,7 +65,7 @@ class JsonSchema(BaseModel):
     data: dict[str, Any] = Field(..., description="The JSON schema dictionary")
 
 
-class AliasesDict(BaseModel):
+class Aliases(BaseModel):
     """Model for extracted aliases dictionary."""
 
     aliases: dict[str, list[str]] = Field(..., description="Aliases per language")
@@ -127,7 +127,9 @@ class RangeStatus(BaseModel):
 class RangeStatuses(BaseModel):
     """Model for all ID range statuses."""
 
-    ranges: dict[str, RangeStatus] = Field(..., description="Range statuses by entity type")
+    ranges: dict[str, RangeStatus] = Field(
+        ..., description="Range statuses by entity type"
+    )
 
 
 class TermsResponse(BaseModel):

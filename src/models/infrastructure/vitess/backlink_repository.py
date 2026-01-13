@@ -52,7 +52,9 @@ class BacklinkRepository:
         self, conn: Any, referenced_internal_id: int, limit: int = 100, offset: int = 0
     ) -> list[BacklinkData]:
         """Get backlinks for an entity."""
-        logger.debug(f"Getting backlinks for internal_id {referenced_internal_id}, limit {limit}")
+        logger.debug(
+            f"Getting backlinks for internal_id {referenced_internal_id}, limit {limit}"
+        )
         with conn.cursor() as cursor:
             cursor.execute(
                 """

@@ -23,7 +23,9 @@ class RedirectRepository:
         expected_redirects_to: int | None = None,
     ) -> bool:
         """Set redirect target for an entity."""
-        logger.debug(f"Setting redirect target for {entity_id} to {redirects_to_entity_id}")
+        logger.debug(
+            f"Setting redirect target for {entity_id} to {redirects_to_entity_id}"
+        )
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
@@ -60,7 +62,9 @@ class RedirectRepository:
         created_by: str = "rest-api",
     ) -> None:
         """Create a redirect from one entity to another."""
-        logger.debug(f"Creating redirect from {redirect_from_entity_id} to {redirect_to_entity_id}")
+        logger.debug(
+            f"Creating redirect from {redirect_from_entity_id} to {redirect_to_entity_id}"
+        )
         redirect_from_internal_id = self.id_resolver.resolve_id(
             conn, redirect_from_entity_id
         )

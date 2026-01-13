@@ -38,7 +38,7 @@ class EntityCreateRequest(BaseModel):
     editor: str = Field(default="", description="Editor who made this change")
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> Any:
         return self.model_dump(exclude_unset=True)
 
 
@@ -93,7 +93,7 @@ class EntityUpdateRequest(BaseModel):
     editor: str = Field(default="", description="Editor who made this change")
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> Any:
         return self.model_dump(exclude_unset=True)
 
 

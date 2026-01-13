@@ -10,7 +10,7 @@ from models.rest_api.response.misc import (
     DescriptionsResponse,
     SitelinksResponse,
     PropertiesResponse,
-    AliasesDict,
+    Aliases,
 )
 from models.rest_api.handlers.entity.read import EntityReadHandler
 
@@ -51,7 +51,9 @@ async def get_item_properties(item_id: str) -> PropertiesResponse:
 
 
 @router.post("/entities/items/{item_id}/properties")
-async def add_item_property(item_id: str, request: Dict[str, Any]) -> PropertiesResponse:
+async def add_item_property(
+    item_id: str, request: Dict[str, Any]
+) -> PropertiesResponse:
     """Add item property - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 
@@ -104,7 +106,7 @@ async def get_item_labels_with_fallback(
 
 
 @router.get("/entities/items/{item_id}/aliases")
-async def get_item_aliases(item_id: str) -> AliasesDict:
+async def get_item_aliases(item_id: str) -> Aliases:
     """Get item aliases - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 

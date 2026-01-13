@@ -6,7 +6,7 @@ from typing import Any
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
-from models.rest_api.request import EntityCreateRequest
+from models.rest_api.request.entity import EntityCreateRequest
 from models.rest_api.response import EntityResponse
 from models.rest_api.services.enumeration_service import EnumerationService
 from ..create import EntityCreateHandler
@@ -29,6 +29,7 @@ class LexemeCreateHandler(EntityCreateHandler):
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         auto_assign_id: bool = False,
+        user_id: int = 0,
     ) -> EntityResponse:
         """Create a new lexeme with auto-assigned L ID."""
         logger.debug("Creating new lexeme")

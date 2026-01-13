@@ -167,7 +167,9 @@ class CreationTransaction(EntityTransaction):
         stream_producer: Any,
         is_creation: bool,
     ) -> Any:
-        logger.debug(f"[CreationTransaction] Starting revision creation for {entity_id}")
+        logger.debug(
+            f"[CreationTransaction] Starting revision creation for {entity_id}"
+        )
         from models.rest_api.handlers.entity.base import EntityHandler
 
         handler = EntityHandler()

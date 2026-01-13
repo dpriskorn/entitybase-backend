@@ -9,7 +9,7 @@ from models.rest_api.response.misc import (
     PropertiesResponse,
     SitelinksResponse,
     LabelsResponse,
-    AliasesDict,
+    Aliases,
     DescriptionsResponse,
 )
 from models.rest_api.handlers.entity.read import EntityReadHandler
@@ -104,7 +104,7 @@ async def get_property_labels_with_fallback(
 
 
 @router.get("/entities/properties/{property_id}/aliases")
-async def get_property_aliases(property_id: str) -> AliasesDict:
+async def get_property_aliases(property_id: str) -> Aliases:
     """Get property aliases - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 

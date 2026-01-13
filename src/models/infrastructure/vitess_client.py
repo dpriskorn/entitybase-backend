@@ -263,7 +263,9 @@ class VitessClient(Client):
         is_redirect: bool = False,
     ) -> bool:
         """Update entity head with compare-and-swap semantics."""
-        logger.debug(f"CAS updating head for entity {entity_id} from {expected_head} to {new_head}")
+        logger.debug(
+            f"CAS updating head for entity {entity_id} from {expected_head} to {new_head}"
+        )
         with self.connection_manager.get_connection() as conn:
             return self.head_repository.cas_update_with_status(  # type: ignore[no-any-return]
                 conn,
@@ -307,7 +309,9 @@ class VitessClient(Client):
         self, entity_type: str | None, limit: int, offset: int
     ) -> list[str]:
         """List entity IDs by type with pagination."""
-        logger.debug(f"Listing entities by type {entity_type} with limit {limit} offset {offset}")
+        logger.debug(
+            f"Listing entities by type {entity_type} with limit {limit} offset {offset}"
+        )
         if entity_type == "item":
             prefix = "Q"
         elif entity_type == "property":

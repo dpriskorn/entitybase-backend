@@ -141,7 +141,7 @@ class EntityReadHandler:
         s3_client: S3Client,
         limit: int = 20,
         offset: int = 0,
-    ) -> list[Dict[str, Any]]:
+    ) -> list[Any]:
         """Get entity revision history."""
         if vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)

@@ -37,7 +37,11 @@ class RedirectService:
         request: EntityRedirectRequest,
     ) -> EntityRedirectResponse:
         """Mark an entity as redirect to another entity"""
-        logger.debug("Creating redirect from %s to %s", request.redirect_from_id, request.redirect_to_id)
+        logger.debug(
+            "Creating redirect from %s to %s",
+            request.redirect_from_id,
+            request.redirect_to_id,
+        )
         from datetime import datetime
 
         if request.redirect_from_id == request.redirect_to_id:
@@ -141,7 +145,11 @@ class RedirectService:
         revert_to_revision_id: int,
     ) -> EntityResponse:
         """Revert a redirect entity back to normal using revision-based restore"""
-        logger.debug("Reverting redirect for entity %s to revision %d", entity_id, revert_to_revision_id)
+        logger.debug(
+            "Reverting redirect for entity %s to revision %d",
+            entity_id,
+            revert_to_revision_id,
+        )
         current_redirect_target = self.vitess.get_redirect_target(entity_id)
 
         if current_redirect_target is None:
