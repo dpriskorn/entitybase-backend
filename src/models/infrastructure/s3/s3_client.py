@@ -336,69 +336,6 @@ class S3Client(Client):
         )
         return revision_id
 
-    def store_metadata(
-        self, metadata_type: str, content_hash: int, metadata: Any
-    ) -> None:
-        """Store metadata content in S3 with deduplication."""
-        key = f"metadata/{metadata_type}/{content_hash}.json"
-        self.connection_manager.boto_client.put_object(
-            Bucket=self.config.bucket,
-            Key=key,
-            Body=json.dumps(metadata),
-            Metadata={"content_type": metadata_type, "content_hash": str(content_hash)},
-        )
-        logger.debug(f"S3 store_metadata: bucket={self.config.bucket}, key={key}")
-
-    def store_sitelink_metadata(self, content_hash: int, metadata: Any) -> None:
-        """Store sitelink metadata content in S3."""
-        key = f"{content_hash}.json"
-        self.connection_manager.boto_client.put_object(
-            Bucket="sitelinks",
-            Key=key,
-            Body=json.dumps(metadata),
-            Metadata={"content_type": "sitelinks", "content_hash": str(content_hash)},
-        )
-        logger.debug(f"S3 store_sitelink_metadata: bucket=sitelinks, key={key}")
-
-    def load_sitelink_metadata(self, content_hash: int) -> str:
-        """Load sitelink title from S3."""
-        key = f"{content_hash}.json"
-        try:
-            response = self.connection_manager.boto_client.get_object(
-                Bucket="sitelinks", Key=key
-            )
-            content = response["Body"].read()
-            data = json.loads(content)
-            return data.get("title", "")
-        except self.connection_manager.boto_client.exceptions.NoSuchKey:
-            logger.warning(f"S3 sitelink not found: bucket=sitelinks, key={key}")
-            return ""
-        except Exception as e:
-            logger.error(
-                f"S3 load_sitelink_metadata failed: bucket=sitelinks, key={key}, error={e}"
-            )
-            return ""
-
-    def load_metadata(self, metadata_type: str, content_hash: int) -> Dict[str, Any]:
-        """Load metadata content from S3."""
-        key = f"metadata/{metadata_type}/{content_hash}.json"
-        try:
-            response = self.connection_manager.boto_client.get_object(
-                Bucket=self.config.bucket, Key=key
-            )
-            content = response["Body"].read()
-            return json.loads(content)
-        except self.connection_manager.boto_client.exceptions.NoSuchKey:
-            logger.warning(
-                f"S3 metadata not found: bucket={self.config.bucket}, key={key}"
-            )
-            return {}
-        except Exception as e:
-            logger.error(
-                f"S3 load_metadata failed: bucket={self.config.bucket}, key={key}, error={e}"
-            )
-            return {}
-
     def delete_metadata(self, metadata_type: str, content_hash: int) -> None:
         """Delete metadata content from S3 when ref_count reaches 0."""
         key = f"metadata/{metadata_type}/{content_hash}.json"
@@ -443,20 +380,19 @@ class S3Client(Client):
         return results
 
     def store_term_metadata(
-        self, lang: str, term: str, content_hash: int
+        self, term: str, content_hash: int
     ) -> None:
         """Store term metadata as plain UTF-8 text in S3.
 
         Args:
-            lang: Language code (e.g., 'en')
             term: The term value
             content_hash: Hash of the term
         """
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
 
-        key = f"{lang}:{content_hash}"
-        bucket = "wikibase-terms"  # Assume separate bucket for terms
+        key = str(content_hash)
+        bucket = "wikibase-terms"
 
         try:
             self.connection_manager.boto_client.put_object(
@@ -471,6 +407,102 @@ class S3Client(Client):
             logger.error(
                 f"S3 store_term_metadata failed: bucket={bucket}, key={key}, error={e}"
             )
+            raise
+
+    def load_term_metadata(self, content_hash: int) -> str:
+        """Load term metadata as plain UTF-8 text from S3.
+
+        Args:
+            content_hash: Hash of the term
+
+        Returns:
+            The term value
+        """
+        if not self.connection_manager or not self.connection_manager.boto_client:
+            raise_validation_error("S3 service unavailable", status_code=503)
+
+        key = str(content_hash)
+        bucket = "wikibase-terms"
+
+        try:
+            response = self.connection_manager.boto_client.get_object(
+                Bucket=bucket, Key=key
+            )
+            term = response["Body"].read().decode("utf-8")
+            logger.debug(f"S3 load_term_metadata: bucket={bucket}, key={key}")
+            return term
+        except ClientError as e:
+            if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
+                logger.warning(f"S3 term not found: bucket={bucket}, key={key}")
+                raise
+            else:
+                logger.error(f"S3 load_term_metadata failed: bucket={bucket}, key={key}, error={e}")
+                raise
+        except Exception as e:
+            logger.error(f"S3 load_term_metadata failed: bucket={bucket}, key={key}, error={e}")
+            raise
+
+    def store_sitelink_metadata(
+        self, title: str, content_hash: int
+    ) -> None:
+        """Store sitelink metadata as plain UTF-8 text in S3.
+
+        Args:
+            title: The sitelink title
+            content_hash: Hash of the title
+        """
+        if not self.connection_manager or not self.connection_manager.boto_client:
+            raise_validation_error("S3 service unavailable", status_code=503)
+
+        key = str(content_hash)
+        bucket = "wikibase-sitelinks"
+
+        try:
+            self.connection_manager.boto_client.put_object(
+                Bucket=bucket,
+                Key=key,
+                Body=title.encode("utf-8"),
+                ContentType="text/plain",
+                Metadata={"content_hash": str(content_hash)},
+            )
+            logger.debug(f"S3 store_sitelink_metadata: bucket={bucket}, key={key}")
+        except Exception as e:
+            logger.error(
+                f"S3 store_sitelink_metadata failed: bucket={bucket}, key={key}, error={e}"
+            )
+            raise
+
+    def load_sitelink_metadata(self, content_hash: int) -> str:
+        """Load sitelink metadata as plain UTF-8 text from S3.
+
+        Args:
+            content_hash: Hash of the title
+
+        Returns:
+            The sitelink title
+        """
+        if not self.connection_manager or not self.connection_manager.boto_client:
+            raise_validation_error("S3 service unavailable", status_code=503)
+
+        key = str(content_hash)
+        bucket = "wikibase-sitelinks"
+
+        try:
+            response = self.connection_manager.boto_client.get_object(
+                Bucket=bucket, Key=key
+            )
+            title = response["Body"].read().decode("utf-8")
+            logger.debug(f"S3 load_sitelink_metadata: bucket={bucket}, key={key}")
+            return title
+        except ClientError as e:
+            if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
+                logger.warning(f"S3 sitelink not found: bucket={bucket}, key={key}")
+                raise
+            else:
+                logger.error(f"S3 load_sitelink_metadata failed: bucket={bucket}, key={key}, error={e}")
+                raise
+        except Exception as e:
+            logger.error(f"S3 load_sitelink_metadata failed: bucket={bucket}, key={key}, error={e}")
             raise
 
     def load_term_metadata(self, lang: str, content_hash: int) -> str:

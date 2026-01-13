@@ -329,7 +329,7 @@ class EntityHandler(BaseModel):
                     hash_value = MetadataExtractor.hash_string(title)
                     sitelinks_hashes[wiki] = hash_value
                     # Store metadata in S3
-                    s3_client.store_sitelink_metadata(title, wiki, hash_value)
+                    s3_client.store_sitelink_metadata(title, hash_value)
             # Replace sitelinks with hashes in entity data
             request_data["sitelinks"] = sitelinks_hashes
 
