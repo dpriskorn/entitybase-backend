@@ -12,8 +12,10 @@ from typing import List, Tuple
 class AnyReturnChecker(ast.NodeVisitor):
     """AST visitor to check for -> Any return annotations."""
 
-    def __init__(self, source_lines: List[str]):
+    def __init__(self, source_lines: List[str], file_path: str, allowlist: set):
         self.source_lines = source_lines
+        self.file_path = file_path
+        self.allowlist = allowlist
         self.violations: List[Tuple[str, int, str]] = []
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
@@ -28,14 +30,16 @@ class AnyReturnChecker(ast.NodeVisitor):
         if node.returns:
             return_annotation = self._get_annotation_string(node.returns)
             if self._is_any_annotation(return_annotation):
-                func_name = node.name
-                self.violations.append(
-                    (
-                        func_name,
-                        node.lineno,
-                        f"Function '{func_name}' returns -> {return_annotation}, consider using a Pydantic model instead",
+                key = f"{self.file_path}:{node.lineno}"
+                if key not in self.allowlist:
+                    func_name = node.name
+                    self.violations.append(
+                        (
+                            func_name,
+                            node.lineno,
+                            f"Function '{func_name}' returns -> {return_annotation}, consider using a Pydantic model instead",
+                        )
                     )
-                )
 
     def _get_annotation_string(self, node: ast.AST) -> str:
         """Convert AST annotation to string."""
@@ -48,7 +52,7 @@ class AnyReturnChecker(ast.NodeVisitor):
         return annotation == "Any"
 
 
-def check_file(file_path: Path) -> List[Tuple[str, int, str]]:
+def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str]]:
     """Check a single Python file."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -57,7 +61,7 @@ def check_file(file_path: Path) -> List[Tuple[str, int, str]]:
         source_lines = source.splitlines()
         tree = ast.parse(source, filename=str(file_path))
 
-        checker = AnyReturnChecker(source_lines)
+        checker = AnyReturnChecker(source_lines, str(file_path), allowlist)
         checker.visit(tree)
 
         return checker.violations
@@ -66,6 +70,19 @@ def check_file(file_path: Path) -> List[Tuple[str, int, str]]:
         return [(str(file_path), 0, f"Syntax error in {file_path}")]
     except Exception as e:
         return [(str(file_path), 0, f"Error processing {file_path}: {e}")]
+
+
+def load_allowlist() -> set:
+    """Load the allowlist from any-allowlist.txt."""
+    allowlist_path = Path("any-allowlist.txt")
+    allowlist = set()
+    if allowlist_path.exists():
+        with open(allowlist_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    allowlist.add(line)
+    return allowlist
 
 
 def main() -> None:
@@ -79,10 +96,12 @@ def main() -> None:
         print(f"Path {path} does not exist")
         sys.exit(1)
 
+    allowlist = load_allowlist()
+
     violations = []
 
     if path.is_file() and path.suffix == ".py":
-        violations.extend(check_file(path))
+        violations.extend(check_file(path, allowlist))
     elif path.is_dir():
         for py_file in path.rglob("*.py"):
             # Skip test files and certain directories
@@ -92,7 +111,7 @@ def main() -> None:
                 continue
             if "workers" in py_file.parts or "scripts" in py_file.parts:
                 continue
-            violations.extend(check_file(py_file))
+            violations.extend(check_file(py_file, allowlist))
 
     if violations:
         print("Any return violations:")

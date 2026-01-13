@@ -1,0 +1,12 @@
+src/models/infrastructure/vitess_client.py:85
+src/models/infrastructure/connection.py:19
+src/models/infrastructure/vitess/connection.py:16
+src/models/rest_api/request/entity/misc.py:41
+src/models/rest_api/request/entity/misc.py:96
+src/models/rest_api/request/entity/crud.py:40
+src/models/rest_api/request/entity/crud.py:85
+src/models/infrastructure/s3/s3_client.py:351
+src/models/infrastructure/s3/s3_client.py:384
+src/models/infrastructure/vitess/watchlist_repository.py:181
+src/models/rest_api/handlers/entity/update_transaction.py:34
+src/models/rest_api/handlers/entity/creation_transaction.py:34

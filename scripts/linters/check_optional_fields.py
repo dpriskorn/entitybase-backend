@@ -13,7 +13,7 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
     try:
         with open(file_path, "r", encoding="utf-8") as f:
             content = f.read()
-            if 'BaseModel' not in content:
+            if "BaseModel" not in content:
                 return violations
             lines = content.splitlines()
             for line_no, line in enumerate(lines, 1):
@@ -22,7 +22,7 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                 if not stripped or stripped.startswith("#"):
                     continue
                 # Skip method-level lines (indented with 8+ spaces)
-                if line.startswith('        '):
+                if line.startswith("        "):
                     continue
                 # Look for = None
                 if " = None" in line:
@@ -53,11 +53,11 @@ def main() -> None:
     violations = []
 
     if path.is_file() and path.suffix == ".py":
-        if 'workers' not in str(path):
+        if "workers" not in str(path):
             violations.extend(check_file(path))
     elif path.is_dir():
         for py_file in path.rglob("*.py"):
-            if 'workers' not in str(py_file):
+            if "workers" not in str(py_file):
                 violations.extend(check_file(py_file))
 
     if violations:
