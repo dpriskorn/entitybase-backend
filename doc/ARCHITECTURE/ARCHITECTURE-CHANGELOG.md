@@ -6,7 +6,7 @@ This file tracks architectural changes, feature additions, and modifications to 
 
 ### Summary
 
-Implemented Kafka consumer for processing entity change events and generating watchlist notifications. Added Consumer class using aiokafka, integrated into WatchlistConsumerWorker.
+Implemented Kafka consumer for processing entity change events and generating watchlist notifications. Added Consumer class using aiokafka, integrated into WatchlistConsumerWorker. Restored EntityUpdateRequest model to fix mypy errors.
 
 ### Motivation
 
@@ -23,6 +23,9 @@ Implemented Kafka consumer for processing entity change events and generating wa
 
 #### Configuration
 - Added `kafka_brokers` and `kafka_topic` settings for consumer configuration.
+
+#### Fixes
+- Restored `EntityUpdateRequest` model (duplicate of EntityCreateRequest without id field) to resolve mypy import errors.
 
 ## [2026-01-13] S3 Schema Updates for Full Deduplication
 
