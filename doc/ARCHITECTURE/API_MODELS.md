@@ -1,15 +1,6 @@
 # API Models Overview
 
-## models/rest_api/response/entity.py
-
-### AliasValue
-
-Individual alias entry with language and value.
-
-**Fields**:
-
-- `language` (str): No description
-- `value` (str): No description
+## models/rest_api/response/entity/backlinks.py
 
 ### Backlink
 
@@ -31,22 +22,7 @@ Response model for backlinks API.
 - `limit` (int): Requested limit
 - `offset` (int): Requested offset
 
-### DescriptionValue
-
-Individual description entry with language and value.
-
-**Fields**:
-
-- `language` (str): No description
-- `value` (str): No description
-
-### EntityAliases
-
-Collection of aliases keyed by language code.
-
-**Fields**:
-
-- `data` (dict[str, list[AliasValue]]): No description
+## models/rest_api/response/entity/entitybase.py
 
 ### EntityDeleteResponse
 
@@ -60,14 +36,6 @@ Response model for entity deletion.
 - `deletion_type` (str): Type of deletion performed
 - `deletion_status` (str): Status of deletion (soft_deleted/hard_deleted)
 
-### EntityDescriptions
-
-Collection of descriptions keyed by language code.
-
-**Fields**:
-
-- `data` (dict[str, DescriptionValue]): No description
-
 ### EntityHistoryEntry
 
 Response model for a single entity history entry.
@@ -76,11 +44,8 @@ Response model for a single entity history entry.
 
 - `revision_id` (int): No description
 - `created_at` (str | None): No description
-- `created_by` (str | None): No description
+- `user_id` (int | None): No description
 - `edit_summary` (str | None): No description
-- `editor` (str | None): No description
-- `edit_type` (str | None): No description
-- `is_mass_edit` (bool): No description
 
 ### EntityJsonImportResponse
 
@@ -93,14 +58,6 @@ Response model for JSONL entity import operations.
 - `failed_count` (int): Number of entities that failed to import
 - `error_log_path` (str): Path to error log file for malformed lines
 
-### EntityLabels
-
-Collection of labels keyed by language code.
-
-**Fields**:
-
-- `data` (dict[str, LabelValue]): No description
-
 ### EntityListResponse
 
 Response model for entity list queries.
@@ -109,20 +66,6 @@ Response model for entity list queries.
 
 - `entities` (list[dict[str, Any]]): List of entities with their metadata
 - `count` (int): Total number of entities returned
-
-### EntityMetadata
-
-Model for entity metadata.
-
-**Fields**:
-
-- `id` (str): No description
-- `type` (str): No description
-- `labels` (EntityLabels): No description
-- `descriptions` (EntityDescriptions): No description
-- `aliases` (EntityAliases): No description
-- `statements` (EntityStatements): No description
-- `sitelinks` (EntitySitelinks): No description
 
 ### EntityMetadataBatchResponse
 
@@ -151,7 +94,7 @@ Response model for entity data.
 
 - `id` (str): No description
 - `revision_id` (int): No description
-- `data` (Dict[str, Any]): No description
+- `entity_data` (Dict[str, Any]): No description
 - `is_semi_protected` (bool): No description
 - `is_locked` (bool): No description
 - `is_archived` (bool): No description
@@ -164,9 +107,92 @@ Model for entity revision response.
 
 **Fields**:
 
-- `entity_id` (str): Entity ID
-- `revision_id` (int): Revision ID
-- `data` (dict[str, Any]): Revision data
+- `entity_id` (str): No description
+- `revision_id` (int): No description
+- `revision_data` (dict[str, Any]): Revision data
+
+### ProtectionResponse
+
+Model for entity protection information.
+
+**Fields**:
+
+- `is_semi_protected` (bool): Whether entity is semi-protected
+- `is_locked` (bool): Whether entity is locked
+- `is_archived` (bool): Whether entity is archived
+- `is_dangling` (bool): Whether entity is dangling
+- `is_mass_edit_protected` (bool): Whether entity is mass edit protected
+
+## models/rest_api/response/entity/revert.py
+
+### EntityRevertResponse
+
+Response for entity revert operation.
+
+**Fields**:
+
+- `entity_id` (str): No description
+- `new_revision_id` (int): No description
+- `reverted_from_revision_id` (int): No description
+- `reverted_at` (str): No description
+
+## models/rest_api/response/entity/wikibase.py
+
+### AliasValue
+
+Individual alias entry with language and value.
+
+**Fields**:
+
+- `language` (str): No description
+- `value` (str): No description
+
+### DescriptionValue
+
+Individual description entry with language and value.
+
+**Fields**:
+
+- `language` (str): No description
+- `value` (str): No description
+
+### EntityAliases
+
+Collection of aliases keyed by language code.
+
+**Fields**:
+
+- `data` (dict[str, list[AliasValue]]): No description
+
+### EntityDescriptions
+
+Collection of descriptions keyed by language code.
+
+**Fields**:
+
+- `data` (dict[str, DescriptionValue]): No description
+
+### EntityLabels
+
+Collection of labels keyed by language code.
+
+**Fields**:
+
+- `data` (dict[str, LabelValue]): No description
+
+### EntityMetadata
+
+Model for entity metadata.
+
+**Fields**:
+
+- `id` (str): No description
+- `type` (str): No description
+- `labels` (EntityLabels): No description
+- `descriptions` (EntityDescriptions): No description
+- `aliases` (EntityAliases): No description
+- `statements` (EntityStatements): No description
+- `sitelinks` (EntitySitelinks): No description
 
 ### EntitySitelinks
 
@@ -193,18 +219,6 @@ Individual label entry with language and value.
 - `language` (str): No description
 - `value` (str): No description
 
-### ProtectionInfo
-
-Model for entity protection information.
-
-**Fields**:
-
-- `is_semi_protected` (bool): Whether entity is semi-protected
-- `is_locked` (bool): Whether entity is locked
-- `is_archived` (bool): Whether entity is archived
-- `is_dangling` (bool): Whether entity is dangling
-- `is_mass_edit_protected` (bool): Whether entity is mass edit protected
-
 ### WikibaseEntityResponse
 
 Response model for Wikibase REST API entity endpoints.
@@ -218,19 +232,6 @@ Response model for Wikibase REST API entity endpoints.
 - `aliases` (Dict[str, List[Dict[str, str]]]): No description
 - `claims` (Dict[str, List[Dict[str, Any]]]): No description
 - `sitelinks` (Dict[str, Dict[str, Any]]): No description
-
-## models/rest_api/response/entity/revert.py
-
-### EntityRevertResponse
-
-Response for entity revert operation.
-
-**Fields**:
-
-- `entity_id` (str): No description
-- `new_revision_id` (int): No description
-- `reverted_from_revision_id` (int): No description
-- `reverted_at` (str): No description
 
 ## models/rest_api/response/health.py
 
@@ -327,6 +328,32 @@ Response model for entity descriptions.
 
 - `value` (str): The description text for the specified language
 
+### DescriptionsResponse
+
+Response model for all entity descriptions.
+
+**Fields**:
+
+- `descriptions` (dict[str, str]): Descriptions per language
+
+### EntitiesResponse
+
+Response model for entities search.
+
+**Fields**:
+
+- `entities` (dict[str, Any]): Entities data
+
+### EntityListing
+
+Model for entity listing entries.
+
+**Fields**:
+
+- `entity_id` (str): Entity ID
+- `entity_type` (str): Entity type (Q, P, etc.)
+- `reason` (str | None): Reason for listing
+
 ### JsonSchema
 
 Model for JSON schema data.
@@ -343,6 +370,14 @@ Response model for entity labels.
 
 - `value` (str): The label text for the specified language
 
+### LabelsResponse
+
+Response model for all entity labels.
+
+**Fields**:
+
+- `labels` (dict[str, str]): Labels per language
+
 ### MetadataContent
 
 Model for metadata content.
@@ -350,6 +385,42 @@ Model for metadata content.
 **Fields**:
 
 - `ref_count` (int): Reference count
+
+### PropertiesResponse
+
+Response model for entity properties.
+
+**Fields**:
+
+- `properties` (dict[str, Any]): Entity properties
+
+### RangeStatus
+
+Model for ID range status.
+
+**Fields**:
+
+- `current_start` (int): Current range start ID
+- `current_end` (int): Current range end ID
+- `next_id` (int): Next available ID
+- `ids_used` (int): Number of IDs used
+- `utilization` (float): Utilization percentage
+
+### RangeStatuses
+
+Model for all ID range statuses.
+
+**Fields**:
+
+- `ranges` (dict[str, RangeStatus]): Range statuses by entity type
+
+### RawEntityData
+
+Model for raw entity data from external APIs.
+
+**Fields**:
+
+- `data` (dict[str, Any]): Raw entity data
 
 ### RawRevisionResponse
 
@@ -367,6 +438,24 @@ Metadata for entity revisions.
 
 - `revision_id` (int): No description
 - `created_at` (str): No description
+- `user_id` (int): No description
+- `edit_summary` (str): No description
+
+### SitelinksResponse
+
+Response model for all entity sitelinks.
+
+**Fields**:
+
+- `sitelinks` (dict[str, str]): Sitelinks per site
+
+### TermsResponse
+
+Model for batch terms result.
+
+**Fields**:
+
+- `terms` (dict[int, tuple[str, str]]): Terms by hash
 
 ### TopEntityByBacklinks
 
@@ -376,6 +465,15 @@ Model for entity backlink ranking.
 
 - `entity_id` (str): Entity ID
 - `backlink_count` (int): Number of backlinks to this entity
+
+### WatchCounts
+
+Model for user watch counts.
+
+**Fields**:
+
+- `entity_count` (int): Number of entities watched
+- `property_count` (int): Number of properties watched
 
 ## models/rest_api/response/rdf.py
 
@@ -403,6 +501,7 @@ Model for full revision data from database.
 - `labels` (dict[str, dict[str, str]]): Entity labels
 - `descriptions` (dict[str, dict[str, str]]): Entity descriptions
 - `aliases` (dict[str, list[str]]): Entity aliases
+- `sitelinks` (dict[str, dict[str, str]]): Entity sitelinks
 
 ### MetadataLoadResponse
 
@@ -495,6 +594,14 @@ Response model for statement data.
 - `content_hash` (int): Statement hash
 - `statement` (Dict[str, Any]): Full statement JSON
 - `created_at` (str): Creation timestamp
+
+### StatementsResponse
+
+Response model for statements.
+
+**Fields**:
+
+- `statements` (dict[str, Any]): Statements data
 
 ## models/rest_api/response/user.py
 

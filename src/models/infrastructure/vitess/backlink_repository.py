@@ -5,8 +5,6 @@
 import logging
 from typing import Any
 
-from models.vitess_models import BacklinkData
-
 logger = logging.getLogger(__name__)
 
 

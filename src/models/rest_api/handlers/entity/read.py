@@ -1,19 +1,16 @@
 """Entity read and retrieval handlers."""
 
-from typing import Any, Dict
+import logging
+from typing import Any
 
-
-from models.validation.utils import raise_validation_error
-
+from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.vitess.terms_repository import TermsRepository
+from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.response.entity.entitybase import (
     EntityResponse,
     EntityRevisionResponse,
 )
-from models.infrastructure.s3.s3_client import S3Client
-from models.infrastructure.vitess_client import VitessClient
-from models.infrastructure.vitess.terms_repository import TermsRepository
-
-import logging
+from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 

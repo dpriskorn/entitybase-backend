@@ -53,6 +53,7 @@
 | ✅ | GET | `/wikibase/v1/entities/items/{item_id}/properties` | Get item properties - stub |
 | ✅ | POST | `/wikibase/v1/entities/items/{item_id}/properties` | Add item property - stub |
 | ✅ | GET | `/wikibase/v1/entities/items/{item_id}/sitelinks` | Get item sitelinks - stub |
+| ✅ | GET | `/wikibase/v1/entities/items/{item_id}/sitelinks/{wiki_id}` | Get sitelink title for a specific wiki in an item. |
 | ✅ | POST | `/wikibase/v1/entities/lexemes` | Create lexeme - redirects to entitybase endpoint |
 | ✅ | GET | `/wikibase/v1/entities/lexemes/{lexeme_id}` | Get lexeme |
 | ✅ | PUT | `/wikibase/v1/entities/lexemes/{lexeme_id}` | Update lexeme - redirects to entitybase endpoint |
@@ -77,6 +78,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 70 |
+| Implemented | 71 |
 | Not Implemented | 2 |
-| Total | 72 |
+| Total | 73 |

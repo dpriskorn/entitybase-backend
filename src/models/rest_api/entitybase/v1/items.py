@@ -8,7 +8,6 @@ from fastapi import APIRouter, HTTPException, Request
 from models.rest_api.request.entity import (
     EntityJsonImportRequest,
     EntityCreateRequest,
-    EntityUpdateRequest,
 )
 from models.rest_api.response.entity.entitybase import (
     EntityJsonImportResponse,

@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS metadata_content ( content_hash BIGINT UNSIGNED NOT N
 **SQL Definition**:
 
 ```sql
-CREATE TABLE IF NOT EXISTS entity_revisions ( internal_id BIGINT NOT NULL, revision_id BIGINT NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, is_mass_edit BOOLEAN DEFAULT FALSE, edit_type VARCHAR(100) DEFAULT '', statements JSON NOT NULL, properties JSON NOT NULL, property_counts JSON NOT NULL, labels_hashes JSON, descriptions_hashes JSON, aliases_hashes JSON, PRIMARY KEY (internal_id, revision_id) )
+CREATE TABLE IF NOT EXISTS entity_revisions ( internal_id BIGINT NOT NULL, revision_id BIGINT NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, is_mass_edit BOOLEAN DEFAULT FALSE, edit_type VARCHAR(100) DEFAULT '', statements JSON NOT NULL, properties JSON NOT NULL, property_counts JSON NOT NULL, labels_hashes JSON, descriptions_hashes JSON, aliases_hashes JSON, sitelinks_hashes JSON, PRIMARY KEY (internal_id, revision_id) )
 ```
 
 ### entity_terms

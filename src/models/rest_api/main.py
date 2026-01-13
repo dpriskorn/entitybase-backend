@@ -4,27 +4,26 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, cast, cast
+from typing import Any, cast
 
 from fastapi import FastAPI, HTTPException, Header, Query, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
 from jsonschema import ValidationError
-from pip._internal import req
 
 from models.config.settings import settings
-from models.validation.utils import raise_validation_error
 from models.rest_api.clients import Clients
 from models.rest_api.handlers.admin import AdminHandler
 from models.rest_api.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.handlers.entity.read import EntityReadHandler
+from models.rest_api.handlers.entity.revert import EntityRevertHandler
 from models.rest_api.handlers.export import ExportHandler
 from models.rest_api.handlers.redirect import RedirectHandler
 from models.rest_api.handlers.statement import StatementHandler
 from models.rest_api.handlers.system import health_check
 from models.rest_api.handlers.user import UserHandler
-from models.rest_api.handlers.watchlist import WatchlistHandler
-from models.rest_api.handlers.entity.revert import EntityRevertHandler
 from models.rest_api.handlers.user_activity import UserActivityHandler
+from models.rest_api.handlers.user_preferences import UserPreferencesHandler
+from models.rest_api.handlers.watchlist import WatchlistHandler
 from models.rest_api.request.entity import (
     EntityDeleteRequest,
     EntityRedirectRequest,
@@ -32,6 +31,7 @@ from models.rest_api.request.entity import (
     EntityRevertRequest,
 )
 from models.rest_api.request.user import UserCreateRequest, WatchlistToggleRequest
+from models.rest_api.request.user_preferences import UserPreferencesRequest
 from models.rest_api.response.entity.revert import EntityRevertResponse
 from models.rest_api.response.health import HealthCheckResponse
 from models.rest_api.response.misc import (
@@ -52,9 +52,10 @@ from models.rest_api.response.user import (
 )
 from models.rest_api.response.user_activity import UserActivityResponse
 from models.rest_api.response.user_preferences import UserPreferencesResponse
-from models.rest_api.request.user_preferences import UserPreferencesRequest
-from models.rest_api.handlers.user_preferences import UserPreferencesHandler
+from models.rest_api.services.enumeration_service import EnumerationService
 from models.user import User
+from models.validation.json_schema_validator import JsonSchemaValidator
+from models.validation.utils import raise_validation_error
 from models.watchlist import (
     WatchlistAddRequest,
     WatchlistRemoveRequest,
@@ -62,8 +63,6 @@ from models.watchlist import (
     NotificationResponse,
     MarkCheckedRequest,
 )
-from models.rest_api.services.enumeration_service import EnumerationService
-from models.validation.json_schema_validator import JsonSchemaValidator
 from .entitybase.v1 import v1_router
 from .response.entity.entitybase import (
     EntityResponse,

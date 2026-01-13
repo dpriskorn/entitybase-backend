@@ -2,6 +2,28 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-13] Kafka Consumer for Watchlist Notifications
+
+### Summary
+
+Implemented Kafka consumer for processing entity change events and generating watchlist notifications. Added Consumer class using aiokafka, integrated into WatchlistConsumerWorker.
+
+### Motivation
+
+- **Real-time Notifications**: Enable users to receive notifications for watched entity changes.
+- **Scalability**: Asynchronous event-driven processing for high-volume changes.
+- **Integration**: Connect Wikibase events to user watchlist system.
+
+### Changes
+
+#### New Components
+- `Consumer` class in `src/models/infrastructure/stream/consumer.py` for Kafka event consumption.
+- `WatchlistConsumerWorker` updated in `src/models/workers/watchlist_consumer/main.py`.
+- Unit and integration tests for consumer functionality.
+
+#### Configuration
+- Added `kafka_brokers` and `kafka_topic` settings for consumer configuration.
+
 ## [2026-01-13] S3 Schema Updates for Full Deduplication
 
 ### Summary
@@ -30,6 +52,8 @@ Updated S3 revision schema to v2.1.0 with full deduplication, storing terms, sit
 - Implemented `store_sitelink_metadata` and `load_sitelink_metadata` in S3Client for UTF-8 text.
 - Updated entity creation to store sitelinks as plain text.
 - Added integration tests for plain text S3 operations.
+- Implemented `Consumer` class for Kafka event consumption in watchlist notifications.
+- Integrated Consumer in `WatchlistConsumerWorker` for real-time entity change processing.
 
 ## [2026-01-13] Sitelinks Deduplication, Endpoints, and Batch API
 

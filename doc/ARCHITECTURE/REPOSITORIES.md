@@ -23,7 +23,7 @@ This document describes the repository classes that handle data access to Vitess
 - `is_archived(conn, entity_id) -> bool`
   - Check if an entity is archived.
 
-- `get_protection_info(conn, entity_id) -> ProtectionInfo | None`
+- `get_protection_info(conn, entity_id) -> ProtectionResponse | None`
   - Get protection status information for an entity.
 
 ## Backlinks
@@ -43,7 +43,7 @@ This document describes the repository classes that handle data access to Vitess
 - `delete_backlinks_for_entity(conn, referencing_internal_id) -> None`
   - Delete all backlinks for a referencing entity (used for updates).
 
-- `get_backlinks(conn, referenced_internal_id, limit, offset) -> list[BacklinkData]`
+- `get_backlinks(conn, referenced_internal_id, limit, offset) -> list[tuple[int, str, str, str]]`
   - Get backlinks for an entity.
 
 - `insert_backlink_statistics(conn, date, total_backlinks, unique_entities_with_backlinks, top_entities_by_backlinks) -> None`
@@ -155,7 +155,7 @@ This document describes the repository classes that handle data access to Vitess
 - `insert(conn, entity_id, revision_id, data) -> None`
   - Insert a new revision for an entity.
 
-- `get_revision(internal_entity_id, revision_id, vitess_client) -> dict | None`
+- `get_revision(internal_entity_id, revision_id, vitess_client) -> Any | None`
   - Get a specific revision data.
 
 - `revert_entity(internal_entity_id, to_revision_id, reverted_by_user_id, reason, watchlist_context, vitess_client) -> int`
@@ -186,7 +186,7 @@ This document describes the repository classes that handle data access to Vitess
 - `get_term(hash_value) -> tuple[str, str] | None`
   - Retrieve a term and its type by hash.
 
-- `batch_get_terms(hashes) -> Dict[int, tuple[str, str]]`
+- `batch_get_terms(hashes) -> TermsResponse`
   - Retrieve multiple terms by their hashes.
 
 - `hash_exists(hash_value) -> bool`
@@ -223,7 +223,7 @@ This document describes the repository classes that handle data access to Vitess
 - `log_user_activity(user_id, activity_type, entity_id, revision_id) -> None`
   - Log a user activity.
 
-- `get_user_preferences(user_id) -> dict | None`
+- `get_user_preferences(user_id) -> Any | None`
   - Get user notification preferences.
 
 - `update_user_preferences(user_id, notification_limit, retention_hours) -> None`
@@ -251,26 +251,20 @@ This document describes the repository classes that handle data access to Vitess
 - `remove_watch(user_id, entity_id, properties) -> None`
   - Remove a watchlist entry.
 
-- `get_watches_for_user(user_id) -> List[dict]`
+- `get_watches_for_user(user_id) -> List[Any]`
   - Get all watchlist entries for a user.
 
-- `get_watchers_for_entity(entity_id) -> List[dict]`
+- `get_watchers_for_entity(entity_id) -> List[Any]`
   - Get all watchers for an entity (for notifications).
 
 - `get_notification_count(user_id) -> int`
   - Get count of active notifications for user.
 
-- `get_user_notifications(user_id, hours, limit, offset) -> List[dict]`
+- `get_user_notifications(user_id, hours, limit, offset) -> List[Any]`
   - Get recent notifications for a user within time span.
 
 - `mark_notification_checked(notification_id, user_id) -> None`
   - Mark a notification as checked.
-
-- `get_entity_watch_count(user_id) -> int`
-  - Get count of entity watches (whole entity, no properties) for user.
-
-- `get_property_watch_count(user_id) -> int`
-  - Get count of entity-property watches (with properties) for user.
 
 ## Architecture Notes
 
