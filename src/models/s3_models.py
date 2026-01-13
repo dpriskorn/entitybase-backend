@@ -8,6 +8,17 @@ from models.infrastructure.config import Config
 from models.rest_api.response.statement import StatementResponse
 
 
+class EntityData(BaseModel):
+    """Typed model for entity data in revisions."""
+    id: str
+    type: str
+    labels: Dict[str, Any] | None = None
+    descriptions: Dict[str, Any] | None = None
+    aliases: Dict[str, Any] | None = None
+    claims: Dict[str, Any] | None = None
+    sitelinks: Dict[str, Any] | None = None
+
+
 class S3Config(Config):
     """Configuration for S3 connections."""
 
@@ -26,35 +37,9 @@ class RevisionMetadata(BaseModel):
 class RevisionData(BaseModel):
     """Model for revision JSON data structure."""
 
-    ALLOWED_ENTITY_KEYS = frozenset([
-        "id",
-        "type",
-        "labels",
-        "descriptions",
-        "aliases",
-        "claims",
-        "sitelinks",
-    ])
-
     schema_version: str
-    entity: Dict[str, Any]
+    entity: EntityData
     redirects_to: str | None = None
-
-    @field_validator("entity")
-    @classmethod
-    def validate_entity_keys(cls, v: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate that entity dict only contains allowed keys."""
-        if not isinstance(v, dict):
-            from models.validation.utils import raise_validation_error
-            raise_validation_error("Entity must be a dictionary", status_code=400)
-        invalid_keys = set(v.keys()) - cls.ALLOWED_ENTITY_KEYS
-        if invalid_keys:
-            from models.validation.utils import raise_validation_error
-            raise_validation_error(
-                f"Invalid keys in entity data: {sorted(invalid_keys)}. Allowed: {sorted(cls.ALLOWED_ENTITY_KEYS)}",
-                status_code=400,
-            )
-        return v
 
 
 class RevisionReadResponse(BaseModel):

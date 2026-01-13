@@ -1,5 +1,6 @@
 import unittest
 from models.internal_representation.metadata_extractor import MetadataExtractor
+from models.s3_models import RevisionData
 
 
 # Mock rapidhash since it's not available in test environment
@@ -110,29 +111,34 @@ class TestRevisionCreationLogic(unittest.TestCase):
             "statements_hashes": statements_hashes,
         }
 
+        # Create RevisionData instance to test model
+        revision = RevisionData(**revision_data)
+
         # Verify structure matches schema expectations
-        self.assertEqual(revision_data["schema_version"], "2.1.0")
-        self.assertIn("labels_hashes", revision_data)
-        self.assertIn("descriptions_hashes", revision_data)
-        self.assertIn("aliases_hashes", revision_data)
-        self.assertIn("sitelinks_hashes", revision_data)
-        self.assertIn("statements_hashes", revision_data)
+        self.assertEqual(revision.schema_version, "2.1.0")
+        self.assertIsNotNone(revision.labels_hashes)
+        self.assertIsNotNone(revision.descriptions_hashes)
+        self.assertIsNotNone(revision.aliases_hashes)
+        self.assertIsNotNone(revision.sitelinks_hashes)
+        self.assertIsNotNone(revision.statements_hashes)
 
         # Verify hash map structures
-        self.assertIsInstance(revision_data["labels_hashes"], dict)
-        self.assertIsInstance(revision_data["descriptions_hashes"], dict)
-        self.assertIsInstance(revision_data["aliases_hashes"], dict)
-        self.assertIsInstance(revision_data["sitelinks_hashes"], dict)
-        self.assertIsInstance(revision_data["statements_hashes"], dict)
+        self.assertIsInstance(revision.labels_hashes, dict)
+        self.assertIsInstance(revision.descriptions_hashes, dict)
+        self.assertIsInstance(revision.aliases_hashes, dict)
+        self.assertIsInstance(revision.sitelinks_hashes, dict)
+        self.assertIsInstance(revision.statements_hashes, dict)
 
-        # Verify entity is minimal
-        self.assertNotIn("claims", revision_data["entity"])
-        self.assertNotIn("labels", revision_data["entity"])
-        self.assertNotIn("sitelinks", revision_data["entity"])
+        # Verify entity is typed and minimal
+        self.assertEqual(revision.entity.id, "Q42")
+        self.assertEqual(revision.entity.type, "item")
+        self.assertIsNone(revision.entity.claims)
+        self.assertIsNone(revision.entity.labels)
+        self.assertIsNone(revision.entity.sitelinks)
 
         # Verify hash values are integers
-        self.assertIsInstance(revision_data["labels_hashes"]["en"], int)
-        self.assertIsInstance(revision_data["descriptions_hashes"]["en"], int)
+        self.assertIsInstance(revision.labels_hashes["en"], int)
+        self.assertIsInstance(revision.descriptions_hashes["en"], int)
         self.assertIsInstance(revision_data["aliases_hashes"]["en"], list)
 
 
