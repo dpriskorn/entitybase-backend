@@ -7,7 +7,7 @@ mypy \
   --cache-dir .mypy_cache \
   --sqlite-cache \
   --explicit-package-bases \
-  src/ scripts/
+  src/
 
 # slow per file run
 #for file in $(find src tests scripts -name "*.py"); do

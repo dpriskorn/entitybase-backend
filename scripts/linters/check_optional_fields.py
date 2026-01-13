@@ -11,22 +11,24 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
     """Check a single Python file for = None."""
     violations = []
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             for line_no, line in enumerate(f, 1):
                 stripped = line.strip()
                 # Skip comments and empty lines
-                if not stripped or stripped.startswith('#'):
+                if not stripped or stripped.startswith("#"):
                     continue
                 # Look for = None
-                if ' = None' in line:
-                    violations.append((
-                        str(file_path),
-                        line_no,
-                        f"Found '= None' assignment: {line.strip()}"
-                    ))
+                if " = None" in line:
+                    violations.append(
+                        (
+                            str(file_path),
+                            line_no,
+                            f"Found '= None' assignment: {line.strip()}",
+                        )
+                    )
     except Exception as e:
         violations.append((str(file_path), 0, f"Error reading file: {e}"))
-    
+
     return violations
 
 
@@ -43,10 +45,10 @@ def main() -> None:
 
     violations = []
 
-    if path.is_file() and path.suffix == '.py':
+    if path.is_file() and path.suffix == ".py":
         violations.extend(check_file(path))
     elif path.is_dir():
-        for py_file in path.rglob('*.py'):
+        for py_file in path.rglob("*.py"):
             violations.extend(check_file(py_file))
 
     if violations:
@@ -58,5 +60,5 @@ def main() -> None:
         print("No = None violations found")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

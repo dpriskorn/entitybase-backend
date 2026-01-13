@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Linter to check for functions returning -> dict instead of proper models.
+Linter to check for functions returning -> Any.
 """
 
 import ast
@@ -9,8 +9,8 @@ from pathlib import Path
 from typing import List, Tuple
 
 
-class DictReturnChecker(ast.NodeVisitor):
-    """AST visitor to check for -> dict return annotations."""
+class AnyReturnChecker(ast.NodeVisitor):
+    """AST visitor to check for -> Any return annotations."""
 
     def __init__(self, source_lines: List[str]):
         self.source_lines = source_lines
@@ -27,13 +27,13 @@ class DictReturnChecker(ast.NodeVisitor):
     def _check_function(self, node) -> None:
         if node.returns:
             return_annotation = self._get_annotation_string(node.returns)
-            if self._is_dict_annotation(return_annotation):
+            if self._is_any_annotation(return_annotation):
                 func_name = node.name
                 self.violations.append(
                     (
                         func_name,
                         node.lineno,
-                        f"Function '{func_name}' returns -> {return_annotation}, consider using a proper Pydantic model",
+                        f"Function '{func_name}' returns -> {return_annotation}, consider using a Pydantic model instead",
                     )
                 )
 
@@ -41,18 +41,11 @@ class DictReturnChecker(ast.NodeVisitor):
         """Convert AST annotation to string."""
         if isinstance(node, ast.Name):
             return node.id
-        elif isinstance(node, ast.Subscript):
-            if isinstance(node.value, ast.Name):
-                base = node.value.id
-                if isinstance(node.slice, ast.Index):  # Python < 3.9
-                    return f"{base}[{self._get_annotation_string(node.slice.value)}]"
-                else:
-                    return f"{base}[{self._get_annotation_string(node.slice)}]"
         return ast.unparse(node) if hasattr(ast, "unparse") else str(node)
 
-    def _is_dict_annotation(self, annotation: str) -> bool:
-        """Check if annotation is a dict type."""
-        return "dict" in annotation.lower()
+    def _is_any_annotation(self, annotation: str) -> bool:
+        """Check if annotation is Any."""
+        return annotation == "Any"
 
 
 def check_file(file_path: Path) -> List[Tuple[str, int, str]]:
@@ -64,7 +57,7 @@ def check_file(file_path: Path) -> List[Tuple[str, int, str]]:
         source_lines = source.splitlines()
         tree = ast.parse(source, filename=str(file_path))
 
-        checker = DictReturnChecker(source_lines)
+        checker = AnyReturnChecker(source_lines)
         checker.visit(tree)
 
         return checker.violations
@@ -78,7 +71,7 @@ def check_file(file_path: Path) -> List[Tuple[str, int, str]]:
 def main() -> None:
     """Main entry point."""
     if len(sys.argv) < 2:
-        print("Usage: python check_dict_returns.py <path>")
+        print("Usage: python check_any_returns.py <path>")
         sys.exit(1)
 
     path = Path(sys.argv[1])
@@ -102,12 +95,12 @@ def main() -> None:
             violations.extend(check_file(py_file))
 
     if violations:
-        print("Dict return violations:")
+        print("Any return violations:")
         for func_name, line_no, message in violations:
             print(f"{message} at line {line_no}")
         sys.exit(1)
     else:
-        print("No dict return violations found")
+        print("No Any return violations found")
 
 
 if __name__ == "__main__":

@@ -77,27 +77,33 @@ class LoggerInfoChecker(ast.NodeVisitor):
     def _is_logger_call(self, node: ast.Call) -> bool:
         """Check if this is a logger call (info, debug, warning, error, critical)."""
         if isinstance(node.func, ast.Attribute):
-            if isinstance(node.func.value, ast.Name) and node.func.value.id in ['logger', 'log']:
-                if node.func.attr in ['info', 'debug', 'warning', 'error', 'critical']:
+            if isinstance(node.func.value, ast.Name) and node.func.value.id in [
+                "logger",
+                "log",
+            ]:
+                if node.func.attr in ["info", "debug", "warning", "error", "critical"]:
                     return True
         return False
 
     def _is_enum_class(self, node: ast.ClassDef) -> bool:
         """Check if class inherits from Enum."""
         for base in node.bases:
-            if isinstance(base, ast.Name) and base.id == 'Enum':
+            if isinstance(base, ast.Name) and base.id == "Enum":
                 return True
-            elif isinstance(base, ast.Attribute) and base.attr == 'Enum':
+            elif isinstance(base, ast.Attribute) and base.attr == "Enum":
                 return True
         return False
 
     def _is_abstract_method(self, node) -> bool:
         """Check if function is decorated with @abstractmethod."""
-        if hasattr(node, 'decorator_list'):
+        if hasattr(node, "decorator_list"):
             for decorator in node.decorator_list:
-                if isinstance(decorator, ast.Name) and decorator.id == 'abstractmethod':
+                if isinstance(decorator, ast.Name) and decorator.id == "abstractmethod":
                     return True
-                elif isinstance(decorator, ast.Attribute) and decorator.attr == 'abstractmethod':
+                elif (
+                    isinstance(decorator, ast.Attribute)
+                    and decorator.attr == "abstractmethod"
+                ):
                     return True
         return False
 
