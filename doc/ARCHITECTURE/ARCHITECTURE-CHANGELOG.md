@@ -20,7 +20,7 @@ Implemented sitelinks deduplication by hashing titles only, keeping wiki identif
 
 #### Storage and Deduplication
 - Added "sitelinks" S3 bucket created by the development worker.
-- Modified revision write logic to hash sitelinks titles and store in sitelinks/{hash}.json.
+- Modified revision write logic to hash sitelinks titles and store as plain UTF-8 text in sitelinks/{hash}.
 - Updated read logic to reconstruct sitelinks from hashes.
 - Added sitelinks_hashes to entity_revisions database schema.
 
