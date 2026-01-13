@@ -11,3 +11,4 @@ python scripts/doc/generate_configuration_overview.py > doc/ARCHITECTURE/CONFIGU
 python scripts/doc/generate_repositories_overview.py > doc/ARCHITECTURE/REPOSITORIES.md
 python scripts/doc/generate_architecture_diagrams.py
 python scripts/doc/generate_pngs.py
+python scripts/generate-doc-tree.py
