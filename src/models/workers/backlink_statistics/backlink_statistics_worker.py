@@ -47,7 +47,9 @@ class BacklinkStatisticsWorker(BaseModel):
             try:
                 # Calculate seconds until next run
                 seconds_until_next = self._calculate_seconds_until_next_run()
-                logger.info(f"Next backlink statistics run in {seconds_until_next} seconds")
+                logger.info(
+                    f"Next backlink statistics run in {seconds_until_next} seconds"
+                )
 
                 await asyncio.sleep(seconds_until_next)
                 await self.run_daily_computation()
@@ -89,34 +91,21 @@ class BacklinkStatisticsWorker(BaseModel):
             raise
 
     async def _store_statistics(self, stats: Any) -> None:
-        """Store computed statistics in database."""
+        """Store computed statistics in database via repository."""
         if not self.vitess_client:
             return
 
         today = date.today().isoformat()
 
         with self.vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                # Insert or update statistics
-                cursor.execute(
-                    """
-                    INSERT INTO backlink_statistics
-                    (date, total_backlinks, unique_entities_with_backlinks, top_entities_by_backlinks)
-                    VALUES (%s, %s, %s, %s)
-                    ON DUPLICATE KEY UPDATE
-                        total_backlinks = VALUES(total_backlinks),
-                        unique_entities_with_backlinks = VALUES(unique_entities_with_backlinks),
-                        top_entities_by_backlinks = VALUES(top_entities_by_backlinks),
-                        created_at = CURRENT_TIMESTAMP
-                    """,
-                    (
-                        today,
-                        stats.total_backlinks,
-                        stats.unique_entities_with_backlinks,
-                        str(stats.top_entities_by_backlinks),  # JSON serialization
-                    ),
-                )
-                conn.commit()
+            self.vitess_client.backlink_repository.insert_backlink_statistics(
+                conn=conn,
+                date=today,
+                total_backlinks=stats.total_backlinks,
+                unique_entities_with_backlinks=stats.unique_entities_with_backlinks,
+                top_entities_by_backlinks=stats.top_entities_by_backlinks,
+            )
+            conn.commit()
 
     def _calculate_seconds_until_next_run(self) -> float:
         """Calculate seconds until next scheduled run based on backlink_stats_schedule."""

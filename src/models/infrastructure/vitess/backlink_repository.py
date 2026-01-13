@@ -2,8 +2,11 @@
 
 """Repository for managing entity backlinks in Vitess."""
 
+import json
 import logging
 from typing import Any
+
+from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
@@ -69,3 +72,77 @@ class BacklinkRepository:
                 for row in cursor.fetchall()
             ]
 
+    def insert_backlink_statistics(
+        self,
+        conn: Any,
+        date: str,
+        total_backlinks: int,
+        unique_entities_with_backlinks: int,
+        top_entities_by_backlinks: list[dict],
+    ) -> None:
+        """Insert daily backlink statistics.
+
+        Args:
+            conn: Database connection
+            date: Date string in ISO format (YYYY-MM-DD)
+            total_backlinks: Total number of backlinks
+            unique_entities_with_backlinks: Number of unique entities with backlinks
+            top_entities_by_backlinks: List of top entities by backlink count
+
+        Raises:
+            ValueError: If input validation fails
+            Exception: If database operation fails
+        """
+        # Input validation
+        if not isinstance(date, str) or len(date) != 10:
+            raise_validation_error(
+                f"Invalid date format: {date}. Expected YYYY-MM-DD", status_code=400
+            )
+        if total_backlinks < 0:
+            raise_validation_error(
+                f"total_backlinks must be non-negative: {total_backlinks}",
+                status_code=400,
+            )
+        if unique_entities_with_backlinks < 0:
+            raise_validation_error(
+                f"unique_entities_with_backlinks must be non-negative: {unique_entities_with_backlinks}",
+                status_code=400,
+            )
+        if not isinstance(top_entities_by_backlinks, list):
+            raise_validation_error(
+                "top_entities_by_backlinks must be a list", status_code=400
+            )
+
+        logger.debug(f"Inserting backlink statistics for date {date}")
+
+        try:
+            # Serialize top entities to JSON
+            top_entities_json = json.dumps(top_entities_by_backlinks)
+        except (TypeError, ValueError) as e:
+            raise_validation_error(
+                f"Failed to serialize top_entities_by_backlinks: {e}", status_code=400
+            )
+
+        with conn.cursor() as cursor:
+            try:
+                cursor.execute(
+                    """
+                    INSERT INTO backlink_statistics
+                    (date, total_backlinks, unique_entities_with_backlinks, top_entities_by_backlinks)
+                    VALUES (%s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    total_backlinks = VALUES(total_backlinks),
+                    unique_entities_with_backlinks = VALUES(unique_entities_with_backlinks),
+                    top_entities_by_backlinks = VALUES(top_entities_by_backlinks)
+                    """,
+                    (
+                        date,
+                        total_backlinks,
+                        unique_entities_with_backlinks,
+                        top_entities_json,
+                    ),
+                )
+                logger.info(f"Successfully stored backlink statistics for {date}")
+            except Exception as e:
+                logger.error(f"Failed to insert backlink statistics for {date}: {e}")
+                raise
