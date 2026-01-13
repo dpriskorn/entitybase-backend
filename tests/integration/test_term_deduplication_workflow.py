@@ -239,10 +239,9 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
 
         # Test storing sitelink metadata
         title = "Main Page"
-        wiki_id = "enwiki"
         content_hash = 123456789
 
-        s3_client.store_sitelink_metadata(title, wiki_id, content_hash)
+        s3_client.store_sitelink_metadata(title, content_hash)
 
         # Verify put_object was called with plain text
         mock_client.put_object.assert_called_once()
@@ -287,6 +286,73 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
 
         # Verify result is decoded string
         self.assertEqual(result, 'Main Page')
+
+    @patch('src.models.infrastructure.s3.s3_client.boto3')
+    def test_term_plain_text_storage(self, mock_boto3):
+        """Test that terms are stored as plain UTF-8 text in S3"""
+        from models.infrastructure.s3.s3_client import S3Client
+        from models.infrastructure.s3.connection import S3ConnectionManager
+
+        # Mock S3 connection
+        mock_client = MagicMock()
+        mock_connection_manager = MagicMock()
+        mock_connection_manager.boto_client = mock_client
+
+        # Create S3 client
+        s3_client = S3Client(
+            config=MagicMock(),
+            connection_manager=mock_connection_manager
+        )
+
+        # Test storing term metadata
+        term = "Douglas Adams"
+        content_hash = 987654321
+
+        s3_client.store_term_metadata(term, content_hash)
+
+        # Verify put_object was called with plain text
+        mock_client.put_object.assert_called_once()
+        call_args = mock_client.put_object.call_args
+        self.assertEqual(call_args[1]['Bucket'], 'wikibase-terms')
+        self.assertEqual(call_args[1]['Key'], str(content_hash))
+        self.assertEqual(call_args[1]['Body'], term.encode('utf-8'))
+        self.assertEqual(call_args[1]['ContentType'], 'text/plain')
+        self.assertEqual(call_args[1]['Metadata']['content_hash'], str(content_hash))
+
+    @patch('src.models.infrastructure.s3.s3_client.boto3')
+    def test_term_plain_text_loading(self, mock_boto3):
+        """Test that terms are loaded as plain UTF-8 text from S3"""
+        from models.infrastructure.s3.s3_client import S3Client
+        from models.infrastructure.s3.connection import S3ConnectionManager
+
+        # Mock S3 connection
+        mock_client = MagicMock()
+        mock_connection_manager = MagicMock()
+        mock_connection_manager.boto_client = mock_client
+
+        # Mock response
+        mock_response = {'Body': MagicMock()}
+        mock_response['Body'].read.return_value = b'Douglas Adams'
+        mock_client.get_object.return_value = mock_response
+
+        # Create S3 client
+        s3_client = S3Client(
+            config=MagicMock(),
+            connection_manager=mock_connection_manager
+        )
+
+        # Test loading term metadata
+        content_hash = 987654321
+        result = s3_client.load_term_metadata(content_hash)
+
+        # Verify get_object was called correctly
+        mock_client.get_object.assert_called_once_with(
+            Bucket='wikibase-terms',
+            Key=str(content_hash)
+        )
+
+        # Verify result is decoded string
+        self.assertEqual(result, 'Douglas Adams')
 
 
 if __name__ == "__main__":
