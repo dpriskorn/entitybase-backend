@@ -6,6 +6,7 @@ from typing import List, Callable, Any
 import logging
 
 from models.rest_api.response import StatementHashResult
+from models.rest_api.response.entity.entitybase import EntityRevisionResponse
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +52,7 @@ class EntityTransaction(BaseModel, ABC):
         vitess_client: Any,
         stream_producer: Any,
         is_creation: bool,
-    ) -> Any:
+    ) -> EntityRevisionResponse:
         logger.debug(f"Creating revision {new_revision_id} for {entity_id}")
         pass
 
@@ -125,7 +126,7 @@ class CreationTransaction(EntityTransaction):
         vitess_client: Any,
         s3_client: Any,
         validator: Any,
-    ) -> Any:
+    ) -> StatementHashResult:
         """Process statements for entity creation."""
         logger.info(
             f"[CreationTransaction] Starting statement processing for {entity_id}"
@@ -166,7 +167,7 @@ class CreationTransaction(EntityTransaction):
         vitess_client: Any,
         stream_producer: Any,
         is_creation: bool,
-    ) -> Any:
+    ) -> EntityRevisionResponse:
         logger.debug(
             f"[CreationTransaction] Starting revision creation for {entity_id}"
         )

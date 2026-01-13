@@ -28,7 +28,7 @@ class UserActivityItem(BaseModel):
     user_id: int
     activity_type: ActivityType
     entity_id: Optional[str] = Field(default=None)
-    revision_id: Optional[int] = Field(default=None)
+    revision_id: int = Field(default=0)
     created_at: datetime
 
 
@@ -39,5 +39,5 @@ class UserActivity(BaseModel):
     user_id: int
     activity_type: ActivityType
     entity_id: Optional[str] = Field(default=None)
-    revision_id: Optional[int] = Field(default=None)
+    revision_id: int = Field(default=0)
     created_at: datetime

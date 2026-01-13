@@ -42,7 +42,7 @@ class EntityCreateRequest(BaseModel):
     def data(self) -> Any:
         return self.model_dump(exclude_unset=True)
 
-
+ 
 class EntityDeleteRequest(BaseModel):
     delete_type: DeleteType = Field(
         default=DeleteType.SOFT, description="Type of deletion"
@@ -97,7 +97,7 @@ class EntityUpdateRequest(BaseModel):
     def data(self) -> Any:
         return self.model_dump(exclude_unset=True)
 
-
+ 
 class RedirectRevertRequest(BaseModel):
     revert_to_revision_id: int = Field(
         ..., description="Revision ID to revert to (e.g., 12340)"
