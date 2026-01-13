@@ -70,7 +70,9 @@ def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str, str
     except SyntaxError:
         return [(str(file_path), 0, f"Syntax error in {file_path}", str(file_path))]
     except Exception as e:
-        return [(str(file_path), 0, f"Error processing {file_path}: {e}", str(file_path))]
+        return [
+            (str(file_path), 0, f"Error processing {file_path}: {e}", str(file_path))
+        ]
 
 
 def load_allowlist() -> set:

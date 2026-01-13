@@ -43,6 +43,7 @@ class EntityCreateRequest(BaseModel):
 
 class EntityDeleteRequest(BaseModel):
     """Request to delete an entity."""
+
     delete_type: DeleteType = Field(description="Type of deletion")
     entity_id: str = Field(description="ID of the entity to delete")
     edit_summary: str = Field(min_length=1, description="Edit summary for this change")

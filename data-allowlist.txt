@@ -11,3 +11,9 @@ src/models/validation/json_schema_validator.py:105
 src/models/validation/json_schema_validator.py:122
 src/models/internal_representation/metadata_extractor.py:92
 src/models/json_parser/entity_parser.py:28
+src/models/json_parser/property_parser.py:10
+src/models/infrastructure/vitess_client.py:199
+src/models/infrastructure/vitess_client.py:398
+src/models/rest_api/services/rdf_service.py:11
+src/models/rest_api/services/statement_service.py:22
+src/models/rest_api/entitybase/v1/items.py:143

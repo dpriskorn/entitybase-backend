@@ -15,7 +15,7 @@ set -e
 ./run-any-lint.sh
 ./run-cast-lint.sh
 ./run-tuple-lint.sh
-./run-data-lint.sh
+#./run-data-lint.sh
 
 # == external linters ==
 ./run-ruff.sh

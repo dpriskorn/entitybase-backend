@@ -10,6 +10,7 @@ from models.rest_api.response.statement import StatementResponse
 
 class EntityData(BaseModel):
     """Typed model for entity data in revisions."""
+
     id: str
     type: str
     labels: Dict[str, Any] | None = Field(default=None)

@@ -220,7 +220,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         self.assertNotIn("claims", parsed["entity"])
         self.assertIsInstance(parsed["aliases_hashes"]["en"], list)
 
-    @patch('src.models.infrastructure.s3.s3_client.boto3')
+    @patch("src.models.infrastructure.s3.s3_client.boto3")
     def test_sitelink_plain_text_storage(self, mock_boto3):
         """Test that sitelinks are stored as plain UTF-8 text in S3"""
         from models.infrastructure.s3.s3_client import S3Client
@@ -233,8 +233,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
 
         # Create S3 client
         s3_client = S3Client(
-            config=MagicMock(),
-            connection_manager=mock_connection_manager
+            config=MagicMock(), connection_manager=mock_connection_manager
         )
 
         # Test storing sitelink metadata
@@ -246,13 +245,13 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         # Verify put_object was called with plain text
         mock_client.put_object.assert_called_once()
         call_args = mock_client.put_object.call_args
-        self.assertEqual(call_args[1]['Bucket'], 'wikibase-sitelinks')
-        self.assertEqual(call_args[1]['Key'], str(content_hash))
-        self.assertEqual(call_args[1]['Body'], title.encode('utf-8'))
-        self.assertEqual(call_args[1]['ContentType'], 'text/plain')
-        self.assertEqual(call_args[1]['Metadata']['content_hash'], str(content_hash))
+        self.assertEqual(call_args[1]["Bucket"], "wikibase-sitelinks")
+        self.assertEqual(call_args[1]["Key"], str(content_hash))
+        self.assertEqual(call_args[1]["Body"], title.encode("utf-8"))
+        self.assertEqual(call_args[1]["ContentType"], "text/plain")
+        self.assertEqual(call_args[1]["Metadata"]["content_hash"], str(content_hash))
 
-    @patch('src.models.infrastructure.s3.s3_client.boto3')
+    @patch("src.models.infrastructure.s3.s3_client.boto3")
     def test_sitelink_plain_text_loading(self, mock_boto3):
         """Test that sitelinks are loaded as plain UTF-8 text from S3"""
         from models.infrastructure.s3.s3_client import S3Client
@@ -264,14 +263,13 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         mock_connection_manager.boto_client = mock_client
 
         # Mock response
-        mock_response = {'Body': MagicMock()}
-        mock_response['Body'].read.return_value = b'Main Page'
+        mock_response = {"Body": MagicMock()}
+        mock_response["Body"].read.return_value = b"Main Page"
         mock_client.get_object.return_value = mock_response
 
         # Create S3 client
         s3_client = S3Client(
-            config=MagicMock(),
-            connection_manager=mock_connection_manager
+            config=MagicMock(), connection_manager=mock_connection_manager
         )
 
         # Test loading sitelink metadata
@@ -280,14 +278,13 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
 
         # Verify get_object was called correctly
         mock_client.get_object.assert_called_once_with(
-            Bucket='wikibase-sitelinks',
-            Key=str(content_hash)
+            Bucket="wikibase-sitelinks", Key=str(content_hash)
         )
 
         # Verify result is decoded string
-        self.assertEqual(result, 'Main Page')
+        self.assertEqual(result, "Main Page")
 
-    @patch('src.models.infrastructure.s3.s3_client.boto3')
+    @patch("src.models.infrastructure.s3.s3_client.boto3")
     def test_term_plain_text_storage(self, mock_boto3):
         """Test that terms are stored as plain UTF-8 text in S3"""
         from models.infrastructure.s3.s3_client import S3Client
@@ -300,8 +297,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
 
         # Create S3 client
         s3_client = S3Client(
-            config=MagicMock(),
-            connection_manager=mock_connection_manager
+            config=MagicMock(), connection_manager=mock_connection_manager
         )
 
         # Test storing term metadata
@@ -313,13 +309,13 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         # Verify put_object was called with plain text
         mock_client.put_object.assert_called_once()
         call_args = mock_client.put_object.call_args
-        self.assertEqual(call_args[1]['Bucket'], 'wikibase-terms')
-        self.assertEqual(call_args[1]['Key'], str(content_hash))
-        self.assertEqual(call_args[1]['Body'], term.encode('utf-8'))
-        self.assertEqual(call_args[1]['ContentType'], 'text/plain')
-        self.assertEqual(call_args[1]['Metadata']['content_hash'], str(content_hash))
+        self.assertEqual(call_args[1]["Bucket"], "wikibase-terms")
+        self.assertEqual(call_args[1]["Key"], str(content_hash))
+        self.assertEqual(call_args[1]["Body"], term.encode("utf-8"))
+        self.assertEqual(call_args[1]["ContentType"], "text/plain")
+        self.assertEqual(call_args[1]["Metadata"]["content_hash"], str(content_hash))
 
-    @patch('src.models.infrastructure.s3.s3_client.boto3')
+    @patch("src.models.infrastructure.s3.s3_client.boto3")
     def test_term_plain_text_loading(self, mock_boto3):
         """Test that terms are loaded as plain UTF-8 text from S3"""
         from models.infrastructure.s3.s3_client import S3Client
@@ -331,14 +327,13 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         mock_connection_manager.boto_client = mock_client
 
         # Mock response
-        mock_response = {'Body': MagicMock()}
-        mock_response['Body'].read.return_value = b'Douglas Adams'
+        mock_response = {"Body": MagicMock()}
+        mock_response["Body"].read.return_value = b"Douglas Adams"
         mock_client.get_object.return_value = mock_response
 
         # Create S3 client
         s3_client = S3Client(
-            config=MagicMock(),
-            connection_manager=mock_connection_manager
+            config=MagicMock(), connection_manager=mock_connection_manager
         )
 
         # Test loading term metadata
@@ -347,12 +342,11 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
 
         # Verify get_object was called correctly
         mock_client.get_object.assert_called_once_with(
-            Bucket='wikibase-terms',
-            Key=str(content_hash)
+            Bucket="wikibase-terms", Key=str(content_hash)
         )
 
         # Verify result is decoded string
-        self.assertEqual(result, 'Douglas Adams')
+        self.assertEqual(result, "Douglas Adams")
 
 
 if __name__ == "__main__":

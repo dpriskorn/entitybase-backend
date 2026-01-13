@@ -314,10 +314,10 @@ class EntityHandler(BaseModel):
         is_archived: bool | None,
         is_dangling: bool | None,
         is_mass_edit_protected: bool | None,
-    vitess_client: VitessClient,
-    s3_client: S3Client,
-    stream_producer: StreamProducerClient | None,
-    is_creation: bool,
+        vitess_client: VitessClient,
+        s3_client: S3Client,
+        stream_producer: StreamProducerClient | None,
+        is_creation: bool,
     ) -> EntityRevisionResponse:
         """Create revision data, store it, and publish events."""
         # Process sitelinks: hash titles and store metadata

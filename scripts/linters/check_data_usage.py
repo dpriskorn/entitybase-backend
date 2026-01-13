@@ -31,7 +31,9 @@ def check_file(file_path: Path, allowlist: set) -> list[tuple[str, int, str]]:
                 if not stripped or stripped.startswith("#"):
                     continue
                 # Look for data: in variable/field definitions (not in strings or comments)
-                if "data:" in line and not ('"' in line or "'" in line or "f\"" in line or "f'" in line):
+                if "data:" in line and not (
+                    '"' in line or "'" in line or 'f"' in line or "f'" in line
+                ):
                     key = f"{file_path}:{line_no}"
                     if key not in allowlist:
                         violations.append(

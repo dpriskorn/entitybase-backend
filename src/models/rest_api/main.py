@@ -595,6 +595,8 @@ async def get_batch_statements(
         except Exception:
             result[entity_id] = {}
     return result
+
+
 def get_entity_property_counts(entity_id: str) -> PropertyCountsResponse:
     """Get statement counts for each property in an entity."""
     clients = app.state.clients
@@ -615,9 +617,6 @@ def get_entity_property_hashes(
     return handler.get_entity_property_hashes(
         entity_id, property_list, clients.vitess, clients.s3
     )
-
-
-
 
 
 app.include_router(v1_router, prefix="/entitybase/v1")

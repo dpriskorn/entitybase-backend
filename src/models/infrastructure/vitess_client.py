@@ -44,9 +44,7 @@ class VitessClient(Client):
     revision_repository: RevisionRepository = Field(default=None, exclude=True)
     redirect_repository: RedirectRepository = Field(default=None, exclude=True)
     head_repository: HeadRepository = Field(default=None, exclude=True)
-    listing_repository: ListingRepository = Field(
-        default=None, exclude=True
-    )
+    listing_repository: ListingRepository = Field(default=None, exclude=True)
     statement_repository: StatementRepository = Field(default=None, exclude=True)
     backlink_repository: BacklinkRepository = Field(default=None, exclude=True)
     metadata_repository: MetadataRepository = Field(default=None, exclude=True)
@@ -202,15 +200,17 @@ class VitessClient(Client):
         """Create a new revision for an entity."""
         with self.connection_manager.get_connection() as conn:
             if expected_revision_id is not None:
-            success = self.revision_repository.create_with_cas(
-                conn, entity_id, revision_id, entity_data, expected_revision_id
-            )
+                success = self.revision_repository.create_with_cas(
+                    conn, entity_id, revision_id, entity_data, expected_revision_id
+                )
                 if not success:
                     raise_validation_error(
                         "Concurrent modification detected", status_code=409
                     )
                 return
-            return self.revision_repository.create(conn, entity_id, revision_id, entity_data)  # type: ignore[no-any-return]
+            return self.revision_repository.create(
+                conn, entity_id, revision_id, entity_data
+            )  # type: ignore[no-any-return]
 
     def set_redirect_target(
         self,
