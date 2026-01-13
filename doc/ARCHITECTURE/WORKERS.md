@@ -4,7 +4,9 @@
 
 **Class**: `BacklinkStatisticsWorker`
 **Location**: `models/workers/backlink_statistics/backlink_statistics_worker.py`
-**Purpose**: Background worker for computing backlink statistics.
+**Purpose**: Background worker for computing daily backlink statistics. Delegates data persistence to the BacklinkRepository for clean separation of concerns.
+
+**Architecture**: The worker orchestrates statistics computation but delegates all database operations to `BacklinkRepository.insert_backlink_statistics()`, maintaining SQL logic in the data access layer.
 
 **Configuration**:
 - `backlink_stats_enabled`: True

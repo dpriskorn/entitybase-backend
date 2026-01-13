@@ -1,3 +1,4 @@
+import pytest
 from unittest.mock import Mock
 from models.infrastructure.vitess.backlink_repository import BacklinkRepository
 
@@ -166,3 +167,114 @@ class TestBacklinkRepository:
         self.conn.cursor.assert_called_once()
         cursor_mock.__enter__.assert_called_once()
         cursor_mock.__exit__.assert_called_once()
+
+    def test_insert_backlink_statistics_success(self) -> None:
+        """Test successful insertion of backlink statistics."""
+        date = "2024-01-13"
+        total_backlinks = 1000
+        unique_entities = 500
+        top_entities = [{"id": "Q42", "count": 50}, {"id": "Q43", "count": 45}]
+
+        cursor_mock = Mock()
+        self.conn.cursor.return_value.__enter__.return_value = cursor_mock
+
+        self.repository.insert_backlink_statistics(
+            self.conn, date, total_backlinks, unique_entities, top_entities
+        )
+
+        cursor_mock.execute.assert_called_once()
+        args, kwargs = cursor_mock.execute.call_args
+
+        # Check the SQL query
+        expected_query = """
+            INSERT INTO backlink_statistics
+            (date, total_backlinks, unique_entities_with_backlinks, top_entities_by_backlinks)
+            VALUES (%s, %s, %s, %s)
+            ON DUPLICATE KEY UPDATE
+            total_backlinks = VALUES(total_backlinks),
+            unique_entities_with_backlinks = VALUES(unique_entities_with_backlinks),
+            top_entities_by_backlinks = VALUES(top_entities_by_backlinks)
+            """
+        assert args[0].strip() == expected_query.strip()
+
+        # Check the parameters
+        params = args[1]
+        assert params[0] == date
+        assert params[1] == total_backlinks
+        assert params[2] == unique_entities
+        # JSON should be serialized
+        import json
+
+        assert params[3] == json.dumps(top_entities)
+
+    def test_insert_backlink_statistics_invalid_date(self) -> None:
+        """Test validation of invalid date format."""
+        from models.validation.utils import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            self.repository.insert_backlink_statistics(
+                self.conn, "invalid-date", 100, 50, []
+            )
+
+        assert "Invalid date format" in str(exc_info.value)
+
+    def test_insert_backlink_statistics_negative_counts(self) -> None:
+        """Test validation of negative count values."""
+        from models.validation.utils import ValidationError
+
+        # Test negative total_backlinks
+        with pytest.raises(ValidationError) as exc_info:
+            self.repository.insert_backlink_statistics(
+                self.conn, "2024-01-13", -1, 50, []
+            )
+        assert "total_backlinks must be non-negative" in str(exc_info.value)
+
+        # Test negative unique_entities
+        with pytest.raises(ValidationError) as exc_info:
+            self.repository.insert_backlink_statistics(
+                self.conn, "2024-01-13", 100, -1, []
+            )
+        assert "unique_entities_with_backlinks must be non-negative" in str(
+            exc_info.value
+        )
+
+    def test_insert_backlink_statistics_invalid_top_entities(self) -> None:
+        """Test validation of invalid top_entities type."""
+        from models.validation.utils import ValidationError
+
+        with pytest.raises(ValidationError) as exc_info:
+            self.repository.insert_backlink_statistics(
+                self.conn, "2024-01-13", 100, 50, "not-a-list"
+            )
+
+        assert "top_entities_by_backlinks must be a list" in str(exc_info.value)
+
+    def test_insert_backlink_statistics_json_serialization_error(self) -> None:
+        """Test handling of JSON serialization errors."""
+        from models.validation.utils import ValidationError
+
+        # Create an object that can't be JSON serialized
+        class NonSerializable:
+            pass
+
+        top_entities = [{"valid": "data"}, NonSerializable()]
+
+        with pytest.raises(ValidationError) as exc_info:
+            self.repository.insert_backlink_statistics(
+                self.conn, "2024-01-13", 100, 50, top_entities
+            )
+
+        assert "Failed to serialize top_entities_by_backlinks" in str(exc_info.value)
+
+    def test_insert_backlink_statistics_database_error(self) -> None:
+        """Test handling of database execution errors."""
+        cursor_mock = Mock()
+        cursor_mock.execute.side_effect = Exception("Database connection failed")
+        self.conn.cursor.return_value.__enter__.return_value = cursor_mock
+
+        with pytest.raises(Exception) as exc_info:
+            self.repository.insert_backlink_statistics(
+                self.conn, "2024-01-13", 100, 50, []
+            )
+
+        assert "Database connection failed" in str(exc_info.value)
