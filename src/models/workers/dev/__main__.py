@@ -7,7 +7,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 # Add src to path for imports
 src_path = Path(__file__).parent.parent.parent / "src"
@@ -46,7 +46,7 @@ async def run_setup(args: Any) -> bool:
         for issue in results["health_check"]["issues"]:
             print(f"  - {issue}")
 
-    return cast(str, results["setup_status"]) == "completed"
+    return results["setup_status"] == "completed"
 
 
 async def run_health_check(args: Any) -> Any:

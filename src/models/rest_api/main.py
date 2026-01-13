@@ -4,7 +4,7 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Header, Query, Response
 from fastapi.responses import JSONResponse
@@ -410,18 +410,18 @@ async def create_entity_redirect(
 ) -> EntityRedirectResponse:
     clients = app.state.clients
     handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
-    return cast(EntityRedirectResponse, await handler.create_entity_redirect(request))
+    return await handler.create_entity_redirect(request)
 
 
 @app.post("/entities/{entity_id}/revert-redirect")
 async def revert_entity_redirect(
     entity_id: str, request: RedirectRevertRequest
-) -> EntityRedirectResponse:
+) -> EntityResponse:
     clients = app.state.clients
     handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
-    return cast(EntityRedirectResponse, await handler.revert_entity_redirect(
+    return await handler.revert_entity_redirect(
         entity_id, request.revert_to_revision_id
-    ))
+    )
 
 
 @v1_router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)
@@ -430,9 +430,9 @@ async def delete_entity(
 ) -> EntityDeleteResponse:
     clients = app.state.clients
     handler = EntityDeleteHandler()
-    return cast(EntityDeleteResponse, await handler.delete_entity(
+    return await handler.delete_entity(
         entity_id, request, clients.vitess, clients.s3, clients.stream_producer
-    ))
+    )
 
 
 @v1_router.get(
@@ -456,16 +456,16 @@ def list_entities(
         100, ge=1, le=1000, description="Maximum number of entities to return"
     ),
     offset: int = Query(0, ge=0, description="Number of entities to skip"),
-) -> EntityRedirectResponse:
+) -> EntityListResponse:
     """List entities based on type, limit, and offset."""
     clients = app.state.clients
     handler = AdminHandler()
-    return cast(EntityListResponse, handler.list_entities(
+    return handler.list_entities(
         vitess_client=clients.vitess,
         entity_type=entity_type,
         limit=limit,
         offset=offset,
-    ))
+    )
 
 
 @v1_router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)

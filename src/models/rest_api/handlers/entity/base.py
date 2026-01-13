@@ -3,7 +3,7 @@
 import json
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict, cast
+from typing import Any, Dict
 
 from fastapi import HTTPException
 from pydantic import BaseModel
@@ -20,11 +20,12 @@ from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.misc import EditType
 from models.rest_api.request import EntityUpdateRequest, EntityCreateRequest
 from models.rest_api.response.entity import EntityHistoryEntry
-from models.rest_api.response import (
+from models.rest_api.response.entity.misc import (
     EntityResponse,
-    StatementHashResult,
     EntityRevisionResponse,
+    EntityHistoryEntry,
 )
+from models.rest_api.response.statement import StatementHashResult
 from models.rest_api.services.statement_service import (
     hash_entity_statements,
     deduplicate_and_store_statements,
@@ -583,7 +584,7 @@ class EntityReadHandler:
 
         try:
             revision = s3_client.read_revision(entity_id, head_revision_id)
-            return cast(EntityResponse, EntityResponse(
+            return EntityResponse(
                 id=entity_id,
                 revision_id=head_revision_id,
                 data=revision.data.get("entity", {}),
@@ -594,7 +595,7 @@ class EntityReadHandler:
                 is_mass_edit_protected=revision.data.get(
                     "is_mass_edit_protected", False
                 ),
-            ))
+            )
         except Exception as e:
             logger.error(f"Failed to read entity {entity_id}: {e}")
             raise_validation_error("Failed to read entity", status_code=500)

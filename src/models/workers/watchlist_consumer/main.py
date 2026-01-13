@@ -20,7 +20,7 @@ class WatchlistConsumerWorker:
         self.consumer: Consumer | None = None
         self.vitess_client: VitessClient | None = None
 
-    @asynccontextmanager
+    @asynccontextmanager  # type: ignore[no-untyped-def]
     async def lifespan(self):
         """Lifespan context manager for startup/shutdown."""
         try:
@@ -38,6 +38,7 @@ class WatchlistConsumerWorker:
                     topic=kafka_topic,
                     group_id="watchlist-consumer",
                 )
+                assert self.consumer is not None
                 await self.consumer.start()
                 self.logger.info("Watchlist consumer started")
             else:
@@ -72,6 +73,7 @@ class WatchlistConsumerWorker:
             )
 
             # Get watchers for this entity
+            assert self.vitess_client is not None
             watchers = self.vitess_client.watchlist_repository.get_watchers_for_entity(
                 entity_id
             )
@@ -132,6 +134,7 @@ class WatchlistConsumerWorker:
         """Create a notification record in the database."""
         # For now, insert into user_notifications table
         # In a real system, this might trigger email/webhook
+        assert self.vitess_client is not None
         with self.vitess_client.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -167,6 +170,7 @@ async def main() -> None:
 
     async with worker.lifespan():
         if worker.consumer:
+            assert worker.consumer is not None
             logger.info("Starting message consumption loop")
             async for message in worker.consumer.consume():
                 await worker.process_message(message)

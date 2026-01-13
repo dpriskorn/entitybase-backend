@@ -3,7 +3,6 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-from typing import cast
 from datetime import datetime, timedelta
 
 from models.config.settings import settings
@@ -72,7 +71,7 @@ class NotificationCleanupWorker:
                     "DELETE FROM user_notifications WHERE event_timestamp < %s",
                     (cutoff_date.isoformat() + "Z",),
                 )
-                return cast(int, cursor.rowcount)
+                return cursor.rowcount
 
     def _enforce_user_limits(self) -> int:
         """For each user with > max_per_user notifications, keep only the latest max_per_user."""

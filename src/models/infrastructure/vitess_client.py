@@ -419,10 +419,12 @@ class VitessClient(Client):
                 )
 
     def read_full_revision(
-        self, entity_id: str, revision_id: int, s3_client: Optional[Any] = None
+        self, entity_id: str, revision_id: int, s3_client: Any
     ) -> FullRevisionData:
         """Read full revision data including metadata from S3."""
         logger.debug(f"Reading full revision {revision_id} for entity {entity_id}")
+        assert s3_client is not None
+
         with self.connection_manager.get_connection() as conn:
             internal_id = self.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:
@@ -447,7 +449,7 @@ class VitessClient(Client):
                 # Reconstruct labels from per-language hashes
                 labels = {}
                 for lang, hash_value in labels_hashes.items():
-                    label_value = self.s3_client.load_metadata("labels", hash_value)
+                    label_value = s3_client.load_metadata("labels", hash_value)
                     labels[lang] = {"language": lang, "value": label_value}
 
                 # Reconstruct descriptions from per-language hashes
@@ -461,7 +463,7 @@ class VitessClient(Client):
                 for lang, hash_list in aliases_hashes.items():
                     aliases[lang] = []
                     for hash_value in hash_list:
-                        alias_value = self.s3_client.load_metadata(  # type: ignore[union-attr]
+                        alias_value = s3_client.load_metadata(
                             "aliases", hash_value
                         )
                         aliases[lang].append({"language": lang, "value": alias_value})
