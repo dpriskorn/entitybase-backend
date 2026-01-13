@@ -10,7 +10,7 @@ from pydantic import BaseModel
 logger = logging.getLogger(__name__)
 
 
-class DevWorker(BaseModel):
+class CreateBuckets(BaseModel):
     """Development worker for MinIO bucket management and setup tasks."""
 
     minio_endpoint: str = os.getenv("MINIO_ENDPOINT", "http://localhost:9000")
@@ -27,7 +27,7 @@ class DevWorker(BaseModel):
             self._boto3 = boto3
         except ImportError:
             raise ImportError(
-                "boto3 is required for DevWorker. Install with: pip install boto3"
+                "boto3 is required for CreateBuckets. Install with: pip install boto3"
             )
 
     @property

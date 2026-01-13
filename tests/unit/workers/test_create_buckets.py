@@ -1,17 +1,17 @@
-"""Tests for the DevWorker."""
+"""Tests for the CreateBuckets."""
 
 import pytest
 from unittest.mock import MagicMock, patch
 from botocore.exceptions import ClientError
-from models.workers.dev.dev_worker import DevWorker
+from models.workers.dev.create_buckets import CreateBuckets
 
 
-class TestDevWorker:
-    """Test cases for DevWorker functionality."""
+class TestCreateBuckets:
+    """Test cases for CreateBuckets functionality."""
 
     def test_initialization(self):
-        """Test DevWorker initialization with default values."""
-        worker = DevWorker()
+        """Test CreateBuckets initialization with default values."""
+        worker = CreateBuckets()
 
         assert worker.minio_endpoint == "http://localhost:9000"
         assert worker.minio_access_key == "minioadmin"
@@ -19,8 +19,8 @@ class TestDevWorker:
         assert worker.required_buckets == ["terms", "statements", "revisions", "dumps"]
 
     def test_custom_initialization(self):
-        """Test DevWorker initialization with custom values."""
-        worker = DevWorker(
+        """Test CreateBuckets initialization with custom values."""
+        worker = CreateBuckets(
             minio_endpoint="http://custom:9000",
             minio_access_key="custom_key",
             minio_secret_key="custom_secret",
@@ -32,13 +32,13 @@ class TestDevWorker:
         assert worker.minio_secret_key == "custom_secret"
         assert worker.required_buckets == ["custom1", "custom2"]
 
-    @patch("models.workers.dev.dev_worker._boto3")
+    @patch("models.workers.dev.create_buckets._boto3")
     def test_s3_client_creation(self, mock_boto3):
         """Test S3 client creation."""
         mock_client = MagicMock()
         mock_boto3.client.return_value = mock_client
 
-        worker = DevWorker()
+        worker = CreateBuckets()
         client = worker.s3_client
 
         mock_boto3.client.assert_called_once_with(
@@ -50,7 +50,7 @@ class TestDevWorker:
         assert client == mock_client
 
     @pytest.mark.asyncio
-    @patch("models.workers.dev.dev_worker._boto3")
+    @patch("models.workers.dev.create_buckets._boto3")
     async def test_ensure_buckets_exist_success(self, mock_boto3):
         """Test successful bucket creation when buckets don't exist."""
         # Setup mock S3 client
@@ -66,7 +66,7 @@ class TestDevWorker:
         mock_client.head_bucket.side_effect = not_found_error
         mock_client.create_bucket.return_value = None
 
-        worker = DevWorker()
+        worker = CreateBuckets()
         results = await worker.ensure_buckets_exist()
 
         # Should attempt to create all 4 buckets
@@ -75,7 +75,7 @@ class TestDevWorker:
         assert set(results.keys()) == {"terms", "statements", "revisions", "dumps"}
 
     @pytest.mark.asyncio
-    @patch("models.workers.dev.dev_worker._boto3")
+    @patch("models.workers.dev.create_buckets._boto3")
     async def test_ensure_buckets_exist_already_exist(self, mock_boto3):
         """Test bucket creation when buckets already exist."""
         # Setup mock S3 client
@@ -85,7 +85,7 @@ class TestDevWorker:
         # head_bucket succeeds (buckets exist)
         mock_client.head_bucket.return_value = None
 
-        worker = DevWorker()
+        worker = CreateBuckets()
         results = await worker.ensure_buckets_exist()
 
         # Should not call create_bucket
@@ -93,7 +93,7 @@ class TestDevWorker:
         assert all(status == "exists" for status in results.values())
 
     @pytest.mark.asyncio
-    @patch("models.workers.dev.dev_worker._boto3")
+    @patch("models.workers.dev.create_buckets._boto3")
     async def test_ensure_buckets_exist_error(self, mock_boto3):
         """Test bucket creation error handling."""
         # Setup mock S3 client
@@ -107,7 +107,7 @@ class TestDevWorker:
 
         mock_client.head_bucket.side_effect = permission_error
 
-        worker = DevWorker()
+        worker = CreateBuckets()
         results = await worker.ensure_buckets_exist()
 
         # Should not call create_bucket due to error
@@ -115,7 +115,7 @@ class TestDevWorker:
         assert all("error: AccessDenied" in status for status in results.values())
 
     @pytest.mark.asyncio
-    @patch("models.workers.dev.dev_worker._boto3")
+    @patch("models.workers.dev.create_buckets._boto3")
     async def test_bucket_health_check_success(self, mock_boto3):
         """Test successful bucket health check."""
         mock_client = MagicMock()
@@ -124,7 +124,7 @@ class TestDevWorker:
         # All buckets accessible
         mock_client.head_bucket.return_value = None
 
-        worker = DevWorker()
+        worker = CreateBuckets()
         health = await worker.bucket_health_check()
 
         assert health["overall_status"] == "healthy"
@@ -135,7 +135,7 @@ class TestDevWorker:
         assert health["issues"] == []
 
     @pytest.mark.asyncio
-    @patch("models.workers.dev.dev_worker._boto3")
+    @patch("models.workers.dev.create_buckets._boto3")
     async def test_bucket_health_check_partial_failure(self, mock_boto3):
         """Test bucket health check with some failures."""
         mock_client = MagicMock()
@@ -151,7 +151,7 @@ class TestDevWorker:
 
         mock_client.head_bucket.side_effect = side_effect
 
-        worker = DevWorker()
+        worker = CreateBuckets()
         health = await worker.bucket_health_check()
 
         assert health["overall_status"] == "unhealthy"
@@ -162,7 +162,7 @@ class TestDevWorker:
         assert "terms" in health["issues"][0]
 
     @pytest.mark.asyncio
-    @patch("models.workers.dev.dev_worker._boto3")
+    @patch("models.workers.dev.create_buckets._boto3")
     async def test_cleanup_buckets_success(self, mock_boto3):
         """Test successful bucket cleanup."""
         mock_client = MagicMock()
@@ -172,7 +172,7 @@ class TestDevWorker:
         mock_client.list_objects_v2.return_value = {}
         mock_client.delete_bucket.return_value = None
 
-        worker = DevWorker()
+        worker = CreateBuckets()
         results = await worker.cleanup_buckets()
 
         # Should call delete_bucket for each bucket
@@ -180,7 +180,7 @@ class TestDevWorker:
         assert all(status == "deleted" for status in results.values())
 
     @pytest.mark.asyncio
-    @patch("models.workers.dev.dev_worker._boto3")
+    @patch("models.workers.dev.create_buckets._boto3")
     async def test_cleanup_buckets_with_objects(self, mock_boto3):
         """Test bucket cleanup that deletes objects first."""
         mock_client = MagicMock()
@@ -192,7 +192,7 @@ class TestDevWorker:
         }
         mock_client.delete_bucket.return_value = None
 
-        worker = DevWorker()
+        worker = CreateBuckets()
         results = await worker.cleanup_buckets()
 
         # Should delete objects first, then bucket
@@ -201,7 +201,7 @@ class TestDevWorker:
         assert all(status == "deleted" for status in results.values())
 
     @pytest.mark.asyncio
-    @patch("models.workers.dev.dev_worker._boto3")
+    @patch("models.workers.dev.create_buckets._boto3")
     async def test_run_setup_success(self, mock_boto3):
         """Test successful run_setup."""
         mock_client = MagicMock()
@@ -214,7 +214,7 @@ class TestDevWorker:
         mock_client.head_bucket.side_effect = not_found_error
         mock_client.create_bucket.return_value = None
 
-        worker = DevWorker()
+        worker = CreateBuckets()
         results = await worker.run_setup()
 
         assert results["setup_status"] == "completed"
@@ -224,7 +224,7 @@ class TestDevWorker:
         assert results["health_check"]["overall_status"] == "healthy"
 
     def test_import_error_handling(self):
-        """Test that DevWorker handles boto3 import errors gracefully."""
+        """Test that CreateBuckets handles boto3 import errors gracefully."""
         with patch.dict("sys.modules", {"boto3": None}):
             with pytest.raises(ImportError, match="boto3 is required"):
-                DevWorker()
+                CreateBuckets()
