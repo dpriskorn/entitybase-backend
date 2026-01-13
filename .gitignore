@@ -28,3 +28,5 @@ test_data/properties/*.json
 /debug/debug_*_generated.ttl
 /coverage.xml
 /.coverage
+/.vscode
+/htmlcov

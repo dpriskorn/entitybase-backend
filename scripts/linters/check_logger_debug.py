@@ -55,7 +55,7 @@ class LoggerInfoChecker(ast.NodeVisitor):
                 (
                     func_name,
                     node.lineno,
-                    f"Function '{func_name}' has {body_lines} lines but no logger call",
+                    f"Function '{func_name}' has {body_lines} lines but no logger.debug() call",
                 )
             )
 
