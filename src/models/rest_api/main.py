@@ -213,8 +213,8 @@ def toggle_watchlist(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.post("/v1/watchlist", response_model=WatchlistToggleResponse)
-def add_watch(request: WatchlistAddRequest) -> WatchlistToggleResponse:
+@app.post("/v1/watchlist", response_model=MessageResponse)
+def add_watch(request: WatchlistAddRequest) -> MessageResponse:
     """Add a watchlist entry."""
     clients = app.state.clients
     handler = WatchlistHandler()
@@ -224,8 +224,8 @@ def add_watch(request: WatchlistAddRequest) -> WatchlistToggleResponse:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.delete("/v1/watchlist", response_model=WatchlistToggleResponse)
-def remove_watch(request: WatchlistRemoveRequest) -> WatchlistToggleResponse:
+@app.delete("/v1/watchlist", response_model=MessageResponse)
+def remove_watch(request: WatchlistRemoveRequest) -> MessageResponse:
     """Remove a watchlist entry."""
     clients = app.state.clients
     handler = WatchlistHandler()

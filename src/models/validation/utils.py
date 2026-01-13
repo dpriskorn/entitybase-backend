@@ -1,8 +1,11 @@
 """Validation utilities for REST API."""
 
+import logging
 import os
 
 from typing import NoReturn, Optional
+
+logger = logging.getLogger(__name__)
 
 
 def raise_validation_error(
@@ -15,6 +18,7 @@ def raise_validation_error(
     HTTPException is only raised in production when explicitly requested.
     In development, HTTPException requests fall back to ValueError.
     """
+    logger.info(f"Raising validation error: {message} with status {status_code}")
     from fastapi import HTTPException
 
     is_prod = os.getenv("ENVIRONMENT", "dev").lower() == "prod"

@@ -1,5 +1,6 @@
 """Handler for user preference operations."""
 
+from models.infrastructure.vitess_client import VitessClient
 from models.validation.utils import raise_validation_error
 from models.rest_api.request.user_preferences import UserPreferencesRequest
 from models.rest_api.response.user_preferences import UserPreferencesResponse
@@ -8,7 +9,7 @@ from models.rest_api.response.user_preferences import UserPreferencesResponse
 class UserPreferencesHandler:
     """Handler for user preference operations."""
 
-    def get_preferences(self, user_id: int, vitess_client) -> UserPreferencesResponse:
+    def get_preferences(self, user_id: int, vitess_client: VitessClient) -> UserPreferencesResponse:
         """Get user's notification preferences."""
         # Check if user exists
         if not vitess_client.user_repository.user_exists(user_id):
@@ -26,7 +27,7 @@ class UserPreferencesHandler:
         )
 
     def update_preferences(
-        self, user_id: int, request: UserPreferencesRequest, vitess_client
+        self, user_id: int, request: UserPreferencesRequest, vitess_client: VitessClient
     ) -> UserPreferencesResponse:
         """Update user's notification preferences."""
         # Check if user exists
