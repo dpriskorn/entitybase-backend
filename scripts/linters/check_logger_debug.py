@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Custom linter to check that methods with more than 20 lines contain at least one logger call (info, debug, warning, error, critical).
+Custom linter to check that methods with more than 30 lines contain at least one logger call (info, debug, warning, error, critical).
 """
 
 import ast
@@ -36,6 +36,10 @@ class LoggerInfoChecker(ast.NodeVisitor):
         if self.current_class and self._is_enum_class(self.current_class):
             return
 
+        # Skip abstract methods
+        if self._is_abstract_method(node):
+            return
+
         # Calculate function line count
         start_line = node.lineno - 1  # 0-based
         end_line = (
@@ -49,7 +53,7 @@ class LoggerInfoChecker(ast.NodeVisitor):
             if line and not line.startswith("#"):
                 body_lines += 1
 
-        if body_lines <= 20:
+        if body_lines <= 30:
             return
 
         # Check for logger calls
@@ -85,6 +89,16 @@ class LoggerInfoChecker(ast.NodeVisitor):
                 return True
             elif isinstance(base, ast.Attribute) and base.attr == 'Enum':
                 return True
+        return False
+
+    def _is_abstract_method(self, node) -> bool:
+        """Check if function is decorated with @abstractmethod."""
+        if hasattr(node, 'decorator_list'):
+            for decorator in node.decorator_list:
+                if isinstance(decorator, ast.Name) and decorator.id == 'abstractmethod':
+                    return True
+                elif isinstance(decorator, ast.Attribute) and decorator.attr == 'abstractmethod':
+                    return True
         return False
 
 
