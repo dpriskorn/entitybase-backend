@@ -1,8 +1,11 @@
 """RDF value node writers."""
 
 import hashlib
+import logging
 import re
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 def _format_scientific_notation(value: float) -> str:
@@ -38,6 +41,7 @@ def serialize_value(value: Any) -> str:
 
     Different value types have different serialization formats.
     """
+    logger.info(f"Serializing value of type {type(value)}")
     if hasattr(value, "kind"):
         kind = value.kind
 

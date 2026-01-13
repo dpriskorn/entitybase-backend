@@ -88,8 +88,9 @@ class WikidataImportService(BaseModel):
             wikidata_data: Raw entity data from Wikidata API
 
         Returns:
-            EntityCreateRequest ready for import
+            EntityCreateRequest: Formatted request for entity creation
         """
+        logger.info(f"Transforming Wikidata data for entity {wikidata_data.get('id')}")
         entity_id = wikidata_data["id"]
         entity_type = wikidata_data["type"]  # "item", "property", "lexeme"
 
