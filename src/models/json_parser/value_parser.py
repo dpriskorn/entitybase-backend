@@ -1,6 +1,9 @@
 """JSON value parser."""
 
+import logging
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from ..validation.utils import raise_validation_error
 from models.internal_representation.values.base import Value
@@ -45,6 +48,7 @@ PARSERS = {
 
 def parse_value(snak_json: dict[str, Any]) -> Value:
     """Parse value from Wikidata JSON format."""
+    logger.debug("Parsing value from snak JSON")
     snaktype = snak_json.get(JsonField.SNAKTYPE.value)
 
     if snaktype == "novalue":

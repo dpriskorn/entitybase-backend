@@ -1,9 +1,13 @@
 """Service for computing backlink statistics."""
 
+import logging
+
 from pydantic import BaseModel, Field
 
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.response.misc import BacklinkStatisticsData, TopEntityByBacklinks
+
+logger = logging.getLogger(__name__)
 
 
 class BacklinkStatisticsService(BaseModel):
@@ -47,6 +51,7 @@ class BacklinkStatisticsService(BaseModel):
         self, vitess_client: VitessClient, limit: int = 100
     ) -> list[TopEntityByBacklinks]:
         """Get top entities ranked by backlink count."""
+        logger.debug("Getting top %d entities by backlinks", limit)
         with vitess_client.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(

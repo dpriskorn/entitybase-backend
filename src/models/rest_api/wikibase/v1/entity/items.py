@@ -5,6 +5,13 @@ from fastapi.responses import RedirectResponse
 from typing import Dict, Any
 
 from models.rest_api.response.entity import WikibaseEntityResponse
+from models.rest_api.response.misc import (
+    LabelsResponse,
+    DescriptionsResponse,
+    SitelinksResponse,
+    PropertiesResponse,
+    AliasesDict,
+)
 from models.rest_api.handlers.entity.read import EntityReadHandler
 
 
@@ -38,25 +45,25 @@ async def update_item(
 
 
 @router.get("/entities/items/{item_id}/properties")
-async def get_item_properties(item_id: str) -> Dict[str, Any]:
+async def get_item_properties(item_id: str) -> PropertiesResponse:
     """Get item properties - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
 @router.post("/entities/items/{item_id}/properties")
-async def add_item_property(item_id: str, request: Dict[str, Any]) -> Dict[str, Any]:
+async def add_item_property(item_id: str, request: Dict[str, Any]) -> PropertiesResponse:
     """Add item property - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
 @router.get("/entities/items/{item_id}/sitelinks")
-async def get_item_sitelinks(item_id: str) -> Dict[str, Any]:
+async def get_item_sitelinks(item_id: str) -> SitelinksResponse:
     """Get item sitelinks - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
 @router.get("/entities/items/{item_id}/labels")
-async def get_item_labels(item_id: str) -> Dict[str, Any]:
+async def get_item_labels(item_id: str) -> LabelsResponse:
     """Get item labels - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 
@@ -91,13 +98,13 @@ async def delete_item_label(item_id: str, language_code: str) -> RedirectRespons
 @router.get("/entities/items/{item_id}/labels_with_language_fallback/{language_code}")
 async def get_item_labels_with_fallback(
     item_id: str, language_code: str
-) -> Dict[str, Any]:
+) -> LabelsResponse:
     """Get item labels with language fallback - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
 @router.get("/entities/items/{item_id}/aliases")
-async def get_item_aliases(item_id: str) -> Dict[str, Any]:
+async def get_item_aliases(item_id: str) -> AliasesDict:
     """Get item aliases - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 
@@ -125,7 +132,7 @@ async def patch_item_aliases_for_language(
 
 
 @router.get("/entities/items/{item_id}/descriptions")
-async def get_item_descriptions(item_id: str) -> Dict[str, Any]:
+async def get_item_descriptions(item_id: str) -> DescriptionsResponse:
     """Get item descriptions - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 

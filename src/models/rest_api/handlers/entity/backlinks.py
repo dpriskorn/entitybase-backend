@@ -1,10 +1,13 @@
 """Handler for entity backlinks operations."""
 
+import logging
 from fastapi import HTTPException
 from pydantic import BaseModel
 
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.response import BacklinksResponse, Backlink
+
+logger = logging.getLogger(__name__)
 
 
 class BacklinkHandler(BaseModel):
@@ -18,6 +21,7 @@ class BacklinkHandler(BaseModel):
         offset: int = 0,
     ) -> BacklinksResponse:
         """Get backlinks for an entity."""
+        logger.debug(f"Getting backlinks for entity {entity_id}, limit {limit}")
         with vitess_client.connection_manager.get_connection() as conn:
             internal_id = vitess_client.id_resolver.resolve_id(conn, entity_id)
             if not internal_id:

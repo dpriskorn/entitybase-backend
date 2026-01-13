@@ -40,19 +40,19 @@ async def update_property(
 
 
 @router.get("/entities/properties/{property_id}/properties")
-async def get_property_properties(property_id: str) -> Dict[str, Any]:
+async def get_property_properties(property_id: str) -> PropertiesResponse:
     """Get property properties - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
 @router.get("/entities/properties/{property_id}/sitelinks")
-async def get_property_sitelinks(property_id: str) -> Dict[str, Any]:
+async def get_property_sitelinks(property_id: str) -> SitelinksResponse:
     """Get property sitelinks - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
 @router.get("/entities/properties/{property_id}/labels")
-async def get_property_labels(property_id: str) -> Dict[str, Any]:
+async def get_property_labels(property_id: str) -> LabelsResponse:
     """Get property labels - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 
@@ -91,13 +91,13 @@ async def delete_property_label(
 )
 async def get_property_labels_with_fallback(
     property_id: str, language_code: str
-) -> Dict[str, Any]:
+) -> LabelsResponse:
     """Get property labels with language fallback - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 
 
 @router.get("/entities/properties/{property_id}/aliases")
-async def get_property_aliases(property_id: str) -> Dict[str, Any]:
+async def get_property_aliases(property_id: str) -> AliasesDict:
     """Get property aliases - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 
@@ -125,7 +125,7 @@ async def patch_property_aliases_for_language(
 
 
 @router.get("/entities/properties/{property_id}/descriptions")
-async def get_property_descriptions(property_id: str) -> Dict[str, Any]:
+async def get_property_descriptions(property_id: str) -> DescriptionsResponse:
     """Get property descriptions - stub"""
     raise HTTPException(status_code=501, detail="Not implemented")
 

@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
     """Parse entity from Wikidata JSON format."""
+    logger.debug("Parsing entity from raw data")
     # Handle nested structure {"entities": {"Q42": {...}}}
     metadata_dict = raw_entity_data
     if "entities" in metadata_dict:

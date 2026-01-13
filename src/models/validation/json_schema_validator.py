@@ -25,9 +25,9 @@ class JsonSchemaValidator:
         self.s3_revision_version = s3_revision_version
         self.s3_statement_version = s3_statement_version
         self.wmf_recentchange_version = wmf_recentchange_version
-        self._entity_revision_schema: dict[str, Any] | None = None
-        self._statement_schema: dict[str, Any] | None = None
-        self._recentchange_schema: dict[str, Any] | None = None
+        self._entity_revision_schema: JsonSchema | None = None
+        self._statement_schema: JsonSchema | None = None
+        self._recentchange_schema: JsonSchema | None = None
         self._entity_validator: Draft202012Validator | None = None
         self._statement_validator: Draft202012Validator | None = None
         self._recentchange_validator: Draft202012Validator | None = None
@@ -48,42 +48,42 @@ class JsonSchemaValidator:
                 )
             return JsonSchema(data=data)
 
-    def _get_entity_revision_schema(self) -> dict:
+    def _get_entity_revision_schema(self) -> JsonSchema:
         if self._entity_revision_schema is None:
             self._entity_revision_schema = self._load_schema(
                 "src/models/validation/schemas/entity_revision.json"
-            ).data
+            )
         return self._entity_revision_schema
 
-    def _get_statement_schema(self) -> dict:
+    def _get_statement_schema(self) -> JsonSchema:
         if self._statement_schema is None:
             self._statement_schema = self._load_schema(
                 "src/models/validation/schemas/statement.json"
-            ).data
+            )
         return self._statement_schema
 
-    def _get_recentchange_schema(self) -> dict:
+    def _get_recentchange_schema(self) -> JsonSchema:
         if self._recentchange_schema is None:
             self._recentchange_schema = self._load_schema(
                 "src/models/validation/schemas/recentchange.json"
-            ).data
+            )
         return self._recentchange_schema
 
     def _get_entity_validator(self) -> Draft202012Validator:
         if self._entity_validator is None:
-            schema = self._get_entity_revision_schema()
+            schema = self._get_entity_revision_schema().data
             self._entity_validator = Draft202012Validator(schema)
         return self._entity_validator
 
     def _get_statement_validator(self) -> Draft202012Validator:
         if self._statement_validator is None:
-            schema = self._get_statement_schema()
+            schema = self._get_statement_schema().data
             self._statement_validator = Draft202012Validator(schema)
         return self._statement_validator
 
     def _get_recentchange_validator(self) -> Draft202012Validator:
         if self._recentchange_validator is None:
-            schema = self._get_recentchange_schema()
+            schema = self._get_recentchange_schema().data
             self._recentchange_validator = Draft202012Validator(schema)
         return self._recentchange_validator
 

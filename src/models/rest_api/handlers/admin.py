@@ -61,6 +61,7 @@ class AdminHandler:
         - Entity has no revisions (NO_REVISIONS)
         - Requested revision doesn't exist (REVISION_NOT_FOUND)
         """
+        logger.debug(f"get_raw_revision called for entity {entity_id}, revision {revision_id}")
         if vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 

@@ -71,6 +71,30 @@ class AliasesDict(BaseModel):
     aliases: dict[str, list[str]] = Field(..., description="Aliases per language")
 
 
+class LabelsResponse(BaseModel):
+    """Response model for all entity labels."""
+
+    labels: dict[str, str] = Field(..., description="Labels per language")
+
+
+class DescriptionsResponse(BaseModel):
+    """Response model for all entity descriptions."""
+
+    descriptions: dict[str, str] = Field(..., description="Descriptions per language")
+
+
+class SitelinksResponse(BaseModel):
+    """Response model for all entity sitelinks."""
+
+    sitelinks: dict[str, str] = Field(..., description="Sitelinks per site")
+
+
+class PropertiesResponse(BaseModel):
+    """Response model for entity properties."""
+
+    properties: dict[str, Any] = Field(..., description="Entity properties")
+
+
 class MetadataContent(BaseModel):
     """Model for metadata content."""
 

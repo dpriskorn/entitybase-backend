@@ -42,6 +42,7 @@ class Datatype(str, Enum):
         Returns:
             Normalized datatype string
         """
+        logger.debug(f"Normalizing datatype from SPARQL: {datatype}")
         special_mappings = {
             "ExternalId": "external-id",
             "WikibaseExternalId": "external-id",

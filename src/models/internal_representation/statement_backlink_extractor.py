@@ -1,6 +1,9 @@
 """Extracts backlink information from Wikibase statements."""
 
+import logging
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 class StatementBacklinkExtractor:
@@ -13,6 +16,7 @@ class StatementBacklinkExtractor:
         Returns list of (referenced_entity_id, property_id, rank) tuples
         for all entity references in the statement.
         """
+        logger.debug("Extracting backlink data from statement")
         rank = statement.get("rank", "normal")
         snaks = []
 

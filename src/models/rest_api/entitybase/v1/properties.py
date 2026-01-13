@@ -1,10 +1,13 @@
 """Property endpoints for Entitybase v1 API."""
 
+import logging
 from typing import Dict, Any
 
 from fastapi import APIRouter, HTTPException, Request
 
 from ...handlers.entity.property.create import PropertyCreateHandler
+
+logger = logging.getLogger(__name__)
 from ...handlers.entity.read import EntityReadHandler
 from ...handlers.entity.update import EntityUpdateHandler
 from ...request import EntityUpdateRequest, EntityCreateRequest
@@ -93,6 +96,7 @@ async def patch_property_aliases_for_language(
     property_id: str, language_code: str, patch_data: Dict[str, Any], req: Request
 ) -> EntityResponse:
     """Patch property aliases for language using JSON Patch."""
+    logger.debug(f"Patching aliases for property {property_id}, language {language_code}")
     clients = req.app.state.clients
     validator = req.app.state.validator
 

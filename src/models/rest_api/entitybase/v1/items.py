@@ -1,5 +1,6 @@
 """Item creation endpoints for Entitybase v1 API."""
 
+import logging
 from typing import Dict, Any
 
 from fastapi import APIRouter, HTTPException, Request
@@ -18,6 +19,8 @@ from ...handlers.entity.property.update import PropertyUpdateHandler
 from ...handlers.entity.read import EntityReadHandler
 from ...handlers.entity.update import EntityUpdateHandler
 from ...handlers.entity.wikidata_import import EntityJsonImportHandler
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -325,6 +328,7 @@ async def patch_item_aliases_for_language(
     item_id: str, language_code: str, patch_data: Dict[str, Any], req: Request
 ) -> EntityResponse:
     """Patch item aliases for language using JSON Patch."""
+    logger.debug(f"Patching aliases for item {item_id}, language {language_code}")
     clients = req.app.state.clients
     validator = req.app.state.validator
 

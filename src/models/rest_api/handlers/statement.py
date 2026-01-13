@@ -161,6 +161,7 @@ class StatementHandler:
         Returns list of statement hashes for specified properties.
         Uses schema 1.2.0 architecture where statements are stored separately by hash.
         """
+        logger.debug(f"get_entity_property_hashes called for entity {entity_id}")
         if vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
