@@ -53,7 +53,7 @@ class EntityTransaction(BaseModel, ABC):
         s3_client: Any,
         stream_producer: Any,
         is_creation: bool,
-    ) -> Any:
+    ) -> EntityRevisionResponse:
         pass
 
     @abstractmethod

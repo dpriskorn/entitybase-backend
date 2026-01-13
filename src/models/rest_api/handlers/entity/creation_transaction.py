@@ -7,6 +7,7 @@ from typing import List, Callable, Any
 from pydantic import BaseModel, Field
 
 from models.rest_api.response import StatementHashResult
+from models.rest_api.response.entity.entitybase import EntityRevisionResponse
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ class EntityTransaction(BaseModel, ABC):
         s3_client: Any,
         stream_producer: Any,
         is_creation: bool,
-    ) -> Any:
+    ) -> EntityRevisionResponse:
         logger.debug(
             f"[CreationTransaction] Starting revision creation for {entity_id}"
         )
