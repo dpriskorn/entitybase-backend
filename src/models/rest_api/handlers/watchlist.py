@@ -9,6 +9,7 @@ from models.watchlist import (
     NotificationResponse,
     MarkCheckedRequest,
 )
+from models.rest_api.response.misc import WatchCounts
 from models.rest_api.response.user import MessageResponse
 
 
@@ -94,8 +95,8 @@ class WatchlistHandler:
         )
         return MessageResponse(message="Notification marked as checked")
 
-    def get_watch_counts(self, user_id: int, vitess_client: VitessClient) -> dict:
+    def get_watch_counts(self, user_id: int, vitess_client: VitessClient) -> WatchCounts:
         """Get user's watch counts."""
         entity_count = vitess_client.watchlist_repository.get_entity_watch_count(user_id)
         property_count = vitess_client.watchlist_repository.get_property_watch_count(user_id)
-        return {"entity_count": entity_count, "property_count": property_count}
+        return WatchCounts(entity_count=entity_count, property_count=property_count)

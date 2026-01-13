@@ -93,9 +93,9 @@ class AdminHandler:
         revision = s3_client.read_full_revision(entity_id, revision_id)
 
         # Type assertion to ensure MyPy compatibility
-        if not isinstance(revision, dict):
+        if not isinstance(revision.data, dict):
             raise_validation_error(
-                f"Invalid revision data type: expected dict, got {type(revision)}",
+                f"Invalid revision data type: expected dict, got {type(revision.data)}",
                 status_code=500,
             )
 

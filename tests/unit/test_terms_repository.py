@@ -1,6 +1,7 @@
 import unittest
 from unittest.mock import Mock, MagicMock
 from models.infrastructure.vitess.terms_repository import TermsRepository
+from models.rest_api.response.misc import TermsResponse
 
 
 class TestTermsRepository(unittest.TestCase):
@@ -67,10 +68,10 @@ class TestTermsRepository(unittest.TestCase):
 
         result = self.terms_repo.batch_get_terms([12345, 67890, 99999])
 
-        expected = {
+        expected = TermsResponse(terms={
             12345: ("term1", "label"),
             67890: ("term2", "alias"),
-        }
+        })
         self.assertEqual(result, expected)
         self.mock_cursor.execute.assert_called_once()
         call_args = self.mock_cursor.execute.call_args
@@ -80,8 +81,8 @@ class TestTermsRepository(unittest.TestCase):
     def test_batch_get_terms_empty(self) -> None:
         """Test batch getting with empty list"""
         result = self.terms_repo.batch_get_terms([])
-        self.assertEqual(result, {})
 
+        self.assertEqual(result, TermsResponse(terms={}))
     def test_hash_exists_true(self) -> None:
         """Test checking if hash exists - found"""
         self.mock_cursor.fetchone.return_value = (1,)

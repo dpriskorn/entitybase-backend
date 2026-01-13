@@ -2,6 +2,8 @@
 
 from typing import Any, Dict, List
 
+from models.rest_api.response.misc import TermsResponse
+
 
 class TermsRepository:
     """Repository for managing deduplicated terms (labels and aliases) in Vitess."""
@@ -33,10 +35,10 @@ class TermsRepository:
                 result = cursor.fetchone()
                 return (result[0], result[1]) if result else None
 
-    def batch_get_terms(self, hashes: List[int]) -> Dict[int, tuple[str, str]]:
+    def batch_get_terms(self, hashes: List[int]) -> TermsResponse:
         """Retrieve multiple terms by their hashes."""
         if not hashes:
-            return {}
+            return TermsResponse(terms={})
 
         with self.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:
@@ -47,7 +49,7 @@ class TermsRepository:
                     hashes,
                 )
                 results = cursor.fetchall()
-                return {row[0]: (row[1], row[2]) for row in results}
+                return TermsResponse(terms={row[0]: (row[1], row[2]) for row in results})
 
     def hash_exists(self, hash_value: int) -> bool:
         """Check if a hash exists in the terms table."""

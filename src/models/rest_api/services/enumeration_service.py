@@ -5,6 +5,7 @@ import logging
 from ...validation.utils import raise_validation_error
 from models.infrastructure.vitess_client import VitessClient
 from .id_range_manager import IdRangeManager
+from models.rest_api.response.misc import RangeStatuses
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ class EnumerationService:
         entity_prefix = type_mapping[entity_type]
         return self.range_manager.get_next_id(entity_prefix)
 
-    def get_range_status(self) -> dict:
+    def get_range_status(self) -> RangeStatuses:
         """Get status of ID ranges for monitoring."""
         return self.range_manager.get_range_status()
 

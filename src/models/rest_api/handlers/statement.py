@@ -46,10 +46,10 @@ class StatementHandler:
             statement_data = s3_client.read_statement(content_hash)
             logger.debug(f"Successfully retrieved statement {content_hash} from S3")
             return StatementResponse(
-                schema_version=statement_data["schema_version"],
+                schema_version=statement_data.schema_version,
                 content_hash=content_hash,
-                statement=statement_data["statement"],
-                created_at=statement_data["created_at"],
+                statement=statement_data.statement,
+                created_at=statement_data.created_at,
             )
         except Exception as e:
             logger.error(
@@ -84,10 +84,10 @@ class StatementHandler:
                 statement_data = s3_client.read_statement(content_hash)
                 statements.append(
                     StatementResponse(
-                        schema_version=statement_data["schema_version"],
+                        schema_version=statement_data.schema_version,
                         content_hash=content_hash,
-                        statement=statement_data["statement"],
-                        created_at=statement_data["created_at"],
+                        statement=statement_data.statement,
+                        created_at=statement_data.created_at,
                     )
                 )
             except ClientError:
@@ -123,7 +123,7 @@ class StatementHandler:
             )
 
         revision_metadata = s3_client.read_full_revision(entity_id, head_revision_id)
-        properties = revision_metadata.get("properties", [])
+        properties = revision_metadata.data.get("properties", [])
         return PropertyListResponse(properties=properties)
 
     def get_entity_property_counts(
@@ -144,7 +144,7 @@ class StatementHandler:
             raise_validation_error("Entity has no revisions", status_code=404)
 
         revision_metadata = s3_client.read_full_revision(entity_id, head_revision_id)
-        property_counts = revision_metadata.get("property_counts", {})
+        property_counts = revision_metadata.data.get("property_counts", {})
         return PropertyCountsResponse(property_counts=property_counts)
 
     def get_entity_property_hashes(
@@ -177,7 +177,7 @@ class StatementHandler:
         requested_property_ids = [
             p.strip() for p in property_list.split(",") if p.strip()
         ]
-        statement_hashes = revision_metadata.get("statements", [])
+        statement_hashes = revision_metadata.data.get("statements", [])
 
         matching_hashes = []
 
@@ -185,7 +185,7 @@ class StatementHandler:
             try:
                 statement_data = s3_client.read_statement(statement_hash)
 
-                property_id = statement_data["statement"]["mainsnak"]["property"]
+                property_id = statement_data.statement["mainsnak"]["property"]
 
                 if property_id in requested_property_ids:
                     matching_hashes.append(statement_hash)

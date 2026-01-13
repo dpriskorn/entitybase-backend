@@ -2,7 +2,7 @@
 
 import asyncio
 import logging
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, AsyncContextManager
 from datetime import datetime, timedelta
 
 from models.config.settings import settings
@@ -20,7 +20,7 @@ class NotificationCleanupWorker:
         self.max_per_user = 500
 
     @asynccontextmanager
-    async def lifespan(self):
+    async def lifespan(self) -> AsyncContextManager[None]:
         """Lifespan context manager for startup/shutdown."""
         try:
             # Initialize client

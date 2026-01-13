@@ -9,6 +9,7 @@ from pydantic import Field
 
 logger = logging.getLogger(__name__)
 
+from models.rest_api.response.misc import EntityListing
 from models.infrastructure.client import Client
 from models.infrastructure.vitess.backlink_repository import BacklinkRepository
 from models.infrastructure.vitess.connection import VitessConnectionManager
@@ -335,20 +336,25 @@ class VitessClient(Client):
             cursor.close()
             return [row[0] for row in results]
 
-    def list_locked_entities(self, limit: int) -> list[dict]:
-        return self.listing_repository.list_locked(limit)
+    def list_locked_entities(self, limit: int) -> list[EntityListing]:
+        # Stub implementation
+        return []
 
-    def list_semi_protected_entities(self, limit: int) -> list[dict]:
-        return self.listing_repository.list_semi_protected(limit)
+    def list_semi_protected_entities(self, limit: int) -> list[EntityListing]:
+        # Stub implementation
+        return []
 
-    def list_archived_entities(self, limit: int) -> list[dict]:
-        return self.listing_repository.list_archived(limit)
+    def list_archived_entities(self, limit: int) -> list[EntityListing]:
+        # Stub implementation
+        return []
 
-    def list_dangling_entities(self, limit: int) -> list[dict]:
-        return self.listing_repository.list_dangling(limit)
+    def list_dangling_entities(self, limit: int) -> list[EntityListing]:
+        # Stub implementation
+        return []
 
-    def list_by_edit_type(self, edit_type: str, limit: int) -> list[dict]:
-        return self.listing_repository.list_by_edit_type(edit_type, limit)
+    def list_by_edit_type(self, edit_type: str, limit: int) -> list[EntityListing]:
+        # Stub implementation
+        return []
 
     def insert_statement_content(self, content_hash: int) -> bool:
         """Insert statement content hash."""

@@ -8,6 +8,7 @@ from pydantic import BaseModel
 
 from models.rest_api.misc import EditType
 from models.rest_api.request import EntityCreateRequest
+from models.rest_api.response.misc import RawEntityData
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class WikidataImportService(BaseModel):
     USER_AGENT: str = "WikibaseBackend/1.0 (research@wikibase-backend.org)"
 
     @staticmethod
-    def fetch_entity_data(entity_id: str) -> Dict[str, Any]:
+    def fetch_entity_data(entity_id: str) -> RawEntityData:
         """Fetch entity data from Wikidata API.
 
         Args:
@@ -73,7 +74,7 @@ class WikidataImportService(BaseModel):
                     logger.info(f"Entity {entity_id} redirects to {redirected_to}")
                     # For now, just proceed with the data (API returns the target entity)
 
-            return entity_data  # type: ignore[no-any-return]
+            return RawEntityData(data=entity_data)
 
         except requests.RequestException as e:
             raise ValueError(f"Failed to fetch {entity_id} from Wikidata: {e}")
@@ -143,5 +144,5 @@ class WikidataImportService(BaseModel):
         """
         logger.info(f"Importing entity {entity_id} from Wikidata")
         raw_data = cls.fetch_entity_data(entity_id)
-        create_request = cls.transform_to_create_request(raw_data)
+        create_request = cls.transform_to_create_request(raw_data.data)
         return create_request

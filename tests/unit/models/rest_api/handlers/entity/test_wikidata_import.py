@@ -182,8 +182,8 @@ class TestWikidataImportService:
 
         result = WikidataImportService.fetch_entity_data("Q123")
 
-        assert result["type"] == "item"
-        assert result["id"] == "Q123"
+        assert result.data["type"] == "item"
+        assert result.data["id"] == "Q123"
         mock_get.assert_called_once()
 
     @patch("models.services.wikidata_import_service.requests.get")

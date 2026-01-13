@@ -32,7 +32,7 @@ from models.rest_api.request.entity import (
 from models.rest_api.request.user import UserCreateRequest, WatchlistToggleRequest
 from models.rest_api.response.entity import EntityRevertResponse
 from models.rest_api.response.health import HealthCheckResponse
-from models.rest_api.response.misc import RawRevisionResponse, RevisionMetadataResponse
+from models.rest_api.response.misc import RawRevisionResponse, RevisionMetadataResponse, WatchCounts
 from models.rest_api.response.misc import TtlResponse
 from models.rest_api.response.statement import (
     PropertyCountsResponse,
@@ -248,7 +248,7 @@ def get_watchlist(
 @app.get("/v1/watchlist/counts")
 def get_watch_counts(
     user_id: int = Query(..., description="MediaWiki user ID"),
-) -> dict:
+) -> WatchCounts:
     """Get user's watch counts."""
     clients = app.state.clients
     handler = WatchlistHandler()

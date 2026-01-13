@@ -159,7 +159,7 @@ class RedirectService:
         new_revision_id = head_revision_id + 1 if head_revision_id else 1
 
         target_revision = self.s3.read_full_revision(entity_id, revert_to_revision_id)
-        target_data = target_revision
+        target_data = target_revision.data
 
         new_revision_data = {
             "schema_version": "1.1.0",

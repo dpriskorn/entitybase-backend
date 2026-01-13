@@ -7,13 +7,13 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 # Add src to path for imports
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
-from models.workers.dev.dev_worker import DevWorker
+from models.workers.dev.create_buckets import CreateBuckets
 
 
 def setup_logging() -> None:
@@ -26,7 +26,7 @@ def setup_logging() -> None:
 
 async def run_setup(args: Any) -> bool:
     """Run the setup command."""
-    worker = DevWorker(
+    worker = CreateBuckets(
         minio_endpoint=args.endpoint,
         minio_access_key=args.access_key,
         minio_secret_key=args.secret_key,
@@ -46,12 +46,12 @@ async def run_setup(args: Any) -> bool:
         for issue in results["health_check"]["issues"]:
             print(f"  - {issue}")
 
-    return results["setup_status"] == "completed"
+    return cast(str, results["setup_status"]) == "completed"
 
 
 async def run_health_check(args: Any) -> Any:
     """Run the health check command."""
-    worker = DevWorker(
+    worker = CreateBuckets(
         minio_endpoint=args.endpoint,
         minio_access_key=args.access_key,
         minio_secret_key=args.secret_key,
@@ -82,7 +82,7 @@ async def run_cleanup(args: Any) -> bool:
             print("Cleanup cancelled.")
             return False
 
-    worker = DevWorker(
+    worker = CreateBuckets(
         minio_endpoint=args.endpoint,
         minio_access_key=args.access_key,
         minio_secret_key=args.secret_key,

@@ -76,3 +76,9 @@ class PropertyCounts(BaseModel):
     counts: dict[str, int] = Field(
         description="Dictionary mapping property ID to statement count"
     )
+
+
+class StatementsResponse(BaseModel):
+    """Response model for statements."""
+
+    statements: dict[str, Any] = Field(..., description="Statements data")

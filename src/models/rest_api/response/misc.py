@@ -95,6 +95,55 @@ class PropertiesResponse(BaseModel):
     properties: dict[str, Any] = Field(..., description="Entity properties")
 
 
+class EntitiesResponse(BaseModel):
+    """Response model for entities search."""
+
+    entities: dict[str, Any] = Field(..., description="Entities data")
+
+
+class RawEntityData(BaseModel):
+    """Model for raw entity data from external APIs."""
+
+    data: dict[str, Any] = Field(..., description="Raw entity data")
+
+
+class WatchCounts(BaseModel):
+    """Model for user watch counts."""
+
+    entity_count: int = Field(..., description="Number of entities watched")
+    property_count: int = Field(..., description="Number of properties watched")
+
+
+class RangeStatus(BaseModel):
+    """Model for ID range status."""
+
+    current_start: int = Field(..., description="Current range start ID")
+    current_end: int = Field(..., description="Current range end ID")
+    next_id: int = Field(..., description="Next available ID")
+    ids_used: int = Field(..., description="Number of IDs used")
+    utilization: float = Field(..., description="Utilization percentage")
+
+
+class RangeStatuses(BaseModel):
+    """Model for all ID range statuses."""
+
+    ranges: dict[str, RangeStatus] = Field(..., description="Range statuses by entity type")
+
+
+class TermsResponse(BaseModel):
+    """Model for batch terms result."""
+
+    terms: dict[int, tuple[str, str]] = Field(..., description="Terms by hash")
+
+
+class EntityListing(BaseModel):
+    """Model for entity listing entries."""
+
+    entity_id: str = Field(..., description="Entity ID")
+    entity_type: str = Field(..., description="Entity type (Q, P, etc.)")
+    reason: str | None = Field(None, description="Reason for listing")
+
+
 class MetadataContent(BaseModel):
     """Model for metadata content."""
 

@@ -161,15 +161,17 @@ async def main() -> None:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
+    logger = logging.getLogger(__name__)
+
     worker = WatchlistConsumerWorker()
 
     async with worker.lifespan():
         if worker.consumer:
-            self.logger.info("Starting message consumption loop")
+            logger.info("Starting message consumption loop")
             async for message in worker.consumer.consume():
                 await worker.process_message(message)
         else:
-            self.logger.warning("No consumer available, exiting")
+            logger.warning("No consumer available, exiting")
 
 
 if __name__ == "__main__":

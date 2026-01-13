@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from models.validation.utils import raise_validation_error
 from models.infrastructure.vitess_client import VitessClient
+from models.rest_api.response.misc import RangeStatus, RangeStatuses
 
 logger = logging.getLogger(__name__)
 
@@ -189,20 +190,20 @@ class IdRangeManager:
             logger.error(f"Failed to initialize ranges from database: {e}")
             raise
 
-    def get_range_status(self) -> Dict[str, Dict[str, Any]]:
+    def get_range_status(self) -> RangeStatuses:
         """Get status of all local ranges for monitoring."""
-        status = {}
+        ranges = {}
         for entity_type, range_obj in self._local_ranges.items():
             ids_used = range_obj.next_id - range_obj.current_start
             total_ids = range_obj.current_end - range_obj.current_start + 1
             utilization = ids_used / total_ids if total_ids > 0 else 0
 
-            status[entity_type] = {
-                "current_start": range_obj.current_start,
-                "current_end": range_obj.current_end,
-                "next_id": range_obj.next_id,
-                "ids_used": ids_used,
-                "utilization": round(utilization * 100, 2),
-            }
+            ranges[entity_type] = RangeStatus(
+                current_start=range_obj.current_start,
+                current_end=range_obj.current_end,
+                next_id=range_obj.next_id,
+                ids_used=ids_used,
+                utilization=round(utilization * 100, 2),
+            )
 
-        return status
+        return RangeStatuses(ranges=ranges)
