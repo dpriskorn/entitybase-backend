@@ -4,9 +4,9 @@ set -e
 # == custom internal linters ==
 #./scripts/linters/custom_docstring_linter.py
 #./scripts/linters/basemodel_linter.py
- ./run-str-lint.sh
- ./run-int-lint.sh
- ./scripts/linters/dict_return_linter.py
+./run-str-lint.sh
+./run-int-lint.sh
+./scripts/linters/dict_return_linter.py
 ./scripts/linters/value_error_linter.py
 ./run-response-model-lint.sh
 ./run-logger-lint.sh

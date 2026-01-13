@@ -3,7 +3,7 @@ set -Eeuo pipefail
 
 source .venv/bin/activate
 
-echo "Checking for Optional[int] = Field(default=None) instead of int = Field(default=0)..."
+echo "Checking for Optional[int] = Field(default=None)"
 
 python scripts/linters/check_int_fields.py src/
 

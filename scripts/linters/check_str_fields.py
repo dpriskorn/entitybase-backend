@@ -53,12 +53,13 @@ def main() -> None:
             violations.extend(check_file(py_file))
 
     if violations:
-        print("str | None = Field(default=None) violations:")
+        # print("str | None = Field(default=None) violations:")
         for file_path, line_no, message in violations:
             print(f"{file_path}:{line_no}: {message}")
         sys.exit(1)
     else:
-        print("No str | None = Field(default=None) violations found")
+        pass
+        # print("No str | None = Field(default=None) violations found")
 
 
 if __name__ == "__main__":
