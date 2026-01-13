@@ -3,3 +3,8 @@ src/models/rdf_builder/redirect_cache.py:100
 src/models/rdf_builder/entity_cache.py:97
 src/models/rdf_builder/entity_cache.py:110
 src/models/rdf_builder/entity_cache.py:115
+src/models/services/wikidata_import_service.py:52
+src/models/services/wikidata_import_service.py:84
+src/models/services/wikidata_import_service.py:89
+src/models/validation/json_schema_validator.py:89
+src/models/validation/json_schema_validator.py:105
