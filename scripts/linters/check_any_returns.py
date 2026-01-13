@@ -16,7 +16,7 @@ class AnyReturnChecker(ast.NodeVisitor):
         self.source_lines = source_lines
         self.file_path = file_path
         self.allowlist = allowlist
-        self.violations: List[Tuple[str, int, str]] = []
+        self.violations: List[Tuple[str, int, str, str]] = []
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         self._check_function(node)
@@ -38,6 +38,7 @@ class AnyReturnChecker(ast.NodeVisitor):
                             func_name,
                             node.lineno,
                             f"Function '{func_name}' returns -> {return_annotation}, consider using a Pydantic model instead",
+                            str(self.file_path),
                         )
                     )
 
@@ -52,7 +53,7 @@ class AnyReturnChecker(ast.NodeVisitor):
         return annotation == "Any"
 
 
-def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str]]:
+def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str, str]]:
     """Check a single Python file."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -67,9 +68,9 @@ def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str]]:
         return checker.violations
 
     except SyntaxError:
-        return [(str(file_path), 0, f"Syntax error in {file_path}")]
+        return [(str(file_path), 0, f"Syntax error in {file_path}", str(file_path))]
     except Exception as e:
-        return [(str(file_path), 0, f"Error processing {file_path}: {e}")]
+        return [(str(file_path), 0, f"Error processing {file_path}: {e}", str(file_path))]
 
 
 def load_allowlist() -> set:
@@ -115,8 +116,8 @@ def main() -> None:
 
     if violations:
         print("Any return violations:")
-        for func_name, line_no, message in violations:
-            print(f"{message} at line {line_no}")
+        for func_name, line_no, message, file_path in violations:
+            print(f"{file_path}:{message} at line {line_no}")
         sys.exit(1)
     else:
         print("No Any return violations found")
