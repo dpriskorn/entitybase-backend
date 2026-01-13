@@ -1,5 +1,6 @@
 """Handler for user operations."""
 
+from models.infrastructure.vitess_client import VitessClient
 from models.validation.utils import raise_validation_error
 from models.rest_api.request.user import UserCreateRequest, WatchlistToggleRequest
 from models.rest_api.response.user import UserCreateResponse, WatchlistToggleResponse
@@ -10,7 +11,7 @@ class UserHandler:
     """Handler for user-related operations."""
 
     def create_user(
-        self, request: UserCreateRequest, vitess_client
+        self, request: UserCreateRequest, vitess_client: VitessClient
     ) -> UserCreateResponse:
         """Create/register a user."""
         # Check if user already exists
@@ -22,7 +23,7 @@ class UserHandler:
             created = False
         return UserCreateResponse(user_id=request.user_id, created=created)
 
-    def get_user(self, user_id: int, vitess_client) -> User:
+    def get_user(self, user_id: int, vitess_client: VitessClient) -> User:
         """Get user by ID."""
         user = vitess_client.user_repository.get_user(user_id)
         if user is None:
@@ -30,7 +31,7 @@ class UserHandler:
         return user
 
     def toggle_watchlist(
-        self, user_id: int, request: WatchlistToggleRequest, vitess_client
+        self, user_id: int, request: WatchlistToggleRequest, vitess_client: VitessClient
     ) -> WatchlistToggleResponse:
         """Enable or disable watchlist for user."""
         # Check if user exists

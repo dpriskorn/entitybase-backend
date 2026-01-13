@@ -1,5 +1,6 @@
 """Handler for user activity operations."""
 
+from models.infrastructure.vitess_client import VitessClient
 from models.validation.utils import raise_validation_error
 from models.user_activity import ActivityType, UserActivityItem
 from models.rest_api.request.user_activity import UserActivityRequest
@@ -12,7 +13,7 @@ class UserActivityHandler:
     def get_user_activities(
         self,
         user_id: int,
-        vitess_client,
+        vitess_client: VitessClient,
         activity_type: str | None = None,
         hours: int = 24,
         limit: int = 50,
