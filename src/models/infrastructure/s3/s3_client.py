@@ -436,7 +436,7 @@ class S3Client(Client):
             )
             term = response["Body"].read().decode("utf-8")
             logger.debug(f"S3 load_term_metadata: bucket={bucket}, key={key}")
-            return term
+            return term  # type: ignore[no-any-return]
         except ClientError as e:
             if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
                 logger.warning(f"S3 term not found: bucket={bucket}, key={key}")
@@ -501,7 +501,7 @@ class S3Client(Client):
             )
             title = response["Body"].read().decode("utf-8")
             logger.debug(f"S3 load_sitelink_metadata: bucket={bucket}, key={key}")
-            return title
+            return title  # type: ignore[no-any-return]
         except ClientError as e:
             if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
                 logger.warning(f"S3 sitelink not found: bucket={bucket}, key={key}")

@@ -10,7 +10,7 @@ from ...handlers.entity.lexeme.create import LexemeCreateHandler
 logger = logging.getLogger(__name__)
 from ...handlers.entity.read import EntityReadHandler
 from ...handlers.entity.update import EntityUpdateHandler
-from ...request import EntityCreateRequest, EntityUpdateRequest
+from ...request import EntityCreateRequest, EntityCreateRequest
 from ...response import EntityResponse
 from ...response.misc import AliasesResponse, DescriptionResponse, LabelResponse
 
@@ -155,7 +155,7 @@ async def patch_lexeme_aliases_for_language(
 
     # Create new revision
     update_handler = EntityUpdateHandler()
-    update_request = EntityUpdateRequest(
+    update_request = EntityCreateRequest(
         type=current_entity.data.get("type"), **current_entity.data
     )
 

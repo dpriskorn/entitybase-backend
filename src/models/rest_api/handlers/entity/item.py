@@ -74,8 +74,8 @@ class ItemCreateHandler(EntityCreateHandler):
                 is_archived=request.is_archived,
                 is_dangling=request.is_dangling,
                 is_mass_edit_protected=request.is_mass_edit_protected,
-                vitess_client=clients.vitess,
-                s3_client=clients.s3,
+                vitess_client=vitess_client,
+                s3_client=s3_client,
                 stream_producer=stream_producer,
                 is_creation=True,
             )
