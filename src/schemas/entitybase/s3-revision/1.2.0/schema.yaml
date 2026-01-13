@@ -1,0 +1,145 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://wikibase.org/schemas/s3-revision/2.0.0.json
+title: S3 Revision Snapshot with Term Deduplication
+description: Immutable entity revision snapshot stored in S3 with per-language term
+  deduplication
+type: object
+required:
+- schema_version
+- revision_id
+- created_at
+- created_by
+- entity_type
+- entity
+properties:
+  schema_version:
+    type: string
+    pattern: ^\d+\.\d+\.\d+$
+  revision_id:
+    type: integer
+    minimum: 0
+  created_at:
+    type: string
+    format: date-time
+  created_by:
+    type: string
+  entity_type:
+    type: string
+    enum:
+    - item
+    - property
+    - lexeme
+  redirects_to:
+    type:
+    - 'null'
+    - string
+    pattern: ^[A-Z]\d+$
+    description: If this entity is a redirect, target entity ID it points to (e.g.,
+      'Q42')
+  content_hash:
+    type: integer
+    description: Rapidhash integer of entity data for deduplication
+  edit_type:
+    type: string
+    description: Text classification of edit type (e.g., 'bot-import', 'cleanup-2025',
+      'redirect-create', 'redirect-revert')
+  is_semi_protected:
+    type: boolean
+    default: false
+  is_locked:
+    type: boolean
+    default: false
+  is_archived:
+    type: boolean
+    default: false
+  is_dangling:
+    type: boolean
+    default: false
+  is_mass_edit_protected:
+    type: boolean
+    default: false
+  deleted:
+    type: boolean
+    default: false
+  deletion_reason:
+    type: string
+  deleted_at:
+    type: string
+    format: date-time
+  deleted_by:
+    type: string
+  labels_hashes:
+    type: object
+    description: Per-language hashes for individual label strings
+    patternProperties:
+      ^[a-z-]+$:
+        type: integer
+  descriptions_hashes:
+    type: object
+    description: Per-language hashes for individual description strings
+    patternProperties:
+      ^[a-z-]+$:
+        type: integer
+  aliases_hashes:
+    type: object
+    description: Per-language arrays of hashes for individual alias strings
+    patternProperties:
+      ^[a-z-]+$:
+        type: array
+        items:
+          type: integer
+  entity:
+    type: object
+    description: Complete entity content snapshot (without terms)
+    required:
+    - id
+    - type
+    properties:
+      id:
+        type: string
+        pattern: ^[A-Z]\d+$
+      type:
+        type: string
+      claims:
+        type: object
+        patternProperties:
+          ^[A-Z]\d+$:
+            type: array
+            items:
+              type: object
+              required:
+              - mainsnak
+              - type
+              - id
+              - rank
+              properties:
+                mainsnak:
+                  type: object
+                type:
+                  type: string
+                id:
+                  type: string
+                rank:
+                  type: string
+                  enum:
+                  - preferred
+                  - normal
+                  - deprecated
+                qualifiers:
+                  type: object
+                qualifiers-order:
+                  type: array
+                  items:
+                    type: string
+                references:
+                  type: array
+                  items:
+                    type: object
+      sitelinks:
+        type: object
+        patternProperties:
+          ^[a-z-]+$:
+            type: object
+            required:
+            - site
+            - title
