@@ -17,8 +17,8 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                 # Skip comments and empty lines
                 if not stripped or stripped.startswith("#"):
                     continue
-                # Look for data: (field definitions)
-                if "data:" in line:
+                # Look for data: in variable/field definitions (not in strings or comments)
+                if "data:" in line and not ('"' in line or "'" in line or "f\"" in line or "f'" in line):
                     violations.append(
                         (
                             str(file_path),
