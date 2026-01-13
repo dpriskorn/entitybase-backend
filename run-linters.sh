@@ -10,7 +10,7 @@ set -e
 ./run-response-model-lint.sh
 ./run-logger-lint.sh
 ./run-long-files-lint.sh
-./run-dict-return-lint.sh
+./run-dict-lint.sh
 ./run-pydantic-field-lint.sh
 ./run-any-lint.sh
 ./run-cast-lint.sh
