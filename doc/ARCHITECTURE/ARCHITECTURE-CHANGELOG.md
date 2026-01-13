@@ -2,6 +2,31 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-13] S3 Schema Updates for Full Deduplication
+
+### Summary
+
+Updated S3 revision schema to v2.1.0 with full deduplication, storing terms, sitelinks, and statements as external hashes. Terms and sitelinks metadata stored as plain UTF-8 text for efficiency.
+
+### Motivation
+
+- **Storage Efficiency**: Reduce revision size by ~90% through external deduplication.
+- **Scalability**: Support trillion-scale storage with minimal overhead.
+- **Consistency**: Align all metadata (terms, sitelinks, statements) under hash-based deduplication.
+
+### Changes
+
+#### Schema Updates
+- Bumped S3 revision schema to v2.1.0 with `sitelinks_hashes` and `statements_hashes`.
+- Removed inline claims/terms/sitelinks from entity; added minimal entity (id/type only).
+- Stored terms/sitelinks as plain UTF-8 text in S3 (no JSON/schemas).
+- Updated docs and READMEs to reflect hash-based responses.
+
+#### Storage Changes
+- Terms: Plain text in `wikibase-terms/{lang}:{hash}`.
+- Sitelinks: Plain text in `wikibase-sitelinks/{hash}`.
+- Revisions: Hashes in `wikibase-revisions/{entity_id}/{revision_id}`.
+
 ## [2026-01-13] Sitelinks Deduplication, Endpoints, and Batch API
 
 ### Summary
