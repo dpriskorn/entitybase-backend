@@ -46,7 +46,7 @@ async def run_setup(args: Any) -> bool:
         for issue in results["health_check"]["issues"]:
             print(f"  - {issue}")
 
-    return results["setup_status"] == "completed"
+    return str(results["setup_status"]) == "completed"
 
 
 async def run_health_check(args: Any) -> Any:

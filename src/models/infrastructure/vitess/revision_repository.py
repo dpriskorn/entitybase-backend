@@ -171,7 +171,7 @@ class RevisionRepository:
                     revision_id=new_revision_id,
                 )
 
-        return new_revision_id
+        return int(new_revision_id)
 
     def get_history(
         self, conn: Any, entity_id: str, limit: int = 20, offset: int = 0

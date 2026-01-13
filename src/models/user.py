@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class User(BaseModel):
@@ -11,4 +11,4 @@ class User(BaseModel):
 
     user_id: int
     created_at: datetime
-    preferences: dict | None = None
+    preferences: dict | None = Field(default=None)

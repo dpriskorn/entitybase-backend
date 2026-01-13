@@ -10,7 +10,7 @@ class WatchlistEntry(BaseModel):
 
     user_id: int
     internal_entity_id: int
-    watched_properties: List[str] | None = None
+    watched_properties: List[str] | None = Field(default=None)
 
 
 class WatchlistAddRequest(BaseModel):
@@ -35,7 +35,7 @@ class WatchlistRemoveRequest(BaseModel):
 
     user_id: int
     entity_id: str
-    properties: List[str] | None = None
+    properties: List[str] | None = Field(default=None)
 
 
 class Notification(BaseModel):

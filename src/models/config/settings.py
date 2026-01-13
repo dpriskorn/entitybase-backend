@@ -6,6 +6,8 @@ from typing import Any
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from models.infrastructure.s3.s3_client import S3Config
+
 
 class Settings(BaseSettings):
     """Application settings with environment variable support."""

@@ -4,7 +4,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ActivityType(str, Enum):
@@ -27,8 +27,8 @@ class UserActivityItem(BaseModel):
     id: int
     user_id: int
     activity_type: ActivityType
-    entity_id: Optional[str] = None
-    revision_id: Optional[int] = None
+    entity_id: Optional[str] = Field(default=None)
+    revision_id: Optional[int] = Field(default=None)
     created_at: datetime
 
 
@@ -38,6 +38,6 @@ class UserActivity(BaseModel):
     id: int
     user_id: int
     activity_type: ActivityType
-    entity_id: Optional[str] = None
-    revision_id: Optional[int] = None
+    entity_id: Optional[str] = Field(default=None)
+    revision_id: Optional[int] = Field(default=None)
     created_at: datetime

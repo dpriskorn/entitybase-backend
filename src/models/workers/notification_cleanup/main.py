@@ -19,7 +19,7 @@ class NotificationCleanupWorker:
         self.max_age_days = 30
         self.max_per_user = 500
 
-    @asynccontextmanager
+    @asynccontextmanager  # type: ignore[no-untyped-def]
     async def lifespan(self):
         """Lifespan context manager for startup/shutdown."""
         try:
@@ -71,7 +71,7 @@ class NotificationCleanupWorker:
                     "DELETE FROM user_notifications WHERE event_timestamp < %s",
                     (cutoff_date.isoformat() + "Z",),
                 )
-                return cursor.rowcount
+                return int(cursor.rowcount)
 
     def _enforce_user_limits(self) -> int:
         """For each user with > max_per_user notifications, keep only the latest max_per_user."""

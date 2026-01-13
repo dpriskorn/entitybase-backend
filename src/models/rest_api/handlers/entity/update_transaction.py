@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class EntityTransaction(BaseModel, ABC):
     """Base class for entity transactions with shared rollback logic."""
 
-    entity_id: Optional[str] = None
+    entity_id: Optional[str] = Field(default=None)
     operations: List[Callable[[], None]] = Field(default_factory=list)
     statement_hashes: List[int] = Field(default_factory=list)
 

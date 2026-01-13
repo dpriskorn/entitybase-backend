@@ -2,7 +2,7 @@
 
 import logging
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
@@ -12,13 +12,13 @@ class PropertyPredicates(BaseModel):
     statement: str
     qualifier: str
     reference: str
-    value_node: str | None = None
-    qualifier_value: str | None = None
-    reference_value: str | None = None
-    statement_normalized: str | None = None
-    qualifier_normalized: str | None = None
-    reference_normalized: str | None = None
-    direct_normalized: str | None = None
+    value_node: str = Field(default="")
+    qualifier_value: str = Field(default="")
+    reference_value: str = Field(default="")
+    statement_normalized: str = Field(default="")
+    qualifier_normalized: str = Field(default="")
+    reference_normalized: str = Field(default="")
+    direct_normalized: str = Field(default="")
 
     model_config = ConfigDict(frozen=True)
 

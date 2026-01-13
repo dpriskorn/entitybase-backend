@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
@@ -24,10 +24,10 @@ class Clients(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    s3: S3Client | None = None
-    vitess: VitessClient | None = None
-    property_registry: PropertyRegistry | None = None
-    stream_producer: StreamProducerClient | None = None
+    s3: S3Client | None = Field(default=None)
+    vitess: VitessClient | None = Field(default=None)
+    property_registry: PropertyRegistry | None = Field(default=None)
+    stream_producer: StreamProducerClient | None = Field(default=None)
 
     def __init__(
         self,
