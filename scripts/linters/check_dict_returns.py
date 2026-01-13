@@ -15,6 +15,8 @@ ALLOWED_DICT_RETURNS = [
     "get_batch_descriptions",
     "get_batch_aliases",
     "get_batch_statements",
+    "load_metadata",
+    "batch_get_statements",
 ]
 
 

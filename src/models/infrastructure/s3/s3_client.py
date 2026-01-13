@@ -379,7 +379,7 @@ class S3Client(Client):
             )
             return ""
 
-    def load_metadata(self, metadata_type: str, content_hash: int) -> Any:
+    def load_metadata(self, metadata_type: str, content_hash: int) -> Dict[str, Any]:
         """Load metadata content from S3."""
         key = f"metadata/{metadata_type}/{content_hash}.json"
         try:
@@ -412,7 +412,7 @@ class S3Client(Client):
                 f"S3 delete_metadata failed: bucket={self.config.bucket}, key={key}, error={e}"
             )
 
-    async def batch_get_statements(self, content_hashes: list[int]) -> Any:
+    async def batch_get_statements(self, content_hashes: list[int]) -> Dict[int, StatementResponse]:
         """Batch read multiple statements from S3.
 
         Args:
