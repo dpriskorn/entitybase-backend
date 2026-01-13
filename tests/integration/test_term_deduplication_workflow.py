@@ -220,6 +220,74 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         self.assertNotIn("claims", parsed["entity"])
         self.assertIsInstance(parsed["aliases_hashes"]["en"], list)
 
+    @patch('src.models.infrastructure.s3.s3_client.boto3')
+    def test_sitelink_plain_text_storage(self, mock_boto3):
+        """Test that sitelinks are stored as plain UTF-8 text in S3"""
+        from models.infrastructure.s3.s3_client import S3Client
+        from models.infrastructure.s3.connection import S3ConnectionManager
+
+        # Mock S3 connection
+        mock_client = MagicMock()
+        mock_connection_manager = MagicMock()
+        mock_connection_manager.boto_client = mock_client
+
+        # Create S3 client
+        s3_client = S3Client(
+            config=MagicMock(),
+            connection_manager=mock_connection_manager
+        )
+
+        # Test storing sitelink metadata
+        title = "Main Page"
+        wiki_id = "enwiki"
+        content_hash = 123456789
+
+        s3_client.store_sitelink_metadata(title, wiki_id, content_hash)
+
+        # Verify put_object was called with plain text
+        mock_client.put_object.assert_called_once()
+        call_args = mock_client.put_object.call_args
+        self.assertEqual(call_args[1]['Bucket'], 'wikibase-sitelinks')
+        self.assertEqual(call_args[1]['Key'], str(content_hash))
+        self.assertEqual(call_args[1]['Body'], title.encode('utf-8'))
+        self.assertEqual(call_args[1]['ContentType'], 'text/plain')
+        self.assertEqual(call_args[1]['Metadata']['content_hash'], str(content_hash))
+
+    @patch('src.models.infrastructure.s3.s3_client.boto3')
+    def test_sitelink_plain_text_loading(self, mock_boto3):
+        """Test that sitelinks are loaded as plain UTF-8 text from S3"""
+        from models.infrastructure.s3.s3_client import S3Client
+        from models.infrastructure.s3.connection import S3ConnectionManager
+
+        # Mock S3 connection
+        mock_client = MagicMock()
+        mock_connection_manager = MagicMock()
+        mock_connection_manager.boto_client = mock_client
+
+        # Mock response
+        mock_response = {'Body': MagicMock()}
+        mock_response['Body'].read.return_value = b'Main Page'
+        mock_client.get_object.return_value = mock_response
+
+        # Create S3 client
+        s3_client = S3Client(
+            config=MagicMock(),
+            connection_manager=mock_connection_manager
+        )
+
+        # Test loading sitelink metadata
+        content_hash = 123456789
+        result = s3_client.load_sitelink_metadata(content_hash)
+
+        # Verify get_object was called correctly
+        mock_client.get_object.assert_called_once_with(
+            Bucket='wikibase-sitelinks',
+            Key=str(content_hash)
+        )
+
+        # Verify result is decoded string
+        self.assertEqual(result, 'Main Page')
+
 
 if __name__ == "__main__":
     unittest.main()
