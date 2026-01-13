@@ -1,15 +1,16 @@
 #!/bin/bash
 set -e
 
-# custom internal linters
+# == custom internal linters ==
 #./scripts/linters/custom_docstring_linter.py
 #./scripts/linters/basemodel_linter.py
 ./scripts/linters/dict_return_linter.py
  ./scripts/linters/value_error_linter.py
  ./run-response-model-lint.sh
  ./run-logger-lint.sh
+ ./run-long-files-lint.sh
 
-# external linters
+# == external linters ==
 ./run-ruff.sh
 ./run-mypy.sh
 ./run-vulture.sh

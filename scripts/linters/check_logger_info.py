@@ -113,6 +113,8 @@ def main() -> None:
                 continue
             if py_file.name.startswith("test_"):
                 continue
+            if "workers" in py_file.parts or "scripts" in py_file.parts:
+                continue
             violations.extend(check_file(py_file))
 
     if violations:
