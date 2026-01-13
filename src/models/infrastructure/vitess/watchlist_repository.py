@@ -21,7 +21,7 @@ class WatchlistRepository:
                     "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties IS NULL",
                     (user_id,),
                 )
-                return cursor.fetchone()[0]
+                return int(cursor.fetchone()[0])
 
     def get_property_watch_count(self, user_id: int) -> int:
         """Get count of entity-property watches (with properties) for user."""
@@ -31,7 +31,7 @@ class WatchlistRepository:
                     "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties IS NOT NULL",
                     (user_id,),
                 )
-                return cursor.fetchone()[0]
+                return int(cursor.fetchone()[0])
 
     def add_watch(
         self, user_id: int, entity_id: str, properties: List[str] | None
@@ -123,7 +123,7 @@ class WatchlistRepository:
                     "SELECT COUNT(*) FROM user_notifications WHERE user_id = %s",
                     (user_id,),
                 )
-                return cursor.fetchone()[0]
+                return int(cursor.fetchone()[0])
 
     def get_user_notifications(
         self, user_id: int, hours: int = 24, limit: int = 50, offset: int = 0
@@ -174,26 +174,6 @@ class WatchlistRepository:
                     (notification_id, user_id),
                 )
 
-    def get_entity_watch_count(self, user_id: int) -> int:
-        """Get count of entity watches (whole entity, no properties) for user."""
-        with self._get_conn() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties IS NULL",
-                    (user_id,),
-                )
-                return cursor.fetchone()[0]
-
-    def get_property_watch_count(self, user_id: int) -> int:
-        """Get count of entity-property watches (with properties) for user."""
-        with self._get_conn() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties IS NOT NULL",
-                    (user_id,),
-                )
-                return cursor.fetchone()[0]
-
-    def _get_conn(self):
+    def _get_conn(self) -> Any:
         """Get database connection."""
         return self.connection_manager.connect()

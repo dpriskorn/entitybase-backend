@@ -27,15 +27,9 @@ from models.rest_api.request.entity import (
     EntityDeleteRequest,
     EntityRedirectRequest,
     RedirectRevertRequest,
+    EntityRevertRequest,
 )
-from models.rest_api.request.entity.revert import EntityRevertRequest
 from models.rest_api.request.user import UserCreateRequest, WatchlistToggleRequest
-from models.rest_api.response.entity import (
-    EntityDeleteResponse,
-    EntityListResponse,
-    EntityRedirectResponse,
-    EntityResponse,
-)
 from models.rest_api.response.entity import EntityRevertResponse
 from models.rest_api.response.health import HealthCheckResponse
 from models.rest_api.response.misc import RawRevisionResponse, RevisionMetadataResponse
@@ -65,6 +59,7 @@ from models.watchlist import (
 from models.rest_api.services.enumeration_service import EnumerationService
 from models.validation.json_schema_validator import JsonSchemaValidator
 from .entitybase.v1 import v1_router
+from .response.entity.entitybase import EntityResponse, EntityRedirectResponse, EntityDeleteResponse, EntityListResponse
 from .wikibase.v1 import wikibase_v1_router
 
 log_level = settings.get_log_level()

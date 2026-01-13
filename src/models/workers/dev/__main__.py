@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 from pathlib import Path
+from typing import Any
 
 # Add src to path for imports
 src_path = Path(__file__).parent.parent.parent / "src"
@@ -15,7 +16,7 @@ sys.path.insert(0, str(src_path))
 from models.workers.dev.dev_worker import DevWorker
 
 
-def setup_logging():
+def setup_logging() -> None:
     """Setup logging for CLI usage."""
     logging.basicConfig(
         level=logging.INFO,
@@ -23,7 +24,7 @@ def setup_logging():
     )
 
 
-async def run_setup(args):
+async def run_setup(args: Any) -> bool:
     """Run the setup command."""
     worker = DevWorker(
         minio_endpoint=args.endpoint,
@@ -48,7 +49,7 @@ async def run_setup(args):
     return results["setup_status"] == "completed"
 
 
-async def run_health_check(args):
+async def run_health_check(args: Any) -> Any:
     """Run the health check command."""
     worker = DevWorker(
         minio_endpoint=args.endpoint,
@@ -72,7 +73,7 @@ async def run_health_check(args):
     return health["overall_status"] == "healthy"
 
 
-async def run_cleanup(args):
+async def run_cleanup(args: Any) -> bool:
     """Run the cleanup command."""
     if not args.force:
         print("WARNING: This will delete all buckets and their contents!")
@@ -97,7 +98,7 @@ async def run_cleanup(args):
     return True
 
 
-def main():
+def main() -> int:
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
         description="Development worker for MinIO bucket management"
