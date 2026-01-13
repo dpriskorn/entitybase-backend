@@ -23,9 +23,13 @@ Updated S3 revision schema to v2.1.0 with full deduplication, storing terms, sit
 - Updated docs and READMEs to reflect hash-based responses.
 
 #### Storage Changes
-- Terms: Plain text in `wikibase-terms/{lang}:{hash}`.
 - Sitelinks: Plain text in `wikibase-sitelinks/{hash}`.
 - Revisions: Hashes in `wikibase-revisions/{entity_id}/{revision_id}`.
+
+#### Code Updates
+- Implemented `store_sitelink_metadata` and `load_sitelink_metadata` in S3Client for UTF-8 text.
+- Updated entity creation to store sitelinks as plain text.
+- Added integration tests for plain text S3 operations.
 
 ## [2026-01-13] Sitelinks Deduplication, Endpoints, and Batch API
 
