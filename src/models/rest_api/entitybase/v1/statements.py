@@ -3,6 +3,8 @@
 from fastapi import APIRouter, Request
 from typing import cast
 
+from models.validation.utils import raise_validation_error
+
 from ...handlers.statement import StatementHandler
 from ...request import (
     CleanupOrphanedRequest,
@@ -45,9 +47,12 @@ def get_most_used_statements(  # type: ignore[no-any-return]
     """Get the most used statements based on reference count."""
     clients = cast(Clients, req.app.state.clients)
     handler = StatementHandler()
-    return handler.get_most_used_statements(
+    result = handler.get_most_used_statements(
         clients.vitess, request.limit, request.min_ref_count
-    )  # type: ignore[no-any-return]
+    )
+    if not isinstance(result, MostUsedStatementsResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result  # type: ignore[no-any-return]
 
 
 @router.post("/statements/cleanup-orphaned", response_model=CleanupOrphanedResponse)
