@@ -4,7 +4,7 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, cast, cast
 
 from fastapi import FastAPI, HTTPException, Header, Query, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -12,6 +12,7 @@ from jsonschema import ValidationError
 from pip._internal import req
 
 from models.config.settings import settings
+from models.validation.utils import raise_validation_error
 from models.rest_api.clients import Clients
 from models.rest_api.handlers.admin import AdminHandler
 from models.rest_api.handlers.entity.delete import EntityDeleteHandler
@@ -374,7 +375,10 @@ def get_entity(entity_id: str) -> EntityResponse:
     # noinspection PyUnresolvedReferences
     clients = cast(Clients, req.app.state.clients)
     handler = EntityReadHandler()
-    return handler.get_entity(entity_id, clients.vitess, clients.s3)
+    result = handler.get_entity(entity_id, clients.vitess, clients.s3)
+    if not isinstance(result, EntityResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return cast(EntityResponse, result)
 
 
 @v1_router.get(
@@ -410,7 +414,10 @@ async def create_entity_redirect(
 ) -> EntityRedirectResponse:
     clients = cast(Clients, app.state.clients)
     handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
-    return await handler.create_entity_redirect(request)
+    result = await handler.create_entity_redirect(request)
+    if not isinstance(result, EntityRedirectResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return cast(EntityRedirectResponse, result)
 
 
 @app.post("/entities/{entity_id}/revert-redirect")
@@ -419,9 +426,12 @@ async def revert_entity_redirect(  # type: ignore[no-any-return]
 ) -> EntityResponse:
     clients = cast(Clients, app.state.clients)
     handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
-    return await handler.revert_entity_redirect(
+    result = await handler.revert_entity_redirect(
         entity_id, request.revert_to_revision_id
     )
+    if not isinstance(result, EntityResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return cast(EntityResponse, result)
 
 
 @v1_router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)
@@ -430,9 +440,12 @@ async def delete_entity(  # type: ignore[no-any-return]
 ) -> EntityDeleteResponse:
     clients = cast(Clients, app.state.clients)
     handler = EntityDeleteHandler()
-    return await handler.delete_entity(
+    result = await handler.delete_entity(
         entity_id, request, clients.vitess, clients.s3, clients.stream_producer
     )
+    if not isinstance(result, EntityDeleteResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return cast(EntityDeleteResponse, result)
 
 
 @v1_router.get(
@@ -460,12 +473,15 @@ def list_entities(  # type: ignore[no-any-return]
     """List entities based on type, limit, and offset."""
     clients = cast(Clients, app.state.clients)
     handler = AdminHandler()
-    return handler.list_entities(
+    result = handler.list_entities(
         vitess_client=clients.vitess,
         entity_type=entity_type,
         limit=limit,
         offset=offset,
-    )  # type: ignore
+    )
+    if not isinstance(result, EntityListResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return cast(EntityListResponse, result)  # type: ignore
 
 
 @v1_router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)
