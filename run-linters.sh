@@ -9,6 +9,7 @@ set -e
  ./run-response-model-lint.sh
  ./run-logger-lint.sh
  ./run-long-files-lint.sh
+ ./run-dict-return-lint.sh
 
 # == external linters ==
 ./run-ruff.sh
