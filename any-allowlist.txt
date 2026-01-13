@@ -7,3 +7,4 @@ src/models/infrastructure/vitess/watchlist_repository.py:181
 src/models/infrastructure/vitess_client.py:86
 src/models/infrastructure/vitess/connection.py:16
 src/models/infrastructure/connection.py:19
+src/models/infrastructure/vitess_client.py:92
