@@ -5,6 +5,7 @@
 from .entity import (
     EntityCreateRequest,
     EntityDeleteRequest,
+    EntityUpdateRequest,
     EntityRedirectRequest,
     RedirectRevertRequest,
     EntityJsonImportRequest,
@@ -18,6 +19,7 @@ from .misc import CleanupOrphanedRequest
 __all__ = [
     "EntityCreateRequest",
     "EntityDeleteRequest",
+    "EntityUpdateRequest",
     "EntityRedirectRequest",
     "RedirectRevertRequest",
     "EntityJsonImportRequest",

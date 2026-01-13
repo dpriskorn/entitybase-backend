@@ -2,10 +2,9 @@
 Kafka consumer for Wikibase entity change events.
 """
 
-import asyncio
 import json
 import logging
-from typing import AsyncGenerator, Dict, Any
+from typing import AsyncGenerator
 
 from aiokafka import AIOKafkaConsumer
 from pydantic import BaseModel

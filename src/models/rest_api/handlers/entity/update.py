@@ -7,7 +7,7 @@ from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.validation.utils import raise_validation_error
-from ...request import EntityCreateRequest
+from ...request import EntityUpdateRequest
 from .base import EntityHandler
 from .update_transaction import UpdateTransaction
 
@@ -22,7 +22,7 @@ class EntityUpdateHandler(EntityHandler):
     async def update_entity(  # type: ignore[return]
         self,
         entity_id: str,
-        request: EntityCreateRequest,
+        request: EntityUpdateRequest,
         vitess_client: VitessClient,
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,

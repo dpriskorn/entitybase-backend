@@ -5,6 +5,7 @@ from typing import Any
 
 import re
 
+from models.rest_api.request import EntityUpdateRequest
 from models.rest_api.response import EntityResponse
 
 from models.validation.utils import raise_validation_error

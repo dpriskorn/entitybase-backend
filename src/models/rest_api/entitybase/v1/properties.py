@@ -10,7 +10,7 @@ from ...handlers.entity.property.create import PropertyCreateHandler
 logger = logging.getLogger(__name__)
 from ...handlers.entity.read import EntityReadHandler
 from ...handlers.entity.update import EntityUpdateHandler
-from ...request import EntityCreateRequest
+from ...request import EntityCreateRequest, EntityUpdateRequest
 from ...response import EntityResponse
 from ...response.misc import AliasesResponse, DescriptionResponse, LabelResponse
 
@@ -158,7 +158,7 @@ async def patch_property_aliases_for_language(
 
     # Create new revision
     update_handler = EntityUpdateHandler()
-    update_request = EntityCreateRequest(
+    update_request = EntityUpdateRequest(
         type=current_entity.data.get("type"), **current_entity.data
     )
 

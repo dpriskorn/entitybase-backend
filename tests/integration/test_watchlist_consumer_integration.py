@@ -37,10 +37,17 @@ class TestWatchlistConsumerIntegration:
         worker = WatchlistConsumerWorker()
 
         # Mock settings
-        with patch("models.workers.watchlist_consumer.main.settings") as mock_settings, \
-             patch("models.workers.watchlist_consumer.main.VitessClient", return_value=mock_vitess_client), \
-             patch("models.workers.watchlist_consumer.main.Consumer", return_value=mock_consumer):
-
+        with (
+            patch("models.workers.watchlist_consumer.main.settings") as mock_settings,
+            patch(
+                "models.workers.watchlist_consumer.main.VitessClient",
+                return_value=mock_vitess_client,
+            ),
+            patch(
+                "models.workers.watchlist_consumer.main.Consumer",
+                return_value=mock_consumer,
+            ),
+        ):
             mock_settings.to_s3_config.return_value = {}
             mock_settings.to_vitess_config.return_value = {}
             mock_settings.kafka_brokers = "localhost:9092"
@@ -53,29 +60,29 @@ class TestWatchlistConsumerIntegration:
                     revision_id=123,
                     timestamp="2023-01-01T12:00:00Z",
                     author_id="user123",
-                    type="edit"
+                    type="edit",
                 ),
                 EntityChangeEvent(
                     entity_id="Q43",
                     revision_id=124,
                     timestamp="2023-01-01T12:01:00Z",
                     author_id="user124",
-                    type="create"
+                    type="create",
                 ),
                 EntityChangeEvent(
                     entity_id="Q42",
                     revision_id=125,
                     timestamp="2023-01-01T12:02:00Z",
                     author_id="user125",
-                    type="delete"
-                )
+                    type="delete",
+                ),
             ]
 
             # Mock watchers for each entity
             mock_vitess_client.watchlist_repository.get_watchers_for_entity.side_effect = [
                 [{"user_id": 1}, {"user_id": 2}],  # Q42 edit: 2 watchers
                 [{"user_id": 3}],  # Q43 create: 1 watcher
-                []  # Q42 delete: no watchers
+                [],  # Q42 delete: no watchers
             ]
 
             # Mock the consume_events generator
@@ -94,13 +101,22 @@ class TestWatchlistConsumerIntegration:
             mock_consumer.stop.assert_called_once()
 
             # Verify watchers were queried for each event
-            assert mock_vitess_client.watchlist_repository.get_watchers_for_entity.call_count == 3
-            mock_vitess_client.watchlist_repository.get_watchers_for_entity.assert_any_call("Q42")
-            mock_vitess_client.watchlist_repository.get_watchers_for_entity.assert_any_call("Q43")
+            assert (
+                mock_vitess_client.watchlist_repository.get_watchers_for_entity.call_count
+                == 3
+            )
+            mock_vitess_client.watchlist_repository.get_watchers_for_entity.assert_any_call(
+                "Q42"
+            )
+            mock_vitess_client.watchlist_repository.get_watchers_for_entity.assert_any_call(
+                "Q43"
+            )
 
             # Verify notifications were created (2 for first event, 1 for second, 0 for third)
             expected_notifications = 3
-            assert mock_vitess_client.get_connection.call_count == expected_notifications
+            assert (
+                mock_vitess_client.get_connection.call_count == expected_notifications
+            )
 
     @pytest.mark.asyncio
     async def test_consumer_error_handling(
@@ -109,10 +125,17 @@ class TestWatchlistConsumerIntegration:
         """Test consumer handles errors gracefully"""
         worker = WatchlistConsumerWorker()
 
-        with patch("models.workers.watchlist_consumer.main.settings") as mock_settings, \
-             patch("models.workers.watchlist_consumer.main.VitessClient", return_value=mock_vitess_client), \
-             patch("models.workers.watchlist_consumer.main.Consumer", return_value=mock_consumer):
-
+        with (
+            patch("models.workers.watchlist_consumer.main.settings") as mock_settings,
+            patch(
+                "models.workers.watchlist_consumer.main.VitessClient",
+                return_value=mock_vitess_client,
+            ),
+            patch(
+                "models.workers.watchlist_consumer.main.Consumer",
+                return_value=mock_consumer,
+            ),
+        ):
             mock_settings.to_s3_config.return_value = {}
             mock_settings.to_vitess_config.return_value = {}
             mock_settings.kafka_brokers = "localhost:9092"
@@ -124,11 +147,13 @@ class TestWatchlistConsumerIntegration:
                 revision_id=123,
                 timestamp="2023-01-01T12:00:00Z",
                 author_id="user123",
-                type="edit"
+                type="edit",
             )
 
             # Mock watchers to raise an exception
-            mock_vitess_client.watchlist_repository.get_watchers_for_entity.side_effect = Exception("DB error")
+            mock_vitess_client.watchlist_repository.get_watchers_for_entity.side_effect = Exception(
+                "DB error"
+            )
 
             async def mock_consume_events():
                 yield event
@@ -150,9 +175,13 @@ class TestWatchlistConsumerIntegration:
         """Test consumer runs without Kafka (should do nothing)"""
         worker = WatchlistConsumerWorker()
 
-        with patch("models.workers.watchlist_consumer.main.settings") as mock_settings, \
-             patch("models.workers.watchlist_consumer.main.VitessClient", return_value=mock_vitess_client):
-
+        with (
+            patch("models.workers.watchlist_consumer.main.settings") as mock_settings,
+            patch(
+                "models.workers.watchlist_consumer.main.VitessClient",
+                return_value=mock_vitess_client,
+            ),
+        ):
             mock_settings.to_s3_config.return_value = {}
             mock_settings.to_vitess_config.return_value = {}
             mock_settings.kafka_brokers = None
@@ -171,10 +200,17 @@ class TestWatchlistConsumerIntegration:
         """Test notification creation includes changed properties"""
         worker = WatchlistConsumerWorker()
 
-        with patch("models.workers.watchlist_consumer.main.settings") as mock_settings, \
-             patch("models.workers.watchlist_consumer.main.VitessClient", return_value=mock_vitess_client), \
-             patch("models.workers.watchlist_consumer.main.Consumer", return_value=mock_consumer):
-
+        with (
+            patch("models.workers.watchlist_consumer.main.settings") as mock_settings,
+            patch(
+                "models.workers.watchlist_consumer.main.VitessClient",
+                return_value=mock_vitess_client,
+            ),
+            patch(
+                "models.workers.watchlist_consumer.main.Consumer",
+                return_value=mock_consumer,
+            ),
+        ):
             mock_settings.to_s3_config.return_value = {}
             mock_settings.to_vitess_config.return_value = {}
             mock_settings.kafka_brokers = "localhost:9092"
@@ -185,10 +221,12 @@ class TestWatchlistConsumerIntegration:
                 revision_id=123,
                 timestamp="2023-01-01T12:00:00Z",
                 author_id="user123",
-                type="edit"
+                type="edit",
             )
 
-            mock_vitess_client.watchlist_repository.get_watchers_for_entity.return_value = [{"user_id": 1}]
+            mock_vitess_client.watchlist_repository.get_watchers_for_entity.return_value = [
+                {"user_id": 1}
+            ]
 
             async def mock_consume_events():
                 yield event
@@ -197,7 +235,9 @@ class TestWatchlistConsumerIntegration:
 
             mock_connection = MagicMock()
             mock_cursor = MagicMock()
-            mock_vitess_client.get_connection.return_value.__enter__.return_value = mock_connection
+            mock_vitess_client.get_connection.return_value.__enter__.return_value = (
+                mock_connection
+            )
             mock_connection.cursor.return_value.__enter__.return_value = mock_cursor
 
             async with worker.lifespan():
@@ -210,5 +250,4 @@ class TestWatchlistConsumerIntegration:
             params = args[1]
 
             assert "INSERT INTO user_notifications" in query
-            assert params[4] is None  # changed_properties (empty list becomes None)</content>
-<parameter name="filePath">tests/integration/test_watchlist_consumer_integration.py
+            assert params[4] is None  # changed_properties (empty list becomes None)

@@ -4,12 +4,11 @@ import asyncio
 import json
 import logging
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator
-
+from typing import AsyncGenerator
 
 from models.config.settings import settings
-from models.infrastructure.vitess_client import VitessClient
 from models.infrastructure.stream.consumer import Consumer, EntityChangeEvent
+from models.infrastructure.vitess_client import VitessClient
 
 
 class WatchlistConsumerWorker:
