@@ -15,6 +15,13 @@ class LoggerInfoChecker(ast.NodeVisitor):
     def __init__(self, source_lines: List[str]):
         self.source_lines = source_lines
         self.violations: List[Tuple[str, int, str]] = []
+        self.current_class = None
+
+    def visit_ClassDef(self, node: ast.ClassDef) -> None:
+        old_class = self.current_class
+        self.current_class = node
+        self.generic_visit(node)
+        self.current_class = old_class
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         self._check_function(node)
@@ -25,6 +32,10 @@ class LoggerInfoChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
     def _check_function(self, node) -> None:
+        # Skip functions in Enum classes
+        if self.current_class and self._is_enum_class(self.current_class):
+            return
+
         # Calculate function line count
         start_line = node.lineno - 1  # 0-based
         end_line = (
@@ -60,14 +71,20 @@ class LoggerInfoChecker(ast.NodeVisitor):
             )
 
     def _is_logger_call(self, node: ast.Call) -> bool:
-        """Check if this is a logger call (info, debug, warning, error, etc.)."""
+        """Check if this is a logger call (info, debug, warning, error, critical)."""
         if isinstance(node.func, ast.Attribute):
-            if isinstance(node.func.value, ast.Name) and node.func.value.id in [
-                "logger",
-                "log",
-            ]:
-                if node.func.attr in ["info", "debug", "warning", "error", "critical"]:
+            if isinstance(node.func.value, ast.Name) and node.func.value.id in ['logger', 'log']:
+                if node.func.attr in ['info', 'debug', 'warning', 'error', 'critical']:
                     return True
+        return False
+
+    def _is_enum_class(self, node: ast.ClassDef) -> bool:
+        """Check if class inherits from Enum."""
+        for base in node.bases:
+            if isinstance(base, ast.Name) and base.id == 'Enum':
+                return True
+            elif isinstance(base, ast.Attribute) and base.attr == 'Enum':
+                return True
         return False
 
 
