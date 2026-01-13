@@ -53,6 +53,10 @@ def extract_worker_settings() -> Dict[str, List[str]]:
             "`WORKER_ID`: Unique worker identifier (default: auto-generated)"
         ],
         "backlink_statistics": [],
+        "watchlist_consumer": [
+            "`kafka_brokers`: Comma-separated list of Kafka broker addresses",
+            '`kafka_topic`: Kafka topic for entity changes (default: "wikibase-entity-changes")',
+        ],
     }
 
     try:
@@ -106,6 +110,10 @@ def generate_markdown(
 
         lines.append("**Health Checks**: Available via worker health endpoint\n")
 
+        # Add dependencies for specific workers
+        if worker_name == "watchlist_consumer":
+            lines.append("**Dependencies**: Requires aiokafka for Kafka consumption.\n")
+
     return "\n".join(lines)
 
 
@@ -123,7 +131,7 @@ def main() -> None:
     for worker_dir in workers_dir.iterdir():
         if worker_dir.is_dir() and not worker_dir.name.startswith("__"):
             # Look for worker files
-            worker_files = list(worker_dir.glob("*worker.py"))
+            worker_files = list(worker_dir.glob("*.py"))
             if worker_files:
                 worker_file = worker_files[0]  # Take the first one
                 info = extract_worker_info(worker_file)

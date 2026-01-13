@@ -15,9 +15,9 @@
 
 ## Dev Worker
 
-**Class**: `DevWorker`
-**Location**: `models/workers/dev/dev_worker.py`
-**Purpose**: Development worker for MinIO bucket management and setup tasks.
+**Class**: ``
+**Location**: `models/workers/dev/__main__.py`
+**Purpose**: 
 
 **Health Checks**: Available via worker health endpoint
 
@@ -31,4 +31,26 @@
 - `WORKER_ID`: Unique worker identifier (default: auto-generated)
 
 **Health Checks**: Available via worker health endpoint
+
+## Notification Cleanup Worker
+
+**Class**: `NotificationCleanupWorker`
+**Location**: `models/workers/notification_cleanup/main.py`
+**Purpose**: Worker that periodically cleans up old notifications to enforce limits.
+
+**Health Checks**: Available via worker health endpoint
+
+## Watchlist Consumer Worker
+
+**Class**: `WatchlistConsumerWorker`
+**Location**: `models/workers/watchlist_consumer/main.py`
+**Purpose**: Worker that consumes entity change events and creates notifications for watchers.
+
+**Configuration**:
+- `kafka_brokers`: Comma-separated list of Kafka broker addresses
+- `kafka_topic`: Kafka topic for entity changes (default: "wikibase-entity-changes")
+
+**Health Checks**: Available via worker health endpoint
+
+**Dependencies**: Requires aiokafka for Kafka consumption.
 

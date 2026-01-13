@@ -6,10 +6,10 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Any, AsyncGenerator
 
-from models.infrastructure.stream.consumer import Consumer
 
 from models.config.settings import settings
 from models.infrastructure.vitess_client import VitessClient
+from models.infrastructure.stream.consumer import Consumer, EntityChangeEvent
 
 
 class WatchlistConsumerWorker:
@@ -27,7 +27,11 @@ class WatchlistConsumerWorker:
             # Initialize clients
             s3_config = settings.to_s3_config()
             vitess_config = settings.to_vitess_config()
-            kafka_brokers = settings.kafka_brokers
+            kafka_brokers = (
+                [b.strip() for b in settings.kafka_brokers.split(",")]
+                if settings.kafka_brokers
+                else []
+            )
             kafka_topic = settings.kafka_topic
 
             self.vitess_client = VitessClient(vitess_config)
@@ -53,14 +57,26 @@ class WatchlistConsumerWorker:
                 await self.consumer.stop()
                 self.logger.info("Watchlist consumer stopped")
 
-    async def process_message(self, message: dict[str, Any]) -> None:
+    async def run(self) -> None:
+        """Run the consumer loop."""
+        if not self.consumer:
+            self.logger.warning("Consumer not started, cannot run")
+            return
+
+        try:
+            async for event in self.consumer.consume_events():
+                await self.process_message(event)
+        except Exception as e:
+            self.logger.error(f"Error in consumer loop: {e}")
+            raise
+
+    async def process_message(self, message: EntityChangeEvent) -> None:
         """Process a single entity change event message."""
         try:
             # Parse the event
-            entity_id = message.get("entity_id")
-            revision_id = message.get("revision_id")
-            change_type = message.get("change_type")
-            changed_properties = message.get("changed_properties")  # Optional
+            entity_id = message.entity_id
+            revision_id = message.revision_id
+            change_type = message.type
 
             if not entity_id or not revision_id or not change_type:
                 self.logger.warning(
@@ -81,12 +97,8 @@ class WatchlistConsumerWorker:
             notifications_created = 0
             for watcher in watchers:
                 user_id = watcher["user_id"]
-                watched_properties = watcher["properties"]
-
-                # Check if this change matches the watch
-                should_notify = self._should_notify(
-                    watched_properties, changed_properties
-                )
+                # For now, notify on any change (simplified)
+                should_notify = True
 
                 if should_notify:
                     # Create notification (cleanup worker handles limits)
@@ -95,8 +107,8 @@ class WatchlistConsumerWorker:
                         entity_id=entity_id,
                         revision_id=revision_id,
                         change_type=change_type,
-                        changed_properties=changed_properties,
-                        event_timestamp=message.get("changed_at"),
+                        changed_properties=[],  # TODO: add to event model
+                        event_timestamp=message.timestamp,
                     )
                     notifications_created += 1
 
@@ -169,13 +181,7 @@ async def main() -> None:
     worker = WatchlistConsumerWorker()
 
     async with worker.lifespan():
-        if worker.consumer:
-            assert worker.consumer is not None
-            logger.info("Starting message consumption loop")
-            async for message in worker.consumer.consume():
-                await worker.process_message(message)
-        else:
-            logger.warning("No consumer available, exiting")
+        await worker.run()
 
 
 if __name__ == "__main__":
