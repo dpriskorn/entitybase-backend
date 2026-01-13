@@ -91,7 +91,7 @@ class RevisionRepository:
             with conn.cursor() as cursor:
                 cursor.execute(
                     "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
-                    (internal_id, revision_id),
+                    (internal_entity_id, revision_id),
                 )
                 row = cursor.fetchone()
                 if row:

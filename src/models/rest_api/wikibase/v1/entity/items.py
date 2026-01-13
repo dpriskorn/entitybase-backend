@@ -80,7 +80,7 @@ async def get_item_sitelink(item_id: str, wiki_id: str, req: Request) -> str:
     title = clients.s3.load_sitelink_metadata(hash_value)
     if not title:
         raise HTTPException(status_code=404, detail="Sitelink not found")
-    return title
+    return str(title)
 
 
 @router.get("/entities/items/{item_id}/labels")
