@@ -83,7 +83,11 @@ JSON Schema for EntityBase JSON Entity v1 API responses from entity read endpoin
 
 Version: `1.0.0` (latest: `latest` symlink)
 
-See `entitybase/entity/` directory.
+### Entity API Response Schema
+
+JSON Schema for EntityBase JSON Entity v1 API responses from entity read endpoints.
+
+Version: `1.0.0` (latest: `latest` symlink)
 
 ### Entities List Response Schema
 
@@ -91,15 +95,11 @@ JSON Schema for EntityBase entities list API responses from entities list endpoi
 
 Version: `1.0.0` (latest: `latest` symlink)
 
-See `entitybase/entities/` directory.
-
 ### S3 Revision Schema
 
 Immutable entity revision snapshots stored in S3 with deduplication for terms, sitelinks, and statements. Sitelinks and terms metadata are stored as plain UTF-8 text files keyed by hash.
 
 Versions: `1.0.0`, `1.1.0`, `1.2.0`, `2.1.0` (latest: `2.1.0`)
-
-See `entitybase/s3-revision/` directory.
 
 ### S3 Statement Schema
 
@@ -107,7 +107,11 @@ Statement data stored in S3.
 
 Version: `1.0.0` (latest: `latest` symlink)
 
-See `entitybase/s3-statement/` directory.
+### Wikibase Entity Schema
+
+JSON Schema for Wikibase REST API entity objects.
+
+Version: `1.0.0` (latest: `latest` symlink)
 
 ### Wikibase Entity Schema
 
