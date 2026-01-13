@@ -4,15 +4,16 @@ set -e
 # == custom internal linters ==
 #./scripts/linters/custom_docstring_linter.py
 #./scripts/linters/basemodel_linter.py
+./run-str-lint.sh
 ./scripts/linters/dict_return_linter.py
- ./scripts/linters/value_error_linter.py
- ./run-response-model-lint.sh
- ./run-logger-lint.sh
- ./run-long-files-lint.sh
- ./run-dict-return-lint.sh
- ./run-pydantic-field-lint.sh
- ./run-any-lint.sh
- ./run-cast-lint.sh
+./scripts/linters/value_error_linter.py
+./run-response-model-lint.sh
+./run-logger-lint.sh
+./run-long-files-lint.sh
+./run-dict-return-lint.sh
+./run-pydantic-field-lint.sh
+./run-any-lint.sh
+./run-cast-lint.sh
 
 # == external linters ==
 ./run-ruff.sh
