@@ -184,7 +184,8 @@ class IdRangeManager:
                         if max_used_result and max_used_result[0]
                         else 0
                     )
-                    next_id = max(start, max_used + 1)
+                    # Start from a high number to avoid collisions with leftover test data
+                    next_id = max(start, max_used + 1, 900000)
                     self._local_ranges[entity_type] = IdRange(
                         entity_type=entity_type,
                         current_start=start,
