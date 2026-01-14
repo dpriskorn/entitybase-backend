@@ -2,8 +2,12 @@
 
 import uuid
 
+_counter = 0
+
 
 def generate_unique_id() -> int:
     """Generate a ULID-flake style unique identifier."""
-    # Use UUID for guaranteed uniqueness
-    return uuid.uuid4().int & ((1 << 64) - 1)
+    global _counter
+    _counter += 1
+    # Use UUID plus counter for guaranteed uniqueness
+    return (uuid.uuid4().int + _counter) & ((1 << 64) - 1)
