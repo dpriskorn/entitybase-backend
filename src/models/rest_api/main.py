@@ -125,12 +125,17 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             enable_streaming=settings.enable_streaming,
             kafka_brokers=kafka_brokers,
             kafka_topic=kafka_topic,
+            kafka_rdf_topic=settings.kafka_rdf_topic,
             property_registry_path=property_registry_path,
         )
 
         if app_.state.clients.stream_producer:
             await app_.state.clients.stream_producer.start()
             logger.info("Stream producer started")
+
+        if app_.state.clients.rdf_stream_producer:
+            await app_.state.clients.rdf_stream_producer.start()
+            logger.info("RDF stream producer started")
 
         app_.state.validator = JsonSchemaValidator(
             s3_revision_version=settings.s3_revision_version,
@@ -154,6 +159,10 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         if app_.state.clients.stream_producer:
             await app_.state.clients.stream_producer.stop()
             logger.info("Stream producer stopped")
+
+        if app_.state.clients.rdf_stream_producer:
+            await app_.state.clients.rdf_stream_producer.stop()
+            logger.info("RDF stream producer stopped")
 
 
 app = FastAPI(lifespan=lifespan)

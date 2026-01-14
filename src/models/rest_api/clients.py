@@ -28,6 +28,7 @@ class Clients(BaseModel):
     vitess: VitessClient
     property_registry: PropertyRegistry | None = Field(default=None)
     stream_producer: StreamProducerClient | None = Field(default=None)
+    rdf_stream_producer: StreamProducerClient | None = Field(default=None)
 
     def __init__(
         self,
@@ -36,6 +37,7 @@ class Clients(BaseModel):
         enable_streaming: bool = False,
         kafka_brokers: str | None = None,
         kafka_topic: str | None = None,
+        kafka_rdf_topic: str | None = None,
         property_registry_path: Path | None = None,
         **kwargs: str,
     ) -> None:
@@ -48,6 +50,14 @@ class Clients(BaseModel):
                     topic=kafka_topic,
                 )
                 if enable_streaming and kafka_brokers and kafka_topic
+                else None
+            ),
+            rdf_stream_producer=(
+                StreamProducerClient(
+                    bootstrap_servers=kafka_brokers,
+                    topic=kafka_rdf_topic,
+                )
+                if enable_streaming and kafka_brokers and kafka_rdf_topic
                 else None
             ),
             property_registry=(
