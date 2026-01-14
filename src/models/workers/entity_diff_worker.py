@@ -3,16 +3,15 @@ Entity Diff Worker - Computes diffs between RDF versions of Wikibase entities
 """
 
 import time
-from typing import List, Set, Tuple, Dict, Any, Optional
 from dataclasses import dataclass
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+from typing import List, Set, Tuple, Dict, Any, Optional
 
-from rdflib import Graph
 from pyld import jsonld
+from rdflib import Graph
 
 from models.infrastructure.stream.producer import StreamProducerClient, RDFChangeEvent
-
 
 Triple = Tuple[str, str, str]  # (subject, predicate, object)
 
@@ -143,7 +142,7 @@ class RDFSerializer:
 
     def entity_data_to_rdf(self, entity_data: dict, format: str = "turtle") -> str:
         """Convert Wikibase entity JSON data to RDF."""
-        from rdflib import Graph, URIRef, Literal, BNode
+        from rdflib import Graph, URIRef, Literal
         from rdflib.namespace import RDF, RDFS
 
         g = Graph()
