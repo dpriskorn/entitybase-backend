@@ -506,19 +506,19 @@ class VitessClient(Client):
 
     def get_backlinks(
         self, referenced_internal_id: int, limit: int = 100, offset: int = 0
-    ) -> list[Backlink]:
+    ) -> list[dict]:
         """Get backlinks for an entity."""
         with self.connection_manager.get_connection() as conn:
             tuples = self.backlink_repository.get_backlinks(
                 conn, referenced_internal_id, limit, offset
             )
             return [
-                Backlink(
-                    internal_id=t[0],
-                    entity_id=t[1],
-                    property_id=t[2],
-                    statement_id=t[3],
-                )
+                {
+                    "referencing_internal_id": t[0],
+                    "statement_hash": t[1],
+                    "property_id": t[2],
+                    "rank": t[3],
+                }
                 for t in tuples
             ]
 

@@ -2,7 +2,6 @@
 
 # Response models
 
-from models.vitess_models import BacklinkData
 from .entity.backlinks import BacklinksResponse, Backlink
 from .entity.entitybase import (
     ProtectionResponse,
@@ -43,7 +42,6 @@ from .rdf import (
 
 __all__ = [
     "Backlink",
-    "BacklinkData",
     "BacklinksResponse",
     "CleanupOrphanedResponse",
     "DeduplicationStats",
