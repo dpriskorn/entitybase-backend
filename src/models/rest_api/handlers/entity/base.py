@@ -432,8 +432,8 @@ class EntityHandler(BaseModel):
         return EntityResponse(
             id=entity_id,
             revision_id=new_revision_id,
-                     data=request_data,
-                     is_semi_protected=is_semi_protected or False,
+            data=request_data,
+            is_semi_protected=is_semi_protected or False,
             is_locked=is_locked or False,
             is_archived=is_archived or False,
             is_dangling=is_dangling or False,
@@ -487,7 +487,7 @@ class EntityCreateHandler(EntityHandler):
         # Common processing logic
         return await self._process_entity_revision(
             entity_id=entity_id,
-            request_entity_data=request.data,
+            request_data=request.data,
             entity_type=request.type,
             is_mass_edit=request.is_mass_edit,
             edit_type=request.edit_type,
@@ -601,8 +601,8 @@ class EntityReadHandler:
             return EntityResponse(
                 id=entity_id,
                 revision_id=head_revision_id,
-                     data=revision.data.get("entity", {}),
-                     is_semi_protected=revision.data.get("is_semi_protected", False),
+                data=revision.data.get("entity", {}),
+                is_semi_protected=revision.data.get("is_semi_protected", False),
                 is_locked=revision.data.get("is_locked", False),
                 is_archived=revision.data.get("is_archived", False),
                 is_dangling=revision.data.get("is_dangling", False),
