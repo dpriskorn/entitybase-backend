@@ -154,7 +154,7 @@ class IdGeneratorWorker(BaseModel):
         """
         try:
             range_status = (
-                self.enumeration_service.get_range_status()
+                self.enumeration_service.get_range_status().model_dump()
                 if self.enumeration_service is not None
                 else {}
             )
