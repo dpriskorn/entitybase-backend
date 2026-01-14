@@ -371,7 +371,7 @@ class EntityHandler(BaseModel):
                 entity_id=entity_id,
                 revision_id=new_revision_id,
                 entity_data=revision_data,
-                expected_revision_id=head_revision_id,
+                expected_revision_id=0 if is_creation else head_revision_id,
             )
             vitess_client.write_entity_revision(
                 entity_id=entity_id,
