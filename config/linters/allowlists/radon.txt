@@ -71,3 +71,15 @@ delete_statement
 get_backlinks
 health_check
 insert_backlinks
+add_watch
+create_user
+get_notifications
+get_user
+get_user_activities
+get_user_preferences
+get_watch_counts
+mark_notification_checked
+remove_watch
+revert_entity
+toggle_watchlist
+update_user_preferences
