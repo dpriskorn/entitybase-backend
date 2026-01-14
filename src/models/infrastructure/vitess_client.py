@@ -209,7 +209,7 @@ class VitessClient(Client):
     ) -> None:
         """Create a new revision for an entity."""
         with self.connection_manager.get_connection() as conn:
-            if expected_revision_id is not None:
+            if expected_revision_id is not None and expected_revision_id != 0:
                 success = self.revision_repository.create_with_cas(
                     conn, entity_id, revision_id, entity_data, expected_revision_id
                 )
