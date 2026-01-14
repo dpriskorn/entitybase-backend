@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from pydantic import Field
+from pydantic import ConfigDict, Field
 
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
@@ -19,6 +19,8 @@ logger = logging.getLogger(__name__)
 
 class EntityCreateHandler(EntityHandler):
     """Handler for entity creation operations"""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     enumeration_service: EnumerationService | None = Field(default=None)
 
