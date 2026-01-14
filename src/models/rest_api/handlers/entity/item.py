@@ -1,6 +1,7 @@
 """Item-specific entity handlers."""
 
 import logging
+import traceback
 from typing import Any
 
 from models.infrastructure.s3.s3_client import S3Client
@@ -34,9 +35,13 @@ class ItemCreateHandler(EntityCreateHandler):
         user_id: int = 0,
     ) -> EntityResponse:
         """Create a new item with auto-assigned Q ID using EntityTransaction."""
+        logger.info(f"Starting item creation for {request.id or 'auto-assign'}")
+
         # Assign ID
+        logger.info("Assigning entity ID")
         if request.id:
             entity_id = request.id
+            logger.info(f"Using provided entity_id: {entity_id}")
             # Check if entity already exists
             with vitess_client.connection_manager.get_connection() as conn:
                 if vitess_client.id_resolver.entity_exists(conn, entity_id):
@@ -48,24 +53,30 @@ class ItemCreateHandler(EntityCreateHandler):
                 )
             assert self.enumeration_service is not None
             entity_id = self.enumeration_service.get_next_entity_id("item")
+            logger.info(f"Auto-assigned entity_id: {entity_id}")
         request.id = entity_id
 
         # Prepare request data
+        logger.info("Preparing request data")
         request_data = request.data.copy()
         request_data["id"] = entity_id
 
         # Create transaction
+        logger.info("Creating transaction")
         tx = EntityTransaction()  # type: ignore[abstract]
         try:
             # Register entity
+            logger.info(f"Registering entity {entity_id}")
             tx.register_entity(vitess_client, entity_id)  # type: ignore[attr-defined]
 
             # Process statements
+            logger.info("Processing statements")
             hash_result = tx.process_statements(
                 entity_id, request_data, vitess_client, s3_client, validator
             )
 
             # Create revision
+            logger.info("Creating revision")
             response = await tx.create_revision(
                 entity_id=entity_id,
                 new_revision_id=1,
@@ -90,6 +101,7 @@ class ItemCreateHandler(EntityCreateHandler):
             )
 
             # Publish event
+            logger.info("Publishing event")
             tx.publish_event(
                 entity_id=entity_id,
                 revision_id=1,
@@ -102,6 +114,7 @@ class ItemCreateHandler(EntityCreateHandler):
             )
 
             # Commit
+            logger.info("Committing transaction")
             tx.commit()
 
             # Confirm ID usage to worker
@@ -109,8 +122,11 @@ class ItemCreateHandler(EntityCreateHandler):
                 assert self.enumeration_service is not None
                 self.enumeration_service.confirm_id_usage(entity_id)
 
+            logger.info(f"Item creation successful for {entity_id}")
             return response  # type: ignore[no-any-return]
         except Exception as e:
-            logger.error(f"Item creation failed for {entity_id}: {e}")
+            logger.error(
+                f"Item creation failed for {entity_id}: {e}\n{traceback.format_exc()}"
+            )
             tx.rollback()
             raise
