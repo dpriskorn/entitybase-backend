@@ -391,7 +391,14 @@ class EntityHandler(BaseModel):
                     "operation": "revision_creation_failed",
                 },
             )
-            raise_validation_error(f"Revision creation failed: {e}", status_code=500)
+            if "concurrent" in str(e).lower():
+                raise_validation_error(
+                    f"Revision creation failed: {e}", status_code=409
+                )
+            else:
+                raise_validation_error(
+                    f"Revision creation failed: {e}", status_code=500
+                )
 
         # Publish change event
         if stream_producer:
