@@ -89,8 +89,21 @@ class HeadRepository:
         with conn.cursor() as cursor:
             cursor.execute(
                 """UPDATE entity_head
-                       SET is_deleted = TRUE,
-                           head_revision_id = 0
-                       WHERE internal_id = %s""",
+                        SET is_deleted = TRUE,
+                            head_revision_id = 0
+                        WHERE internal_id = %s""",
                 (internal_id,),
             )
+
+    def get_head_revision(self, internal_entity_id: int) -> int:
+        """Get the current head revision for an entity by internal ID."""
+        with self.connection_manager.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """SELECT head_revision_id FROM entity_head WHERE internal_id = %s""",
+                    (internal_entity_id,),
+                )
+                result = cursor.fetchone()
+                if result and len(result) > 0:
+                    return int(result[0])
+                return 0
