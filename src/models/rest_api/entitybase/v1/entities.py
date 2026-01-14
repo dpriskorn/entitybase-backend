@@ -5,7 +5,7 @@ from fastapi import APIRouter, Query, Request
 from models.rest_api.handlers.admin import AdminHandler
 from ...handlers.entity.read import EntityReadHandler
 from ...response import EntityResponse, EntityListResponse, EntityRevisionResponse
-from ...response.misc import RevisionMetadataResponse
+from ...response.entity.entitybase import EntityHistoryEntry
 
 router = APIRouter()
 
@@ -21,7 +21,7 @@ def get_entity(entity_id: str, req: Request) -> EntityResponse:
 
 
 @router.get(
-    "/entities/{entity_id}/history", response_model=list[RevisionMetadataResponse]
+    "/entities/{entity_id}/history", response_model=list[EntityHistoryEntry]
 )
 def get_entity_history(
     entity_id: str,
@@ -30,7 +30,7 @@ def get_entity_history(
         20, ge=1, le=100, description="Maximum number of revisions to return"
     ),
     offset: int = Query(0, ge=0, description="Number of revisions to skip"),
-) -> list[RevisionMetadataResponse]:
+) -> list[EntityHistoryEntry]:
     """Get the revision history for an entity."""
     clients = req.app.state.clients
     handler = EntityReadHandler()

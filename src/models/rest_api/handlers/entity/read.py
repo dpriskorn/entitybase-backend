@@ -135,13 +135,13 @@ class EntityReadHandler:
             raise_validation_error("Failed to read entity", status_code=500)
 
     @staticmethod
-    def get_entity_history(  # type: ignore[return]
+    def get_entity_history(
         entity_id: str,
         vitess_client: VitessClient,
         s3_client: S3Client,
         limit: int = 20,
         offset: int = 0,
-    ) -> list[Any]:
+    ) -> list[EntityHistoryEntry]:
         """Get entity revision history."""
         if vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
@@ -150,28 +150,9 @@ class EntityReadHandler:
             raise_validation_error("Entity not found", status_code=404)
 
         try:
-            history = vitess_client.get_entity_history(
+            return vitess_client.get_entity_history(
                 entity_id, s3_client, limit, offset
             )
-            # Map to RevisionMetadataResponse and skip incomplete entries
-            from models.rest_api.response.misc import RevisionMetadataResponse
-
-            result = []
-            for entry in history:
-                if (
-                    entry.created_at
-                    and entry.user_id is not None
-                    and entry.edit_summary
-                ):
-                    result.append(
-                        RevisionMetadataResponse(
-                            revision_id=entry.revision_id,
-                            created_at=entry.created_at,
-                            user_id=entry.user_id,
-                            edit_summary=entry.edit_summary,
-                        )
-                    )
-            return result
         except Exception as e:
             logger.error(f"Failed to get entity history for {entity_id}: {e}")
             raise_validation_error("Failed to get entity history", status_code=500)
