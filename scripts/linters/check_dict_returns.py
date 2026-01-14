@@ -18,6 +18,7 @@ ALLOWED_DICT_RETURNS = [
     "load_metadata",
     "batch_get_statements",
     "data",
+    "get_entity_json_revision",
 ]
 
 

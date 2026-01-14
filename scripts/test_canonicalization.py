@@ -29,7 +29,9 @@ def parse_rdf_to_jsonld(rdf_content: str, format: str = "turtle") -> dict:
 
 def canonicalize_jsonld(jsonld_data: dict) -> str:
     """Canonicalize JSON-LD using URDNA2015 algorithm."""
-    canonical = jsonld.normalize(jsonld_data, {'algorithm': 'URDNA2015', 'format': 'application/n-quads'})
+    canonical = jsonld.normalize(
+        jsonld_data, {"algorithm": "URDNA2015", "format": "application/n-quads"}
+    )
     return canonical
 
 
@@ -37,7 +39,7 @@ def extract_triples_from_nquads(nquads: str) -> set[tuple]:
     """Extract normalized triples from N-Quads format."""
     triples = set()
 
-    for line in nquads.strip().split('\n'):
+    for line in nquads.strip().split("\n"):
         if line.strip():
             # Parse N-Quad: subject predicate object graph .
             parts = line.strip().split()
@@ -56,10 +58,7 @@ def extract_triples_from_nquads(nquads: str) -> set[tuple]:
 
 def compute_diff(triples_a: set, triples_b: set) -> dict:
     """Compute set difference between two triple sets."""
-    return {
-        "added": triples_b - triples_a,
-        "removed": triples_a - triples_b
-    }
+    return {"added": triples_b - triples_a, "removed": triples_a - triples_b}
 
 
 def test_canonicalization():
@@ -113,11 +112,11 @@ def test_canonicalization():
         diff = compute_diff(triples_v1, triples_v2)
 
         print(f"Added triples ({len(diff['added'])}):")
-        for triple in sorted(diff['added']):
+        for triple in sorted(diff["added"]):
             print(f"  + {triple}")
 
         print(f"\nRemoved triples ({len(diff['removed'])}):")
-        for triple in sorted(diff['removed']):
+        for triple in sorted(diff["removed"]):
             print(f"  - {triple}")
 
         print("\n=== Test Completed Successfully ===")
@@ -125,6 +124,7 @@ def test_canonicalization():
     except Exception as e:
         print(f"Error during canonicalization test: {e}")
         import traceback
+
         traceback.print_exc()
 
 
@@ -154,6 +154,7 @@ def test_blank_nodes():
     except Exception as e:
         print(f"Error testing blank nodes: {e}")
         import traceback
+
         traceback.print_exc()
 
 
@@ -169,7 +170,7 @@ def test_rdf_serializer():
         "type": "item",
         "labels": {
             "en": {"language": "en", "value": "Douglas Adams"},
-            "fr": {"language": "fr", "value": "Douglas Adams"}
+            "fr": {"language": "fr", "value": "Douglas Adams"},
         },
         "descriptions": {
             "en": {"language": "en", "value": "English writer and humorist"}
@@ -181,12 +182,12 @@ def test_rdf_serializer():
                         "snaktype": "value",
                         "datavalue": {
                             "type": "wikibase-entityid",
-                            "value": {"id": "Q5"}  # human
-                        }
+                            "value": {"id": "Q5"},  # human
+                        },
                     }
                 }
             ]
-        }
+        },
     }
 
     try:
@@ -209,6 +210,7 @@ def test_rdf_serializer():
     except Exception as e:
         print(f"Error testing RDF serializer: {e}")
         import traceback
+
         traceback.print_exc()
 
 

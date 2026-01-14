@@ -52,10 +52,10 @@ def get_entity_revision(
 
 @router.get("/entities/{entity_id}/revision/{revision_id}/rdf")
 async def get_entity_rdf_revision(
+    req: Request,
     entity_id: str,
     revision_id: int,
     format: str = Query("turtle", enum=["turtle", "rdfxml", "ntriples"]),
-    req: Request,
 ) -> Response:
     """Get RDF representation of a specific entity revision."""
     from models.workers.entity_diff_worker import RDFSerializer
@@ -69,14 +69,14 @@ async def get_entity_rdf_revision(
     content_type = {
         "turtle": "text/turtle",
         "rdfxml": "application/rdf+xml",
-        "ntriples": "application/n-triples"
+        "ntriples": "application/n-triples",
     }.get(format, "text/turtle")
 
     return Response(content=rdf_content, media_type=content_type)
 
 
 @router.get("/entities/{entity_id}/revision/{revision_id}/json")
-async def get_entity_json_revision(
+async def get_entity_json_revision(  # type: ignore[return]
     entity_id: str,
     revision_id: int,
     req: Request,
@@ -85,7 +85,7 @@ async def get_entity_json_revision(
     clients = req.app.state.clients
     revision_data = clients.s3.read_revision(entity_id, revision_id)
 
-    return revision_data.data
+    return revision_data.data  # type: ignore[no-any-return]
 
 
 @router.get("/entities", response_model=EntityListResponse)

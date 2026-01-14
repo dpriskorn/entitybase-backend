@@ -135,10 +135,10 @@ class RDFChangeEvent(BaseModel):
     """RDF change event following MediaWiki recentchange schema."""
 
     # Required fields from schema
-    schema: str = Field(
+    schema_uri: str = Field(
         default="/wikibase/entity_diff/1.0.0",
         alias="$schema",
-        description="Schema URI for this event"
+        description="Schema URI for this event",
     )
     meta: dict = Field(..., description="Event metadata")
 
@@ -151,22 +151,17 @@ class RDFChangeEvent(BaseModel):
 
     # RDF diff data
     added_triples: list[tuple[str, str, str]] = Field(
-        default_factory=list,
-        description="RDF triples added in this revision"
+        default_factory=list, description="RDF triples added in this revision"
     )
     removed_triples: list[tuple[str, str, str]] = Field(
-        default_factory=list,
-        description="RDF triples removed in this revision"
+        default_factory=list, description="RDF triples removed in this revision"
     )
 
     # Canonicalization metadata
     canonicalization_method: str = Field(
-        default="urdna2015",
-        description="RDF canonicalization method used"
+        default="urdna2015", description="RDF canonicalization method used"
     )
-    triple_count_diff: int = Field(
-        ..., description="Net change in triple count"
-    )
+    triple_count_diff: int = Field(..., description="Net change in triple count")
 
     # MediaWiki recentchange schema fields
     type: str = Field(default="edit", description="Type of change")
@@ -181,13 +176,13 @@ class RDFChangeEvent(BaseModel):
     # Revision info following schema
     revision: dict = Field(
         default_factory=lambda: {"new": None, "old": None},
-        description="Old and new revision IDs"
+        description="Old and new revision IDs",
     )
 
     # Length info
     length: dict = Field(
         default_factory=lambda: {"new": None, "old": None},
-        description="Length of old and new revisions"
+        description="Length of old and new revisions",
     )
 
     # Additional fields

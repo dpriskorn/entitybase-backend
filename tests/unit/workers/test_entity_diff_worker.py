@@ -10,7 +10,7 @@ from models.workers.entity_diff_worker import (
     EntityDiffResponse,
     RDFCanonicalizer,
     CanonicalizationMethod,
-    diff_rdf_content
+    diff_rdf_content,
 )
 
 
@@ -76,7 +76,7 @@ class TestEntityDiffWorker:
             entity_id="Q42",
             rdf_content_v1=rdf_content,
             rdf_content_v2=rdf_content,
-            format="turtle"
+            format="turtle",
         )
 
         response = self.worker.compute_diff(request)
@@ -109,7 +109,7 @@ class TestEntityDiffWorker:
             entity_id="Q42",
             rdf_content_v1=rdf_v1,
             rdf_content_v2=rdf_v2,
-            format="turtle"
+            format="turtle",
         )
 
         response = self.worker.compute_diff(request)
@@ -158,8 +158,7 @@ class TestRDFStreaming:
 
         self.mock_producer = Mock()
         self.rdf_producer = StreamProducerClient(
-            bootstrap_servers="localhost:9092",
-            topic="test.rdf.changes"
+            bootstrap_servers="localhost:9092", topic="test.rdf.changes"
         )
         self.rdf_producer.producer = self.mock_producer
 
@@ -174,14 +173,12 @@ class TestRDFStreaming:
                 "stream": "wikibase.entity_diff",
                 "id": "Q42-150",
                 "domain": "wikibase.org",
-                "uri": "https://www.wikidata.org/wiki/Q42"
+                "uri": "https://www.wikidata.org/wiki/Q42",
             },
             entity_id="Q42",
             revision_id=150,
             from_revision_id=149,
-            added_triples=[
-                ("wd:Q42", "wdt:P569", '"1952-03-11"^^xsd:dateTime')
-            ],
+            added_triples=[("wd:Q42", "wdt:P569", '"1952-03-11"^^xsd:dateTime')],
             removed_triples=[],
             canonicalization_method="urdna2015",
             triple_count_diff=1,
@@ -194,7 +191,7 @@ class TestRDFStreaming:
             server_name="wikibase-backend",
             server_url="https://wikibase-backend.example.com",
             wiki="wikidatawiki",
-            patrolled=False
+            patrolled=False,
         )
 
         assert event.entity_id == "Q42"
@@ -214,7 +211,7 @@ class TestRDFStreaming:
                 "stream": "wikibase.entity_diff",
                 "id": "Q42-150",
                 "domain": "wikibase.org",
-                "uri": "https://www.wikidata.org/wiki/Q42"
+                "uri": "https://www.wikidata.org/wiki/Q42",
             },
             entity_id="Q42",
             revision_id=150,
@@ -231,7 +228,7 @@ class TestRDFStreaming:
             server_name="wikibase-backend",
             server_url="https://wikibase-backend.example.com",
             wiki="wikidatawiki",
-            patrolled=False
+            patrolled=False,
         )
 
         await self.rdf_producer.publish_rdf_change(event)
@@ -243,7 +240,10 @@ class TestRDFStreaming:
 
     async def test_entity_diff_worker_with_streaming(self):
         """Test EntityDiffWorker with RDF streaming enabled."""
-        from models.workers.entity_diff_worker import EntityDiffWorker, EntityDiffRequest
+        from models.workers.entity_diff_worker import (
+            EntityDiffWorker,
+            EntityDiffRequest,
+        )
 
         worker = EntityDiffWorker(rdf_stream_producer=self.rdf_producer)
 
@@ -267,7 +267,7 @@ class TestRDFStreaming:
             rdf_content_v1=rdf_v1,
             rdf_content_v2=rdf_v2,
             format="turtle",
-            from_revision_id=149
+            from_revision_id=149,
         )
 
         response = await worker.compute_diff(request)
