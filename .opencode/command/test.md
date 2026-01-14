@@ -2,6 +2,7 @@
 description: Investigate test failures and suggest actions
 agent: general
 ---
+Read DEVELOPMENT.md for development environment setup.
 Investigate docker integration-tests e.g. with ./get-docker-logs.sh
 Analyze the errors and suggest actions. 
 Never run any docker compose up commands, tell the user to test when ready instead.
