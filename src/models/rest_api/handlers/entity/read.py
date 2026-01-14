@@ -7,8 +7,7 @@ from models.infrastructure.vitess.terms_repository import TermsRepository
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.response.entity.entitybase import (
     EntityResponse,
-    EntityRevisionResponse,
-    EntityHistoryEntry,
+    EntityRevisionResponse, EntityHistoryEntry,
 )
 from models.validation.utils import raise_validation_error
 
@@ -135,7 +134,7 @@ class EntityReadHandler:
             raise_validation_error("Failed to read entity", status_code=500)
 
     @staticmethod
-    def get_entity_history(  # type: ignore[return]
+    def get_entity_history(
         entity_id: str,
         vitess_client: VitessClient,
         s3_client: S3Client,
@@ -150,7 +149,9 @@ class EntityReadHandler:
             raise_validation_error("Entity not found", status_code=404)
 
         try:
-            return vitess_client.get_entity_history(entity_id, s3_client, limit, offset)  # type: ignore[no-any-return]
+            return vitess_client.get_entity_history(
+                entity_id, s3_client, limit, offset
+            )
         except Exception as e:
             logger.error(f"Failed to get entity history for {entity_id}: {e}")
             raise_validation_error("Failed to get entity history", status_code=500)

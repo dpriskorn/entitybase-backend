@@ -20,7 +20,9 @@ def get_entity(entity_id: str, req: Request) -> EntityResponse:
     )
 
 
-@router.get("/entities/{entity_id}/history", response_model=list[EntityHistoryEntry])
+@router.get(
+    "/entities/{entity_id}/history", response_model=list[EntityHistoryEntry]
+)
 def get_entity_history(
     entity_id: str,
     req: Request,
