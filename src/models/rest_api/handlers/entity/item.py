@@ -34,11 +34,20 @@ class ItemCreateHandler(EntityCreateHandler):
         user_id: int = 0,
     ) -> EntityResponse:
         """Create a new item with auto-assigned Q ID using EntityTransaction."""
-        # Auto-assign ID
-        if self.enumeration_service is None:
-            raise_validation_error("Enumeration service not available", status_code=500)
-        assert self.enumeration_service is not None
-        entity_id = self.enumeration_service.get_next_entity_id("item")
+        # Assign ID
+        if request.id:
+            entity_id = request.id
+            # Check if entity already exists
+            with vitess_client.connection_manager.get_connection() as conn:
+                if vitess_client.id_resolver.entity_exists(conn, entity_id):
+                    raise_validation_error("Entity already exists", status_code=409)
+        else:
+            if self.enumeration_service is None:
+                raise_validation_error(
+                    "Enumeration service not available", status_code=500
+                )
+            assert self.enumeration_service is not None
+            entity_id = self.enumeration_service.get_next_entity_id("item")
         request.id = entity_id
 
         # Prepare request data
@@ -96,7 +105,9 @@ class ItemCreateHandler(EntityCreateHandler):
             tx.commit()
 
             # Confirm ID usage to worker
-            self.enumeration_service.confirm_id_usage(entity_id)
+            if self.enumeration_service:
+                assert self.enumeration_service is not None
+                self.enumeration_service.confirm_id_usage(entity_id)
 
             return response  # type: ignore[no-any-return]
         except Exception as e:
