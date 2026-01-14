@@ -26,6 +26,10 @@ Implemented Kafka consumer for processing entity change events and generating wa
 
 #### Fixes
 - Restored `EntityUpdateRequest` model (duplicate of EntityCreateRequest without id field) to resolve mypy import errors.
+- Fixed BacklinkStatisticsWorker to properly honor `backlink_stats_schedule` setting instead of hardcoded 24-hour intervals.
+
+#### Refactors
+- Moved SQL logic from BacklinkStatisticsWorker to repository layer for better separation of concerns.
 
 ## [2026-01-13] S3 Schema Updates for Full Deduplication
 
