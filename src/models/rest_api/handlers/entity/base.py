@@ -616,51 +616,6 @@ class EntityReadHandler:
             logger.error(f"Failed to read entity {entity_id}: {e}")
             raise_validation_error("Failed to read entity", status_code=500)
 
-    @staticmethod
-    def get_entity_history(
-        entity_id: str,
-        vitess_client: VitessClient,
-        s3_client: S3Client,
-        limit: int = 20,
-        offset: int = 0,
-    ) -> list[EntityHistoryEntry]:
-        """Get entity revision history."""
-        return []
-        if vitess_client is None:
-            raise_validation_error("Vitess not initialized", status_code=503)
-
-        if not vitess_client.entity_exists(entity_id):
-            raise_validation_error("Entity not found", status_code=404)
-
-        try:
-            # Get all revision IDs for this entity
-            revision_ids = vitess_client.get_entity_revisions(entity_id, limit, offset)
-            revisions = []
-
-            for rev_id in revision_ids:
-                try:
-                    revision = s3_client.read_revision(entity_id, rev_id)
-                    revisions.append(
-                        EntityHistoryEntry(
-                            revision_id=rev_id,
-                            created_at=revision.data.get("created_at"),
-                            created_by=revision.data.get("created_by"),
-                            edit_summary=revision.data.get("edit_summary"),
-                            editor=revision.data.get("editor"),
-                            edit_type=revision.data.get("edit_type"),
-                            is_mass_edit=revision.data.get("is_mass_edit", False),
-                        )
-                    )
-                except Exception as e:
-                    logger.warning(
-                        f"Failed to read revision {rev_id} for entity {entity_id}: {e}"
-                    )
-                    continue
-
-            return revisions
-        except Exception as e:
-            logger.error(f"Failed to get entity history for {entity_id}: {e}")
-            raise_validation_error("Failed to get entity history", status_code=500)
 
     @staticmethod
     def get_entity_revision(
