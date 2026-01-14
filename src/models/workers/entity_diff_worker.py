@@ -129,11 +129,97 @@ class RDFCanonicalizer:
         return str(term)
 
 
+class RDFSerializer:
+    """Serialize Wikibase entity data to RDF formats."""
+
+    def entity_data_to_rdf(self, entity_data: dict, format: str = "turtle") -> str:
+        """Convert Wikibase entity JSON data to RDF."""
+        from rdflib import Graph, URIRef, Literal, BNode
+        from rdflib.namespace import RDF, RDFS
+
+        g = Graph()
+        entity_id = entity_data.get("id", "")
+        entity_uri = URIRef(f"http://www.wikidata.org/entity/{entity_id}")
+
+        # Add entity type
+        entity_type = entity_data.get("type", "item")
+        if entity_type == "item":
+            g.add((entity_uri, RDF.type, URIRef("http://www.wikidata.org/entity/Q35120")))  # item
+        elif entity_type == "property":
+            g.add((entity_uri, RDF.type, URIRef("http://www.wikidata.org/entity/Q18616576")))  # property
+
+        # Add labels
+        labels = entity_data.get("labels", {})
+        for lang, label_data in labels.items():
+            if isinstance(label_data, dict) and "value" in label_data:
+                g.add((
+                    entity_uri,
+                    RDFS.label,
+                    Literal(label_data["value"], lang=lang)
+                ))
+
+        # Add descriptions
+        descriptions = entity_data.get("descriptions", {})
+        for lang, desc_data in descriptions.items():
+            if isinstance(desc_data, dict) and "value" in desc_data:
+                # Wikibase doesn't have a standard description property in RDF
+                # Using schema.org description for now
+                g.add((
+                    entity_uri,
+                    URIRef("http://schema.org/description"),
+                    Literal(desc_data["value"], lang=lang)
+                ))
+
+        # Add claims/statements (simplified)
+        claims = entity_data.get("claims", {})
+        for prop_id, statements in claims.items():
+            if isinstance(statements, list):
+                for statement in statements:
+                    if isinstance(statement, dict):
+                        mainsnak = statement.get("mainsnak", {})
+                        if mainsnak.get("snaktype") == "value":
+                            datavalue = mainsnak.get("datavalue", {})
+                            if datavalue.get("type") == "string":
+                                value = datavalue.get("value", "")
+                                g.add((
+                                    entity_uri,
+                                    URIRef(f"http://www.wikidata.org/prop/direct/{prop_id}"),
+                                    Literal(value)
+                                ))
+
+        return g.serialize(format=format)
+
+
 class EntityDiffWorker:
     """Worker for computing entity diffs."""
 
     def __init__(self, canonicalization_method: CanonicalizationMethod = CanonicalizationMethod.URDNA2015):
         self.canonicalizer = RDFCanonicalizer(canonicalization_method)
+        self.serializer = RDFSerializer()
+
+    def compute_diff_from_rdf(self, entity_id: str, rdf_v1: str, rdf_v2: str, format: str = "turtle") -> EntityDiffResponse:
+        """Compute diff from RDF content strings."""
+        request = EntityDiffRequest(
+            entity_id=entity_id,
+            rdf_content_v1=rdf_v1,
+            rdf_content_v2=rdf_v2,
+            format=format,
+            canonicalization_method=self.canonicalizer.method
+        )
+        return self.compute_diff(request)
+
+    def compute_diff_from_entity_data(
+        self,
+        entity_id: str,
+        entity_data_v1: dict,
+        entity_data_v2: dict,
+        format: str = "turtle"
+    ) -> EntityDiffResponse:
+        """Compute diff from Wikibase entity data dictionaries."""
+        rdf_v1 = self.serializer.entity_data_to_rdf(entity_data_v1, format)
+        rdf_v2 = self.serializer.entity_data_to_rdf(entity_data_v2, format)
+
+        return self.compute_diff_from_rdf(entity_id, rdf_v1, rdf_v2, format)
 
     def compute_diff(self, request: EntityDiffRequest) -> EntityDiffResponse:
         """Compute diff between two RDF versions of an entity."""

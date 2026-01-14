@@ -1,6 +1,6 @@
 """General entity endpoints for Entitybase v1 API."""
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Query, Request, Response
 
 from models.rest_api.handlers.admin import AdminHandler
 from ...handlers.entity.read import EntityReadHandler
@@ -48,6 +48,44 @@ def get_entity_revision(
     clients = req.app.state.clients
     handler = EntityReadHandler()
     return handler.get_entity_revision(entity_id, revision_id, clients.s3)  # type: ignore
+
+
+@router.get("/entities/{entity_id}/revision/{revision_id}/rdf")
+async def get_entity_rdf_revision(
+    entity_id: str,
+    revision_id: int,
+    format: str = Query("turtle", enum=["turtle", "rdfxml", "ntriples"]),
+    req: Request,
+) -> Response:
+    """Get RDF representation of a specific entity revision."""
+    from models.workers.entity_diff_worker import RDFSerializer
+
+    clients = req.app.state.clients
+    revision_data = clients.s3.read_revision(entity_id, revision_id)
+
+    serializer = RDFSerializer()
+    rdf_content = serializer.entity_data_to_rdf(revision_data.data, format)
+
+    content_type = {
+        "turtle": "text/turtle",
+        "rdfxml": "application/rdf+xml",
+        "ntriples": "application/n-triples"
+    }.get(format, "text/turtle")
+
+    return Response(content=rdf_content, media_type=content_type)
+
+
+@router.get("/entities/{entity_id}/revision/{revision_id}/json")
+async def get_entity_json_revision(
+    entity_id: str,
+    revision_id: int,
+    req: Request,
+) -> dict:
+    """Get JSON representation of a specific entity revision."""
+    clients = req.app.state.clients
+    revision_data = clients.s3.read_revision(entity_id, revision_id)
+
+    return revision_data.data
 
 
 @router.get("/entities", response_model=EntityListResponse)
