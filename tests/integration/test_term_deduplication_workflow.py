@@ -220,7 +220,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         self.assertNotIn("claims", parsed["entity"])
         self.assertIsInstance(parsed["aliases_hashes"]["en"], list)
 
-    @patch("src.models.infrastructure.s3.s3_client.boto3")
+    @patch("models.infrastructure.s3.s3_client.boto3")
     def test_sitelink_plain_text_storage(self, mock_boto3):
         """Test that sitelinks are stored as plain UTF-8 text in S3"""
         from models.infrastructure.s3.s3_client import S3Client
@@ -251,7 +251,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         self.assertEqual(call_args[1]["ContentType"], "text/plain")
         self.assertEqual(call_args[1]["Metadata"]["content_hash"], str(content_hash))
 
-    @patch("src.models.infrastructure.s3.s3_client.boto3")
+    @patch("models.infrastructure.s3.s3_client.boto3")
     def test_sitelink_plain_text_loading(self, mock_boto3):
         """Test that sitelinks are loaded as plain UTF-8 text from S3"""
         from models.infrastructure.s3.s3_client import S3Client
@@ -284,7 +284,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         # Verify result is decoded string
         self.assertEqual(result, "Main Page")
 
-    @patch("src.models.infrastructure.s3.s3_client.boto3")
+    @patch("models.infrastructure.s3.s3_client.boto3")
     def test_term_plain_text_storage(self, mock_boto3):
         """Test that terms are stored as plain UTF-8 text in S3"""
         from models.infrastructure.s3.s3_client import S3Client
@@ -315,7 +315,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         self.assertEqual(call_args[1]["ContentType"], "text/plain")
         self.assertEqual(call_args[1]["Metadata"]["content_hash"], str(content_hash))
 
-    @patch("src.models.infrastructure.s3.s3_client.boto3")
+    @patch("models.infrastructure.s3.s3_client.boto3")
     def test_term_plain_text_loading(self, mock_boto3):
         """Test that terms are loaded as plain UTF-8 text from S3"""
         from models.infrastructure.s3.s3_client import S3Client
