@@ -89,3 +89,15 @@ models.rest_api.main.update_item_v1
 models.rest_api.main.update_item
 models.rest_api.main.update_property
 models.infrastructure.vitess_client.VitessClient._resolve_id
+models.infrastructure.s3.s3_client.S3Client.delete_metadata
+models.infrastructure.s3.s3_client.S3Client.store_term_metadata
+models.infrastructure.s3.s3_client.S3Client.load_term_metadata
+models.user_activity.ENTITY_CREATE
+models.user_activity.ENTITY_EDIT
+models.user_activity.ENTITY_REVERT
+models.user_activity.ENTITY_DELETE
+models.user_activity.ENTITY_UNDELETE
+models.user_activity.ENTITY_LOCK
+models.user_activity.ENTITY_UNLOCK
+models.user_activity.ENTITY_ARCHIVE
+models.user_activity.ENTITY_UNARCHIVE
