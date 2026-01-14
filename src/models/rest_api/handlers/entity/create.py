@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 class EntityCreateHandler(EntityHandler):
     """Handler for entity creation operations"""
 
+    enumeration_service: EnumerationService | None = Field(default=None)
+
     def __init__(
         self, /, enumeration_service: EnumerationService | None = None, **data: Any
     ):
