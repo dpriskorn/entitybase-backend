@@ -19,7 +19,7 @@ This document describes the Vitess database schema used by wikibase-backend.
 **SQL Definition**:
 
 ```sql
-CREATE TABLE IF NOT EXISTS entity_id_mapping ( entity_id VARCHAR(50) PRIMARY KEY, internal_id BIGINT NOT NULL UNIQUE )
+CREATE TABLE IF NOT EXISTS entity_id_mapping ( entity_id VARCHAR(50) PRIMARY KEY, internal_id BIGINT UNSIGNED NOT NULL UNIQUE )
 ```
 
 ### entity_head
@@ -34,27 +34,27 @@ CREATE TABLE IF NOT EXISTS entity_id_mapping ( entity_id VARCHAR(50) PRIMARY KEY
 - `is_mass_edit_protected`: BOOLEAN DEFAULT FALSE
 - `is_deleted`: BOOLEAN DEFAULT FALSE
 - `is_redirect`: BOOLEAN DEFAULT FALSE
-- `redirects_to`: BIGINT NULL
+- `redirects_to`: BIGINT UNSIGNED NULL
 
 **SQL Definition**:
 
 ```sql
-CREATE TABLE IF NOT EXISTS entity_head ( internal_id BIGINT PRIMARY KEY, head_revision_id BIGINT NOT NULL, is_semi_protected BOOLEAN DEFAULT FALSE, is_locked BOOLEAN DEFAULT FALSE, is_archived BOOLEAN DEFAULT FALSE, is_dangling BOOLEAN DEFAULT FALSE, is_mass_edit_protected BOOLEAN DEFAULT FALSE, is_deleted BOOLEAN DEFAULT FALSE, is_redirect BOOLEAN DEFAULT FALSE, redirects_to BIGINT NULL )
+CREATE TABLE IF NOT EXISTS entity_head ( internal_id BIGINT UNSIGNED PRIMARY KEY, head_revision_id BIGINT NOT NULL, is_semi_protected BOOLEAN DEFAULT FALSE, is_locked BOOLEAN DEFAULT FALSE, is_archived BOOLEAN DEFAULT FALSE, is_dangling BOOLEAN DEFAULT FALSE, is_mass_edit_protected BOOLEAN DEFAULT FALSE, is_deleted BOOLEAN DEFAULT FALSE, is_redirect BOOLEAN DEFAULT FALSE, redirects_to BIGINT UNSIGNED NULL )
 ```
 
 ### entity_redirects
 
 **Columns**:
 
-- `redirect_from_id`: BIGINT NOT NULL
-- `redirect_to_id`: BIGINT NOT NULL
+- `redirect_from_id`: BIGINT UNSIGNED NOT NULL
+- `redirect_to_id`: BIGINT UNSIGNED NOT NULL
 - `created_at`: TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 - `created_by`: VARCHAR(255
 
 **SQL Definition**:
 
 ```sql
-CREATE TABLE IF NOT EXISTS entity_redirects ( id BIGINT PRIMARY KEY AUTO_INCREMENT, redirect_from_id BIGINT NOT NULL, redirect_to_id BIGINT NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, created_by VARCHAR(255) DEFAULT NULL, INDEX idx_redirect_from (redirect_from_id), INDEX idx_redirect_to (redirect_to_id), UNIQUE KEY unique_redirect (redirect_from_id, redirect_to_id) )
+CREATE TABLE IF NOT EXISTS entity_redirects ( id BIGINT PRIMARY KEY AUTO_INCREMENT, redirect_from_id BIGINT UNSIGNED NOT NULL, redirect_to_id BIGINT UNSIGNED NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, created_by VARCHAR(255) DEFAULT NULL, INDEX idx_redirect_from (redirect_from_id), INDEX idx_redirect_to (redirect_to_id), UNIQUE KEY unique_redirect (redirect_from_id, redirect_to_id) )
 ```
 
 ### statement_content
@@ -74,15 +74,15 @@ CREATE TABLE IF NOT EXISTS statement_content ( content_hash BIGINT UNSIGNED PRIM
 
 **Columns**:
 
-- `referenced_internal_id`: BIGINT NOT NULL
-- `referencing_internal_id`: BIGINT NOT NULL
+- `referenced_internal_id`: BIGINT UNSIGNED NOT NULL
+- `referencing_internal_id`: BIGINT UNSIGNED NOT NULL
 - `statement_hash`: BIGINT UNSIGNED NOT NULL
 - `property_id`: VARCHAR(32
 
 **SQL Definition**:
 
 ```sql
-CREATE TABLE IF NOT EXISTS entity_backlinks ( referenced_internal_id BIGINT NOT NULL, referencing_internal_id BIGINT NOT NULL, statement_hash BIGINT UNSIGNED NOT NULL, property_id VARCHAR(32) NOT NULL, `rank` ENUM('preferred', 'normal', 'deprecated') NOT NULL, PRIMARY KEY (referenced_internal_id, referencing_internal_id, statement_hash), FOREIGN KEY (referenced_internal_id) REFERENCES entity_id_mapping(internal_id), FOREIGN KEY (referencing_internal_id) REFERENCES entity_id_mapping(internal_id), FOREIGN KEY (statement_hash) REFERENCES statement_content(content_hash), INDEX idx_backlinks_property (referencing_internal_id, property_id) )
+CREATE TABLE IF NOT EXISTS entity_backlinks ( referenced_internal_id BIGINT UNSIGNED NOT NULL, referencing_internal_id BIGINT UNSIGNED NOT NULL, statement_hash BIGINT UNSIGNED NOT NULL, property_id VARCHAR(32) NOT NULL, `rank` ENUM('preferred', 'normal', 'deprecated') NOT NULL, PRIMARY KEY (referenced_internal_id, referencing_internal_id, statement_hash), FOREIGN KEY (referenced_internal_id) REFERENCES entity_id_mapping(internal_id), FOREIGN KEY (referencing_internal_id) REFERENCES entity_id_mapping(internal_id), FOREIGN KEY (statement_hash) REFERENCES statement_content(content_hash), INDEX idx_backlinks_property (referencing_internal_id, property_id) )
 ```
 
 ### backlink_statistics
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS metadata_content ( content_hash BIGINT UNSIGNED NOT N
 **SQL Definition**:
 
 ```sql
-CREATE TABLE IF NOT EXISTS entity_revisions ( internal_id BIGINT NOT NULL, revision_id BIGINT NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, is_mass_edit BOOLEAN DEFAULT FALSE, edit_type VARCHAR(100) DEFAULT '', statements JSON NOT NULL, properties JSON NOT NULL, property_counts JSON NOT NULL, labels_hashes JSON, descriptions_hashes JSON, aliases_hashes JSON, sitelinks_hashes JSON, PRIMARY KEY (internal_id, revision_id) )
+CREATE TABLE IF NOT EXISTS entity_revisions ( internal_id BIGINT UNSIGNED NOT NULL, revision_id BIGINT NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, is_mass_edit BOOLEAN DEFAULT FALSE, edit_type VARCHAR(100) DEFAULT '', statements JSON NOT NULL, properties JSON NOT NULL, property_counts JSON NOT NULL, labels_hashes JSON, descriptions_hashes JSON, aliases_hashes JSON, sitelinks_hashes JSON, PRIMARY KEY (internal_id, revision_id) )
 ```
 
 ### entity_terms
@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS entity_terms ( hash BIGINT PRIMARY KEY, term TEXT NOT
 **SQL Definition**:
 
 ```sql
-CREATE TABLE IF NOT EXISTS id_ranges ( entity_type VARCHAR(1) PRIMARY KEY, current_range_start BIGINT NOT NULL DEFAULT 1, current_range_end BIGINT NOT NULL DEFAULT 1000000, range_size BIGINT DEFAULT 1000000, allocated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, worker_id VARCHAR(64), version BIGINT DEFAULT 0 )
+CREATE TABLE IF NOT EXISTS id_ranges ( entity_type VARCHAR(1) PRIMARY KEY, current_range_start BIGINT UNSIGNED NOT NULL DEFAULT 1, current_range_end BIGINT UNSIGNED NOT NULL DEFAULT 1000000, range_size BIGINT UNSIGNED DEFAULT 1000000, allocated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, worker_id VARCHAR(64), version BIGINT DEFAULT 0 )
 ```
 
 ### users
@@ -183,7 +183,7 @@ CREATE TABLE IF NOT EXISTS users ( user_id BIGINT PRIMARY KEY, created_at TIMEST
 **SQL Definition**:
 
 ```sql
-CREATE TABLE IF NOT EXISTS watchlist ( user_id BIGINT NOT NULL, internal_entity_id BIGINT NOT NULL, watched_properties TEXT DEFAULT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (user_id, internal_entity_id, watched_properties(255)), FOREIGN KEY (internal_entity_id) REFERENCES entity_id_mapping(internal_id) )
+CREATE TABLE IF NOT EXISTS watchlist ( user_id BIGINT NOT NULL, internal_entity_id BIGINT UNSIGNED NOT NULL, watched_properties TEXT DEFAULT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (user_id, internal_entity_id, watched_properties(255)), FOREIGN KEY (internal_entity_id) REFERENCES entity_id_mapping(internal_id) )
 ```
 
 ### user_notifications
@@ -254,7 +254,7 @@ erDiagram
         - `content_type`: ENUM('labels'
     }
     entity_revisions {
-        - `internal_id`: BIGINT NOT NULL
+- `internal_id`: BIGINT UNSIGNED NOT NULL
         - `revision_id`: BIGINT NOT NULL
         - `created_at`: TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         - `is_mass_edit`: BOOLEAN DEFAULT FALSE
@@ -277,7 +277,7 @@ erDiagram
     }
     watchlist {
         - `user_id`: BIGINT NOT NULL
-        - `internal_entity_id`: BIGINT NOT NULL
+- `internal_entity_id`: BIGINT UNSIGNED NOT NULL
         - `watched_properties`: TEXT DEFAULT NULL
         - `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     }

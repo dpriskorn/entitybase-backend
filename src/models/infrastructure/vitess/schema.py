@@ -24,7 +24,7 @@ class SchemaManager:
             """
             CREATE TABLE IF NOT EXISTS entity_id_mapping (
                 entity_id VARCHAR(50) PRIMARY KEY,
-                internal_id BIGINT NOT NULL UNIQUE
+                internal_id BIGINT UNSIGNED NOT NULL UNIQUE
             )
         """
         )
@@ -32,7 +32,7 @@ class SchemaManager:
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS entity_head (
-                internal_id BIGINT PRIMARY KEY,
+                internal_id BIGINT UNSIGNED PRIMARY KEY,
                 head_revision_id BIGINT NOT NULL,
                 is_semi_protected BOOLEAN DEFAULT FALSE,
                 is_locked BOOLEAN DEFAULT FALSE,
@@ -41,7 +41,7 @@ class SchemaManager:
                 is_mass_edit_protected BOOLEAN DEFAULT FALSE,
                 is_deleted BOOLEAN DEFAULT FALSE,
                 is_redirect BOOLEAN DEFAULT FALSE,
-                redirects_to BIGINT NULL
+                redirects_to BIGINT UNSIGNED NULL
             )
         """
         )
@@ -50,8 +50,8 @@ class SchemaManager:
             """
             CREATE TABLE IF NOT EXISTS entity_redirects (
                 id BIGINT PRIMARY KEY AUTO_INCREMENT,
-                redirect_from_id BIGINT NOT NULL,
-                redirect_to_id BIGINT NOT NULL,
+                redirect_from_id BIGINT UNSIGNED NOT NULL,
+                redirect_to_id BIGINT UNSIGNED NOT NULL,
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 created_by VARCHAR(255) DEFAULT NULL,
                 INDEX idx_redirect_from (redirect_from_id),
@@ -75,8 +75,8 @@ class SchemaManager:
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS entity_backlinks (
-                referenced_internal_id BIGINT NOT NULL,
-                referencing_internal_id BIGINT NOT NULL,
+                referenced_internal_id BIGINT UNSIGNED NOT NULL,
+                referencing_internal_id BIGINT UNSIGNED NOT NULL,
                 statement_hash BIGINT UNSIGNED NOT NULL,
                 property_id VARCHAR(32) NOT NULL,
                 `rank` ENUM('preferred', 'normal', 'deprecated') NOT NULL,
@@ -118,7 +118,7 @@ class SchemaManager:
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS entity_revisions (
-                internal_id BIGINT NOT NULL,
+                internal_id BIGINT UNSIGNED NOT NULL,
                 revision_id BIGINT NOT NULL,
                 created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 is_mass_edit BOOLEAN DEFAULT FALSE,
@@ -150,9 +150,9 @@ class SchemaManager:
             """
             CREATE TABLE IF NOT EXISTS id_ranges (
                 entity_type VARCHAR(1) PRIMARY KEY,
-                current_range_start BIGINT NOT NULL DEFAULT 1,
-                current_range_end BIGINT NOT NULL DEFAULT 1000000,
-                range_size BIGINT DEFAULT 1000000,
+                current_range_start BIGINT UNSIGNED NOT NULL DEFAULT 1,
+                current_range_end BIGINT UNSIGNED NOT NULL DEFAULT 1000000,
+                range_size BIGINT UNSIGNED DEFAULT 1000000,
                 allocated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 worker_id VARCHAR(64),
                 version BIGINT DEFAULT 0
@@ -189,7 +189,7 @@ class SchemaManager:
             """
             CREATE TABLE IF NOT EXISTS watchlist (
                 user_id BIGINT NOT NULL,
-                internal_entity_id BIGINT NOT NULL,
+                internal_entity_id BIGINT UNSIGNED NOT NULL,
                 watched_properties TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (user_id, internal_entity_id, watched_properties(255)),
