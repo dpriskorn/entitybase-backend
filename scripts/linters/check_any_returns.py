@@ -76,8 +76,8 @@ def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str, str
 
 
 def load_allowlist() -> set:
-    """Load the allowlist from any-allowlist.txt."""
-    allowlist_path = Path("any-allowlist.txt")
+    """Load the allowlist from config/linters/allowlists/any.txt."""
+    allowlist_path = Path("config/linters/allowlists/any.txt")
     allowlist = set()
     if allowlist_path.exists():
         with open(allowlist_path, "r", encoding="utf-8") as f:

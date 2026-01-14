@@ -8,8 +8,8 @@ from pathlib import Path
 
 
 def load_allowlist() -> set:
-    """Load the data allowlist from data-allowlist.txt."""
-    allowlist_path = Path("data-allowlist.txt")
+    """Load the data allowlist from config/linters/allowlists/data.txt."""
+    allowlist_path = Path("config/linters/allowlists/data.txt")
     allowlist = set()
     if allowlist_path.exists():
         with open(allowlist_path, "r", encoding="utf-8") as f:

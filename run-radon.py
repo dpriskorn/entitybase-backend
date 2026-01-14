@@ -99,8 +99,8 @@ def main():
     )
     parser.add_argument(
         '--allow-list',
-        default='.radon-allowlist.txt',
-        help='Path to allowlist file (default: .radon-allowlist.txt)'
+        default='config/linters/allowlists/radon.txt',
+        help='Path to allowlist file (default: config/linters/allowlists/radon.txt)'
     )
     parser.add_argument(
         '--exclude',
