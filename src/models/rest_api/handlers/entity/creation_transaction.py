@@ -19,6 +19,15 @@ class EntityTransaction(BaseModel, ABC):
     operations: List[Callable[[], None]] = Field(default_factory=list)
     statement_hashes: List[int] = Field(default_factory=list)
 
+    def register_entity(self, vitess_client: Any, entity_id: str) -> None:
+        """Register the entity in the database."""
+        logger.info(f"[CreationTransaction] Registering entity {entity_id}")
+        self.entity_id = entity_id
+        vitess_client.register_entity(entity_id)
+        self.operations.append(
+            lambda: self._rollback_entity_registration(vitess_client)
+        )
+
     def process_statements(
         self,
         entity_id: str,
