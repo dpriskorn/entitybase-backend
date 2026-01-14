@@ -2,11 +2,11 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
-## [2026-01-14] Entity Diffing System with RDF Canonicalization
+## [2026-01-14] Entity Diffing System with RDF Canonicalization & Streaming
 
 ### Summary
 
-Implemented complete entity diffing system with URDNA2015 RDF canonicalization, supporting stateless triple-level diffs between entity versions. Added RDF/JSON revision endpoints for retrieving entity data in multiple formats.
+Implemented complete entity diffing system with URDNA2015 RDF canonicalization, supporting stateless triple-level diffs between entity versions. Added RDF/JSON revision endpoints for retrieving entity data in multiple formats, and RDF change event streaming following MediaWiki recentchange schema.
 
 ### Motivation
 
@@ -30,6 +30,12 @@ Implemented complete entity diffing system with URDNA2015 RDF canonicalization, 
 #### API Endpoints
 - `GET /entities/{entity_id}/revision/{revision_id}/rdf` - RDF serialization
 - `GET /entities/{entity_id}/revision/{revision_id}/json` - Raw JSON data
+
+#### Streaming & Events
+- `RDFChangeEvent` model following MediaWiki recentchange schema
+- RDF change event streaming to `wikibase.entity_diff` Kafka topic
+- Automatic event publishing from EntityDiffWorker
+- Configurable RDF stream producer with proper lifecycle management
 - Support for turtle, rdfxml, ntriples formats
 
 #### Testing
