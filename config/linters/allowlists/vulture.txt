@@ -101,3 +101,11 @@ models.user_activity.ENTITY_LOCK
 models.user_activity.ENTITY_UNLOCK
 models.user_activity.ENTITY_ARCHIVE
 models.user_activity.ENTITY_UNARCHIVE
+models.rest_api.main.get_watchlist
+models.rest_api.main.get_user_activity
+models.rest_api.main.get_batch_sitelinks
+models.rest_api.main.get_batch_labels
+models.rest_api.main.get_batch_descriptions
+models.rest_api.main.get_batch_aliases
+models.rest_api.main.get_batch_statements
+models.rest_api.main.get_entity_property_hashes_sync
