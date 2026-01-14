@@ -1,6 +1,7 @@
 """ID range management service."""
 
 import logging
+import random
 from typing import Dict, Optional
 
 from pydantic import BaseModel
@@ -184,8 +185,10 @@ class IdRangeManager:
                         if max_used_result and max_used_result[0]
                         else 0
                     )
-                    # Start from a high number to avoid collisions with leftover test data
-                    next_id = max(start, max_used + 1, 900000)
+                    # Start from a high number with random offset to avoid collisions with leftover test data
+                    next_id = max(
+                        start, max_used + 1, 900000 + random.randint(0, 99999)
+                    )
                     self._local_ranges[entity_type] = IdRange(
                         entity_type=entity_type,
                         current_start=start,
