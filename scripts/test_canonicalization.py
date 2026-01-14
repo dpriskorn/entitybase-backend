@@ -157,6 +157,62 @@ def test_blank_nodes():
         traceback.print_exc()
 
 
+def test_rdf_serializer():
+    """Test the RDF serializer with Wikibase entity data."""
+    print("\n=== Testing RDF Serializer ===\n")
+
+    from models.workers.entity_diff_worker import RDFSerializer
+
+    # Sample Wikibase entity data
+    entity_data = {
+        "id": "Q42",
+        "type": "item",
+        "labels": {
+            "en": {"language": "en", "value": "Douglas Adams"},
+            "fr": {"language": "fr", "value": "Douglas Adams"}
+        },
+        "descriptions": {
+            "en": {"language": "en", "value": "English writer and humorist"}
+        },
+        "claims": {
+            "P31": [  # instance of
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "datavalue": {
+                            "type": "wikibase-entityid",
+                            "value": {"id": "Q5"}  # human
+                        }
+                    }
+                }
+            ]
+        }
+    }
+
+    try:
+        serializer = RDFSerializer()
+        rdf_turtle = serializer.entity_data_to_rdf(entity_data, "turtle")
+
+        print("Generated RDF (Turtle):")
+        print(rdf_turtle)
+
+        # Test canonicalization of generated RDF
+        print("\n=== Canonicalizing Generated RDF ===")
+        jsonld_data = parse_rdf_to_jsonld(rdf_turtle, "turtle")
+        canonical = canonicalize_jsonld(jsonld_data)
+        triples = extract_triples_from_nquads(canonical)
+
+        print(f"Canonical triples: {len(triples)}")
+        for triple in sorted(triples):
+            print(f"  {triple}")
+
+    except Exception as e:
+        print(f"Error testing RDF serializer: {e}")
+        import traceback
+        traceback.print_exc()
+
+
 if __name__ == "__main__":
     test_canonicalization()
     test_blank_nodes()
+    test_rdf_serializer()
