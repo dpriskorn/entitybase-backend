@@ -173,13 +173,23 @@ class IdRangeManager:
 
                 for row in cursor.fetchall():
                     entity_type, start, end = row
-                    # Start from the beginning of the allocated range
-                    # (This is a simplified approach - in production you'd track local consumption)
+                    # Get the max used ID for this entity type to avoid collisions
+                    cursor.execute(
+                        "SELECT MAX(CAST(SUBSTRING(entity_id, 2) AS UNSIGNED)) FROM entity_id_mapping WHERE entity_id LIKE %s",
+                        (f"{entity_type}%",),
+                    )
+                    max_used_result = cursor.fetchone()
+                    max_used = (
+                        max_used_result[0]
+                        if max_used_result and max_used_result[0]
+                        else 0
+                    )
+                    next_id = max(start, max_used + 1)
                     self._local_ranges[entity_type] = IdRange(
                         entity_type=entity_type,
                         current_start=start,
                         current_end=end,
-                        next_id=start,  # Conservative: restart from beginning
+                        next_id=next_id,
                     )
 
                 logger.info(
