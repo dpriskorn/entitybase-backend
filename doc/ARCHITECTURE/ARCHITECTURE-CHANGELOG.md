@@ -2,6 +2,75 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-14] Entity Diffing System with RDF Canonicalization
+
+### Summary
+
+Implemented complete entity diffing system with URDNA2015 RDF canonicalization, supporting stateless triple-level diffs between entity versions. Added RDF/JSON revision endpoints for retrieving entity data in multiple formats.
+
+### Motivation
+
+- **Change Tracking**: Enable precise tracking of what changed between entity revisions
+- **RDF Standardization**: Use W3C-standard canonicalization for consistent blank node handling
+- **API Flexibility**: Provide both RDF and JSON access to entity revisions
+- **Performance**: Stateless processing with millisecond response times
+
+### Changes
+
+#### New Components
+- `EntityDiffWorker` in `src/models/workers/entity_diff_worker.py` with URDNA2015 canonicalization
+- `RDFSerializer` for converting Wikibase entity data to RDF formats
+- RDF and JSON revision endpoints in `src/models/rest_api/entitybase/v1/entities.py`
+- Comprehensive unit tests and integration test scripts
+
+#### Configuration
+- Added `pyld` dependency for JSON-LD canonicalization
+- Multiple canonicalization methods: URDNA2015, skolemization, structural hashing
+
+#### API Endpoints
+- `GET /entities/{entity_id}/revision/{revision_id}/rdf` - RDF serialization
+- `GET /entities/{entity_id}/revision/{revision_id}/json` - Raw JSON data
+- Support for turtle, rdfxml, ntriples formats
+
+#### Testing
+- Canonicalization test script with real Wikidata-style entity data
+- Unit tests for diff computation and RDF serialization
+- Integration tests for term deduplication workflows
+
+## [2026-01-14] Code Quality and Linting Improvements
+
+### Summary
+
+Comprehensive linting system improvements with radon duplicate detection, vulture dead code analysis, and strategic allowlisting. Resolved all critical code quality issues.
+
+### Motivation
+
+- **Code Quality**: Maintain high standards with automated checking
+- **Developer Experience**: Clear error messages and fast feedback
+- **Maintenance**: Prevent accumulation of dead code and duplicates
+
+### Changes
+
+#### Linting Infrastructure
+- Integrated `radon` for duplicate method detection
+- Enhanced vulture allowlists for known API patterns
+- Added comprehensive custom linting rules
+
+#### Configuration
+- Modular allowlist files: `config/linters/allowlists/`
+- Separate allowlists for vulture and radon
+- Strategic allowlisting of planned features vs dead code
+
+#### Fixes
+- Removed unreachable code in entity handlers
+- Fixed type checking errors across multiple modules
+- Resolved import and serialization issues
+
+#### API Improvements
+- Reorganized allowlists by functionality
+- Added batch API endpoint allowlisting
+- Wikibase v1 compatibility layer allowlisting
+
 ## [2026-01-13] Kafka Consumer for Watchlist Notifications
 
 ### Summary
