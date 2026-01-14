@@ -8,7 +8,7 @@ schemas-event-primary
 
 # code related
 .idea
-.env
+deprecated/.env
 /seaweedfs_data/
 seaweedfs
 alarik_data
