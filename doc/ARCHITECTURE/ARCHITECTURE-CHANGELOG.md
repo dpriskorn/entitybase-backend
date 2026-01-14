@@ -2,11 +2,11 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
-## [2026-01-14] Database Reset Worker and ID Collision Fixes
+## [2026-01-14] Database Schema and ID Fixes
 
 ### Summary
 
-Added dropworker for clean DB state in tests, fixed ID collision issues with unique ID generation, and enhanced entity creation with optional ID support.
+Added dropworker for clean DB state in tests, fixed ID collision issues with unique ID generation using UUID, enhanced entity creation with optional ID support, and updated database schema to use BIGINT UNSIGNED for internal IDs to support full 64-bit range.
 
 ### Motivation
 
@@ -24,10 +24,15 @@ Added dropworker for clean DB state in tests, fixed ID collision issues with uni
 - Optional `id` field in `EntityCreateRequest` for specifying entity IDs
 - Idempotent ID assignment in entity creation handlers
 
+#### Schema Changes
+- Updated all internal_id and related BIGINT columns to BIGINT UNSIGNED to support full 64-bit unsigned range
+- Affected tables: entity_id_mapping, entity_head, entity_redirects, entity_backlinks, entity_revisions, id_ranges, watchlist
+
 #### Fixes
-- Resolved test ID collisions by ensuring unique internal_ids and entity_ids
+- Resolved test ID collisions by using UUID-based unique ID generation
 - Improved ID range management with time-based offsets
 - Database reset on container startup prevents persistent state issues
+- Fixed BIGINT overflow errors for large internal IDs
 
 #### Testing
 - Updated integration tests to use unique entity IDs

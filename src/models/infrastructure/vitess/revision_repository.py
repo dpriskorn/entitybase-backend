@@ -62,25 +62,6 @@ class RevisionRepository:
                     edit_summary,
                 ),
             )
-            if cursor.fetchone() is not None:
-                return
-
-            cursor.execute(
-                "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (
-                    internal_id,
-                    revision_id,
-                    is_mass_edit,
-                    edit_type,
-                    json.dumps(statements or []),
-                    json.dumps(properties or []),
-                    json.dumps(property_counts or {}),
-                    json.dumps(labels_hashes or {}),
-                    json.dumps(descriptions_hashes or {}),
-                    json.dumps(aliases_hashes or {}),
-                    json.dumps(sitelinks_hashes or {}),
-                ),
-            )
 
     def get_revision(
         self, internal_entity_id: int, revision_id: int, vitess_client: Any
