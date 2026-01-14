@@ -6,7 +6,7 @@ This file tracks architectural changes, feature additions, and modifications to 
 
 ### Summary
 
-Implemented complete entity diffing system with URDNA2015 RDF canonicalization, supporting stateless triple-level diffs between entity versions. Added RDF/JSON revision endpoints for retrieving entity data in multiple formats, and RDF change event streaming following MediaWiki recentchange schema.
+Implemented complete entity diffing system with URDNA2015 RDF canonicalization, supporting stateless triple-level diffs between entity versions. Added RDF/JSON revision endpoints for retrieving entity data in multiple formats, and RDF change event streaming following MediaWiki recentchange schema. Fixed watchlist table PRIMARY KEY constraint issue.
 
 ### Motivation
 
@@ -39,9 +39,14 @@ Implemented complete entity diffing system with URDNA2015 RDF canonicalization, 
 - Support for turtle, rdfxml, ntriples formats
 
 #### Testing
-- Canonicalization test script with real Wikidata-style entity data
+- Canonicalization test script with real Wikidata entity data
 - Unit tests for diff computation and RDF serialization
 - Integration tests for term deduplication workflows
+
+#### Fixes
+- Resolved watchlist table PRIMARY KEY constraint error by changing `watched_properties` from nullable TEXT to NOT NULL TEXT with empty string default
+- Updated watchlist repository queries to use empty string for "watch all properties" instead of NULL
+- Maintained API compatibility while fixing database schema constraints
 
 ## [2026-01-14] Code Quality and Linting Improvements
 
