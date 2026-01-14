@@ -22,7 +22,6 @@ from models.rest_api.misc import EditType
 from models.rest_api.request import EntityCreateRequest
 from models.rest_api.response.entity.entitybase import (
     EntityRevisionResponse,
-    EntityHistoryEntry,
     EntityResponse,
 )
 from models.rest_api.response.statement import StatementHashResult
