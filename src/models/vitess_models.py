@@ -23,7 +23,7 @@ class HistoryRecord(BaseModel):
     is_mass_edit: bool = False
 
 
-class BacklinkData(BaseModel):
+class BacklinkEntry(BaseModel):
     """Raw backlink data from database."""
 
     referencing_internal_id: int = Field(

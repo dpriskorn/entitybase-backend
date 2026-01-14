@@ -30,7 +30,7 @@ from models.rest_api.request.entity import RevisionInsertDataRequest
 from models.rest_api.response.entity.entitybase import ProtectionResponse
 from models.rest_api.response.rdf import FullRevisionData
 from models.validation.utils import raise_validation_error
-from models.vitess_models import VitessConfig
+from models.vitess_models import VitessConfig, BacklinkEntry
 
 
 class Backlink(BaseModel):
@@ -40,6 +40,15 @@ class Backlink(BaseModel):
     entity_id: str
     property_id: str
     statement_id: str
+
+
+class BacklinkEntry(BaseModel):
+    """Model for raw backlink data from database."""
+
+    referencing_internal_id: int
+    statement_hash: str
+    property_id: str
+    rank: str
 
 
 class VitessClient(Client):
@@ -506,19 +515,19 @@ class VitessClient(Client):
 
     def get_backlinks(
         self, referenced_internal_id: int, limit: int = 100, offset: int = 0
-    ) -> list[dict]:
+    ) -> list[BacklinkEntry]:
         """Get backlinks for an entity."""
         with self.connection_manager.get_connection() as conn:
             tuples = self.backlink_repository.get_backlinks(
                 conn, referenced_internal_id, limit, offset
             )
             return [
-                {
-                    "referencing_internal_id": t[0],
-                    "statement_hash": t[1],
-                    "property_id": t[2],
-                    "rank": t[3],
-                }
+                BacklinkEntry(
+                    referencing_internal_id=t[0],
+                    statement_hash=t[1],
+                    property_id=t[2],
+                    rank=t[3],
+                )
                 for t in tuples
             ]
 
