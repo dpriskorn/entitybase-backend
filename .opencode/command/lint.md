@@ -1,5 +1,5 @@
 ---
-description: Run linters and fix issues in a loop until clean
+description: Run linters and suggest actions
 agent: general
 ---
 Run ./run-linters.sh and capture the output.

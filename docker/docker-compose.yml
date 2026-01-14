@@ -120,17 +120,17 @@ services:
 
 
   tests:
-   build:
-     context: ..
-     dockerfile: docker/containers/Dockerfile.tests
-   container_name: tests
-   depends_on:
-     api:
-       condition: service_healthy
-   networks:
-     - default
-   mem_limit: 0.5g
-   cpus: "0.5"
+    build:
+      context: ..
+      dockerfile: docker/containers/Dockerfile.tests
+    container_name: tests
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - default
+    mem_limit: 1g
+    cpus: "0.5"
 
   coverage:
    build:
