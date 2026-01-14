@@ -190,7 +190,7 @@ class SchemaManager:
             CREATE TABLE IF NOT EXISTS watchlist (
                 user_id BIGINT NOT NULL,
                 internal_entity_id BIGINT NOT NULL,
-                watched_properties TEXT DEFAULT NULL,
+                watched_properties TEXT NOT NULL DEFAULT '',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 PRIMARY KEY (user_id, internal_entity_id, watched_properties(255)),
                 FOREIGN KEY (internal_entity_id) REFERENCES entity_id_mapping(internal_id)

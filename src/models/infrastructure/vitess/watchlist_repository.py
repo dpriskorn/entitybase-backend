@@ -19,7 +19,7 @@ class WatchlistRepository:
         with self._get_conn() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties IS NULL",
+                    "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties = ''",
                     (user_id,),
                 )
                 return int(cursor.fetchone()[0])
@@ -29,7 +29,7 @@ class WatchlistRepository:
         with self._get_conn() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties IS NOT NULL",
+                    "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties != ''",
                     (user_id,),
                 )
                 return int(cursor.fetchone()[0])
@@ -39,7 +39,7 @@ class WatchlistRepository:
     ) -> None:
         """Add a watchlist entry."""
         internal_entity_id = self.id_resolver.resolve_id(self._get_conn(), entity_id)
-        properties_json = ",".join(properties) if properties else None
+        properties_json = ",".join(properties) if properties else ""
 
         with self._get_conn() as conn:
             with conn.cursor() as cursor:
@@ -57,14 +57,14 @@ class WatchlistRepository:
     ) -> None:
         """Remove a watchlist entry."""
         internal_entity_id = self.id_resolver.resolve_id(self._get_conn(), entity_id)
-        properties_json = ",".join(properties) if properties else None
+        properties_json = ",".join(properties) if properties else ""
 
         with self._get_conn() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
                     DELETE FROM watchlist
-                    WHERE user_id = %s AND internal_entity_id = %s AND watched_properties <=> %s
+                    WHERE user_id = %s AND internal_entity_id = %s AND watched_properties = %s
                     """,
                     (user_id, internal_entity_id, properties_json),
                 )
