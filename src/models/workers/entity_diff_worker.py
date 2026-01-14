@@ -3,12 +3,15 @@ Entity Diff Worker - Computes diffs between RDF versions of Wikibase entities
 """
 
 import time
-from typing import List, Set, Tuple, Dict, Any
+from typing import List, Set, Tuple, Dict, Any, Optional
 from dataclasses import dataclass
 from enum import Enum
+from datetime import datetime
 
 from rdflib import Graph
 from pyld import jsonld
+
+from models.infrastructure.stream.producer import StreamProducerClient, RDFChangeEvent
 
 
 Triple = Tuple[str, str, str]  # (subject, predicate, object)
@@ -28,6 +31,7 @@ class EntityDiffRequest:
     rdf_content_v2: str
     format: str = "turtle"
     canonicalization_method: CanonicalizationMethod = CanonicalizationMethod.URDNA2015
+    from_revision_id: Optional[int] = None  # For streaming events
 
 
 @dataclass
@@ -193,11 +197,16 @@ class RDFSerializer:
 class EntityDiffWorker:
     """Worker for computing entity diffs."""
 
-    def __init__(self, canonicalization_method: CanonicalizationMethod = CanonicalizationMethod.URDNA2015):
+    def __init__(
+        self,
+        canonicalization_method: CanonicalizationMethod = CanonicalizationMethod.URDNA2015,
+        rdf_stream_producer: Optional[StreamProducerClient] = None
+    ):
         self.canonicalizer = RDFCanonicalizer(canonicalization_method)
         self.serializer = RDFSerializer()
+        self.rdf_stream_producer = rdf_stream_producer
 
-    def compute_diff_from_rdf(self, entity_id: str, rdf_v1: str, rdf_v2: str, format: str = "turtle") -> EntityDiffResponse:
+    async def compute_diff_from_rdf(self, entity_id: str, rdf_v1: str, rdf_v2: str, format: str = "turtle") -> EntityDiffResponse:
         """Compute diff from RDF content strings."""
         request = EntityDiffRequest(
             entity_id=entity_id,
@@ -206,9 +215,9 @@ class EntityDiffWorker:
             format=format,
             canonicalization_method=self.canonicalizer.method
         )
-        return self.compute_diff(request)
+        return await self.compute_diff(request)
 
-    def compute_diff_from_entity_data(
+    async def compute_diff_from_entity_data(
         self,
         entity_id: str,
         entity_data_v1: dict,
@@ -219,9 +228,9 @@ class EntityDiffWorker:
         rdf_v1 = self.serializer.entity_data_to_rdf(entity_data_v1, format)
         rdf_v2 = self.serializer.entity_data_to_rdf(entity_data_v2, format)
 
-        return self.compute_diff_from_rdf(entity_id, rdf_v1, rdf_v2, format)
+        return await self.compute_diff_from_rdf(entity_id, rdf_v1, rdf_v2, format)
 
-    def compute_diff(self, request: EntityDiffRequest) -> EntityDiffResponse:
+    async def compute_diff(self, request: EntityDiffRequest) -> EntityDiffResponse:
         """Compute diff between two RDF versions of an entity."""
         start_time = time.time()
 
@@ -241,7 +250,7 @@ class EntityDiffWorker:
 
         processing_time = int((time.time() - start_time) * 1000)
 
-        return EntityDiffResponse(
+        response = EntityDiffResponse(
             entity_id=request.entity_id,
             added_triples=sorted(list(added)),
             removed_triples=sorted(list(removed)),
@@ -251,9 +260,71 @@ class EntityDiffWorker:
             triple_count_v2=len(triples_v2)
         )
 
+        # Optionally publish to stream
+        if self.rdf_stream_producer is not None:
+            await self._publish_rdf_change_event(request, response)
+
+        return response
+
+    async def _publish_rdf_change_event(self, request: EntityDiffRequest, response: EntityDiffResponse) -> None:
+        """Publish RDF change event to stream following MediaWiki recentchange schema."""
+        if not self.rdf_stream_producer:
+            return
+
+        # Create event following MediaWiki recentchange schema
+        event = RDFChangeEvent(
+            # Required schema fields
+            meta={
+                "dt": datetime.utcnow().isoformat() + "Z",
+                "stream": "wikibase.entity_diff",
+                "id": f"{request.entity_id}-{response.triple_count_v2}",
+                "domain": "wikibase.org",  # TODO: Make configurable
+                "uri": f"https://www.wikidata.org/wiki/{request.entity_id}",
+            },
+
+            # Wikibase-specific fields
+            entity_id=request.entity_id,
+            revision_id=response.triple_count_v2,  # Using triple count as revision for now
+            from_revision_id=getattr(request, 'from_revision_id', None),
+
+            # RDF diff data
+            added_triples=response.added_triples,
+            removed_triples=response.removed_triples,
+            canonicalization_method=response.canonicalization_method,
+            triple_count_diff=len(response.added_triples) - len(response.removed_triples),
+
+            # MediaWiki recentchange schema fields
+            title=request.entity_id,
+            user="system",  # TODO: Get from request context
+            timestamp=int(time.time()),
+            comment=f"RDF diff: +{len(response.added_triples)} -{len(response.removed_triples)} triples",
+
+            # Revision info
+            revision={
+                "new": response.triple_count_v2,
+                "old": response.triple_count_v1
+            },
+
+            # Length info (using triple counts)
+            length={
+                "new": response.triple_count_v2,
+                "old": response.triple_count_v1
+            },
+
+            # Server info
+            server_name="wikibase-backend",
+            server_url="https://wikibase-backend.example.com",  # TODO: Make configurable
+            wiki="wikidatawiki",  # TODO: Make configurable
+
+            # Required field
+            patrolled=False
+        )
+
+        await self.rdf_stream_producer.publish_rdf_change(event)
+
 
 # Convenience functions for testing
-def diff_rdf_content(
+async def diff_rdf_content(
     rdf_v1: str,
     rdf_v2: str,
     format: str = "turtle",
@@ -270,7 +341,7 @@ def diff_rdf_content(
         canonicalization_method=method
     )
 
-    response = worker.compute_diff(request)
+    response = await worker.compute_diff(request)
 
     return {
         "added": response.added_triples,
