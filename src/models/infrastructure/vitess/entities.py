@@ -37,13 +37,13 @@ class IdResolver:
 
     def register_entity(self, conn: Any, entity_id: str) -> None:
         """Register a new entity in the database with a unique internal ID."""
-        from models.infrastructure.ulid_flake import generate_ulid_flake
+        from models.infrastructure.unique_id import generate_unique_id
 
         # Check if entity already exists
         if self.entity_exists(conn, entity_id):
             return  # Already registered, idempotent
 
-        internal_id = generate_ulid_flake()
+        internal_id = generate_unique_id()
         with conn.cursor() as cursor:
             cursor.execute(
                 "INSERT INTO entity_id_mapping (entity_id, internal_id) VALUES (%s, %s)",

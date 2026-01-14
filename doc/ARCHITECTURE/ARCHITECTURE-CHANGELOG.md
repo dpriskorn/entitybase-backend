@@ -2,6 +2,37 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-14] Database Reset Worker and ID Collision Fixes
+
+### Summary
+
+Added dropworker for clean DB state in tests, fixed ID collision issues with unique ID generation, and enhanced entity creation with optional ID support.
+
+### Motivation
+
+- **Test Reliability**: Ensure clean database state for integration tests
+- **ID Uniqueness**: Prevent collisions in entity creation
+- **API Flexibility**: Allow specifying entity IDs in creation requests
+
+### Changes
+
+#### New Components
+- `DropWorker` in `src/models/workers/drop_worker.py` for resetting database tables at startup
+- Unique ID generator using UUID in `src/models/infrastructure/unique_id.py`
+
+#### API Enhancements
+- Optional `id` field in `EntityCreateRequest` for specifying entity IDs
+- Idempotent ID assignment in entity creation handlers
+
+#### Fixes
+- Resolved test ID collisions by ensuring unique internal_ids and entity_ids
+- Improved ID range management with time-based offsets
+- Database reset on container startup prevents persistent state issues
+
+#### Testing
+- Updated integration tests to use unique entity IDs
+- Added dropworker to test docker-compose for clean state
+
 ## [2026-01-14] Entity Diffing System with RDF Canonicalization & Streaming
 
 ### Summary
