@@ -6,6 +6,7 @@ authors = [
     {name = "Nizo Priskorn",email = "68460690+dpriskorn@users.noreply.github.com"}
 ]
 readme = "README.md"
+package-mode = "false"
 requires-python = ">=3.13,<4.0"
 dependencies = [
     "pydantic (>=2.12.5,<3.0.0)",
