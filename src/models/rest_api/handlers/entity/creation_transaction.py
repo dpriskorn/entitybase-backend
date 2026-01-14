@@ -19,7 +19,6 @@ class EntityTransaction(BaseModel, ABC):
     operations: List[Callable[[], None]] = Field(default_factory=list)
     statement_hashes: List[int] = Field(default_factory=list)
 
-    @abstractmethod
     def process_statements(
         self,
         entity_id: str,
@@ -29,9 +28,24 @@ class EntityTransaction(BaseModel, ABC):
         validator: Any,
     ) -> StatementHashResult:
         """Process statements for the entity transaction."""
-        pass
+        logger.info(
+            f"[CreationTransaction] Starting statement processing for {entity_id}"
+        )
+        # Import here to avoid circular imports
+        from models.rest_api.handlers.entity.base import EntityHandler
 
-    @abstractmethod
+        handler = EntityHandler()
+        hash_result = handler.process_statements(
+            entity_id, request_data, vitess_client, s3_client, validator
+        )
+        # Track hashes for rollback
+        self.statement_hashes.extend(hash_result.statements)
+        for hash_val in hash_result.statements:
+            self.operations.append(
+                lambda h=hash_val: self._rollback_statement(h, vitess_client, s3_client)  # type: ignore[misc]
+            )
+        return hash_result
+
     async def create_revision(
         self,
         entity_id: str,
