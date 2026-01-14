@@ -616,7 +616,6 @@ class EntityReadHandler:
             logger.error(f"Failed to read entity {entity_id}: {e}")
             raise_validation_error("Failed to read entity", status_code=500)
 
-
     @staticmethod
     def get_entity_revision(
         entity_id: str,

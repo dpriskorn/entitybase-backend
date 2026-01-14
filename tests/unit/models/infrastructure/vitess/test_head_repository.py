@@ -15,7 +15,9 @@ class TestHeadRepository:
         conn = Mock()
         cursor = Mock()
         conn.cursor.return_value.__enter__.return_value = cursor
-        self.connection_manager.get_connection.return_value.__enter__.return_value = conn
+        self.connection_manager.get_connection.return_value.__enter__.return_value = (
+            conn
+        )
 
         cursor.fetchone.return_value = (123,)
 
@@ -32,7 +34,9 @@ class TestHeadRepository:
         conn = Mock()
         cursor = Mock()
         conn.cursor.return_value.__enter__.return_value = cursor
-        self.connection_manager.get_connection.return_value.__enter__.return_value = conn
+        self.connection_manager.get_connection.return_value.__enter__.return_value = (
+            conn
+        )
 
         cursor.fetchone.return_value = None
 
