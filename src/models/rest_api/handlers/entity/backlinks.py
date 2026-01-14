@@ -32,14 +32,14 @@ class BacklinkHandler(BaseModel):
             backlink_models = []
             for b in backlinks:
                 referencing_entity_id = vitess_client.id_resolver.resolve_entity_id(
-                    conn, b["referencing_internal_id"]
+                    conn, b.referencing_internal_id
                 )
                 if referencing_entity_id:
                     backlink_models.append(
                         Backlink(
                             entity_id=referencing_entity_id,
-                            property_id=b["property_id"],
-                            rank=b["rank"],
+                            property_id=b.property_id,
+                            rank=b.rank,
                         )
                     )
 
