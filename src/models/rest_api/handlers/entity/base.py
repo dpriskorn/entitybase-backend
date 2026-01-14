@@ -434,7 +434,7 @@ class EntityHandler(BaseModel):
         return EntityResponse(
             id=entity_id,
             revision_id=new_revision_id,
-            data=request_data,
+            entity_data=request_data,
             is_semi_protected=is_semi_protected or False,
             is_locked=is_locked or False,
             is_archived=is_archived or False,
