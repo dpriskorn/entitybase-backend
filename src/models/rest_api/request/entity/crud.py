@@ -8,7 +8,10 @@ from models.rest_api.misc import EditType, DeleteType
 class EntityCreateRequest(BaseModel):
     """Request model for entity creation."""
 
-    id: str = Field(..., description="Entity ID (e.g., Q42)")
+    id: str | None = Field(
+        default=None,
+        description="Entity ID (e.g., Q42) - optional for creation, auto-assigned if not provided",
+    )
     type: str = Field(default="item", description="Entity type")
     labels: Dict[str, Dict[str, str]] = {}
     descriptions: Dict[str, Dict[str, str]] = {}

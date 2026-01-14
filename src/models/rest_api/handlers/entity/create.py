@@ -54,6 +54,11 @@ class EntityCreateHandler(EntityHandler):
             request_data = request.data.copy()
             request_data["id"] = entity_id
         else:
+            if request.id is None:
+                raise_validation_error(
+                    "id is required for entity creation", status_code=400
+                )
+            assert request.id is not None
             entity_id = request.id
             request_data = request.data
 
