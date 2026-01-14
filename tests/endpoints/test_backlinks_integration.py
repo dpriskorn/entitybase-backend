@@ -18,7 +18,6 @@ class TestBacklinksIntegration:
 
         # For now, just test the API structure
         entity_data = {
-            "id": "Q123",
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Test Entity"}},
             "claims": {},
