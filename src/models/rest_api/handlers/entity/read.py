@@ -151,7 +151,7 @@ class EntityReadHandler:
         try:
             return vitess_client.get_entity_history(
                 entity_id, s3_client, limit, offset
-            )
+            )  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"Failed to get entity history for {entity_id}: {e}")
             raise_validation_error("Failed to get entity history", status_code=500)
