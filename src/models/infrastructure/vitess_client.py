@@ -43,15 +43,6 @@ class Backlink(BaseModel):
     statement_id: str
 
 
-class BacklinkEntry(BaseModel):
-    """Model for raw backlink data from database."""
-
-    referencing_internal_id: int
-    statement_hash: str
-    property_id: str
-    rank: str
-
-
 class VitessClient(Client):
     """Vitess database client for entity operations."""
 
@@ -106,7 +97,7 @@ class VitessClient(Client):
         Returns:
             Connection: A new database connection.
         """
-        return self.connection_manager.connect()
+        return self.connection_manager.connect()  # type: ignore[no-any-return]
 
     def healthy_connection(self) -> bool:
         """Check if the database connection is healthy."""
