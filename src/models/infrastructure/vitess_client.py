@@ -6,6 +6,7 @@ from contextlib import contextmanager
 from typing import Any, Generator
 
 from pydantic import BaseModel, Field
+from pymysql import Connection
 
 logger = logging.getLogger(__name__)
 
@@ -99,11 +100,11 @@ class VitessClient(Client):
         """Create database tables if they don't exist."""
         self.schema_manager.create_tables()
 
-    def connect(self) -> Any:
+    def connect(self) -> Connection:
         """Create a new database connection.
 
         Returns:
-            Any: A new database connection.
+            Connection: A new database connection.
         """
         return self.connection_manager.connect()
 
