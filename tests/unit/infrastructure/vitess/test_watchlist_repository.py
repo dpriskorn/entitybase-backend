@@ -73,7 +73,7 @@ class TestWatchlistRepository:
         mock_cursor.execute.assert_called_once_with(
             """
             DELETE FROM watchlist
-            WHERE user_id = %s AND internal_entity_id = %s AND watched_properties <=> %s
+            WHERE user_id = %s AND internal_entity_id = %s AND watched_properties = %s
             """,
             (12345, 1001, "P31"),
         )
@@ -91,7 +91,7 @@ class TestWatchlistRepository:
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchall.return_value = [
             (1001, "P31"),
-            (1002, None),
+            (1002, ""),
         ]
         mock_id_resolver.resolve_entity_id.side_effect = (
             lambda conn, iid: "Q42" if iid == 1001 else "Q43"
@@ -219,7 +219,7 @@ class TestWatchlistRepository:
 
         assert result == 250
         mock_cursor.execute.assert_called_once_with(
-            "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties IS NULL",
+            "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties = ''",
             (12345,),
         )
 
@@ -237,7 +237,7 @@ class TestWatchlistRepository:
 
         assert result == 150
         mock_cursor.execute.assert_called_once_with(
-            "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties IS NOT NULL",
+            "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties != ''",
             (12345,),
         )
 
