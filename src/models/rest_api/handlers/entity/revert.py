@@ -56,7 +56,7 @@ class EntityRevertHandler:
         new_revision_id = vitess_client.revision_repository.revert_entity(
             internal_entity_id=internal_entity_id,
             to_revision_id=request.to_revision_id,
-            reverted_by_user_id=request.reverted_by_user_id,
+            reverted_by_user_id=user_id,
             reason=request.reason,
             watchlist_context=request.watchlist_context,
             vitess_client=vitess_client,
