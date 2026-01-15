@@ -16,6 +16,9 @@ async def test_revert_entity() -> None:
     mock_clients = MagicMock()
     app.state.clients = mock_clients
 
+    # Set up mocks to simulate missing entity
+    mock_clients.vitess.id_resolver.resolve_id.return_value = 0
+
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:

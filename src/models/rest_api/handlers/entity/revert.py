@@ -1,7 +1,7 @@
 """Handler for entity revert operations."""
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.request.entity import EntityRevertRequest
@@ -66,5 +66,5 @@ class EntityRevertHandler:
             entity_id=entity_id,
             new_revision_id=new_revision_id,
             reverted_from_revision_id=head_revision,
-            reverted_at=datetime.utcnow().isoformat() + "Z",
+            reverted_at=datetime.now(timezone.utc).isoformat(),
         )
