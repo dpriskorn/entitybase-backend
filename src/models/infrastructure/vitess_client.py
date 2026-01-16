@@ -3,7 +3,7 @@
 import json
 import logging
 from contextlib import contextmanager
-from typing import Any, Generator
+from typing import TYPE_CHECKING, Any, Generator
 
 from pydantic import BaseModel, Field
 from pymysql import Connection
@@ -14,7 +14,9 @@ from models.rest_api.entitybase.response.misc import EntityListing
 logger = logging.getLogger(__name__)
 
 from models.infrastructure.client import Client
-from models.infrastructure.s3.s3_client import S3Client
+
+if TYPE_CHECKING:
+    from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess.backlink_repository import BacklinkRepository
 from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.entities import IdResolver
