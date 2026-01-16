@@ -529,7 +529,7 @@ class VitessClient(Client):
     def get_entity_history(
         self,
         entity_id: str,
-        s3_client: S3Client,
+        s3_client: "S3Client",
         limit: int = 20,
         offset: int = 0,
     ) -> list[EntityHistoryEntry]:
