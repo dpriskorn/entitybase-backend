@@ -4,6 +4,7 @@ import json
 from datetime import timezone, datetime
 from typing import Any, Dict
 import logging
+from boto3.session import Session as BotoSession
 from botocore.exceptions import ClientError
 from pydantic import Field
 from models.validation.utils import raise_validation_error

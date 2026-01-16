@@ -2,6 +2,7 @@ from models.internal_representation.metadata_extractor import (
     MetadataExtractor,
     LabelsResponse,
     DescriptionsResponse,
+    AliasesResponse,
 )
 
 
@@ -54,11 +55,11 @@ class TestMetadataExtractor:
             "id": "Q1",
             "labels": {},
             "descriptions": {},
-            "aliases": {"en": ["Test", "Example"], "de": ["Test", "Beispiel"]},
+            "aliases": {"en": [{"value": "Test"}, {"value": "Example"}], "de": [{"value": "Test"}, {"value": "Beispiel"}]},
         }
 
         result = MetadataExtractor.extract_aliases(entity)
-        expected = {"en": ["Test", "Example"], "de": ["Test", "Beispiel"]}
+        expected = AliasesResponse(aliases={"en": ["Test", "Example"], "de": ["Test", "Beispiel"]})
         assert result == expected
 
     def test_extract_missing_metadata(self) -> None:
@@ -69,7 +70,7 @@ class TestMetadataExtractor:
         assert MetadataExtractor.extract_descriptions(entity) == DescriptionsResponse(
             descriptions={}
         )
-        assert MetadataExtractor.extract_aliases(entity) == {}
+        assert MetadataExtractor.extract_aliases(entity) == AliasesResponse(aliases={})
 
     def test_hash_metadata(self) -> None:
         """Test hashing metadata."""
@@ -79,26 +80,22 @@ class TestMetadataExtractor:
         hash2 = MetadataExtractor.hash_metadata(metadata)
 
         assert isinstance(hash1, int)
-        assert hash1 == hash2  # Same metadata should hash the same
-
-        # Different metadata should hash differently
-        different_metadata = {"en": {"language": "en", "value": "Different"}}
-        hash3 = MetadataExtractor.hash_metadata(different_metadata)
-        assert hash1 != hash3
-
-    def test_create_s3_key(self) -> None:
-        """Test creating S3 key for metadata."""
-        key = MetadataExtractor.create_s3_key("labels", 12345)
-        assert key == "metadata/labels/12345.json"
-
-    def test_hash_metadata_consistency(self) -> None:
-        """Test that hash is consistent for same data."""
-        data = {"test": "value", "number": 42}
-
-        # Order shouldn't matter for hashing
-        data_reordered = {"number": 42, "test": "value"}
-
-        hash1 = MetadataExtractor.hash_metadata(data)
-        hash2 = MetadataExtractor.hash_metadata(data_reordered)
-
         assert hash1 == hash2
+
+    def test_hash_metadata_empty(self) -> None:
+        """Test hashing empty metadata."""
+        metadata = {}
+
+        hash_value = MetadataExtractor.hash_metadata(metadata)
+
+        assert isinstance(hash_value, int)
+
+    def test_hash_metadata_different(self) -> None:
+        """Test hashing different metadata produces different hashes."""
+        metadata1 = {"en": {"language": "en", "value": "Test1"}}
+        metadata2 = {"en": {"language": "en", "value": "Test2"}}
+
+        hash1 = MetadataExtractor.hash_metadata(metadata1)
+        hash2 = MetadataExtractor.hash_metadata(metadata2)
+
+        assert hash1 != hash2

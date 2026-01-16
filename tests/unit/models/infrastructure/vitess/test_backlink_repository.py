@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock
-from models.infrastructure.vitess.backlink_repository import BacklinkRepository
+from models.infrastructure.vitess.backlink_repository import BacklinkRepository, BacklinkEntry
 
 
 class TestBacklinkRepository:
@@ -23,7 +23,7 @@ class TestBacklinkRepository:
         ]
 
         cursor_mock = Mock()
-        self.conn.cursor.return_value.__enter__.return_value = cursor_mock
+        self.conn.cursor = Mock(return_value=cursor_mock)
 
         self.repository.insert_backlinks(self.conn, backlinks)
 
@@ -46,7 +46,7 @@ class TestBacklinkRepository:
         ]
 
         cursor_mock = Mock()
-        self.conn.cursor.return_value.__enter__.return_value = cursor_mock
+        self.conn.cursor = Mock(return_value=cursor_mock)
 
         self.repository.insert_backlinks(self.conn, backlinks)
 
@@ -66,7 +66,7 @@ class TestBacklinkRepository:
         referencing_internal_id = 456
 
         cursor_mock = Mock()
-        self.conn.cursor.return_value.__enter__.return_value = cursor_mock
+        self.conn.cursor = Mock(return_value=cursor_mock)
 
         self.repository.delete_backlinks_for_entity(self.conn, referencing_internal_id)
 
@@ -81,7 +81,7 @@ class TestBacklinkRepository:
 
         cursor_mock = Mock()
         cursor_mock.fetchall.return_value = []
-        self.conn.cursor.return_value.__enter__.return_value = cursor_mock
+        self.conn.cursor = Mock(return_value=cursor_mock)
 
         result = self.repository.get_backlinks(self.conn, referenced_internal_id)
 
@@ -106,7 +106,7 @@ class TestBacklinkRepository:
             (456, 789, "P31", "normal"),
             (457, 790, "P32", "preferred"),
         ]
-        self.conn.cursor.return_value.__enter__.return_value = cursor_mock
+        self.conn.cursor = Mock(return_value=cursor_mock)
 
         result = self.repository.get_backlinks(self.conn, referenced_internal_id)
 
@@ -134,7 +134,7 @@ class TestBacklinkRepository:
 
         cursor_mock = Mock()
         cursor_mock.fetchall.return_value = []
-        self.conn.cursor.return_value.__enter__.return_value = cursor_mock
+        self.conn.cursor = Mock(return_value=cursor_mock)
 
         result = self.repository.get_backlinks(
             self.conn, referenced_internal_id, limit, offset
@@ -159,8 +159,8 @@ class TestBacklinkRepository:
         ]
 
         cursor_mock = Mock()
-        self.conn.cursor.return_value.__enter__.return_value = cursor_mock
-        self.conn.cursor.return_value.__exit__.return_value = None
+        self.conn.cursor = Mock(return_value=cursor_mock)
+        cursor_mock.__exit__ = Mock(return_value=None)
 
         self.repository.insert_backlinks(self.conn, backlinks)
 
@@ -176,7 +176,7 @@ class TestBacklinkRepository:
         top_entities = [{"id": "Q42", "count": 50}, {"id": "Q43", "count": 45}]
 
         cursor_mock = Mock()
-        self.conn.cursor.return_value.__enter__.return_value = cursor_mock
+        self.conn.cursor = Mock(return_value=cursor_mock)
 
         self.repository.insert_backlink_statistics(
             self.conn, date, total_backlinks, unique_entities, top_entities
@@ -270,7 +270,7 @@ class TestBacklinkRepository:
         """Test handling of database execution errors."""
         cursor_mock = Mock()
         cursor_mock.execute.side_effect = Exception("Database connection failed")
-        self.conn.cursor.return_value.__enter__.return_value = cursor_mock
+        self.conn.cursor = Mock(return_value=cursor_mock)
 
         with pytest.raises(Exception) as exc_info:
             self.repository.insert_backlink_statistics(

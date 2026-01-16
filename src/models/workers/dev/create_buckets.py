@@ -4,6 +4,7 @@ import logging
 import os
 from typing import Any, Dict, List
 
+import boto3 as _boto3
 from botocore.exceptions import ClientError
 from pydantic import BaseModel
 
@@ -26,20 +27,11 @@ class CreateBuckets(BaseModel):
 
     def __init__(self, **data: Any):
         super().__init__(**data)
-        # Lazy import boto3 to avoid import errors in environments without it
-        try:
-            import boto3
-
-            self._boto3 = boto3
-        except ImportError:
-            raise ImportError(
-                "boto3 is required for CreateBuckets. Install with: pip install boto3"
-            )
 
     @property
     def s3_client(self) -> Any:
         """Get S3 client with shared credentials for all buckets."""
-        return self._boto3.client(
+        return _boto3.client(
             "s3",
             endpoint_url=self.minio_endpoint,
             aws_access_key_id=self.minio_access_key,
