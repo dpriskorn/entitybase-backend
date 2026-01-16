@@ -24,7 +24,6 @@ class WorkerHealthCheckResponse(BaseModel):
 
     status: str = Field(description="Health status: healthy or unhealthy")
     worker_id: str = Field(description="Unique worker identifier")
-    range_status: dict[str, Any] | None = Field(
-        default=None,
-        description="Current ID range allocation status (None for non-ID workers)",
+    range_status: dict[str, Any] = Field(
+        default_factory=dict, description="Current ID range allocation status"
     )

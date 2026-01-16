@@ -59,7 +59,9 @@ async def get_entity_rdf_revision(
     req: Request,
     entity_id: str,
     revision_id: int,
-    format: str = Query("turtle", enum=["turtle", "rdfxml", "ntriples"]),
+    format_: str = Query(
+        "turtle", alias="format", enum=["turtle", "rdfxml", "ntriples"]
+    ),
 ) -> Response:
     """Get RDF representation of a specific entity revision."""
     from models.workers.entity_diff_worker import RDFSerializer
@@ -68,13 +70,13 @@ async def get_entity_rdf_revision(
     revision_data = clients.s3.read_revision(entity_id, revision_id)
 
     serializer = RDFSerializer()
-    rdf_content = serializer.entity_data_to_rdf(revision_data.data, format)
+    rdf_content = serializer.entity_data_to_rdf(revision_data.data, format_)
 
     content_type = {
         "turtle": "text/turtle",
         "rdfxml": "application/rdf+xml",
         "ntriples": "application/n-triples",
-    }.get(format, "text/turtle")
+    }.get(format_, "text/turtle")
 
     return Response(content=rdf_content, media_type=content_type)
 
