@@ -542,7 +542,7 @@ class VitessClient(Client):
                 EntityHistoryEntry(
                     revision_id=record.revision_id,
                     created_at=record.created_at,
-                    user_id=record.created_by_user_id,
+                    user_id=record.user_id,
                     edit_summary=record.edit_summary,
                 )
                 for record in history

@@ -130,6 +130,8 @@ class SchemaManager:
                 descriptions_hashes JSON,
                 aliases_hashes JSON,
                 sitelinks_hashes JSON,
+                user_id BIGINT UNSIGNED,
+                edit_summary TEXT,
                 PRIMARY KEY (internal_id, revision_id)
             )
         """
