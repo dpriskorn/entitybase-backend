@@ -15,10 +15,10 @@ from .entity.entitybase import (
 )
 from .entity import WikibaseEntityResponse
 from .entity.wikibase import (
-    EntityMetadataResponse,
-    EntityLabelsResponse,
-    EntityDescriptionsResponse,
-    EntityAliasesResponse,
+    EntityMetadata,
+    EntityLabels,
+    EntityDescriptions,
+    EntityAliases,
 )
 from .statement import (
     MostUsedStatementsResponse,
@@ -45,13 +45,10 @@ __all__ = [
     "BacklinksResponse",
     "CleanupOrphanedResponse",
     "DeduplicationStatsResponse",
-    "EntityAliasesResponse",
-    "EntityDeleteResponse",
-    "EntityDescriptionsResponse",
-    "EntityJsonImportResponse",
-    "EntityLabelsResponse",
-    "EntityListResponse",
-    "EntityMetadataResponse",
+    "EntityAliases",
+    "EntityDescriptions",
+    "EntityLabels",
+    "EntityMetadata",
     "EntityMetadataBatchResponse",
     "EntityRedirectResponse",
     "EntityResponse",
