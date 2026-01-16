@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 
 
+# noinspection PyUnresolvedReferences
 def extract_repository_info(repo_file: Path) -> Dict[str, Any]:
     """Extract information from a repository file."""
     info = {
