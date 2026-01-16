@@ -46,18 +46,18 @@ def test_compute_property_counts_from_claims() -> None:
     counts = StatementExtractor.compute_property_counts_from_claims(claims)
 
     expected = {"P31": 1, "P569": 2, "P279": 1}  # excluding empty P19
-    assert counts == expected, f"Expected {expected}, got {counts}"
+    assert counts.counts == expected, f"Expected {expected}, got {counts.counts}"
 
 
 def test_compute_property_counts_from_claims_empty() -> None:
     """Test with no claims"""
     claims: dict[str, list[dict[str, str]]] = {}
     counts = StatementExtractor.compute_property_counts_from_claims(claims)
-    assert counts == {}, "Expected empty dict"
+    assert counts.counts == {}, "Expected empty dict"
 
 
 def test_compute_property_counts_from_claims_all_empty() -> None:
     """Test with only empty claim lists"""
     claims: dict[str, list[dict[str, str]]] = {"P31": [], "P569": []}
     counts = StatementExtractor.compute_property_counts_from_claims(claims)
-    assert counts == {}, "Expected empty dict"
+    assert counts.counts == {}, "Expected empty dict"

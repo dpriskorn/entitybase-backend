@@ -63,7 +63,8 @@ class TestEntityDiffWorker:
         """Set up test fixtures."""
         self.worker = EntityDiffWorker()
 
-    def test_compute_diff_no_changes(self):
+    @pytest.mark.asyncio
+    async def test_compute_diff_no_changes(self):
         """Test diff when both versions are identical."""
         rdf_content = """
         @prefix wd: <http://www.wikidata.org/entity/> .
@@ -79,7 +80,7 @@ class TestEntityDiffWorker:
             format="turtle",
         )
 
-        response = self.worker.compute_diff(request)
+        response = await self.worker.compute_diff(request)
 
         assert isinstance(response, EntityDiffResponse)
         assert response.entity_id == "Q42"
@@ -88,7 +89,8 @@ class TestEntityDiffWorker:
         assert response.triple_count_v1 == response.triple_count_v2
         assert response.processing_time_ms >= 0
 
-    def test_compute_diff_with_changes(self):
+    @pytest.mark.asyncio
+    async def test_compute_diff_with_changes(self):
         """Test diff when versions have differences."""
         rdf_v1 = """
         @prefix wd: <http://www.wikidata.org/entity/> .
@@ -112,7 +114,7 @@ class TestEntityDiffWorker:
             format="turtle",
         )
 
-        response = self.worker.compute_diff(request)
+        response = await self.worker.compute_diff(request)
 
         assert isinstance(response, EntityDiffResponse)
         assert response.entity_id == "Q42"

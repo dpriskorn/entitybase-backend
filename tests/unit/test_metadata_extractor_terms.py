@@ -4,6 +4,7 @@ from models.internal_representation.metadata_extractor import (
     MetadataExtractor,
     LabelsResponse,
     DescriptionsResponse,
+    AliasesResponse,
 )
 
 
@@ -62,14 +63,14 @@ class TestMetadataExtractor(unittest.TestCase):
             }
         }
         result = MetadataExtractor.extract_aliases(entity)
-        expected = {"en": ["DNA", "42"], "fr": ["ADN"]}
+        expected = AliasesResponse(aliases={"en": ["DNA", "42"], "fr": ["ADN"]})
         self.assertEqual(result, expected)
 
     def test_extract_aliases_empty(self):
         """Test extracting aliases when none exist"""
         entity = {}
         result = MetadataExtractor.extract_aliases(entity)
-        self.assertEqual(result, {})
+        self.assertEqual(result, AliasesResponse(aliases={}))
 
     def test_extract_aliases_malformed(self):
         """Test extracting aliases with missing value fields"""
@@ -82,7 +83,7 @@ class TestMetadataExtractor(unittest.TestCase):
             }
         }
         result = MetadataExtractor.extract_aliases(entity)
-        expected = {"en": ["DNA"]}
+        expected = AliasesResponse(aliases={"en": ["DNA"]})
         self.assertEqual(result, expected)
 
     @patch("rapidhash.rapidhash")
