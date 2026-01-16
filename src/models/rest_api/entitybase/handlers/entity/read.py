@@ -192,7 +192,7 @@ class EntityReadHandler:
             return EntityRevisionResponse(
                 entity_id=entity_id,
                 revision_id=revision_id,
-                data=data,
+                revision_data=data,
             )
         except Exception as e:
             logger.error(
