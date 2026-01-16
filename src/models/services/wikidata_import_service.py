@@ -14,10 +14,16 @@ logger = logging.getLogger(__name__)
 
 
 class WikidataImportService(BaseModel):
-    """Service for importing entities from Wikidata."""
+"""Service for importing entities from Wikidata."""
 
-    WIKIDATA_API_URL: str = "https://www.wikidata.org/w/api.php"
-    USER_AGENT: str = "WikibaseBackend/1.0 (research@wikibase-backend.org)"
+from pydantic import BaseModel
+
+WIKIDATA_API_URL = "https://www.wikidata.org/w/api.php"
+USER_AGENT = "WikibaseBackend/1.0 (research@wikibase-backend.org)"
+
+
+class WikidataImportService(BaseModel):
+    """Service for importing entities from Wikidata."""
 
     @staticmethod
     def fetch_entity_data(entity_id: str) -> RawEntityData:
@@ -38,11 +44,11 @@ class WikidataImportService(BaseModel):
             "format": "json",
         }
 
-        headers = {"User-Agent": WikidataImportService.USER_AGENT}
+        headers = {"User-Agent": USER_AGENT}
 
         try:
             response = requests.get(
-                WikidataImportService.WIKIDATA_API_URL,
+                WIKIDATA_API_URL,
                 params=params,
                 headers=headers,
                 timeout=30,

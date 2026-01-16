@@ -9,7 +9,7 @@ class StatementHasher:
     """Utilities for computing statement content hashes."""
 
     @staticmethod
-    def compute_hash(statement_dict: dict[str, Any]) -> int:
+    def compute_hash(statement: dict[str, Any] | "Statement") -> int:  # type: ignore[name-defined]
         """Compute rapidhash of full statement JSON (mainsnak + qualifiers + references).
 
         Hash includes:
@@ -23,11 +23,16 @@ class StatementHasher:
         - id (GUID, not content)
 
         Args:
-            statement_dict: Statement dict to hash.
+            statement: Statement dict or Statement object to hash.
 
         Returns:
             64-bit rapidhash integer.
         """
-        statement_for_hash = {k: v for k, v in statement_dict.items() if k != "id"}
+        from models.internal_representation.statements import Statement
+        if isinstance(statement, Statement):
+            statement_dict = statement.model_dump()
+        else:
+            statement_dict = statement
+        statement_for_hash = {k: v for k, v in statement_dict.items() if k != "statement_id"}
         canonical_json = json.dumps(statement_for_hash, sort_keys=True)
         return rapidhash(canonical_json.encode())

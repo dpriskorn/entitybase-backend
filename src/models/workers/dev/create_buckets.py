@@ -9,6 +9,13 @@ from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
+# Lazy import boto3 to avoid import errors in environments without it
+try:
+    import boto3
+    _boto3 = boto3
+except ImportError:
+    _boto3 = None
+
 
 class CreateBuckets(BaseModel):
     """Development worker for MinIO bucket management and setup tasks."""

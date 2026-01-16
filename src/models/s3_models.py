@@ -39,8 +39,17 @@ class RevisionData(BaseModel):
     """Model for revision JSON data structure."""
 
     schema_version: str
+    revision_id: int | None = Field(default=None)
+    created_at: str = Field(default="")
+    created_by: str = Field(default="")
+    entity_type: str = Field(default="")
     entity: EntityData
     redirects_to: str = Field(default="")
+    labels_hashes: dict[str, int] | None = Field(default=None)
+    descriptions_hashes: dict[str, int] | None = Field(default=None)
+    aliases_hashes: dict[str, list[int]] | None = Field(default=None)
+    sitelinks_hashes: dict[str, int] | None = Field(default=None)
+    statements_hashes: dict[str, list[int]] | None = Field(default=None)
 
 
 class RevisionReadResponse(BaseModel):
