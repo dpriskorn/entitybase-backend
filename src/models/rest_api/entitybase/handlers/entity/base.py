@@ -372,7 +372,7 @@ class EntityHandler(BaseModel):
                 entity_id=entity_id,
                 revision_id=new_revision_id,
                 expected_revision_id=head_revision_id,
-                entity_data=entity_data
+                entity_data=request_data,
             )
             logger.info(
                 f"Entity {entity_id}: Successfully created revision {new_revision_id}"
