@@ -178,7 +178,7 @@ class EntityHandler(BaseModel):
                     is_mass_edit_protected=head_revision.data.get(
                         "is_mass_edit_protected", False
                     ),
-                    entity_data=head_revision.data.get("entity_data", {})
+                    entity_data=head_revision.data.get("entity_data", {}),
                 )
         except Exception as e:
             logger.warning(f"Failed to read head revision for idempotency check: {e}")
@@ -368,12 +368,12 @@ class EntityHandler(BaseModel):
         # Store revision in S3 and update head
         logger.info(f"Entity {entity_id}: Creating revision {new_revision_id}")
         try:
-            vitess_client.create_revision(
-                entity_id=entity_id,
-                revision_id=new_revision_id,
-                entity_data=revision_data,
-                expected_revision_id=0 if is_creation else head_revision_id,
-            )
+        vitess_client.create_revision(
+            entity_id=entity_id,
+            revision_id=new_revision_id,
+            expected_revision_id=head_revision_id,
+            entity_data=entity_data
+        )
             logger.info(
                 f"Entity {entity_id}: Successfully created revision {new_revision_id}"
             )
