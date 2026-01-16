@@ -35,6 +35,36 @@ class RevisionMetadata(BaseModel):
     key: str
 
 
+class LabelsHashes(BaseModel):
+    """Hash map for entity labels by language."""
+
+    __root__: dict[str, int]  # language -> hash
+
+
+class DescriptionsHashes(BaseModel):
+    """Hash map for entity descriptions by language."""
+
+    __root__: dict[str, int]  # language -> hash
+
+
+class AliasesHashes(BaseModel):
+    """Hash map for entity aliases by language."""
+
+    __root__: dict[str, list[int]]  # language -> list of hashes
+
+
+class SitelinksHashes(BaseModel):
+    """Hash map for entity sitelinks by site."""
+
+    __root__: dict[str, int]  # site -> hash
+
+
+class StatementsHashes(BaseModel):
+    """Hash map for entity statements by property."""
+
+    __root__: dict[str, list[int]]  # property -> list of hashes
+
+
 class RevisionData(BaseModel):
     """Model for revision JSON data structure."""
 
@@ -45,11 +75,11 @@ class RevisionData(BaseModel):
     entity_type: str = Field(default="")
     entity: EntityData
     redirects_to: str = Field(default="")
-    labels_hashes: dict[str, int] | None = Field(default=None)
-    descriptions_hashes: dict[str, int] | None = Field(default=None)
-    aliases_hashes: dict[str, list[int]] | None = Field(default=None)
-    sitelinks_hashes: dict[str, int] | None = Field(default=None)
-    statements_hashes: dict[str, list[int]] | None = Field(default=None)
+    labels_hashes: LabelsHashes | None = Field(default=None)
+    descriptions_hashes: DescriptionsHashes | None = Field(default=None)
+    aliases_hashes: AliasesHashes | None = Field(default=None)
+    sitelinks_hashes: SitelinksHashes | None = Field(default=None)
+    statements_hashes: StatementsHashes | None = Field(default=None)
 
 
 class RevisionReadResponse(BaseModel):
