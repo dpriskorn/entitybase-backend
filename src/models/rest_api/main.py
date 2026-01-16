@@ -27,9 +27,16 @@ from models.rest_api.entitybase.request.entity import (
     RedirectRevertRequest,
     EntityRevertRequest,
 )
-from models.rest_api.entitybase.request.user import UserCreateRequest, WatchlistToggleRequest
+from models.rest_api.entitybase.request.user import (
+    UserCreateRequest,
+    WatchlistToggleRequest,
+)
 from models.rest_api.entitybase.request.user_preferences import UserPreferencesRequest
-from models.rest_api.entitybase.response import TtlResponse, RevisionMetadataResponse, HealthCheckResponse
+from models.rest_api.entitybase.response import (
+    TtlResponse,
+    RevisionMetadataResponse,
+    HealthCheckResponse,
+)
 from models.rest_api.entitybase.response import (
     PropertyCountsResponse,
     PropertyHashesResponse,
@@ -50,7 +57,11 @@ from .entitybase.handlers.user_activity import UserActivityHandler
 from .entitybase.handlers.user_preferences import UserPreferencesHandler
 from .entitybase.response.entity import EntityRevertResponse
 from .entitybase.response.misc import RawRevisionResponse, WatchCounts
-from .entitybase.response.user import MessageResponse, WatchlistToggleResponse, UserCreateResponse
+from .entitybase.response.user import (
+    MessageResponse,
+    WatchlistToggleResponse,
+    UserCreateResponse,
+)
 from .entitybase.response.user_activity import UserActivityResponse
 from .entitybase.response.user_preferences import UserPreferencesResponse
 from .entitybase.services.enumeration_service import EnumerationService
@@ -193,10 +204,15 @@ def health_redirect() -> RedirectResponse:
 
 @app.post("/v1/users", response_model=UserCreateResponse)
 def create_user(request: UserCreateRequest) -> UserCreateResponse:
-    """Create/register a user with MediaWiki user ID."""
+    """Create a new user."""
     clients = app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
     handler = UserHandler()
-    return handler.create_user(request, clients.vitess)
+    result = handler.create_user(request, clients.vitess)
+    if not isinstance(result, UserCreateResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
 
 
 @app.get("/v1/users/{user_id}", response_model=User)
@@ -204,7 +220,10 @@ def get_user(user_id: int) -> User:
     """Get user information by MediaWiki user ID."""
     clients = app.state.clients
     handler = UserHandler()
-    return handler.get_user(user_id, clients.vitess)
+    result = handler.get_user(user_id, clients.vitess)
+    if not isinstance(result, User):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
 
 
 @app.put("/v1/users/{user_id}/watchlist/toggle", response_model=WatchlistToggleResponse)
@@ -213,9 +232,12 @@ def toggle_watchlist(
 ) -> WatchlistToggleResponse:
     """Enable or disable watchlist for user."""
     clients = app.state.clients
-    handler = UserHandler()
+    handler = WatchlistHandler()
     try:
-        return handler.toggle_watchlist(user_id, request, clients.vitess)
+        result = handler.get_watch_counts(user_id, clients.vitess)
+        if not isinstance(result, WatchCounts):
+            raise_validation_error("Invalid response type", status_code=500)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -226,7 +248,10 @@ def add_watch(request: WatchlistAddRequest) -> MessageResponse:
     clients = app.state.clients
     handler = WatchlistHandler()
     try:
-        return handler.add_watch(request, clients.vitess)
+        result = handler.add_watch(request, clients.vitess)
+        if not isinstance(result, MessageResponse):
+            raise_validation_error("Invalid response type", status_code=500)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -247,7 +272,10 @@ def get_watchlist(
     clients = app.state.clients
     handler = WatchlistHandler()
     try:
-        return handler.get_watches(user_id, clients.vitess)
+        result = handler.get_watches(user_id, clients.vitess)
+        if not isinstance(result, WatchlistResponse):
+            raise_validation_error("Invalid response type", status_code=500)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -260,7 +288,10 @@ def get_watch_counts(
     clients = app.state.clients
     handler = WatchlistHandler()
     try:
-        return handler.get_watch_counts(user_id, clients.vitess)
+        result = handler.get_watches(user_id, clients.vitess)
+        if not isinstance(result, WatchlistResponse):
+            raise_validation_error("Invalid response type", status_code=500)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -283,7 +314,10 @@ def get_notifications(
     clients = app.state.clients
     handler = WatchlistHandler()
     try:
-        return handler.get_notifications(user_id, clients.vitess, hours, limit, offset)
+        result = handler.get_notifications(user_id, clients.vitess, hours, limit, offset)
+        if not isinstance(result, NotificationResponse):
+            raise_validation_error("Invalid response type", status_code=500)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -296,7 +330,10 @@ def mark_notification_checked(
     """Mark a notification as checked."""
     clients = app.state.clients
     handler = WatchlistHandler()
-    return handler.mark_checked(user_id, request, clients.vitess)
+    result = handler.mark_checked(user_id, request, clients.vitess)
+    if not isinstance(result, MessageResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
 
 
 @app.get("/v1/users/{user_id}/activity", response_model=UserActivityResponse)
@@ -319,9 +356,12 @@ def get_user_activity(
     clients = app.state.clients
     handler = UserActivityHandler()
     try:
-        return handler.get_user_activities(
+        result = handler.get_user_activities(
             user_id, clients.vitess, type, hours, limit, offset
         )
+        if not isinstance(result, UserActivityResponse):
+            raise_validation_error("Invalid response type", status_code=500)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -330,9 +370,14 @@ def get_user_activity(
 def get_user_preferences(user_id: int) -> UserPreferencesResponse:
     """Get user's notification preferences."""
     clients = app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
     handler = UserPreferencesHandler()
     try:
-        return handler.get_preferences(user_id, clients.vitess)
+        result = handler.get_preferences(user_id, clients.vitess)
+        if not isinstance(result, UserPreferencesResponse):
+            raise_validation_error("Invalid response type", status_code=500)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -343,9 +388,14 @@ def update_user_preferences(
 ) -> UserPreferencesResponse:
     """Update user's notification preferences."""
     clients = app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
     handler = UserPreferencesHandler()
     try:
-        return handler.update_preferences(user_id, request, clients.vitess)
+        result = handler.update_preferences(user_id, request, clients.vitess)
+        if not isinstance(result, UserPreferencesResponse):
+            raise_validation_error("Invalid response type", status_code=500)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -358,13 +408,15 @@ def revert_entity(
     request: EntityRevertRequest,
     user_id: int = Header(..., alias="X-User-ID"),
 ) -> EntityRevertResponse:
-    """Revert an entity to a previous revision."""
-    if user_id <= 0:
-        raise HTTPException(status_code=400, detail="Valid user ID required")
-
+    """Revert entity to a previous revision."""
     clients = app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityRevertHandler()
-    return handler.revert_entity(entity_id, request, clients.vitess, user_id)
+    result = handler.revert_entity(entity_id, request, clients.vitess, user_id)
+    if not isinstance(result, EntityRevertResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
 
 
 @v1_router.get("/entities/{entity_id}", response_model=EntityResponse)
@@ -403,9 +455,12 @@ def get_entity_history(
 async def get_entity_data_turtle(entity_id: str) -> TtlResponse:
     clients = app.state.clients
     handler = ExportHandler()
-    return handler.get_entity_data_turtle(
+    result = handler.get_entity_data_turtle(
         entity_id, clients.vitess, clients.s3, clients.property_registry
     )
+    if not isinstance(result, TtlResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
 
 
 @app.post("/redirects")
@@ -460,7 +515,10 @@ def get_raw_revision(entity_id: str, revision_id: int) -> RawRevisionResponse:
     """Retrieve raw revision data from storage."""
     clients = app.state.clients
     handler = AdminHandler()
-    return handler.get_raw_revision(entity_id, revision_id, clients.vitess, clients.s3)  # type: ignore
+    result = handler.get_raw_revision(entity_id, revision_id, clients.vitess, clients.s3)  # type: ignore
+    if not isinstance(result, RawRevisionResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
 
 
 @app.get("/entities", response_model=EntityListResponse)
@@ -621,7 +679,10 @@ def get_entity_property_counts(entity_id: str) -> PropertyCountsResponse:
     """Get statement counts for each property in an entity."""
     clients = app.state.clients
     handler = StatementHandler()
-    return handler.get_entity_property_counts(entity_id, clients.vitess, clients.s3)
+    result = handler.get_entity_property_counts(entity_id, clients.vitess, clients.s3)
+    if not isinstance(result, PropertyCountsResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
 
 
 @app.get(
