@@ -142,6 +142,8 @@ class EntityHandler(BaseModel):
             is_creation=is_creation,
         )
 
+        if not isinstance(revision_response, EntityRevisionResponse):
+            raise_validation_error("Invalid response type", status_code=500)
         return revision_response
 
     def _check_idempotency(
