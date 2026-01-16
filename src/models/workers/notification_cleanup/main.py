@@ -3,7 +3,7 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import AsyncGenerator
 
 from models.config.settings import settings
@@ -42,7 +42,7 @@ class NotificationCleanupWorker:
             deleted_count = 0
 
             # 1. Delete notifications older than max_age_days
-            cutoff_date = datetime.utcnow() - timedelta(days=self.max_age_days)
+            cutoff_date = datetime.now(timezone.utc) - timedelta(days=self.max_age_days)
             age_deleted = self._delete_old_notifications(cutoff_date)
             deleted_count += age_deleted
             self.logger.info(
@@ -120,6 +120,7 @@ async def main() -> None:
 
     worker = NotificationCleanupWorker()
 
+    # noinspection PyArgumentList
     async with worker.lifespan():
         # Run cleanup once (for manual execution or cron)
         await worker.run_cleanup()

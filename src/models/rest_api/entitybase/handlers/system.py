@@ -1,7 +1,5 @@
 """Handler for system health check operations."""
 
-from typing import TYPE_CHECKING
-
 from fastapi import Response
 from starlette import status
 

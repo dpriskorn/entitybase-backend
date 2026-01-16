@@ -7,7 +7,7 @@ sys.path.insert(0, "src")
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from models.config.settings import settings
 from models.infrastructure.vitess_client import VitessClient
@@ -66,7 +66,9 @@ class WatchlistAutoDisableWorker:
 
     def _get_inactive_users(self) -> list[int]:
         """Get list of user IDs that are inactive and have enabled watchlists."""
-        cutoff_date = datetime.utcnow() - timedelta(days=self.disable_threshold_days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(
+            days=self.disable_threshold_days
+        )
         inactive_users = []
 
         with self.vitess_client.get_connection() as conn:
@@ -94,6 +96,7 @@ async def main() -> None:
 
     worker = WatchlistAutoDisableWorker()
 
+    # noinspection PyArgumentList
     async with worker.lifespan():
         # Run auto-disable once (for manual execution or cron)
         await worker.run_auto_disable()

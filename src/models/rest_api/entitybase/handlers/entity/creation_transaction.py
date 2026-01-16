@@ -135,6 +135,7 @@ class EntityTransaction(BaseModel, ABC):
                 changed_at=changed_at,
                 editor=editor,
                 edit_summary=edit_summary,
+                bot=False,
             )
             stream_producer.publish_change(event)
         # Events are fire-and-forget, no rollback needed

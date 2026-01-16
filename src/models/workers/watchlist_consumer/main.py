@@ -179,6 +179,7 @@ async def main() -> None:
 
     worker = WatchlistConsumerWorker()
 
+    # noinspection PyArgumentList
     async with worker.lifespan():
         await worker.run()
 

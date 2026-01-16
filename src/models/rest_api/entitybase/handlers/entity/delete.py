@@ -167,6 +167,7 @@ class EntityDeleteHandler:
                         changed_at=datetime.now(timezone.utc),
                         editor=request.editor,
                         edit_summary=request.edit_summary,
+                        bot=False,
                     )
                 )
                 logger.debug(

@@ -171,7 +171,7 @@ class EntityReadHandler:
         try:
             revision = s3_client.read_revision(entity_id, revision_id)
             data = revision.data.model_dump()
-            entity_data = revision.data.entity.copy()
+            entity_data = revision.data.entity.model_copy()
 
             # Load metadata from S3
             labels_hash = data.get("labels_hash")
