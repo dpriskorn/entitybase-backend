@@ -115,20 +115,19 @@ def generate_entity_relationship_diagram(tables: List[Dict[str, str]]) -> str:
 
 def generate_markdown(tables: List[Dict[str, str]]) -> str:
     """Generate markdown overview of database schema."""
-    lines = ["# Database Schema Overview\n"]
-
-    lines.append(
-        "This document describes the Vitess database schema used by wikibase-backend.\n"
-    )
+    lines = [
+        "# Database Schema Overview\n",
+        "This document describes the Vitess database schema used by wikibase-backend.\n",
+        f"## Summary\n",
+        f"- **Total Tables**: {len(tables)}",
+        "- **Database**: MySQL (via Vitess)",
+        "- **Schema File**: `src/models/infrastructure/vitess/schema.py`\n",
+        "## Tables\n",
+    ]
 
     # Summary
-    lines.append(f"## Summary\n")
-    lines.append(f"- **Total Tables**: {len(tables)}")
-    lines.append("- **Database**: MySQL (via Vitess)")
-    lines.append("- **Schema File**: `src/models/infrastructure/vitess/schema.py`\n")
 
     # Tables
-    lines.append("## Tables\n")
 
     for table in tables:
         lines.append(f"### {table['name']}\n")

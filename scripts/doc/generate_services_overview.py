@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 
 
+# noinspection PyUnresolvedReferences
 def extract_service_info(service_file: Path) -> Dict[str, Any]:
     """Extract information from a service file."""
     info = {

@@ -73,11 +73,10 @@ def extract_repository_info(repo_file: Path) -> Dict[str, Any]:
 
 def generate_markdown(repositories: List[Dict[str, Any]]) -> str:
     """Generate markdown overview of repositories."""
-    lines = ["# Repository Classes Overview\n"]
-
-    lines.append(
-        "This document describes the repository classes that handle data access to Vitess.\n"
-    )
+    lines = [
+        "# Repository Classes Overview\n",
+        "This document describes the repository classes that handle data access to Vitess.\n",
+    ]
 
     # Group repositories by functionality
     grouped = {
