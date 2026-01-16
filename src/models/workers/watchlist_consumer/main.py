@@ -179,7 +179,7 @@ async def main() -> None:
 
     worker = WatchlistConsumerWorker()
 
-    async with worker.lifespan(self=self):
+    async with worker.lifespan():
         await worker.run()
 
 
