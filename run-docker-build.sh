@@ -7,6 +7,7 @@ docker compose --file docker/docker-compose.yml down --remove-orphans -t 0 -v #>
 #docker ps -aq | xargs -r docker rm -f
 #docker container ls
 # ./run-linters.sh
+./export-requirements.sh
 # with cache
 nice -20 docker compose --file docker/docker-compose.yml build # >/dev/null 2>&1
 # no cache
