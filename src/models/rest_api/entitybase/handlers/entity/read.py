@@ -8,8 +8,8 @@ from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.response import (
     EntityResponse,
     EntityRevisionResponse,
-    EntityHistoryEntry,
 )
+from models.rest_api.entitybase.response.entity import EntityHistoryEntry
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.request.entity import EntityRevertRequest
-from models.rest_api.entitybase.response import EntityRevertResponse
+from models.rest_api.entitybase.response.entity.revert import EntityRevertResponse
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

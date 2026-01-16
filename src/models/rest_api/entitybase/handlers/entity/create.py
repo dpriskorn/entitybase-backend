@@ -12,7 +12,7 @@ from models.infrastructure.vitess_client import VitessClient
 from .base import EntityHandler
 from models.rest_api.entitybase.request import EntityCreateRequest
 from models.rest_api.entitybase.response import EntityResponse
-from models.rest_api.services.enumeration_service import EnumerationService
+from models.rest_api.entitybase.services.enumeration_service import EnumerationService
 
 logger = logging.getLogger(__name__)
 

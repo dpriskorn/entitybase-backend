@@ -2,7 +2,7 @@
 
 from typing import Any, List
 
-from models.rest_api.response.misc import TermsResponse
+from models.rest_api.entitybase.response.misc import TermsResponse
 
 
 class TermsRepository:

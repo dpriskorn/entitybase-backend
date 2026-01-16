@@ -89,7 +89,7 @@ class EntityDeleteRequest(BaseModel):
     delete_type: DeleteType = Field(description="Type of deletion")
     entity_id: str = Field(min_length=1, description="ID of the entity to delete")
     edit_summary: str = Field(min_length=1, description="Edit summary for this change")
-    user_id: str = Field(default=0, description="User who made this change")
+    user_id: int = Field(default=0, description="User who made this change")
 
     @property
     def data(self) -> Dict[str, Any]:

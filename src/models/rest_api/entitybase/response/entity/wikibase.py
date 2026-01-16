@@ -24,48 +24,54 @@ class AliasValue(BaseModel):
     value: str = Field(..., min_length=1)
 
 
-class EntityLabels(BaseModel):
+class EntityLabelsResponse(BaseModel):
     """Collection of labels keyed by language code."""
 
     data: dict[str, LabelValue] = Field(default_factory=dict)
 
 
-class EntityDescriptions(BaseModel):
+class EntityDescriptionsResponse(BaseModel):
     """Collection of descriptions keyed by language code."""
 
     data: dict[str, DescriptionValue] = Field(default_factory=dict)
 
 
-class EntityAliases(BaseModel):
+class EntityAliasesResponse(BaseModel):
     """Collection of aliases keyed by language code."""
 
     data: dict[str, list[AliasValue]] = Field(default_factory=dict)
 
 
-class EntityStatements(BaseModel):
+class EntityStatementsResponse(BaseModel):
     """List of entity statements."""
 
     data: list[dict[str, Any]] = Field(default_factory=list)
 
 
-class EntitySitelinks(BaseModel):
+class EntitySitelinksResponse(BaseModel):
     """Collection of sitelinks."""
 
     data: dict[str, Any] = Field(default_factory=dict)
 
 
-class EntityMetadata(BaseModel):
+class EntityMetadataResponse(BaseModel):
     """Model for entity metadata."""
 
     id: str
     type: str = Field(default="item")
-    labels: EntityLabels = Field(default_factory=lambda: EntityLabels())
-    descriptions: EntityDescriptions = Field(
-        default_factory=lambda: EntityDescriptions()
+    labels: EntityLabelsResponse = Field(default_factory=lambda: EntityLabelsResponse())
+    descriptions: EntityDescriptionsResponse = Field(
+        default_factory=lambda: EntityDescriptionsResponse()
     )
-    aliases: EntityAliases = Field(default_factory=lambda: EntityAliases())
-    statements: EntityStatements = Field(default_factory=lambda: EntityStatements())
-    sitelinks: EntitySitelinks = Field(default_factory=lambda: EntitySitelinks())
+    aliases: EntityAliasesResponse = Field(
+        default_factory=lambda: EntityAliasesResponse()
+    )
+    statements: EntityStatementsResponse = Field(
+        default_factory=lambda: EntityStatementsResponse()
+    )
+    sitelinks: EntitySitelinksResponse = Field(
+        default_factory=lambda: EntitySitelinksResponse()
+    )
 
 
 class WikibaseEntityResponse(BaseModel):

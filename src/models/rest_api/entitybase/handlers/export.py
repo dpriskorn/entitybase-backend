@@ -7,7 +7,7 @@ from models.rest_api.entitybase.response import TtlResponse
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
-from models.rest_api.services.rdf_service import serialize_entity_to_turtle
+from models.rest_api.entitybase.services.rdf_service import serialize_entity_to_turtle
 
 logger = logging.getLogger(__name__)
 

@@ -15,10 +15,10 @@ from .entity.entitybase import (
 )
 from .entity import WikibaseEntityResponse
 from .entity.wikibase import (
-    EntityMetadata,
-    EntityLabels,
-    EntityDescriptions,
-    EntityAliases,
+    EntityMetadataResponse,
+    EntityLabelsResponse,
+    EntityDescriptionsResponse,
+    EntityAliasesResponse,
 )
 from .statement import (
     MostUsedStatementsResponse,
@@ -30,33 +30,33 @@ from .statement import (
     StatementHashResult,
     StatementResponse,
 )
-from .health import HealthCheckResponse, HealthResponse, WorkerHealthCheck
+from .health import HealthCheckResponse, HealthResponse, WorkerHealthCheckResponse
 from .misc import CleanupOrphanedResponse, RevisionMetadataResponse, TtlResponse
 from .rdf import (
-    DeduplicationStats,
-    FullRevisionData,
+    DeduplicationStatsResponse,
+    FullRevisionResponse,
     MetadataLoadResponse,
     RedirectBatchResponse,
-    WikibasePredicates,
+    WikibasePredicatesResponse,
 )
 
 __all__ = [
     "Backlink",
     "BacklinksResponse",
     "CleanupOrphanedResponse",
-    "DeduplicationStats",
-    "EntityAliases",
+    "DeduplicationStatsResponse",
+    "EntityAliasesResponse",
     "EntityDeleteResponse",
-    "EntityDescriptions",
+    "EntityDescriptionsResponse",
     "EntityJsonImportResponse",
-    "EntityLabels",
+    "EntityLabelsResponse",
     "EntityListResponse",
-    "EntityMetadata",
+    "EntityMetadataResponse",
     "EntityMetadataBatchResponse",
     "EntityRedirectResponse",
     "EntityResponse",
     "EntityRevisionResponse",
-    "FullRevisionData",
+    "FullRevisionResponse",
     "HealthCheckResponse",
     "HealthResponse",
     "MetadataLoadResponse",
@@ -73,6 +73,6 @@ __all__ = [
     "StatementResponse",
     "TtlResponse",
     "WikibaseEntityResponse",
-    "WikibasePredicates",
-    "WorkerHealthCheck",
+    "WikibasePredicatesResponse",
+    "WorkerHealthCheckResponse",
 ]

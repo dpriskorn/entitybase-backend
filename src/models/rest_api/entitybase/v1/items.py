@@ -5,23 +5,26 @@ from typing import Dict, Any
 
 from fastapi import APIRouter, HTTPException, Request
 
-from models.rest_api.request.entity import (
+from models.rest_api.entitybase.handlers.entity.item import ItemCreateHandler
+from models.rest_api.entitybase.handlers.entity.items import ItemUpdateHandler
+from models.rest_api.entitybase.handlers.entity.lexeme import LexemeUpdateHandler
+from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.handlers.entity.wikidata_import import (
+    EntityJsonImportHandler,
+)
+
+from models.rest_api.entitybase.request.entity import (
     EntityJsonImportRequest,
     EntityCreateRequest,
     EntityUpdateRequest,
 )
-from models.rest_api.response.entity.entitybase import (
+from models.rest_api.entitybase.response import (
     EntityJsonImportResponse,
     EntityResponse,
 )
-from models.rest_api.response.misc import DescriptionResponse, LabelResponse
-from ...handlers.entity.item import ItemCreateHandler
-from ...handlers.entity.items.update import ItemUpdateHandler
-from ...handlers.entity.lexeme.update import LexemeUpdateHandler
-from ...handlers.entity.property.update import PropertyUpdateHandler
-from ...handlers.entity.read import EntityReadHandler
-from ...handlers.entity.update import EntityUpdateHandler
-from ...handlers.entity.wikidata_import import EntityJsonImportHandler
+from models.rest_api.entitybase.handlers.entity.property import PropertyUpdateHandler
+from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler
+from models.rest_api.entitybase.response.misc import DescriptionResponse, LabelResponse
 
 logger = logging.getLogger(__name__)
 

@@ -1,9 +1,15 @@
 """Handler for user operations."""
 
 from models.infrastructure.vitess_client import VitessClient
+from models.rest_api.entitybase.response.user import (
+    WatchlistToggleResponse,
+    UserCreateResponse,
+)
 from models.validation.utils import raise_validation_error
-from models.rest_api.entitybase.request.user import UserCreateRequest, WatchlistToggleRequest
-from models.rest_api.entitybase.response import UserCreateResponse, WatchlistToggleResponse
+from models.rest_api.entitybase.request.user import (
+    UserCreateRequest,
+    WatchlistToggleRequest,
+)
 from models.user import User
 
 

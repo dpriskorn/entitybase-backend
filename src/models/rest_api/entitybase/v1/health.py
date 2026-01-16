@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Request
 
-from models.rest_api.response import HealthResponse
+from models.rest_api.entitybase.response import HealthResponse
 
 router = APIRouter()
 

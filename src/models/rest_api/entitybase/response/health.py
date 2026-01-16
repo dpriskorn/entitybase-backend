@@ -19,7 +19,7 @@ class HealthCheckResponse(BaseModel):
     vitess: str
 
 
-class WorkerHealthCheck(BaseModel):
+class WorkerHealthCheckResponse(BaseModel):
     """Model for worker health check response."""
 
     status: str = Field(description="Health status: healthy or unhealthy")

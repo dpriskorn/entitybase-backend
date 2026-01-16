@@ -8,7 +8,7 @@ from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.validation.utils import raise_validation_error
-from models.rest_api.services.enumeration_service import EnumerationService
+from models.rest_api.entitybase.services.enumeration_service import EnumerationService
 from .create import EntityCreateHandler
 from .creation_transaction import EntityTransaction
 from models.rest_api.entitybase.request import EntityCreateRequest

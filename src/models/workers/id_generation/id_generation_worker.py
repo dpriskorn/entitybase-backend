@@ -10,9 +10,9 @@ import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-from models.rest_api.response.health import WorkerHealthCheck
-from models.rest_api.response.id_response import IdResponse
-from models.rest_api.services.enumeration_service import EnumerationService
+from models.rest_api.entitybase.response import WorkerHealthCheckResponse
+from models.rest_api.entitybase.response.id_response import IdResponse
+from models.rest_api.entitybase.services.enumeration_service import EnumerationService
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -143,11 +143,11 @@ class IdGeneratorWorker(BaseModel):
 
         logger.info("ID Generator Worker shutdown complete")
 
-    def health_check(self) -> WorkerHealthCheck:
+    def health_check(self) -> WorkerHealthCheckResponse:
         """Perform health check for monitoring and load balancer integration.
 
         Returns:
-            WorkerHealthCheck: Health status with status, worker_id, and range_status
+            WorkerHealthCheckResponse: Health status with status, worker_id, and range_status
 
         Used by external monitoring systems to verify worker availability and
         ID generation capacity.
@@ -160,7 +160,7 @@ class IdGeneratorWorker(BaseModel):
             )
         except Exception:
             range_status = {}
-        return WorkerHealthCheck(
+        return WorkerHealthCheckResponse(
             status="healthy" if self.running else "unhealthy",
             worker_id=self.worker_id,
             range_status=range_status,
@@ -225,7 +225,7 @@ async def main() -> None:
     app = FastAPI()
 
     @app.get("/health")
-    def health() -> WorkerHealthCheck:
+    def health() -> WorkerHealthCheckResponse:
         """Health check endpoint returning JSON status."""
         return worker.health_check()
 

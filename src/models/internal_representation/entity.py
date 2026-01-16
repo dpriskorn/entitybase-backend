@@ -4,10 +4,10 @@ from typing import Optional, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.rest_api.response.entity.wikibase import (
-    EntityAliases,
-    EntityDescriptions,
-    EntityLabels,
+from models.rest_api.entitybase.response.entity.wikibase import (
+    EntityAliasesResponse,
+    EntityDescriptionsResponse,
+    EntityLabelsResponse,
 )
 from models.internal_representation.entity_types import EntityKind
 from models.internal_representation.statements import Statement
@@ -18,9 +18,9 @@ class Entity(BaseModel):
 
     id: str
     type: EntityKind
-    labels: EntityLabels
-    descriptions: EntityDescriptions
-    aliases: EntityAliases
+    labels: EntityLabelsResponse
+    descriptions: EntityDescriptionsResponse
+    aliases: EntityAliasesResponse
     statements: list[Statement]
     sitelinks: Optional[dict[str, dict[str, Any]]] = Field(default=None)
 

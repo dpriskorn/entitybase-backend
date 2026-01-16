@@ -146,7 +146,6 @@ class EntityDeleteHandler:
         vitess_client.create_revision(
             entity_id=entity_id,
             revision_id=new_revision_id,
-            data=revision_data,
             expected_revision_id=head_revision_id,
         )
 

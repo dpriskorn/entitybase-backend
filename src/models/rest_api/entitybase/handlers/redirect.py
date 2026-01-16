@@ -10,7 +10,7 @@ from models.rest_api.entitybase.response import (
     EntityRedirectResponse,
     EntityResponse,
 )
-from models.rest_api.services.redirects import RedirectService
+from models.rest_api.entitybase.services.redirects import RedirectService
 
 logger = logging.getLogger(__name__)
 

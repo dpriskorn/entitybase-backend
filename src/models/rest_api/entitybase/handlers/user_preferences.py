@@ -1,9 +1,9 @@
 """Handler for user preference operations."""
 
 from models.infrastructure.vitess_client import VitessClient
+from models.rest_api.entitybase.response.user_preferences import UserPreferencesResponse
 from models.validation.utils import raise_validation_error
 from models.rest_api.entitybase.request.user_preferences import UserPreferencesRequest
-from models.rest_api.entitybase.response import UserPreferencesResponse
 
 
 class UserPreferencesHandler:

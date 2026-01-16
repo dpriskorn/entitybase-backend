@@ -8,10 +8,10 @@ from typing import Any, Dict, Optional
 
 from fastapi import HTTPException
 
-from models.services.wikidata_import_service import WikidataImportService
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
+from models.services.wikidata_import_service import WikidataImportService
 from .create import EntityCreateHandler
 from models.rest_api.entitybase.request import EntityJsonImportRequest
 from models.rest_api.entitybase.response import EntityJsonImportResponse

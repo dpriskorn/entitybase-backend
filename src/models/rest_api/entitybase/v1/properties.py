@@ -5,14 +5,18 @@ from typing import Dict, Any
 
 from fastapi import APIRouter, HTTPException, Request
 
-from ...handlers.entity.property.create import PropertyCreateHandler
+from models.rest_api.entitybase.handlers.entity.property import PropertyCreateHandler
 
 logger = logging.getLogger(__name__)
-from ...handlers.entity.read import EntityReadHandler
-from ...handlers.entity.update import EntityUpdateHandler
-from ...request import EntityCreateRequest, EntityUpdateRequest
-from ...response import EntityResponse
-from ...response.misc import AliasesResponse, DescriptionResponse, LabelResponse
+from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler
+from models.rest_api.entitybase.request import EntityCreateRequest, EntityUpdateRequest
+from models.rest_api.entitybase.response import EntityResponse
+from models.rest_api.entitybase.response.misc import (
+    AliasesResponse,
+    DescriptionResponse,
+    LabelResponse,
+)
 
 router = APIRouter()
 

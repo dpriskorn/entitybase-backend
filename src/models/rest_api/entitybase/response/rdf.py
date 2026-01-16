@@ -3,7 +3,7 @@
 from pydantic import BaseModel, Field
 
 
-class WikibasePredicates(BaseModel):
+class WikibasePredicatesResponse(BaseModel):
     """Model for Wikibase predicate URIs for a property."""
 
     direct: str = Field(description="Direct property predicate")
@@ -14,7 +14,7 @@ class WikibasePredicates(BaseModel):
     statement_value_node: str = Field(description="Statement value node predicate")
 
 
-class DeduplicationStats(BaseModel):
+class DeduplicationStatsResponse(BaseModel):
     """Model for deduplication cache statistics."""
 
     hits: int = Field(description="Number of cache hits")
@@ -31,7 +31,7 @@ class RedirectBatchResponse(BaseModel):
     )
 
 
-class FullRevisionData(BaseModel):
+class FullRevisionResponse(BaseModel):
     """Model for full revision data from database."""
 
     revision_id: int = Field(description="Revision ID")

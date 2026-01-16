@@ -2,10 +2,14 @@
 
 from fastapi import APIRouter, Query, Request, Response
 
-from models.rest_api.handlers.admin import AdminHandler
-from ...handlers.entity.read import EntityReadHandler
-from ...response import EntityResponse, EntityListResponse, EntityRevisionResponse
-from ...response.entity.entitybase import EntityHistoryEntry
+from models.rest_api.entitybase.handlers.admin import AdminHandler
+from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.response import (
+    EntityResponse,
+    EntityListResponse,
+    EntityRevisionResponse,
+)
+from models.rest_api.entitybase.response.entity.entitybase import EntityHistoryEntry
 
 router = APIRouter()
 
@@ -16,7 +20,7 @@ def get_entity(entity_id: str, req: Request) -> EntityResponse:
     clients = req.app.state.clients
     handler = EntityReadHandler()
     return handler.get_entity(  # type: ignore[no-any-return]
-        entity_id, clients.vitess, clients.s3, fetch_metadata=True
+        entity_id, clients.vitess, clients.s3
     )
 
 

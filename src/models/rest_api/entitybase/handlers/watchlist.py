@@ -1,6 +1,8 @@
 """Handler for watchlist operations."""
 
 from models.infrastructure.vitess_client import VitessClient
+from models.rest_api.entitybase.response.misc import WatchCounts
+from models.rest_api.entitybase.response.user import MessageResponse
 from models.validation.utils import raise_validation_error
 from models.watchlist import (
     WatchlistAddRequest,
@@ -9,8 +11,6 @@ from models.watchlist import (
     NotificationResponse,
     MarkCheckedRequest,
 )
-from models.rest_api.entitybase.response import WatchCounts
-from models.rest_api.entitybase.response import MessageResponse
 
 
 class WatchlistHandler:

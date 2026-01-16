@@ -17,7 +17,7 @@ from models.s3_models import (
     RevisionReadResponse,
     StoredStatement,
 )
-from models.rest_api.response.statement import StatementResponse
+from models.rest_api.entitybase.response import StatementResponse
 
 logger = logging.getLogger(__name__)
 

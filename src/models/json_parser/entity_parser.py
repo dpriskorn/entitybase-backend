@@ -4,17 +4,21 @@ import logging
 
 from typing import Any
 
-from models.rest_api.response import EntityAliases, EntityDescriptions, EntityLabels
-from models.rest_api.response.entity import (
-    EntitySitelinks,
-    EntityStatements,
+from models.rest_api.entitybase.response import (
+    EntityAliasesResponse,
+    EntityDescriptionsResponse,
+    EntityLabelsResponse,
+)
+from models.rest_api.entitybase.response.entity import (
     AliasValue,
     DescriptionValue,
     LabelValue,
+    EntityStatementsResponse,
+    EntitySitelinksResponse,
 )
 
-from models.rest_api.response.entity.entitybase import (
-    EntityMetadata,
+from models.rest_api.entitybase.response import (
+    EntityMetadataResponse,
 )
 from models.json_parser.statement_parser import parse_statement
 from models.internal_representation.entity import Entity
@@ -44,27 +48,27 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
     sitelinks_json = metadata_dict.get(JsonField.SITELINKS.value, {})
 
     # Create EntityMetadata instance with structured data
-    metadata = EntityMetadata(
+    metadata = EntityMetadataResponse(
         id=metadata_dict.get(JsonField.ID.value, ""),
         type=metadata_dict.get(JsonField.TYPE.value, EntityKind.ITEM.value),
-        labels=EntityLabels(
+        labels=EntityLabelsResponse(
             data={lang: LabelValue(**val) for lang, val in labels_dict.items()}
         ),
-        descriptions=EntityDescriptions(
+        descriptions=EntityDescriptionsResponse(
             data={
                 lang: DescriptionValue(**val) for lang, val in descriptions_dict.items()
             }
         ),
-        aliases=EntityAliases(
+        aliases=EntityAliasesResponse(
             data={
                 lang: [AliasValue(**alias) for alias in alias_list]
                 for lang, alias_list in aliases_dict.items()
             }
         ),
-        statements=EntityStatements(
+        statements=EntityStatementsResponse(
             data=[stmt for prop in claims_json.values() for stmt in prop]
         ),
-        sitelinks=EntitySitelinks(data=sitelinks_json),
+        sitelinks=EntitySitelinksResponse(data=sitelinks_json),
     )
 
     entity_type = EntityKind(metadata.type)

@@ -8,7 +8,7 @@ from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.request.entity import EntityCreateRequest
 from models.rest_api.entitybase.response import EntityResponse
-from models.rest_api.services.enumeration_service import EnumerationService
+from models.rest_api.entitybase.services.enumeration_service import EnumerationService
 from ..create import EntityCreateHandler
 
 logger = logging.getLogger(__name__)

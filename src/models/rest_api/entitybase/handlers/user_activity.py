@@ -1,7 +1,7 @@
 """Handler for user activity operations."""
 
 from models.infrastructure.vitess_client import VitessClient
-from models.rest_api.entitybase.response import UserActivityResponse
+from models.rest_api.entitybase.response.user_activity import UserActivityResponse
 from models.user_activity import ActivityType
 from models.validation.utils import raise_validation_error
 

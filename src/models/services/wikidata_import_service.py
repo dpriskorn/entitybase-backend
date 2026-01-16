@@ -6,9 +6,9 @@ from typing import Any, Dict
 import requests
 from pydantic import BaseModel
 
+from models.rest_api.entitybase.response.misc import RawEntityData
 from models.rest_api.misc import EditType
-from models.rest_api.request import EntityCreateRequest
-from models.rest_api.response.misc import RawEntityData
+from models.rest_api.entitybase.request import EntityCreateRequest
 
 logger = logging.getLogger(__name__)
 

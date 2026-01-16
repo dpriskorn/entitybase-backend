@@ -7,11 +7,11 @@ from pathlib import Path
 
 import requests
 
-from models.rest_api.response.entity.entitybase import (
-    EntityMetadata,
+from models.rest_api.entitybase.response import (
+    EntityMetadataResponse,
     EntityMetadataBatchResponse,
 )
-from models.rest_api.response.rdf import MetadataLoadResponse
+from models.rest_api.entitybase.response import MetadataLoadResponse
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ def _fetch_entity_metadata_batch(entity_ids: list[str]) -> EntityMetadataBatchRe
         return EntityMetadataBatchResponse(metadata={})
 
     batch_size = 100
-    results: dict[str, EntityMetadata | None] = {}
+    results: dict[str, EntityMetadataResponse | None] = {}
 
     for i in range(0, len(entity_ids), batch_size):
         batch = entity_ids[i : i + batch_size]
@@ -61,7 +61,7 @@ def _fetch_entity_metadata_batch(entity_ids: list[str]) -> EntityMetadataBatchRe
                         "en": {"language": "en", "value": description}
                     }
 
-                results[entity_id] = EntityMetadata(**metadata)
+                results[entity_id] = EntityMetadataResponse(**metadata)
 
             logger.info(
                 f"Fetched metadata for {len(batch)} entities (batch {i // batch_size + 1})"
@@ -107,12 +107,12 @@ def load_entity_metadata_batch(
     return MetadataLoadResponse(results=results)
 
 
-def load_entity_metadata(entity_id: str, metadata_dir: Path) -> EntityMetadata:
+def load_entity_metadata(entity_id: str, metadata_dir: Path) -> EntityMetadataResponse:
     """Load entity metadata (labels, descriptions) from disk only."""
     json_path = metadata_dir / f"{entity_id}.json"
 
     if json_path.exists():
         data: dict = json.loads(json_path.read_text(encoding="utf-8"))
-        return EntityMetadata(**data)
+        return EntityMetadataResponse(**data)
 
     raise FileNotFoundError(f"Entity {entity_id} not found at {json_path}")

@@ -7,7 +7,7 @@ from typing import Dict, Optional
 from pydantic import BaseModel
 
 from models.infrastructure.vitess_client import VitessClient
-from models.rest_api.entitybase.response import RangeStatus, RangeStatuses
+from models.rest_api.entitybase.response.misc import RangeStatus, RangeStatuses
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

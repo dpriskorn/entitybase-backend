@@ -2,7 +2,7 @@ from typing import Dict, Any
 
 from pydantic import BaseModel, Field
 
-from models.rest_api.entitybase.response.entity.wikibase import EntityMetadata
+from models.rest_api.entitybase.response.entity.wikibase import EntityMetadataResponse
 
 
 class EntityHistoryEntry(BaseModel):
@@ -60,7 +60,7 @@ class EntityListResponse(BaseModel):
 class EntityMetadataBatchResponse(BaseModel):
     """Response model for batch entity metadata fetching."""
 
-    metadata: dict[str, EntityMetadata | None] = Field(
+    metadata: dict[str, EntityMetadataResponse | None] = Field(
         description="Dictionary mapping entity_id to metadata or None"
     )
 

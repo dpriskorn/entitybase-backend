@@ -212,7 +212,8 @@ def create_user(request: UserCreateRequest) -> UserCreateResponse:
     result = handler.create_user(request, clients.vitess)
     if not isinstance(result, UserCreateResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    return cast(UserCreateResponse, result)
+    assert isinstance(result, UserCreateResponse)
+    return result
 
 
 @app.get("/v1/users/{user_id}", response_model=User)
@@ -232,12 +233,13 @@ def toggle_watchlist(
 ) -> WatchlistToggleResponse:
     """Enable or disable watchlist for user."""
     clients = app.state.clients
-    handler = WatchlistHandler()
+    handler = UserHandler()
     try:
         result = handler.toggle_watchlist(user_id, request, clients.vitess)
-        if not isinstance(result, WatchCounts):
+        if not isinstance(result, WatchlistToggleResponse):
             raise_validation_error("Invalid response type", status_code=500)
-        return cast(WatchlistToggleResponse, result)
+        assert isinstance(result, WatchlistToggleResponse)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -251,7 +253,8 @@ def add_watch(request: WatchlistAddRequest) -> MessageResponse:
         result = handler.add_watch(request, clients.vitess)
         if not isinstance(result, MessageResponse):
             raise_validation_error("Invalid response type", status_code=500)
-        return cast(MessageResponse, result)
+        assert isinstance(result, MessageResponse)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -261,7 +264,11 @@ def remove_watch(request: WatchlistRemoveRequest) -> MessageResponse:
     """Remove a watchlist entry."""
     clients = app.state.clients
     handler = WatchlistHandler()
-    return cast(MessageResponse, handler.remove_watch(request, clients.vitess))
+    result = handler.remove_watch(request, clients.vitess)
+    if not isinstance(result, MessageResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    assert isinstance(result, MessageResponse)
+    return result
 
 
 @app.get("/v1/watchlist", response_model=WatchlistResponse)
@@ -275,7 +282,8 @@ def get_watchlist(
         result = handler.get_watches(user_id, clients.vitess)
         if not isinstance(result, WatchlistResponse):
             raise_validation_error("Invalid response type", status_code=500)
-        return cast(WatchlistResponse, result)
+        assert isinstance(result, WatchlistResponse)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -291,7 +299,8 @@ def get_watch_counts(
         result = handler.get_watch_counts(user_id, clients.vitess)
         if not isinstance(result, WatchCounts):
             raise_validation_error("Invalid response type", status_code=500)
-        return cast(WatchCounts, result)
+        assert isinstance(result, WatchCounts)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -335,6 +344,7 @@ def mark_notification_checked(
     result = handler.mark_checked(user_id, request, clients.vitess)
     if not isinstance(result, MessageResponse):
         raise_validation_error("Invalid response type", status_code=500)
+    assert isinstance(result, MessageResponse)
     return result
 
 
@@ -363,6 +373,7 @@ def get_user_activity(
         )
         if not isinstance(result, UserActivityResponse):
             raise_validation_error("Invalid response type", status_code=500)
+        assert isinstance(result, UserActivityResponse)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -376,10 +387,11 @@ def get_user_preferences(user_id: int) -> UserPreferencesResponse:
         raise_validation_error("Invalid clients type", status_code=500)
     handler = UserPreferencesHandler()
     try:
-        result = handler.get_watches(user_id, clients.vitess)
-        if not isinstance(result, WatchlistResponse):
+        result = handler.get_preferences(user_id, clients.vitess)
+        if not isinstance(result, UserPreferencesResponse):
             raise_validation_error("Invalid response type", status_code=500)
-        return cast(WatchlistResponse, result)
+        assert isinstance(result, UserPreferencesResponse)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -397,7 +409,8 @@ def update_user_preferences(
         result = handler.update_preferences(user_id, request, clients.vitess)
         if not isinstance(result, UserPreferencesResponse):
             raise_validation_error("Invalid response type", status_code=500)
-        return cast(UserPreferencesResponse, result)
+        assert isinstance(result, UserPreferencesResponse)
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -418,6 +431,7 @@ def revert_entity(
     result = handler.revert_entity(entity_id, request, clients.vitess, user_id)
     if not isinstance(result, EntityRevertResponse):
         raise_validation_error("Invalid response type", status_code=500)
+    assert isinstance(result, EntityRevertResponse)
     return result
 
 
@@ -522,6 +536,7 @@ def get_raw_revision(entity_id: str, revision_id: int) -> RawRevisionResponse:
     )  # type: ignore
     if not isinstance(result, RawRevisionResponse):
         raise_validation_error("Invalid response type", status_code=500)
+    assert isinstance(result, RawRevisionResponse)
     return result
 
 

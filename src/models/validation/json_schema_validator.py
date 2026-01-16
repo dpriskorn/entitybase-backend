@@ -6,7 +6,7 @@ from pathlib import Path
 
 from jsonschema import Draft202012Validator
 
-from models.rest_api.response.misc import JsonSchema
+from models.rest_api.entitybase.response.misc import JsonSchema
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

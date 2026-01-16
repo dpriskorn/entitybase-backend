@@ -8,10 +8,11 @@ from typing import Any, Generator
 from pydantic import BaseModel, Field
 from pymysql import Connection
 
+from models.rest_api.entitybase.response.entity import EntityHistoryEntry
+from models.rest_api.entitybase.response.misc import EntityListing
+
 logger = logging.getLogger(__name__)
 
-from models.rest_api.response.misc import EntityListing
-from models.rest_api.response.entity.entitybase import EntityHistoryEntry
 from models.infrastructure.client import Client
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess.backlink_repository import BacklinkRepository
@@ -27,9 +28,9 @@ from models.infrastructure.vitess.schema import SchemaManager
 from models.infrastructure.vitess.statement_repository import StatementRepository
 from models.infrastructure.vitess.user_repository import UserRepository
 from models.infrastructure.vitess.watchlist_repository import WatchlistRepository
-from models.rest_api.request.entity import RevisionInsertDataRequest
-from models.rest_api.response.entity.entitybase import ProtectionResponse
-from models.rest_api.response.rdf import FullRevisionData
+from models.rest_api.entitybase.request.entity import EntityInsertDataRequest
+from models.rest_api.entitybase.response import ProtectionResponse
+from models.rest_api.entitybase.response import FullRevisionResponse
 from models.validation.utils import raise_validation_error
 from models.vitess_models import VitessConfig, BacklinkEntry
 
@@ -185,7 +186,7 @@ class VitessClient(Client):
     ) -> None:
         """Insert a new revision for an entity."""
         logger.debug(f"Inserting revision {revision_id} for entity {entity_id}")
-        data = RevisionInsertDataRequest(
+        data = EntityInsertDataRequest(
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
             statements=statements,
@@ -429,7 +430,7 @@ class VitessClient(Client):
 
     def read_full_revision(
         self, entity_id: str, revision_id: int, s3_client: Any
-    ) -> FullRevisionData:
+    ) -> FullRevisionResponse:
         """Read full revision data including metadata from S3."""
         logger.debug(f"Reading full revision {revision_id} for entity {entity_id}")
         assert s3_client is not None
@@ -482,7 +483,7 @@ class VitessClient(Client):
                     title = s3_client.load_sitelink_metadata(hash_value)
                     sitelinks[wiki] = {"site": wiki, "title": title}
 
-                return FullRevisionData(
+                return FullRevisionResponse(
                     revision_id=revision_id,
                     statements=json.loads(result[0]) if result[0] else [],
                     properties=json.loads(result[1]) if result[1] else [],

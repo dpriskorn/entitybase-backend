@@ -8,7 +8,7 @@ from typing import Protocol, Any
 
 from pydantic import BaseModel
 
-from models.rest_api.response.rdf import DeduplicationStats
+from models.rest_api.entitybase.response import DeduplicationStatsResponse
 from models.validation.utils import raise_validation_error
 
 
@@ -100,7 +100,7 @@ class HashDedupeBag(BaseModel):
         self.bag[key] = hash_
         return False
 
-    def stats(self) -> DeduplicationStats:
+    def stats(self) -> DeduplicationStatsResponse:
         """Get deduplication statistics.
 
         Returns:
@@ -109,7 +109,7 @@ class HashDedupeBag(BaseModel):
         total = self._hits + self._misses
         collision_rate = (self._misses / total * 100) if total > 0 else 0
 
-        return DeduplicationStats(
+        return DeduplicationStatsResponse(
             hits=self._hits,
             misses=self._misses,
             size=len(self.bag),

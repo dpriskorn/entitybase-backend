@@ -10,8 +10,8 @@ from pydantic import BaseModel, Field
 
 from models.config.settings import settings
 from models.infrastructure.vitess_client import VitessClient
-from models.rest_api.response.health import WorkerHealthCheck
-from models.rest_api.services.backlink_statistics_service import (
+from models.rest_api.entitybase.response import WorkerHealthCheckResponse
+from models.rest_api.entitybase.services.backlink_statistics_service import (
     BacklinkStatisticsService,
 )
 
@@ -130,7 +130,7 @@ class BacklinkStatisticsWorker(BaseModel):
         seconds_until = (next_run - now).total_seconds()
         return max(seconds_until, 0)  # Ensure non-negative
 
-    async def health_check(self) -> WorkerHealthCheck:
+    async def health_check(self) -> WorkerHealthCheckResponse:
         """Health check for the worker."""
         status = "healthy" if self.running else "unhealthy"
 
@@ -140,8 +140,7 @@ class BacklinkStatisticsWorker(BaseModel):
             "last_run": self.last_run.isoformat() if self.last_run else None,
         }
 
-        return WorkerHealthCheck(
+        return WorkerHealthCheckResponse(
             status=status,
             worker_id=self.worker_id,
-            details=details,
         )

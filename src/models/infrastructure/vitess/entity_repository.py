@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from models.rest_api.response.entity.entitybase import ProtectionResponse
+from models.rest_api.entitybase.response import ProtectionResponse
 
 logger = logging.getLogger(__name__)
 

@@ -1,11 +1,12 @@
 """Repository for metadata content operations."""
 
+from models.rest_api.entitybase.response.misc import MetadataContent
+
 """Repository for metadata content operations."""
 
 import logging
 from typing import Any
 
-from models.rest_api.response.misc import MetadataContent
 
 logger = logging.getLogger(__name__)
 
