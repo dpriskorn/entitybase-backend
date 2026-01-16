@@ -5,8 +5,7 @@ import os
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from models.infrastructure.s3.s3_client import S3Config
-from models.infrastructure.vitess_client import VitessConfig
+from models.infrastructure.config import Config
 
 
 class Settings(BaseSettings):
@@ -51,12 +50,14 @@ class Settings(BaseSettings):
             return getattr(logging, self.test_log_level.upper(), logging.INFO)
         return getattr(logging, self.log_level.upper(), logging.INFO)
 
-    def to_s3_config(self) -> S3Config:
+    def to_s3_config(self) -> Config:
         """Convert settings to S3 configuration object.
 
         Returns:
             S3Config object with the settings.
         """
+        from models.infrastructure.s3.s3_client import S3Config
+
         return S3Config(
             endpoint_url=self.s3_endpoint,
             access_key=self.s3_access_key,
@@ -64,12 +65,14 @@ class Settings(BaseSettings):
             bucket=self.s3_bucket,
         )
 
-    def to_vitess_config(self) -> VitessConfig:
+    def to_vitess_config(self) -> Config:
         """Convert settings to Vitess configuration object.
 
         Returns:
             VitessConfig object with the settings.
         """
+        from models.infrastructure.vitess_client import VitessConfig
+
         return VitessConfig(
             host=self.vitess_host,
             port=self.vitess_port,

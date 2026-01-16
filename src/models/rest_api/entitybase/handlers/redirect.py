@@ -2,7 +2,7 @@
 
 import logging
 
-from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.client import Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.request.entity import EntityRedirectRequest
@@ -20,7 +20,7 @@ class RedirectHandler:
 
     def __init__(
         self,
-        s3_client: S3Client,
+        s3_client: Client,
         vitess_client: VitessClient,
         stream_producer: StreamProducerClient | None = None,
     ):

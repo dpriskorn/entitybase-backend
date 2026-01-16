@@ -1,10 +1,8 @@
 """Handler for system health check operations."""
+from typing import TYPE_CHECKING
 
 from fastapi import Response
 from starlette import status
-
-from models.infrastructure.s3.s3_client import S3Client
-from models.infrastructure.vitess_client import VitessClient
 
 from models.rest_api.entitybase.response import HealthCheckResponse
 
@@ -20,8 +18,9 @@ def health_check(response: Response) -> HealthCheckResponse:
         return HealthCheckResponse(
             status="starting", s3="disconnected", vitess="disconnected"
         )
-    # print(type(clients.s3))
-    # exit()
+    from models.infrastructure.s3.s3_client import S3Client
+    from models.infrastructure.vitess_client import VitessClient
+
     s3: S3Client = clients.s3
     s3_status = (
         "connected"

@@ -3,6 +3,7 @@
 import logging
 
 from botocore.exceptions import ClientError
+from typing_extensions import TYPE_CHECKING
 
 from models.rest_api.entitybase.request.statement import StatementBatchRequest
 from models.rest_api.entitybase.request.misc import CleanupOrphanedRequest
@@ -16,8 +17,10 @@ from models.rest_api.entitybase.response import (
 )
 from models.rest_api.entitybase.response import CleanupOrphanedResponse
 from models.validation.utils import raise_validation_error
-from models.infrastructure.s3.s3_client import S3Client
-from models.infrastructure.vitess_client import VitessClient
+
+if TYPE_CHECKING:
+    from models.infrastructure.s3.s3_client import S3Client
+    from models.infrastructure.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +29,7 @@ class StatementHandler:
     """Handles all statement operations."""
 
     def get_statement(
-        self, content_hash: int, s3_client: S3Client
+        self, content_hash: int, s3_client: "S3Client"
     ) -> StatementResponse:
         """Get a single statement by its hash.
 
@@ -66,7 +69,7 @@ class StatementHandler:
             )
 
     def get_statements_batch(
-        self, request: StatementBatchRequest, s3_client: S3Client
+        self, request: StatementBatchRequest, s3_client: "S3Client"
     ) -> StatementBatchResponse:
         """Get multiple statements by their hashes.
 
@@ -96,7 +99,7 @@ class StatementHandler:
         return StatementBatchResponse(statements=statements, not_found=not_found)
 
     def get_entity_properties(
-        self, entity_id: str, vitess_client: VitessClient, s3_client: S3Client
+        self, entity_id: str, vitess_client: "VitessClient", s3_client: "S3Client"
     ) -> PropertyListResponse:
         """Get list of unique property IDs for an entity's head revision.
 
@@ -127,7 +130,7 @@ class StatementHandler:
         return PropertyListResponse(properties=properties)
 
     def get_entity_property_counts(
-        self, entity_id: str, vitess_client: VitessClient, s3_client: S3Client
+        self, entity_id: str, vitess_client: "VitessClient", s3_client: "S3Client"
     ) -> PropertyCountsResponse:
         """Get statement counts per property for an entity's head revision.
 
@@ -151,8 +154,8 @@ class StatementHandler:
         self,
         entity_id: str,
         property_list: str,
-        vitess_client: VitessClient,
-        s3_client: S3Client,
+        vitess_client: "VitessClient",
+        s3_client: "S3Client",
     ) -> PropertyHashesResponse:
         """Get statement hashes for specific properties.
 
@@ -198,7 +201,7 @@ class StatementHandler:
 
     def get_most_used_statements(
         self,
-        vitess_client: VitessClient,
+        vitess_client: "VitessClient",
         limit: int = 100,
         min_ref_count: int = 1,
     ) -> MostUsedStatementsResponse:
@@ -222,8 +225,8 @@ class StatementHandler:
     def cleanup_orphaned_statements(
         self,
         request: CleanupOrphanedRequest,
-        vitess_client: VitessClient,
-        s3_client: S3Client,
+        vitess_client: "VitessClient",
+        s3_client: "S3Client",
     ) -> CleanupOrphanedResponse:
         """Clean up orphaned statements that are no longer referenced.
 

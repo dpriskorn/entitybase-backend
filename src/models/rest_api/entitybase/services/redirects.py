@@ -3,6 +3,7 @@
 import logging
 
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
 from models.infrastructure.stream.producer import (
     ChangeType,
@@ -16,8 +17,10 @@ from models.rest_api.entitybase.response import (
     EntityResponse,
 )
 from models.validation.utils import raise_validation_error
-from models.infrastructure.s3.s3_client import S3Client
-from models.infrastructure.vitess_client import VitessClient
+
+if TYPE_CHECKING:
+    from models.infrastructure.s3.s3_client import S3Client
+    from models.infrastructure.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +30,8 @@ class RedirectService:
 
     def __init__(
         self,
-        s3_client: S3Client,
-        vitess_client: VitessClient,
+        s3_client: "S3Client",
+        vitess_client: "VitessClient",
         stream_producer: StreamProducerClient | None = None,
     ):
         self.s3 = s3_client

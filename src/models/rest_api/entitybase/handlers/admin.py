@@ -3,10 +3,10 @@
 import logging
 from typing import TYPE_CHECKING
 
-from models.infrastructure.vitess_client import VitessClient
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import S3Client
+    from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.response import EntityListResponse
 from models.rest_api.entitybase.response.misc import RawRevisionResponse
 from models.validation.utils import raise_validation_error
@@ -19,7 +19,7 @@ class AdminHandler:
 
     def list_entities(
         self,
-        vitess_client: VitessClient,
+        vitess_client: "VitessClient",
         entity_type: str = "",
         limit: int = 100,
         offset: int = 0,
@@ -52,7 +52,7 @@ class AdminHandler:
         self,
         entity_id: str,
         revision_id: int,
-        vitess_client: VitessClient,
+        vitess_client: "VitessClient",
         s3_client: "S3Client",
     ) -> RawRevisionResponse:
         """Returns raw S3 entity data for specific revision.
