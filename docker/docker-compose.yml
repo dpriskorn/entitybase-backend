@@ -18,7 +18,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-    mem_limit: 1g
+    mem_limit: "1g"
     cpus: "0.5"
 
   vitess:
@@ -40,7 +40,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
-    mem_limit: 1.5g
+    mem_limit: 1500m
     cpus: "1.5"
 
   # Lightweight Kafka alternative for MVP
@@ -176,7 +176,7 @@ services:
      timeout: 10s
      retries: 3
      start_period: 30s
-   mem_limit: 0.5g
+   mem_limit: 512m
    cpus: "0.5"
 
   dropworker:
@@ -194,7 +194,7 @@ services:
       vitess:
         condition: service_healthy
     # No ports - runs and exits after dropping tables
-    mem_limit: 0.5g
+    mem_limit: 512m
     cpus: "0.5"
 
   create-buckets:
@@ -212,7 +212,7 @@ services:
        condition: service_healthy
    command: python -m models.workers.dev setup
    # No ports - runs and exits after bucket setup
-   mem_limit: 0.5g
+   mem_limit: 512m
    cpus: "0.5"
 
 
