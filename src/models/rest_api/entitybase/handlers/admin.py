@@ -53,7 +53,7 @@ class AdminHandler:
         entity_id: str,
         revision_id: int,
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: "S3Client",
     ) -> RawRevisionResponse:
         """Returns raw S3 entity data for specific revision.
 
