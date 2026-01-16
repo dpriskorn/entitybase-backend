@@ -2,15 +2,15 @@ from typing import Any
 
 import pytest
 
-from models.rest_api.request.entity import (
+from models.rest_api.entitybase.request.entity import (
     EntityRedirectRequest,
     RedirectRevertRequest,
 )
-from models.rest_api.response.entity import (
+from models.rest_api.entitybase.response.entity import (
     EntityRedirectResponse,
     EntityResponse,
 )
-from models.rest_api.misc import EditType
+from models.rest_api.entitybase.misc import EditType
 from fastapi import HTTPException
 
 
