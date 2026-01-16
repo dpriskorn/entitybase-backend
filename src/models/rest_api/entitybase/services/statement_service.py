@@ -110,6 +110,7 @@ def deduplicate_and_store_statements(
         vitess_client: Vitess client for statement_content operations
         s3_client: S3 client for statement storage
         validator: Optional JSON schema validator for statement validation
+        schema_version: Version
     """
     logger.debug(
         f"Deduplicating and storing {len(hash_result.statements)} statements (S3-first)"
