@@ -12,47 +12,29 @@ from jsonschema import ValidationError
 
 from models.config.settings import settings
 from models.rest_api.clients import Clients
-from models.rest_api.handlers.admin import AdminHandler
-from models.rest_api.handlers.entity.delete import EntityDeleteHandler
-from models.rest_api.handlers.entity.read import EntityReadHandler
-from models.rest_api.handlers.entity.revert import EntityRevertHandler
-from models.rest_api.handlers.export import ExportHandler
-from models.rest_api.handlers.redirect import RedirectHandler
-from models.rest_api.handlers.statement import StatementHandler
-from models.rest_api.handlers.system import health_check
-from models.rest_api.handlers.user import UserHandler
-from models.rest_api.handlers.user_activity import UserActivityHandler
-from models.rest_api.handlers.user_preferences import UserPreferencesHandler
-from models.rest_api.handlers.watchlist import WatchlistHandler
-from models.rest_api.request.entity import (
+from models.rest_api.entitybase.handlers.admin import AdminHandler
+from models.rest_api.entitybase.handlers.entity import EntityDeleteHandler
+from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.handlers.entity.revert import EntityRevertHandler
+from models.rest_api.entitybase.handlers import ExportHandler
+from models.rest_api.entitybase.handlers.redirect import RedirectHandler
+from models.rest_api.entitybase.handlers import StatementHandler
+from models.rest_api.entitybase.handlers import health_check
+from models.rest_api.entitybase.handlers.watchlist import WatchlistHandler
+from models.rest_api.entitybase.request.entity import (
     EntityDeleteRequest,
     EntityRedirectRequest,
     RedirectRevertRequest,
     EntityRevertRequest,
 )
-from models.rest_api.request.user import UserCreateRequest, WatchlistToggleRequest
-from models.rest_api.request.user_preferences import UserPreferencesRequest
-from models.rest_api.response.entity.revert import EntityRevertResponse
-from models.rest_api.response.health import HealthCheckResponse
-from models.rest_api.response.misc import (
-    RawRevisionResponse,
-    RevisionMetadataResponse,
-    WatchCounts,
-)
-from models.rest_api.response.misc import TtlResponse
-from models.rest_api.response.statement import (
+from models.rest_api.entitybase.request.user import UserCreateRequest, WatchlistToggleRequest
+from models.rest_api.entitybase.request.user_preferences import UserPreferencesRequest
+from models.rest_api.entitybase.response import TtlResponse, RevisionMetadataResponse, HealthCheckResponse
+from models.rest_api.entitybase.response import (
     PropertyCountsResponse,
     PropertyHashesResponse,
     PropertyListResponse,
 )
-from models.rest_api.response.user import (
-    UserCreateResponse,
-    WatchlistToggleResponse,
-    MessageResponse,
-)
-from models.rest_api.response.user_activity import UserActivityResponse
-from models.rest_api.response.user_preferences import UserPreferencesResponse
-from models.rest_api.services.enumeration_service import EnumerationService
 from models.user import User
 from models.validation.json_schema_validator import JsonSchemaValidator
 from models.validation.utils import raise_validation_error
@@ -63,14 +45,22 @@ from models.watchlist import (
     NotificationResponse,
     MarkCheckedRequest,
 )
+from .entitybase.handlers.user import UserHandler
+from .entitybase.handlers.user_activity import UserActivityHandler
+from .entitybase.handlers.user_preferences import UserPreferencesHandler
+from .entitybase.response.entity import EntityRevertResponse
+from .entitybase.response.misc import RawRevisionResponse, WatchCounts
+from .entitybase.response.user import MessageResponse, WatchlistToggleResponse, UserCreateResponse
+from .entitybase.response.user_activity import UserActivityResponse
+from .entitybase.response.user_preferences import UserPreferencesResponse
+from .entitybase.services.enumeration_service import EnumerationService
 from .entitybase.v1 import v1_router
-from .response.entity.entitybase import (
+from models.rest_api.entitybase.response.entity.entitybase import (
     EntityResponse,
     EntityRedirectResponse,
     EntityDeleteResponse,
     EntityListResponse,
 )
-from .wikibase.v1 import wikibase_v1_router
 
 log_level = settings.get_log_level()
 
@@ -386,7 +376,7 @@ def get_entity(entity_id: str, req: Request) -> EntityResponse:
     result = handler.get_entity(entity_id, clients.vitess, clients.s3)
     if not isinstance(result, EntityResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    return cast(EntityResponse, result)
+    return result
 
 
 @v1_router.get(
@@ -425,7 +415,7 @@ async def create_entity_redirect(
     result = await handler.create_entity_redirect(request)
     if not isinstance(result, EntityRedirectResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    return cast(EntityRedirectResponse, result)
+    return result
 
 
 @app.post("/entities/{entity_id}/revert-redirect")
@@ -439,7 +429,7 @@ async def revert_entity_redirect(  # type: ignore[no-any-return]
     )
     if not isinstance(result, EntityResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    return cast(EntityResponse, result)
+    return result
 
 
 @v1_router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)
@@ -453,7 +443,7 @@ async def delete_entity(  # type: ignore[no-any-return]
     )
     if not isinstance(result, EntityDeleteResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    return cast(EntityDeleteResponse, result)
+    return result
 
 
 @v1_router.get(
@@ -489,7 +479,7 @@ def list_entities(  # type: ignore[no-any-return]
     )
     if not isinstance(result, EntityListResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    return cast(EntityListResponse, result)  # type: ignore
+    return result
 
 
 @v1_router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)
@@ -644,4 +634,4 @@ def get_entity_property_hashes_sync(
 
 
 app.include_router(v1_router, prefix="/entitybase/v1")
-app.include_router(wikibase_v1_router, prefix="/wikibase/v1")
+# app.include_router(wikibase_v1_router, prefix="/wikibase/v1")
