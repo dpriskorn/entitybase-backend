@@ -6,12 +6,12 @@ from pydantic import ValidationError
 from models.rest_api.entitybase.response.entity import (
     AliasValue,
     DescriptionValue,
-    EntityAliasesResponse as EntityAliases,
-    EntityDescriptionsResponse as EntityDescriptions,
-    EntityLabelsResponse as EntityLabels,
-    EntityMetadataResponse as EntityMetadata,
-    EntitySitelinksResponse as EntitySitelinks,
-    EntityStatementsResponse as EntityStatements,
+    EntityAliases,
+    EntityDescriptions,
+    EntityLabels,
+    EntityMetadata,
+    EntitySitelinks,
+    EntityStatements,
     LabelValue,
 )
 

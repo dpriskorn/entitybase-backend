@@ -24,37 +24,37 @@ class AliasValue(BaseModel):
     value: str = Field(..., min_length=1)
 
 
-class EntityLabelsResponse(BaseModel):
+class EntityLabels(BaseModel):
     """Collection of labels keyed by language code."""
 
     data: dict[str, LabelValue] = Field(default_factory=dict)
 
 
-class EntityDescriptionsResponse(BaseModel):
+class EntityDescriptions(BaseModel):
     """Collection of descriptions keyed by language code."""
 
     data: dict[str, DescriptionValue] = Field(default_factory=dict)
 
 
-class EntityAliasesResponse(BaseModel):
+class EntityAliases(BaseModel):
     """Collection of aliases keyed by language code."""
 
     data: dict[str, list[AliasValue]] = Field(default_factory=dict)
 
 
-class EntityStatementsResponse(BaseModel):
+class EntityStatements(BaseModel):
     """List of entity statements."""
 
     data: list[dict[str, Any]] = Field(default_factory=list)
 
 
-class EntitySitelinksResponse(BaseModel):
+class EntitySitelinks(BaseModel):
     """Collection of sitelinks."""
 
     data: dict[str, Any] = Field(default_factory=dict)
 
 
-class EntityMetadataResponse(BaseModel):
+class EntityMetadata(BaseModel):
     """Model for entity metadata."""
 
     id: str
