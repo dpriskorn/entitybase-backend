@@ -9,11 +9,8 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from rdflib import Graph, URIRef, BNode, Literal
-from rdflib.namespace import RDF, RDFS
+from rdflib import Graph
 from pyld import jsonld
-import json
-import hashlib
 
 
 def parse_rdf_to_jsonld(rdf_content: str, format: str = "turtle") -> dict:
