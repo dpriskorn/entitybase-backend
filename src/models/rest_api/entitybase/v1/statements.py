@@ -1,11 +1,6 @@
 """Statement endpoints for Entitybase v1 API."""
 
 from fastapi import APIRouter, HTTPException, Request
-from typing import cast
-
-from models.rest_api.clients import Clients
-
-from models.validation.utils import raise_validation_error
 
 from models.rest_api.entitybase.handlers.statement import StatementHandler
 from models.rest_api.entitybase.request import (
@@ -19,6 +14,7 @@ from models.rest_api.entitybase.response import (
     StatementBatchResponse,
     StatementResponse,
 )
+from models.validation.utils import raise_validation_error
 from ...clients import Clients
 
 router = APIRouter()
