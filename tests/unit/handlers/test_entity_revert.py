@@ -5,9 +5,9 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from models.rest_api.request.entity.revert import EntityRevertRequest
-from models.rest_api.response.entity.revert import EntityRevertResponse
-from models.rest_api.handlers.entity.revert import EntityRevertHandler
+from models.rest_api.entitybase.request.entity.revert import EntityRevertRequest
+from models.rest_api.entitybase.response.entity.revert import EntityRevertResponse
+from models.rest_api.entitybase.handlers.entity.revert import EntityRevertHandler
 
 
 class TestEntityRevertHandler:
