@@ -5,7 +5,6 @@ from typing import TextIO
 import hashlib
 
 from models.rdf_builder.property_registry.models import PropertyShape, get_owl_type
-from models.config.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -112,6 +111,8 @@ class PropertyOntologyWriter:
 
         For wikidata.org, repositoryName is 'wikidata' (default in settings)
         """
+        from models.config.settings import settings
+
         repository_name = settings.wikibase_repository_name
         hash_input = f"owl:complementOf-{repository_name}-{property_id}"
         return hashlib.md5(hash_input.encode()).hexdigest()
