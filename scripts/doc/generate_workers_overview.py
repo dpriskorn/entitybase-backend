@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 
 
+# noinspection PyUnresolvedReferences
 def extract_worker_info(worker_file: Path) -> Dict[str, Any]:
     """Extract information from a worker file."""
     info = {
