@@ -13,11 +13,6 @@ from models.rest_api.entitybase.request import EntityCreateRequest
 logger = logging.getLogger(__name__)
 
 
-class WikidataImportService(BaseModel):
-"""Service for importing entities from Wikidata."""
-
-from pydantic import BaseModel
-
 WIKIDATA_API_URL = "https://www.wikidata.org/w/api.php"
 USER_AGENT = "WikibaseBackend/1.0 (research@wikibase-backend.org)"
 
