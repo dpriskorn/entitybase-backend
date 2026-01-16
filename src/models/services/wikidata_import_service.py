@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 WIKIDATA_API_URL = "https://www.wikidata.org/w/api.php"
-USER_AGENT = os.getenv("WIKIDATA_USER_AGENT", "Entitybase/1.0 User:So9q")
+USER_AGENT = os.getenv("USER_AGENT", "Entitybase/1.0 User:So9q")
 
 
 class WikidataImportService(BaseModel):
