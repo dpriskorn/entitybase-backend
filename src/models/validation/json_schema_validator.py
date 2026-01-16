@@ -4,8 +4,10 @@ import json
 import logging
 from pathlib import Path
 
+import yaml
 from jsonschema import Draft202012Validator
 
+from models.config.settings import settings
 from models.rest_api.entitybase.response.misc import JsonSchema
 from models.validation.utils import raise_validation_error
 
@@ -17,13 +19,17 @@ class JsonSchemaValidator:
 
     def __init__(
         self,
-        s3_revision_version: str = "latest",
-        s3_statement_version: str = "latest",
-        wmf_recentchange_version: str = "latest",
+        s3_revision_version: str | None = None,
+        s3_statement_version: str | None = None,
+        wmf_recentchange_version: str | None = None,
     ) -> None:
-        self.s3_revision_version = s3_revision_version
-        self.s3_statement_version = s3_statement_version
-        self.wmf_recentchange_version = wmf_recentchange_version
+        self.s3_revision_version = s3_revision_version or settings.s3_revision_version
+        self.s3_statement_version = (
+            s3_statement_version or settings.s3_statement_version
+        )
+        self.wmf_recentchange_version = (
+            wmf_recentchange_version or settings.wmf_recentchange_version
+        )
         self._entity_revision_schema: JsonSchema | None = None
         self._statement_schema: JsonSchema | None = None
         self._recentchange_schema: JsonSchema | None = None
@@ -39,10 +45,13 @@ class JsonSchemaValidator:
             )
 
         with open(schema_file, encoding="utf-8") as f:
-            data = json.load(f)
+            if schema_file.suffix == ".yaml":
+                data = yaml.safe_load(f)
+            else:
+                data = json.load(f)
             if not isinstance(data, dict):
                 raise_validation_error(
-                    f"Schema file must contain a JSON object: {schema_path}",
+                    f"Schema file must contain a JSON/YAML object: {schema_path}",
                     status_code=500,
                 )
             return JsonSchema(data=data)
@@ -50,14 +59,14 @@ class JsonSchemaValidator:
     def _get_entity_revision_schema(self) -> JsonSchema:
         if self._entity_revision_schema is None:
             self._entity_revision_schema = self._load_schema(
-                "src/models/validation/schemas/entity_revision.json"
+                f"src/schemas/entitybase/s3-revision/{self.s3_revision_version}/latest.yaml"
             )
         return self._entity_revision_schema
 
     def _get_statement_schema(self) -> JsonSchema:
         if self._statement_schema is None:
             self._statement_schema = self._load_schema(
-                "src/models/validation/schemas/statement.json"
+                f"src/schemas/entitybase/s3/statement/{self.s3_statement_version}/latest.yaml"
             )
         return self._statement_schema
 
