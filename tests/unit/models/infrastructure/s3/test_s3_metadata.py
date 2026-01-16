@@ -13,7 +13,10 @@ class TestS3MetadataStorage:
             secret_key="test",
             bucket="test",
         )
-        with patch("models.infrastructure.s3.s3_client.BotoSession"):
+        with patch("models.infrastructure.s3.s3_client.BotoSession"), \
+             patch("models.infrastructure.s3.connection.S3ConnectionManager") as mock_conn_mgr:
+            mock_conn_mgr.return_value.connect = Mock()
+            mock_conn_mgr.return_value.boto_client = Mock()
             self.s3_client = S3Client(self.config)
 
     def test_store_metadata(self) -> None:

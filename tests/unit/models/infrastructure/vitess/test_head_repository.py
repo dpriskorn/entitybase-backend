@@ -14,10 +14,10 @@ class TestHeadRepository:
         """Test getting head revision when entity exists."""
         conn = Mock()
         cursor = Mock()
-        conn.cursor.return_value.__enter__.return_value = cursor
-        self.connection_manager.get_connection.return_value.__enter__.return_value = (
-            conn
-        )
+        conn.cursor = Mock(return_value=cursor)
+        cursor.__exit__ = Mock(return_value=None)
+        conn.__exit__ = Mock(return_value=None)
+        self.connection_manager.get_connection = Mock(return_value=conn)
 
         cursor.fetchone.return_value = (123,)
 
@@ -33,10 +33,10 @@ class TestHeadRepository:
         """Test getting head revision when entity does not exist."""
         conn = Mock()
         cursor = Mock()
-        conn.cursor.return_value.__enter__.return_value = cursor
-        self.connection_manager.get_connection.return_value.__enter__.return_value = (
-            conn
-        )
+        conn.cursor = Mock(return_value=cursor)
+        cursor.__exit__ = Mock(return_value=None)
+        conn.__exit__ = Mock(return_value=None)
+        self.connection_manager.get_connection = Mock(return_value=conn)
 
         cursor.fetchone.return_value = None
 

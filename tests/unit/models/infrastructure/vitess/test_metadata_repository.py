@@ -12,7 +12,8 @@ class TestMetadataRepository:
         """Test inserting new metadata content."""
         conn = Mock()
         cursor = Mock()
-        conn.cursor.return_value.__enter__.return_value = cursor
+        conn.cursor = Mock(return_value=cursor)
+        cursor.__exit__ = Mock(return_value=None)
 
         self.repository.insert_metadata_content(conn, 12345, "labels")
 
@@ -29,7 +30,8 @@ class TestMetadataRepository:
         """Test getting existing metadata content."""
         conn = Mock()
         cursor = Mock()
-        conn.cursor.return_value.__enter__.return_value = cursor
+        conn.cursor = Mock(return_value=cursor)
+        cursor.__exit__ = Mock(return_value=None)
         cursor.fetchone.return_value = (5,)  # ref_count = 5
 
         result = self.repository.get_metadata_content(conn, 12345, "labels")
@@ -44,7 +46,8 @@ class TestMetadataRepository:
         """Test getting non-existent metadata content."""
         conn = Mock()
         cursor = Mock()
-        conn.cursor.return_value.__enter__.return_value = cursor
+        conn.cursor = Mock(return_value=cursor)
+        cursor.__exit__ = Mock(return_value=None)
         cursor.fetchone.return_value = None
 
         result = self.repository.get_metadata_content(conn, 12345, "labels")
@@ -55,7 +58,8 @@ class TestMetadataRepository:
         """Test decrementing ref_count when it remains above 0."""
         conn = Mock()
         cursor = Mock()
-        conn.cursor.return_value.__enter__.return_value = cursor
+        conn.cursor = Mock(return_value=cursor)
+        cursor.__exit__ = Mock(return_value=None)
         cursor.fetchone.return_value = (3,)  # ref_count = 3 after decrement
 
         result = self.repository.decrement_ref_count(conn, 12345, "labels")
@@ -78,7 +82,8 @@ class TestMetadataRepository:
         """Test decrementing ref_count when it reaches 0."""
         conn = Mock()
         cursor = Mock()
-        conn.cursor.return_value.__enter__.return_value = cursor
+        conn.cursor = Mock(return_value=cursor)
+        cursor.__exit__ = Mock(return_value=None)
         cursor.fetchone.return_value = (0,)  # ref_count = 0 after decrement
 
         result = self.repository.decrement_ref_count(conn, 12345, "labels")
@@ -89,7 +94,8 @@ class TestMetadataRepository:
         """Test deleting metadata content."""
         conn = Mock()
         cursor = Mock()
-        conn.cursor.return_value.__enter__.return_value = cursor
+        conn.cursor = Mock(return_value=cursor)
+        cursor.__exit__ = Mock(return_value=None)
 
         self.repository.delete_metadata_content(conn, 12345, "labels")
 
@@ -102,7 +108,8 @@ class TestMetadataRepository:
         """Test that database connections are properly managed."""
         conn = Mock()
         cursor = Mock()
-        conn.cursor.return_value.__enter__.return_value = cursor
+        conn.cursor = Mock(return_value=cursor)
+        cursor.__exit__ = Mock(return_value=None)
         conn.cursor.return_value.__exit__.return_value = None
 
         self.repository.insert_metadata_content(conn, 12345, "labels")
