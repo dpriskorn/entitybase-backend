@@ -3,15 +3,15 @@
 import pytest
 from pydantic import ValidationError
 
-from models.rest_api.response.entity import (
+from models.rest_api.entitybase.response.entity import (
     AliasValue,
     DescriptionValue,
-    EntityAliases,
-    EntityDescriptions,
-    EntityLabels,
-    EntityMetadata,
-    EntitySitelinks,
-    EntityStatements,
+    EntityAliasesResponse as EntityAliases,
+    EntityDescriptionsResponse as EntityDescriptions,
+    EntityLabelsResponse as EntityLabels,
+    EntityMetadataResponse as EntityMetadata,
+    EntitySitelinksResponse as EntitySitelinks,
+    EntityStatementsResponse as EntityStatements,
     LabelValue,
 )
 
@@ -57,9 +57,9 @@ class TestCollectionModels:
             "en": {"language": "en", "value": "English label"},
             "de": {"language": "de", "value": "German label"},
         }
-        labels = EntityLabels(__root__=data)
-        assert len(labels.__root__) == 2
-        assert labels.__root__["en"].value == "English label"
+        labels = EntityLabels(data=data)
+        assert len(labels.data) == 2
+        assert labels.data["en"].value == "English label"
 
     def test_entity_labels_invalid_structure(self):
         """Test EntityLabels with invalid nested structure."""
@@ -67,13 +67,13 @@ class TestCollectionModels:
             "en": {"invalid": "structure"}  # Missing language/value
         }
         with pytest.raises(ValidationError):
-            EntityLabels(__root__=data)
+            EntityLabels(data=data)
 
     def test_entity_descriptions_valid(self):
         """Test EntityDescriptions with valid data."""
         data = {"en": {"language": "en", "value": "English description"}}
-        descriptions = EntityDescriptions(__root__=data)
-        assert descriptions.__root__["en"].value == "English description"
+        descriptions = EntityDescriptions(data=data)
+        assert descriptions.data["en"].value == "English description"
 
     def test_entity_aliases_valid(self):
         """Test EntityAliases with valid data."""
@@ -83,20 +83,20 @@ class TestCollectionModels:
                 {"language": "en", "value": "alias2"},
             ]
         }
-        aliases = EntityAliases(__root__=data)
-        assert len(aliases.__root__["en"]) == 2
+        aliases = EntityAliases(data=data)
+        assert len(aliases.data["en"]) == 2
 
     def test_entity_statements_valid(self):
         """Test EntityStatements with valid data."""
         data = [{"property": "P31", "value": "Q5"}]
-        statements = EntityStatements(__root__=data)
-        assert len(statements.__root__) == 1
+        statements = EntityStatements(data=data)
+        assert len(statements.data) == 1
 
     def test_entity_sitelinks_valid(self):
         """Test EntitySitelinks with valid data."""
         data = {"enwiki": {"title": "Test Page"}}
-        sitelinks = EntitySitelinks(__root__=data)
-        assert sitelinks.__root__["enwiki"]["title"] == "Test Page"
+        sitelinks = EntitySitelinks(data=data)
+        assert sitelinks.data["enwiki"]["title"] == "Test Page"
 
 
 class TestEntityMetadata:
@@ -107,36 +107,32 @@ class TestEntityMetadata:
         metadata = EntityMetadata(id="Q123")
         assert metadata.id == "Q123"
         assert metadata.type == "item"
-        assert metadata.labels.__root__ == {}
-        assert metadata.descriptions.__root__ == {}
-        assert metadata.aliases.__root__ == {}
-        assert metadata.statements.__root__ == []
-        assert metadata.sitelinks.__root__ == {}
+        assert metadata.labels.data == {}
+        assert metadata.descriptions.data == {}
+        assert metadata.aliases.data == {}
+        assert metadata.statements.data == []
+        assert metadata.sitelinks.data == {}
 
     def test_entity_metadata_full(self):
         """Test EntityMetadata with full data."""
         metadata = EntityMetadata(
             id="Q123",
             type="property",
-            labels=EntityLabels(
-                __root__={"en": {"language": "en", "value": "Test Label"}}
-            ),
+            labels=EntityLabels(data={"en": {"language": "en", "value": "Test Label"}}),
             descriptions=EntityDescriptions(
-                __root__={"en": {"language": "en", "value": "Test Description"}}
+                data={"en": {"language": "en", "value": "Test Description"}}
             ),
             aliases=EntityAliases(
-                __root__={"en": [{"language": "en", "value": "Test Alias"}]}
+                data={"en": [{"language": "en", "value": "Test Alias"}]}
             ),
-            statements=EntityStatements(__root__=[{"property": "P31"}]),
-            sitelinks=EntitySitelinks(__root__={"enwiki": {"title": "Test"}}),
+            statements=EntityStatements(data=[{"property": "P31"}]),
+            sitelinks=EntitySitelinks(data={"enwiki": {"title": "Test"}}),
         )
         assert metadata.id == "Q123"
         assert metadata.type == "property"
-        assert metadata.labels.__root__["en"].value == "Test Label"
+        assert metadata.labels.data["en"].value == "Test Label"
 
     def test_entity_metadata_invalid_id(self):
         """Test EntityMetadata with invalid data raises error."""
         with pytest.raises(ValidationError):
-            EntityMetadata(
-                labels=EntityLabels(__root__={"en": {"invalid": "structure"}})
-            )
+            EntityMetadata(labels=EntityLabels(data={"en": {"invalid": "structure"}}))
