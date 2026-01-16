@@ -118,7 +118,7 @@ class EntityReadHandler:
                                     {"language": lang, "value": alias_value}
                                 )
 
-            return EntityResponse(
+            response = EntityResponse(
                 id=entity_id,
                 revision_id=head_revision_id,
                 entity_data=data,
@@ -130,6 +130,9 @@ class EntityReadHandler:
                     "is_mass_edit_protected", False
                 ),
             )
+            if not isinstance(response, EntityResponse):
+                raise_validation_error("Invalid response type", status_code=500)
+            return response
         except Exception as e:
             logger.error(f"Failed to read entity {entity_id}: {e}")
             raise_validation_error("Failed to read entity", status_code=500)
