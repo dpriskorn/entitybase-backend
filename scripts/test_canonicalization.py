@@ -13,10 +13,10 @@ from rdflib import Graph
 from pyld import jsonld
 
 
-def parse_rdf_to_jsonld(rdf_content: str, format: str = "turtle") -> dict:
+def parse_rdf_to_jsonld(rdf_content: str, format_: str = "turtle") -> dict:
     """Parse RDF content to JSON-LD format for canonicalization."""
     g = Graph()
-    g.parse(data=rdf_content, format=format)
+    g.parse(data=rdf_content, format=format_)
 
     # Convert to JSON-LD
     jsonld_data = jsonld.from_rdf(g)
