@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Dict, Any, List
 
 
+# noinspection PyUnresolvedReferences
 def extract_model_info(model_file: Path) -> List[Dict[str, Any]]:
     """Extract information from a models file."""
     models = []
