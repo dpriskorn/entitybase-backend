@@ -94,7 +94,7 @@ async def main() -> None:
 
     worker = WatchlistAutoDisableWorker()
 
-    async with worker.lifespan():
+    async with worker.lifespan(self=xx):
         # Run auto-disable once (for manual execution or cron)
         await worker.run_auto_disable()
 
