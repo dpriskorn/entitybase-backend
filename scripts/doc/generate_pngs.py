@@ -120,12 +120,11 @@ def main():
         total_processed = success_count + skipped_count
         print(f"\nSuccess: {success_count} generated, {skipped_count} skipped")
         print(f"PNG files saved to: {png_dir}")
+        if success_count > 0:
+            print(
+                "Note: PNGs were regenerated because .puml files were newer than existing .png files"
+            )
         sys.exit(0)
-
-    if success_count > 0:
-        print(
-            "Note: PNGs were regenerated because .puml files were newer than existing .png files"
-        )
 
 
 if __name__ == "__main__":
