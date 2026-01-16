@@ -11,8 +11,12 @@ class TestBacklinkPopulation:
         self.s3_client = Mock()
         self.validator = Mock()
 
-    @patch("models.rest_api.handlers.entity.hash_entity_statements")
-    @patch("models.rest_api.handlers.entity.deduplicate_and_store_statements")
+    @patch(
+        "models.rest_api.entitybase.services.statement_service.hash_entity_statements"
+    )
+    @patch(
+        "models.rest_api.entitybase.services.statement_service.deduplicate_and_store_statements"
+    )
     def test_backlink_population_creation_success(
         self, mock_dedup: Mock, mock_hash: Mock
     ) -> None:
@@ -92,8 +96,12 @@ class TestBacklinkPopulation:
 
         assert result == mock_hash_result
 
-    @patch("models.rest_api.handlers.entity.hash_entity_statements")
-    @patch("models.rest_api.handlers.entity.deduplicate_and_store_statements")
+    @patch(
+        "models.rest_api.entitybase.services.statement_service.hash_entity_statements"
+    )
+    @patch(
+        "models.rest_api.entitybase.services.statement_service.deduplicate_and_store_statements"
+    )
     def test_backlink_population_no_statements(
         self, mock_dedup: Mock, mock_hash: Mock
     ) -> None:
@@ -115,8 +123,12 @@ class TestBacklinkPopulation:
 
         assert result == mock_hash_result
 
-    @patch("models.rest_api.handlers.entity.hash_entity_statements")
-    @patch("models.rest_api.handlers.entity.deduplicate_and_store_statements")
+    @patch(
+        "models.rest_api.entitybase.services.statement_service.hash_entity_statements"
+    )
+    @patch(
+        "models.rest_api.entitybase.services.statement_service.deduplicate_and_store_statements"
+    )
     def test_backlink_population_entity_not_found(
         self, mock_dedup: Mock, mock_hash: Mock
     ) -> None:
@@ -179,8 +191,12 @@ class TestBacklinkPopulation:
 
         assert result == mock_hash_result
 
-    @patch("models.rest_api.handlers.entity.hash_entity_statements")
-    @patch("models.rest_api.handlers.entity.deduplicate_and_store_statements")
+    @patch(
+        "models.rest_api.entitybase.services.statement_service.hash_entity_statements"
+    )
+    @patch(
+        "models.rest_api.entitybase.services.statement_service.deduplicate_and_store_statements"
+    )
     def test_backlink_population_referenced_entity_not_found(
         self, mock_dedup: Mock, mock_hash: Mock
     ) -> None:
@@ -253,8 +269,12 @@ class TestBacklinkPopulation:
 
         assert result == mock_hash_result
 
-    @patch("models.rest_api.handlers.entity.hash_entity_statements")
-    @patch("models.rest_api.handlers.entity.deduplicate_and_store_statements")
+    @patch(
+        "models.rest_api.entitybase.services.statement_service.hash_entity_statements"
+    )
+    @patch(
+        "models.rest_api.entitybase.services.statement_service.deduplicate_and_store_statements"
+    )
     def test_backlink_population_multiple_statements(
         self, mock_dedup: Mock, mock_hash: Mock
     ) -> None:
