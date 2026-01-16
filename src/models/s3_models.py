@@ -3,6 +3,7 @@
 from typing import Any, Dict
 
 from pydantic import BaseModel, Field
+from pydantic.root_model import RootModel
 
 from models.infrastructure.config import Config
 from models.rest_api.entitybase.response import StatementResponse
@@ -35,34 +36,24 @@ class RevisionMetadata(BaseModel):
     key: str
 
 
-class LabelsHashes(BaseModel):
+class LabelsHashes(RootModel[dict[str, int]]):
     """Hash map for entity labels by language."""
 
-    __root__: dict[str, int]  # language -> hash
 
-
-class DescriptionsHashes(BaseModel):
+class DescriptionsHashes(RootModel[dict[str, int]]):
     """Hash map for entity descriptions by language."""
 
-    __root__: dict[str, int]  # language -> hash
 
-
-class AliasesHashes(BaseModel):
+class AliasesHashes(RootModel[dict[str, list[int]]]):
     """Hash map for entity aliases by language."""
 
-    __root__: dict[str, list[int]]  # language -> list of hashes
 
-
-class SitelinksHashes(BaseModel):
+class SitelinksHashes(RootModel[dict[str, int]]):
     """Hash map for entity sitelinks by site."""
 
-    __root__: dict[str, int]  # site -> hash
 
-
-class StatementsHashes(BaseModel):
+class StatementsHashes(RootModel[dict[str, list[int]]]):
     """Hash map for entity statements by property."""
-
-    __root__: dict[str, list[int]]  # property -> list of hashes
 
 
 class RevisionData(BaseModel):
