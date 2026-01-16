@@ -4,7 +4,7 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Header, Query, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -12,14 +12,14 @@ from jsonschema import ValidationError
 
 from models.config.settings import settings
 from models.rest_api.clients import Clients
+from models.rest_api.entitybase.handlers import ExportHandler
+from models.rest_api.entitybase.handlers import StatementHandler
+from models.rest_api.entitybase.handlers import health_check
 from models.rest_api.entitybase.handlers.admin import AdminHandler
 from models.rest_api.entitybase.handlers.entity import EntityDeleteHandler
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.handlers.entity.revert import EntityRevertHandler
-from models.rest_api.entitybase.handlers import ExportHandler
 from models.rest_api.entitybase.handlers.redirect import RedirectHandler
-from models.rest_api.entitybase.handlers import StatementHandler
-from models.rest_api.entitybase.handlers import health_check
 from models.rest_api.entitybase.handlers.watchlist import WatchlistHandler
 from models.rest_api.entitybase.request.entity import (
     EntityDeleteRequest,
@@ -33,14 +33,20 @@ from models.rest_api.entitybase.request.user import (
 )
 from models.rest_api.entitybase.request.user_preferences import UserPreferencesRequest
 from models.rest_api.entitybase.response import (
+    PropertyCountsResponse,
+    PropertyHashesResponse,
+    PropertyListResponse,
+)
+from models.rest_api.entitybase.response import (
     TtlResponse,
     RevisionMetadataResponse,
     HealthCheckResponse,
 )
-from models.rest_api.entitybase.response import (
-    PropertyCountsResponse,
-    PropertyHashesResponse,
-    PropertyListResponse,
+from models.rest_api.entitybase.response.entity.entitybase import (
+    EntityResponse,
+    EntityRedirectResponse,
+    EntityDeleteResponse,
+    EntityListResponse,
 )
 from models.user import User
 from models.validation.json_schema_validator import JsonSchemaValidator
@@ -66,12 +72,6 @@ from .entitybase.response.user_activity import UserActivityResponse
 from .entitybase.response.user_preferences import UserPreferencesResponse
 from .entitybase.services.enumeration_service import EnumerationService
 from .entitybase.v1 import v1_router
-from models.rest_api.entitybase.response.entity.entitybase import (
-    EntityResponse,
-    EntityRedirectResponse,
-    EntityDeleteResponse,
-    EntityListResponse,
-)
 
 log_level = settings.get_log_level()
 
