@@ -56,6 +56,33 @@ class StatementsHashes(RootModel[dict[str, list[int]]]):
     """Hash map for entity statements by property."""
 
 
+class RevisionCreateData(BaseModel):
+    """Model for revision data used during creation."""
+
+    schema_version: str
+    revision_id: int
+    created_at: str
+    created_by: str
+    entity_type: str
+    entity: dict[str, Any]
+    statements: list[int]
+    properties: list[str]
+    property_counts: dict[str, int]
+    sitelinks_hashes: dict[str, int] | None
+    content_hash: int
+    edit_summary: str | None
+    editor: str | None
+    is_mass_edit: bool
+    edit_type: str
+    is_semi_protected: bool | None
+    is_locked: bool | None
+    is_archived: bool | None
+    is_dangling: bool | None
+    is_mass_edit_protected: bool | None
+    is_deleted: bool
+    is_redirect: bool
+
+
 class RevisionData(BaseModel):
     """Model for revision JSON data structure."""
 

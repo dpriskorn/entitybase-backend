@@ -11,6 +11,7 @@ from rapidhash import rapidhash
 
 from models.config.settings import settings
 from models.infrastructure.s3.s3_client import S3Client
+from models.s3_models import RevisionCreateData
 from models.infrastructure.stream.producer import (
     ChangeType,
     StreamProducerClient,
@@ -343,39 +344,37 @@ class EntityHandler(BaseModel):
             edit_type.value if edit_type else EditType.UNSPECIFIED.value
         )
 
-        revision_data = {
-            "schema_version": settings.s3_revision_version,
-            "revision_id": new_revision_id,
-            "created_at": created_at,
-            "created_by": "rest-api",
-            "entity_type": entity_type,
-            "entity": request_data,
-            "statements": hash_result.statements,
-            "properties": hash_result.properties,
-            "property_counts": hash_result.property_counts,
-            "sitelinks_hashes": sitelinks_hashes,
-            "content_hash": content_hash,
-            "edit_summary": edit_summary,
-            "editor": editor,
-            "is_mass_edit": revision_is_mass_edit,
-            "edit_type": revision_edit_type,
-            "is_semi_protected": is_semi_protected,
-            "is_locked": is_locked,
-            "is_archived": is_archived,
-            "is_dangling": is_dangling,
-            "is_mass_edit_protected": is_mass_edit_protected,
-            "is_deleted": False,
-            "is_redirect": False,
-        }
+        revision_data = RevisionCreateData(
+            schema_version=settings.s3_revision_version,
+            revision_id=new_revision_id,
+            created_at=created_at,
+            created_by="rest-api",
+            entity_type=entity_type,
+            entity=request_data,
+            statements=hash_result.statements,
+            properties=hash_result.properties,
+            property_counts=hash_result.property_counts,
+            sitelinks_hashes=sitelinks_hashes,
+            content_hash=content_hash,
+            edit_summary=edit_summary,
+            editor=editor,
+            is_mass_edit=revision_is_mass_edit,
+            edit_type=revision_edit_type,
+            is_semi_protected=is_semi_protected,
+            is_locked=is_locked,
+            is_archived=is_archived,
+            is_dangling=is_dangling,
+            is_mass_edit_protected=is_mass_edit_protected,
+            is_deleted=False,
+            is_redirect=False,
+        )
 
         # Store revision in S3 and update head
         logger.info(f"Entity {entity_id}: Creating revision {new_revision_id}")
         try:
             vitess_client.create_revision(
                 entity_id=entity_id,
-                revision_id=new_revision_id,
-                expected_revision_id=head_revision_id,
-                entity_data=request_data,
+                entity_data=revision_data.model_dump(),
             )
             logger.info(
                 f"Entity {entity_id}: Successfully created revision {new_revision_id}"
@@ -418,6 +417,8 @@ class EntityHandler(BaseModel):
                         changed_at=datetime.now(timezone.utc),
                         editor=editor,
                         edit_summary=edit_summary,
+                        # we dont support this yet
+                        bot=False,
                     )
                 )
                 logger.debug(
