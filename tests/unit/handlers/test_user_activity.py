@@ -5,8 +5,8 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from models.rest_api.handlers.user_activity import UserActivityHandler
-from models.rest_api.response.user_activity import UserActivityResponse
+from models.rest_api.entitybase.handlers.user_activity import UserActivityHandler
+from models.rest_api.entitybase.response.user_activity import UserActivityResponse
 
 
 class TestUserActivityHandler:

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
-from models.rest_api.handlers.entity.read import EntityReadHandler
-from models.rest_api.response.entity.entitybase import EntityHistoryEntry
+from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.response.entity.entitybase import EntityHistoryEntry
 
 
 class TestEntityReadHandler(unittest.TestCase):

@@ -10,7 +10,7 @@ from models.watchlist import (
     WatchlistRemoveRequest,
     WatchlistResponse,
 )
-from models.rest_api.handlers.watchlist import WatchlistHandler
+from models.rest_api.entitybase.handlers.watchlist import WatchlistHandler
 
 
 class TestWatchlistHandler:

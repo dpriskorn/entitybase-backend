@@ -5,9 +5,9 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from models.rest_api.handlers.user_preferences import UserPreferencesHandler
-from models.rest_api.request.user_preferences import UserPreferencesRequest
-from models.rest_api.response.user_preferences import UserPreferencesResponse
+from models.rest_api.entitybase.handlers.user_preferences import UserPreferencesHandler
+from models.rest_api.entitybase.request.user_preferences import UserPreferencesRequest
+from models.rest_api.entitybase.response.user_preferences import UserPreferencesResponse
 
 
 class TestUserPreferencesHandler:
