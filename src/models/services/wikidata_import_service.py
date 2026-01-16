@@ -1,6 +1,7 @@
 """Wikidata import service."""
 
 import logging
+import os
 from typing import Any, Dict
 
 import requests
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 WIKIDATA_API_URL = "https://www.wikidata.org/w/api.php"
-USER_AGENT = "WikibaseBackend/1.0 (research@wikibase-backend.org)"
+USER_AGENT = os.getenv("WIKIDATA_USER_AGENT", "Entitybase/1.0 User:So9q")
 
 
 class WikidataImportService(BaseModel):
