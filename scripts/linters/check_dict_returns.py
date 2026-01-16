@@ -51,6 +51,7 @@ class DictReturnChecker(ast.NodeVisitor):
                         )
                     )
 
+    # noinspection PyUnresolvedReferences
     def _get_annotation_string(self, node: ast.AST) -> str:
         """Convert AST annotation to string."""
         if isinstance(node, ast.Name):
