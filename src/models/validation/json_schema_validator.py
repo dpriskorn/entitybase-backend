@@ -4,12 +4,7 @@ import json
 import logging
 from pathlib import Path
 
-try:
-    import yaml
-
-    HAS_YAML = True
-except ImportError:
-    HAS_YAML = False
+import yaml
 from jsonschema import Draft202012Validator
 
 from models.config.settings import settings
@@ -51,11 +46,6 @@ class JsonSchemaValidator:
 
         with open(schema_file, encoding="utf-8") as f:
             if schema_file.suffix == ".yaml":
-                if not HAS_YAML:
-                    raise_validation_error(
-                        "YAML support required but PyYAML not installed",
-                        status_code=500,
-                    )
                 data = yaml.safe_load(f)
             else:
                 data = json.load(f)
