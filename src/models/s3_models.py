@@ -57,7 +57,12 @@ class StatementsHashes(RootModel[dict[str, list[int]]]):
 
 
 class RevisionCreateData(BaseModel):
-    """Model for revision data used during creation."""
+    """Model for comprehensive revision data during creation process.
+
+    Contains full revision context including statements, properties, edit metadata,
+    and protection flags. Used internally during entity creation before
+    converting to RevisionData for storage.
+    """
 
     schema_version: str
     revision_id: int
@@ -84,7 +89,11 @@ class RevisionCreateData(BaseModel):
 
 
 class RevisionData(BaseModel):
-    """Model for revision JSON data structure."""
+    """Model for immutable revision snapshots stored in S3.
+
+    Contains minimal entity data with hash-based deduplication for terms,
+    sitelinks, and statements. Used for persistent storage and retrieval.
+    """
 
     schema_version: str
     revision_id: int | None = Field(default=None)
