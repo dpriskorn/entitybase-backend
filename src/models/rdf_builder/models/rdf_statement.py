@@ -1,6 +1,6 @@
 """RDF statement model."""
 
-from models.internal_representation.statements import Statement as InternalStatement
+from models.internal_representation.statements import Statement
 
 
 class RDFStatement:
@@ -17,7 +17,7 @@ class RDFStatement:
       - RDF:  "Q17948861-FA20AC3A-5627-4EC5-93CA-24F0F00C8AA6"
     """
 
-    def __init__(self, statement: InternalStatement):
+    def __init__(self, statement: Statement):
         self.guid = statement.statement_id
         self.property_id = statement.property
         self.value = statement.value
