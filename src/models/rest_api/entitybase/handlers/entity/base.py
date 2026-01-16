@@ -144,6 +144,7 @@ class EntityHandler(BaseModel):
 
         if not isinstance(revision_response, EntityRevisionResponse):
             raise_validation_error("Invalid response type", status_code=500)
+        # noinspection PyTypeChecker
         return revision_response
 
     def _check_idempotency(
@@ -432,6 +433,19 @@ class EntityHandler(BaseModel):
                         "operation": "change_event_publish_failed",
                     },
                 )
+
+        # Type guards for boolean fields
+        is_semi_protected = (
+            is_semi_protected if isinstance(is_semi_protected, bool) else False
+        )
+        is_locked = is_locked if isinstance(is_locked, bool) else False
+        is_archived = is_archived if isinstance(is_archived, bool) else False
+        is_dangling = is_dangling if isinstance(is_dangling, bool) else False
+        is_mass_edit_protected = (
+            is_mass_edit_protected
+            if isinstance(is_mass_edit_protected, bool)
+            else False
+        )
 
         # Return response
         return EntityResponse(
