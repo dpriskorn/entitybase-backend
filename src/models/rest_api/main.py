@@ -371,7 +371,9 @@ def revert_entity(
 def get_entity(entity_id: str, req: Request) -> EntityResponse:
     """Retrieve a single entity by its ID."""
     # noinspection PyUnresolvedReferences
-    clients = cast(Clients, req.app.state.clients)
+    clients = req.app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityReadHandler()
     result = handler.get_entity(entity_id, clients.vitess, clients.s3)
     if not isinstance(result, EntityResponse):
@@ -410,7 +412,9 @@ async def get_entity_data_turtle(entity_id: str) -> TtlResponse:
 async def create_entity_redirect(
     request: EntityRedirectRequest,
 ) -> EntityRedirectResponse:
-    clients = cast(Clients, app.state.clients)
+    clients = app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
     handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
     result = await handler.create_entity_redirect(request)
     if not isinstance(result, EntityRedirectResponse):
@@ -422,7 +426,9 @@ async def create_entity_redirect(
 async def revert_entity_redirect(  # type: ignore[no-any-return]
     entity_id: str, request: RedirectRevertRequest
 ) -> EntityResponse:
-    clients = cast(Clients, app.state.clients)
+    clients = app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
     handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
     result = await handler.revert_entity_redirect(
         entity_id, request.revert_to_revision_id
@@ -436,7 +442,7 @@ async def revert_entity_redirect(  # type: ignore[no-any-return]
 async def delete_entity(  # type: ignore[no-any-return]
     entity_id: str, request: EntityDeleteRequest
 ) -> EntityDeleteResponse:
-    clients = cast(Clients, app.state.clients)
+    clients = app.state.clients
     handler = EntityDeleteHandler()
     result = await handler.delete_entity(
         entity_id, request, clients.vitess, clients.s3, clients.stream_producer
@@ -469,7 +475,7 @@ def list_entities(  # type: ignore[no-any-return]
     offset: int = Query(0, ge=0, description="Number of entities to skip"),
 ) -> EntityListResponse:
     """List entities based on type, limit, and offset."""
-    clients = cast(Clients, app.state.clients)
+    clients = app.state.clients
     handler = AdminHandler()
     result = handler.list_entities(
         vitess_client=clients.vitess,
