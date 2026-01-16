@@ -5,6 +5,8 @@ import os
 
 from typing import NoReturn, Optional
 
+from pydantic import ValidationError
+
 logger = logging.getLogger(__name__)
 
 
