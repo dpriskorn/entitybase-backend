@@ -143,4 +143,5 @@ class BacklinkStatisticsWorker(BaseModel):
         return WorkerHealthCheckResponse(
             status=status,
             worker_id=self.worker_id,
+            range_status=None
         )
