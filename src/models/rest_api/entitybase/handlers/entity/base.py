@@ -178,7 +178,7 @@ class EntityHandler(BaseModel):
                     is_mass_edit_protected=head_revision.data.get(
                         "is_mass_edit_protected", False
                     ),
-                    entity_data=        None,
+                    entity_data=head_revision.data.get("entity_data", {})
                 )
         except Exception as e:
             logger.warning(f"Failed to read head revision for idempotency check: {e}")
