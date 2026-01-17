@@ -2,7 +2,91 @@ from typing import Dict, Any
 
 from pydantic import BaseModel, Field
 
-from models.rest_api.entitybase.response.entity.wikibase import EntityMetadataResponse
+from models.rest_api.entitybase.response.entity.wikibase import SitelinkValue, LabelValue, DescriptionValue, AliasValue
+from models.validation.utils import raise_validation_error
+
+
+
+class EntityLabelsResponse(BaseModel):
+    """Collection of labels keyed by language code."""
+
+    data: dict[str, LabelValue] = Field(default_factory=dict)
+
+    def __getitem__(self, key: str) -> LabelValue:
+        return self.data[key]
+
+    def get(self, language_code: str) -> LabelValue:
+        """Get label for the specified language code."""
+        if not language_code:
+            raise_validation_error("Language code cannot be empty", status_code=400)
+        if language_code not in self.data:
+            raise_validation_error(
+                f"Label not found for language {language_code}", status_code=404
+            )
+        return self.data[language_code]
+
+
+class EntityDescriptionsResponse(BaseModel):
+    """Collection of descriptions keyed by language code."""
+
+    data: dict[str, DescriptionValue] = Field(default_factory=dict)
+
+    def __getitem__(self, key: str) -> DescriptionValue:
+        return self.data[key]
+
+    def get(self, language_code: str) -> DescriptionValue:
+        """Get description for the specified language code."""
+        if not language_code:
+            raise_validation_error("Language code cannot be empty", status_code=400)
+        if language_code not in self.data:
+            raise_validation_error(
+                f"Description not found for language {language_code}", status_code=404
+            )
+        return self.data[language_code]
+
+
+class EntityAliasesResponse(BaseModel):
+    """Collection of aliases keyed by language code."""
+
+    data: dict[str, list[AliasValue]] = Field(default_factory=dict)
+
+    def __getitem__(self, key: str) -> list[AliasValue]:
+        return self.data[key]
+
+    def get(self, language_code: str) -> list[AliasValue]:
+        """Get aliases for the specified language code."""
+        if not language_code:
+            raise_validation_error("Language code cannot be empty", status_code=400)
+        if language_code not in self.data:
+            raise_validation_error(
+                f"Aliases not found for language {language_code}", status_code=404
+            )
+        return self.data[language_code]
+
+
+class EntityStatementsResponse(BaseModel):
+    """List of entity statements."""
+
+    data: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class EntitySitelinksResponse(BaseModel):
+    """Collection of sitelinks."""
+
+    data: dict[str, SitelinkValue] = Field(default_factory=dict)
+
+    def __getitem__(self, key: str) -> SitelinkValue:
+        return self.data[key]
+
+    def get(self, site: str) -> SitelinkValue:
+        """Get sitelink for the specified site."""
+        if not site:
+            raise_validation_error("Site cannot be empty", status_code=400)
+        if site not in self.data:
+            raise_validation_error(
+                f"Sitelink not found for site {site}", status_code=404
+            )
+        return self.data[site]
 
 
 class EntityHistoryEntry(BaseModel):
@@ -55,6 +139,26 @@ class EntityListResponse(BaseModel):
         description="List of entities with their metadata"
     )
     count: int = Field(description="Total number of entities returned")
+
+
+class EntityMetadataResponse(BaseModel):
+    """Model for entity metadata."""
+
+    id: str
+    type: str = Field(default="item")
+    labels: EntityLabelsResponse = Field(default_factory=lambda: EntityLabelsResponse())
+    descriptions: EntityDescriptionsResponse = Field(
+        default_factory=lambda: EntityDescriptionsResponse()
+    )
+    aliases: EntityAliasesResponse = Field(
+        default_factory=lambda: EntityAliasesResponse()
+    )
+    statements: EntityStatementsResponse = Field(
+        default_factory=lambda: EntityStatementsResponse()
+    )
+    sitelinks: EntitySitelinksResponse = Field(
+        default_factory=lambda: EntitySitelinksResponse()
+    )
 
 
 class EntityMetadataBatchResponse(BaseModel):
