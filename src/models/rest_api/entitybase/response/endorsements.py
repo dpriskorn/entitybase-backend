@@ -16,7 +16,7 @@ class EndorsementResponse(BaseModel):
     user_id: int = Field(description="ID of the user who created the endorsement. Example: 67890.")
     statement_hash: int = Field(alias="hash", description="Hash of the endorsed statement. Example: 987654321.")
     created_at: str = Field(description="Timestamp when the endorsement was created (ISO format). Example: '2023-01-01T12:00:00Z'.")
-    removed_at: Optional[str] = Field(default=None, description="Timestamp when the endorsement was removed (ISO format), null if active. Example: '2023-12-31T23:59:59Z'.")
+    removed_at: str = Field(default="", description="Timestamp when the endorsement was removed (ISO format), empty string if active. Example: '2023-12-31T23:59:59Z'.")
 
 
 class EndorsementListResponse(BaseModel):

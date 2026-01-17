@@ -36,6 +36,15 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                             f"Found 'Optional[str] = Field(default=None)': {line.strip()}, use 'str = Field(default=\"\")' instead",
                         )
                     )
+                # Look for Optional[str] (general)
+                elif "Optional[str]" in line and "Optional[str] = Field(default=None)" not in line:
+                    violations.append(
+                        (
+                            str(file_path),
+                            line_no,
+                            f"Found 'Optional[str]': {line.strip()}, consider using 'str = Field(default=\"\")' if None is not needed",
+                        )
+                    )
     except Exception as e:
         violations.append((str(file_path), 0, f"Error reading file: {e}"))
 
