@@ -39,15 +39,27 @@ class MetadataRepository:
 
     def get_metadata_content(
         self, conn: Any, content_hash: int, content_type: str
-    ) -> MetadataContent | None:
+    ) -> OperationResult:
         """Get metadata content by hash and type."""
-        with conn.cursor() as cursor:
-            cursor.execute(
-                "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
-                (content_hash, content_type),
-            )
-            result = cursor.fetchone()
-            return MetadataContent(ref_count=result[0]) if result else None
+        if content_hash <= 0 or not content_type:
+            return OperationResult(success=False, error="Invalid content hash or type")
+
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
+                    (content_hash, content_type),
+                )
+                result = cursor.fetchone()
+                if result:
+                    content = MetadataContent(ref_count=result[0])
+                    return OperationResult(success=True, data=content)
+                else:
+                    return OperationResult(
+                        success=False, error="Metadata content not found"
+                    )
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def decrement_ref_count(
         self, conn: Any, content_hash: int, content_type: str
