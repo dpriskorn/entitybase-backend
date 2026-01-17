@@ -8,11 +8,9 @@ pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")
 
-from models.infrastructure.stream.producer import (
-    ChangeType,
-    EntityChangeEvent,
-    StreamProducerClient,
-)
+from models.infrastructure.stream.change_type import ChangeType
+from models.infrastructure.stream.event import EntityChangeEvent
+from models.infrastructure.stream.producer import StreamProducerClient
 
 
 class TestStreamProducerClient:

@@ -52,9 +52,7 @@ class VitessClient(Client):
     """Vitess database client for entity operations."""
 
     config: VitessConfig
-    connection_manager: Optional[VitessConnectionManager] = Field(
-        default=None, exclude=True
-    )
+    _connection_manager: VitessConnectionManager = Field(exclude=True)
     schema_manager: Optional[SchemaManager] = Field(default=None, exclude=True)
     id_resolver: Optional[IdResolver] = Field(default=None, exclude=True)
     entity_repository: Optional[EntityRepository] = Field(default=None, exclude=True)
@@ -84,10 +82,14 @@ class VitessClient(Client):
         default=None, exclude=True
     )
 
+    @property
+    def connection_manager(self) -> VitessConnectionManager:
+        return self._connection_manager
+
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
         logger.debug(f"Initializing VitessClient with host {config.host}")
-        self.connection_manager = VitessConnectionManager(config=config)
+        self._connection_manager = VitessConnectionManager(config=config)
         self.schema_manager = SchemaManager(self.connection_manager)
         self.id_resolver = IdResolver(self.connection_manager)
         self.entity_repository = EntityRepository(
@@ -116,6 +118,7 @@ class VitessClient(Client):
 
     def _create_tables(self) -> None:
         """Create database tables if they don't exist."""
+        assert self.schema_manager is not None
         self.schema_manager.create_tables()
 
     def connect(self) -> Connection:
@@ -128,11 +131,13 @@ class VitessClient(Client):
 
     def healthy_connection(self) -> bool:
         """Check if the database connection is healthy."""
+        assert self.connection_manager is not None
         return self.connection_manager.healthy_connection  # type: ignore[no-any-return]
 
     @contextmanager
     def get_connection(self) -> Generator[Any, None, None]:
         """Context manager for database connection."""
+        assert self.connection_manager is not None
         conn = self.connection_manager.connect()
         try:
             yield conn

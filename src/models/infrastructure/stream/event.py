@@ -62,10 +62,6 @@ class EntityChangeEvent(BaseModel):
     )
     changed_at: datetime = Field(alias="at", description="Timestamp of change")
     edit_summary: str = Field(alias="sum", default="", description="Edit summary")
-    editor: str = Field(
-        alias="ed", default="", description="Editor who made the change"
-    )
-    bot: bool = Field(default=False, description="Whether the change was made by a bot")
 
     @field_serializer("changed_at")
     def serialize_changed_at(self, value: datetime) -> str:
