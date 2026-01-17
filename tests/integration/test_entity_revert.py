@@ -8,6 +8,7 @@ sys.path.insert(0, "src")
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_revert_entity() -> None:
     """Test reverting an entity to a previous revision"""
     from models.rest_api.main import app
@@ -41,6 +42,7 @@ async def test_revert_entity() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_revert_entity_missing_user_header() -> None:
     """Test revert without user ID header"""
     from models.rest_api.main import app
@@ -60,6 +62,7 @@ async def test_revert_entity_missing_user_header() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_revert_entity_invalid_user_header() -> None:
     """Test revert with invalid user ID header"""
     from models.rest_api.main import app
@@ -80,6 +83,7 @@ async def test_revert_entity_invalid_user_header() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_revert_entity_invalid_request() -> None:
     """Test revert with invalid request data"""
     from models.rest_api.main import app

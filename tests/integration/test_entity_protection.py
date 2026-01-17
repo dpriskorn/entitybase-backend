@@ -8,6 +8,7 @@ import requests
 from rapidhash import rapidhash
 
 
+@pytest.mark.integration
 def test_mass_edit_classification(api_client: requests.Session, base_url: str) -> None:
     """Test mass edit and edit_type classification"""
     logger = logging.getLogger(__name__)
@@ -67,6 +68,7 @@ def test_mass_edit_classification(api_client: requests.Session, base_url: str) -
     logger.info("✓ Mass edit classification works correctly")
 
 
+@pytest.mark.integration
 def test_semi_protection_blocks_not_autoconfirmed_users(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -110,6 +112,7 @@ def test_semi_protection_blocks_not_autoconfirmed_users(
     logger.info("✓ Semi-protection blocks not-autoconfirmed users")
 
 
+@pytest.mark.integration
 def test_semi_protection_allows_autoconfirmed_users(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -141,6 +144,7 @@ def test_semi_protection_allows_autoconfirmed_users(
     logger.info("✓ Semi-protection allows autoconfirmed users")
 
 
+@pytest.mark.integration
 def test_locked_items_block_all_edits(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -167,6 +171,7 @@ def test_locked_items_block_all_edits(
     logger.info("✓ Locked items block all edits")
 
 
+@pytest.mark.integration
 def test_archived_items_block_all_edits(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -193,6 +198,7 @@ def test_archived_items_block_all_edits(
     logger.info("✓ Archived items block all edits")
 
 
+@pytest.mark.integration
 def test_mass_edit_protection_blocks_mass_edits(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -236,6 +242,7 @@ def test_mass_edit_protection_blocks_mass_edits(
     logger.info("✓ Mass-edit protection works correctly")
 
 
+@pytest.mark.integration
 def test_mass_protection_edit_types(
     api_client: requests.Session, base_url: str
 ) -> None:

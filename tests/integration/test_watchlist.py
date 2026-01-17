@@ -7,6 +7,7 @@ sys.path.insert(0, "src")
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_add_watch() -> None:
     """Test adding a watch"""
     from models.rest_api.main import app
@@ -28,6 +29,7 @@ async def test_add_watch() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_add_watch_user_not_registered() -> None:
     """Test adding a watch for unregistered user"""
     from models.rest_api.main import app
@@ -44,6 +46,7 @@ async def test_add_watch_user_not_registered() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_remove_watch() -> None:
     """Test removing a watch"""
     from models.rest_api.main import app
@@ -70,6 +73,7 @@ async def test_remove_watch() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_get_watchlist() -> None:
     """Test getting user's watchlist"""
     from models.rest_api.main import app
@@ -95,6 +99,7 @@ async def test_get_watchlist() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_get_watchlist_user_not_registered() -> None:
     """Test getting watchlist for unregistered user"""
     from models.rest_api.main import app
@@ -108,6 +113,7 @@ async def test_get_watchlist_user_not_registered() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_get_notifications() -> None:
     """Test getting user notifications"""
     from models.rest_api.main import app
@@ -127,6 +133,7 @@ async def test_get_notifications() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_get_notifications_user_not_registered() -> None:
     """Test getting notifications for unregistered user"""
     from models.rest_api.main import app
@@ -140,6 +147,7 @@ async def test_get_notifications_user_not_registered() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_mark_notification_checked() -> None:
     """Test marking notification as checked"""
     from models.rest_api.main import app

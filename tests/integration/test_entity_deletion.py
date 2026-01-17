@@ -8,6 +8,7 @@ import requests
 from rapidhash import rapidhash
 
 
+@pytest.mark.integration
 def test_soft_delete_entity(api_client: requests.Session, base_url: str) -> None:
     """Test soft deleting an entity"""
     logger = logging.getLogger(__name__)
@@ -48,6 +49,7 @@ def test_soft_delete_entity(api_client: requests.Session, base_url: str) -> None
     logger.info("✓ Soft delete works correctly")
 
 
+@pytest.mark.integration
 def test_hard_delete_entity(api_client: requests.Session, base_url: str) -> None:
     """Test hard deleting an entity"""
     logger = logging.getLogger(__name__)
@@ -81,6 +83,7 @@ def test_hard_delete_entity(api_client: requests.Session, base_url: str) -> None
     logger.info("✓ Hard delete hides entity correctly")
 
 
+@pytest.mark.integration
 def test_undelete_entity(api_client: requests.Session, base_url: str) -> None:
     """Test undeleting an entity by creating new revision"""
     logger = logging.getLogger(__name__)
@@ -128,6 +131,7 @@ def test_undelete_entity(api_client: requests.Session, base_url: str) -> None:
     logger.info("✓ Undelete via new revision works")
 
 
+@pytest.mark.integration
 def test_hard_delete_prevents_undelete(
     api_client: requests.Session, base_url: str
 ) -> None:

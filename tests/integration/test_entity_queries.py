@@ -11,6 +11,7 @@ from rapidhash import rapidhash
 @pytest.mark.skip(
     reason="Endpoint not implemented yet - /entities endpoint is disabled"
 )
+@pytest.mark.integration
 def test_query_locked_entities(api_client: requests.Session, base_url: str) -> None:
     """Query should return locked items"""
     logger = logging.getLogger(__name__)
@@ -33,6 +34,7 @@ def test_query_locked_entities(api_client: requests.Session, base_url: str) -> N
 @pytest.mark.skip(
     reason="Endpoint not implemented yet - /entities endpoint is disabled"
 )
+@pytest.mark.integration
 def test_query_semi_protected_entities(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -59,6 +61,7 @@ def test_query_semi_protected_entities(
 @pytest.mark.skip(
     reason="Endpoint not implemented yet - /entities endpoint is disabled"
 )
+@pytest.mark.integration
 def test_query_archived_entities(api_client: requests.Session, base_url: str) -> None:
     """Query should return archived items"""
     logger = logging.getLogger(__name__)
@@ -81,6 +84,7 @@ def test_query_archived_entities(api_client: requests.Session, base_url: str) ->
 @pytest.mark.skip(
     reason="Endpoint not implemented yet - /entities endpoint is disabled"
 )
+@pytest.mark.integration
 def test_query_dangling_entities(api_client: requests.Session, base_url: str) -> None:
     """Query should return dangling items"""
     logger = logging.getLogger(__name__)
@@ -100,6 +104,7 @@ def test_query_dangling_entities(api_client: requests.Session, base_url: str) ->
     logger.info("✓ Query dangling entities works")
 
 
+@pytest.mark.integration
 def test_list_entities_by_type(api_client: requests.Session, base_url: str) -> None:
     """Test listing entities by type"""
     logger = logging.getLogger(__name__)
@@ -148,6 +153,7 @@ def test_list_entities_by_type(api_client: requests.Session, base_url: str) -> N
 @pytest.mark.skip(
     reason="Endpoint not implemented yet - /entities endpoint is disabled"
 )
+@pytest.mark.integration
 def test_query_by_edit_type(api_client: requests.Session, base_url: str) -> None:
     """Query should return entities filtered by edit_type"""
     logger = logging.getLogger(__name__)

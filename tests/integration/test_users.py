@@ -7,6 +7,7 @@ sys.path.insert(0, "src")
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_create_user_new() -> None:
     """Test creating a new user"""
     from models.rest_api.main import app
@@ -22,6 +23,7 @@ async def test_create_user_new() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_create_user_existing() -> None:
     """Test creating a user that already exists"""
     from models.rest_api.main import app
@@ -43,6 +45,7 @@ async def test_create_user_existing() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_get_user_existing() -> None:
     """Test getting an existing user"""
     from models.rest_api.main import app
@@ -62,6 +65,7 @@ async def test_get_user_existing() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_get_user_not_found() -> None:
     """Test getting a non-existing user"""
     from models.rest_api.main import app
@@ -74,6 +78,7 @@ async def test_get_user_not_found() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_create_user_invalid() -> None:
     """Test creating a user with invalid data"""
     from models.rest_api.main import app
@@ -87,6 +92,7 @@ async def test_create_user_invalid() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_toggle_watchlist_enable() -> None:
     """Test enabling watchlist for user"""
     from models.rest_api.main import app
@@ -111,6 +117,7 @@ async def test_toggle_watchlist_enable() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_toggle_watchlist_disable() -> None:
     """Test disabling watchlist for user"""
     from models.rest_api.main import app
@@ -132,6 +139,7 @@ async def test_toggle_watchlist_disable() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_toggle_watchlist_user_not_registered() -> None:
     """Test toggle for unregistered user"""
     from models.rest_api.main import app
@@ -147,6 +155,7 @@ async def test_toggle_watchlist_user_not_registered() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_get_user_activity() -> None:
     """Test getting user activity"""
     from models.rest_api.main import app
@@ -166,6 +175,7 @@ async def test_get_user_activity() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_get_user_activity_user_not_registered() -> None:
     """Test getting activity for unregistered user"""
     from models.rest_api.main import app
@@ -179,6 +189,7 @@ async def test_get_user_activity_user_not_registered() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_get_user_activity_invalid_type() -> None:
     """Test getting activity with invalid type filter"""
     from models.rest_api.main import app
@@ -195,6 +206,7 @@ async def test_get_user_activity_invalid_type() -> None:
 
 
 @pytest.mark.asyncio
+@pytest.mark.integration
 async def test_get_user_activity_invalid_limit() -> None:
     """Test getting activity with invalid limit"""
     from models.rest_api.main import app

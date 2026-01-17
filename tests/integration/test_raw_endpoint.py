@@ -7,6 +7,7 @@ import requests
 from rapidhash import rapidhash
 
 
+@pytest.mark.integration
 def test_raw_endpoint_returns_existing_revision(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -57,6 +58,7 @@ def test_raw_endpoint_returns_existing_revision(
         logger.info("✓ Raw endpoint returns full revision schema with content_hash")
 
 
+@pytest.mark.integration
 def test_raw_endpoint_nonexistent_entity(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -70,6 +72,7 @@ def test_raw_endpoint_nonexistent_entity(
     logger.info("✓ Raw endpoint returns 404 for non-existent entity")
 
 
+@pytest.mark.integration
 def test_raw_endpoint_nonexistent_revision(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -100,6 +103,7 @@ def test_raw_endpoint_nonexistent_revision(
     logger.info("✓ Raw endpoint returns 404 with available revisions listed")
 
 
+@pytest.mark.integration
 def test_raw_endpoint_pure_s3_data(api_client: requests.Session, base_url: str) -> None:
     """Test that raw endpoint returns untransformed S3 data"""
     logger = logging.getLogger(__name__)
@@ -143,6 +147,7 @@ def test_raw_endpoint_pure_s3_data(api_client: requests.Session, base_url: str) 
         logger.info("✓ Main endpoint entity matches raw endpoint entity")
 
 
+@pytest.mark.integration
 def test_raw_endpoint_vs_history_consistency(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -185,6 +190,7 @@ def test_raw_endpoint_vs_history_consistency(
     )
 
 
+@pytest.mark.integration
 def test_raw_endpoint_nonexistent_entity_2(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -196,6 +202,7 @@ def test_raw_endpoint_nonexistent_entity_2(
     logger.info("✓ Raw endpoint returns 404 for non-existent entity 2")
 
 
+@pytest.mark.integration
 def test_raw_endpoint_nonexistent_revision_2(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -226,6 +233,7 @@ def test_raw_endpoint_nonexistent_revision_2(
     logger.info("✓ Raw endpoint returns 404 with available revisions listed 2")
 
 
+@pytest.mark.integration
 def test_mass_edit_fields_in_raw_response(
     api_client: requests.Session, base_url: str
 ) -> None:

@@ -1,6 +1,7 @@
 import requests
 
 
+@pytest.mark.integration
 def test_entitybase_create_property(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -22,6 +23,7 @@ def test_entitybase_create_property(
     assert response_data["type"] == "property"
 
 
+@pytest.mark.integration
 def test_entitybase_create_property_minimal(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -43,6 +45,7 @@ def test_entitybase_create_property_minimal(
     assert response_data["labels"]["en"]["value"] == "Minimal Property"
 
 
+@pytest.mark.integration
 def test_entitybase_create_property_invalid(
     api_client: requests.Session, base_url: str
 ) -> None:

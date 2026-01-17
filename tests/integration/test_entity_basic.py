@@ -8,6 +8,7 @@ import requests
 from rapidhash import rapidhash
 
 
+@pytest.mark.integration
 def test_health_check(api_client: requests.Session, base_url: str) -> None:
     """Test that health check endpoint returns OK"""
     logger = logging.getLogger(__name__)
@@ -20,6 +21,7 @@ def test_health_check(api_client: requests.Session, base_url: str) -> None:
     logger.info("✓ Health check passed")
 
 
+@pytest.mark.integration
 def test_create_entity(api_client: requests.Session, base_url: str) -> None:
     """Test creating a new entity"""
     logger = logging.getLogger(__name__)
@@ -54,6 +56,7 @@ def test_create_entity(api_client: requests.Session, base_url: str) -> None:
     logger.info("✓ Entity creation passed with rapidhash verification")
 
 
+@pytest.mark.integration
 def test_get_entity(api_client: requests.Session, base_url: str) -> None:
     """Test retrieving an entity"""
     logger = logging.getLogger(__name__)
@@ -77,6 +80,7 @@ def test_get_entity(api_client: requests.Session, base_url: str) -> None:
     logger.info("✓ Entity retrieval passed")
 
 
+@pytest.mark.integration
 def test_update_entity(api_client: requests.Session, base_url: str) -> None:
     """Test updating an entity (create new revision)"""
     logger = logging.getLogger(__name__)
@@ -133,6 +137,7 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
     logger.info("✓ Entity update passed with hash verification")
 
 
+@pytest.mark.integration
 def test_create_entity_already_exists(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -155,6 +160,7 @@ def test_create_entity_already_exists(
     logger.info("✓ POST with existing entity correctly returns 409")
 
 
+@pytest.mark.integration
 def test_update_entity_not_found(api_client: requests.Session, base_url: str) -> None:
     """Test that PUT /entity/{id} fails with 404 when entity doesn't exist"""
     logger = logging.getLogger(__name__)
@@ -171,6 +177,7 @@ def test_update_entity_not_found(api_client: requests.Session, base_url: str) ->
     logger.info("✓ PUT with non-existent entity correctly returns 404")
 
 
+@pytest.mark.integration
 def test_get_entity_history(api_client: requests.Session, base_url: str) -> None:
     """Test retrieving entity history"""
     logger = logging.getLogger(__name__)
@@ -204,6 +211,7 @@ def test_get_entity_history(api_client: requests.Session, base_url: str) -> None
     logger.info("✓ Entity history retrieval passed")
 
 
+@pytest.mark.integration
 def test_get_specific_revision(api_client: requests.Session, base_url: str) -> None:
     """Test retrieving a specific revision"""
     logger = logging.getLogger(__name__)
@@ -232,6 +240,7 @@ def test_get_specific_revision(api_client: requests.Session, base_url: str) -> N
     logger.info("✓ Specific revision retrieval passed")
 
 
+@pytest.mark.integration
 def test_entity_not_found(api_client: requests.Session, base_url: str) -> None:
     """Test that non-existent entities return 404"""
     logger = logging.getLogger(__name__)
@@ -241,6 +250,7 @@ def test_entity_not_found(api_client: requests.Session, base_url: str) -> None:
     logger.info("✓ 404 handling passed")
 
 
+@pytest.mark.integration
 def test_raw_endpoint_existing_revision(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -288,6 +298,7 @@ def test_raw_endpoint_existing_revision(
     logger.info("✓ Raw endpoint returns full revision schema with content_hash")
 
 
+@pytest.mark.integration
 def test_idempotent_duplicate_submission(
     api_client: requests.Session, base_url: str
 ) -> None:

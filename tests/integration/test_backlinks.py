@@ -16,6 +16,7 @@ class TestBacklinkAPI:
         self.handler = BacklinkHandler()
         self.vitess_client = Mock()
 
+    @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_get_backlinks_success(self) -> None:
         """Test successful backlinks retrieval."""
@@ -59,6 +60,7 @@ class TestBacklinkAPI:
         }
         assert result.model_dump() == expected
 
+    @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_get_backlinks_entity_not_found(self) -> None:
         """Test 404 when entity doesn't exist."""
@@ -77,6 +79,7 @@ class TestBacklinkAPI:
         assert exc_info.value.status_code == 404
         assert "Entity not found" in str(exc_info.value.detail)
 
+    @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_get_backlinks_empty_results(self) -> None:
         """Test empty backlinks list."""
@@ -95,6 +98,7 @@ class TestBacklinkAPI:
         expected = {"backlinks": [], "limit": 100, "offset": 0}
         assert result.model_dump() == expected
 
+    @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_get_backlinks_with_pagination(self) -> None:
         """Test backlinks with custom pagination."""
@@ -130,6 +134,7 @@ class TestBacklinkAPI:
         }
         assert result.model_dump() == expected
 
+    @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_get_backlinks_referencing_entity_not_found(self) -> None:
         """Test handling when referencing entity cannot be resolved."""
@@ -175,6 +180,7 @@ class TestBacklinkAPI:
         }
         assert result.model_dump() == expected
 
+    @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_get_backlinks_large_result_set(self) -> None:
         """Test handling of large result sets."""
@@ -209,6 +215,7 @@ class TestBacklinkAPI:
         assert result.limit == 100
         assert result.offset == 0
 
+    @pytest.mark.integration
     @pytest.mark.asyncio
     async def test_connection_context_management(self) -> None:
         """Test that database connections are properly managed."""

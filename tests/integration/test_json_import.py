@@ -7,7 +7,6 @@ import pytest
 from httpx import AsyncClient
 
 
-@pytest.mark.integration
 class TestJsonImportIntegration:
     """Integration tests for the /json-import endpoint."""
 
@@ -47,12 +46,14 @@ class TestJsonImportIntegration:
 
         return content, entities
 
+    @pytest.mark.integration
     def test_json_import_endpoint_exists(self, client: AsyncClient) -> None:
         """Test that the /json-import endpoint exists and accepts requests."""
         # This test just verifies the endpoint is registered
         # The actual functionality would require database setup
         pass
 
+    @pytest.mark.integration
     def test_jsonl_file_creation(
         self, sample_jsonl_content: Tuple[str, List[Dict[str, Any]]]
     ) -> None:
@@ -85,6 +86,7 @@ class TestJsonImportIntegration:
         finally:
             Path(file_path).unlink()
 
+    @pytest.mark.integration
     def test_request_model_validation(
         self, sample_jsonl_content: Tuple[str, List[Dict[str, Any]]]
     ) -> None:
@@ -115,6 +117,7 @@ class TestJsonImportIntegration:
         finally:
             Path(file_path).unlink()
 
+    @pytest.mark.integration
     def test_jsonl_line_processing(
         self, sample_jsonl_content: Tuple[str, List[Dict[str, Any]]]
     ) -> None:
@@ -151,6 +154,7 @@ class TestJsonImportIntegration:
             ("   ", True),  # Whitespace only
         ],
     )
+    @pytest.mark.integration
     def test_json_parsing_edge_cases(
         self, line_content: str, should_fail: bool
     ) -> None:
@@ -174,7 +178,6 @@ class TestJsonImportIntegration:
 
 
 # Integration test for the full import flow (requires database setup)
-@pytest.mark.integration
 @pytest.mark.skip(reason="Requires database setup")
 class TestFullImportFlow:
     """Full integration tests for import workflow."""

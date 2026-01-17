@@ -8,6 +8,7 @@ import requests
 from rapidhash import rapidhash
 
 
+@pytest.mark.integration
 def test_status_flags_stored_in_s3(api_client: requests.Session, base_url: str) -> None:
     """All status flags should be stored in S3"""
     logger = logging.getLogger(__name__)
@@ -40,6 +41,7 @@ def test_status_flags_stored_in_s3(api_client: requests.Session, base_url: str) 
     logger.info("✓ Status flags stored in S3")
 
 
+@pytest.mark.integration
 def test_status_flags_returned_in_response(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -75,6 +77,7 @@ def test_status_flags_returned_in_response(
     logger.info("✓ Status flags returned in API response")
 
 
+@pytest.mark.integration
 def test_dangling_flag_set_by_frontend(
     api_client: requests.Session, base_url: str
 ) -> None:

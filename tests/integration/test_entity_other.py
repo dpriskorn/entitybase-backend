@@ -8,6 +8,7 @@ import requests
 from rapidhash import rapidhash
 
 
+@pytest.mark.integration
 def test_update_lexeme(api_client: requests.Session, base_url: str) -> None:
     """Test updating a lexeme entity"""
     logger = logging.getLogger(__name__)
