@@ -5,7 +5,10 @@ import logging
 
 from models.rdf_builder.converter import EntityConverter
 from models.json_parser.entity_parser import parse_entity
-from rdf.conftest import normalize_ttl, split_subject_blocks, TEST_DATA_DIR
+from tests.unit.rdf.conftest import normalize_ttl, split_subject_blocks
+import os
+from pathlib import Path
+TEST_DATA_DIR = Path(os.environ["TEST_DATA_DIR"])
 
 
 def test_q120248304_matches_golden_ttl(property_registry):

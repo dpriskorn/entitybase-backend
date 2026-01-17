@@ -62,7 +62,7 @@ src/models/rest_api/entitybase/handlers/entity/creation_transaction.py: 32.8%
 src/models/rdf_builder/models/rdf_statement.py: 33.3%
 src/models/validation/utils.py: 33.3%
 src/models/rest_api/entitybase/services/enumeration_service.py: 34.4%
-src/models/infrastructure/vitess/entities.py: 36.0%
+src/models/infrastructure/vitess/entities.py: 34.6%
 src/models/rest_api/entitybase/handlers/entity/update.py: 36.1%
 src/models/infrastructure/vitess_client.py: 36.8%
 src/models/rest_api/entitybase/handlers/entity/create.py: 37.8%

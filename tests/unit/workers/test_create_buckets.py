@@ -229,7 +229,8 @@ class TestCreateBuckets:
         mock_client.create_bucket.return_value = None
 
         worker = CreateBuckets()
-        results = await worker.run_setup()
+        with patch.object(worker, 'bucket_health_check', return_value={"overall_status": "healthy"}):
+            results = await worker.run_setup()
 
         assert results["setup_status"] == "completed"
         assert all(

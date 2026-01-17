@@ -16,10 +16,9 @@ class TestDevWorkerCLI:
         """Test setup command execution."""
         mock_run_setup.return_value = True
 
-        with pytest.raises(SystemExit) as exc_info:
-            main()
+        result = main()
 
-        assert exc_info.value.code == 0
+        assert result == 0
         mock_run_setup.assert_called_once()
 
     @patch("models.workers.dev.__main__.run_health_check")
@@ -28,10 +27,9 @@ class TestDevWorkerCLI:
         """Test health check command execution."""
         mock_run_health.return_value = True
 
-        with pytest.raises(SystemExit) as exc_info:
-            main()
+        result = main()
 
-        assert exc_info.value.code == 0
+        assert result == 0
         mock_run_health.assert_called_once()
 
     @patch("models.workers.dev.__main__.run_cleanup")
@@ -40,10 +38,10 @@ class TestDevWorkerCLI:
         """Test cleanup command with force flag."""
         mock_run_cleanup.return_value = True
 
-        with pytest.raises(SystemExit) as exc_info:
+        result = main()
             main()
 
-        assert exc_info.value.code == 0
+        assert result == 0
         mock_run_cleanup.assert_called_once()
 
     @patch("builtins.input", return_value="yes")
@@ -53,10 +51,10 @@ class TestDevWorkerCLI:
         """Test cleanup command with user confirmation."""
         mock_run_cleanup.return_value = True
 
-        with pytest.raises(SystemExit) as exc_info:
+        result = main()
             main()
 
-        assert exc_info.value.code == 0
+        assert result == 0
         mock_run_cleanup.assert_called_once()
         mock_input.assert_called_once_with("Are you sure? Type 'yes' to confirm: ")
 
@@ -65,20 +63,20 @@ class TestDevWorkerCLI:
     @patch("sys.argv", ["devworker", "cleanup"])
     def test_cleanup_command_cancelled(self, mock_run_cleanup, mock_input):
         """Test cleanup command cancellation."""
-        with pytest.raises(SystemExit) as exc_info:
+        result = main()
             main()
 
-        assert exc_info.value.code == 0
+        assert result == 0
         mock_run_cleanup.assert_not_called()
         mock_input.assert_called_once_with("Are you sure? Type 'yes' to confirm: ")
 
     @patch("sys.argv", ["devworker"])
     def test_no_command_error(self, capsys):
         """Test error when no command is provided."""
-        with pytest.raises(SystemExit) as exc_info:
+        result = main()
             main()
 
-        assert exc_info.value.code == 1
+        assert result == 1
         captured = capsys.readouterr()
         assert "usage:" in captured.out
 
@@ -92,10 +90,10 @@ class TestDevWorkerCLI:
 
         mock_asyncio_run.return_value = True
 
-        with pytest.raises(SystemExit) as exc_info:
+        result = main()
             main()
 
-        assert exc_info.value.code == 0
+        assert result == 0
         mock_dev_worker_class.assert_called_once_with(
             minio_endpoint="http://custom:9000",
             minio_access_key="minioadmin",
@@ -108,19 +106,19 @@ class TestDevWorkerCLI:
         """Test handling of command failure."""
         mock_run_setup.return_value = False  # Command failed
 
-        with pytest.raises(SystemExit) as exc_info:
+        result = main()
             main()
 
-        assert exc_info.value.code == 1
+        assert result == 1
         mock_run_setup.assert_called_once()
 
     @patch("sys.argv", ["devworker", "invalid_command"])
     def test_invalid_command(self, capsys):
         """Test error for invalid command."""
-        with pytest.raises(SystemExit) as exc_info:
+        result = main()
             main()
 
-        assert exc_info.value.code == 1
+        assert result == 1
         captured = capsys.readouterr()
         assert (
             "invalid choice" in captured.err or "unrecognized arguments" in captured.err

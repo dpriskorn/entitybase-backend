@@ -49,13 +49,13 @@ class EntityConverter:
         self.writers.write_entity_type(output, entity.id)
         self.writers.write_dataset_triples(output, entity.id)
 
-        for lang, label in entity.labels.items():
+        for lang, label in entity.labels.model_dump().items():
             self.writers.write_label(output, entity.id, lang, label)
 
-        for lang, description in entity.descriptions.items():
+        for lang, description in entity.descriptions.model_dump().items():
             self.writers.write_description(output, entity.id, lang, description)
 
-        for lang, aliases in entity.aliases.items():
+        for lang, aliases in entity.aliases.model_dump().items():
             for alias in aliases:
                 self.writers.write_alias(output, entity.id, lang, alias)
 
@@ -156,11 +156,11 @@ class EntityConverter:
 
             self.writers.write_entity_type(output, ref_entity.id)
 
-            for lang, label in ref_entity.labels.items():
+            for lang, label in ref_entity.labels.model_dump().items():
                 if label:
                     self.writers.write_label(output, ref_entity.id, lang, label)
 
-            for lang, description in ref_entity.descriptions.items():
+            for lang, description in ref_entity.descriptions.model_dump().items():
                 if description:
                     self.writers.write_description(
                         output, ref_entity.id, lang, description
