@@ -97,9 +97,9 @@ async def get_entity_json_revision(  # type: ignore[return]
 @router.get("/entities", response_model=EntityListResponse)
 def get_entities(
     req: Request,
-    entity_type: str | None = Query(
-        None,
-        description="Entity type to filter by (item, property, lexeme, entityschema). Leave empty for all types",
+    entity_type: str = Query(
+        "",
+        description=\"Entity type to filter by (item, property, lexeme, entityschema). Leave empty for all types\",
     ),
     limit: int = Query(
         100, ge=1, le=1000, description="Maximum number of entities to return"

@@ -140,7 +140,7 @@ class WatchlistConsumerWorker:
         revision_id: int,
         change_type: str,
         changed_properties: list[str] | None,
-        event_timestamp: str | None,
+        event_timestamp: str = "",
     ) -> None:
         """Create a notification record in the database."""
         # For now, insert into user_notifications table

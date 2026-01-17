@@ -20,7 +20,7 @@ class RedirectRepository:
         self,
         conn: Any,
         entity_id: str,
-        redirects_to_entity_id: str | None,
+        redirects_to_entity_id: str = "",
         expected_redirects_to: int | None = None,
     ) -> OperationResult:
         """Set redirect target for an entity."""

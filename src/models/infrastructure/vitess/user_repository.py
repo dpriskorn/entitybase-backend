@@ -111,7 +111,7 @@ class UserRepository:
         self,
         user_id: int,
         activity_type: str,
-        entity_id: str | None = None,
+        entity_id: str = "",
         revision_id: int | None = None,
     ) -> OperationResult:
         """Log a user activity."""
@@ -180,7 +180,7 @@ class UserRepository:
     def get_user_activities(
         self,
         user_id: int,
-        activity_type: str | None = None,
+        activity_type: str = "",
         hours: int = 24,
         limit: int = 50,
         offset: int = 0,

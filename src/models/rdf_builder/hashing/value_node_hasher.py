@@ -43,8 +43,8 @@ class ValueNodeHasher(BaseModel):
     def hash_quantity_value(
         value: str,
         unit: str,
-        upper_bound: str | None = None,
-        lower_bound: str | None = None,
+        upper_bound: str = "",
+        lower_bound: str = "",
     ) -> str:
         """Hash quantity value."""
         parts = [f"q:{value}:{unit}"]
