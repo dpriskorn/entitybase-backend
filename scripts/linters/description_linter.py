@@ -14,13 +14,10 @@ def check_descriptions(models_dir: Path) -> list[str]:
         try:
             tree = ast.parse(file.read_text(), filename=str(file))
             for node in ast.walk(tree):
-                if (
-                    isinstance(node, ast.ClassDef)
-                    and any(
-                        (isinstance(base, ast.Name) and base.id == "BaseModel")
-                        or (isinstance(base, ast.Attribute) and base.attr == "BaseModel")
-                        for base in node.bases
-                    )
+                if isinstance(node, ast.ClassDef) and any(
+                    (isinstance(base, ast.Name) and base.id == "BaseModel")
+                    or (isinstance(base, ast.Attribute) and base.attr == "BaseModel")
+                    for base in node.bases
                 ):
                     for item in node.body:
                         if (

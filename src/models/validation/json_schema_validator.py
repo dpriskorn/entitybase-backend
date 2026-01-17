@@ -19,9 +19,9 @@ class JsonSchemaValidator:
 
     def __init__(
         self,
-        s3_revision_version: str | None = None,
-        s3_statement_version: str | None = None,
-        wmf_recentchange_version: str | None = None,
+        s3_revision_version: str = "",
+        s3_statement_version: str = "",
+        wmf_recentchange_version: str = "",
     ) -> None:
         self.s3_revision_version = s3_revision_version or settings.s3_revision_version
         self.s3_statement_version = (

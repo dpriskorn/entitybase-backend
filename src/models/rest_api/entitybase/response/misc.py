@@ -25,10 +25,10 @@ class CleanupOrphanedResponse(BaseModel):
 class RevisionMetadataResponse(BaseModel):
     """Metadata for entity revisions."""
 
-    revision_id: int
-    created_at: str
-    user_id: int
-    edit_summary: str
+    revision_id: int = Field(description="Revision ID")
+    created_at: str = Field(description="Creation timestamp")
+    user_id: int = Field(description="User ID")
+    edit_summary: str = Field(description="Edit summary")
 
 
 class LabelResponse(BaseModel):
@@ -137,7 +137,7 @@ class EntityListing(BaseModel):
 
     entity_id: str = Field(..., description="Entity ID")
     entity_type: str = Field(..., description="Entity type (Q, P, etc.)")
-    reason: str | None = Field(None, description="Reason for listing")
+    reason: str = Field(default="", description="Reason for listing")
 
 
 class MetadataContent(BaseModel):
@@ -159,15 +159,17 @@ class BacklinkStatisticsData(BaseModel):
     model_config = ConfigDict(by_alias=True)
 
     total_backlinks: int = Field(
-        alias="total", description="Total number of backlink relationships. Example: 150."
+        alias="total",
+        description="Total number of backlink relationships. Example: 150.",
     )
     unique_entities_with_backlinks: int = Field(
-        alias="unique", description="Number of entities with at least one backlink. Example: 75."
+        alias="unique",
+        description="Number of entities with at least one backlink. Example: 75.",
     )
     top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
-        alias="top", description="Top entities by backlink count. Example: [{'entity_id': 'Q1', 'backlink_count': 10}]."
+        alias="top",
+        description="Top entities by backlink count. Example: [{'entity_id': 'Q1', 'backlink_count': 10}].",
     )
-
 
 
 class BacklinkStatisticsResponse(BaseModel):
@@ -175,15 +177,20 @@ class BacklinkStatisticsResponse(BaseModel):
 
     model_config = ConfigDict(by_alias=True)
 
-    date: str = Field(description="Date of statistics computation. Example: '2023-01-01'.")
+    date: str = Field(
+        description="Date of statistics computation. Example: '2023-01-01'."
+    )
     total_backlinks: int = Field(
-        alias="total", description="Total number of backlink relationships. Example: 150."
+        alias="total",
+        description="Total number of backlink relationships. Example: 150.",
     )
     unique_entities_with_backlinks: int = Field(
-        alias="unique", description="Number of entities with at least one backlink. Example: 75."
+        alias="unique",
+        description="Number of entities with at least one backlink. Example: 75.",
     )
     top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
-        alias="top", description="Top entities by backlink count. Example: [{'entity_id': 'Q1', 'backlink_count': 10}]."
+        alias="top",
+        description="Top entities by backlink count. Example: [{'entity_id': 'Q1', 'backlink_count': 10}].",
     )
 
 

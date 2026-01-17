@@ -14,7 +14,10 @@ from models.validation.utils import raise_validation_error
 class EntityLabelsResponse(BaseModel):
     """Collection of labels keyed by language code."""
 
-    data: dict[str, LabelValue] = Field(default_factory=dict, description="Dictionary of labels keyed by language code. Example: {'en': {'language': 'en', 'value': 'Test'}}.")
+    data: dict[str, LabelValue] = Field(
+        default_factory=dict,
+        description="Dictionary of labels keyed by language code. Example: {'en': {'language': 'en', 'value': 'Test'}}.",
+    )
 
     def __getitem__(self, key: str) -> LabelValue:
         return self.data[key]
@@ -33,7 +36,10 @@ class EntityLabelsResponse(BaseModel):
 class EntityDescriptionsResponse(BaseModel):
     """Collection of descriptions keyed by language code."""
 
-    data: dict[str, DescriptionValue] = Field(default_factory=dict, description="Dictionary of descriptions keyed by language code. Example: {'en': {'language': 'en', 'value': 'A test description'}}.")
+    data: dict[str, DescriptionValue] = Field(
+        default_factory=dict,
+        description="Dictionary of descriptions keyed by language code. Example: {'en': {'language': 'en', 'value': 'A test description'}}.",
+    )
 
     def __getitem__(self, key: str) -> DescriptionValue:
         return self.data[key]
@@ -52,7 +58,10 @@ class EntityDescriptionsResponse(BaseModel):
 class EntityAliasesResponse(BaseModel):
     """Collection of aliases keyed by language code."""
 
-    data: dict[str, list[AliasValue]] = Field(default_factory=dict)
+    data: dict[str, list[AliasValue]] = Field(
+        default_factory=dict,
+        description="Dictionary of aliases keyed by language code.",
+    )
 
     def __getitem__(self, key: str) -> list[AliasValue]:
         return self.data[key]
@@ -71,13 +80,17 @@ class EntityAliasesResponse(BaseModel):
 class EntityStatementsResponse(BaseModel):
     """List of entity statements."""
 
-    data: list[dict[str, Any]] = Field(default_factory=list)
+    data: list[dict[str, Any]] = Field(
+        default_factory=list, description="List of entity statements."
+    )
 
 
 class EntitySitelinksResponse(BaseModel):
     """Collection of sitelinks."""
 
-    data: dict[str, SitelinkValue] = Field(default_factory=dict)
+    data: dict[str, SitelinkValue] = Field(
+        default_factory=dict, description="Dictionary of sitelinks keyed by site."
+    )
 
     def __getitem__(self, key: str) -> SitelinkValue:
         return self.data[key]
@@ -96,10 +109,16 @@ class EntitySitelinksResponse(BaseModel):
 class EntityHistoryEntry(BaseModel):
     """Response model for a single entity history entry."""
 
-    revision_id: int
-    created_at: str | None
-    user_id: int | None
-    edit_summary: str | None
+    revision_id: int = Field(description="Revision ID. Example: 12345.")
+    created_at: str = Field(
+        default="", description="Creation timestamp (ISO format). Example: '2023-01-01T12:00:00Z'."
+    )
+    user_id: int | None = Field(
+        description="User ID who made the change. Example: 67890."
+    )
+    edit_summary: str = Field(
+        default="", description="Edit summary text. Example: 'Added label'."
+    )
 
 
 class EntityResponse(BaseModel):
@@ -108,13 +127,28 @@ class EntityResponse(BaseModel):
     model_config = ConfigDict(by_alias=True)
 
     id: str = Field(description="Entity ID. Example: 'Q42'.")
-    revision_id: int = Field(alias="rev_id", description="Revision ID of the entity. Example: 12345.")
-    entity_data: Dict[str, Any] = Field(alias="data", description="Full entity JSON data. Example: {'id': 'Q42', 'type': 'item'}.")
-    is_semi_protected: bool = Field(alias="semi_prot", description="Whether the entity is semi-protected. Example: true.")
+    revision_id: int = Field(
+        alias="rev_id", description="Revision ID of the entity. Example: 12345."
+    )
+    entity_data: Dict[str, Any] = Field(
+        alias="data",
+        description="Full entity JSON data. Example: {'id': 'Q42', 'type': 'item'}.",
+    )
+    is_semi_protected: bool = Field(
+        alias="semi_prot",
+        description="Whether the entity is semi-protected. Example: true.",
+    )
     is_locked: bool = Field(description="Whether the entity is locked. Example: false.")
-    is_archived: bool = Field(alias="archived", description="Whether the entity is archived. Example: false.")
-    is_dangling: bool = Field(alias="dangling", description="Whether the entity is dangling. Example: false.")
-    is_mass_edit_protected: bool = Field(alias="mass_edit", description="Whether the entity has mass edit protection. Example: true.")
+    is_archived: bool = Field(
+        alias="archived", description="Whether the entity is archived. Example: false."
+    )
+    is_dangling: bool = Field(
+        alias="dangling", description="Whether the entity is dangling. Example: false."
+    )
+    is_mass_edit_protected: bool = Field(
+        alias="mass_edit",
+        description="Whether the entity has mass edit protection. Example: true.",
+    )
 
 
 class EntityDeleteResponse(BaseModel):
@@ -123,19 +157,27 @@ class EntityDeleteResponse(BaseModel):
     model_config = ConfigDict(by_alias=True)
 
     id: str = Field(description="Entity ID. Example: 'Q42'.")
-    revision_id: int = Field(alias="rev_id", description="Revision ID at deletion. Example: 12345.")
+    revision_id: int = Field(
+        alias="rev_id", description="Revision ID at deletion. Example: 12345."
+    )
     is_deleted: bool = Field(description="Whether entity is deleted. Example: true.")
-    deletion_type: str = Field(alias="del_type", description="Type of deletion performed. Example: 'soft_delete'.")
-    deletion_status: str = Field(alias="del_status", description="Status of deletion (soft_deleted/hard_deleted). Example: 'soft_deleted'.")
+    deletion_type: str = Field(
+        alias="del_type",
+        description="Type of deletion performed. Example: 'soft_delete'.",
+    )
+    deletion_status: str = Field(
+        alias="del_status",
+        description="Status of deletion (soft_deleted/hard_deleted). Example: 'soft_deleted'.",
+    )
 
 
 class EntityRedirectResponse(BaseModel):
     """Response model for entity redirect creation."""
 
-    redirect_from_id: str
-    redirect_to_id: str
-    created_at: str
-    revision_id: int
+    redirect_from_id: str = Field(description="Entity ID being redirected from")
+    redirect_to_id: str = Field(description="Entity ID being redirected to")
+    created_at: str = Field(description="Creation timestamp of the redirect")
+    revision_id: int = Field(description="Revision ID of the redirect")
 
 
 class EntityListResponse(BaseModel):
@@ -150,20 +192,25 @@ class EntityListResponse(BaseModel):
 class EntityMetadataResponse(BaseModel):
     """Model for entity metadata."""
 
-    id: str
-    type: str = Field(default="item")
-    labels: EntityLabelsResponse = Field(default_factory=lambda: EntityLabelsResponse())
+    id: str = Field(description="Entity ID")
+    type: str = Field(default="item", description="Entity type")
+    labels: EntityLabelsResponse = Field(
+        default_factory=lambda: EntityLabelsResponse(), description="Entity labels"
+    )
     descriptions: EntityDescriptionsResponse = Field(
-        default_factory=lambda: EntityDescriptionsResponse()
+        default_factory=lambda: EntityDescriptionsResponse(),
+        description="Entity descriptions",
     )
     aliases: EntityAliasesResponse = Field(
-        default_factory=lambda: EntityAliasesResponse()
+        default_factory=lambda: EntityAliasesResponse(), description="Entity aliases"
     )
     statements: EntityStatementsResponse = Field(
-        default_factory=lambda: EntityStatementsResponse()
+        default_factory=lambda: EntityStatementsResponse(),
+        description="Entity statements",
     )
     sitelinks: EntitySitelinksResponse = Field(
-        default_factory=lambda: EntitySitelinksResponse()
+        default_factory=lambda: EntitySitelinksResponse(),
+        description="Entity sitelinks",
     )
 
 
@@ -178,8 +225,8 @@ class EntityMetadataBatchResponse(BaseModel):
 class EntityRevisionResponse(BaseModel):
     """Model for entity revision response."""
 
-    entity_id: str
-    revision_id: int
+    entity_id: str = Field(description="Entity ID")
+    revision_id: int = Field(description="Revision ID")
     revision_data: dict[str, Any] = Field(description="Revision data")
 
 
@@ -188,12 +235,20 @@ class ProtectionResponse(BaseModel):
 
     model_config = ConfigDict(by_alias=True)
 
-    is_semi_protected: bool = Field(alias="semi_prot", description="Whether entity is semi-protected. Example: true.")
+    is_semi_protected: bool = Field(
+        alias="semi_prot",
+        description="Whether entity is semi-protected. Example: true.",
+    )
     is_locked: bool = Field(description="Whether entity is locked. Example: false.")
-    is_archived: bool = Field(alias="archived", description="Whether entity is archived. Example: false.")
-    is_dangling: bool = Field(alias="dangling", description="Whether entity is dangling. Example: false.")
+    is_archived: bool = Field(
+        alias="archived", description="Whether entity is archived. Example: false."
+    )
+    is_dangling: bool = Field(
+        alias="dangling", description="Whether entity is dangling. Example: false."
+    )
     is_mass_edit_protected: bool = Field(
-        alias="mass_edit", description="Whether entity is mass edit protected. Example: true."
+        alias="mass_edit",
+        description="Whether entity is mass edit protected. Example: true.",
     )
 
 

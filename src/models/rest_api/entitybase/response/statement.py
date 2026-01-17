@@ -10,10 +10,18 @@ class StatementResponse(BaseModel):
 
     model_config = ConfigDict(by_alias=True)
 
-    schema_version: str = Field(alias="schema", description="Schema version for the statement. Example: '1.0'.")
-    content_hash: int = Field(alias="hash", description="Hash of the statement content. Example: 123456789.")
-    statement: Dict[str, Any] = Field(description="Full statement JSON object. Example: {'id': 'P31', 'value': 'Q5'}.")
-    created_at: str = Field(description="Timestamp when statement was created. Example: '2023-01-01T12:00:00Z'.")
+    schema_version: str = Field(
+        alias="schema", description="Schema version for the statement. Example: '1.0'."
+    )
+    content_hash: int = Field(
+        alias="hash", description="Hash of the statement content. Example: 123456789."
+    )
+    statement: Dict[str, Any] = Field(
+        description="Full statement JSON object. Example: {'id': 'P31', 'value': 'Q5'}."
+    )
+    created_at: str = Field(
+        description="Timestamp when statement was created. Example: '2023-01-01T12:00:00Z'."
+    )
 
 
 class StatementBatchResponse(BaseModel):

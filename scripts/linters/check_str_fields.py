@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Linter to check for str | None = Field(default=None) and Optional[str] = Field(default=None), suggest str = Field(default="").
+Linter to check for str | None = Field(default=None), Optional[str] = Field(default=None), Optional[str], and str | None patterns.
 """
 
 import sys
@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 def check_file(file_path: Path) -> list[tuple[str, int, str]]:
-    """Check a single Python file for str | None = Field(default=None) and Optional[str] = Field(default=None)."""
+    """Check a single Python file for various str/None patterns."""
     violations = []
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -45,6 +45,15 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                             f"Found 'Optional[str]': {line.strip()}, consider using 'str = Field(default=\"\")' if None is not needed",
                         )
                     )
+                # Look for str | None (union type)
+                elif "str | None" in line and not "Field(default=None)" in line:
+                    violations.append(
+                        (
+                            str(file_path),
+                            line_no,
+                            f"Found 'str | None': {line.strip()}, consider using 'str = Field(default=\"\")' if None is not needed",
+                        )
+                    )
     except Exception as e:
         violations.append((str(file_path), 0, f"Error reading file: {e}"))
 
@@ -74,6 +83,8 @@ def main() -> None:
         for file_path, line_no, message in violations:
             print(f"{file_path}:{line_no}: {message}")
         sys.exit(1)
+    else:
+        print("No str | None violations found.")
 
 
 if __name__ == "__main__":

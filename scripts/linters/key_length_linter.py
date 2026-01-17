@@ -14,13 +14,10 @@ def check_field_name_lengths(models_dir: Path) -> list[str]:
         try:
             tree = ast.parse(file.read_text(), filename=str(file))
             for node in ast.walk(tree):
-                if (
-                    isinstance(node, ast.ClassDef)
-                    and any(
-                        (isinstance(base, ast.Name) and base.id == "BaseModel")
-                        or (isinstance(base, ast.Attribute) and base.attr == "BaseModel")
-                        for base in node.bases
-                    )
+                if isinstance(node, ast.ClassDef) and any(
+                    (isinstance(base, ast.Name) and base.id == "BaseModel")
+                    or (isinstance(base, ast.Attribute) and base.attr == "BaseModel")
+                    for base in node.bases
                 ):
                     for item in node.body:
                         if (
@@ -38,7 +35,11 @@ def check_field_name_lengths(models_dir: Path) -> list[str]:
                                 and item.value.keywords
                             ):
                                 for kw in item.value.keywords:
-                                    if kw.arg == "alias" and isinstance(kw.value, ast.Constant) and isinstance(kw.value.value, str):
+                                    if (
+                                        kw.arg == "alias"
+                                        and isinstance(kw.value, ast.Constant)
+                                        and isinstance(kw.value.value, str)
+                                    ):
                                         alias = kw.value.value
                                         break
                             check_name = alias if alias else name

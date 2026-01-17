@@ -75,8 +75,8 @@ class RevisionCreateData(BaseModel):
     property_counts: dict[str, int]
     sitelinks_hashes: dict[str, int] | None
     content_hash: int
-    edit_summary: str | None
-    editor: str | None
+    edit_summary: str = ""
+    editor: str = ""
     is_mass_edit: bool
     edit_type: str
     is_semi_protected: bool | None
