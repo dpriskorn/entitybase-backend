@@ -74,20 +74,26 @@ class HeadRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    def hard_delete(self, conn: Any, entity_id: str, head_revision_id: int) -> None:
+    def hard_delete(
+        self, conn: Any, entity_id: str, head_revision_id: int
+    ) -> OperationResult:
         """Mark an entity as hard deleted."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            raise_validation_error(f"Entity {entity_id} not found", status_code=404)
+            return OperationResult(success=False, error=f"Entity {entity_id} not found")
 
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """UPDATE entity_head
-                       SET is_deleted = TRUE,
-                           head_revision_id = %s
-                       WHERE internal_id = %s""",
-                (head_revision_id, internal_id),
-            )
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """UPDATE entity_head
+                           SET is_deleted = TRUE,
+                               head_revision_id = %s
+                           WHERE internal_id = %s""",
+                    (head_revision_id, internal_id),
+                )
+            return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def soft_delete(self, conn: Any, entity_id: str) -> OperationResult:
         """Mark an entity as soft deleted."""

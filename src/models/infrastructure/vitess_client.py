@@ -304,14 +304,20 @@ class VitessClient(Client):
     ) -> None:
         """Hard delete an entity from the database."""
         with self.connection_manager.get_connection() as conn:
-            return self.head_repository.hard_delete(conn, entity_id, head_revision_id)  # type: ignore[no-any-return]
+            result = self.head_repository.hard_delete(conn, entity_id, head_revision_id)
+            if not result.success:
+                raise_validation_error(
+                    result.error or "Failed to hard delete entity", status_code=500
+                )
 
     def delete_entity(self, entity_id: str) -> None:
         """Soft delete an entity."""
         with self.connection_manager.get_connection() as conn:
             result = self.head_repository.soft_delete(conn, entity_id)
             if not result.success:
-                raise_validation_error(result.error or "Failed to delete entity", status_code=500)
+                raise_validation_error(
+                    result.error or "Failed to delete entity", status_code=500
+                )
 
     def get_ref_count(self, content_hash: int) -> int:
         """Get reference count for statement content."""
