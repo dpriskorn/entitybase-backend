@@ -14,7 +14,7 @@ from models.validation.utils import raise_validation_error
 class EntityLabelsResponse(BaseModel):
     """Collection of labels keyed by language code."""
 
-    data: dict[str, LabelValue] = Field(default_factory=dict)
+    data: dict[str, LabelValue] = Field(default_factory=dict, description="Dictionary of labels keyed by language code. Example: {'en': {'language': 'en', 'value': 'Test'}}.")
 
     def __getitem__(self, key: str) -> LabelValue:
         return self.data[key]
@@ -33,7 +33,7 @@ class EntityLabelsResponse(BaseModel):
 class EntityDescriptionsResponse(BaseModel):
     """Collection of descriptions keyed by language code."""
 
-    data: dict[str, DescriptionValue] = Field(default_factory=dict)
+    data: dict[str, DescriptionValue] = Field(default_factory=dict, description="Dictionary of descriptions keyed by language code. Example: {'en': {'language': 'en', 'value': 'A test description'}}.")
 
     def __getitem__(self, key: str) -> DescriptionValue:
         return self.data[key]
