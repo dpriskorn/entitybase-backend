@@ -63,29 +63,35 @@ class MetadataRepository:
 
     def decrement_ref_count(
         self, conn: Any, content_hash: int, content_type: str
-    ) -> bool:
+    ) -> OperationResult:
         """Decrement ref_count and return True if it reaches 0."""
+        if content_hash <= 0 or not content_type:
+            return OperationResult(success=False, error="Invalid content hash or type")
+
         logger.debug(
             f"Decrementing ref count for metadata {content_type} hash {content_hash}"
         )
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                UPDATE metadata_content
-                SET ref_count = ref_count - 1
-                WHERE content_hash = %s AND content_type = %s
-                """,
-                (content_hash, content_type),
-            )
-            cursor.execute(
-                "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
-                (content_hash, content_type),
-            )
-            result = cursor.fetchone()
-            if result is None:
-                return False
-            ref_count: int = result[0]
-            return ref_count <= 0
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    UPDATE metadata_content
+                    SET ref_count = ref_count - 1
+                    WHERE content_hash = %s AND content_type = %s
+                    """,
+                    (content_hash, content_type),
+                )
+                cursor.execute(
+                    "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
+                    (content_hash, content_type),
+                )
+                result = cursor.fetchone()
+                if result is None:
+                    return OperationResult(success=False, error="Metadata content not found")
+                ref_count: int = result[0]
+                return OperationResult(success=True, data=ref_count <= 0)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def delete_metadata_content(
         self, conn: Any, content_hash: int, content_type: str
