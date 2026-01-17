@@ -854,6 +854,45 @@ class TestEntityReadHandler(unittest.TestCase):
         self.assertEqual(result, mock_response_instance)
         # Should not load metadata for empty dicts
 
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_exception(self, mock_raise_error):
+        """Test get_entity handles exceptions during processing."""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 123
+        self.mock_s3.read_revision.side_effect = Exception("Read error")
+
+        EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
+
+        mock_raise_error.assert_called_once_with(
+            "Failed to read entity", status_code=500
+        )
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    @patch("models.rest_api.entitybase.handlers.entity.read.isinstance")
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    def test_get_entity_invalid_response_type(
+        self, mock_terms_repo, mock_entity_response, mock_isinstance, mock_raise_error
+    ):
+        """Test get_entity raises error for invalid response type."""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 123
+        mock_revision = Mock()
+        mock_revision.content = {"entity": {"id": "Q42"}}
+        self.mock_s3.read_revision.return_value = mock_revision
+
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+        mock_isinstance.return_value = False  # Simulate invalid type
+
+        EntityReadHandler.get_entity(
+            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=False
+        )
+
+        mock_raise_error.assert_called_once_with(
+            "Invalid response type", status_code=500
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
