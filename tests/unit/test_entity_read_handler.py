@@ -370,6 +370,224 @@ class TestEntityReadHandler(unittest.TestCase):
         self.assertEqual(result, mock_response_instance)
         self.assertEqual(self.mock_s3.load_metadata.call_count, 3)
 
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    def test_get_entity_metadata_labels_none(
+        self, mock_terms_repo_class, mock_entity_response
+    ):
+        """Test get_entity with metadata labels where get_term returns None"""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 123
+        mock_revision = Mock()
+        mock_revision.content = {
+            "entity": {"id": "Q42"},
+            "labels_hashes": {"en": "hash1"},
+            "descriptions_hashes": {},
+            "aliases_hashes": {},
+        }
+        self.mock_s3.read_revision.return_value = mock_revision
+
+        mock_terms_repo = Mock()
+        mock_terms_repo.get_term.return_value = None  # None for labels
+        mock_terms_repo_class.return_value = mock_terms_repo
+
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity(
+            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+        )
+
+        self.assertEqual(result, mock_response_instance)
+        # Check that labels dict is empty or not added
+        call_args = mock_entity_response.call_args
+        entity_data = call_args[1]["entity_data"]
+        self.assertNotIn("labels", entity_data)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    def test_get_entity_metadata_descriptions_load_failure(
+        self, mock_terms_repo_class, mock_entity_response
+    ):
+        """Test get_entity with metadata descriptions load failure"""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 123
+        mock_revision = Mock()
+        mock_revision.content = {
+            "entity": {"id": "Q42"},
+            "labels_hashes": {},
+            "descriptions_hashes": {"en": "hash_desc"},
+            "aliases_hashes": {},
+        }
+        self.mock_s3.read_revision.return_value = mock_revision
+
+        mock_terms_repo = Mock()
+        mock_terms_repo_class.return_value = mock_terms_repo
+        self.mock_s3.load_metadata.side_effect = Exception("Load failed")
+
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity(
+            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+        )
+
+        self.assertEqual(result, mock_response_instance)
+        # Should still succeed, but descriptions not added
+        call_args = mock_entity_response.call_args
+        entity_data = call_args[1]["entity_data"]
+        self.assertNotIn("descriptions", entity_data)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    def test_get_entity_metadata_aliases_none(
+        self, mock_terms_repo_class, mock_entity_response
+    ):
+        """Test get_entity with metadata aliases where get_term returns None"""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 123
+        mock_revision = Mock()
+        mock_revision.content = {
+            "entity": {"id": "Q42"},
+            "labels_hashes": {},
+            "descriptions_hashes": {},
+            "aliases_hashes": {"en": ["hash1"]},
+        }
+        self.mock_s3.read_revision.return_value = mock_revision
+
+        mock_terms_repo = Mock()
+        mock_terms_repo.get_term.return_value = None  # None for aliases
+        mock_terms_repo_class.return_value = mock_terms_repo
+
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity(
+            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+        )
+
+        self.assertEqual(result, mock_response_instance)
+        # Check aliases not added or empty
+        call_args = mock_entity_response.call_args
+        entity_data = call_args[1]["entity_data"]
+        self.assertNotIn("aliases", entity_data)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    def test_get_entity_metadata_combined(
+        self, mock_terms_repo_class, mock_entity_response
+    ):
+        """Test get_entity with combined metadata types"""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 123
+        mock_revision = Mock()
+        mock_revision.content = {
+            "entity": {"id": "Q42"},
+            "labels_hashes": {"en": "hash_label"},
+            "descriptions_hashes": {"en": "hash_desc"},
+            "aliases_hashes": {"en": ["hash_alias"]},
+        }
+        self.mock_s3.read_revision.return_value = mock_revision
+
+        mock_terms_repo = Mock()
+        mock_terms_repo.get_term.side_effect = lambda h: {
+            "hash_label": "Label",
+            "hash_alias": "Alias",
+        }.get(h)
+        mock_terms_repo_class.return_value = mock_terms_repo
+        self.mock_s3.load_metadata.return_value = "Description"
+
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity(
+            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+        )
+
+        self.assertEqual(result, mock_response_instance)
+        call_args = mock_entity_response.call_args
+        entity_data = call_args[1]["entity_data"]
+        self.assertIn("labels", entity_data)
+        self.assertIn("descriptions", entity_data)
+        self.assertIn("aliases", entity_data)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityRevisionResponse")
+    def test_get_entity_revision_missing_labels_hash(self, mock_revision_response):
+        """Test get_entity_revision with missing labels_hash"""
+        mock_revision = Mock()
+        mock_revision.data = Mock()
+        mock_revision.data.model_dump.return_value = {
+            "descriptions_hash": "hash_desc",
+            "aliases_hash": "hash_aliases",
+        }
+        mock_revision.data.entity = {"id": "Q42"}
+        self.mock_s3.read_revision.return_value = mock_revision
+        self.mock_s3.load_metadata.side_effect = lambda key, h: {
+            "descriptions": {"en": {"value": "Desc"}},
+            "aliases": {"en": [{"value": "Alias"}]},
+        }.get(key, {})
+
+        mock_response_instance = Mock()
+        mock_revision_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity_revision("Q42", 123, self.mock_s3)
+
+        self.assertEqual(result, mock_response_instance)
+        self.assertEqual(self.mock_s3.load_metadata.call_count, 2)  # desc and aliases
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityRevisionResponse")
+    def test_get_entity_revision_invalid_descriptions_hash(
+        self, mock_revision_response
+    ):
+        """Test get_entity_revision with invalid descriptions_hash"""
+        mock_revision = Mock()
+        mock_revision.data = Mock()
+        mock_revision.data.model_dump.return_value = {
+            "labels_hash": "hash_labels",
+            "descriptions_hash": "invalid",
+            "aliases_hash": "hash_aliases",
+        }
+        mock_revision.data.entity = {"id": "Q42"}
+        self.mock_s3.read_revision.return_value = mock_revision
+        self.mock_s3.load_metadata.side_effect = (
+            lambda key, h: {
+                "labels": {"en": {"value": "Label"}},
+                "aliases": {"en": [{"value": "Alias"}]},
+            }.get(key, {})
+            if h != "invalid"
+            else (_ for _ in ()).throw(Exception("Invalid hash"))
+        )
+
+        mock_response_instance = Mock()
+        mock_revision_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity_revision("Q42", 123, self.mock_s3)
+
+        self.assertEqual(result, mock_response_instance)
+        # descriptions not loaded due to exception
+
+    def test_get_entity_history_large_limit_offset(self):
+        """Test get_entity_history with large limit and offset"""
+        self.mock_vitess.entity_exists.return_value = True
+        mock_history = [
+            EntityHistoryEntry(
+                revision_id=500,
+                created_at="2023-01-01",
+                user_id=123,
+                edit_summary="Large offset",
+            )
+        ]
+        self.mock_vitess.get_entity_history.return_value = mock_history
+
+        result = EntityReadHandler.get_entity_history(
+            "Q42", self.mock_vitess, self.mock_s3, limit=1000, offset=500
+        )
+
+        self.assertEqual(result, mock_history)
+        self.mock_vitess.get_entity_history.assert_called_once_with(
+            "Q42", self.mock_s3, 1000, 500
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
