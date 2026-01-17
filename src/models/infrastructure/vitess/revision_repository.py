@@ -7,6 +7,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from models.common import OperationResult
+from models.infrastructure.vitess.revision_record import RevisionRecord
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -182,14 +183,6 @@ class RevisionRepository:
     ) -> list[Any]:
         """Get revision history for an entity."""
         logger.debug(f"Getting history for entity {entity_id}, limit {limit}")
-
-        class RevisionRecord(BaseModel):
-            """Revision record for history."""
-
-            revision_id: int
-            created_at: str = Field(default="")
-             user_id: int = Field(default=0)
-            edit_summary: str = Field(default="")
 
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:

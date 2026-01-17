@@ -118,7 +118,7 @@ class EntityChangeEvent(BaseModel):
     change_type: ChangeType = Field(..., description="Type of change")
     from_revision_id: int = Field(
         default=0, description="Previous revision ID (0 for creation)"
-     )
+    )
     changed_at: datetime = Field(..., description="Timestamp of change")
     editor: str = Field(default="", description="Editor who made the change")
     edit_summary: str = Field(default="", description="Edit summary")

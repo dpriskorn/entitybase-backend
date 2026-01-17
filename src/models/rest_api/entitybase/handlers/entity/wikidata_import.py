@@ -168,15 +168,11 @@ class EntityJsonImportHandler:
             # Log malformed line
             with open(error_log_path, "a", encoding="utf-8") as log_f:
                 log_f.write(
-                    f"[{datetime.now().isoformat()}] ERROR: Failed to parse line {line_num}
-"
+                    f"[{datetime.now().isoformat()}] ERROR: Failed to parse line {line_num}\n"
                 )
-                log_f.write(f"Original line: {line}
-")
-                log_f.write(f"Error: {str(e)}
-")
-                log_f.write("---
-")
+                log_f.write(f"Original line: {line}\n")
+                log_f.write(f"Error: {str(e)}\n")
+                log_f.write("---\n")
             return None
 
     @staticmethod

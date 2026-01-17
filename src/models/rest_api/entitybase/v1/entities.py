@@ -99,7 +99,7 @@ def get_entities(
     req: Request,
     entity_type: str = Query(
         "",
-        description=\"Entity type to filter by (item, property, lexeme, entityschema). Leave empty for all types\",
+        description="Entity type to filter by (item, property, lexeme, entityschema). Leave empty for all types",
     ),
     limit: int = Query(
         100, ge=1, le=1000, description="Maximum number of entities to return"
