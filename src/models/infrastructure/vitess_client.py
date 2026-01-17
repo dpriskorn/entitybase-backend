@@ -234,13 +234,11 @@ class VitessClient(Client):
     def set_redirect_target(
         self,
         entity_id: str,
-        redirects_to_entity_id: str | None = "",
+        redirects_to_entity_id: str = "",
         expected_redirects_to: int = 0,
     ) -> None:
         """Set the redirect target for an entity."""
-        redirects_to_entity_id = (
-            None if redirects_to_entity_id == "" else redirects_to_entity_id
-        )
+
         with self.connection_manager.get_connection() as conn:
             result = self.redirect_repository.set_target(
                 conn, entity_id, redirects_to_entity_id, expected_redirects_to
@@ -343,7 +341,7 @@ class VitessClient(Client):
                 raise_validation_error(result.error or "Delete failed", status_code=500)
 
     def list_entities_by_type(
-        self,         entity_type: str | None = None, limit: int = 50, offset: int = 0
+        self, entity_type: str = "", limit: int = 50, offset: int = 0
     ) -> list[str]:
         """List entity IDs by type with pagination."""
         logger.debug(
