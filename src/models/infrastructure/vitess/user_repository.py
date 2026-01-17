@@ -181,7 +181,7 @@ class UserRepository:
     def get_user_activities(
         self,
         user_id: int,
-        activity_type: str = "",
+        activity_type: str | None = None,
         hours: int = 24,
         limit: int = 50,
         offset: int = 0,

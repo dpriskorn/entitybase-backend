@@ -343,7 +343,7 @@ class VitessClient(Client):
                 raise_validation_error(result.error or "Delete failed", status_code=500)
 
     def list_entities_by_type(
-        self, entity_type: str = "", limit: int = 50, offset: int = 0
+        self,         entity_type: str | None = None, limit: int = 50, offset: int = 0
     ) -> list[str]:
         """List entity IDs by type with pagination."""
         logger.debug(
