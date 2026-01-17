@@ -4,6 +4,8 @@ import json
 import logging
 from typing import Any, List
 
+from models.common import OperationResult
+
 logger = logging.getLogger(__name__)
 
 

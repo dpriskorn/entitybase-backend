@@ -30,9 +30,11 @@ class WatchlistHandler:
                 "Watchlist is disabled for this user", status_code=400
             )
 
-        vitess_client.watchlist_repository.add_watch(
+        result = vitess_client.watchlist_repository.add_watch(
             request.user_id, request.entity_id, request.properties
         )
+        if not result.success:
+            raise_validation_error(result.error or "Failed to add watch", status_code=500)
 
         # Update activity
         vitess_client.user_repository.update_user_activity(request.user_id)
