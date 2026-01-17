@@ -128,7 +128,7 @@ class StatementHandler:
             )
 
         revision_metadata = s3_client.read_full_revision(entity_id, head_revision_id)
-        properties = revision_metadata.data.get("properties", [])
+        properties = revision_metadata.data.get("properties", [])  # type: ignore[attr-defined]
         return PropertyListResponse(properties=properties)
 
     def get_entity_property_counts(
@@ -149,7 +149,7 @@ class StatementHandler:
             raise_validation_error("Entity has no revisions", status_code=404)
 
         revision_metadata = s3_client.read_full_revision(entity_id, head_revision_id)
-        property_counts = revision_metadata.data.get("property_counts", {})
+        property_counts = revision_metadata.data.get("property_counts", {})  # type: ignore[attr-defined]
         return PropertyCountsResponse(property_counts=property_counts)
 
     def get_entity_property_hashes(
@@ -182,7 +182,7 @@ class StatementHandler:
         requested_property_ids = [
             p.strip() for p in property_list.split(",") if p.strip()
         ]
-        statement_hashes = revision_metadata.data.get("statements", [])
+        statement_hashes = revision_metadata.data.get("statements", [])  # type: ignore[attr-defined]
 
         matching_hashes = []
 
