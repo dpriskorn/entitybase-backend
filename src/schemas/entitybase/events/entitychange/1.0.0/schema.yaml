@@ -1,0 +1,43 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://www.wikidata.org/schemas/entitychange/1.0.0
+title: EntityChange
+description: Schema for Wikibase entity change events
+type: object
+properties:
+  entity_id:
+    type: string
+    description: The ID of the entity that changed
+    examples: ["Q42"]
+  revision_id:
+    type: integer
+    description: The new revision ID after the change
+    minimum: 1
+    examples: [12345]
+  change_type:
+    type: string
+    enum: [creation, edit, redirect, unredirect, archival, unarchival, lock, unlock, soft_delete, hard_delete]
+    description: The type of change
+    examples: ["edit"]
+  from_revision_id:
+    type: integer
+    description: The previous revision ID (0 for creations)
+    minimum: 0
+    default: 0
+    examples: [12344]
+  changed_at:
+    type: string
+    format: date-time
+    description: Timestamp of the change in ISO 8601 format
+    examples: ["2023-01-01T12:00:00Z"]
+  edit_summary:
+    type: string
+    description: Summary of the edit
+    default: ""
+    examples: ["Updated description"]
+  bot:
+    type: boolean
+    description: Whether the change was made by a bot
+    default: false
+    examples: [false]
+required: [entity_id, revision_id, change_type, changed_at]
+additionalProperties: false
