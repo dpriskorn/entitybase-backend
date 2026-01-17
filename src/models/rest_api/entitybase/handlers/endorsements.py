@@ -1,16 +1,15 @@
 """Handler for endorsement operations."""
 
 import logging
-from typing import List
+from datetime import datetime
 
+from models.infrastructure.stream.producer import EndorseChangeEvent
 from models.infrastructure.vitess_client import VitessClient
-from models.rest_api.entitybase.request.endorsements import EndorsementListRequest
 from models.rest_api.entitybase.response.endorsements import (
     BatchEndorsementStatsResponse,
     EndorsementListResponse,
     EndorsementResponse,
     EndorsementStatsResponse,
-    StatementEndorsementStats,
 )
 from models.validation.utils import raise_validation_error
 
@@ -60,10 +59,32 @@ class EndorsementHandler:
             (
                 e
                 for e in endorsements_data["endorsements"]
-                if e.user_id == user_id and e.removed_at is None
+                if e.user_id == user_id and not e.removed_at
             ),
             None,
         )
+        if not created_endorsement:
+            raise_validation_error(
+                "Failed to retrieve created endorsement", status_code=500
+            )
+
+         # Publish event
+        if vitess_client.stream_producer:
+            event = EndorseChangeEvent(
+                statement_hash=str(statement_hash),
+                user_id=str(user_id),
+                action="endorse",
+                timestamp=datetime.utcnow(),
+            )
+            vitess_client.stream_producer.publish_change(event)
+
+         return EndorsementResponse(
+             endorsement_id=created_endorsement.id,  # type: ignore[union-attr]
+             user_id=created_endorsement.user_id,  # type: ignore[union-attr]
+             statement_hash=created_endorsement.statement_hash,  # type: ignore[union-attr]
+             created_at=created_endorsement.created_at.isoformat(),  # type: ignore[union-attr]
+             removed_at=None,
+         )
         if not created_endorsement:
             raise_validation_error(
                 "Failed to retrieve created endorsement", status_code=500
@@ -123,10 +144,30 @@ class EndorsementHandler:
             ),
             None,
         )
-        if not withdrawn_endorsement:
-            raise_validation_error(
-                "Failed to retrieve withdrawn endorsement", status_code=500
-            )
+         if not withdrawn_endorsement:
+             raise_validation_error(
+                 "Failed to retrieve withdrawn endorsement", status_code=500
+             )
+
+         # Publish event
+         if vitess_client.stream_producer:
+             event = EndorseChangeEvent(
+                 statement_hash=str(statement_hash),
+                 user_id=str(user_id),
+                 action="withdraw",
+                 timestamp=datetime.utcnow(),
+             )
+             vitess_client.stream_producer.publish_change(event)
+
+         return EndorsementResponse(
+             endorsement_id=withdrawn_endorsement.id,  # type: ignore[union-attr]
+             user_id=withdrawn_endorsement.user_id,  # type: ignore[union-attr]
+             statement_hash=withdrawn_endorsement.statement_hash,  # type: ignore[union-attr]
+             created_at=withdrawn_endorsement.created_at.isoformat(),  # type: ignore[union-attr]
+             removed_at=withdrawn_endorsement.removed_at.isoformat()  # type: ignore[union-attr]
+             if withdrawn_endorsement.removed_at  # type: ignore[union-attr]
+             else None,
+         )
 
         return EndorsementResponse(
             endorsement_id=withdrawn_endorsement.id,  # type: ignore[union-attr]

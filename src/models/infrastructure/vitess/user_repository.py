@@ -155,6 +155,10 @@ class UserRepository:
             Basic validation is performed on user_id and activity_type before insertion.
             Database errors (e.g., connection issues) are caught and returned as failures.
         """
+        logger.debug(
+            f"Logging user activity: user_id={user_id}, activity_type={activity_type}, "
+            f"entity_id={entity_id}, revision_id={revision_id}"
+        )
         if user_id <= 0 or not activity_type:
             return OperationResult(
                 success=False, error="Invalid user ID or activity type"

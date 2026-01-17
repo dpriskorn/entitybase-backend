@@ -1,7 +1,6 @@
 """Response schemas for entity change data."""
 
 from datetime import datetime
-from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -9,7 +8,7 @@ from models.infrastructure.stream.producer import ChangeType
 
 
 class EntityChange(BaseModel):
-    \"\"\"Schema for entity change events in API responses.\"\"\"
+    """Schema for entity change events in API responses."""
 
     model_config = ConfigDict(from_attributes=True)
 

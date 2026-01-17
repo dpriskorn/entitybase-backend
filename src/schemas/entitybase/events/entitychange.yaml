@@ -25,26 +25,21 @@ properties:
     - human
     - bot
     description: Type of change
-  from_revision_id:
-    type:
-    - integer
-    - 'null'
-    minimum: 1
-    description: Previous revision ID (null for creation)
-  changed_at:
-    type: string
-    format: date-time
-    description: Timestamp of change in ISO format with Z
-  editor:
-    type:
-    - string
-    - 'null'
-    description: Editor who made the change
-  edit_summary:
-    type:
-    - string
-    - 'null'
-    description: Edit summary
+   from_revision_id:
+     type:
+     - integer
+     - 'null'
+     minimum: 1
+     description: Previous revision ID (null for creation)
+   changed_at:
+     type: string
+     format: date-time
+     description: Timestamp of change in ISO format with Z
+   edit_summary:
+     type:
+     - string
+     - 'null'
+     description: Edit summary
 required:
 - entity_id
 - revision_id

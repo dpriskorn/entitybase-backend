@@ -45,8 +45,7 @@ __all__ = [
     "EntityRevertResponse",
     "EntityRevisionResponse",
     "EntitySitelinksResponse",
-    \"EntityStatementsResponse\",
-    \"EntityChange\",
-    "LabelValue",
+    "EntityStatementsResponse",
+    "EntityChange",
     "ProtectionResponse",
 ]
