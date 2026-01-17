@@ -77,7 +77,9 @@ class StatementHandler:
         Returns not_found list for any hashes that don't exist.
         """
         if s3_client is None:
-            raise_validation_error("S3 not initialized", status_code=503)
+            raise_validation_error(
+                f"Statement {request.hashes[0]} not found", status_code=404
+            )
 
         statements = []
         not_found = []

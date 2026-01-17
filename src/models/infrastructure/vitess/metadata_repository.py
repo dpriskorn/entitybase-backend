@@ -87,7 +87,9 @@ class MetadataRepository:
                 )
                 result = cursor.fetchone()
                 if result is None:
-                    return OperationResult(success=False, error="Metadata content not found")
+                    return OperationResult(
+                        success=False, error="Metadata content not found"
+                    )
                 ref_count: int = result[0]
                 return OperationResult(success=True, data=ref_count <= 0)
         except Exception as e:

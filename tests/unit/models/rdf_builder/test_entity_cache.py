@@ -111,7 +111,7 @@ class TestLoadEntityMetadataBatch:
 class TestLoadEntityMetadata:
     def test_load_existing_metadata(self, tmp_path):
         """Test loading existing metadata file."""
-        data = {"id": "Q42", "labels": {"en": {"value": "test"}}}
+        data = {"id": "Q42", "labels": {"en": {"language": "en", "value": "test"}}}
         json_file = tmp_path / "Q42.json"
         json_file.write_text(json.dumps(data))
 

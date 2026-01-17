@@ -96,7 +96,9 @@ class TestCollectionModels:
 
     def test_entity_sitelinks_valid(self):
         """Test EntitySitelinks with valid data."""
-        data = {"enwiki": {"title": "Test Page"}}
+        data = {
+            "enwiki": {"site": "enwiki", "title": "Test Page", "url": "", "badges": []}
+        }
         sitelinks = EntitySitelinksResponse(data=data)
         assert sitelinks.data["enwiki"]["title"] == "Test Page"
 
@@ -130,7 +132,16 @@ class TestEntityMetadata:
                 data={"en": [{"language": "en", "value": "Test Alias"}]}
             ),
             statements=EntityStatementsResponse(data=[{"property": "P31"}]),
-            sitelinks=EntitySitelinksResponse(data={"enwiki": {"title": "Test"}}),
+            sitelinks=EntitySitelinksResponse(
+                data={
+                    "enwiki": {
+                        "site": "enwiki",
+                        "title": "Test",
+                        "url": "",
+                        "badges": [],
+                    }
+                }
+            ),
         )
         assert metadata.id == "Q123"
         assert metadata.type == "property"

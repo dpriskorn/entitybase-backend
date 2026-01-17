@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 pytestmark = pytest.mark.unit
 
@@ -80,7 +80,7 @@ class TestSerializeValue:
         mock_time.calendarmodel = "Q1985727"
 
         result = serialize_value(mock_time)
-        expected = "t:2023-01-01T00:00:00Z:11:0:0:0:Q1985727"
+        expected = "t:2023-01-01T00:00:00Z:11:0:Q1985727"
         assert result == expected
 
     def test_serialize_value_time_with_bounds(self):

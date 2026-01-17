@@ -130,6 +130,8 @@ class TestRevisionRepository:
 
         mock_raise.assert_called_once_with("Revision 456 not found", status_code=404)
 
+        mock_raise.assert_called_once_with("Revision 456 not found", status_code=404)
+
     def test_revert_entity_success(self):
         """Test successful entity revert."""
         mock_connection_manager = MagicMock()
