@@ -35,7 +35,7 @@ class IdRangeManager:
         self.vitess_client = vitess_client
         self.range_size = range_size
         self._local_ranges: Dict[str, IdRange] = {}
-        self.worker_id: Optional[str] = None
+        self.worker_id: str = ""
         self.min_ids = min_ids or {}
 
     def set_worker_id(self, worker_id: str) -> None:

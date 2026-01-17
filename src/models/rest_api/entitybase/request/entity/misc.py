@@ -29,6 +29,6 @@ class EntityJsonImportRequest(BaseModel):
     overwrite_existing: bool = Field(
         default=False, description="Whether to overwrite existing entities"
     )
-    worker_id: Optional[str] = Field(
-        default=None, description="Worker identifier for logging"
+    worker_id: str = Field(
+        default="", description="Worker identifier for logging"
     )

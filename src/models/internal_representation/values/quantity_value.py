@@ -15,8 +15,8 @@ class QuantityValue(Value):
     value: str
     datatype_uri: str = "http://wikiba.se/ontology#Quantity"
     unit: str = "1"
-    upper_bound: Optional[str] = None
-    lower_bound: Optional[str] = None
+    upper_bound: str = Field(default="")
+    lower_bound: str = Field(default="")
 
     model_config = ConfigDict(frozen=True)
 
@@ -30,9 +30,9 @@ class QuantityValue(Value):
 
     @field_validator("value", "upper_bound", "lower_bound")
     @classmethod
-    def validate_numeric(cls, v: Optional[str]) -> Optional[str]:
+    def validate_numeric(cls, v: str) -> str:
         """Validate that numeric fields contain valid numbers."""
-        if v is not None:
+        if v:
             try:
                 float(v)
             except ValueError:
