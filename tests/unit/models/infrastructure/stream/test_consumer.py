@@ -46,7 +46,10 @@ class TestConsumer:
     async def test_start_consumer(self, consumer: Consumer) -> None:
         """Test starting the consumer."""
         mock_kafka_consumer = AsyncMock()
-        with patch("models.infrastructure.stream.consumer.AIOKafkaConsumer", return_value=mock_kafka_consumer):
+        with patch(
+            "models.infrastructure.stream.consumer.AIOKafkaConsumer",
+            return_value=mock_kafka_consumer,
+        ):
             await consumer.start()
 
         assert consumer.consumer is mock_kafka_consumer
@@ -72,6 +75,7 @@ class TestConsumer:
     @pytest.mark.asyncio
     async def test_consume_events(self, consumer: Consumer) -> None:
         """Test consuming events."""
+
         # Create an async generator for messages
         async def mock_messages():
             mock_message = MagicMock()

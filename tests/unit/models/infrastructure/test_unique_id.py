@@ -1,27 +1,30 @@
-"""Tests for unique ID generation."""
-
 import pytest
 
 pytestmark = pytest.mark.unit
 
-from models.infrastructure.unique_id import generate_unique_id
+from models.infrastructure.unique_id import UniqueIdGenerator
 
 
-class TestUniqueId:
-    """Test unique ID generation."""
+class TestUniqueIdGenerator:
+    @pytest.fixture
+    def generator(self) -> UniqueIdGenerator:
+        return UniqueIdGenerator()
 
-    def test_generate_unique_id_uniqueness(self) -> None:
-        """Test that generated IDs are unique."""
-        ids = {generate_unique_id() for _ in range(1000)}
+    def test_generate_unique_id_uniqueness(self, generator: UniqueIdGenerator) -> None:
+        ids = {generator.generate_unique_id() for _ in range(1000)}
         assert len(ids) == 1000
 
-    def test_generate_unique_id_type(self) -> None:
-        """Test that generated ID is an integer."""
-        id_value = generate_unique_id()
+    def test_generate_unique_id_type(self, generator: UniqueIdGenerator) -> None:
+        id_value = generator.generate_unique_id()
         assert isinstance(id_value, int)
         assert id_value > 0
 
-    def test_generate_unique_id_range(self) -> None:
-        """Test that generated ID is within 64-bit range."""
-        id_value = generate_unique_id()
+    def test_generate_unique_id_range(self, generator: UniqueIdGenerator) -> None:
+        id_value = generator.generate_unique_id()
         assert 0 <= id_value < (1 << 64)
+
+    def test_counter_increment(self, generator: UniqueIdGenerator) -> None:
+        id1 = generator.generate_unique_id()
+        id2 = generator.generate_unique_id()
+        assert id1 != id2
+        assert generator._counter == 2
