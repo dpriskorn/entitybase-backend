@@ -1,6 +1,6 @@
 """RDF response models."""
 
-from typing import Any
+from typing import Union
 
 from pydantic import BaseModel, Field
 
@@ -24,7 +24,7 @@ class DeduplicationStatsResponse(BaseModel):
     size: int = Field(description="Current cache size")
     collision_rate: float = Field(description="Collision rate percentage")
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str) -> Union[int, float]:
         return getattr(self, key)
 
 
