@@ -32,3 +32,4 @@ test_data/properties/*.json
 /htmlcov
 /coverage.txt
 /coverage_below_threshold.txt
+/.opencode/plans/

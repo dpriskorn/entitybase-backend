@@ -209,7 +209,9 @@ class EntityHandler(BaseModel):
 
             # Locked items block all edits
             if protection_info and protection_info.is_locked:
-                raise_validation_error("Entity is locked from all edits", status_code=403)
+                raise_validation_error(
+                    "Entity is locked from all edits", status_code=403
+                )
 
             # Mass-edit protection blocks mass edits only
             if (
