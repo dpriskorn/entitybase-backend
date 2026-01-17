@@ -16,6 +16,7 @@ set -e
 ./run-cast-lint.sh
 ./run-tuple-lint.sh
 ./run-as-lint.sh
+./run-key-length-lint.sh
 #./run-data-lint.sh
 
 # == external linters ==
