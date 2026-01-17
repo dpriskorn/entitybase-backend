@@ -249,7 +249,22 @@ class SchemaManager:
                 UNIQUE KEY unique_thank (from_user_id, internal_entity_id, revision_id),
                 FOREIGN KEY (internal_entity_id) REFERENCES entity_id_mapping(internal_id)
             )
-        """
-        )
+        """)
+
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS user_statement_endorsements (
+                id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                user_id BIGINT NOT NULL,
+                statement_hash BIGINT UNSIGNED NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                removed_at TIMESTAMP NULL,
+                INDEX idx_user (user_id, created_at),
+                INDEX idx_statement (statement_hash, created_at),
+                INDEX idx_removed (removed_at),
+                UNIQUE KEY unique_endorsement (user_id, statement_hash),
+                FOREIGN KEY (statement_hash) REFERENCES statement_content(content_hash)
+            )
+        """)
 
         cursor.close()

@@ -2,6 +2,50 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-17] Statement Endorsements with Revocation Support
+
+### Summary
+
+Implemented comprehensive statement endorsement system allowing users to express trust in Wikibase statements and their references. Users can endorse statements to signal credibility, with full support for withdrawing endorsements. Includes pagination, statistics, and activity tracking.
+
+### Motivation
+
+- **Trust Signals**: Enable users to signal confidence in statement accuracy and references
+- **Quality Indicators**: Provide social validation for statement trustworthiness
+- **Community Curation**: Allow peer review and validation of claims
+- **Revocable Actions**: Support for changing opinions or correcting mistakes
+
+### Changes
+
+#### New Components
+- `EndorsementRepository` in `src/models/infrastructure/vitess/endorsement_repository.py` for database operations with soft deletion
+- `EndorsementHandler` in `src/models/rest_api/entitybase/handlers/endorsements.py` for API business logic
+- `StatementEndorsement` models in `src/models/endorsements.py` and response models
+- Soft deletion support with `removed_at` timestamp for revocable endorsements
+
+#### API Endpoints
+- `POST /entitybase/v1/statements/{hash}/endorse` - Create endorsement
+- `DELETE /entitybase/v1/statements/{hash}/endorse` - Withdraw endorsement
+- `GET /entitybase/v1/statements/{hash}/endorsements` - List statement endorsements (paginated)
+- `GET /entitybase/v1/users/{id}/endorsements` - List user's endorsements (paginated)
+- `GET /entitybase/v1/users/{id}/endorsements/stats` - Get endorsement statistics
+
+#### Database Schema
+- Added `user_statement_endorsements` table with soft deletion via `removed_at` field
+- Foreign key constraint to `statement_content` table
+- Unique constraint prevents duplicate endorsements per user-statement pair
+- Proper indexing for efficient queries and pagination
+
+#### Business Logic
+- **Endorsement Creation**: Validates statement exists, prevents duplicates, tracks activity
+- **Endorsement Withdrawal**: Soft deletes endorsements, allows re-endorsement
+- **Statistics**: Total endorsements given/received, active vs. historical counts
+- **Pagination**: Efficient database-level pagination with total counts
+
+#### Activity Integration
+- Added `ENDORSEMENT_GIVEN` and `ENDORSEMENT_WITHDRAWN` activity types
+- Full integration with user activity tracking system
+
 ## [2026-01-17] Thanks Feature for Entity Revisions
 
 ### Summary
