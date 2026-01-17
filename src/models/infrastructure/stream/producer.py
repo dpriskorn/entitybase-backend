@@ -146,10 +146,9 @@ class RDFChangeEvent(BaseModel):
     # Wikibase-specific fields
     entity_id: str = Field(..., description="Entity ID (e.g., Q42)")
     revision_id: int = Field(..., description="New revision ID")
-     from_revision_id: int = Field(
-         default=0, description=\"Previous revision ID (0 for creation)\"
-     )
-
+    from_revision_id: int = Field(
+        default=0, description="Previous revision ID (0 for creation)"
+    )
     # RDF diff data
     added_triples: list[tuple[str, str, str]] = Field(
         default_factory=list, description="RDF triples added in this revision"

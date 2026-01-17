@@ -54,9 +54,8 @@ class EntityJsonImportHandler:
         )
 
         logger.info(
-            f\"Starting JSONL import from {request.jsonl_file_path}, lines {request.start_line}-{'end' if request.end_line == 0 else request.end_line}\"
+            f"Starting JSONL import from {request.jsonl_file_path}, lines {request.start_line}-{'end' if request.end_line == 0 else request.end_line}"
         )
-
         try:
             with open(request.jsonl_file_path, "r", encoding="utf-8") as f:
                 create_handler = EntityCreateHandler()
@@ -130,14 +129,9 @@ class EntityJsonImportHandler:
                             log_f.write(
                                 f"Entity ID: {entity_data.get('id', 'unknown')}\n"
                             )
-                            log_f.write(f"Error: {str(e)}\n")
-                            log_f.write("---\n")
-
-        except FileNotFoundError:
-            raise HTTPException(
-                status_code=404,
-                detail=f"JSONL file not found: {request.jsonl_file_path}",
-            )
+                            log_f.write(
+                                f"Error: {str(e)}\n"
+                            )
         except Exception as e:
             logger.error(f"Import failed: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
@@ -174,11 +168,15 @@ class EntityJsonImportHandler:
             # Log malformed line
             with open(error_log_path, "a", encoding="utf-8") as log_f:
                 log_f.write(
-                    f"[{datetime.now().isoformat()}] ERROR: Failed to parse line {line_num}\n"
+                    f"[{datetime.now().isoformat()}] ERROR: Failed to parse line {line_num}
+"
                 )
-                log_f.write(f"Original line: {line}\n")
-                log_f.write(f"Error: {str(e)}\n")
-                log_f.write("---\n")
+                log_f.write(f"Original line: {line}
+")
+                log_f.write(f"Error: {str(e)}
+")
+                log_f.write("---
+")
             return None
 
     @staticmethod
