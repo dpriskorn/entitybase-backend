@@ -1,8 +1,8 @@
 """Entity redirect management handlers."""
 
 import logging
+from typing import TYPE_CHECKING
 
-from models.infrastructure.client import Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.request.entity import EntityRedirectRequest
@@ -12,6 +12,9 @@ from models.rest_api.entitybase.response import (
 )
 from models.rest_api.entitybase.services.redirects import RedirectService
 
+if TYPE_CHECKING:
+    from models.infrastructure.s3.s3_client import S3Client
+
 logger = logging.getLogger(__name__)
 
 
@@ -20,7 +23,7 @@ class RedirectHandler:
 
     def __init__(
         self,
-        s3_client: Client,
+        s3_client: "S3Client",
         vitess_client: VitessClient,
         stream_producer: StreamProducerClient | None = None,
     ):
