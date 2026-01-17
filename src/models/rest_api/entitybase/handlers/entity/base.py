@@ -280,30 +280,23 @@ class EntityHandler(BaseModel):
 
         # Deduplicate and store statements
         logger.info(f"Entity {entity_id}: Starting statement deduplication and storage")
-        try:
-            deduplicate_and_store_statements(
-                hash_result=hash_result,
-                vitess_client=vitess_client,
-                s3_client=s3_client,
-                validator=validator,
-                schema_version=settings.s3_statement_version,
+        store_result = deduplicate_and_store_statements(
+            hash_result=hash_result,
+            vitess_client=vitess_client,
+            s3_client=s3_client,
+            validator=validator,
+            schema_version=settings.s3_statement_version,
+        )
+        if not store_result.success:
+            raise_validation_error(
+                store_result.error or "Failed to store statements", status_code=500
             )
-            logger.info(
-                f"Entity {entity_id}: Successfully completed statement deduplication and storage"
-            )
-            logger.info(
-                f"Entity {entity_id}: Stored {len(hash_result.statements)} statements with hashes: {hash_result.statements}"
-            )
-        except Exception as e:
-            logger.error(
-                f"Entity {entity_id}: Statement deduplication and storage failed",
-                extra={
-                    "entity_id": entity_id,
-                    "error": str(e),
-                    "operation": "statement_storage_failed",
-                },
-            )
-            raise_validation_error(f"Statement storage failed: {e}", status_code=500)
+        logger.info(
+            f"Entity {entity_id}: Successfully completed statement deduplication and storage"
+        )
+        logger.info(
+            f"Entity {entity_id}: Stored {len(hash_result.statements)} statements with hashes: {hash_result.statements}"
+        )
 
         return hash_result
 

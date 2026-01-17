@@ -217,7 +217,9 @@ def deduplicate_and_store_statements(
                 },
                 exc_info=True,
             )
-            return OperationResult(success=False, error=f"Failed to store statement {statement_hash}: {e}")
+            return OperationResult(
+                success=False, error=f"Failed to store statement {statement_hash}: {e}"
+            )
 
     logger.info(
         f"Successfully stored all {len(hash_result.statements)} statements (new + existing)"
