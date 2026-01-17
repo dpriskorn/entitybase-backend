@@ -52,7 +52,7 @@ def test_parse_q1_minimal() -> None:
     assert entity.type == "item"
     assert len(entity.labels.data) > 0  # Q1 now has labels
     assert len(entity.descriptions.data) > 0  # Q1 now has descriptions
-    assert len(entity.aliases) > 0  # Q1 now has aliases
+    assert len(entity.aliases.data) > 0  # Q1 has aliases
     assert len(entity.statements) > 0  # Q1 now has statements
     assert entity.sitelinks is not None  # Q1 now has sitelinks
 
@@ -81,7 +81,7 @@ def test_parse_q42_detailed() -> None:
     assert entity.type == "item"
 
     assert len(entity.labels.data) > 50
-    assert "ru" in entity.labels
+    assert "ru" in entity.labels.data
 
     assert len(entity.statements) > 300
 

@@ -141,7 +141,8 @@ class TestEntityJsonImportHandler:
             # Mock dependencies
             mock_transform.return_value = MagicMock()
             vitess_client.create_entity = AsyncMock()
-            vitess_client.entity_exists.return_value = False
+            vitess_client.entity_repository.entity_exists.return_value = False
+            vitess_client.entity_repository.get_entity.return_value = None
             s3_client.read_revision = MagicMock(
                 side_effect=Exception("Not found")
             )  # Entity doesn't exist
@@ -205,7 +206,7 @@ class TestWikidataImportService:
     @pytest.fixture
     def sample_entity_json(self) -> dict[str, Any]:
         return {
-            "id": "Q123",
+            "id": "Q12346",
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Test Item"}},
             "descriptions": {},
@@ -220,10 +221,10 @@ class TestWikidataImportService:
         """Test transformation of Wikidata JSON to EntityCreateRequest."""
         result = WikidataImportService.transform_to_create_request(sample_entity_json)
 
-        assert result.id == "Q123"
+        assert result.id == "Q12346"
         assert result.type == "item"
         assert "en" in result.labels
-        assert "en" in result.descriptions
-        assert "en" in result.aliases
+        assert len(result.descriptions) == 0
+        assert len(result.aliases) == 0
         assert "P31" in result.claims
         assert result.edit_type.value == "BOT_IMPORT"
