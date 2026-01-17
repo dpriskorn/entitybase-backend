@@ -109,7 +109,10 @@ def test_statement_with_qualifiers_and_references(
                                         "property": "P248",
                                         "datatype": "wikibase-item",
                                         "datavalue": {
-                                            "value": {"entity-type": "item", "id": "Q53919"},
+                                            "value": {
+                                                "entity-type": "item",
+                                                "id": "Q53919",
+                                            },
                                             "type": "wikibase-entityid",
                                         },
                                         "hash": "r1",

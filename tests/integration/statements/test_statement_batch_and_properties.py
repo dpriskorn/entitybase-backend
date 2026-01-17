@@ -211,7 +211,7 @@ def test_entity_property_counts(api_client: requests.Session, base_url: str) -> 
                     "rank": "normal",
                     "qualifiers": {},
                     "references": [],
-                }
+                },
             ],
             "P279": [
                 {

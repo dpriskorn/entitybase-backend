@@ -117,7 +117,9 @@ def test_statement_deduplication(api_client: requests.Session, base_url: str) ->
 
     assert len(raw1["statements"]) == 1
     assert len(raw2["statements"]) == 1
-    assert raw1["statements"][0] == raw2["statements"][0], "Statements should be deduplicated"
+    assert raw1["statements"][0] == raw2["statements"][0], (
+        "Statements should be deduplicated"
+    )
 
     statement_hash = raw1["statements"][0]
 
