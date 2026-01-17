@@ -22,6 +22,7 @@
 - add single line docstring at the minimum to new classes and methods
 - use pydantic models for all dict-style returns from functions in src/
 - add at least 1 logger.info() to all methods >20 lines
+- all tests have to be marked either unit/integration/e2e
 - no relative imports
 - no __future__ imports
 - no strings in code - everything is enums
@@ -31,6 +32,3 @@
 - no backward compability
 - never use Optional for typing
 - str defaults to "" and never None
-
-# Current task
-run linters and fix, loop and repeat
