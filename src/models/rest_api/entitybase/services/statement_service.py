@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 
+from models.common import OperationResult
 from models.rest_api.entitybase.response import StatementHashResult
 from models.rest_api.utils import raise_or_convert_to_500
 from models.infrastructure.s3.s3_client import S3Client
@@ -20,46 +21,46 @@ logger = logging.getLogger(__name__)
 
 def hash_entity_statements(
     entity_data: dict[str, Any],
-) -> StatementHashResult:
+) -> OperationResult:
     """Extract and hash statements from entity data.
 
     Returns:
-        StatementHashResult with hashes, properties, and full statements
+        OperationResult with StatementHashResult in data
     """
-    statements = []
-    full_statements = []
+    try:
+        statements = []
+        full_statements = []
 
-    claims = entity_data.get("claims", {})
-    logger.debug(f"Entity claims: {claims}")
+        claims = entity_data.get("claims", {})
+        logger.debug(f"Entity claims: {claims}")
 
-    if not claims:
-        logger.debug("No claims found in entity data")
-        return StatementHashResult()
+        if not claims:
+            logger.debug("No claims found in entity data")
+            return OperationResult(success=True, data=StatementHashResult())
 
-    properties = StatementExtractor.extract_properties_from_claims(claims)
-    property_counts = StatementExtractor.compute_property_counts_from_claims(claims)
+        properties = StatementExtractor.extract_properties_from_claims(claims)
+        property_counts = StatementExtractor.compute_property_counts_from_claims(claims)
 
-    claims_count = sum(len(claim_list) for claim_list in claims.values())
-    logger.debug(
-        f"Hashing statements for entity with {len(claims)} properties, {claims_count} total statements"
-    )
-
-    for property_id, claim_list in claims.items():
+        claims_count = sum(len(claim_list) for claim_list in claims.values())
         logger.debug(
-            f"Processing property {property_id} with {len(claim_list)} statements"
+            f"Hashing statements for entity with {len(claims)} properties, {claims_count} total statements"
         )
 
-        if not claim_list:
-            logger.debug(f"Empty claim list for property {property_id}")
-            continue
-
-        count = len(claim_list)
-
-        for idx, statement in enumerate(claim_list):
+        for property_id, claim_list in claims.items():
             logger.debug(
-                f"Processing statement {idx + 1}/{len(claim_list)} for property {property_id}"
+                f"Processing property {property_id} with {len(claim_list)} statements"
             )
-            try:
+
+            if not claim_list:
+                logger.debug(f"Empty claim list for property {property_id}")
+                continue
+
+            count = len(claim_list)
+
+            for idx, statement in enumerate(claim_list):
+                logger.debug(
+                    f"Processing statement {idx + 1}/{len(claim_list)} for property {property_id}"
+                )
                 statement_hash = StatementHasher.compute_hash(statement)
                 logger.debug(
                     f"Generated hash {statement_hash} for statement {idx + 1} in property {property_id}"
@@ -67,25 +68,22 @@ def hash_entity_statements(
 
                 statements.append(statement_hash)
                 full_statements.append(statement)
-            except Exception as e:
-                logger.error(
-                    f"Failed to hash statement {idx + 1} for property {property_id}: {e}",
-                    exc_info=True,
-                )
-                logger.error(f"Statement data: {statement}")
-                raise_or_convert_to_500(e, f"Failed to hash statement: {e}")
 
-        logger.debug(f"Property {property_id}: processed {count} statements")
+            logger.debug(f"Property {property_id}: processed {count} statements")
 
-    logger.debug(f"Generated {len(statements)} hashes, properties: {properties}")
-    logger.debug(f"Property counts: {property_counts}")
+        logger.debug(f"Generated {len(statements)} hashes, properties: {properties}")
+        logger.debug(f"Property counts: {property_counts}")
 
-    return StatementHashResult(
-        statements=statements,
-        properties=properties,
-        property_counts=property_counts,
-        full_statements=full_statements,
-    )
+        result = StatementHashResult(
+            statements=statements,
+            properties=properties,
+            property_counts=property_counts,
+            full_statements=full_statements,
+        )
+        return OperationResult(success=True, data=result)
+    except Exception as e:
+        logger.error(f"Failed to hash entity statements: {e}", exc_info=True)
+        return OperationResult(success=False, error=str(e))
 
 
 def deduplicate_and_store_statements(

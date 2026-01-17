@@ -251,7 +251,12 @@ class EntityHandler(BaseModel):
         logger.debug("Starting statement hashing process")
         logger.info(f"Entity {entity_id}: Starting statement hashing")
         try:
-            hash_result = hash_entity_statements(request_data)
+            hash_operation = hash_entity_statements(request_data)
+            if not hash_operation.success:
+                raise_validation_error(
+                    hash_operation.error or "Failed to hash statements", status_code=500
+                )
+            hash_result = hash_operation.data
             logger.info(
                 f"Entity {entity_id}: Statement hashing complete: {len(hash_result.statements)} hashes generated",
                 extra={
