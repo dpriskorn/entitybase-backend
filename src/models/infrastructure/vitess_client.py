@@ -408,7 +408,12 @@ class VitessClient(Client):
     def decrement_ref_count(self, content_hash: int) -> int:
         """Decrement reference count for statement content."""
         with self.connection_manager.get_connection() as conn:
-            return self.statement_repository.decrement_ref_count(conn, content_hash)  # type: ignore[no-any-return]
+            result = self.statement_repository.decrement_ref_count(conn, content_hash)
+            if not result.success:
+                raise_validation_error(
+                    result.error or "Failed to decrement ref count", status_code=500
+                )
+            return result.data if isinstance(result.data, int) else 0
 
     def get_orphaned_statements(self, older_than_days: int, limit: int) -> list[int]:
         """Get orphaned statements older than specified days."""

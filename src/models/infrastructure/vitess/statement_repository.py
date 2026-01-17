@@ -56,20 +56,27 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    def decrement_ref_count(self, conn: Any, content_hash: int) -> int:
+    def decrement_ref_count(self, conn: Any, content_hash: int) -> OperationResult:
         """Decrement reference count for statement content."""
+        if content_hash <= 0:
+            return OperationResult(success=False, error="Invalid content hash")
+
         logger.debug(f"Decrementing ref count for content hash {content_hash}")
-        with conn.cursor() as cursor:
-            cursor.execute(
-                "UPDATE statement_content SET ref_count = ref_count - 1 WHERE content_hash = %s",
-                (content_hash,),
-            )
-            cursor.execute(
-                "SELECT ref_count FROM statement_content WHERE content_hash = %s",
-                (content_hash,),
-            )
-            result = cursor.fetchone()
-            return result[0] if result else 0
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE statement_content SET ref_count = ref_count - 1 WHERE content_hash = %s",
+                    (content_hash,),
+                )
+                cursor.execute(
+                    "SELECT ref_count FROM statement_content WHERE content_hash = %s",
+                    (content_hash,),
+                )
+                result = cursor.fetchone()
+                new_count = result[0] if result else 0
+                return OperationResult(success=True, data=new_count)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def get_orphaned(self, conn: Any, older_than_days: int, limit: int) -> list[int]:
         """Get orphaned statement content hashes."""
