@@ -81,7 +81,9 @@ class TestItemCreateHandler:
         )
 
         # Verify vitess interactions
-        mock_vitess_client.id_resolver.entity_exists.assert_called_once_with(ANY, "Q99999")
+        mock_vitess_client.id_resolver.entity_exists.assert_called_once_with(
+            ANY, "Q99999"
+        )
         mock_vitess_client.register_entity.assert_called_once_with("Q99999")
         mock_vitess_client.is_entity_deleted.assert_called_once_with("Q99999")
 
