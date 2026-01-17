@@ -63,6 +63,7 @@ def test_invalid_entity_missing_required_field(validator: JsonSchemaValidator) -
         "created_by": "test-user",
         "entity_type": "item",
         "entity": {
+            "schema_version": "1.0.0",
             "id": "Q42",
         },
         "statements": [],
@@ -100,6 +101,7 @@ def test_invalid_entity_id_format(validator: JsonSchemaValidator) -> None:
         "created_by": "test-user",
         "entity_type": "item",
         "entity": {
+            "schema_version": "1.0.0",
             "id": "not-valid",
             "type": "item",
         },
@@ -119,6 +121,7 @@ def test_invalid_entity_type_enum(validator: JsonSchemaValidator) -> None:
         "created_by": "test-user",
         "entity_type": "invalid-type",
         "entity": {
+            "schema_version": "1.0.0",
             "id": "Q42",
             "type": "item",
         },

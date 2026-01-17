@@ -80,7 +80,7 @@ class TestCreateBuckets:
         # Should attempt to create all 5 buckets
         assert mock_client.create_bucket.call_count == 5
         assert all(status == "created" for status in results.values())
-        assert set(results.keys()) == {\"terms\", \"statements\", \"revisions\", \"dumps\", \"sitelinks\"}
+        assert set(results.keys()) == {"terms", "statements", "revisions", "dumps", "sitelinks"}
 
     @pytest.mark.asyncio
     @patch("models.workers.dev.create_buckets._boto3")
