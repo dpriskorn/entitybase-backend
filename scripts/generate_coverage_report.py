@@ -43,8 +43,8 @@ filename = "coverage_below_threshold.txt"
 with open(filename, "w") as f:
     f.write(f"Files with coverage below {threshold_pct}%:\n")
     if missing_files:
-        for filename, pct in sorted(missing_files, key=lambda x: x[1]):
-            f.write(f"{filename}: {pct:.1f}%\n")
+        for file_name, pct in sorted(missing_files, key=lambda x: x[1]):
+            f.write(f"{file_name}: {pct:.1f}%\n")
     else:
         f.write("None\n")
 
