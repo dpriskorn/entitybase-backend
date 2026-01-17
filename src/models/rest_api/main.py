@@ -327,7 +327,9 @@ def get_thanks_sent_endpoint(
     "/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks",
     response_model=ThanksListResponse,
 )
-def get_revision_thanks_endpoint(entity_id: str, revision_id: int) -> ThanksListResponse:
+def get_revision_thanks_endpoint(
+    entity_id: str, revision_id: int
+) -> ThanksListResponse:
     """Get all thanks for a specific revision."""
     clients = app.state.clients
     if not isinstance(clients, Clients):
@@ -730,7 +732,7 @@ async def get_batch_aliases(hashes: str, req: Request) -> dict[str, list[str]]:
 
 @v1_router.get("/statements/batch")
 async def get_batch_statements(
-    req: Request, entity_ids: str, property_ids: str | None = None
+    req: Request, entity_ids: str, property_ids: str = ""
 ) -> dict[str, dict[str, list]]:
     """Get batch statements for entities and properties."""
     if req is None:

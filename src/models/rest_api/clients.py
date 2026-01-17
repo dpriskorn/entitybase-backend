@@ -35,9 +35,9 @@ class Clients(BaseModel):
         s3: "S3Config",
         vitess: "VitessConfig",
         enable_streaming: bool = False,
-        kafka_brokers: str | None = None,
-        kafka_topic: str | None = None,
-        kafka_rdf_topic: str | None = None,
+        kafka_brokers: str = "",
+        kafka_topic: str = "",
+        kafka_rdf_topic: str = "",
         property_registry_path: Path | None = None,
         **kwargs: str,
     ) -> None:
