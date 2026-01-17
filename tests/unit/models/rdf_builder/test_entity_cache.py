@@ -1,0 +1,126 @@
+import json
+import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+
+pytestmark = pytest.mark.unit
+
+from models.rdf_builder.entity_cache import (
+    _fetch_entity_metadata_batch,
+    load_entity_metadata_batch,
+    load_entity_metadata,
+)
+
+
+class TestFetchEntityMetadataBatch:
+    def test_fetch_empty_list(self):
+        """Test fetching with empty entity list."""
+        result = _fetch_entity_metadata_batch([])
+        assert result.metadata == {}
+
+    @patch("models.rdf_builder.entity_cache.requests.post")
+    def test_fetch_single_entity_success(self, mock_post):
+        """Test fetching metadata for single entity."""
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "results": {
+                "bindings": [
+                    {
+                        "entity": {"value": "http://www.wikidata.org/entity/Q42"},
+                        "label": {"value": "Douglas Adams"},
+                        "description": {"value": "English writer and humorist"},
+                    }
+                ]
+            }
+        }
+        mock_response.raise_for_status.return_value = None
+        mock_post.return_value = mock_response
+
+        result = _fetch_entity_metadata_batch(["Q42"])
+
+        assert "Q42" in result.metadata
+        metadata = result.metadata["Q42"]
+        assert metadata.id == "Q42"
+        assert metadata.labels["en"].value == "Douglas Adams"
+        assert metadata.descriptions["en"].value == "English writer and humorist"
+
+    @patch("models.rdf_builder.entity_cache.requests.post")
+    def test_fetch_multiple_entities_batch(self, mock_post):
+        """Test fetching metadata in batches."""
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "results": {
+                "bindings": [
+                    {
+                        "entity": {"value": "http://www.wikidata.org/entity/Q1"},
+                        "label": {"value": "universe"},
+                    }
+                ]
+            }
+        }
+        mock_response.raise_for_status.return_value = None
+        mock_post.return_value = mock_response
+
+        # 101 entities to trigger batching
+        entity_ids = [f"Q{i}" for i in range(101)]
+        result = _fetch_entity_metadata_batch(entity_ids)
+
+        # Should have made 2 requests (100 + 1)
+        assert mock_post.call_count == 2
+
+    @patch("models.rdf_builder.entity_cache.requests.post")
+    def test_fetch_request_failure(self, mock_post):
+        """Test handling of request failure."""
+        mock_post.side_effect = Exception("Network error")
+
+        result = _fetch_entity_metadata_batch(["Q42"])
+
+        assert result.metadata["Q42"] is None
+
+
+class TestLoadEntityMetadataBatch:
+    @patch("models.rdf_builder.entity_cache._fetch_entity_metadata_batch")
+    def test_load_batch_success(self, mock_fetch, tmp_path):
+        """Test loading and saving metadata batch successfully."""
+        mock_fetch.return_value.metadata = {
+            "Q42": MagicMock(
+                model_dump=lambda: {"id": "Q42", "labels": {"en": {"value": "test"}}}
+            )
+        }
+
+        result = load_entity_metadata_batch(["Q42"], tmp_path)
+
+        assert result.results["Q42"] is True
+        json_file = tmp_path / "Q42.json"
+        assert json_file.exists()
+        data = json.loads(json_file.read_text())
+        assert data["id"] == "Q42"
+
+    @patch("models.rdf_builder.entity_cache._fetch_entity_metadata_batch")
+    def test_load_batch_failure(self, mock_fetch, tmp_path):
+        """Test loading batch with fetch failure."""
+        mock_fetch.return_value.metadata = {"Q42": None}
+
+        result = load_entity_metadata_batch(["Q42"], tmp_path)
+
+        assert result.results["Q42"] is False
+        json_file = tmp_path / "Q42.json"
+        assert not json_file.exists()
+
+
+class TestLoadEntityMetadata:
+    def test_load_existing_metadata(self, tmp_path):
+        """Test loading existing metadata file."""
+        data = {"id": "Q42", "labels": {"en": {"value": "test"}}}
+        json_file = tmp_path / "Q42.json"
+        json_file.write_text(json.dumps(data))
+
+        result = load_entity_metadata("Q42", tmp_path)
+
+        assert result.id == "Q42"
+        assert result.labels["en"].value == "test"
+
+    def test_load_nonexistent_metadata(self, tmp_path):
+        """Test loading nonexistent metadata raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError, match="Entity Q42 not found"):
+            load_entity_metadata("Q42", tmp_path)
