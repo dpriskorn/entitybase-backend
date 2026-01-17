@@ -189,7 +189,7 @@ class UpdateTransaction(EntityTransaction):
         editor: str,
         stream_producer: Any,
     ) -> None:
-        \"\"\"Publish the entity change event.\"\"\"
+        """Publish the entity change event."""
         logger.info(f"[UpdateTransaction] Starting event publishing for {entity_id}")
         if stream_producer:
             from models.infrastructure.stream.producer import EntityChangeEvent

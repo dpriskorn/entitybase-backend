@@ -130,7 +130,7 @@ class UserRepository:
     def log_user_activity(
         self,
         user_id: int,
-        activity_type: str,
+        activity_type: ActivityType,
         entity_id: str,
         revision_id: int = 0,
     ) -> OperationResult:
@@ -168,7 +168,7 @@ class UserRepository:
                         INSERT INTO user_activity (user_id, activity_type, entity_id, revision_id)
                         VALUES (%s, %s, %s, %s)
                         """,
-                        (user_id, activity_type, entity_id, revision_id),
+                        (user_id, activity_type.value, entity_id, revision_id),
                     )
             return OperationResult(success=True)
         except Exception as e:
@@ -220,7 +220,7 @@ class UserRepository:
     def get_user_activities(
         self,
         user_id: int,
-        activity_type: str = "",
+        activity_type: ActivityType | None = None,
         hours: int = 24,
         limit: int = 50,
         offset: int = 0,

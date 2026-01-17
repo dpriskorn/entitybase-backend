@@ -7,6 +7,7 @@ sys.path.insert(0, "src")
 
 from models.infrastructure.vitess.user_repository import UserRepository
 from models.user import User
+from models.user_activity import ActivityType
 
 
 class TestUserRepository:
@@ -229,6 +230,24 @@ class TestUserRepository:
         mock_cursor.execute.assert_called_once_with(
             "UPDATE users SET notification_limit = %s, retention_hours = %s WHERE user_id = %s",
             (200, 168, 12345),
+        )
+
+    def test_log_user_activity(
+        self, repository: UserRepository, mock_connection_manager: MagicMock
+    ) -> None:
+        """Test logging user activity"""
+        mock_conn = MagicMock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_cursor = MagicMock()
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        repository.log_user_activity(12345, ActivityType.EDIT, "Q42", 123)
+
+        mock_cursor.execute.assert_called_once_with(
+            "INSERT INTO user_activity (user_id, activity_type, entity_id, revision_id) VALUES (%s, %s, %s, %s)",
+            (12345, "edit", "Q42", 123),
         )
 
     def test_get_user_activities(
