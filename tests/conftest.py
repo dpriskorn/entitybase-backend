@@ -6,6 +6,7 @@ sys.path.insert(0, "src")
 os.environ["TEST_DATA_DIR"] = str(Path(__file__).parent.parent / "test_data")
 
 import pytest
+from unittest.mock import AsyncMock
 from fastapi.testclient import TestClient
 from models.rest_api.main import app
 
@@ -25,3 +26,11 @@ def db_url():
 def api_client():
     """Return a FastAPI TestClient for testing without starting a server."""
     return TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def mock_aiokafka():
+    """Mock aiokafka to prevent real Kafka connections in tests."""
+    with pytest.mock.patch("aiokafka.AIOKafkaConsumer", new_callable=AsyncMock) as mock_consumer, \
+         pytest.mock.patch("aiokafka.AIOKafkaProducer", new_callable=AsyncMock) as mock_producer:
+        yield mock_consumer, mock_producer
