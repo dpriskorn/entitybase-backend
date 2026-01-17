@@ -57,17 +57,17 @@ class TestItemUpdateHandler:
         # Mock the parent update_entity to return a response
         mock_response = EntityResponse(
             id="Q123",
-            revision_id=2,
-            entity_data={
+            rev_id=2,
+            data={
                 "id": "Q123",
                 "type": "item",
                 "labels": {"en": {"language": "en", "value": "Updated Item"}},
             },
-            is_semi_protected=False,
+            semi_prot=False,
             is_locked=False,
-            is_archived=False,
-            is_dangling=False,
-            is_mass_edit_protected=False,
+            archived=False,
+            dangling=False,
+            mass_edit=False,
         )
 
         with patch.object(

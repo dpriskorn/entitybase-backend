@@ -442,13 +442,13 @@ class EntityHandler(BaseModel):
         # Return response
         return EntityResponse(
             id=entity_id,
-            revision_id=new_revision_id,
-            entity_data=request_data,
-            is_semi_protected=is_semi_protected or False,
+            rev_id=new_revision_id,
+            data=request_data,
+            semi_prot=is_semi_protected or False,
             is_locked=is_locked or False,
-            is_archived=is_archived or False,
-            is_dangling=is_dangling or False,
-            is_mass_edit_protected=is_mass_edit_protected or False,
+            archived=is_archived or False,
+            dangling=is_dangling or False,
+            mass_edit=is_mass_edit_protected or False,
         )
 
 

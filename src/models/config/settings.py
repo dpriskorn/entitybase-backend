@@ -65,7 +65,7 @@ class Settings(BaseSettings):
             bucket=self.s3_bucket,
         )
 
-    def to_vitess_config(self) -> Config:
+    def to_vitess_config(self) -> "VitessConfig":
         """Convert settings to Vitess configuration object.
 
         Returns:

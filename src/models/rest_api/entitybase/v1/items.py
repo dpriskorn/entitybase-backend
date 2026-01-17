@@ -159,17 +159,17 @@ async def update_item_label(
     current_entity = handler.get_entity(item_id, clients.vitess, clients.s3)
 
     # Update label
-    if "labels" not in current_entity.data:
-        current_entity.data["labels"] = {}
-    current_entity.data["labels"][language_code] = {
+    if "labels" not in current_entity.entity_data:
+        current_entity.entity_data["labels"] = {}
+    current_entity.entity_data["labels"][language_code] = {
         "language": language_code,
         "value": label_value,
     }
 
     # Create new revision
     update_handler = EntityUpdateHandler()
-    entity_type = current_entity.data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.data)
+    entity_type = current_entity.entity_data.get("type") or "item"
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
 
     return await update_handler.update_entity(
         item_id,
@@ -194,18 +194,18 @@ async def delete_item_label(
     current_entity = handler.get_entity(item_id, clients.vitess, clients.s3)
 
     # Check if label exists
-    labels = current_entity.data.get("labels", {})
+    labels = current_entity.entity_data.get("labels", {})
     if language_code not in labels:
         # Idempotent - return current entity if label doesn't exist
         return current_entity
 
     # Remove label
-    del current_entity.data["labels"][language_code]
+    del current_entity.entity_data["labels"][language_code]
 
     # Create new revision
     update_handler = EntityUpdateHandler()
-    entity_type = current_entity.data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.data)
+    entity_type = current_entity.entity_data.get("type") or "item"
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
 
     return await update_handler.update_entity(
         item_id,
@@ -255,17 +255,17 @@ async def update_item_description(
     current_entity = handler.get_entity(item_id, clients.vitess, clients.s3)
 
     # Update description
-    if "descriptions" not in current_entity.data:
-        current_entity.data["descriptions"] = {}
-    current_entity.data["descriptions"][language_code] = {
+    if "descriptions" not in current_entity.entity_data:
+        current_entity.entity_data["descriptions"] = {}
+    current_entity.entity_data["descriptions"][language_code] = {
         "language": language_code,
         "value": description_value,
     }
 
     # Create new revision
     update_handler = EntityUpdateHandler()
-    entity_type = current_entity.data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.data)
+    entity_type = current_entity.entity_data.get("type") or "item"
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
 
     return await update_handler.update_entity(
         item_id,
@@ -290,18 +290,18 @@ async def delete_item_description(
     current_entity = handler.get_entity(item_id, clients.vitess, clients.s3)
 
     # Check if description exists
-    descriptions = current_entity.data.get("descriptions", {})
+    descriptions = current_entity.entity_data.get("descriptions", {})
     if language_code not in descriptions:
         # Idempotent - return current entity if description doesn't exist
         return current_entity
 
     # Remove description
-    del current_entity.data["descriptions"][language_code]
+    del current_entity.entity_data["descriptions"][language_code]
 
     # Create new revision
     update_handler = EntityUpdateHandler()
-    entity_type = current_entity.data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.data)
+    entity_type = current_entity.entity_data.get("type") or "item"
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
 
     return await update_handler.update_entity(
         item_id,
@@ -343,7 +343,7 @@ async def patch_item_aliases_for_language(
     current_entity = handler.get_entity(item_id, clients.vitess, clients.s3)
 
     # Get current aliases for the language
-    current_aliases = current_entity.data.get("aliases", {}).get(language_code, [])
+    current_aliases = current_entity.entity_data.get("aliases", {}).get(language_code, [])
 
     # Apply JSON Patch operations
     patches = patch_data.get("patch", [])
@@ -388,14 +388,14 @@ async def patch_item_aliases_for_language(
             raise HTTPException(status_code=400, detail=f"Unsupported operation: {op}")
 
     # Update entity data
-    if "aliases" not in current_entity.data:
-        current_entity.data["aliases"] = {}
-    current_entity.data["aliases"][language_code] = updated_aliases
+    if "aliases" not in current_entity.entity_data:
+        current_entity.entity_data["aliases"] = {}
+    current_entity.entity_data["aliases"][language_code] = updated_aliases
 
     # Create new revision
     update_handler = EntityUpdateHandler()
-    entity_type = current_entity.data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.data)
+    entity_type = current_entity.entity_data.get("type") or "item"
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
 
     return await update_handler.update_entity(
         item_id,

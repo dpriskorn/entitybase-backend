@@ -168,7 +168,7 @@ app = FastAPI(lifespan=lifespan)
 
 
 @app.on_event("startup")
-def startup_event():
+def startup_event() -> None:
     """Fallback startup event to initialize clients if lifespan didn't run."""
     if not hasattr(app.state, "clients"):
         s3_config = settings.to_s3_config()

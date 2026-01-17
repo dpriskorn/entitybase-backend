@@ -3,7 +3,7 @@
 import json
 import logging
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generator
+from typing import TYPE_CHECKING, Any, Generator, Optional
 
 from pydantic import BaseModel, Field
 from pymysql import Connection
@@ -52,21 +52,21 @@ class VitessClient(Client):
     """Vitess database client for entity operations."""
 
     config: VitessConfig
-    connection_manager: VitessConnectionManager = Field(default=None, exclude=True)
-    schema_manager: SchemaManager = Field(default=None, exclude=True)
-    id_resolver: IdResolver = Field(default=None, exclude=True)
-    entity_repository: EntityRepository = Field(default=None, exclude=True)
-    revision_repository: RevisionRepository = Field(default=None, exclude=True)
-    redirect_repository: RedirectRepository = Field(default=None, exclude=True)
-    head_repository: HeadRepository = Field(default=None, exclude=True)
-    listing_repository: ListingRepository = Field(default=None, exclude=True)
-    statement_repository: StatementRepository = Field(default=None, exclude=True)
-    backlink_repository: BacklinkRepository = Field(default=None, exclude=True)
-    metadata_repository: MetadataRepository = Field(default=None, exclude=True)
-    user_repository: UserRepository = Field(default=None, exclude=True)
-    watchlist_repository: WatchlistRepository = Field(default=None, exclude=True)
-    thanks_repository: "ThanksRepository" = Field(default=None, exclude=True)
-    endorsement_repository: "EndorsementRepository" = Field(default=None, exclude=True)
+    connection_manager: Optional[VitessConnectionManager] = Field(default=None, exclude=True)
+    schema_manager: Optional[SchemaManager] = Field(default=None, exclude=True)
+    id_resolver: Optional[IdResolver] = Field(default=None, exclude=True)
+    entity_repository: Optional[EntityRepository] = Field(default=None, exclude=True)
+    revision_repository: Optional[RevisionRepository] = Field(default=None, exclude=True)
+    redirect_repository: Optional[RedirectRepository] = Field(default=None, exclude=True)
+    head_repository: Optional[HeadRepository] = Field(default=None, exclude=True)
+    listing_repository: Optional[ListingRepository] = Field(default=None, exclude=True)
+    statement_repository: Optional[StatementRepository] = Field(default=None, exclude=True)
+    backlink_repository: Optional[BacklinkRepository] = Field(default=None, exclude=True)
+    metadata_repository: Optional[MetadataRepository] = Field(default=None, exclude=True)
+    user_repository: Optional[UserRepository] = Field(default=None, exclude=True)
+    watchlist_repository: Optional[WatchlistRepository] = Field(default=None, exclude=True)
+    thanks_repository: Optional["ThanksRepository"] = Field(default=None, exclude=True)
+    endorsement_repository: Optional["EndorsementRepository"] = Field(default=None, exclude=True)
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
