@@ -62,12 +62,12 @@ class TestItemCreateHandler:
     ) -> None:
         """Test successful item creation"""
         request = EntityCreateRequest(
-            id="Q12345",
+            id="Q99999",
             labels={"en": {"language": "en", "value": "Test Item"}},
             edit_summary="Test creation",
         )
 
-        mock_vitess_client.entity_repository.entity_exists.return_value = False
+        mock_vitess_client.entity_exists.return_value = False
         mock_vitess_client.entity_repository.get_entity.return_value = None
 
         result = await handler.create_entity(
@@ -167,7 +167,7 @@ class TestPropertyCreateHandler:
             user_id=123,
         )
 
-        mock_vitess_client.entity_repository.entity_exists.return_value = False
+        mock_vitess_client.entity_exists.return_value = False
         mock_vitess_client.entity_repository.get_entity.return_value = None
 
         result = await handler.create_entity(

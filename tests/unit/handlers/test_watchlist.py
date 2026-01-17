@@ -135,15 +135,19 @@ class TestWatchlistHandler:
 
         assert isinstance(result, NotificationResponse)
         assert result.user_id == 12345
-        assert len(result.notifications) == 1
-        notification = result.notifications[0]
-        assert notification.id == 1
-        assert notification.entity_id == "Q42"
-        assert notification.revision_id == 123
-        assert notification.change_type == "edit"
-        assert notification.changed_properties == ["P31"]
-        assert notification.is_checked == False
-        assert notification.checked_at == None
+        expected = [
+            {
+                "id": 1,
+                "entity_id": "Q42",
+                "revision_id": 123,
+                "change_type": "edit",
+                "changed_properties": ["P31"],
+                "event_timestamp": "2023-01-01T12:00:00Z",
+                "is_checked": False,
+                "checked_at": None,
+            }
+        ]
+        assert [n.model_dump() for n in result.notifications] == expected
         mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
         mock_vitess_client.watchlist_repository.get_user_notifications.assert_called_once_with(
             12345, 30, 0

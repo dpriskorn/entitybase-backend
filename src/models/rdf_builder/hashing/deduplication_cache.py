@@ -6,7 +6,7 @@ Follows same algorithm as mediawiki-extensions-Wikibase/repo/includes/Rdf/HashDe
 
 from typing import Protocol, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from models.rest_api.entitybase.response import DeduplicationStatsResponse
 from models.validation.utils import raise_validation_error
@@ -64,6 +64,11 @@ class HashDedupeBag(BaseModel):
     @license GPL-2.0-or-later
     @author Daniel Kinzler
     """
+
+    bag: dict[str, str] = Field(default_factory=dict)
+    cutoff: int = 5
+    _hits: int = 0
+    _misses: int = 0
 
     def __init__(self, /, cutoff: int = 5, **data: Any):
         """Initialize HashDedupeBag with the given cutoff value.
