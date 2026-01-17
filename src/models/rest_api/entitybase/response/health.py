@@ -8,15 +8,15 @@ from pydantic import BaseModel, Field
 class HealthResponse(BaseModel):
     """Response model for health check."""
 
-    status: str
+    status: str = Field(description="Health status")
 
 
 class HealthCheckResponse(BaseModel):
     """Detailed response model for health check."""
 
-    status: str
-    s3: str
-    vitess: str
+    status: str = Field(description="Overall health status")
+    s3: str = Field(description="S3 service health status. Example: 'healthy'.")
+    vitess: str = Field(description="Vitess service health status. Example: 'healthy'.")
 
 
 class WorkerHealthCheckResponse(BaseModel):
