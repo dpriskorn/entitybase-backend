@@ -47,6 +47,7 @@ dev = [
     "radon (>=6.0.1,<7.0.0)",
     "types-pyyaml (>=6.0.12.20250915,<7.0.0.0)",
     "tenacity (>=9.1.2,<10.0.0)",
+    "types-requests (>=2.32.4.20260107,<3.0.0.0)",
 ]
 
 [tool.pytest.ini_options]
