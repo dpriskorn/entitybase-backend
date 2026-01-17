@@ -22,20 +22,24 @@ class EndorsementResponse(BaseModel):
 class EndorsementListResponse(BaseModel):
     """Response for endorsement list queries."""
 
-    statement_hash: int = Field(default=0)
+    model_config = ConfigDict(by_alias=True)
+
+    statement_hash: int = Field(alias="hash", default=0)
     user_id: int = Field(default=0)
-    endorsements: List[Endorsement]
-    total_count: int
-    has_more: bool
+    endorsements: List[Endorsement] = Field(alias="list")
+    total_count: int = Field(alias="count")
+    has_more: bool = Field(alias="more")
     stats: "StatementEndorsementStats"
 
 
 class EndorsementStatsResponse(BaseModel):
     """Response for endorsement statistics."""
 
+    model_config = ConfigDict(by_alias=True)
+
     user_id: int
-    total_endorsements_given: int
-    total_endorsements_active: int
+    total_endorsements_given: int = Field(alias="given")
+    total_endorsements_active: int = Field(alias="active")
 
 
 class StatementEndorsementStats(BaseModel):
