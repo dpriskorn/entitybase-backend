@@ -588,6 +588,30 @@ class TestEntityReadHandler(unittest.TestCase):
             "Q42", self.mock_s3, 1000, 500
         )
 
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_entity_exists_exception(self, mock_raise_error):
+        """Test get_entity when entity_exists raises exception"""
+        self.mock_vitess.entity_exists.side_effect = Exception("DB error")
+        EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
+        mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_get_head_exception(self, mock_raise_error):
+        """Test get_entity when get_head raises exception"""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.side_effect = Exception("DB error")
+        EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
+        mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_invalid_entity_id_empty(self, mock_raise_error):
+        """Test get_entity with empty entity_id"""
+        self.mock_vitess.entity_exists.return_value = (
+            False  # Assume empty ID not exists
+        )
+        EntityReadHandler.get_entity("", self.mock_vitess, self.mock_s3)
+        mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
+
 
 if __name__ == "__main__":
     unittest.main()

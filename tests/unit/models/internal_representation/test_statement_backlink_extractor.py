@@ -318,3 +318,89 @@ class TestStatementBacklinkExtractor:
         }
         result = StatementBacklinkExtractor.extract_backlink_data(statement)
         assert result == []
+
+    def test_extract_backlink_data_empty_statement(self) -> None:
+        """Test extraction from empty statement dict."""
+        statement = {}
+        result = StatementBacklinkExtractor.extract_backlink_data(statement)
+        assert result == []
+
+    def test_extract_backlink_data_malformed_no_mainsnak(self) -> None:
+        """Test extraction from statement without mainsnak."""
+        statement = {
+            "type": "statement",
+            "rank": "normal",
+            "qualifiers": {},
+            "references": [],
+        }
+        result = StatementBacklinkExtractor.extract_backlink_data(statement)
+        assert result == []
+
+    def test_extract_backlink_data_complex_statement(self) -> None:
+        """Test extraction from complex statement with mainsnak, qualifiers, and references."""
+        statement = {
+            "mainsnak": {
+                "snaktype": "value",
+                "property": "P31",
+                "datavalue": {
+                    "value": {"entity-type": "item", "id": "Q1"},
+                    "type": "wikibase-entityid",
+                },
+            },
+            "type": "statement",
+            "rank": "normal",
+            "qualifiers": {
+                "P580": [
+                    {
+                        "snaktype": "value",
+                        "property": "P580",
+                        "datavalue": {
+                            "value": {"entity-type": "item", "id": "Q2"},
+                            "type": "wikibase-entityid",
+                        },
+                    }
+                ]
+            },
+            "references": [
+                {
+                    "snaks": {
+                        "P248": [
+                            {
+                                "snaktype": "value",
+                                "property": "P248",
+                                "datavalue": {
+                                    "value": {"entity-type": "item", "id": "Q3"},
+                                    "type": "wikibase-entityid",
+                                },
+                            }
+                        ]
+                    }
+                }
+            ],
+        }
+        result = StatementBacklinkExtractor.extract_backlink_data(statement)
+        expected = [
+            ("Q1", "P31", "normal"),
+            ("Q2", "P580", "normal"),
+            ("Q3", "P248", "normal"),
+        ]
+        assert result == expected
+
+    def test_extract_backlink_data_preferred_rank(self) -> None:
+        """Test extraction with preferred rank."""
+        statement = {
+            "mainsnak": {
+                "snaktype": "value",
+                "property": "P31",
+                "datavalue": {
+                    "value": {"entity-type": "item", "id": "Q5"},
+                    "type": "wikibase-entityid",
+                },
+            },
+            "type": "statement",
+            "rank": "preferred",
+            "qualifiers": {},
+            "references": [],
+        }
+        result = StatementBacklinkExtractor.extract_backlink_data(statement)
+        assert result == [("Q5", "P31", "preferred")]
