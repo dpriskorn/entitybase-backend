@@ -6,9 +6,10 @@ from typing import TYPE_CHECKING, Optional
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 from models.infrastructure.stream.actions import EndorseAction
+from models.infrastructure.stream.change_type import ChangeType
 
 if TYPE_CHECKING:
-    from models.infrastructure.stream.change_type import ChangeType
+    pass
 
 
 class EndorseChangeEvent(BaseModel):
@@ -29,6 +30,10 @@ class EndorseChangeEvent(BaseModel):
     def serialize_timestamp(self, value: datetime) -> str:
         """Serialize datetime to ISO format with Z suffix."""
         return value.isoformat() + "Z"
+
+
+# Rebuild model after imports
+EntityChangeEvent.model_rebuild()
 
 
 class NewThankEvent(BaseModel):

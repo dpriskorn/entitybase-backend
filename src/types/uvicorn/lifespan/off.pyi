@@ -1,9 +1,0 @@
-from typing import Any
-from uvicorn import Config as Config
-
-class LifespanOff:
-    should_exit: bool
-    state: dict[str, Any]
-    def __init__(self, config: Config) -> None: ...
-    async def startup(self) -> None: ...
-    async def shutdown(self) -> None: ...

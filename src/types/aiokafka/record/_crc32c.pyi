@@ -1,9 +1,0 @@
-from _typeshed import Incomplete
-from collections.abc import Iterable
-
-CRC_TABLE: Incomplete
-CRC_INIT: int
-
-def crc_update(crc: int, data: Iterable[int]) -> int: ...
-def crc_finalize(crc: int) -> int: ...
-def crc(data: Iterable[int]) -> int: ...
