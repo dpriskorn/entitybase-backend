@@ -204,7 +204,10 @@ class UserRepository:
             return OperationResult(success=False, error=str(e))
 
     def update_user_preferences(
-        self, notification_limit: int, retention_hours: int, user_id: int = 0,
+        self,
+        notification_limit: int,
+        retention_hours: int,
+        user_id: int = 0,
     ) -> OperationResult:
         """Update user notification preferences."""
         if user_id <= 0:

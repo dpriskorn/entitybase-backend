@@ -1,6 +1,6 @@
 """Response models for endorsement operations."""
 
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -10,7 +10,7 @@ from models.endorsements import Endorsement
 class EndorsementResponse(BaseModel):
     """Response for endorsement operations."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     endorsement_id: int = Field(
         alias="id", description="Unique identifier for the endorsement. Example: 12345."
@@ -55,7 +55,8 @@ class EndorsementListResponse(BaseModel):
         alias="more",
         description="Whether there are more endorsements to fetch. Example: true",
     )
-    stats: "StatementEndorsementStats" = Field(
+    stats: Optional["StatementEndorsementStats"] = Field(
+        default=None,
         description="Statistics for the statement's endorsements"
     )
 

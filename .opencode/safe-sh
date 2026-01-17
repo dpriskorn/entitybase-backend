@@ -1,0 +1,9 @@
+#!/bin/sh
+
+case "$*" in *docker*
+    echo "❌ Blocked command: $*"
+    exit 1
+    ;;
+esac
+
+exec /bin/sh "$@"

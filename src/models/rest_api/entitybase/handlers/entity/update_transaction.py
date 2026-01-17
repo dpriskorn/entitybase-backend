@@ -187,8 +187,8 @@ class UpdateTransaction(EntityTransaction):
         from_revision_id: int,
         changed_at: Any,
         edit_summary: str,
+        editor: str,
         stream_producer: Any,
-        user_id: int,
     ) -> None:
         """Publish the entity change event to the stream.
 
@@ -213,7 +213,7 @@ class UpdateTransaction(EntityTransaction):
         """
         logger.info(f"[UpdateTransaction] Starting event publishing for {entity_id}")
         if stream_producer:
-            from models.infrastructure.stream.producer import EntityChangeEvent
+            from models.infrastructure.stream.event import EntityChangeEvent
 
             event = EntityChangeEvent(
                 entity_id=entity_id,
@@ -221,9 +221,7 @@ class UpdateTransaction(EntityTransaction):
                 change_type=change_type,
                 from_revision_id=from_revision_id,
                 changed_at=changed_at,
-                editor=str(user_id),
                 edit_summary=edit_summary,
-                bot=False,
             )
             stream_producer.publish_change(event)
         # Events are fire-and-forget, no rollback needed

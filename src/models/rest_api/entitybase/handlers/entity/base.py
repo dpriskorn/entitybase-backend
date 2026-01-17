@@ -11,6 +11,9 @@ from rapidhash import rapidhash
 
 from models.config.settings import settings
 from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.stream.change_type import ChangeType
+from models.infrastructure.stream.producer import StreamProducerClient
+from models.infrastructure.stream.event import EntityChangeEvent
 from models.s3_models import RevisionCreateData
 from models.infrastructure.vitess_client import VitessClient
 from models.internal_representation.metadata_extractor import MetadataExtractor

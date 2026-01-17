@@ -17,6 +17,8 @@ class EntityChange(BaseModel):
     entity_id: str = Field(..., description="The ID of the entity that changed")
     revision_id: int = Field(..., description="The new revision ID after the change")
     change_type: "ChangeType" = Field(..., description="The type of change")
-    from_revision_id: int = Field(0, description="The previous revision ID (0 for creations)")
+    from_revision_id: int = Field(
+        0, description="The previous revision ID (0 for creations)"
+    )
     changed_at: datetime = Field(..., description="Timestamp of the change")
     edit_summary: str = Field("", description="Summary of the edit")

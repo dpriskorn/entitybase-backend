@@ -168,5 +168,3 @@ class TestEntityChangeEvent:
             editor="archivist",
         )
         assert unarchival_event.change_type == ChangeType.UNARCHIVAL
-
-

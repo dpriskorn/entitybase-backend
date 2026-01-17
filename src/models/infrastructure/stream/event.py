@@ -1,7 +1,7 @@
 """Event models for stream publishing."""
 
 from datetime import datetime
-from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
@@ -12,8 +12,14 @@ from models.infrastructure.stream.change_type import ChangeType
 class EndorseChangeEvent(BaseModel):
     """Endorsement change event for publishing."""
 
-    statement_hash: str = Field(alias="hash", description="Hash of the endorsed statement")
-    user_id: str = Field(alias="user", description="ID of the user performing the action")
+    model_config = ConfigDict()
+
+    statement_hash: str = Field(
+        alias="hash", description="Hash of the endorsed statement"
+    )
+    user_id: str = Field(
+        alias="user", description="ID of the user performing the action"
+    )
     action: EndorseAction = Field(alias="act", description="Action performed")
     timestamp: datetime = Field(alias="ts", description="Timestamp of the action")
 
@@ -22,16 +28,18 @@ class EndorseChangeEvent(BaseModel):
         """Serialize datetime to ISO format with Z suffix."""
         return value.isoformat() + "Z"
 
-    model_config = ConfigDict(by_alias=True)
-
 
 class NewThankEvent(BaseModel):
     """New thank event for publishing."""
 
+    model_config = ConfigDict()
+
     from_user_id: str = Field(alias="from", description="ID of the user sending thanks")
     to_user_id: str = Field(alias="to", description="ID of the user receiving thanks")
     entity_id: str = Field(alias="id", description="Entity ID related to the thanks")
-    revision_id: int = Field(alias="rev", description="Revision ID related to the thanks")
+    revision_id: int = Field(
+        alias="rev", description="Revision ID related to the thanks"
+    )
     timestamp: datetime = Field(alias="ts", description="Timestamp of the thanks")
 
     @field_serializer("timestamp")
@@ -39,18 +47,21 @@ class NewThankEvent(BaseModel):
         """Serialize datetime to ISO format with Z suffix."""
         return value.isoformat() + "Z"
 
-    model_config = ConfigDict(by_alias=True)
-
 
 class EntityChangeEvent(BaseModel):
     """Entity change event for publishing to Redpanda."""
 
+    model_config = ConfigDict()
+
     entity_id: str = Field(alias="id", description="Entity ID (e.g., Q42)")
     revision_id: int = Field(alias="rev", description="Revision ID of the change")
     change_type: ChangeType = Field(alias="type", description="Type of change")
-    from_revision_id: int = Field(alias="from_rev", default=0, description="Previous revision ID (0 for creations)")
+    from_revision_id: int = Field(
+        alias="from_rev",
+        default=0,
+        description="Previous revision ID (0 for creations)",
+    )
     changed_at: datetime = Field(alias="at", description="Timestamp of change")
-    editor: str = Field(alias="ed", default="", description="Editor who made the change")
     edit_summary: str = Field(alias="sum", default="", description="Edit summary")
 
     @field_serializer("changed_at")
@@ -58,11 +69,11 @@ class EntityChangeEvent(BaseModel):
         """Serialize datetime to ISO format with Z suffix."""
         return value.isoformat() + "Z"
 
-    model_config = ConfigDict(by_alias=True)
-
 
 class RDFChangeEvent(BaseModel):
     """RDF change event following MediaWiki recentchange schema."""
+
+    model_config = ConfigDict()
 
     # Required fields from schema
     schema_uri: str = Field(
@@ -86,7 +97,7 @@ class RDFChangeEvent(BaseModel):
     wiki: str = Field(description="Wiki identifier")
 
     # Optional fields
-    id: int = Field(default=None, description="Event ID")
+    id: int = Field(default=0, description="Event ID")
     minor: bool = Field(default=False, description="Minor edit flag")
     patrolled: bool = Field(default=False, description="Patrolled flag")
     length: dict = Field(default_factory=dict, description="Length changes")
@@ -96,5 +107,3 @@ class RDFChangeEvent(BaseModel):
     def serialize_timestamp(self, value: int) -> str:
         """Serialize timestamp to ISO format."""
         return datetime.fromtimestamp(value).isoformat() + "Z"
-
-    model_config = ConfigDict(by_alias=True)

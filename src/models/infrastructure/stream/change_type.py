@@ -5,6 +5,7 @@ from enum import Enum
 
 class ChangeType(str, Enum):
     """Enum for different types of entity changes."""
+
     CREATION = "creation"
     EDIT = "edit"
     REDIRECT = "redirect"
