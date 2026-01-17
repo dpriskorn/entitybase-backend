@@ -70,7 +70,7 @@ def _fetch_entity_metadata_batch(entity_ids: list[str]) -> EntityMetadataBatchRe
                         "en": {"language": "en", "value": description}
                     }
 
-                results[entity_id] = EntityMetadataResponse(
+                results[entity_id] = EntityMetadataResponse(  # type: ignore
                     id=metadata["id"],
                     labels=EntityLabelsResponse(data=metadata.get("labels", {})),
                     descriptions=EntityDescriptionsResponse(
@@ -135,9 +135,8 @@ def load_entity_metadata(entity_id: str, metadata_dir: Path) -> EntityMetadataRe
 
     if json_path.exists():
         data: dict = json.loads(json_path.read_text(encoding="utf-8"))
-        return EntityMetadataResponse(
+        return EntityMetadataResponse(  # type: ignore
             id=data["id"],
-            type=data.get("type", "item"),
             labels=EntityLabelsResponse(data=data.get("labels", {})),
             descriptions=EntityDescriptionsResponse(data=data.get("descriptions", {})),
             aliases=EntityAliasesResponse(data=data.get("aliases", {})),

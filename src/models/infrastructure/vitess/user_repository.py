@@ -161,14 +161,21 @@ class UserRepository:
 
     def update_user_preferences(
         self, user_id: int, notification_limit: int, retention_hours: int
-    ) -> None:
+    ) -> OperationResult:
         """Update user notification preferences."""
-        with self.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "UPDATE users SET notification_limit = %s, retention_hours = %s WHERE user_id = %s",
-                    (notification_limit, retention_hours, user_id),
-                )
+        if user_id <= 0:
+            return OperationResult(success=False, error="Invalid user ID")
+
+        try:
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "UPDATE users SET notification_limit = %s, retention_hours = %s WHERE user_id = %s",
+                        (notification_limit, retention_hours, user_id),
+                    )
+            return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def get_user_activities(
         self,
@@ -177,41 +184,47 @@ class UserRepository:
         hours: int = 24,
         limit: int = 50,
         offset: int = 0,
-    ) -> List[UserActivityItem]:
+    ) -> OperationResult:
         """Get user's activities with filtering."""
-        logger.debug(
-            f"Getting activities for user {user_id}, type {activity_type}, hours {hours}"
-        )
-        with self.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                query = """
-                    SELECT id, user_id, activity_type, entity_id, revision_id, created_at
-                    FROM user_activity
-                    WHERE user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
-                """
-                params: List[Any] = [user_id, hours]
+        if user_id <= 0 or hours <= 0 or limit <= 0 or offset < 0:
+            return OperationResult(success=False, error="Invalid parameters")
 
-                if activity_type:
-                    query += " AND activity_type = %s"
-                    params.append(activity_type)
-
-                query += " ORDER BY created_at DESC LIMIT %s OFFSET %s"
-                params.extend([limit, offset])
-
-                cursor.execute(query, params)
-                rows = cursor.fetchall()
-
-        activities = []
-        for row in rows:
-            activities.append(
-                UserActivityItem(
-                    id=row[0],
-                    user_id=row[1],
-                    activity_type=row[2],
-                    entity_id=row[3],
-                    revision_id=row[4],
-                    created_at=row[5],
-                )
+        try:
+            logger.debug(
+                f"Getting activities for user {user_id}, type {activity_type}, hours {hours}"
             )
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    query = """
+                        SELECT id, user_id, activity_type, entity_id, revision_id, created_at
+                        FROM user_activity
+                        WHERE user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
+                    """
+                    params: List[Any] = [user_id, hours]
 
-        return activities
+                    if activity_type:
+                        query += " AND activity_type = %s"
+                        params.append(activity_type)
+
+                    query += " ORDER BY created_at DESC LIMIT %s OFFSET %s"
+                    params.extend([limit, offset])
+
+                    cursor.execute(query, params)
+                    rows = cursor.fetchall()
+
+            activities = []
+            for row in rows:
+                activities.append(
+                    UserActivityItem(
+                        id=row[0],
+                        user_id=row[1],
+                        activity_type=row[2],
+                        entity_id=row[3],
+                        revision_id=row[4],
+                        created_at=row[5],
+                    )
+                )
+
+            return OperationResult(success=True, data=activities)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
