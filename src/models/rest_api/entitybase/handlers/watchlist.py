@@ -1,6 +1,10 @@
 """Handler for watchlist operations."""
 
+import logging
+
 from models.infrastructure.vitess_client import VitessClient
+
+logger = logging.getLogger(__name__)
 from models.rest_api.entitybase.response.misc import WatchCounts
 from models.rest_api.entitybase.response.user import MessageResponse
 from models.validation.utils import raise_validation_error
@@ -39,7 +43,12 @@ class WatchlistHandler:
             )
 
         # Update activity
-        vitess_client.user_repository.update_user_activity(request.user_id)
+        activity_result = vitess_client.user_repository.update_user_activity(
+            request.user_id
+        )
+        if not activity_result.success:
+            # Log error but don't fail the watch add
+            logger.warning(f"Failed to update user activity: {activity_result.error}")
         return MessageResponse(message="Watch added")
 
     def remove_watch(

@@ -60,14 +60,21 @@ class UserRepository:
                     )
                 return None
 
-    def update_user_activity(self, user_id: int) -> None:
+    def update_user_activity(self, user_id: int) -> OperationResult:
         """Update user's last activity timestamp."""
-        with self.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "UPDATE users SET last_activity = NOW() WHERE user_id = %s",
-                    (user_id,),
-                )
+        if user_id <= 0:
+            return OperationResult(success=False, error="Invalid user ID")
+
+        try:
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "UPDATE users SET last_activity = NOW() WHERE user_id = %s",
+                        (user_id,),
+                    )
+            return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def is_watchlist_enabled(self, user_id: int) -> bool:
         """Check if watchlist is enabled for user."""
