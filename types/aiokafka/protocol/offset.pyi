@@ -1,3 +1,4 @@
+# type: ignore[misc]
 from .api import (
     Request as Request,
     RequestStruct as RequestStruct,

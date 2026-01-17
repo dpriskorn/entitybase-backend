@@ -1,3 +1,4 @@
+# type: ignore[misc]
 from .types import Schema as Schema
 from _typeshed import Incomplete
 from io import BytesIO

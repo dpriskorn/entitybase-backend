@@ -1,3 +1,4 @@
+# type: ignore[misc]
 import abc
 from .struct import Struct as Struct
 from .types import (

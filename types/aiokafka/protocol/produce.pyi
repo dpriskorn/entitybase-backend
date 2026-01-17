@@ -1,3 +1,5 @@
+# type: ignore[misc]
+# type: ignore[misc]
 from .api import (
     Request as Request,
     RequestStruct as RequestStruct,

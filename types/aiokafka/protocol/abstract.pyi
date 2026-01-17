@@ -1,3 +1,4 @@
+# type: ignore[misc]
 import abc
 from io import BytesIO
 from typing import Generic, TypeVar

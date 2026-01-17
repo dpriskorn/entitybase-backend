@@ -1,3 +1,4 @@
+# type: ignore[misc]
 from .abstract import AbstractType as AbstractType
 from _typeshed import Incomplete
 from collections.abc import Callable as Callable, Sequence
