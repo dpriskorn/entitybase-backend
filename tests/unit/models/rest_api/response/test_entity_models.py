@@ -5,7 +5,7 @@ import pytest
 pytestmark = pytest.mark.unit
 from pydantic import ValidationError
 
-from models.rest_api.entitybase.response import (
+from models.rest_api.entitybase.response.entity import (
     AliasValue,
     DescriptionValue,
     EntityAliasesResponse,
@@ -14,10 +14,9 @@ from models.rest_api.entitybase.response import (
     EntityLabelsResponse,
     EntityMetadataResponse,
     EntitySitelinksResponse,
+    EntityStatementsResponse,
+    LabelValue,
 )
-
-# Rebuild model after imports
-EntityChange.model_rebuild()
 
 
 class TestValueModels:

@@ -343,7 +343,9 @@ async def patch_item_aliases_for_language(
     current_entity = handler.get_entity(item_id, clients.vitess, clients.s3)
 
     # Get current aliases for the language
-    current_aliases = current_entity.entity_data.get("aliases", {}).get(language_code, [])
+    current_aliases = current_entity.entity_data.get("aliases", {}).get(
+        language_code, []
+    )
 
     # Apply JSON Patch operations
     patches = patch_data.get("patch", [])

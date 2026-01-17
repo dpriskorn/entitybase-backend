@@ -3,7 +3,7 @@
 import pytest
 
 pytestmark = pytest.mark.unit
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 from botocore.exceptions import ClientError
 from models.workers.dev.create_buckets import CreateBuckets
 
@@ -232,7 +232,7 @@ class TestCreateBuckets:
         with patch.object(
             CreateBuckets,
             "bucket_health_check",
-            new=MagicMock(return_value={"overall_status": "healthy"}),
+            new=AsyncMock(return_value={"overall_status": "healthy"}),
         ):
             results = await worker.run_setup()
 

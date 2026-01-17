@@ -10,9 +10,6 @@ sys.path.insert(0, "src")
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 
-# Rebuild model after imports
-EntityChangeEvent.model_rebuild()
-
 
 class TestEntityChangeEvent:
     """Tests for EntityChangeEvent model validation and serialization"""
@@ -52,7 +49,7 @@ class TestEntityChangeEvent:
     def test_entity_change_event_model_dump(self, sample_event_data: dict) -> None:
         """Test model_dump returns correct dictionary"""
         event = EntityChangeEvent(**sample_event_data)
-        data = event.model_dump()
+        data = event.model_dump(by_alias=True)
         assert data["id"] == "Q888888"
         assert data["rev"] == 101
         assert data["type"] == "creation"
