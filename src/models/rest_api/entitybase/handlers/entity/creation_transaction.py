@@ -117,7 +117,7 @@ class EntityTransaction(BaseModel, ABC):
         changed_at: Any,
         stream_producer: Any,
         from_revision_id: int = 0,
-        edit_summary: str = \"\",
+        edit_summary: str = "",
     ) -> None:
         """Publish the entity creation event."""
         logger.info(f"[CreationTransaction] Starting event publishing for {entity_id}")

@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class EntityChange(BaseModel):
     """Schema for entity change events in API responses."""
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
     entity_id: str = Field(..., description="The ID of the entity that changed")
     revision_id: int = Field(..., description="The new revision ID after the change")

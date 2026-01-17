@@ -50,7 +50,7 @@ class Settings(BaseSettings):
             return getattr(logging, self.test_log_level.upper(), logging.INFO)
         return getattr(logging, self.log_level.upper(), logging.INFO)
 
-    def to_s3_config(self) -> Config:
+    def to_s3_config(self) -> "S3Config":
         """Convert settings to S3 configuration object.
 
         Returns:
