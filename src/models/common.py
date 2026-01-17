@@ -9,5 +9,5 @@ class OperationResult(BaseModel):
     """Model for operation results."""
 
     success: bool
-    error: Optional[str] = Field(default=None)
+    error: str = Field(default="")
     data: Optional[Any] = Field(default=None)

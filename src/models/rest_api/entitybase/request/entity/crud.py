@@ -40,9 +40,6 @@ class EntityCreateRequest(BaseModel):
     )
     edit_summary: str = Field(min_length=1, description="Edit summary for this change")
     user_id: int = Field(default=0, description="User who made this change")
-    editor: Optional[str] = Field(
-        default=None, description="Editor who made this change"
-    )
 
     @property
     def data(self) -> Dict[str, Any]:
@@ -82,9 +79,6 @@ class EntityUpdateRequest(BaseModel):
     )
     edit_summary: str = Field(min_length=1, description="Edit summary for this change")
     user_id: int = Field(default=0, description="User who made this change")
-    editor: Optional[str] = Field(
-        default=None, description="Editor who made this change"
-    )
 
     @property
     def data(self) -> Dict[str, Any]:
@@ -98,9 +92,6 @@ class EntityDeleteRequest(BaseModel):
     entity_id: str = Field(min_length=1, description="ID of the entity to delete")
     edit_summary: str = Field(min_length=1, description="Edit summary for this change")
     user_id: int = Field(default=0, description="User who made this change")
-    editor: Optional[str] = Field(
-        default=None, description="Editor who made this change"
-    )
 
     @property
     def data(self) -> Dict[str, Any]:

@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class EntityTransaction(BaseModel, ABC):
     """Base class for entity transactions with shared rollback logic."""
 
-    entity_id: Optional[str] = Field(default=None)
+    entity_id: str = Field(default="")
     operations: List[Callable[[], None]] = Field(default_factory=list)
     statement_hashes: List[int] = Field(default_factory=list)
 
@@ -62,10 +62,9 @@ class EntityTransaction(BaseModel, ABC):
         entity_id: str,
         revision_id: int,
         change_type: Any,
-        from_revision_id: Optional[int],
+        from_revision_id: int,
         changed_at: Any,
-        editor: Optional[str],
-        edit_summary: Optional[str],
+        edit_summary: str,
         stream_producer: Any,
     ) -> None:
         """Publish the change event."""
@@ -185,8 +184,7 @@ class UpdateTransaction(EntityTransaction):
         change_type: Any,
         from_revision_id: Optional[int],
         changed_at: Any,
-        editor: Optional[str],
-        edit_summary: Optional[str],
+        edit_summary: str,
         stream_producer: Any,
     ) -> None:
         """Publish the entity change event."""
