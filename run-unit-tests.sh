@@ -1,7 +1,4 @@
 #!/bin/bash
 
-if [ -d ".venv" ]; then
-    source .venv/bin/activate
-fi
-
+source .venv/bin/activate
 pytest -m "unit" -n auto
