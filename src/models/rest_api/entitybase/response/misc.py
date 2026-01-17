@@ -167,12 +167,7 @@ class BacklinkStatisticsData(BaseModel):
     top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
         alias="top", description="Top entities by backlink count. Example: [{'entity_id': 'Q1', 'backlink_count': 10}]."
     )
-    unique_entities_with_backlinks: int = Field(
-        ..., description="Number of entities with at least one backlink"
-    )
-    top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
-        ..., description="Top entities by backlink count"
-    )
+
 
 
 class BacklinkStatisticsResponse(BaseModel):
