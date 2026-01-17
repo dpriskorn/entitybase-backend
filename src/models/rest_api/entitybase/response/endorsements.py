@@ -1,6 +1,6 @@
 """Response models for endorsement operations."""
 
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -10,7 +10,7 @@ from models.endorsements import Endorsement
 class EndorsementResponse(BaseModel):
     """Response for endorsement operations."""
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(by_alias=True)
 
     endorsement_id: int = Field(
         alias="id", description="Unique identifier for the endorsement. Example: 12345."

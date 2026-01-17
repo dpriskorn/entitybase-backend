@@ -113,23 +113,55 @@ class RDFChangeType(str, Enum):
 class EntityChangeEvent(BaseModel):
     """Entity change event for publishing to Redpanda."""
 
-    entity_id: str = Field(..., description="Entity ID (e.g., Q42)")
-    revision_id: int = Field(..., description="Revision ID of the change")
-    change_type: ChangeType = Field(..., description="Type of change")
+    entity_id: str = Field(alias="id", description="Entity ID (e.g., Q42)")
+    revision_id: int = Field(alias="rev", description="Revision ID of the change")
+    change_type: ChangeType = Field(alias="type", description="Type of change")
     from_revision_id: int = Field(
-        default=0, description="Previous revision ID (0 for creation)"
+        alias="from_rev", default=0, description="Previous revision ID (0 for creation)"
     )
-    changed_at: datetime = Field(..., description="Timestamp of change")
-    editor: str = Field(default="", description="Editor who made the change")
-    edit_summary: str = Field(default="", description="Edit summary")
-    bot: bool = Field(False, description="Whether the edit was made by a bot")
+    changed_at: datetime = Field(alias="at", description="Timestamp of change")
+    editor: str = Field(alias="ed", default="", description="Editor who made the change")
+    edit_summary: str = Field(alias="sum", default="", description="Edit summary")
 
     @field_serializer("changed_at")
     def serialize_changed_at(self, value: datetime) -> str:
         """Serialize datetime to ISO format with Z suffix."""
         return value.isoformat() + "Z"
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(by_alias=True)
+
+
+class EndorseChangeEvent(BaseModel):
+    """Endorsement change event for publishing."""
+
+    statement_hash: str = Field(alias="hash", description="Hash of the endorsed statement")
+    user_id: str = Field(alias="user", description="ID of the user performing the action")
+    action: str = Field(alias="act", description="Action: 'endorse' or 'withdraw'")
+    timestamp: datetime = Field(alias="ts", description="Timestamp of the action")
+
+    @field_serializer("timestamp")
+    def serialize_timestamp(self, value: datetime) -> str:
+        """Serialize datetime to ISO format with Z suffix."""
+        return value.isoformat() + "Z"
+
+    model_config = ConfigDict(by_alias=True)
+
+
+class NewThankEvent(BaseModel):
+    """New thank event for publishing."""
+
+    from_user_id: str = Field(alias="from", description="ID of the user sending thanks")
+    to_user_id: str = Field(alias="to", description="ID of the user receiving thanks")
+    entity_id: str = Field(alias="id", description="Entity ID related to the thanks")
+    revision_id: int = Field(alias="rev", description="Revision ID related to the thanks")
+    timestamp: datetime = Field(alias="ts", description="Timestamp of the thanks")
+
+    @field_serializer("timestamp")
+    def serialize_timestamp(self, value: datetime) -> str:
+        """Serialize datetime to ISO format with Z suffix."""
+        return value.isoformat() + "Z"
+
+    model_config = ConfigDict(by_alias=True)
 
 
 class RDFChangeEvent(BaseModel):

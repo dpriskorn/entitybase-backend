@@ -1,12 +1,13 @@
 """Entity update transaction management."""
 
-from abc import ABC, abstractmethod
-from pydantic import BaseModel, Field
-from typing import List, Callable, Optional, Any
 import logging
+from abc import ABC, abstractmethod
+from typing import List, Callable, Any
 
-from models.rest_api.entitybase.response import StatementHashResult
+from pydantic import BaseModel, Field
+
 from models.rest_api.entitybase.response import EntityRevisionResponse
+from models.rest_api.entitybase.response import StatementHashResult
 
 logger = logging.getLogger(__name__)
 

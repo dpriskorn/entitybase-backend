@@ -9,7 +9,6 @@ from pydantic import BaseModel
 from models.common import OperationResult
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.response.misc import RangeStatus, RangeStatuses
-from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 

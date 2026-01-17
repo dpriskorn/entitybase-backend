@@ -20,7 +20,6 @@ from models.rest_api.entitybase.handlers.entity import EntityDeleteHandler
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.handlers.entity.revert import EntityRevertHandler
 from models.rest_api.entitybase.handlers.redirect import RedirectHandler
-from models.rest_api.entitybase.handlers.watchlist import WatchlistHandler
 from models.rest_api.entitybase.request.entity import (
     EntityDeleteRequest,
     EntityRedirectRequest,
@@ -31,7 +30,6 @@ from models.rest_api.entitybase.request.user import (
     UserCreateRequest,
     WatchlistToggleRequest,
 )
-from models.rest_api.entitybase.request.user_preferences import UserPreferencesRequest
 from models.rest_api.entitybase.response import (
     PropertyCountsResponse,
     PropertyHashesResponse,
@@ -51,28 +49,10 @@ from models.rest_api.entitybase.response.entity.entitybase import (
 from models.user import User
 from models.validation.json_schema_validator import JsonSchemaValidator
 from models.validation.utils import raise_validation_error
-from models.watchlist import (
-    WatchlistAddRequest,
-    WatchlistRemoveRequest,
-    WatchlistResponse,
-    NotificationResponse,
-    MarkCheckedRequest,
-)
-from .entitybase.handlers.user import UserHandler
-from .entitybase.handlers.user_activity import UserActivityHandler
-from .entitybase.handlers.user_preferences import UserPreferencesHandler
-from .entitybase.handlers.thanks import ThanksHandler
 from .entitybase.handlers.endorsements import EndorsementHandler
-from .entitybase.response.entity import EntityRevertResponse
-from .entitybase.response.misc import RawRevisionResponse, WatchCounts
-from .entitybase.response.user import (
-    MessageResponse,
-    WatchlistToggleResponse,
-    UserCreateResponse,
-)
-from .entitybase.response.user_activity import UserActivityResponse
-from .entitybase.response.user_preferences import UserPreferencesResponse
-from .entitybase.response.thanks import ThankResponse, ThanksListResponse
+from .entitybase.handlers.thanks import ThanksHandler
+from .entitybase.handlers.user import UserHandler
+from .entitybase.request.endorsements import EndorsementListRequest
 from .entitybase.request.thanks import ThanksListRequest
 from .entitybase.response.endorsements import (
     BatchEndorsementStatsResponse,
@@ -81,7 +61,13 @@ from .entitybase.response.endorsements import (
     EndorsementStatsResponse,
     SingleEndorsementStatsResponse,
 )
-from .entitybase.request.endorsements import EndorsementListRequest
+from .entitybase.response.entity import EntityRevertResponse
+from .entitybase.response.misc import RawRevisionResponse
+from .entitybase.response.thanks import ThankResponse, ThanksListResponse
+from .entitybase.response.user import (
+    WatchlistToggleResponse,
+    UserCreateResponse,
+)
 from .entitybase.services.enumeration_service import EnumerationService
 from .entitybase.v1 import v1_router
 

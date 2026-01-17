@@ -5,7 +5,7 @@ from typing import Any, List
 
 from models.common import OperationResult
 from models.user import User
-from models.user_activity import UserActivityItem
+from models.user_activity import UserActivityItem, ActivityType
 
 logger = logging.getLogger(__name__)
 

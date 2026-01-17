@@ -2,12 +2,9 @@
 
 import logging
 
-from datetime import datetime
-
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.request.thanks import ThanksListRequest
 from models.rest_api.entitybase.response.thanks import ThankResponse, ThanksListResponse
-from models.thanks import ThankItem
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

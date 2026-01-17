@@ -1,4 +1,7 @@
 $schema: https://json-schema.org/draft/2020-12/schema
+$id: https://www.wikidata.org/schemas/entitybase/entitypropertychange/1.0.0
+title: EntityPropertyChange
+description: Schema for entity property change events
 type: object
 properties:
   entity_id:

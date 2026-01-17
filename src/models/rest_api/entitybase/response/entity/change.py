@@ -18,4 +18,3 @@ class EntityChange(BaseModel):
     from_revision_id: int = Field(0, description="The previous revision ID (0 for creations)")
     changed_at: datetime = Field(..., description="Timestamp of the change")
     edit_summary: str = Field("", description="Summary of the edit")
-    bot: bool = Field(False, description="Whether the change was made by a bot")

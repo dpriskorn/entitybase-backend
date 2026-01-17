@@ -5,16 +5,14 @@ import logging
 from datetime import datetime, timezone
 from typing import Any
 
-
 from models.common import OperationResult
-from models.rest_api.entitybase.response import StatementHashResult
-from models.rest_api.utils import raise_or_convert_to_500
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.vitess_client import VitessClient
-from models.s3_models import StoredStatement
-from models.validation.json_schema_validator import JsonSchemaValidator
 from models.internal_representation.statement_extractor import StatementExtractor
 from models.internal_representation.statement_hasher import StatementHasher
+from models.rest_api.entitybase.response import StatementHashResult
+from models.s3_models import StoredStatement
+from models.validation.json_schema_validator import JsonSchemaValidator
 
 logger = logging.getLogger(__name__)
 

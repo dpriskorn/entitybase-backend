@@ -24,7 +24,6 @@ class TestEntityChangeEvent:
             "changed_at": datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
             "editor": "test-user",
             "edit_summary": "Test entity creation",
-            "bot": False,
         }
 
     def test_entity_change_event_creation(self, sample_event_data: dict) -> None:
@@ -36,7 +35,6 @@ class TestEntityChangeEvent:
         assert event.from_revision_id is None
         assert event.editor == "test-user"
         assert event.edit_summary == "Test entity creation"
-        assert event.bot is False
 
     def test_entity_change_event_defaults(self) -> None:
         """Test default values for optional fields"""
@@ -55,12 +53,11 @@ class TestEntityChangeEvent:
         """Test model_dump returns correct dictionary"""
         event = EntityChangeEvent(**sample_event_data)
         data = event.model_dump()
-        assert data["entity_id"] == "Q888888"
-        assert data["revision_id"] == 101
-        assert data["change_type"] == "creation"
-        assert data["from_revision_id"] is None
-        assert data["editor"] == "test-user"
-        assert data["bot"] is False
+        assert data["id"] == "Q888888"
+        assert data["rev"] == 101
+        assert data["type"] == "creation"
+        assert data["from_rev"] is None
+        assert data["ed"] == "test-user"
 
     def test_entity_change_event_json_serialization(
         self, sample_event_data: dict
@@ -172,23 +169,4 @@ class TestEntityChangeEvent:
         )
         assert unarchival_event.change_type == ChangeType.UNARCHIVAL
 
-    def test_entity_change_event_bot_flag(self) -> None:
-        """Test bot flag handling"""
-        human_event = EntityChangeEvent(
-            entity_id="Q888888",
-            revision_id=101,
-            change_type=ChangeType.CREATION,
-            changed_at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
-            bot=False,
-        )
-        assert human_event.bot is False
 
-        bot_event = EntityChangeEvent(
-            entity_id="Q888888",
-            revision_id=102,
-            change_type=ChangeType.EDIT,
-            changed_at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
-            bot=True,
-            editor="admin-bot",
-        )
-        assert bot_event.bot is True

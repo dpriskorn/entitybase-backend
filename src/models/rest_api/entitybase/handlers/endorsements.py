@@ -70,12 +70,12 @@ class EndorsementHandler:
 
          # Publish event
         if vitess_client.stream_producer:
-            event = EndorseChangeEvent(
-                statement_hash=str(statement_hash),
-                user_id=str(user_id),
-                action="endorse",
-                timestamp=datetime.utcnow(),
-            )
+             event = EndorseChangeEvent(
+                 hash=str(statement_hash),
+                 user=str(user_id),
+                 act="endorse",
+                 ts=datetime.utcnow(),
+             )
             vitess_client.stream_producer.publish_change(event)
 
          return EndorsementResponse(
@@ -84,19 +84,21 @@ class EndorsementHandler:
              statement_hash=created_endorsement.statement_hash,  # type: ignore[union-attr]
              created_at=created_endorsement.created_at.isoformat(),  # type: ignore[union-attr]
              removed_at=None,
+             id=,
+             hash=
          )
         if not created_endorsement:
             raise_validation_error(
                 "Failed to retrieve created endorsement", status_code=500
             )
 
-        return EndorsementResponse(
-            endorsement_id=created_endorsement.id,  # type: ignore[union-attr]
-            user_id=created_endorsement.user_id,  # type: ignore[union-attr]
-            statement_hash=created_endorsement.statement_hash,  # type: ignore[union-attr]
-            created_at=created_endorsement.created_at.isoformat(),  # type: ignore[union-attr]
-            removed_at=None,
-        )
+         return EndorsementResponse(
+             id=created_endorsement.id,  # type: ignore[union-attr]
+             user_id=created_endorsement.user_id,  # type: ignore[union-attr]
+             hash=created_endorsement.statement_hash,  # type: ignore[union-attr]
+             created_at=created_endorsement.created_at.isoformat(),  # type: ignore[union-attr]
+             removed_at=None,
+         )
 
     def withdraw_endorsement(
         self, statement_hash: int, user_id: int, vitess_client: VitessClient
@@ -160,9 +162,9 @@ class EndorsementHandler:
              vitess_client.stream_producer.publish_change(event)
 
          return EndorsementResponse(
-             endorsement_id=withdrawn_endorsement.id,  # type: ignore[union-attr]
+             id=withdrawn_endorsement.id,  # type: ignore[union-attr]
              user_id=withdrawn_endorsement.user_id,  # type: ignore[union-attr]
-             statement_hash=withdrawn_endorsement.statement_hash,  # type: ignore[union-attr]
+             hash=withdrawn_endorsement.statement_hash,  # type: ignore[union-attr]
              created_at=withdrawn_endorsement.created_at.isoformat(),  # type: ignore[union-attr]
              removed_at=withdrawn_endorsement.removed_at.isoformat()  # type: ignore[union-attr]
              if withdrawn_endorsement.removed_at  # type: ignore[union-attr]

@@ -2,8 +2,6 @@
 
 from typing import Any
 
-from fastapi import Response
-
 from pydantic import BaseModel, ConfigDict, Field
 
 

@@ -34,10 +34,6 @@ properties:
     description: Summary of the edit
     default: ""
     examples: ["Updated description"]
-  bot:
-    type: boolean
-    description: Whether the change was made by a bot
-    default: false
-    examples: [false]
+
 required: [entity_id, revision_id, change_type, changed_at]
 additionalProperties: false

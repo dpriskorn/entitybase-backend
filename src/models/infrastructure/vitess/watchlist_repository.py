@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import Any, List, cast
+from typing import Any, List
 
 import pymysql
 

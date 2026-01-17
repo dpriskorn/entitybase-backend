@@ -4,8 +4,6 @@ import json
 import logging
 from typing import Any
 
-from pydantic import BaseModel, Field
-
 from models.common import OperationResult
 from models.infrastructure.vitess.revision_record import RevisionRecord
 from models.validation.utils import raise_validation_error

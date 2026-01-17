@@ -1,7 +1,7 @@
 """Repository for managing thanks in Vitess."""
 
 import logging
-from typing import Any, List
+from typing import Any
 
 from models.common import OperationResult
 from models.thanks import ThankItem
