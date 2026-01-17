@@ -1,4 +1,5 @@
 import sys
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
 import pytest
@@ -115,6 +116,7 @@ class TestWatchlistHandler:
         """Test getting notifications successfully"""
         from models.watchlist import NotificationResponse
 
+        dt = datetime(2023, 1, 1, 12, 0, tzinfo=timezone.utc)
         mock_vitess_client.user_repository.user_exists.return_value = True
         mock_vitess_client.watchlist_repository.get_user_notifications.return_value = [
             {
@@ -142,7 +144,7 @@ class TestWatchlistHandler:
                 "revision_id": 123,
                 "change_type": "edit",
                 "changed_properties": ["P31"],
-                "event_timestamp": "2023-01-01T12:00:00Z",
+                "event_timestamp": dt,
                 "is_checked": False,
                 "checked_at": None,
             }

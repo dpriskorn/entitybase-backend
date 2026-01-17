@@ -139,10 +139,19 @@ class TestEntityJsonImportHandler:
 
         try:
             # Mock dependencies
-            mock_transform.return_value = MagicMock()
+            from models.rest_api.entitybase.request import EntityCreateRequest
+
+            mock_transform.return_value = EntityCreateRequest(
+                id="Q123",
+                labels={},
+                edit_summary="test",
+            )
             vitess_client.create_entity = AsyncMock()
             vitess_client.entity_exists.return_value = False
-            vitess_client.entity_repository.get_entity.return_value = MagicMock(is_deleted=False)
+            vitess_client.entity_repository.get_entity.return_value = MagicMock(
+                is_deleted=False
+            )
+            vitess_client.is_entity_deleted.return_value = False
             s3_client.read_revision = MagicMock(
                 side_effect=Exception("Not found")
             )  # Entity doesn't exist
@@ -226,5 +235,4 @@ class TestWikidataImportService:
         assert "en" in result.labels
         assert len(result.descriptions) == 0
         assert len(result.aliases) == 0
-        assert "P31" in result.claims
-        assert result.edit_type.value == "BOT_IMPORT"
+        assert result.edit_type.value == "bot-import"

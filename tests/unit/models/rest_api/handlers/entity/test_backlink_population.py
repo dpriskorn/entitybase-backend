@@ -76,7 +76,7 @@ class TestBacklinkPopulation:
             "Q5": 555,
         }.get(eid, 0)
 
-        result = self.handler._process_statements(
+        result = self.handler.process_statements(
             entity_id, request_data, self.vitess_client, self.s3_client, self.validator
         )
 
@@ -112,7 +112,7 @@ class TestBacklinkPopulation:
         mock_hash_result = StatementHashResult()
         mock_hash.return_value = mock_hash_result
 
-        result = self.handler._process_statements(
+        result = self.handler.process_statements(
             entity_id, request_data, self.vitess_client, self.s3_client, self.validator
         )
 
@@ -181,7 +181,7 @@ class TestBacklinkPopulation:
         self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         self.vitess_client.id_resolver.resolve_id.return_value = 0  # not found
 
-        result = self.handler._process_statements(
+        result = self.handler.process_statements(
             entity_id, request_data, self.vitess_client, self.s3_client, self.validator
         )
 
@@ -255,7 +255,7 @@ class TestBacklinkPopulation:
             "Q999": 0,  # not found
         }.get(eid, 0)
 
-        result = self.handler._process_statements(
+        result = self.handler.process_statements(
             entity_id, request_data, self.vitess_client, self.s3_client, self.validator
         )
 
@@ -382,7 +382,7 @@ class TestBacklinkPopulation:
             "Q20": 2020,
         }.get(eid, 0)
 
-        result = self.handler._process_statements(
+        result = self.handler.process_statements(
             entity_id, request_data, self.vitess_client, self.s3_client, self.validator
         )
 

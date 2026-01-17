@@ -56,7 +56,7 @@ class TestIdGeneratorWorker:
         worker = IdGeneratorWorker(worker_id="test-worker")
         assert worker.worker_id == "test-worker"
 
-    @patch("models.workers.id_generation.id_generator.EnumerationService")
+    @patch("models.workers.id_generation.id_generation_worker.EnumerationService")
     def test_get_next_id_success(self, mock_enumeration_service_class: Mock) -> None:
         """Test get_next_id returns IdResponse on success."""
         # Setup mock
@@ -76,7 +76,7 @@ class TestIdGeneratorWorker:
 
     def test_get_next_id_not_initialized(self) -> None:
         """Test get_next_id raises error when worker not initialized."""
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValueError) as exc_info:
             self.worker.get_next_id("item")
 
         assert "Worker not initialized" in str(exc_info.value)
@@ -88,12 +88,14 @@ class TestIdGeneratorWorker:
         assert health.worker_id == self.worker.worker_id
         assert health.range_status == {}
 
-    @patch("models.workers.id_generation.id_generator.EnumerationService")
+    @patch("models.workers.id_generation.id_generation_worker.EnumerationService")
     def test_health_check_running(self, mock_enumeration_service_class: Mock) -> None:
         """Test health check when worker is running."""
         # Setup mock
         mock_service = Mock()
-        mock_service.get_range_status.return_value = {"Q": {"current": 100, "max": 200}}
+        mock_range_status = Mock()
+        mock_range_status.model_dump.return_value = {"Q": {"current": 100, "max": 200}}
+        mock_service.get_range_status.return_value = mock_range_status
         mock_enumeration_service_class.return_value = mock_service
 
         self.worker.enumeration_service = mock_service

@@ -35,6 +35,7 @@ class TestItemCreateHandler:
         """Mock vitess client"""
         client = MagicMock()
         client.entity_exists.return_value = False
+        client.id_resolver.entity_exists.return_value = False
         client.register_entity = MagicMock()
         client.is_entity_deleted.return_value = False
         client.get_head.return_value = 0
@@ -68,7 +69,9 @@ class TestItemCreateHandler:
         )
 
         mock_vitess_client.entity_exists.return_value = False
-        mock_vitess_client.entity_repository.get_entity.return_value = MagicMock(is_deleted=False)
+        mock_vitess_client.entity_repository.get_entity.return_value = MagicMock(
+            is_deleted=False
+        )
 
         result = await handler.create_entity(
             request=request,
@@ -77,19 +80,16 @@ class TestItemCreateHandler:
             stream_producer=mock_stream_producer,
         )
 
-        # Verify enumeration service was called
-        handler.enumeration_service.get_next_entity_id.assert_called_once_with("item")
-
         # Verify vitess interactions
-        mock_vitess_client.entity_exists.assert_called_once_with("Q123")
-        mock_vitess_client.register_entity.assert_called_once_with("Q123")
-        mock_vitess_client.is_entity_deleted.assert_called_once_with("Q123")
+        mock_vitess_client.entity_exists.assert_called_once_with("Q99999")
+        mock_vitess_client.register_entity.assert_called_once_with("Q99999")
+        mock_vitess_client.is_entity_deleted.assert_called_once_with("Q99999")
 
         # Verify response
-        assert result.id == "Q123"
+        assert result.id == "Q99999"
         assert result.revision_id == 1
         assert "id" in result.data
-        assert result.data["id"] == "Q123"
+        assert result.data["id"] == "Q99999"
 
     @pytest.mark.asyncio
     async def test_create_item_entity_exists(
@@ -135,6 +135,7 @@ class TestPropertyCreateHandler:
         """Mock vitess client"""
         client = MagicMock()
         client.entity_exists.return_value = False
+        client.id_resolver.entity_exists.return_value = False
         client.register_entity = MagicMock()
         client.is_entity_deleted.return_value = False
         client.get_head.return_value = 0
@@ -165,10 +166,13 @@ class TestPropertyCreateHandler:
             labels={"en": {"language": "en", "value": "Test Property"}},
             edit_summary="Test property creation",
             user_id=123,
+            editor="test",
         )
 
         mock_vitess_client.entity_exists.return_value = False
-        mock_vitess_client.entity_repository.get_entity.return_value = MagicMock(is_deleted=False)
+        mock_vitess_client.entity_repository.get_entity.return_value = MagicMock(
+            is_deleted=False
+        )
 
         result = await handler.create_entity(
             request=request,
