@@ -70,10 +70,10 @@ class EndorsementHandler:
             )
 
         return EndorsementResponse(
-            endorsement_id=created_endorsement.id,
-            user_id=created_endorsement.user_id,
-            statement_hash=created_endorsement.statement_hash,
-            created_at=created_endorsement.created_at.isoformat(),
+            endorsement_id=created_endorsement.id,  # type: ignore[union-attr]
+            user_id=created_endorsement.user_id,  # type: ignore[union-attr]
+            statement_hash=created_endorsement.statement_hash,  # type: ignore[union-attr]
+            created_at=created_endorsement.created_at.isoformat(),  # type: ignore[union-attr]
             removed_at=None,
         )
 
@@ -129,12 +129,12 @@ class EndorsementHandler:
             )
 
         return EndorsementResponse(
-            endorsement_id=withdrawn_endorsement.id,
-            user_id=withdrawn_endorsement.user_id,
-            statement_hash=withdrawn_endorsement.statement_hash,
-            created_at=withdrawn_endorsement.created_at.isoformat(),
-            removed_at=withdrawn_endorsement.removed_at.isoformat()
-            if withdrawn_endorsement.removed_at
+            endorsement_id=withdrawn_endorsement.id,  # type: ignore[union-attr]
+            user_id=withdrawn_endorsement.user_id,  # type: ignore[union-attr]
+            statement_hash=withdrawn_endorsement.statement_hash,  # type: ignore[union-attr]
+            created_at=withdrawn_endorsement.created_at.isoformat(),  # type: ignore[union-attr]
+            removed_at=withdrawn_endorsement.removed_at.isoformat()  # type: ignore[union-attr]
+            if withdrawn_endorsement.removed_at  # type: ignore[union-attr]
             else None,
         )
 

@@ -4,7 +4,7 @@ import logging
 from typing import Any, List
 
 from models.common import OperationResult
-from models.endorsements import Endorsement
+from models.endorsements import StatementEndorsement
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,7 @@ class EndorsementRepository:
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 
-    def create_endorsement(self, user_id: int, hash: int) -> OperationResult:
+    def create_endorsement(self, user_id: int, statement_hash: int) -> OperationResult:
         """Create an endorsement for a statement."""
         if user_id <= 0 or statement_hash <= 0:
             return OperationResult(success=False, error="Invalid parameters")
