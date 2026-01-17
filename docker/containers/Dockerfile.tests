@@ -1,3 +1,4 @@
+# We keep the commands in the compose file
 FROM python:3.13-slim
 
 RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
@@ -15,9 +16,3 @@ COPY pytest.ini .
 
 ENV PYTHONPATH=/app
 ENV REST_API_URL=http://api:8000
-
-# run all
-CMD sleep 10 && PYTHONPATH=/app pytest tests/ -m integration --ignore=tests/disabled/ -v --tb=short --log-cli-level=DEBUG
-# exit first
-#CMD sleep 10 && PYTHONPATH=/app pytest tests/ --ignore=tests/disabled/ -v --tb=short --log-cli-level=DEBUG --exitfirst
-#CMD ["pytest", "tests/", "-v", "--tb=short", "--log-cli-level=DEBUG"]

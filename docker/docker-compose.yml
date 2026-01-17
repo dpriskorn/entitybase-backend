@@ -119,30 +119,29 @@ services:
      mem_limit: 1g
      cpus: 1
 
-   tests:
+  integration:
      build:
        context: ..
        dockerfile: docker/containers/Dockerfile.tests
-     container_name: tests
+     container_name: integration
      depends_on:
        api:
          condition: service_healthy
+     command: pytest tests/ -m integration -v --tb=short --log-cli-level=DEBUG
      networks:
        - default
      mem_limit: 1g
      cpus: 1
 
-   e2e:
+  e2e:
      build:
        context: ..
        dockerfile: docker/containers/Dockerfile.tests
      container_name: e2e
      depends_on:
-       api:
-         condition: service_healthy
-     environment:
-       REST_API_URL: http://api:8000
-     command: pytest -m e2e tests/e2e/ -v --tb=short
+       integration:
+         condition: service_completed_successfully
+     command: pytest -m e2e tests/e2e/ -v --tb=short --log-cli-level=DEBUG
      networks:
        - default
      mem_limit: 1g

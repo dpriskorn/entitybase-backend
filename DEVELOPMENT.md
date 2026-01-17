@@ -21,17 +21,9 @@ This document describes how to set up and run the Wikibase Backend development e
 
 To start the development environment with a pristine state:
 
-1. Stop any running containers and remove volumes:
    ```bash
-   docker compose down
-   docker volume prune -f
+   ./run-docker-build.sh`
    ```
-
-2. Start the services:
-   ```bash
-   docker compose up
-   ```
-
 This process ensures a clean database and environment each time, as all volumes are deleted and recreated.
 
 ## Running Tests
@@ -44,19 +36,8 @@ Integration tests can be run within the Docker environment. The database is rese
 
 To run unit tests locally without Docker:
 
-1. Ensure Python 3.x and pip are installed.
-2. Activate a virtual environment (optional but recommended):
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. Install dependencies, including pytest:
-   ```bash
-   pip install pytest
-   ```
-4. Run unit tests using the provided script:
-   ```bash
-   ./run-unit-tests-locally.sh
+   ./run-unit-tests.sh
    ```
 
 If pytest is not found, install it via `pip install pytest` or activate your virtual environment.
