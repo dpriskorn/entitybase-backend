@@ -82,11 +82,10 @@ class TestUserHandler:
 
         mock_vitess_client.user_repository.get_user.return_value = None
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(ValueError) as exc_info:
             handler.get_user(12345, mock_vitess_client)
 
-        assert exc_info.value.status_code == 404
-        assert exc_info.value.detail == "User not found"
+        assert str(exc_info.value) == "User not found"
 
     def test_toggle_watchlist_success(
         self, handler: UserHandler, mock_vitess_client: MagicMock

@@ -62,7 +62,7 @@ class TestItemCreateHandler:
     ) -> None:
         """Test successful item creation"""
         request = EntityCreateRequest(
-            id="Q123",
+            id="Q999",
             labels={"en": {"language": "en", "value": "Test Item"}},
             edit_summary="Test creation",
         )
@@ -163,6 +163,7 @@ class TestPropertyCreateHandler:
         request = EntityCreateRequest(
             labels={"en": {"language": "en", "value": "Test Property"}},
             edit_summary="Test property creation",
+            editor="test",
         )
 
         mock_vitess_client.entity_exists.return_value = False

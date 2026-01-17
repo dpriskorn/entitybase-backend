@@ -81,7 +81,7 @@ class TestUserPreferencesHandler:
         assert result.notification_limit == 200
         assert result.retention_hours == 168
         mock_vitess_client.user_repository.update_user_preferences.assert_called_once_with(
-            12345, 200, 168
+            user_id=12345, notification_limit=200, retention_hours=168
         )
 
     def test_update_preferences_user_not_found(

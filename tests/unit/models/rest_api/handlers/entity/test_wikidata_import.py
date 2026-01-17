@@ -141,6 +141,7 @@ class TestEntityJsonImportHandler:
             # Mock dependencies
             mock_transform.return_value = MagicMock()
             vitess_client.create_entity = AsyncMock()
+            vitess_client.entity_exists.return_value = False
             s3_client.read_revision = MagicMock(
                 side_effect=Exception("Not found")
             )  # Entity doesn't exist

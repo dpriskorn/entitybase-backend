@@ -58,7 +58,7 @@ class TestItemUpdateHandler:
         mock_response = EntityResponse(
             id="Q123",
             revision_id=2,
-            data={
+            entity_data={
                 "id": "Q123",
                 "type": "item",
                 "labels": {"en": {"language": "en", "value": "Updated Item"}},
@@ -102,7 +102,7 @@ class TestItemUpdateHandler:
             id="P123", data={"type": "item"}, edit_summary="test"
         )
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(ValueError) as exc_info:
             await handler.update_entity(
                 entity_id="P123",
                 request=request,
@@ -111,8 +111,7 @@ class TestItemUpdateHandler:
                 stream_producer=mock_stream_producer,
             )
 
-        assert exc_info.value.status_code == 400
-        assert "must be an item (start with Q)" in exc_info.value.detail
+        assert "Entity ID must be an item" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_update_item_invalid_id_lexeme(
@@ -127,7 +126,7 @@ class TestItemUpdateHandler:
             id="L123", data={"type": "item"}, edit_summary="test"
         )
 
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(ValueError) as exc_info:
             await handler.update_entity(
                 entity_id="L123",
                 request=request,
@@ -136,5 +135,4 @@ class TestItemUpdateHandler:
                 stream_producer=mock_stream_producer,
             )
 
-        assert exc_info.value.status_code == 400
-        assert "must be an item (start with Q)" in exc_info.value.detail
+        assert "Entity ID must be an item" in str(exc_info.value)

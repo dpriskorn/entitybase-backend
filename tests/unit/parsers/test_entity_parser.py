@@ -4,7 +4,11 @@ import pytest
 pytestmark = pytest.mark.unit
 
 from models.json_parser import parse_entity
-from models.rest_api.entitybase.response.entity import LabelValue, DescriptionValue
+from models.rest_api.entitybase.response.entity import (
+    LabelValue,
+    DescriptionValue,
+    AliasValue,
+)
 
 import os
 from pathlib import Path
@@ -32,7 +36,7 @@ def test_parse_entity_basic() -> None:
     assert entity.descriptions.data == {
         "en": DescriptionValue(language="en", value="English author")
     }
-    assert entity.aliases.data == {"en": [LabelValue(language="en", value="DA")]}
+    assert entity.aliases.data == {"en": [AliasValue(language="en", value="DA")]}
     assert len(entity.statements) == 0
     assert entity.sitelinks is None
 
@@ -47,7 +51,7 @@ def test_parse_q1_minimal() -> None:
     assert entity.id == "Q1"
     assert entity.type == "item"
     assert len(entity.labels.data) > 0  # Q1 now has labels
-    assert len(entity.descriptions) > 0  # Q1 now has descriptions
+    assert len(entity.descriptions.data) > 0  # Q1 now has descriptions
     assert len(entity.aliases) > 0  # Q1 now has aliases
     assert len(entity.statements) > 0  # Q1 now has statements
     assert entity.sitelinks is not None  # Q1 now has sitelinks
@@ -76,7 +80,7 @@ def test_parse_q42_detailed() -> None:
     assert entity.id == "Q42"
     assert entity.type == "item"
 
-    assert len(entity.labels) > 50
+    assert len(entity.labels.data) > 50
     assert "ru" in entity.labels
 
     assert len(entity.statements) > 300
