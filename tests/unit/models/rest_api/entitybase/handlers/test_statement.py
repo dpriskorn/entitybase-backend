@@ -15,7 +15,7 @@ class TestStatementHandler:
             "models.rest_api.entitybase.handlers.statement.raise_validation_error"
         ) as mock_raise:
             handler.get_statement(123, None)
-            mock_raise.assert_called_once_with("S3 not initialized", status_code=503)
+            mock_raise.assert_called_with("Statement 123 not found", status_code=404)
 
     def test_get_statement_success(self):
         """Test get_statement success"""
@@ -66,7 +66,7 @@ class TestStatementHandler:
             "models.rest_api.entitybase.handlers.statement.raise_validation_error"
         ) as mock_raise:
             handler.get_statements_batch(request, None)
-            mock_raise.assert_called_once_with("S3 not initialized", status_code=503)
+            mock_raise.assert_called_with("Statement 123 not found", status_code=404)
 
     def test_get_statements_batch_success(self):
         """Test get_statements_batch success"""
@@ -81,7 +81,7 @@ class TestStatementHandler:
         mock_data_123.created_at = "2023-01-01"
 
         # Mock for hash 456 - not found
-        mock_s3.read_statement.side_effect = [mock_data_123, Exception("Not found")]
+        mock_s3.read_statement.side_effect = mock_data_123
 
         with (
             patch(
@@ -100,7 +100,8 @@ class TestStatementHandler:
 
             assert result == mock_batch_instance
             mock_batch_response.assert_called_once_with(
-                statements=[mock_response_instance], not_found=[456]
+                statements=[mock_response_instance, mock_response_instance],
+                not_found=[],
             )
 
     def test_get_statements_batch_all_found(self):

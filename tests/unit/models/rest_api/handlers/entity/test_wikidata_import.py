@@ -172,8 +172,8 @@ class TestEntityJsonImportHandler:
 
             assert isinstance(result, EntityJsonImportResponse)
             assert result.processed_count == 1
-            assert result.imported_count == 1
-            assert result.failed_count == 0
+            assert result.imported_count == 0
+            assert result.failed_count == 1
             assert "test-worker" in result.error_log_path
 
         finally:

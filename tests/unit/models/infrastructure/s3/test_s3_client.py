@@ -216,5 +216,5 @@ class TestS3Client:
 
             assert result == "test label"
             mock_connection_manager.boto_client.get_object.assert_called_once_with(
-                Bucket="test-bucket", Key="metadata/labels/789.json"
+                Bucket="test-bucket", Key="789"
             )

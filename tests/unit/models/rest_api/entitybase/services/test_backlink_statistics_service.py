@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 pytestmark = pytest.mark.unit
 
@@ -25,14 +25,15 @@ class TestBacklinkStatisticsService:
         mock_vitess = MagicMock()
 
         # Mock the methods
-        service.get_total_backlinks = MagicMock(return_value=1000)
-        service.get_entities_with_backlinks = MagicMock(return_value=500)
-        service.get_top_entities_by_backlinks = MagicMock(return_value=[])
+        with (
+            patch.object(service, "get_total_backlinks", return_value=1000),
+            patch.object(service, "get_entities_with_backlinks", return_value=500),
+            patch.object(service, "get_top_entities_by_backlinks", return_value=[]),
+        ):
+            result = service.compute_daily_stats(mock_vitess)
 
-        result = service.compute_daily_stats(mock_vitess)
-
-        assert result.total_backlinks == 1000
-        assert result.unique_entities_with_backlinks == 500
+            assert result.total_backlinks == 1000
+            assert result.unique_entities_with_backlinks == 500
         assert result.top_entities_by_backlinks == []
 
         service.get_total_backlinks.assert_called_once_with(mock_vitess)

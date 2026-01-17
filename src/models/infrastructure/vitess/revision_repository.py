@@ -108,7 +108,6 @@ class RevisionRepository:
             raise_validation_error(
                 f"Revision {to_revision_id} not found", status_code=404
             )
-        assert target_data is not None
 
         # Get next revision ID
         with vitess_client.get_connection() as conn:

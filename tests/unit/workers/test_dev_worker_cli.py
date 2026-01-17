@@ -109,9 +109,10 @@ class TestDevWorkerCLI:
     @patch("sys.argv", ["devworker", "invalid_command"])
     def test_invalid_command(self, capsys):
         """Test error for invalid command."""
-        result = main()
+        with pytest.raises(SystemExit) as exc_info:
+            main()
 
-        assert result == 1
+        assert exc_info.value.code == 2
         captured = capsys.readouterr()
         assert (
             "invalid choice" in captured.err or "unrecognized arguments" in captured.err

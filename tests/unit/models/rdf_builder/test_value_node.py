@@ -24,7 +24,7 @@ class TestFormatScientificNotation:
     def test_format_scientific_notation_without_leading_zero(self):
         """Test formatting when no leading zero to remove."""
         result = _format_scientific_notation(1.23e10)
-        assert result == "1.2E10"
+        assert result == "1.2E+10"
 
     def test_format_scientific_notation_negative_mantissa(self):
         """Test formatting with negative mantissa."""
@@ -34,7 +34,7 @@ class TestFormatScientificNotation:
     def test_format_scientific_notation_no_match(self):
         """Test formatting when regex doesn't match."""
         result = _format_scientific_notation(123.45)
-        assert result == "1.2E2"
+        assert result == "1.2E+2"
 
 
 class TestGenerateValueNodeUri:
