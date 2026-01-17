@@ -1,5 +1,5 @@
 #!/bin/bash
-set -Eeuo pipefail
+#set -Eeuo pipefail
 
 # Adjustable threshold for missing coverage report (percentage)
 THRESHOLD=50

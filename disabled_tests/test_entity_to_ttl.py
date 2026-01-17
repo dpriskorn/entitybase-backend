@@ -3,7 +3,7 @@
 import json
 import logging
 
-from models.rdf_builder.converter import EntityToRdfConverter
+from models.rdf_builder.converter import EntityConverter
 from models.json_parser.entity_parser import parse_entity
 from rdf.conftest import normalize_ttl, split_subject_blocks, TEST_DATA_DIR
 
@@ -20,7 +20,7 @@ def test_q120248304_matches_golden_ttl(property_registry):
     # ✅ use the real, already-working parser
     entity = parse_entity(entity_json)
 
-    converter = EntityToRdfConverter(properties=property_registry)
+    converter = EntityConverter(property_registry=property_registry)
     actual_ttl = normalize_ttl(converter.convert_to_string(entity))
 
     expected_blocks = split_subject_blocks(expected_ttl)

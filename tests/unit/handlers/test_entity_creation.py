@@ -81,7 +81,7 @@ class TestItemCreateHandler:
         )
 
         # Verify vitess interactions
-        mock_vitess_client.entity_exists.assert_called_once_with("Q99999")
+        mock_vitess_client.id_resolver.entity_exists.assert_called_once_with(ANY, "Q99999")
         mock_vitess_client.register_entity.assert_called_once_with("Q99999")
         mock_vitess_client.is_entity_deleted.assert_called_once_with("Q99999")
 
@@ -100,7 +100,7 @@ class TestItemCreateHandler:
         mock_stream_producer: AsyncMock,
     ) -> None:
         """Test item creation fails if entity already exists"""
-        mock_vitess_client.entity_exists.return_value = True
+        mock_vitess_client.id_resolver.entity_exists.return_value = True
 
         request = EntityCreateRequest(id="Q123", edit_summary="test")
 
