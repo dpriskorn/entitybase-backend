@@ -70,7 +70,9 @@ def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str, str
 
 def main(directories: List[str]) -> None:
     """Main function to check all Python files in directories."""
-    allowlist = set()  # Add any allowed patterns if needed
+    allowlist = {
+        "from moto import mock_aws as mock_s3"
+    }  # Add any allowed patterns if needed
     violations = []
 
     for directory in directories:

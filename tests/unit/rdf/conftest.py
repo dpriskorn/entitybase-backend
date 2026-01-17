@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 from pathlib import Path
 
@@ -13,8 +14,6 @@ logger = logging.getLogger(__name__)
 # Resolve project root:
 # tests/rdf/conftest.py → tests/rdf → tests → project root
 # PROJECT_ROOT = Path(__file__).resolve().parents[2]
-
-TEST_DATA_DIR = Path(__file__).parent.parent.parent / "test_data"
 
 
 def load_text(path: Path) -> str:
@@ -76,7 +75,7 @@ def split_subject_blocks(ttl: str) -> dict[str, str]:
 
 def load_full_property_registry() -> PropertyRegistry:
     """Load property registry from CSV cache"""
-    cache_path = TEST_DATA_DIR / "properties" / "properties.csv"
+    cache_path = Path(os.environ["TEST_DATA_DIR"]) / "properties" / "properties.csv"
 
     if not cache_path.exists():
         raise FileNotFoundError(
@@ -179,4 +178,4 @@ def full_property_registry() -> PropertyRegistry:
 @pytest.fixture
 def entity_cache_path() -> Path:
     """Path to entity JSON cache for referenced entities"""
-    return TEST_DATA_DIR / "json" / "entities"
+    return Path(os.environ["TEST_DATA_DIR"]) / "json" / "entities"

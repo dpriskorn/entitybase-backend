@@ -23,7 +23,9 @@ def test_user_workflow(e2e_api_client, e2e_base_url):
 
         # Add to watchlist
         watch_data = {"entity_id": entity_id}
-        response = e2e_api_client.post(f"{base_url}/user/{user_id}/watchlist", json=watch_data)
+        response = e2e_api_client.post(
+            f"{base_url}/user/{user_id}/watchlist", json=watch_data
+        )
         assert response.status_code == 200
 
         # Verify watchlist
@@ -33,7 +35,9 @@ def test_user_workflow(e2e_api_client, e2e_base_url):
         assert entity_id in [w["entity_id"] for w in watchlist["watches"]]
 
         # Remove from watchlist
-        response = e2e_api_client.delete(f"{base_url}/user/{user_id}/watchlist/{entity_id}")
+        response = e2e_api_client.delete(
+            f"{base_url}/user/{user_id}/watchlist/{entity_id}"
+        )
         assert response.status_code == 200
 
         # Verify removal

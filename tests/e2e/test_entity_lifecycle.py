@@ -34,9 +34,9 @@ def test_entity_lifecycle(e2e_api_client, e2e_base_url):
             {
                 "property": {"id": "P31", "data_type": "wikibase-item"},
                 "value": {"type": "value", "content": "Q5"},  # instance of human
-                "rank": "normal"
+                "rank": "normal",
             }
-        ]
+        ],
     }
     response = e2e_api_client.put(f"{base_url}/entity/{entity_id}", json=update_data)
     assert response.status_code == 200

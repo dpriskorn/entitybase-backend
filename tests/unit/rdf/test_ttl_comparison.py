@@ -3,7 +3,12 @@ import logging
 
 import pytest
 
-from .conftest import normalize_ttl, split_subject_blocks, TEST_DATA_DIR
+from .conftest import normalize_ttl, split_subject_blocks
+
+import os
+from pathlib import Path
+
+TEST_DATA_DIR = Path(os.environ["TEST_DATA_DIR"])
 from models.rdf_builder.converter import EntityConverter
 from models.json_parser.entity_parser import parse_entity
 from models.rdf_builder.property_registry.registry import PropertyRegistry

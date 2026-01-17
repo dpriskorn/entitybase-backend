@@ -2,7 +2,11 @@ import json
 import pytest
 
 from models.json_parser import parse_entity
-from .conftest import TEST_DATA_JSON_DIR
+
+import os
+from pathlib import Path
+
+TEST_DATA_JSON_DIR = Path(os.environ["TEST_DATA_DIR"]) / "json"
 
 
 def test_parse_entity_basic() -> None:

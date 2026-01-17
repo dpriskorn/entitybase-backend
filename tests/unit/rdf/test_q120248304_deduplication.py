@@ -3,11 +3,14 @@
 import json
 import logging
 import re
+from pathlib import Path
+import os
 from typing import Any
 
-from conftest import TEST_DATA_DIR
 from models.json_parser.entity_parser import parse_entity
 from models.rdf_builder.converter import EntityConverter
+
+TEST_DATA_DIR = Path(os.environ["TEST_DATA_DIR"])
 
 logger = logging.getLogger(__name__)
 

@@ -1,5 +1,6 @@
 from io import StringIO
 from pathlib import Path
+import os
 
 from models.internal_representation import Rank
 from models.internal_representation.entity import Entity
@@ -10,7 +11,7 @@ from models.rdf_builder.converter import EntityConverter
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.ontology.datatypes import property_shape
 
-TEST_DATA_DIR = Path(__file__).parent.parent.parent / "test_data"
+TEST_DATA_DIR = Path(os.environ["TEST_DATA_DIR"])
 
 
 def test_collect_referenced_entities() -> None:

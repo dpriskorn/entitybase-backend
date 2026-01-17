@@ -1,4 +1,34 @@
-from rdf.conftest import normalize_ttl, TEST_DATA_DIR
+import logging
+import re
+from pathlib import Path
+import os
+
+logger = logging.getLogger(__name__)
+
+TEST_DATA_DIR = Path(os.environ["TEST_DATA_DIR"])
+
+
+def normalize_ttl(ttl: str) -> str:
+    logger.debug("=== normalize_ttl() START ===")
+    logger.debug(f"Input length: {len(ttl)} chars")
+    logger.debug(f"First 100 chars of input: {repr(ttl[:100])}")
+
+    ttl = re.sub(r"#.*$", "", ttl, flags=re.MULTILINE)
+    logger.debug(f"After removing comments: {len(ttl)} chars")
+
+    ttl = re.sub(r"[ \t]+", " ", ttl)
+    logger.debug(f"After normalizing whitespace: {len(ttl)} chars")
+    logger.debug(f"First 100 chars: {repr(ttl[:100])}")
+
+    ttl = re.sub(r"\n\n+", "\n\n", ttl)
+    logger.debug(f"After normalizing newlines: {len(ttl)} chars")
+    logger.debug(f"First 100 chars: {repr(ttl[:100])}")
+
+    result = ttl.strip()
+    logger.debug(f"Result length: {len(result)} chars")
+    logger.debug(f"First 100 chars: {repr(result[:100])}")
+    logger.debug("=== normalize_ttl() END ===")
+    return result
 
 
 def test_normalize_ttl_removes_comments() -> None:

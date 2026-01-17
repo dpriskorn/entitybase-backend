@@ -124,7 +124,9 @@ class TestUserRepository:
     ) -> None:
         """Test updating user activity"""
         mock_conn = MagicMock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
@@ -140,7 +142,9 @@ class TestUserRepository:
     ) -> None:
         """Test checking if watchlist is enabled"""
         mock_conn = MagicMock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchone.return_value = (True,)
@@ -158,7 +162,9 @@ class TestUserRepository:
     ) -> None:
         """Test setting watchlist enabled status"""
         mock_conn = MagicMock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
@@ -174,7 +180,9 @@ class TestUserRepository:
     ) -> None:
         """Test disabling watchlist"""
         mock_conn = MagicMock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
@@ -190,7 +198,9 @@ class TestUserRepository:
     ) -> None:
         """Test getting user preferences"""
         mock_conn = MagicMock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchone.return_value = (100, 72)
@@ -208,7 +218,9 @@ class TestUserRepository:
     ) -> None:
         """Test updating user preferences"""
         mock_conn = MagicMock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
@@ -226,7 +238,9 @@ class TestUserRepository:
         from models.user_activity import UserActivityItem
 
         mock_conn = MagicMock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchall.return_value = [
