@@ -124,3 +124,47 @@ class TestLoadEntityMetadata:
         """Test loading nonexistent metadata raises FileNotFoundError."""
         with pytest.raises(FileNotFoundError, match="Entity Q42 not found"):
             load_entity_metadata("Q42", tmp_path)
+
+    def test_load_corrupted_metadata(self, tmp_path):
+        """Test loading corrupted JSON metadata."""
+        json_file = tmp_path / "Q42.json"
+        json_file.write_text("invalid json")
+
+        with pytest.raises(Exception):  # json.JSONDecodeError
+            load_entity_metadata("Q42", tmp_path)
+
+    @patch("models.rdf_builder.entity_cache._fetch_entity_metadata_batch")
+    def test_load_batch_serialization_error(self, mock_fetch, tmp_path):
+        """Test loading batch with serialization error."""
+        mock_fetch.return_value.metadata = {
+            "Q42": MagicMock(
+                model_dump=lambda: {"id": "Q42", "labels": {"en": {"value": "test"}}}
+            )
+        }
+
+        # Mock json.dump to raise exception
+        with patch(
+            "models.rdf_builder.entity_cache.json.dump",
+            side_effect=Exception("Serialization error"),
+        ):
+            result = load_entity_metadata_batch(["Q42"], tmp_path)
+
+        assert result.results["Q42"] is False
+        json_file = tmp_path / "Q42.json"
+        assert not json_file.exists()
+
+    def test_cache_hit_scenario(self, tmp_path):
+        """Test cache hit when metadata file exists and is valid."""
+        data = {"id": "Q42", "labels": {"en": {"language": "en", "value": "test"}}}
+        json_file = tmp_path / "Q42.json"
+        json_file.write_text(json.dumps(data))
+
+        result = load_entity_metadata("Q42", tmp_path)
+
+        assert result.id == "Q42"
+        assert result.labels["en"].value == "test"
+
+    def test_cache_miss_scenario(self, tmp_path):
+        """Test cache miss when metadata file does not exist."""
+        with pytest.raises(FileNotFoundError, match="Entity Q42 not found"):
+            load_entity_metadata("Q42", tmp_path)

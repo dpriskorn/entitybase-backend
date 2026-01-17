@@ -786,6 +786,74 @@ class TestEntityReadHandler(unittest.TestCase):
             self.mock_s3.load_metadata.call_count, 0
         )  # invalid hashes not loaded
 
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    def test_get_entity_revision_content_missing_entity_key(self, mock_entity_response):
+        """Test get_entity_revision with revision.content missing 'entity' key"""
+        mock_revision = Mock()
+        mock_revision.content = {
+            # missing "entity" key
+            "labels_hashes": {},
+            "descriptions_hashes": {},
+            "aliases_hashes": {},
+        }
+        self.mock_s3.read_revision.return_value = mock_revision
+
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity_revision("Q42", 123, self.mock_s3)
+
+        self.assertEqual(result, mock_response_instance)
+        # Should handle missing entity key
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    def test_get_entity_invalid_hash_structures(self, mock_entity_response):
+        """Test get_entity with invalid hash structures"""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 123
+        mock_revision = Mock()
+        mock_revision.content = {
+            "entity": {"id": "Q42"},
+            "labels_hashes": "invalid_string",  # should be dict
+            "descriptions_hashes": None,
+            "aliases_hashes": [],
+        }
+        self.mock_s3.read_revision.return_value = mock_revision
+
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity(
+            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+        )
+
+        self.assertEqual(result, mock_response_instance)
+        # Should handle invalid structures
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    def test_get_entity_empty_metadata_dicts(self, mock_entity_response):
+        """Test get_entity with empty metadata dicts"""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 123
+        mock_revision = Mock()
+        mock_revision.content = {
+            "entity": {"id": "Q42"},
+            "labels_hashes": {},
+            "descriptions_hashes": {},
+            "aliases_hashes": {},
+        }
+        self.mock_s3.read_revision.return_value = mock_revision
+
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity(
+            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+        )
+
+        self.assertEqual(result, mock_response_instance)
+        # Should not load metadata for empty dicts
+
 
 if __name__ == "__main__":
     unittest.main()
