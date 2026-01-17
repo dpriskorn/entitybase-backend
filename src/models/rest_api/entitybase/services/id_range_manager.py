@@ -6,6 +6,7 @@ from typing import Dict, Optional
 
 from pydantic import BaseModel
 
+from models.common import OperationResult
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.response.misc import RangeStatus, RangeStatuses
 from models.validation.utils import raise_validation_error
@@ -53,8 +54,16 @@ class IdRangeManager:
         # Check if we need to allocate a new range (when 80% consumed)
         if self._should_allocate_new_range(range_obj):
             logger.info(f"Allocating new range for {entity_type} (80% consumed)")
-            self._allocate_new_range(entity_type)
-            range_obj = self._local_ranges[entity_type]
+            result = self._allocate_new_range(entity_type)
+            if not result.success:
+                logger.error(
+                    f"Failed to allocate range for {entity_type}: {result.error}"
+                )
+                raise RuntimeError(
+                    f"Failed to allocate range for {entity_type}: {result.error}"
+                )
+            self._local_ranges[entity_type] = result.data
+            range_obj = result.data
 
         # Get next ID from current range
         id_number = range_obj.next_id
@@ -69,8 +78,10 @@ class IdRangeManager:
 
         # Try to allocate a new range
         try:
-            new_range = self._allocate_new_range(entity_type)
-            self._local_ranges[entity_type] = new_range
+            result = self._allocate_new_range(entity_type)
+            if not result.success:
+                raise RuntimeError(result.error)
+            self._local_ranges[entity_type] = result.data
         except Exception as e:
             logger.error(f"Failed to allocate range for {entity_type}: {e}")
             raise
@@ -80,7 +91,7 @@ class IdRangeManager:
         ids_used = range_obj.next_id - range_obj.current_start
         return ids_used > (range_obj.current_end - range_obj.current_start) * 0.8
 
-    def _allocate_new_range(self, entity_type: str) -> IdRange:
+    def _allocate_new_range(self, entity_type: str) -> OperationResult:
         """Atomically allocate a new ID range from the database.
         Uses optimistic locking to prevent conflicts between workers.
         """
@@ -104,8 +115,9 @@ class IdRangeManager:
 
                     result = cursor.fetchone()
                     if not result:
-                        raise_validation_error(
-                            f"No range configuration found for entity type {entity_type}"
+                        return OperationResult(
+                            success=False,
+                            error=f"No range configuration found for entity type {entity_type}",
                         )
 
                     current_end, version = result
@@ -136,8 +148,9 @@ class IdRangeManager:
                             )
                             continue
                         else:
-                            raise RuntimeError(
-                                f"Failed to allocate range for {entity_type} after {max_retries} attempts"
+                            return OperationResult(
+                                success=False,
+                                error=f"Failed to allocate range for {entity_type} after {max_retries} attempts",
                             )
 
                     conn.commit()
@@ -146,12 +159,13 @@ class IdRangeManager:
                         f"Allocated new range for {entity_type}: {new_start}-{new_end}"
                     )
 
-                    return IdRange(
+                    range_obj = IdRange(
                         entity_type=entity_type,
                         current_start=new_start,
                         current_end=new_end,
                         next_id=new_start,
                     )
+                    return OperationResult(success=True, data=range_obj)
 
             except Exception as e:
                 logger.error(
@@ -161,7 +175,9 @@ class IdRangeManager:
                     raise
                 continue
 
-        raise RuntimeError(f"Failed to allocate range for {entity_type}")
+        return OperationResult(
+            success=False, error=f"Failed to allocate range for {entity_type}"
+        )
 
     def initialize_from_database(self) -> None:
         """Initialize local range state from database (for startup/recovery)."""
