@@ -11,7 +11,7 @@ from models.infrastructure.stream.change_type import ChangeType
 class EndorseChangeEvent(BaseModel):
     """Endorsement change event for publishing."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     statement_hash: str = Field(
         alias="hash", description="Hash of the endorsed statement"
@@ -31,7 +31,7 @@ class EndorseChangeEvent(BaseModel):
 class NewThankEvent(BaseModel):
     """New thank event for publishing."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     from_user_id: str = Field(alias="from", description="ID of the user sending thanks")
     to_user_id: str = Field(alias="to", description="ID of the user receiving thanks")
@@ -50,7 +50,7 @@ class NewThankEvent(BaseModel):
 class EntityChangeEvent(BaseModel):
     """Entity change event for publishing to Redpanda."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     entity_id: str = Field(alias="id", description="Entity ID (e.g., Q42)")
     revision_id: int = Field(alias="rev", description="Revision ID of the change")
@@ -72,7 +72,7 @@ class EntityChangeEvent(BaseModel):
 class RDFChangeEvent(BaseModel):
     """RDF change event following MediaWiki recentchange schema."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     # Required fields from schema
     schema_uri: str = Field(

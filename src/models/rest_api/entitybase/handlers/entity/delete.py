@@ -48,8 +48,6 @@ class EntityDeleteHandler:
                 "entity_id": entity_id,
                 "delete_type": request.delete_type.value,
                 "edit_summary": request.edit_summary,
-                "editor": request.editor or "",
-                "bot": request.bot,
                 "operation": "delete_entity_start",
             },
         )
@@ -112,7 +110,6 @@ class EntityDeleteHandler:
             "property_counts": current_revision.data.get("property_counts", {}),
             "content_hash": current_revision.data.get("content_hash", 0),
             "edit_summary": request.edit_summary,
-            "editor": request.editor or "",
             "edit_type": edit_type,
             "is_semi_protected": current_revision.data.get("is_semi_protected", False),
             "is_locked": current_revision.data.get("is_locked", False),
@@ -164,12 +161,10 @@ class EntityDeleteHandler:
                     EntityChangeEvent(
                         entity_id=entity_id,
                         revision_id=new_revision_id,
-                        change_type=change_type,
+                        change_type=ChangeType.SOFT_DELETE,
                         from_revision_id=head_revision_id,
                         changed_at=datetime.now(timezone.utc),
-                        editor=request.editor or "",
                         edit_summary=request.edit_summary,
-                        bot=False,
                     )
                 )
                 logger.debug(
