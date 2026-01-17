@@ -1,19 +1,17 @@
-from typing import Optional, Any
-
 """Internal representation of Wikibase entities."""
 
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.rest_api.entitybase.response.entity import EntitySitelinksResponse
+from models.internal_representation.entity_types import EntityKind
+from models.internal_representation.statements import Statement
 from models.rest_api.entitybase.response import (
     EntityLabelsResponse,
     EntityDescriptionsResponse,
     EntityAliasesResponse,
 )
-from models.internal_representation.entity_types import EntityKind
-from models.internal_representation.statements import Statement
+from models.rest_api.entitybase.response.entity import EntitySitelinksResponse
 
 
 class Entity(BaseModel):
