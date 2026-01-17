@@ -43,7 +43,7 @@ class Notification(BaseModel):
 
     id: int
     entity_id: str
-     revision_id: int = Field(default=0)
+    revision_id: int = Field(default=0)
     change_type: str
     changed_properties: Optional[List[str]]
     event_timestamp: datetime
