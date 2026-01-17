@@ -78,19 +78,27 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    def get_orphaned(self, conn: Any, older_than_days: int, limit: int) -> list[int]:
+    def get_orphaned(
+        self, conn: Any, older_than_days: int, limit: int
+    ) -> OperationResult:
         """Get orphaned statement content hashes."""
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """SELECT content_hash
-                        FROM statement_content
-                        WHERE ref_count = 0
-                        AND created_at < DATE_SUB(NOW(), INTERVAL %s DAY)
-                        LIMIT %s""",
-                (older_than_days, limit),
-            )
-            result = [row[0] for row in cursor.fetchall()]
-            return result
+        if older_than_days <= 0 or limit <= 0:
+            return OperationResult(success=False, error="Invalid parameters")
+
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """SELECT content_hash
+                            FROM statement_content
+                            WHERE ref_count = 0
+                            AND created_at < DATE_SUB(NOW(), INTERVAL %s DAY)
+                            LIMIT %s""",
+                    (older_than_days, limit),
+                )
+                result = [row[0] for row in cursor.fetchall()]
+                return OperationResult(success=True, data=result)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def get_most_used(self, conn: Any, limit: int, min_ref_count: int = 1) -> list[int]:
         """Get most used statement content hashes."""

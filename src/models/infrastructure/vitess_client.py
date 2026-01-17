@@ -418,7 +418,13 @@ class VitessClient(Client):
     def get_orphaned_statements(self, older_than_days: int, limit: int) -> list[int]:
         """Get orphaned statements older than specified days."""
         with self.connection_manager.get_connection() as conn:
-            return self.statement_repository.get_orphaned(conn, older_than_days, limit)  # type: ignore[no-any-return]
+            result = self.statement_repository.get_orphaned(
+                conn, older_than_days, limit
+            )
+            if not result.success:
+                # Return empty list on error
+                return []
+            return result.data if isinstance(result.data, list) else []
 
     def get_most_used_statements(self, limit: int, min_ref_count: int = 1) -> list[int]:
         """Get most used statements by reference count."""

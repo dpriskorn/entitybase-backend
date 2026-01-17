@@ -134,18 +134,30 @@ class UserRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    def get_user_preferences(self, user_id: int) -> Any | None:
+    def get_user_preferences(self, user_id: int) -> OperationResult:
         """Get user notification preferences."""
-        with self.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT notification_limit, retention_hours FROM users WHERE user_id = %s",
-                    (user_id,),
-                )
-                row = cursor.fetchone()
-                if row:
-                    return {"notification_limit": row[0], "retention_hours": row[1]}
-                return None
+        if user_id <= 0:
+            return OperationResult(success=False, error="Invalid user ID")
+
+        try:
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "SELECT notification_limit, retention_hours FROM users WHERE user_id = %s",
+                        (user_id,),
+                    )
+                    row = cursor.fetchone()
+                    if row:
+                        prefs = {
+                            "notification_limit": row[0],
+                            "retention_hours": row[1],
+                        }
+                        return OperationResult(success=True, data=prefs)
+                    return OperationResult(
+                        success=False, error="User preferences not found"
+                    )
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def update_user_preferences(
         self, user_id: int, notification_limit: int, retention_hours: int
