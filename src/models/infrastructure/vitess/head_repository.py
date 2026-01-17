@@ -114,15 +114,21 @@ class HeadRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    def get_head_revision(self, internal_entity_id: int) -> int:
+    def get_head_revision(self, internal_entity_id: int) -> OperationResult:
         """Get the current head revision for an entity by internal ID."""
-        with self.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """SELECT head_revision_id FROM entity_head WHERE internal_id = %s""",
-                    (internal_entity_id,),
-                )
-                result = cursor.fetchone()
-                if result and len(result) > 0:
-                    return int(result[0])
-                return 0
+        if internal_entity_id <= 0:
+            return OperationResult(success=False, error="Invalid internal entity ID")
+
+        try:
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """SELECT head_revision_id FROM entity_head WHERE internal_id = %s""",
+                        (internal_entity_id,),
+                    )
+                    result = cursor.fetchone()
+                    if result and len(result) > 0:
+                        return OperationResult(success=True, data=int(result[0]))
+                    return OperationResult(success=False, error="Entity not found")
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))

@@ -103,7 +103,9 @@ class EntityUpdateHandler(EntityHandler):
                     revision_id=response.revision_id,
                 )
                 if not activity_result.success:
-                    logger.warning(f"Failed to log user activity: {activity_result.error}")
+                    logger.warning(
+                        f"Failed to log user activity: {activity_result.error}"
+                    )
 
             # Commit
             tx.commit()

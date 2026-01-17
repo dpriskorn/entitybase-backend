@@ -116,6 +116,7 @@ class RevisionReadResponse(BaseModel):
     revision_id: int
     data: RevisionData
     content: Dict[str, Any]
+    schema_version: str = Field(default="")
     created_at: str = Field(default="")
     user_id: int | None = Field(default=None)
     edit_summary: str = Field(default="")

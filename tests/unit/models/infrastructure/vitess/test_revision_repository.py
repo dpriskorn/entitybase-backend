@@ -116,8 +116,7 @@ class TestRevisionRepository:
 
         assert result is None
 
-    @patch("models.infrastructure.vitess.revision_repository.raise_validation_error")
-    def test_revert_entity_revision_not_found(self, mock_raise):
+    def test_revert_entity_revision_not_found(self):
         """Test revert_entity when target revision not found."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -126,11 +125,10 @@ class TestRevisionRepository:
         repo = RevisionRepository(mock_connection_manager, mock_id_resolver)
         # Mock get_revision to return None
         with patch.object(repo, "get_revision", return_value=None):
-            repo.revert_entity(123, 456, 789, "Test reason", None, mock_vitess)
+            with pytest.raises(ValueError) as exc_info:
+                repo.revert_entity(123, 456, 789, "Test reason", None, mock_vitess)
 
-        mock_raise.assert_called_once_with("Revision 456 not found", status_code=404)
-
-        mock_raise.assert_called_once_with("Revision 456 not found", status_code=404)
+        assert "Revision 456 not found" in str(exc_info.value)
 
     def test_revert_entity_success(self):
         """Test successful entity revert."""

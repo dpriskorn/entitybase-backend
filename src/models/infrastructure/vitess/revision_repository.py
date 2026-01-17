@@ -171,7 +171,9 @@ class RevisionRepository:
                     revision_id=new_revision_id,
                 )
                 if not activity_result.success:
-                    logger.warning(f"Failed to log user activity: {activity_result.error}")
+                    logger.warning(
+                        f"Failed to log user activity: {activity_result.error}"
+                    )
 
         return int(new_revision_id)
 

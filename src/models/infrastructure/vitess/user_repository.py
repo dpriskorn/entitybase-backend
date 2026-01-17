@@ -116,7 +116,9 @@ class UserRepository:
     ) -> OperationResult:
         """Log a user activity."""
         if user_id <= 0 or not activity_type:
-            return OperationResult(success=False, error="Invalid user ID or activity type")
+            return OperationResult(
+                success=False, error="Invalid user ID or activity type"
+            )
 
         try:
             with self.connection_manager.get_connection() as conn:

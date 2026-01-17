@@ -102,7 +102,7 @@ class TestS3Client:
             result = client.read_revision("Q42", 123)
 
             assert result.content == {"id": "Q42", "type": "item"}
-            assert result.schema_json == "1.0"
+            assert result.schema_version == "1.0"
             assert result.created_at == "2023-01-01"
             mock_connection_manager.boto_client.get_object.assert_called_once_with(
                 Bucket="test-bucket", Key="entities/Q42/123.json"
@@ -128,7 +128,7 @@ class TestS3Client:
             result = client.read_statement(456)
 
             assert result.statement == {"id": "P31"}
-            assert result.schema_json == "1.0"
+            assert result.schema_version == "1.0"
             assert result.created_at == "2023-01-01"
             mock_connection_manager.boto_client.get_object.assert_called_once_with(
                 Bucket="test-bucket", Key="statements/456.json"
