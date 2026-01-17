@@ -104,11 +104,10 @@ class RevisionRepository:
         target_data = self.get_revision(
             internal_entity_id, to_revision_id, vitess_client
         )
-        if not target_data:
+        if not target_data or target_data is None:
             raise_validation_error(
                 f"Revision {to_revision_id} not found", status_code=404
             )
-        assert target_data is not None
 
         # Get next revision ID
         with vitess_client.get_connection() as conn:
@@ -129,12 +128,12 @@ class RevisionRepository:
                         new_revision_id,
                         False,  # is_mass_edit
                         "revert",
-                        json.dumps(target_data["statements"]),
-                        json.dumps(target_data["properties"]),
-                        json.dumps(target_data["property_counts"]),
-                        json.dumps(target_data["labels_hashes"]),
-                        json.dumps(target_data["descriptions_hashes"]),
-                        json.dumps(target_data["aliases_hashes"]),
+                        json.dumps(target_data["statements"]),  # type: ignore[index]
+                        json.dumps(target_data["properties"]),  # type: ignore[index]
+                        json.dumps(target_data["property_counts"]),  # type: ignore[index]
+                        json.dumps(target_data["labels_hashes"]),  # type: ignore[index]
+                        json.dumps(target_data["descriptions_hashes"]),  # type: ignore[index]
+                        json.dumps(target_data["aliases_hashes"]),  # type: ignore[index]
                     ),
                 )
 
@@ -209,6 +208,8 @@ class RevisionRepository:
 
     def delete(self, conn: Any, entity_id: str, revision_id: int) -> None:
         """Delete a revision (for rollback)."""
+        if not conn or not entity_id or revision_id <= 0:
+            return
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return
