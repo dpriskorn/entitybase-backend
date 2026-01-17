@@ -49,6 +49,8 @@ dev = [
     "tenacity (>=9.1.2,<10.0.0)",
     "types-requests (>=2.32.4.20260107,<3.0.0.0)",
     "types-boto3 (>=1.0.0,<2.0.0)",
+    "types-jsonschema (>=4.26.0.20260109,<5.0.0.0)",
+    "beartype (>=0.22.9,<0.23.0)",
 ]
 
 [tool.pytest.ini_options]
@@ -66,14 +68,14 @@ ignore_names = ["arbitrary_types_allowed", "model_config"]
 # Note: Vulture whitelist is configured in run-vulture.sh, not here
 
 [tool.mypy]
-mypy_path = ["src", "types"]
+mypy_path = ["src"]
 python_version = "3.13"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
 ignore_missing_imports = false
 strict = false # this makes the number of errors explode
-exclude = ["src/types/"]
+exclude = ["src/types/", "types/"]
 
 [[tool.mypy.overrides]]
 module = "src/models/rest_api/main.py"
