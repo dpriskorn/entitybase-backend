@@ -234,4 +234,22 @@ class SchemaManager:
         """
         )
 
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS user_thanks (
+                id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                from_user_id BIGINT NOT NULL,
+                to_user_id BIGINT NOT NULL,
+                internal_entity_id BIGINT UNSIGNED NOT NULL,
+                revision_id BIGINT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX idx_from_user (from_user_id, created_at),
+                INDEX idx_to_user (to_user_id, created_at),
+                INDEX idx_revision (internal_entity_id, revision_id),
+                UNIQUE KEY unique_thank (from_user_id, internal_entity_id, revision_id),
+                FOREIGN KEY (internal_entity_id) REFERENCES entity_id_mapping(internal_id)
+            )
+        """
+        )
+
         cursor.close()

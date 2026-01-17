@@ -2,6 +2,47 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-17] Thanks Feature for Entity Revisions
+
+### Summary
+
+Implemented comprehensive "thank you" functionality allowing users to thank others for specific entity revision contributions. Includes full API endpoints for sending and listing thanks, database schema for thank tracking, and integration with existing user activity system.
+
+### Motivation
+
+- **Community Building**: Enable social recognition for contributions similar to Wikipedia's thanks feature
+- **User Engagement**: Provide positive feedback mechanism for editors
+- **Activity Tracking**: Extend user activity system with social interactions
+
+### Changes
+
+#### New Components
+- `ThanksRepository` in `src/models/infrastructure/vitess/thanks_repository.py` for database operations
+- `ThanksHandler` in `src/models/rest_api/entitybase/handlers/thanks.py` for API logic
+- `ThankItem` and `Thank` models in `src/models/thanks.py`
+- Request/response models in `src/models/rest_api/entitybase/request/thanks.py` and `response/thanks.py`
+
+#### API Endpoints
+- `POST /entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thank` - Send thank for revision
+- `GET /entitybase/v1/users/{user_id}/thanks/received` - List thanks received by user
+- `GET /entitybase/v1/users/{user_id}/thanks/sent` - List thanks sent by user
+- `GET /entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks` - List thanks for specific revision
+
+#### Database Schema
+- Added `user_thanks` table with proper indexing and foreign key constraints
+- Uses `internal_entity_id` for efficient joins with `entity_id_mapping`
+- Unique constraint prevents duplicate thanks for same revision
+- Time-based indexing for efficient chronological queries
+
+#### User Activity Integration
+- Added `THANK_SENT` and `THANK_RECEIVED` activity types to `ActivityType` enum
+- Thanks events recorded in user activity system for analytics
+
+#### Validation & Security
+- Prevents self-thanks and duplicate thanks
+- Validates user existence and revision availability
+- Proper error handling with descriptive messages
+
 ## [2026-01-14] Database Schema and ID Fixes
 
 ### Summary

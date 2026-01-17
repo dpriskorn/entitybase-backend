@@ -1,0 +1,234 @@
+"""Repository for managing thanks in Vitess."""
+
+import logging
+from typing import Any, List
+
+from models.common import OperationResult
+from models.thanks import ThankItem
+
+logger = logging.getLogger(__name__)
+
+
+class ThanksRepository:
+    """Repository for managing thanks in Vitess."""
+
+    def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
+        self.connection_manager = connection_manager
+        self.id_resolver = id_resolver
+
+    def send_thank(
+        self, from_user_id: int, entity_id: str, revision_id: int
+    ) -> OperationResult:
+        """Send a thank for a revision."""
+        if from_user_id <= 0 or not entity_id or revision_id <= 0:
+            return OperationResult(success=False, error="Invalid parameters")
+
+        try:
+            logger.debug(
+                f"Sending thank from user {from_user_id} for {entity_id}:{revision_id}"
+            )
+
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    # Resolve entity_id to internal_id
+                    internal_id = self.id_resolver.resolve_id(conn, entity_id)
+                    if not internal_id:
+                        return OperationResult(success=False, error="Entity not found")
+
+                    # Get the user_id of the revision author
+                    cursor.execute(
+                        "SELECT user_id FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                        (internal_id, revision_id),
+                    )
+                    row = cursor.fetchone()
+                    if not row:
+                        return OperationResult(
+                            success=False, error="Revision not found"
+                        )
+
+                    to_user_id = row[0]
+                    if to_user_id == from_user_id:
+                        return OperationResult(
+                            success=False, error="Cannot thank your own revision"
+                        )
+
+                    # Check for existing thank
+                    cursor.execute(
+                        "SELECT id FROM user_thanks WHERE from_user_id = %s AND internal_entity_id = %s AND revision_id = %s",
+                        (from_user_id, internal_id, revision_id),
+                    )
+                    if cursor.fetchone():
+                        return OperationResult(
+                            success=False, error="Already thanked this revision"
+                        )
+
+                    # Insert thank
+                    cursor.execute(
+                        "INSERT INTO user_thanks (from_user_id, to_user_id, internal_entity_id, revision_id) VALUES (%s, %s, %s, %s)",
+                        (from_user_id, to_user_id, internal_id, revision_id),
+                    )
+                    thank_id = cursor.lastrowid
+
+            return OperationResult(success=True, data=thank_id)
+        except Exception as e:
+            logger.error(f"Error sending thank: {e}")
+            return OperationResult(success=False, error=str(e))
+
+    def get_thanks_received(
+        self, user_id: int, hours: int = 24, limit: int = 50, offset: int = 0
+    ) -> OperationResult:
+        """Get thanks received by user."""
+        if user_id <= 0 or hours <= 0 or limit <= 0 or offset < 0:
+            return OperationResult(success=False, error="Invalid parameters")
+
+        try:
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        SELECT t.id, t.from_user_id, t.to_user_id, m.entity_id, t.revision_id, t.created_at
+                        FROM user_thanks t
+                        JOIN entity_id_mapping m ON t.internal_entity_id = m.internal_id
+                        WHERE t.to_user_id = %s AND t.created_at >= NOW() - INTERVAL %s HOUR
+                        ORDER BY t.created_at DESC
+                        LIMIT %s OFFSET %s
+                        """,
+                        (user_id, hours, limit, offset),
+                    )
+                    rows = cursor.fetchall()
+
+                    # Get total count
+                    cursor.execute(
+                        """
+                        SELECT COUNT(*) FROM user_thanks
+                        WHERE to_user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
+                        """,
+                        (user_id, hours),
+                    )
+                    total_count = cursor.fetchone()[0]
+
+            thanks = []
+            for row in rows:
+                thanks.append(
+                    ThankItem(
+                        id=row[0],
+                        from_user_id=row[1],
+                        to_user_id=row[2],
+                        entity_id=row[3],
+                        revision_id=row[4],
+                        created_at=row[5],
+                    )
+                )
+
+            return OperationResult(
+                success=True,
+                data={
+                    "thanks": thanks,
+                    "total_count": total_count,
+                    "has_more": total_count > offset + len(thanks),
+                },
+            )
+        except Exception as e:
+            logger.error(f"Error getting thanks received: {e}")
+            return OperationResult(success=False, error=str(e))
+
+    def get_thanks_sent(
+        self, user_id: int, hours: int = 24, limit: int = 50, offset: int = 0
+    ) -> OperationResult:
+        """Get thanks sent by user."""
+        if user_id <= 0 or hours <= 0 or limit <= 0 or offset < 0:
+            return OperationResult(success=False, error="Invalid parameters")
+
+        try:
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        SELECT t.id, t.from_user_id, t.to_user_id, m.entity_id, t.revision_id, t.created_at
+                        FROM user_thanks t
+                        JOIN entity_id_mapping m ON t.internal_entity_id = m.internal_id
+                        WHERE t.from_user_id = %s AND t.created_at >= NOW() - INTERVAL %s HOUR
+                        ORDER BY created_at DESC
+                        LIMIT %s OFFSET %s
+                        """,
+                        (user_id, hours, limit, offset),
+                    )
+                    rows = cursor.fetchall()
+
+                    # Get total count
+                    cursor.execute(
+                        """
+                        SELECT COUNT(*) FROM user_thanks
+                        WHERE from_user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
+                        """,
+                        (user_id, hours),
+                    )
+                    total_count = cursor.fetchone()[0]
+
+            thanks = []
+            for row in rows:
+                thanks.append(
+                    ThankItem(
+                        id=row[0],
+                        from_user_id=row[1],
+                        to_user_id=row[2],
+                        entity_id=row[3],
+                        revision_id=row[4],
+                        created_at=row[5],
+                    )
+                )
+
+            return OperationResult(
+                success=True,
+                data={
+                    "thanks": thanks,
+                    "total_count": total_count,
+                    "has_more": total_count > offset + len(thanks),
+                },
+            )
+        except Exception as e:
+            logger.error(f"Error getting thanks sent: {e}")
+            return OperationResult(success=False, error=str(e))
+
+    def get_revision_thanks(self, entity_id: str, revision_id: int) -> OperationResult:
+        """Get all thanks for a specific revision."""
+        if not entity_id or revision_id <= 0:
+            return OperationResult(success=False, error="Invalid parameters")
+
+        try:
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    # Resolve entity_id to internal_id
+                    internal_id = self.id_resolver.resolve_id(conn, entity_id)
+                    if not internal_id:
+                        return OperationResult(success=False, error="Entity not found")
+
+                    cursor.execute(
+                        """
+                        SELECT t.id, t.from_user_id, t.to_user_id, m.entity_id, t.revision_id, t.created_at
+                        FROM user_thanks t
+                        JOIN entity_id_mapping m ON t.internal_entity_id = m.internal_id
+                        WHERE t.internal_entity_id = %s AND t.revision_id = %s
+                        ORDER BY t.created_at DESC
+                        """,
+                        (internal_id, revision_id),
+                    )
+                    rows = cursor.fetchall()
+
+            thanks = []
+            for row in rows:
+                thanks.append(
+                    ThankItem(
+                        id=row[0],
+                        from_user_id=row[1],
+                        to_user_id=row[2],
+                        entity_id=row[3],
+                        revision_id=row[4],
+                        created_at=row[5],
+                    )
+                )
+
+            return OperationResult(success=True, data=thanks)
+        except Exception as e:
+            logger.error(f"Error getting revision thanks: {e}")
+            return OperationResult(success=False, error=str(e))

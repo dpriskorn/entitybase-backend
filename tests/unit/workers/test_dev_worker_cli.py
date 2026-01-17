@@ -76,7 +76,7 @@ class TestDevWorkerCLI:
         captured = capsys.readouterr()
         assert "usage:" in captured.out
 
-    @patch("models.workers.dev.__main__.DevWorker")
+    @patch("models.workers.dev.create_buckets.CreateBuckets")
     @patch("asyncio.run")
     @patch("sys.argv", ["devworker", "setup", "--endpoint", "http://custom:9000"])
     def test_custom_arguments(self, mock_asyncio_run, mock_dev_worker_class):

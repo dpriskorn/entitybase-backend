@@ -61,6 +61,7 @@ from models.watchlist import (
 from .entitybase.handlers.user import UserHandler
 from .entitybase.handlers.user_activity import UserActivityHandler
 from .entitybase.handlers.user_preferences import UserPreferencesHandler
+from .entitybase.handlers.thanks import ThanksHandler
 from .entitybase.response.entity import EntityRevertResponse
 from .entitybase.response.misc import RawRevisionResponse, WatchCounts
 from .entitybase.response.user import (
@@ -70,6 +71,8 @@ from .entitybase.response.user import (
 )
 from .entitybase.response.user_activity import UserActivityResponse
 from .entitybase.response.user_preferences import UserPreferencesResponse
+from .entitybase.response.thanks import ThankResponse, ThanksListResponse
+from .entitybase.request.thanks import ThanksListRequest
 from .entitybase.services.enumeration_service import EnumerationService
 from .entitybase.v1 import v1_router
 
@@ -244,175 +247,88 @@ def toggle_watchlist(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@app.post("/v1/watchlist", response_model=MessageResponse)
-def add_watch(request: WatchlistAddRequest) -> MessageResponse:
-    """Add a watchlist entry."""
+@app.post(
+    "/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thank",
+    response_model=ThankResponse,
+)
+def send_thank(
+    entity_id: str, revision_id: int, user_id: int = Header(..., alias="X-User-ID")
+) -> ThankResponse:
+    """Send a thank for a specific revision."""
     clients = app.state.clients
-    handler = WatchlistHandler()
-    try:
-        result = handler.add_watch(request, clients.vitess)
-        if not isinstance(result, MessageResponse):
-            raise_validation_error("Invalid response type", status_code=500)
-        assert isinstance(result, MessageResponse)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@app.delete("/v1/watchlist", response_model=MessageResponse)
-def remove_watch(request: WatchlistRemoveRequest) -> MessageResponse:
-    """Remove a watchlist entry."""
-    clients = app.state.clients
-    handler = WatchlistHandler()
-    result = handler.remove_watch(request, clients.vitess)
-    if not isinstance(result, MessageResponse):
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = ThanksHandler()
+    result = handler.send_thank(entity_id, revision_id, user_id, clients.vitess)
+    if not isinstance(result, ThankResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, MessageResponse)
+    assert isinstance(result, ThankResponse)
     return result
 
 
-@app.get("/v1/watchlist", response_model=WatchlistResponse)
-def get_watchlist(
-    user_id: int = Query(..., description="MediaWiki user ID"),
-) -> WatchlistResponse:
-    """Get user's watchlist."""
-    clients = app.state.clients
-    handler = WatchlistHandler()
-    try:
-        result = handler.get_watches(user_id, clients.vitess)
-        if not isinstance(result, WatchlistResponse):
-            raise_validation_error("Invalid response type", status_code=500)
-        assert isinstance(result, WatchlistResponse)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@app.get("/v1/watchlist/counts")
-def get_watch_counts(
-    user_id: int = Query(..., description="MediaWiki user ID"),
-) -> WatchCounts:
-    """Get user's watch counts."""
-    clients = app.state.clients
-    handler = WatchlistHandler()
-    try:
-        result = handler.get_watch_counts(user_id, clients.vitess)
-        if not isinstance(result, WatchCounts):
-            raise_validation_error("Invalid response type", status_code=500)
-        assert isinstance(result, WatchCounts)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@app.get("/v1/watchlist/notifications", response_model=NotificationResponse)
-def get_notifications(
-    user_id: int = Query(..., description="MediaWiki user ID"),
-    hours: int = Query(24, ge=1, le=720, description="Time span in hours (1-720)"),
-    limit: int = Query(50, description="Number of notifications (50, 100, 250, 500)"),
-    offset: int = Query(0, ge=0, description="Number of notifications to skip"),
-) -> NotificationResponse:
-    """Get user's recent watchlist notifications within time span."""
-    # Validate limit
-    allowed_limits = [50, 100, 250, 500]
-    if limit not in allowed_limits:
-        raise HTTPException(
-            status_code=400, detail=f"Limit must be one of {allowed_limits}"
-        )
-
-    clients = app.state.clients
-    handler = WatchlistHandler()
-    try:
-        result = handler.get_notifications(
-            user_id, clients.vitess, hours, limit, offset
-        )
-        if not isinstance(result, NotificationResponse):
-            raise_validation_error("Invalid response type", status_code=500)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@app.post("/v1/watchlist/notifications/check", response_model=MessageResponse)
-def mark_notification_checked(
-    request: MarkCheckedRequest,
-    user_id: int = Query(..., description="MediaWiki user ID"),
-) -> MessageResponse:
-    """Mark a notification as checked."""
-    clients = app.state.clients
-    handler = WatchlistHandler()
-    result = handler.mark_checked(user_id, request, clients.vitess)
-    if not isinstance(result, MessageResponse):
-        raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, MessageResponse)
-    return result
-
-
-@app.get("/v1/users/{user_id}/activity", response_model=UserActivityResponse)
-def get_user_activity(
+@app.get(
+    "/entitybase/v1/users/{user_id}/thanks/received", response_model=ThanksListResponse
+)
+def get_thanks_received(
     user_id: int,
-    type: str | None = Query(None, description="Activity type filter"),
+    limit: int = Query(
+        50, ge=1, le=500, description="Maximum number of thanks to return"
+    ),
+    offset: int = Query(0, ge=0, description="Number of thanks to skip"),
     hours: int = Query(24, ge=1, le=720, description="Time span in hours"),
-    limit: int = Query(50, description="Number of activities (50, 100, 250, 500)"),
-    offset: int = Query(0, ge=0, description="Number of activities to skip"),
-) -> UserActivityResponse:
-    """Get user's activity history."""
-    logger.debug(f"Getting user activity for user {user_id} with type {type}")
-    # Validate limit
-    allowed_limits = [50, 100, 250, 500]
-    if limit not in allowed_limits:
-        raise HTTPException(
-            status_code=400, detail=f"Limit must be one of {allowed_limits}"
-        )
-
-    clients = app.state.clients
-    handler = UserActivityHandler()
-    try:
-        result = handler.get_user_activities(
-            user_id, clients.vitess, type, hours, limit, offset
-        )
-        if not isinstance(result, UserActivityResponse):
-            raise_validation_error("Invalid response type", status_code=500)
-        assert isinstance(result, UserActivityResponse)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@app.get("/v1/users/{user_id}/preferences", response_model=UserPreferencesResponse)
-def get_user_preferences(user_id: int) -> UserPreferencesResponse:
-    """Get user's notification preferences."""
+) -> ThanksListResponse:
+    """Get thanks received by user."""
     clients = app.state.clients
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = UserPreferencesHandler()
-    try:
-        result = handler.get_preferences(user_id, clients.vitess)
-        if not isinstance(result, UserPreferencesResponse):
-            raise_validation_error("Invalid response type", status_code=500)
-        assert isinstance(result, UserPreferencesResponse)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    handler = ThanksHandler()
+    request = ThanksListRequest(limit=limit, offset=offset, hours=hours)
+    result = handler.get_thanks_received(user_id, request, clients.vitess)
+    if not isinstance(result, ThanksListResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    assert isinstance(result, ThanksListResponse)
+    return result
 
 
-@app.put("/v1/users/{user_id}/preferences", response_model=UserPreferencesResponse)
-def update_user_preferences(
-    user_id: int, request: UserPreferencesRequest
-) -> UserPreferencesResponse:
-    """Update user's notification preferences."""
+@app.get(
+    "/entitybase/v1/users/{user_id}/thanks/sent", response_model=ThanksListResponse
+)
+def get_thanks_sent(
+    user_id: int,
+    limit: int = Query(
+        50, ge=1, le=500, description="Maximum number of thanks to return"
+    ),
+    offset: int = Query(0, ge=0, description="Number of thanks to skip"),
+    hours: int = Query(24, ge=1, le=720, description="Time span in hours"),
+) -> ThanksListResponse:
+    """Get thanks sent by user."""
     clients = app.state.clients
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = UserPreferencesHandler()
-    try:
-        result = handler.update_preferences(user_id, request, clients.vitess)
-        if not isinstance(result, UserPreferencesResponse):
-            raise_validation_error("Invalid response type", status_code=500)
-        assert isinstance(result, UserPreferencesResponse)
-        return result
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    handler = ThanksHandler()
+    request = ThanksListRequest(limit=limit, offset=offset, hours=hours)
+    result = handler.get_thanks_sent(user_id, request, clients.vitess)
+    if not isinstance(result, ThanksListResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    assert isinstance(result, ThanksListResponse)
+    return result
+
+
+@app.get(
+    "/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks",
+    response_model=ThanksListResponse,
+)
+def get_revision_thanks(entity_id: str, revision_id: int) -> ThanksListResponse:
+    """Get all thanks for a specific revision."""
+    clients = app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = ThanksHandler()
+    result = handler.get_revision_thanks(entity_id, revision_id, clients.vitess)
+    if not isinstance(result, ThanksListResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    assert isinstance(result, ThanksListResponse)
+    return result
 
 
 @app.post(

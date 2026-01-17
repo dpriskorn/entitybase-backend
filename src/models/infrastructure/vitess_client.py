@@ -30,6 +30,7 @@ from models.infrastructure.vitess.schema import SchemaManager
 from models.infrastructure.vitess.statement_repository import StatementRepository
 from models.infrastructure.vitess.user_repository import UserRepository
 from models.infrastructure.vitess.watchlist_repository import WatchlistRepository
+from models.infrastructure.vitess.thanks_repository import ThanksRepository
 from models.rest_api.entitybase.request.entity import EntityInsertDataRequest
 from models.rest_api.entitybase.response import ProtectionResponse
 from models.rest_api.entitybase.response import FullRevisionResponse
@@ -63,6 +64,7 @@ class VitessClient(Client):
     metadata_repository: MetadataRepository = Field(default=None, exclude=True)
     user_repository: UserRepository = Field(default=None, exclude=True)
     watchlist_repository: WatchlistRepository = Field(default=None, exclude=True)
+    thanks_repository: "ThanksRepository" = Field(default=None, exclude=True)
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
@@ -86,6 +88,9 @@ class VitessClient(Client):
         self.metadata_repository = MetadataRepository(self.connection_manager)
         self.user_repository = UserRepository(self.connection_manager)
         self.watchlist_repository = WatchlistRepository(
+            self.connection_manager, self.id_resolver
+        )
+        self.thanks_repository = ThanksRepository(
             self.connection_manager, self.id_resolver
         )
         self._create_tables()

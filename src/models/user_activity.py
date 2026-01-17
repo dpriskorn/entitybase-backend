@@ -19,6 +19,8 @@ class ActivityType(str, Enum):
     ENTITY_UNLOCK = "entity_unlock"  # Unlocking entities
     ENTITY_ARCHIVE = "entity_archive"  # Archiving entities
     ENTITY_UNARCHIVE = "entity_unarchive"  # Unarchiving entities
+    THANK_SENT = "thank_sent"  # Sending thanks for a revision
+    THANK_RECEIVED = "thank_received"  # Receiving thanks for a revision
 
 
 class UserActivityItem(BaseModel):

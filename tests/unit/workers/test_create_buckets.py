@@ -155,8 +155,8 @@ class TestCreateBuckets:
         mock_client = MagicMock()
         mock_boto3.client.return_value = mock_client
 
-        def side_effect(bucket_name):
-            if bucket_name == "terms":
+        def side_effect(Bucket):
+            if Bucket == "wikibase-terms":
                 raise ClientError(
                     error_response={"Error": {"Code": "404"}},
                     operation_name="HeadBucket",
