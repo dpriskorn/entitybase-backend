@@ -2,12 +2,66 @@
 
 import json
 import logging
+import re
 
 from models.rdf_builder.converter import EntityConverter
 from models.json_parser.entity_parser import parse_entity
-from tests.unit.rdf.conftest import normalize_ttl, split_subject_blocks
 import os
 from pathlib import Path
+
+
+def normalize_ttl(ttl: str) -> str:
+    logger = logging.getLogger(__name__)
+    logger.debug("=== normalize_ttl() START ===")
+    logger.debug(f"Input length: {len(ttl)} chars")
+    logger.debug(f"First 100 chars of input: {repr(ttl[:100])}")
+
+    ttl = re.sub(r"#.*$", "", ttl, flags=re.MULTILINE)
+    logger.debug(f"After removing comments: {len(ttl)} chars")
+
+    ttl = re.sub(r"[ \t]+", " ", ttl)
+    logger.debug(f"After normalizing whitespace: {len(ttl)} chars")
+    logger.debug(f"First 100 chars: {repr(ttl[:100])}")
+
+    ttl = re.sub(r"\n\n+", "\n\n", ttl)
+    logger.debug(f"After normalizing newlines: {len(ttl)} chars")
+    logger.debug(f"First 100 chars: {repr(ttl[:100])}")
+
+    result = ttl.strip()
+    logger.debug(f"Result length: {len(result)} chars")
+    logger.debug(f"First 100 chars: {repr(result[:100])}")
+    logger.debug("=== normalize_ttl() END ===")
+    return result
+
+
+def split_subject_blocks(ttl: str) -> dict[str, str]:
+    blocks = {}
+    current_subject = None
+    current_lines = []
+
+    for line in ttl.splitlines():
+        if not line.strip():
+            continue
+
+        line_stripped = line.strip()
+        if line_stripped.lower().startswith("@prefix"):
+            continue
+
+        if line_stripped.startswith("<http") or line_stripped.startswith("<https"):
+            continue
+
+        if line and not line.startswith((" ", "\t")):
+            if current_subject:
+                blocks[current_subject] = "\n".join(current_lines).strip()
+            current_subject = list(line.split())[0]
+            current_lines = [line]
+        else:
+            current_lines.append(line)
+
+    if current_subject:
+        blocks[current_subject] = "\n".join(current_lines).strip()
+
+    return blocks
 TEST_DATA_DIR = Path(__file__).parent.parent / "test_data"
 
 
