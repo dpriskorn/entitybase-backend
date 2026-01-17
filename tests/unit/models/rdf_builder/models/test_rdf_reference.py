@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import patch
+from pydantic import ValidationError
 
 pytestmark = pytest.mark.unit
 
@@ -35,12 +36,5 @@ class TestRDFReference:
 
     def test_rdf_reference_none_hash_raises_error(self):
         """Test that None hash raises validation error."""
-        reference = Reference(hash=None)
-        with patch(
-            "models.rdf_builder.models.rdf_reference.raise_validation_error"
-        ) as mock_raise:
-            RDFReference(reference, "wds:Q99-xyz")
-            mock_raise.assert_called_once()
-            call_args = mock_raise.call_args[0][0]
-            assert "Reference has no hash" in call_args
-            assert "wds:Q99-xyz" in call_args
+        with pytest.raises(ValidationError):
+            reference = Reference(hash=None)

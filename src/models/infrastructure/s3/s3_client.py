@@ -32,6 +32,8 @@ class S3Client(Client):
     def __init__(self, config: S3Config, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
         manager = S3ConnectionManager(config=config)
+        if manager is None:
+            raise_validation_error("S3 service unavailable", status_code=503)
         manager.connect()
         self.connection_manager = manager
         self._ensure_bucket_exists()
@@ -81,7 +83,7 @@ class S3Client(Client):
             Key=key,
             Body=json.dumps(data),
             Metadata={
-                "publication_state": publication_state,
+                "schema_version": publication_state,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             },
         )
@@ -196,6 +198,7 @@ class S3Client(Client):
                 Bucket=self.config.bucket,
                 Key=key,
                 Body=statement_json,
+                Metadata={"schema_version": schema_version},
             )
 
             # Enhanced response logging with S3 metadata
@@ -349,8 +352,11 @@ class S3Client(Client):
         self.connection_manager.boto_client.put_object(
             Bucket=self.config.bucket,
             Key=key,
-            Body=json.dumps(revision_data),
-            Metadata={"publication_state": "published"},
+            Body=json.dumps(data),
+            Metadata={
+                "schema_version": publication_state,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            },
         )
         return revision_id
 

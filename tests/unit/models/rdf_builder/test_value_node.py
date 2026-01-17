@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import MagicMock
 
 pytestmark = pytest.mark.unit
 

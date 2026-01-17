@@ -185,3 +185,136 @@ class TestStatementBacklinkExtractor:
         }
         result = StatementBacklinkExtractor.extract_backlink_data(statement)
         assert result == [("Q5", "P31", "deprecated")]
+
+    def test_extract_backlink_data_lexeme_entity(self) -> None:
+        """Test extraction from mainsnak with lexeme reference."""
+        statement = {
+            "mainsnak": {
+                "snaktype": "value",
+                "property": "P31",
+                "datavalue": {
+                    "value": {"entity-type": "lexeme", "id": "L123"},
+                    "type": "wikibase-entityid",
+                },
+            },
+            "type": "statement",
+            "rank": "normal",
+            "qualifiers": {},
+            "references": [],
+        }
+        result = StatementBacklinkExtractor.extract_backlink_data(statement)
+        assert result == [("L123", "P31", "normal")]
+
+    def test_extract_backlink_data_entity_schema_entity(self) -> None:
+        """Test extraction from mainsnak with entity-schema reference."""
+        statement = {
+            "mainsnak": {
+                "snaktype": "value",
+                "property": "P31",
+                "datavalue": {
+                    "value": {"entity-type": "entity-schema", "id": "E123"},
+                    "type": "wikibase-entityid",
+                },
+            },
+            "type": "statement",
+            "rank": "normal",
+            "qualifiers": {},
+            "references": [],
+        }
+        result = StatementBacklinkExtractor.extract_backlink_data(statement)
+        assert result == [("E123", "P31", "normal")]
+
+    def test_extract_backlink_data_missing_entity_id(self) -> None:
+        """Test that missing entity id is ignored."""
+        statement = {
+            "mainsnak": {
+                "snaktype": "value",
+                "property": "P31",
+                "datavalue": {
+                    "value": {"entity-type": "item"},  # missing id
+                    "type": "wikibase-entityid",
+                },
+            },
+            "type": "statement",
+            "rank": "normal",
+            "qualifiers": {},
+            "references": [],
+        }
+        result = StatementBacklinkExtractor.extract_backlink_data(statement)
+        assert result == []
+
+    def test_extract_backlink_data_missing_property(self) -> None:
+        """Test that missing property is ignored."""
+        statement = {
+            "mainsnak": {
+                "snaktype": "value",
+                # missing property
+                "datavalue": {
+                    "value": {"entity-type": "item", "id": "Q5"},
+                    "type": "wikibase-entityid",
+                },
+            },
+            "type": "statement",
+            "rank": "normal",
+            "qualifiers": {},
+            "references": [],
+        }
+        result = StatementBacklinkExtractor.extract_backlink_data(statement)
+        assert result == []
+
+    def test_extract_backlink_data_novalue_snaktype(self) -> None:
+        """Test that novalue snaktype is ignored."""
+        statement = {
+            "mainsnak": {
+                "snaktype": "novalue",
+                "property": "P31",
+                "datavalue": {
+                    "value": {"entity-type": "item", "id": "Q5"},
+                    "type": "wikibase-entityid",
+                },
+            },
+            "type": "statement",
+            "rank": "normal",
+            "qualifiers": {},
+            "references": [],
+        }
+        result = StatementBacklinkExtractor.extract_backlink_data(statement)
+        assert result == []
+
+    def test_extract_backlink_data_somevalue_snaktype(self) -> None:
+        """Test that somevalue snaktype is ignored."""
+        statement = {
+            "mainsnak": {
+                "snaktype": "somevalue",
+                "property": "P31",
+                "datavalue": {
+                    "value": {"entity-type": "item", "id": "Q5"},
+                    "type": "wikibase-entityid",
+                },
+            },
+            "type": "statement",
+            "rank": "normal",
+            "qualifiers": {},
+            "references": [],
+        }
+        result = StatementBacklinkExtractor.extract_backlink_data(statement)
+        assert result == []
+
+    def test_extract_backlink_data_non_wikibase_type(self) -> None:
+        """Test that non-wikibase-entityid datavalue type is ignored."""
+        statement = {
+            "mainsnak": {
+                "snaktype": "value",
+                "property": "P31",
+                "datavalue": {
+                    "value": "some string",
+                    "type": "string",
+                },
+            },
+            "type": "statement",
+            "rank": "normal",
+            "qualifiers": {},
+            "references": [],
+        }
+        result = StatementBacklinkExtractor.extract_backlink_data(statement)
+        assert result == []

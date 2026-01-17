@@ -92,7 +92,7 @@ class TestS3Client:
             }
             mock_body = MagicMock()
             mock_body.read.return_value = (
-                b'{"schema_version": "1.0", "entity": {"id": "Q42"}}'
+                b'{"schema_version": "1.0", "entity": {"id": "Q42", "type": "item"}}'
             )
             mock_connection_manager.boto_client.get_object.return_value["Body"] = (
                 mock_body
@@ -101,7 +101,7 @@ class TestS3Client:
             client = S3Client(config)
             result = client.read_revision("Q42", 123)
 
-            assert result.content == {"test": "data"}
+            assert result.content == {"id": "Q42", "type": "item"}
             assert result.schema_version == "1.0"
             assert result.created_at == "2023-01-01"
             mock_connection_manager.boto_client.get_object.assert_called_once_with(
@@ -158,6 +158,16 @@ class TestS3Client:
         ) as mock_manager_class:
             mock_manager_class.return_value = mock_connection_manager
 
+            # Mock the verification get_object
+            mock_connection_manager.boto_client.get_object.return_value = {
+                "Body": MagicMock()
+            }
+            mock_verify_body = MagicMock()
+            mock_verify_body.read.return_value = b'{"schema_version": "1.0", "content_hash": 456, "statement": {"id": "P31"}, "created_at": "2023-01-01T12:00:00"}'
+            mock_connection_manager.boto_client.get_object.return_value["Body"] = (
+                mock_verify_body
+            )
+
             client = S3Client(config)
             client.write_statement(456, {"statement": {"id": "P31"}}, "1.0")
 
@@ -196,7 +206,7 @@ class TestS3Client:
                 "Body": MagicMock()
             }
             mock_body = MagicMock()
-            mock_body.read.return_value = b'"test label"'
+            mock_body.read.return_value = b"test label"
             mock_connection_manager.boto_client.get_object.return_value["Body"] = (
                 mock_body
             )
