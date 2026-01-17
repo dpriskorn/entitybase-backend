@@ -1,6 +1,7 @@
 """Base client classes for external service connections."""
 
 from abc import ABC
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 from models.validation.utils import raise_validation_error
@@ -14,7 +15,7 @@ class Client(ABC, BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
     config: Config
-    connection_manager: ConnectionManager = Field(default=None, exclude=True)
+    connection_manager: Optional[ConnectionManager] = Field(default=None, exclude=True)
 
     @property
     def healthy_connection(self) -> bool:

@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class StatementResponse(BaseModel):
     """Response model for statement data."""
 
-    model_config = ConfigDict(by_alias=True, populate_by_name=True)
+    model_config = ConfigDict(by_alias=True, populate_by_name=True)  # type: ignore[typeddict-unknown-key]
 
     schema_version: str = Field(
         alias="schema", description="Schema version for the statement. Example: '1.0'."
