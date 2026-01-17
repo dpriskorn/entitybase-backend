@@ -30,3 +30,4 @@ test_data/properties/*.json
 /.coverage
 /.vscode
 /htmlcov
+/coverage.txt

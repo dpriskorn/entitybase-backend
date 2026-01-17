@@ -2,7 +2,7 @@ import json
 import pytest
 
 from models.json_parser import parse_entity
-from parsers.conftest import TEST_DATA_JSON_DIR
+from .conftest import TEST_DATA_JSON_DIR
 
 
 def test_parse_entity_basic() -> None:

@@ -2,6 +2,7 @@ import json
 import logging
 from typing import Any, Dict
 
+import pytest
 import requests
 
 from rapidhash import rapidhash
