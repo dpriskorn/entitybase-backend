@@ -26,9 +26,9 @@ class EndorsementListResponse(BaseModel):
 
     statement_hash: int = Field(alias="hash", default=0)
     user_id: int = Field(default=0)
-    endorsements: List[Endorsement] = Field(alias="list")
-    total_count: int = Field(alias="count")
-    has_more: bool = Field(alias="more")
+    endorsements: List[Endorsement] = Field(alias="list", description="List of endorsements. Example: [{'id': 1, 'user_id': 123}]")
+    total_count: int = Field(alias="count", description="Total number of endorsements. Example: 50")
+    has_more: bool = Field(alias="more", description="Whether there are more endorsements to fetch. Example: true")
     stats: "StatementEndorsementStats"
 
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Linter to check that Pydantic model field names in API response models are <= 10 characters.
+Linter to check that Pydantic model fields in API response models have descriptions.
 """
 
 import ast
@@ -8,7 +8,7 @@ import sys
 from pathlib import Path
 
 
-def check_field_name_lengths(models_dir: Path) -> list[str]:
+def check_descriptions(models_dir: Path) -> list[str]:
     violations = []
     for file in sorted(models_dir.rglob("*.py")):
         try:
@@ -27,9 +27,10 @@ def check_field_name_lengths(models_dir: Path) -> list[str]:
                             isinstance(item, ast.AnnAssign)
                             and isinstance(item.target, ast.Name)
                             and item.target.id
+                            and not item.target.id.startswith("_")
                         ):
-                            name = item.target.id
-                            alias = None
+                            field_name = item.target.id
+                            has_description = False
                             if (
                                 item.value
                                 and isinstance(item.value, ast.Call)
@@ -38,13 +39,12 @@ def check_field_name_lengths(models_dir: Path) -> list[str]:
                                 and item.value.keywords
                             ):
                                 for kw in item.value.keywords:
-                                    if kw.arg == "alias" and isinstance(kw.value, ast.Constant) and isinstance(kw.value.value, str):
-                                        alias = kw.value.value
+                                    if kw.arg == "description":
+                                        has_description = True
                                         break
-                            check_name = alias if alias else name
-                            if len(check_name) > 20:
+                            if not has_description:
                                 violations.append(
-                                    f"Field '{name}' (alias: '{alias}' -> {len(check_name)} chars) exceeds 10 char limit in {node.name} ({file.relative_to(models_dir.parent.parent)})"
+                                    f"Field '{field_name}' in {node.name} ({file.relative_to(models_dir.parent.parent)}) lacks a description"
                                 )
         except SyntaxError as e:
             violations.append(f"Syntax error in {file}: {e}")
@@ -53,7 +53,7 @@ def check_field_name_lengths(models_dir: Path) -> list[str]:
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python key_length_linter.py <models_dir>")
+        print("Usage: python description_linter.py <models_dir>")
         sys.exit(1)
 
     models_dir = Path(sys.argv[1])
@@ -61,13 +61,13 @@ def main():
         print(f"Directory {models_dir} does not exist")
         sys.exit(1)
 
-    violations = check_field_name_lengths(models_dir)
+    violations = check_descriptions(models_dir)
     if violations:
         for violation in violations:
             print(violation)
         sys.exit(1)
     else:
-        print("All field names are <= 10 characters.")
+        print("All fields have descriptions.")
 
 
 if __name__ == "__main__":
