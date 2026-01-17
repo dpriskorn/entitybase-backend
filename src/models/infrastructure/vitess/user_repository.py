@@ -111,7 +111,7 @@ class UserRepository:
         self,
         user_id: int,
         activity_type: str,
-        entity_id: str | None = "",
+        entity_id: str,
         revision_id: int = 0,
     ) -> OperationResult:
         """Log a user activity."""
@@ -121,7 +121,6 @@ class UserRepository:
             )
 
         try:
-            entity_id = None if entity_id == "" else entity_id
             with self.connection_manager.get_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
@@ -181,7 +180,7 @@ class UserRepository:
     def get_user_activities(
         self,
         user_id: int,
-        activity_type: str | None = None,
+        activity_type: str = "",
         hours: int = 24,
         limit: int = 50,
         offset: int = 0,
