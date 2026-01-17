@@ -31,3 +31,4 @@ test_data/properties/*.json
 /.vscode
 /htmlcov
 /coverage.txt
+/coverage_below_threshold.txt
