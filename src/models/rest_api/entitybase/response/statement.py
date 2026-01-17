@@ -2,16 +2,18 @@
 
 from typing import Any, Dict
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class StatementResponse(BaseModel):
     """Response model for statement data."""
 
-    schema_version: str = Field(..., description="Schema version")
-    content_hash: int = Field(..., description="Statement hash")
-    statement: Dict[str, Any] = Field(..., description="Full statement JSON")
-    created_at: str = Field(..., description="Creation timestamp")
+    model_config = ConfigDict(by_alias=True)
+
+    schema_version: str = Field(alias="schema", description="Schema version for the statement. Example: '1.0'.")
+    content_hash: int = Field(alias="hash", description="Hash of the statement content. Example: 123456789.")
+    statement: Dict[str, Any] = Field(description="Full statement JSON object. Example: {'id': 'P31', 'value': 'Q5'}.")
+    created_at: str = Field(description="Timestamp when statement was created. Example: '2023-01-01T12:00:00Z'.")
 
 
 class StatementBatchResponse(BaseModel):
@@ -52,9 +54,25 @@ class MostUsedStatementsResponse(BaseModel):
 
 
 class StatementHashResult(BaseModel):
+    model_config = ConfigDict(by_alias=True)
+
     statements: list[int] = Field(
         default_factory=list,
-        description="List of statement hashes (rapidhash of each statement)",
+        description="List of statement hashes (rapidhash of each statement). Example: [123456789, 987654321].",
+    )
+    properties: list[str] = Field(
+        default_factory=list,
+        description="Sorted list of unique property IDs. Example: ['P31', 'P279'].",
+    )
+    property_counts: dict[str, int] = Field(
+        alias="counts",
+        default_factory=dict,
+        description="Dict mapping property ID to count of statements. Example: {'P31': 5}.",
+    )
+    full_statements: list[Dict[str, Any]] = Field(
+        alias="statements",
+        default_factory=list,
+        description="List of full statement dicts (parallel with hashes). Example: [{'id': 'P31', 'value': 'Q5'}].",
     )
     properties: list[str] = Field(
         default_factory=list,

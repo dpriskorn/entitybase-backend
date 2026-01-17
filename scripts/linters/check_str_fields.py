@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Linter to check for str | None = Field(default=None) and suggest str = Field(default="").
+Linter to check for str | None = Field(default=None) and Optional[str] = Field(default=None), suggest str = Field(default="").
 """
 
 import sys
@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 def check_file(file_path: Path) -> list[tuple[str, int, str]]:
-    """Check a single Python file for str | None = Field(default=None)."""
+    """Check a single Python file for str | None = Field(default=None) and Optional[str] = Field(default=None)."""
     violations = []
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -25,6 +25,15 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                             str(file_path),
                             line_no,
                             f"Found 'str | None = Field(default=None)': {line.strip()}, use 'str = Field(default=\"\")' instead",
+                        )
+                    )
+                # Look for Optional[str] = Field(default=None)
+                elif "Optional[str] = Field(default=None)" in line:
+                    violations.append(
+                        (
+                            str(file_path),
+                            line_no,
+                            f"Found 'Optional[str] = Field(default=None)': {line.strip()}, use 'str = Field(default=\"\")' instead",
                         )
                     )
     except Exception as e:
@@ -53,13 +62,9 @@ def main() -> None:
             violations.extend(check_file(py_file))
 
     if violations:
-        # print("str | None = Field(default=None) violations:")
         for file_path, line_no, message in violations:
             print(f"{file_path}:{line_no}: {message}")
         sys.exit(1)
-    else:
-        pass
-        # print("No str | None = Field(default=None) violations found")
 
 
 if __name__ == "__main__":

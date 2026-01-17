@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from models.rest_api.entitybase.response.entity.wikibase import (
     SitelinkValue,
@@ -105,26 +105,28 @@ class EntityHistoryEntry(BaseModel):
 class EntityResponse(BaseModel):
     """Response model for entity data."""
 
-    id: str
-    revision_id: int
-    entity_data: Dict[str, Any]
-    is_semi_protected: bool = False
-    is_locked: bool = False
-    is_archived: bool = False
-    is_dangling: bool = False
-    is_mass_edit_protected: bool = False
+    model_config = ConfigDict(by_alias=True)
+
+    id: str = Field(description="Entity ID. Example: 'Q42'.")
+    revision_id: int = Field(alias="rev_id", description="Revision ID of the entity. Example: 12345.")
+    entity_data: Dict[str, Any] = Field(alias="data", description="Full entity JSON data. Example: {'id': 'Q42', 'type': 'item'}.")
+    is_semi_protected: bool = Field(alias="semi_prot", description="Whether the entity is semi-protected. Example: true.")
+    is_locked: bool = Field(description="Whether the entity is locked. Example: false.")
+    is_archived: bool = Field(alias="archived", description="Whether the entity is archived. Example: false.")
+    is_dangling: bool = Field(alias="dangling", description="Whether the entity is dangling. Example: false.")
+    is_mass_edit_protected: bool = Field(alias="mass_edit", description="Whether the entity has mass edit protection. Example: true.")
 
 
 class EntityDeleteResponse(BaseModel):
     """Response model for entity deletion."""
 
-    id: str
-    revision_id: int
-    is_deleted: bool = Field(..., description="Whether entity is deleted")
-    deletion_type: str = Field(..., description="Type of deletion performed")
-    deletion_status: str = Field(
-        ..., description="Status of deletion (soft_deleted/hard_deleted)"
-    )
+    model_config = ConfigDict(by_alias=True)
+
+    id: str = Field(description="Entity ID. Example: 'Q42'.")
+    revision_id: int = Field(alias="rev_id", description="Revision ID at deletion. Example: 12345.")
+    is_deleted: bool = Field(description="Whether entity is deleted. Example: true.")
+    deletion_type: str = Field(alias="del_type", description="Type of deletion performed. Example: 'soft_delete'.")
+    deletion_status: str = Field(alias="del_status", description="Status of deletion (soft_deleted/hard_deleted). Example: 'soft_deleted'.")
 
 
 class EntityRedirectResponse(BaseModel):
