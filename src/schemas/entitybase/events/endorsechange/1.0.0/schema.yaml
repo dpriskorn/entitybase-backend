@@ -12,7 +12,7 @@ properties:
     description: ID of the user performing the endorsement action
   action:
     type: string
-    enum: [endorse, withdraw]
+    enum: ["endorse", "withdraw"]
     description: Action taken on the endorsement
   timestamp:
     type: string

@@ -3,7 +3,7 @@
 import logging
 from datetime import datetime
 
-from models.infrastructure.stream.producer import EndorseChangeEvent
+from models.infrastructure.stream.producer import EndorseAction, EndorseChangeEvent
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.response.endorsements import (
     BatchEndorsementStatsResponse,
@@ -73,7 +73,7 @@ class EndorsementHandler:
              event = EndorseChangeEvent(
                  hash=str(statement_hash),
                  user=str(user_id),
-                 act="endorse",
+                 act=EndorseAction.WITHDRAW,
                  ts=datetime.utcnow(),
              )
             vitess_client.stream_producer.publish_change(event)
