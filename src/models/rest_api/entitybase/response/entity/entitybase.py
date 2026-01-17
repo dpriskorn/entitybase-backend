@@ -125,7 +125,7 @@ class EntityHistoryEntry(BaseModel):
 class EntityResponse(BaseModel):
     """Response model for entity data."""
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(by_alias=True)
 
     id: str = Field(description="Entity ID. Example: 'Q42'.")
     revision_id: int = Field(
