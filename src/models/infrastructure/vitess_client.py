@@ -375,9 +375,13 @@ class VitessClient(Client):
         return []
 
     def insert_statement_content(self, content_hash: int) -> bool:
-        """Insert statement content hash."""
+        \"\"\"Insert statement content hash.\"\"\"
         with self.connection_manager.get_connection() as conn:
-            return self.statement_repository.insert_content(conn, content_hash)  # type: ignore[no-any-return]
+            result = self.statement_repository.insert_content(conn, content_hash)
+            if not result.success:
+                # For backward compatibility, return False on failure
+                return False
+            return True
 
     def increment_ref_count(self, content_hash: int) -> int:
         """Increment reference count for statement content."""
@@ -501,7 +505,9 @@ class VitessClient(Client):
     def insert_backlinks(self, backlinks: list[tuple[int, int, int, str, str]]) -> None:
         """Insert backlinks into entity_backlinks table."""
         with self.connection_manager.get_connection() as conn:
-            self.backlink_repository.insert_backlinks(conn, backlinks)
+            result = self.backlink_repository.insert_backlinks(conn, backlinks)
+            if not result.success:
+                raise_validation_error(result.error or "Failed to insert backlinks", status_code=500)
 
     def delete_backlinks_for_entity(self, referencing_internal_id: int) -> None:
         """Delete all backlinks for a referencing entity."""

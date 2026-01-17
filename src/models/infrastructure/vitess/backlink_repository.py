@@ -22,10 +22,10 @@ class BacklinkRepository:
     def insert_backlinks(
         self, conn: Any, backlinks: list[tuple[int, int, int, str, str]]
     ) -> OperationResult:
-        \"\"\"Insert backlinks into entity_backlinks table.
+        """Insert backlinks into entity_backlinks table.
 
         backlinks: list of (referenced_internal_id, referencing_internal_id, statement_hash, property_id, rank)
-        \"\"\"
+        """
         if not backlinks:
             return OperationResult(success=True)
 
@@ -33,7 +33,12 @@ class BacklinkRepository:
             with conn.cursor() as cursor:
                 cursor.executemany(
                     \"\"\"
-                    INSERT INTO entity_backlinks \n                    (referenced_internal_id, referencing_internal_id, statement_hash, property_id, rank)\n                    VALUES (%s, %s, %s, %s, %s)\n                    ON DUPLICATE KEY UPDATE\n                    referenced_internal_id = referenced_internal_id  -- no-op, just to handle duplicates\n                    \"\"\",\n                    backlinks,\n                )
+                    INSERT INTO entity_backlinks
+                    (referenced_internal_id, referencing_internal_id, statement_hash, property_id, rank)
+                    VALUES (%s, %s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    referenced_internal_id = referenced_internal_id  -- no-op, just to handle duplicates
+                    \"\"\",\n                    backlinks,\n                )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
