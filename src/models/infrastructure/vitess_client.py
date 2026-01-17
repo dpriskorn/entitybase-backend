@@ -279,7 +279,7 @@ class VitessClient(Client):
             f"CAS updating head for entity {entity_id} from {expected_head} to {new_head}"
         )
         with self.connection_manager.get_connection() as conn:
-            return self.head_repository.cas_update_with_status(  # type: ignore[no-any-return]
+            result = self.head_repository.cas_update_with_status(
                 conn,
                 entity_id,
                 expected_head,
@@ -292,6 +292,10 @@ class VitessClient(Client):
                 is_deleted,
                 is_redirect,
             )
+            if not result.success:
+                # For CAS, failure is expected, return False
+                return False
+            return True
 
     def hard_delete_entity(
         self,
@@ -375,7 +379,7 @@ class VitessClient(Client):
         return []
 
     def insert_statement_content(self, content_hash: int) -> bool:
-        \"\"\"Insert statement content hash.\"\"\"
+        """Insert statement content hash."""
         with self.connection_manager.get_connection() as conn:
             result = self.statement_repository.insert_content(conn, content_hash)
             if not result.success:
@@ -507,7 +511,9 @@ class VitessClient(Client):
         with self.connection_manager.get_connection() as conn:
             result = self.backlink_repository.insert_backlinks(conn, backlinks)
             if not result.success:
-                raise_validation_error(result.error or "Failed to insert backlinks", status_code=500)
+                raise_validation_error(
+                    result.error or "Failed to insert backlinks", status_code=500
+                )
 
     def delete_backlinks_for_entity(self, referencing_internal_id: int) -> None:
         """Delete all backlinks for a referencing entity."""

@@ -3,6 +3,7 @@
 import logging
 from typing import Any
 
+from models.common import OperationResult
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -28,42 +29,50 @@ class HeadRepository:
         is_mass_edit_protected: bool,
         is_deleted: bool,
         is_redirect: bool = False,
-    ) -> bool:
+    ) -> OperationResult:
         """Update entity head with compare-and-swap semantics and status flags."""
         logger.debug(
             f"CAS update for entity {entity_id}, expected head {expected_head}, new head {new_head}"
         )
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            return False
+            return OperationResult(success=False, error="Entity not found")
 
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """UPDATE entity_head
-                       SET head_revision_id = %s,
-                           is_semi_protected = %s,
-                           is_locked = %s,
-                           is_archived = %s,
-                           is_dangling = %s,
-                           is_mass_edit_protected = %s,
-                           is_deleted = %s,
-                           is_redirect = %s
-                       WHERE internal_id = %s AND head_revision_id = %s""",
-                (
-                    new_head,
-                    is_semi_protected,
-                    is_locked,
-                    is_archived,
-                    is_dangling,
-                    is_mass_edit_protected,
-                    is_deleted,
-                    is_redirect,
-                    internal_id,
-                    expected_head,
-                ),
-            )
-            affected_rows = int(cursor.rowcount)
-            return affected_rows > 0
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """UPDATE entity_head
+                           SET head_revision_id = %s,
+                               is_semi_protected = %s,
+                               is_locked = %s,
+                               is_archived = %s,
+                               is_dangling = %s,
+                               is_mass_edit_protected = %s,
+                               is_deleted = %s,
+                               is_redirect = %s
+                           WHERE internal_id = %s AND head_revision_id = %s""",
+                    (
+                        new_head,
+                        is_semi_protected,
+                        is_locked,
+                        is_archived,
+                        is_dangling,
+                        is_mass_edit_protected,
+                        is_deleted,
+                        is_redirect,
+                        internal_id,
+                        expected_head,
+                    ),
+                )
+                affected_rows = int(cursor.rowcount)
+                if affected_rows > 0:
+                    return OperationResult(success=True)
+                else:
+                    return OperationResult(
+                        success=False, error="CAS failed: head mismatch"
+                    )
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def hard_delete(self, conn: Any, entity_id: str, head_revision_id: int) -> None:
         """Mark an entity as hard deleted."""
