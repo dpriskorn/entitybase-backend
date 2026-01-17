@@ -5,6 +5,8 @@ from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
+logger = logging.getLogger(__name__)
+
 from models.rest_api.misc import DeleteType
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.response import EntityDeleteResponse
@@ -180,12 +182,14 @@ class EntityDeleteHandler:
 
         # Log activity
         if user_id > 0:
-            vitess_client.user_repository.log_user_activity(
+            activity_result = vitess_client.user_repository.log_user_activity(
                 user_id=user_id,
                 activity_type="entity_delete",
                 entity_id=entity_id,
                 revision_id=new_revision_id,
             )
+            if not activity_result.success:
+                logger.warning(f"Failed to log user activity: {activity_result.error}")
 
         return EntityDeleteResponse(
             id=entity_id,

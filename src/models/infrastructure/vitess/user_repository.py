@@ -113,17 +113,24 @@ class UserRepository:
         activity_type: str,
         entity_id: str | None = None,
         revision_id: int | None = None,
-    ) -> None:
+    ) -> OperationResult:
         """Log a user activity."""
-        with self.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    INSERT INTO user_activity (user_id, activity_type, entity_id, revision_id)
-                    VALUES (%s, %s, %s, %s)
-                    """,
-                    (user_id, activity_type, entity_id, revision_id),
-                )
+        if user_id <= 0 or not activity_type:
+            return OperationResult(success=False, error="Invalid user ID or activity type")
+
+        try:
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        INSERT INTO user_activity (user_id, activity_type, entity_id, revision_id)
+                        VALUES (%s, %s, %s, %s)
+                        """,
+                        (user_id, activity_type, entity_id, revision_id),
+                    )
+            return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def get_user_preferences(self, user_id: int) -> Any | None:
         """Get user notification preferences."""

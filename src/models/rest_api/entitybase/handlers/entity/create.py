@@ -5,6 +5,8 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
+logger = logging.getLogger(__name__)
+
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import StreamProducerClient
@@ -115,11 +117,13 @@ class EntityCreateHandler(EntityHandler):
 
         # Log activity
         if user_id > 0:
-            vitess_client.user_repository.log_user_activity(
+            activity_result = vitess_client.user_repository.log_user_activity(
                 user_id=user_id,
                 activity_type="entity_create",
                 entity_id=entity_id,
                 revision_id=response.revision_id,
             )
+            if not activity_result.success:
+                logger.warning(f"Failed to log user activity: {activity_result.error}")
 
         return response  # type: ignore[no-any-return]

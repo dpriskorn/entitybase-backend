@@ -4,6 +4,8 @@ import logging
 from typing import Any
 
 from models.infrastructure.s3.s3_client import S3Client
+
+logger = logging.getLogger(__name__)
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.validation.utils import raise_validation_error
@@ -94,12 +96,14 @@ class EntityUpdateHandler(EntityHandler):
             )
             # Log activity
             if user_id:
-                vitess_client.user_repository.log_user_activity(
+                activity_result = vitess_client.user_repository.log_user_activity(
                     user_id=user_id,
                     activity_type="entity_edit",
                     entity_id=entity_id,
                     revision_id=response.revision_id,
                 )
+                if not activity_result.success:
+                    logger.warning(f"Failed to log user activity: {activity_result.error}")
 
             # Commit
             tx.commit()
