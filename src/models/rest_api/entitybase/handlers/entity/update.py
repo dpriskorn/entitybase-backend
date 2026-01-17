@@ -90,8 +90,8 @@ class EntityUpdateHandler(EntityHandler):
                 change_type="edit",
                 from_revision_id=tx.head_revision_id,
                 changed_at=None,  # TODO
-                user_id=user_id,
                 edit_summary=request.edit_summary,
+                editor="",  # TODO: editor not supported
                 stream_producer=stream_producer,
             )
             # Log activity

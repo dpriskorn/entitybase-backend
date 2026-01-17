@@ -56,8 +56,7 @@ class EndorsementListResponse(BaseModel):
         description="Whether there are more endorsements to fetch. Example: true",
     )
     stats: Optional["StatementEndorsementStats"] = Field(
-        default=None,
-        description="Statistics for the statement's endorsements"
+        default=None, description="Statistics for the statement's endorsements"
     )
 
 
