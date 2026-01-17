@@ -9,6 +9,7 @@ from models.rest_api.entitybase.response.entity import (
     AliasValue,
     DescriptionValue,
     EntityAliasesResponse,
+    EntityChange,
     EntityDescriptionsResponse,
     EntityLabelsResponse,
     EntityMetadataResponse,
@@ -153,3 +154,89 @@ class TestEntityMetadata:
             EntityMetadataResponse(
                 labels=EntityLabelsResponse(data={"en": {"invalid": "structure"}})
             )
+
+
+class TestEntityChange:
+    """Test EntityChange model."""
+
+    def test_entity_change_valid(self):
+        """Test valid EntityChange creation."""
+        from datetime import datetime
+        from models.infrastructure.stream.producer import ChangeType
+
+        change = EntityChange(
+            entity_id="Q42",
+            revision_id=123,
+            change_type=ChangeType.EDIT,
+            from_revision_id=122,
+            changed_at=datetime(2023, 1, 1, 12, 0, 0),
+            edit_summary="Updated label",
+            bot=False,
+        )
+        assert change.entity_id == "Q42"
+        assert change.revision_id == 123
+        assert change.change_type == ChangeType.EDIT
+        assert change.from_revision_id == 122
+        assert change.edit_summary == "Updated label"
+        assert change.bot is False
+
+    def test_entity_change_minimal(self):
+        """Test EntityChange with minimal required fields."""
+        from datetime import datetime
+        from models.infrastructure.stream.producer import ChangeType
+
+        change = EntityChange(
+            entity_id="Q42",
+            revision_id=123,
+            change_type=ChangeType.CREATION,
+            changed_at=datetime(2023, 1, 1, 12, 0, 0),
+        )
+        assert change.entity_id == "Q42"
+        assert change.revision_id == 123
+        assert change.change_type == ChangeType.CREATION
+        assert change.from_revision_id == 0  # default
+        assert change.edit_summary == ""  # default
+        assert change.bot is False  # default
+
+    def test_entity_change_invalid_change_type(self):
+        """Test EntityChange with invalid change_type raises error."""
+        from datetime import datetime
+
+        with pytest.raises(ValidationError):
+            EntityChange(
+                entity_id="Q42",
+                revision_id=123,
+                change_type="invalid",  # not a ChangeType
+                changed_at=datetime(2023, 1, 1, 12, 0, 0),
+            )
+
+    def test_entity_change_json_schema_validation(self):
+        """Test EntityChange validates against JSON schema."""
+        import json
+        import jsonschema
+        from datetime import datetime
+        from models.infrastructure.stream.producer import ChangeType
+
+        # Load the schema
+        with open("src/schemas/entitychange.json", "r") as f:
+            schema = json.load(f)
+
+        # Create a valid EntityChange
+        change = EntityChange(
+            entity_id="Q42",
+            revision_id=123,
+            change_type=ChangeType.EDIT,
+            from_revision_id=122,
+            changed_at=datetime(2023, 1, 1, 12, 0, 0),
+            edit_summary="Updated label",
+            bot=False,
+        )
+
+        # Convert to dict (model_dump)
+        data = change.model_dump()
+
+        # Validate against schema
+        jsonschema.validate(instance=data, schema=schema)
+
+        # Should not raise exception
+        assert True
