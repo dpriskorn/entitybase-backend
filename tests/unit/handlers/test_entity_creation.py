@@ -166,7 +166,7 @@ class TestPropertyCreateHandler:
         mock_stream_producer: AsyncMock,
     ) -> None:
         """Test successful property creation"""
-        request = EntityCreateRequest(\n            type=\"property\",\n            labels={\"en\": {\"language\": \"en\", \"value\": \"Test Property\"}},\n            edit_summary=\"Test property creation\",\n            user_id=123,\n            editor=\"test\",\n        )
+        request = EntityCreateRequest(\n            type="property",\n            labels={"en": {"language": "en", "value": "Test Property"}},\n            edit_summary="Test property creation",\n            user_id=123,\n            editor="test",\n        )
 
         mock_vitess_client.entity_exists.return_value = False
         mock_vitess_client.get_protection_info.return_value = MagicMock(
