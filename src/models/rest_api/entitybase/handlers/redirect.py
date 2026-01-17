@@ -3,17 +3,21 @@
 import logging
 from typing import TYPE_CHECKING
 
-from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.request.entity import EntityRedirectRequest
+from models.rest_api.entitybase.request.entity.revert import RedirectRevertRequest
 from models.rest_api.entitybase.response import (
     EntityRedirectResponse,
     EntityResponse,
 )
+from models.rest_api.entitybase.response.entity.revert import EntityRevertResponse
+from models.rest_api.entitybase.handlers.entity.revert import EntityRevertHandler
+from models.rest_api.entitybase.request.entity import EntityRevertRequest
 from models.rest_api.entitybase.services.redirects import RedirectService
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import S3Client
     from models.infrastructure.stream.producer import StreamProducerClient
+    from models.infrastructure.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)
 
@@ -24,9 +28,12 @@ class RedirectHandler:
     def __init__(
         self,
         s3_client: "S3Client",
-        vitess_client: VitessClient,
+        vitess_client: "VitessClient",
         stream_producer: "StreamProducerClient | None" = None,
     ):
+        self._s3 = s3_client
+        self._vitess = vitess_client
+        self._stream_producer = stream_producer
         self.redirect_service = RedirectService(
             s3_client, vitess_client, stream_producer
         )
@@ -41,12 +48,27 @@ class RedirectHandler:
         return await self.redirect_service.create_redirect(request)
 
     async def revert_entity_redirect(
-        self, entity_id: str, revert_to_revision_id: int
-    ) -> EntityResponse:
-        """Revert a redirect entity back to normal using revision-based restore."""
+        self, entity_id: str, request: RedirectRevertRequest
+    ) -> EntityRevertResponse:
+        """Revert a redirect entity back to normal using the general revert."""
         logger.debug(
-            f"Reverting redirect for entity {entity_id} to revision {revert_to_revision_id}"
+            f"Reverting redirect for entity {entity_id} to revision {request.revert_to_revision_id}"
         )
-        return await self.redirect_service.revert_redirect(
-            entity_id, revert_to_revision_id
+        # Call general revert
+        general_request = EntityRevertRequest(
+            to_revision_id=request.revert_to_revision_id,
+            reason=request.revert_reason,
+            watchlist_context=None,  # Not used for redirects
         )
+        general_handler = EntityRevertHandler()
+        revert_result = await general_handler.revert_entity(
+            entity_id,
+            general_request,
+            self._vitess,
+            self._s3,
+            self._stream_producer,
+            int(request.created_by),
+        )
+        # Clear the redirect target
+        self._vitess.revert_redirect(entity_id)
+        return revert_result

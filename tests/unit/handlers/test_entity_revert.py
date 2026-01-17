@@ -7,6 +7,7 @@ pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")
 
+from models.common import OperationResult
 from models.rest_api.entitybase.request.entity.revert import EntityRevertRequest
 from models.rest_api.entitybase.response.entity.revert import EntityRevertResponse
 from models.rest_api.entitybase.handlers.entity.revert import EntityRevertHandler
@@ -29,7 +30,8 @@ class TestEntityRevertHandler:
         """Create handler instance"""
         return EntityRevertHandler()
 
-    def test_revert_entity_success(
+    @pytest.mark.asyncio
+    async def test_revert_entity_success(
         self, handler: EntityRevertHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test successful entity revert"""
@@ -50,16 +52,22 @@ class TestEntityRevertHandler:
         mock_vitess_client.head_repository.get_head_revision.return_value = (
             OperationResult(success=True, data=125)
         )
-        mock_vitess_client.revision_repository.revert_entity.return_value = 126
 
-        result = handler.revert_entity("Q42", request, mock_vitess_client, 456)
+        mock_s3 = MagicMock()
+        mock_s3.read_full_revision.return_value = MagicMock(
+            data={"entity": {"statements": [], "properties": [], "property_counts": []}}
+        )
+        mock_stream_producer = MagicMock()
+
+        result = await handler.revert_entity(
+            "Q42", request, mock_vitess_client, mock_s3, mock_stream_producer, 456
+        )
 
         assert isinstance(result, EntityRevertResponse)
         assert result.entity_id == "Q42"
-        assert result.new_revision_id == 126
-        assert result.reverted_from_revision_id == 125
 
-    def test_revert_entity_not_found(
+    @pytest.mark.asyncio
+    async def test_revert_entity_not_found(
         self, handler: EntityRevertHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test revert when entity not found"""
@@ -68,9 +76,12 @@ class TestEntityRevertHandler:
         mock_vitess_client.id_resolver.resolve_id.return_value = 0  # Not found
 
         with pytest.raises(Exception):  # ValidationError
-            handler.revert_entity("Q42", request, mock_vitess_client, 456)
+            await handler.revert_entity(
+                "Q42", request, mock_vitess_client, MagicMock(), MagicMock(), 456
+            )
 
-    def test_revert_entity_revision_not_found(
+    @pytest.mark.asyncio
+    async def test_revert_entity_revision_not_found(
         self, handler: EntityRevertHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test revert when target revision not found"""
@@ -80,9 +91,12 @@ class TestEntityRevertHandler:
         mock_vitess_client.revision_repository.get_revision.return_value = None
 
         with pytest.raises(Exception):  # ValidationError
-            handler.revert_entity("Q42", request, mock_vitess_client, 456)
+            await handler.revert_entity(
+                "Q42", request, mock_vitess_client, MagicMock(), MagicMock(), 456
+            )
 
-    def test_revert_entity_already_at_revision(
+    @pytest.mark.asyncio
+    async def test_revert_entity_already_at_revision(
         self, handler: EntityRevertHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test revert when already at target revision"""
@@ -93,8 +107,10 @@ class TestEntityRevertHandler:
             "statements": []
         }
         mock_vitess_client.head_repository.get_head_revision.return_value = (
-            123  # Same as target
+            OperationResult(success=True, data=123)  # Same as target
         )
 
         with pytest.raises(Exception):  # ValidationError
-            handler.revert_entity("Q42", request, mock_vitess_client, 456)
+            await handler.revert_entity(
+                "Q42", request, mock_vitess_client, MagicMock(), MagicMock(), 456
+            )

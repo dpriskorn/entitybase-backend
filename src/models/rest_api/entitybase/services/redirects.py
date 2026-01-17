@@ -1,15 +1,15 @@
 """Entity redirect service."""
 
 import logging
-from datetime import datetime, timezone
+from datetime import timezone
 from typing import TYPE_CHECKING
 
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.rest_api.entitybase.request.entity import EntityRedirectRequest
 from models.rest_api.entitybase.response import (
     EntityRedirectResponse,
-    EntityResponse,
 )
+from models.rest_api.entitybase.response.entity import EntityRevertResponse
 from models.rest_api.misc import EditType
 from models.validation.utils import raise_validation_error
 
@@ -146,8 +146,9 @@ class RedirectService:
         self,
         entity_id: str,
         revert_to_revision_id: int,
-    ) -> EntityResponse:
-        """Revert a redirect entity back to normal using revision-based restore"""
+        user_id: int,
+    ) -> EntityRevertResponse:
+        """Revert a redirect entity back to normal using the general revert."""
         logger.debug(
             "Reverting redirect for entity %s to revision %d",
             entity_id,
@@ -166,59 +167,28 @@ class RedirectService:
         ):
             raise_validation_error("Entity is locked or archived", status_code=423)
 
-        head_revision_id = self.vitess.get_head(entity_id)
-        new_revision_id = head_revision_id + 1 if head_revision_id else 1
-
-        target_revision = self.s3.read_full_revision(entity_id, revert_to_revision_id)
-        target_data = target_revision.data
-
-        new_revision_data = {
-            "schema_version": "1.1.0",
-            "redirects_to": None,
-            "entity": target_data["entity"],
-        }
-
-        self.s3.write_revision(
-            entity_id=entity_id,
-            revision_id=new_revision_id,
-            data=new_revision_data,
-            publication_state="pending",
+        # Call general revert
+        from models.rest_api.entitybase.handlers.entity.revert import (
+            EntityRevertHandler,
         )
+        from models.rest_api.entitybase.request.entity import EntityRevertRequest
 
-        self.vitess.insert_revision(
+        general_request = EntityRevertRequest(
+            to_revision_id=revert_to_revision_id,
+            reason="Reverted redirect",
+            watchlist_context=None,
+        )
+        general_handler = EntityRevertHandler()
+        revert_result = await general_handler.revert_entity(
             entity_id,
-            new_revision_id,
-            is_mass_edit=False,
-            edit_type=EditType.REDIRECT_REVERT.value,
-            statements=[],
-            properties=[],
-            property_counts={},
+            general_request,
+            self.vitess,
+            self.s3,
+            self.stream_producer,
+            user_id,
         )
 
-        self.vitess.set_redirect_target(
-            entity_id=entity_id,
-            redirects_to_entity_id=None,
-        )
+        # Clear the redirect target
+        self.vitess.revert_redirect(entity_id)
 
-        self.s3.mark_published(
-            entity_id=entity_id,
-            revision_id=new_revision_id,
-            publication_state="published",
-        )
-
-        if self.stream_producer:
-            event = EntityChangeEvent(
-                entity_id=entity_id,
-                revision_id=new_revision_id,
-                change_type=ChangeType.UNREDIRECT,
-                from_revision_id=head_revision_id,
-                changed_at=datetime.now(timezone.utc),
-                edit_summary=None,
-            )
-            await self.stream_producer.publish_change(event)
-
-        return EntityResponse(
-            id=entity_id,
-            revision_id=new_revision_id,
-            entity_data=new_revision_data["entity"],
-        )
+        return revert_result

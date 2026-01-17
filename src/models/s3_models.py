@@ -2,11 +2,10 @@
 
 from typing import Any, Dict
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from pydantic.root_model import RootModel
 
 from models.infrastructure.config import Config
-from models.rest_api.entitybase.response import StatementResponse
 
 
 class EntityData(BaseModel):
@@ -122,11 +121,15 @@ class RevisionReadResponse(BaseModel):
     edit_summary: str = Field(default="")
 
 
-class StoredStatement(StatementResponse):
+class StoredStatement(BaseModel):
     """Statement format for S3 storage.
 
-    Subclass of StatementResponse to ensure compatibility with API responses.
-    Adds no additional fields, maintains same structure.
+    Compatible with StatementResponse for API responses.
     """
 
-    pass
+    model_config = ConfigDict(by_alias=True, populate_by_name=True)
+
+    schema_version: str = Field(alias="schema")
+    content_hash: int = Field(alias="hash")
+    statement: Dict[str, Any]
+    created_at: str

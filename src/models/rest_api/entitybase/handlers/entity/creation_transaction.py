@@ -125,11 +125,11 @@ class EntityTransaction(BaseModel, ABC):
             from models.infrastructure.stream.event import EntityChangeEvent
 
             event = EntityChangeEvent(
-                entity_id=entity_id,
-                revision_id=revision_id,
-                change_type=change_type,
-                from_revision_id=from_revision_id,
-                changed_at=changed_at,
+                id=entity_id,
+                rev=revision_id,
+                type=change_type,
+                from_rev=from_revision_id,
+                at=changed_at,
                 edit_summary=edit_summary,
             )
             stream_producer.publish_change(event)

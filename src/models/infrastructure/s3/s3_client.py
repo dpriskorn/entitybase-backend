@@ -2,15 +2,16 @@
 
 import json
 from datetime import timezone, datetime
-from typing import Any, Dict
+from typing import Any, Dict, TYPE_CHECKING
 import logging
 from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
-from pydantic import Field
+from pydantic import BaseModel, ConfigDict, Field
 from models.validation.utils import raise_validation_error
 
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
+from models.rest_api.entitybase.response import StatementResponse
 from models.s3_models import (
     RevisionData,
     S3Config,
@@ -18,7 +19,9 @@ from models.s3_models import (
     RevisionReadResponse,
     StoredStatement,
 )
-from models.rest_api.entitybase.response import StatementResponse
+
+if TYPE_CHECKING:
+    pass
 
 logger = logging.getLogger(__name__)
 
@@ -250,7 +253,7 @@ class S3Client(Client):
             )
             raise
 
-    def read_statement(self, content_hash: int) -> StatementResponse:
+    def read_statement(self, content_hash: int) -> "StatementResponse":
         """Read statement snapshot from S3.
 
         Returns:

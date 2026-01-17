@@ -506,7 +506,7 @@ def get_statement_endorsement_stats(
 @app.post(
     "/entitybase/v1/entities/{entity_id}/revert", response_model=EntityRevertResponse
 )
-def revert_entity(
+async def revert_entity(
     entity_id: str,
     request: EntityRevertRequest,
     user_id: int = Header(..., alias="X-User-ID"),
@@ -516,7 +516,9 @@ def revert_entity(
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityRevertHandler()
-    result = handler.revert_entity(entity_id, request, clients.vitess, user_id)
+    result = await handler.revert_entity(
+        entity_id, request, clients.vitess, clients.s3, clients.stream_producer, user_id
+    )
     if not isinstance(result, EntityRevertResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, EntityRevertResponse)
@@ -584,15 +586,13 @@ async def create_entity_redirect(
 @app.post("/entities/{entity_id}/revert-redirect")
 async def revert_entity_redirect(  # type: ignore[no-any-return]
     entity_id: str, request: RedirectRevertRequest
-) -> EntityResponse:
+) -> EntityRevertResponse:
     clients = app.state.clients
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
-    result = await handler.revert_entity_redirect(
-        entity_id, request.revert_to_revision_id
-    )
-    if not isinstance(result, EntityResponse):
+    result = await handler.revert_entity_redirect(entity_id, request)
+    if not isinstance(result, EntityRevertResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
 

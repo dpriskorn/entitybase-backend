@@ -18,6 +18,7 @@ from .entity import (
     EntityLabelsResponse,
     EntityDescriptionsResponse,
     EntityAliasesResponse,
+    EntityRevertResponse,
 )
 from .statement import (
     MostUsedStatementsResponse,
@@ -52,6 +53,7 @@ __all__ = [
     "EntityRedirectResponse",
     "EntityResponse",
     "EntityRevisionResponse",
+    "EntityRevertResponse",
     "FullRevisionResponse",
     "HealthCheckResponse",
     "HealthResponse",

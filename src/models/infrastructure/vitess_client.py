@@ -146,6 +146,7 @@ class VitessClient(Client):
 
     def _resolve_id(self, entity_id: str) -> int:
         """Resolve external entity ID to internal database ID."""
+        assert self.id_resolver is not None
         with self.connection_manager.get_connection() as conn:
             return self.id_resolver.resolve_id(conn, entity_id)  # type: ignore[no-any-return]
 
@@ -267,6 +268,17 @@ class VitessClient(Client):
             if not result.success:
                 raise_validation_error(
                     result.error or "Redirect update failed", status_code=409
+                )
+
+    def revert_redirect(self, entity_id: str) -> None:
+        """Revert the redirect for an entity by clearing its target."""
+        with self.connection_manager.get_connection() as conn:
+            result = self.redirect_repository.set_target(
+                conn, entity_id, "", expected_redirects_to=0
+            )
+            if not result.success:
+                raise_validation_error(
+                    result.error or "Redirect revert failed", status_code=409
                 )
 
     def create_redirect(

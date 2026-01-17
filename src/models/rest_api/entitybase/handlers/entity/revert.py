@@ -2,11 +2,15 @@
 
 import logging
 from datetime import datetime, timezone
+from typing import Any, TYPE_CHECKING
 
-from models.infrastructure.vitess_client import VitessClient
+from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.entitybase.request.entity import EntityRevertRequest
 from models.rest_api.entitybase.response.entity.revert import EntityRevertResponse
 from models.validation.utils import raise_validation_error
+
+if TYPE_CHECKING:
+    from models.infrastructure.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)
 
@@ -14,11 +18,13 @@ logger = logging.getLogger(__name__)
 class EntityRevertHandler:
     """Handler for reverting entities to previous revisions."""
 
-    def revert_entity(
+    async def revert_entity(
         self,
         entity_id: str,
         request: EntityRevertRequest,
         vitess_client: "VitessClient",
+        s3_client: Any,
+        stream_producer: Any,
         user_id: int,
     ) -> EntityRevertResponse:
         """Revert an entity to a specified revision."""
@@ -42,6 +48,11 @@ class EntityRevertHandler:
                 status_code=404,
             )
 
+        # Read target revision content from S3
+        target_revision_data = s3_client.read_full_revision(
+            entity_id, request.to_revision_id
+        )
+
         # Get current head revision
         head_result = vitess_client.head_repository.get_head_revision(
             internal_entity_id
@@ -57,15 +68,53 @@ class EntityRevertHandler:
                 status_code=400,
             )
 
-        # Perform revert
-        new_revision_id = vitess_client.revision_repository.revert_entity(
-            internal_entity_id=internal_entity_id,
-            to_revision_id=request.to_revision_id,
-            reverted_by_user_id=user_id,
-            reason=request.reason,
-            watchlist_context=request.watchlist_context,
-            vitess_client=vitess_client,
+        # Calculate new revision ID
+        new_revision_id = head_revision + 1
+
+        # Create new revision data
+        new_revision_data = {
+            "schema_version": "1.1.0",
+            "redirects_to": None,
+            "entity": target_revision_data.data["entity"],
+        }
+
+        # Write new revision to S3
+        s3_client.write_revision(
+            entity_id=entity_id,
+            revision_id=new_revision_id,
+            data=new_revision_data,
+            publication_state="pending",
         )
+
+        # Insert revision in DB
+        vitess_client.insert_revision(
+            entity_id,
+            new_revision_id,
+            is_mass_edit=False,
+            edit_type="revert",
+            statements=target_revision_data.data["entity"]["statements"],
+            properties=target_revision_data.data["entity"]["properties"],
+            property_counts=target_revision_data.data["entity"]["property_counts"],
+        )
+
+        # Mark as published
+        s3_client.mark_published(
+            entity_id=entity_id,
+            revision_id=new_revision_id,
+            publication_state="published",
+        )
+
+        # Publish event
+        if stream_producer:
+            event = EntityChangeEvent(
+                id=entity_id,
+                rev=new_revision_id,
+                type="revert",
+                from_rev=head_revision,
+                at=datetime.now(timezone.utc).isoformat(),
+                edit_summary=request.reason,
+            )
+            await stream_producer.publish_event(event)
 
         return EntityRevertResponse(
             entity_id=entity_id,

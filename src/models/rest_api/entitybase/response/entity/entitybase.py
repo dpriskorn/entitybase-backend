@@ -125,7 +125,7 @@ class EntityHistoryEntry(BaseModel):
 class EntityResponse(BaseModel):
     """Response model for entity data."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, by_alias=True)  # type: ignore[typeddict-unknown-key]
 
     id: str = Field(description="Entity ID. Example: 'Q42'.")
     revision_id: int = Field(

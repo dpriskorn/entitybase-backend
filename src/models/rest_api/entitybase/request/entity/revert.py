@@ -15,7 +15,7 @@ class EntityRevertRequest(BaseModel):
 
 class RedirectRevertRequest(BaseModel):
     revert_to_revision_id: int = Field(
-        ..., description="Revision ID to revert to (e.g., 12340)"
+        ..., description="Revision ID to revert to (e.g., 12340)."
     )
     revert_reason: str = Field(..., description="Reason for reverting redirect")
     created_by: str = Field(default="rest-api")

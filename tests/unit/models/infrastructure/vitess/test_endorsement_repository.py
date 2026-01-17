@@ -213,6 +213,39 @@ class TestEndorsementRepository:
         assert result.data[0]["active_endorsements"] == 8
         assert result.data[0]["withdrawn_endorsements"] == 2
 
+    def test_get_batch_statement_endorsement_stats_multiple_hashes(
+        self, repository, mock_connection_manager
+    ):
+        """Test batch endorsement stats retrieval with multiple statement hashes."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_cursor.fetchall.return_value = [
+            (456789, 10, 8, 2),
+            (456790, 5, 5, 0),
+            (456791, 0, 0, 0),  # No endorsements
+        ]
+
+        result = repository.get_batch_statement_endorsement_stats(
+            [456789, 456790, 456791]
+        )
+
+        assert result.success is True
+        assert len(result.data) == 3
+        # Check first
+        assert result.data[0]["statement_hash"] == 456789
+        assert result.data[0]["total_endorsements"] == 10
+        # Check second
+        assert result.data[1]["statement_hash"] == 456790
+        assert result.data[1]["total_endorsements"] == 5
+        # Check third (no endorsements)
+        assert result.data[2]["statement_hash"] == 456791
+        assert result.data[2]["total_endorsements"] == 0
+
     def test_get_batch_statement_endorsement_stats_empty(
         self, repository, mock_connection_manager
     ):
@@ -383,6 +416,35 @@ class TestEndorsementRepository:
         assert result.data["total_count"] == 1
         assert result.data["has_more"] is False
 
+    def test_get_statement_endorsements_with_include_removed(
+        self, repository, mock_connection_manager
+    ):
+        """Test statement endorsements retrieval with include_removed=True."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_cursor.fetchall.return_value = [
+            (1, 123, 456789, "2023-01-01T00:00:00Z", None),
+            (2, 124, 456789, "2023-01-02T00:00:00Z", "2023-01-03T00:00:00Z"),
+        ]
+        mock_cursor.fetchone.return_value = (2,)  # total count
+
+        result = repository.get_statement_endorsements(456789, 50, 0, True)
+
+        assert result.success is True
+        assert len(result.data["endorsements"]) == 2
+        assert result.data["total_count"] == 2
+        assert result.data["has_more"] is False
+
+        # Check that the query doesn't include removed_at IS NULL condition
+        calls = mock_cursor.execute.call_args_list
+        query = calls[0][0][0]  # First call's query
+        assert "removed_at IS NULL" not in query
+
     def test_get_statement_endorsements_invalid_parameters(self, repository):
         """Test get_statement_endorsements with invalid parameters."""
         result = repository.get_statement_endorsements(0, 50, 0, False)
@@ -435,6 +497,35 @@ class TestEndorsementRepository:
         assert len(result.data["endorsements"]) == 1
         assert result.data["total_count"] == 1
         assert result.data["has_more"] is False
+
+    def test_get_user_endorsements_with_include_removed(
+        self, repository, mock_connection_manager
+    ):
+        """Test user endorsements retrieval with include_removed=True."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_cursor.fetchall.return_value = [
+            (1, 123, 456789, "2023-01-01T00:00:00Z", None),
+            (2, 123, 456790, "2023-01-02T00:00:00Z", "2023-01-03T00:00:00Z"),
+        ]
+        mock_cursor.fetchone.return_value = (2,)  # total count
+
+        result = repository.get_user_endorsements(123, 50, 0, True)
+
+        assert result.success is True
+        assert len(result.data["endorsements"]) == 2
+        assert result.data["total_count"] == 2
+        assert result.data["has_more"] is False
+
+        # Check that the query doesn't include AND removed_at IS NULL
+        calls = mock_cursor.execute.call_args_list
+        query = calls[0][0][0]  # First call's query
+        assert "AND removed_at IS NULL" not in query
 
     def test_get_user_endorsements_invalid_parameters(self, repository):
         """Test get_user_endorsements with invalid parameters."""

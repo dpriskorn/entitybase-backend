@@ -2,8 +2,11 @@
 
 import logging
 from datetime import datetime, timezone
+from typing import TYPE_CHECKING
 
 from fastapi import HTTPException
+
+from models.user_activity import ActivityType
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +21,9 @@ from models.infrastructure.stream.producer import (
 )
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
-from models.infrastructure.vitess_client import VitessClient
+
+if TYPE_CHECKING:
+    from models.infrastructure.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +35,7 @@ class EntityDeleteHandler:
         self,
         entity_id: str,
         request: EntityDeleteRequest,
-        vitess_client: VitessClient,
+        vitess_client: "VitessClient",
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
         user_id: int = 0,
@@ -159,11 +164,11 @@ class EntityDeleteHandler:
                 )
                 await stream_producer.publish_change(
                     EntityChangeEvent(
-                        entity_id=entity_id,
-                        revision_id=new_revision_id,
-                        change_type=ChangeType.SOFT_DELETE,
-                        from_revision_id=head_revision_id,
-                        changed_at=datetime.now(timezone.utc),
+                        id=entity_id,
+                        rev=new_revision_id,
+                        type=ChangeType.SOFT_DELETE,
+                        from_rev=head_revision_id,
+                        at=datetime.now(timezone.utc),
                         edit_summary=request.edit_summary,
                     )
                 )
@@ -179,7 +184,7 @@ class EntityDeleteHandler:
         if user_id > 0:
             activity_result = vitess_client.user_repository.log_user_activity(
                 user_id=user_id,
-                activity_type="entity_delete",
+                activity_type=ActivityType.ENTITY_DELETE,
                 entity_id=entity_id,
                 revision_id=new_revision_id,
             )

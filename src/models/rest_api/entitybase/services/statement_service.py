@@ -11,7 +11,7 @@ from models.infrastructure.vitess_client import VitessClient
 from models.internal_representation.statement_extractor import StatementExtractor
 from models.internal_representation.statement_hasher import StatementHasher
 from models.rest_api.entitybase.response import StatementHashResult
-from models.s3_models import StoredStatement
+from models.infrastructure.s3.s3_client import StoredStatement
 from models.validation.json_schema_validator import JsonSchemaValidator
 
 logger = logging.getLogger(__name__)

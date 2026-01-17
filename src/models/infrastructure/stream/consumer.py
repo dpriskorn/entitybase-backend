@@ -1,19 +1,19 @@
-"""
-Kafka consumer for Wikibase entity change events.
-"""
+"""Kafka consumer for Wikibase entity change events."""
 
 import json
 import logging
 from typing import AsyncGenerator
 
 from aiokafka import AIOKafkaConsumer  # type: ignore[import-untyped]
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 logger = logging.getLogger(__name__)
 
 
 class EntityChangeEvent(BaseModel):
     """Model for entity change events."""
+
+    model_config = ConfigDict(populate_by_name=True)
 
     entity_id: str
     revision_id: int

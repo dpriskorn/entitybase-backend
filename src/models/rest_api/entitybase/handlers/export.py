@@ -1,13 +1,16 @@
 """Data export handlers for RDF and TTL formats."""
 
 import logging
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
+from models.infrastructure.s3.s3_client import S3Client
 from models.rest_api.entitybase.response import TtlResponse
 from models.validation.utils import raise_validation_error
 from models.infrastructure.client import Client
-from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.services.rdf_service import serialize_entity_to_turtle
+
+if TYPE_CHECKING:
+    from models.infrastructure.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +21,8 @@ class ExportHandler:
     def get_entity_data_turtle(
         self,
         entity_id: str,
-        vitess_client: VitessClient,
-        s3_client: Client,
+        vitess_client: "VitessClient",
+        s3_client: S3Client,
         property_registry: Any,
     ) -> TtlResponse:
         """Get entity data in Turtle format."""

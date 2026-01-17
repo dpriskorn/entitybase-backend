@@ -6,7 +6,11 @@ from datetime import datetime, timezone
 
 from models.rest_api.entitybase.services.redirects import RedirectService
 from models.rest_api.entitybase.request.entity import EntityRedirectRequest
-from models.rest_api.entitybase.response import EntityRedirectResponse, EntityResponse
+from models.rest_api.entitybase.response import (
+    EntityRedirectResponse,
+    EntityResponse,
+    EntityRevertResponse,
+)
 from models.validation.utils import raise_validation_error
 
 
@@ -240,34 +244,27 @@ class TestRedirectService:
         assert not hasattr(service_no_stream, "mock_stream_producer")
 
     @pytest.mark.asyncio
-    async def test_revert_redirect_success(self):
+    @patch("models.rest_api.entitybase.services.redirects.EntityRevertHandler")
+    async def test_revert_redirect_success(self, mock_revert_handler):
         """Test successful redirect revert."""
         # Setup mocks
         self.mock_vitess_client.get_redirect_target.return_value = "Q200"
         self.mock_vitess_client.is_entity_deleted.return_value = False
         self.mock_vitess_client.is_entity_locked.return_value = False
         self.mock_vitess_client.is_entity_archived.return_value = False
-        self.mock_vitess_client.get_head.return_value = 10
 
-        mock_revision = Mock()
-        mock_revision.data = {
-            "entity": {
-                "id": "Q100",
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-                "descriptions": {},
-                "aliases": {},
-                "claims": {},
-                "sitelinks": {},
-            }
-        }
-        self.mock_s3_client.read_full_revision.return_value = mock_revision
+        mock_revert_instance = Mock()
+        mock_revert_handler.return_value = mock_revert_instance
+        mock_revert_instance.revert_entity.return_value = Mock()  # dummy
 
-        result = await self.service.revert_redirect("Q100", 5)
+        result = await self.service.revert_redirect("Q100", 5, 1)
 
         # Verify response
-        assert isinstance(result, EntityResponse)
-        assert result.id == "Q100"
+        assert isinstance(result, EntityRevertResponse)
+        assert result.entity_id == "Q100"
+        mock_revert_handler.assert_called_once()
+        mock_revert_instance.revert_entity.assert_called_once()
+        self.mock_vitess_client.revert_redirect.assert_called_once_with("Q100")
         assert result.revision_id == 11  # 10 + 1
         assert result.entity_data["labels"]["en"]["value"] == "Test"
 
@@ -291,7 +288,7 @@ class TestRedirectService:
         with patch(
             "models.rest_api.entitybase.services.redirects.raise_validation_error"
         ) as mock_raise:
-            await self.service.revert_redirect("Q100", 5)
+            await self.service.revert_redirect("Q100", 5, 1)
             mock_raise.assert_called_once_with(
                 "Entity is not a redirect", status_code=404
             )
@@ -305,7 +302,7 @@ class TestRedirectService:
         with patch(
             "models.rest_api.entitybase.services.redirects.raise_validation_error"
         ) as mock_raise:
-            await self.service.revert_redirect("Q100", 5)
+            await self.service.revert_redirect("Q100", 5, 1)
             mock_raise.assert_called_once_with(
                 "Entity has been deleted", status_code=423
             )
@@ -320,7 +317,7 @@ class TestRedirectService:
         with patch(
             "models.rest_api.entitybase.services.redirects.raise_validation_error"
         ) as mock_raise:
-            await self.service.revert_redirect("Q100", 5)
+            await self.service.revert_redirect("Q100", 5, 1)
             mock_raise.assert_called_once_with(
                 "Entity is locked or archived", status_code=423
             )
@@ -336,7 +333,7 @@ class TestRedirectService:
         with patch(
             "models.rest_api.entitybase.services.redirects.raise_validation_error"
         ) as mock_raise:
-            await self.service.revert_redirect("Q100", 5)
+            await self.service.revert_redirect("Q100", 5, 1)
             mock_raise.assert_called_once_with(
                 "Entity is locked or archived", status_code=423
             )
@@ -354,7 +351,7 @@ class TestRedirectService:
         mock_revision.data = {"entity": {"id": "Q100"}}
         self.mock_s3_client.read_full_revision.return_value = mock_revision
 
-        result = await self.service.revert_redirect("Q100", 5)
+        result = await self.service.revert_redirect("Q100", 5, 1)
 
         assert result.revision_id == 1  # Should start from 1
 

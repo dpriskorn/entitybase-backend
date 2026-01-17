@@ -402,14 +402,12 @@ class EntityHandler(BaseModel):
                 )
                 await stream_producer.publish_change(
                     EntityChangeEvent(
-                        entity_id=entity_id,
-                        revision_id=new_revision_id,
-                        change_type=change_type,
-                        from_revision_id=head_revision_id
-                        if head_revision_id != 0
-                        else None,
-                        changed_at=datetime.now(timezone.utc),
-                        edit_summary=edit_summary,
+                        id=entity_id,
+                        rev=new_revision_id,
+                        type=change_type,
+                        from_rev=head_revision_id if head_revision_id != 0 else None,
+                        at=datetime.now(timezone.utc),
+                        summary=edit_summary,
                     )
                 )
                 logger.debug(

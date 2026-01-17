@@ -8,9 +8,6 @@ from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from models.infrastructure.stream.actions import EndorseAction
 from models.infrastructure.stream.change_type import ChangeType
 
-if TYPE_CHECKING:
-    pass
-
 
 class EndorseChangeEvent(BaseModel):
     """Endorsement change event for publishing."""
@@ -30,10 +27,6 @@ class EndorseChangeEvent(BaseModel):
     def serialize_timestamp(self, value: datetime) -> str:
         """Serialize datetime to ISO format with Z suffix."""
         return value.isoformat() + "Z"
-
-
-# Rebuild model after imports
-EntityChangeEvent.model_rebuild()
 
 
 class NewThankEvent(BaseModel):
@@ -69,7 +62,7 @@ class EntityChangeEvent(BaseModel):
         description="Previous revision ID (None for creations)",
     )
     changed_at: datetime = Field(alias="at", description="Timestamp of change")
-    edit_summary: str = Field(alias="sum", default="", description="Edit summary")
+    edit_summary: str = Field(alias="summary", default="", description="Edit summary")
 
     @field_serializer("changed_at")
     def serialize_changed_at(self, value: datetime) -> str:

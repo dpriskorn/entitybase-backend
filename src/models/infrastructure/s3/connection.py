@@ -13,7 +13,7 @@ class S3ConnectionManager(ConnectionManager):
     """Handles S3 connection and healthcheck."""
 
     config: S3Config
-    boto_client: BaseClient = Field(default=None, exclude=True)
+    boto_client: BaseClient | None = Field(default=None, exclude=True)
 
     def connect(self) -> None:
         """Establish S3 client connection."""
@@ -40,7 +40,7 @@ class S3ConnectionManager(ConnectionManager):
         try:
             self.connect()
             if self.boto_client is not None:
-                self.boto_client.head_bucket(Bucket=self.config.bucket)
+                self.boto_client.head_bucket(Bucket=self.config.bucket)  # type: ignore[attr-defined]
                 return True
             return False
         except Exception:

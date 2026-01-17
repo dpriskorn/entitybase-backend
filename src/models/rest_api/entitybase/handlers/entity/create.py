@@ -5,6 +5,8 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
+from models.user_activity import ActivityType
+
 logger = logging.getLogger(__name__)
 
 from models.validation.utils import raise_validation_error
@@ -118,7 +120,7 @@ class EntityCreateHandler(EntityHandler):
         if user_id > 0:
             activity_result = vitess_client.user_repository.log_user_activity(
                 user_id=user_id,
-                activity_type="entity_create",
+                activity_type=ActivityType.ENTITY_CREATE,
                 entity_id=entity_id,
                 revision_id=response.revision_id,
             )
