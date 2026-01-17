@@ -89,20 +89,24 @@ class HeadRepository:
                 (head_revision_id, internal_id),
             )
 
-    def soft_delete(self, conn: Any, entity_id: str) -> None:
+    def soft_delete(self, conn: Any, entity_id: str) -> OperationResult:
         """Mark an entity as soft deleted."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            raise_validation_error(f"Entity {entity_id} not found", status_code=404)
+            return OperationResult(success=False, error=f"Entity {entity_id} not found")
 
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """UPDATE entity_head
-                        SET is_deleted = TRUE,
-                            head_revision_id = 0
-                        WHERE internal_id = %s""",
-                (internal_id,),
-            )
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """UPDATE entity_head
+                            SET is_deleted = TRUE,
+                                head_revision_id = 0
+                            WHERE internal_id = %s""",
+                    (internal_id,),
+                )
+            return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def get_head_revision(self, internal_entity_id: int) -> int:
         """Get the current head revision for an entity by internal ID."""
