@@ -135,7 +135,7 @@ class RedirectService:
                 changed_at=datetime.now(timezone.utc),
                 editor=request.created_by,
                 edit_summary=None,
-                bot=False
+                bot=False,
             )
             await self.stream_producer.publish_change(event)
 
@@ -219,11 +219,12 @@ class RedirectService:
                 changed_at=datetime.now(timezone.utc),
                 editor=None,
                 edit_summary=None,
-                bot=False
+                bot=False,
             )
             await self.stream_producer.publish_change(event)
 
         return EntityResponse(
-            id=entity_id, revision_id=new_revision_id,
-            entity_data=new_revision_data["entity"]
+            id=entity_id,
+            revision_id=new_revision_id,
+            entity_data=new_revision_data["entity"],
         )

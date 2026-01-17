@@ -375,7 +375,7 @@ class EntityHandler(BaseModel):
             vitess_client.create_revision(
                 entity_id=entity_id,
                 entity_data=revision_data.model_dump(),
-                revision_id=new_revision_id
+                revision_id=new_revision_id,
             )
             logger.info(
                 f"Entity {entity_id}: Successfully created revision {new_revision_id}"
