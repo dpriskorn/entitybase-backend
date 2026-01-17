@@ -87,18 +87,25 @@ class UserRepository:
                 row = cursor.fetchone()
                 return bool(row[0]) if row else False
 
-    def set_watchlist_enabled(self, user_id: int, enabled: bool) -> None:
+    def set_watchlist_enabled(self, user_id: int, enabled: bool) -> OperationResult:
         """Enable or disable watchlist for user."""
-        with self.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "UPDATE users SET watchlist_enabled = %s WHERE user_id = %s",
-                    (enabled, user_id),
-                )
+        if user_id <= 0:
+            return OperationResult(success=False, error="Invalid user ID")
 
-    def disable_watchlist(self, user_id: int) -> None:
+        try:
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        "UPDATE users SET watchlist_enabled = %s WHERE user_id = %s",
+                        (enabled, user_id),
+                    )
+            return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
+
+    def disable_watchlist(self, user_id: int) -> OperationResult:
         """Disable watchlist for user (idempotent)."""
-        self.set_watchlist_enabled(user_id, False)
+        return self.set_watchlist_enabled(user_id, False)
 
     def log_user_activity(
         self,
