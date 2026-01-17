@@ -148,6 +148,7 @@ class TestEntityJsonImportHandler:
             )
             vitess_client.create_entity = AsyncMock()
             vitess_client.entity_exists.return_value = False
+            vitess_client.is_locked.return_value = False
             vitess_client.entity_repository.get_entity.return_value = MagicMock(
                 is_deleted=False
             )

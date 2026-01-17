@@ -1,6 +1,6 @@
 import sys
 from datetime import datetime, timezone
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, ANY
 
 import pytest
 
@@ -152,7 +152,7 @@ class TestWatchlistHandler:
         assert [n.model_dump() for n in result.notifications] == expected
         mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
         mock_vitess_client.watchlist_repository.get_user_notifications.assert_called_once_with(
-            12345, 30, 0
+            ANY, 12345, 30, 0
         )
 
     def test_get_notifications_user_not_found(
