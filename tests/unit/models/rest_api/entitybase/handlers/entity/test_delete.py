@@ -39,7 +39,7 @@ class TestEntityDeleteHandler:
     async def test_delete_entity_soft_delete_success(
         self, handler, mock_vitess_client, mock_s3_client, mock_stream_producer, delete_request
     ):
-        \"\"\"Test successful soft delete.\"\"\"
+        """Test successful soft delete."""
         mock_vitess_client.entity_exists.return_value = True
         mock_vitess_client.get_head.return_value = 100
         mock_vitess_client.create_entity_revision.return_value = 101
