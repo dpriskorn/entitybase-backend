@@ -17,7 +17,18 @@ class UserRepository:
         self.connection_manager = connection_manager
 
     def create_user(self, user_id: int) -> OperationResult:
-        """Create a new user if not exists (idempotent)."""
+        """Create a new user record if it does not exist (idempotent).
+
+        Inserts a user into the users table. If the user already exists, the operation
+        succeeds without changes due to the ON DUPLICATE KEY clause.
+
+        Args:
+            user_id: The unique ID of the user to create. Must be positive.
+
+        Returns:
+            OperationResult: Indicates success or failure. On success, success=True.
+                On failure (e.g., database error), success=False with an error message.
+        """
         try:
             with self.connection_manager.get_connection() as conn:
                 with conn.cursor() as cursor:
@@ -34,7 +45,16 @@ class UserRepository:
             return OperationResult(success=False, error=str(e))
 
     def user_exists(self, user_id: int) -> bool:
-        """Check if user exists."""
+        """Check if a user exists in the database.
+
+        Queries the users table to determine if a record exists for the given user ID.
+
+        Args:
+            user_id: The ID of the user to check.
+
+        Returns:
+            bool: True if the user exists, False otherwise.
+        """
         with self.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
@@ -114,7 +134,27 @@ class UserRepository:
         entity_id: str,
         revision_id: int = 0,
     ) -> OperationResult:
-        """Log a user activity."""
+        """Log a user activity for tracking interactions with entities.
+
+        Inserts a record into the user_activity table to record user actions
+        such as edits, views, or other interactions on entities.
+
+        Args:
+            user_id: The ID of the user performing the activity. Must be positive.
+            activity_type: A string describing the type of activity (e.g., 'edit', 'view').
+            entity_id: The ID of the entity involved in the activity (e.g., 'Q42').
+            revision_id: The revision ID associated with the activity. Defaults to 0,
+                indicating no specific revision (e.g., for non-edit activities like views).
+                Pass the actual revision ID for revision-specific actions.
+
+        Returns:
+            OperationResult: Indicates success or failure of the logging operation.
+                On success, success=True. On failure, success=False with an error message.
+
+        Note:
+            Basic validation is performed on user_id and activity_type before insertion.
+            Database errors (e.g., connection issues) are caught and returned as failures.
+        """
         if user_id <= 0 or not activity_type:
             return OperationResult(
                 success=False, error="Invalid user ID or activity type"
@@ -134,7 +174,7 @@ class UserRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    def get_user_preferences(self, user_id: int) -> OperationResult:
+    def get_user_preferences(self, user_id: int = 0) -> OperationResult:
         """Get user notification preferences."""
         if user_id <= 0:
             return OperationResult(success=False, error="Invalid user ID")
@@ -160,7 +200,7 @@ class UserRepository:
             return OperationResult(success=False, error=str(e))
 
     def update_user_preferences(
-        self, user_id: int, notification_limit: int, retention_hours: int
+        self, notification_limit: int, retention_hours: int, user_id: int = 0,
     ) -> OperationResult:
         """Update user notification preferences."""
         if user_id <= 0:
@@ -186,8 +226,17 @@ class UserRepository:
         offset: int = 0,
     ) -> OperationResult:
         """Get user's activities with filtering."""
-        if user_id <= 0 or hours <= 0 or limit <= 0 or offset < 0:
-            return OperationResult(success=False, error="Invalid parameters")
+        errors = []
+        if user_id <= 0:
+            errors.append("user_id must be positive")
+        if hours <= 0:
+            errors.append("hours must be positive")
+        if limit <= 0:
+            errors.append("limit must be positive")
+        if offset < 0:
+            errors.append("offset must be non-negative")
+        if errors:
+            return OperationResult(success=False, error="; ".join(errors))
 
         try:
             logger.debug(
