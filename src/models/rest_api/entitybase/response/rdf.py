@@ -25,7 +25,7 @@ class DeduplicationStatsResponse(BaseModel):
     collision_rate: float = Field(description="Collision rate percentage")
 
     def __getitem__(self, key: str) -> Union[int, float]:
-        return getattr(self, key)
+        return getattr(self, key)  # type: ignore[no-any-return]
 
 
 class RedirectBatchResponse(BaseModel):
