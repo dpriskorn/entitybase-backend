@@ -182,7 +182,7 @@ class UpdateTransaction(EntityTransaction):
         entity_id: str,
         revision_id: int,
         change_type: Any,
-        from_revision_id: Optional[int],
+         from_revision_id: int,
         changed_at: Any,
         edit_summary: str,
         stream_producer: Any,

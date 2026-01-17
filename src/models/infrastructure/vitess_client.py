@@ -216,11 +216,11 @@ class VitessClient(Client):
         entity_id: str,
         revision_id: int,
         entity_data: dict,
-        expected_revision_id: int | None = None,
+        expected_revision_id: int = 0,
     ) -> None:
         """Create a new revision for an entity."""
         with self.connection_manager.get_connection() as conn:
-            if expected_revision_id is not None and expected_revision_id != 0:
+            if expected_revision_id != 0:
                 success = self.revision_repository.create_with_cas(
                     conn, entity_id, revision_id, entity_data, expected_revision_id
                 )
@@ -235,9 +235,12 @@ class VitessClient(Client):
         self,
         entity_id: str,
         redirects_to_entity_id: str = "",
-        expected_redirects_to: int | None = None,
+        expected_redirects_to: int = 0,
     ) -> None:
-        \"\"\"Set the redirect target for an entity.\"\"\"\n        redirects_to_entity_id = None if redirects_to_entity_id == "" else redirects_to_entity_id\n        with self.connection_manager.get_connection() as conn:\n            result = self.redirect_repository.set_target(
+        """Set the redirect target for an entity."""
+        redirects_to_entity_id = None if redirects_to_entity_id == "" else redirects_to_entity_id
+        with self.connection_manager.get_connection() as conn:
+            result = self.redirect_repository.set_target(
                 conn, entity_id, redirects_to_entity_id, expected_redirects_to
             )
             if not result.success:
@@ -270,14 +273,14 @@ class VitessClient(Client):
     def cas_update_head_with_status(
         self,
         entity_id: str,
-        expected_head: int | None,
-        new_head: int,
-        is_semi_protected: bool,
-        is_locked: bool,
-        is_archived: bool,
-        is_dangling: bool,
-        is_mass_edit_protected: bool,
-        is_deleted: bool,
+        expected_head: int = 0,
+        new_head: int = 0,
+        is_semi_protected: bool = False,
+        is_locked: bool = False,
+        is_archived: bool = False,
+        is_dangling: bool = False,
+        is_mass_edit_protected: bool = False,
+        is_deleted: bool = False,
         is_redirect: bool = False,
     ) -> bool:
         """Update entity head with compare-and-swap semantics."""
@@ -338,7 +341,7 @@ class VitessClient(Client):
                 raise_validation_error(result.error or "Delete failed", status_code=500)
 
     def list_entities_by_type(
-        self, entity_type: str = "", limit: int, offset: int
+        self, entity_type: str = "", limit: int = 50, offset: int = 0
     ) -> list[str]:
         """List entity IDs by type with pagination."""
         logger.debug(

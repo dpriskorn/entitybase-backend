@@ -113,9 +113,9 @@ class EntityHistoryEntry(BaseModel):
     created_at: str = Field(
         default="", description="Creation timestamp (ISO format). Example: '2023-01-01T12:00:00Z'."
     )
-    user_id: int | None = Field(
-        description="User ID who made the change. Example: 67890."
-    )
+    user_id: int = Field(
+         default=0, description="User ID who made the change. Example: 67890."
+     )
     edit_summary: str = Field(
         default="", description="Edit summary text. Example: 'Added label'."
     )

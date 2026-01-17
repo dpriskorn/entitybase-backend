@@ -4,7 +4,7 @@ import json
 import logging
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from models.common import OperationResult
 from models.validation.utils import raise_validation_error
@@ -187,9 +187,9 @@ class RevisionRepository:
             """Revision record for history."""
 
             revision_id: int
-            created_at: str | None
-            user_id: int | None
-            edit_summary: str | None
+            created_at: str = Field(default="")
+             user_id: int = Field(default=0)
+            edit_summary: str = Field(default="")
 
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
@@ -203,9 +203,9 @@ class RevisionRepository:
             result = [
                 RevisionRecord(
                     revision_id=row[0],
-                    created_at=row[1].isoformat() if row[1] else None,
+                    created_at=row[1].isoformat() if row[1] else "",
                     user_id=row[2],
-                    edit_summary=row[3],
+                    edit_summary=row[3] or "",
                 )
                 for row in cursor.fetchall()
             ]

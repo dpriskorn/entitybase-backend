@@ -53,9 +53,7 @@ class RedirectService:
         if request.redirect_from_id == request.redirect_to_id:
             raise_validation_error("Cannot redirect to self", status_code=400)
 
-        existing_target = self.vitess.get_redirect_target(request.redirect_from_id)
-        if existing_target is not None:
-            raise_validation_error("Redirect already exists", status_code=409)
+        existing_target = self.vitess.get_redirect_target(request.redirect_from_id)\n        if existing_target:\n            raise_validation_error(\"Redirect already exists\", status_code=409)
 
         if self.vitess.is_entity_deleted(request.redirect_from_id):
             raise_validation_error("Source entity has been deleted", status_code=423)
@@ -157,10 +155,7 @@ class RedirectService:
             entity_id,
             revert_to_revision_id,
         )
-        current_redirect_target = self.vitess.get_redirect_target(entity_id)
-
-        if current_redirect_target is None:
-            raise_validation_error("Entity is not a redirect", status_code=404)
+        current_redirect_target = self.vitess.get_redirect_target(entity_id)\n\n        if not current_redirect_target:\n            raise_validation_error(\"Entity is not a redirect\", status_code=404)
 
         if self.vitess.is_entity_deleted(entity_id):
             raise_validation_error("Entity has been deleted", status_code=423)

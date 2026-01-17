@@ -96,7 +96,7 @@ class RevisionData(BaseModel):
     """
 
     schema_version: str
-    revision_id: int | None = Field(default=None)
+    revision_id: int = Field(default=0)
     created_at: str = Field(default="")
     created_by: str = Field(default="")
     entity_type: str = Field(default="")
@@ -118,7 +118,7 @@ class RevisionReadResponse(BaseModel):
     content: Dict[str, Any]
     schema_version: str = Field(default="")
     created_at: str = Field(default="")
-    user_id: int | None = Field(default=None)
+    user_id: int = Field(default=0)
     edit_summary: str = Field(default="")
 
 

@@ -74,8 +74,6 @@ class EntityHandler(BaseModel):
         entity_type: str,
         is_mass_edit: bool | None,
         edit_type: EditType | None,
-        edit_summary: str = "",
-        editor: str = "",
         is_semi_protected: bool | None,
         is_locked: bool | None,
         is_archived: bool | None,
@@ -87,6 +85,8 @@ class EntityHandler(BaseModel):
         stream_producer: StreamProducerClient | None,
         validator: Any | None,
         is_creation: bool,
+        edit_summary: str = "",
+        editor: str = "",
     ) -> EntityResponse:
         """Common logic for processing entity revisions after validation."""
         # Get current head revision
@@ -310,8 +310,6 @@ class EntityHandler(BaseModel):
         content_hash: int,
         is_mass_edit: bool | None,
         edit_type: EditType | None,
-        edit_summary: str = "",
-        editor: str = "",
         is_semi_protected: bool | None,
         is_locked: bool | None,
         is_archived: bool | None,
@@ -321,6 +319,8 @@ class EntityHandler(BaseModel):
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
         is_creation: bool,
+        edit_summary: str = "",
+        editor: str = "",
     ) -> EntityRevisionResponse:
         """Create revision data, store it, and publish events."""
         # Process sitelinks: hash titles and store metadata

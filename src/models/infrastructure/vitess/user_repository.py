@@ -112,7 +112,7 @@ class UserRepository:
         user_id: int,
         activity_type: str,
         entity_id: str = "",
-        revision_id: int | None = None,
+         revision_id: int = 0,
     ) -> OperationResult:
         """Log a user activity."""
         if user_id <= 0 or not activity_type:
@@ -121,6 +121,7 @@ class UserRepository:
             )
 
         try:
+            entity_id = None if entity_id == "" else entity_id
             with self.connection_manager.get_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(

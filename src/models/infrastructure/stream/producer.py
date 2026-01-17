@@ -116,9 +116,9 @@ class EntityChangeEvent(BaseModel):
     entity_id: str = Field(..., description="Entity ID (e.g., Q42)")
     revision_id: int = Field(..., description="Revision ID of the change")
     change_type: ChangeType = Field(..., description="Type of change")
-    from_revision_id: int | None = Field(
-        None, description="Previous revision ID (null for creation)"
-    )
+    from_revision_id: int = Field(
+        default=0, description="Previous revision ID (0 for creation)"
+     )
     changed_at: datetime = Field(..., description="Timestamp of change")
     editor: str = Field(default="", description="Editor who made the change")
     edit_summary: str = Field(default="", description="Edit summary")
@@ -146,9 +146,9 @@ class RDFChangeEvent(BaseModel):
     # Wikibase-specific fields
     entity_id: str = Field(..., description="Entity ID (e.g., Q42)")
     revision_id: int = Field(..., description="New revision ID")
-    from_revision_id: int | None = Field(
-        None, description="Previous revision ID (null for creation)"
-    )
+     from_revision_id: int = Field(
+         default=0, description=\"Previous revision ID (0 for creation)\"
+     )
 
     # RDF diff data
     added_triples: list[tuple[str, str, str]] = Field(

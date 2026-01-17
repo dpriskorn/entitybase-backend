@@ -21,7 +21,7 @@ class RedirectRepository:
         conn: Any,
         entity_id: str,
         redirects_to_entity_id: str = "",
-        expected_redirects_to: int | None = None,
+         expected_redirects_to: int = 0,
     ) -> OperationResult:
         """Set redirect target for an entity."""
         logger.debug(
@@ -43,7 +43,7 @@ class RedirectRepository:
 
         try:
             with conn.cursor() as cursor:
-                if expected_redirects_to is not None:
+                if expected_redirects_to != 0:
                     cursor.execute(
                         "UPDATE entity_head SET redirects_to = %s WHERE internal_id = %s AND redirects_to = %s",
                         (redirects_to_internal_id, internal_id, expected_redirects_to),
@@ -115,11 +115,11 @@ class RedirectRepository:
             result = [row[0] for row in cursor.fetchall()]
             return result
 
-    def get_target(self, conn: Any, entity_id: str) -> str | None:
+    def get_target(self, conn: Any, entity_id: str) -> str:
         """Get the redirect target for an entity."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            return None
+            return ""
         with conn.cursor() as cursor:
             cursor.execute(
                 """SELECT m.entity_id
@@ -129,4 +129,4 @@ class RedirectRepository:
                 (internal_id,),
             )
             result = cursor.fetchone()
-            return result[0] if result else None
+            return result[0] if result else ""

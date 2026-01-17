@@ -54,7 +54,7 @@ class EntityJsonImportHandler:
         )
 
         logger.info(
-            f"Starting JSONL import from {request.jsonl_file_path}, lines {request.start_line}-{request.end_line or 'end'}"
+            f\"Starting JSONL import from {request.jsonl_file_path}, lines {request.start_line}-{'end' if request.end_line == 0 else request.end_line}\"
         )
 
         try:
@@ -67,7 +67,7 @@ class EntityJsonImportHandler:
                         continue
 
                     # Stop at end_line if specified
-                    if request.end_line and line_num > request.end_line:
+                    if request.end_line != 0 and line_num > request.end_line:
                         break
 
                     processed_count += 1

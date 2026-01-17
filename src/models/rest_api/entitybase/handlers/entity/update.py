@@ -29,7 +29,7 @@ class EntityUpdateHandler(EntityHandler):
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
-        user_id: int | None = None,
+         user_id: int = 0,
     ) -> EntityResponse:
         """Update an existing entity with transaction rollback."""
         # Check entity exists (404 if not)
