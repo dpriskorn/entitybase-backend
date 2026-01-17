@@ -20,14 +20,14 @@ class TestTurtlePrefixes:
 
     def test_turtle_prefixes_format(self):
         """Test that TURTLE_PREFIXES is properly formatted."""
-        lines = TURTLE_PREFIXES.strip().split('\n')
+        lines = TURTLE_PREFIXES.strip().split("\n")
         for line in lines:
-            assert line.startswith('@prefix ')
-            assert line.endswith(' .')
-            assert '<' in line and '>' in line
+            assert line.startswith("@prefix ")
+            assert line.endswith(" .")
+            assert "<" in line and ">" in line
 
     def test_turtle_prefixes_no_duplicates(self):
         """Test that there are no duplicate prefixes."""
-        lines = TURTLE_PREFIXES.strip().split('\n')
-        prefixes = [line.split(':')[0] for line in lines]
+        lines = TURTLE_PREFIXES.strip().split("\n")
+        prefixes = [line.split(":")[0] for line in lines]
         assert len(prefixes) == len(set(prefixes))
