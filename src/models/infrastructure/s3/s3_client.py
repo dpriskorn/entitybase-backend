@@ -312,15 +312,16 @@ class S3Client(Client):
         entity_id: str,
         revision_id: int,
         entity_type: str,
-        data: dict,
+        revision_data: dict,
         edit_type: str = "",
         created_by: str = "rest-api",
+        publication_state: str = "",
     ) -> int:
         """Write revision as part of redirect operations (no mark_pending/published flow)."""
         logger.debug(f"Writing entity revision {revision_id} for {entity_id}")
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
-        revision_data = {
+        full_data = {
             "schema_version": "1.2.0",
             "revision_id": revision_id,
             "created_at": datetime.now(timezone.utc).isoformat() + "Z",
@@ -339,12 +340,12 @@ class S3Client(Client):
             "properties": [],
             "property_counts": {},
             "entity": {
-                "id": data.get("id"),
+                "id": revision_data.get("id"),
                 "type": entity_type,
-                "labels": data.get("labels"),
-                "descriptions": data.get("descriptions"),
-                "aliases": data.get("aliases"),
-                "sitelinks": data.get("sitelinks"),
+                "labels": revision_data.get("labels"),
+                "descriptions": revision_data.get("descriptions"),
+                "aliases": revision_data.get("aliases"),
+                "sitelinks": revision_data.get("sitelinks"),
             },
         }
 
@@ -352,7 +353,7 @@ class S3Client(Client):
         self.connection_manager.boto_client.put_object(
             Bucket=self.config.bucket,
             Key=key,
-            Body=json.dumps(data),
+            Body=json.dumps(full_data),
             Metadata={
                 "schema_version": publication_state,
                 "created_at": datetime.now(timezone.utc).isoformat(),
@@ -507,7 +508,14 @@ class S3Client(Client):
         """Load metadata by type."""
         if metadata_type == "labels":
             return self.load_term_metadata(content_hash)
+        elif metadata_type == "descriptions":
+            return self.load_term_metadata(content_hash)
+        elif metadata_type == "aliases":
+            return self.load_term_metadata(content_hash)
+        elif metadata_type == "sitelinks":
+            return self.load_sitelink_metadata(content_hash)
         else:
             raise_validation_error(
                 f"Unknown metadata type: {metadata_type}", status_code=400
             )
+        return ""  # unreachable, but for linter
