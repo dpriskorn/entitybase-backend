@@ -83,10 +83,9 @@ class EntityHandler(BaseModel):
         stream_producer: StreamProducerClient | None,
         validator: Any | None,
         is_creation: bool,
-        edit_summary: str = "",
-        editor: str = "",
+        edit_summary: str = \"\",
     ) -> EntityResponse:
-        """Common logic for processing entity revisions after validation."""
+        \"\"\"Common logic for processing entity revisions after validation.\"\"\"
         # Get current head revision
         head_revision_id = vitess_client.get_head(entity_id)
         logger.debug(f"Current head revision for {entity_id}: {head_revision_id}")
@@ -129,7 +128,6 @@ class EntityHandler(BaseModel):
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
             edit_summary=edit_summary,
-            editor=editor,
             is_semi_protected=is_semi_protected,
             is_locked=is_locked,
             is_archived=is_archived,
@@ -317,8 +315,7 @@ class EntityHandler(BaseModel):
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
         is_creation: bool,
-        edit_summary: str = "",
-        editor: str = "",
+        edit_summary: str = \"\",
     ) -> EntityRevisionResponse:
         """Create revision data, store it, and publish events."""
         # Process sitelinks: hash titles and store metadata
@@ -354,7 +351,6 @@ class EntityHandler(BaseModel):
             sitelinks_hashes=sitelinks_hashes,
             content_hash=content_hash,
             edit_summary=edit_summary,
-            editor=editor,
             is_mass_edit=revision_is_mass_edit,
             edit_type=revision_edit_type,
             is_semi_protected=is_semi_protected,
@@ -413,10 +409,7 @@ class EntityHandler(BaseModel):
                         if head_revision_id != 0
                         else None,
                         changed_at=datetime.now(timezone.utc),
-                        editor=editor,
                         edit_summary=edit_summary,
-                        # we dont support this yet
-                        bot=False,
                     )
                 )
                 logger.debug(
@@ -510,7 +503,6 @@ class EntityCreateHandler(EntityHandler):
             is_mass_edit=request.is_mass_edit,
             edit_type=request.edit_type,
             edit_summary=request.edit_summary,
-            editor=request.editor,
             is_semi_protected=request.is_semi_protected,
             is_locked=request.is_locked,
             is_archived=request.is_archived,
@@ -576,7 +568,6 @@ class EntityUpdateHandler(EntityHandler):
             is_mass_edit=request.is_mass_edit,
             edit_type=request.edit_type,
             edit_summary=request.edit_summary,
-            editor=request.editor,
             is_semi_protected=request.is_semi_protected,
             is_locked=request.is_locked,
             is_archived=request.is_archived,

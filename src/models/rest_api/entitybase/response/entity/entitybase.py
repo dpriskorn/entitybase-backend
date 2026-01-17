@@ -125,7 +125,7 @@ class EntityHistoryEntry(BaseModel):
 class EntityResponse(BaseModel):
     """Response model for entity data."""
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(populate_by_name=True)
 
     id: str = Field(description="Entity ID. Example: 'Q42'.")
     revision_id: int = Field(
@@ -234,7 +234,7 @@ class EntityRevisionResponse(BaseModel):
 class ProtectionResponse(BaseModel):
     """Model for entity protection information."""
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(populate_by_name=True)
 
     is_semi_protected: bool = Field(
         alias="semi_prot",

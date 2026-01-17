@@ -11,7 +11,7 @@ from models.infrastructure.stream.change_type import ChangeType
 class EndorseChangeEvent(BaseModel):
     """Endorsement change event for publishing."""
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(populate_by_name=True)
 
     statement_hash: str = Field(
         alias="hash", description="Hash of the endorsed statement"
@@ -31,7 +31,7 @@ class EndorseChangeEvent(BaseModel):
 class NewThankEvent(BaseModel):
     """New thank event for publishing."""
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(populate_by_name=True)
 
     from_user_id: str = Field(alias="from", description="ID of the user sending thanks")
     to_user_id: str = Field(alias="to", description="ID of the user receiving thanks")
@@ -50,7 +50,7 @@ class NewThankEvent(BaseModel):
 class EntityChangeEvent(BaseModel):
     """Entity change event for publishing to Redpanda."""
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(populate_by_name=True)
 
     entity_id: str = Field(alias="id", description="Entity ID (e.g., Q42)")
     revision_id: int = Field(alias="rev", description="Revision ID of the change")
@@ -62,6 +62,8 @@ class EntityChangeEvent(BaseModel):
     )
     changed_at: datetime = Field(alias="at", description="Timestamp of change")
     edit_summary: str = Field(alias="sum", default="", description="Edit summary")
+    editor: str = Field(alias="ed", default="", description="Editor who made the change")
+    bot: bool = Field(default=False, description="Whether the change was made by a bot")
 
     @field_serializer("changed_at")
     def serialize_changed_at(self, value: datetime) -> str:
@@ -72,7 +74,7 @@ class EntityChangeEvent(BaseModel):
 class RDFChangeEvent(BaseModel):
     """RDF change event following MediaWiki recentchange schema."""
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(populate_by_name=True)
 
     # Required fields from schema
     schema_uri: str = Field(
