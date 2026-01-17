@@ -260,7 +260,7 @@ def toggle_watchlist(
     "/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thank",
     response_model=ThankResponse,
 )
-def send_thank(
+def send_thank_endpoint(
     entity_id: str, revision_id: int, user_id: int = Header(..., alias="X-User-ID")
 ) -> ThankResponse:
     """Send a thank for a specific revision."""
@@ -278,7 +278,7 @@ def send_thank(
 @app.get(
     "/entitybase/v1/users/{user_id}/thanks/received", response_model=ThanksListResponse
 )
-def get_thanks_received(
+def get_thanks_received_endpoint(
     user_id: int,
     limit: int = Query(
         50, ge=1, le=500, description="Maximum number of thanks to return"
@@ -302,7 +302,7 @@ def get_thanks_received(
 @app.get(
     "/entitybase/v1/users/{user_id}/thanks/sent", response_model=ThanksListResponse
 )
-def get_thanks_sent(
+def get_thanks_sent_endpoint(
     user_id: int,
     limit: int = Query(
         50, ge=1, le=500, description="Maximum number of thanks to return"
@@ -327,7 +327,7 @@ def get_thanks_sent(
     "/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks",
     response_model=ThanksListResponse,
 )
-def get_revision_thanks(entity_id: str, revision_id: int) -> ThanksListResponse:
+def get_revision_thanks_endpoint(entity_id: str, revision_id: int) -> ThanksListResponse:
     """Get all thanks for a specific revision."""
     clients = app.state.clients
     if not isinstance(clients, Clients):
@@ -344,7 +344,7 @@ def get_revision_thanks(entity_id: str, revision_id: int) -> ThanksListResponse:
     "/entitybase/v1/statements/{statement_hash}/endorse",
     response_model=EndorsementResponse,
 )
-def endorse_statement(
+def endorse_statement_endpoint(
     statement_hash: int, user_id: int = Header(..., alias="X-User-ID")
 ) -> EndorsementResponse:
     """Endorse a statement to signal trust."""
@@ -363,7 +363,7 @@ def endorse_statement(
     "/entitybase/v1/statements/{statement_hash}/endorse",
     response_model=EndorsementResponse,
 )
-def withdraw_endorsement(
+def withdraw_endorsement_endpoint(
     statement_hash: int, user_id: int = Header(..., alias="X-User-ID")
 ) -> EndorsementResponse:
     """Withdraw endorsement from a statement."""
@@ -382,7 +382,7 @@ def withdraw_endorsement(
     "/entitybase/v1/statements/{statement_hash}/endorsements",
     response_model=EndorsementListResponse,
 )
-def get_statement_endorsements(
+def get_statement_endorsements_endpoint(
     statement_hash: int,
     limit: int = Query(
         50, ge=1, le=500, description="Maximum number of endorsements to return"
@@ -409,7 +409,7 @@ def get_statement_endorsements(
     "/entitybase/v1/users/{user_id}/endorsements",
     response_model=EndorsementListResponse,
 )
-def get_user_endorsements(
+def get_user_endorsements_endpoint(
     user_id: int,
     limit: int = Query(
         50, ge=1, le=500, description="Maximum number of endorsements to return"
@@ -436,7 +436,7 @@ def get_user_endorsements(
     "/entitybase/v1/users/{user_id}/endorsements/stats",
     response_model=EndorsementStatsResponse,
 )
-def get_user_endorsement_stats(user_id: int) -> EndorsementStatsResponse:
+def get_user_endorsement_stats_endpoint(user_id: int) -> EndorsementStatsResponse:
     """Get endorsement statistics for a user."""
     clients = app.state.clients
     if not isinstance(clients, Clients):
