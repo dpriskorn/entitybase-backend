@@ -10,6 +10,9 @@ sys.path.insert(0, "src")
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 
+# Rebuild model after imports
+EntityChangeEvent.model_rebuild()
+
 
 class TestEntityChangeEvent:
     """Tests for EntityChangeEvent model validation and serialization"""

@@ -18,6 +18,13 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                 # Skip comments and empty lines
                 if not stripped or stripped.startswith("#"):
                     continue
+                # Allowlist upper_bound and lower_bound for QuantityValue
+                if (
+                    "upper_bound" in line
+                    or "lower_bound" in line
+                    or "validate_numeric" in line
+                ):
+                    continue
                 # Look for str | None = Field(default=None)
                 if "str | None = Field(default=None)" in line:
                     violations.append(

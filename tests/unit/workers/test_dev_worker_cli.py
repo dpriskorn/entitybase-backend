@@ -43,7 +43,10 @@ class TestDevWorkerCLI:
         assert result == 0
         mock_run_cleanup.assert_called_once()
 
-    @patch(\"builtins.input\", return_value=\"yes\")\n    @patch(\"models.workers.dev.create_buckets.CreateBuckets.cleanup_buckets\")\n    @patch(\"sys.argv\", [\"devworker\", \"cleanup\"])\n    def test_cleanup_command_with_confirmation(self, mock_cleanup, mock_input):
+    @patch("builtins.input", return_value="yes")
+    @patch("models.workers.dev.create_buckets.CreateBuckets.cleanup_buckets")
+    @patch("sys.argv", ["devworker", "cleanup"])
+    def test_cleanup_command_with_confirmation(self, mock_cleanup, mock_input):
         """Test cleanup command with user confirmation."""
         mock_cleanup.return_value = {"bucket1": "deleted"}
 
@@ -53,7 +56,16 @@ class TestDevWorkerCLI:
         mock_cleanup.assert_called_once()
         mock_input.assert_called_once_with("Are you sure? Type 'yes' to confirm: ")
 
-    @patch("builtins.input", return_value="no")\n    @patch("models.workers.dev.create_buckets.CreateBuckets.cleanup_buckets")\n    @patch("sys.argv", ["devworker", "cleanup"])\n    def test_cleanup_command_cancelled(self, mock_cleanup, mock_input):\n        """Test cleanup command cancellation."""\n        result = main()\n\n        assert result == 0\n        mock_cleanup.assert_not_called()\n        mock_input.assert_called_once_with("Are you sure? Type 'yes' to confirm: ")
+    @patch("builtins.input", return_value="no")
+    @patch("models.workers.dev.create_buckets.CreateBuckets.cleanup_buckets")
+    @patch("sys.argv", ["devworker", "cleanup"])
+    def test_cleanup_command_cancelled(self, mock_cleanup, mock_input):
+        """Test cleanup command cancellation."""
+        result = main()
+
+        assert result == 0
+        mock_cleanup.assert_not_called()
+        mock_input.assert_called_once_with("Are you sure? Type 'yes' to confirm: ")
 
     @patch("sys.argv", ["devworker"])
     def test_no_command_error(self, capsys):

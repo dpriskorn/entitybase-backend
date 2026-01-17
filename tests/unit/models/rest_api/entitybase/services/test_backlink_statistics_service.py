@@ -27,13 +27,19 @@ class TestBacklinkStatisticsService:
         # Mock the methods
         with (
             patch.object(
-                BacklinkStatisticsService, "get_total_backlinks", new=MagicMock(return_value=1000)
+                BacklinkStatisticsService,
+                "get_total_backlinks",
+                new=MagicMock(return_value=1000),
             ),
             patch.object(
-                BacklinkStatisticsService, "get_entities_with_backlinks", new=MagicMock(return_value=500)
+                BacklinkStatisticsService,
+                "get_entities_with_backlinks",
+                new=MagicMock(return_value=500),
             ),
             patch.object(
-                BacklinkStatisticsService, "get_top_entities_by_backlinks", new=MagicMock(return_value=[])
+                BacklinkStatisticsService,
+                "get_top_entities_by_backlinks",
+                new=MagicMock(return_value=[]),
             ),
         ):
             result = service.compute_daily_stats(mock_vitess)

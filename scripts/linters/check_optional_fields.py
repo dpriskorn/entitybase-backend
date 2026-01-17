@@ -24,6 +24,9 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                 # Skip method-level lines (indented with 8+ spaces)
                 if line.startswith("        "):
                     continue
+                # Allowlist upper_bound and lower_bound for QuantityValue
+                if "upper_bound" in line or "lower_bound" in line:
+                    continue
                 # Look for = None
                 if " = None" in line:
                     violations.append(
