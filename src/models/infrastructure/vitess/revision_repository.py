@@ -2,19 +2,14 @@
 
 import json
 import logging
-from typing import Any, Optional
+from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
+from models.common import OperationResult
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
-
-
-class OperationResult(BaseModel):
-    """Model for operation results."""
-    success: bool
-    error: Optional[str] = Field(default=None)
 
 
 class RevisionRepository:
@@ -216,7 +211,9 @@ class RevisionRepository:
         """Delete a revision (for rollback)."""
         logger.debug(f"Deleting revision {revision_id} for entity {entity_id}")
         if not conn:
-            return OperationResult(success=False, error="Database connection not provided")
+            return OperationResult(
+                success=False, error="Database connection not provided"
+            )
         if not entity_id:
             return OperationResult(success=False, error="Entity ID is required")
         if revision_id <= 0:

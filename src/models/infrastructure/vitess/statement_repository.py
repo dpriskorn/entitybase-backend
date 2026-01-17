@@ -3,6 +3,8 @@
 import logging
 from typing import Any
 
+from models.common import OperationResult
+
 logger = logging.getLogger(__name__)
 
 
@@ -12,21 +14,26 @@ class StatementRepository:
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 
-    def insert_content(self, conn: Any, content_hash: int) -> bool:
+    def insert_content(self, conn: Any, content_hash: int) -> OperationResult:
         """Insert statement content hash if it doesn't exist."""
-        with conn.cursor() as cursor:
-            cursor.execute(
-                "SELECT 1 FROM statement_content WHERE content_hash = %s",
-                (content_hash,),
-            )
-            if cursor.fetchone() is not None:
-                return False
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT 1 FROM statement_content WHERE content_hash = %s",
+                    (content_hash,),
+                )
+                if cursor.fetchone() is not None:
+                    return OperationResult(
+                        success=False, error="Content hash already exists"
+                    )
 
-            cursor.execute(
-                "INSERT INTO statement_content (content_hash) VALUES (%s)",
-                (content_hash,),
-            )
-            return True
+                cursor.execute(
+                    "INSERT INTO statement_content (content_hash) VALUES (%s)",
+                    (content_hash,),
+                )
+                return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def increment_ref_count(self, conn: Any, content_hash: int) -> int:
         """Increment reference count for statement content."""

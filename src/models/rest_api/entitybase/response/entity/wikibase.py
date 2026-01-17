@@ -2,6 +2,8 @@ from typing import Any, Dict, List
 
 from pydantic import BaseModel, Field
 
+from models.validation.utils import raise_validation_error
+
 
 class LabelValue(BaseModel):
     """Individual label entry with language and value."""
@@ -24,10 +26,31 @@ class AliasValue(BaseModel):
     value: str = Field(..., min_length=1)
 
 
+class SitelinkValue(BaseModel):
+    """Individual sitelink entry."""
+
+    site: str = Field(..., min_length=1)
+    title: str = Field(..., min_length=1)
+    url: str = Field(default="")
+
+
 class EntityLabelsResponse(BaseModel):
     """Collection of labels keyed by language code."""
 
     data: dict[str, LabelValue] = Field(default_factory=dict)
+
+    def __getitem__(self, key: str) -> LabelValue:
+        return self.data[key]
+
+    def get(self, language_code: str) -> LabelValue:
+        """Get label for the specified language code."""
+        if not language_code:
+            raise_validation_error("Language code cannot be empty", status_code=400)
+        if language_code not in self.data:
+            raise_validation_error(
+                f"Label not found for language {language_code}", status_code=404
+            )
+        return self.data[language_code]
 
 
 class EntityDescriptionsResponse(BaseModel):
@@ -35,11 +58,37 @@ class EntityDescriptionsResponse(BaseModel):
 
     data: dict[str, DescriptionValue] = Field(default_factory=dict)
 
+    def __getitem__(self, key: str) -> DescriptionValue:
+        return self.data[key]
+
+    def get(self, language_code: str) -> DescriptionValue:
+        """Get description for the specified language code."""
+        if not language_code:
+            raise_validation_error("Language code cannot be empty", status_code=400)
+        if language_code not in self.data:
+            raise_validation_error(
+                f"Description not found for language {language_code}", status_code=404
+            )
+        return self.data[language_code]
+
 
 class EntityAliasesResponse(BaseModel):
     """Collection of aliases keyed by language code."""
 
     data: dict[str, list[AliasValue]] = Field(default_factory=dict)
+
+    def __getitem__(self, key: str) -> list[AliasValue]:
+        return self.data[key]
+
+    def get(self, language_code: str) -> list[AliasValue]:
+        """Get aliases for the specified language code."""
+        if not language_code:
+            raise_validation_error("Language code cannot be empty", status_code=400)
+        if language_code not in self.data:
+            raise_validation_error(
+                f"Aliases not found for language {language_code}", status_code=404
+            )
+        return self.data[language_code]
 
 
 class EntityStatementsResponse(BaseModel):
@@ -51,7 +100,20 @@ class EntityStatementsResponse(BaseModel):
 class EntitySitelinksResponse(BaseModel):
     """Collection of sitelinks."""
 
-    data: dict[str, Any] = Field(default_factory=dict)
+    data: dict[str, SitelinkValue] = Field(default_factory=dict)
+
+    def __getitem__(self, key: str) -> SitelinkValue:
+        return self.data[key]
+
+    def get(self, language_code: str) -> SitelinkValue:
+        """Get sitelink for the specified language code."""
+        if not language_code:
+            raise_validation_error("Language code cannot be empty", status_code=400)
+        if language_code not in self.data:
+            raise_validation_error(
+                f"Sitelink not found for language {language_code}", status_code=404
+            )
+        return self.data[language_code]
 
 
 class EntityMetadataResponse(BaseModel):

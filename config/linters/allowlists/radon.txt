@@ -83,3 +83,4 @@ remove_watch
 revert_entity
 toggle_watchlist
 update_user_preferences
+get

@@ -93,7 +93,7 @@ class S3Client(Client):
         """Read S3 object and return parsed JSON."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
-        key = f"{entity_id}/r{revision_id}.json"
+        key = f"entities/{entity_id}/{revision_id}.json"
         response = self.connection_manager.boto_client.get_object(
             Bucket=self.config.bucket, Key=key
         )
@@ -349,7 +349,7 @@ class S3Client(Client):
             },
         }
 
-        key = f"{entity_id}/r{revision_id}.json"
+        key = f"entities/{entity_id}/{revision_id}.json"
         self.connection_manager.boto_client.put_object(
             Bucket=self.config.bucket,
             Key=key,

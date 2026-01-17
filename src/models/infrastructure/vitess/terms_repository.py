@@ -2,6 +2,7 @@
 
 from typing import Any, List
 
+from models.common import OperationResult
 from models.rest_api.entitybase.response.misc import TermsResponse
 
 
@@ -11,18 +12,24 @@ class TermsRepository:
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 
-    def insert_term(self, hash_value: int, term: str, term_type: str) -> None:
+    def insert_term(
+        self, hash_value: int, term: str, term_type: str
+    ) -> OperationResult:
         """Insert a term if it doesn't already exist."""
-        with self.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    INSERT INTO entity_terms (hash, term, term_type)
-                    VALUES (%s, %s, %s)
-                    ON DUPLICATE KEY UPDATE hash = hash
-                    """,
-                    (hash_value, term, term_type),
-                )
+        try:
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        INSERT INTO entity_terms (hash, term, term_type)
+                        VALUES (%s, %s, %s)
+                        ON DUPLICATE KEY UPDATE hash = hash
+                        """,
+                        (hash_value, term, term_type),
+                    )
+            return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def get_term(self, hash_value: int) -> tuple[str, str] | None:
         """Retrieve a term and its type by hash."""

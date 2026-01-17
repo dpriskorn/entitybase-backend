@@ -41,8 +41,8 @@ class TestFetchEntityMetadataBatch:
         assert "Q42" in result.metadata
         metadata = result.metadata["Q42"]
         assert metadata.id == "Q42"
-        assert metadata.labels.data["en"].value == "Douglas Adams"
-        assert metadata.descriptions.data["en"].value == "English writer and humorist"
+        assert metadata.labels["en"].value == "Douglas Adams"
+        assert metadata.descriptions["en"].value == "English writer and humorist"
 
     @patch("models.rdf_builder.entity_cache.requests.post")
     def test_fetch_multiple_entities_batch(self, mock_post):
@@ -118,7 +118,7 @@ class TestLoadEntityMetadata:
         result = load_entity_metadata("Q42", tmp_path)
 
         assert result.id == "Q42"
-        assert result.labels.data["en"].value == "test"
+        assert result.labels["en"].value == "test"
 
     def test_load_nonexistent_metadata(self, tmp_path):
         """Test loading nonexistent metadata raises FileNotFoundError."""

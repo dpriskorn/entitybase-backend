@@ -6,6 +6,7 @@ import json
 import logging
 from typing import Any
 
+from models.common import OperationResult
 from models.validation.utils import raise_validation_error
 from models.vitess_models import BacklinkEntry
 
@@ -20,25 +21,22 @@ class BacklinkRepository:
 
     def insert_backlinks(
         self, conn: Any, backlinks: list[tuple[int, int, int, str, str]]
-    ) -> None:
-        """Insert backlinks into entity_backlinks table.
+    ) -> OperationResult:
+        \"\"\"Insert backlinks into entity_backlinks table.
 
         backlinks: list of (referenced_internal_id, referencing_internal_id, statement_hash, property_id, rank)
-        """
+        \"\"\"
         if not backlinks:
-            return
+            return OperationResult(success=True)
 
-        with conn.cursor() as cursor:
-            cursor.executemany(
-                """
-                INSERT INTO entity_backlinks 
-                (referenced_internal_id, referencing_internal_id, statement_hash, property_id, rank)
-                VALUES (%s, %s, %s, %s, %s)
-                ON DUPLICATE KEY UPDATE
-                referenced_internal_id = referenced_internal_id  -- no-op, just to handle duplicates
-                """,
-                backlinks,
-            )
+        try:
+            with conn.cursor() as cursor:
+                cursor.executemany(
+                    \"\"\"
+                    INSERT INTO entity_backlinks \n                    (referenced_internal_id, referencing_internal_id, statement_hash, property_id, rank)\n                    VALUES (%s, %s, %s, %s, %s)\n                    ON DUPLICATE KEY UPDATE\n                    referenced_internal_id = referenced_internal_id  -- no-op, just to handle duplicates\n                    \"\"\",\n                    backlinks,\n                )
+            return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def delete_backlinks_for_entity(
         self, conn: Any, referencing_internal_id: int
