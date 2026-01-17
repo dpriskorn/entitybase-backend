@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from models.endorsements import StatementEndorsement
+from models.endorsements import Endorsement
 
 
 class EndorsementResponse(BaseModel):
@@ -22,7 +22,7 @@ class EndorsementListResponse(BaseModel):
 
     statement_hash: Optional[int] = Field(default=None)
     user_id: Optional[int] = Field(default=None)
-    endorsements: List[StatementEndorsement]
+    endorsements: List[Endorsement]
     total_count: int
     has_more: bool
     stats: StatementEndorsementStats

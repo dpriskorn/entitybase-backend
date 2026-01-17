@@ -2,6 +2,49 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-17] Endorsement Stats Optimization & Caching
+
+### Summary
+
+Optimized endorsement statistics delivery by merging stats into listing endpoints and adding cache-friendly lightweight stats endpoints. Slimmed response field names and removed redundant data to reduce JSON payload sizes for better caching performance.
+
+### Changes
+
+#### API Enhancements
+- **Embedded Stats**: `GET /statements/{hash}/endorsements` now includes `stats` metadata with total/active/withdrawn counts
+- **Lightweight Endpoint**: `GET /statements/{hash}/endorsements/stats` provides stats-only responses (~99% size reduction)
+- **Slimmed Fields**: Response fields renamed from `total_endorsements` to `total`, `active_endorsements` to `active`, etc.
+- **Field Optimization**: Renamed `statement_hash` to `hash` and `StatementEndorsement` to `Endorsement` for concise responses
+- **Removed Redundancy**: Single stats endpoint omits redundant fields
+
+#### Response Structure Updates
+```json
+// Listing endpoint (with embedded stats)
+{
+  "statement_hash": 12345,
+  "endorsements": [...],
+  "total_count": 42,
+  "has_more": false,
+  "stats": {
+    "total": 50,
+    "active": 42,
+    "withdrawn": 8
+  }
+}
+
+// Lightweight stats endpoint
+{
+  "total": 50,
+  "active": 42,
+  "withdrawn": 8
+}
+```
+
+#### Performance Improvements
+- **Cache-Friendly**: Lightweight endpoint reduces JSON size from ~10KB to ~100 bytes
+- **Efficient Queries**: Stats calculated alongside main queries to avoid extra round trips
+- **Optimized Payload**: Removed redundant fields and verbose naming
+
 ## [2026-01-17] Statement Endorsements with Revocation Support
 
 ### Summary

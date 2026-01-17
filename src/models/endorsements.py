@@ -6,12 +6,12 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
-class StatementEndorsement(BaseModel):
-    """Individual statement endorsement."""
+class Endorsement(BaseModel):
+    """Individual endorsement."""
 
     id: int
     user_id: int
-    statement_hash: int
+    hash: int
     created_at: datetime
     removed_at: Optional[datetime] = Field(default=None)
 
