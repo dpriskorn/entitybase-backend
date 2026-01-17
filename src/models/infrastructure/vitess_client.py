@@ -526,9 +526,11 @@ class VitessClient(Client):
     def delete_backlinks_for_entity(self, referencing_internal_id: int) -> None:
         """Delete all backlinks for a referencing entity."""
         with self.connection_manager.get_connection() as conn:
-            self.backlink_repository.delete_backlinks_for_entity(
+            result = self.backlink_repository.delete_backlinks_for_entity(
                 conn, referencing_internal_id
             )
+            if not result.success:
+                raise_validation_error(result.error or "Failed to delete backlinks", status_code=500)
 
     def get_backlinks(
         self, referenced_internal_id: int, limit: int = 100, offset: int = 0

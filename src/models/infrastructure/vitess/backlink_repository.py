@@ -47,13 +47,20 @@ class BacklinkRepository:
 
     def delete_backlinks_for_entity(
         self, conn: Any, referencing_internal_id: int
-    ) -> None:
+    ) -> OperationResult:
         """Delete all backlinks for a referencing entity (used for updates)."""
-        with conn.cursor() as cursor:
-            cursor.execute(
-                "DELETE FROM entity_backlinks WHERE referencing_internal_id = %s",
-                (referencing_internal_id,),
-            )
+        if referencing_internal_id <= 0:
+            return OperationResult(success=False, error="Invalid referencing internal ID")
+
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "DELETE FROM entity_backlinks WHERE referencing_internal_id = %s",
+                    (referencing_internal_id,),
+                )
+            return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def get_backlinks(
         self, conn: Any, referenced_internal_id: int, limit: int = 100, offset: int = 0
