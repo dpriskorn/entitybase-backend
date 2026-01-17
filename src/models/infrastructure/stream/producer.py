@@ -19,13 +19,6 @@ __all__ = [
 ]
 
 
-class EndorseAction(str, Enum):
-    """Actions for endorsement changes."""
-
-    ENDORSE = "endorse"
-    WITHDRAW = "withdraw"
-
-
 class EndorseChangeEvent(BaseModel):
     """Endorsement change event for publishing."""
 

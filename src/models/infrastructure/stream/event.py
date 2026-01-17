@@ -3,7 +3,9 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
+
+from models.infrastructure.stream.actions import EndorseAction
 
 if TYPE_CHECKING:
     from models.infrastructure.stream.change_type import ChangeType
