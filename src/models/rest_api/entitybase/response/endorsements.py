@@ -20,12 +20,12 @@ class EndorsementResponse(BaseModel):
 class EndorsementListResponse(BaseModel):
     """Response for endorsement list queries."""
 
-    statement_hash: Optional[int] = Field(default=None)
-    user_id: Optional[int] = Field(default=None)
+    statement_hash: int = Field(default=0)
+    user_id: int = Field(default=0)
     endorsements: List[Endorsement]
     total_count: int
     has_more: bool
-    stats: StatementEndorsementStats
+    stats: "StatementEndorsementStats"
 
 
 class EndorsementStatsResponse(BaseModel):
