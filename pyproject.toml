@@ -50,11 +50,11 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-addopts = \"-n auto --tb=short\"
+addopts = "-n auto --tb=short"
 markers = [
-    \"unit: marks tests as unit tests\",
-    \"integration: marks tests as integration tests\",
-    \"e2e: marks tests as e2e tests\",
+    "unit: marks tests as unit tests",
+    "integration: marks tests as integration tests",
+    "e2e: marks tests as e2e tests",
 ]
 
 [tool.vulture]
