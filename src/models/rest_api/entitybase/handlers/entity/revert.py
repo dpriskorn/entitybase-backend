@@ -43,9 +43,14 @@ class EntityRevertHandler:
             )
 
         # Get current head revision
-        head_revision = vitess_client.head_repository.get_head_revision(
+        head_result = vitess_client.head_repository.get_head_revision(
             internal_entity_id
         )
+        if not head_result.success:
+            raise_validation_error(
+                head_result.error or "Failed to get head revision", status_code=500
+            )
+        head_revision = head_result.data if isinstance(head_result.data, int) else 0
         if head_revision == request.to_revision_id:
             raise_validation_error(
                 f"Entity {entity_id} is already at revision {request.to_revision_id}",
