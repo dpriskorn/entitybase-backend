@@ -5,6 +5,8 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+__all__ = ["StatementEndorsement", "Endorsement", "EndorsementStats"]
+
 
 class StatementEndorsement(BaseModel):
     """Endorsement record."""

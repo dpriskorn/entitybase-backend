@@ -10,6 +10,14 @@ from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 logger = logging.getLogger(__name__)
 
+__all__ = [
+    "EndorseAction",
+    "EndorseChangeEvent",
+    "NewThankEvent",
+    "RDFChangeEvent",
+    "StreamProducerClient",
+]
+
 
 class EndorseAction(str, Enum):
     """Actions for endorsement changes."""

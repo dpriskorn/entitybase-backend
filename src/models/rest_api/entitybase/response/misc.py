@@ -154,7 +154,7 @@ class TopEntityByBacklinks(BaseModel):
 class BacklinkStatisticsData(BaseModel):
     """Container for computed backlink statistics."""
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(populate_by_name=True)
 
     total_backlinks: int = Field(
         alias="total",
