@@ -57,7 +57,7 @@ class EntityChangeEvent(BaseModel):
 
     entity_id: str = Field(alias="id", description="Entity ID (e.g., Q42)")
     revision_id: int = Field(alias="rev", description="Revision ID of the change")
-    change_type: ChangeType = Field(alias="type", description="Type of change")
+    change_type: "ChangeType" = Field(alias="type", description="Type of change")
     from_revision_id: Optional[int] = Field(
         alias="from_rev",
         default=None,

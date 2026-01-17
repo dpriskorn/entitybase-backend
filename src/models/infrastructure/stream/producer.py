@@ -8,6 +8,8 @@ from typing import Any
 from aiokafka import AIOKafkaProducer  # type: ignore[import-untyped]
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
+from models.infrastructure.stream.actions import EndorseAction
+
 logger = logging.getLogger(__name__)
 
 __all__ = [
