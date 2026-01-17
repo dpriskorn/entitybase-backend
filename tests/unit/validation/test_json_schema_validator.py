@@ -155,6 +155,7 @@ def test_invalid_statement_missing_required_field(
     validator: JsonSchemaValidator,
 ) -> None:
     invalid_statement = {
+        "schema_version": "1.0.0",
         "content_hash": 123456789,
         "statement": {
             "property": "P31",
@@ -187,6 +188,7 @@ def test_invalid_statement_wrong_enum(validator: JsonSchemaValidator) -> None:
 
 def test_valid_statement_without_hash(validator: JsonSchemaValidator) -> None:
     valid_statement = {
+        "schema_version": "1.0.0",
         "content_hash": 123456789,
         "statement": {
             "mainsnak": {
