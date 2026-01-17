@@ -3,6 +3,8 @@ import logging
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 from .conftest import normalize_ttl, split_subject_blocks
 
 import os

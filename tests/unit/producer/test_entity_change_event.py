@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 sys.path.insert(0, "src")
 
 from models.infrastructure.stream.producer import ChangeType, EntityChangeEvent

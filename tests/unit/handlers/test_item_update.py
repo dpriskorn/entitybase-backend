@@ -1,4 +1,6 @@
 import pytest
+
+pytestmark = pytest.mark.unit
 from unittest.mock import AsyncMock, MagicMock, patch
 from fastapi import HTTPException
 
@@ -44,10 +46,12 @@ class TestItemUpdateHandler:
     ) -> None:
         """Test successful item update with Q-prefixed ID"""
         request = EntityUpdateRequest(
+            id="Q123",
             data={
                 "type": "item",
                 "labels": {"en": {"language": "en", "value": "Updated Item"}},
-            }
+            },
+            edit_summary="test",
         )
 
         # Mock the parent update_entity to return a response
@@ -94,7 +98,9 @@ class TestItemUpdateHandler:
         mock_stream_producer: AsyncMock,
     ) -> None:
         """Test update fails for property ID (P-prefixed)"""
-        request = EntityUpdateRequest(data={"type": "item"})
+        request = EntityUpdateRequest(
+            id="P123", data={"type": "item"}, edit_summary="test"
+        )
 
         with pytest.raises(HTTPException) as exc_info:
             await handler.update_entity(
@@ -117,7 +123,9 @@ class TestItemUpdateHandler:
         mock_stream_producer: AsyncMock,
     ) -> None:
         """Test update fails for lexeme ID (L-prefixed)"""
-        request = EntityUpdateRequest(data={"type": "item"})
+        request = EntityUpdateRequest(
+            id="L123", data={"type": "item"}, edit_summary="test"
+        )
 
         with pytest.raises(HTTPException) as exc_info:
             await handler.update_entity(

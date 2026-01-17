@@ -3,6 +3,8 @@ import sys
 sys.path.insert(0, "src")
 
 import pytest
+
+pytestmark = pytest.mark.unit
 from jsonschema import ValidationError
 
 from models.validation.json_schema_validator import JsonSchemaValidator

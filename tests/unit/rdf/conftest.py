@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 from models.rdf_builder.ontology.datatypes import property_shape
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 import csv

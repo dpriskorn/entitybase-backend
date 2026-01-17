@@ -1,6 +1,8 @@
 """Tests for the CreateBuckets."""
 
 import pytest
+
+pytestmark = pytest.mark.unit
 from unittest.mock import MagicMock, patch
 from botocore.exceptions import ClientError
 from models.workers.dev.create_buckets import CreateBuckets

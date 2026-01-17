@@ -3,6 +3,8 @@
 from unittest.mock import Mock, patch
 
 import pytest
+
+pytestmark = pytest.mark.unit
 from pydantic import ValidationError
 
 from models.workers.id_generation.id_generation_worker import (

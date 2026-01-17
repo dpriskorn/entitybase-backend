@@ -2,6 +2,8 @@ import json
 from pathlib import Path
 import pytest
 
+pytestmark = pytest.mark.unit
+
 from models.rdf_builder.property_registry.models import (
     PropertyShape,
     PropertyPredicates,

@@ -2,6 +2,8 @@
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 from models.infrastructure.unique_id import generate_unique_id
 
 

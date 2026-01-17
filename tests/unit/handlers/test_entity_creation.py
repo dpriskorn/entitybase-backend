@@ -3,6 +3,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 sys.path.insert(0, "src")
 
 from models.rest_api.entitybase.request.entity import EntityCreateRequest
@@ -65,6 +67,8 @@ class TestItemCreateHandler:
             edit_summary="Test creation",
         )
 
+        mock_vitess_client.entity_exists.return_value = False
+
         result = await handler.create_entity(
             request=request,
             vitess_client=mock_vitess_client,
@@ -97,7 +101,7 @@ class TestItemCreateHandler:
         """Test item creation fails if entity already exists"""
         mock_vitess_client.entity_exists.return_value = True
 
-        request = EntityCreateRequest(id="Q123")
+        request = EntityCreateRequest(id="Q123", edit_summary="test")
 
         with pytest.raises(Exception) as exc_info:
             await handler.create_entity(
@@ -161,7 +165,9 @@ class TestPropertyCreateHandler:
             edit_summary="Test property creation",
         )
 
-        result = await handler.create_property(
+        mock_vitess_client.entity_exists.return_value = False
+
+        result = await handler.create_entity(
             request=request,
             vitess_client=mock_vitess_client,
             s3_client=mock_s3_client,

@@ -1,6 +1,8 @@
 """Tests for entity response models."""
 
 import pytest
+
+pytestmark = pytest.mark.unit
 from pydantic import ValidationError
 
 from models.rest_api.entitybase.response.entity import (

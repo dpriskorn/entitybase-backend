@@ -3,6 +3,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 sys.path.insert(0, "src")
 
 from models.rest_api.entitybase.handlers.user_preferences import UserPreferencesHandler

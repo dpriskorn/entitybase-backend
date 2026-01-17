@@ -3,6 +3,8 @@ from pathlib import Path
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 # sys.path.insert(0, str(Path(__file__).parent.parent.parent / "src"))
 logger = logging.getLogger(__name__)
 # logger.info(f"TEST_DATA_DIR: {TEST_DATA_JSON_DIR}")

@@ -3,6 +3,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 sys.path.insert(0, "src")
 
 from models.watchlist import (
@@ -40,7 +42,7 @@ class TestWatchlistHandler:
 
         result = handler.add_watch(request, mock_vitess_client)
 
-        assert result == {"message": "Watch added"}
+        assert result.message == "Watch added"
         mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
         mock_vitess_client.watchlist_repository.add_watch.assert_called_once_with(
             12345, "Q42", ["P31"]
@@ -71,7 +73,7 @@ class TestWatchlistHandler:
 
         result = handler.remove_watch(request, mock_vitess_client)
 
-        assert result == {"message": "Watch removed"}
+        assert result.message == "Watch removed"
         mock_vitess_client.watchlist_repository.remove_watch.assert_called_once_with(
             12345, "Q42", ["P31"]
         )
@@ -172,7 +174,7 @@ class TestWatchlistHandler:
 
         result = handler.mark_checked(12345, request, mock_vitess_client)
 
-        assert result == {"message": "Notification marked as checked"}
+        assert result.message == "Notification marked as checked"
         mock_vitess_client.watchlist_repository.mark_notification_checked.assert_called_once_with(
             1, 12345
         )

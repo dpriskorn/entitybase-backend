@@ -6,6 +6,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 from models.rest_api.entitybase.handlers.entity.wikidata_import import (
     EntityJsonImportHandler,
 )
@@ -198,6 +200,18 @@ class TestWikidataImportService:
 
         with pytest.raises(ValueError, match="Entity Q123 not found"):
             WikidataImportService.fetch_entity_data("Q123")
+
+    @pytest.fixture
+    def sample_entity_json(self) -> dict[str, Any]:
+        return {
+            "id": "Q123",
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Test Item"}},
+            "descriptions": {},
+            "aliases": {},
+            "claims": {},
+            "sitelinks": {},
+        }
 
     def test_transform_to_create_request(
         self, sample_entity_json: dict[str, Any]

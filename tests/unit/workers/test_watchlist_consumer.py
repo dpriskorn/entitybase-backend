@@ -4,6 +4,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+pytestmark = pytest.mark.unit
+
 sys.path.insert(0, "src")
 
 from models.infrastructure.stream.consumer import Consumer, EntityChangeEvent

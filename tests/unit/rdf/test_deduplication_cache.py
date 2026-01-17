@@ -1,6 +1,8 @@
 """Unit tests for HashDedupeBag deduplication cache."""
 
 import pytest
+
+pytestmark = pytest.mark.unit
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 
 

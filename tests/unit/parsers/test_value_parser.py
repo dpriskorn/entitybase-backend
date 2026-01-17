@@ -1,5 +1,7 @@
 import pytest
 
+pytestmark = pytest.mark.unit
+
 from models.json_parser import parse_value
 from models.internal_representation.values import (
     TimeValue,
