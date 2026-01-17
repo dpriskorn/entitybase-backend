@@ -3,6 +3,7 @@
 import logging
 from typing import Any, List
 
+from models.common import OperationResult
 from models.user import User
 from models.user_activity import UserActivityItem
 
@@ -15,18 +16,20 @@ class UserRepository:
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 
-    def create_user(self, user_id: int) -> None:
+    def create_user(self, user_id: int) -> OperationResult:
         """Create a new user if not exists (idempotent)."""
-        with self.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    INSERT INTO users (user_id)
-                    VALUES (%s)
-                    ON DUPLICATE KEY UPDATE user_id = user_id
-                    """,
-                    (user_id,),
-                )
+        try:
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        \"\"\"
+                        INSERT INTO users (user_id)
+                        VALUES (%s)
+                        ON DUPLICATE KEY UPDATE user_id = user_id
+                        \"\"\",\n                        (user_id,),\n                    )
+            return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def user_exists(self, user_id: int) -> bool:
         """Check if user exists."""

@@ -7,6 +7,8 @@ from models.rest_api.entitybase.response.misc import MetadataContent
 import logging
 from typing import Any
 
+from models.common import OperationResult
+
 
 logger = logging.getLogger(__name__)
 
@@ -19,17 +21,21 @@ class MetadataRepository:
 
     def insert_metadata_content(
         self, conn: Any, content_hash: int, content_type: str
-    ) -> None:
+    ) -> OperationResult:
         """Insert or increment ref_count for metadata content."""
-        with conn.cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO metadata_content (content_hash, content_type, ref_count)
-                VALUES (%s, %s, 1)
-                ON DUPLICATE KEY UPDATE ref_count = ref_count + 1
-                """,
-                (content_hash, content_type),
-            )
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO metadata_content (content_hash, content_type, ref_count)
+                    VALUES (%s, %s, 1)
+                    ON DUPLICATE KEY UPDATE ref_count = ref_count + 1
+                    """,
+                    (content_hash, content_type),
+                )
+            return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def get_metadata_content(
         self, conn: Any, content_hash: int, content_type: str
