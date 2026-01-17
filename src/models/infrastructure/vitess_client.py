@@ -398,7 +398,12 @@ class VitessClient(Client):
     def increment_ref_count(self, content_hash: int) -> int:
         """Increment reference count for statement content."""
         with self.connection_manager.get_connection() as conn:
-            return self.statement_repository.increment_ref_count(conn, content_hash)  # type: ignore[no-any-return]
+            result = self.statement_repository.increment_ref_count(conn, content_hash)
+            if not result.success:
+                raise_validation_error(
+                    result.error or "Failed to increment ref count", status_code=500
+                )
+            return result.data if isinstance(result.data, int) else 0
 
     def decrement_ref_count(self, content_hash: int) -> int:
         """Decrement reference count for statement content."""

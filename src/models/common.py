@@ -1,6 +1,6 @@
 """Shared common models."""
 
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
@@ -10,3 +10,4 @@ class OperationResult(BaseModel):
 
     success: bool
     error: Optional[str] = Field(default=None)
+    data: Optional[Any] = Field(default=None)

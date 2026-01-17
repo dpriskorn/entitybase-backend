@@ -35,19 +35,26 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    def increment_ref_count(self, conn: Any, content_hash: int) -> int:
+    def increment_ref_count(self, conn: Any, content_hash: int) -> OperationResult:
         """Increment reference count for statement content."""
-        with conn.cursor() as cursor:
-            cursor.execute(
-                "UPDATE statement_content SET ref_count = ref_count + 1 WHERE content_hash = %s",
-                (content_hash,),
-            )
-            cursor.execute(
-                "SELECT ref_count FROM statement_content WHERE content_hash = %s",
-                (content_hash,),
-            )
-            result = cursor.fetchone()
-            return result[0] if result else 0
+        if content_hash <= 0:
+            return OperationResult(success=False, error="Invalid content hash")
+
+        try:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE statement_content SET ref_count = ref_count + 1 WHERE content_hash = %s",
+                    (content_hash,),
+                )
+                cursor.execute(
+                    "SELECT ref_count FROM statement_content WHERE content_hash = %s",
+                    (content_hash,),
+                )
+                result = cursor.fetchone()
+                new_count = result[0] if result else 0
+                return OperationResult(success=True, data=new_count)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def decrement_ref_count(self, conn: Any, content_hash: int) -> int:
         """Decrement reference count for statement content."""
