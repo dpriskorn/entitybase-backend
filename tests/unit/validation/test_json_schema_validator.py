@@ -77,14 +77,7 @@ def test_invalid_entity_missing_required_field(validator: JsonSchemaValidator) -
 def test_invalid_entity_wrong_type(validator: JsonSchemaValidator) -> None:
     invalid_entity = {
         "schema_version": "1.2.0",
-        "revision_id": "not-a-number",
-        "created_at": "2026-01-07T10:00:00Z",
-        "created_by": "test-user",
-        "entity_type": "item",
-        "entity": {
-            "id": "Q42",
-            "type": "item",
-        },
+        "revision_id": "not-a-number",\n        "created_at": "2026-01-07T10:00:00Z",\n        "created_by": "test-user",\n        "entity_type": "item",\n        "entity": {\n            "schema_version": "1.0.0",\n            "id": "Q42",\n            "type": "item",\n        },
         "statements": [],
         "properties": [],
         "property_counts": {},
