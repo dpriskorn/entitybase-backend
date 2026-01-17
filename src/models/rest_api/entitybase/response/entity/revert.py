@@ -6,7 +6,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class EntityRevertResponse(BaseModel):
     """Response for entity revert operation."""
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(populate_by_name=True)
 
     entity_id: str = Field(description="ID of the reverted entity. Example: 'Q42'.")
     new_revision_id: int = Field(

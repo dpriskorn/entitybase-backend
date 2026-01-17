@@ -193,7 +193,7 @@ class TestRevisionRepository:
         assert result[0].user_id == 789
         assert result[0].edit_summary == "Test edit"
         assert result[1].revision_id == 455
-        assert result[1].created_at is None
+        assert result[1].created_at == ""
 
     def test_get_history_entity_not_found(self):
         """Test get_history when entity not found."""

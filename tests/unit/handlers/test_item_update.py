@@ -63,6 +63,11 @@ class TestItemUpdateHandler:
                 "type": "item",
                 "labels": {"en": {"language": "en", "value": "Updated Item"}},
             },
+            is_semi_protected=False,
+            is_locked=False,
+            is_archived=False,
+            is_dangling=False,
+            is_mass_edit_protected=False,
         )
 
         with patch.object(

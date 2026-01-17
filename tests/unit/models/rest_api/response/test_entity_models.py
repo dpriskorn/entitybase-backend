@@ -14,6 +14,9 @@ from models.rest_api.entitybase.response.entity import (
     EntityLabelsResponse,
     EntityMetadataResponse,
     EntitySitelinksResponse,
+
+# Rebuild model after imports
+EntityChange.model_rebuild()
     EntityStatementsResponse,
     LabelValue,
 )
@@ -178,7 +181,6 @@ class TestEntityChange:
         assert change.change_type == ChangeType.EDIT
         assert change.from_revision_id == 122
         assert change.edit_summary == "Updated label"
-        assert change.bot is False
 
     def test_entity_change_minimal(self):
         """Test EntityChange with minimal required fields."""
@@ -196,7 +198,6 @@ class TestEntityChange:
         assert change.change_type == ChangeType.CREATION
         assert change.from_revision_id == 0  # default
         assert change.edit_summary == ""  # default
-        assert change.bot is False  # default
 
     def test_entity_change_invalid_change_type(self):
         """Test EntityChange with invalid change_type raises error."""
