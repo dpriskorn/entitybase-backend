@@ -70,7 +70,7 @@ class EntityUpdateHandler(EntityHandler):
                 is_mass_edit=request.is_mass_edit,
                 edit_type=request.edit_type,
                 edit_summary=request.edit_summary,
-                editor=request.editor,
+                editor=request.editor or "",
                 is_semi_protected=request.is_semi_protected,
                 is_locked=request.is_locked,
                 is_archived=request.is_archived,
@@ -88,7 +88,7 @@ class EntityUpdateHandler(EntityHandler):
                 change_type="edit",
                 from_revision_id=tx.head_revision_id,
                 changed_at=None,  # TODO
-                editor=request.editor,
+                editor=request.editor or "",
                 edit_summary=request.edit_summary,
                 stream_producer=stream_producer,
             )

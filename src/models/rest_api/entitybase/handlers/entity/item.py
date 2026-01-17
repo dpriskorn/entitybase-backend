@@ -2,6 +2,7 @@
 
 import logging
 import traceback
+from datetime import datetime
 from typing import Any
 
 from models.infrastructure.s3.s3_client import S3Client
@@ -88,7 +89,7 @@ class ItemCreateHandler(EntityCreateHandler):
                 is_mass_edit=request.is_mass_edit,
                 edit_type=request.edit_type,
                 edit_summary=request.edit_summary,
-                editor=request.editor,
+                editor=request.editor or "",
                 is_semi_protected=request.is_semi_protected,
                 is_locked=request.is_locked,
                 is_archived=request.is_archived,
@@ -106,10 +107,10 @@ class ItemCreateHandler(EntityCreateHandler):
                 entity_id=entity_id,
                 revision_id=1,
                 change_type="creation",
-                changed_at=None,
+                changed_at=datetime.now(),
                 stream_producer=stream_producer,
                 from_revision_id=0,
-                editor=request.editor,
+                editor=request.editor or "",
                 edit_summary=request.edit_summary,
             )
 

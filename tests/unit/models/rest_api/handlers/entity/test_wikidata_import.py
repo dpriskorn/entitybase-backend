@@ -152,6 +152,9 @@ class TestEntityJsonImportHandler:
                 is_deleted=False
             )
             vitess_client.is_entity_deleted.return_value = False
+            vitess_client.get_protection_info.return_value = MagicMock(
+                is_archived=False
+            )
             s3_client.read_revision = MagicMock(
                 side_effect=Exception("Not found")
             )  # Entity doesn't exist
