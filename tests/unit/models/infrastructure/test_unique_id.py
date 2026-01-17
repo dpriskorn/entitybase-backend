@@ -20,3 +20,8 @@ class TestUniqueId:
         id_value = generate_unique_id()
         assert isinstance(id_value, int)
         assert id_value > 0
+
+    def test_generate_unique_id_range(self) -> None:
+        """Test that generated ID is within 64-bit range."""
+        id_value = generate_unique_id()
+        assert 0 <= id_value < (1 << 64)
