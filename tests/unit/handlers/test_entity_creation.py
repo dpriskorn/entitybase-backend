@@ -171,7 +171,6 @@ class TestPropertyCreateHandler:
             labels={"en": {"language": "en", "value": "Test Property"}},
             edit_summary="Test property creation",
             user_id=123,
-            editor="test",
         )
 
         mock_vitess_client.entity_exists.return_value = False

@@ -578,15 +578,14 @@ class TestStreamIntegration:
         )
 
     @pytest.mark.asyncio
-    async def test_edit_publishes_event_with_editor(
+    async def test_edit_publishes_creation_event(
         self, api_client: Any, base_url: str, clean_consumer: AIOKafkaConsumer
     ) -> None:
-        """Test that edits publish events with editor"""
+        """Test that edits publish creation events"""
         entity_data = {
             "id": f"{TEST_ENTITY_BASE}10",
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Bot Edit Test Entity"}},
-            "editor": "admin-bot",
         }
 
         response = api_client.post(f"{base_url}/entity", json=entity_data)
@@ -613,4 +612,3 @@ class TestStreamIntegration:
             )
 
         assert event["entity_id"] == f"{TEST_ENTITY_BASE}10"
-        assert event["editor"] == "admin-bot"

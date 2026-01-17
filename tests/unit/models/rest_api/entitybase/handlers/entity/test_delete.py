@@ -28,26 +28,25 @@ class TestEntityDeleteHandler:
         return MagicMock()
 
     @pytest.fixture
-    def request(self):
+    def delete_request(self):
         return EntityDeleteRequest(
             delete_type=DeleteType.SOFT,
             edit_summary="Test delete",
-            editor="test_user",
             tags=[],
         )
 
     @pytest.mark.asyncio
     async def test_delete_entity_soft_delete_success(
-        self, handler, mock_vitess_client, mock_s3_client, mock_stream_producer, request
+        self, handler, mock_vitess_client, mock_s3_client, mock_stream_producer, delete_request
     ):
-        """Test successful soft delete."""
+        \"\"\"Test successful soft delete.\"\"\"
         mock_vitess_client.entity_exists.return_value = True
         mock_vitess_client.get_head.return_value = 100
         mock_vitess_client.create_entity_revision.return_value = 101
 
         response = await handler.delete_entity(
             "Q42",
-            request,
+            delete_request,
             mock_vitess_client,
             mock_s3_client,
             mock_stream_producer,
@@ -68,7 +67,6 @@ class TestEntityDeleteHandler:
         request = EntityDeleteRequest(
             delete_type=DeleteType.HARD,
             edit_summary="Hard delete",
-            editor="admin",
             tags=[],
         )
 
