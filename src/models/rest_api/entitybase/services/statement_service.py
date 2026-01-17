@@ -92,7 +92,7 @@ def deduplicate_and_store_statements(
     s3_client: S3Client,
     validator: JsonSchemaValidator | None = None,
     schema_version: str = "latest",
-) -> None:
+) -> OperationResult:
     """Deduplicate and store statements in Vitess and S3 (S3-first approach).
 
     For each statement:
@@ -217,11 +217,10 @@ def deduplicate_and_store_statements(
                 },
                 exc_info=True,
             )
-            raise_or_convert_to_500(
-                e, f"Failed to store statement {statement_hash}: {e}"
-            )
+            return OperationResult(success=False, error=f"Failed to store statement {statement_hash}: {e}")
 
     logger.info(
         f"Successfully stored all {len(hash_result.statements)} statements (new + existing)"
     )
     logger.info(f"Final statement hashes: {hash_result.statements}")
+    return OperationResult(success=True)

@@ -230,7 +230,9 @@ class TestCreateBuckets:
 
         worker = CreateBuckets()
         with patch.object(
-            worker, "bucket_health_check", return_value={"overall_status": "healthy"}
+            worker,
+            "bucket_health_check",
+            new=MagicMock(return_value={"overall_status": "healthy"}),
         ):
             results = await worker.run_setup()
 
