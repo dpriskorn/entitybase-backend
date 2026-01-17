@@ -25,6 +25,8 @@ class ValueNodeHasher(BaseModel):
         formatted = f"{value:.1E}"
         if "E-0" in formatted:
             formatted = formatted.replace("E-0", "E-")
+        if "E+" in formatted:
+            formatted = formatted.replace("E+", "E")
         return formatted
 
     @staticmethod

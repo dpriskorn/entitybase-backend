@@ -91,7 +91,9 @@ class TestS3Client:
                 "Metadata": {"schema_version": "1.0", "created_at": "2023-01-01"},
             }
             mock_body = MagicMock()
-            mock_body.read.return_value = b'{"test": "data"}'
+            mock_body.read.return_value = (
+                b'{"schema_version": "1.0", "entity": {"id": "Q42"}}'
+            )
             mock_connection_manager.boto_client.get_object.return_value["Body"] = (
                 mock_body
             )
@@ -117,7 +119,7 @@ class TestS3Client:
                 "Metadata": {"schema_version": "1.0", "created_at": "2023-01-01"},
             }
             mock_body = MagicMock()
-            mock_body.read.return_value = b'{"statement": {"id": "P31"}}'
+            mock_body.read.return_value = b'{"schema_version": "1.0", "content_hash": 456, "statement": {"id": "P31"}, "created_at": "2023-01-01"}'
             mock_connection_manager.boto_client.get_object.return_value["Body"] = (
                 mock_body
             )

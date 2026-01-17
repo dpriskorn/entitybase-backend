@@ -50,7 +50,8 @@ class S3Client(Client):
             ):
                 try:
                     self.connection_manager.boto_client.create_bucket(
-                        Bucket=self.config.bucket
+                        Bucket=self.config.bucket,
+                        CreateBucketConfiguration={"LocationConstraint": "us-east-1"},
                     )
                 except ClientError as ce:
                     print(f"Error creating bucket {self.config.bucket}: {ce}")
@@ -74,12 +75,15 @@ class S3Client(Client):
         """Write entity revision data to S3."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
-        key = f"{entity_id}/r{revision_id}.json"
+        key = f"entities/{entity_id}/{revision_id}.json"
         self.connection_manager.boto_client.put_object(
             Bucket=self.config.bucket,
             Key=key,
             Body=json.dumps(data),
-            Metadata={"publication_state": publication_state},
+            Metadata={
+                "publication_state": publication_state,
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            },
         )
         return RevisionMetadata(key=key)
 
@@ -151,6 +155,7 @@ class S3Client(Client):
         self,
         content_hash: int,
         statement_data: Dict[str, Any],
+        schema_version: str,
     ) -> None:
         """Write statement snapshot to S3.
 
@@ -159,7 +164,13 @@ class S3Client(Client):
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         key = f"statements/{content_hash}.json"
-        statement_json = json.dumps(statement_data)
+        stored = StoredStatement(
+            content_hash=content_hash,
+            statement=statement_data["statement"],
+            schema_version=schema_version,
+            created_at=datetime.now(timezone.utc).isoformat(),
+        )
+        statement_json = json.dumps(stored.model_dump())
 
         # Enhanced pre-write validation logging
         logger.debug(f"S3 write_statement: bucket={self.config.bucket}, key={key}")
@@ -485,3 +496,12 @@ class S3Client(Client):
                 f"S3 load_sitelink_metadata failed: bucket={bucket}, key={key}, error={e}"
             )
             raise
+
+    def load_metadata(self, metadata_type: str, content_hash: int) -> str:
+        """Load metadata by type."""
+        if metadata_type == "labels":
+            return self.load_term_metadata(content_hash)
+        else:
+            raise_validation_error(
+                f"Unknown metadata type: {metadata_type}", status_code=400
+            )
