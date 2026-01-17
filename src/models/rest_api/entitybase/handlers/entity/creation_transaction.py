@@ -67,7 +67,6 @@ class EntityTransaction(BaseModel, ABC):
         is_mass_edit: bool,
         edit_type: Any,
         edit_summary: str,
-        editor: str,
         is_semi_protected: bool,
         is_locked: bool,
         is_archived: bool,
@@ -95,7 +94,6 @@ class EntityTransaction(BaseModel, ABC):
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
             edit_summary=edit_summary,
-            editor=editor,
             is_semi_protected=is_semi_protected,
             is_locked=is_locked,
             is_archived=is_archived,
@@ -119,8 +117,7 @@ class EntityTransaction(BaseModel, ABC):
         changed_at: Any,
         stream_producer: Any,
         from_revision_id: int = 0,
-        editor: str = "",
-        edit_summary: str = "",
+        edit_summary: str = \"\",
     ) -> None:
         """Publish the entity creation event."""
         logger.info(f"[CreationTransaction] Starting event publishing for {entity_id}")
@@ -133,9 +130,7 @@ class EntityTransaction(BaseModel, ABC):
                 change_type=change_type,
                 from_revision_id=from_revision_id,
                 changed_at=changed_at,
-                editor=editor,
                 edit_summary=edit_summary,
-                bot=False,
             )
             stream_producer.publish_change(event)
         # Events are fire-and-forget, no rollback needed

@@ -83,9 +83,9 @@ class EntityHandler(BaseModel):
         stream_producer: StreamProducerClient | None,
         validator: Any | None,
         is_creation: bool,
-        edit_summary: str = \"\",
+        edit_summary: str = "",
     ) -> EntityResponse:
-        \"\"\"Common logic for processing entity revisions after validation.\"\"\"
+        """Common logic for processing entity revisions after validation."""
         # Get current head revision
         head_revision_id = vitess_client.get_head(entity_id)
         logger.debug(f"Current head revision for {entity_id}: {head_revision_id}")
@@ -315,7 +315,7 @@ class EntityHandler(BaseModel):
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
         is_creation: bool,
-        edit_summary: str = \"\",
+        edit_summary: str = "",
     ) -> EntityRevisionResponse:
         """Create revision data, store it, and publish events."""
         # Process sitelinks: hash titles and store metadata

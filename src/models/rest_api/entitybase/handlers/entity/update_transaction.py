@@ -44,7 +44,6 @@ class EntityTransaction(BaseModel, ABC):
         is_mass_edit: bool,
         edit_type: Any,
         edit_summary: str,
-        editor: str,
         is_semi_protected: bool,
         is_locked: bool,
         is_archived: bool,
@@ -163,7 +162,6 @@ class UpdateTransaction(EntityTransaction):
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
             edit_summary=edit_summary,
-            editor=editor,
             is_semi_protected=is_semi_protected,
             is_locked=is_locked,
             is_archived=is_archived,
@@ -187,10 +185,9 @@ class UpdateTransaction(EntityTransaction):
         from_revision_id: int,
         changed_at: Any,
         edit_summary: str,
-        editor: str,
         stream_producer: Any,
     ) -> None:
-        """Publish the entity change event to the stream.
+        \"\"\"Publish the entity change event to the stream.
 
         Creates and sends an EntityChangeEvent to the configured stream producer
         for downstream processing (e.g., notifications, logging).

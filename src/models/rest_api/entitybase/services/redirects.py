@@ -131,9 +131,7 @@ class RedirectService:
                 if from_head_revision_id
                 else None,
                 changed_at=datetime.now(timezone.utc),
-                editor=request.created_by,
                 edit_summary=None,
-                bot=False,
             )
             await self.stream_producer.publish_change(event)
 
@@ -215,9 +213,7 @@ class RedirectService:
                 change_type=ChangeType.UNREDIRECT,
                 from_revision_id=head_revision_id,
                 changed_at=datetime.now(timezone.utc),
-                editor=None,
                 edit_summary=None,
-                bot=False,
             )
             await self.stream_producer.publish_change(event)
 
