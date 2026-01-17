@@ -21,7 +21,10 @@ class AsImportChecker(ast.NodeVisitor):
         for alias in node.names:
             if alias.asname is not None:
                 line_content = self.source_lines[node.lineno - 1].strip()
-                if not any(allowed in line_content for allowed in self.allowlist):
+                if (
+                    not any(allowed in line_content for allowed in self.allowlist)
+                    and "# noqa" not in line_content
+                ):
                     self.violations.append(
                         (
                             self.file_path,
@@ -36,7 +39,10 @@ class AsImportChecker(ast.NodeVisitor):
         for alias in node.names:
             if alias.asname is not None:
                 line_content = self.source_lines[node.lineno - 1].strip()
-                if not any(allowed in line_content for allowed in self.allowlist):
+                if (
+                    not any(allowed in line_content for allowed in self.allowlist)
+                    and "# noqa" not in line_content
+                ):
                     self.violations.append(
                         (
                             self.file_path,

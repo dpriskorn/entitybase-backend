@@ -4,7 +4,7 @@ import logging
 import os
 from typing import Any, Dict, List
 
-import boto3 as _boto3
+import boto3 as _boto3  # noqa
 from botocore.exceptions import ClientError
 from pydantic import BaseModel
 

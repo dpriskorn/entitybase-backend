@@ -8,11 +8,7 @@ from moto import mock_s3
 def db_conn():
     """Database connection for cleanup"""
     conn = pymysql.connect(
-        host="vitess",
-        port=15309,
-        user="root",
-        password="",
-        database="page"
+        host="vitess", port=15309, user="root", password="", database="page"
     )
     yield conn
     conn.close()
@@ -27,7 +23,7 @@ def db_cleanup(db_conn):
         "entity_head",
         "metadata_content",
         "entity_backlinks",
-        "backlink_statistics"
+        "backlink_statistics",
     ]
     with db_conn.cursor() as cursor:
         for table in tables:
@@ -41,6 +37,7 @@ def mock_s3_service():
     with mock_s3():
         # Create a mock bucket
         import boto3
+
         client = boto3.client("s3", region_name="us-east-1")
         client.create_bucket(Bucket="testbucket")
         yield

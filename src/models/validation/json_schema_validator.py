@@ -58,19 +58,28 @@ class JsonSchemaValidator:
 
     def _get_entity_revision_schema(self) -> JsonSchema:
         if self._entity_revision_schema is None:
-            schema_path = Path(__file__).parent.parent.parent / f"schemas/entitybase/s3-revision/{self.s3_revision_version}/latest.yaml"
+            schema_path = (
+                Path(__file__).parent.parent.parent
+                / f"schemas/entitybase/s3-revision/{self.s3_revision_version}/latest.yaml"
+            )
             self._entity_revision_schema = self._load_schema(str(schema_path))
         return self._entity_revision_schema
 
     def _get_statement_schema(self) -> JsonSchema:
         if self._statement_schema is None:
-            schema_path = Path(__file__).parent.parent.parent / f"schemas/entitybase/s3/statement/{self.s3_statement_version}/latest.yaml"
+            schema_path = (
+                Path(__file__).parent.parent.parent
+                / f"schemas/entitybase/s3/statement/{self.s3_statement_version}/latest.yaml"
+            )
             self._statement_schema = self._load_schema(str(schema_path))
         return self._statement_schema
 
     def _get_recentchange_schema(self) -> JsonSchema:
         if self._recentchange_schema is None:
-            schema_path = Path(__file__).parent.parent.parent / "schemas/wmf/recentchange/latest/latest.yaml"
+            schema_path = (
+                Path(__file__).parent.parent.parent
+                / "schemas/wmf/recentchange/latest/latest.yaml"
+            )
             self._recentchange_schema = self._load_schema(str(schema_path))
         return self._recentchange_schema
 

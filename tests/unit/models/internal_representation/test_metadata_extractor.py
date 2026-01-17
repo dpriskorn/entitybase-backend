@@ -55,11 +55,16 @@ class TestMetadataExtractor:
             "id": "Q1",
             "labels": {},
             "descriptions": {},
-            "aliases": {"en": [{"value": "Test"}, {"value": "Example"}], "de": [{"value": "Test"}, {"value": "Beispiel"}]},
+            "aliases": {
+                "en": [{"value": "Test"}, {"value": "Example"}],
+                "de": [{"value": "Test"}, {"value": "Beispiel"}],
+            },
         }
 
         result = MetadataExtractor.extract_aliases(entity)
-        expected = AliasesResponse(aliases={"en": ["Test", "Example"], "de": ["Test", "Beispiel"]})
+        expected = AliasesResponse(
+            aliases={"en": ["Test", "Example"], "de": ["Test", "Beispiel"]}
+        )
         assert result == expected
 
     def test_extract_missing_metadata(self) -> None:
