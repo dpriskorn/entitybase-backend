@@ -1,0 +1,9 @@
+import _cython_3_2_3
+from aiokafka.errors import CorruptRecordException as CorruptRecordException
+
+__pyx_capi__: dict
+__test__: dict
+crc32c_cython: _cython_3_2_3.cython_function_or_method
+decode_varint_cython: _cython_3_2_3.cython_function_or_method
+encode_varint_cython: _cython_3_2_3.cython_function_or_method
+size_of_varint_cython: _cython_3_2_3.cython_function_or_method

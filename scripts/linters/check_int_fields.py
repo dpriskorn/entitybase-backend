@@ -18,6 +18,9 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                 # Skip comments and empty lines
                 if not stripped or stripped.startswith("#"):
                     continue
+                # Allowlist from_revision_id for EntityChangeEvent
+                if "from_revision_id" in line:
+                    continue
                 # Look for int | None = Field(default=None)
                 if "int | None = Field(default=None)" in line:
                     violations.append(

@@ -1,11 +1,12 @@
 """Event models for stream publishing."""
 
 from datetime import datetime
+from typing import TYPE_CHECKING, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from pydantic import BaseModel, ConfigDict, Field
 
-from models.infrastructure.stream.actions import EndorseAction
-from models.infrastructure.stream.change_type import ChangeType
+if TYPE_CHECKING:
+    from models.infrastructure.stream.change_type import ChangeType
 
 
 class EndorseChangeEvent(BaseModel):
@@ -55,10 +56,10 @@ class EntityChangeEvent(BaseModel):
     entity_id: str = Field(alias="id", description="Entity ID (e.g., Q42)")
     revision_id: int = Field(alias="rev", description="Revision ID of the change")
     change_type: ChangeType = Field(alias="type", description="Type of change")
-    from_revision_id: int = Field(
+    from_revision_id: Optional[int] = Field(
         alias="from_rev",
-        default=0,
-        description="Previous revision ID (0 for creations)",
+        default=None,
+        description="Previous revision ID (None for creations)",
     )
     changed_at: datetime = Field(alias="at", description="Timestamp of change")
     edit_summary: str = Field(alias="sum", default="", description="Edit summary")

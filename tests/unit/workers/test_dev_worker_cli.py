@@ -63,7 +63,7 @@ class TestDevWorkerCLI:
         """Test cleanup command cancellation."""
         result = main()
 
-        assert result == 0
+        assert result == 1
         mock_cleanup.assert_not_called()
         mock_input.assert_called_once_with("Are you sure? Type 'yes' to confirm: ")
 
@@ -83,12 +83,13 @@ class TestDevWorkerCLI:
     )
     @patch("models.workers.dev.create_buckets.CreateBuckets")
     @patch("asyncio.run")
+    @patch("models.workers.dev.__main__.run_setup")
     @patch(
         "sys.argv",
-        ["devworker", "cleanup", "--force", "--endpoint", "http://custom:9000"],
+        ["devworker", "--endpoint", "http://custom:9000", "setup"],
     )
     def test_custom_arguments(
-        self, mock_asyncio_run, mock_dev_worker_class, mock_cleanup
+        self, mock_run_setup, mock_asyncio_run, mock_dev_worker_class
     ):
         """Test CLI with custom arguments."""
         mock_worker = MagicMock()

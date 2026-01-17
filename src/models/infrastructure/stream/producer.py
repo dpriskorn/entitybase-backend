@@ -142,6 +142,8 @@ class StreamProducerClient:
 
     async def start(self) -> None:
         """Start the Kafka producer."""
+        if self.producer is not None:
+            return
         self.producer = AIOKafkaProducer(
             bootstrap_servers=self.bootstrap_servers,
             value_serializer=lambda v: v.model_dump_json(by_alias=True).encode("utf-8"),

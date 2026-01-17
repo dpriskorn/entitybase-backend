@@ -118,10 +118,16 @@ def load_entity_metadata_batch(
     for entity_id, metadata in fetched_metadata.metadata.items():
         if metadata:
             output_path = metadata_dir / f"{entity_id}.json"
-            with open(output_path, "w", encoding="utf-8") as f:
-                json.dump(metadata.model_dump(), f, indent=2, ensure_ascii=False)
-            logger.info(f"Saved metadata for {entity_id} to {output_path}")
-            results[entity_id] = True
+            try:
+                with open(output_path, "w", encoding="utf-8") as f:
+                    json.dump(metadata.model_dump(), f, indent=2, ensure_ascii=False)
+                logger.info(f"Saved metadata for {entity_id} to {output_path}")
+                results[entity_id] = True
+            except Exception as e:
+                logger.error(f"Failed to serialize metadata for {entity_id}: {e}")
+                if output_path.exists():
+                    output_path.unlink()
+                results[entity_id] = False
         else:
             logger.warning(f"Failed to fetch metadata for {entity_id}")
             results[entity_id] = False
