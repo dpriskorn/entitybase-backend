@@ -39,7 +39,6 @@ class TestDevWorkerCLI:
         mock_run_cleanup.return_value = True
 
         result = main()
-            main()
 
         assert result == 0
         mock_run_cleanup.assert_called_once()
@@ -52,7 +51,6 @@ class TestDevWorkerCLI:
         mock_run_cleanup.return_value = True
 
         result = main()
-            main()
 
         assert result == 0
         mock_run_cleanup.assert_called_once()
@@ -64,7 +62,6 @@ class TestDevWorkerCLI:
     def test_cleanup_command_cancelled(self, mock_run_cleanup, mock_input):
         """Test cleanup command cancellation."""
         result = main()
-            main()
 
         assert result == 0
         mock_run_cleanup.assert_not_called()
@@ -74,7 +71,6 @@ class TestDevWorkerCLI:
     def test_no_command_error(self, capsys):
         """Test error when no command is provided."""
         result = main()
-            main()
 
         assert result == 1
         captured = capsys.readouterr()
@@ -91,7 +87,6 @@ class TestDevWorkerCLI:
         mock_asyncio_run.return_value = True
 
         result = main()
-            main()
 
         assert result == 0
         mock_dev_worker_class.assert_called_once_with(
@@ -107,7 +102,6 @@ class TestDevWorkerCLI:
         mock_run_setup.return_value = False  # Command failed
 
         result = main()
-            main()
 
         assert result == 1
         mock_run_setup.assert_called_once()
@@ -116,7 +110,6 @@ class TestDevWorkerCLI:
     def test_invalid_command(self, capsys):
         """Test error for invalid command."""
         result = main()
-            main()
 
         assert result == 1
         captured = capsys.readouterr()

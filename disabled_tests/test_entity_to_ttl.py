@@ -8,7 +8,7 @@ from models.json_parser.entity_parser import parse_entity
 from tests.unit.rdf.conftest import normalize_ttl, split_subject_blocks
 import os
 from pathlib import Path
-TEST_DATA_DIR = Path(os.environ["TEST_DATA_DIR"])
+TEST_DATA_DIR = Path(__file__).parent.parent / "test_data"
 
 
 def test_q120248304_matches_golden_ttl(property_registry):
