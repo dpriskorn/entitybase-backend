@@ -1,1 +1,1 @@
-pytest -m "not integration"
+pytest -m "not integration" -n auto
