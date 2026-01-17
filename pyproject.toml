@@ -73,6 +73,7 @@ warn_unused_configs = true
 disallow_untyped_defs = true
 ignore_missing_imports = false
 strict = false # this makes the number of errors explode
+exclude = ["src/types/"]
 
 [[tool.mypy.overrides]]
 module = "src/models/rest_api/main.py"
