@@ -1,0 +1,3 @@
+from rapidhash._core import rs_rapidhash as rs_rapidhash
+
+def rapidhash(key: bytes, seed: int | None = None) -> int: ...
