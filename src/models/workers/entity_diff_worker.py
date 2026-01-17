@@ -6,7 +6,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import List, Set, Tuple, Dict, Any, Optional, cast
+from typing import List, Set, Tuple, Dict, Any, Optional
 
 from pyld import jsonld  # type: ignore[import-untyped]
 from rdflib import Graph
@@ -300,7 +300,7 @@ class EntityDiffWorker:
             # Wikibase-specific fields
             entity_id=request.entity_id,
             revision_id=response.triple_count_v2,  # Using triple count as revision for now
-            from_revision_id=cast(int, getattr(request, "from_revision_id", 0)),  # type: ignore[arg-type]
+            from_revision_id=request.from_revision_id,
             # RDF diff data
             added_triples=response.added_triples,
             removed_triples=response.removed_triples,
