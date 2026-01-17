@@ -7,22 +7,6 @@ from fastapi import Response
 from pydantic import BaseModel, ConfigDict, Field
 
 
-class BacklinkStatisticsData(BaseModel):
-    """Container for computed backlink statistics."""
-
-    model_config = ConfigDict(by_alias=True)
-
-    total_backlinks: int = Field(
-        alias="total", description="Total number of backlink relationships. Example: 150."
-    )
-    unique_entities_with_backlinks: int = Field(
-        alias="unique", description="Number of entities with at least one backlink. Example: 75."
-    )
-    top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
-        alias="top", description="Top entities by backlink count. Example: [{'entity_id': 'Q1', 'backlink_count': 10}]."
-    )
-
-
 class CleanupOrphanedResponse(BaseModel):
     cleaned_count: int = Field(
         ...,
@@ -172,8 +156,16 @@ class TopEntityByBacklinks(BaseModel):
 class BacklinkStatisticsData(BaseModel):
     """Container for computed backlink statistics."""
 
+    model_config = ConfigDict(by_alias=True)
+
     total_backlinks: int = Field(
-        ..., description="Total number of backlink relationships"
+        alias="total", description="Total number of backlink relationships. Example: 150."
+    )
+    unique_entities_with_backlinks: int = Field(
+        alias="unique", description="Number of entities with at least one backlink. Example: 75."
+    )
+    top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
+        alias="top", description="Top entities by backlink count. Example: [{'entity_id': 'Q1', 'backlink_count': 10}]."
     )
     unique_entities_with_backlinks: int = Field(
         ..., description="Number of entities with at least one backlink"
@@ -198,15 +190,15 @@ class BacklinkStatisticsResponse(BaseModel):
     top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
         alias="top", description="Top entities by backlink count. Example: [{'entity_id': 'Q1', 'backlink_count': 10}]."
     )
-    unique_entities_with_backlinks: int = Field(
-        ..., description="Number of entities with at least one backlink"
-    )
-    top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
-        ..., description="Top entities by backlink count"
-    )
 
 
 class RawRevisionResponse(BaseModel):
     """Response model for raw revision data."""
 
     data: dict[str, Any] = Field(..., description="Raw revision data from storage")
+
+
+class TtlResponse(BaseModel):
+    """Response model for Turtle format entity data."""
+
+    turtle: str = Field(..., description="Entity data in Turtle format")
