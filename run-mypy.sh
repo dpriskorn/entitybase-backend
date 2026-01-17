@@ -3,6 +3,8 @@ set -euo pipefail
 
 source .venv/bin/activate
 
+export MYPYPATH=.
+
 mypy \
   --cache-dir .mypy_cache \
   --sqlite-cache \
