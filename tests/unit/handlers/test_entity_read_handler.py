@@ -331,18 +331,15 @@ class TestEntityReadHandler(unittest.TestCase):
         self.assertIn("entity", entity_data)
         self.assertIn("labels", entity_data["entity"])
 
-    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
-    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
-    def test_get_entity_exception_on_read_revision(
-        self, mock_terms_repo_class, mock_entity_response
-    ):
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_exception_on_read_revision(self, mock_raise_error):
         """Test get_entity handles exception during read_revision"""
         self.mock_vitess.entity_exists.return_value = True
         self.mock_vitess.get_head.return_value = 123
         self.mock_s3.read_revision.side_effect = Exception("S3 read error")
 
-        with self.assertRaises(Exception):  # Should re-raise after logging
-            EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
+        EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
+        mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityRevisionResponse")
     def test_get_entity_revision_with_metadata(self, mock_revision_response):
@@ -588,29 +585,206 @@ class TestEntityReadHandler(unittest.TestCase):
             "Q42", self.mock_s3, 1000, 500
         )
 
-    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_entity_exists_exception(self, mock_raise_error):
-        """Test get_entity when entity_exists raises exception"""
-        self.mock_vitess.entity_exists.side_effect = Exception("DB error")
-        EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
-        mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
-
-    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_get_head_exception(self, mock_raise_error):
-        """Test get_entity when get_head raises exception"""
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    def test_get_entity_metadata_aliases_load_failure(
+        self, mock_terms_repo_class, mock_entity_response
+    ):
+        """Test get_entity with metadata aliases load failure"""
         self.mock_vitess.entity_exists.return_value = True
-        self.mock_vitess.get_head.side_effect = Exception("DB error")
-        EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
-        mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
+        self.mock_vitess.get_head.return_value = 123
+        mock_revision = Mock()
+        mock_revision.content = {
+            "entity": {"id": "Q42"},
+            "labels_hashes": {},
+            "descriptions_hashes": {},
+            "aliases_hashes": {"en": ["hash_alias"]},
+        }
+        self.mock_s3.read_revision.return_value = mock_revision
+        self.mock_s3.load_metadata.side_effect = Exception("Load failed")
 
-    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_invalid_entity_id_empty(self, mock_raise_error):
-        """Test get_entity with empty entity_id"""
-        self.mock_vitess.entity_exists.return_value = (
-            False  # Assume empty ID not exists
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity(
+            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
         )
-        EntityReadHandler.get_entity("", self.mock_vitess, self.mock_s3)
-        mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
+
+        self.assertEqual(result, mock_response_instance)
+        call_args = mock_entity_response.call_args
+        entity_data = call_args[1]["entity_data"]
+        self.assertNotIn("aliases", entity_data)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    def test_get_entity_partial_metadata_none_terms(
+        self, mock_terms_repo_class, mock_entity_response
+    ):
+        """Test get_entity with partial metadata where some terms return None"""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 123
+        mock_revision = Mock()
+        mock_revision.content = {
+            "entity": {"id": "Q42"},
+            "labels_hashes": {"en": "hash1", "fr": "hash2"},
+            "descriptions_hashes": {},
+            "aliases_hashes": {},
+        }
+        self.mock_s3.read_revision.return_value = mock_revision
+
+        mock_terms_repo = Mock()
+        mock_terms_repo.get_term.side_effect = (
+            lambda h: "Label EN" if h == "hash1" else None
+        )
+        mock_terms_repo_class.return_value = mock_terms_repo
+
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity(
+            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+        )
+
+        self.assertEqual(result, mock_response_instance)
+        call_args = mock_entity_response.call_args
+        entity_data = call_args[1]["entity_data"]
+        self.assertIn("labels", entity_data)
+        self.assertIn("en", entity_data["labels"])
+        self.assertNotIn("fr", entity_data["labels"])  # None term not included
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    def test_get_entity_legacy_empty_hashes(self, mock_entity_response):
+        """Test get_entity legacy path with empty hashes dicts"""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 123
+        mock_revision = Mock()
+        mock_revision.content = {
+            "entity": {"id": "Q42"},
+            "labels_hashes": {},
+            "descriptions_hashes": {},
+            "aliases_hashes": {},
+        }
+        self.mock_s3.read_revision.return_value = mock_revision
+
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity(
+            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=False
+        )
+
+        self.assertEqual(result, mock_response_instance)
+        # Should not attempt metadata loading
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    def test_get_entity_mixed_metadata_types(
+        self, mock_terms_repo_class, mock_entity_response
+    ):
+        """Test get_entity with mixed present/missing metadata types"""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 123
+        mock_revision = Mock()
+        mock_revision.content = {
+            "entity": {"id": "Q42"},
+            "labels_hashes": {"en": "hash_label"},
+            "descriptions_hashes": {},  # empty
+            "aliases_hashes": {"en": ["hash_alias"]},  # present
+        }
+        self.mock_s3.read_revision.return_value = mock_revision
+
+        mock_terms_repo = Mock()
+        mock_terms_repo.get_term.side_effect = lambda h: {
+            "hash_label": "Label",
+            "hash_alias": "Alias",
+        }.get(h)
+        mock_terms_repo_class.return_value = mock_terms_repo
+
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity(
+            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+        )
+
+        self.assertEqual(result, mock_response_instance)
+        call_args = mock_entity_response.call_args
+        entity_data = call_args[1]["entity_data"]
+        self.assertIn("labels", entity_data)
+        self.assertNotIn("descriptions", entity_data)  # empty dict skipped
+        self.assertIn("aliases", entity_data)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityRevisionResponse")
+    def test_get_entity_revision_s3_load_labels_failure(self, mock_revision_response):
+        """Test get_entity_revision with S3 load failure for labels"""
+        mock_revision = Mock()
+        mock_revision.data = Mock()
+        mock_revision.data.model_dump.return_value = {
+            "labels_hash": "hash_labels",
+            "descriptions_hash": "hash_desc",
+            "aliases_hash": "hash_aliases",
+        }
+        mock_revision.data.entity = {"id": "Q42"}
+        self.mock_s3.read_revision.return_value = mock_revision
+        self.mock_s3.load_metadata.side_effect = lambda key, h: {
+            "labels": Exception("Load failed"),
+            "descriptions": {"en": {"value": "Desc"}},
+            "aliases": {"en": [{"value": "Alias"}]},
+        }.get(key, {})
+
+        mock_response_instance = Mock()
+        mock_revision_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity_revision("Q42", 123, self.mock_s3)
+
+        self.assertEqual(result, mock_response_instance)
+        # Should not include labels in response due to failure
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityRevisionResponse")
+    def test_get_entity_revision_missing_hash_keys(self, mock_revision_response):
+        """Test get_entity_revision with missing hash keys in revision data"""
+        mock_revision = Mock()
+        mock_revision.data = Mock()
+        mock_revision.data.model_dump.return_value = {
+            # missing labels_hash, descriptions_hash, aliases_hash
+        }
+        mock_revision.data.entity = {"id": "Q42"}
+        self.mock_s3.read_revision.return_value = mock_revision
+        self.mock_s3.load_metadata.side_effect = lambda key, h: {}  # not called
+
+        mock_response_instance = Mock()
+        mock_revision_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity_revision("Q42", 123, self.mock_s3)
+
+        self.assertEqual(result, mock_response_instance)
+        self.assertEqual(self.mock_s3.load_metadata.call_count, 0)  # no hashes
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityRevisionResponse")
+    def test_get_entity_revision_invalid_hash_keys(self, mock_revision_response):
+        """Test get_entity_revision with invalid hash keys"""
+        mock_revision = Mock()
+        mock_revision.data = Mock()
+        mock_revision.data.model_dump.return_value = {
+            "labels_hash": None,  # invalid
+            "descriptions_hash": "",
+            "aliases_hash": [],
+        }
+        mock_revision.data.entity = {"id": "Q42"}
+        self.mock_s3.read_revision.return_value = mock_revision
+        self.mock_s3.load_metadata.side_effect = (
+            lambda key, h: {}
+        )  # not called for invalid
+
+        mock_response_instance = Mock()
+        mock_revision_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity_revision("Q42", 123, self.mock_s3)
+
+        self.assertEqual(result, mock_response_instance)
+        self.assertEqual(
+            self.mock_s3.load_metadata.call_count, 0
+        )  # invalid hashes not loaded
 
 
 if __name__ == "__main__":

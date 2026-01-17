@@ -297,7 +297,6 @@ class EntityHandler(BaseModel):
         logger.info(
             f"Entity {entity_id}: Stored {len(hash_result.statements)} statements with hashes: {hash_result.statements}"
         )
-
         return hash_result
 
     async def _create_and_store_revision(

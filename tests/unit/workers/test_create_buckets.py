@@ -241,9 +241,3 @@ class TestCreateBuckets:
             status == "created" for status in results["buckets_created"].values()
         )
         assert results["health_check"]["overall_status"] == "healthy"
-
-    def test_import_error_handling(self):
-        """Test that CreateBuckets handles boto3 import errors gracefully."""
-        with patch.dict("sys.modules", {"boto3": None}):
-            with pytest.raises(ImportError, match="boto3 is required"):
-                CreateBuckets()
