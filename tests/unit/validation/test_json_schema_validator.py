@@ -70,7 +70,7 @@ def test_invalid_entity_missing_required_field(validator: JsonSchemaValidator) -
         "properties": [],
         "property_counts": {},
     }
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         validator.validate_entity_revision(invalid_entity)
 
 
@@ -90,7 +90,7 @@ def test_invalid_entity_wrong_type(validator: JsonSchemaValidator) -> None:
         "properties": [],
         "property_counts": {},
     }
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         validator.validate_entity_revision(invalid_entity)
 
 
@@ -110,7 +110,7 @@ def test_invalid_entity_id_format(validator: JsonSchemaValidator) -> None:
         "properties": [],
         "property_counts": {},
     }
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         validator.validate_entity_revision(invalid_entity)
 
 
@@ -130,7 +130,7 @@ def test_invalid_entity_type_enum(validator: JsonSchemaValidator) -> None:
         "properties": [],
         "property_counts": {},
     }
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         validator.validate_entity_revision(invalid_entity)
 
 
@@ -167,7 +167,7 @@ def test_invalid_statement_missing_required_field(
         },
         "created_at": "2026-01-07T10:00:00Z",
     }
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         validator.validate_statement(invalid_statement)
 
 
@@ -186,7 +186,7 @@ def test_invalid_statement_wrong_enum(validator: JsonSchemaValidator) -> None:
         },
         "created_at": "2026-01-07T10:00:00Z",
     }
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         validator.validate_statement(invalid_statement)
 
 

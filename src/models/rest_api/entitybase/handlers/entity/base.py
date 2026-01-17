@@ -143,7 +143,7 @@ class EntityHandler(BaseModel):
             is_creation=is_creation,
         )
 
-        if not isinstance(revision_response, EntityRevisionResponse):
+        if not isinstance(revision_response, (EntityResponse, EntityRevisionResponse)):
             raise_validation_error("Invalid response type", status_code=500)
         # noinspection PyTypeChecker
         return revision_response
@@ -204,12 +204,12 @@ class EntityHandler(BaseModel):
             # Archived items block all edits
             if protection_info and protection_info.is_archived:
                 raise_validation_error(
-                    "Item is archived and cannot be edited", status_code=403
+                    "Entity is archived and cannot be edited", status_code=403
                 )
 
             # Locked items block all edits
             if protection_info and protection_info.is_locked:
-                raise_validation_error("Item is locked from all edits", status_code=403)
+                raise_validation_error("Entity is locked from all edits", status_code=403)
 
             # Mass-edit protection blocks mass edits only
             if (
@@ -218,7 +218,7 @@ class EntityHandler(BaseModel):
                 and is_mass_edit
             ):
                 raise_validation_error(
-                    "Mass edits blocked on this item", status_code=403
+                    "Mass edits blocked on this entity", status_code=403
                 )
 
             # Semi-protection blocks not-autoconfirmed users

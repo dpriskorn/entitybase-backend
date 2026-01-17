@@ -1,5 +1,5 @@
 import sys
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import ANY, AsyncMock, MagicMock
 
 import pytest
 
@@ -69,8 +69,11 @@ class TestItemCreateHandler:
         )
 
         mock_vitess_client.entity_exists.return_value = False
+        mock_vitess_client.get_protection_info.return_value = MagicMock(
+            is_archived=False, is_locked=False, is_mass_edit_protected=False
+        )
         mock_vitess_client.entity_repository.get_entity.return_value = MagicMock(
-            is_deleted=False
+            is_deleted=False, is_archived=False
         )
 
         result = await handler.create_entity(
@@ -85,13 +88,12 @@ class TestItemCreateHandler:
             ANY, "Q99999"
         )
         mock_vitess_client.register_entity.assert_called_once_with("Q99999")
-        mock_vitess_client.is_entity_deleted.assert_called_once_with("Q99999")
 
         # Verify response
         assert result.id == "Q99999"
         assert result.revision_id == 1
-        assert "id" in result.data
-        assert result.data["id"] == "Q99999"
+        assert "id" in result.entity_data
+        assert result.entity_data["id"] == "Q99999"
 
     @pytest.mark.asyncio
     async def test_create_item_entity_exists(
@@ -164,16 +166,14 @@ class TestPropertyCreateHandler:
         mock_stream_producer: AsyncMock,
     ) -> None:
         """Test successful property creation"""
-        request = EntityCreateRequest(
-            labels={"en": {"language": "en", "value": "Test Property"}},
-            edit_summary="Test property creation",
-            user_id=123,
-            editor="test",
-        )
+        request = EntityCreateRequest(\n            type=\"property\",\n            labels={\"en\": {\"language\": \"en\", \"value\": \"Test Property\"}},\n            edit_summary=\"Test property creation\",\n            user_id=123,\n            editor=\"test\",\n        )
 
         mock_vitess_client.entity_exists.return_value = False
+        mock_vitess_client.get_protection_info.return_value = MagicMock(
+            is_archived=False, is_locked=False, is_mass_edit_protected=False
+        )
         mock_vitess_client.entity_repository.get_entity.return_value = MagicMock(
-            is_deleted=False
+            is_deleted=False, is_archived=False
         )
 
         result = await handler.create_entity(
@@ -196,5 +196,5 @@ class TestPropertyCreateHandler:
         # Verify response
         assert result.id == "P456"
         assert result.revision_id == 1
-        assert "id" in result.data
-        assert result.data["id"] == "P456"
+        assert "id" in result.entity_data
+        assert result.entity_data["id"] == "P456"

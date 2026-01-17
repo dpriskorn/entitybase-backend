@@ -142,7 +142,7 @@ class TestCreateBuckets:
         health = await worker.bucket_health_check()
 
         assert health["overall_status"] == "healthy"
-        assert len(health["buckets"]) == 4
+        assert len(health["buckets"]) == 5
         assert all(
             bucket["status"] == "accessible" for bucket in health["buckets"].values()
         )
@@ -190,7 +190,7 @@ class TestCreateBuckets:
         results = await worker.cleanup_buckets()
 
         # Should call delete_bucket for each bucket
-        assert mock_client.delete_bucket.call_count == 4
+        assert mock_client.delete_bucket.call_count == 5
         assert all(status == "deleted" for status in results.values())
 
     @pytest.mark.asyncio
@@ -210,8 +210,8 @@ class TestCreateBuckets:
         results = await worker.cleanup_buckets()
 
         # Should delete objects first, then bucket
-        assert mock_client.delete_object.call_count == 8  # 2 objects × 4 buckets
-        assert mock_client.delete_bucket.call_count == 4
+        assert mock_client.delete_object.call_count == 10  # 2 objects × 5 buckets
+        assert mock_client.delete_bucket.call_count == 5
         assert all(status == "deleted" for status in results.values())
 
     @pytest.mark.asyncio

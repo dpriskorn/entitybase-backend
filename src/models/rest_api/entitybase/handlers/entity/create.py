@@ -38,7 +38,7 @@ class EntityCreateHandler(EntityHandler):
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         auto_assign_id: bool = False,
-        user_id: int = Field(default=0),
+        user_id: int = 0,
     ) -> EntityResponse:
         """Create a new entity. Fails if entity already exists."""
         # Auto-assign ID if requested (for type-specific endpoints)
