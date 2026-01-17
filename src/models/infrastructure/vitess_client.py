@@ -315,7 +315,9 @@ class VitessClient(Client):
     def delete_revision(self, entity_id: str, revision_id: int) -> None:
         """Delete a revision for an entity."""
         with self.connection_manager.get_connection() as conn:
-            return self.revision_repository.delete(conn, entity_id, revision_id)  # type: ignore[no-any-return]
+            result = self.revision_repository.delete(conn, entity_id, revision_id)
+            if not result.success:
+                raise_validation_error(result.error or "Delete failed", status_code=500)
 
     def list_entities_by_type(
         self, entity_type: str | None, limit: int, offset: int

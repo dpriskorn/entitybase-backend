@@ -2,13 +2,19 @@
 
 import json
 import logging
-from typing import Any
+from typing import Any, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
+
+
+class OperationResult(BaseModel):
+    """Model for operation results."""
+    success: bool
+    error: Optional[str] = Field(default=None)
 
 
 class RevisionRepository:
@@ -206,10 +212,29 @@ class RevisionRepository:
             ]
             return result
 
-    def delete(self, conn: Any, entity_id: str, revision_id: int) -> None:
+    def delete(self, conn: Any, entity_id: str, revision_id: int) -> OperationResult:
         """Delete a revision (for rollback)."""
-        if not conn or not entity_id or revision_id <= 0:
-            return
+        logger.debug(f"Deleting revision {revision_id} for entity {entity_id}")
+        if not conn:
+            return OperationResult(success=False, error="Database connection not provided")
+        if not entity_id:
+            return OperationResult(success=False, error="Entity ID is required")
+        if revision_id <= 0:
+            return OperationResult(success=False, error="Invalid revision ID")
+        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        if not internal_id:
+            return OperationResult(success=False, error="Entity not found")
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "DELETE FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                (internal_id, revision_id),
+            )
+            # Also delete from entity_head if it's the head
+            cursor.execute(
+                "UPDATE entity_head SET head_revision_id = head_revision_id - 1 WHERE internal_id = %s AND head_revision_id = %s",
+                (internal_id, revision_id),
+            )
+        return OperationResult(success=True)
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
             return
