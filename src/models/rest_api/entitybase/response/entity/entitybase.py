@@ -186,12 +186,14 @@ class EntityRevisionResponse(BaseModel):
 class ProtectionResponse(BaseModel):
     """Model for entity protection information."""
 
-    is_semi_protected: bool = Field(description="Whether entity is semi-protected")
-    is_locked: bool = Field(description="Whether entity is locked")
-    is_archived: bool = Field(description="Whether entity is archived")
-    is_dangling: bool = Field(description="Whether entity is dangling")
+    model_config = ConfigDict(by_alias=True)
+
+    is_semi_protected: bool = Field(alias="semi_prot", description="Whether entity is semi-protected. Example: true.")
+    is_locked: bool = Field(description="Whether entity is locked. Example: false.")
+    is_archived: bool = Field(alias="archived", description="Whether entity is archived. Example: false.")
+    is_dangling: bool = Field(alias="dangling", description="Whether entity is dangling. Example: false.")
     is_mass_edit_protected: bool = Field(
-        description="Whether entity is mass edit protected"
+        alias="mass_edit", description="Whether entity is mass edit protected. Example: true."
     )
 
 

@@ -4,15 +4,23 @@ from typing import Any
 
 from fastapi import Response
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
-class TtlResponse(Response):
-    def __init__(self, content: str):
-        super().__init__(
-            content=content,
-            media_type="text/turtle",
-        )
+class BacklinkStatisticsData(BaseModel):
+    """Container for computed backlink statistics."""
+
+    model_config = ConfigDict(by_alias=True)
+
+    total_backlinks: int = Field(
+        alias="total", description="Total number of backlink relationships. Example: 150."
+    )
+    unique_entities_with_backlinks: int = Field(
+        alias="unique", description="Number of entities with at least one backlink. Example: 75."
+    )
+    top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
+        alias="top", description="Top entities by backlink count. Example: [{'entity_id': 'Q1', 'backlink_count': 10}]."
+    )
 
 
 class CleanupOrphanedResponse(BaseModel):
@@ -178,9 +186,17 @@ class BacklinkStatisticsData(BaseModel):
 class BacklinkStatisticsResponse(BaseModel):
     """API response for backlink statistics."""
 
-    date: str = Field(..., description="Date of statistics computation")
+    model_config = ConfigDict(by_alias=True)
+
+    date: str = Field(description="Date of statistics computation. Example: '2023-01-01'.")
     total_backlinks: int = Field(
-        ..., description="Total number of backlink relationships"
+        alias="total", description="Total number of backlink relationships. Example: 150."
+    )
+    unique_entities_with_backlinks: int = Field(
+        alias="unique", description="Number of entities with at least one backlink. Example: 75."
+    )
+    top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
+        alias="top", description="Top entities by backlink count. Example: [{'entity_id': 'Q1', 'backlink_count': 10}]."
     )
     unique_entities_with_backlinks: int = Field(
         ..., description="Number of entities with at least one backlink"
