@@ -4,8 +4,8 @@ import logging
 import os
 from typing import Any, Dict, List
 
-import boto3 as _boto3  # noqa
-from botocore.exceptions import ClientError
+import boto3 as _boto3  # noqa  # type: ignore[import-untyped]
+from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)

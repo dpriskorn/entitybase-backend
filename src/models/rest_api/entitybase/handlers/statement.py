@@ -2,7 +2,7 @@
 
 import logging
 
-from botocore.exceptions import ClientError
+from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from typing_extensions import TYPE_CHECKING
 
 from models.rest_api.entitybase.request.statement import StatementBatchRequest

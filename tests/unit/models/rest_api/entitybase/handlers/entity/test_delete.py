@@ -37,7 +37,12 @@ class TestEntityDeleteHandler:
 
     @pytest.mark.asyncio
     async def test_delete_entity_soft_delete_success(
-        self, handler, mock_vitess_client, mock_s3_client, mock_stream_producer, delete_request
+        self,
+        handler,
+        mock_vitess_client,
+        mock_s3_client,
+        mock_stream_producer,
+        delete_request,
     ):
         """Test successful soft delete."""
         mock_vitess_client.entity_exists.return_value = True

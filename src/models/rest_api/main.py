@@ -8,7 +8,7 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, Header, Query, Request, Response
 from fastapi.responses import JSONResponse, RedirectResponse
-from jsonschema import ValidationError
+from jsonschema import ValidationError  # type: ignore[import-untyped]
 
 from models.config.settings import settings
 from models.rest_api.clients import Clients

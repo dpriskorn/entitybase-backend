@@ -1,8 +1,8 @@
 """S3 connection management and client handling."""
 
-import boto3
-from botocore.client import BaseClient
-from botocore.config import Config
+import boto3  # type: ignore[import-untyped]
+from botocore.client import BaseClient  # type: ignore[import-untyped]
+from botocore.config import Config  # type: ignore[import-untyped]
 from pydantic import Field
 
 from models.infrastructure.connection import ConnectionManager

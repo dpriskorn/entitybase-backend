@@ -8,7 +8,7 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import List, Set, Tuple, Dict, Any, Optional
 
-from pyld import jsonld
+from pyld import jsonld  # type: ignore[import-untyped]
 from rdflib import Graph
 
 from models.infrastructure.stream.producer import StreamProducerClient, RDFChangeEvent
