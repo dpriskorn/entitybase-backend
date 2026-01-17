@@ -1,10 +1,12 @@
 """Handler for endorsement operations."""
 
 import logging
+from typing import List
 
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.request.endorsements import EndorsementListRequest
 from models.rest_api.entitybase.response.endorsements import (
+    BatchEndorsementStatsResponse,
     EndorsementListResponse,
     EndorsementResponse,
     EndorsementStatsResponse,
@@ -145,3 +147,16 @@ class EndorsementHandler:
             total_endorsements_given=data['total_endorsements_given'],
             total_endorsements_active=data['total_endorsements_active']
         )
+
+    def get_batch_statement_endorsement_stats(self, statement_hashes: list[int], vitess_client: VitessClient) -> BatchEndorsementStatsResponse:
+        """Get endorsement statistics for multiple statements."""
+        # Validate statement hashes exist (basic validation)
+        for statement_hash in statement_hashes:
+            if statement_hash <= 0:
+                raise_validation_error("Invalid statement hash", status_code=400)
+
+        result = vitess_client.endorsement_repository.get_batch_statement_endorsement_stats(statement_hashes)
+        if not result.success:
+            raise_validation_error(result.error or "Failed to get endorsement stats", status_code=500)
+
+        return BatchEndorsementStatsResponse(stats=result.data)

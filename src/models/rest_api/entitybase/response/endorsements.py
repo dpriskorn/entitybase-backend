@@ -33,3 +33,18 @@ class EndorsementStatsResponse(BaseModel):
     user_id: int
     total_endorsements_given: int
     total_endorsements_active: int
+
+
+class StatementEndorsementStats(BaseModel):
+    """Response for statement endorsement statistics."""
+
+    statement_hash: int
+    total_endorsements: int
+    active_endorsements: int
+    withdrawn_endorsements: int
+
+
+class BatchEndorsementStatsResponse(BaseModel):
+    """Response for batch statement endorsement statistics."""
+
+    stats: List[StatementEndorsementStats]

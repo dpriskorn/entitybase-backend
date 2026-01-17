@@ -224,3 +224,55 @@ class EndorsementRepository:
         except Exception as e:
             logger.error(f"Error getting user endorsement stats: {e}")
             return OperationResult(success=False, error=str(e))
+
+    def get_batch_statement_endorsement_stats(self, statement_hashes: List[int]) -> OperationResult:
+        """Get endorsement statistics for multiple statements."""
+        if not statement_hashes or len(statement_hashes) > 50:
+            return OperationResult(success=False, error="Invalid parameters")
+
+        try:
+            # Create placeholders for SQL IN clause
+            placeholders = ','.join(['%s'] * len(statement_hashes))
+
+            with self.connection_manager.get_connection() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        f"""
+                        SELECT
+                            statement_hash,
+                            COUNT(*) as total_endorsements,
+                            SUM(CASE WHEN removed_at IS NULL THEN 1 ELSE 0 END) as active_endorsements,
+                            SUM(CASE WHEN removed_at IS NOT NULL THEN 1 ELSE 0 END) as withdrawn_endorsements
+                        FROM user_statement_endorsements
+                        WHERE statement_hash IN ({placeholders})
+                        GROUP BY statement_hash
+                        """,
+                        statement_hashes,
+                    )
+                    rows = cursor.fetchall()
+
+            # Create a map of statement_hash -> stats
+            stats_map = {row[0]: {
+                'statement_hash': row[0],
+                'total_endorsements': row[1],
+                'active_endorsements': row[2],
+                'withdrawn_endorsements': row[3]
+            } for row in rows}
+
+            # Include statements with 0 endorsements
+            all_stats = []
+            for statement_hash in statement_hashes:
+                if statement_hash in stats_map:
+                    all_stats.append(stats_map[statement_hash])
+                else:
+                    all_stats.append({
+                        'statement_hash': statement_hash,
+                        'total_endorsements': 0,
+                        'active_endorsements': 0,
+                        'withdrawn_endorsements': 0
+                    })
+
+            return OperationResult(success=True, data=all_stats)
+        except Exception as e:
+            logger.error(f"Error getting batch statement endorsement stats: {e}")
+            return OperationResult(success=False, error=str(e))
