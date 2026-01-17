@@ -65,11 +65,13 @@ ignore_names = ["arbitrary_types_allowed", "model_config"]
 # Note: Vulture whitelist is configured in run-vulture.sh, not here
 
 [tool.mypy]
+mypy_path = ["src"]
 python_version = "3.13"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
-ignore_missing_imports = true
+ignore_missing_imports = false
+strict = false # this makes the number of errors explode
 
 [[tool.mypy.overrides]]
 module = "src/models/rest_api/main.py"

@@ -4,6 +4,7 @@ set -e
 # == custom internal linters ==
 #./scripts/linters/custom_docstring_linter.py
 #./scripts/linters/basemodel_linter.py
+#./run-data-lint.sh
 ./run-str-lint.sh
 ./run-int-lint.sh
 ./scripts/linters/value_error_linter.py
@@ -19,10 +20,9 @@ set -e
 ./run-key-length-lint.sh
 ./run-description-lint.sh
 ./run-backslash-lint.sh
-#./run-data-lint.sh
 
 # == external linters ==
 ./run-ruff.sh
 ./run-mypy.sh
-# ./run-vulture.sh
+./run-vulture.sh
 ./run-radon.sh
