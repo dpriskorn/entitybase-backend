@@ -231,12 +231,12 @@ class VitessClient(Client):
     ) -> None:
         """Set the redirect target for an entity."""
         with self.connection_manager.get_connection() as conn:
-            success = self.redirect_repository.set_target(
+            result = self.redirect_repository.set_target(
                 conn, entity_id, redirects_to_entity_id, expected_redirects_to
             )
-            if not success:
+            if not result.success:
                 raise_validation_error(
-                    "Concurrent redirect modification detected", status_code=409
+                    result.error or "Redirect update failed", status_code=409
                 )
 
     def create_redirect(

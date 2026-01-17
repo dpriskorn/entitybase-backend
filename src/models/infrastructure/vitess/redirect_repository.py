@@ -3,6 +3,7 @@
 import logging
 from typing import Any
 
+from models.common import OperationResult
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -21,14 +22,14 @@ class RedirectRepository:
         entity_id: str,
         redirects_to_entity_id: str | None,
         expected_redirects_to: int | None = None,
-    ) -> bool:
+    ) -> OperationResult:
         """Set redirect target for an entity."""
         logger.debug(
             f"Setting redirect target for {entity_id} to {redirects_to_entity_id}"
         )
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            raise_validation_error(f"Entity {entity_id} not found", status_code=404)
+            return OperationResult(success=False, error=f"Entity {entity_id} not found")
 
         redirects_to_internal_id = None
         if redirects_to_entity_id:
@@ -36,23 +37,31 @@ class RedirectRepository:
                 conn, redirects_to_entity_id
             )
             if not redirects_to_internal_id:
-                raise_validation_error(
-                    f"Entity {redirects_to_entity_id} not found", status_code=404
+                return OperationResult(
+                    success=False, error=f"Entity {redirects_to_entity_id} not found"
                 )
 
-        with conn.cursor() as cursor:
-            if expected_redirects_to is not None:
-                cursor.execute(
-                    "UPDATE entity_head SET redirects_to = %s WHERE internal_id = %s AND redirects_to = %s",
-                    (redirects_to_internal_id, internal_id, expected_redirects_to),
-                )
-            else:
-                cursor.execute(
-                    "UPDATE entity_head SET redirects_to = %s WHERE internal_id = %s",
-                    (redirects_to_internal_id, internal_id),
-                )
-            affected_rows = int(cursor.rowcount)
-            return affected_rows > 0
+        try:
+            with conn.cursor() as cursor:
+                if expected_redirects_to is not None:
+                    cursor.execute(
+                        "UPDATE entity_head SET redirects_to = %s WHERE internal_id = %s AND redirects_to = %s",
+                        (redirects_to_internal_id, internal_id, expected_redirects_to),
+                    )
+                else:
+                    cursor.execute(
+                        "UPDATE entity_head SET redirects_to = %s WHERE internal_id = %s",
+                        (redirects_to_internal_id, internal_id),
+                    )
+                affected_rows = int(cursor.rowcount)
+                if affected_rows > 0:
+                    return OperationResult(success=True)
+                else:
+                    return OperationResult(
+                        success=False, error="CAS failed: redirect mismatch"
+                    )
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def create(
         self,
