@@ -100,7 +100,7 @@ class TestCollectionModels:
             "enwiki": {"site": "enwiki", "title": "Test Page", "url": "", "badges": []}
         }
         sitelinks = EntitySitelinksResponse(data=data)
-        assert sitelinks.data["enwiki"]["title"] == "Test Page"
+        assert sitelinks.data["enwiki"].title == "Test Page"
 
 
 class TestEntityMetadata:

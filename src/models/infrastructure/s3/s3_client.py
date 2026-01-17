@@ -106,6 +106,7 @@ class S3Client(Client):
             data=RevisionData(**parsed_data),
             content=parsed_data.get("entity", {}),
             schema_version=parsed_data.get("schema_version", ""),
+            created_at=response["Metadata"].get("created_at", ""),
         )
 
     def mark_published(

@@ -69,16 +69,14 @@ class TestS3Client:
         )
 
     @patch("models.infrastructure.s3.s3_client.S3ConnectionManager")
-    @patch("models.infrastructure.s3.s3_client.raise_validation_error")
-    def test_ensure_bucket_exists_no_client(
-        self, mock_raise, mock_manager_class, config
-    ):
+    def test_ensure_bucket_exists_no_client(self, mock_manager_class, config):
         """Test _ensure_bucket_exists when no boto client."""
         mock_manager_class.return_value = None
 
-        client = S3Client(config)
+        with pytest.raises(ValueError) as exc_info:
+            S3Client(config)
 
-        mock_raise.assert_called_with("S3 service unavailable", status_code=503)
+        assert "S3 service unavailable" in str(exc_info.value)
 
     def test_read_revision(self, config, mock_connection_manager):
         """Test read_revision method."""
