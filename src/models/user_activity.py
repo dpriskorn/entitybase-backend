@@ -22,7 +22,9 @@ class ActivityType(str, Enum):
     THANK_SENT = "thank_sent"  # Sending thanks for a revision
     THANK_RECEIVED = "thank_received"  # Receiving thanks for a revision
     ENDORSEMENT_GIVEN = "endorsement_given"  # Giving endorsement to a statement
-    ENDORSEMENT_WITHDRAWN = "endorsement_withdrawn"  # Withdrawing endorsement from a statement
+    ENDORSEMENT_WITHDRAWN = (
+        "endorsement_withdrawn"  # Withdrawing endorsement from a statement
+    )
 
 
 class UserActivityItem(BaseModel):

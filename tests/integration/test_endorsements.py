@@ -4,6 +4,7 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 import sys
+
 sys.path.insert(0, "src")
 
 
@@ -23,7 +24,7 @@ async def test_endorse_statement() -> None:
         # Try to endorse a statement (this might fail due to missing statement, but tests the endpoint)
         response = await client.post(
             "/entitybase/v1/statements/123456789/endorse",
-            headers={"X-User-ID": "12345"}
+            headers={"X-User-ID": "12345"},
         )
 
         # The response might be an error due to missing statement, but we test the endpoint exists
@@ -46,7 +47,7 @@ async def test_withdraw_endorsement() -> None:
         # Try to withdraw endorsement
         response = await client.delete(
             "/entitybase/v1/statements/123456789/endorse",
-            headers={"X-User-ID": "12345"}
+            headers={"X-User-ID": "12345"},
         )
 
         # Should return error since no endorsement exists, but endpoint should work
@@ -82,7 +83,9 @@ async def test_get_statement_endorsement_stats() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/entitybase/v1/statements/123456789/endorsements/stats")
+        response = await client.get(
+            "/entitybase/v1/statements/123456789/endorsements/stats"
+        )
 
         # Should return stats object
         assert response.status_code == 200
@@ -148,7 +151,9 @@ async def test_batch_endorsement_stats() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/entitybase/v1/statements/123456789/endorsements/stats")
+        response = await client.get(
+            "/entitybase/v1/statements/123456789/endorsements/stats"
+        )
 
         # Should return single statement stats
         assert response.status_code == 200

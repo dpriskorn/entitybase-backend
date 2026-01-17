@@ -18,9 +18,7 @@ class TestEndorsementRepository:
     def repository(self, mock_connection_manager):
         return EndorsementRepository(mock_connection_manager)
 
-    def test_create_endorsement_success(
-        self, repository, mock_connection_manager
-    ):
+    def test_create_endorsement_success(self, repository, mock_connection_manager):
         """Test successful endorsement creation."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -30,7 +28,10 @@ class TestEndorsementRepository:
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         # Mock statement exists check
-        mock_cursor.fetchone.side_effect = [(1,), None]  # statement exists, no existing endorsement
+        mock_cursor.fetchone.side_effect = [
+            (1,),
+            None,
+        ]  # statement exists, no existing endorsement
         mock_cursor.lastrowid = 789
 
         result = repository.create_endorsement(123, 456789)
@@ -78,7 +79,10 @@ class TestEndorsementRepository:
         )
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
-        mock_cursor.fetchone.side_effect = [(1,), (5, None)]  # statement exists, existing endorsement
+        mock_cursor.fetchone.side_effect = [
+            (1,),
+            (5, None),
+        ]  # statement exists, existing endorsement
 
         result = repository.create_endorsement(123, 456789)
 
@@ -96,7 +100,10 @@ class TestEndorsementRepository:
         )
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
-        mock_cursor.fetchone.side_effect = [(1,), (5, "2023-01-01")]  # statement exists, withdrawn endorsement
+        mock_cursor.fetchone.side_effect = [
+            (1,),
+            (5, "2023-01-01"),
+        ]  # statement exists, withdrawn endorsement
         mock_cursor.rowcount = 1
 
         result = repository.create_endorsement(123, 456789)
@@ -104,9 +111,7 @@ class TestEndorsementRepository:
         assert result.success is True
         assert result.data == 5  # Returns existing endorsement ID
 
-    def test_withdraw_endorsement_success(
-        self, repository, mock_connection_manager
-    ):
+    def test_withdraw_endorsement_success(self, repository, mock_connection_manager):
         """Test successful endorsement withdrawal."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -122,9 +127,7 @@ class TestEndorsementRepository:
         assert result.success is True
         assert result.data == 5
 
-    def test_withdraw_endorsement_not_found(
-        self, repository, mock_connection_manager
-    ):
+    def test_withdraw_endorsement_not_found(self, repository, mock_connection_manager):
         """Test withdrawal when no active endorsement exists."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -192,7 +195,61 @@ class TestEndorsementRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
-        result = repository.get_batch_statement_endorsement_stats([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51])
+        result = repository.get_batch_statement_endorsement_stats(
+            [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
+                38,
+                39,
+                40,
+                41,
+                42,
+                43,
+                44,
+                45,
+                46,
+                47,
+                48,
+                49,
+                50,
+                51,
+            ]
+        )
         assert result.success is False
         assert "Invalid parameters" in result.error
 
@@ -238,9 +295,7 @@ class TestEndorsementRepository:
         assert result.data["total_count"] == 1
         assert result.data["has_more"] is False
 
-    def test_get_user_endorsements_success(
-        self, repository, mock_connection_manager
-    ):
+    def test_get_user_endorsements_success(self, repository, mock_connection_manager):
         """Test successful user endorsements retrieval."""
         mock_conn = Mock()
         mock_cursor = Mock()

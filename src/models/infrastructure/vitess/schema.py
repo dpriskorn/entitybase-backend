@@ -249,7 +249,8 @@ class SchemaManager:
                 UNIQUE KEY unique_thank (from_user_id, internal_entity_id, revision_id),
                 FOREIGN KEY (internal_entity_id) REFERENCES entity_id_mapping(internal_id)
             )
-        """)
+        """
+        )
 
         cursor.execute(
             """
@@ -265,6 +266,7 @@ class SchemaManager:
                 UNIQUE KEY unique_endorsement (user_id, statement_hash),
                 FOREIGN KEY (statement_hash) REFERENCES statement_content(content_hash)
             )
-        """)
+        """
+        )
 
         cursor.close()

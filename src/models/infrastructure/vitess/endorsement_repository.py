@@ -21,7 +21,9 @@ class EndorsementRepository:
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            logger.debug(f"Creating endorsement from user {user_id} for statement {statement_hash}")
+            logger.debug(
+                f"Creating endorsement from user {user_id} for statement {statement_hash}"
+            )
 
             with self.connection_manager.get_connection() as conn:
                 with conn.cursor() as cursor:
@@ -31,7 +33,9 @@ class EndorsementRepository:
                         (statement_hash,),
                     )
                     if not cursor.fetchone():
-                        return OperationResult(success=False, error="Statement not found")
+                        return OperationResult(
+                            success=False, error="Statement not found"
+                        )
 
                     # Check for existing endorsement (active or removed)
                     cursor.execute(
@@ -41,7 +45,9 @@ class EndorsementRepository:
                     existing = cursor.fetchone()
                     if existing:
                         if existing[1] is None:  # Already active
-                            return OperationResult(success=False, error="Already endorsed this statement")
+                            return OperationResult(
+                                success=False, error="Already endorsed this statement"
+                            )
                         else:  # Previously removed, reactivate
                             cursor.execute(
                                 "UPDATE user_statement_endorsements SET removed_at = NULL WHERE id = %s",
@@ -61,13 +67,17 @@ class EndorsementRepository:
             logger.error(f"Error creating endorsement: {e}")
             return OperationResult(success=False, error=str(e))
 
-    def withdraw_endorsement(self, user_id: int, statement_hash: int) -> OperationResult:
+    def withdraw_endorsement(
+        self, user_id: int, statement_hash: int
+    ) -> OperationResult:
         """Withdraw an endorsement for a statement."""
         if user_id <= 0 or statement_hash <= 0:
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            logger.debug(f"Withdrawing endorsement from user {user_id} for statement {statement_hash}")
+            logger.debug(
+                f"Withdrawing endorsement from user {user_id} for statement {statement_hash}"
+            )
 
             with self.connection_manager.get_connection() as conn:
                 with conn.cursor() as cursor:
@@ -78,7 +88,9 @@ class EndorsementRepository:
                     )
                     existing = cursor.fetchone()
                     if not existing:
-                        return OperationResult(success=False, error="No active endorsement found")
+                        return OperationResult(
+                            success=False, error="No active endorsement found"
+                        )
 
                     # Soft delete the endorsement
                     cursor.execute(
@@ -91,7 +103,13 @@ class EndorsementRepository:
             logger.error(f"Error withdrawing endorsement: {e}")
             return OperationResult(success=False, error=str(e))
 
-    def get_statement_endorsements(self, statement_hash: int, limit: int = 50, offset: int = 0, include_removed: bool = False) -> OperationResult:
+    def get_statement_endorsements(
+        self,
+        statement_hash: int,
+        limit: int = 50,
+        offset: int = 0,
+        include_removed: bool = False,
+    ) -> OperationResult:
         """Get all endorsements for a statement."""
         if statement_hash <= 0 or limit <= 0 or offset < 0:
             return OperationResult(success=False, error="Invalid parameters")
@@ -100,7 +118,9 @@ class EndorsementRepository:
             with self.connection_manager.get_connection() as conn:
                 with conn.cursor() as cursor:
                     # Build query based on include_removed flag
-                    removed_condition = "" if include_removed else " AND e.removed_at IS NULL"
+                    removed_condition = (
+                        "" if include_removed else " AND e.removed_at IS NULL"
+                    )
 
                     cursor.execute(
                         f"""
@@ -126,24 +146,35 @@ class EndorsementRepository:
 
             endorsements = []
             for row in rows:
-                endorsements.append(StatementEndorsement(
-                    id=row[0],
-                    user_id=row[1],
-                    statement_hash=row[2],
-                    created_at=row[3],
-                    removed_at=row[4],
-                ))
+                endorsements.append(
+                    StatementEndorsement(
+                        id=row[0],
+                        user_id=row[1],
+                        statement_hash=row[2],
+                        created_at=row[3],
+                        removed_at=row[4],
+                    )
+                )
 
-            return OperationResult(success=True, data={
-                'endorsements': endorsements,
-                'total_count': total_count,
-                'has_more': total_count > offset + len(endorsements)
-            })
+            return OperationResult(
+                success=True,
+                data={
+                    "endorsements": endorsements,
+                    "total_count": total_count,
+                    "has_more": total_count > offset + len(endorsements),
+                },
+            )
         except Exception as e:
             logger.error(f"Error getting statement endorsements: {e}")
             return OperationResult(success=False, error=str(e))
 
-    def get_user_endorsements(self, user_id: int, limit: int = 50, offset: int = 0, include_removed: bool = False) -> OperationResult:
+    def get_user_endorsements(
+        self,
+        user_id: int,
+        limit: int = 50,
+        offset: int = 0,
+        include_removed: bool = False,
+    ) -> OperationResult:
         """Get endorsements given by a user."""
         if user_id <= 0 or limit <= 0 or offset < 0:
             return OperationResult(success=False, error="Invalid parameters")
@@ -152,7 +183,9 @@ class EndorsementRepository:
             with self.connection_manager.get_connection() as conn:
                 with conn.cursor() as cursor:
                     # Build query based on include_removed flag
-                    removed_condition = "" if include_removed else " AND removed_at IS NULL"
+                    removed_condition = (
+                        "" if include_removed else " AND removed_at IS NULL"
+                    )
 
                     cursor.execute(
                         f"""
@@ -178,19 +211,24 @@ class EndorsementRepository:
 
             endorsements = []
             for row in rows:
-                endorsements.append(StatementEndorsement(
-                    id=row[0],
-                    user_id=row[1],
-                    statement_hash=row[2],
-                    created_at=row[3],
-                    removed_at=row[4],
-                ))
+                endorsements.append(
+                    StatementEndorsement(
+                        id=row[0],
+                        user_id=row[1],
+                        statement_hash=row[2],
+                        created_at=row[3],
+                        removed_at=row[4],
+                    )
+                )
 
-            return OperationResult(success=True, data={
-                'endorsements': endorsements,
-                'total_count': total_count,
-                'has_more': total_count > offset + len(endorsements)
-            })
+            return OperationResult(
+                success=True,
+                data={
+                    "endorsements": endorsements,
+                    "total_count": total_count,
+                    "has_more": total_count > offset + len(endorsements),
+                },
+            )
         except Exception as e:
             logger.error(f"Error getting user endorsements: {e}")
             return OperationResult(success=False, error=str(e))
@@ -217,22 +255,27 @@ class EndorsementRepository:
                     )
                     active_count = cursor.fetchone()[0]
 
-            return OperationResult(success=True, data={
-                'total_endorsements_given': total_given,
-                'total_endorsements_active': active_count
-            })
+            return OperationResult(
+                success=True,
+                data={
+                    "total_endorsements_given": total_given,
+                    "total_endorsements_active": active_count,
+                },
+            )
         except Exception as e:
             logger.error(f"Error getting user endorsement stats: {e}")
             return OperationResult(success=False, error=str(e))
 
-    def get_batch_statement_endorsement_stats(self, statement_hashes: List[int]) -> OperationResult:
+    def get_batch_statement_endorsement_stats(
+        self, statement_hashes: List[int]
+    ) -> OperationResult:
         """Get endorsement statistics for multiple statements."""
         if not statement_hashes or len(statement_hashes) > 50:
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
             # Create placeholders for SQL IN clause
-            placeholders = ','.join(['%s'] * len(statement_hashes))
+            placeholders = ",".join(["%s"] * len(statement_hashes))
 
             with self.connection_manager.get_connection() as conn:
                 with conn.cursor() as cursor:
@@ -252,12 +295,15 @@ class EndorsementRepository:
                     rows = cursor.fetchall()
 
             # Create a map of statement_hash -> stats
-            stats_map = {row[0]: {
-                'statement_hash': row[0],
-                'total_endorsements': row[1],
-                'active_endorsements': row[2],
-                'withdrawn_endorsements': row[3]
-            } for row in rows}
+            stats_map = {
+                row[0]: {
+                    "statement_hash": row[0],
+                    "total_endorsements": row[1],
+                    "active_endorsements": row[2],
+                    "withdrawn_endorsements": row[3],
+                }
+                for row in rows
+            }
 
             # Include statements with 0 endorsements
             all_stats = []
@@ -265,12 +311,14 @@ class EndorsementRepository:
                 if statement_hash in stats_map:
                     all_stats.append(stats_map[statement_hash])
                 else:
-                    all_stats.append({
-                        'statement_hash': statement_hash,
-                        'total_endorsements': 0,
-                        'active_endorsements': 0,
-                        'withdrawn_endorsements': 0
-                    })
+                    all_stats.append(
+                        {
+                            "statement_hash": statement_hash,
+                            "total_endorsements": 0,
+                            "active_endorsements": 0,
+                            "withdrawn_endorsements": 0,
+                        }
+                    )
 
             return OperationResult(success=True, data=all_stats)
         except Exception as e:
