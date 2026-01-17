@@ -189,7 +189,7 @@ class UpdateTransaction(EntityTransaction):
         stream_producer: Any,
         user_id: int,
     ) -> None:
-        \"\"\"Publish the entity change event to the stream.
+        """Publish the entity change event to the stream.
 
         Creates and sends an EntityChangeEvent to the configured stream producer
         for downstream processing (e.g., notifications, logging).
