@@ -67,8 +67,8 @@ class HashDedupeBag(BaseModel):
 
     bag: dict[str, str] = Field(default_factory=dict)
     cutoff: int = 5
-    _hits: int = 0
-    _misses: int = 0
+    hits: int = 0
+    misses: int = 0
 
     def __init__(self, /, cutoff: int = 5, **data: Any):
         """Initialize HashDedupeBag with the given cutoff value.
@@ -87,8 +87,8 @@ class HashDedupeBag(BaseModel):
 
         self.bag: dict[str, str] = {}
         self.cutoff = cutoff
-        self._hits = 0
-        self._misses = 0
+        self.hits = 0
+        self.misses = 0
 
     def already_seen(self, hash_: str, namespace: str = "") -> bool:
         """@see DedupeBag::alreadySeen.
@@ -98,10 +98,10 @@ class HashDedupeBag(BaseModel):
         key = namespace + hash_[: self.cutoff]
 
         if key in self.bag and self.bag[key] == hash_:
-            self._hits += 1
+            self.hits += 1
             return True
 
-        self._misses += 1
+        self.misses += 1
         self.bag[key] = hash_
         return False
 
@@ -111,12 +111,12 @@ class HashDedupeBag(BaseModel):
         Returns:
             DeduplicationStats with hits, misses, size, collision_rate
         """
-        total = self._hits + self._misses
-        collision_rate = (self._misses / total * 100) if total > 0 else 0
+        total = self.hits + self.misses
+        collision_rate = (self.misses / total * 100) if total > 0 else 0
 
         return DeduplicationStatsResponse(
-            hits=self._hits,
-            misses=self._misses,
+            hits=self.hits,
+            misses=self.misses,
             size=len(self.bag),
             collision_rate=collision_rate,
         )
@@ -124,5 +124,5 @@ class HashDedupeBag(BaseModel):
     def clear(self) -> None:
         """Clears deduplication cache."""
         self.bag.clear()
-        self._hits = 0
-        self._misses = 0
+        self.hits = 0
+        self.misses = 0

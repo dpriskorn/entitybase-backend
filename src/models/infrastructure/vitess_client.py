@@ -52,8 +52,8 @@ class VitessClient(Client):
     """Vitess database client for entity operations."""
 
     config: VitessConfig
-    _connection_manager: VitessConnectionManager = Field(exclude=True)
-    schema_manager: Optional[SchemaManager] = Field(default=None, exclude=True)
+    connection_manager: VitessConnectionManager = Field(exclude=True)
+    schema_manager: SchemaManager = Field(exclude=True)
     id_resolver: Optional[IdResolver] = Field(default=None, exclude=True)
     entity_repository: Optional[EntityRepository] = Field(default=None, exclude=True)
     revision_repository: Optional[RevisionRepository] = Field(
@@ -84,12 +84,12 @@ class VitessClient(Client):
 
     @property
     def connection_manager(self) -> VitessConnectionManager:
-        return self._connection_manager
+        return self.connection_manager
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
         logger.debug(f"Initializing VitessClient with host {config.host}")
-        self._connection_manager = VitessConnectionManager(config=config)
+        self.connection_manager = VitessConnectionManager(config=config)
         self.schema_manager = SchemaManager(self.connection_manager)
         self.id_resolver = IdResolver(self.connection_manager)
         self.entity_repository = EntityRepository(

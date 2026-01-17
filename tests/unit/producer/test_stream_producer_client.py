@@ -158,7 +158,7 @@ class TestStreamProducerClient:
             changed_at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
         )
         await producer.publish_change(event)
-        assert "Failed to publish change event" in caplog.text
+        assert "Failed to publish event" in caplog.text
 
     @pytest.mark.asyncio
     async def test_producer_publish_multiple_events(
