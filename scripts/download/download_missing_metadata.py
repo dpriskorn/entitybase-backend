@@ -25,7 +25,7 @@ all_missing = q1_remaining
 print(f"Will download metadata for {len(all_missing)} entities")
 
 # Filter out already downloaded
-metadata_dir = Path("test_data/entity_metadata")
+metadata_dir = Path("../../test_data/entity_metadata")
 to_download = []
 for entity_id in all_missing:
     if not (metadata_dir / f"{entity_id}.json").exists():
