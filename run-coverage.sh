@@ -9,12 +9,13 @@ source .venv/bin/activate
 echo \"Running unit tests with coverage...\"
 cd /home/dpriskorn/src/python/wikibase-backend
 export PYTHONPATH=src
-python -m pytest \
-  --cov=src --cov-report=term-missing \
+pytest \
+  -m "unit" \
+  --cov=src \
+  --cov-report=term-missing \
   #--cov-report=html \
   --cov-report=xml \
-  --ignore=tests/disabled/ \
-  tests/unit/ > coverage.txt 2>&1
+  > coverage.txt 2>&1
 
 if [ -f \"coverage.xml\" ]; then
     echo \"Coverage reports generated: coverage.txt, htmlcov/, coverage.xml\"
