@@ -13,7 +13,7 @@ class VitessConnectionManager(ConnectionManager):
 
     config: VitessConfig
 
-    def connect(self) -> Any:
+    def connect(self) -> pymysql.Connection:
         """Create a new database connection."""
         return pymysql.connect(
             host=self.config.host,

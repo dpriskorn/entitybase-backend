@@ -8,6 +8,7 @@ from models.rest_api.entitybase.response import (
     EntityAliasesResponse,
     EntityDescriptionsResponse,
     EntityLabelsResponse,
+    EntityMetadataResponse,
 )
 from models.rest_api.entitybase.response.entity import (
     AliasValue,
@@ -17,9 +18,6 @@ from models.rest_api.entitybase.response.entity import (
     EntitySitelinksResponse,
 )
 
-from models.rest_api.entitybase.response import (
-    EntityMetadataResponse,
-)
 from models.json_parser.statement_parser import parse_statement
 from models.internal_representation.entity import Entity
 from models.internal_representation.entity_types import EntityKind

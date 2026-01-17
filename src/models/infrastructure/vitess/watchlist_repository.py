@@ -2,7 +2,9 @@
 
 import json
 import logging
-from typing import Any, List
+from typing import Any, List, cast
+
+import pymysql
 
 from models.common import OperationResult
 
@@ -24,7 +26,8 @@ class WatchlistRepository:
                     "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties = ''",
                     (user_id,),
                 )
-                return int(cursor.fetchone()[0])
+                result = cursor.fetchone()
+                return int(result[0]) if result else 0
 
     def get_property_watch_count(self, user_id: int) -> int:
         """Get count of entity-property watches (with properties) for user."""
@@ -34,7 +37,8 @@ class WatchlistRepository:
                     "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties != ''",
                     (user_id,),
                 )
-                return int(cursor.fetchone()[0])
+                result = cursor.fetchone()
+                return int(result[0]) if result else 0
 
     def add_watch(
         self, user_id: int, entity_id: str, properties: List[str] | None
@@ -46,7 +50,9 @@ class WatchlistRepository:
             return OperationResult(success=False, error="Entity ID is required")
 
         try:
-            internal_entity_id = self.id_resolver.resolve_id(self._get_conn(), entity_id)
+            internal_entity_id = self.id_resolver.resolve_id(
+                self._get_conn(), entity_id
+            )
             if not internal_entity_id:
                 return OperationResult(success=False, error="Entity not found")
             properties_json = ",".join(properties) if properties else ""
@@ -137,7 +143,8 @@ class WatchlistRepository:
                     "SELECT COUNT(*) FROM user_notifications WHERE user_id = %s",
                     (user_id,),
                 )
-                return int(cursor.fetchone()[0])
+                result = cursor.fetchone()
+                return int(result[0]) if result else 0
 
     def get_user_notifications(
         self, user_id: int, hours: int = 24, limit: int = 50, offset: int = 0
@@ -191,6 +198,6 @@ class WatchlistRepository:
                     (notification_id, user_id),
                 )
 
-    def _get_conn(self) -> Any:
+    def _get_conn(self) -> pymysql.Connection:
         """Get database connection."""
-        return self.connection_manager.connect()
+        return cast(pymysql.Connection, self.connection_manager.connect())

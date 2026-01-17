@@ -11,19 +11,18 @@ from .entitybase import (
     EntityResponse,
     EntityRevisionResponse,
     ProtectionResponse,
+    EntityMetadataResponse,
+    EntityLabelsResponse,
+    EntityDescriptionsResponse,
+    EntityAliasesResponse,
+    EntityStatementsResponse,
+    EntitySitelinksResponse,
 )
 from .revert import EntityRevertResponse
 from .wikibase import (
     AliasValue,
     DescriptionValue,
-    EntityAliasesResponse,
-    EntityDescriptionsResponse,
-    EntityLabelsResponse,
-    EntityMetadataResponse,
-    EntitySitelinksResponse,
-    EntityStatementsResponse,
     LabelValue,
-    WikibaseEntityResponse,
 )
 
 __all__ = [
@@ -48,5 +47,4 @@ __all__ = [
     "EntityStatementsResponse",
     "LabelValue",
     "ProtectionResponse",
-    "WikibaseEntityResponse",
 ]

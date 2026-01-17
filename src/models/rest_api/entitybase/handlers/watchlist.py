@@ -34,7 +34,9 @@ class WatchlistHandler:
             request.user_id, request.entity_id, request.properties
         )
         if not result.success:
-            raise_validation_error(result.error or "Failed to add watch", status_code=500)
+            raise_validation_error(
+                result.error or "Failed to add watch", status_code=500
+            )
 
         # Update activity
         vitess_client.user_repository.update_user_activity(request.user_id)

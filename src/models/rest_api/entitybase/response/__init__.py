@@ -13,8 +13,7 @@ from .entity.entitybase import (
     EntityJsonImportResponse,
     EntityDeleteResponse,
 )
-from .entity import WikibaseEntityResponse
-from .entity.wikibase import (
+from .entity import (
     EntityMetadataResponse,
     EntityLabelsResponse,
     EntityDescriptionsResponse,
@@ -69,7 +68,6 @@ __all__ = [
     "StatementHashResult",
     "StatementResponse",
     "TtlResponse",
-    "WikibaseEntityResponse",
     "WikibasePredicatesResponse",
     "WorkerHealthCheckResponse",
 ]
