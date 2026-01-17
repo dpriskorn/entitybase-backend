@@ -14,10 +14,10 @@ from models.config.settings import settings
 from models.validation.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import S3Client
 from models.infrastructure.stream.producer import (
-    ChangeType,
-    EntityChangeEvent,
     StreamProducerClient,
 )
+from models.infrastructure.stream.change_type import ChangeType
+from models.infrastructure.stream.event import EntityChangeEvent
 from models.infrastructure.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)

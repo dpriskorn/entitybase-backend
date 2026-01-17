@@ -16,7 +16,7 @@ from models.rest_api.entitybase.response.entity.entitybase import (
     EntityAliasesResponse,
     EntityDescriptionsResponse,
 )
-from models.rest_api.entitybase.response.entity.wikibase import (
+from models.rest_api.entitybase.response.entity.entitybase import (
     EntityLabelsResponse,
     EntitySitelinksResponse,
     EntityStatementsResponse,

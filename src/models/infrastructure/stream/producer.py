@@ -168,3 +168,7 @@ class StreamProducerClient:
             logger.debug(f"Published event: {event}")
         except Exception as e:
             logger.error(f"Failed to publish event: {e}")
+
+    async def publish_rdf_change(self, event: Any) -> None:
+        """Publish an RDF change event to Kafka."""
+        await self.publish_change(event)

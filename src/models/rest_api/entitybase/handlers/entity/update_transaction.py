@@ -202,14 +202,14 @@ class UpdateTransaction(EntityTransaction):
             from_revision_id: The previous revision ID (0 for creations).
             changed_at: Timestamp of the change.
             edit_summary: Summary of the edit.
+            editor: The username of the user who made the change.
             stream_producer: The producer instance for publishing events.
-            user_id: The ID of the user who made the change.
 
         Returns:
             None
 
         Note:
-            The editor field in EntityChangeEvent is set to the string representation of user_id.
+            The editor field in EntityChangeEvent is set to the editor parameter.
         """
         logger.info(f"[UpdateTransaction] Starting event publishing for {entity_id}")
         if stream_producer:

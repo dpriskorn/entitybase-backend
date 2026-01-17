@@ -125,7 +125,7 @@ class EntityTransaction(BaseModel, ABC):
         """Publish the entity creation event."""
         logger.info(f"[CreationTransaction] Starting event publishing for {entity_id}")
         if stream_producer:
-            from models.infrastructure.stream.producer import EntityChangeEvent
+            from models.infrastructure.stream.event import EntityChangeEvent
 
             event = EntityChangeEvent(
                 entity_id=entity_id,

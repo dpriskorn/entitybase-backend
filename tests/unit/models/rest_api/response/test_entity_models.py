@@ -162,7 +162,7 @@ class TestEntityChange:
     def test_entity_change_valid(self):
         """Test valid EntityChange creation."""
         from datetime import datetime
-        from models.infrastructure.stream.producer import ChangeType
+        from models.infrastructure.stream.change_type import ChangeType
 
         change = EntityChange(
             entity_id="Q42",
@@ -183,7 +183,7 @@ class TestEntityChange:
     def test_entity_change_minimal(self):
         """Test EntityChange with minimal required fields."""
         from datetime import datetime
-        from models.infrastructure.stream.producer import ChangeType
+        from models.infrastructure.stream.change_type import ChangeType
 
         change = EntityChange(
             entity_id="Q42",
@@ -215,7 +215,7 @@ class TestEntityChange:
         import json
         import jsonschema
         from datetime import datetime
-        from models.infrastructure.stream.producer import ChangeType
+        from models.infrastructure.stream.change_type import ChangeType
 
         # Load the schema
         with open("src/schemas/entitychange.json", "r") as f:

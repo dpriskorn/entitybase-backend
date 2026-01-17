@@ -1,19 +1,16 @@
 """Entity redirect service."""
 
 import logging
-
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
-from models.rest_api.misc import EditType
+from models.infrastructure.stream.producer import StreamProducerClient
 from models.rest_api.entitybase.request.entity import EntityRedirectRequest
 from models.rest_api.entitybase.response import (
     EntityRedirectResponse,
     EntityResponse,
 )
-from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.stream.event import EntityChangeEvent
-from models.infrastructure.stream.change_type import ChangeType
+from models.rest_api.misc import EditType
 from models.validation.utils import raise_validation_error
 
 if TYPE_CHECKING:
