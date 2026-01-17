@@ -22,11 +22,13 @@ class UserRepository:
             with self.connection_manager.get_connection() as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(
-                        \"\"\"
+                        """
                         INSERT INTO users (user_id)
                         VALUES (%s)
                         ON DUPLICATE KEY UPDATE user_id = user_id
-                        \"\"\",\n                        (user_id,),\n                    )
+                        """,
+                        (user_id,),
+                    )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))

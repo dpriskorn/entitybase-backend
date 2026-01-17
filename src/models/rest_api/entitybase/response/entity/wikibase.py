@@ -1,5 +1,7 @@
 from typing import Any, Dict, List
 
+from typing import List
+
 from pydantic import BaseModel, Field
 
 from models.validation.utils import raise_validation_error
@@ -32,6 +34,7 @@ class SitelinkValue(BaseModel):
     site: str = Field(..., min_length=1)
     title: str = Field(..., min_length=1)
     url: str = Field(default="")
+    badges: List[str] = Field(default_factory=list)
 
 
 class EntityLabelsResponse(BaseModel):
@@ -105,15 +108,15 @@ class EntitySitelinksResponse(BaseModel):
     def __getitem__(self, key: str) -> SitelinkValue:
         return self.data[key]
 
-    def get(self, language_code: str) -> SitelinkValue:
-        """Get sitelink for the specified language code."""
-        if not language_code:
-            raise_validation_error("Language code cannot be empty", status_code=400)
-        if language_code not in self.data:
+    def get(self, site: str) -> SitelinkValue:
+        """Get sitelink for the specified site."""
+        if not site:
+            raise_validation_error("Site cannot be empty", status_code=400)
+        if site not in self.data:
             raise_validation_error(
-                f"Sitelink not found for language {language_code}", status_code=404
+                f"Sitelink not found for site {site}", status_code=404
             )
-        return self.data[language_code]
+        return self.data[site]
 
 
 class EntityMetadataResponse(BaseModel):

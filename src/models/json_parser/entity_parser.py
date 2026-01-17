@@ -73,7 +73,6 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
 
     entity_type = EntityKind(metadata.type)
 
-    sitelinks = metadata.sitelinks.data
     statements = [parse_statement(stmt) for stmt in metadata.statements.data]
 
     return Entity(
@@ -83,5 +82,5 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
         descriptions=metadata.descriptions,
         aliases=metadata.aliases,
         statements=statements,
-        sitelinks=sitelinks if sitelinks else None,
+        sitelinks=metadata.sitelinks,
     )

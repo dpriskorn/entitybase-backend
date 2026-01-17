@@ -36,21 +36,32 @@ class WatchlistRepository:
 
     def add_watch(
         self, user_id: int, entity_id: str, properties: List[str] | None
-    ) -> None:
+    ) -> OperationResult:
         """Add a watchlist entry."""
-        internal_entity_id = self.id_resolver.resolve_id(self._get_conn(), entity_id)
-        properties_json = ",".join(properties) if properties else ""
+        if user_id <= 0:
+            return OperationResult(success=False, error="Invalid user ID")
+        if not entity_id:
+            return OperationResult(success=False, error="Entity ID is required")
 
-        with self._get_conn() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    INSERT INTO watchlist (user_id, internal_entity_id, watched_properties)
-                    VALUES (%s, %s, %s)
-                    ON DUPLICATE KEY UPDATE watched_properties = VALUES(watched_properties)
-                    """,
-                    (user_id, internal_entity_id, properties_json),
-                )
+        try:
+            internal_entity_id = self.id_resolver.resolve_id(self._get_conn(), entity_id)
+            if not internal_entity_id:
+                return OperationResult(success=False, error="Entity not found")
+            properties_json = ",".join(properties) if properties else ""
+
+            with self._get_conn() as conn:
+                with conn.cursor() as cursor:
+                    cursor.execute(
+                        """
+                        INSERT INTO watchlist (user_id, internal_entity_id, watched_properties)
+                        VALUES (%s, %s, %s)
+                        ON DUPLICATE KEY UPDATE watched_properties = VALUES(watched_properties)
+                        """,
+                        (user_id, internal_entity_id, properties_json),
+                    )
+            return OperationResult(success=True)
+        except Exception as e:
+            return OperationResult(success=False, error=str(e))
 
     def remove_watch(
         self, user_id: int, entity_id: str, properties: List[str] | None

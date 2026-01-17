@@ -38,7 +38,7 @@ def test_parse_entity_basic() -> None:
     }
     assert entity.aliases.data == {"en": [AliasValue(language="en", value="DA")]}
     assert len(entity.statements) == 0
-    assert entity.sitelinks is None
+    assert entity.sitelinks.data == {}
 
 
 def test_parse_q1_minimal() -> None:
@@ -93,7 +93,7 @@ def test_parse_q42_detailed() -> None:
     assert "normal" in ranks
     assert "preferred" in ranks
 
-    has_sitelinks = entity.sitelinks is not None and len(entity.sitelinks) > 0
+    has_sitelinks = entity.sitelinks is not None and len(entity.sitelinks.data) > 0
     assert has_sitelinks
 
 
@@ -121,7 +121,7 @@ def test_parse_p2() -> None:
         "ru": ["Berlin"],
     }
     assert len(entity.statements) == 0
-    assert entity.sitelinks is None
+    assert entity.sitelinks.data == {}
 
 
 def test_parse_q17948861() -> None:
@@ -145,12 +145,14 @@ def test_parse_q3_sitelinks() -> None:
     assert entity.id == "Q3"
     assert entity.type == "item"
     assert entity.sitelinks is not None
-    assert "enwiki" in entity.sitelinks
-    assert entity.sitelinks["enwiki"]["site"] == "enwiki"
-    assert entity.sitelinks["enwiki"]["title"] == "San Francisco"
-    assert entity.sitelinks["enwiki"]["badges"] == []
-    assert "ruwiki" in entity.sitelinks
-    assert entity.sitelinks["ruwiki"]["title"] == "Сан Франциско"
+    assert "enwiki" in entity.sitelinks.data
+    enwiki_sitelink = entity.sitelinks.get("enwiki")
+    assert enwiki_sitelink.site == "enwiki"
+    assert enwiki_sitelink.title == "San Francisco"
+    assert enwiki_sitelink.badges == []
+    assert "ruwiki" in entity.sitelinks.data
+    ruwiki_sitelink = entity.sitelinks.get("ruwiki")
+    assert ruwiki_sitelink.title == "Сан Франциско"
 
 
 def test_parse_q5_sitelinks_with_badges() -> None:
@@ -162,10 +164,12 @@ def test_parse_q5_sitelinks_with_badges() -> None:
     assert entity.id == "Q5"
     assert entity.type == "item"
     assert entity.sitelinks is not None
-    assert "enwiki" in entity.sitelinks
-    assert entity.sitelinks["enwiki"]["badges"] == []
-    assert "ruwiki" in entity.sitelinks
-    assert entity.sitelinks["ruwiki"]["badges"] == ["Q666", "Q42"]
+    assert "enwiki" in entity.sitelinks.data
+    enwiki_sitelink = entity.sitelinks.get("enwiki")
+    assert enwiki_sitelink.badges == []
+    assert "ruwiki" in entity.sitelinks.data
+    ruwiki_sitelink = entity.sitelinks.get("ruwiki")
+    assert ruwiki_sitelink.badges == ["Q666", "Q42"]
 
 
 def test_parse_q4_complex_statements() -> None:
@@ -276,5 +280,6 @@ def test_parse_entity_with_sitelinks() -> None:
 
     entity = parse_entity(entity_json)
     assert entity.sitelinks is not None
-    assert "enwiki" in entity.sitelinks
-    assert entity.sitelinks["enwiki"]["site"] == "enwiki"
+    assert "enwiki" in entity.sitelinks.data
+    enwiki_sitelink = entity.sitelinks.get("enwiki")
+    assert enwiki_sitelink.site == "enwiki"

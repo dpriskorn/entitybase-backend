@@ -2,12 +2,15 @@ from typing import Optional, Any
 
 """Internal representation of Wikibase entities."""
 
+from typing import Optional
+
 from pydantic import BaseModel, ConfigDict, Field
 
 from models.rest_api.entitybase.response.entity.wikibase import (
     EntityAliasesResponse,
     EntityDescriptionsResponse,
     EntityLabelsResponse,
+    EntitySitelinksResponse,
 )
 from models.internal_representation.entity_types import EntityKind
 from models.internal_representation.statements import Statement
@@ -22,6 +25,6 @@ class Entity(BaseModel):
     descriptions: EntityDescriptionsResponse
     aliases: EntityAliasesResponse
     statements: list[Statement]
-    sitelinks: Optional[dict[str, dict[str, Any]]] = Field(default=None)
+    sitelinks: Optional[EntitySitelinksResponse] = Field(default=None)
 
     model_config = ConfigDict(frozen=True)

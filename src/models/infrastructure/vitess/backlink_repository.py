@@ -32,13 +32,15 @@ class BacklinkRepository:
         try:
             with conn.cursor() as cursor:
                 cursor.executemany(
-                    \"\"\"
+                    """
                     INSERT INTO entity_backlinks
                     (referenced_internal_id, referencing_internal_id, statement_hash, property_id, rank)
                     VALUES (%s, %s, %s, %s, %s)
                     ON DUPLICATE KEY UPDATE
                     referenced_internal_id = referenced_internal_id  -- no-op, just to handle duplicates
-                    \"\"\",\n                    backlinks,\n                )
+                    """,
+                    backlinks,
+                )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))

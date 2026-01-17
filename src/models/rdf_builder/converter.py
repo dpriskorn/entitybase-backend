@@ -60,8 +60,10 @@ class EntityConverter:
                 self.writers.write_alias(output, entity.id, lang, alias)
 
         if entity.sitelinks:
-            for site_key, sitelink_data in entity.sitelinks.items():
-                self.writers.write_sitelink(output, entity.id, sitelink_data)
+            for site_key, sitelink_data in entity.sitelinks.data.items():
+                self.writers.write_sitelink(
+                    output, entity.id, sitelink_data.model_dump()
+                )
 
     def _write_statements(self, entity: Entity, output: TextIO) -> None:
         """Write all statements."""

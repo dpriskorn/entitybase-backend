@@ -25,7 +25,9 @@ class UserHandler:
         if not exists:
             result = vitess_client.user_repository.create_user(request.user_id)
             if not result.success:
-                raise_validation_error(result.error or "Failed to create user", status_code=500)
+                raise_validation_error(
+                    result.error or "Failed to create user", status_code=500
+                )
             created = True
         else:
             created = False
