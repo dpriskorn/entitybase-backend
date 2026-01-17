@@ -90,7 +90,7 @@ class EntityUpdateHandler(EntityHandler):
                 change_type="edit",
                 from_revision_id=tx.head_revision_id,
                 changed_at=None,  # TODO
-                editor=request.editor or "",
+                user_id=user_id,
                 edit_summary=request.edit_summary,
                 stream_producer=stream_producer,
             )

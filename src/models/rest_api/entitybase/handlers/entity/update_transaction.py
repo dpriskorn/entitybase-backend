@@ -186,10 +186,30 @@ class UpdateTransaction(EntityTransaction):
         from_revision_id: int,
         changed_at: Any,
         edit_summary: str,
-        editor: str,
         stream_producer: Any,
+        user_id: int,
     ) -> None:
-        """Publish the entity change event."""
+        \"\"\"Publish the entity change event to the stream.
+
+        Creates and sends an EntityChangeEvent to the configured stream producer
+        for downstream processing (e.g., notifications, logging).
+
+        Args:
+            entity_id: The ID of the entity that changed.
+            revision_id: The new revision ID after the change.
+            change_type: The type of change (e.g., 'edit', 'create').
+            from_revision_id: The previous revision ID (0 for creations).
+            changed_at: Timestamp of the change.
+            edit_summary: Summary of the edit.
+            stream_producer: The producer instance for publishing events.
+            user_id: The ID of the user who made the change.
+
+        Returns:
+            None
+
+        Note:
+            The editor field in EntityChangeEvent is set to the string representation of user_id.
+        """
         logger.info(f"[UpdateTransaction] Starting event publishing for {entity_id}")
         if stream_producer:
             from models.infrastructure.stream.producer import EntityChangeEvent
@@ -200,7 +220,7 @@ class UpdateTransaction(EntityTransaction):
                 change_type=change_type,
                 from_revision_id=from_revision_id,
                 changed_at=changed_at,
-                editor=editor,
+                editor=str(user_id),
                 edit_summary=edit_summary,
                 bot=False,
             )

@@ -2,6 +2,23 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-17] Entity Change Event Improvements & New Schema
+
+### Summary
+
+Enhanced entity change event publishing to use user_id for better tracking, and added a new EntityChange schema for API responses.
+
+### Changes
+
+#### Event Publishing Updates
+- **User ID Integration**: Modified `publish_event` in `UpdateTransaction` to accept `user_id` instead of `editor`, improving change attribution
+- **Schema Addition**: Created new `EntityChange` response schema in `entitybase/response/entity/change.py` for standardized change event data
+- **Docstring Enhancement**: Improved `publish_event` docstring with detailed Args, Returns, and notes on user_id usage
+
+#### API Response Schema
+- **New Model**: `EntityChange` Pydantic model for change events, excluding editor field for privacy
+- **Field Details**: Includes entity_id, revision_id, change_type, timestamps, and edit summary
+
 ## [2026-01-17] Endorsement Stats Optimization & Caching
 
 ### Summary

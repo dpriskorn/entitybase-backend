@@ -19,6 +19,7 @@ from .entitybase import (
     EntitySitelinksResponse,
 )
 from .revert import EntityRevertResponse
+from .change import EntityChange
 from .wikibase import (
     AliasValue,
     DescriptionValue,
@@ -44,7 +45,8 @@ __all__ = [
     "EntityRevertResponse",
     "EntityRevisionResponse",
     "EntitySitelinksResponse",
-    "EntityStatementsResponse",
+    \"EntityStatementsResponse\",
+    \"EntityChange\",
     "LabelValue",
     "ProtectionResponse",
 ]
