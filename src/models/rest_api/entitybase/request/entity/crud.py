@@ -1,5 +1,7 @@
 from typing import Dict, Any
 
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 from models.rest_api.misc import EditType, DeleteType

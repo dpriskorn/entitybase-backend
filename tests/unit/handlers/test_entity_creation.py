@@ -68,7 +68,7 @@ class TestItemCreateHandler:
         )
 
         mock_vitess_client.entity_exists.return_value = False
-        mock_vitess_client.entity_repository.get_entity.return_value = None
+        mock_vitess_client.entity_repository.get_entity.return_value = MagicMock(is_deleted=False)
 
         result = await handler.create_entity(
             request=request,
@@ -168,7 +168,7 @@ class TestPropertyCreateHandler:
         )
 
         mock_vitess_client.entity_exists.return_value = False
-        mock_vitess_client.entity_repository.get_entity.return_value = None
+        mock_vitess_client.entity_repository.get_entity.return_value = MagicMock(is_deleted=False)
 
         result = await handler.create_entity(
             request=request,

@@ -1,5 +1,7 @@
 """RDF response models."""
 
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -21,6 +23,9 @@ class DeduplicationStatsResponse(BaseModel):
     misses: int = Field(description="Number of cache misses")
     size: int = Field(description="Current cache size")
     collision_rate: float = Field(description="Collision rate percentage")
+
+    def __getitem__(self, key: str) -> Any:
+        return getattr(self, key)
 
 
 class RedirectBatchResponse(BaseModel):
