@@ -119,18 +119,34 @@ services:
      mem_limit: 1g
      cpus: 1
 
-  tests:
-    build:
-      context: ..
-      dockerfile: docker/containers/Dockerfile.tests
-    container_name: tests
-    depends_on:
-      api:
-        condition: service_healthy
-    networks:
-      - default
-    mem_limit: 1g
-    cpus: 1
+   tests:
+     build:
+       context: ..
+       dockerfile: docker/containers/Dockerfile.tests
+     container_name: tests
+     depends_on:
+       api:
+         condition: service_healthy
+     networks:
+       - default
+     mem_limit: 1g
+     cpus: 1
+
+   e2e:
+     build:
+       context: ..
+       dockerfile: docker/containers/Dockerfile.tests
+     container_name: e2e
+     depends_on:
+       api:
+         condition: service_healthy
+     environment:
+       REST_API_URL: http://api:8000
+     command: pytest -m e2e tests/e2e/ -v --tb=short
+     networks:
+       - default
+     mem_limit: 1g
+     cpus: 1
 
   idworker:
    container_name: idworker
