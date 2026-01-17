@@ -100,6 +100,94 @@ class TestEntityReadHandler(unittest.TestCase):
             "Q42", self.mock_s3, 10, 5
         )
 
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_vitess_none(self, mock_raise_error):
+        """Test get_entity raises error when vitess_client is None"""
+        EntityReadHandler.get_entity("Q42", None, self.mock_s3)
+        mock_raise_error.assert_called_once_with(
+            "Vitess not initialized", status_code=503
+        )
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_s3_none(self, mock_raise_error):
+        """Test get_entity raises error when s3_client is None"""
+        EntityReadHandler.get_entity("Q42", self.mock_vitess, None)
+        mock_raise_error.assert_called_once_with("S3 not initialized", status_code=503)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_not_found(self, mock_raise_error):
+        """Test get_entity raises error when entity does not exist"""
+        self.mock_vitess.entity_exists.return_value = False
+        EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
+        mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_no_head_revision(self, mock_raise_error):
+        """Test get_entity raises error when no head revision"""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 0
+        EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
+        mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    def test_get_entity_success_no_metadata(
+        self, mock_terms_repo, mock_entity_response
+    ):
+        """Test get_entity success without metadata"""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 123
+        mock_revision = Mock()
+        mock_revision.content = {"entity": {"id": "Q42"}}
+        self.mock_s3.read_revision.return_value = mock_revision
+
+        mock_response_instance = Mock()
+        mock_entity_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity(
+            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=False
+        )
+
+        self.assertEqual(result, mock_response_instance)
+        self.mock_s3.read_revision.assert_called_once_with("Q42", 123)
+        mock_entity_response.assert_called_once()
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_revision_s3_none(self, mock_raise_error):
+        """Test get_entity_revision raises error when s3_client is None"""
+        EntityReadHandler.get_entity_revision("Q42", 123, None)
+        mock_raise_error.assert_called_once_with("S3 not initialized", status_code=503)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.EntityRevisionResponse")
+    def test_get_entity_revision_success(self, mock_revision_response):
+        """Test get_entity_revision success"""
+        mock_revision = Mock()
+        mock_revision.data = Mock()
+        mock_revision.data.model_dump.return_value = {"id": "Q42"}
+        mock_revision.data.entity = {"id": "Q42"}
+        self.mock_s3.read_revision.return_value = mock_revision
+        self.mock_s3.load_metadata.return_value = {"en": {"value": "Test"}}
+
+        mock_response_instance = Mock()
+        mock_revision_response.return_value = mock_response_instance
+
+        result = EntityReadHandler.get_entity_revision("Q42", 123, self.mock_s3)
+
+        self.assertEqual(result, mock_response_instance)
+        self.mock_s3.read_revision.assert_called_once_with("Q42", 123)
+        mock_revision_response.assert_called_once()
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_revision_exception(self, mock_raise_error):
+        """Test get_entity_revision handles exceptions"""
+        self.mock_s3.read_revision.side_effect = Exception("S3 error")
+
+        EntityReadHandler.get_entity_revision("Q42", 123, self.mock_s3)
+
+        mock_raise_error.assert_called_once_with(
+            "Failed to read entity revision", status_code=500
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
