@@ -12,6 +12,13 @@ from models.rest_api.entitybase.response import (
     EntityMetadataBatchResponse,
 )
 from models.rest_api.entitybase.response import MetadataLoadResponse
+from models.rest_api.entitybase.response.entity.wikibase import (
+    EntityAliasesResponse,
+    EntityDescriptionsResponse,
+    EntityLabelsResponse,
+    EntitySitelinksResponse,
+    EntityStatementsResponse,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +68,20 @@ def _fetch_entity_metadata_batch(entity_ids: list[str]) -> EntityMetadataBatchRe
                         "en": {"language": "en", "value": description}
                     }
 
-                results[entity_id] = EntityMetadataResponse(**metadata)
+                results[entity_id] = EntityMetadataResponse(
+                    id=metadata["id"],
+                    labels=EntityLabelsResponse(data=metadata.get("labels", {})),
+                    descriptions=EntityDescriptionsResponse(
+                        data=metadata.get("descriptions", {})
+                    ),
+                    aliases=EntityAliasesResponse(data=metadata.get("aliases", {})),
+                    statements=EntityStatementsResponse(
+                        data=metadata.get("statements", [])
+                    ),
+                    sitelinks=EntitySitelinksResponse(
+                        data=metadata.get("sitelinks", {})
+                    ),
+                )
 
             logger.info(
                 f"Fetched metadata for {len(batch)} entities (batch {i // batch_size + 1})"
@@ -113,6 +133,14 @@ def load_entity_metadata(entity_id: str, metadata_dir: Path) -> EntityMetadataRe
 
     if json_path.exists():
         data: dict = json.loads(json_path.read_text(encoding="utf-8"))
-        return EntityMetadataResponse(**data)
+        return EntityMetadataResponse(
+            id=data["id"],
+            type=data.get("type", "item"),
+            labels=EntityLabelsResponse(data=data.get("labels", {})),
+            descriptions=EntityDescriptionsResponse(data=data.get("descriptions", {})),
+            aliases=EntityAliasesResponse(data=data.get("aliases", {})),
+            statements=EntityStatementsResponse(data=data.get("statements", [])),
+            sitelinks=EntitySitelinksResponse(data=data.get("sitelinks", {})),
+        )
 
     raise FileNotFoundError(f"Entity {entity_id} not found at {json_path}")

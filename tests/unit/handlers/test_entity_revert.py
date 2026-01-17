@@ -45,7 +45,11 @@ class TestEntityRevertHandler:
             "statements": [],
             "properties": [],
         }
-        mock_vitess_client.head_repository.get_head_revision.return_value = 125
+        from models.common import OperationResult
+
+        mock_vitess_client.head_repository.get_head_revision.return_value = (
+            OperationResult(success=True, data=125)
+        )
         mock_vitess_client.revision_repository.revert_entity.return_value = 126
 
         result = handler.revert_entity("Q42", request, mock_vitess_client, 456)

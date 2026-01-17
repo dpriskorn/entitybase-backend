@@ -62,11 +62,9 @@ class TestStatementHandler:
         """Test get_statements_batch raises error when s3_client is None"""
         handler = StatementHandler()
         request = StatementBatchRequest(hashes=[123, 456])
-        with patch(
-            "models.rest_api.entitybase.handlers.statement.raise_validation_error"
-        ) as mock_raise:
+        with pytest.raises(ValueError) as exc_info:
             handler.get_statements_batch(request, None)
-            mock_raise.assert_called_with("Statement 123 not found", status_code=404)
+        assert "Statement 123 not found" in str(exc_info.value)
 
     def test_get_statements_batch_success(self):
         """Test get_statements_batch success"""
