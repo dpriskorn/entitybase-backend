@@ -3,7 +3,6 @@
 import logging
 from typing import TYPE_CHECKING
 
-from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.request.entity import EntityRedirectRequest
 from models.rest_api.entitybase.response import (
@@ -14,6 +13,7 @@ from models.rest_api.entitybase.services.redirects import RedirectService
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import S3Client
+    from models.infrastructure.stream.producer import StreamProducerClient
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +25,7 @@ class RedirectHandler:
         self,
         s3_client: "S3Client",
         vitess_client: VitessClient,
-        stream_producer: StreamProducerClient | None = None,
+        stream_producer: "StreamProducerClient | None" = None,
     ):
         self.redirect_service = RedirectService(
             s3_client, vitess_client, stream_producer

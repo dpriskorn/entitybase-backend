@@ -1,7 +1,5 @@
 """Kafka streaming infrastructure for publishing change events."""
 
-import json
-import logging
 from datetime import datetime
 from enum import Enum
 
@@ -16,6 +14,7 @@ class EndorseAction(str, Enum):
 
 class EndorseChangeEvent(BaseModel):
     """Endorsement change event for publishing."""
+    model_config = ConfigDict(by_alias=True)
 
     statement_hash: str = Field(alias="hash", description="Hash of the endorsed statement")
     user_id: str = Field(alias="user", description="ID of the user performing the action")
@@ -27,11 +26,11 @@ class EndorseChangeEvent(BaseModel):
         """Serialize datetime to ISO format with Z suffix."""
         return value.isoformat() + "Z"
 
-    model_config = ConfigDict(by_alias=True)
 
 
 class NewThankEvent(BaseModel):
     """New thank event for publishing."""
+    model_config = ConfigDict(by_alias=True)
 
     from_user_id: str = Field(alias="from", description="ID of the user sending thanks")
     to_user_id: str = Field(alias="to", description="ID of the user receiving thanks")
@@ -44,7 +43,6 @@ class NewThankEvent(BaseModel):
         """Serialize datetime to ISO format with Z suffix."""
         return value.isoformat() + "Z"
 
-    model_config = ConfigDict(by_alias=True)
 
 
 class RDFChangeEvent(BaseModel):

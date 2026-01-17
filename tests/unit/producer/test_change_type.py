@@ -2,7 +2,7 @@ import sys
 
 sys.path.insert(0, "src")
 
-from models.infrastructure.stream.producer import ChangeType
+from models.infrastructure.stream.change_type import ChangeType
 
 
 class TestChangeTypeEnum:

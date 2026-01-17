@@ -3,7 +3,8 @@
 import logging
 from datetime import datetime
 
-from models.infrastructure.stream.producer import EndorseAction, EndorseChangeEvent
+from models.infrastructure.stream.actions import EndorseAction
+from models.infrastructure.stream.event import EndorseChangeEvent
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.response.endorsements import (
     BatchEndorsementStatsResponse,
@@ -69,21 +70,22 @@ class EndorsementHandler:
             )
 
          # Publish event
-        if vitess_client.stream_producer:
+         if vitess_client.stream_producer:
              event = EndorseChangeEvent(
                  hash=str(statement_hash),
                  user=str(user_id),
-                 act=EndorseAction.WITHDRAW,
+                 act=EndorseAction.ENDORSE,
                  ts=datetime.utcnow(),
              )
-            vitess_client.stream_producer.publish_change(event)
+             vitess_client.stream_producer.publish_change(event)
 
          return EndorsementResponse(
-             endorsement_id=created_endorsement.id,  # type: ignore[union-attr]
+             id=created_endorsement.id,  # type: ignore[union-attr]
              user_id=created_endorsement.user_id,  # type: ignore[union-attr]
-             statement_hash=created_endorsement.statement_hash,  # type: ignore[union-attr]
+             hash=created_endorsement.statement_hash,  # type: ignore[union-attr]
              created_at=created_endorsement.created_at.isoformat(),  # type: ignore[union-attr]
-             removed_at=None,
+             removed_at="",
+         )
              id=,
              hash=
          )
@@ -151,14 +153,25 @@ class EndorsementHandler:
                  "Failed to retrieve withdrawn endorsement", status_code=500
              )
 
-         # Publish event
-         if vitess_client.stream_producer:
-             event = EndorseChangeEvent(
-                 statement_hash=str(statement_hash),
-                 user_id=str(user_id),
-                 action="withdraw",
-                 timestamp=datetime.utcnow(),
-             )
+          # Publish event
+          if vitess_client.stream_producer:
+              event = EndorseChangeEvent(
+                  hash=str(statement_hash),
+                  user=str(user_id),
+                  act=EndorseAction.WITHDRAW,
+                  ts=datetime.utcnow(),
+              )
+              vitess_client.stream_producer.publish_change(event)
+
+          return EndorsementResponse(
+              id=withdrawn_endorsement.id,  # type: ignore[union-attr]
+              user_id=withdrawn_endorsement.user_id,  # type: ignore[union-attr]
+              hash=withdrawn_endorsement.statement_hash,  # type: ignore[union-attr]
+              created_at=withdrawn_endorsement.created_at.isoformat(),  # type: ignore[union-attr]
+              removed_at=withdrawn_endorsement.removed_at.isoformat()  # type: ignore[union-attr]
+              if withdrawn_endorsement.removed_at  # type: ignore[union-attr]
+              else None,
+          )
              vitess_client.stream_producer.publish_change(event)
 
          return EndorsementResponse(
