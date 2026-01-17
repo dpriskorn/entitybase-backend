@@ -4,8 +4,6 @@ Generate doc-tree.md with links to all README.md files in the project,
 excluding deprecated directories.
 """
 
-import os
-import sys
 from pathlib import Path
 
 
