@@ -156,7 +156,9 @@ def deduplicate_and_store_statements(
                 try:
                     write_start_time = time.time()
                     s3_client.write_statement(
-                        statement_hash, statement_with_hash.model_dump()
+                        statement_hash,
+                        statement_with_hash.model_dump(),
+                        schema_version=schema_version,
                     )
                     write_duration = time.time() - write_start_time
 

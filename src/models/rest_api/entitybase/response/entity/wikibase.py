@@ -1,5 +1,6 @@
 """These models are based on the Wikibase data model.
 See https://www.mediawiki.org/wiki/Wikibase/DataModel"""
+
 from typing import List
 
 from pydantic import BaseModel, Field
@@ -33,5 +34,3 @@ class SitelinkValue(BaseModel):
     title: str = Field(..., min_length=1)
     url: str = Field(default="")
     badges: List[str] = Field(default_factory=list)
-
-

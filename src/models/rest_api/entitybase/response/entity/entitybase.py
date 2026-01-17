@@ -2,9 +2,13 @@ from typing import Dict, Any
 
 from pydantic import BaseModel, Field
 
-from models.rest_api.entitybase.response.entity.wikibase import SitelinkValue, LabelValue, DescriptionValue, AliasValue
+from models.rest_api.entitybase.response.entity.wikibase import (
+    SitelinkValue,
+    LabelValue,
+    DescriptionValue,
+    AliasValue,
+)
 from models.validation.utils import raise_validation_error
-
 
 
 class EntityLabelsResponse(BaseModel):

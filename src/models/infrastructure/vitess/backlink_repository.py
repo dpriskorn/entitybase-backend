@@ -50,7 +50,9 @@ class BacklinkRepository:
     ) -> OperationResult:
         """Delete all backlinks for a referencing entity (used for updates)."""
         if referencing_internal_id <= 0:
-            return OperationResult(success=False, error="Invalid referencing internal ID")
+            return OperationResult(
+                success=False, error="Invalid referencing internal ID"
+            )
 
         try:
             with conn.cursor() as cursor:

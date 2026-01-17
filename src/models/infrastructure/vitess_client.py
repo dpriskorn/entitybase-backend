@@ -530,7 +530,9 @@ class VitessClient(Client):
                 conn, referencing_internal_id
             )
             if not result.success:
-                raise_validation_error(result.error or "Failed to delete backlinks", status_code=500)
+                raise_validation_error(
+                    result.error or "Failed to delete backlinks", status_code=500
+                )
 
     def get_backlinks(
         self, referenced_internal_id: int, limit: int = 100, offset: int = 0

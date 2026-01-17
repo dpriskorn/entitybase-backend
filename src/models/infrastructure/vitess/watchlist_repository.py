@@ -200,4 +200,4 @@ class WatchlistRepository:
 
     def _get_conn(self) -> pymysql.Connection:
         """Get database connection."""
-        return cast(pymysql.Connection, self.connection_manager.connect())
+        return self.connection_manager.connect()  # type: ignore[no-any-return]
