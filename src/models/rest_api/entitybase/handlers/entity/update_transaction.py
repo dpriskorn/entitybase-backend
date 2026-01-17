@@ -65,6 +65,7 @@ class EntityTransaction(BaseModel, ABC):
         from_revision_id: int,
         changed_at: Any,
         edit_summary: str,
+        editor: str,
         stream_producer: Any,
     ) -> None:
         """Publish the change event."""
@@ -182,12 +183,13 @@ class UpdateTransaction(EntityTransaction):
         entity_id: str,
         revision_id: int,
         change_type: Any,
-         from_revision_id: int,
+        from_revision_id: int,
         changed_at: Any,
         edit_summary: str,
+        editor: str,
         stream_producer: Any,
     ) -> None:
-        """Publish the entity change event."""
+        \"\"\"Publish the entity change event.\"\"\"
         logger.info(f"[UpdateTransaction] Starting event publishing for {entity_id}")
         if stream_producer:
             from models.infrastructure.stream.producer import EntityChangeEvent

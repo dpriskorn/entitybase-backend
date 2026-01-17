@@ -10,7 +10,7 @@ from models.endorsements import Endorsement
 class EndorsementResponse(BaseModel):
     """Response for endorsement operations."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     endorsement_id: int = Field(
         alias="id", description="Unique identifier for the endorsement. Example: 12345."
@@ -33,7 +33,7 @@ class EndorsementResponse(BaseModel):
 class EndorsementListResponse(BaseModel):
     """Response for endorsement list queries."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     statement_hash: int = Field(
         alias="hash",
@@ -63,7 +63,7 @@ class EndorsementListResponse(BaseModel):
 class EndorsementStatsResponse(BaseModel):
     """Response for endorsement statistics."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     user_id: int = Field(
         description="ID of the user for whom statistics are provided. Example: 12345"

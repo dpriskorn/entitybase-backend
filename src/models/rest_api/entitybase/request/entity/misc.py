@@ -23,9 +23,7 @@ class EntityJsonImportRequest(BaseModel):
     start_line: int = Field(
         default=2, description="Starting line number (default 2, skips header)"
     )
-    end_line: int = Field(
-        default=0, description="Ending line number (0 = to end)"
-     )
+    end_line: int = Field(default=0, description="Ending line number (0 = to end)")
     overwrite_existing: bool = Field(
         default=False, description="Whether to overwrite existing entities"
     )

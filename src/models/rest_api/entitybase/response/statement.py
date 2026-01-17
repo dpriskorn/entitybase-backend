@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class StatementResponse(BaseModel):
     """Response model for statement data."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     schema_version: str = Field(
         alias="schema", description="Schema version for the statement. Example: '1.0'."
@@ -62,7 +62,7 @@ class MostUsedStatementsResponse(BaseModel):
 
 
 class StatementHashResult(BaseModel):
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     statements: list[int] = Field(
         default_factory=list,
@@ -81,18 +81,6 @@ class StatementHashResult(BaseModel):
         alias="statements",
         default_factory=list,
         description="List of full statement dicts (parallel with hashes). Example: [{'id': 'P31', 'value': 'Q5'}].",
-    )
-    properties: list[str] = Field(
-        default_factory=list,
-        description="Sorted list of unique property IDs",
-    )
-    property_counts: dict[str, int] = Field(
-        default_factory=dict,
-        description="Dict mapping property ID -> count of statements",
-    )
-    full_statements: list[Dict[str, Any]] = Field(
-        default_factory=list,
-        description="List of full statement dicts (parallel with hashes)",
     )
 
 

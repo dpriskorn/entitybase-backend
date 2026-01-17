@@ -129,9 +129,7 @@ class EntityJsonImportHandler:
                             log_f.write(
                                 f"Entity ID: {entity_data.get('id', 'unknown')}\n"
                             )
-                            log_f.write(
-                                f"Error: {str(e)}\n"
-                            )
+                            log_f.write(f"Error: {str(e)}\n")
         except Exception as e:
             logger.error(f"Import failed: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")

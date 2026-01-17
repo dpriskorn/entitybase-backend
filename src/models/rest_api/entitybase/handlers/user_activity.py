@@ -23,6 +23,15 @@ class UserActivityHandler:
         if not vitess_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=400)
 
-        # Validate activity_type if provided\n        if activity_type and activity_type not in [t.value for t in ActivityType]:\n            raise_validation_error(\n                f\"Invalid activity type: {activity_type}\", status_code=400\n            )\n\n        activity_type_param = None if activity_type == "" else activity_type\n        activities = vitess_client.user_repository.get_user_activities(\n            user_id, activity_type_param, hours, limit, offset\n        )
+        # Validate activity_type if provided
+        if activity_type and activity_type not in [t.value for t in ActivityType]:
+            raise_validation_error(
+                f"Invalid activity type: {activity_type}", status_code=400
+            )
+
+        activity_type_param = None if activity_type == "" else activity_type
+        activities = vitess_client.user_repository.get_user_activities(
+            user_id, activity_type_param, hours, limit, offset
+        )
 
         return UserActivityResponse(user_id=user_id, activities=activities)

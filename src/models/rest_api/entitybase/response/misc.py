@@ -156,7 +156,7 @@ class TopEntityByBacklinks(BaseModel):
 class BacklinkStatisticsData(BaseModel):
     """Container for computed backlink statistics."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     total_backlinks: int = Field(
         alias="total",
@@ -175,7 +175,7 @@ class BacklinkStatisticsData(BaseModel):
 class BacklinkStatisticsResponse(BaseModel):
     """API response for backlink statistics."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     date: str = Field(
         description="Date of statistics computation. Example: '2023-01-01'."

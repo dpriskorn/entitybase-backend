@@ -234,11 +234,13 @@ class VitessClient(Client):
     def set_redirect_target(
         self,
         entity_id: str,
-        redirects_to_entity_id: str = "",
+        redirects_to_entity_id: str | None = "",
         expected_redirects_to: int = 0,
     ) -> None:
         """Set the redirect target for an entity."""
-        redirects_to_entity_id = None if redirects_to_entity_id == "" else redirects_to_entity_id
+        redirects_to_entity_id = (
+            None if redirects_to_entity_id == "" else redirects_to_entity_id
+        )
         with self.connection_manager.get_connection() as conn:
             result = self.redirect_repository.set_target(
                 conn, entity_id, redirects_to_entity_id, expected_redirects_to

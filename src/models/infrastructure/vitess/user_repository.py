@@ -111,8 +111,8 @@ class UserRepository:
         self,
         user_id: int,
         activity_type: str,
-        entity_id: str = "",
-         revision_id: int = 0,
+        entity_id: str | None = "",
+        revision_id: int = 0,
     ) -> OperationResult:
         """Log a user activity."""
         if user_id <= 0 or not activity_type:

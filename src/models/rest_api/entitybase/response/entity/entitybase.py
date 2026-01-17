@@ -111,11 +111,12 @@ class EntityHistoryEntry(BaseModel):
 
     revision_id: int = Field(description="Revision ID. Example: 12345.")
     created_at: str = Field(
-        default="", description="Creation timestamp (ISO format). Example: '2023-01-01T12:00:00Z'."
+        default="",
+        description="Creation timestamp (ISO format). Example: '2023-01-01T12:00:00Z'.",
     )
     user_id: int = Field(
-         default=0, description="User ID who made the change. Example: 67890."
-     )
+        default=0, description="User ID who made the change. Example: 67890."
+    )
     edit_summary: str = Field(
         default="", description="Edit summary text. Example: 'Added label'."
     )
@@ -124,7 +125,7 @@ class EntityHistoryEntry(BaseModel):
 class EntityResponse(BaseModel):
     """Response model for entity data."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     id: str = Field(description="Entity ID. Example: 'Q42'.")
     revision_id: int = Field(
@@ -154,7 +155,7 @@ class EntityResponse(BaseModel):
 class EntityDeleteResponse(BaseModel):
     """Response model for entity deletion."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     id: str = Field(description="Entity ID. Example: 'Q42'.")
     revision_id: int = Field(
@@ -233,7 +234,7 @@ class EntityRevisionResponse(BaseModel):
 class ProtectionResponse(BaseModel):
     """Model for entity protection information."""
 
-    model_config = ConfigDict(by_alias=True)
+    model_config = ConfigDict()
 
     is_semi_protected: bool = Field(
         alias="semi_prot",

@@ -31,7 +31,7 @@ class EntityDiffRequest:
     rdf_content_v2: str
     format: str = "turtle"
     canonicalization_method: CanonicalizationMethod = CanonicalizationMethod.URDNA2015
-     from_revision_id: int = 0  # For streaming events
+    from_revision_id: int = 0  # For streaming events
 
 
 @dataclass

@@ -37,7 +37,10 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                         )
                     )
                 # Look for Optional[int] (general)
-                elif "Optional[int]" in line and "Optional[int] = Field(default=None)" not in line:
+                elif (
+                    "Optional[int]" in line
+                    and "Optional[int] = Field(default=None)" not in line
+                ):
                     violations.append(
                         (
                             str(file_path),

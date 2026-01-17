@@ -21,7 +21,7 @@ class RedirectRepository:
         conn: Any,
         entity_id: str,
         redirects_to_entity_id: str = "",
-         expected_redirects_to: int = 0,
+        expected_redirects_to: int = 0,
     ) -> OperationResult:
         """Set redirect target for an entity."""
         logger.debug(

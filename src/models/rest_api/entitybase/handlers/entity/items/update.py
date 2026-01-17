@@ -28,7 +28,7 @@ class ItemUpdateHandler(EntityUpdateHandler):
         s3_client: S3Client,
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
-         user_id: int = 0,
+        user_id: int = 0,
     ) -> EntityResponse:
         """Update an existing item with validation that entity_id starts with Q."""
         logger.debug(f"Updating item {entity_id}")
