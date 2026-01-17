@@ -26,10 +26,10 @@ Implemented comprehensive statement endorsement system allowing users to express
 #### API Endpoints
 - `POST /entitybase/v1/statements/{hash}/endorse` - Create endorsement
 - `DELETE /entitybase/v1/statements/{hash}/endorse` - Withdraw endorsement
-- `GET /entitybase/v1/statements/{hash}/endorsements` - List statement endorsements (paginated)
+- `GET /entitybase/v1/statements/{hash}/endorsements` - List statement endorsements with embedded stats (paginated)
 - `GET /entitybase/v1/users/{id}/endorsements` - List user's endorsements (paginated)
 - `GET /entitybase/v1/users/{id}/endorsements/stats` - Get endorsement statistics
-- `GET /entitybase/v1/statements/{hashes}/endorsements/stats` - Get batch endorsement statistics for multiple statements
+- `GET /entitybase/v1/statements/{hash}/endorsements/stats` - Get lightweight endorsement stats for single statement
 
 #### Database Schema
 - Added `user_statement_endorsements` table with soft deletion via `removed_at` field

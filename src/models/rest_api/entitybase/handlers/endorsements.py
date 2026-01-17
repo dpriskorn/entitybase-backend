@@ -10,6 +10,7 @@ from models.rest_api.entitybase.response.endorsements import (
     EndorsementListResponse,
     EndorsementResponse,
     EndorsementStatsResponse,
+    StatementEndorsementStats,
 )
 from models.validation.utils import raise_validation_error
 
@@ -103,12 +104,32 @@ class EndorsementHandler:
         if not result.success:
             raise_validation_error(result.error or "Failed to get endorsements", status_code=500)
 
+        # Get stats for this statement
+        stats_result = vitess_client.endorsement_repository.get_batch_statement_endorsement_stats([statement_hash])
+        if not stats_result.success:
+            raise_validation_error("Failed to get endorsement stats", status_code=500)
+
+        # Create StatementEndorsementStats object
+        raw_stats = stats_result.data[0] if stats_result.data else {
+            'total_endorsements': 0,
+            'active_endorsements': 0,
+            'withdrawn_endorsements': 0
+        }
+
+        from models.rest_api.entitybase.response.endorsements import StatementEndorsementStats
+        stats = StatementEndorsementStats(
+            total=raw_stats['total_endorsements'],
+            active=raw_stats['active_endorsements'],
+            withdrawn=raw_stats['withdrawn_endorsements']
+        )
+
         data = result.data
         return EndorsementListResponse(
             statement_hash=statement_hash,
             endorsements=data['endorsements'],
             total_count=data['total_count'],
-            has_more=data['has_more']
+            has_more=data['has_more'],
+            stats=stats
         )
 
     def get_user_endorsements(self, user_id: int, request: EndorsementListRequest, vitess_client: VitessClient) -> EndorsementListResponse:

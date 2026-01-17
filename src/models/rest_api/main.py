@@ -79,6 +79,7 @@ from .entitybase.response.endorsements import (
     EndorsementResponse,
     EndorsementListResponse,
     EndorsementStatsResponse,
+    SingleEndorsementStatsResponse,
 )
 from .entitybase.request.endorsements import EndorsementListRequest
 from .entitybase.services.enumeration_service import EnumerationService
@@ -425,27 +426,29 @@ def get_user_endorsement_stats(user_id: int) -> EndorsementStatsResponse:
     return result
 
 
-@app.get("/entitybase/v1/statements/{statement_hashes}/endorsements/stats", response_model=BatchEndorsementStatsResponse)
-def get_statement_endorsement_stats(statement_hashes: str) -> BatchEndorsementStatsResponse:
-    """Get endorsement statistics for one or more statements."""
+@app.get("/entitybase/v1/statements/{statement_hash}/endorsements/stats", response_model=SingleEndorsementStatsResponse)
+def get_statement_endorsement_stats(statement_hash: int) -> SingleEndorsementStatsResponse:
+    """Get endorsement statistics for a statement."""
     clients = app.state.clients
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)
 
-    # Parse comma-separated statement hashes
-    try:
-        hash_list = [int(h.strip()) for h in statement_hashes.split(',') if h.strip()]
-        if not hash_list or len(hash_list) > 50:
-            raise_validation_error("Invalid statement hashes or too many requested", status_code=400)
-    except ValueError:
-        raise_validation_error("Invalid statement hash format", status_code=400)
-
+    # Get stats for single statement
     handler = EndorsementHandler()
-    result = handler.get_batch_statement_endorsement_stats(hash_list, clients.vitess)
+    result = handler.get_batch_statement_endorsement_stats([statement_hash], clients.vitess)
     if not isinstance(result, BatchEndorsementStatsResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, BatchEndorsementStatsResponse)
-    return result
+
+    if not result.stats:
+        raise_validation_error("Statement not found", status_code=404)
+
+    # Convert batch response to single response
+    stat = result.stats[0]
+    return SingleEndorsementStatsResponse(
+        total=stat.total,
+        active=stat.active,
+        withdrawn=stat.withdrawn
+    )
 
 
 @app.post(

@@ -25,6 +25,7 @@ class EndorsementListResponse(BaseModel):
     endorsements: List[StatementEndorsement]
     total_count: int
     has_more: bool
+    stats: StatementEndorsementStats
 
 
 class EndorsementStatsResponse(BaseModel):
@@ -38,13 +39,20 @@ class EndorsementStatsResponse(BaseModel):
 class StatementEndorsementStats(BaseModel):
     """Response for statement endorsement statistics."""
 
-    statement_hash: int
-    total_endorsements: int
-    active_endorsements: int
-    withdrawn_endorsements: int
+    total: int
+    active: int
+    withdrawn: int
 
 
 class BatchEndorsementStatsResponse(BaseModel):
     """Response for batch statement endorsement statistics."""
 
     stats: List[StatementEndorsementStats]
+
+
+class SingleEndorsementStatsResponse(BaseModel):
+    """Response for single statement endorsement statistics."""
+
+    total: int
+    active: int
+    withdrawn: int
