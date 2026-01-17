@@ -84,3 +84,13 @@ revert_entity
 toggle_watchlist
 update_user_preferences
 get
+get_batch_statement_endorsement_stats
+get_revision_thanks
+get_statement_endorsements
+get_thanks_received
+get_thanks_sent
+get_user_endorsement_stats
+get_user_endorsements
+send_thank
+serialize_timestamp
+withdraw_endorsement
