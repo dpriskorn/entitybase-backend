@@ -86,6 +86,7 @@ def mock_kafka_producer():
     mock_producer.send_and_wait = AsyncMock()
     return mock_producer
 
+
 @pytest.fixture(scope="session")
 def integration_api_client():
     """API client for E2E tests - connects to running application."""

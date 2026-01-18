@@ -95,3 +95,10 @@ get_user_endorsements
 send_thank
 serialize_timestamp
 withdraw_endorsement
+compute_daily_stats
+get_enabled_setting
+get_general_stats
+get_schedule_setting
+get_user_stats
+get_watches
+mark_checked

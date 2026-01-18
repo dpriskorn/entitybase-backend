@@ -1,4 +1,5 @@
 """Integration tests for endorsement endpoints."""
+
 from unittest import TestCase
 
 import pytest
@@ -21,7 +22,9 @@ class TestEndorsements(TestCase):
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
             # First create a user
-            response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
+            response = await client.post(
+                "/entitybase/v1/users", json={"user_id": 12345}
+            )
             assert response.status_code == 200
 
             # Try to endorse a statement (this might fail due to missing statement, but tests the endpoint)
@@ -33,7 +36,6 @@ class TestEndorsements(TestCase):
             # The response might be an error due to missing statement, but we test the endpoint exists
             assert response.status_code in [200, 400, 404]  # Success or expected errors
 
-
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_withdraw_endorsement(self) -> None:
@@ -44,7 +46,9 @@ class TestEndorsements(TestCase):
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
             # Create a user
-            response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
+            response = await client.post(
+                "/entitybase/v1/users", json={"user_id": 12345}
+            )
             assert response.status_code == 200
 
             # Try to withdraw endorsement
@@ -56,7 +60,6 @@ class TestEndorsements(TestCase):
             # Should return error since no endorsement exists, but endpoint should work
             assert response.status_code in [200, 400, 404]
 
-
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_get_statement_endorsements(self) -> None:
@@ -66,7 +69,9 @@ class TestEndorsements(TestCase):
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
-            response = await client.get("/entitybase/v1/statements/123456789/endorsements")
+            response = await client.get(
+                "/entitybase/v1/statements/123456789/endorsements"
+            )
 
             # Should return endorsements list (might be empty)
             assert response.status_code == 200
@@ -75,7 +80,6 @@ class TestEndorsements(TestCase):
             assert "total_count" in data
             assert "has_more" in data
             assert "stats" in data  # Should include stats metadata
-
 
     @pytest.mark.asyncio
     @pytest.mark.integration
@@ -86,9 +90,7 @@ class TestEndorsements(TestCase):
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
-            response = await client.get(
-                "/v1/statements/123456789/endorsements/stats"
-            )
+            response = await client.get("/v1/statements/123456789/endorsements/stats")
 
             # Should return stats object
             assert response.status_code == 200
@@ -96,7 +98,6 @@ class TestEndorsements(TestCase):
             assert "total" in data
             assert "active" in data
             assert "withdrawn" in data
-
 
     @pytest.mark.asyncio
     @pytest.mark.integration
@@ -108,7 +109,9 @@ class TestEndorsements(TestCase):
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
             # Create a user first
-            response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
+            response = await client.post(
+                "/entitybase/v1/users", json={"user_id": 12345}
+            )
             assert response.status_code == 200
 
             # Get user endorsements
@@ -121,7 +124,6 @@ class TestEndorsements(TestCase):
             assert "has_more" in data
             assert "stats" in data
 
-
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_get_user_endorsement_stats(self) -> None:
@@ -132,7 +134,9 @@ class TestEndorsements(TestCase):
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
             # Create a user first
-            response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
+            response = await client.post(
+                "/entitybase/v1/users", json={"user_id": 12345}
+            )
             assert response.status_code == 200
 
             # Get user endorsement stats
@@ -144,7 +148,6 @@ class TestEndorsements(TestCase):
             assert "total_endorsements_given" in data
             assert "total_endorsements_active" in data
 
-
     @pytest.mark.asyncio
     @pytest.mark.integration
     async def test_batch_endorsement_stats(self) -> None:
@@ -154,9 +157,7 @@ class TestEndorsements(TestCase):
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
-            response = await client.get(
-                "/v1/statements/123456789/endorsements/stats"
-            )
+            response = await client.get("/v1/statements/123456789/endorsements/stats")
 
             # Should return single statement stats
             assert response.status_code == 200

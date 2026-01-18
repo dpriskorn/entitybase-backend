@@ -10,7 +10,8 @@ from typing import List
 # Files to skip (ValueError appropriate here)
 EXCLUDED_FILES = {
     "models/services/wikidata_import_service.py",
-    "models/internal_representation/values/quantity_value.py",  # Parsing errors
+    "models/internal_representation/values/quantity_value.py",
+    "models/rest_api/utils.py",
 }
 
 

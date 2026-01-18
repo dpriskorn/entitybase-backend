@@ -143,10 +143,14 @@ include_routes(app)
 app.include_router(v1_router, prefix="/entitybase/v1")
 # app.include_router(wikibase_v1_router, prefix="/wikibase/v1")
 
+
 @app.get("/v1/openapi.json")
 async def get_openapi() -> dict:
     """Retrieve the OpenAPI document."""
-    return app.openapi()
+    openapi = app.openapi()
+    assert isinstance(openapi, dict)
+    return app.openapi()  # type: ignore
+
 
 # TODO
 # @app.get("/")

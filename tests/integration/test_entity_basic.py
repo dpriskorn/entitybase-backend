@@ -6,6 +6,8 @@ import pytest
 import requests
 from rapidhash import rapidhash
 
+from models.rest_api.entitybase.request import EntityCreateRequest
+
 
 @pytest.mark.integration
 def test_health_check(api_client: requests.Session, base_url: str) -> None:
@@ -24,15 +26,20 @@ def test_health_check(api_client: requests.Session, base_url: str) -> None:
 def test_create_entity(api_client: requests.Session, base_url: str) -> None:
     """Test creating a new entity"""
     logger = logging.getLogger(__name__)
-    entity_data = {
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Entity"}},
-        "descriptions": {
-            "en": {"language": "en", "value": "A test entity for integration testing"}
-        },
-    }
+    entity_data1 = EntityCreateRequest(
+        type="item", labels={"en": {"value": "Test Entity"}}, edit_summary="test"
+    )
+    # entity_data = {
+    #     "type": "item",
+    #     "labels": {"en": {"language": "en", "value": "Test Entity"}},
+    #     "descriptions": {
+    #         "en": {"language": "en", "value": "A test entity for integration testing"}
+    #     },
+    # }
 
-    response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
+    response = api_client.post(
+        f"{base_url}/entitybase/v1/entities/items", json=entity_data1.model_dump()
+    )
     assert response.status_code == 200
 
     result = response.json()
@@ -91,7 +98,9 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity for Update"}},
     }
-    create_response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
+    create_response = api_client.post(
+        f"{base_url}/entitybase/v1/entities/items", json=entity_data
+    )
     entity_id = create_response.json()["id"]
 
     # Update entity
@@ -140,7 +149,7 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
 
 @pytest.mark.integration
 def test_create_entity_already_exists(
-        api_client: requests.Session, base_url: str
+    api_client: requests.Session, base_url: str
 ) -> None:
     """Test that POST /entity fails with 409 when entity already exists"""
     logger = logging.getLogger(__name__)
@@ -154,7 +163,9 @@ def test_create_entity_already_exists(
     api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
 
     # Try to create the same entity again - should fail
-    response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
+    response = api_client.post(
+        f"{base_url}/entitybase/v1/entities/items", json=entity_data
+    )
     assert response.status_code == 409
     assert "already exists" in response.json().get("detail", "")
 
@@ -171,7 +182,9 @@ def test_update_entity_not_found(api_client: requests.Session, base_url: str) ->
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Updated Entity"}},
     }
-    response = api_client.put(f"{base_url}/entitybase/v1/entities/items/Q99999", json=update_data)
+    response = api_client.put(
+        f"{base_url}/entitybase/v1/entities/items/Q99999", json=update_data
+    )
     assert response.status_code == 404
     assert "not found" in response.json().get("detail", "").lower()
 
@@ -253,7 +266,7 @@ def test_entity_not_found(api_client: requests.Session, base_url: str) -> None:
 
 @pytest.mark.integration
 def test_raw_endpoint_existing_revision(
-        api_client: requests.Session, base_url: str
+    api_client: requests.Session, base_url: str
 ) -> None:
     """Test that raw endpoint returns existing revision"""
     logger = logging.getLogger(__name__)
@@ -301,7 +314,7 @@ def test_raw_endpoint_existing_revision(
 
 @pytest.mark.integration
 def test_idempotent_duplicate_submission(
-        api_client: requests.Session, base_url: str
+    api_client: requests.Session, base_url: str
 ) -> None:
     """Test that identical POST requests return same revision (idempotency)"""
     logger = logging.getLogger(__name__)

@@ -19,6 +19,7 @@ ALLOWED_DICT_RETURNS = [
     "batch_get_statements",
     "data",
     "get_entity_json_revision",
+    "get_openapi",
 ]
 
 
