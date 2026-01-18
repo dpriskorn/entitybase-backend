@@ -426,7 +426,7 @@ class TestMyS3Client:
             }
             mock_body = MagicMock()
             mock_body.read.return_value = (
-                b'{"hash": "123", "snaks": {"P1": []}, "snaks_order": ["P1"]}'
+                b'{"reference": {"hash": "123", "snaks": {"P1": []}, "snaks_order": ["P1"]}, "hash": 123, "created_at": "2023-01-01T00:00:00Z"}'
             )
             mock_connection_manager.boto_client.get_object.return_value["Body"] = (
                 mock_body
@@ -435,7 +435,7 @@ class TestMyS3Client:
             client = MyS3Client(config)
             result = client.load_reference(123)
 
-            assert result.snaks == {"P1": []}
+            assert result.reference["snaks"] == {"P1": []}
             mock_connection_manager.boto_client.get_object.assert_called_once_with(
                 Bucket="testbucket-references", Key="references/123"
             )
@@ -487,7 +487,7 @@ class TestMyS3Client:
                 "Body": MagicMock()
             }
             mock_body = MagicMock()
-            mock_body.read.return_value = b'{"qualifiers": {"P580": []}}'
+            mock_body.read.return_value = b'{"qualifier": {"P580": []}, "hash": 123, "created_at": "2023-01-01T00:00:00Z"}'
             mock_connection_manager.boto_client.get_object.return_value["Body"] = (
                 mock_body
             )
@@ -495,7 +495,7 @@ class TestMyS3Client:
             client = MyS3Client(config)
             result = client.load_qualifier(123)
 
-            assert result.qualifiers == {"P580": []}
+            assert result.qualifier == {"P580": []}
             mock_connection_manager.boto_client.get_object.assert_called_once_with(
                 Bucket="testbucket-qualifiers", Key="123"
             )
