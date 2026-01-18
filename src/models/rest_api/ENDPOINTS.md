@@ -33,6 +33,7 @@
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties` | Get entity property hashes for specified properties. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/properties/{property_id}` | Add claims for a single property to an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties/{property_list}` | Get entity property hashes for specified properties. |
+| ✅ | PATCH | `/entitybase/v1/entities/{entity_id}/labels` | Apply JSON Patch operation to entity labels. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert` | Revert entity to a previous revision. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert-redirect` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}` | Get a specific revision of an entity. |
@@ -75,6 +76,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 70 |
+| Implemented | 71 |
 | Not Implemented | 0 |
-| Total | 70 |
+| Total | 71 |
