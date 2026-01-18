@@ -13,6 +13,6 @@ docker compose --file docker/docker-compose.yml down --remove-orphans -t 0 -v #>
 nice -20 docker compose --file docker/docker-compose.yml build # >/dev/null 2>&1
 # no cache
 # nice -20 docker compose --file docker/docker-compose.yml build --no-cache # >/dev/null 2>&1
-time docker compose --file docker/docker-compose.yml up -d
+docker compose --file docker/docker-compose.yml up -d
 # docker logs -f idworker
 # docker logs -f tests
