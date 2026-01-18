@@ -130,14 +130,6 @@ class TermsResponse(BaseModel):
     terms: dict[int, tuple[str, str]] = Field(..., description="Terms by hash")
 
 
-class EntityListing(BaseModel):
-    """Model for entity listing entries."""
-
-    entity_id: str = Field(..., description="Entity ID")
-    entity_type: str = Field(..., description="Entity type (Q, P, etc.)")
-    reason: str = Field(default="", description="Reason for listing")
-
-
 class MetadataContent(BaseModel):
     """Model for metadata content."""
 

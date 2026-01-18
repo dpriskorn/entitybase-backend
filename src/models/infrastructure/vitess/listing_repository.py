@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from models.rest_api.entitybase.response.misc import EntityListing
+from models.rest_api.entitybase.response.listings import EntityListing
 
 
 class EntityHeadListing(BaseModel):

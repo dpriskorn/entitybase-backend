@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from pymysql import Connection
 
 from models.rest_api.entitybase.response.entity import EntityHistoryEntry
-from models.rest_api.entitybase.response.misc import EntityListing
+from models.rest_api.entitybase.response.listings import EntityListing
 
 logger = logging.getLogger(__name__)
 
