@@ -6,7 +6,7 @@ from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.versions.v1 import v1_router
 
 
-@v1_router.get("/sitelinks/{hashes}")
+@v1_router.get("/entities/sitelinks/{hashes}", tags=["statements"])
 async def get_batch_sitelinks(hashes: str, req: Request) -> dict[str, str]:
     """Get batch sitelink titles by hashes."""
     clients = req.app.state.clients
@@ -25,7 +25,7 @@ async def get_batch_sitelinks(hashes: str, req: Request) -> dict[str, str]:
     return result
 
 
-@v1_router.get("/labels/{hashes}")
+@v1_router.get("/entities/labels/{hashes}", tags=["statements"])
 async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
     """Get batch labels by hashes."""
     clients = req.app.state.clients
@@ -44,7 +44,7 @@ async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
     return result
 
 
-@v1_router.get("/descriptions/{hashes}")
+@v1_router.get("/entities/descriptions/{hashes}", tags=["statements"])
 async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
     """Get batch descriptions by hashes."""
     clients = req.app.state.clients
@@ -63,7 +63,7 @@ async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
     return result
 
 
-@v1_router.get("/aliases/{hashes}")
+@v1_router.get("/entities/aliases/{hashes}", tags=["statements"])
 async def get_batch_aliases(hashes: str, req: Request) -> dict[str, list[str]]:
     """Get batch aliases by hashes."""
     clients = req.app.state.clients
@@ -82,7 +82,7 @@ async def get_batch_aliases(hashes: str, req: Request) -> dict[str, list[str]]:
     return result
 
 
-@v1_router.get("/statements/batch")
+@v1_router.get("/statements/batch", tags=["statements"])
 async def get_batch_statements(
     req: Request, entity_ids: str, property_ids: str = ""
 ) -> dict[str, dict[str, list]]:
