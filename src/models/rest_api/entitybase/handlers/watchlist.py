@@ -13,7 +13,6 @@ from models.rest_api.entitybase.response.user import MessageResponse
 from models.rest_api.utils import raise_validation_error
 from models.watchlist import (
     WatchlistAddRequest,
-    WatchlistRemoveRequest as WatchlistRemoveByIdRequest,
     WatchlistResponse,
     NotificationResponse,
     MarkCheckedRequest,

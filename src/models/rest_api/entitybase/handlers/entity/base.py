@@ -32,15 +32,6 @@ from models.rest_api.entitybase.services.statement_service import (
     deduplicate_and_store_statements,
 )
 from models.infrastructure.s3.enums import EditType, EditData, EntityType
-from models.s3_models import (
-    RevisionData,
-    HashMaps,
-    StatementsHashes,
-    SitelinksHashes,
-    LabelsHashes,
-    DescriptionsHashes,
-    AliasesHashes,
-)
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.services.hash_service import HashService
 from models.rest_api.utils import raise_validation_error

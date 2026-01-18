@@ -1,7 +1,7 @@
 """Property endpoints for Entitybase v1 API."""
 
 import logging
-from typing import Dict, Any, List
+from typing import List
 
 from fastapi import APIRouter, HTTPException, Request
 

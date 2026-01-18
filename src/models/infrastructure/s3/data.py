@@ -1,14 +1,21 @@
 """S3-related models and configurations."""
 
 from datetime import timezone, datetime
-from typing import Any, Dict
+from typing import Any, Dict, TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from models.config.settings import settings
 from models.infrastructure.s3.enums import EntityType, EditData
 from models.infrastructure.s3.hashmaps import HashMaps
-from models.rest_api.entitybase.response import EntityState, PropertyCounts
+
+if TYPE_CHECKING:
+    from models.rest_api.entitybase.response import EntityState, PropertyCounts
+
+
+def _default_entity_state() -> "EntityState":
+    from models.rest_api.entitybase.response import EntityState
+    return EntityState()
 
 
 class EntityData(BaseModel):
@@ -52,8 +59,8 @@ class RevisionData(BaseModel):
     redirects_to: str = Field(
         default="", description="Entity ID this entity redirects to. E.g. Q1"
     )
-    state: EntityState = Field(default=EntityState())
-    property_counts: PropertyCounts | None = Field(default=None)
+    state: "EntityState" = Field(default_factory=_default_entity_state)
+    property_counts: "PropertyCounts | None" = Field(default=None)
     properties: list[str] = Field(default_factory=list)
 
 

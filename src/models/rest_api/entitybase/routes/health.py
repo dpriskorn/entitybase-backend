@@ -1,11 +1,9 @@
 """Health check routes."""
 
 from fastapi import APIRouter, Response
-from fastapi.responses import RedirectResponse
 
 from models.rest_api.entitybase.handlers import health_check
 from models.rest_api.entitybase.response import HealthCheckResponse
-
 
 health_router = APIRouter(tags=["health"])
 

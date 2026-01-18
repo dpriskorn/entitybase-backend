@@ -1,10 +1,8 @@
 """Watchlist models."""
 
-from pydantic import BaseModel, Field
-from typing import List, Optional
-from datetime import datetime
+from typing import List
 
-from models.rest_api.entitybase.response.user import Notification, NotificationResponse
+from pydantic import BaseModel, Field
 
 
 class WatchlistEntry(BaseModel):

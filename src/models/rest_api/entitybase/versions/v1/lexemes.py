@@ -1,22 +1,14 @@
 """Lexeme endpoints for Entitybase v1 API."""
 
 import logging
-from typing import Dict, Any
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 
 from models.rest_api.entitybase.handlers.entity.lexeme.create import LexemeCreateHandler
 
 logger = logging.getLogger(__name__)
-from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler
-from models.rest_api.entitybase.request import EntityCreateRequest, EntityUpdateRequest
+from models.rest_api.entitybase.request import EntityCreateRequest
 from models.rest_api.entitybase.response import EntityResponse
-from models.rest_api.entitybase.response.misc import (
-    AliasesResponse,
-    DescriptionResponse,
-    LabelResponse,
-)
 
 router = APIRouter()
 

@@ -4,39 +4,37 @@ from typing import Any, Dict
 
 from fastapi import APIRouter, Header, Query, Request, Response
 
+from models.common import OperationResult
 from models.rest_api.clients import Clients
-from models.rest_api.entitybase.handlers.admin import AdminHandler
+from models.rest_api.entitybase.handlers.entity.base import EntityHandler
 from models.rest_api.entitybase.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.handlers.entity.base import EntityHandler
 from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.handlers.export import ExportHandler
 from models.rest_api.entitybase.handlers.statement import StatementHandler
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
-from models.rest_api.entitybase.request.entity.add_property import AddPropertyRequest
-from models.rest_api.entitybase.request.entity.remove_statement import (
-    RemoveStatementRequest,
-)
 from models.rest_api.entitybase.request.entity import EntityUpdateRequest
-from models.rest_api.entitybase.request.entity.sitelink import SitelinkData
+from models.rest_api.entitybase.request.entity.add_property import AddPropertyRequest
 from models.rest_api.entitybase.request.entity.patch_statement import (
     PatchStatementRequest,
 )
+from models.rest_api.entitybase.request.entity.remove_statement import (
+    RemoveStatementRequest,
+)
+from models.rest_api.entitybase.request.entity.sitelink import SitelinkData
 from models.rest_api.entitybase.response import (
     EntityResponse,
     EntityRevisionResponse,
     EntityJsonResponse,
 )
-from models.rest_api.entitybase.response import TurtleResponse
-from models.rest_api.entitybase.response.misc import RawRevisionResponse
 from models.rest_api.entitybase.response import (
     PropertyHashesResponse,
     PropertyListResponse,
 )
-from models.rest_api.entitybase.response.entity.entitybase import EntityHistoryEntry
+from models.rest_api.entitybase.response import TurtleResponse
 from models.rest_api.entitybase.response.entity.entitybase import EntityDeleteResponse
+from models.rest_api.entitybase.response.entity.entitybase import EntityHistoryEntry
 from models.rest_api.utils import raise_validation_error
-from models.common import OperationResult
 
 router = APIRouter()
 

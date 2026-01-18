@@ -1,6 +1,5 @@
 """S3 storage client for entity and statement data."""
 
-import json
 import logging
 from datetime import timezone, datetime
 from typing import Any, Dict, Optional, TYPE_CHECKING
@@ -12,21 +11,20 @@ from pydantic import Field
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.client import Client
+from models.infrastructure.s3.config import S3Config
 from models.infrastructure.s3.connection import S3ConnectionManager
+from models.infrastructure.s3.data import (
+    RevisionData,
+    RevisionReadResponse,
+    S3QualifierData,
+    S3ReferenceData,
+)
 from models.infrastructure.s3.metadata_storage import MetadataStorage
 from models.infrastructure.s3.qualifier_storage import QualifierStorage
 from models.infrastructure.s3.reference_storage import ReferenceStorage
 from models.infrastructure.s3.revision_storage import RevisionStorage
 from models.infrastructure.s3.statement_storage import StatementStorage
 from models.rest_api.entitybase.response import StatementResponse
-from models.infrastructure.s3.config import S3Config
-from models.s3_models import (
-    RevisionData,
-    RevisionReadResponse,
-    StoredStatement,
-    S3QualifierData,
-    S3ReferenceData,
-)
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
@@ -42,6 +40,11 @@ class MyS3Client(Client):
     connection_manager: Optional[S3ConnectionManager] = Field(
         default=None, exclude=True
     )  # type: ignore[override]
+    revisions: Optional[RevisionStorage] = Field(default=None, exclude=True)
+    statements: Optional[StatementStorage] = Field(default=None, exclude=True)
+    metadata: Optional[MetadataStorage] = Field(default=None, exclude=True)
+    references: Optional[ReferenceStorage] = Field(default=None, exclude=True)
+    qualifiers: Optional[QualifierStorage] = Field(default=None, exclude=True)
 
     def __init__(self, config: S3Config, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)

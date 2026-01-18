@@ -27,7 +27,6 @@ class EntityTransaction(BaseModel, ABC):
 
     def register_entity(self, vitess_client: Any, entity_id: str) -> None:
         """Register the entity in the database."""
-        from models.infrastructure.vitess_client import VitessClient
         from models.infrastructure.vitess.entity_repository import EntityRepository
 
         logger.info(f"[EntityTransaction] Registering entity {entity_id}")

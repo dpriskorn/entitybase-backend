@@ -2,7 +2,7 @@
 
 import json
 import logging
-from abc import ABC, abstractmethod
+from abc import ABC
 from typing import Any, Dict, Optional
 
 from botocore.exceptions import ClientError

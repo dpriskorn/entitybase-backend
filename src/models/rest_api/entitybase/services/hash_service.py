@@ -11,14 +11,6 @@ from models.rest_api.entitybase.services.statement_service import (
     hash_entity_statements,
     deduplicate_and_store_statements,
 )
-from models.s3_models import (
-    HashMaps,
-    LabelsHashes,
-    DescriptionsHashes,
-    AliasesHashes,
-    SitelinksHashes,
-    StatementsHashes,
-)
 from models.validation.json_schema_validator import JsonSchemaValidator
 
 logger = logging.getLogger(__name__)

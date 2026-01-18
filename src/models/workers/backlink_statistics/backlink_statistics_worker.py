@@ -1,12 +1,10 @@
 """Backlink statistics worker for computing daily analytics."""
 
-import asyncio
 import logging
 from datetime import date, datetime
 from typing import Any
 
 from models.config.settings import settings
-from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.services.backlink_statistics_service import (
     BacklinkStatisticsService,
 )

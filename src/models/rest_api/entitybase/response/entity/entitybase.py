@@ -11,7 +11,7 @@ from models.rest_api.entitybase.response.entity.wikibase import (
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
-    from models.s3_models import RevisionData
+    from models.infrastructure.s3.data import RevisionData
 
 
 class EntityLabelsResponse(BaseModel):

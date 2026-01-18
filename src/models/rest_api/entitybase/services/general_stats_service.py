@@ -1,7 +1,6 @@
 """Service for computing general wiki statistics."""
 
 import logging
-from typing import Dict
 
 from pydantic import BaseModel
 

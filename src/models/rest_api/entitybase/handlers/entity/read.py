@@ -3,14 +3,13 @@
 import logging
 
 from models.infrastructure.s3.s3_client import MyS3Client
-from models.infrastructure.vitess.terms_repository import TermsRepository
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.response import (
     EntityResponse,
     EntityRevisionResponse,
 )
-from models.rest_api.entitybase.response.entity import EntityState
 from models.rest_api.entitybase.response.entity import EntityHistoryEntry
+from models.rest_api.entitybase.response.entity import EntityState
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

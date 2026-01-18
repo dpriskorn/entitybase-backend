@@ -20,16 +20,6 @@ from models.infrastructure.stream.producer import (
 )
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
-from models.s3_models import (
-    RevisionData,
-    HashMaps,
-    StatementsHashes,
-    SitelinksHashes,
-    LabelsHashes,
-    DescriptionsHashes,
-    AliasesHashes,
-    EntityState,
-)
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import MyS3Client

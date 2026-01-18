@@ -2,10 +2,8 @@
 
 import logging
 from collections.abc import AsyncGenerator
-from typing import Any
 from contextlib import asynccontextmanager
 from pathlib import Path
-from urllib.request import HTTPRedirectHandler
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -13,9 +11,9 @@ from jsonschema import ValidationError  # type: ignore[import-untyped]
 
 from models.config.settings import settings
 from models.rest_api.clients import Clients
+from models.rest_api.entitybase.versions.v1 import v1_router
 from models.validation.json_schema_validator import JsonSchemaValidator
 from .entitybase.services.enumeration_service import EnumerationService
-from models.rest_api.entitybase.versions.v1 import v1_router
 
 log_level = settings.get_log_level()
 

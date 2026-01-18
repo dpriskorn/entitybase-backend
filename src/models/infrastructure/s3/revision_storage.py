@@ -6,7 +6,6 @@ from datetime import timezone, datetime
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage
-from models.s3_models import RevisionData, RevisionReadResponse
 
 logger = logging.getLogger(__name__)
 
