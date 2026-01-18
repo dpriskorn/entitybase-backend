@@ -130,7 +130,7 @@ services:
       depends_on:
         api:
           condition: service_healthy
-      command: pytest tests/ -m integration -v -n 0 --tb=long --log-cli-level=DEBUG --durations=10
+      command: pytest tests/ -m integration -v -n 0 --tb=long --log-cli-level=DEBUG --durations=10 --exitfirst
       networks:
        - default
       mem_limit: 1g
@@ -144,7 +144,7 @@ services:
      depends_on:
        integration:
          condition: service_completed_successfully
-     command: pytest -m e2e -v -n 0 --tb=long --log-cli-level=DEBUG
+     command: pytest -m e2e -v -n 0 --tb=long --log-cli-level=DEBUG --exitfirst
      networks:
        - default
      mem_limit: 1g
