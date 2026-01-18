@@ -9,7 +9,7 @@ from models.rest_api.entitybase.handlers.entity.property import PropertyCreateHa
 
 logger = logging.getLogger(__name__)
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler
+from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler, PropertyUpdateHandler
 from models.rest_api.entitybase.request import EntityCreateRequest, EntityUpdateRequest
 from models.rest_api.entitybase.response import EntityResponse
 from models.rest_api.entitybase.response.misc import (
@@ -30,6 +30,26 @@ async def create_property(request: EntityCreateRequest, req: Request) -> EntityR
     handler = PropertyCreateHandler(enumeration_service)
     return await handler.create_entity(  # type: ignore[no-any-return]
         request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        validator,
+    )
+
+
+@router.put("/entities/properties/{property_id}", response_model=EntityResponse)
+async def update_property(
+    property_id: str, request: EntityUpdateRequest, req: Request
+) -> EntityResponse:
+    """Update an existing property entity."""
+    clients = req.app.state.clients
+    validator = req.app.state.validator
+    handler = PropertyUpdateHandler()
+    entity_request = EntityUpdateRequest(**request.model_dump())
+    entity_request.type = "property"
+    return await handler.update_entity(
+        property_id,
+        entity_request,
         clients.vitess,
         clients.s3,
         clients.stream_producer,
