@@ -76,7 +76,7 @@ async def get_entity_ttl_revision(
         "turtle", alias="format", enum=["turtle", "rdfxml", "ntriples"]
     ),
 ) -> Response:
-    """Get TTL representation of a specific entity revision."""
+    """Get Turtle (TTL) representation of a specific entity revision."""
     from models.workers.entity_diff_worker import RDFSerializer
 
     clients = req.app.state.clients
