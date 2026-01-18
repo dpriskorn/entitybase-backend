@@ -10,6 +10,7 @@ from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.internal_representation.statement_extractor import StatementExtractor
 from models.internal_representation.statement_hasher import StatementHasher
+from models.internal_representation.reference_hasher import ReferenceHasher
 from models.rest_api.entitybase.response import StatementHashResult
 from models.infrastructure.s3.s3_client import StoredStatement
 from models.validation.json_schema_validator import JsonSchemaValidator
@@ -219,8 +220,55 @@ def deduplicate_and_store_statements(
                 success=False, error=f"Failed to store statement {statement_hash}: {e}"
             )
 
+    # Deduplicate references in statements
+    ref_result = deduplicate_references_in_statements(hash_result, s3_client)
+    if not ref_result.success:
+        return ref_result
+
     logger.info(
         f"Successfully stored all {len(hash_result.statements)} statements (new + existing)"
     )
     logger.info(f"Final statement hashes: {hash_result.statements}")
+    return OperationResult(success=True)
+
+
+def deduplicate_references_in_statements(
+    hash_result: StatementHashResult,
+    s3_client: MyS3Client,
+) -> OperationResult:
+    """Deduplicate references in statements by storing unique references in S3.
+
+    For each statement, extract references, compute rapidhash, store in S3 if new,
+    and replace reference objects with hashes.
+
+    Args:
+        hash_result: StatementHashResult with statements to process.
+        s3_client: S3 client for reference storage.
+
+    Returns:
+        OperationResult indicating success/failure.
+    """
+    logger.debug(f"Deduplicating references in {len(hash_result.full_statements)} statements")
+
+    for idx, statement_data in enumerate(hash_result.full_statements):
+        if "references" in statement_data and isinstance(statement_data["references"], list):
+            new_references = []
+            for ref in statement_data["references"]:
+                if isinstance(ref, dict):
+                    # Compute rapidhash
+                    ref_hash = ReferenceHasher.compute_hash(ref)
+                    # Store in S3 (idempotent)
+                    try:
+                        s3_client.store_reference(ref_hash, ref)
+                    except Exception as e:
+                        logger.warning(f"Failed to store reference {ref_hash}: {e}")
+                        # Continue, perhaps already exists
+                    # Replace with hash
+                    new_references.append(ref_hash)
+                else:
+                    # Already a hash
+                    new_references.append(ref)
+            statement_data["references"] = new_references
+
+    logger.info(f"Reference deduplication completed for {len(hash_result.full_statements)} statements")
     return OperationResult(success=True)

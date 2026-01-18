@@ -2,6 +2,36 @@
 
 This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
 
+## [2026-01-18] Reference Deduplication Implementation
+
+### Summary
+
+Implemented reference deduplication for Wikibase statements using rapidhash. References are now stored in a dedicated S3 bucket with hash-based keys, reducing storage for repetitive citations. Updated statement schema to use hash pointers, added new API endpoints for frontend lookup.
+
+### Changes
+
+#### Storage Architecture
+- **New S3 Bucket**: `wikibase-references` for storing unique reference JSON keyed by rapidhash (e.g., `references/123456789`).
+- **Hash Computation**: Added `ReferenceHasher` using rapidhash for reference content.
+- **Deduplication Logic**: Modified `deduplicate_references_in_statements` to extract, hash, store, and replace references in statements.
+
+#### API Updates
+- **Schema Update**: Updated statement schema from 1.0.0 to 2.0.0; references now array of rapidhash integers instead of full objects.
+- **New Endpoints**:
+  - `GET /references/{hash}`: Fetch single reference by hash.
+  - `GET /references/{hash1},{hash2},...`: Batch fetch (up to 100 hashes), returns array with nulls for missing.
+- **Response Changes**: Statement responses now include reference hashes; frontend must expand via endpoints.
+
+#### Implementation Details
+- **S3 Client Extensions**: Added `store_reference`, `load_reference`, `load_references_batch`.
+- **Statement Processing**: Integrated reference deduplication into `deduplicate_and_store_statements`.
+- **No Migration**: Only new references are deduplicated; existing statements unchanged.
+
+#### Benefits
+- **Space Savings**: Eliminates duplicate reference storage across statements.
+- **Scalability**: Supports trillion-scale references with hash-based keys.
+- **Integrity**: Rapidhash ensures content verification.
+
 ## [2026-01-17] Entity Change Event Improvements & New Schema
 
 ### Summary

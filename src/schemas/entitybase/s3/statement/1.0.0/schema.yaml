@@ -1,5 +1,5 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-$id: https://wikibase.org/schemas/s3-statement/1.0.0.json
+$id: https://wikibase.org/schemas/s3-statement/2.0.0.json
 title: S3 Statement Snapshot
 description: Immutable statement snapshot stored in S3. First-class citizen statements
   with hash-based deduplication and full revision tracking.
@@ -97,41 +97,14 @@ properties:
                   type: string
                 hash:
                   type: string
-      references:
-        type: array
-        description: References providing sources for this statement. Each reference
-          contains a reference node with optional qualifiers.
-        items:
-          type: object
-          required:
-          - snaks
-          properties:
-            snaks:
-              type: object
-              description: Map of property IDs to reference snak arrays. Keys are
-                property IDs (e.g., P248, P143, P813).
-              patternProperties:
-                ^.*$:
-                  type: array
-                  items:
-                    type: object
-                    required:
-                    - snaktype
-                    - property
-                    - datatype
-                    properties:
-                      snaktype:
-                        type: string
-                        enum:
-                        - value
-                        - somevalue
-                        - novalue
-                      property:
-                        type: string
-                      datatype:
-                        type: string
-                      hash:
-                        type: string
+       references:
+         type: array
+         description: References providing sources for this statement. Array of rapidhash
+           integers pointing to deduplicated reference JSON in S3.
+         items:
+           type: integer
+           description: Rapidhash of the reference content.
+           minimum: -922337203685477581
   created_at:
     type: string
     format: date-time

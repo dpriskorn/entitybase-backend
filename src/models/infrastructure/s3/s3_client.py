@@ -528,4 +528,82 @@ class MyS3Client(Client):
             raise_validation_error(
                 f"Unknown metadata type: {metadata_type}", status_code=400
             )
+
+    def store_reference(self, content_hash: int, reference_data: dict) -> None:
+        """Store a reference by its content hash.
+
+        Args:
+            content_hash: Rapidhash of the reference content.
+            reference_data: Full reference JSON dict.
+        """
+        bucket = self.settings.s3_references_bucket
+        key = f"references/{content_hash}"
+        try:
+            self.client.put_object(
+                Bucket=bucket,
+                Key=key,
+                Body=json.dumps(reference_data),
+                ContentType="application/json",
+                Metadata={"content_hash": str(content_hash)},
+            )
+            logger.debug(f"S3 reference stored: bucket={bucket}, key={key}")
+        except ClientError as e:
+            logger.error(
+                f"S3 store_reference failed: bucket={bucket}, key={key}, error={e}"
+            )
+            raise
+        except Exception as e:
+            logger.error(
+                f"S3 store_reference failed: bucket={bucket}, key={key}, error={e}"
+            )
+            raise
+
+    def load_reference(self, content_hash: int) -> dict:  # type: ignore[no-any-return]
+        """Load a reference by its content hash.
+
+        Args:
+            content_hash: Rapidhash of the reference content.
+
+        Returns:
+            Full reference JSON dict.
+        """
+        bucket = self.settings.s3_references_bucket
+        key = f"references/{content_hash}"
+        try:
+            response = self.client.get_object(Bucket=bucket, Key=key)
+            data = json.loads(response["Body"].read().decode("utf-8"))
+            logger.debug(f"S3 reference loaded: bucket={bucket}, key={key}")
+            return data  # type: ignore[no-any-return]
+        except ClientError as e:
+            if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
+                logger.warning(f"S3 reference not found: bucket={bucket}, key={key}")
+                raise
+            else:
+                logger.error(
+                    f"S3 load_reference failed: bucket={bucket}, key={key}, error={e}"
+                )
+                raise
+        except Exception as e:
+            logger.error(
+                f"S3 load_reference failed: bucket={bucket}, key={key}, error={e}"
+            )
+            raise
+
+    def load_references_batch(self, content_hashes: list[int]) -> list[dict | None]:  # type: ignore[no-any-return]
+        """Load multiple references by their content hashes.
+
+        Args:
+            content_hashes: List of rapidhashes.
+
+        Returns:
+            List of reference JSON dicts, in same order. None for missing.
+        """
+        results = []
+        for h in content_hashes:
+            try:
+                ref = self.load_reference(h)
+                results.append(ref)
+            except ClientError:
+                results.append(None)
+        return results  # type: ignore[no-any-return]
         return ""  # unreachable, but for linter
