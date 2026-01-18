@@ -1,6 +1,6 @@
 # Architecture Changelog
 
-This file tracks architectural changes, feature additions, and modifications to wikibase-backend system.
+This file tracks architectural changes, feature additions, and modifications to the entitybase-backend.
 
 ## [2026-01-18] Reference Deduplication Implementation
 
