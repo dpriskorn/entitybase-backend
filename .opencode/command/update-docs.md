@@ -1,8 +1,7 @@
 ---
-description: Run linters and suggest actions
+description: Run update-docs
 agent: general
 ---
-Run ./run-linters.sh and capture the output.
-Analyze the linting errors and suggest actions.
-When done with approved action, suggest commit message.
-When approved, commit.
+Run ./update-docs.sh and capture the output.
+Tell the user how many endpoints exist and analyze if all have request and response models and clear docstrings.
+Suggest actions if anything is not top notch.
