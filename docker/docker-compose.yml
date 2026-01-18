@@ -110,7 +110,7 @@ services:
         KAFKA_BROKERS: redpanda:9092
         KAFKA_TOPIC: wikibase.entity_change
         LOG_LEVEL: "DEBUG"
-        ENVIRONMENT: "dev"
+        ENVIRONMENT: "prod"
         USER_AGENT: "Entitybase/1.0 User:So9q"
      command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000
      healthcheck:

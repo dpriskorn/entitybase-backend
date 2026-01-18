@@ -5,7 +5,7 @@ import logging
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.request.thanks import ThanksListRequest
 from models.rest_api.entitybase.response.thanks import ThankResponse, ThanksListResponse
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 

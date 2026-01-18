@@ -9,7 +9,7 @@ from typing import Protocol, Any
 from pydantic import BaseModel, Field
 
 from models.rest_api.entitybase.response import DeduplicationStatsResponse
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 
 class DedupeBag(Protocol):

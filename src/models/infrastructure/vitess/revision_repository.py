@@ -6,7 +6,7 @@ from typing import Any
 
 from models.common import OperationResult
 from models.infrastructure.vitess.revision_record import RevisionRecord
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 

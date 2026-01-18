@@ -13,7 +13,7 @@ from pydantic import BaseModel, Field
 from models.rest_api.entitybase.response import WorkerHealthCheckResponse
 from models.rest_api.entitybase.response.id_response import IdResponse
 from models.rest_api.entitybase.services.enumeration_service import EnumerationService
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 

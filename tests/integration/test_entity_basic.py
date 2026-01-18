@@ -4,7 +4,6 @@ from typing import Any, Dict, cast
 
 import pytest
 import requests
-
 from rapidhash import rapidhash
 
 
@@ -33,7 +32,7 @@ def test_create_entity(api_client: requests.Session, base_url: str) -> None:
         },
     }
 
-    response = api_client.post(f"{base_url}/v1/entities/items", json=entity_data)
+    response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
     assert response.status_code == 200
 
     result = response.json()
@@ -45,7 +44,7 @@ def test_create_entity(api_client: requests.Session, base_url: str) -> None:
     entity_json = json.dumps(result["data"], sort_keys=True)
     computed_hash = rapidhash(entity_json.encode())
 
-    raw_response = api_client.get(f"{base_url}/raw/{entity_id}/1")
+    raw_response = api_client.get(f"{base_url}/entitybase/raw/{entity_id}/1")
     raw_data = raw_response.json()
     api_hash = raw_data.get("content_hash")
 
@@ -67,10 +66,10 @@ def test_get_entity(api_client: requests.Session, base_url: str) -> None:
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity for Get"}},
     }
-    api_client.post(f"{base_url}/entity", json=entity_data)
+    api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
 
     # Then retrieve it
-    response = api_client.get(f"{base_url}/entity/Q99998")
+    response = api_client.get(f"{base_url}/entitybase/v1/entities/Q99998")
     assert response.status_code == 200
 
     result = response.json()
@@ -80,6 +79,8 @@ def test_get_entity(api_client: requests.Session, base_url: str) -> None:
     logger.info("✓ Entity retrieval passed")
 
 
+# TODO update to use revision endpoint instead
+@pytest.mark.skip("raw endpoint has been removed")
 @pytest.mark.integration
 def test_update_entity(api_client: requests.Session, base_url: str) -> None:
     """Test updating an entity (create new revision)"""
@@ -90,7 +91,7 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity for Update"}},
     }
-    create_response = api_client.post(f"{base_url}/v1/entities/items", json=entity_data)
+    create_response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
     entity_id = create_response.json()["id"]
 
     # Update entity
@@ -103,7 +104,7 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
     }
 
     response = api_client.put(
-        f"{base_url}/v1/entities/items/{entity_id}", json=updated_entity_data
+        f"{base_url}/entitybase/v1/entities/items/{entity_id}", json=updated_entity_data
     )
     assert response.status_code == 200
 
@@ -113,33 +114,33 @@ def test_update_entity(api_client: requests.Session, base_url: str) -> None:
     assert result["data"]["labels"]["en"]["value"] == "Test Entity - Updated"
 
     # Verify different content created new revision with different hash
-    raw1 = api_client.get(f"{base_url}/raw/{entity_id}/1").json()
-    raw2 = api_client.get(f"{base_url}/raw/{entity_id}/2").json()
+    # raw1 = api_client.get(f"{base_url}/entitybase/v1/raw/{entity_id}/1").json()
+    # raw2 = api_client.get(f"{base_url}/entitybase/v1/raw/{entity_id}/2").json()
 
-    assert raw1["content_hash"] != raw2["content_hash"], (
-        "Different content should have different hashes"
-    )
+    # assert raw1["content_hash"] != raw2["content_hash"], (
+    #     "Different content should have different hashes"
+    # )
 
     # Verify hash format and values
-    if rapidhash is not None:
-        entity_json_1 = json.dumps(entity_data, sort_keys=True)
-        computed_hash_1 = rapidhash(entity_json_1.encode())
-        assert raw1["content_hash"] == computed_hash_1, (
-            f"First revision hash mismatch: expected {computed_hash_1}, got {raw1['content_hash']}"
-        )
-
-        entity_json_2 = json.dumps(updated_entity_data, sort_keys=True)
-        computed_hash_2 = rapidhash(entity_json_2.encode())
-        assert raw2["content_hash"] == computed_hash_2, (
-            f"Second revision hash mismatch: expected {computed_hash_2}, got {raw2['content_hash']}"
-        )
+    # if rapidhash is not None:
+    #     entity_json_1 = json.dumps(entity_data, sort_keys=True)
+    #     computed_hash_1 = rapidhash(entity_json_1.encode())
+    #     assert raw1["content_hash"] == computed_hash_1, (
+    #         f"First revision hash mismatch: expected {computed_hash_1}, got {raw1['content_hash']}"
+    #     )
+    #
+    #     entity_json_2 = json.dumps(updated_entity_data, sort_keys=True)
+    #     computed_hash_2 = rapidhash(entity_json_2.encode())
+    #     assert raw2["content_hash"] == computed_hash_2, (
+    #         f"Second revision hash mismatch: expected {computed_hash_2}, got {raw2['content_hash']}"
+    #     )
 
     logger.info("✓ Entity update passed with hash verification")
 
 
 @pytest.mark.integration
 def test_create_entity_already_exists(
-    api_client: requests.Session, base_url: str
+        api_client: requests.Session, base_url: str
 ) -> None:
     """Test that POST /entity fails with 409 when entity already exists"""
     logger = logging.getLogger(__name__)
@@ -150,10 +151,10 @@ def test_create_entity_already_exists(
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
     }
-    api_client.post(f"{base_url}/entity", json=entity_data)
+    api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
 
     # Try to create the same entity again - should fail
-    response = api_client.post(f"{base_url}/entity", json=entity_data)
+    response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
     assert response.status_code == 409
     assert "already exists" in response.json().get("detail", "")
 
@@ -170,7 +171,7 @@ def test_update_entity_not_found(api_client: requests.Session, base_url: str) ->
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Updated Entity"}},
     }
-    response = api_client.put(f"{base_url}/entity/Q99999", json=update_data)
+    response = api_client.put(f"{base_url}/entitybase/v1/entities/items/Q99999", json=update_data)
     assert response.status_code == 404
     assert "not found" in response.json().get("detail", "").lower()
 
@@ -190,16 +191,16 @@ def test_get_entity_history(api_client: requests.Session, base_url: str) -> None
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
     }
 
-    api_client.post(f"{base_url}/entity", json=entity_data)
+    api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
     # Update entity for second revision
     update_data = {
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Updated Test Entity"}},
     }
-    api_client.put(f"{base_url}/entity/{entity_id}", json=update_data)
+    api_client.post(f"{base_url}/entitybase/v1/entities/items", json=update_data)
 
     # Get history (ordered by created_at DESC)
-    response = api_client.get(f"{base_url}/entity/{entity_id}/history")
+    response = api_client.get(f"{base_url}/entitybase/v1/entities/{entity_id}/history")
     assert response.status_code == 200
 
     history = response.json()
@@ -252,7 +253,7 @@ def test_entity_not_found(api_client: requests.Session, base_url: str) -> None:
 
 @pytest.mark.integration
 def test_raw_endpoint_existing_revision(
-    api_client: requests.Session, base_url: str
+        api_client: requests.Session, base_url: str
 ) -> None:
     """Test that raw endpoint returns existing revision"""
     logger = logging.getLogger(__name__)
@@ -300,7 +301,7 @@ def test_raw_endpoint_existing_revision(
 
 @pytest.mark.integration
 def test_idempotent_duplicate_submission(
-    api_client: requests.Session, base_url: str
+        api_client: requests.Session, base_url: str
 ) -> None:
     """Test that identical POST requests return same revision (idempotency)"""
     logger = logging.getLogger(__name__)

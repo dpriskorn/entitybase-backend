@@ -10,7 +10,7 @@ from models.rest_api.entitybase.request.entity import (
 )
 from models.rest_api.entitybase.response.entity import EntityRevertResponse
 from models.rest_api.entitybase.response.entity.entitybase import EntityRedirectResponse
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 
 redirects_router = APIRouter()

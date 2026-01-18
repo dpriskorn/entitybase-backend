@@ -13,7 +13,7 @@ from models.rest_api.entitybase.response.endorsements import (
     EndorsementResponse,
     EndorsementStatsResponse,
 )
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 

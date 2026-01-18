@@ -14,7 +14,7 @@ from models.rest_api.misc import DeleteType
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.response import EntityDeleteResponse
 from models.config.settings import settings
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 from models.infrastructure.stream.producer import (
     StreamProducerClient,
 )

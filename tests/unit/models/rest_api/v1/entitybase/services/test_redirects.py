@@ -2,16 +2,14 @@
 
 import pytest
 from unittest.mock import Mock, AsyncMock, patch
-from datetime import datetime, timezone
 
 from models.rest_api.entitybase.services.redirects import RedirectService
 from models.rest_api.entitybase.request.entity import EntityRedirectRequest
 from models.rest_api.entitybase.response import (
     EntityRedirectResponse,
     EntityResponse,
-    EntityRevertResponse,
 )
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 
 class TestRedirectService:

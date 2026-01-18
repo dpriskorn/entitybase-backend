@@ -6,7 +6,7 @@ from models.rest_api.clients import Clients
 from models.rest_api.entitybase.handlers.entity.revert import EntityRevertHandler
 from models.rest_api.entitybase.request.entity import EntityRevertRequest
 from models.rest_api.entitybase.response.entity import EntityRevertResponse
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 
 entities_router = APIRouter()

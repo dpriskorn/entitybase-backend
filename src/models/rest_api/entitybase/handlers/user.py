@@ -16,7 +16,7 @@ from models.rest_api.entitybase.response.user import (
     WatchlistToggleResponse,
     UserCreateResponse,
 )
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 from models.rest_api.entitybase.request.user import (
     UserCreateRequest,
     WatchlistToggleRequest,

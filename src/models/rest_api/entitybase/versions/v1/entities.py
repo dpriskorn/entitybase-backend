@@ -13,7 +13,6 @@ from models.rest_api.entitybase.handlers.statement import StatementHandler
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.response import (
     EntityResponse,
-    EntityListResponse,
     EntityRevisionResponse,
     EntityJsonResponse,
 )
@@ -25,7 +24,7 @@ from models.rest_api.entitybase.response import (
 )
 from models.rest_api.entitybase.response.entity.entitybase import EntityHistoryEntry
 from models.rest_api.entitybase.response.entity.entitybase import EntityDeleteResponse
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 router = APIRouter()
 
@@ -153,24 +152,24 @@ async def delete_entity(  # type: ignore[no-any-return]
     return result
 
 
-@router.get(
-    "/entities/{entity_id}/revisions/raw/{revision_id}",
-    response_model=RawRevisionResponse,
-)
-def get_raw_revision(
-    entity_id: str, revision_id: int, req: Request
-) -> RawRevisionResponse:
-    clients = req.app.state.clients
-    if not isinstance(clients, Clients):
-        raise_validation_error("Invalid clients type", status_code=500)
-    handler = AdminHandler()
-    result = handler.get_raw_revision(
-        entity_id, revision_id, clients.vitess, clients.s3
-    )  # type: ignore
-    if not isinstance(result, RawRevisionResponse):
-        raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, RawRevisionResponse)
-    return result
+# @router.get(
+#     "/entities/{entity_id}/revision/raw/{revision_id}",
+#     response_model=RawRevisionResponse,
+# )
+# def get_raw_revision(
+#     entity_id: str, revision_id: int, req: Request
+# ) -> RawRevisionResponse:
+#     clients = req.app.state.clients
+#     if not isinstance(clients, Clients):
+#         raise_validation_error("Invalid clients type", status_code=500)
+#     handler = AdminHandler()
+#     result = handler.get_raw_revision(
+#         entity_id, revision_id, clients.vitess, clients.s3
+#     )  # type: ignore
+#     if not isinstance(result, RawRevisionResponse):
+#         raise_validation_error("Invalid response type", status_code=500)
+#     assert isinstance(result, RawRevisionResponse)
+#     return result
 
 
 @router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)

@@ -7,7 +7,7 @@ from models.infrastructure.vitess_client import VitessClient
 logger = logging.getLogger(__name__)
 from models.rest_api.entitybase.response.misc import WatchCounts
 from models.rest_api.entitybase.response.user import MessageResponse
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 from models.watchlist import (
     WatchlistAddRequest,
     WatchlistRemoveRequest,

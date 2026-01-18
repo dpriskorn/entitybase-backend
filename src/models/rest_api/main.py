@@ -5,6 +5,7 @@ from collections.abc import AsyncGenerator
 from typing import Any
 from contextlib import asynccontextmanager
 from pathlib import Path
+from urllib.request import HTTPRedirectHandler
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -51,7 +52,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         s3_config = settings.to_s3_config()
         vitess_config = settings.to_vitess_config()
         kafka_brokers = settings.kafka_brokers
-        kafka_topic = settings.kafka_topic
+        kafka_topic = settings.kafka_entitychange_json_topic
         logger.debug(f"S3 config: {s3_config}")
         logger.debug(f"Vitess config: {vitess_config}")
         logger.debug(f"Kafka config: brokers={kafka_brokers}, topic={kafka_topic}")
@@ -69,7 +70,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             enable_streaming=settings.enable_streaming,
             kafka_brokers=kafka_brokers,
             kafka_topic=kafka_topic,
-            kafka_rdf_topic=settings.kafka_rdf_topic,
+            kafka_rdf_topic=settings.kafka_entitychange_rdf_topic,
             property_registry_path=property_registry_path,
         )
 
@@ -142,17 +143,23 @@ include_routes(app)
 app.include_router(v1_router, prefix="/entitybase/v1")
 # app.include_router(wikibase_v1_router, prefix="/wikibase/v1")
 
-@app.get("/entitybase/v1/openapi.json")
+@app.get("/v1/openapi.json")
 async def get_openapi() -> dict:
     """Retrieve the OpenAPI document."""
     return app.openapi()
+
+# TODO
+# @app.get("/")
+# async def redirect_to_docs() -> dict:
+#     """Redirect to the OpenAPI docs."""
+#     return
 
 # Fallback initialization in case lifespan didn't run
 if not hasattr(app.state, "clients"):
     s3_config = settings.to_s3_config()
     vitess_config = settings.to_vitess_config()
     kafka_brokers = settings.kafka_brokers
-    kafka_topic = settings.kafka_topic
+    kafka_topic = settings.kafka_entitychange_json_topic
 
     property_registry_path = (
         Path("test_data/properties") if Path("test_data/properties").exists() else None
@@ -164,7 +171,7 @@ if not hasattr(app.state, "clients"):
         enable_streaming=settings.enable_streaming,
         kafka_brokers=kafka_brokers,
         kafka_topic=kafka_topic,
-        kafka_rdf_topic=settings.kafka_rdf_topic,
+        kafka_rdf_topic=settings.kafka_entitychange_rdf_topic,
         property_registry_path=property_registry_path,
     )
 

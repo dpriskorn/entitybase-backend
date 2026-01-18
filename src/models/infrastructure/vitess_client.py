@@ -19,7 +19,6 @@ if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.vitess.backlink_repository import BacklinkRepository
 from models.infrastructure.vitess.connection import VitessConnectionManager
-from models.infrastructure.vitess.user_repository import UserRepository
 from models.infrastructure.vitess.entities import IdResolver
 from models.infrastructure.vitess.entity_repository import EntityRepository
 from models.infrastructure.vitess.head_repository import HeadRepository
@@ -36,7 +35,7 @@ from models.infrastructure.vitess.endorsement_repository import EndorsementRepos
 from models.rest_api.entitybase.request.entity import EntityInsertDataRequest
 from models.rest_api.entitybase.response import ProtectionResponse
 from models.rest_api.entitybase.response import FullRevisionResponse
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 from models.vitess_models import VitessConfig, BacklinkEntry
 
 

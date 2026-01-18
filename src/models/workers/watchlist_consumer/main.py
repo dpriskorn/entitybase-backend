@@ -31,7 +31,7 @@ class WatchlistConsumerWorker:
                 if settings.kafka_brokers
                 else []
             )
-            kafka_topic = settings.kafka_topic
+            kafka_topic = settings.kafka_entitychange_json_topic
 
             self.vitess_client = VitessClient(vitess_config)
 

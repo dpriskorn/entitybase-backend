@@ -22,10 +22,10 @@ async def test_endorsement_full_workflow() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Step 1: Create test users
-        user1_response = await client.post("/v1/users", json={"user_id": 1001})
+        user1_response = await client.post("/entitybase/v1/users", json={"user_id": 1001})
         assert user1_response.status_code == 200
 
-        user2_response = await client.post("/v1/users", json={"user_id": 1002})
+        user2_response = await client.post("/entitybase/v1/users", json={"user_id": 1002})
         assert user2_response.status_code == 200
 
         # Step 2: Try to endorse a statement (will fail due to missing statement, but tests endpoint)

@@ -12,7 +12,7 @@ from models.rest_api.entitybase.response.endorsements import (
     EndorsementStatsResponse,
     SingleEndorsementStatsResponse,
 )
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 
 endorsements_router = APIRouter(tags=["interactions"])

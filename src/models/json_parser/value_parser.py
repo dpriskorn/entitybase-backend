@@ -5,7 +5,7 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
-from ..validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 from models.internal_representation.values.base import Value
 
 from .values.entity_value_parser import parse_entity_value

@@ -9,7 +9,7 @@ from models.user_activity import ActivityType
 
 logger = logging.getLogger(__name__)
 
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient

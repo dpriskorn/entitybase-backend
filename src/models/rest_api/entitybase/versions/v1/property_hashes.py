@@ -7,7 +7,7 @@ from models.rest_api.entitybase.handlers.statement import StatementHandler
 from models.rest_api.entitybase.response import (
     PropertyHashesResponse,
 )
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 
 property_hashes_router = APIRouter()

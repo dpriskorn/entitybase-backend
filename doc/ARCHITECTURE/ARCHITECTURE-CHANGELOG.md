@@ -1682,7 +1682,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         s3_config = settings.to_s3_config()
         vitess_config = settings.to_vitess_config()
         kafka_brokers = settings.kafka_brokers
-        kafka_topic = settings.kafka_topic
+        kafka_topic = settings.kafka_entitychange_json_topic
 
         logger.debug(f"Kafka config: brokers={kafka_brokers}, topic={kafka_topic}")
 

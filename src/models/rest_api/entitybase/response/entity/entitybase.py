@@ -8,7 +8,7 @@ from models.rest_api.entitybase.response.entity.wikibase import (
     DescriptionValue,
     AliasValue,
 )
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 
 class EntityLabelsResponse(BaseModel):

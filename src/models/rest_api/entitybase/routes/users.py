@@ -14,13 +14,13 @@ from models.rest_api.entitybase.response.user import (
 )
 from models.rest_api.entitybase.response.misc import UserStatsResponse
 from models.user import User
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 
 users_router = APIRouter(prefix="/entitybase", tags=["users"])
 
 
-@users_router.post("/v1/users", response_model=UserCreateResponse)
+@users_router.post("/entitybase/v1/users", response_model=UserCreateResponse)
 def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
     """Create a new user."""
     clients = req.app.state.clients
@@ -34,7 +34,7 @@ def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
     return result
 
 
-@users_router.get("/v1/users/{user_id}", response_model=User)
+@users_router.get("/entitybase/v1/users/{user_id}", response_model=User)
 def get_user(user_id: int, req: Request) -> User:
     """Get user information by MediaWiki user ID."""
     clients = req.app.state.clients
@@ -64,7 +64,7 @@ def toggle_watchlist(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@users_router.get("/v1/users/stat", response_model=UserStatsResponse)
+@users_router.get("/entitybase/v1/users/stat", response_model=UserStatsResponse)
 def get_user_stats(req: Request) -> UserStatsResponse:
     """Get user statistics."""
     clients = req.app.state.clients

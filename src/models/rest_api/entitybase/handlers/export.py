@@ -5,7 +5,7 @@ from typing import Any, TYPE_CHECKING
 
 from models.rest_api.entitybase.response import TurtleResponse
 from models.rest_api.entitybase.services.rdf_service import serialize_entity_to_turtle
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import MyS3Client

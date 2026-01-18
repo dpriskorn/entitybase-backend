@@ -6,7 +6,7 @@ from models.rest_api.clients import Clients
 from models.rest_api.entitybase.handlers.thanks import ThanksHandler
 from models.rest_api.entitybase.request.thanks import ThanksListRequest
 from models.rest_api.entitybase.response.thanks import ThankResponse, ThanksListResponse
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 
 thanks_router = APIRouter(tags=["interactions"])

@@ -3,7 +3,7 @@ from pydantic import ConfigDict, Field, field_validator
 """Monolingual text value type."""
 
 from typing_extensions import Literal
-from ...validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 from .base import Value
 
 

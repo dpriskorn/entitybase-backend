@@ -12,10 +12,6 @@ from pydantic import Field
 from models.config.settings import settings
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
-from models.internal_representation.reference_qualifier_models import (
-    QualifierModel,
-    ReferenceModel,
-)
 from models.rest_api.entitybase.response import StatementResponse
 from models.s3_models import (
     RevisionData,
@@ -26,7 +22,7 @@ from models.s3_models import (
     S3QualifierData,
     S3ReferenceData,
 )
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
     pass

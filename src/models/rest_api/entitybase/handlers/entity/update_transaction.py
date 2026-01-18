@@ -142,7 +142,7 @@ class UpdateTransaction(EntityTransaction):
             lambda: self._rollback_revision(entity_id, new_revision_id, vitess_client)
         )
         if not response.success:
-            from models.validation.utils import raise_validation_error
+            from models.rest_api.utils import raise_validation_error
 
             raise_validation_error(response.error or "Failed to create revision")
         assert isinstance(response.data, EntityResponse)

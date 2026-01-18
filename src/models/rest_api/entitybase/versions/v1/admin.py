@@ -5,7 +5,7 @@ from fastapi import APIRouter, Query, Request
 from models.rest_api.clients import Clients
 from models.rest_api.entitybase.handlers.admin import AdminHandler
 from models.rest_api.entitybase.response.entity.entitybase import EntityListResponse
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 
 admin_router = APIRouter()

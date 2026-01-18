@@ -11,7 +11,7 @@ from models.rest_api.entitybase.response import (
 )
 from models.rest_api.entitybase.response.entity import EntityState
 from models.rest_api.entitybase.response.entity import EntityHistoryEntry
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 

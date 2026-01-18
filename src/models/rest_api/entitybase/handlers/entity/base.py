@@ -29,7 +29,7 @@ from models.rest_api.entitybase.services.statement_service import (
 )
 from models.rest_api.misc import EditType
 from models.s3_models import RevisionCreateData
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 

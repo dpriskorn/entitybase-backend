@@ -2,7 +2,10 @@ import pytest
 import pymysql
 import time
 from unittest.mock import AsyncMock, MagicMock
+
+import requests
 from moto import mock_aws as mock_s3
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 from models.config.settings import settings
 
@@ -82,3 +85,29 @@ def mock_kafka_producer():
     mock_producer.stop = AsyncMock()
     mock_producer.send_and_wait = AsyncMock()
     return mock_producer
+
+@pytest.fixture(scope="session")
+def integration_api_client():
+    """API client for E2E tests - connects to running application."""
+    base_url = "http://api:8000"  # Adjust for Docker container URL
+
+    # Wait for API to be ready
+    @retry(
+        stop=stop_after_attempt(30), wait=wait_exponential(multiplier=1, min=1, max=10)
+    )
+    def wait_for_api():
+        try:
+            response = requests.get(f"{base_url}/health", timeout=5)
+            response.raise_for_status()
+            assert response.json().get("status") == "ok"
+        except requests.RequestException:
+            raise Exception("E2E API not ready")
+
+    wait_for_api()
+    return requests.Session()
+
+
+@pytest.fixture(scope="session")
+def base_url():
+    """Base URL for E2E API."""
+    return "http://api:8000"

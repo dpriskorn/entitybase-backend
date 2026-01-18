@@ -9,7 +9,7 @@ from models.user_activity import ActivityType
 logger = logging.getLogger(__name__)
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 from models.rest_api.entitybase.request import EntityUpdateRequest
 from .base import EntityHandler
 from .update_transaction import UpdateTransaction

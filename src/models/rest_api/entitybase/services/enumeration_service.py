@@ -2,7 +2,7 @@
 
 import logging
 
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 from models.infrastructure.vitess_client import VitessClient
 from .id_range_manager import IdRangeManager
 from models.rest_api.entitybase.response.misc import RangeStatuses

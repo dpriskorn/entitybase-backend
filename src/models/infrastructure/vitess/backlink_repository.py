@@ -7,7 +7,7 @@ import logging
 from typing import Any
 
 from models.common import OperationResult
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 from models.vitess_models import BacklinkEntry
 
 logger = logging.getLogger(__name__)

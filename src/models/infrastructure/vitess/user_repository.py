@@ -7,7 +7,7 @@ from typing import Any, List
 from models.common import OperationResult
 from models.user import User
 from models.user_activity import UserActivityItem, ActivityType
-from models.validation.utils import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
