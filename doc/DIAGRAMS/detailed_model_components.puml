@@ -53,6 +53,8 @@ package "Models" as Models #LightCyan {
     "MetadataContent" as MetadataContent
     "MetadataLoad" as MetadataLoadResponse
     "MostUsedStatements" as MostUsedStatementsResponse
+    "Notification" as Notification
+    "Notification" as NotificationResponse
     "Properties" as PropertiesResponse
     "PropertyCounts" as PropertyCounts
     "PropertyCounts" as PropertyCountsResponse

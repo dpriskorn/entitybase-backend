@@ -43,10 +43,7 @@
 | ✅ | DELETE | `/entitybase/v1/entities/{entity_id}/statements/{statement_hash}` | Remove a statement by hash from an entity. |
 | ✅ | PATCH | `/entitybase/v1/entities/{entity_id}/statements/{statement_hash}` | Replace a statement by hash with new claim data. |
 | ✅ | GET | `/entitybase/v1/entity/{entity_id}/properties/{property_list}` | Get statement hashes for specified properties in an entity. |
-| ✅ | PUT | `/entitybase/v1/item/{entity_id}` | Update an existing item entity. |
 | ✅ | POST | `/entitybase/v1/json-import` | Import entities from Wikidata JSONL dump file. |
-| ✅ | PUT | `/entitybase/v1/lexeme/{entity_id}` | Update an existing lexeme entity. |
-| ✅ | PUT | `/entitybase/v1/property/{entity_id}` | Update an existing property entity. |
 | ✅ | GET | `/entitybase/v1/qualifiers/{hashes}` | Fetch qualifiers by hash(es). |
 | ✅ | POST | `/entitybase/v1/redirects` | Create a redirect for an entity. |
 | ✅ | GET | `/entitybase/v1/references/{hashes}` | Fetch references by hash(es). |
@@ -71,10 +68,11 @@
 | ✅ | POST | `/entitybase/v1/users/{user_id}/watchlist/remove` | Remove a watchlist entry for user. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}/watchlist/stats` | Get user's watchlist statistics. |
 | ✅ | PUT | `/entitybase/v1/users/{user_id}/watchlist/toggle` | Enable or disable watchlist for user. |
+| ✅ | DELETE | `/entitybase/v1/users/{user_id}/watchlist/{watch_id}` | Remove a watchlist entry by ID. |
 | ✅ | GET | `/health` | Health check endpoint for monitoring service status. |
 
 | Status | Count |
 |--------|-------|
-| Implemented | 70 |
+| Implemented | 68 |
 | Not Implemented | 0 |
-| Total | 70 |
+| Total | 68 |

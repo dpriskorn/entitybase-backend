@@ -5,6 +5,7 @@ title Wikibase Backend - Detailed API Components
 package "API Handlers" as APIHandlers #LightBlue {
     "Admin" as AdminHandler
     "Backlink" as BacklinkHandler
+    "CreationTransaction" as CreationTransaction
     "Endorsement" as EndorsementHandler
     "EntityCreate" as EntityCreateHandler
     "EntityCreate" as EntityCreateHandler
@@ -13,7 +14,6 @@ package "API Handlers" as APIHandlers #LightBlue {
     "EntityJsonImport" as EntityJsonImportHandler
     "EntityRead" as EntityReadHandler
     "EntityRevert" as EntityRevertHandler
-    "EntityTransaction" as EntityTransaction
     "EntityTransaction" as EntityTransaction
     "EntityUpdate" as EntityUpdateHandler
     "EntityUpdate" as EntityUpdateHandler

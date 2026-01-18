@@ -95,7 +95,9 @@ async def get_property_aliases_for_language(
     return AliasesResponse(aliases=aliases[language_code])
 
 
-@router.patch("/entities/properties/{property_id}/aliases/{language_code}")
+@router.patch(
+    "/entities/properties/{property_id}/aliases/{language_code}", response_model=EntityResponse
+)
 async def patch_property_aliases_for_language(
     property_id: str, language_code: str, patch_data: Dict[str, Any], req: Request
 ) -> EntityResponse:

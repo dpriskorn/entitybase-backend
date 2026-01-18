@@ -384,11 +384,14 @@ This document describes the repository classes that handle data access to Vitess
 - `get_property_watch_count(user_id) -> int`
   - Get count of entity-property watches (with properties) for user.
 
-- `add_watch(user_id, entity_id, properties) -> OperationResult`
+- `add_watch(user_id, entity_id, properties) -> OperationResult[int]`
   - Add a watchlist entry.
 
 - `remove_watch(user_id, entity_id, properties) -> None`
   - Remove a watchlist entry.
+
+- `remove_watch_by_id(watch_id) -> OperationResult`
+  - Remove a watchlist entry by ID.
 
 - `get_watches_for_user(user_id) -> List[Any]`
   - Get all watchlist entries for a user.
