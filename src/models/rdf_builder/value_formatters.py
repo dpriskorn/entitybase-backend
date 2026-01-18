@@ -69,8 +69,8 @@ class ValueFormatter:
     @staticmethod
     def escape_turtle(value: str) -> str:
         """Escape special characters for Turtle format."""
-        value = value.replace("\\", "\\\\")
-        value = value.replace('"', '\\"')
+        value = value.replace("", "\\")
+        value = value.replace('"', '"')
         value = value.replace("\n", "\\n")
         value = value.replace("\r", "\\r")
         value = value.replace("\t", "\\t")

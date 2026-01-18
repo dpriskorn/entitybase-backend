@@ -65,7 +65,7 @@ class EntityTransaction(BaseModel, ABC):
         from_revision_id: int,
         changed_at: Any,
         edit_summary: str,
-        editor: str,
+        user_id: int,
         stream_producer: Any,
     ) -> None:
         """Publish the change event."""
@@ -136,7 +136,6 @@ class UpdateTransaction(EntityTransaction):
         is_mass_edit: bool,
         edit_type: Any,
         edit_summary: str,
-        editor: str,
         is_semi_protected: bool,
         is_locked: bool,
         is_archived: bool,
@@ -161,7 +160,7 @@ class UpdateTransaction(EntityTransaction):
             content_hash=content_hash,
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
-            edit_summary=edit_summary,
+            summary=edit_summary,
             is_semi_protected=is_semi_protected,
             is_locked=is_locked,
             is_archived=is_archived,
@@ -185,6 +184,7 @@ class UpdateTransaction(EntityTransaction):
         from_revision_id: int,
         changed_at: Any,
         edit_summary: str,
+        user_id: int,
         stream_producer: Any,
     ) -> None:
         """Publish the entity change event to the stream.
@@ -199,7 +199,7 @@ class UpdateTransaction(EntityTransaction):
             from_revision_id: The previous revision ID (0 for creations).
             changed_at: Timestamp of the change.
             edit_summary: Summary of the edit.
-            editor: The username of the user who made the change.
+            user_id: The id of the user who made the change.
             stream_producer: The producer instance for publishing events.
 
         Returns:
@@ -218,7 +218,7 @@ class UpdateTransaction(EntityTransaction):
                 type=change_type,
                 from_rev=from_revision_id,
                 at=changed_at,
-                edit_summary=edit_summary,
+                summary=edit_summary,
             )
             stream_producer.publish_change(event)
         # Events are fire-and-forget, no rollback needed

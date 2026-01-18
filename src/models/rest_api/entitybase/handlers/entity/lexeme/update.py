@@ -9,7 +9,7 @@ from models.rest_api.entitybase.request import EntityUpdateRequest
 from models.rest_api.entitybase.response import EntityResponse
 
 from models.validation.utils import raise_validation_error
-from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from ..update import EntityUpdateHandler
@@ -25,7 +25,7 @@ class LexemeUpdateHandler(EntityUpdateHandler):
         entity_id: str,
         request: EntityUpdateRequest,
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         user_id: int = 0,

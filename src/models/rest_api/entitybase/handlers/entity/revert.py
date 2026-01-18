@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, TYPE_CHECKING
 
+from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.entitybase.request.entity import EntityRevertRequest
 from models.rest_api.entitybase.response.entity.revert import EntityRevertResponse
@@ -109,16 +110,16 @@ class EntityRevertHandler:
             event = EntityChangeEvent(
                 id=entity_id,
                 rev=new_revision_id,
-                type="revert",
+                type=ChangeType.REVERT,
                 from_rev=head_revision,
-                at=datetime.now(timezone.utc).isoformat(),
-                edit_summary=request.reason,
+                at=datetime.now(timezone.utc),
+                summary=request.reason,
             )
             await stream_producer.publish_event(event)
 
         return EntityRevertResponse(
             entity_id=entity_id,
-            new_revision_id=new_revision_id,
-            reverted_from_revision_id=head_revision,
+            new_rev_id=new_revision_id,
+            from_rev_id=head_revision,
             reverted_at=datetime.now(timezone.utc).isoformat(),
         )

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 from models.infrastructure.client import Client
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.s3_client import S3Client
+    from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.vitess.backlink_repository import BacklinkRepository
 from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.entities import IdResolver
@@ -613,7 +613,7 @@ class VitessClient(Client):
     def get_entity_history(
         self,
         entity_id: str,
-        s3_client: "S3Client",
+        s3_client: "MyS3Client",
         limit: int = 20,
         offset: int = 0,
     ) -> list[EntityHistoryEntry]:
@@ -627,7 +627,7 @@ class VitessClient(Client):
                     revision_id=record.revision_id,
                     created_at=record.created_at,
                     user_id=record.user_id,
-                    edit_summary=record.edit_summary,
+                    summary=record.edit_summary,
                 )
                 for record in history
             ]

@@ -2,7 +2,7 @@
 
 import logging
 
-from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.vitess.terms_repository import TermsRepository
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.response import (
@@ -22,7 +22,7 @@ class EntityReadHandler:
     def get_entity(
         entity_id: str,
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
         fetch_metadata: bool = False,
     ) -> EntityResponse:
         """Get entity by ID."""
@@ -139,7 +139,7 @@ class EntityReadHandler:
     def get_entity_history(  # type: ignore[return,func-returns-value]
         entity_id: str,
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
         limit: int = 20,
         offset: int = 0,
     ) -> list[EntityHistoryEntry]:
@@ -160,7 +160,7 @@ class EntityReadHandler:
     def get_entity_revision(  # type: ignore[return]
         entity_id: str,
         revision_id: int,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
     ) -> EntityRevisionResponse:
         """Get specific entity revision."""
         if s3_client is None:

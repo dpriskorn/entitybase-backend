@@ -89,7 +89,12 @@ class TestDevWorkerCLI:
         ["devworker", "--endpoint", "http://custom:9000", "setup"],
     )
     def test_custom_arguments(
-        self, mock_run_setup, mock_asyncio_run, mock_dev_worker_class
+        self,
+        mock_argv,
+        mock_run_setup,
+        mock_asyncio_run,
+        mock_dev_worker_class,
+        mock_cleanup_buckets,
     ):
         """Test CLI with custom arguments."""
         mock_worker = MagicMock()

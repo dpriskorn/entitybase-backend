@@ -31,7 +31,8 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                         (
                             str(file_path),
                             line_no,
-                            f"Found 'str | None = Field(default=None)': {line.strip()}, use 'str = Field(default=\"\")' instead",
+                            f"Found 'str | None = Field(default=None)': {line.strip()}, use 'str = Field(default="
+                            ")' instead",
                         )
                     )
                 # Look for Optional[str] = Field(default=None)
@@ -40,7 +41,8 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                         (
                             str(file_path),
                             line_no,
-                            f"Found 'Optional[str] = Field(default=None)': {line.strip()}, use 'str = Field(default=\"\")' instead",
+                            f"Found 'Optional[str] = Field(default=None)': {line.strip()}, use 'str = Field(default="
+                            ")' instead",
                         )
                     )
                 # Look for Optional[str] (general)
@@ -52,7 +54,8 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                         (
                             str(file_path),
                             line_no,
-                            f"Found 'Optional[str]': {line.strip()}, consider using 'str = Field(default=\"\")' if None is not needed",
+                            f"Found 'Optional[str]': {line.strip()}, consider using 'str = Field(default="
+                            ")' if None is not needed",
                         )
                     )
                 # Look for str | None (union type)
@@ -61,7 +64,8 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                         (
                             str(file_path),
                             line_no,
-                            f"Found 'str | None': {line.strip()}, consider using 'str = Field(default=\"\")' if None is not needed",
+                            f"Found 'str | None': {line.strip()}, consider using 'str = Field(default="
+                            ")' if None is not needed",
                         )
                     )
     except Exception as e:

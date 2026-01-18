@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from models.common import OperationResult
-from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.internal_representation.statement_extractor import StatementExtractor
 from models.internal_representation.statement_hasher import StatementHasher
@@ -87,7 +87,7 @@ def hash_entity_statements(
 def deduplicate_and_store_statements(
     hash_result: StatementHashResult,
     vitess_client: VitessClient,
-    s3_client: S3Client,
+    s3_client: MyS3Client,
     validator: JsonSchemaValidator | None = None,
     schema_version: str = "latest",
 ) -> OperationResult:
@@ -180,7 +180,7 @@ def deduplicate_and_store_statements(
                             "error_message": str(write_error),
                             "statement_data": statement_data,
                             "s3_bucket": s3_client.config.bucket,
-                            "s3_endpoint": s3_client.conn._endpoint.host,
+                            "s3_endpoint": s3_client.conn.meta.endpoint_url,
                             "stack_trace": traceback.format_exc()
                             if hasattr(write_error, "__traceback__")
                             else None,

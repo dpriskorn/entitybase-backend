@@ -24,7 +24,7 @@ from typing import Any
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
-from models.infrastructure.s3.s3_client import S3Client  # type: ignore
+from models.infrastructure.s3.s3_client import MyS3Client  # type: ignore
 from models.infrastructure.vitess_client import VitessClient  # type: ignore
 from models.vitess_models import VitessConfig  # type: ignore
 from models.infrastructure.s3.s3_config import S3Config  # type: ignore
@@ -197,7 +197,7 @@ async def main() -> None:
             secret_key=os.getenv("MINIO_SECRET_KEY", "minioadmin"),
             region="us-east-1",
         )
-        s3_client = S3Client(config=s3_config)
+        s3_client = MyS3Client(config=s3_config)
 
         # Run computation
         await compute_backlinks(vitess_client, s3_client)

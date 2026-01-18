@@ -10,7 +10,7 @@ from models.user_activity import ActivityType
 logger = logging.getLogger(__name__)
 
 from models.validation.utils import raise_validation_error
-from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from .base import EntityHandler
@@ -38,7 +38,7 @@ class EntityCreateHandler(EntityHandler):
         self,
         request: EntityCreateRequest,
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         auto_assign_id: bool = False,
@@ -102,7 +102,7 @@ class EntityCreateHandler(EntityHandler):
             entity_type=request.type,
             is_mass_edit=request.is_mass_edit,
             edit_type=request.edit_type,
-            edit_summary=request.edit_summary,
+            summary=request.edit_summary,
             is_semi_protected=request.is_semi_protected,
             is_locked=request.is_locked,
             is_archived=request.is_archived,

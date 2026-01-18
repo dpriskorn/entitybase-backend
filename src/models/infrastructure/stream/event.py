@@ -1,7 +1,7 @@
 """Event models for stream publishing."""
 
 from datetime import datetime
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 

@@ -17,13 +17,13 @@ def health_check(response: Response) -> HealthCheckResponse:
         return HealthCheckResponse(
             status="starting", s3="disconnected", vitess="disconnected"
         )
-    from models.infrastructure.s3.s3_client import S3Client
+    from models.infrastructure.s3.s3_client import MyS3Client
     from models.infrastructure.vitess_client import VitessClient
 
-    s3: S3Client = clients.s3
+    s3: MyS3Client = clients.s3
     s3_status = (
         "connected"
-        if s3 and isinstance(s3, S3Client) and s3.healthy_connection
+        if s3 and isinstance(s3, MyS3Client) and s3.healthy_connection
         else "disconnected"
     )
     vitess: VitessClient = clients.vitess

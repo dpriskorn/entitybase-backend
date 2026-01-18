@@ -196,7 +196,7 @@ class RevisionRepository:
                     revision_id=row[0],
                     created_at=row[1].isoformat() if row[1] else "",
                     user_id=row[2],
-                    edit_summary=row[3] or "",
+                    summary=row[3] or "",
                 )
                 for row in cursor.fetchall()
             ]

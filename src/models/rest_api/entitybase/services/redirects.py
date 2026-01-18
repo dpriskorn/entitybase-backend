@@ -14,7 +14,7 @@ from models.rest_api.misc import EditType
 from models.validation.utils import raise_validation_error
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.s3_client import S3Client
+    from models.infrastructure.s3.s3_client import MyS3Client
     from models.infrastructure.vitess_client import VitessClient
     from models.infrastructure.stream.producer import StreamProducerClient
     from models.infrastructure.stream.event import EntityChangeEvent
@@ -28,7 +28,7 @@ class RedirectService:
 
     def __init__(
         self,
-        s3_client: "S3Client",
+        s3_client: "MyS3Client",
         vitess_client: "VitessClient",
         stream_producer: StreamProducerClient | None = None,
     ):
@@ -131,7 +131,7 @@ class RedirectService:
                 if from_head_revision_id
                 else None,
                 changed_at=datetime.now(timezone.utc),
-                edit_summary=None,
+                summary=None,
             )
             await self.stream_producer.publish_change(event)
 

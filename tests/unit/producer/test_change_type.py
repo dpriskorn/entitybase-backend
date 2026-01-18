@@ -9,25 +9,25 @@ class TestChangeTypeEnum:
     """Tests for ChangeType enum values and behavior"""
 
     def test_all_eleven_change_types_defined(self) -> None:
-        \"\"\"Verify all 11 change types are defined correctly\"\"\"
+        """Verify all 11 change types are defined correctly"""
         expected_types = {
-            \"creation\",
-            \"edit\",
-            \"redirect\",
-            \"unredirect\",
-            \"archival\",
-            \"unarchival\",
-            \"lock\",
-            \"unlock\",
-            \"soft_delete\",
-            \"hard_delete\",
-            \"revert\",
+            "creation",
+            "edit",
+            "redirect",
+            "unredirect",
+            "archival",
+            "unarchival",
+            "lock",
+            "unlock",
+            "soft_delete",
+            "hard_delete",
+            "revert",
         }
         actual_types = {ct.value for ct in ChangeType}
         assert actual_types == expected_types
 
     def test_change_type_enum_count(self) -> None:
-        \"\"\"Verify exactly 11 change types exist\"\"\"
+        """Verify exactly 11 change types exist"""
         assert len(ChangeType) == 11
 
     def test_change_type_enum_uniqueness(self) -> None:
@@ -52,3 +52,4 @@ class TestChangeTypeEnum:
         assert ChangeType.UNLOCK == "unlock"
         assert ChangeType.SOFT_DELETE == "soft_delete"
         assert ChangeType.HARD_DELETE == "hard_delete"
+        assert ChangeType.REVERT == "revert"

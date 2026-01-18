@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from rapidhash import rapidhash
 
 from models.config.settings import settings
-from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.stream.event import EntityChangeEvent
@@ -79,7 +79,7 @@ class EntityHandler(BaseModel):
         is_mass_edit_protected: bool | None,
         is_not_autoconfirmed_user: bool | None,
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
         stream_producer: StreamProducerClient | None,
         validator: Any | None,
         is_creation: bool,
@@ -127,7 +127,7 @@ class EntityHandler(BaseModel):
             content_hash=content_hash,
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
-            edit_summary=edit_summary,
+            summary=edit_summary,
             is_semi_protected=is_semi_protected,
             is_locked=is_locked,
             is_archived=is_archived,
@@ -150,7 +150,7 @@ class EntityHandler(BaseModel):
         head_revision_id: int,
         content_hash: int,
         request_data: Dict[str, Any],
-        s3_client: S3Client,
+        s3_client: MyS3Client,
     ) -> EntityResponse | None:
         """Check if the request is idempotent and return existing revision if so."""
         if head_revision_id == 0:
@@ -240,7 +240,7 @@ class EntityHandler(BaseModel):
         entity_id: str,
         request_data: Dict[str, Any],
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
         validator: Any | None,
     ) -> StatementHashResult:
         """Process and store statements for the entity."""
@@ -312,7 +312,7 @@ class EntityHandler(BaseModel):
         is_dangling: bool | None,
         is_mass_edit_protected: bool | None,
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
         stream_producer: StreamProducerClient | None,
         is_creation: bool,
         edit_summary: str = "",
@@ -350,7 +350,7 @@ class EntityHandler(BaseModel):
             property_counts=hash_result.property_counts,
             sitelinks_hashes=sitelinks_hashes,
             content_hash=content_hash,
-            edit_summary=edit_summary,
+            summary=edit_summary,
             is_mass_edit=revision_is_mass_edit,
             edit_type=revision_edit_type,
             is_semi_protected=is_semi_protected,
@@ -457,7 +457,7 @@ class EntityCreateHandler(EntityHandler):
         self,
         request: EntityCreateRequest,
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
     ) -> EntityResponse:
@@ -500,7 +500,7 @@ class EntityCreateHandler(EntityHandler):
             entity_type=request.type,
             is_mass_edit=request.is_mass_edit,
             edit_type=request.edit_type,
-            edit_summary=request.edit_summary,
+            summary=request.edit_summary,
             is_semi_protected=request.is_semi_protected,
             is_locked=request.is_locked,
             is_archived=request.is_archived,
@@ -523,7 +523,7 @@ class EntityUpdateHandler(EntityHandler):
         entity_id: str,
         request: EntityCreateRequest,
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
     ) -> EntityResponse:
@@ -565,7 +565,7 @@ class EntityUpdateHandler(EntityHandler):
             entity_type=request.type,
             is_mass_edit=request.is_mass_edit,
             edit_type=request.edit_type,
-            edit_summary=request.edit_summary,
+            summary=request.edit_summary,
             is_semi_protected=request.is_semi_protected,
             is_locked=request.is_locked,
             is_archived=request.is_archived,

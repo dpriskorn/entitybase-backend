@@ -5,7 +5,7 @@ import traceback
 from datetime import datetime
 from typing import Any
 
-from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.validation.utils import raise_validation_error
@@ -29,7 +29,7 @@ class ItemCreateHandler(EntityCreateHandler):
         self,
         request: EntityCreateRequest,
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         auto_assign_id: bool = False,
@@ -88,7 +88,7 @@ class ItemCreateHandler(EntityCreateHandler):
                 content_hash=0,
                 is_mass_edit=request.is_mass_edit,
                 edit_type=request.edit_type,
-                edit_summary=request.edit_summary,
+                summary=request.edit_summary,
                 is_semi_protected=request.is_semi_protected,
                 is_locked=request.is_locked,
                 is_archived=request.is_archived,
@@ -109,7 +109,7 @@ class ItemCreateHandler(EntityCreateHandler):
                 changed_at=datetime.now(),
                 stream_producer=stream_producer,
                 from_revision_id=0,
-                edit_summary=request.edit_summary,
+                summary=request.edit_summary,
             )
 
             # Commit

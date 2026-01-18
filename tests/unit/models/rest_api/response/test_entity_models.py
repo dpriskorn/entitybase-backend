@@ -212,12 +212,15 @@ class TestEntityChange:
         """Test EntityChange validates against JSON schema."""
         import json
         import jsonschema
+        import yaml
         from datetime import datetime
         from models.infrastructure.stream.change_type import ChangeType
 
         # Load the schema
-        with open("src/schemas/entitychange.json", "r") as f:
-            schema = json.load(f)
+        with open(
+            "src/schemas/entitybase/events/entitychange/latest/latest.yaml", "r"
+        ) as f:
+            schema = yaml.safe_load(f)
 
         # Create a valid EntityChange
         change = EntityChange(

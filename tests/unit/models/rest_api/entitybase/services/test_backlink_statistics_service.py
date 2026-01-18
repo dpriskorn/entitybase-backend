@@ -46,11 +46,13 @@ class TestBacklinkStatisticsService:
 
             assert result.total_backlinks == 1000
             assert result.unique_entities_with_backlinks == 500
-        assert result.top_entities_by_backlinks == []
+            assert result.top_entities_by_backlinks == []
 
-        service.get_total_backlinks.assert_called_once_with(mock_vitess)
-        service.get_entities_with_backlinks.assert_called_once_with(mock_vitess)
-        service.get_top_entities_by_backlinks.assert_called_once_with(mock_vitess, 100)
+            service.get_total_backlinks.assert_called_once_with(mock_vitess)
+            service.get_entities_with_backlinks.assert_called_once_with(mock_vitess)
+            service.get_top_entities_by_backlinks.assert_called_once_with(
+                mock_vitess, 100
+            )
 
     def test_get_total_backlinks(self):
         """Test getting total backlinks count."""

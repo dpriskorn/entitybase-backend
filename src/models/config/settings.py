@@ -5,8 +5,6 @@ import os
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from models.infrastructure.config import Config
-
 
 class Settings(BaseSettings):
     """Application settings with environment variable support."""

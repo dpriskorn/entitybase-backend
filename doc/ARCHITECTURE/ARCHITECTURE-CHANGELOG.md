@@ -1653,7 +1653,7 @@ class EntityHandler:
                 from_revision_id=None,
                 changed_at=datetime.utcnow(),
                 editor=request.editor or None,
-                edit_summary=request.edit_summary or None,
+                summary=request.edit_summary or None,
                 bot=request.bot,
             )
             await clients.kafka_producer.publish_change(change_event)

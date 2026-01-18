@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.s3_client import S3Client
+    from models.infrastructure.s3.s3_client import MyS3Client
     from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.response import EntityListResponse
 from models.rest_api.entitybase.response.misc import RawRevisionResponse
@@ -53,7 +53,7 @@ class AdminHandler:
         entity_id: str,
         revision_id: int,
         vitess_client: "VitessClient",
-        s3_client: "S3Client",
+        s3_client: "MyS3Client",
     ) -> RawRevisionResponse:
         """Returns raw S3 entity data for specific revision.
 

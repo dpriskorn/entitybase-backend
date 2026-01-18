@@ -30,8 +30,13 @@ class UserActivityHandler:
             )
 
         activity_type_param = None if activity_type == "" else activity_type
-        activities = vitess_client.user_repository.get_user_activities(
+        result = vitess_client.user_repository.get_user_activities(
             user_id, activity_type_param, hours, limit, offset
         )
 
-        return UserActivityResponse(user_id=user_id, activities=activities)
+        if not result.success:
+            raise_validation_error(
+                result.error or "Failed to get user activities", status_code=500
+            )
+
+        return UserActivityResponse(user_id=user_id, activities=result.data)

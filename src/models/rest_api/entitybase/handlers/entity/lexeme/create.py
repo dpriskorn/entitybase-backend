@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.request.entity import EntityCreateRequest
@@ -25,7 +25,7 @@ class LexemeCreateHandler(EntityCreateHandler):
         self,
         request: EntityCreateRequest,
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         auto_assign_id: bool = False,

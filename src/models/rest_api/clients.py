@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.rdf_builder.property_registry.loader import load_property_registry
@@ -24,7 +24,7 @@ class Clients(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    s3: S3Client
+    s3: MyS3Client
     vitess: VitessClient
     property_registry: PropertyRegistry | None = Field(default=None)
     stream_producer: StreamProducerClient | None = Field(default=None)
@@ -42,7 +42,7 @@ class Clients(BaseModel):
         **kwargs: str,
     ) -> None:
         super().__init__(
-            s3=S3Client(config=s3),
+            s3=MyS3Client(config=s3),
             vitess=VitessClient(config=vitess),
             stream_producer=(
                 StreamProducerClient(

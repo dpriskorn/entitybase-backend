@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Linter to check for escaped quotes in Python files, such as \\\"\\\"\\\" in docstrings.
+Linter to check for escaped quotes in Python files, such as \\"\\"\\" in docstrings.
 """
 
 import re
@@ -33,13 +33,13 @@ def check_backslashes(file_path: Path, allowlist: set[str]) -> list[str]:
                 key = f"{file_path}:{line_no}"
                 if key in allowlist:
                     continue
-                # Check for \\\"\\\"\\\" or similar escaped quotes
-                if re.search(r'\\\\"\\\\"\\\\"', line):
+                # Check for \\"\\"\\" or similar escaped quotes
+                if re.search(r"\\\"\\\"\\\"", line):
                     violations.append(
                         f"{file_path}:{line_no}: Found escaped triple quotes in line: {line.strip()}"
                     )
                 # Check for other escaped patterns if needed
-                elif re.search(r'\\\\"', line) and '"""' not in line:
+                elif re.search(r"\\\"", line) and '"""' not in line:
                     violations.append(
                         f"{file_path}:{line_no}: Found escaped quotes in line: {line.strip()}"
                     )

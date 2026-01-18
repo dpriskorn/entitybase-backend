@@ -44,7 +44,7 @@ class TestEntityChangeEvent:
             changed_at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
         )
         assert event.from_revision_id is None
-        assert event.edit_summary is None
+        assert event.edit_summary == ""
 
     def test_entity_change_event_model_dump(self, sample_event_data: dict) -> None:
         """Test model_dump returns correct dictionary"""

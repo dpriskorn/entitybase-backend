@@ -1,13 +1,13 @@
 """S3 storage client for entity and statement data."""
 
 import json
+import logging
 from datetime import timezone, datetime
 from typing import Any, Dict, TYPE_CHECKING
-import logging
+
 from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
-from pydantic import BaseModel, ConfigDict, Field
-from models.validation.utils import raise_validation_error
+from pydantic import Field
 
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
@@ -19,6 +19,7 @@ from models.s3_models import (
     RevisionReadResponse,
     StoredStatement,
 )
+from models.validation.utils import raise_validation_error
 
 if TYPE_CHECKING:
     pass
@@ -26,7 +27,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class S3Client(Client):
+class MyS3Client(Client):
     """Client for S3 storage operations."""
 
     config: S3Config
@@ -54,6 +55,7 @@ class S3Client(Client):
                 or e.response["Error"]["Code"] == "NoSuchBucket"
             ):
                 try:
+                    # noinspection PyTypeChecker
                     self.connection_manager.boto_client.create_bucket(
                         Bucket=self.config.bucket,
                         CreateBucketConfiguration={"LocationConstraint": "us-east-1"},
@@ -119,6 +121,7 @@ class S3Client(Client):
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         key = f"{entity_id}/r{revision_id}.json"
+        # noinspection PyTypeChecker
         self.connection_manager.boto_client.copy_object(
             Bucket=self.config.bucket,
             CopySource={"Bucket": self.config.bucket, "Key": key},
@@ -183,7 +186,7 @@ class S3Client(Client):
         logger.debug(f"S3 write_statement: bucket={self.config.bucket}, key={key}")
         # noinspection PyProtectedMember
         logger.debug(
-            f"S3 client endpoint: {self.connection_manager.boto_client._endpoint.host}"
+            f"S3 client endpoint: {self.connection_manager.boto_client.meta.endpoint_url}"
         )
         logger.debug(f"Statement data size: {len(statement_json)} bytes")
         logger.debug(f"Full statement data: {json.dumps(statement_data, indent=2)}")
@@ -247,7 +250,7 @@ class S3Client(Client):
                     "bucket": self.config.bucket,
                     "key": key,
                     "statement_data_size": len(statement_json),
-                    "s3_endpoint": self.connection_manager.boto_client._endpoint.host,
+                    "s3_endpoint": self.connection_manager.boto_client.meta.endpoint_url,
                 },
                 exc_info=True,
             )

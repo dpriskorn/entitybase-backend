@@ -17,7 +17,12 @@ class UserPreferencesHandler:
         if not vitess_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=400)
 
-        prefs = vitess_client.user_repository.get_user_preferences(user_id)
+        result = vitess_client.user_repository.get_user_preferences(user_id)
+        if not result.success:
+            raise_validation_error(
+                result.error or "Failed to get user preferences", status_code=500
+            )
+        prefs = result.data
         if prefs is None:
             # Return defaults if no custom preferences set
             prefs = {"notification_limit": 50, "retention_hours": 24}
@@ -36,11 +41,15 @@ class UserPreferencesHandler:
         if not vitess_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=400)
 
-        vitess_client.user_repository.update_user_preferences(
+        result = vitess_client.user_repository.update_user_preferences(
             user_id=user_id,
             notification_limit=request.notification_limit,
             retention_hours=request.retention_hours,
         )
+        if not result.success:
+            raise_validation_error(
+                result.error or "Failed to update user preferences", status_code=500
+            )
 
         return UserPreferencesResponse(
             user_id=user_id,

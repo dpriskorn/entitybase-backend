@@ -93,7 +93,7 @@ class EntityTransaction(BaseModel, ABC):
             content_hash=content_hash,
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
-            edit_summary=edit_summary,
+            summary=edit_summary,
             is_semi_protected=is_semi_protected,
             is_locked=is_locked,
             is_archived=is_archived,
@@ -130,7 +130,7 @@ class EntityTransaction(BaseModel, ABC):
                 type=change_type,
                 from_rev=from_revision_id,
                 at=changed_at,
-                edit_summary=edit_summary,
+                summary=edit_summary,
             )
             stream_producer.publish_change(event)
         # Events are fire-and-forget, no rollback needed

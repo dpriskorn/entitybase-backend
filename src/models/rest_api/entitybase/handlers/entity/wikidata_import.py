@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 
 from fastapi import HTTPException
 
-from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.services.wikidata_import_service import WikidataImportService
@@ -26,7 +26,7 @@ class EntityJsonImportHandler:
     async def import_entities_from_jsonl(
         request: EntityJsonImportRequest,
         vitess_client: VitessClient,
-        s3_client: S3Client,
+        s3_client: MyS3Client,
         stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
     ) -> EntityJsonImportResponse:
@@ -174,7 +174,7 @@ class EntityJsonImportHandler:
             return None
 
     @staticmethod
-    def _check_entity_exists(entity_id: str, s3_client: S3Client) -> bool:
+    def _check_entity_exists(entity_id: str, s3_client: MyS3Client) -> bool:
         """Check if an entity already exists by trying to read its latest revision."""
         try:
             s3_client.read_revision(entity_id, 1)  # Try to read revision 1
