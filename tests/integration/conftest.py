@@ -1,5 +1,6 @@
 import pytest
 import pymysql
+import time
 from unittest.mock import AsyncMock, MagicMock
 from moto import mock_aws as mock_s3
 
@@ -7,9 +8,22 @@ from moto import mock_aws as mock_s3
 @pytest.fixture(scope="session")
 def db_conn():
     """Database connection for cleanup"""
-    conn = pymysql.connect(
-        host="vitess", port=15309, user="root", password="", database="page"
-    )
+    # Wait for DB to be ready
+    max_retries = 30
+    for attempt in range(max_retries):
+        try:
+            conn = pymysql.connect(
+                host="vitess", port=15309, user="root", password="", database="page"
+            )
+            # Test connection with a simple query
+            with conn.cursor() as cursor:
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+            break
+        except pymysql.Error as e:
+            if attempt == max_retries - 1:
+                raise e
+            time.sleep(2)
     yield conn
     conn.close()
 
