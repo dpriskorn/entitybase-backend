@@ -145,6 +145,7 @@ class UpdateTransaction(EntityTransaction):
             from models.validation.utils import raise_validation_error
 
             raise_validation_error(response.error or "Failed to create revision")
+        assert isinstance(response.data, EntityResponse)
         return response.data
 
     def publish_event(
