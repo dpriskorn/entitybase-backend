@@ -6,9 +6,24 @@ sys.path.insert(0, "src")
 os.environ["TEST_DATA_DIR"] = str(Path(__file__).parent.parent / "test_data")
 
 import pytest
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, patch, MagicMock
+import boto3
+from moto import mock_aws
+
+# Mock S3 and DB before importing app to prevent connection attempts
+with patch('boto3.client') as mock_boto_client, \
+     patch('pymysql.connect') as mock_db_connect:
+    mock_client = MagicMock()
+    mock_boto_client.return_value = mock_client
+    mock_client.head_bucket.return_value = None  # Assume bucket exists
+    mock_client.create_bucket.return_value = None
+    mock_conn = MagicMock()
+    mock_db_connect.return_value = mock_conn
+    mock_conn.cursor.return_value.__enter__.return_value = MagicMock()
+    mock_conn.cursor.return_value.__exit__.return_value = None
+    from models.rest_api.main import app
+
 from fastapi.testclient import TestClient
-from models.rest_api.main import app
 
 
 @pytest.fixture(scope="session")
