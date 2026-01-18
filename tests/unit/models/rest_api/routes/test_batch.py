@@ -104,38 +104,55 @@ class TestBatchRoutes(unittest.TestCase):
 
     async def test_get_batch_labels_success(self):
         """Test successful batch labels retrieval."""
-        self.mock_s3.load_metadata.side_effect = lambda k, h: f"Label{h}" if k == "labels" and h % 2 == 0 else None
+        def mock_load_metadata(key, hash_val):
+            if key == "labels":
+                if hash_val == 200:
+                    return {"en": {"value": "Label200"}}
+                elif hash_val == 300:
+                    return {"en": {"value": "Label300"}}
+            return None
+
+        self.mock_s3.load_metadata.side_effect = mock_load_metadata
 
         result = await get_batch_labels("100,200,300", self.mock_request)
 
-        expected = {"200": "Title200", "300": "Title300"}
-        # Wait, this is wrong. Let me fix the mock.
-        # Actually, the mock should return based on hash
-        self.mock_s3.load_metadata.side_effect = lambda k, h: {"en": {"value": f"Label{h}"}} if h % 2 == 0 else None
-
-        result = await get_batch_labels("100,200", self.mock_request)
-
-        expected = {"200": {"en": {"value": "Label200"}}}
+        expected = {"200": {"en": {"value": "Label200"}}, "300": {"en": {"value": "Label300"}}}
         self.assertEqual(result, expected)
 
     async def test_get_batch_descriptions_success(self):
         """Test successful batch descriptions retrieval."""
-        self.mock_s3.load_metadata.side_effect = lambda k, h: f"Desc{h}" if k == "descriptions" and h > 100 else None
+        def mock_load_metadata(key, hash_val):
+            if key == "descriptions":
+                if hash_val == 150:
+                    return {"en": {"value": "Desc150"}}
+                elif hash_val == 250:
+                    return {"en": {"value": "Desc250"}}
+            return None
+
+        self.mock_s3.load_metadata.side_effect = mock_load_metadata
 
         result = await get_batch_descriptions("50,150,250", self.mock_request)
 
-        expected = {"150": "Desc150", "250": "Desc250"}
+        expected = {"150": {"en": {"value": "Desc150"}}, "250": {"en": {"value": "Desc250"}}}
         self.assertEqual(result, expected)
 
     async def test_get_batch_aliases_success(self):
         """Test successful batch aliases retrieval."""
-        self.mock_s3.load_metadata.side_effect = lambda k, h: [f"Alias{h}-1", f"Alias{h}-2"] if k == "aliases" else None
+        def mock_load_metadata(key, hash_val):
+            if key == "aliases":
+                if hash_val == 100:
+                    return [{"language": "en", "value": "Alias100"}]
+                elif hash_val == 200:
+                    return [{"language": "en", "value": "Alias200-1"}, {"language": "es", "value": "Alias200-2"}]
+            return None
+
+        self.mock_s3.load_metadata.side_effect = mock_load_metadata
 
         result = await get_batch_aliases("100,200", self.mock_request)
 
         expected = {
-            "100": ["Alias100-1", "Alias100-2"],
-            "200": ["Alias200-1", "Alias200-2"]
+            "100": [{"language": "en", "value": "Alias100"}],
+            "200": [{"language": "en", "value": "Alias200-1"}, {"language": "es", "value": "Alias200-2"}]
         }
         self.assertEqual(result, expected)
 
@@ -144,6 +161,38 @@ class TestBatchRoutes(unittest.TestCase):
         self.mock_s3.load_metadata.return_value = None
 
         result = await get_batch_aliases("100", self.mock_request)
+
+        self.assertEqual(result, {})
+
+    async def test_get_batch_labels_too_many_hashes(self):
+        """Test get_batch_labels raises error for too many hashes."""
+        hashes = ",".join([str(i) for i in range(21)])
+        with self.assertRaises(HTTPException) as cm:
+            await get_batch_labels(hashes, self.mock_request)
+        self.assertEqual(cm.exception.status_code, 400)
+        self.assertEqual(cm.exception.detail, "Too many hashes (max 20)")
+
+    async def test_get_batch_descriptions_too_many_hashes(self):
+        """Test get_batch_descriptions raises error for too many hashes."""
+        hashes = ",".join([str(i) for i in range(21)])
+        with self.assertRaises(HTTPException) as cm:
+            await get_batch_descriptions(hashes, self.mock_request)
+        self.assertEqual(cm.exception.status_code, 400)
+        self.assertEqual(cm.exception.detail, "Too many hashes (max 20)")
+
+    async def test_get_batch_aliases_too_many_hashes(self):
+        """Test get_batch_aliases raises error for too many hashes."""
+        hashes = ",".join([str(i) for i in range(21)])
+        with self.assertRaises(HTTPException) as cm:
+            await get_batch_aliases(hashes, self.mock_request)
+        self.assertEqual(cm.exception.status_code, 400)
+        self.assertEqual(cm.exception.detail, "Too many hashes (max 20)")
+
+    async def test_get_batch_sitelinks_empty_result(self):
+        """Test batch sitelinks with no valid results."""
+        self.mock_s3.load_sitelink_metadata.return_value = None
+
+        result = await get_batch_sitelinks("100,200", self.mock_request)
 
         self.assertEqual(result, {})
 
