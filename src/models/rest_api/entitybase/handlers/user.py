@@ -1,6 +1,9 @@
 """Handler for user operations."""
 
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.response.user import (
@@ -86,6 +89,7 @@ class UserHandler:
 
     def get_general_stats(self, vitess_client: VitessClient) -> dict:
         """Get general wiki statistics from the daily stats table."""
+        logger.debug("Fetching general stats from database")
         with vitess_client.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
