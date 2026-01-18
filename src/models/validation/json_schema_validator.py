@@ -60,7 +60,7 @@ class JsonSchemaValidator:
         if self._entity_revision_schema is None:
             schema_path = (
                 Path(__file__).parent.parent.parent
-                / f"schemas/entitybase/s3-revision/{self.s3_revision_version}/latest.yaml"
+                / f"src/schemas/entitybase/s3/revision/{self.s3_revision_version}/latest.yaml"
             )
             self._entity_revision_schema = self._load_schema(str(schema_path))
         return self._entity_revision_schema

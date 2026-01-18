@@ -119,6 +119,7 @@ class RevisionReadResponse(BaseModel):
     created_at: str = Field(default="")
     user_id: int = Field(default=0)
     edit_summary: str = Field(default="")
+    redirects_to: str = Field(default="")
 
 
 class StoredStatement(BaseModel):
