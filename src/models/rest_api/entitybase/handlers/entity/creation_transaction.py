@@ -2,7 +2,7 @@
 
 import logging
 from abc import ABC
-from typing import List, Callable, Any
+from typing import List, Callable, Any, cast
 
 from pydantic import BaseModel, Field
 
@@ -78,7 +78,7 @@ class EntityTransaction(BaseModel, ABC):
         stream_producer: Any,
         is_creation: bool,
     ) -> EntityResponse:
-        logger.debug(f'Creating revision for {entity_id}')
+        logger.debug(f"Creating revision for {entity_id}")
         from models.rest_api.entitybase.handlers.entity.base import EntityHandler
 
         handler = EntityHandler()
@@ -108,8 +108,9 @@ class EntityTransaction(BaseModel, ABC):
         )
         if not response.success:
             from models.validation.utils import raise_validation_error
+
             raise_validation_error(response.error or "Failed to create revision")
-        return response.data
+        return cast(EntityResponse, response.data)
 
     def publish_event(
         self,

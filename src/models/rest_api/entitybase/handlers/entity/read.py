@@ -128,7 +128,9 @@ class EntityReadHandler:
                     is_locked=revision.content.get("is_locked", False),
                     is_archived=revision.content.get("is_archived", False),
                     is_dangling=revision.content.get("is_dangling", False),
-                    is_mass_edit_protected=revision.content.get("is_mass_edit_protected", False),
+                    is_mass_edit_protected=revision.content.get(
+                        "is_mass_edit_protected", False
+                    ),
                 ),
             )
             if not isinstance(response, EntityResponse):

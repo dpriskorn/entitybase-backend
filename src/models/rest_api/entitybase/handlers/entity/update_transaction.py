@@ -2,7 +2,7 @@
 
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Callable, Any
+from typing import List, Callable, Any, cast
 
 from pydantic import BaseModel, Field
 
@@ -55,7 +55,7 @@ class EntityTransaction(BaseModel, ABC):
         s3_client: Any,
         stream_producer: Any,
         is_creation: bool,
-    ) -> EntityRevisionResponse:
+    ) -> EntityResponse:
         pass
 
     @abstractmethod
@@ -144,8 +144,9 @@ class UpdateTransaction(EntityTransaction):
         )
         if not response.success:
             from models.validation.utils import raise_validation_error
+
             raise_validation_error(response.error or "Failed to create revision")
-        return response.data
+        return cast(EntityResponse, response.data)
 
     def publish_event(
         self,

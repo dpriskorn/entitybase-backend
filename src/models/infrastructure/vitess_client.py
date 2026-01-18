@@ -9,7 +9,10 @@ from pydantic import BaseModel, Field
 from pymysql import Connection
 
 from models.rest_api.entitybase.response.entity import EntityHistoryEntry
-from models.infrastructure.vitess.listing_repository import EntityHeadListing, EntityEditListing
+from models.infrastructure.vitess.listing_repository import (
+    EntityHeadListing,
+    EntityEditListing,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -405,29 +408,29 @@ class VitessClient(Client):
             result = self.listing_repository.list_locked(conn, limit)
             return result
 
-    def list_semi_protected_entities(self, limit: int) -> list[EntityListing]:
+    def list_semi_protected_entities(self, limit: int) -> list[EntityHeadListing]:
         """List entities that are semi-protected."""
         with self._connection_manager.get_connection() as conn:
             result = self.listing_repository.list_semi_protected(conn, limit)
-            return [EntityListing(**item) for item in result]
+            return result
 
-    def list_archived_entities(self, limit: int) -> list[EntityListing]:
+    def list_archived_entities(self, limit: int) -> list[EntityHeadListing]:
         """List entities that are archived."""
         with self._connection_manager.get_connection() as conn:
             result = self.listing_repository.list_archived(conn, limit)
-            return [EntityListing(**item) for item in result]
+            return result
 
-    def list_dangling_entities(self, limit: int) -> list[EntityListing]:
+    def list_dangling_entities(self, limit: int) -> list[EntityHeadListing]:
         """List entities that are dangling."""
         with self._connection_manager.get_connection() as conn:
             result = self.listing_repository.list_dangling(conn, limit)
-            return [EntityListing(**item) for item in result]
+            return result
 
-    def list_by_edit_type(self, edit_type: str, limit: int) -> list[EntityListing]:
+    def list_by_edit_type(self, edit_type: str, limit: int) -> list[EntityEditListing]:
         """List entities by edit type."""
         with self._connection_manager.get_connection() as conn:
             result = self.listing_repository.list_by_edit_type(conn, edit_type, limit)
-            return [EntityListing(**item) for item in result]
+            return result
 
     def insert_statement_content(self, content_hash: int) -> bool:
         """Insert statement content hash."""

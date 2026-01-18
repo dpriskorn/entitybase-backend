@@ -90,7 +90,9 @@ class ListingRepository:
             ]
             return result
 
-    def list_by_edit_type(self, conn: Any, edit_type: str, limit: int) -> list[EntityEditListing]:
+    def list_by_edit_type(
+        self, conn: Any, edit_type: str, limit: int
+    ) -> list[EntityEditListing]:
         with conn.cursor() as cursor:
             cursor.execute(
                 """SELECT DISTINCT m.entity_id, r.edit_type, r.revision_id
@@ -102,7 +104,9 @@ class ListingRepository:
                 (edit_type, limit),
             )
             result = [
-                EntityEditListing(entity_id=row[0], edit_type=row[1], revision_id=row[2])
+                EntityEditListing(
+                    entity_id=row[0], edit_type=row[1], revision_id=row[2]
+                )
                 for row in cursor.fetchall()
             ]
             return result

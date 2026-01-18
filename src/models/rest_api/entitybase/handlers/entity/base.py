@@ -3,7 +3,7 @@
 import json
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict
+from typing import Any, Dict, cast
 
 from fastapi import HTTPException
 from pydantic import BaseModel
@@ -144,7 +144,7 @@ class EntityHandler(BaseModel):
         if not revision_result.success:
             raise_validation_error(revision_result.error or "Failed to create revision")
 
-        return revision_result.data
+        return cast(EntityResponse, revision_result.data)
 
     def _check_idempotency(
         self,
@@ -173,11 +173,15 @@ class EntityHandler(BaseModel):
                     revision_id=head_revision_id,
                     entity_data=head_revision.entity,
                     state=EntityState(
-                        is_semi_protected=head_revision.data.get("is_semi_protected", False),
+                        is_semi_protected=head_revision.data.get(
+                            "is_semi_protected", False
+                        ),
                         is_locked=head_revision.data.get("is_locked", False),
                         is_archived=head_revision.data.get("is_archived", False),
                         is_dangling=head_revision.data.get("is_dangling", False),
-                        is_mass_edit_protected=head_revision.data.get("is_mass_edit_protected", False),
+                        is_mass_edit_protected=head_revision.data.get(
+                            "is_mass_edit_protected", False
+                        ),
                     ),
                 )
         except Exception as e:
