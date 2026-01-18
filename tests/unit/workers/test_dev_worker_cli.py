@@ -76,19 +76,19 @@ class TestDevWorkerCLI:
         captured = capsys.readouterr()
         assert "usage:" in captured.out
 
-    @patch("models.workers.dev.create_buckets.CreateBuckets")
-    @patch("asyncio.run")
-    @patch("models.workers.dev.__main__.run_setup")
     @patch(
         "sys.argv",
         ["devworker", "--endpoint", "http://custom:9000", "setup"],
     )
+    @patch("models.workers.dev.__main__.run_setup")
+    @patch("asyncio.run")
+    @patch("models.workers.dev.create_buckets.CreateBuckets")
     def test_custom_arguments(
         self,
-        mock_argv,
-        mock_run_setup,
-        mock_asyncio_run,
         mock_create_buckets,
+        mock_asyncio_run,
+        mock_run_setup,
+        mock_argv,
     ):
         """Test CLI with custom arguments."""
         mock_worker = MagicMock()

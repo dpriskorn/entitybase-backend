@@ -1,12 +1,10 @@
 """Response schemas for entity change data."""
 
 from datetime import datetime
-from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
-if TYPE_CHECKING:
-    from models.infrastructure.stream.change_type import ChangeType
+from models.infrastructure.stream.change_type import ChangeType
 
 
 class EntityChange(BaseModel):

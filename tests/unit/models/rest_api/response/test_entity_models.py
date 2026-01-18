@@ -223,12 +223,13 @@ class TestEntityChange:
             schema = yaml.safe_load(f)
 
         # Create a valid EntityChange
+        from datetime import timezone
         change = EntityChange(
             entity_id="Q42",
             revision_id=123,
             change_type=ChangeType.EDIT,
             from_revision_id=122,
-            changed_at=datetime(2023, 1, 1, 12, 0, 0),
+            changed_at=datetime(2023, 1, 1, 12, 0, 0, tzinfo=timezone.utc),
             edit_summary="Updated label",
         )
 

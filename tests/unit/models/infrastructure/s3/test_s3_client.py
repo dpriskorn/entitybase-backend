@@ -230,10 +230,10 @@ class TestMyS3Client:
             mock_connection_manager.boto_client.copy_object.assert_called_once()
             call_args = mock_connection_manager.boto_client.copy_object.call_args
             assert call_args[1]["Bucket"] == "test-bucket"
-            assert call_args[1]["Key"] == "entities/Q42/123.json"
+            assert call_args[1]["Key"] == "Q42/r123.json"
             assert call_args[1]["CopySource"] == {
                 "Bucket": "test-bucket",
-                "Key": "entities/Q42/123.json",
+                "Key": "Q42/r123.json",
             }
             assert call_args[1]["Metadata"] == {"publication_state": "published"}
             assert call_args[1]["MetadataDirective"] == "REPLACE"
@@ -249,7 +249,18 @@ class TestMyS3Client:
                 "Metadata": {"schema_version": "1.0", "created_at": "2023-01-01"},
             }
             mock_body = MagicMock()
-            mock_body.read.return_value = b'{"schema_version": "1.0", "entity": {"id": "Q42"}, "redirects_to": null}'
+            mock_body.read.return_value = b'''{
+                "schema_version": "1.0",
+                "revision_id": 123,
+                "created_at": "2023-01-01",
+                "created_by": "test_user",
+                "entity_type": "item",
+                "entity": {"id": "Q42"},
+                "redirects_to": null,
+                "labels_hashes": null,
+                "descriptions_hashes": null,
+                "aliases_hashes": null
+            }'''
             mock_connection_manager.boto_client.get_object.return_value["Body"] = (
                 mock_body
             )
@@ -260,7 +271,7 @@ class TestMyS3Client:
             assert result["entity"]["id"] == "Q42"
             assert result["redirects_to"] is None
             mock_connection_manager.boto_client.get_object.assert_called_once_with(
-                Bucket="test-bucket", Key="entities/Q42/123.json"
+                Bucket="test-bucket", Key="Q42/r123.json"
             )
 
     def test_delete_statement(self, config, mock_connection_manager):
@@ -285,7 +296,7 @@ class TestMyS3Client:
             mock_manager_class.return_value = mock_connection_manager
 
             client = MyS3Client(config)
-            client.write_entity_revision("Q42", 123, {"entity": {"id": "Q42"}}, "1.0")
+            client.write_entity_revision("Q42", 123, "item", {"entity": {"id": "Q42"}}, "create")
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
             call_args = mock_connection_manager.boto_client.put_object.call_args
@@ -304,7 +315,7 @@ class TestMyS3Client:
             client.delete_metadata("labels", 789)
 
             mock_connection_manager.boto_client.delete_object.assert_called_once_with(
-                Bucket="wikibase-terms", Key="labels/789"
+                Bucket="test-bucket", Key="metadata/labels/789.json"
             )
 
     def test_store_term_metadata(self, config, mock_connection_manager):
@@ -358,8 +369,8 @@ class TestMyS3Client:
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
             call_args = mock_connection_manager.boto_client.put_object.call_args
-            assert call_args[1]["Bucket"] == "wikibase-terms"
-            assert call_args[1]["Key"] == "sitelinks/789"
+            assert call_args[1]["Bucket"] == "wikibase-sitelinks"
+            assert call_args[1]["Key"] == "789"
             assert call_args[1]["Body"] == b"test title"
 
     def test_load_sitelink_metadata(self, config, mock_connection_manager):
@@ -382,5 +393,5 @@ class TestMyS3Client:
 
             assert result == "test title"
             mock_connection_manager.boto_client.get_object.assert_called_once_with(
-                Bucket="wikibase-terms", Key="sitelinks/789"
+                Bucket="wikibase-sitelinks", Key="789"
             )
