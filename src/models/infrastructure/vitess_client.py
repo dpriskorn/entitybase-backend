@@ -85,10 +85,6 @@ class VitessClient(Client):
         default=None, exclude=True
     )
 
-    @property
-    def connection_manager(self) -> VitessConnectionManager:
-        return self.connection_manager
-
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
         logger.debug(f"Initializing VitessClient with host {config.host}")
