@@ -8,11 +8,11 @@ from . import (
     items,
     lexemes,
     properties,
+    property_hashes,
     qualifiers,
     redirects,
     references,
     statements,
-    sync,
 )
 
 
@@ -28,4 +28,4 @@ v1_router.include_router(admin.admin_router, tags=["list"])
 v1_router.include_router(qualifiers.qualifiers_router, tags=["statements"])
 v1_router.include_router(references.references_router, tags=["statements"])
 v1_router.include_router(redirects.redirects_router, tags=["redirects"])
-v1_router.include_router(sync.sync_router, tags=["sync"])
+v1_router.include_router(property_hashes.property_hashes_router, tags=["properties"])

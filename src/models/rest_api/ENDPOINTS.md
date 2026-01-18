@@ -31,6 +31,7 @@
 | ✅ | GET | `/entitybase/v1/entities/sitelinks/{hashes}` | Get batch sitelink titles by hashes. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}` | Retrieve a single entity by its ID. |
 | ✅ | DELETE | `/entitybase/v1/entities/{entity_id}` | Delete an entity. |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}.json` | Get entity data in JSON format. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}.ttl` | Get entity data in Turtle format. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/history` | Get the revision history for an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties` | Get entity property hashes for specified properties. |
@@ -72,6 +73,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 67 |
+| Implemented | 68 |
 | Not Implemented | 0 |
-| Total | 67 |
+| Total | 68 |

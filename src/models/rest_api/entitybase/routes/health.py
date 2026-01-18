@@ -7,7 +7,7 @@ from models.rest_api.entitybase.handlers import health_check
 from models.rest_api.entitybase.response import HealthCheckResponse
 
 
-health_router = APIRouter(prefix="/entitybase", tags=["health"])
+health_router = APIRouter(tags=["health"])
 
 
 @health_router.get("/health", response_model=HealthCheckResponse)

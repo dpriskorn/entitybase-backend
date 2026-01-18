@@ -1,4 +1,4 @@
-"""Sync routes."""
+"""Property hashes routes."""
 
 from fastapi import APIRouter, Request
 
@@ -6,19 +6,18 @@ from models.rest_api.clients import Clients
 from models.rest_api.entitybase.handlers.statement import StatementHandler
 from models.rest_api.entitybase.response import (
     PropertyHashesResponse,
-    PropertyCountsResponse,
 )
 from models.validation.utils import raise_validation_error
 
 
-sync_router = APIRouter()
+property_hashes_router = APIRouter()
 
 
-@sync_router.get(
+@property_hashes_router.get(
     "/entity/{entity_id}/properties/{property_list}",
     response_model=PropertyHashesResponse,
 )
-def get_entity_property_hashes_sync(
+def get_entity_property_hashes(
     entity_id: str, property_list: str, req: Request
 ) -> PropertyHashesResponse:
     """Get statement hashes for specified properties in an entity."""
@@ -31,10 +30,4 @@ def get_entity_property_hashes_sync(
     )
 
 
-def get_entity_property_counts(entity_id: str, req: Request) -> PropertyCountsResponse:
-    """Get statement counts for each property in an entity."""
-    clients = req.app.state.clients
-    handler = StatementHandler()
-    result = handler.get_entity_property_counts(entity_id, clients.vitess, clients.s3)
-    # Not used as route, perhaps internal
-    return result
+
