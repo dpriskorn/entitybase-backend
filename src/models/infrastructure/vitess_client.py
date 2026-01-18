@@ -217,7 +217,7 @@ class VitessClient(Client):
     def get_protection_info(self, entity_id: str) -> ProtectionResponse | None:
         """Get protection information for an entity."""
         with self._connection_manager.get_connection() as conn:
-            return self.entity_repository.get_protection_info(conn, entity_id)
+            return self.entity_repository.get_protection_info(conn, entity_id)  # type: ignore[union-attr]
 
     def get_history(
         self, entity_id: str, limit: int = 20, offset: int = 0
@@ -246,7 +246,7 @@ class VitessClient(Client):
             property_counts=property_counts,
         )
         with self._connection_manager.get_connection() as conn:
-            return self.revision_repository.insert(  # type: ignore[no-any-return]
+            return self.revision_repository.insert(  # type: ignore[no-any-return,union-attr]
                 conn,
                 entity_id,
                 revision_id,
@@ -263,7 +263,7 @@ class VitessClient(Client):
         """Create a new revision for an entity."""
         with self._connection_manager.get_connection() as conn:
             if expected_revision_id != 0:
-                success = self.revision_repository.create_with_cas(
+                success = self.revision_repository.create_with_cas(  # type: ignore[union-attr]
                     conn, entity_id, revision_id, entity_data, expected_revision_id
                 )
                 if not success:
