@@ -82,6 +82,7 @@ class ThanksHandler:
             )
 
         data = result.data
+        assert isinstance(data, dict)
         return ThanksListResponse(
             user_id=user_id,
             thanks=data["thanks"],
@@ -106,6 +107,7 @@ class ThanksHandler:
             )
 
         data = result.data
+        assert isinstance(data, dict)
         return ThanksListResponse(
             user_id=user_id,
             thanks=data["thanks"],
@@ -125,6 +127,7 @@ class ThanksHandler:
                 result.error or "Failed to get thanks", status_code=500
             )
 
+        assert isinstance(result.data, list)
         return ThanksListResponse(
             user_id=0,  # Not user-specific
             thanks=result.data,

@@ -88,6 +88,7 @@ class EntityUpdateHandler(EntityHandler):
                 entity_id=entity_id,
                 revision_id=response.revision_id,
                 change_type="edit",
+                user_id=0,  # TODO: get from auth
                 from_revision_id=tx.head_revision_id,
                 changed_at=None,  # TODO
                 edit_summary=request.edit_summary,

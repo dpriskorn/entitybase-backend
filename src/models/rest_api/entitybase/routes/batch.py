@@ -3,7 +3,7 @@
 from fastapi import HTTPException, Request
 
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.v1 import v1_router
+from models.rest_api.entitybase.versions.v1 import v1_router
 
 
 @v1_router.get("/sitelinks/{hashes}")

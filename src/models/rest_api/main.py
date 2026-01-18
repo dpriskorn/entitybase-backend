@@ -4,7 +4,6 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
@@ -13,9 +12,8 @@ from jsonschema import ValidationError  # type: ignore[import-untyped]
 from models.config.settings import settings
 from models.rest_api.clients import Clients
 from models.validation.json_schema_validator import JsonSchemaValidator
-from models.validation.utils import raise_validation_error
 from .entitybase.services.enumeration_service import EnumerationService
-from .entitybase.v1 import v1_router
+from models.rest_api.entitybase.versions.v1 import v1_router
 
 log_level = settings.get_log_level()
 
@@ -170,7 +168,7 @@ async def validation_error_handler(exc: ValidationError) -> JSONResponse:
     )
 
 
-from .routes import include_routes
+from models.rest_api.entitybase.routes import include_routes
 
 include_routes(app)
 

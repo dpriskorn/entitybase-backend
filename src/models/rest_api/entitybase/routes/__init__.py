@@ -1,5 +1,7 @@
 """Routes package."""
 
+from typing import TYPE_CHECKING
+
 from . import (
     admin,
     batch,
@@ -12,11 +14,13 @@ from . import (
     sync,
     thanks,
     users,
-    v1_entities,
 )
 
+if TYPE_CHECKING:
+    from fastapi import FastAPI
 
-def include_routes(app) -> None:
+
+def include_routes(app: "FastAPI") -> None:
     """Include all route routers in the app."""
     app.include_router(health.health_router)
     app.include_router(users.users_router)

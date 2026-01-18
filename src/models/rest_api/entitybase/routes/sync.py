@@ -4,7 +4,10 @@ from fastapi import APIRouter, Request
 
 from models.rest_api.clients import Clients
 from models.rest_api.entitybase.handlers.statement import StatementHandler
-from models.rest_api.entitybase.response import PropertyHashesResponse
+from models.rest_api.entitybase.response import (
+    PropertyHashesResponse,
+    PropertyCountsResponse,
+)
 from models.validation.utils import raise_validation_error
 
 
@@ -28,9 +31,7 @@ def get_entity_property_hashes_sync(
     )
 
 
-def get_entity_property_counts(
-    entity_id: str, req: Request
-) -> None:  # PropertyCountsResponse
+def get_entity_property_counts(entity_id: str, req: Request) -> PropertyCountsResponse:
     """Get statement counts for each property in an entity."""
     clients = req.app.state.clients
     handler = StatementHandler()

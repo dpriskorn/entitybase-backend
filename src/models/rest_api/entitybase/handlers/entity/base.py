@@ -249,6 +249,7 @@ class EntityHandler(BaseModel):
                     hash_operation.error or "Failed to hash statements", status_code=500
                 )
             hash_result = hash_operation.data
+            assert isinstance(hash_result, StatementHashResult)
             logger.info(
                 f"Entity {entity_id}: Statement hashing complete: {len(hash_result.statements)} hashes generated",
                 extra={

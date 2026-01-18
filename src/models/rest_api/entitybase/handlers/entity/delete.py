@@ -85,7 +85,7 @@ class EntityDeleteHandler:
                 )
 
             # Locked items block all edits
-            if protection_info.get("is_locked", False):
+            if protection_info and protection_info.get("is_locked", False):
                 raise_validation_error("Item is locked from all edits", status_code=403)
         except (HTTPException, ValueError):
             raise

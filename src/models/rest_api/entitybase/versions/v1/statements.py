@@ -15,7 +15,7 @@ from models.rest_api.entitybase.response import (
     StatementResponse,
 )
 from models.validation.utils import raise_validation_error
-from ...clients import Clients
+from models.rest_api.clients import Clients
 
 router = APIRouter()
 

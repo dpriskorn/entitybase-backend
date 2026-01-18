@@ -449,7 +449,7 @@ class TestMyS3Client:
 
             # Mock load_reference calls
             client = MyS3Client(config)
-            with patch.object(client, "load_reference") as mock_load_ref:
+            with patch.object(MyS3Client, "load_reference") as mock_load_ref:
                 mock_load_ref.side_effect = [
                     {"snaks": {"P1": []}},
                     None,  # Missing
@@ -509,7 +509,7 @@ class TestMyS3Client:
 
             # Mock load_qualifier calls
             client = MyS3Client(config)
-            with patch.object(client, "load_qualifier") as mock_load_qual:
+            with patch.object(MyS3Client, "load_qualifier") as mock_load_qual:
                 mock_load_qual.side_effect = [
                     {"qualifiers": {"P1": []}},
                     None,  # Missing

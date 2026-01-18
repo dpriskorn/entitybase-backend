@@ -29,7 +29,9 @@ class UserActivityHandler:
                 f"Invalid activity type: {activity_type}", status_code=400
             )
 
-        activity_type_param = None if activity_type == "" else activity_type
+        activity_type_param = (
+            None if activity_type == "" else ActivityType(activity_type)
+        )
         result = vitess_client.user_repository.get_user_activities(
             user_id, activity_type_param, hours, limit, offset
         )

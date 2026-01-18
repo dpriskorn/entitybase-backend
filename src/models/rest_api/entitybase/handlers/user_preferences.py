@@ -27,10 +27,11 @@ class UserPreferencesHandler:
                     result.error or "Failed to get user preferences", status_code=500
                 )
         else:
-            prefs = result.data
-            if prefs is None:
-                # Return defaults if no custom preferences set
+            if result.data is None or not isinstance(result.data, dict):
+                # Return defaults if no custom preferences set or invalid data
                 prefs = {"notification_limit": 50, "retention_hours": 24}
+            else:
+                prefs = result.data
 
         return UserPreferencesResponse(
             user_id=user_id,
