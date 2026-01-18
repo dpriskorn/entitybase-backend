@@ -210,6 +210,29 @@ class TestThanksRepository:
         assert data["total_count"] == 0
         assert data["has_more"] is False
 
+    def test_get_thanks_received_offset_pagination(self, repository, mock_connection_manager):
+        """Test get_thanks_received with offset pagination."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        # Mock with offset 50, limit 10, total 55, so has_more = False
+        mock_cursor.fetchall.return_value = [
+            (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc)) for i in range(51, 56)
+        ]
+        mock_cursor.fetchone.return_value = (55,)
+
+        result = repository.get_thanks_received(456, 24, 10, 50)
+
+        assert result.success is True
+        data = result.data
+        assert len(data["thanks"]) == 5
+        assert data["total_count"] == 55
+        assert data["has_more"] is False
+
     def test_get_thanks_received_invalid_params(self, repository):
         """Test get_thanks_received with invalid parameters."""
         result = repository.get_thanks_received(0, 24, 50, 0)
@@ -300,6 +323,29 @@ class TestThanksRepository:
         assert data["total_count"] == 0
         assert data["has_more"] is False
 
+    def test_get_thanks_sent_offset_pagination(self, repository, mock_connection_manager):
+        """Test get_thanks_sent with offset pagination."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        # Mock with offset 50, limit 10, total 55, so has_more = False
+        mock_cursor.fetchall.return_value = [
+            (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc)) for i in range(51, 56)
+        ]
+        mock_cursor.fetchone.return_value = (55,)
+
+        result = repository.get_thanks_sent(123, 24, 10, 50)
+
+        assert result.success is True
+        data = result.data
+        assert len(data["thanks"]) == 5
+        assert data["total_count"] == 55
+        assert data["has_more"] is False
+
     def test_get_thanks_sent_invalid_params(self, repository):
         """Test get_thanks_sent with invalid parameters."""
         result = repository.get_thanks_sent(0, 24, 50, 0)
@@ -349,10 +395,8 @@ class TestThanksRepository:
         thanks = result.data
         assert len(thanks) == 0
 
-    def test_get_revision_thanks_entity_not_found(
-        self, repository, mock_connection_manager, mock_id_resolver
-    ):
-        """Test get_revision_thanks when entity not found."""
+    def test_get_revision_thanks_multiple(self, repository, mock_connection_manager, mock_id_resolver):
+        """Test get_revision_thanks with multiple thanks."""
         mock_conn = Mock()
         mock_cursor = Mock()
         mock_connection_manager.get_connection.return_value.__enter__.return_value = (
@@ -360,12 +404,21 @@ class TestThanksRepository:
         )
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
-        mock_id_resolver.resolve_id.return_value = None
+        mock_id_resolver.resolve_id.return_value = 123
+        mock_cursor.fetchall.return_value = [
+            (1, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc)),
+            (2, 124, 456, "Q42", 100, datetime(2023, 1, 2, tzinfo=timezone.utc)),
+            (3, 125, 456, "Q42", 100, datetime(2023, 1, 3, tzinfo=timezone.utc)),
+        ]
 
         result = repository.get_revision_thanks("Q42", 100)
 
-        assert result.success is False
-        assert result.error == "Entity not found"
+        assert result.success is True
+        thanks = result.data
+        assert len(thanks) == 3
+        assert thanks[0].id == 1
+        assert thanks[1].id == 2
+        assert thanks[2].id == 3
 
     def test_get_revision_thanks_invalid_params(self, repository):
         """Test get_revision_thanks with invalid parameters."""
