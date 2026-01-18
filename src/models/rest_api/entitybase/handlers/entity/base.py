@@ -9,6 +9,7 @@ from fastapi import HTTPException
 from pydantic import BaseModel
 from rapidhash import rapidhash
 
+from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
@@ -313,7 +314,7 @@ class EntityHandler(BaseModel):
         stream_producer: StreamProducerClient | None,
         is_creation: bool,
         edit_summary: str = "",
-    ) -> EntityRevisionResponse:
+    ) -> OperationResult[EntityResponse]:
         """Create revision data, store it, and publish events."""
         # Process sitelinks: hash titles and store metadata
         sitelinks_hashes = {}
@@ -435,15 +436,18 @@ class EntityHandler(BaseModel):
         )
 
         # Return response
-        return EntityResponse(
-            id=entity_id,
-            rev_id=new_revision_id,
-            data=request_data,
-            semi_prot=is_semi_protected or False,
-            is_locked=is_locked or False,
-            archived=is_archived or False,
-            dangling=is_dangling or False,
-            mass_edit=is_mass_edit_protected or False,
+        return OperationResult(
+            success=True,
+            data=EntityResponse(
+                id=entity_id,
+                rev_id=new_revision_id,
+                data=request_data,
+                semi_prot=is_semi_protected or False,
+                is_locked=is_locked or False,
+                archived=is_archived or False,
+                dangling=is_dangling or False,
+                mass_edit=is_mass_edit_protected or False,
+            ),
         )
 
 

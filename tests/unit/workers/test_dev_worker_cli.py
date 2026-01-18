@@ -87,6 +87,10 @@ class TestDevWorkerCLI:
     ):
         """Test CLI with custom arguments."""
         mock_worker = MagicMock()
+        mock_worker.run_setup = AsyncMock()
+        mock_worker.run_setup.return_value = {"setup_status": "completed", "buckets_created": {}, "health_check": {"overall_status": "healthy", "issues": []}}
+        mock_worker.bucket_health_check = AsyncMock()
+        mock_worker.bucket_health_check.return_value = {"overall_status": "healthy", "issues": [], "buckets": {}}
         mock_create_buckets.return_value = mock_worker
 
         result = main()
