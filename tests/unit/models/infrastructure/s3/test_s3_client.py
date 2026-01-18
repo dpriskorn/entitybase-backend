@@ -425,9 +425,7 @@ class TestMyS3Client:
                 "Body": MagicMock()
             }
             mock_body = MagicMock()
-            mock_body.read.return_value = (
-                b'{"reference": {"hash": "123", "snaks": {"P1": []}, "snaks_order": ["P1"]}, "hash": 123, "created_at": "2023-01-01T00:00:00Z"}'
-            )
+            mock_body.read.return_value = b'{"reference": {"hash": "123", "snaks": {"P1": []}, "snaks_order": ["P1"]}, "hash": 123, "created_at": "2023-01-01T00:00:00Z"}'
             mock_connection_manager.boto_client.get_object.return_value["Body"] = (
                 mock_body
             )

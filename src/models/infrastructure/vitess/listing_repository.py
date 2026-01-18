@@ -57,7 +57,9 @@ class ListingRepository:
                 (limit,),
             )
             result = [
-                EntityListing(entity_id=row[0], entity_type=row[1], reason="semi_protected")
+                EntityListing(
+                    entity_id=row[0], entity_type=row[1], reason="semi_protected"
+                )
                 for row in cursor.fetchall()
             ]
             return result
@@ -110,9 +112,7 @@ class ListingRepository:
                 (edit_type, limit),
             )
             result = [
-                EntityListing(
-                    entity_id=row[0], entity_type=row[1], reason=row[2]
-                )
+                EntityListing(entity_id=row[0], entity_type=row[1], reason=row[2])
                 for row in cursor.fetchall()
             ]
             return result

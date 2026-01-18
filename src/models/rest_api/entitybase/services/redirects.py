@@ -127,9 +127,7 @@ class RedirectService:
                 id=request.redirect_from_id,
                 rev=redirect_revision_id,
                 type=ChangeType.REDIRECT,
-                from_rev=from_head_revision_id
-                if from_head_revision_id
-                else None,
+                from_rev=from_head_revision_id if from_head_revision_id else None,
                 at=datetime.now(timezone.utc),
                 summary=request.revert_reason,
             )

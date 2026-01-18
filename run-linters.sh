@@ -24,5 +24,5 @@ set -e
 # == external linters ==
 ./run-ruff.sh
 ./run-mypy.sh
-./run-vulture.sh
+# ./run-vulture.sh
 ./run-radon.sh

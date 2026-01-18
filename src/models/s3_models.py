@@ -140,7 +140,6 @@ class S3ReferenceData(BaseModel):
     )
 
 
-
 class RevisionReadResponse(BaseModel):
     """Response model for reading revisions."""
 

@@ -40,8 +40,7 @@ async def get_qualifiers(
         result = s3_client.load_qualifiers_batch(rapidhashes)
         # Convert dicts to Pydantic models
         return [
-            QualifierResponse(**item) if item is not None else None
-            for item in result
+            QualifierResponse(**item) if item is not None else None for item in result
         ]
     except Exception as e:
         logger.error(f"Failed to load qualifiers {rapidhashes}: {e}")
