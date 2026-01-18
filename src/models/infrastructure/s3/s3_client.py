@@ -13,6 +13,7 @@ from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
+from models.infrastructure.s3.revision_storage import RevisionStorage
 from models.rest_api.entitybase.response import StatementResponse
 from models.s3_models import (
     RevisionData,
@@ -46,6 +47,9 @@ class MyS3Client(Client):
         self.connection_manager = manager  # type: ignore[assignment]
         self.connection_manager.connect()
         # self._ensure_bucket_exists()
+
+        # Initialize storage components
+        self.revisions = RevisionStorage(self.connection_manager)
 
     # def _ensure_bucket_exists(self) -> None:
     #     """Ensure the S3 bucket exists, creating it if necessary."""
@@ -84,61 +88,17 @@ class MyS3Client(Client):
         data: RevisionData,
     ) -> OperationResult[None]:
         """Write entity revision data to S3."""
-        if not self.connection_manager or not self.connection_manager.boto_client:
-            raise_validation_error("S3 service unavailable", status_code=503)
-        bucket = settings.s3_revisions_bucket
-        key = f"entities/{entity_id}/{revision_id}"
-        try:
-            self.connection_manager.boto_client.put_object(
-                Bucket=bucket,
-                Key=key,
-                Body=data.model_dump(mode="json"),
-                Metadata={
-                    "schema_version": data.schema_version,
-                    "created_at": datetime.now(timezone.utc).isoformat(),
-                },
-            )
-            return OperationResult(success=True)
-        except Exception:
-            raise_validation_error("S3 storage service unavailable", status_code=503)
+        return self.revisions.store_revision(entity_id, revision_id, data)
 
     def read_revision(self, entity_id: str, revision_id: int) -> RevisionReadResponse:
         """Read S3 object and return parsed JSON."""
-        if not self.connection_manager or not self.connection_manager.boto_client:
-            raise_validation_error("S3 service unavailable", status_code=503)
-        bucket = settings.s3_revisions_bucket
-        key = f"{entity_id}/{revision_id}"
-        response = self.connection_manager.boto_client.get_object(
-            Bucket=bucket, Key=key
-        )
-
-        parsed_data = json.loads(response["Body"].read().decode("utf-8"))
-
-        return RevisionReadResponse(
-            entity_id=entity_id,
-            revision_id=revision_id,
-            data=RevisionData(**parsed_data),
-            content=parsed_data.get("entity", {}),
-            schema_version=parsed_data.get("schema_version", ""),
-            created_at=response["Metadata"].get("created_at", ""),
-        )
+        return self.revisions.load_revision(entity_id, revision_id)
 
     def mark_published(
         self, entity_id: str, revision_id: int, publication_state: str
     ) -> None:
         """Update the publication state of an entity revision."""
-        if not self.connection_manager or not self.connection_manager.boto_client:
-            raise_validation_error("S3 service unavailable", status_code=503)
-        bucket = settings.s3_revisions_bucket
-        key = f"{entity_id}/{revision_id}"
-        # noinspection PyTypeChecker
-        self.connection_manager.boto_client.copy_object(
-            Bucket=bucket,
-            CopySource={"Bucket": bucket, "Key": key},
-            Key=key,
-            Metadata={"publication_state": publication_state},
-            MetadataDirective="REPLACE",
-        )
+        self.revisions.mark_published(entity_id, revision_id, publication_state)
 
     def delete_statement(self, content_hash: int) -> None:
         """Delete statement from S3."""
