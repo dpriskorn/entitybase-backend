@@ -395,3 +395,63 @@ class TestMyS3Client:
             mock_connection_manager.boto_client.get_object.assert_called_once_with(
                 Bucket="wikibase-sitelinks", Key="789"
             )
+
+    def test_store_reference(self, config, mock_connection_manager):
+        """Test store_reference method."""
+        with patch(
+            "models.infrastructure.s3.s3_client.S3ConnectionManager"
+        ) as mock_manager_class:
+            mock_manager_class.return_value = mock_connection_manager
+
+            client = MyS3Client(config)
+            reference_data = {"snaks": {"P1": []}}
+            client.store_reference(123, reference_data)
+
+            mock_connection_manager.boto_client.put_object.assert_called_once()
+            call_args = mock_connection_manager.boto_client.put_object.call_args
+            assert call_args[1]["Bucket"] == "testbucket-references"
+            assert call_args[1]["Key"] == "123"
+            assert call_args[1]["ContentType"] == "application/json"
+
+    def test_load_reference(self, config, mock_connection_manager):
+        """Test load_reference method."""
+        with patch(
+            "models.infrastructure.s3.s3_client.S3ConnectionManager"
+        ) as mock_manager_class:
+            mock_manager_class.return_value = mock_connection_manager
+            mock_connection_manager.boto_client.get_object.return_value = {
+                "Body": MagicMock()
+            }
+            mock_body = MagicMock()
+            mock_body.read.return_value = b'{"snaks": {"P1": []}}'
+            mock_connection_manager.boto_client.get_object.return_value["Body"] = (
+                mock_body
+            )
+
+            client = MyS3Client(config)
+            result = client.load_reference(123)
+
+            assert result == {"snaks": {"P1": []}}
+            mock_connection_manager.boto_client.get_object.assert_called_once_with(
+                Bucket="testbucket-references", Key="123"
+            )
+
+    def test_load_references_batch(self, config, mock_connection_manager):
+        """Test load_references_batch method."""
+        with patch(
+            "models.infrastructure.s3.s3_client.S3ConnectionManager"
+        ) as mock_manager_class:
+            mock_manager_class.return_value = mock_connection_manager
+
+            # Mock load_reference calls
+            client = MyS3Client(config)
+            client.load_reference = MagicMock(side_effect=[
+                {"snaks": {"P1": []}},
+                None,  # Missing
+                {"snaks": {"P2": []}}
+            ])
+
+            result = client.load_references_batch([123, 456, 789])
+
+            assert result == [{"snaks": {"P1": []}}, None, {"snaks": {"P2": []}}]
+            assert client.load_reference.call_count == 3

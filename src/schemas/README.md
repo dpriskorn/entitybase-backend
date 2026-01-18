@@ -103,9 +103,62 @@ Versions: `1.0.0`, `1.1.0`, `1.2.0`, `2.1.0` (latest: `2.1.0`)
 
 ### S3 Statement Schema
 
-Statement data stored in S3.
+Statement data stored in S3. References are deduplicated using rapidhash pointers.
 
-Version: `1.0.0` (latest: `latest` symlink)
+Versions: `1.0.0`, `2.0.0` (latest: `2.0.0`)
+
+#### Example Statement (v2.0.0)
+
+```json
+{
+  "schema_version": "2.0.0",
+  "content_hash": 1234567890123456789,
+  "statement": {
+    "mainsnak": {
+      "snaktype": "value",
+      "property": "P31",
+      "datatype": "wikibase-item",
+      "datavalue": {
+        "value": {
+          "entity-type": "item",
+          "numeric-id": 5,
+          "id": "Q5"
+        },
+        "type": "wikibase-entityid"
+      }
+    },
+    "type": "statement",
+    "rank": "normal",
+    "qualifiers": {
+      "P580": [
+        {
+          "snaktype": "value",
+          "property": "P580",
+          "datatype": "time",
+          "datavalue": {
+            "value": {
+              "time": "+2018-01-01T00:00:00Z",
+              "timezone": 0,
+              "before": 0,
+              "after": 0,
+              "precision": 9,
+              "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+            },
+            "type": "time"
+          }
+        }
+      ]
+    },
+    "references": [
+      9876543210987654321,
+      8765432109876543210
+    ]
+  },
+  "created_at": "2026-01-18T12:00:00Z"
+}
+```
+
+In v2.0.0, `references` contains rapidhash integers pointing to deduplicated reference JSON in the `wikibase-references` S3 bucket.
 
 ### Wikibase Entity Schema
 
