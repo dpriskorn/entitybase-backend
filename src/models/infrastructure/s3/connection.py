@@ -14,7 +14,7 @@ class S3DictModel(BaseModel):
 
 
 from models.infrastructure.connection import ConnectionManager
-from models.s3_models import S3Config
+from models.infrastructure.s3.config import S3Config
 
 
 class S3ConnectionManager(ConnectionManager):

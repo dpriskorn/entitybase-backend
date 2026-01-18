@@ -1,0 +1,69 @@
+"""Metadata storage operations for terms and sitelinks."""
+
+import logging
+from typing import TYPE_CHECKING
+
+from models.common import OperationResult
+from models.config.settings import settings
+from models.infrastructure.s3.base_storage import BaseS3Storage
+
+if TYPE_CHECKING:
+    pass
+
+logger = logging.getLogger(__name__)
+
+
+class MetadataStorage(BaseS3Storage):
+    """Storage operations for metadata (terms and sitelinks)."""
+
+    def __init__(self, connection_manager):
+        # Use a default bucket, but methods will override
+        super().__init__(connection_manager, settings.s3_terms_bucket)
+
+    def _get_bucket_for_type(self, metadata_type: str) -> str:
+        """Get the appropriate bucket for metadata type."""
+        if metadata_type in ("labels", "descriptions", "aliases"):
+            return settings.s3_terms_bucket
+        elif metadata_type == "sitelinks":
+            return settings.s3_sitelinks_bucket
+        else:
+            raise ValueError(f"Unknown metadata type: {metadata_type}")
+
+    def store_metadata(self, metadata_type: str, content_hash: int, value: str) -> OperationResult[None]:
+        """Store metadata value (term or sitelink title)."""
+        bucket = self._get_bucket_for_type(metadata_type)
+        # Temporarily change bucket for this operation
+        original_bucket = self.bucket
+        self.bucket = bucket
+
+        try:
+            key = str(content_hash)
+            # Terms are stored as plain text, sitelinks too
+            result = self.store(key, value, content_type="text/plain")
+            return result
+        finally:
+            self.bucket = original_bucket
+
+    def load_metadata(self, metadata_type: str, content_hash: int) -> str:
+        """Load metadata value."""
+        bucket = self._get_bucket_for_type(metadata_type)
+        original_bucket = self.bucket
+        self.bucket = bucket
+
+        try:
+            key = str(content_hash)
+            return self.load(key)
+        finally:
+            self.bucket = original_bucket
+
+    def delete_metadata(self, metadata_type: str, content_hash: int) -> OperationResult[None]:
+        """Delete metadata."""
+        bucket = self._get_bucket_for_type(metadata_type)
+        original_bucket = self.bucket
+        self.bucket = bucket
+
+        try:
+            key = str(content_hash)
+            return self.delete(key)
+        finally:
+            self.bucket = original_bucket

@@ -1,7 +1,7 @@
 from typing import Any, Dict
 from unittest.mock import Mock, patch
 from models.infrastructure.s3.s3_client import MyS3Client
-from models.s3_models import S3Config
+from models.infrastructure.s3.config import S3Config
 
 
 class TestS3MetadataStorage:
