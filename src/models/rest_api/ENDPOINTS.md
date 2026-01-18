@@ -6,7 +6,6 @@
 | ✅ | GET | `/entitybase/v1/entities/aliases/{hashes}` | Get batch aliases by hashes. |
 | ✅ | GET | `/entitybase/v1/entities/descriptions/{hashes}` | Get batch descriptions by hashes. |
 | ✅ | POST | `/entitybase/v1/entities/items` | Create a new item entity. |
-| ✅ | PUT | `/entitybase/v1/entities/items/{item_id}` | Update an existing item entity. |
 | ✅ | GET | `/entitybase/v1/entities/items/{item_id}/aliases/{language_code}` | Get item aliases for language. |
 | ✅ | PATCH | `/entitybase/v1/entities/items/{item_id}/aliases/{language_code}` | Patch item aliases for language using JSON Patch. |
 | ✅ | GET | `/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}` | Get item description for language. |
@@ -17,9 +16,7 @@
 | ✅ | DELETE | `/entitybase/v1/entities/items/{item_id}/labels/{language_code}` | Delete item label for language. |
 | ✅ | GET | `/entitybase/v1/entities/labels/{hashes}` | Get batch labels by hashes. |
 | ✅ | POST | `/entitybase/v1/entities/lexemes` | Create a new lexeme entity. |
-| ✅ | PUT | `/entitybase/v1/entities/lexemes/{lexeme_id}` | Update an existing lexeme entity. |
 | ✅ | POST | `/entitybase/v1/entities/properties` | Create a new property entity. |
-| ✅ | PUT | `/entitybase/v1/entities/properties/{property_id}` | Update an existing property entity. |
 | ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}` | Get property aliases for language. |
 | ✅ | PATCH | `/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}` | Patch property aliases for language using JSON Patch. |
 | ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/descriptions/{language_code}` | Get property description for language. |
@@ -41,7 +38,10 @@
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thank` | Send a thank for a specific revision. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks` | Get all thanks for a specific revision. |
 | ✅ | GET | `/entitybase/v1/entity/{entity_id}/properties/{property_list}` | Get statement hashes for specified properties in an entity. |
+| ✅ | PUT | `/entitybase/v1/item/{entity_id}` | Update an existing item entity. |
 | ✅ | POST | `/entitybase/v1/json-import` | Import entities from Wikidata JSONL dump file. |
+| ✅ | PUT | `/entitybase/v1/lexeme/{entity_id}` | Update an existing lexeme entity. |
+| ✅ | PUT | `/entitybase/v1/property/{entity_id}` | Update an existing property entity. |
 | ✅ | GET | `/entitybase/v1/qualifiers/{hashes}` | Fetch qualifiers by hash(es). |
 | ✅ | POST | `/entitybase/v1/redirects` | Create a redirect for an entity. |
 | ✅ | GET | `/entitybase/v1/references/{hashes}` | Fetch references by hash(es). |
@@ -54,6 +54,10 @@
 | ✅ | DELETE | `/entitybase/v1/statements/{statement_hash}/endorse` | Withdraw endorsement from a statement. |
 | ✅ | GET | `/entitybase/v1/statements/{statement_hash}/endorsements` | Get endorsements for a statement. |
 | ✅ | GET | `/entitybase/v1/statements/{statement_hash}/endorsements/stats` | Get endorsement statistics for a statement. |
+| ✅ | GET | `/entitybase/v1/stats` | Get general wiki statistics. |
+| ✅ | POST | `/entitybase/v1/users` | Create a new user. |
+| ✅ | GET | `/entitybase/v1/users/stat` | Get user statistics. |
+| ✅ | GET | `/entitybase/v1/users/{user_id}` | Get user information by MediaWiki user ID. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}/endorsements` | Get endorsements given by a user. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}/endorsements/stats` | Get endorsement statistics for a user. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}/thanks/received` | Get thanks received by user. |
@@ -64,12 +68,8 @@
 | ✅ | PUT | `/entitybase/v1/users/{user_id}/watchlist/notifications/{notification_id}/check` | Mark a notification as checked. |
 | ✅ | POST | `/entitybase/v1/users/{user_id}/watchlist/remove` | Remove a watchlist entry for user. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}/watchlist/stats` | Get user's watchlist statistics. |
+| ✅ | PUT | `/entitybase/v1/users/{user_id}/watchlist/toggle` | Enable or disable watchlist for user. |
 | ✅ | GET | `/health` | Health check endpoint for monitoring service status. |
-| ✅ | GET | `/v1/stats` | Get general wiki statistics. |
-| ✅ | POST | `/v1/users` | Create a new user. |
-| ✅ | GET | `/v1/users/stat` | Get user statistics. |
-| ✅ | GET | `/v1/users/{user_id}` | Get user information by MediaWiki user ID. |
-| ✅ | PUT | `/v1/users/{user_id}/watchlist/toggle` | Enable or disable watchlist for user. |
 
 | Status | Count |
 |--------|-------|
