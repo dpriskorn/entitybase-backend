@@ -8,9 +8,6 @@ package "API Layer" as APILayer #LightBlue {
     "Admin" as AdminHandler
     "Thanks" as ThanksHandler
     "UserActivity" as UserActivityHandler
-    "Redirect" as RedirectHandler
-    "User" as UserHandler
-    "Statement" as StatementHandler
     ... (31 total components)
 }
 
@@ -28,9 +25,6 @@ package "Worker Layer" as WorkerLayer #LightYellow {
     "EntityDiffResponse" as EntityDiffResponse
     "RDFCanonicalizer" as RDFCanonicalizer
     "RDFSerializer" as RDFSerializer
-    "EntityDiffWorker" as EntityDiffWorker
-    "BacklinkStatisticsWorker" as BacklinkStatisticsWorker
-    "NotificationCleanupWorker" as NotificationCleanupWorker
     ... (11 total components)
 }
 
@@ -40,9 +34,6 @@ package "Infrastructure Layer" as InfrastructureLayer #LightGray {
     "Revision" as RevisionRepository
     "Head" as HeadRepository
     "Listing" as ListingRepository
-    "Endorsement" as EndorsementRepository
-    "Backlink" as BacklinkRepository
-    "User" as UserRepository
     ... (15 total components)
 }
 
@@ -52,9 +43,6 @@ package "Data Models" as DataModels #LightCyan {
     "EndorsementStatsResponse" as EndorsementStatsResponse
     "StatementEndorsementStats" as StatementEndorsementStats
     "BatchEndorsementStatsResponse" as BatchEndorsementStatsResponse
-    "SingleEndorsementStatsResponse" as SingleEndorsementStatsResponse
-    "IdResponse" as IdResponse
-    "WikibasePredicatesResponse" as WikibasePredicatesResponse
     ... (10 total components)
 }
 

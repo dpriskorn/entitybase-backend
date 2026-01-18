@@ -183,7 +183,7 @@ def generate_system_architecture_diagram(analysis: Dict) -> str:
                 f'package "{pkg_name}" as {pkg_name.replace(" ", "")} #{pkg_info["color"]} {{'
             )
 
-            for component in pkg_info["components"][:8]:  # Limit components
+            for component in pkg_info["components"][:5]:  # Limit components (detailed in separate diagram)
                 component_name = (
                     component.replace("Service", "")
                     .replace("Handler", "")
