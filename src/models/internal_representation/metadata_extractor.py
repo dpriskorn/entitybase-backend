@@ -86,7 +86,7 @@ class MetadataExtractor:
         """Generate a 64-bit rapidhash for a string."""
         from rapidhash import rapidhash
 
-        return rapidhash(content.encode("utf-8"))
+        return rapidhash(content.encode("utf-8"))  # type: ignore[no-any-return]
 
     @staticmethod
     def hash_metadata(metadata: Any) -> int:

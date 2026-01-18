@@ -205,7 +205,7 @@ class RDFSerializer:
                                     )
                                 )
 
-        return g.serialize(format=format)
+        return g.serialize(format=format)  # type: ignore[no-any-return]
 
 
 class EntityDiffWorker:

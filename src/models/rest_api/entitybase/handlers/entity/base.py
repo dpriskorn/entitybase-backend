@@ -127,7 +127,7 @@ class EntityHandler(BaseModel):
             content_hash=content_hash,
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
-            summary=edit_summary,
+            edit_summary=edit_summary,
             is_semi_protected=is_semi_protected,
             is_locked=is_locked,
             is_archived=is_archived,
@@ -168,17 +168,13 @@ class EntityHandler(BaseModel):
                 )
                 return EntityResponse(
                     id=entity_id,
-                    revision_id=head_revision_id,
-                    is_semi_protected=head_revision.data.get(
-                        "is_semi_protected", False
-                    ),
+                    rev_id=head_revision_id,
+                    semi_prot=head_revision.data.get("is_semi_protected", False),
                     is_locked=head_revision.data.get("is_locked", False),
-                    is_archived=head_revision.data.get("is_archived", False),
-                    is_dangling=head_revision.data.get("is_dangling", False),
-                    is_mass_edit_protected=head_revision.data.get(
-                        "is_mass_edit_protected", False
-                    ),
-                    entity_data=head_revision.data.get("entity_data", {}),
+                    archived=head_revision.data.get("is_archived", False),
+                    dangling=head_revision.data.get("is_dangling", False),
+                    mass_edit=head_revision.data.get("is_mass_edit_protected", False),
+                    data=head_revision.data.get("entity", {}),
                 )
         except Exception as e:
             logger.warning(f"Failed to read head revision for idempotency check: {e}")
@@ -350,7 +346,7 @@ class EntityHandler(BaseModel):
             property_counts=hash_result.property_counts,
             sitelinks_hashes=sitelinks_hashes,
             content_hash=content_hash,
-            summary=edit_summary,
+            edit_summary=edit_summary,
             is_mass_edit=revision_is_mass_edit,
             edit_type=revision_edit_type,
             is_semi_protected=is_semi_protected,
@@ -500,7 +496,7 @@ class EntityCreateHandler(EntityHandler):
             entity_type=request.type,
             is_mass_edit=request.is_mass_edit,
             edit_type=request.edit_type,
-            summary=request.edit_summary,
+            edit_summary=request.edit_summary,
             is_semi_protected=request.is_semi_protected,
             is_locked=request.is_locked,
             is_archived=request.is_archived,
@@ -565,7 +561,7 @@ class EntityUpdateHandler(EntityHandler):
             entity_type=request.type,
             is_mass_edit=request.is_mass_edit,
             edit_type=request.edit_type,
-            summary=request.edit_summary,
+            edit_summary=request.edit_summary,
             is_semi_protected=request.is_semi_protected,
             is_locked=request.is_locked,
             is_archived=request.is_archived,

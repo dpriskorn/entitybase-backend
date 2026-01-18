@@ -131,7 +131,7 @@ class RedirectService:
                 if from_head_revision_id
                 else None,
                 changed_at=datetime.now(timezone.utc),
-                summary=None,
+                edit_summary=request.revert_reason,
             )
             await self.stream_producer.publish_change(event)
 

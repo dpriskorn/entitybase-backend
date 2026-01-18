@@ -207,7 +207,7 @@ class EndorsementHandler:
 
         data = result.data
         return EndorsementListResponse(
-            statement_hash=statement_hash,
+            hash=statement_hash,
             endorsements=data["endorsements"],
             total_count=data["total_count"],
             has_more=data["has_more"],

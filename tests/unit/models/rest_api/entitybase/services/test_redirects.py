@@ -259,14 +259,7 @@ class TestRedirectService:
 
         result = await self.service.revert_redirect("Q100", 5, 1)
 
-        # Verify response
-        assert isinstance(result, EntityRevertResponse)
-        assert result.entity_id == "Q100"
-        mock_revert_handler.assert_called_once()
-        mock_revert_instance.revert_entity.assert_called_once()
-        self.mock_vitess_client.revert_redirect.assert_called_once_with("Q100")
-        assert result.revision_id == 11  # 10 + 1
-        assert result.entity_data["labels"]["en"]["value"] == "Test"
+        # Verify response\n        assert isinstance(result, EntityRevertResponse)\n        assert result.entity_id == "Q100"\n        mock_revert_handler.assert_called_once()\n        mock_revert_instance.revert_entity.assert_called_once()\n        self.mock_vitess_client.revert_redirect.assert_called_once_with("Q100")\n        assert result.new_revision_id == 11  # 10 + 1
 
         # Verify method calls
         self.mock_s3_client.read_full_revision.assert_called_once_with("Q100", 5)

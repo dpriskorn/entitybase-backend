@@ -118,7 +118,9 @@ class EntityHistoryEntry(BaseModel):
         default=0, description="User ID who made the change. Example: 67890."
     )
     edit_summary: str = Field(
-        default="", description="Edit summary text. Example: 'Added label'."
+        default="",
+        alias="summary",
+        description="Edit summary text. Example: 'Added label'.",
     )
 
 

@@ -27,9 +27,9 @@ class BacklinkStatisticsService(BaseModel):
         top_entities = self.get_top_entities_by_backlinks(vitess_client, self.top_limit)
 
         return BacklinkStatisticsData(
-            total_backlinks=total_backlinks,
-            unique_entities_with_backlinks=unique_entities,
-            top_entities_by_backlinks=top_entities,
+            total=total_backlinks,
+            unique=unique_entities,
+            top=top_entities,
         )
 
     def get_total_backlinks(self, vitess_client: VitessClient) -> int:

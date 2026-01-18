@@ -125,6 +125,25 @@ class TestThanksRepository:
         assert result.success is False
         assert result.error == "Already thanked this revision"
 
+    def test_send_thank_database_error(
+        self, repository, mock_connection_manager, mock_id_resolver
+    ):
+        """Test send_thank with database error."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_id_resolver.resolve_id.return_value = 123
+        mock_cursor.fetchone.side_effect = Exception("Database error")
+
+        result = repository.send_thank(123, "Q42", 100)
+
+        assert result.success is False
+        assert "Database error" in result.error
+
     def test_get_thanks_received_success(self, repository, mock_connection_manager):
         """Test successful get_thanks_received."""
         mock_conn = Mock()

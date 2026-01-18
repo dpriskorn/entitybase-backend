@@ -38,4 +38,4 @@ class StatementHasher:
             k: v for k, v in statement_dict.items() if k != "statement_id"
         }
         canonical_json = json.dumps(statement_for_hash, sort_keys=True)
-        return rapidhash(canonical_json.encode())
+        return rapidhash(canonical_json.encode())  # type: ignore[no-any-return]

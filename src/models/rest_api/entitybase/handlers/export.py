@@ -41,4 +41,4 @@ class ExportHandler:
         entity_data = revision.data["entity"]
 
         turtle = serialize_entity_to_turtle(entity_data, property_registry)
-        return TtlResponse(turtle)
+        return TtlResponse(turtle=turtle)

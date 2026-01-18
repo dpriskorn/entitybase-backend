@@ -88,7 +88,7 @@ class ItemCreateHandler(EntityCreateHandler):
                 content_hash=0,
                 is_mass_edit=request.is_mass_edit,
                 edit_type=request.edit_type,
-                summary=request.edit_summary,
+                edit_summary=request.edit_summary,
                 is_semi_protected=request.is_semi_protected,
                 is_locked=request.is_locked,
                 is_archived=request.is_archived,
@@ -109,7 +109,7 @@ class ItemCreateHandler(EntityCreateHandler):
                 changed_at=datetime.now(),
                 stream_producer=stream_producer,
                 from_revision_id=0,
-                summary=request.edit_summary,
+                edit_summary=request.edit_summary,
             )
 
             # Commit

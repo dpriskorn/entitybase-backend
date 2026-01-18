@@ -193,10 +193,10 @@ class EntityDeleteHandler:
 
         return EntityDeleteResponse(
             id=entity_id,
-            revision_id=new_revision_id,
+            rev_id=new_revision_id,
             is_deleted=True,
-            deletion_type=str(request.delete_type.value),
-            deletion_status="soft_deleted"
+            del_type=str(request.delete_type.value),
+            del_status="soft_deleted"
             if request.delete_type == DeleteType.SOFT
             else "hard_deleted",
         )
