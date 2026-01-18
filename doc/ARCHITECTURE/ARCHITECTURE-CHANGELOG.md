@@ -2,6 +2,26 @@
 
 This file tracks architectural changes, feature additions, and modifications to the entitybase-backend.
 
+## [2026-01-18] API Fixes and Endpoint Removal
+
+### Summary
+
+Fixed various API issues including missing request fields, validation problems, and S3 bucket handling. Removed the bulk sitelinks update endpoint to simplify the API surface.
+
+### Changes
+
+#### Entity Creation API Fixes
+- **Fixed EntityCreateRequest**: Added missing `is_semi_protected`, `is_locked`, `is_archived`, `is_dangling`, and `is_mass_edit_protected` fields to prevent attribute errors
+- **Fixed PropertyCounts Validation**: Added `default_factory=dict` to ensure proper Pydantic validation for empty counts
+
+#### S3 Client Improvements
+- **Fixed delete_metadata**: Implemented proper bucket determination logic based on metadata type (terms vs sitelinks)
+
+#### API Simplification
+- **Removed Endpoint**: `PUT /entitybase/v1/entities/{entity_id}/sitelinks` - Bulk sitelinks update endpoint
+- **Rationale**: Simplified API by removing redundant bulk operation; individual sitelink operations remain available
+- **Impact**: Reduces API surface area while maintaining functionality through existing per-sitelink endpoints
+
 ## [2026-01-18] Watchlist Entry Removal by ID and Statistics APIs
 
 ### Summary

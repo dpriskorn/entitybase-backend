@@ -14,6 +14,7 @@ from models.config.settings import settings
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.revision_storage import RevisionStorage
+from models.infrastructure.s3.statement_storage import StatementStorage
 from models.rest_api.entitybase.response import StatementResponse
 from models.s3_models import (
     RevisionData,
@@ -50,6 +51,7 @@ class MyS3Client(Client):
 
         # Initialize storage components
         self.revisions = RevisionStorage(self.connection_manager)
+        self.statements = StatementStorage(self.connection_manager)
 
     # def _ensure_bucket_exists(self) -> None:
     #     """Ensure the S3 bucket exists, creating it if necessary."""
@@ -114,93 +116,10 @@ class MyS3Client(Client):
         statement_data: Dict[str, Any],
         schema_version: str,
     ) -> None:
-        """Write statement snapshot to S3.
-
-        Stores statement at path: {hash}.
-        """
-        if not self.connection_manager or not self.connection_manager.boto_client:
-            raise_validation_error("S3 service unavailable", status_code=503)
-        bucket = settings.s3_statements_bucket
-        key = f"{content_hash}"
-        stored = StoredStatement(
-            hash=content_hash,
-            statement=statement_data["statement"],
-            schema=schema_version,
-            created_at=datetime.now(timezone.utc).isoformat(),
-        )
-        statement_json = stored.model_dump(mode="json")
-
-        # Enhanced pre-write validation logging
-        logger.debug(f"S3 write_statement: bucket={bucket}, key={key}")
-        # noinspection PyProtectedMember
-        logger.debug(
-            f"S3 client endpoint: {self.connection_manager.boto_client.meta.endpoint_url}"
-        )
-        logger.debug(f"Statement data size: {len(statement_json)} bytes")
-        logger.debug(f"Full statement data: {json.dumps(statement_data, indent=2)}")
-
-        # Verify bucket exists before write
-        try:
-            self.connection_manager.boto_client.head_bucket(Bucket=bucket)
-            logger.debug(f"S3 bucket {bucket} exists and is accessible")
-        except Exception as bucket_error:
-            logger.error(f"S3 bucket {bucket} not accessible: {bucket_error}")
-            raise
-
-        try:
-            response = self.connection_manager.boto_client.put_object(
-                Bucket=bucket,
-                Key=key,
-                Body=statement_json,
-                Metadata={"schema_version": schema_version},
-            )
-
-            # Enhanced response logging with S3 metadata
-            logger.debug(
-                f"S3 write_statement successful: bucket={bucket}, key={key}, "
-                f"ETag={response.get('ETag')}, RequestId={response.get('ResponseMetadata', {}).get('RequestId')}"
-            )
-
-            # High Priority: Immediate verification by reading back written object
-            try:
-                verify_response = self.connection_manager.boto_client.get_object(
-                    Bucket=bucket, Key=key
-                )
-                verify_data = json.loads(verify_response["Body"].read().decode("utf-8"))
-                logger.debug(
-                    f"S3 write verification successful: data matches written content for {content_hash}"
-                )
-
-                # Verify the content hash matches what we wrote
-                if verify_data.get("content_hash") == content_hash:
-                    logger.debug(
-                        f"S3 write verification successful: content_hash matches for {content_hash}"
-                    )
-                else:
-                    logger.error(
-                        f"S3 write verification failed: content_hash mismatch for {content_hash} - got {verify_data.get('content_hash')}"
-                    )
-
-            except Exception as verify_error:
-                logger.error(
-                    f"S3 write verification failed for {content_hash}: {verify_error}"
-                )
-                raise
-
-        except Exception as e:
-            # noinspection PyProtectedMember
-            logger.error(
-                f"S3 write_statement failed for {content_hash}: {type(e).__name__}: {e}",
-                extra={
-                    "content_hash": content_hash,
-                    "bucket": bucket,
-                    "key": key,
-                    "statement_data_size": len(statement_json),
-                    "s3_endpoint": self.connection_manager.boto_client.meta.endpoint_url,
-                },
-                exc_info=True,
-            )
-            raise
+        """Write statement snapshot to S3."""
+        result = self.statements.store_statement(content_hash, statement_data, schema_version)
+        if not result.success:
+            raise_validation_error("S3 storage service unavailable", status_code=503)
 
     def read_statement(self, content_hash: int) -> "StatementResponse":
         """Read statement snapshot from S3.
