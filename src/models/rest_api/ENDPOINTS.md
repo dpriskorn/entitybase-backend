@@ -2,10 +2,10 @@
 
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
+| ✅ | GET | `/entitybase/health` | Health check endpoint for monitoring service status. |
 | ✅ | GET | `/entitybase/v1/aliases/{hashes}` | Get batch aliases by hashes. |
 | ✅ | GET | `/entitybase/v1/descriptions/{hashes}` | Get batch descriptions by hashes. |
 | ✅ | GET | `/entitybase/v1/entities` | List entities based on type, limit, and offset. |
-| ✅ | GET | `/entitybase/v1/entities` | List entities, optionally filtered by type (or all entities if no type specified). |
 | ✅ | POST | `/entitybase/v1/entities/items` | Create a new item entity. |
 | ✅ | GET | `/entitybase/v1/entities/items/{item_id}/aliases/{language_code}` | Get item aliases for language. |
 | ✅ | PATCH | `/entitybase/v1/entities/items/{item_id}/aliases/{language_code}` | Patch item aliases for language using JSON Patch. |
@@ -27,25 +27,15 @@
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/history` | Get the revision history for an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties/{property_list}` | No description |
+| ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert` | Revert entity to a previous revision. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert-redirect` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}` | Get a specific revision of an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/json` | Get JSON representation of a specific entity revision. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/ttl` | Get Turtle (TTL) representation of a specific entity revision. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/raw/{revision_id}` | No description |
+| ✅ | POST | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thank` | Send a thank for a specific revision. |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks` | Get all thanks for a specific revision. |
 | ✅ | GET | `/entitybase/v1/entity/{entity_id}/properties/{property_list}` | Get statement hashes for specified properties in an entity. |
-| ✅ | POST | `/entitybase/v1/entitybase/v1/entities/{entity_id}/revert` | Revert entity to a previous revision. |
-| ✅ | POST | `/entitybase/v1/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thank` | Send a thank for a specific revision. |
-| ✅ | GET | `/entitybase/v1/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks` | Get all thanks for a specific revision. |
-| ✅ | POST | `/entitybase/v1/entitybase/v1/statements/{statement_hash}/endorse` | Endorse a statement to signal trust. |
-| ✅ | DELETE | `/entitybase/v1/entitybase/v1/statements/{statement_hash}/endorse` | Withdraw endorsement from a statement. |
-| ✅ | GET | `/entitybase/v1/entitybase/v1/statements/{statement_hash}/endorsements` | Get endorsements for a statement. |
-| ✅ | GET | `/entitybase/v1/entitybase/v1/statements/{statement_hash}/endorsements/stats` | Get endorsement statistics for a statement. |
-| ✅ | GET | `/entitybase/v1/entitybase/v1/users/{user_id}/endorsements` | Get endorsements given by a user. |
-| ✅ | GET | `/entitybase/v1/entitybase/v1/users/{user_id}/endorsements/stats` | Get endorsement statistics for a user. |
-| ✅ | GET | `/entitybase/v1/entitybase/v1/users/{user_id}/thanks/received` | Get thanks received by user. |
-| ✅ | GET | `/entitybase/v1/entitybase/v1/users/{user_id}/thanks/sent` | Get thanks sent by user. |
-| ✅ | GET | `/entitybase/v1/health` | Health check endpoint for monitoring service status. |
-| ✅ | GET | `/entitybase/v1/health` | Health check endpoint that redirects or provides status. |
 | ✅ | PUT | `/entitybase/v1/item/{entity_id}` | Update an existing item entity. |
 | ✅ | POST | `/entitybase/v1/json-import` | Import entities from Wikidata JSONL dump file. |
 | ✅ | GET | `/entitybase/v1/labels/{hashes}` | Get batch labels by hashes. |
@@ -60,13 +50,20 @@
 | ✅ | POST | `/entitybase/v1/statements/cleanup-orphaned` | Clean up orphaned statements that are no longer referenced. |
 | ✅ | GET | `/entitybase/v1/statements/most_used` | Get the most used statements based on reference count. |
 | ✅ | GET | `/entitybase/v1/statements/{content_hash}` | Retrieve a single statement by its content hash. |
-| ✅ | GET | `/entitybase/v1/v1/health` | Redirect legacy /v1/health endpoint to /health. |
-| ✅ | POST | `/entitybase/v1/v1/users` | Create a new user. |
-| ✅ | GET | `/entitybase/v1/v1/users/{user_id}` | Get user information by MediaWiki user ID. |
-| ✅ | PUT | `/entitybase/v1/v1/users/{user_id}/watchlist/toggle` | Enable or disable watchlist for user. |
+| ✅ | POST | `/entitybase/v1/statements/{statement_hash}/endorse` | Endorse a statement to signal trust. |
+| ✅ | DELETE | `/entitybase/v1/statements/{statement_hash}/endorse` | Withdraw endorsement from a statement. |
+| ✅ | GET | `/entitybase/v1/statements/{statement_hash}/endorsements` | Get endorsements for a statement. |
+| ✅ | GET | `/entitybase/v1/statements/{statement_hash}/endorsements/stats` | Get endorsement statistics for a statement. |
+| ✅ | POST | `/entitybase/v1/users` | Create a new user. |
+| ✅ | GET | `/entitybase/v1/users/{user_id}` | Get user information by MediaWiki user ID. |
+| ✅ | GET | `/entitybase/v1/users/{user_id}/endorsements` | Get endorsements given by a user. |
+| ✅ | GET | `/entitybase/v1/users/{user_id}/endorsements/stats` | Get endorsement statistics for a user. |
+| ✅ | GET | `/entitybase/v1/users/{user_id}/thanks/received` | Get thanks received by user. |
+| ✅ | GET | `/entitybase/v1/users/{user_id}/thanks/sent` | Get thanks sent by user. |
+| ✅ | PUT | `/entitybase/v1/users/{user_id}/watchlist/toggle` | Enable or disable watchlist for user. |
 
 | Status | Count |
 |--------|-------|
-| Implemented | 62 |
+| Implemented | 59 |
 | Not Implemented | 0 |
-| Total | 62 |
+| Total | 59 |

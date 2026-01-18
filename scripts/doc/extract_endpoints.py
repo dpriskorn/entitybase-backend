@@ -18,7 +18,12 @@ def extract_endpoints_from_file(file_path: Path) -> list[dict[str, Any]]:
     if "wikibase/v1" in file_str:
         prefix = "/wikibase/v1"
     elif "entitybase" in file_str:
-        prefix = "/entitybase/v1"
+        if "versions/v1" in file_str:
+            prefix = "/entitybase/v1"
+        elif "batch.py" in file_str:
+            prefix = "/entitybase/v1"
+        else:
+            prefix = ""
     else:
         prefix = ""
 

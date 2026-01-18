@@ -107,24 +107,7 @@ async def get_entity_json_revision(  # type: ignore[return]
     return revision_data.data  # type: ignore[no-any-return]
 
 
-@router.get("/entities", response_model=EntityListResponse)
-def get_entities(
-    req: Request,
-    entity_type: str = Query(
-        "",
-        description="Entity type to filter by (item, property, lexeme, entityschema). Leave empty for all types",
-    ),
-    limit: int = Query(
-        100, ge=1, le=1000, description="Maximum number of entities to return"
-    ),
-    offset: int = Query(0, ge=0, description="Number of entities to skip"),
-) -> EntityListResponse:
-    """List entities, optionally filtered by type (or all entities if no type specified)."""
-    clients = req.app.state.clients
-    handler = AdminHandler()
-    return handler.list_entities(  # type: ignore[no-any-return]
-        clients.vitess, entity_type=entity_type, limit=limit, offset=offset
-    )
+
 
 
 @router.get("/entities/{entity_id}.ttl")
