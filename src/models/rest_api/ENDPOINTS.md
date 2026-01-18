@@ -33,11 +33,6 @@
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties` | Get entity property hashes for specified properties. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/properties/{property_id}` | Add claims for a single property to an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties/{property_list}` | Get entity property hashes for specified properties. |
-| ✅ | PUT | `/entitybase/v1/entities/{entity_id}/sitelinks` | Update entity sitelinks. |
-| ✅ | GET | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Get single sitelink. |
-| ✅ | POST | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Add new sitelink. |
-| ✅ | PUT | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Update existing sitelink. |
-| ✅ | DELETE | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Delete sitelink. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert` | Revert entity to a previous revision. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert-redirect` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}` | Get a specific revision of an entity. |
@@ -45,6 +40,11 @@
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/ttl` | Get Turtle (TTL) representation of a specific entity revision. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thank` | Send a thank for a specific revision. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks` | Get all thanks for a specific revision. |
+| ✅ | PUT | `/entitybase/v1/entities/{entity_id}/sitelinks` | Update entity sitelinks. |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Get a single sitelink for an entity. |
+| ✅ | POST | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Add a new sitelink for an entity. |
+| ✅ | PUT | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Update an existing sitelink for an entity. |
+| ✅ | DELETE | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Delete a sitelink from an entity. |
 | ✅ | DELETE | `/entitybase/v1/entities/{entity_id}/statements/{statement_hash}` | Remove a statement by hash from an entity. |
 | ✅ | PATCH | `/entitybase/v1/entities/{entity_id}/statements/{statement_hash}` | Replace a statement by hash with new claim data. |
 | ✅ | GET | `/entitybase/v1/entity/{entity_id}/properties/{property_list}` | Get statement hashes for specified properties in an entity. |
@@ -78,6 +78,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 74 |
+| Implemented | 73 |
 | Not Implemented | 0 |
-| Total | 74 |
+| Total | 73 |

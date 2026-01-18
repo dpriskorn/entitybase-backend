@@ -323,7 +323,7 @@ class TestMyS3Client:
             client.delete_metadata("labels", 789)
 
             mock_connection_manager.boto_client.delete_object.assert_called_once_with(
-                Bucket="test-bucket", Key="metadata/labels/789.json"
+                Bucket="testbucket-terms", Key="metadata/labels/789"
             )
 
     def test_store_term_metadata(self, config, mock_connection_manager):
