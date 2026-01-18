@@ -72,7 +72,7 @@ __all__ = [
     "StatementBatchResponse",
     "StatementHashResult",
     "StatementResponse",
-    \"TurtleResponse\",
+    "TurtleResponse",
     "WikibasePredicatesResponse",
     "WorkerHealthCheckResponse",
 ]
