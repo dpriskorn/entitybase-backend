@@ -16,7 +16,7 @@ from models.validation.utils import raise_validation_error
 redirects_router = APIRouter()
 
 
-@redirects_router.post("/redirects")
+@redirects_router.post("/redirects", response_model=EntityRedirectResponse)
 async def create_entity_redirect(
     request: EntityRedirectRequest, req: Request
 ) -> EntityRedirectResponse:
@@ -31,7 +31,7 @@ async def create_entity_redirect(
     return result
 
 
-@redirects_router.post("/entities/{entity_id}/revert-redirect")
+@redirects_router.post("/entities/{entity_id}/revert-redirect", response_model=EntityRevertResponse)
 async def revert_entity_redirect(  # type: ignore[no-any-return]
     entity_id: str, request: RedirectRevertRequest, req: Request
 ) -> EntityRevertResponse:

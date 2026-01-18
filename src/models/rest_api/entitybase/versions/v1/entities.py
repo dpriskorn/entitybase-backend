@@ -122,6 +122,17 @@ async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse
     return result
 
 
+@router.get("/entities/{entity_id}.json", response_model=Dict[str, Any])
+async def get_entity_data_json(entity_id: str, req: Request) -> Dict[str, Any]:
+    """Get entity data in JSON format."""
+    clients = req.app.state.clients
+    handler = EntityReadHandler()
+    entity_response = handler.get_entity(entity_id, clients.vitess, clients.s3)
+    if not isinstance(entity_response.entity_data, dict):
+        raise_validation_error("Invalid response type", status_code=500)
+    return entity_response.entity_data
+
+
 @router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)
 async def delete_entity(  # type: ignore[no-any-return]
     entity_id: str, request: EntityDeleteRequest, req: Request

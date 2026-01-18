@@ -64,7 +64,7 @@ def toggle_watchlist(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@users_router.get("/v1/users/stat", response_model=UserStatsResponse)
+@users_router.get("/v1/users/stat", response_model=UserStatsResponse, tags=["stats"])
 def get_user_stats(req: Request) -> UserStatsResponse:
     """Get user statistics."""
     clients = req.app.state.clients
