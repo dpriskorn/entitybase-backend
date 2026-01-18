@@ -10,9 +10,9 @@ sys.path.insert(0, "src")
 
 from models.watchlist import (
     WatchlistAddRequest,
-    WatchlistRemoveRequest,
     WatchlistResponse,
 )
+from models.rest_api.entitybase.request.user import WatchlistRemoveRequest as WatchlistRemoveCompositeRequest
 from models.rest_api.entitybase.handlers.watchlist import WatchlistHandler
 
 
@@ -68,7 +68,7 @@ class TestWatchlistHandler:
         self, handler: WatchlistHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test removing a watch"""
-        request = WatchlistRemoveRequest(
+        request = WatchlistRemoveCompositeRequest(
             user_id=12345, entity_id="Q42", properties=["P31"]
         )
 

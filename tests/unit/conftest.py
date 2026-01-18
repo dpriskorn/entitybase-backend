@@ -3,7 +3,7 @@ from pathlib import Path
 import os
 
 sys.path.insert(0, "src")
-os.environ["TEST_DATA_DIR"] = str(Path(__file__).parent.parent / "test_data")
+os.environ["TEST_DATA_DIR"] = str(Path(__file__).parent.parent.parent / "test_data")
 
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
