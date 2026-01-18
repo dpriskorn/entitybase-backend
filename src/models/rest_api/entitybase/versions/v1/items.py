@@ -6,15 +6,7 @@ from typing import Dict, Any, List
 from fastapi import APIRouter, HTTPException, Request
 
 from models.rest_api.entitybase.handlers.entity.item import ItemCreateHandler
-from models.rest_api.entitybase.handlers.entity.items import ItemUpdateHandler
-from models.rest_api.entitybase.handlers.entity.lexeme import LexemeUpdateHandler
-from models.rest_api.entitybase.handlers.entity.property import PropertyUpdateHandler
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler
-from models.rest_api.entitybase.request.entity import (
-    EntityCreateRequest,
-    EntityUpdateRequest,
-)
 from models.rest_api.entitybase.response import (
     EntityResponse,
 )
@@ -41,64 +33,6 @@ async def create_item(request: EntityCreateRequest, req: Request) -> EntityRespo
     )
 
 
-@router.put("/item/{entity_id}", response_model=EntityResponse)
-async def update_item(
-    entity_id: str, request: EntityUpdateRequest, req: Request
-) -> EntityResponse:
-    """Update an existing item entity."""
-    clients = req.app.state.clients
-    validator = req.app.state.validator
-    handler = ItemUpdateHandler()
-    # Convert to EntityUpdateRequest
-    entity_request = EntityUpdateRequest(**request.model_dump())
-    return await handler.update_entity(
-        entity_id,
-        entity_request,
-        clients.vitess,
-        clients.s3,
-        clients.stream_producer,
-        validator,
-    )
-
-
-@router.put("/property/{entity_id}", response_model=EntityResponse)
-async def update_property(
-    entity_id: str, request: EntityUpdateRequest, req: Request
-) -> EntityResponse:
-    """Update an existing property entity."""
-    clients = req.app.state.clients
-    validator = req.app.state.validator
-    handler = PropertyUpdateHandler()
-    entity_request = EntityUpdateRequest(**request.model_dump())
-    entity_request.type = "property"
-    return await handler.update_entity(
-        entity_id,
-        entity_request,
-        clients.vitess,
-        clients.s3,
-        clients.stream_producer,
-        validator,
-    )
-
-
-@router.put("/lexeme/{entity_id}", response_model=EntityResponse)
-async def update_lexeme(
-    entity_id: str, request: EntityUpdateRequest, req: Request
-) -> EntityResponse:
-    """Update an existing lexeme entity."""
-    clients = req.app.state.clients
-    validator = req.app.state.validator
-    handler = LexemeUpdateHandler()
-    entity_request = EntityUpdateRequest(**request.model_dump())
-    entity_request.type = "lexeme"
-    return await handler.update_entity(
-        entity_id,
-        entity_request,
-        clients.vitess,
-        clients.s3,
-        clients.stream_producer,
-        validator,
-    )
 
 
 @router.get(
