@@ -23,10 +23,15 @@
 | ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/descriptions/{language_code}` | Get property description for language. |
 | ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/labels/{language_code}` | Get property label for language. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}` | Retrieve a single entity by its ID. |
+| ✅ | DELETE | `/entitybase/v1/entities/{entity_id}` | No description |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}.ttl` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/history` | Get the revision history for an entity. |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties` | No description |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties/{property_list}` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}` | Get a specific revision of an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/json` | Get JSON representation of a specific entity revision. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/rdf` | Get RDF representation of a specific entity revision. |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/raw/{revision_id}` | No description |
 | ✅ | GET | `/entitybase/v1/health` | Health check endpoint that redirects or provides status. |
 | ✅ | PUT | `/entitybase/v1/item/{entity_id}` | Update an existing item entity. |
 | ✅ | POST | `/entitybase/v1/json-import` | Import entities from Wikidata JSONL dump file. |
@@ -39,6 +44,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 34 |
+| Implemented | 39 |
 | Not Implemented | 0 |
-| Total | 34 |
+| Total | 39 |

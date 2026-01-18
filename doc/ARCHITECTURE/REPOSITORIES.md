@@ -165,6 +165,18 @@ This document describes the repository classes that handle data access to Vitess
 **Location**: `models/infrastructure/vitess/listing_repository.py`
 **Purpose**: Repository for entity listing operations.
 
+**Methods**:
+
+- `list_locked(conn, limit) -> list[EntityListing]`
+
+- `list_semi_protected(conn, limit) -> list[EntityListing]`
+
+- `list_archived(conn, limit) -> list[EntityListing]`
+
+- `list_dangling(conn, limit) -> list[EntityListing]`
+
+- `list_by_edit_type(conn, edit_type, limit) -> list[EntityListing]`
+
 ### RedirectRepository
 
 **Location**: `models/infrastructure/vitess/redirect_repository.py`

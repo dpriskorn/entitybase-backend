@@ -5,6 +5,8 @@ title Wikibase Backend - Detailed Infrastructure Components
 package "Repositories" as Repositories #LightGray {
     "Backlink" as BacklinkRepository
     "Endorsement" as EndorsementRepository
+    "EntityEditListing" as EntityEditListing
+    "EntityHeadListing" as EntityHeadListing
     "Entity" as EntityRepository
     "Head" as HeadRepository
     "Listing" as ListingRepository

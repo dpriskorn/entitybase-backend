@@ -36,6 +36,7 @@ package "Models" as Models #LightCyan {
     "EntityRevert" as EntityRevertResponse
     "EntityRevision" as EntityRevisionResponse
     "EntitySitelinks" as EntitySitelinksResponse
+    "EntityState" as EntityState
     "EntityStatements" as EntityStatementsResponse
     "FullRevision" as FullRevisionResponse
     "HealthCheck" as HealthCheckResponse
@@ -75,7 +76,7 @@ package "Models" as Models #LightCyan {
     "Thank" as ThankResponse
     "ThanksList" as ThanksListResponse
     "TopEntityByBacklinks" as TopEntityByBacklinks
-    "Ttl" as TtlResponse
+    "Turtle" as TurtleResponse
     "UserActivity" as UserActivityResponse
     "UserCreate" as UserCreateResponse
     "UserPreferences" as UserPreferencesResponse

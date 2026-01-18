@@ -33,8 +33,8 @@ package "Infrastructure Layer" as InfrastructureLayer #LightGray {
     "Redirect" as RedirectRepository
     "Revision" as RevisionRepository
     "Head" as HeadRepository
-    "Listing" as ListingRepository
-    ... (15 total components)
+    "EntityHeadListing" as EntityHeadListing
+    ... (17 total components)
 }
 
 package "Data Models" as DataModels #LightCyan {
