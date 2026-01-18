@@ -25,7 +25,7 @@ def include_routes(app) -> None:
     app.include_router(entities.entities_router)
     app.include_router(redirects.redirects_router)
     app.include_router(references.references_router)
-    app.include_router(qualifiers_router)
+    app.include_router(qualifiers.qualifiers_router)
     app.include_router(admin.admin_router)
     app.include_router(sync.sync_router)
     # v1 routes are added via imports above

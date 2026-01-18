@@ -32,6 +32,7 @@ from .statement import (
 )
 from .health import HealthCheckResponse, HealthResponse, WorkerHealthCheckResponse
 from .misc import CleanupOrphanedResponse, RevisionMetadataResponse, TtlResponse
+from .qualifiers_references import QualifierResponse, ReferenceResponse
 from .rdf import (
     DeduplicationStatsResponse,
     FullRevisionResponse,
@@ -64,7 +65,9 @@ __all__ = [
     "PropertyHashesResponse",
     "PropertyListResponse",
     "ProtectionResponse",
+    "QualifierResponse",
     "RedirectBatchResponse",
+    "ReferenceResponse",
     "RevisionMetadataResponse",
     "StatementBatchResponse",
     "StatementHashResult",

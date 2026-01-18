@@ -6,6 +6,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 
 from models.infrastructure.s3.s3_client import MyS3Client
+from models.rest_api.entitybase.response.qualifiers_references import ReferenceResponse
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +14,7 @@ references_router = APIRouter(prefix="/references", tags=["references"])
 
 
 @references_router.get("/{hashes}")
-async def get_references(hashes: str, s3_client: MyS3Client) -> list[dict[str, Any] | None]:
+async def get_references(hashes: str, s3_client: MyS3Client) -> list[ReferenceResponse | None]:
     """Fetch references by hash(es).
 
     Supports single hash (e.g., /references/123) or comma-separated batch (e.g., /references/123,456,789).
@@ -36,7 +37,8 @@ async def get_references(hashes: str, s3_client: MyS3Client) -> list[dict[str, A
 
     try:
         result = s3_client.load_references_batch(rapidhashes)
-        return result  # type: ignore[no-any-return]
+        # Convert dicts to Pydantic models
+        return [ReferenceResponse(reference=item) if item is not None else None for item in result]
     except Exception as e:
         logger.error(f"Failed to load references {rapidhashes}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
