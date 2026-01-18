@@ -24,6 +24,7 @@ from models.rest_api.entitybase.response import (
     EntityRevisionResponse,
     EntityResponse,
 )
+from models.rest_api.entitybase.response.entity import EntityState
 from models.rest_api.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.services.statement_service import (
     hash_entity_statements,
@@ -169,13 +170,15 @@ class EntityHandler(BaseModel):
                 )
                 return EntityResponse(
                     id=entity_id,
-                    rev_id=head_revision_id,
-                    semi_prot=head_revision.data.get("is_semi_protected", False),
-                    is_locked=head_revision.data.get("is_locked", False),
-                    archived=head_revision.data.get("is_archived", False),
-                    dangling=head_revision.data.get("is_dangling", False),
-                    mass_edit=head_revision.data.get("is_mass_edit_protected", False),
-                    data=head_revision.data.get("entity", {}),
+                    revision_id=head_revision_id,
+                    entity_data=head_revision.entity,
+                    state=EntityState(
+                        is_semi_protected=head_revision.data.get("is_semi_protected", False),
+                        is_locked=head_revision.data.get("is_locked", False),
+                        is_archived=head_revision.data.get("is_archived", False),
+                        is_dangling=head_revision.data.get("is_dangling", False),
+                        is_mass_edit_protected=head_revision.data.get("is_mass_edit_protected", False),
+                    ),
                 )
         except Exception as e:
             logger.warning(f"Failed to read head revision for idempotency check: {e}")
@@ -314,7 +317,7 @@ class EntityHandler(BaseModel):
         stream_producer: StreamProducerClient | None,
         is_creation: bool,
         edit_summary: str = "",
-    ) -> OperationResult[EntityResponse]:
+    ) -> OperationResult:
         """Create revision data, store it, and publish events."""
         # Process sitelinks: hash titles and store metadata
         sitelinks_hashes = {}
@@ -440,13 +443,15 @@ class EntityHandler(BaseModel):
             success=True,
             data=EntityResponse(
                 id=entity_id,
-                rev_id=new_revision_id,
-                data=request_data,
-                semi_prot=is_semi_protected or False,
-                is_locked=is_locked or False,
-                archived=is_archived or False,
-                dangling=is_dangling or False,
-                mass_edit=is_mass_edit_protected or False,
+                revision_id=new_revision_id,
+                entity_data=request_data,
+                state=EntityState(
+                    is_semi_protected=is_semi_protected or False,
+                    is_locked=is_locked or False,
+                    is_archived=is_archived or False,
+                    is_dangling=is_dangling or False,
+                    is_mass_edit_protected=is_mass_edit_protected or False,
+                ),
             ),
         )
 

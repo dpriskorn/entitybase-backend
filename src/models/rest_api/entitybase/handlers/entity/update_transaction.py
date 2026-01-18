@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 from models.common import OperationResult
 from models.rest_api.entitybase.response import EntityResponse
+from models.rest_api.entitybase.response.entity.entitybase import EntityRevisionResponse
 from models.rest_api.entitybase.response import StatementHashResult
 
 logger = logging.getLogger(__name__)

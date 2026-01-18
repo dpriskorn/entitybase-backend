@@ -10,6 +10,7 @@ from .entitybase import (
     EntityRedirectResponse,
     EntityResponse,
     EntityRevisionResponse,
+    EntityState,
     ProtectionResponse,
     EntityMetadataResponse,
     EntityLabelsResponse,
@@ -46,6 +47,7 @@ __all__ = [
     "EntityRevisionResponse",
     "EntitySitelinksResponse",
     "EntityStatementsResponse",
+    "EntityState",
     "EntityChange",
     "ProtectionResponse",
 ]

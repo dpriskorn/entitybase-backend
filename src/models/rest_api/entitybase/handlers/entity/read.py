@@ -9,6 +9,7 @@ from models.rest_api.entitybase.response import (
     EntityResponse,
     EntityRevisionResponse,
 )
+from models.rest_api.entitybase.response.entity import EntityState
 from models.rest_api.entitybase.response.entity import EntityHistoryEntry
 from models.validation.utils import raise_validation_error
 
@@ -120,13 +121,15 @@ class EntityReadHandler:
 
             response = EntityResponse(
                 id=entity_id,
-                rev_id=head_revision_id,
-                data=data,
-                semi_prot=revision.content.get("is_semi_protected", False),
-                is_locked=revision.content.get("is_locked", False),
-                archived=revision.content.get("is_archived", False),
-                dangling=revision.content.get("is_dangling", False),
-                mass_edit=revision.content.get("is_mass_edit_protected", False),
+                revision_id=head_revision_id,
+                entity_data=data,
+                state=EntityState(
+                    is_semi_protected=revision.content.get("is_semi_protected", False),
+                    is_locked=revision.content.get("is_locked", False),
+                    is_archived=revision.content.get("is_archived", False),
+                    is_dangling=revision.content.get("is_dangling", False),
+                    is_mass_edit_protected=revision.content.get("is_mass_edit_protected", False),
+                ),
             )
             if not isinstance(response, EntityResponse):
                 raise_validation_error("Invalid response type", status_code=500)

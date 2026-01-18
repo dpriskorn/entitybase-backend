@@ -1,13 +1,15 @@
 """Shared common models."""
 
-from typing import Any, Optional
+from typing import Any, Generic, Optional, TypeVar
 
 from pydantic import BaseModel, Field
 
+T = TypeVar("T")
 
-class OperationResult(BaseModel):
+
+class OperationResult(BaseModel, Generic[T]):
     """Model for operation results."""
 
     success: bool
     error: str = Field(default="")
-    data: Optional[Any] = Field(default=None)
+    data: Optional[T] = Field(default=None)

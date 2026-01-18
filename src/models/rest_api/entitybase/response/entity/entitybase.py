@@ -124,19 +124,11 @@ class EntityHistoryEntry(BaseModel):
     )
 
 
-class EntityResponse(BaseModel):
-    """Response model for entity data."""
+class EntityState(BaseModel):
+    """Model for entity state information."""
 
-    model_config = ConfigDict(populate_by_name=True, by_alias=True)  # type: ignore[typeddict-unknown-key]
+    model_config = ConfigDict(populate_by_name=True, by_alias=True)
 
-    id: str = Field(description="Entity ID. Example: 'Q42'.")
-    revision_id: int = Field(
-        alias="rev_id", description="Revision ID of the entity. Example: 12345."
-    )
-    entity_data: Dict[str, Any] = Field(
-        alias="data",
-        description="Full entity JSON data. Example: {'id': 'Q42', 'type': 'item'}.",
-    )
     is_semi_protected: bool = Field(
         alias="semi_prot",
         description="Whether the entity is semi-protected. Example: true.",
@@ -152,6 +144,22 @@ class EntityResponse(BaseModel):
         alias="mass_edit",
         description="Whether the entity has mass edit protection. Example: true.",
     )
+
+
+class EntityResponse(BaseModel):
+    """Response model for entity data."""
+
+    model_config = ConfigDict(populate_by_name=True, by_alias=True)  # type: ignore[typeddict-unknown-key]
+
+    id: str = Field(description="Entity ID. Example: 'Q42'.")
+    revision_id: int = Field(
+        alias="rev_id", description="Revision ID of the entity. Example: 12345."
+    )
+    entity_data: Dict[str, Any] = Field(
+        alias="data",
+        description="Full entity JSON data. Example: {'id': 'Q42', 'type': 'item'}.",
+    )
+    state: EntityState = Field(description="Entity state information.")
 
 
 class EntityDeleteResponse(BaseModel):
