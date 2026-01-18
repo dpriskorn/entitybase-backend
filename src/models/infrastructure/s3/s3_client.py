@@ -58,7 +58,7 @@ class MyS3Client(Client):
                     # noinspection PyTypeChecker
                     self.connection_manager.boto_client.create_bucket(
                         Bucket=self.config.bucket,
-                        CreateBucketConfiguration={"LocationConstraint": "us-east-1"},
+                        CreateBucketConfiguration={"LocationConstraint": "us-east-1"},  # type: ignore[typeddict-item]
                     )
                 except ClientError as ce:
                     print(f"Error creating bucket {self.config.bucket}: {ce}")
@@ -373,7 +373,7 @@ class MyS3Client(Client):
         """Delete metadata content from S3 when ref_count reaches 0."""
         key = f"metadata/{metadata_type}/{content_hash}.json"
         try:
-            self.connection_manager.boto_client.delete_object(
+            self.connection_manager.boto_client.delete_object(  # type: ignore[union-attr]
                 Bucket=self.config.bucket, Key=key
             )
             logger.debug(f"S3 delete_metadata: bucket={self.config.bucket}, key={key}")

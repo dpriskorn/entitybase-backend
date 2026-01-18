@@ -61,8 +61,8 @@ class IdRangeManager:
                 raise RuntimeError(
                     f"Failed to allocate range for {entity_type}: {result.error}"
                 )
-            self._local_ranges[entity_type] = result.data
-            range_obj = result.data
+            self._local_ranges[entity_type] = result.data  # type: ignore[assignment]
+            range_obj = result.data  # type: ignore[assignment]
 
         # Get next ID from current range
         id_number = range_obj.next_id
@@ -80,7 +80,7 @@ class IdRangeManager:
             result = self._allocate_new_range(entity_type)
             if not result.success:
                 raise RuntimeError(result.error)
-            self._local_ranges[entity_type] = result.data
+            self._local_ranges[entity_type] = result.data  # type: ignore[assignment]
         except Exception as e:
             logger.error(f"Failed to allocate range for {entity_type}: {e}")
             raise
