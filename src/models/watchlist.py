@@ -51,13 +51,6 @@ class Notification(BaseModel):
     checked_at: Optional[datetime]
 
 
-class NotificationResponse(BaseModel):
-    """Response for user notifications."""
-
-    user_id: int
-    notifications: List[Notification]
-
-
 class MarkCheckedRequest(BaseModel):
     """Request to mark notification as checked."""
 

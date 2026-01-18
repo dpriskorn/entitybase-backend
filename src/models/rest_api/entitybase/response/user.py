@@ -1,6 +1,10 @@
 """Response models for user operations."""
 
+from typing import List
+
 from pydantic import BaseModel, Field
+
+from models.watchlist import Notification
 
 
 class UserCreateResponse(BaseModel):
@@ -31,3 +35,10 @@ class TermsByType(BaseModel):
     labels: int = Field(description="Number of labels")
     descriptions: int = Field(description="Number of descriptions")
     aliases: int = Field(description="Number of aliases")
+
+
+class NotificationResponse(BaseModel):
+    """Response for user notifications."""
+
+    user_id: int
+    notifications: List[Notification]
