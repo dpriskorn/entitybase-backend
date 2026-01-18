@@ -16,9 +16,6 @@ class QualifierResponse(BaseModel):
     content_hash: int = Field(
         alias="hash", description="Hash of the qualifier content. Example: 123456789."
     )
-    qualifier: Dict[str, Any] = Field(
-        description="Full qualifier JSON object. Example: {'property': 'P580', 'value': '2023-01-01'}."
-    )
     created_at: str = Field(
         description="Timestamp when qualifier was created. Example: '2023-01-01T12:00:00Z'."
     )
@@ -34,9 +31,6 @@ class ReferenceResponse(BaseModel):
     )
     content_hash: int = Field(
         alias="hash", description="Hash of the reference content. Example: 123456789."
-    )
-    reference: Dict[str, Any] = Field(
-        description="Full reference JSON object. Example: {'snaks': {'P854': [{'value': 'https://example.com'}]}}."
     )
     created_at: str = Field(
         description="Timestamp when reference was created. Example: '2023-01-01T12:00:00Z'."

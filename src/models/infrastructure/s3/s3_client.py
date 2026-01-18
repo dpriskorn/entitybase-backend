@@ -611,7 +611,7 @@ class MyS3Client(Client):
         Returns:
             List of ReferenceModel instances, in same order. None for missing.
         """
-        results = []
+        results: list[ReferenceModel | None] = []
         for h in content_hashes:
             try:
                 ref = self.load_reference(h)
@@ -697,7 +697,7 @@ class MyS3Client(Client):
         Returns:
             List of QualifierModel instances, in same order. None for missing.
         """
-        results = []
+        results: list[QualifierModel | None] = []
         for h in content_hashes:
             try:
                 qual = self.load_qualifier(h)
