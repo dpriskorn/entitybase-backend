@@ -1,5 +1,7 @@
 """General entity endpoints for Entitybase v1 API."""
 
+from typing import Any, Dict
+
 from fastapi import APIRouter, Query, Request, Response
 
 from models.rest_api.clients import Clients
@@ -94,7 +96,7 @@ async def get_entity_ttl_revision(
     return Response(content=rdf_content, media_type=content_type)
 
 
-@router.get("/entities/{entity_id}/revision/{revision_id}/json")
+@router.get("/entities/{entity_id}/revision/{revision_id}/json", response_model=Dict[str, Any])
 async def get_entity_json_revision(  # type: ignore[return]
     entity_id: str,
     revision_id: int,
