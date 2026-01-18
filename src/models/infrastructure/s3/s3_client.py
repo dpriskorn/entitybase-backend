@@ -23,6 +23,8 @@ from models.s3_models import (
     RevisionMetadata,
     RevisionReadResponse,
     StoredStatement,
+    S3QualifierData,
+    S3ReferenceData,
 )
 from models.validation.utils import raise_validation_error
 
@@ -565,7 +567,7 @@ class MyS3Client(Client):
             )
             raise
 
-    def load_reference(self, content_hash: int) -> dict:
+    def load_reference(self, content_hash: int) -> S3ReferenceData:
         """Load a reference by its content hash.
 
         Args:
@@ -584,7 +586,7 @@ class MyS3Client(Client):
             )
             data = json.loads(response["Body"].read().decode("utf-8"))
             logger.debug(f"S3 reference loaded: bucket={bucket}, key={key}")
-            return ReferenceModel(**data)
+            return S3ReferenceData(**data)
         except ClientError as e:
             if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
                 logger.warning(f"S3 reference not found: bucket={bucket}, key={key}")
@@ -602,7 +604,7 @@ class MyS3Client(Client):
 
     def load_references_batch(
         self, content_hashes: list[int]
-    ) -> list[ReferenceModel | None]:
+    ) -> list[S3ReferenceData | None]:
         """Load multiple references by their content hashes.
 
         Args:
@@ -611,7 +613,7 @@ class MyS3Client(Client):
         Returns:
             List of ReferenceModel instances, in same order. None for missing.
         """
-        results: list[ReferenceModel | None] = []
+        results: list[S3ReferenceData | None] = []
         for h in content_hashes:
             try:
                 ref = self.load_reference(h)
@@ -651,7 +653,7 @@ class MyS3Client(Client):
             )
             raise
 
-    def load_qualifier(self, content_hash: int) -> dict:
+    def load_qualifier(self, content_hash: int) -> S3QualifierData:
         """Load a qualifier by its content hash.
 
         Args:
@@ -670,7 +672,7 @@ class MyS3Client(Client):
             )
             data = json.loads(response["Body"].read().decode("utf-8"))
             logger.debug(f"S3 qualifier loaded: bucket={bucket}, key={key}")
-            return data
+            return S3QualifierData(**data)
         except ClientError as e:
             if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
                 logger.warning(f"S3 qualifier not found: bucket={bucket}, key={key}")
@@ -688,7 +690,7 @@ class MyS3Client(Client):
 
     def load_qualifiers_batch(
         self, content_hashes: list[int]
-    ) -> list[dict | None]:
+    ) -> list[S3QualifierData | None]:
         """Load multiple qualifiers by their content hashes.
 
         Args:
@@ -697,7 +699,7 @@ class MyS3Client(Client):
         Returns:
             List of QualifierModel instances, in same order. None for missing.
         """
-        results: list[QualifierModel | None] = []
+        results: list[S3QualifierData | None] = []
         for h in content_hashes:
             try:
                 qual = self.load_qualifier(h)
