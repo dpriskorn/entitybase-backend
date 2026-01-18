@@ -2,7 +2,18 @@
 
 from fastapi import APIRouter
 
-from . import admin, entities, items, lexemes, properties, qualifiers, redirects, references, statements, sync
+from . import (
+    admin,
+    entities,
+    items,
+    lexemes,
+    properties,
+    qualifiers,
+    redirects,
+    references,
+    statements,
+    sync,
+)
 
 
 v1_router = APIRouter()

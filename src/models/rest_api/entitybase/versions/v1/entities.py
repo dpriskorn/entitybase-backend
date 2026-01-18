@@ -107,9 +107,6 @@ async def get_entity_json_revision(  # type: ignore[return]
     return revision_data.data  # type: ignore[no-any-return]
 
 
-
-
-
 @router.get("/entities/{entity_id}.ttl")
 async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse:
     clients = req.app.state.clients

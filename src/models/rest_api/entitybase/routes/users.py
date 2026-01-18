@@ -12,11 +12,12 @@ from models.rest_api.entitybase.response.user import (
     WatchlistToggleResponse,
     UserCreateResponse,
 )
+from models.rest_api.entitybase.response.misc import UserStatsResponse
 from models.user import User
 from models.validation.utils import raise_validation_error
 
 
-users_router = APIRouter(prefix="/entitybase")
+users_router = APIRouter(prefix="/entitybase", tags=["users"])
 
 
 @users_router.post("/v1/users", response_model=UserCreateResponse)
@@ -59,5 +60,17 @@ def toggle_watchlist(
             raise_validation_error("Invalid response type", status_code=500)
         assert isinstance(result, WatchlistToggleResponse)
         return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@users_router.get("/v1/users/stat", response_model=UserStatsResponse)
+def get_user_stats(req: Request) -> UserStatsResponse:
+    """Get user statistics."""
+    clients = req.app.state.clients
+    handler = UserHandler()
+    try:
+        stats = handler.get_user_stats(clients.vitess)
+        return UserStatsResponse(**stats)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

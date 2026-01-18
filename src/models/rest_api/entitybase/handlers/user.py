@@ -56,3 +56,28 @@ class UserHandler:
                 result.error or "Failed to set watchlist", status_code=500
             )
         return WatchlistToggleResponse(user_id=user_id, enabled=request.enabled)
+
+    def get_user_stats(self, vitess_client: VitessClient) -> dict:
+        """Get user statistics from the daily stats table."""
+        with vitess_client.connection_manager.get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    "SELECT stat_date, total_users, active_users FROM user_daily_stats ORDER BY stat_date DESC LIMIT 1"
+                )
+                row = cursor.fetchone()
+                if row:
+                    return {
+                        "date": row[0].isoformat(),
+                        "total_users": row[1],
+                        "active_users": row[2],
+                    }
+                else:
+                    # Fallback to live computation if no data
+                    from models.rest_api.entitybase.services.user_stats_service import UserStatsService
+                    service = UserStatsService()
+                    stats = service.compute_daily_stats(vitess_client)
+                    return {
+                        "date": "live",
+                        "total_users": stats.total_users,
+                        "active_users": stats.active_users,
+                    }

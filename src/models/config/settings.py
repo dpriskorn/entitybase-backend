@@ -44,6 +44,8 @@ class Settings(BaseSettings):
     backlink_stats_enabled: bool = True
     backlink_stats_schedule: str = "0 2 * * *"  # Daily at 2 AM
     backlink_stats_top_limit: int = 100
+    user_stats_enabled: bool = True
+    user_stats_schedule: str = "0 2 * * *"  # Daily at 2 AM
 
     def get_log_level(self) -> int:
         """Get the appropriate logging level based on configuration.

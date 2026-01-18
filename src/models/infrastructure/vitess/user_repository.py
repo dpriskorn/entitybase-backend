@@ -1,11 +1,13 @@
 """Repository for managing users in Vitess."""
 
+import json
 import logging
 from typing import Any, List
 
 from models.common import OperationResult
 from models.user import User
 from models.user_activity import UserActivityItem, ActivityType
+from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
@@ -284,3 +286,62 @@ class UserRepository:
             return OperationResult(success=True, data=activities)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
+
+    def insert_user_statistics(
+        self,
+        conn: Any,
+        date: str,
+        total_users: int,
+        active_users: int,
+    ) -> None:
+        """Insert daily user statistics.
+
+        Args:
+            conn: Database connection
+            date: Date string in ISO format (YYYY-MM-DD)
+            total_users: Total number of users
+            active_users: Number of active users
+
+        Raises:
+            ValueError: If input validation fails
+            Exception: If database operation fails
+        """
+        # Input validation
+        if not isinstance(date, str) or len(date) != 10:
+            raise_validation_error(
+                f"Invalid date format: {date}. Expected YYYY-MM-DD", status_code=400
+            )
+        if total_users < 0:
+            raise_validation_error(
+                f"total_users must be non-negative: {total_users}",
+                status_code=400,
+            )
+        if active_users < 0:
+            raise_validation_error(
+                f"active_users must be non-negative: {active_users}",
+                status_code=400,
+            )
+
+        logger.debug(f"Inserting user statistics for date {date}")
+
+        with conn.cursor() as cursor:
+            try:
+                cursor.execute(
+                    """
+                    INSERT INTO user_daily_stats
+                    (stat_date, total_users, active_users)
+                    VALUES (%s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    total_users = VALUES(total_users),
+                    active_users = VALUES(active_users)
+                    """,
+                    (
+                        date,
+                        total_users,
+                        active_users,
+                    ),
+                )
+                logger.info(f"Successfully stored user statistics for {date}")
+            except Exception as e:
+                logger.error(f"Failed to insert user statistics for {date}: {e}")
+                raise

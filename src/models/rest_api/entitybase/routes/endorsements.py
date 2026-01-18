@@ -15,7 +15,7 @@ from models.rest_api.entitybase.response.endorsements import (
 from models.validation.utils import raise_validation_error
 
 
-endorsements_router = APIRouter()
+endorsements_router = APIRouter(tags=["interactions"])
 
 
 @endorsements_router.post(

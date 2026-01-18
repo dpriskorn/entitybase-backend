@@ -9,7 +9,7 @@ from models.rest_api.entitybase.response.thanks import ThankResponse, ThanksList
 from models.validation.utils import raise_validation_error
 
 
-thanks_router = APIRouter()
+thanks_router = APIRouter(tags=["interactions"])
 
 
 @thanks_router.post(

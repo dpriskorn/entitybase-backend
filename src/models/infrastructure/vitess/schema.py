@@ -103,6 +103,16 @@ class SchemaManager:
 
         cursor.execute(
             """
+            CREATE TABLE IF NOT EXISTS user_daily_stats (
+                stat_date DATE PRIMARY KEY,
+                total_users BIGINT NOT NULL,
+                active_users BIGINT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS metadata_content (
                 content_hash BIGINT UNSIGNED NOT NULL,
                 content_type ENUM('labels', 'descriptions', 'aliases') NOT NULL,

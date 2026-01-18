@@ -2,65 +2,27 @@
 
 import asyncio
 import logging
-import os
-from datetime import datetime, date, time, timedelta
+from datetime import date
 from typing import Any
 
-from pydantic import BaseModel, Field
-
-from models.config.settings import settings
 from models.infrastructure.vitess_client import VitessClient
-from models.rest_api.entitybase.response import WorkerHealthCheckResponse
 from models.rest_api.entitybase.services.backlink_statistics_service import (
     BacklinkStatisticsService,
 )
+from models.workers.base_stats_worker import BaseStatsWorker
 
 logger = logging.getLogger(__name__)
 
 
-class BacklinkStatisticsWorker(BaseModel):
-    """Background worker for computing backlink statistics."""
+class BacklinkStatisticsWorker(BaseStatsWorker):
 
-    worker_id: str = Field(
-        default_factory=lambda: os.getenv("WORKER_ID", f"backlink-stats-{os.getpid()}")
-    )
-    vitess_client: VitessClient | None = None
-    running: bool = Field(default=False)
-    last_run: datetime | None = None
+    def get_enabled_setting(self) -> bool:
+        """Check if backlink stats are enabled."""
+        return settings.backlink_stats_enabled
 
-    async def start(self) -> None:
-        """Start the backlink statistics worker."""
-        if not settings.backlink_stats_enabled:
-            logger.info("Backlink statistics worker disabled")
-            return
-
-        logger.info(f"Starting Backlink Statistics Worker {self.worker_id}")
-
-        # Initialize Vitess client
-        vitess_config = settings.to_vitess_config()
-        self.vitess_client = VitessClient(config=vitess_config)
-
-        self.running = True
-
-        # Schedule runs according to cron setting
-        while self.running:
-            try:
-                # Calculate seconds until next run
-                seconds_until_next = self._calculate_seconds_until_next_run()
-                logger.info(
-                    f"Next backlink statistics run in {seconds_until_next} seconds"
-                )
-
-                await asyncio.sleep(seconds_until_next)
-                await self.run_daily_computation()
-            except Exception as e:
-                logger.error(f"Error in worker loop: {e}")
-                await asyncio.sleep(300)  # Retry after 5 minutes
-
-    async def stop(self) -> None:
-        """Stop the worker."""
-        logger.info(f"Stopping Backlink Statistics Worker {self.worker_id}")
-        self.running = False
+    def get_schedule_setting(self) -> str:
+        """Get the schedule for backlink stats."""
+        return settings.backlink_stats_schedule
 
     async def run_daily_computation(self) -> None:
         """Run daily statistics computation and storage."""
@@ -106,40 +68,3 @@ class BacklinkStatisticsWorker(BaseModel):
                 top_entities_by_backlinks=stats.top_entities_by_backlinks,
             )
             conn.commit()
-
-    def _calculate_seconds_until_next_run(self) -> float:
-        """Calculate seconds until next scheduled run based on backlink_stats_schedule."""
-        # Parse the cron schedule (currently "0 2 * * *" - daily at 2:00 AM)
-        schedule_parts = settings.backlink_stats_schedule.split()
-        if len(schedule_parts) >= 2:
-            minute = int(schedule_parts[0])
-            hour = int(schedule_parts[1])
-        else:
-            # Fallback to 2 AM
-            minute, hour = 0, 2
-
-        now = datetime.utcnow()
-        target_time = time(hour, minute, 0)
-
-        # Next run is today if not yet passed, otherwise tomorrow
-        if now.time() < target_time:
-            next_run = datetime.combine(now.date(), target_time)
-        else:
-            next_run = datetime.combine(now.date() + timedelta(days=1), target_time)
-
-        seconds_until = (next_run - now).total_seconds()
-        return max(seconds_until, 0)  # Ensure non-negative
-
-    async def health_check(self) -> WorkerHealthCheckResponse:
-        """Health check for the worker."""
-        status = "healthy" if self.running else "unhealthy"
-
-        details = {
-            "worker_id": self.worker_id,
-            "running": self.running,
-            "last_run": self.last_run.isoformat() if self.last_run else None,
-        }
-
-        return WorkerHealthCheckResponse(
-            status=status, worker_id=self.worker_id, range_status=None
-        )

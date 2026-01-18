@@ -19,6 +19,7 @@ if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.vitess.backlink_repository import BacklinkRepository
 from models.infrastructure.vitess.connection import VitessConnectionManager
+from models.infrastructure.vitess.user_repository import UserRepository
 from models.infrastructure.vitess.entities import IdResolver
 from models.infrastructure.vitess.entity_repository import EntityRepository
 from models.infrastructure.vitess.head_repository import HeadRepository
@@ -78,6 +79,9 @@ class VitessClient(Client):
         default=None, init=False, exclude=True
     )
     backlink_repository: Optional[BacklinkRepository] = Field(
+        default=None, init=False, exclude=True
+    )
+    user_repository: Optional[UserRepository] = Field(
         default=None, init=False, exclude=True
     )
     metadata_repository: Optional[MetadataRepository] = Field(

@@ -9,7 +9,7 @@ from models.rest_api.entitybase.response.qualifiers_references import ReferenceR
 
 logger = logging.getLogger(__name__)
 
-references_router = APIRouter(prefix="/references", tags=["references"])
+references_router = APIRouter(prefix="/references", tags=["statements"])
 
 
 @references_router.get("/{hashes}")

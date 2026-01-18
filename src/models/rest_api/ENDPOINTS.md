@@ -55,6 +55,7 @@
 | ✅ | GET | `/entitybase/v1/statements/{statement_hash}/endorsements` | Get endorsements for a statement. |
 | ✅ | GET | `/entitybase/v1/statements/{statement_hash}/endorsements/stats` | Get endorsement statistics for a statement. |
 | ✅ | POST | `/entitybase/v1/users` | Create a new user. |
+| ✅ | GET | `/entitybase/v1/users/stat` | Get user statistics. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}` | Get user information by MediaWiki user ID. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}/endorsements` | Get endorsements given by a user. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}/endorsements/stats` | Get endorsement statistics for a user. |
@@ -64,6 +65,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 59 |
+| Implemented | 60 |
 | Not Implemented | 0 |
-| Total | 59 |
+| Total | 60 |
