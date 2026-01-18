@@ -249,7 +249,7 @@ class TestMyS3Client:
                 "Metadata": {"schema_version": "1.0", "created_at": "2023-01-01"},
             }
             mock_body = MagicMock()
-            mock_body.read.return_value = b'''{
+            mock_body.read.return_value = b"""{
                 "schema_version": "1.0",
                 "revision_id": 123,
                 "created_at": "2023-01-01",
@@ -260,7 +260,7 @@ class TestMyS3Client:
                 "labels_hashes": null,
                 "descriptions_hashes": null,
                 "aliases_hashes": null
-            }'''
+            }"""
             mock_connection_manager.boto_client.get_object.return_value["Body"] = (
                 mock_body
             )
@@ -296,7 +296,9 @@ class TestMyS3Client:
             mock_manager_class.return_value = mock_connection_manager
 
             client = MyS3Client(config)
-            client.write_entity_revision("Q42", 123, "item", {"entity": {"id": "Q42"}}, "create")
+            client.write_entity_revision(
+                "Q42", 123, "item", {"entity": {"id": "Q42"}}, "create"
+            )
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
             call_args = mock_connection_manager.boto_client.put_object.call_args
@@ -445,11 +447,13 @@ class TestMyS3Client:
 
             # Mock load_reference calls
             client = MyS3Client(config)
-            client.load_reference = MagicMock(side_effect=[
-                {"snaks": {"P1": []}},
-                None,  # Missing
-                {"snaks": {"P2": []}}
-            ])
+            client.load_reference = MagicMock(
+                side_effect=[
+                    {"snaks": {"P1": []}},
+                    None,  # Missing
+                    {"snaks": {"P2": []}},
+                ]
+            )
 
             result = client.load_references_batch([123, 456, 789])
 
@@ -505,11 +509,13 @@ class TestMyS3Client:
 
             # Mock load_qualifier calls
             client = MyS3Client(config)
-            client.load_qualifier = MagicMock(side_effect=[
-                {"P1": []},
-                None,  # Missing
-                {"P2": []}
-            ])
+            client.load_qualifier = MagicMock(
+                side_effect=[
+                    {"P1": []},
+                    None,  # Missing
+                    {"P2": []},
+                ]
+            )
 
             result = client.load_qualifiers_batch([123, 456, 789])
 

@@ -183,7 +183,9 @@ def generate_system_architecture_diagram(analysis: Dict) -> str:
                 f'package "{pkg_name}" as {pkg_name.replace(" ", "")} #{pkg_info["color"]} {{'
             )
 
-            for component in pkg_info["components"][:5]:  # Limit components (detailed in separate diagram)
+            for component in pkg_info["components"][
+                :5
+            ]:  # Limit components (detailed in separate diagram)
                 component_name = (
                     component.replace("Service", "")
                     .replace("Handler", "")
@@ -237,21 +239,21 @@ def generate_data_flow_diagram(analysis: Dict) -> str:
 
     # Define actors and components
     components = [
-        'actor \"Client\" as Client',
-        'rectangle \"FastAPI\" as API',
-        'rectangle \"Request Handler\" as Handler',
-        'rectangle \"Service Layer\" as Service',
-        'rectangle \"Vitess Client\" as VitessClient',
-        'database \"Vitess DB\" as Vitess',
-        'rectangle \"S3 Client\" as S3Client',
-        'storage \"S3 Terms\" as S3Terms',
-        'storage \"S3 Statements\" as S3Statements',
-        'storage \"S3 References\" as S3References',
-        'storage \"S3 Qualifiers\" as S3Qualifiers',
-        'storage \"S3 Revisions\" as S3Revisions',
-        'storage \"S3 Dumps\" as S3Dumps',
-        'rectangle \"Workers\" as Workers',
-        'database \"Kafka\" as Kafka',
+        'actor "Client" as Client',
+        'rectangle "FastAPI" as API',
+        'rectangle "Request Handler" as Handler',
+        'rectangle "Service Layer" as Service',
+        'rectangle "Vitess Client" as VitessClient',
+        'database "Vitess DB" as Vitess',
+        'rectangle "S3 Client" as S3Client',
+        'storage "S3 Terms" as S3Terms',
+        'storage "S3 Statements" as S3Statements',
+        'storage "S3 References" as S3References',
+        'storage "S3 Qualifiers" as S3Qualifiers',
+        'storage "S3 Revisions" as S3Revisions',
+        'storage "S3 Dumps" as S3Dumps',
+        'rectangle "Workers" as Workers',
+        'database "Kafka" as Kafka',
     ]
 
     lines.extend(components)
@@ -320,10 +322,19 @@ def generate_detailed_api_diagram(analysis: Dict) -> str:
     if api_components:
         lines.append('package "API Handlers" as APIHandlers #LightBlue {')
         for component in api_components:
-            component_name = component.replace("Handler", "").replace("Service", "").strip()
+            component_name = (
+                component.replace("Handler", "").replace("Service", "").strip()
+            )
             if not component_name:
                 continue
-            safe_id = component.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace("[", "").replace("]", "")
+            safe_id = (
+                component.replace(" ", "_")
+                .replace("-", "_")
+                .replace("(", "")
+                .replace(")", "")
+                .replace("[", "")
+                .replace("]", "")
+            )
             if not safe_id:
                 safe_id = f"Component_{len(lines)}"
             lines.append(f'    "{component_name}" as {safe_id}')
@@ -354,7 +365,14 @@ def generate_detailed_service_diagram(analysis: Dict) -> str:
             component_name = component.replace("Service", "").strip()
             if not component_name:
                 continue
-            safe_id = component.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace("[", "").replace("]", "")
+            safe_id = (
+                component.replace(" ", "_")
+                .replace("-", "_")
+                .replace("(", "")
+                .replace(")", "")
+                .replace("[", "")
+                .replace("]", "")
+            )
             if not safe_id:
                 safe_id = f"Component_{len(lines)}"
             lines.append(f'    "{component_name}" as {safe_id}')
@@ -385,7 +403,14 @@ def generate_detailed_worker_diagram(analysis: Dict) -> str:
             component_name = component.replace("Worker", "").strip()
             if not component_name:
                 continue
-            safe_id = component.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace("[", "").replace("]", "")
+            safe_id = (
+                component.replace(" ", "_")
+                .replace("-", "_")
+                .replace("(", "")
+                .replace(")", "")
+                .replace("[", "")
+                .replace("]", "")
+            )
             if not safe_id:
                 safe_id = f"Component_{len(lines)}"
             lines.append(f'    "{component_name}" as {safe_id}')
@@ -416,7 +441,14 @@ def generate_detailed_infrastructure_diagram(analysis: Dict) -> str:
             component_name = component.replace("Repository", "").strip()
             if not component_name:
                 continue
-            safe_id = component.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace("[", "").replace("]", "")
+            safe_id = (
+                component.replace(" ", "_")
+                .replace("-", "_")
+                .replace("(", "")
+                .replace(")", "")
+                .replace("[", "")
+                .replace("]", "")
+            )
             if not safe_id:
                 safe_id = f"Component_{len(lines)}"
             lines.append(f'    "{component_name}" as {safe_id}')
@@ -444,10 +476,19 @@ def generate_detailed_models_diagram(analysis: Dict) -> str:
     if model_components:
         lines.append('package "Models" as Models #LightCyan {')
         for component in model_components:
-            component_name = component.replace("Response", "").replace("Request", "").strip()
+            component_name = (
+                component.replace("Response", "").replace("Request", "").strip()
+            )
             if not component_name:
                 continue
-            safe_id = component.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace("[", "").replace("]", "")
+            safe_id = (
+                component.replace(" ", "_")
+                .replace("-", "_")
+                .replace("(", "")
+                .replace(")", "")
+                .replace("[", "")
+                .replace("]", "")
+            )
             if not safe_id:
                 safe_id = f"Component_{len(lines)}"
             lines.append(f'    "{component_name}" as {safe_id}')
@@ -480,10 +521,10 @@ def generate_component_relationship_diagram(analysis: Dict) -> str:
         "[Models] as Models",
         'database "Vitess" as Vitess',
         'storage "S3 Terms" as S3Terms',
-        'storage \"S3 Statements\" as S3Statements',
-        'storage \"S3 References\" as S3References',
-        'storage \"S3 Qualifiers\" as S3Qualifiers',
-        'storage \"S3 Revisions\" as S3Revisions',
+        'storage "S3 Statements" as S3Statements',
+        'storage "S3 References" as S3References',
+        'storage "S3 Qualifiers" as S3Qualifiers',
+        'storage "S3 Revisions" as S3Revisions',
         'storage "S3 Dumps" as S3Dumps',
         'queue "Kafka" as Kafka',
         "[Config] as Config",

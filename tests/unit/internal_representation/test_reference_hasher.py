@@ -16,11 +16,11 @@ class TestReferenceHasher(unittest.TestCase):
                         "snaktype": "value",
                         "property": "P854",
                         "hash": "abc123",
-                        "datavalue": {"value": "http://example.com", "type": "string"}
+                        "datavalue": {"value": "http://example.com", "type": "string"},
                     }
                 ]
             },
-            "snaks-order": ["P854"]
+            "snaks-order": ["P854"],
         }
         hash_value = ReferenceHasher.compute_hash(reference)
         self.assertIsInstance(hash_value, int)

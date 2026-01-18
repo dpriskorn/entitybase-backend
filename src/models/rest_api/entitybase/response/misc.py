@@ -199,6 +199,6 @@ class RawRevisionResponse(BaseModel):
 
 
 class TurtleResponse(BaseModel):
-    \"\"\"Response model for Turtle format entity data.\"\"\"
+    """Response model for Turtle format entity data."""
 
-    turtle: str = Field(..., description=\"Entity data in Turtle format\")
+    turtle: str = Field(..., description="Entity data in Turtle format")

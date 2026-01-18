@@ -29,8 +29,6 @@ class ReferenceHasher:
             reference_dict = reference
         else:
             reference_dict = reference.model_dump()
-        reference_for_hash = {
-            k: v for k, v in reference_dict.items() if k != "hash"
-        }
+        reference_for_hash = {k: v for k, v in reference_dict.items() if k != "hash"}
         canonical_json = json.dumps(reference_for_hash, sort_keys=True)
         return rapidhash(canonical_json.encode())  # type: ignore[no-any-return]

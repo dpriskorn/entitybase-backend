@@ -18,21 +18,37 @@ class TestReferenceDeduplication:
                         "mainsnak": {
                             "snaktype": "value",
                             "property": "P31",
-                            "datavalue": {"value": {"id": "Q5", "entity-type": "item", "numeric-id": 5}, "type": "wikibase-entityid"}
+                            "datavalue": {
+                                "value": {
+                                    "id": "Q5",
+                                    "entity-type": "item",
+                                    "numeric-id": 5,
+                                },
+                                "type": "wikibase-entityid",
+                            },
                         },
                         "type": "statement",
                         "rank": "normal",
                         "references": [
                             {
                                 "snaks": {
-                                    "P854": [{"snaktype": "value", "property": "P854", "datavalue": {"value": "http://example.com", "type": "string"}}]
+                                    "P854": [
+                                        {
+                                            "snaktype": "value",
+                                            "property": "P854",
+                                            "datavalue": {
+                                                "value": "http://example.com",
+                                                "type": "string",
+                                            },
+                                        }
+                                    ]
                                 },
-                                "snaks-order": ["P854"]
+                                "snaks-order": ["P854"],
                             }
-                        ]
+                        ],
                     }
                 ]
-            }
+            },
         }
 
         # Create entity

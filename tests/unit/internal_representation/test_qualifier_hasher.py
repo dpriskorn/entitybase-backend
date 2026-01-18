@@ -15,7 +15,10 @@ class TestQualifierHasher(unittest.TestCase):
                     "snaktype": "value",
                     "property": "P580",
                     "datatype": "time",
-                    "datavalue": {"value": {"time": "+2018-01-01T00:00:00Z"}, "type": "time"}
+                    "datavalue": {
+                        "value": {"time": "+2018-01-01T00:00:00Z"},
+                        "type": "time",
+                    },
                 }
             ]
         }

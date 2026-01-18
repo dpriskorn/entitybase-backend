@@ -254,10 +254,14 @@ def deduplicate_references_in_statements(
     Returns:
         OperationResult indicating success/failure.
     """
-    logger.debug(f"Deduplicating references in {len(hash_result.full_statements)} statements")
+    logger.debug(
+        f"Deduplicating references in {len(hash_result.full_statements)} statements"
+    )
 
     for idx, statement_data in enumerate(hash_result.full_statements):
-        if "references" in statement_data and isinstance(statement_data["references"], list):
+        if "references" in statement_data and isinstance(
+            statement_data["references"], list
+        ):
             new_references = []
             for ref in statement_data["references"]:
                 if isinstance(ref, dict):
@@ -276,7 +280,9 @@ def deduplicate_references_in_statements(
                     new_references.append(ref)
             statement_data["references"] = new_references
 
-    logger.info(f"Reference deduplication completed for {len(hash_result.full_statements)} statements")
+    logger.info(
+        f"Reference deduplication completed for {len(hash_result.full_statements)} statements"
+    )
     return OperationResult(success=True)
 
 
@@ -296,10 +302,14 @@ def deduplicate_qualifiers_in_statements(
     Returns:
         OperationResult indicating success/failure.
     """
-    logger.debug(f"Deduplicating qualifiers in {len(hash_result.full_statements)} statements")
+    logger.debug(
+        f"Deduplicating qualifiers in {len(hash_result.full_statements)} statements"
+    )
 
     for idx, statement_data in enumerate(hash_result.full_statements):
-        if "qualifiers" in statement_data and isinstance(statement_data["qualifiers"], dict):
+        if "qualifiers" in statement_data and isinstance(
+            statement_data["qualifiers"], dict
+        ):
             # Compute rapidhash
             qual_hash = QualifierHasher.compute_hash(statement_data["qualifiers"])
             # Store in S3 (idempotent)
@@ -311,5 +321,7 @@ def deduplicate_qualifiers_in_statements(
             # Replace with hash
             statement_data["qualifiers"] = qual_hash
 
-    logger.info(f"Qualifier deduplication completed for {len(hash_result.full_statements)} statements")
+    logger.info(
+        f"Qualifier deduplication completed for {len(hash_result.full_statements)} statements"
+    )
     return OperationResult(success=True)

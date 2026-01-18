@@ -224,6 +224,7 @@ class TestEntityChange:
 
         # Create a valid EntityChange
         from datetime import timezone
+
         change = EntityChange(
             entity_id="Q42",
             revision_id=123,
