@@ -17,7 +17,7 @@ from models.user import User
 from models.validation.utils import raise_validation_error
 
 
-users_router = APIRouter(tags=["users"])
+users_router = APIRouter(prefix="/entitybase", tags=["users"])
 
 
 @users_router.post("/v1/users", response_model=UserCreateResponse)
