@@ -56,7 +56,7 @@ class IdGeneratorWorker(BaseModel):
         signal.signal(signal.SIGTERM, self._signal_handler)
         signal.signal(signal.SIGINT, self._signal_handler)
 
-    def _signal_handler(self, signum: int, frame: Any) -> None:
+    def _signal_handler(self, signum: int, _frame: Any) -> None:
         """Handle shutdown signals (SIGTERM/SIGINT) for graceful termination.
 
         Sets the running flag to False, allowing the worker loop to exit cleanly.

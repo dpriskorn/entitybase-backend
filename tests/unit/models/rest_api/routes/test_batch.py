@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import Mock, patch, AsyncMock
 from fastapi import HTTPException
 
-from models.rest_api.routes.batch import (
+from models.rest_api.entitybase.routes.batch import (
     get_batch_sitelinks,
     get_batch_labels,
     get_batch_descriptions,

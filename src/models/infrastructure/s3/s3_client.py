@@ -705,4 +705,3 @@ class MyS3Client(Client):
             except ClientError:
                 results.append(None)
         return results
-        return ""  # unreachable, but for linter

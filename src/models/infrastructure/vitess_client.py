@@ -59,7 +59,6 @@ class VitessClient(Client):
     revision_repository: RevisionRepository = Field(exclude=True)
     redirect_repository: RedirectRepository = Field(exclude=True)
     head_repository: HeadRepository = Field(exclude=True)
-    listing_repository: Optional[ListingRepository] = Field(default=None, exclude=True)
     statement_repository: StatementRepository = Field(exclude=True)
     backlink_repository: BacklinkRepository = Field(exclude=True)
     metadata_repository: MetadataRepository = Field(exclude=True)
@@ -84,7 +83,7 @@ class VitessClient(Client):
             self.connection_manager, self.id_resolver
         )
         self.head_repository = HeadRepository(self.connection_manager, self.id_resolver)
-        # self.listing_repository = ListingRepository(self.connection_manager)  # DISABLED: Listing not used
+        self.listing_repository = ListingRepository(self.connection_manager)
         self.statement_repository = StatementRepository(self.connection_manager)
         self.backlink_repository = BacklinkRepository(self.connection_manager)
         self.metadata_repository = MetadataRepository(self.connection_manager)
@@ -401,24 +400,34 @@ class VitessClient(Client):
             return [row[0] for row in results]
 
     def list_locked_entities(self, limit: int) -> list[EntityListing]:
-        # Stub implementation
-        return []
+        """List entities that are locked."""
+        with self._connection_manager.get_connection() as conn:
+            result = self.listing_repository.list_locked(conn, limit)
+            return [EntityListing(**item) for item in result]
 
     def list_semi_protected_entities(self, limit: int) -> list[EntityListing]:
-        # Stub implementation
-        return []
+        """List entities that are semi-protected."""
+        with self._connection_manager.get_connection() as conn:
+            result = self.listing_repository.list_semi_protected(conn, limit)
+            return [EntityListing(**item) for item in result]
 
     def list_archived_entities(self, limit: int) -> list[EntityListing]:
-        # Stub implementation
-        return []
+        """List entities that are archived."""
+        with self._connection_manager.get_connection() as conn:
+            result = self.listing_repository.list_archived(conn, limit)
+            return [EntityListing(**item) for item in result]
 
     def list_dangling_entities(self, limit: int) -> list[EntityListing]:
-        # Stub implementation
-        return []
+        """List entities that are dangling."""
+        with self._connection_manager.get_connection() as conn:
+            result = self.listing_repository.list_dangling(conn, limit)
+            return [EntityListing(**item) for item in result]
 
     def list_by_edit_type(self, edit_type: str, limit: int) -> list[EntityListing]:
-        # Stub implementation
-        return []
+        """List entities by edit type."""
+        with self._connection_manager.get_connection() as conn:
+            result = self.listing_repository.list_by_edit_type(conn, edit_type, limit)
+            return [EntityListing(**item) for item in result]
 
     def insert_statement_content(self, content_hash: int) -> bool:
         """Insert statement content hash."""

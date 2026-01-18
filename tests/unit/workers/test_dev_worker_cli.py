@@ -32,7 +32,7 @@ class TestDevWorkerCLI:
         assert result == 0
         mock_run_health.assert_called_once()
 
-    @patch("src.models.workers.dev.__main__.run_cleanup")
+    @patch("models.workers.dev.__main__.run_cleanup")
     @patch("sys.argv", ["devworker", "cleanup", "--force"])
     def test_cleanup_command_force(self, mock_run_cleanup):
         """Test cleanup command with force flag."""
@@ -80,20 +80,14 @@ class TestDevWorkerCLI:
         "sys.argv",
         ["devworker", "--endpoint", "http://custom:9000", "setup"],
     )
-    @patch("models.workers.dev.__main__.run_setup")
-    @patch("asyncio.run")
     @patch("models.workers.dev.create_buckets.CreateBuckets")
     def test_custom_arguments(
         self,
         mock_create_buckets,
-        mock_asyncio_run,
-        mock_run_setup,
     ):
         """Test CLI with custom arguments."""
         mock_worker = MagicMock()
         mock_create_buckets.return_value = mock_worker
-
-        mock_asyncio_run.return_value = True
 
         result = main()
 
@@ -104,7 +98,7 @@ class TestDevWorkerCLI:
             minio_secret_key="minioadmin",
         )
 
-    @patch("src.models.workers.dev.__main__.run_setup")
+    @patch("models.workers.dev.__main__.run_setup")
     @patch("sys.argv", ["devworker", "setup"])
     def test_command_failure(self, mock_run_setup):
         """Test handling of command failure."""
