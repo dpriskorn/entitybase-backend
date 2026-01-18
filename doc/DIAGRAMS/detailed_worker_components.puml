@@ -1,0 +1,19 @@
+@startuml Detailed Worker Components
+
+title Wikibase Backend - Detailed Worker Components
+
+package "Workers" as Workers #LightYellow {
+    "BacklinkStatistics" as BacklinkStatisticsWorker
+    "CanonicalizationMethod" as CanonicalizationMethod
+    "CreateBuckets" as CreateBuckets
+    "EntityDiffRequest" as EntityDiffRequest
+    "EntityDiffResponse" as EntityDiffResponse
+    "EntityDiff" as EntityDiffWorker
+    "IdGenerator" as IdGeneratorWorker
+    "NotificationCleanup" as NotificationCleanupWorker
+    "RDFCanonicalizer" as RDFCanonicalizer
+    "RDFSerializer" as RDFSerializer
+    "WatchlistConsumer" as WatchlistConsumerWorker
+}
+
+@enduml

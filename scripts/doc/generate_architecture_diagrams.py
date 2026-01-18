@@ -337,6 +337,130 @@ def generate_detailed_api_diagram(analysis: Dict) -> str:
     return "\n".join(lines)
 
 
+def generate_detailed_service_diagram(analysis: Dict) -> str:
+    """Generate PlantUML detailed service diagram showing all services."""
+    lines = [
+        "@startuml Detailed Service Components",
+        "",
+        "title Wikibase Backend - Detailed Service Components",
+        "",
+    ]
+
+    # Get all service components
+    service_components = sorted(analysis.get("services", []))
+    if service_components:
+        lines.append('package "Services" as Services #LightGreen {')
+        for component in service_components:
+            component_name = component.replace("Service", "").strip()
+            if not component_name:
+                continue
+            safe_id = component.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace("[", "").replace("]", "")
+            if not safe_id:
+                safe_id = f"Component_{len(lines)}"
+            lines.append(f'    "{component_name}" as {safe_id}')
+        lines.append("}")
+    else:
+        lines.append("note: No service components found")
+
+    lines.append("")
+    lines.append("@enduml")
+
+    return "\n".join(lines)
+
+
+def generate_detailed_worker_diagram(analysis: Dict) -> str:
+    """Generate PlantUML detailed worker diagram showing all workers."""
+    lines = [
+        "@startuml Detailed Worker Components",
+        "",
+        "title Wikibase Backend - Detailed Worker Components",
+        "",
+    ]
+
+    # Get all worker components
+    worker_components = sorted(analysis.get("workers", []))
+    if worker_components:
+        lines.append('package "Workers" as Workers #LightYellow {')
+        for component in worker_components:
+            component_name = component.replace("Worker", "").strip()
+            if not component_name:
+                continue
+            safe_id = component.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace("[", "").replace("]", "")
+            if not safe_id:
+                safe_id = f"Component_{len(lines)}"
+            lines.append(f'    "{component_name}" as {safe_id}')
+        lines.append("}")
+    else:
+        lines.append("note: No worker components found")
+
+    lines.append("")
+    lines.append("@enduml")
+
+    return "\n".join(lines)
+
+
+def generate_detailed_infrastructure_diagram(analysis: Dict) -> str:
+    """Generate PlantUML detailed infrastructure diagram showing all repositories."""
+    lines = [
+        "@startuml Detailed Infrastructure Components",
+        "",
+        "title Wikibase Backend - Detailed Infrastructure Components",
+        "",
+    ]
+
+    # Get all repository components
+    repo_components = sorted(analysis.get("repositories", []))
+    if repo_components:
+        lines.append('package "Repositories" as Repositories #LightGray {')
+        for component in repo_components:
+            component_name = component.replace("Repository", "").strip()
+            if not component_name:
+                continue
+            safe_id = component.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace("[", "").replace("]", "")
+            if not safe_id:
+                safe_id = f"Component_{len(lines)}"
+            lines.append(f'    "{component_name}" as {safe_id}')
+        lines.append("}")
+    else:
+        lines.append("note: No repository components found")
+
+    lines.append("")
+    lines.append("@enduml")
+
+    return "\n".join(lines)
+
+
+def generate_detailed_models_diagram(analysis: Dict) -> str:
+    """Generate PlantUML detailed models diagram showing all models."""
+    lines = [
+        "@startuml Detailed Model Components",
+        "",
+        "title Wikibase Backend - Detailed Model Components",
+        "",
+    ]
+
+    # Get all model components
+    model_components = sorted(analysis.get("models", []))
+    if model_components:
+        lines.append('package "Models" as Models #LightCyan {')
+        for component in model_components:
+            component_name = component.replace("Response", "").replace("Request", "").strip()
+            if not component_name:
+                continue
+            safe_id = component.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace("[", "").replace("]", "")
+            if not safe_id:
+                safe_id = f"Component_{len(lines)}"
+            lines.append(f'    "{component_name}" as {safe_id}')
+        lines.append("}")
+    else:
+        lines.append("note: No model components found")
+
+    lines.append("")
+    lines.append("@enduml")
+
+    return "\n".join(lines)
+
+
 def generate_component_relationship_diagram(analysis: Dict) -> str:
     """Generate PlantUML component relationship diagram."""
     lines = [
@@ -440,10 +564,26 @@ def save_diagrams():
     with open(diagrams_dir / "component_relationships.puml", "w") as f:
         f.write(component_diagram)
 
-    # Generate detailed API diagram
+    # Generate detailed diagrams
     detailed_api_diagram = generate_detailed_api_diagram(analysis)
     with open(diagrams_dir / "detailed_api_components.puml", "w") as f:
         f.write(detailed_api_diagram)
+
+    detailed_service_diagram = generate_detailed_service_diagram(analysis)
+    with open(diagrams_dir / "detailed_service_components.puml", "w") as f:
+        f.write(detailed_service_diagram)
+
+    detailed_worker_diagram = generate_detailed_worker_diagram(analysis)
+    with open(diagrams_dir / "detailed_worker_components.puml", "w") as f:
+        f.write(detailed_worker_diagram)
+
+    detailed_infrastructure_diagram = generate_detailed_infrastructure_diagram(analysis)
+    with open(diagrams_dir / "detailed_infrastructure_components.puml", "w") as f:
+        f.write(detailed_infrastructure_diagram)
+
+    detailed_models_diagram = generate_detailed_models_diagram(analysis)
+    with open(diagrams_dir / "detailed_model_components.puml", "w") as f:
+        f.write(detailed_models_diagram)
 
     print(f"Diagrams generated in {diagrams_dir}/")
 
