@@ -22,6 +22,7 @@ dependencies = [
     "aiokafka (>=0.11.0,<1.0.0)",
     "pyld (>=2.0.0,<3.0.0)",
     "pyyaml (>=6.0.3,<7.0.0)",
+    "mypy-boto3-s3 (>=1.42.21,<2.0.0)",
 ]
 
 
@@ -51,7 +52,6 @@ dev = [
     "types-boto3 (>=1.0.0,<2.0.0)",
     "types-jsonschema (>=4.26.0.20260109,<5.0.0.0)",
     "beartype (>=0.22.9,<0.23.0)",
-    "mypy-boto3-s3 (>=1.42.21,<2.0.0)",
 ]
 
 [tool.pytest.ini_options]
