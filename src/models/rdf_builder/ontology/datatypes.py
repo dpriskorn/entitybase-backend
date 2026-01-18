@@ -28,7 +28,7 @@ def property_shape(
     Returns:
         PropertyShape with predicates configured for datatype
     """
-    logger.debug(f"Creating property shape for {pid} with datatype {datatype}")
+    # logger.debug(f"Creating property shape for {pid} with datatype {datatype}")
     base = {
         "direct": f"wdt:{pid}",
         "statement": f"ps:{pid}",
