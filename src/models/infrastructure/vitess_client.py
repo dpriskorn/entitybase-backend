@@ -128,7 +128,7 @@ class VitessClient(Client):
         """
         return self.connection_manager.connect()  # type: ignore[no-any-return]
 
-    def healthy_connection(self) -> bool:
+    def healthy_connection(self) -> bool:  # type: ignore[override]
         """Check if the database connection is healthy."""
         assert self.connection_manager is not None
         return self.connection_manager.healthy_connection  # type: ignore[no-any-return]
