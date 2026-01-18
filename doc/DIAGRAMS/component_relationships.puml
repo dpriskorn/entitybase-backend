@@ -38,6 +38,8 @@ Handlers -- MQ
 DBI --> Vitess : mysql
 SI --> S3Terms : terms metadata
 SI --> S3Statements : statement content
+SI --> S3References : reference content
+SI --> S3Qualifiers : qualifier content
 SI --> S3Revisions : revision data
 Workers --> S3Dumps : entity dumps
 MQ --> Kafka : events
