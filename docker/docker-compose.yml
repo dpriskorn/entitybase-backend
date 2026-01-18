@@ -123,18 +123,18 @@ services:
      cpus: 1
 
   integration:
-     build:
-       context: ..
-       dockerfile: docker/containers/Dockerfile.tests
-     container_name: integration
-     depends_on:
-       api:
-         condition: service_healthy
-     command: pytest tests/ -m integration -v --tb=short --log-cli-level=DEBUG
-     networks:
+      build:
+        context: ..
+        dockerfile: docker/containers/Dockerfile.tests
+      container_name: integration
+      depends_on:
+        api:
+          condition: service_healthy
+      command: pytest tests/ -m integration -v --tb=long --log-cli-level=DEBUG --durations=10
+      networks:
        - default
-     mem_limit: 1g
-     cpus: 1
+      mem_limit: 1g
+      cpus: 1
 
   e2e:
      build:
