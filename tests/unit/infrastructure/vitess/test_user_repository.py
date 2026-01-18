@@ -373,6 +373,79 @@ class TestUserRepository:
         assert result.success is False
         assert "limit must be positive" in result.error
 
+    def test_insert_user_statistics_success(self, repository, mock_connection_manager):
+        """Test successful insertion of user statistics."""
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        repository.insert_user_statistics(mock_conn, "2023-01-01", 1000, 500)
+
+        mock_cursor.execute.assert_called_once_with(
+            """
+                    INSERT INTO user_daily_stats
+                    (stat_date, total_users, active_users)
+                    VALUES (%s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    total_users = VALUES(total_users),
+                    active_users = VALUES(active_users)
+                    """,
+            ("2023-01-01", 1000, 500),
+        )
+
+    def test_insert_user_statistics_invalid_date(self, repository, mock_connection_manager):
+        """Test insertion with invalid date."""
+        mock_conn = MagicMock()
+        with pytest.raises(ValueError, match="Invalid date format"):
+            repository.insert_user_statistics(mock_conn, "invalid", 1000, 500)
+
+    def test_insert_user_statistics_negative_users(self, repository, mock_connection_manager):
+        """Test insertion with negative user count."""
+        mock_conn = MagicMock()
+        with pytest.raises(ValueError, match="total_users must be non-negative"):
+            repository.insert_user_statistics(mock_conn, "2023-01-01", -1, 500)
+
+    def test_insert_general_statistics_success(self, repository, mock_connection_manager):
+        """Test successful insertion of general statistics."""
+        mock_conn = MagicMock()
+        mock_cursor = MagicMock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        repository.insert_general_statistics(
+            mock_conn, "2023-01-01", 1000, 500, 200, 800, 50, 100, 1500, 3000,
+            {"en": 2000}, {"labels": 1500}
+        )
+
+        mock_cursor.execute.assert_called_once_with(
+            """
+                    INSERT INTO general_daily_stats
+                    (stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, terms_per_language, terms_by_type)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    total_statements = VALUES(total_statements),
+                    total_qualifiers = VALUES(total_qualifiers),
+                    total_references = VALUES(total_references),
+                    total_items = VALUES(total_items),
+                    total_lexemes = VALUES(total_lexemes),
+                    total_properties = VALUES(total_properties),
+                    total_sitelinks = VALUES(total_sitelinks),
+                    total_terms = VALUES(total_terms),
+                    terms_per_language = VALUES(terms_per_language),
+                    terms_by_type = VALUES(terms_by_type)
+                    """,
+            ("2023-01-01", 1000, 500, 200, 800, 50, 100, 1500, 3000, '{"en": 2000}', '{"labels": 1500}'),
+        )
+
+    def test_insert_general_statistics_invalid_date(self, repository, mock_connection_manager):
+        """Test insertion with invalid date."""
+        mock_conn = MagicMock()
+        with pytest.raises(ValueError, match="Invalid date format"):
+            repository.insert_general_statistics(
+                mock_conn, "invalid", 1000, 500, 200, 800, 50, 100, 1500, 3000, {}, {}
+            )
+
         result = repository.get_user_activities(123, offset=-1)
         assert result.success is False
         assert "offset must be non-negative" in result.error

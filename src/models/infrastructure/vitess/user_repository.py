@@ -287,6 +287,102 @@ class UserRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
+    def insert_general_statistics(
+        self,
+        conn: Any,
+        date: str,
+        total_statements: int,
+        total_qualifiers: int,
+        total_references: int,
+        total_items: int,
+        total_lexemes: int,
+        total_properties: int,
+        total_sitelinks: int,
+        total_terms: int,
+        terms_per_language: dict[str, int],
+        terms_by_type: dict[str, int],
+    ) -> None:
+        """Insert daily general statistics.
+
+        Args:
+            conn: Database connection
+            date: Date string in ISO format (YYYY-MM-DD)
+            total_statements: Total statements
+            total_qualifiers: Total qualifiers
+            total_references: Total references
+            total_items: Total items
+            total_lexemes: Total lexemes
+            total_properties: Total properties
+            total_sitelinks: Total sitelinks
+            total_terms: Total terms
+            terms_per_language: Terms per language dict
+            terms_by_type: Terms by type dict
+
+        Raises:
+            ValueError: If input validation fails
+            Exception: If database operation fails
+        """
+        # Input validation
+        if not isinstance(date, str) or len(date) != 10:
+            raise_validation_error(
+                f"Invalid date format: {date}. Expected YYYY-MM-DD", status_code=400
+            )
+        for name, value in [
+            ("total_statements", total_statements),
+            ("total_qualifiers", total_qualifiers),
+            ("total_references", total_references),
+            ("total_items", total_items),
+            ("total_lexemes", total_lexemes),
+            ("total_properties", total_properties),
+            ("total_sitelinks", total_sitelinks),
+            ("total_terms", total_terms),
+        ]:
+            if value < 0:
+                raise_validation_error(
+                    f"{name} must be non-negative: {value}",
+                    status_code=400,
+                )
+
+        logger.debug(f"Inserting general statistics for date {date}")
+
+        with conn.cursor() as cursor:
+            try:
+                cursor.execute(
+                    """
+                    INSERT INTO general_daily_stats
+                    (stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, terms_per_language, terms_by_type)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    ON DUPLICATE KEY UPDATE
+                    total_statements = VALUES(total_statements),
+                    total_qualifiers = VALUES(total_qualifiers),
+                    total_references = VALUES(total_references),
+                    total_items = VALUES(total_items),
+                    total_lexemes = VALUES(total_lexemes),
+                    total_properties = VALUES(total_properties),
+                    total_sitelinks = VALUES(total_sitelinks),
+                    total_terms = VALUES(total_terms),
+                    terms_per_language = VALUES(terms_per_language),
+                    terms_by_type = VALUES(terms_by_type)
+                    """,
+                    (
+                        date,
+                        total_statements,
+                        total_qualifiers,
+                        total_references,
+                        total_items,
+                        total_lexemes,
+                        total_properties,
+                        total_sitelinks,
+                        total_terms,
+                        json.dumps(terms_per_language),
+                        json.dumps(terms_by_type),
+                    ),
+                )
+                logger.info(f"Successfully stored general statistics for {date}")
+            except Exception as e:
+                logger.error(f"Failed to insert general statistics for {date}: {e}")
+                raise
+
     def insert_user_statistics(
         self,
         conn: Any,

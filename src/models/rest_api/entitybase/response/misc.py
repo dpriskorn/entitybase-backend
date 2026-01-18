@@ -217,6 +217,41 @@ class UserStatsResponse(BaseModel):
     )
 
 
+class GeneralStatsData(BaseModel):
+    """Container for computed general wiki statistics."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    total_statements: int = Field(description="Total number of statements.")
+    total_qualifiers: int = Field(description="Total number of qualifiers.")
+    total_references: int = Field(description="Total number of references.")
+    total_items: int = Field(description="Total number of items.")
+    total_lexemes: int = Field(description="Total number of lexemes.")
+    total_properties: int = Field(description="Total number of properties.")
+    total_sitelinks: int = Field(description="Total number of sitelinks.")
+    total_terms: int = Field(description="Total number of terms (labels + descriptions + aliases).")
+    terms_per_language: dict[str, int] = Field(description="Terms count per language.")
+    terms_by_type: dict[str, int] = Field(description="Terms count by type (labels, descriptions, aliases).")
+
+
+class GeneralStatsResponse(BaseModel):
+    """API response for general wiki statistics."""
+
+    model_config = ConfigDict()
+
+    date: str = Field(description="Date of statistics computation.")
+    total_statements: int = Field(description="Total number of statements.")
+    total_qualifiers: int = Field(description="Total number of qualifiers.")
+    total_references: int = Field(description="Total number of references.")
+    total_items: int = Field(description="Total number of items.")
+    total_lexemes: int = Field(description="Total number of lexemes.")
+    total_properties: int = Field(description="Total number of properties.")
+    total_sitelinks: int = Field(description="Total number of sitelinks.")
+    total_terms: int = Field(description="Total number of terms (labels + descriptions + aliases).")
+    terms_per_language: dict[str, int] = Field(description="Terms count per language.")
+    terms_by_type: dict[str, int] = Field(description="Terms count by type (labels, descriptions, aliases).")
+
+
 class RawRevisionResponse(BaseModel):
     """Response model for raw revision data."""
 

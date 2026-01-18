@@ -12,7 +12,7 @@ from models.rest_api.entitybase.response.user import (
     WatchlistToggleResponse,
     UserCreateResponse,
 )
-from models.rest_api.entitybase.response.misc import UserStatsResponse
+from models.rest_api.entitybase.response.misc import GeneralStatsResponse, UserStatsResponse
 from models.user import User
 from models.validation.utils import raise_validation_error
 
@@ -72,5 +72,17 @@ def get_user_stats(req: Request) -> UserStatsResponse:
     try:
         stats = handler.get_user_stats(clients.vitess)
         return UserStatsResponse(**stats)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@users_router.get("/v1/stats", response_model=GeneralStatsResponse)
+def get_general_stats(req: Request) -> GeneralStatsResponse:
+    """Get general wiki statistics."""
+    clients = req.app.state.clients
+    handler = UserHandler()
+    try:
+        stats = handler.get_general_stats(clients.vitess)
+        return GeneralStatsResponse(**stats)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

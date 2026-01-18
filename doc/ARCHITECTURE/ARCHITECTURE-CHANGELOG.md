@@ -2,36 +2,42 @@
 
 This file tracks architectural changes, feature additions, and modifications to the entitybase-backend.
 
-## [2026-01-18] User Statistics Worker and API
+## [2026-01-18] User and General Statistics Workers and APIs
 
 ### Summary
 
-Implemented a daily user statistics worker that computes and stores total and active user counts in a new database table. Added an API endpoint to retrieve these precomputed stats for improved performance.
+Implemented daily statistics workers for user and general wiki data, storing results in database tables for fast API retrieval. Added endpoints for user stats and comprehensive wiki statistics with breakdowns.
 
 ### Changes
 
 #### Storage Architecture
-- **New Table**: Added `user_daily_stats` table with columns: `stat_date` (DATE PRIMARY KEY), `total_users` (BIGINT), `active_users` (BIGINT), `created_at` (TIMESTAMP).
+- **New Tables**:
+  - `user_daily_stats`: `stat_date` (DATE PRIMARY KEY), `total_users`, `active_users`, `created_at`.
+  - `general_daily_stats`: `stat_date` (DATE PRIMARY KEY), `total_statements`, `total_qualifiers`, `total_references`, `total_items`, `total_lexemes`, `total_properties`, `total_sitelinks`, `total_terms`, `terms_per_language` (JSON), `terms_by_type` (JSON), `created_at`.
 - **Active User Definition**: Users with `last_activity` within the last 30 days.
+- **Terms**: Total labels + descriptions + aliases, with breakdowns by language and type.
 
 #### Worker Implementation
 - **Base Stats Worker**: Created `BaseStatsWorker` class for reusable stats worker logic (scheduling, health checks).
-- **User Stats Worker**: Inherits from base, runs daily to compute and store stats using `UserStatsService`.
-- **Scheduling**: Configurable via `user_stats_schedule` (default "0 2 * * *" - daily at 2 AM).
+- **User Stats Worker**: Computes and stores daily user stats.
+- **General Stats Worker**: Computes wiki-wide stats including statements, qualifiers, references, entities, sitelinks, and term breakdowns.
+- **Scheduling**: Both workers configurable via `*_stats_schedule` (default "0 2 * * *" - daily at 2 AM).
 
 #### API Updates
-- **New Endpoint**: `GET /entitybase/v1/users/stat` returns `UserStatsResponse` with latest daily stats.
-- **Response Model**: Added `UserStatsData` and `UserStatsResponse` in `misc.py`.
-- **Handler**: Added `get_user_stats` in `UserHandler` to query the table (with live fallback).
+- **New Endpoints**:
+  - `GET /entitybase/v1/users/stat`: Returns `UserStatsResponse` with user counts.
+  - `GET /entitybase/v1/stats`: Returns `GeneralStatsResponse` with comprehensive wiki stats and breakdowns.
+- **Response Models**: Added `UserStatsData`, `UserStatsResponse`, `GeneralStatsData`, `GeneralStatsResponse` in `misc.py`.
+- **Handler**: Added `get_user_stats` and `get_general_stats` in `UserHandler` to query tables (with live fallbacks).
 
 #### Implementation Details
-- **Service**: `UserStatsService` computes live stats from Vitess.
-- **Repository**: Extended `UserRepository` with `insert_user_statistics` method.
-- **Settings**: Added `user_stats_enabled` and `user_stats_schedule` flags.
+- **Services**: `UserStatsService` and `GeneralStatsService` compute live stats from Vitess.
+- **Repository**: Extended `UserRepository` with `insert_user_statistics` and `insert_general_statistics` methods.
+- **Settings**: Added `user_stats_enabled`, `user_stats_schedule`, `general_stats_enabled`, `general_stats_schedule` flags.
 
 #### Benefits
 - **Performance**: Precomputed stats reduce query load on live data.
-- **Scalability**: Daily batch processing handles large user bases.
+- **Scalability**: Daily batch processing handles large datasets.
 - **Extensibility**: Base worker class enables easy addition of other stats workers.
 
 ## [2026-01-18] Qualifier Deduplication Implementation
