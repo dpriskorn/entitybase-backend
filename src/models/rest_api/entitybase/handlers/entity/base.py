@@ -142,7 +142,7 @@ class EntityHandler(BaseModel):
 
         if not revision_result.success:
             raise_validation_error(revision_result.error or "Failed to create revision")
-
+        assert isinstance(revision_result.data, EntityResponse)
         return revision_result.data
 
     def _check_idempotency(
