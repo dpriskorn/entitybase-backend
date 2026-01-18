@@ -16,7 +16,6 @@ from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
-from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.request import EntityCreateRequest
 from models.rest_api.entitybase.request.entity.add_property import AddPropertyRequest
 from models.rest_api.entitybase.request.entity.patch import LabelPatchRequest

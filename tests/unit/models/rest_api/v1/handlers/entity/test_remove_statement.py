@@ -6,8 +6,6 @@ from models.rest_api.entitybase.handlers.entity.base import EntityHandler
 from models.rest_api.entitybase.request.entity.remove_statement import (
     RemoveStatementRequest,
 )
-from models.common import OperationResult
-from models.rest_api.entitybase.response import EntityResponse, EntityState
 
 
 class TestRemoveStatement(unittest.TestCase):

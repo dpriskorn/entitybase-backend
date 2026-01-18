@@ -2,7 +2,6 @@
 
 import logging
 from datetime import timezone, datetime
-from typing import Optional
 
 from models.common import OperationResult
 from models.config.settings import settings

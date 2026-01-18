@@ -1,15 +1,13 @@
 """S3-related models and configurations."""
 
 from datetime import timezone, datetime
-from enum import Enum
 from typing import Any, Dict
 
 from pydantic import BaseModel, ConfigDict, Field
-from pydantic.root_model import RootModel
 
 from models.config.settings import settings
-from models.infrastructure.config import Config
-from models.infrastructure.s3.enums import CreatedBy, EditType, EntityType, EditData
+from models.infrastructure.s3.enums import EntityType, EditData
+from models.infrastructure.s3.hashmaps import HashMaps
 from models.rest_api.entitybase.response import EntityState, PropertyCounts
 
 
@@ -30,34 +28,6 @@ class RevisionMetadata(BaseModel):
     """Metadata for stored revisions."""
 
     key: str
-
-
-class LabelsHashes(RootModel[dict[str, int]]):
-    """Hash map for entity labels by language."""
-
-
-class DescriptionsHashes(RootModel[dict[str, int]]):
-    """Hash map for entity descriptions by language."""
-
-
-class AliasesHashes(RootModel[dict[str, list[int]]]):
-    """Hash map for entity aliases by language."""
-
-
-class SitelinksHashes(RootModel[dict[str, int]]):
-    """Hash map for entity sitelinks by site."""
-
-
-class StatementsHashes(RootModel[list[int]]):
-    """Hash list for entity statements."""
-
-
-class HashMaps(BaseModel):
-    labels: LabelsHashes | None = Field(default=None)
-    descriptions: DescriptionsHashes | None = Field(default=None)
-    aliases: AliasesHashes | None = Field(default=None)
-    sitelinks: SitelinksHashes | None = Field(default=None)
-    statements: StatementsHashes | None = Field(default=None)
 
 
 class RevisionData(BaseModel):

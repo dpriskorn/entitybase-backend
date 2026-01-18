@@ -14,6 +14,8 @@ from models.config.settings import settings
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.metadata_storage import MetadataStorage
+from models.infrastructure.s3.qualifier_storage import QualifierStorage
+from models.infrastructure.s3.reference_storage import ReferenceStorage
 from models.infrastructure.s3.revision_storage import RevisionStorage
 from models.infrastructure.s3.statement_storage import StatementStorage
 from models.rest_api.entitybase.response import StatementResponse
@@ -54,6 +56,8 @@ class MyS3Client(Client):
         self.revisions = RevisionStorage(self.connection_manager)
         self.statements = StatementStorage(self.connection_manager)
         self.metadata = MetadataStorage(self.connection_manager)
+        self.references = ReferenceStorage(self.connection_manager)
+        self.qualifiers = QualifierStorage(self.connection_manager)
 
     # def _ensure_bucket_exists(self) -> None:
     #     """Ensure the S3 bucket exists, creating it if necessary."""
@@ -202,181 +206,33 @@ class MyS3Client(Client):
         """Load metadata by type."""
         return self.metadata.load_metadata(metadata_type, content_hash)
 
-    def store_reference(
-        self, content_hash: int, reference_data: S3ReferenceData
-    ) -> None:
-        """Store a reference by its content hash.
-
-        Args:
-            content_hash: Rapidhash of the reference content.
-            reference_data: Full reference JSON dict.
-        """
-        if not self.connection_manager or not self.connection_manager.boto_client:
-            raise_validation_error("S3 service unavailable", status_code=503)
-        bucket = settings.s3_references_bucket
-        key = f"{content_hash}"
-        try:
-            self.connection_manager.boto_client.put_object(
-                Bucket=bucket,
-                Key=key,
-                Body=reference_data.model_dump(mode="json"),
-                ContentType="application/json",
-                Metadata={"content_hash": str(content_hash)},
-            )
-            logger.debug(f"S3 reference stored: bucket={bucket}, key={key}")
-        except ClientError as e:
-            logger.error(
-                f"S3 store_reference failed: bucket={bucket}, key={key}, error={e}"
-            )
-            raise
-        except Exception as e:
-            logger.error(
-                f"S3 store_reference failed: bucket={bucket}, key={key}, error={e}"
-            )
-            raise
+    def store_reference(self, content_hash: int, reference_data: S3ReferenceData) -> None:
+        """Store a reference by its content hash."""
+        result = self.references.store_reference(content_hash, reference_data)
+        if not result.success:
+            raise_validation_error("S3 storage service unavailable", status_code=503)
 
     def load_reference(self, content_hash: int) -> S3ReferenceData:
-        """Load a reference by its content hash.
+        """Load a reference by its content hash."""
+        return self.references.load_reference(content_hash)
 
-        Args:
-            content_hash: Rapidhash of the reference content.
+    def load_references_batch(self, content_hashes: list[int]) -> list[S3ReferenceData | None]:
+        """Load multiple references by their content hashes."""
+        return self.references.load_references_batch(content_hashes)
 
-        Returns:
-            ReferenceModel instance.
-        """
-        if not self.connection_manager or not self.connection_manager.boto_client:
-            raise_validation_error("S3 service unavailable", status_code=503)
-        bucket = settings.s3_references_bucket
-        key = f"{content_hash}"
-        try:
-            response = self.connection_manager.boto_client.get_object(
-                Bucket=bucket, Key=key
-            )
-            data = json.loads(response["Body"].read().decode("utf-8"))
-            logger.debug(f"S3 reference loaded: bucket={bucket}, key={key}")
-            return S3ReferenceData(**data)
-        except ClientError as e:
-            if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
-                logger.warning(f"S3 reference not found: bucket={bucket}, key={key}")
-                raise
-            else:
-                logger.error(
-                    f"S3 load_reference failed: bucket={bucket}, key={key}, error={e}"
-                )
-                raise
-        except Exception as e:
-            logger.error(
-                f"S3 load_reference failed: bucket={bucket}, key={key}, error={e}"
-            )
-            raise
-
-    def load_references_batch(
-        self, content_hashes: list[int]
-    ) -> list[S3ReferenceData | None]:
-        """Load multiple references by their content hashes.
-
-        Args:
-            content_hashes: List of rapidhashes.
-
-        Returns:
-            List of ReferenceModel instances, in same order. None for missing.
-        """
-        results: list[S3ReferenceData | None] = []
-        for h in content_hashes:
-            try:
-                ref = self.load_reference(h)
-                results.append(ref)
-            except ClientError:
-                results.append(None)
-        return results
-
-    def store_qualifier(
-        self, content_hash: int, qualifier_data: S3QualifierData
-    ) -> None:
-        """Store a qualifier by its content hash.
-
-        Args:
-            content_hash: Rapidhash of the qualifier content.
-            qualifier_data: Full qualifier JSON dict.
-        """
-        if not self.connection_manager or not self.connection_manager.boto_client:
-            raise_validation_error("S3 service unavailable", status_code=503)
-        bucket = settings.s3_qualifiers_bucket
-        key = f"{content_hash}"
-        try:
-            self.connection_manager.boto_client.put_object(
-                Bucket=bucket,
-                Key=key,
-                Body=qualifier_data.model_dump(mode="json"),
-                ContentType="application/json",
-                Metadata={"content_hash": str(content_hash)},
-            )
-            logger.debug(f"S3 qualifier stored: bucket={bucket}, key={key}")
-        except ClientError as e:
-            logger.error(
-                f"S3 store_qualifier failed: bucket={bucket}, key={key}, error={e}"
-            )
-            raise
-        except Exception as e:
-            logger.error(
-                f"S3 store_qualifier failed: bucket={bucket}, key={key}, error={e}"
-            )
-            raise
+    def store_qualifier(self, content_hash: int, qualifier_data: S3QualifierData) -> None:
+        """Store a qualifier by its content hash."""
+        result = self.qualifiers.store_qualifier(content_hash, qualifier_data)
+        if not result.success:
+            raise_validation_error("S3 storage service unavailable", status_code=503)
 
     def load_qualifier(self, content_hash: int) -> S3QualifierData:
-        """Load a qualifier by its content hash.
+        """Load a qualifier by its content hash."""
+        return self.qualifiers.load_qualifier(content_hash)
 
-        Args:
-            content_hash: Rapidhash of the qualifier content.
-
-        Returns:
-            QualifierModel instance.
-        """
-        if not self.connection_manager or not self.connection_manager.boto_client:
-            raise_validation_error("S3 service unavailable", status_code=503)
-        bucket = settings.s3_qualifiers_bucket
-        key = f"{content_hash}"
-        try:
-            response = self.connection_manager.boto_client.get_object(
-                Bucket=bucket, Key=key
-            )
-            data = json.loads(response["Body"].read().decode("utf-8"))
-            logger.debug(f"S3 qualifier loaded: bucket={bucket}, key={key}")
-            return S3QualifierData(**data)
-        except ClientError as e:
-            if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
-                logger.warning(f"S3 qualifier not found: bucket={bucket}, key={key}")
-                raise
-            else:
-                logger.error(
-                    f"S3 load_qualifier failed: bucket={bucket}, key={key}, error={e}"
-                )
-                raise
-        except Exception as e:
-            logger.error(
-                f"S3 load_qualifier failed: bucket={bucket}, key={key}, error={e}"
-            )
-            raise
-
-    def load_qualifiers_batch(
-        self, content_hashes: list[int]
-    ) -> list[S3QualifierData | None]:
-        """Load multiple qualifiers by their content hashes.
-
-        Args:
-            content_hashes: List of rapidhashes.
-
-        Returns:
-            List of QualifierModel instances, in same order. None for missing.
-        """
-        results: list[S3QualifierData | None] = []
-        for h in content_hashes:
-            try:
-                qual = self.load_qualifier(h)
-                results.append(qual)
-            except ClientError:
-                results.append(None)
-        return results
+    def load_qualifiers_batch(self, content_hashes: list[int]) -> list[S3QualifierData | None]:
+        """Load multiple qualifiers by their content hashes."""
+        return self.qualifiers.load_qualifiers_batch(content_hashes)
 
 
 MyS3Client.model_rebuild()
