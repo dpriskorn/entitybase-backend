@@ -104,11 +104,9 @@ class MyS3Client(Client):
 
     def delete_statement(self, content_hash: int) -> None:
         """Delete statement from S3."""
-        if not self.connection_manager or not self.connection_manager.boto_client:
-            raise_validation_error("S3 service unavailable", status_code=503)
-        bucket = settings.s3_statements_bucket
-        key = f"{content_hash}"
-        self.connection_manager.boto_client.delete_object(Bucket=bucket, Key=key)
+        result = self.statements.delete_statement(content_hash)
+        if not result.success:
+            raise_validation_error("S3 storage service unavailable", status_code=503)
 
     def write_statement(
         self,
@@ -122,62 +120,8 @@ class MyS3Client(Client):
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
     def read_statement(self, content_hash: int) -> "StatementResponse":
-        """Read statement snapshot from S3.
-
-        Returns:
-            Dict with keys: content_hash, statement, created_at.
-
-        Raises:
-            ClientError if statement not found.
-        """
-        if not self.connection_manager or not self.connection_manager.boto_client:
-            raise_validation_error("S3 service unavailable", status_code=503)
-        bucket = settings.s3_statements_bucket
-        key = f"{content_hash}"
-        logger.debug(f"S3 read_statement: bucket={bucket}, key={key}")
-
-        try:
-            response = self.connection_manager.boto_client.get_object(
-                Bucket=bucket, Key=key
-            )
-            parsed_data: Dict[str, Any] = json.loads(
-                response["Body"].read().decode("utf-8")
-            )
-
-            stored_statement = StoredStatement.model_validate(parsed_data)
-
-            logger.debug(f"S3 read_statement successful: bucket={bucket}, key={key}")
-            return StatementResponse(
-                schema=stored_statement.schema_version,
-                hash=stored_statement.content_hash,
-                statement=stored_statement.statement,
-                created_at=stored_statement.created_at,
-            )
-        except ClientError as e:
-            error_code = e.response["Error"].get("Code", "Unknown")
-            logger.error(
-                "S3 ClientError in read_statement",
-                extra={
-                    "content_hash": content_hash,
-                    "bucket": bucket,
-                    "key": key,
-                    "error_code": error_code,
-                    "error_message": str(e),
-                    "is_not_found": error_code in ["NoSuchKey", "404"],
-                },
-            )
-            raise
-        except Exception as e:
-            logger.error(
-                f"S3 read_statement failed with non-ClientError for {content_hash}: {type(e).__name__}: {e}",
-                extra={
-                    "content_hash": content_hash,
-                    "bucket": bucket,
-                    "key": key,
-                },
-                exc_info=True,
-            )
-            raise
+        """Read statement snapshot from S3."""
+        return self.statements.load_statement(content_hash)
 
     def write_entity_revision(
         self,
