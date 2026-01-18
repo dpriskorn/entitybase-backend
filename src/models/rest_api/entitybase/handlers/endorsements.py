@@ -258,8 +258,8 @@ class EndorsementHandler:
         data = result.data
         return EndorsementStatsResponse(
             user_id=user_id,
-            total_endorsements_given=data["total_endorsements_given"],  # type: ignore[index]
-            total_endorsements_active=data["total_endorsements_active"],  # type: ignore[index]
+            given=data["total_endorsements_given"],  # type: ignore[index]
+            active=data["total_endorsements_active"],  # type: ignore[index]
         )
 
     def get_batch_statement_endorsement_stats(
