@@ -4,14 +4,14 @@ title Wikibase Backend - System Architecture
 
 package "API Layer" as APILayer #LightBlue {
     "Watchlist" as WatchlistHandler
+    "Endorsement" as EndorsementHandler
     "Admin" as AdminHandler
+    "Thanks" as ThanksHandler
     "UserActivity" as UserActivityHandler
     "Redirect" as RedirectHandler
     "User" as UserHandler
     "Statement" as StatementHandler
-    "Export" as ExportHandler
-    "UserPreferences" as UserPreferencesHandler
-    ... (30 total components)
+    ... (31 total components)
 }
 
 package "Service Layer" as ServiceLayer #LightGreen {
@@ -23,34 +23,38 @@ package "Service Layer" as ServiceLayer #LightGreen {
 }
 
 package "Worker Layer" as WorkerLayer #LightYellow {
+    "CanonicalizationMethod" as CanonicalizationMethod
+    "EntityDiffRequest" as EntityDiffRequest
+    "EntityDiffResponse" as EntityDiffResponse
+    "RDFCanonicalizer" as RDFCanonicalizer
+    "RDFSerializer" as RDFSerializer
+    "EntityDiffWorker" as EntityDiffWorker
     "BacklinkStatisticsWorker" as BacklinkStatisticsWorker
     "NotificationCleanupWorker" as NotificationCleanupWorker
-    "IdGeneratorWorker" as IdGeneratorWorker
-    "CreateBuckets" as CreateBuckets
-    "WatchlistConsumerWorker" as WatchlistConsumerWorker
+    ... (11 total components)
 }
 
 package "Infrastructure Layer" as InfrastructureLayer #LightGray {
     "Metadata" as MetadataRepository
     "Redirect" as RedirectRepository
     "Revision" as RevisionRepository
-    "RevisionRecord" as RevisionRecord
     "Head" as HeadRepository
     "Listing" as ListingRepository
+    "Endorsement" as EndorsementRepository
     "Backlink" as BacklinkRepository
     "User" as UserRepository
-    ... (14 total components)
+    ... (15 total components)
 }
 
 package "Data Models" as DataModels #LightCyan {
+    "EndorsementResponse" as EndorsementResponse
+    "EndorsementListResponse" as EndorsementListResponse
+    "EndorsementStatsResponse" as EndorsementStatsResponse
+    "StatementEndorsementStats" as StatementEndorsementStats
+    "BatchEndorsementStatsResponse" as BatchEndorsementStatsResponse
+    "SingleEndorsementStatsResponse" as SingleEndorsementStatsResponse
     "IdResponse" as IdResponse
-    "WikibasePredicates" as WikibasePredicates
-    "DeduplicationStats" as DeduplicationStats
-    "RedirectBatchResponse" as RedirectBatchResponse
-    "FullRevisionData" as FullRevisionData
-    "MetadataLoadResponse" as MetadataLoadResponse
-    "HealthResponse" as HealthResponse
-    "HealthCheckResponse" as HealthCheckResponse
+    "WikibasePredicatesResponse" as WikibasePredicatesResponse
     ... (10 total components)
 }
 

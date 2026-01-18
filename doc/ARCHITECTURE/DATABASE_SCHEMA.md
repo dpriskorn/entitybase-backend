@@ -4,7 +4,7 @@ This document describes the Vitess database schema used by wikibase-backend.
 
 ## Summary
 
-- **Total Tables**: 14
+- **Total Tables**: 16
 - **Database**: MySQL (via Vitess)
 - **Schema File**: `src/models/infrastructure/vitess/schema.py`
 
@@ -117,7 +117,7 @@ CREATE TABLE IF NOT EXISTS metadata_content ( content_hash BIGINT UNSIGNED NOT N
 
 **Columns**:
 
-- `internal_id`: BIGINT NOT NULL
+- `internal_id`: BIGINT UNSIGNED NOT NULL
 - `revision_id`: BIGINT NOT NULL
 - `created_at`: TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 - `is_mass_edit`: BOOLEAN DEFAULT FALSE
@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS metadata_content ( content_hash BIGINT UNSIGNED NOT N
 **SQL Definition**:
 
 ```sql
-CREATE TABLE IF NOT EXISTS entity_revisions ( internal_id BIGINT UNSIGNED NOT NULL, revision_id BIGINT NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, is_mass_edit BOOLEAN DEFAULT FALSE, edit_type VARCHAR(100) DEFAULT '', statements JSON NOT NULL, properties JSON NOT NULL, property_counts JSON NOT NULL, labels_hashes JSON, descriptions_hashes JSON, aliases_hashes JSON, sitelinks_hashes JSON, PRIMARY KEY (internal_id, revision_id) )
+CREATE TABLE IF NOT EXISTS entity_revisions ( internal_id BIGINT UNSIGNED NOT NULL, revision_id BIGINT NOT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, is_mass_edit BOOLEAN DEFAULT FALSE, edit_type VARCHAR(100) DEFAULT '', statements JSON NOT NULL, properties JSON NOT NULL, property_counts JSON NOT NULL, labels_hashes JSON, descriptions_hashes JSON, aliases_hashes JSON, sitelinks_hashes JSON, user_id BIGINT UNSIGNED, edit_summary TEXT, PRIMARY KEY (internal_id, revision_id) )
 ```
 
 ### entity_terms
@@ -176,14 +176,14 @@ CREATE TABLE IF NOT EXISTS users ( user_id BIGINT PRIMARY KEY, created_at TIMEST
 **Columns**:
 
 - `user_id`: BIGINT NOT NULL
-- `internal_entity_id`: BIGINT NOT NULL
-- `watched_properties`: TEXT DEFAULT NULL
+- `internal_entity_id`: BIGINT UNSIGNED NOT NULL
+- `watched_properties`: TEXT NOT NULL
 - `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
 **SQL Definition**:
 
 ```sql
-CREATE TABLE IF NOT EXISTS watchlist ( user_id BIGINT NOT NULL, internal_entity_id BIGINT UNSIGNED NOT NULL, watched_properties TEXT DEFAULT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (user_id, internal_entity_id, watched_properties(255)), FOREIGN KEY (internal_entity_id) REFERENCES entity_id_mapping(internal_id) )
+CREATE TABLE IF NOT EXISTS watchlist ( user_id BIGINT NOT NULL, internal_entity_id BIGINT UNSIGNED NOT NULL, watched_properties TEXT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (user_id, internal_entity_id, watched_properties(255)), FOREIGN KEY (internal_entity_id) REFERENCES entity_id_mapping(internal_id) )
 ```
 
 ### user_notifications
@@ -212,6 +212,37 @@ CREATE TABLE IF NOT EXISTS user_notifications ( id BIGINT PRIMARY KEY AUTO_INCRE
 CREATE TABLE IF NOT EXISTS user_activity ( id BIGINT PRIMARY KEY AUTO_INCREMENT, user_id BIGINT NOT NULL, activity_type VARCHAR(50) NOT NULL, entity_id VARCHAR(50), revision_id BIGINT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, INDEX idx_user_type_time (user_id, activity_type, created_at), INDEX idx_entity (entity_id) )
 ```
 
+### user_thanks
+
+**Columns**:
+
+- `from_user_id`: BIGINT NOT NULL
+- `to_user_id`: BIGINT NOT NULL
+- `internal_entity_id`: BIGINT UNSIGNED NOT NULL
+- `revision_id`: BIGINT NOT NULL
+- `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+**SQL Definition**:
+
+```sql
+CREATE TABLE IF NOT EXISTS user_thanks ( id BIGINT PRIMARY KEY AUTO_INCREMENT, from_user_id BIGINT NOT NULL, to_user_id BIGINT NOT NULL, internal_entity_id BIGINT UNSIGNED NOT NULL, revision_id BIGINT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, INDEX idx_from_user (from_user_id, created_at), INDEX idx_to_user (to_user_id, created_at), INDEX idx_revision (internal_entity_id, revision_id), UNIQUE KEY unique_thank (from_user_id, internal_entity_id, revision_id), FOREIGN KEY (internal_entity_id) REFERENCES entity_id_mapping(internal_id) )
+```
+
+### user_statement_endorsements
+
+**Columns**:
+
+- `user_id`: BIGINT NOT NULL
+- `statement_hash`: BIGINT UNSIGNED NOT NULL
+- `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+- `removed_at`: TIMESTAMP NULL
+
+**SQL Definition**:
+
+```sql
+CREATE TABLE IF NOT EXISTS user_statement_endorsements ( id BIGINT PRIMARY KEY AUTO_INCREMENT, user_id BIGINT NOT NULL, statement_hash BIGINT UNSIGNED NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, removed_at TIMESTAMP NULL, INDEX idx_user (user_id, created_at), INDEX idx_statement (statement_hash, created_at), INDEX idx_removed (removed_at), UNIQUE KEY unique_endorsement (user_id, statement_hash), FOREIGN KEY (statement_hash) REFERENCES statement_content(content_hash) )
+```
+
 ## Entity Relationship Diagram
 
 ```mermaid
@@ -228,8 +259,8 @@ erDiagram
         ... (9 total columns)
     }
     entity_redirects {
-        - `redirect_from_id`: BIGINT NOT NULL
-        - `redirect_to_id`: BIGINT NOT NULL
+        - `redirect_from_id`: BIGINT UNSIGNED NOT NULL
+        - `redirect_to_id`: BIGINT UNSIGNED NOT NULL
         - `created_at`: TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         - `created_by`: VARCHAR(255
     }
@@ -238,8 +269,8 @@ erDiagram
         - `ref_count`: INT DEFAULT 1
     }
     entity_backlinks {
-        - `referenced_internal_id`: BIGINT NOT NULL
-        - `referencing_internal_id`: BIGINT NOT NULL
+        - `referenced_internal_id`: BIGINT UNSIGNED NOT NULL
+        - `referencing_internal_id`: BIGINT UNSIGNED NOT NULL
         - `statement_hash`: BIGINT UNSIGNED NOT NULL
         - `property_id`: VARCHAR(32
     }
@@ -254,7 +285,7 @@ erDiagram
         - `content_type`: ENUM('labels'
     }
     entity_revisions {
-- `internal_id`: BIGINT UNSIGNED NOT NULL
+        - `internal_id`: BIGINT UNSIGNED NOT NULL
         - `revision_id`: BIGINT NOT NULL
         - `created_at`: TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         - `is_mass_edit`: BOOLEAN DEFAULT FALSE
@@ -277,8 +308,8 @@ erDiagram
     }
     watchlist {
         - `user_id`: BIGINT NOT NULL
-- `internal_entity_id`: BIGINT UNSIGNED NOT NULL
-        - `watched_properties`: TEXT DEFAULT NULL
+        - `internal_entity_id`: BIGINT UNSIGNED NOT NULL
+        - `watched_properties`: TEXT NOT NULL
         - `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     }
     user_notifications {
@@ -289,11 +320,26 @@ erDiagram
         - `user_id`: BIGINT NOT NULL
         - `activity_type`: VARCHAR(50
     }
+    user_thanks {
+        - `from_user_id`: BIGINT NOT NULL
+        - `to_user_id`: BIGINT NOT NULL
+        - `internal_entity_id`: BIGINT UNSIGNED NOT NULL
+        - `revision_id`: BIGINT NOT NULL
+        - `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    }
+    user_statement_endorsements {
+        - `user_id`: BIGINT NOT NULL
+        - `statement_hash`: BIGINT UNSIGNED NOT NULL
+        - `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        - `removed_at`: TIMESTAMP NULL
+    }
 
     entity_backlinks ||--o{ entity_id_mapping : referenced_internal_id }
     entity_backlinks ||--o{ entity_id_mapping : referencing_internal_id }
     entity_backlinks ||--o{ statement_content : statement_hash }
     watchlist ||--o{ entity_id_mapping : internal_entity_id }
+    user_thanks ||--o{ entity_id_mapping : internal_entity_id }
+    user_statement_endorsements ||--o{ statement_content : statement_hash }
 ```
 
 ## Notes

@@ -67,6 +67,18 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'testbucket'`
 - **Description**: No description available
 
+### `s3_references_bucket`
+
+- **Type**: `str`
+- **Default**: `'testbucket-references'`
+- **Description**: No description available
+
+### `s3_qualifiers_bucket`
+
+- **Type**: `str`
+- **Default**: `'testbucket-qualifiers'`
+- **Description**: No description available
+
 ### `s3_revision_version`
 
 - **Type**: `str`
@@ -97,6 +109,14 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `int`
 - **Default**: `100`
+- **Description**: No description available
+
+## RDF Settings
+
+### `kafka_rdf_topic`
+
+- **Type**: `str`
+- **Default**: `'wikibase.entity_diff'`
 - **Description**: No description available
 
 ## Development Settings
