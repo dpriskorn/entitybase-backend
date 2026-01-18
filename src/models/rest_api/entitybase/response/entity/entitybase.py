@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -9,7 +9,9 @@ from models.rest_api.entitybase.response.entity.wikibase import (
     AliasValue,
 )
 from models.rest_api.utils import raise_validation_error
-from models.s3_models import RevisionData
+
+if TYPE_CHECKING:
+    from models.s3_models import RevisionData
 
 
 class EntityLabelsResponse(BaseModel):
@@ -243,7 +245,7 @@ class EntityRevisionResponse(BaseModel):
 
     entity_id: str = Field(description="Entity ID")
     revision_id: int = Field(description="Revision ID")
-    revision_data: RevisionData = Field(description="Revision data")
+    revision_data: "RevisionData" = Field(description="Revision data")
 
 
 class ProtectionResponse(BaseModel):
