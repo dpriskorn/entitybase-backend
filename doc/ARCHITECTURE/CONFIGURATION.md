@@ -189,6 +189,30 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'wikibase.entity_change'`
 - **Description**: No description available
 
+### `user_stats_enabled`
+
+- **Type**: `bool`
+- **Default**: `True`
+- **Description**: No description available
+
+### `user_stats_schedule`
+
+- **Type**: `str`
+- **Default**: `'0 2 * * *'`
+- **Description**: No description available
+
+### `general_stats_enabled`
+
+- **Type**: `bool`
+- **Default**: `True`
+- **Description**: No description available
+
+### `general_stats_schedule`
+
+- **Type**: `str`
+- **Default**: `'0 2 * * *'`
+- **Description**: No description available
+
 ## Usage Example
 
 ```python

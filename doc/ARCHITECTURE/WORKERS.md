@@ -4,7 +4,7 @@
 
 **Class**: `BacklinkStatisticsWorker`
 **Location**: `models/workers/backlink_statistics/backlink_statistics_worker.py`
-**Purpose**: Background worker for computing backlink statistics.
+**Purpose**: 
 
 **Configuration**:
 - `backlink_stats_enabled`: True
@@ -17,6 +17,14 @@
 
 **Class**: ``
 **Location**: `models/workers/dev/__main__.py`
+**Purpose**: 
+
+**Health Checks**: Available via worker health endpoint
+
+## General Stats Worker
+
+**Class**: `GeneralStatsWorker`
+**Location**: `models/workers/general_stats/general_stats_worker.py`
 **Purpose**: 
 
 **Health Checks**: Available via worker health endpoint
@@ -37,6 +45,14 @@
 **Class**: `NotificationCleanupWorker`
 **Location**: `models/workers/notification_cleanup/main.py`
 **Purpose**: Worker that periodically cleans up old notifications to enforce limits.
+
+**Health Checks**: Available via worker health endpoint
+
+## User Stats Worker
+
+**Class**: `UserStatsWorker`
+**Location**: `models/workers/user_stats/user_stats_worker.py`
+**Purpose**: 
 
 **Health Checks**: Available via worker health endpoint
 

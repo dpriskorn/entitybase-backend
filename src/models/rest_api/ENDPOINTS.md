@@ -3,8 +3,14 @@
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
 | ✅ | GET | `/entitybase/health` | Health check endpoint for monitoring service status. |
-| ✅ | GET | `/entitybase/v1/aliases/{hashes}` | Get batch aliases by hashes. |
+| ✅ | POST | `/entitybase/users/{user_id}/watchlist` | Add a watchlist entry for user. |
+| ✅ | GET | `/entitybase/users/{user_id}/watchlist` | Get user's watchlist. |
+| ✅ | GET | `/entitybase/users/{user_id}/watchlist/notifications` | Get user's recent watchlist notifications. |
+| ✅ | PUT | `/entitybase/users/{user_id}/watchlist/notifications/{notification_id}/check` | Mark a notification as checked. |
+| ✅ | POST | `/entitybase/users/{user_id}/watchlist/remove` | Remove a watchlist entry for user. |
+| ✅ | GET | `/entitybase/users/{user_id}/watchlist/stats` | Get user's watchlist statistics. |
 | ✅ | GET | `/entitybase/v1/entities` | List entities based on type, limit, and offset. |
+| ✅ | GET | `/entitybase/v1/entities/aliases/{hashes}` | Get batch aliases by hashes. |
 | ✅ | GET | `/entitybase/v1/entities/descriptions/{hashes}` | Get batch descriptions by hashes. |
 | ✅ | POST | `/entitybase/v1/entities/items` | Create a new item entity. |
 | ✅ | GET | `/entitybase/v1/entities/items/{item_id}/aliases/{language_code}` | Get item aliases for language. |
@@ -24,17 +30,17 @@
 | ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/labels/{language_code}` | Get property label for language. |
 | ✅ | GET | `/entitybase/v1/entities/sitelinks/{hashes}` | Get batch sitelink titles by hashes. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}` | Retrieve a single entity by its ID. |
-| ✅ | DELETE | `/entitybase/v1/entities/{entity_id}` | No description |
-| ✅ | GET | `/entitybase/v1/entities/{entity_id}.ttl` | No description |
+| ✅ | DELETE | `/entitybase/v1/entities/{entity_id}` | Delete an entity. |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}.ttl` | Get entity data in Turtle format. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/history` | Get the revision history for an entity. |
-| ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties` | No description |
-| ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties/{property_list}` | No description |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties` | Get entity property hashes for specified properties. |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties/{property_list}` | Get entity property hashes for specified properties. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert` | Revert entity to a previous revision. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert-redirect` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}` | Get a specific revision of an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/json` | Get JSON representation of a specific entity revision. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/ttl` | Get Turtle (TTL) representation of a specific entity revision. |
-| ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/raw/{revision_id}` | No description |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/raw/{revision_id}` | Get entity property hashes for specified properties. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thank` | Send a thank for a specific revision. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks` | Get all thanks for a specific revision. |
 | ✅ | GET | `/entitybase/v1/entity/{entity_id}/properties/{property_list}` | Get statement hashes for specified properties in an entity. |
@@ -43,7 +49,7 @@
 | ✅ | PUT | `/entitybase/v1/lexeme/{entity_id}` | Update an existing lexeme entity. |
 | ✅ | PUT | `/entitybase/v1/property/{entity_id}` | Update an existing property entity. |
 | ✅ | GET | `/entitybase/v1/qualifiers/{hashes}` | Fetch qualifiers by hash(es). |
-| ✅ | POST | `/entitybase/v1/redirects` | No description |
+| ✅ | POST | `/entitybase/v1/redirects` | Create a redirect for an entity. |
 | ✅ | GET | `/entitybase/v1/references/{hashes}` | Fetch references by hash(es). |
 | ✅ | GET | `/entitybase/v1/statements/batch` | Get batch statements for entities and properties. |
 | ✅ | POST | `/entitybase/v1/statements/batch` | Retrieve multiple statements by their content hashes in a batch request. |
@@ -66,6 +72,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 61 |
+| Implemented | 67 |
 | Not Implemented | 0 |
-| Total | 61 |
+| Total | 67 |

@@ -337,6 +337,40 @@ This document describes the repository classes that handle data access to Vitess
 - `get_user_activities(user_id, activity_type, hours, limit, offset) -> OperationResult`
   - Get user's activities with filtering.
 
+- `insert_general_statistics(conn, date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, terms_per_language, terms_by_type) -> None`
+  - Insert daily general statistics.
+
+        Args:
+            conn: Database connection
+            date: Date string in ISO format (YYYY-MM-DD)
+            total_statements: Total statements
+            total_qualifiers: Total qualifiers
+            total_references: Total references
+            total_items: Total items
+            total_lexemes: Total lexemes
+            total_properties: Total properties
+            total_sitelinks: Total sitelinks
+            total_terms: Total terms
+            terms_per_language: Terms per language dict
+            terms_by_type: Terms by type dict
+
+        Raises:
+            ValueError: If input validation fails
+            Exception: If database operation fails
+
+- `insert_user_statistics(conn, date, total_users, active_users) -> None`
+  - Insert daily user statistics.
+
+        Args:
+            conn: Database connection
+            date: Date string in ISO format (YYYY-MM-DD)
+            total_users: Total number of users
+            active_users: Number of active users
+
+        Raises:
+            ValueError: If input validation fails
+            Exception: If database operation fails
+
 ### WatchlistRepository
 
 **Location**: `models/infrastructure/vitess/watchlist_repository.py`

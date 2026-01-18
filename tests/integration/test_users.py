@@ -269,3 +269,87 @@ async def test_get_general_stats() -> None:
         assert isinstance(data["total_statements"], int)
         assert isinstance(data["terms_per_language"], dict)
         assert isinstance(data["terms_by_type"], dict)
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_watchlist_add() -> None:
+    """Test adding a watchlist entry"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create user
+        await client.post("/v1/users", json={"user_id": 12345})
+        # Enable watchlist
+        await client.put("/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True})
+
+        response = await client.post(
+            "/entitybase/users/12345/watchlist",
+            json={"entity_id": "Q42", "properties": ["P31"]}
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert data["message"] == "Watch added"
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_watchlist_get() -> None:
+    """Test getting user's watchlist"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create user
+        await client.post("/v1/users", json={"user_id": 12345})
+        # Enable watchlist
+        await client.put("/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True})
+
+        response = await client.get("/entitybase/users/12345/watchlist")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["user_id"] == 12345
+        assert "watches" in data
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_watchlist_notifications() -> None:
+    """Test getting watchlist notifications"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create user
+        await client.post("/v1/users", json={"user_id": 12345})
+        # Enable watchlist
+        await client.put("/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True})
+
+        response = await client.get("/entitybase/users/12345/watchlist/notifications")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["user_id"] == 12345
+        assert "notifications" in data
+
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_watchlist_stats() -> None:
+    """Test getting watchlist statistics"""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create user
+        await client.post("/v1/users", json={"user_id": 12345})
+
+        response = await client.get("/entitybase/users/12345/watchlist/stats")
+        assert response.status_code == 200
+        data = response.json()
+        assert "entity_count" in data
+        assert "property_count" in data

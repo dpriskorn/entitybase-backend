@@ -27,6 +27,13 @@ Implemented daily statistics workers for user and general wiki data, storing res
 - **New Endpoints**:
   - `GET /entitybase/v1/users/stat`: Returns `UserStatsResponse` with user counts.
   - `GET /entitybase/v1/stats`: Returns `GeneralStatsResponse` with comprehensive wiki stats and breakdowns.
+  - Watchlist CRUD endpoints (tagged "watchlist"):
+    - `POST /entitybase/users/{user_id}/watchlist` (add watch).
+    - `POST /entitybase/users/{user_id}/watchlist/remove` (remove watch).
+    - `GET /entitybase/users/{user_id}/watchlist` (get watches).
+    - `GET /entitybase/users/{user_id}/watchlist/notifications` (get notifications).
+    - `PUT /entitybase/users/{user_id}/watchlist/notifications/{notification_id}/check` (mark checked).
+    - `GET /entitybase/users/{user_id}/watchlist/stats` (get watch counts).
 - **Response Models**: Added `UserStatsData`, `UserStatsResponse`, `GeneralStatsData`, `GeneralStatsResponse` in `misc.py`.
 - **Handler**: Added `get_user_stats` and `get_general_stats` in `UserHandler` to query tables (with live fallbacks).
 

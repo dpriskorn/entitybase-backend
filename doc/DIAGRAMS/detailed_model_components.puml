@@ -39,6 +39,8 @@ package "Models" as Models #LightCyan {
     "EntityState" as EntityState
     "EntityStatements" as EntityStatementsResponse
     "FullRevision" as FullRevisionResponse
+    "GeneralStatsData" as GeneralStatsData
+    "GeneralStats" as GeneralStatsResponse
     "HealthCheck" as HealthCheckResponse
     "Health" as HealthResponse
     "Id" as IdResponse
@@ -80,6 +82,8 @@ package "Models" as Models #LightCyan {
     "UserActivity" as UserActivityResponse
     "UserCreate" as UserCreateResponse
     "UserPreferences" as UserPreferencesResponse
+    "UserStatsData" as UserStatsData
+    "UserStats" as UserStatsResponse
     "WatchCounts" as WatchCounts
     "WatchlistToggle" as WatchlistToggleResponse
     "WikibasePredicates" as WikibasePredicatesResponse

@@ -9,6 +9,7 @@ from . import (
     health,
     thanks,
     users,
+    watchlist,
 )
 
 if TYPE_CHECKING:
@@ -22,4 +23,5 @@ def include_routes(app: "FastAPI") -> None:
     app.include_router(thanks.thanks_router)
     app.include_router(endorsements.endorsements_router)
     app.include_router(entities.entities_router)
+    app.include_router(watchlist.watchlist_router)
     # v1 routes are added via imports above

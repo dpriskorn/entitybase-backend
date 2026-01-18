@@ -14,18 +14,18 @@ package "API Layer" as APILayer #LightBlue {
 package "Service Layer" as ServiceLayer #LightGreen {
     "Enumeration" as EnumerationService
     "BacklinkStatistics" as BacklinkStatisticsService
+    "UserStats" as UserStatsService
     "Redirect" as RedirectService
     "IdRange" as IdRange
-    "IdRangeManager" as IdRangeManager
 }
 
 package "Worker Layer" as WorkerLayer #LightYellow {
+    "BaseStatsWorker" as BaseStatsWorker
     "CanonicalizationMethod" as CanonicalizationMethod
     "EntityDiffRequest" as EntityDiffRequest
     "EntityDiffResponse" as EntityDiffResponse
     "RDFCanonicalizer" as RDFCanonicalizer
-    "RDFSerializer" as RDFSerializer
-    ... (11 total components)
+    ... (14 total components)
 }
 
 package "Infrastructure Layer" as InfrastructureLayer #LightGray {

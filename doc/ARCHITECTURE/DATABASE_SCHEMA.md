@@ -4,7 +4,7 @@ This document describes the Vitess database schema used by wikibase-backend.
 
 ## Summary
 
-- **Total Tables**: 16
+- **Total Tables**: 18
 - **Database**: MySQL (via Vitess)
 - **Schema File**: `src/models/infrastructure/vitess/schema.py`
 
@@ -98,6 +98,42 @@ CREATE TABLE IF NOT EXISTS entity_backlinks ( referenced_internal_id BIGINT UNSI
 
 ```sql
 CREATE TABLE IF NOT EXISTS backlink_statistics ( date DATE PRIMARY KEY, total_backlinks BIGINT NOT NULL, unique_entities_with_backlinks BIGINT NOT NULL, top_entities_by_backlinks JSON NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP )
+```
+
+### user_daily_stats
+
+**Columns**:
+
+- `total_users`: BIGINT NOT NULL
+- `active_users`: BIGINT NOT NULL
+- `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+**SQL Definition**:
+
+```sql
+CREATE TABLE IF NOT EXISTS user_daily_stats ( stat_date DATE PRIMARY KEY, total_users BIGINT NOT NULL, active_users BIGINT NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP )
+```
+
+### general_daily_stats
+
+**Columns**:
+
+- `total_statements`: BIGINT NOT NULL
+- `total_qualifiers`: BIGINT NOT NULL
+- `total_references`: BIGINT NOT NULL
+- `total_items`: BIGINT NOT NULL
+- `total_lexemes`: BIGINT NOT NULL
+- `total_properties`: BIGINT NOT NULL
+- `total_sitelinks`: BIGINT NOT NULL
+- `total_terms`: BIGINT NOT NULL
+- `terms_per_language`: JSON NOT NULL
+- `terms_by_type`: JSON NOT NULL
+- `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+**SQL Definition**:
+
+```sql
+CREATE TABLE IF NOT EXISTS general_daily_stats ( stat_date DATE PRIMARY KEY, total_statements BIGINT NOT NULL, total_qualifiers BIGINT NOT NULL, total_references BIGINT NOT NULL, total_items BIGINT NOT NULL, total_lexemes BIGINT NOT NULL, total_properties BIGINT NOT NULL, total_sitelinks BIGINT NOT NULL, total_terms BIGINT NOT NULL, terms_per_language JSON NOT NULL, terms_by_type JSON NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP )
 ```
 
 ### metadata_content
@@ -279,6 +315,19 @@ erDiagram
         - `unique_entities_with_backlinks`: BIGINT NOT NULL
         - `top_entities_by_backlinks`: JSON NOT NULL
         - `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    }
+    user_daily_stats {
+        - `total_users`: BIGINT NOT NULL
+        - `active_users`: BIGINT NOT NULL
+        - `created_at`: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    }
+    general_daily_stats {
+        - `total_statements`: BIGINT NOT NULL
+        - `total_qualifiers`: BIGINT NOT NULL
+        - `total_references`: BIGINT NOT NULL
+        - `total_items`: BIGINT NOT NULL
+        - `total_lexemes`: BIGINT NOT NULL
+        ... (11 total columns)
     }
     metadata_content {
         - `content_hash`: BIGINT UNSIGNED NOT NULL

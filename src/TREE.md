@@ -36,8 +36,10 @@ src/
 │   └── workers
 │       ├── backlink_statistics
 │       ├── dev
+│       ├── general_stats
 │       ├── id_generation
 │       ├── notification_cleanup
+│       ├── user_stats
 │       └── watchlist_consumer
 └── schemas
     ├── entitybase
@@ -77,4 +79,4 @@ src/
             ├── 1.0.0
             └── latest
 
-78 directories
+80 directories
