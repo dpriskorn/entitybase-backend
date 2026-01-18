@@ -455,7 +455,9 @@ class VitessClient(Client):
     def list_by_edit_type(self, edit_type: str, limit: int) -> list[EntityListing]:
         """List entities by edit type."""
         with self._connection_manager.get_connection() as conn:
-            result = self.listing_repository.list_by_edit_type(conn, edit_type, limit)
+            result = self.listing_repository._list_entities_by_edit_type(
+                conn, edit_type, limit
+            )
             return result
 
     def insert_statement_content(self, content_hash: int) -> bool:

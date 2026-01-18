@@ -98,7 +98,7 @@ class ListingRepository:
             ]
             return result
 
-    def list_by_edit_type(
+    def _list_entities_by_edit_type(
         self, conn: Any, edit_type: str, limit: int
     ) -> list[EntityListing]:
         with conn.cursor() as cursor:

@@ -28,6 +28,7 @@ _rollback_revision
 _rollback_statement
 already_seen
 cleanup_orphaned_statements
+compute_hash
 commit
 connect
 create
