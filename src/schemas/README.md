@@ -101,13 +101,13 @@ Immutable entity revision snapshots stored in S3 with deduplication for terms, s
 
 Located in: `entitybase/s3/revision/`
 
-Versions: `1.0.0`, `1.1.0`, `1.2.0`, `2.1.0` (latest: `2.1.0`)
+Versions: `1.0.0`, `1.1.0`, `1.2.0`, `2.1.0` (latest: `1.0.0`)
 
 ### S3 Statement Schema
 
 Statement data stored in S3. References and qualifiers are deduplicated using rapidhash pointers.
 
-Versions: `1.0.0`, `2.0.0`, `3.0.0` (latest: `3.0.0`)
+Versions: `1.0.0`, `2.0.0`, `3.0.0` (latest: `1.0.0`)
 
 #### Example Statement (v3.0.0)
 
