@@ -1,15 +1,10 @@
 """Reference routes for fetching deduplicated references."""
 
 import logging
-from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
 from models.infrastructure.s3.s3_client import MyS3Client
-from models.internal_representation.reference_qualifier_models import (
-    ReferenceModel,
-    QualifierModel,
-)
 from models.rest_api.entitybase.response.qualifiers_references import ReferenceResponse
 
 logger = logging.getLogger(__name__)

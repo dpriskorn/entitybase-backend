@@ -1,7 +1,6 @@
 """Qualifiers routes for fetching deduplicated qualifiers."""
 
 import logging
-from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
