@@ -25,7 +25,7 @@ services:
     image: vitess/vttestserver:mysql80
     container_name: vitess
     environment:
-      KEYSPACES: page
+      KEYSPACES: entitybase
       NUM_SHARDS: 1
       PORT: 15306
       MYSQL_BIND_HOST: 0.0.0.0
@@ -97,7 +97,7 @@ services:
         S3_BUCKET: testbucket
         VITESS_HOST: vitess
         VITESS_PORT: 15309
-        VITESS_DATABASE: page
+        VITESS_DATABASE: entitybase
         SCHEMA_ENTITYCHANGE_VERSION: 1.0.0
         SCHEMA_ENDORSECHANGE_VERSION: 1.0.0
         SCHEMA_NEWTHANK_VERSION: 1.0.0
@@ -160,7 +160,7 @@ services:
      WORKER_COUNT: 1
      VITESS_HOST: vitess
      VITESS_PORT: 15309
-     VITESS_DATABASE: page
+      VITESS_DATABASE: entitybase
      VITESS_USER: root
      VITESS_PASSWORD: ""
    depends_on:
