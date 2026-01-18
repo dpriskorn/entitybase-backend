@@ -88,7 +88,7 @@ class VitessClient(Client):
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
         logger.debug(f"Initializing VitessClient with host {config.host}")
-        self.connection_manager = VitessConnectionManager(config=config)
+        self.connection_manager = VitessConnectionManager(config=config)  # type: ignore[assignment]
         self.schema_manager = SchemaManager(self.connection_manager)
         self.id_resolver = IdResolver(self.connection_manager)
         self.entity_repository = EntityRepository(

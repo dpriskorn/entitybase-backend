@@ -40,7 +40,7 @@ class MyS3Client(Client):
         manager = S3ConnectionManager(config=config)
         if manager is None:
             raise_validation_error("S3 service unavailable", status_code=503)
-        self.connection_manager = manager
+        self.connection_manager = manager  # type: ignore[assignment]
         self.connection_manager.connect()
         self._ensure_bucket_exists()
 

@@ -27,7 +27,7 @@ test_data/properties/*.json
 /debug/debug_*_comparison.txt
 /debug/debug_*_generated.ttl
 /coverage.xml
-/.coverage
+/.coverage*
 /.vscode
 /htmlcov
 /coverage.txt
