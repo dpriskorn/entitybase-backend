@@ -72,7 +72,7 @@ class EntityUpdateHandler(EntityHandler):
                 content_hash=0,  # TODO: calculate
                 is_mass_edit=request.is_mass_edit,
                 edit_type=request.edit_type,
-                summary=request.edit_summary,
+                edit_summary=request.edit_summary,
                 is_semi_protected=request.is_semi_protected,
                 is_locked=request.is_locked,
                 is_archived=request.is_archived,
@@ -90,7 +90,7 @@ class EntityUpdateHandler(EntityHandler):
                 change_type="edit",
                 from_revision_id=tx.head_revision_id,
                 changed_at=None,  # TODO
-                summary=request.edit_summary,
+                edit_summary=request.edit_summary,
                 stream_producer=stream_producer,
             )
             # Log activity

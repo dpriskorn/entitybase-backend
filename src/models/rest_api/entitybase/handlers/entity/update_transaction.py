@@ -160,7 +160,7 @@ class UpdateTransaction(EntityTransaction):
             content_hash=content_hash,
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
-            summary=edit_summary,
+            edit_summary=edit_summary,
             is_semi_protected=is_semi_protected,
             is_locked=is_locked,
             is_archived=is_archived,

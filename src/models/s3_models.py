@@ -127,7 +127,7 @@ class StoredStatement(BaseModel):
     Compatible with StatementResponse for API responses.
     """
 
-    model_config = ConfigDict(by_alias=True, populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True)
 
     schema_version: str = Field(alias="schema")
     content_hash: int = Field(alias="hash")

@@ -78,7 +78,7 @@ class StatementHashResult(BaseModel):
         description="Dict mapping property ID to count of statements. Example: {'P31': 5}.",
     )
     full_statements: list[Dict[str, Any]] = Field(
-        alias="statements",
+        alias="full_statements",
         default_factory=list,
         description="List of full statement dicts (parallel with hashes). Example: [{'id': 'P31', 'value': 'Q5'}].",
     )

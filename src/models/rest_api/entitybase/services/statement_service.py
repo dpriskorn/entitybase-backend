@@ -120,8 +120,8 @@ def deduplicate_and_store_statements(
         )
         try:
             statement_with_hash = StoredStatement(
-                schema_version=schema_version,
-                content_hash=statement_hash,
+                schema=schema_version,
+                hash=statement_hash,
                 statement=statement_data,
                 created_at=datetime.now(timezone.utc).isoformat() + "Z",
             )

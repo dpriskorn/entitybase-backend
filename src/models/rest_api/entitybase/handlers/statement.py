@@ -49,8 +49,8 @@ class StatementHandler:
             statement_data = s3_client.read_statement(content_hash)
             logger.debug(f"Successfully retrieved statement {content_hash} from S3")
             return StatementResponse(  # type: ignore[call-arg]
-                schema_version=statement_data.schema_version,
-                content_hash=content_hash,
+                schema=statement_data.schema_version,
+                hash=content_hash,
                 statement=statement_data.statement,
                 created_at=statement_data.created_at,
             )
@@ -89,8 +89,8 @@ class StatementHandler:
                 statement_data = s3_client.read_statement(content_hash)
                 statements.append(
                     StatementResponse(  # type: ignore[call-arg]
-                        schema_version=statement_data.schema_version,
-                        content_hash=content_hash,
+                        schema=statement_data.schema_version,
+                        hash=content_hash,
                         statement=statement_data.statement,
                         created_at=statement_data.created_at,
                     )

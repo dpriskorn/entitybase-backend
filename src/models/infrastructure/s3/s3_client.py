@@ -175,9 +175,9 @@ class MyS3Client(Client):
             raise_validation_error("S3 service unavailable", status_code=503)
         key = f"statements/{content_hash}.json"
         stored = StoredStatement(
-            content_hash=content_hash,
+            hash=content_hash,
             statement=statement_data["statement"],
-            schema_version=schema_version,
+            schema=schema_version,
             created_at=datetime.now(timezone.utc).isoformat(),
         )
         statement_json = json.dumps(stored.model_dump())
@@ -284,8 +284,8 @@ class MyS3Client(Client):
                 f"S3 read_statement successful: bucket={self.config.bucket}, key={key}"
             )
             return StatementResponse(
-                schema_version=stored_statement.schema_version,
-                content_hash=stored_statement.content_hash,
+                schema=stored_statement.schema_version,
+                hash=stored_statement.content_hash,
                 statement=stored_statement.statement,
                 created_at=stored_statement.created_at,
             )
