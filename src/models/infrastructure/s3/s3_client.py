@@ -703,9 +703,9 @@ class MyS3Client(Client):
         for h in content_hashes:
             try:
                 qual = self.load_qualifier(h)
-                 results.append(qual)
-             except ClientError:
-                 results.append(None)
+                results.append(qual)
+            except ClientError:
+                results.append(None)
         return results
 
 
