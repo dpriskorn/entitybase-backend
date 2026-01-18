@@ -140,3 +140,36 @@ include_routes(app)
 
 app.include_router(v1_router, prefix="/entitybase/v1")
 # app.include_router(wikibase_v1_router, prefix="/wikibase/v1")
+
+# Fallback initialization in case lifespan didn't run
+if not hasattr(app.state, "clients"):
+    s3_config = settings.to_s3_config()
+    vitess_config = settings.to_vitess_config()
+    kafka_brokers = settings.kafka_brokers
+    kafka_topic = settings.kafka_topic
+
+    property_registry_path = (
+        Path("test_data/properties")
+        if Path("test_data/properties").exists()
+        else None
+    )
+
+    app.state.clients = Clients(
+        s3=s3_config,
+        vitess=vitess_config,
+        enable_streaming=settings.enable_streaming,
+        kafka_brokers=kafka_brokers,
+        kafka_topic=kafka_topic,
+        kafka_rdf_topic=settings.kafka_rdf_topic,
+        property_registry_path=property_registry_path,
+    )
+
+    app.state.validator = JsonSchemaValidator(
+        s3_revision_version=settings.s3_revision_version,
+        s3_statement_version=settings.s3_statement_version,
+        wmf_recentchange_version=settings.wmf_recentchange_version,
+    )
+
+    app.state.enumeration_service = EnumerationService(
+        app.state.clients.vitess, worker_id="rest-api"
+    )
