@@ -16,10 +16,6 @@
 | ✅ | PUT | `/entitybase/v1/entities/items/{item_id}/labels/{language_code}` | Update item label for language. |
 | ✅ | DELETE | `/entitybase/v1/entities/items/{item_id}/labels/{language_code}` | Delete item label for language. |
 | ✅ | POST | `/entitybase/v1/entities/lexemes` | Create a new lexeme entity. |
-| ✅ | GET | `/entitybase/v1/entities/lexemes/{lexeme_id}/aliases/{language_code}` | Get lexeme aliases for language. |
-| ✅ | PATCH | `/entitybase/v1/entities/lexemes/{lexeme_id}/aliases/{language_code}` | Patch lexeme aliases for language using JSON Patch. |
-| ✅ | GET | `/entitybase/v1/entities/lexemes/{lexeme_id}/descriptions/{language_code}` | Get lexeme description for language. |
-| ✅ | GET | `/entitybase/v1/entities/lexemes/{lexeme_id}/labels/{language_code}` | Get lexeme label for language. |
 | ✅ | POST | `/entitybase/v1/entities/properties` | Create a new property entity. |
 | ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}` | Get property aliases for language. |
 | ✅ | PATCH | `/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}` | Patch property aliases for language using JSON Patch. |
@@ -27,14 +23,14 @@
 | ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/labels/{language_code}` | Get property label for language. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}` | Retrieve a single entity by its ID. |
 | ✅ | DELETE | `/entitybase/v1/entities/{entity_id}` | No description |
-| ✅ | GET | `/entitybase/v1/entities/{entity_id}.ttl` | No description |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}.ttl` | Get entity data in Turtle (RDF) format. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/history` | Get the revision history for an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties/{property_list}` | No description |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert-redirect` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}` | Get a specific revision of an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/json` | Get JSON representation of a specific entity revision. |
-| ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/rdf` | Get RDF representation of a specific entity revision. |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/ttl` | Get TTL representation of a specific entity revision. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/raw/{revision_id}` | No description |
 | ✅ | GET | `/entitybase/v1/entity/{entity_id}/properties/{property_list}` | Get statement hashes for specified properties in an entity. |
 | ✅ | POST | `/entitybase/v1/entitybase/v1/entities/{entity_id}/revert` | Revert entity to a previous revision. |

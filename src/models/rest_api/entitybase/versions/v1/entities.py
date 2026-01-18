@@ -67,8 +67,8 @@ def get_entity_revision(
     return handler.get_entity_revision(entity_id, revision_id, clients.s3)  # type: ignore
 
 
-@router.get("/entities/{entity_id}/revision/{revision_id}/rdf")
-async def get_entity_rdf_revision(
+@router.get("/entities/{entity_id}/revision/{revision_id}/ttl")
+async def get_entity_ttl_revision(
     req: Request,
     entity_id: str,
     revision_id: int,
@@ -76,7 +76,7 @@ async def get_entity_rdf_revision(
         "turtle", alias="format", enum=["turtle", "rdfxml", "ntriples"]
     ),
 ) -> Response:
-    """Get RDF representation of a specific entity revision."""
+    """Get TTL representation of a specific entity revision."""
     from models.workers.entity_diff_worker import RDFSerializer
 
     clients = req.app.state.clients
