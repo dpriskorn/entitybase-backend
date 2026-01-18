@@ -31,7 +31,9 @@ async def create_entity_redirect(
     return result
 
 
-@redirects_router.post("/entities/{entity_id}/revert-redirect", response_model=EntityRevertResponse)
+@redirects_router.post(
+    "/entities/{entity_id}/revert-redirect", response_model=EntityRevertResponse
+)
 async def revert_entity_redirect(  # type: ignore[no-any-return]
     entity_id: str, request: RedirectRevertRequest, req: Request
 ) -> EntityRevertResponse:

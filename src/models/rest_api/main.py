@@ -149,9 +149,7 @@ if not hasattr(app.state, "clients"):
     kafka_topic = settings.kafka_topic
 
     property_registry_path = (
-        Path("test_data/properties")
-        if Path("test_data/properties").exists()
-        else None
+        Path("test_data/properties") if Path("test_data/properties").exists() else None
     )
 
     app.state.clients = Clients(

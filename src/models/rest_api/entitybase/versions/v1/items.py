@@ -141,7 +141,9 @@ async def get_item_label(
     return LabelResponse(value=labels[language_code])
 
 
-@router.put("/entities/items/{item_id}/labels/{language_code}", response_model=EntityResponse)
+@router.put(
+    "/entities/items/{item_id}/labels/{language_code}", response_model=EntityResponse
+)
 async def update_item_label(
     item_id: str, language_code: str, update_data: Dict[str, Any], req: Request
 ) -> EntityResponse:
@@ -181,7 +183,9 @@ async def update_item_label(
     )
 
 
-@router.delete("/entities/items/{item_id}/labels/{language_code}", response_model=EntityResponse)
+@router.delete(
+    "/entities/items/{item_id}/labels/{language_code}", response_model=EntityResponse
+)
 async def delete_item_label(
     item_id: str, language_code: str, req: Request
 ) -> EntityResponse:
@@ -237,7 +241,10 @@ async def get_item_description(
     return DescriptionResponse(value=descriptions[language_code])
 
 
-@router.put("/entities/items/{item_id}/descriptions/{language_code}", response_model=EntityResponse)
+@router.put(
+    "/entities/items/{item_id}/descriptions/{language_code}",
+    response_model=EntityResponse,
+)
 async def update_item_description(
     item_id: str, language_code: str, update_data: Dict[str, Any], req: Request
 ) -> EntityResponse:
@@ -277,7 +284,10 @@ async def update_item_description(
     )
 
 
-@router.delete("/entities/items/{item_id}/descriptions/{language_code}", response_model=EntityResponse)
+@router.delete(
+    "/entities/items/{item_id}/descriptions/{language_code}",
+    response_model=EntityResponse,
+)
 async def delete_item_description(
     item_id: str, language_code: str, req: Request
 ) -> EntityResponse:
@@ -313,7 +323,9 @@ async def delete_item_description(
     )
 
 
-@router.get("/entities/items/{item_id}/aliases/{language_code}", response_model=List[str])
+@router.get(
+    "/entities/items/{item_id}/aliases/{language_code}", response_model=List[str]
+)
 async def get_item_aliases_for_language(
     item_id: str, language_code: str, req: Request
 ) -> list[str]:
@@ -329,7 +341,9 @@ async def get_item_aliases_for_language(
     return [alias["value"] for alias in aliases[language_code]]
 
 
-@router.patch("/entities/items/{item_id}/aliases/{language_code}", response_model=EntityResponse)
+@router.patch(
+    "/entities/items/{item_id}/aliases/{language_code}", response_model=EntityResponse
+)
 async def patch_item_aliases_for_language(
     item_id: str, language_code: str, patch_data: Dict[str, Any], req: Request
 ) -> EntityResponse:

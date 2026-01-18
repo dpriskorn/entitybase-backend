@@ -6,7 +6,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 from models.infrastructure.vitess_client import VitessClient
-from models.rest_api.entitybase.response.misc import GeneralStatsResponse, UserStatsResponse
+from models.rest_api.entitybase.response.misc import (
+    GeneralStatsResponse,
+    TermsByType,
+    TermsPerLanguage,
+    UserStatsResponse,
+)
 from models.rest_api.entitybase.response.user import (
     WatchlistToggleResponse,
     UserCreateResponse,
@@ -79,7 +84,10 @@ class UserHandler:
                     )
                 else:
                     # Fallback to live computation if no data
-                    from models.rest_api.entitybase.services.user_stats_service import UserStatsService
+                    from models.rest_api.entitybase.services.user_stats_service import (
+                        UserStatsService,
+                    )
+
                     service = UserStatsService()
                     stats = service.compute_daily_stats(vitess_client)
                     return UserStatsResponse(
@@ -108,12 +116,19 @@ class UserHandler:
                         total_properties=row[6],
                         total_sitelinks=row[7],
                         total_terms=row[8],
-                        terms_per_language=json.loads(row[9]) if row[9] else {},
-                        terms_by_type=json.loads(row[10]) if row[10] else {},
+                        terms_per_language=TermsPerLanguage(
+                            terms=json.loads(row[9]) if row[9] else {}
+                        ),
+                        terms_by_type=TermsByType(
+                            counts=json.loads(row[10]) if row[10] else {}
+                        ),
                     )
                 else:
                     # Fallback to live computation if no data
-                    from models.rest_api.entitybase.services.general_stats_service import GeneralStatsService
+                    from models.rest_api.entitybase.services.general_stats_service import (
+                        GeneralStatsService,
+                    )
+
                     service = GeneralStatsService()
                     stats = service.compute_daily_stats(vitess_client)
                     return GeneralStatsResponse(
@@ -126,6 +141,14 @@ class UserHandler:
                         total_properties=stats.total_properties,
                         total_sitelinks=stats.total_sitelinks,
                         total_terms=stats.total_terms,
-                        terms_per_language=stats.terms_per_language,
-                        terms_by_type=stats.terms_by_type,
+                        terms_per_language=TermsPerLanguage(
+                            terms=stats.terms_per_language.terms
+                            if hasattr(stats.terms_per_language, "terms")
+                            else stats.terms_per_language
+                        ),
+                        terms_by_type=TermsByType(
+                            counts=stats.terms_by_type.counts
+                            if hasattr(stats.terms_by_type, "counts")
+                            else stats.terms_by_type
+                        ),
                     )

@@ -93,12 +93,6 @@ class EntitiesResponse(BaseModel):
     entities: dict[str, Any] = Field(..., description="Entities data")
 
 
-class RawEntityData(BaseModel):
-    """Model for raw entity data from external APIs."""
-
-    data: dict[str, Any] = Field(..., description="Raw entity data")
-
-
 class WatchCounts(BaseModel):
     """Model for user watch counts."""
 
@@ -217,6 +211,22 @@ class UserStatsResponse(BaseModel):
     )
 
 
+class TermsPerLanguage(BaseModel):
+    """Model for terms count per language."""
+
+    model_config = ConfigDict(extra="allow")
+
+    terms: dict[str, int] = Field(description="Language to count mapping.")
+
+
+class TermsByType(BaseModel):
+    """Model for terms count by type."""
+
+    model_config = ConfigDict(extra="allow")
+
+    counts: dict[str, int] = Field(description="Type to count mapping.")
+
+
 class GeneralStatsData(BaseModel):
     """Container for computed general wiki statistics."""
 
@@ -229,9 +239,23 @@ class GeneralStatsData(BaseModel):
     total_lexemes: int = Field(description="Total number of lexemes.")
     total_properties: int = Field(description="Total number of properties.")
     total_sitelinks: int = Field(description="Total number of sitelinks.")
-    total_terms: int = Field(description="Total number of terms (labels + descriptions + aliases).")
-    terms_per_language: dict[str, int] = Field(description="Terms count per language.")
-    terms_by_type: dict[str, int] = Field(description="Terms count by type (labels, descriptions, aliases).")
+    total_terms: int = Field(
+        description="Total number of terms (labels + descriptions + aliases)."
+    )
+    terms_per_language: TermsPerLanguage = Field(
+        description="Terms count per language."
+    )
+    terms_by_type: TermsByType = Field(
+        description="Terms count by type (labels, descriptions, aliases)."
+    )
+
+
+class RawEntityData(BaseModel):
+    """Model for raw entity JSON data."""
+
+    model_config = ConfigDict(extra="allow")
+
+    data: dict[str, Any] = Field(description="Raw entity data.")
 
 
 class GeneralStatsResponse(BaseModel):
@@ -247,9 +271,15 @@ class GeneralStatsResponse(BaseModel):
     total_lexemes: int = Field(description="Total number of lexemes.")
     total_properties: int = Field(description="Total number of properties.")
     total_sitelinks: int = Field(description="Total number of sitelinks.")
-    total_terms: int = Field(description="Total number of terms (labels + descriptions + aliases).")
-    terms_per_language: dict[str, int] = Field(description="Terms count per language.")
-    terms_by_type: dict[str, int] = Field(description="Terms count by type (labels, descriptions, aliases).")
+    total_terms: int = Field(
+        description="Total number of terms (labels + descriptions + aliases)."
+    )
+    terms_per_language: TermsPerLanguage = Field(
+        description="Terms count per language."
+    )
+    terms_by_type: TermsByType = Field(
+        description="Terms count by type (labels, descriptions, aliases)."
+    )
 
 
 class RawRevisionResponse(BaseModel):
@@ -262,3 +292,9 @@ class TurtleResponse(BaseModel):
     """Response model for Turtle format entity data."""
 
     turtle: str = Field(..., description="Entity data in Turtle format")
+
+
+class EntityJsonResponse(BaseModel):
+    """Response model for JSON format entity data."""
+
+    data: Dict[str, Any] = Field(..., description="Entity data in JSON format")

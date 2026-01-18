@@ -20,7 +20,9 @@ watchlist_router = APIRouter(tags=["watchlist"])
 
 
 @watchlist_router.post("/users/{user_id}/watchlist", response_model=MessageResponse)
-def add_watch(user_id: int, request: WatchlistAddRequest, req: Request) -> MessageResponse:
+def add_watch(
+    user_id: int, request: WatchlistAddRequest, req: Request
+) -> MessageResponse:
     """Add a watchlist entry for user."""
     clients = req.app.state.clients
     handler = WatchlistHandler()
@@ -32,8 +34,12 @@ def add_watch(user_id: int, request: WatchlistAddRequest, req: Request) -> Messa
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@watchlist_router.post("/users/{user_id}/watchlist/remove", response_model=MessageResponse)
-def remove_watch(user_id: int, request: WatchlistRemoveRequest, req: Request) -> MessageResponse:
+@watchlist_router.post(
+    "/users/{user_id}/watchlist/remove", response_model=MessageResponse
+)
+def remove_watch(
+    user_id: int, request: WatchlistRemoveRequest, req: Request
+) -> MessageResponse:
     """Remove a watchlist entry for user."""
     clients = req.app.state.clients
     handler = WatchlistHandler()
@@ -57,7 +63,9 @@ def get_watches(user_id: int, req: Request) -> WatchlistResponse:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@watchlist_router.get("/users/{user_id}/watchlist/notifications", response_model=NotificationResponse)
+@watchlist_router.get(
+    "/users/{user_id}/watchlist/notifications", response_model=NotificationResponse
+)
 def get_notifications(
     user_id: int,
     req: Request,
@@ -69,13 +77,18 @@ def get_notifications(
     clients = req.app.state.clients
     handler = WatchlistHandler()
     try:
-        result = handler.get_notifications(user_id, clients.vitess, hours, limit, offset)
+        result = handler.get_notifications(
+            user_id, clients.vitess, hours, limit, offset
+        )
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@watchlist_router.put("/users/{user_id}/watchlist/notifications/{notification_id}/check", response_model=MessageResponse)
+@watchlist_router.put(
+    "/users/{user_id}/watchlist/notifications/{notification_id}/check",
+    response_model=MessageResponse,
+)
 def mark_checked(user_id: int, notification_id: int, req: Request) -> MessageResponse:
     """Mark a notification as checked."""
     clients = req.app.state.clients

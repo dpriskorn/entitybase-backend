@@ -20,7 +20,9 @@ class WatchlistAddRequest(BaseModel):
 
     user_id: int = Field(..., description="User ID", gt=0)
     entity_id: str = Field(..., description="Entity ID to watch")
-    properties: list[str] | None = Field(None, description="Specific properties to watch, or None for all")
+    properties: list[str] | None = Field(
+        None, description="Specific properties to watch, or None for all"
+    )
 
 
 class WatchlistRemoveRequest(BaseModel):
@@ -28,7 +30,9 @@ class WatchlistRemoveRequest(BaseModel):
 
     user_id: int = Field(..., description="User ID", gt=0)
     entity_id: str = Field(..., description="Entity ID to unwatch")
-    properties: list[str] | None = Field(None, description="Specific properties to unwatch, or None for all")
+    properties: list[str] | None = Field(
+        None, description="Specific properties to unwatch, or None for all"
+    )
 
 
 class MarkCheckedRequest(BaseModel):

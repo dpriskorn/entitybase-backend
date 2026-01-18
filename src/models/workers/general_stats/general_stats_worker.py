@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class GeneralStatsWorker(BaseStatsWorker):
-
     def get_enabled_setting(self) -> bool:
         """Check if general stats are enabled."""
         return settings.general_stats_enabled

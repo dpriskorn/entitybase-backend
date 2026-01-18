@@ -125,7 +125,9 @@ async def test_get_notifications() -> None:
         await client.post("/entitybase/v1/users", json={"user_id": 12345})
 
         # Get notifications (should be empty initially)
-        response = await client.get("/entitybase/v1/watchlist/notifications?user_id=12345")
+        response = await client.get(
+            "/entitybase/v1/watchlist/notifications?user_id=12345"
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -141,7 +143,9 @@ async def test_get_notifications_user_not_registered() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/entitybase/v1/watchlist/notifications?user_id=99999")
+        response = await client.get(
+            "/entitybase/v1/watchlist/notifications?user_id=99999"
+        )
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
 

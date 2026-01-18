@@ -25,3 +25,11 @@ class MessageResponse(BaseModel):
     """Generic message response."""
 
     message: str = Field(description="Response message")
+
+
+class TermsByType(BaseModel):
+    """Response for terms count by type."""
+
+    labels: int = Field(description="Number of labels")
+    descriptions: int = Field(description="Number of descriptions")
+    aliases: int = Field(description="Number of aliases")

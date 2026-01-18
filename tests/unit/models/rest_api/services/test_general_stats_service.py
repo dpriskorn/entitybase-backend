@@ -3,7 +3,9 @@
 import pytest
 from unittest.mock import Mock
 
-from models.rest_api.entitybase.services.general_stats_service import GeneralStatsService
+from models.rest_api.entitybase.services.general_stats_service import (
+    GeneralStatsService,
+)
 
 
 class TestGeneralStatsService:
@@ -17,28 +19,36 @@ class TestGeneralStatsService:
         # Mock connection and cursor
         conn = Mock()
         cursor = Mock()
-        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(return_value=conn)
-        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(return_value=None)
+        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(
+            return_value=conn
+        )
+        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(
+            return_value=None
+        )
         conn.cursor.return_value.__enter__ = Mock(return_value=cursor)
         conn.cursor.return_value.__exit__ = Mock(return_value=None)
 
         # Mock query results
         cursor.fetchone.side_effect = [
             (1000,),  # total_statements
-            (500,),   # total_qualifiers
-            (200,),   # total_references
-            (800,),   # total_items
-            (50,),    # total_lexemes
-            (100,),   # total_properties
+            (500,),  # total_qualifiers
+            (200,),  # total_references
+            (800,),  # total_items
+            (50,),  # total_lexemes
+            (100,),  # total_properties
             (1500,),  # total_sitelinks
             (3000,),  # total_terms
         ]
         # Mock aggregations for terms_per_language and terms_by_type
         cursor.fetchall.side_effect = [
             [("en", 1000), ("de", 500)],  # terms_per_language (labels)
-            [("en", 800), ("fr", 300)],   # terms_per_language (descriptions)
-            [("en", 200), ("es", 100)],   # terms_per_language (aliases)
-            [("labels", 1500), ("descriptions", 1000), ("aliases", 500)],  # terms_by_type
+            [("en", 800), ("fr", 300)],  # terms_per_language (descriptions)
+            [("en", 200), ("es", 100)],  # terms_per_language (aliases)
+            [
+                ("labels", 1500),
+                ("descriptions", 1000),
+                ("aliases", 500),
+            ],  # terms_by_type
         ]
 
         service = GeneralStatsService()
@@ -53,15 +63,23 @@ class TestGeneralStatsService:
         assert stats.total_sitelinks == 1500
         assert stats.total_terms == 3000
         assert stats.terms_per_language == {"en": 2000, "de": 500, "fr": 300, "es": 100}
-        assert stats.terms_by_type == {"labels": 1500, "descriptions": 1000, "aliases": 500}
+        assert stats.terms_by_type == {
+            "labels": 1500,
+            "descriptions": 1000,
+            "aliases": 500,
+        }
 
     def test_get_total_statements_zero(self):
         """Test getting total statements when none exist."""
         vitess_client = Mock()
         conn = Mock()
         cursor = Mock()
-        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(return_value=conn)
-        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(return_value=None)
+        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(
+            return_value=conn
+        )
+        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(
+            return_value=None
+        )
         conn.cursor.return_value.__enter__ = Mock(return_value=cursor)
         conn.cursor.return_value.__exit__ = Mock(return_value=None)
 
@@ -77,8 +95,12 @@ class TestGeneralStatsService:
         vitess_client = Mock()
         conn = Mock()
         cursor = Mock()
-        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(return_value=conn)
-        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(return_value=None)
+        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(
+            return_value=conn
+        )
+        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(
+            return_value=None
+        )
         conn.cursor.return_value.__enter__ = Mock(return_value=cursor)
         conn.cursor.return_value.__exit__ = Mock(return_value=None)
 

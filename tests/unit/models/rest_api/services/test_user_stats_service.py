@@ -17,13 +17,20 @@ class TestUserStatsService:
         # Mock connection and cursor
         conn = Mock()
         cursor = Mock()
-        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(return_value=conn)
-        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(return_value=None)
+        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(
+            return_value=conn
+        )
+        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(
+            return_value=None
+        )
         conn.cursor.return_value.__enter__ = Mock(return_value=cursor)
         conn.cursor.return_value.__exit__ = Mock(return_value=None)
 
         # Mock query results
-        cursor.fetchone.side_effect = [(100,), (50,)]  # total_users=100, active_users=50
+        cursor.fetchone.side_effect = [
+            (100,),
+            (50,),
+        ]  # total_users=100, active_users=50
 
         service = UserStatsService()
         stats = service.compute_daily_stats(vitess_client)
@@ -43,8 +50,12 @@ class TestUserStatsService:
         vitess_client = Mock()
         conn = Mock()
         cursor = Mock()
-        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(return_value=conn)
-        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(return_value=None)
+        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(
+            return_value=conn
+        )
+        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(
+            return_value=None
+        )
         conn.cursor.return_value.__enter__ = Mock(return_value=cursor)
         conn.cursor.return_value.__exit__ = Mock(return_value=None)
 
@@ -60,8 +71,12 @@ class TestUserStatsService:
         vitess_client = Mock()
         conn = Mock()
         cursor = Mock()
-        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(return_value=conn)
-        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(return_value=None)
+        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(
+            return_value=conn
+        )
+        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(
+            return_value=None
+        )
         conn.cursor.return_value.__enter__ = Mock(return_value=cursor)
         conn.cursor.return_value.__exit__ = Mock(return_value=None)
 

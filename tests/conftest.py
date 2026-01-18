@@ -11,8 +11,10 @@ import boto3
 from moto import mock_aws
 
 # Mock S3 and DB before importing app to prevent connection attempts
-with patch('boto3.client') as mock_boto_client, \
-     patch('pymysql.connect') as mock_db_connect:
+with (
+    patch("boto3.client") as mock_boto_client,
+    patch("pymysql.connect") as mock_db_connect,
+):
     mock_client = MagicMock()
     mock_boto_client.return_value = mock_client
     mock_client.head_bucket.return_value = None  # Assume bucket exists

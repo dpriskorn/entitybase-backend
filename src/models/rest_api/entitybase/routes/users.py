@@ -74,6 +74,3 @@ def get_user_stats(req: Request) -> UserStatsResponse:
         return UserStatsResponse(**stats)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-
-
-

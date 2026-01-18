@@ -28,6 +28,3 @@ def get_entity_property_hashes(
     return handler.get_entity_property_hashes(
         entity_id, property_list, clients.vitess, clients.s3
     )
-
-
-

@@ -109,7 +109,8 @@ class SchemaManager:
                 active_users BIGINT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """)
+        """
+        )
 
         cursor.execute(
             """
@@ -127,7 +128,8 @@ class SchemaManager:
                 terms_by_type JSON NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """)
+        """
+        )
 
         cursor.execute(
             """

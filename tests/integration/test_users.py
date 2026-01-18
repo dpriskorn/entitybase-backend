@@ -106,7 +106,9 @@ async def test_toggle_watchlist_enable() -> None:
         await client.post("/entitybase/v1/users", json={"user_id": 12345})
 
         # Toggle to disable first
-        await client.put("/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": False})
+        await client.put(
+            "/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": False}
+        )
 
         # Then enable
         response = await client.put(
@@ -283,11 +285,13 @@ async def test_watchlist_add() -> None:
         # Create user
         await client.post("/entitybase/v1/users", json={"user_id": 12345})
         # Enable watchlist
-        await client.put("/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True})
+        await client.put(
+            "/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True}
+        )
 
         response = await client.post(
             "/entitybase/users/12345/watchlist",
-            json={"entity_id": "Q42", "properties": ["P31"]}
+            json={"entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 200
         data = response.json()
@@ -306,7 +310,9 @@ async def test_watchlist_get() -> None:
         # Create user
         await client.post("/entitybase/v1/users", json={"user_id": 12345})
         # Enable watchlist
-        await client.put("/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True})
+        await client.put(
+            "/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True}
+        )
 
         response = await client.get("/entitybase/users/12345/watchlist")
         assert response.status_code == 200
@@ -327,7 +333,9 @@ async def test_watchlist_notifications() -> None:
         # Create user
         await client.post("/entitybase/v1/users", json={"user_id": 12345})
         # Enable watchlist
-        await client.put("/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True})
+        await client.put(
+            "/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True}
+        )
 
         response = await client.get("/entitybase/users/12345/watchlist/notifications")
         assert response.status_code == 200
