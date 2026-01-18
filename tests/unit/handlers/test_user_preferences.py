@@ -32,10 +32,17 @@ class TestUserPreferencesHandler:
     ) -> None:
         """Test getting user preferences successfully"""
         mock_vitess_client.user_repository.user_exists.return_value = True
-        mock_vitess_client.user_repository.get_user_preferences.return_value = {
-            "notification_limit": 100,
-            "retention_hours": 72,
-        }
+        from models.common import OperationResult
+
+        mock_vitess_client.user_repository.get_user_preferences.return_value = (
+            OperationResult(
+                success=True,
+                data={
+                    "notification_limit": 100,
+                    "retention_hours": 72,
+                },
+            )
+        )
 
         result = handler.get_preferences(12345, mock_vitess_client)
 
@@ -49,7 +56,11 @@ class TestUserPreferencesHandler:
     ) -> None:
         """Test getting default preferences when none set"""
         mock_vitess_client.user_repository.user_exists.return_value = True
-        mock_vitess_client.user_repository.get_user_preferences.return_value = None
+        from models.common import OperationResult
+
+        mock_vitess_client.user_repository.get_user_preferences.return_value = (
+            OperationResult(success=False, error="User preferences not found")
+        )
 
         result = handler.get_preferences(12345, mock_vitess_client)
 

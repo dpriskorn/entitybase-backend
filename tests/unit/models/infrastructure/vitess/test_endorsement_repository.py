@@ -5,7 +5,7 @@ from unittest.mock import Mock, MagicMock, patch
 from datetime import datetime, timezone
 
 from models.common import OperationResult
-from models.endorsements import Endorsement
+from models.endorsements import StatementEndorsement
 from models.infrastructure.vitess.endorsement_repository import EndorsementRepository
 
 

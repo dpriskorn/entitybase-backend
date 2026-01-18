@@ -223,7 +223,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
     @patch("models.infrastructure.s3.s3_client.boto3")
     def test_sitelink_plain_text_storage(self, mock_boto3):
         """Test that sitelinks are stored as plain UTF-8 text in S3"""
-        from models.infrastructure.s3.s3_client import S3Client
+        from models.infrastructure.s3.s3_client import MyS3Client
         from models.infrastructure.s3.connection import S3ConnectionManager
 
         # Mock S3 connection
@@ -232,7 +232,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         mock_connection_manager.boto_client = mock_client
 
         # Create S3 client
-        s3_client = S3Client(
+        s3_client = MyS3Client(
             config=MagicMock(), connection_manager=mock_connection_manager
         )
 
@@ -254,7 +254,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
     @patch("models.infrastructure.s3.s3_client.boto3")
     def test_sitelink_plain_text_loading(self, mock_boto3):
         """Test that sitelinks are loaded as plain UTF-8 text from S3"""
-        from models.infrastructure.s3.s3_client import S3Client
+        from models.infrastructure.s3.s3_client import MyS3Client
         from models.infrastructure.s3.connection import S3ConnectionManager
 
         # Mock S3 connection
@@ -268,7 +268,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         mock_client.get_object.return_value = mock_response
 
         # Create S3 client
-        s3_client = S3Client(
+        s3_client = MyS3Client(
             config=MagicMock(), connection_manager=mock_connection_manager
         )
 
@@ -287,7 +287,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
     @patch("models.infrastructure.s3.s3_client.boto3")
     def test_term_plain_text_storage(self, mock_boto3):
         """Test that terms are stored as plain UTF-8 text in S3"""
-        from models.infrastructure.s3.s3_client import S3Client
+        from models.infrastructure.s3.s3_client import MyS3Client
         from models.infrastructure.s3.connection import S3ConnectionManager
 
         # Mock S3 connection
@@ -296,7 +296,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         mock_connection_manager.boto_client = mock_client
 
         # Create S3 client
-        s3_client = S3Client(
+        s3_client = MyS3Client(
             config=MagicMock(), connection_manager=mock_connection_manager
         )
 
@@ -318,7 +318,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
     @patch("models.infrastructure.s3.s3_client.boto3")
     def test_term_plain_text_loading(self, mock_boto3):
         """Test that terms are loaded as plain UTF-8 text from S3"""
-        from models.infrastructure.s3.s3_client import S3Client
+        from models.infrastructure.s3.s3_client import MyS3Client
         from models.infrastructure.s3.connection import S3ConnectionManager
 
         # Mock S3 connection
@@ -332,7 +332,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         mock_client.get_object.return_value = mock_response
 
         # Create S3 client
-        s3_client = S3Client(
+        s3_client = MyS3Client(
             config=MagicMock(), connection_manager=mock_connection_manager
         )
 

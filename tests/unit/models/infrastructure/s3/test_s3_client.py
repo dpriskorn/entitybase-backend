@@ -4,11 +4,11 @@ from botocore.exceptions import ClientError
 
 pytestmark = pytest.mark.unit
 
-from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.s3.s3_client import MyMyS3Client
 from models.s3_models import S3Config
 
 
-class TestS3Client:
+class TestMyS3Client:
     @pytest.fixture
     def config(self):
         return S3Config(
@@ -25,10 +25,10 @@ class TestS3Client:
 
     @patch("models.infrastructure.s3.s3_client.S3ConnectionManager")
     def test_init_success(self, mock_manager_class, config, mock_connection_manager):
-        """Test S3Client initialization success."""
+        """Test MyS3Client initialization success."""
         mock_manager_class.return_value = mock_connection_manager
 
-        client = S3Client(config)
+        client = MyS3Client(config)
 
         assert client.config == config
         assert client.connection_manager == mock_connection_manager
@@ -44,7 +44,7 @@ class TestS3Client:
         mock_manager_class.return_value = mock_connection_manager
         mock_connection_manager.boto_client.head_bucket.return_value = None
 
-        client = S3Client(config)
+        client = MyS3Client(config)
 
         mock_connection_manager.boto_client.head_bucket.assert_called_once_with(
             Bucket="test-bucket"
@@ -61,7 +61,7 @@ class TestS3Client:
         mock_connection_manager.boto_client.head_bucket.side_effect = error
         mock_connection_manager.boto_client.create_bucket.return_value = None
 
-        client = S3Client(config)
+        client = MyS3Client(config)
 
         mock_connection_manager.boto_client.create_bucket.assert_called_once_with(
             Bucket="test-bucket",
@@ -74,7 +74,7 @@ class TestS3Client:
         mock_manager_class.return_value = None
 
         with pytest.raises(ValueError) as exc_info:
-            S3Client(config)
+            MyS3Client(config)
 
         assert "S3 service unavailable" in str(exc_info.value)
 
@@ -96,7 +96,7 @@ class TestS3Client:
                 mock_body
             )
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             result = client.read_revision("Q42", 123)
 
             assert result.content == {"id": "Q42", "type": "item"}
@@ -122,7 +122,7 @@ class TestS3Client:
                 mock_body
             )
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             result = client.read_statement(456)
 
             assert result.statement == {"id": "P31"}
@@ -139,7 +139,7 @@ class TestS3Client:
         ) as mock_manager_class:
             mock_manager_class.return_value = mock_connection_manager
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             client.write_revision("Q42", 123, {"entity": {"id": "Q42"}}, "1.0")
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
@@ -166,7 +166,7 @@ class TestS3Client:
                 mock_verify_body
             )
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             client.write_statement(456, {"statement": {"id": "P31"}}, "1.0")
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
@@ -188,7 +188,7 @@ class TestS3Client:
         ) as mock_manager_class:
             mock_manager_class.return_value = mock_connection_manager
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             client.write_revision("Q42", 123, {"entity": {"id": "Q42"}}, "1.0")
 
             call_args = mock_connection_manager.boto_client.put_object.call_args
@@ -209,7 +209,7 @@ class TestS3Client:
                 mock_body
             )
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             result = client.load_metadata("labels", 789)
 
             assert result == "test label"
@@ -224,7 +224,7 @@ class TestS3Client:
         ) as mock_manager_class:
             mock_manager_class.return_value = mock_connection_manager
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             client.mark_published("Q42", 123, "published")
 
             mock_connection_manager.boto_client.copy_object.assert_called_once()
@@ -254,7 +254,7 @@ class TestS3Client:
                 mock_body
             )
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             result = client.read_full_revision("Q42", 123)
 
             assert result["entity"]["id"] == "Q42"
@@ -270,7 +270,7 @@ class TestS3Client:
         ) as mock_manager_class:
             mock_manager_class.return_value = mock_connection_manager
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             client.delete_statement(456)
 
             mock_connection_manager.boto_client.delete_object.assert_called_once_with(
@@ -284,7 +284,7 @@ class TestS3Client:
         ) as mock_manager_class:
             mock_manager_class.return_value = mock_connection_manager
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             client.write_entity_revision("Q42", 123, {"entity": {"id": "Q42"}}, "1.0")
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
@@ -300,7 +300,7 @@ class TestS3Client:
         ) as mock_manager_class:
             mock_manager_class.return_value = mock_connection_manager
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             client.delete_metadata("labels", 789)
 
             mock_connection_manager.boto_client.delete_object.assert_called_once_with(
@@ -314,7 +314,7 @@ class TestS3Client:
         ) as mock_manager_class:
             mock_manager_class.return_value = mock_connection_manager
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             client.store_term_metadata("test label", 789)
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
@@ -338,7 +338,7 @@ class TestS3Client:
                 mock_body
             )
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             result = client.load_term_metadata(789)
 
             assert result == "test label"
@@ -353,7 +353,7 @@ class TestS3Client:
         ) as mock_manager_class:
             mock_manager_class.return_value = mock_connection_manager
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             client.store_sitelink_metadata("test title", 789)
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
@@ -377,7 +377,7 @@ class TestS3Client:
                 mock_body
             )
 
-            client = S3Client(config)
+            client = MyS3Client(config)
             result = client.load_sitelink_metadata(789)
 
             assert result == "test title"

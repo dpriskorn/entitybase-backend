@@ -1,6 +1,6 @@
 from typing import Any, Dict
 from unittest.mock import Mock, patch
-from models.infrastructure.s3.s3_client import S3Client
+from models.infrastructure.s3.s3_client import MyS3Client
 from models.s3_models import S3Config
 
 
@@ -21,7 +21,7 @@ class TestS3MetadataStorage:
         ):
             mock_conn_mgr.return_value.connect = Mock()
             mock_conn_mgr.return_value.boto_client = Mock()
-            self.s3_client = S3Client(self.config)
+            self.s3_client = MyS3Client(self.config)
 
     def test_store_metadata(self) -> None:
         """Test storing metadata in S3."""

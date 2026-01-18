@@ -230,7 +230,6 @@ class TestEntityChange:
             from_revision_id=122,
             changed_at=datetime(2023, 1, 1, 12, 0, 0),
             edit_summary="Updated label",
-            bot=False,
         )
 
         # Convert to dict (model_dump)

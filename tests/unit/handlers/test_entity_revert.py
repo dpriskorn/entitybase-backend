@@ -57,7 +57,10 @@ class TestEntityRevertHandler:
         mock_s3.read_full_revision.return_value = MagicMock(
             data={"entity": {"statements": [], "properties": [], "property_counts": []}}
         )
+        from unittest.mock import AsyncMock
+
         mock_stream_producer = MagicMock()
+        mock_stream_producer.publish_event = AsyncMock()
 
         result = await handler.revert_entity(
             "Q42", request, mock_vitess_client, mock_s3, mock_stream_producer, 456

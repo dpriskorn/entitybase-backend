@@ -38,8 +38,8 @@ class TestStatementHandler:
             assert result == mock_response_instance
             mock_s3.read_statement.assert_called_once_with(123)
             mock_response.assert_called_once_with(
-                schema_version="1.0",
-                content_hash=123,
+                schema="1.0",
+                hash=123,
                 statement={"id": "P31"},
                 created_at="2023-01-01",
             )

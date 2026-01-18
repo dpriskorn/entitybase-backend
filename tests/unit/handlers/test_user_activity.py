@@ -42,9 +42,11 @@ class TestUserActivityHandler:
             created_at=datetime(2023, 1, 1, 12, 0, 0),
         )
         mock_vitess_client.user_repository.user_exists.return_value = True
-        mock_vitess_client.user_repository.get_user_activities.return_value = [
-            mock_activity
-        ]
+        from models.common import OperationResult
+
+        mock_vitess_client.user_repository.get_user_activities.return_value = (
+            OperationResult(success=True, data=[mock_activity])
+        )
 
         result = handler.get_user_activities(
             12345, mock_vitess_client, limit=30, offset=0
