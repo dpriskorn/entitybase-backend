@@ -17,21 +17,28 @@ def extract_endpoints_from_file(file_path: Path) -> list[dict[str, Any]]:
     file_str = str(file_path)
     if "wikibase/v1" in file_str:
         prefix = "/wikibase/v1"
-    elif "v1" in file_str:
+    elif "entitybase" in file_str:
         prefix = "/entitybase/v1"
     else:
         prefix = ""
 
+    # Find router prefix from APIRouter declaration
+    router_prefix = ""
+    router_match = re.search(r'(\w+_router)\s*=\s*APIRouter\(\s*prefix\s*=\s*["\']([^"\']+)["\']', content)
+    if router_match:
+        router_prefix = router_match.group(2)
+
     # Find all router decorators and their functions
     decorator_pattern = (
-        r'@router\.(get|post|put|delete|patch|head|options)\s*\(\s*["\']([^"\']+)["\']'
+        r'@(\w+_router)\.(get|post|put|delete|patch|head|options)\s*\(\s*["\']([^"\']+)["\']'
     )
     decorator_matches = re.finditer(decorator_pattern, content)
 
     for match in decorator_matches:
-        method = match.group(1).upper()
-        path = match.group(2)
-        full_path = prefix + path
+        router_name = match.group(1)
+        method = match.group(2).upper()
+        path = match.group(3)
+        full_path = prefix + router_prefix + path
         file_rel = str(file_path.relative_to(Path(__file__).parent.parent.parent))
 
         # Find the function name and docstring

@@ -52,21 +52,49 @@ class VitessClient(Client):
     """Vitess database client for entity operations."""
 
     config: VitessConfig  # type: ignore[override]
-    connection_manager: Optional[VitessConnectionManager] = Field(default=None, init=False, exclude=True)  # type: ignore[override]
-    schema_manager: Optional[SchemaManager] = Field(default=None, init=False, exclude=True)
+    connection_manager: Optional[VitessConnectionManager] = Field(
+        default=None, init=False, exclude=True
+    )  # type: ignore[override]
+    schema_manager: Optional[SchemaManager] = Field(
+        default=None, init=False, exclude=True
+    )
     id_resolver: Optional[IdResolver] = Field(default=None, init=False, exclude=True)
-    entity_repository: Optional[EntityRepository] = Field(default=None, init=False, exclude=True)
-    revision_repository: Optional[RevisionRepository] = Field(default=None, init=False, exclude=True)
-    redirect_repository: Optional[RedirectRepository] = Field(default=None, init=False, exclude=True)
-    head_repository: Optional[HeadRepository] = Field(default=None, init=False, exclude=True)
-    listing_repository: Optional[ListingRepository] = Field(default=None, init=False, exclude=True)
-    statement_repository: Optional[StatementRepository] = Field(default=None, init=False, exclude=True)
-    backlink_repository: Optional[BacklinkRepository] = Field(default=None, init=False, exclude=True)
-    metadata_repository: Optional[MetadataRepository] = Field(default=None, init=False, exclude=True)
-    user_repository: Optional[UserRepository] = Field(default=None, init=False, exclude=True)
-    watchlist_repository: Optional[WatchlistRepository] = Field(default=None, init=False, exclude=True)
-    thanks_repository: Optional["ThanksRepository"] = Field(default=None, init=False, exclude=True)
-    endorsement_repository: Optional["EndorsementRepository"] = Field(default=None, init=False, exclude=True)
+    entity_repository: Optional[EntityRepository] = Field(
+        default=None, init=False, exclude=True
+    )
+    revision_repository: Optional[RevisionRepository] = Field(
+        default=None, init=False, exclude=True
+    )
+    redirect_repository: Optional[RedirectRepository] = Field(
+        default=None, init=False, exclude=True
+    )
+    head_repository: Optional[HeadRepository] = Field(
+        default=None, init=False, exclude=True
+    )
+    listing_repository: Optional[ListingRepository] = Field(
+        default=None, init=False, exclude=True
+    )
+    statement_repository: Optional[StatementRepository] = Field(
+        default=None, init=False, exclude=True
+    )
+    backlink_repository: Optional[BacklinkRepository] = Field(
+        default=None, init=False, exclude=True
+    )
+    metadata_repository: Optional[MetadataRepository] = Field(
+        default=None, init=False, exclude=True
+    )
+    user_repository: Optional[UserRepository] = Field(
+        default=None, init=False, exclude=True
+    )
+    watchlist_repository: Optional[WatchlistRepository] = Field(
+        default=None, init=False, exclude=True
+    )
+    thanks_repository: Optional["ThanksRepository"] = Field(
+        default=None, init=False, exclude=True
+    )
+    endorsement_repository: Optional["EndorsementRepository"] = Field(
+        default=None, init=False, exclude=True
+    )
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
