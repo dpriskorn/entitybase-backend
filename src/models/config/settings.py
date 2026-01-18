@@ -53,7 +53,7 @@ class Settings(BaseSettings):
             return getattr(logging, self.test_log_level.upper(), logging.INFO)
         return getattr(logging, self.log_level.upper(), logging.INFO)
 
-    def to_s3_config(self) -> S3Config:
+    def to_s3_config(self) -> "S3Config":
         """Convert settings to S3 configuration object.
 
         Returns:
@@ -68,7 +68,7 @@ class Settings(BaseSettings):
             bucket=self.s3_bucket,
         )
 
-    def to_vitess_config(self) -> VitessConfig:
+    def to_vitess_config(self) -> "VitessConfig":
         """Convert settings to Vitess configuration object.
 
         Returns:

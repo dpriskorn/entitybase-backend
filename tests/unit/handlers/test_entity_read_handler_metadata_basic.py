@@ -155,7 +155,9 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
     @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
-    def test_get_entity_legacy_labels_none(self, mock_terms_repo_class, mock_entity_response):
+    def test_get_entity_legacy_labels_none(
+        self, mock_terms_repo_class, mock_entity_response
+    ):
         """Test legacy get_entity with labels where get_term returns None"""
         self.mock_vitess.entity_exists.return_value = True
         self.mock_vitess.get_head.return_value = 123
@@ -187,7 +189,9 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
     @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
-    def test_get_entity_legacy_aliases_partial_none(self, mock_terms_repo_class, mock_entity_response):
+    def test_get_entity_legacy_aliases_partial_none(
+        self, mock_terms_repo_class, mock_entity_response
+    ):
         """Test legacy get_entity with aliases where some get_term returns None"""
         self.mock_vitess.entity_exists.return_value = True
         self.mock_vitess.get_head.return_value = 123
@@ -201,7 +205,9 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
         self.mock_s3.read_revision.return_value = mock_revision
 
         mock_terms_repo = Mock()
-        mock_terms_repo.get_term.side_effect = lambda h: "Alias1" if h == "hash1" else None
+        mock_terms_repo.get_term.side_effect = (
+            lambda h: "Alias1" if h == "hash1" else None
+        )
         mock_terms_repo_class.return_value = mock_terms_repo
 
         mock_response_instance = Mock()
@@ -221,7 +227,9 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
     @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
-    def test_get_entity_legacy_descriptions(self, mock_terms_repo_class, mock_entity_response):
+    def test_get_entity_legacy_descriptions(
+        self, mock_terms_repo_class, mock_entity_response
+    ):
         """Test legacy get_entity with descriptions"""
         self.mock_vitess.entity_exists.return_value = True
         self.mock_vitess.get_head.return_value = 123
@@ -250,11 +258,15 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
         call_args = mock_entity_response.call_args
         entity_data = call_args[1]["entity_data"]
         self.assertIn("descriptions", entity_data["entity"])
-        self.assertEqual(entity_data["entity"]["descriptions"]["en"]["value"], "Description EN")
+        self.assertEqual(
+            entity_data["entity"]["descriptions"]["en"]["value"], "Description EN"
+        )
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
     @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
-    def test_get_entity_success_all_metadata_types(self, mock_terms_repo_class, mock_entity_response):
+    def test_get_entity_success_all_metadata_types(
+        self, mock_terms_repo_class, mock_entity_response
+    ):
         """Test get_entity success with all metadata types loaded"""
         self.mock_vitess.entity_exists.return_value = True
         self.mock_vitess.get_head.return_value = 123
@@ -263,11 +275,15 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
             "entity": {"id": "Q42"},
             "labels_hashes": {"en": "hash_label_en", "fr": "hash_label_fr"},
             "descriptions_hashes": {"en": "hash_desc_en", "de": "hash_desc_de"},
-            "aliases_hashes": {"en": ["hash_alias_en1", "hash_alias_en2"], "es": ["hash_alias_es"]},
+            "aliases_hashes": {
+                "en": ["hash_alias_en1", "hash_alias_en2"],
+                "es": ["hash_alias_es"],
+            },
         }
         self.mock_s3.read_revision.return_value = mock_revision
 
         mock_terms_repo = Mock()
+
         def mock_get_term(hash_val):
             terms = {
                 "hash_label_en": "Label EN",
@@ -277,6 +293,7 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
                 "hash_alias_es": "Alias ES",
             }
             return terms.get(hash_val)
+
         mock_terms_repo.get_term.side_effect = mock_get_term
         mock_terms_repo_class.return_value = mock_terms_repo
 

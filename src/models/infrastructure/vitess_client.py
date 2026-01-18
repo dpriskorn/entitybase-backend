@@ -56,16 +56,17 @@ class VitessClient(Client):
         default=None, exclude=True
     )  # type: ignore[override]
     schema_manager: SchemaManager = Field(exclude=True)
-    id_resolver: Optional[IdResolver] = Field(default=None, exclude=True)
-    entity_repository: Optional[EntityRepository] = Field(default=None, exclude=True)
-    revision_repository: Optional[RevisionRepository] = Field(
-        default=None, exclude=True
-    )
-    redirect_repository: Optional[RedirectRepository] = Field(
-        default=None, exclude=True
-    )
-    head_repository: Optional[HeadRepository] = Field(default=None, exclude=True)
+    id_resolver: IdResolver = Field(exclude=True)
+    entity_repository: EntityRepository = Field(exclude=True)
+    revision_repository: RevisionRepository = Field(exclude=True)
+    redirect_repository: RedirectRepository = Field(exclude=True)
+    head_repository: HeadRepository = Field(exclude=True)
     listing_repository: Optional[ListingRepository] = Field(default=None, exclude=True)
+    statement_repository: StatementRepository = Field(exclude=True)
+    backlink_repository: BacklinkRepository = Field(exclude=True)
+    metadata_repository: MetadataRepository = Field(exclude=True)
+    user_repository: UserRepository = Field(exclude=True)
+    watchlist_repository: WatchlistRepository = Field(exclude=True)
     statement_repository: Optional[StatementRepository] = Field(
         default=None, exclude=True
     )
@@ -178,11 +179,15 @@ class VitessClient(Client):
 
     def get_head(self, entity_id: str) -> int:
         """Get the current head revision ID for an entity."""
+        assert self.connection_manager is not None
+        assert self.entity_repository is not None
         with self.connection_manager.get_connection() as conn:
             return self.entity_repository.get_head(conn, entity_id)  # type: ignore[no-any-return,union-attr]
 
     def is_entity_deleted(self, entity_id: str) -> bool:
         """Check if an entity is marked as deleted."""
+        assert self.connection_manager is not None
+        assert self.entity_repository is not None
         with self.connection_manager.get_connection() as conn:
             return self.entity_repository.is_deleted(conn, entity_id)  # type: ignore[no-any-return]
 
