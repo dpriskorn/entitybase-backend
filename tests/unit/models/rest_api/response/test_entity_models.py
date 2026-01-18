@@ -235,7 +235,7 @@ class TestEntityChange:
         )
 
         # Convert to dict (model_dump)
-        data = change.model_dump()
+        data = change.model_dump(mode="json")
 
         # Validate against schema
         jsonschema.validate(instance=data, schema=schema)

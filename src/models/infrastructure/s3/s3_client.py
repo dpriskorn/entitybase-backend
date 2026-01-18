@@ -665,7 +665,9 @@ class MyS3Client(Client):
         bucket = settings.s3_qualifiers_bucket
         key = f"{content_hash}"
         try:
-            response = self.connection_manager.boto_client.get_object(Bucket=bucket, Key=key)
+            response = self.connection_manager.boto_client.get_object(
+                Bucket=bucket, Key=key
+            )
             data = json.loads(response["Body"].read().decode("utf-8"))
             logger.debug(f"S3 qualifier loaded: bucket={bucket}, key={key}")
             return QualifierModel(**data)
