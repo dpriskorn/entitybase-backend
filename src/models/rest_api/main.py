@@ -2,6 +2,7 @@
 
 import logging
 from collections.abc import AsyncGenerator
+from typing import Any
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -140,6 +141,11 @@ include_routes(app)
 
 app.include_router(v1_router, prefix="/entitybase/v1")
 # app.include_router(wikibase_v1_router, prefix="/wikibase/v1")
+
+@app.get("/entitybase/v1/openapi.json")
+async def get_openapi() -> dict:
+    """Retrieve the OpenAPI document."""
+    return app.openapi()
 
 # Fallback initialization in case lifespan didn't run
 if not hasattr(app.state, "clients"):
