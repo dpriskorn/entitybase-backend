@@ -26,6 +26,7 @@ package "Models" as Models #LightCyan {
     "EntityDescriptions" as EntityDescriptionsResponse
     "EntityHistoryEntry" as EntityHistoryEntry
     "EntityJsonImport" as EntityJsonImportResponse
+    "EntityJson" as EntityJsonResponse
     "EntityLabels" as EntityLabelsResponse
     "EntityList" as EntityListResponse
     "EntityListing" as EntityListing
@@ -74,6 +75,9 @@ package "Models" as Models #LightCyan {
     "StatementHashResult" as StatementHashResult
     "Statement" as StatementResponse
     "Statements" as StatementsResponse
+    "TermsByType" as TermsByType
+    "TermsByType" as TermsByType
+    "TermsPerLanguage" as TermsPerLanguage
     "Terms" as TermsResponse
     "Thank" as ThankResponse
     "ThanksList" as ThanksListResponse

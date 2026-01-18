@@ -9,12 +9,9 @@ from models.rest_api.entitybase.handlers.entity.item import ItemCreateHandler
 from models.rest_api.entitybase.handlers.entity.items import ItemUpdateHandler
 from models.rest_api.entitybase.handlers.entity.lexeme import LexemeUpdateHandler
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.handlers.entity.wikidata_import import (
-    EntityJsonImportHandler,
-)
+
 
 from models.rest_api.entitybase.request.entity import (
-    EntityJsonImportRequest,
     EntityCreateRequest,
     EntityUpdateRequest,
 )
@@ -100,22 +97,6 @@ async def update_lexeme(
     return await handler.update_entity(
         entity_id,
         entity_request,
-        clients.vitess,
-        clients.s3,
-        clients.stream_producer,
-        validator,
-    )
-
-
-@router.post("/json-import", response_model=EntityJsonImportResponse)
-async def import_entities_from_jsonl(
-    request: EntityJsonImportRequest, req: Request
-) -> EntityJsonImportResponse:
-    """Import entities from Wikidata JSONL dump file."""
-    clients = req.app.state.clients
-    validator = req.app.state.validator
-    return await EntityJsonImportHandler.import_entities_from_jsonl(
-        request,
         clients.vitess,
         clients.s3,
         clients.stream_producer,
