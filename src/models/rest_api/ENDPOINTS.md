@@ -23,7 +23,7 @@
 | ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/labels/{language_code}` | Get property label for language. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}` | Retrieve a single entity by its ID. |
 | ✅ | DELETE | `/entitybase/v1/entities/{entity_id}` | No description |
-| ✅ | GET | `/entitybase/v1/entities/{entity_id}.ttl` | Get entity data in Turtle (RDF) format. |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}.ttl` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/history` | Get the revision history for an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties/{property_list}` | No description |
@@ -67,6 +67,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 66 |
+| Implemented | 62 |
 | Not Implemented | 0 |
-| Total | 66 |
+| Total | 62 |

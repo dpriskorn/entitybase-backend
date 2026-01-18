@@ -175,8 +175,6 @@ This document describes the repository classes that handle data access to Vitess
 
 - `list_dangling(conn, limit) -> list[EntityListing]`
 
-- `list_by_edit_type(conn, edit_type, limit) -> list[EntityListing]`
-
 ### RedirectRepository
 
 **Location**: `models/infrastructure/vitess/redirect_repository.py`

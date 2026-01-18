@@ -109,10 +109,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(
-    title="EntityBase",
-    version="1.0.0",
-    openapi_version="3.1",
-    lifespan=lifespan
+    title="EntityBase", version="1.0.0", openapi_version="3.1", lifespan=lifespan
 )
 
 
