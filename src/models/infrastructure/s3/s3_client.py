@@ -17,9 +17,9 @@ from models.infrastructure.s3.metadata_storage import MetadataStorage
 from models.infrastructure.s3.revision_storage import RevisionStorage
 from models.infrastructure.s3.statement_storage import StatementStorage
 from models.rest_api.entitybase.response import StatementResponse
+from models.infrastructure.s3.config import S3Config
 from models.s3_models import (
     RevisionData,
-    S3Config,
     RevisionReadResponse,
     StoredStatement,
     S3QualifierData,
