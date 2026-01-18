@@ -102,7 +102,6 @@ class MyS3Client(Client):
         except Exception:
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
-
     def read_revision(self, entity_id: str, revision_id: int) -> RevisionReadResponse:
         """Read S3 object and return parsed JSON."""
         if not self.connection_manager or not self.connection_manager.boto_client:
@@ -147,9 +146,7 @@ class MyS3Client(Client):
             raise_validation_error("S3 service unavailable", status_code=503)
         bucket = settings.s3_statements_bucket
         key = f"{content_hash}"
-        self.connection_manager.boto_client.delete_object(
-            Bucket=bucket, Key=key
-        )
+        self.connection_manager.boto_client.delete_object(Bucket=bucket, Key=key)
 
     def write_statement(
         self,
@@ -187,9 +184,7 @@ class MyS3Client(Client):
             self.connection_manager.boto_client.head_bucket(Bucket=bucket)
             logger.debug(f"S3 bucket {bucket} exists and is accessible")
         except Exception as bucket_error:
-            logger.error(
-                f"S3 bucket {bucket} not accessible: {bucket_error}"
-            )
+            logger.error(f"S3 bucket {bucket} not accessible: {bucket_error}")
             raise
 
         try:
@@ -272,9 +267,7 @@ class MyS3Client(Client):
 
             stored_statement = StoredStatement.model_validate(parsed_data)
 
-            logger.debug(
-                f"S3 read_statement successful: bucket={bucket}, key={key}"
-            )
+            logger.debug(f"S3 read_statement successful: bucket={bucket}, key={key}")
             return StatementResponse(
                 schema=stored_statement.schema_version,
                 hash=stored_statement.content_hash,
@@ -510,7 +503,9 @@ class MyS3Client(Client):
                 f"Unknown metadata type: {metadata_type}", status_code=400
             )
 
-    def store_reference(self, content_hash: int, reference_data: S3ReferenceData) -> None:
+    def store_reference(
+        self, content_hash: int, reference_data: S3ReferenceData
+    ) -> None:
         """Store a reference by its content hash.
 
         Args:
@@ -596,7 +591,9 @@ class MyS3Client(Client):
                 results.append(None)
         return results
 
-    def store_qualifier(self, content_hash: int, qualifier_data: S3QualifierData) -> None:
+    def store_qualifier(
+        self, content_hash: int, qualifier_data: S3QualifierData
+    ) -> None:
         """Store a qualifier by its content hash.
 
         Args:

@@ -7,7 +7,9 @@ from models.infrastructure.s3.enums import EntityType
 from models.rest_api.entitybase.response import EntityResponse
 from models.rest_api.entitybase.response import StatementHashResult
 
-from models.rest_api.entitybase.handlers.entity.entity_transaction import EntityTransaction
+from models.rest_api.entitybase.handlers.entity.entity_transaction import (
+    EntityTransaction,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -25,7 +27,9 @@ class UpdateTransaction(EntityTransaction):
         validator: Any,
     ) -> StatementHashResult:
         """Process statements for the entity transaction."""
-        logger.info(f"[UpdateTransaction] Starting statement processing for {entity_id}")
+        logger.info(
+            f"[UpdateTransaction] Starting statement processing for {entity_id}"
+        )
         # Import here to avoid circular imports
         from models.rest_api.entitybase.services.statement_service import (
             hash_entity_statements,
@@ -34,7 +38,10 @@ class UpdateTransaction(EntityTransaction):
         hash_result = hash_entity_statements(request_data)
         if not hash_result.success:
             from models.rest_api.utils import raise_validation_error
-            raise_validation_error(f"Failed to hash statements: {hash_result.error}", status_code=500)
+
+            raise_validation_error(
+                f"Failed to hash statements: {hash_result.error}", status_code=500
+            )
 
         # Store new statements
         from models.rest_api.entitybase.services.statement_service import (
@@ -46,7 +53,10 @@ class UpdateTransaction(EntityTransaction):
         )
         if not store_result.success:
             from models.rest_api.utils import raise_validation_error
-            raise_validation_error(f"Failed to store statements: {store_result.error}", status_code=500)
+
+            raise_validation_error(
+                f"Failed to store statements: {store_result.error}", status_code=500
+            )
 
         # Record hashes for rollback
         self.statement_hashes.extend(hash_result.data.statements)

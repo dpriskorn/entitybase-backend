@@ -1,10 +1,22 @@
 """Response models for user operations."""
 
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
+from datetime import datetime
 
-from models.watchlist import Notification
+
+class Notification(BaseModel):
+    """Notification model."""
+
+    id: int
+    entity_id: str
+    revision_id: int = Field(default=0)
+    change_type: str
+    changed_properties: Optional[List[str]]
+    event_timestamp: datetime
+    is_checked: bool
+    checked_at: Optional[datetime]
 
 
 class UserCreateResponse(BaseModel):

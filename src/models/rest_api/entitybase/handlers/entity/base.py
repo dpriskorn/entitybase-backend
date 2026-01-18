@@ -20,7 +20,9 @@ from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.request import EntityCreateRequest
 from models.rest_api.entitybase.request.entity.add_property import AddPropertyRequest
 from models.rest_api.entitybase.request.entity.patch import LabelPatchRequest
-from models.rest_api.entitybase.request.entity.patch_statement import PatchStatementRequest
+from models.rest_api.entitybase.request.entity.patch_statement import (
+    PatchStatementRequest,
+)
 from models.rest_api.entitybase.response import (
     EntityResponse,
 )
@@ -31,7 +33,15 @@ from models.rest_api.entitybase.services.statement_service import (
     deduplicate_and_store_statements,
 )
 from models.infrastructure.s3.enums import EditType, EditData, EntityType
-from models.s3_models import RevisionData, HashMaps, StatementsHashes, SitelinksHashes, LabelsHashes, DescriptionsHashes, AliasesHashes
+from models.s3_models import (
+    RevisionData,
+    HashMaps,
+    StatementsHashes,
+    SitelinksHashes,
+    LabelsHashes,
+    DescriptionsHashes,
+    AliasesHashes,
+)
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.services.hash_service import HashService
 from models.rest_api.utils import raise_validation_error
@@ -320,25 +330,31 @@ class EntityHandler(BaseModel):
         stream_producer: StreamProducerClient | None,
         is_creation: bool,
         edit_summary: str,
-        user_id: int
+        user_id: int,
     ) -> OperationResult:
         """Create revision data, store it, and publish events."""
         # Process sitelinks: hash titles and store metadata
-        sitelinks_hashes = HashService.hash_sitelinks(request_data.get("sitelinks", {}), s3_client)
+        sitelinks_hashes = HashService.hash_sitelinks(
+            request_data.get("sitelinks", {}), s3_client
+        )
         # Replace sitelinks with hashes in entity data
         request_data["sitelinks"] = sitelinks_hashes.root
 
         # Process terms: hash labels, descriptions, aliases and store metadata
-        labels_hashes = HashService.hash_labels(request_data.get("labels", {}), s3_client, vitess_client)
-        descriptions_hashes = HashService.hash_descriptions(request_data.get("descriptions", {}), s3_client, vitess_client)
-        aliases_hashes = HashService.hash_aliases(request_data.get("aliases", {}), s3_client, vitess_client)
+        labels_hashes = HashService.hash_labels(
+            request_data.get("labels", {}), s3_client, vitess_client
+        )
+        descriptions_hashes = HashService.hash_descriptions(
+            request_data.get("descriptions", {}), s3_client, vitess_client
+        )
+        aliases_hashes = HashService.hash_aliases(
+            request_data.get("aliases", {}), s3_client, vitess_client
+        )
 
         # Create revision data
         created_at = datetime.now(timezone.utc).isoformat()
         revision_is_mass_edit = is_mass_edit if is_mass_edit is not None else False
-        revision_edit_type = (
-            edit_type if edit_type else EditType.UNSPECIFIED
-        )
+        revision_edit_type = edit_type if edit_type else EditType.UNSPECIFIED
 
         revision_data = RevisionData(
             schema_version=settings.s3_schema_revision_version,
@@ -473,16 +489,20 @@ class EntityHandler(BaseModel):
         user_id: int = 0,
     ) -> OperationResult[dict]:
         """Add claims for a single property to an existing entity."""
-        logger.info(f"Entity {entity_id}: Adding property {property_id} with {len(request.claims)} claims")
+        logger.info(
+            f"Entity {entity_id}: Adding property {property_id} with {len(request.claims)} claims"
+        )
 
         # Validate property_id format
-        if not property_id.startswith('P') or not property_id[1:].isdigit():
+        if not property_id.startswith("P") or not property_id[1:].isdigit():
             return OperationResult(success=False, error="Invalid property ID format")
 
         # Check if property exists and is a property
         try:
             read_handler = EntityReadHandler()
-            property_response = read_handler.get_entity(property_id, vitess_client, s3_client)
+            property_response = read_handler.get_entity(
+                property_id, vitess_client, s3_client
+            )
             if property_response.entity_type != "property":
                 return OperationResult(success=False, error="Entity is not a property")
         except Exception:
@@ -491,7 +511,9 @@ class EntityHandler(BaseModel):
         # Fetch current entity data
         try:
             read_handler = EntityReadHandler()
-            entity_response = read_handler.get_entity(entity_id, vitess_client, s3_client)
+            entity_response = read_handler.get_entity(
+                entity_id, vitess_client, s3_client
+            )
             current_data = entity_response.entity_data
         except Exception as e:
             return OperationResult(success=False, error=f"Failed to fetch entity: {e}")
@@ -510,14 +532,26 @@ class EntityHandler(BaseModel):
             head_revision_id=entity_response.revision_id,
             request_data=current_data,
             entity_type=entity_response.entity_type,
-            hash_result=self.process_statements(entity_id, current_data, vitess_client, s3_client, validator),
+            hash_result=self.process_statements(
+                entity_id, current_data, vitess_client, s3_client, validator
+            ),
             is_mass_edit=False,
             edit_type=EditType.UNSPECIFIED,
-            is_semi_protected=entity_response.state.sp if entity_response.state else False,
-            is_locked=entity_response.state.is_locked if entity_response.state else False,
-            is_archived=entity_response.state.archived if entity_response.state else False,
-            is_dangling=entity_response.state.dangling if entity_response.state else False,
-            is_mass_edit_protected=entity_response.state.mep if entity_response.state else False,
+            is_semi_protected=entity_response.state.sp
+            if entity_response.state
+            else False,
+            is_locked=entity_response.state.is_locked
+            if entity_response.state
+            else False,
+            is_archived=entity_response.state.archived
+            if entity_response.state
+            else False,
+            is_dangling=entity_response.state.dangling
+            if entity_response.state
+            else False,
+            is_mass_edit_protected=entity_response.state.mep
+            if entity_response.state
+            else False,
             vitess_client=vitess_client,
             s3_client=s3_client,
             stream_producer=None,  # TODO: add if needed
@@ -529,7 +563,9 @@ class EntityHandler(BaseModel):
         if not revision_result.success:
             return revision_result
 
-        return OperationResult(success=True, data={"revision_id": revision_result.data.rev_id})
+        return OperationResult(
+            success=True, data={"revision_id": revision_result.data.rev_id}
+        )
 
     async def patch_labels(
         self,
@@ -546,7 +582,9 @@ class EntityHandler(BaseModel):
         # Fetch current entity data
         try:
             read_handler = EntityReadHandler()
-            entity_response = read_handler.get_entity(entity_id, vitess_client, s3_client)
+            entity_response = read_handler.get_entity(
+                entity_id, vitess_client, s3_client
+            )
             current_data = entity_response.entity_data
         except Exception as e:
             return OperationResult(success=False, error=f"Failed to fetch entity: {e}")
@@ -558,22 +596,32 @@ class EntityHandler(BaseModel):
             op = request.patch.op
             path = request.patch.path
             if not path.startswith("/labels/"):
-                return OperationResult(success=False, error="Path must start with /labels/")
-            key = path[len("/labels/"):]
+                return OperationResult(
+                    success=False, error="Path must start with /labels/"
+                )
+            key = path[len("/labels/") :]
             if op == "add":
                 if key in current_data["labels"]:
-                    return OperationResult(success=False, error=f"Label {key} already exists")
+                    return OperationResult(
+                        success=False, error=f"Label {key} already exists"
+                    )
                 current_data["labels"][key] = request.patch.value
             elif op == "replace":
                 if key not in current_data["labels"]:
-                    return OperationResult(success=False, error=f"Label {key} does not exist")
+                    return OperationResult(
+                        success=False, error=f"Label {key} does not exist"
+                    )
                 current_data["labels"][key] = request.patch.value
             elif op == "remove":
                 if key not in current_data["labels"]:
-                    return OperationResult(success=False, error=f"Label {key} does not exist")
+                    return OperationResult(
+                        success=False, error=f"Label {key} does not exist"
+                    )
                 del current_data["labels"][key]
             else:
-                return OperationResult(success=False, error=f"Unsupported operation: {op}")
+                return OperationResult(
+                    success=False, error=f"Unsupported operation: {op}"
+                )
         except Exception as e:
             return OperationResult(success=False, error=f"Invalid patch: {e}")
 
@@ -584,14 +632,26 @@ class EntityHandler(BaseModel):
             head_revision_id=entity_response.revision_id,
             request_data=current_data,
             entity_type=entity_response.entity_type,
-            hash_result=self.process_statements(entity_id, current_data, vitess_client, s3_client, validator),
+            hash_result=self.process_statements(
+                entity_id, current_data, vitess_client, s3_client, validator
+            ),
             is_mass_edit=False,
             edit_type=EditType.UNSPECIFIED,
-            is_semi_protected=entity_response.state.sp if entity_response.state else False,
-            is_locked=entity_response.state.is_locked if entity_response.state else False,
-            is_archived=entity_response.state.archived if entity_response.state else False,
-            is_dangling=entity_response.state.dangling if entity_response.state else False,
-            is_mass_edit_protected=entity_response.state.mep if entity_response.state else False,
+            is_semi_protected=entity_response.state.sp
+            if entity_response.state
+            else False,
+            is_locked=entity_response.state.is_locked
+            if entity_response.state
+            else False,
+            is_archived=entity_response.state.archived
+            if entity_response.state
+            else False,
+            is_dangling=entity_response.state.dangling
+            if entity_response.state
+            else False,
+            is_mass_edit_protected=entity_response.state.mep
+            if entity_response.state
+            else False,
             vitess_client=vitess_client,
             s3_client=s3_client,
             stream_producer=None,
@@ -603,7 +663,9 @@ class EntityHandler(BaseModel):
         if not revision_result.success:
             return revision_result
 
-        return OperationResult(success=True, data={"revision_id": revision_result.data.rev_id})
+        return OperationResult(
+            success=True, data={"revision_id": revision_result.data.rev_id}
+        )
 
     def remove_statement(
         self,
@@ -622,16 +684,21 @@ class EntityHandler(BaseModel):
         try:
             revision_data = s3_client.read_revision(entity_id)
         except Exception as e:
-            return OperationResult(success=False, error=f"Failed to fetch revision: {e}")
+            return OperationResult(
+                success=False, error=f"Failed to fetch revision: {e}"
+            )
 
         # Find and remove the statement hash
-        if hasattr(revision_data.hashes, 'statements') and revision_data.hashes.statements:
+        if (
+            hasattr(revision_data.hashes, "statements")
+            and revision_data.hashes.statements
+        ):
             try:
                 hash_int = int(statement_hash)
                 if hash_int in revision_data.hashes.statements.root:
                     index = revision_data.hashes.statements.root.index(hash_int)
                     revision_data.hashes.statements.root.pop(index)
-                    
+
                     # Recalculate property counts
                     start = 0
                     new_properties = []
@@ -645,22 +712,34 @@ class EntityHandler(BaseModel):
                             new_properties.append(prop)
                             new_property_counts[prop] = count
                         start += count
-                    
+
                     revision_data.properties = new_properties
                     revision_data.property_counts = new_property_counts
                 else:
-                    return OperationResult(success=False, error="Statement hash not found")
+                    return OperationResult(
+                        success=False, error="Statement hash not found"
+                    )
             except ValueError:
-                return OperationResult(success=False, error="Invalid statement hash format")
+                return OperationResult(
+                    success=False, error="Invalid statement hash format"
+                )
         else:
-            return OperationResult(success=False, error="No statements found in revision")
+            return OperationResult(
+                success=False, error="No statements found in revision"
+            )
 
         # Decrement ref_count for the statement
-        from models.infrastructure.vitess.statement_repository import StatementRepository
+        from models.infrastructure.vitess.statement_repository import (
+            StatementRepository,
+        )
+
         stmt_repo = StatementRepository(vitess_client.connection_manager)
         result = stmt_repo.decrement_ref_count(int(statement_hash))
         if not result.success:
-            raise_validation_error(f"Failed to decrement ref_count for statement {statement_hash}: {result.error}", status_code=500)
+            raise_validation_error(
+                f"Failed to decrement ref_count for statement {statement_hash}: {result.error}",
+                status_code=500,
+            )
 
         # Update the revision with modified hashes
         new_revision_id = revision_data.revision_id + 1
@@ -674,7 +753,9 @@ class EntityHandler(BaseModel):
             s3_client.write_revision(entity_id, new_revision_id, revision_data)
             vitess_client.update_head_revision(entity_id, new_revision_id)
         except Exception as e:
-            return OperationResult(success=False, error=f"Failed to store updated revision: {e}")
+            return OperationResult(
+                success=False, error=f"Failed to store updated revision: {e}"
+            )
 
         return OperationResult(success=True, data={"revision_id": new_revision_id})
 
@@ -694,7 +775,9 @@ class EntityHandler(BaseModel):
         # Fetch current entity data
         try:
             read_handler = EntityReadHandler()
-            entity_response = read_handler.get_entity(entity_id, vitess_client, s3_client)
+            entity_response = read_handler.get_entity(
+                entity_id, vitess_client, s3_client
+            )
             current_data = entity_response.entity_data
         except Exception as e:
             return OperationResult(success=False, error=f"Failed to fetch entity: {e}")
@@ -705,7 +788,10 @@ class EntityHandler(BaseModel):
             for property_id, claim_list in current_data["claims"].items():
                 for i, stmt in enumerate(claim_list):
                     # Compute hash to match
-                    from models.internal_representation.statement_hasher import StatementHasher
+                    from models.internal_representation.statement_hasher import (
+                        StatementHasher,
+                    )
+
                     stmt_hash = StatementHasher.compute_hash(stmt)
                     if str(stmt_hash) == statement_hash:
                         claim_list[i] = request.claim
@@ -724,14 +810,26 @@ class EntityHandler(BaseModel):
             head_revision_id=entity_response.revision_id,
             request_data=current_data,
             entity_type=entity_response.entity_data.get("type", "item"),
-            hash_result=self.process_statements(entity_id, current_data, vitess_client, s3_client, validator),
+            hash_result=self.process_statements(
+                entity_id, current_data, vitess_client, s3_client, validator
+            ),
             is_mass_edit=False,
             edit_type=EditType.UNSPECIFIED,
-            is_semi_protected=entity_response.state.sp if entity_response.state else False,
-            is_locked=entity_response.state.is_locked if entity_response.state else False,
-            is_archived=entity_response.state.archived if entity_response.state else False,
-            is_dangling=entity_response.state.dangling if entity_response.state else False,
-            is_mass_edit_protected=entity_response.state.mep if entity_response.state else False,
+            is_semi_protected=entity_response.state.sp
+            if entity_response.state
+            else False,
+            is_locked=entity_response.state.is_locked
+            if entity_response.state
+            else False,
+            is_archived=entity_response.state.archived
+            if entity_response.state
+            else False,
+            is_dangling=entity_response.state.dangling
+            if entity_response.state
+            else False,
+            is_mass_edit_protected=entity_response.state.mep
+            if entity_response.state
+            else False,
             vitess_client=vitess_client,
             s3_client=s3_client,
             stream_producer=None,
@@ -743,7 +841,9 @@ class EntityHandler(BaseModel):
         if not revision_result.success:
             return revision_result
 
-        return OperationResult(success=True, data={"revision_id": revision_result.data.rev_id})
+        return OperationResult(
+            success=True, data={"revision_id": revision_result.data.rev_id}
+        )
 
 
 class EntityCreateHandler(EntityHandler):

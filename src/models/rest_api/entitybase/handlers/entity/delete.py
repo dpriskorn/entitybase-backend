@@ -20,7 +20,16 @@ from models.infrastructure.stream.producer import (
 )
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
-from models.s3_models import RevisionData, HashMaps, StatementsHashes, SitelinksHashes, LabelsHashes, DescriptionsHashes, AliasesHashes, EntityState
+from models.s3_models import (
+    RevisionData,
+    HashMaps,
+    StatementsHashes,
+    SitelinksHashes,
+    LabelsHashes,
+    DescriptionsHashes,
+    AliasesHashes,
+    EntityState,
+)
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import MyS3Client
@@ -107,15 +116,27 @@ class EntityDeleteHandler:
             properties=current_revision.data.get("properties", {}),
             property_counts=current_revision.data.get("property_counts", {}),
             hashes=HashMaps(
-                statements=StatementsHashes(root=current_revision.data.get("statements", [])),
-                sitelinks=SitelinksHashes(root=current_revision.data.get("sitelinks_hashes", {})),
-                labels=LabelsHashes(root=current_revision.data.get("labels_hashes", {})),
-                descriptions=DescriptionsHashes(root=current_revision.data.get("descriptions_hashes", {})),
-                aliases=AliasesHashes(root=current_revision.data.get("aliases_hashes", {})),
+                statements=StatementsHashes(
+                    root=current_revision.data.get("statements", [])
+                ),
+                sitelinks=SitelinksHashes(
+                    root=current_revision.data.get("sitelinks_hashes", {})
+                ),
+                labels=LabelsHashes(
+                    root=current_revision.data.get("labels_hashes", {})
+                ),
+                descriptions=DescriptionsHashes(
+                    root=current_revision.data.get("descriptions_hashes", {})
+                ),
+                aliases=AliasesHashes(
+                    root=current_revision.data.get("aliases_hashes", {})
+                ),
             ),
             edit=EditData(
                 mass=False,
-                type=EditType.SOFT_DELETE if request.delete_type == DeleteType.SOFT else EditType.HARD_DELETE,
+                type=EditType.SOFT_DELETE
+                if request.delete_type == DeleteType.SOFT
+                else EditType.HARD_DELETE,
                 user_id=user_id,
                 summary=request.edit_summary,
                 at=datetime.now(timezone.utc).isoformat(),

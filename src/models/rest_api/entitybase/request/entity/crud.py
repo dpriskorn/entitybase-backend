@@ -26,9 +26,12 @@ class EntityCreateRequest(BaseModel):
     )
     state: EntityState = Field(default=EntityState(), description="Entity state")
     is_autoconfirmed_user: bool = Field(
-        default=False, description="User is autoconfirmed (not a new/unconfirmed account)"
+        default=False,
+        description="User is autoconfirmed (not a new/unconfirmed account)",
     )
-    edit_summary: str = Field(min_length=1, max_length=200, description="Edit summary for this change")
+    edit_summary: str = Field(
+        min_length=1, max_length=200, description="Edit summary for this change"
+    )
     user_id: int = Field(default=0, description="User who made this change")
 
     @property

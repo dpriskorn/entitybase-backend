@@ -42,7 +42,7 @@ class WatchlistRepository:
 
     def add_watch(
         self, user_id: int, entity_id: str, properties: List[str] | None
-    ) -> OperationResult:
+    ) -> OperationResult[int]:
         """Add a watchlist entry."""
         if user_id <= 0:
             return OperationResult(success=False, error="Invalid user ID")
@@ -67,7 +67,8 @@ class WatchlistRepository:
                         """,
                         (user_id, internal_entity_id, properties_json),
                     )
-            return OperationResult(success=True)
+                    watch_id = cursor.lastrowid
+            return OperationResult(success=True, data=watch_id)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -81,12 +82,20 @@ class WatchlistRepository:
         with self._get_conn() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    """
-                    DELETE FROM watchlist
-                    WHERE user_id = %s AND internal_entity_id = %s AND watched_properties = %s
-                    """,
+                    "DELETE FROM watchlist WHERE user_id = %s AND internal_entity_id = %s AND watched_properties = %s",
                     (user_id, internal_entity_id, properties_json),
                 )
+
+    def remove_watch_by_id(self, watch_id: int) -> OperationResult:
+        """Remove a watchlist entry by ID."""
+        with self._get_conn() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute("DELETE FROM watchlist WHERE id = %s", (watch_id,))
+                if cursor.rowcount == 0:
+                    return OperationResult(
+                        success=False, error="Watchlist entry not found"
+                    )
+                return OperationResult(success=True)
 
     def get_watches_for_user(self, user_id: int) -> List[Any]:
         """Get all watchlist entries for a user."""
@@ -94,7 +103,7 @@ class WatchlistRepository:
             with conn.cursor() as cursor:
                 cursor.execute(
                     """
-                    SELECT internal_entity_id, watched_properties
+                    SELECT id, internal_entity_id, watched_properties
                     FROM watchlist
                     WHERE user_id = %s
                     """,
@@ -104,10 +113,12 @@ class WatchlistRepository:
 
         watches = []
         for row in rows:
-            internal_entity_id, properties_json = row
+            watch_id, internal_entity_id, properties_json = row
             entity_id = self.id_resolver.resolve_entity_id(conn, internal_entity_id)
             properties = properties_json.split(",") if properties_json else None
-            watches.append({"entity_id": entity_id, "properties": properties})
+            watches.append(
+                {"id": watch_id, "entity_id": entity_id, "properties": properties}
+            )
 
         return watches
 

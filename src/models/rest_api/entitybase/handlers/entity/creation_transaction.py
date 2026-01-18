@@ -13,7 +13,9 @@ from models.rest_api.entitybase.response import StatementHashResult
 logger = logging.getLogger(__name__)
 
 
-from models.rest_api.entitybase.handlers.entity.entity_transaction import EntityTransaction
+from models.rest_api.entitybase.handlers.entity.entity_transaction import (
+    EntityTransaction,
+)
 
 
 class CreationTransaction(EntityTransaction):

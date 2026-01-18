@@ -39,7 +39,8 @@ def test_create_entity(api_client: requests.Session, base_url: str) -> None:
     # }
 
     response = api_client.post(
-        f"{base_url}/entitybase/v1/entities/items", json=entity_data1.model_dump(mode="json")
+        f"{base_url}/entitybase/v1/entities/items",
+        json=entity_data1.model_dump(mode="json"),
     )
     assert response.status_code == 200
 
@@ -71,14 +72,20 @@ def test_get_entity(api_client: requests.Session, base_url: str) -> None:
 
     # First create an entity
     entity_data1 = EntityCreateRequest(
-        id="Q99998", type="item", labels={"en": {"value": "Test Entity"}}, edit_summary="test"
+        id="Q99998",
+        type="item",
+        labels={"en": {"value": "Test Entity"}},
+        edit_summary="test",
     )
     # entity_data = {
     #     "id": "Q99998",
     #     "type": "item",
     #     "labels": {"en": {"language": "en", "value": "Test Entity for Get"}},
     # }
-    response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data1.model_dump(mode="json"))
+    response = api_client.post(
+        f"{base_url}/entitybase/v1/entities/items",
+        json=entity_data1.model_dump(mode="json"),
+    )
     logger.debug("Response")
     pprint(response.json())
     assert response.status_code == 200
@@ -180,9 +187,6 @@ def test_create_entity_already_exists(
     assert "already exists" in response.json().get("detail", "")
 
     logger.info("✓ POST with existing entity correctly returns 409")
-
-
-
 
 
 @pytest.mark.integration

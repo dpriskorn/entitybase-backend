@@ -19,7 +19,6 @@ from models.rest_api.entitybase.response.entity import (
 )
 
 from models.json_parser.statement_parser import parse_statement
-from models.internal_representation.entity import Entity
 from models.infrastructure.s3.enums import EntityType
 from models.internal_representation.json_fields import JsonField
 
@@ -27,7 +26,7 @@ from models.internal_representation.json_fields import JsonField
 logger = logging.getLogger(__name__)
 
 
-def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
+def parse_entity(raw_entity_data: dict[str, Any]):
     """Parse entity from Wikidata JSON format."""
     logger.debug("Parsing entity from raw data")
     # Handle nested structure {"entities": {"Q42": {...}}}
@@ -72,6 +71,8 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
     entity_type = EntityType(metadata.type)
 
     statements = [parse_statement(stmt) for stmt in metadata.statements.data]
+
+    from models.internal_representation.entity import Entity
 
     return Entity(
         id=metadata.id,

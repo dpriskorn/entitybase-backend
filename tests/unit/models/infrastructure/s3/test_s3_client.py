@@ -136,9 +136,12 @@ class TestMyS3Client:
 
     def test_write_revision(self, config, mock_connection_manager):
         """Test write_revision method."""
-        with patch(
-            "models.infrastructure.s3.s3_client.S3ConnectionManager"
-        ) as mock_manager_class, patch("models.infrastructure.s3.s3_client.settings") as mock_settings:
+        with (
+            patch(
+                "models.infrastructure.s3.s3_client.S3ConnectionManager"
+            ) as mock_manager_class,
+            patch("models.infrastructure.s3.s3_client.settings") as mock_settings,
+        ):
             mock_manager_class.return_value = mock_connection_manager
             mock_settings.s3_revisions_bucket = "testbucket-revisions"
 

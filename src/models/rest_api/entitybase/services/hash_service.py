@@ -38,8 +38,11 @@ class HashService:
         hash_result = hash_entity_statements(entity_data)
         if not hash_result.success:
             from models.rest_api.utils import raise_validation_error
-            raise_validation_error(f"Failed to hash statements: {hash_result.error}", status_code=500)
-        
+
+            raise_validation_error(
+                f"Failed to hash statements: {hash_result.error}", status_code=500
+            )
+
         # Deduplicate and store
         store_result = deduplicate_and_store_statements(
             hash_result.data,
@@ -49,8 +52,11 @@ class HashService:
         )
         if not store_result.success:
             from models.rest_api.utils import raise_validation_error
-            raise_validation_error(f"Failed to store statements: {store_result.error}", status_code=500)
-        
+
+            raise_validation_error(
+                f"Failed to store statements: {store_result.error}", status_code=500
+            )
+
         return StatementsHashes(root=hash_result.data.statements)
 
     @staticmethod
@@ -136,21 +142,21 @@ class HashService:
         statements_hashes = HashService.hash_statements(
             entity_data, vitess_client, s3_client, validator
         )
-        
+
         sitelinks = entity_data.get("sitelinks", {})
         sitelinks_hashes = HashService.hash_sitelinks(sitelinks, s3_client)
-        
+
         labels = entity_data.get("labels", {})
         labels_hashes = HashService.hash_labels(labels, s3_client, vitess_client)
-        
+
         descriptions = entity_data.get("descriptions", {})
         descriptions_hashes = HashService.hash_descriptions(
             descriptions, s3_client, vitess_client
         )
-        
+
         aliases = entity_data.get("aliases", {})
         aliases_hashes = HashService.hash_aliases(aliases, s3_client, vitess_client)
-        
+
         return HashMaps(
             statements=statements_hashes,
             sitelinks=sitelinks_hashes,

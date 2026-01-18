@@ -92,7 +92,6 @@ class StatementHashResult(BaseModel):
     )
 
 
-
 class StatementsResponse(BaseModel):
     """Response model for statements."""
 

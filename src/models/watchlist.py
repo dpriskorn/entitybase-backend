@@ -4,10 +4,13 @@ from pydantic import BaseModel, Field
 from typing import List, Optional
 from datetime import datetime
 
+from models.rest_api.entitybase.response.user import Notification, NotificationResponse
+
 
 class WatchlistEntry(BaseModel):
     """Watchlist entry for database."""
 
+    id: int | None = None
     user_id: int
     internal_entity_id: int
     watched_properties: List[str] | None = Field(default=None)
@@ -31,24 +34,9 @@ class WatchlistResponse(BaseModel):
 
 
 class WatchlistRemoveRequest(BaseModel):
-    """Request to remove a watchlist entry."""
+    """Request to remove a watchlist entry by ID."""
 
-    user_id: int
-    entity_id: str
-    properties: List[str] | None = Field(default=None)
-
-
-class Notification(BaseModel):
-    """Notification model."""
-
-    id: int
-    entity_id: str
-    revision_id: int = Field(default=0)
-    change_type: str
-    changed_properties: Optional[List[str]]
-    event_timestamp: datetime
-    is_checked: bool
-    checked_at: Optional[datetime]
+    watch_id: int = Field(..., description="Watchlist entry ID to remove")
 
 
 class MarkCheckedRequest(BaseModel):

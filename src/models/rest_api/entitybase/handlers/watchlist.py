@@ -60,6 +60,17 @@ class WatchlistHandler:
         )
         return MessageResponse(message="Watch removed")
 
+    def remove_watch_by_id(
+        self, user_id: int, watch_id: int, vitess_client: VitessClient
+    ) -> MessageResponse:
+        """Remove a watchlist entry by ID."""
+        result = vitess_client.watchlist_repository.remove_watch_by_id(watch_id)
+        if not result.success:
+            raise_validation_error(
+                result.error or "Failed to remove watch", status_code=404
+            )
+        return MessageResponse(message="Watch removed")
+
     def get_watches(
         self, user_id: int, vitess_client: VitessClient
     ) -> WatchlistResponse:

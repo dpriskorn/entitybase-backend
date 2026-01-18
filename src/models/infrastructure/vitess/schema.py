@@ -220,11 +220,12 @@ class SchemaManager:
         cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS watchlist (
+                id BIGINT AUTO_INCREMENT PRIMARY KEY,
                 user_id BIGINT NOT NULL,
                 internal_entity_id BIGINT UNSIGNED NOT NULL,
                 watched_properties TEXT NOT NULL,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                PRIMARY KEY (user_id, internal_entity_id, watched_properties(255)),
+                UNIQUE KEY unique_watch (user_id, internal_entity_id, watched_properties(255)),
                 FOREIGN KEY (internal_entity_id) REFERENCES entity_id_mapping(internal_id)
             )
         """

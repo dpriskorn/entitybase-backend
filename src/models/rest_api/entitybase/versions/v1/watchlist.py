@@ -12,8 +12,8 @@ from models.rest_api.entitybase.response.misc import WatchCounts
 from models.rest_api.entitybase.response.user import (
     MessageResponse,
     NotificationResponse,
-    WatchlistResponse,
 )
+from models.watchlist import WatchlistResponse
 
 watchlist_router = APIRouter(tags=["watchlist"])
 
@@ -45,6 +45,20 @@ def remove_watch(
     try:
         request.user_id = user_id  # Override to ensure consistency
         result = handler.remove_watch(request, clients.vitess)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@watchlist_router.delete(
+    "/users/{user_id}/watchlist/{watch_id}", response_model=MessageResponse
+)
+def remove_watch_by_id(user_id: int, watch_id: int, req: Request) -> MessageResponse:
+    """Remove a watchlist entry by ID."""
+    clients = req.app.state.clients
+    handler = WatchlistHandler()
+    try:
+        result = handler.remove_watch_by_id(user_id, watch_id, clients.vitess)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

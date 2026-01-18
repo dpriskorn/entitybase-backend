@@ -13,9 +13,12 @@ from models.rest_api.entitybase.handlers.export import ExportHandler
 from models.rest_api.entitybase.handlers.statement import StatementHandler
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.request.entity.add_property import AddPropertyRequest
-from models.rest_api.entitybase.request.entity.remove_statement import RemoveStatementRequest
-from models.rest_api.entitybase.request.entity.patch import LabelPatchRequest
-from models.rest_api.entitybase.request.entity.patch_statement import PatchStatementRequest
+from models.rest_api.entitybase.request.entity.remove_statement import (
+    RemoveStatementRequest,
+)
+from models.rest_api.entitybase.request.entity.patch_statement import (
+    PatchStatementRequest,
+)
 from models.rest_api.entitybase.response import (
     EntityResponse,
     EntityRevisionResponse,
@@ -204,7 +207,10 @@ async def get_entity_property_hashes(
     )
 
 
-@router.post("/entities/{entity_id}/properties/{property_id}", response_model=OperationResult[dict])
+@router.post(
+    "/entities/{entity_id}/properties/{property_id}",
+    response_model=OperationResult[dict],
+)
 async def add_entity_property(
     entity_id: str, property_id: str, request: AddPropertyRequest, req: Request
 ) -> OperationResult[dict]:
@@ -221,7 +227,10 @@ async def add_entity_property(
     return result
 
 
-@router.delete("/entities/{entity_id}/statements/{statement_hash}", response_model=OperationResult[dict])
+@router.delete(
+    "/entities/{entity_id}/statements/{statement_hash}",
+    response_model=OperationResult[dict],
+)
 async def remove_entity_statement(
     entity_id: str, statement_hash: str, request: RemoveStatementRequest, req: Request
 ) -> OperationResult[dict]:
@@ -231,14 +240,22 @@ async def remove_entity_statement(
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityHandler()
     result = handler.remove_statement(
-        entity_id, statement_hash, request.edit_summary, clients.vitess, clients.s3, clients.validator
+        entity_id,
+        statement_hash,
+        request.edit_summary,
+        clients.vitess,
+        clients.s3,
+        clients.validator,
     )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)
     return result
 
 
-@router.patch("/entities/{entity_id}/statements/{statement_hash}", response_model=OperationResult[dict])
+@router.patch(
+    "/entities/{entity_id}/statements/{statement_hash}",
+    response_model=OperationResult[dict],
+)
 async def patch_entity_statement(
     entity_id: str, statement_hash: str, request: PatchStatementRequest, req: Request
 ) -> OperationResult[dict]:
@@ -248,25 +265,16 @@ async def patch_entity_statement(
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityHandler()
     result = handler.patch_statement(
-        entity_id, statement_hash, request, clients.vitess, clients.s3, clients.validator
+        entity_id,
+        statement_hash,
+        request,
+        clients.vitess,
+        clients.s3,
+        clients.validator,
     )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)
     return result
 
 
-@router.patch("/entities/{entity_id}/labels", response_model=OperationResult[dict])
-async def patch_entity_labels(
-    entity_id: str, request: LabelPatchRequest, req: Request, x_user_id: int = Header(..., alias="X-User-ID")
-) -> OperationResult[dict]:
-    """Patch entity labels with a single JSON Patch operation."""
-    clients = req.app.state.clients
-    if not isinstance(clients, Clients):
-        raise_validation_error("Invalid clients type", status_code=500)
-    handler = EntityHandler()
-    result = handler.patch_labels(
-        entity_id, request, clients.vitess, clients.s3, clients.validator, x_user_id
-    )
-    if not isinstance(result, OperationResult):
-        raise_validation_error("Invalid response type", status_code=500)
-    return result
+

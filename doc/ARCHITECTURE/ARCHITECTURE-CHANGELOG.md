@@ -2,6 +2,19 @@
 
 This file tracks architectural changes, feature additions, and modifications to the entitybase-backend.
 
+## [2026-01-18] Watchlist Entry Removal by ID and Statistics APIs
+
+### Summary
+
+Added new endpoint for removing watchlist entries by numeric ID for simpler API usage. Implemented daily statistics workers for user and general wiki data, storing results in database tables for fast API retrieval. Added endpoints for user stats and comprehensive wiki statistics with breakdowns.
+
+### Changes
+
+#### Watchlist API Enhancement
+- **New Endpoint**: `DELETE /entitybase/v1/users/{user_id}/watchlist/{watch_id}` - Remove watchlist entry by its numeric ID
+- **Purpose**: Provides a simpler RESTful way to remove watches using the auto-incremented ID returned in watchlist responses
+- **Error Handling**: Returns 404 if the watch ID doesn't exist
+
 ## [2026-01-18] User and General Statistics Workers and APIs
 
 ### Summary

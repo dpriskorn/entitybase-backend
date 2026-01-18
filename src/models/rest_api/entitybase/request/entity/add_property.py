@@ -12,6 +12,5 @@ class AddPropertyRequest(BaseModel):
         description="List of claim statements for the property. Each claim should be a valid Wikibase statement JSON."
     )
     edit_summary: str = Field(
-        description="Summary of the edit for audit trail.",
-        min_length=1
+        description="Summary of the edit for audit trail.", min_length=1
     )

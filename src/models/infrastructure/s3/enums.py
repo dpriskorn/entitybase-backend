@@ -49,6 +49,7 @@ class DeleteType(str, Enum):
 class EntityType(str, Enum):
     """Type of entity.
     UNKNOWN is considered a bug"""
+
     ITEM = "item"
     PROPERTY = "property"
     LEXEME = "lexeme"
@@ -59,6 +60,10 @@ class EntityType(str, Enum):
 class EditData(BaseModel):
     edit_type: EditType = Field(alias="type", description="Type of edit to be made.")
     user_id: int = Field(description="ID of the user responsible for the edit.")
-    is_mass_edit: bool = Field(default=False, alias="mass", description="Whether the entity is mass edit.")
-    edit_summary: str = Field(description="Summary of the edit.", max_length=200, alias="summary")
+    is_mass_edit: bool = Field(
+        default=False, alias="mass", description="Whether the entity is mass edit."
+    )
+    edit_summary: str = Field(
+        description="Summary of the edit.", max_length=200, alias="summary"
+    )
     at: str = Field(description="The date and time of the edit in UTC.")

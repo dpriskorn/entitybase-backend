@@ -1,4 +1,5 @@
 """S3-related models and configurations."""
+
 from datetime import timezone, datetime
 from enum import Enum
 from typing import Any, Dict
@@ -77,9 +78,17 @@ class RevisionData(BaseModel):
     entity_type: EntityType
     edit: EditData
     hashes: HashMaps
-    schema_version: str = Field(default=settings.s3_schema_revision_version, description="Version of schema. E.g. 1.0.0")
-    created_at: str = Field(default=datetime.now(timezone.utc).isoformat(), description="Timestamp when entity was created.")
-    redirects_to: str = Field(default="", description="Entity ID this entity redirects to. E.g. Q1")
+    schema_version: str = Field(
+        default=settings.s3_schema_revision_version,
+        description="Version of schema. E.g. 1.0.0",
+    )
+    created_at: str = Field(
+        default=datetime.now(timezone.utc).isoformat(),
+        description="Timestamp when entity was created.",
+    )
+    redirects_to: str = Field(
+        default="", description="Entity ID this entity redirects to. E.g. Q1"
+    )
     state: EntityState = Field(default=EntityState())
     property_counts: PropertyCounts | None = Field(default=None)
     properties: list[str] = Field(default_factory=list)
