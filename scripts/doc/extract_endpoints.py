@@ -24,14 +24,14 @@ def extract_endpoints_from_file(file_path: Path) -> list[dict[str, Any]]:
 
     # Find router prefix from APIRouter declaration
     router_prefix = ""
-    router_match = re.search(r'(\w+_router)\s*=\s*APIRouter\(\s*prefix\s*=\s*["\']([^"\']+)["\']', content)
+    router_match = re.search(
+        r'(\w+_router)\s*=\s*APIRouter\(\s*prefix\s*=\s*["\']([^"\']+)["\']', content
+    )
     if router_match:
         router_prefix = router_match.group(2)
 
     # Find all router decorators and their functions
-    decorator_pattern = (
-        r'@(\w+_router)\.(get|post|put|delete|patch|head|options)\s*\(\s*["\']([^"\']+)["\']'
-    )
+    decorator_pattern = r'@(\w+_router)\.(get|post|put|delete|patch|head|options)\s*\(\s*["\']([^"\']+)["\']'
     decorator_matches = re.finditer(decorator_pattern, content)
 
     for match in decorator_matches:

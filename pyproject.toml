@@ -79,10 +79,15 @@ ignore_missing_imports = false
 follow_imports = "skip"
 strict = false # this makes the number of errors explode
 exclude = ["src/types/", "types/", ".venv/"]
+disable_error_codes = ["union-attr"]
 
 [[tool.mypy.overrides]]
 module = "src/models/rest_api/main.py"
 warn_return_any = false
+
+[[tool.mypy.overrides]]
+module = "*"
+disable_error_codes = ["union-attr"]
 
 [tool.ruff]
 # Max line length

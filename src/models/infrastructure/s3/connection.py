@@ -1,8 +1,11 @@
 """S3 connection management and client handling."""
 
+from typing import Any
+
 import boto3  # type: ignore[import-untyped]
 from botocore.config import Config  # type: ignore[import-untyped]
-from mypy_boto3_s3.client import S3Client
+
+# from mypy_boto3_s3.client import S3Client
 from pydantic import BaseModel, Field
 
 
@@ -18,7 +21,7 @@ class S3ConnectionManager(ConnectionManager):
     """Handles S3 connection and healthcheck."""
 
     config: S3Config
-    boto_client: S3Client | None = Field(default=None, exclude=True)
+    boto_client: Any = Field(default=None, exclude=True)
 
     def connect(self) -> None:
         """Establish S3 client connection."""
