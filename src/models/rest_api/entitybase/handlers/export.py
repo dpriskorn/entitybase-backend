@@ -3,7 +3,7 @@
 import logging
 from typing import Any, TYPE_CHECKING
 
-from models.rest_api.entitybase.response import TtlResponse
+from models.rest_api.entitybase.response import TurtleResponse
 from models.rest_api.entitybase.services.rdf_service import serialize_entity_to_turtle
 from models.validation.utils import raise_validation_error
 
@@ -23,7 +23,7 @@ class ExportHandler:
         vitess_client: "VitessClient",
         s3_client: "MyS3Client",
         property_registry: Any,
-    ) -> TtlResponse:
+    ) -> TurtleResponse:
         """Get entity data in Turtle format."""
         logger.debug(f"Exporting entity {entity_id} to Turtle format")
 
@@ -41,4 +41,4 @@ class ExportHandler:
         entity_data = revision.data["entity"]
 
         turtle = serialize_entity_to_turtle(entity_data, property_registry)
-        return TtlResponse(turtle=turtle)
+        return TurtleResponse(turtle=turtle)
