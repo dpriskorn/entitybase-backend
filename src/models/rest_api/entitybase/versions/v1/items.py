@@ -256,14 +256,14 @@ async def get_item_aliases_for_language(
     return [alias["value"] for alias in aliases[language_code]]
 
 
-@router.patch(
+@router.put(
     "/entities/items/{item_id}/aliases/{language_code}", response_model=EntityResponse
 )
-async def patch_item_aliases_for_language(
-    item_id: str, language_code: str, patch_data: Dict[str, Any], req: Request
+async def put_item_aliases_for_language(
+    item_id: str, language_code: str, aliases_data: List[str], req: Request
 ) -> EntityResponse:
-    """Patch item aliases for language using JSON Patch."""
-    logger.debug(f"Patching aliases for item {item_id}, language {language_code}")
+    """Update item aliases for language."""
+    logger.debug(f"Updating aliases for item {item_id}, language {language_code}")
     clients = req.app.state.clients
     validator = req.app.state.validator
 
@@ -271,57 +271,11 @@ async def patch_item_aliases_for_language(
     handler = EntityReadHandler()
     current_entity = handler.get_entity(item_id, clients.vitess, clients.s3)
 
-    # Get current aliases for the language
-    current_aliases = current_entity.entity_data.get("aliases", {}).get(
-        language_code, []
-    )
-
-    # Apply JSON Patch operations
-    patches = patch_data.get("patch", [])
-    updated_aliases = current_aliases.copy()
-
-    for patch_op in patches:
-        op = patch_op.get("op")
-        path = patch_op.get("path")
-        value = patch_op.get("value")
-
-        if op == "add":
-            if path == "/-":  # Append to end
-                updated_aliases.append(value)
-            elif path.startswith("/") and path[1:].isdigit():
-                index = int(path[1:])
-                updated_aliases.insert(index, value)
-            else:
-                raise HTTPException(status_code=400, detail=f"Unsupported path: {path}")
-        elif op == "remove":
-            if path.startswith("/") and path[1:].isdigit():
-                index = int(path[1:])
-                if 0 <= index < len(updated_aliases):
-                    updated_aliases.pop(index)
-                else:
-                    raise HTTPException(
-                        status_code=400, detail=f"Invalid index: {index}"
-                    )
-            else:
-                raise HTTPException(status_code=400, detail=f"Unsupported path: {path}")
-        elif op == "replace":
-            if path.startswith("/") and path[1:].isdigit():
-                index = int(path[1:])
-                if 0 <= index < len(updated_aliases):
-                    updated_aliases[index] = value
-                else:
-                    raise HTTPException(
-                        status_code=400, detail=f"Invalid index: {index}"
-                    )
-            else:
-                raise HTTPException(status_code=400, detail=f"Unsupported path: {path}")
-        else:
-            raise HTTPException(status_code=400, detail=f"Unsupported operation: {op}")
-
-    # Update entity data
+    # Update aliases: expect list of strings
     if "aliases" not in current_entity.entity_data:
         current_entity.entity_data["aliases"] = {}
-    current_entity.entity_data["aliases"][language_code] = updated_aliases
+    # Convert to the internal format: list of dicts with "value"
+    current_entity.entity_data["aliases"][language_code] = [{"value": alias} for alias in aliases_data]
 
     # Create new revision
     update_handler = EntityUpdateHandler()

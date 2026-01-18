@@ -10,7 +10,7 @@
 | ✅ | GET | `/entitybase/v1/entities/descriptions/{hashes}` | Get batch descriptions by hashes. |
 | ✅ | POST | `/entitybase/v1/entities/items` | Create a new item entity. |
 | ✅ | GET | `/entitybase/v1/entities/items/{item_id}/aliases/{language_code}` | Get item aliases for language. |
-| ✅ | PATCH | `/entitybase/v1/entities/items/{item_id}/aliases/{language_code}` | Patch item aliases for language using JSON Patch. |
+| ✅ | PUT | `/entitybase/v1/entities/items/{item_id}/aliases/{language_code}` | Update item aliases for language. |
 | ✅ | GET | `/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}` | Get item description for language. |
 | ✅ | PUT | `/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}` | Update item description for language. |
 | ✅ | DELETE | `/entitybase/v1/entities/items/{item_id}/descriptions/{language_code}` | Delete item description for language. |
@@ -21,7 +21,7 @@
 | ✅ | POST | `/entitybase/v1/entities/lexemes` | Create a new lexeme entity. |
 | ✅ | POST | `/entitybase/v1/entities/properties` | Create a new property entity. |
 | ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}` | Get property aliases for language. |
-| ✅ | PATCH | `/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}` | Patch property aliases for language using JSON Patch. |
+| ✅ | PUT | `/entitybase/v1/entities/properties/{property_id}/aliases/{language_code}` | Update property aliases for language. |
 | ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/descriptions/{language_code}` | Get property description for language. |
 | ✅ | GET | `/entitybase/v1/entities/properties/{property_id}/labels/{language_code}` | Get property label for language. |
 | ✅ | GET | `/entitybase/v1/entities/sitelinks/{hashes}` | Get batch sitelink titles by hashes. |
