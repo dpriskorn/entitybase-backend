@@ -17,7 +17,7 @@ async def test_create_user_new() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post("/v1/users", json={"user_id": 12345})
+        response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -34,12 +34,12 @@ async def test_create_user_existing() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # First create
-        response1 = await client.post("/v1/users", json={"user_id": 12345})
+        response1 = await client.post("/entitybase/v1/users", json={"user_id": 12345})
         assert response1.status_code == 200
         assert response1.json()["created"] is True
 
         # Second create (should return created=False)
-        response2 = await client.post("/v1/users", json={"user_id": 12345})
+        response2 = await client.post("/entitybase/v1/users", json={"user_id": 12345})
         assert response2.status_code == 200
         data = response2.json()
         assert data["user_id"] == 12345
@@ -56,10 +56,10 @@ async def test_get_user_existing() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # First create user
-        await client.post("/v1/users", json={"user_id": 12345})
+        await client.post("/entitybase/v1/users", json={"user_id": 12345})
 
         # Then get user
-        response = await client.get("/v1/users/12345")
+        response = await client.get("/entitybase/v1/users/12345")
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -75,7 +75,7 @@ async def test_get_user_not_found() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/v1/users/99999")
+        response = await client.get("/entitybase/v1/users/99999")
         assert response.status_code == 404
 
 
@@ -89,7 +89,7 @@ async def test_create_user_invalid() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Invalid user_id (negative)
-        response = await client.post("/v1/users", json={"user_id": -1})
+        response = await client.post("/entitybase/v1/users", json={"user_id": -1})
         assert response.status_code == 422  # Validation error
 
 
@@ -103,14 +103,14 @@ async def test_toggle_watchlist_enable() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/v1/users", json={"user_id": 12345})
+        await client.post("/entitybase/v1/users", json={"user_id": 12345})
 
         # Toggle to disable first
-        await client.put("/v1/users/12345/watchlist/toggle", json={"enabled": False})
+        await client.put("/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": False})
 
         # Then enable
         response = await client.put(
-            "/v1/users/12345/watchlist/toggle", json={"enabled": True}
+            "/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True}
         )
         assert response.status_code == 200
         data = response.json()
@@ -128,11 +128,11 @@ async def test_toggle_watchlist_disable() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/v1/users", json={"user_id": 12345})
+        await client.post("/entitybase/v1/users", json={"user_id": 12345})
 
         # Disable
         response = await client.put(
-            "/v1/users/12345/watchlist/toggle", json={"enabled": False}
+            "/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": False}
         )
         assert response.status_code == 200
         data = response.json()
@@ -150,7 +150,7 @@ async def test_toggle_watchlist_user_not_registered() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.put(
-            "/v1/users/99999/watchlist/toggle", json={"enabled": True}
+            "/entitybase/v1/users/99999/watchlist/toggle", json={"enabled": True}
         )
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
@@ -166,10 +166,10 @@ async def test_get_user_activity() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/v1/users", json={"user_id": 12345})
+        await client.post("/entitybase/v1/users", json={"user_id": 12345})
 
         # Get activity (should be empty initially)
-        response = await client.get("/v1/users/12345/activity")
+        response = await client.get("/entitybase/v1/users/12345/activity")
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -185,7 +185,7 @@ async def test_get_user_activity_user_not_registered() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/v1/users/99999/activity")
+        response = await client.get("/entitybase/v1/users/99999/activity")
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
 
@@ -200,9 +200,9 @@ async def test_get_user_activity_invalid_type() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/v1/users", json={"user_id": 12345})
+        await client.post("/entitybase/v1/users", json={"user_id": 12345})
 
-        response = await client.get("/v1/users/12345/activity?type=invalid")
+        response = await client.get("/entitybase/v1/users/12345/activity?type=invalid")
         assert response.status_code == 400
         assert "Invalid activity type" in response.json()["detail"]
 
@@ -217,9 +217,9 @@ async def test_get_user_activity_invalid_limit() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/v1/users", json={"user_id": 12345})
+        await client.post("/entitybase/v1/users", json={"user_id": 12345})
 
-        response = await client.get("/v1/users/12345/activity?limit=1000")
+        response = await client.get("/entitybase/v1/users/12345/activity?limit=1000")
         assert response.status_code == 400
         assert "Limit must be one of" in response.json()["detail"]
 
@@ -281,7 +281,7 @@ async def test_watchlist_add() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create user
-        await client.post("/v1/users", json={"user_id": 12345})
+        await client.post("/entitybase/v1/users", json={"user_id": 12345})
         # Enable watchlist
         await client.put("/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True})
 
@@ -304,7 +304,7 @@ async def test_watchlist_get() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create user
-        await client.post("/v1/users", json={"user_id": 12345})
+        await client.post("/entitybase/v1/users", json={"user_id": 12345})
         # Enable watchlist
         await client.put("/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True})
 
@@ -325,7 +325,7 @@ async def test_watchlist_notifications() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create user
-        await client.post("/v1/users", json={"user_id": 12345})
+        await client.post("/entitybase/v1/users", json={"user_id": 12345})
         # Enable watchlist
         await client.put("/entitybase/v1/users/12345/watchlist/toggle", json={"enabled": True})
 
@@ -346,7 +346,7 @@ async def test_watchlist_stats() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create user
-        await client.post("/v1/users", json={"user_id": 12345})
+        await client.post("/entitybase/v1/users", json={"user_id": 12345})
 
         response = await client.get("/entitybase/users/12345/watchlist/stats")
         assert response.status_code == 200

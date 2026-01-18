@@ -18,7 +18,7 @@ async def test_endorse_statement() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # First create a user
-        response = await client.post("/v1/users", json={"user_id": 12345})
+        response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
         assert response.status_code == 200
 
         # Try to endorse a statement (this might fail due to missing statement, but tests the endpoint)
@@ -41,7 +41,7 @@ async def test_withdraw_endorsement() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create a user
-        response = await client.post("/v1/users", json={"user_id": 12345})
+        response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
         assert response.status_code == 200
 
         # Try to withdraw endorsement
@@ -105,7 +105,7 @@ async def test_get_user_endorsements() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create a user first
-        response = await client.post("/v1/users", json={"user_id": 12345})
+        response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
         assert response.status_code == 200
 
         # Get user endorsements
@@ -129,7 +129,7 @@ async def test_get_user_endorsement_stats() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create a user first
-        response = await client.post("/v1/users", json={"user_id": 12345})
+        response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
         assert response.status_code == 200
 
         # Get user endorsement stats
