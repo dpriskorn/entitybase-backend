@@ -1109,6 +1109,39 @@ Added `PATCH /entitybase/v1/entities/{entity_id}/statements/{statement_hash}` en
 - Replaces entire statement with new claim
 - Maintains property structure
 - Full validation and processing
+
+## [2026-01-18] Test Fixes and API Parameter Updates
+
+### Summary
+
+Fixed missing `user_id` parameters in entity creation and update transaction methods. Updated S3 method calls for consistency.
+
+### Changes
+
+#### Transaction Methods
+
+**Files**: `src/models/rest_api/entitybase/handlers/entity/creation_transaction.py`, `src/models/rest_api/entitybase/handlers/entity/update_transaction.py`
+
+- Added `user_id: int` parameter to `create_revision()` methods
+- Updated calls to `_create_and_store_revision()` to include `user_id`
+
+#### Handler Calls
+
+**Files**: `src/models/rest_api/entitybase/handlers/entity/update.py`, `src/models/rest_api/entitybase/handlers/entity/item.py`
+
+- Added `user_id=request.user_id` to `tx.create_revision()` calls
+
+#### S3 Method Consistency
+
+**File**: `src/models/rest_api/entitybase/handlers/entity/base.py`
+
+- Changed `s3_client.store_revision()` to `s3_client.write_revision()` for correct method usage
+
+### Impact
+
+- **API Consistency**: `user_id` properly passed through transaction layers
+- **Code Correctness**: Fixed method signature mismatches
+- **Test Stability**: Resolves parameter-related test failures
 - Strict error handling for ref_count operations
 
 ## [2026-01-12] EntityBase Revert API for Subgraph Protection

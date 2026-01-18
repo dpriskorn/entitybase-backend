@@ -10,7 +10,7 @@ from models.user_activity import ActivityType
 
 logger = logging.getLogger(__name__)
 
-from models.infrastructure.s3.enums import DeleteType
+from models.infrastructure.s3.enums import DeleteType, EditType, EditData, EntityType
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.response import EntityDeleteResponse
 from models.config.settings import settings
@@ -20,6 +20,7 @@ from models.infrastructure.stream.producer import (
 )
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
+from models.s3_models import RevisionData, HashMaps, StatementsHashes, SitelinksHashes, LabelsHashes, DescriptionsHashes, AliasesHashes, EntityState
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import MyS3Client
@@ -99,33 +100,35 @@ class EntityDeleteHandler:
         current_revision = s3_client.read_revision(entity_id, head_revision_id)
 
         # Prepare deletion revision data
-        edit_type = (
-            "soft_delete" if request.delete_type == DeleteType.SOFT else "hard_delete"
-        )
-
-        revision_data = {
-            "schema_version": settings.s3_schema_revision_version,
-            "revision_id": new_revision_id,
-            "created_at": datetime.now(timezone.utc).isoformat() + "Z",
-            "created_by": "rest-api",
-            "entity_type": current_revision.data.get("entity_type", "item"),
-            "entity": current_revision.data.get("entity", {}),
-            "statements": current_revision.data.get("statements", []),
-            "properties": current_revision.data.get("properties", {}),
-            "property_counts": current_revision.data.get("property_counts", {}),
-            "content_hash": current_revision.data.get("content_hash", 0),
-            "edit_summary": request.edit_summary,
-            "edit_type": edit_type,
-            "is_semi_protected": current_revision.data.get("is_semi_protected", False),
-            "is_locked": current_revision.data.get("is_locked", False),
-            "is_archived": current_revision.data.get("is_archived", False),
-            "is_dangling": current_revision.data.get("is_dangling", False),
-            "is_mass_edit_protected": current_revision.data.get(
-                "is_mass_edit_protected", False
+        revision_data = RevisionData(
+            schema_version=settings.s3_schema_revision_version,
+            revision_id=new_revision_id,
+            entity_type=EntityType(current_revision.data.get("entity_type", "item")),
+            properties=current_revision.data.get("properties", {}),
+            property_counts=current_revision.data.get("property_counts", {}),
+            hashes=HashMaps(
+                statements=StatementsHashes(root=current_revision.data.get("statements", [])),
+                sitelinks=SitelinksHashes(root=current_revision.data.get("sitelinks_hashes", {})),
+                labels=LabelsHashes(root=current_revision.data.get("labels_hashes", {})),
+                descriptions=DescriptionsHashes(root=current_revision.data.get("descriptions_hashes", {})),
+                aliases=AliasesHashes(root=current_revision.data.get("aliases_hashes", {})),
             ),
-            "is_deleted": True,
-            "is_redirect": False,
-        }
+            edit=EditData(
+                mass=False,
+                type=EditType.SOFT_DELETE if request.delete_type == DeleteType.SOFT else EditType.HARD_DELETE,
+                user_id=user_id,
+                summary=request.edit_summary,
+                at=datetime.now(timezone.utc).isoformat(),
+            ),
+            state=EntityState(
+                sp=current_revision.data.get("is_semi_protected", False),
+                locked=current_revision.data.get("is_locked", False),
+                archived=current_revision.data.get("is_archived", False),
+                dangling=current_revision.data.get("is_dangling", False),
+                mep=current_revision.data.get("is_mass_edit_protected", False),
+                deleted=True,
+            ),
+        )
 
         # Decrement ref_count for hard delete
         if request.delete_type == DeleteType.HARD:
@@ -143,7 +146,6 @@ class EntityDeleteHandler:
             entity_id=entity_id,
             revision_id=new_revision_id,
             data=revision_data,
-            publication_state="published",
         )
 
         # Update head pointer

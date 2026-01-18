@@ -6,6 +6,7 @@ from typing import List, Callable, Any
 
 from pydantic import BaseModel, Field
 
+from models.infrastructure.s3.enums import EntityType
 from models.rest_api.entitybase.response import EntityResponse
 from models.rest_api.entitybase.response import StatementHashResult
 
@@ -61,9 +62,8 @@ class EntityTransaction(BaseModel, ABC):
         new_revision_id: int,
         head_revision_id: int,
         request_data: dict,
-        entity_type: str,
+        entity_type: EntityType,
         hash_result: StatementHashResult,
-        content_hash: int,
         is_mass_edit: bool,
         edit_type: Any,
         edit_summary: str,
@@ -76,6 +76,7 @@ class EntityTransaction(BaseModel, ABC):
         s3_client: Any,
         stream_producer: Any,
         is_creation: bool,
+        user_id: int,
     ) -> EntityResponse:
         logger.debug(f"Creating revision for {entity_id}")
         from models.rest_api.entitybase.handlers.entity.base import EntityHandler
@@ -88,7 +89,6 @@ class EntityTransaction(BaseModel, ABC):
             request_data=request_data,
             entity_type=entity_type,
             hash_result=hash_result,
-            content_hash=content_hash,
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
             edit_summary=edit_summary,
@@ -101,6 +101,7 @@ class EntityTransaction(BaseModel, ABC):
             s3_client=s3_client,
             stream_producer=stream_producer,
             is_creation=is_creation,
+            user_id=user_id,
         )
         self.operations.append(
             lambda: self._rollback_revision(entity_id, new_revision_id, vitess_client)

@@ -98,6 +98,7 @@ class ItemCreateHandler(EntityCreateHandler):
                 s3_client=s3_client,
                 stream_producer=stream_producer,
                 is_creation=True,
+                user_id=request.user_id,
             )
 
             # Publish event

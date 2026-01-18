@@ -82,6 +82,7 @@ class EntityUpdateHandler(EntityHandler):
                 s3_client=s3_client,
                 stream_producer=stream_producer,
                 is_creation=False,
+                user_id=request.user_id,
             )
             # Publish event
             tx.publish_event(

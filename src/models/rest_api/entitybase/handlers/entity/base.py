@@ -596,7 +596,7 @@ class EntityHandler(BaseModel):
 
         # Store the updated revision
         try:
-            s3_client.store_revision(entity_id, revision_data)
+            s3_client.write_revision(entity_id, new_revision_id, revision_data)
             vitess_client.update_head_revision(entity_id, new_revision_id)
         except Exception as e:
             return OperationResult(success=False, error=f"Failed to store updated revision: {e}")

@@ -112,6 +112,7 @@ class UpdateTransaction(EntityTransaction):
         s3_client: Any,
         stream_producer: Any,
         is_creation: bool,
+        user_id: int,
     ) -> EntityResponse:
         logger.debug(f"[UpdateTransaction] Starting revision creation for {entity_id}")
         from models.rest_api.entitybase.handlers.entity.base import EntityHandler
@@ -124,7 +125,6 @@ class UpdateTransaction(EntityTransaction):
             request_data=request_data,
             entity_type=entity_type,
             hash_result=hash_result,
-            content_hash=content_hash,
             is_mass_edit=is_mass_edit,
             edit_type=edit_type,
             edit_summary=edit_summary,
@@ -137,6 +137,7 @@ class UpdateTransaction(EntityTransaction):
             s3_client=s3_client,
             stream_producer=stream_producer,
             is_creation=is_creation,
+            user_id=user_id,
         )
         self.operations.append(
             lambda: self._rollback_revision(entity_id, new_revision_id, vitess_client)
