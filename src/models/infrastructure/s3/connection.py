@@ -1,11 +1,15 @@
 """S3 connection management and client handling."""
-from typing import cast
 
 import boto3  # type: ignore[import-untyped]
 from botocore.client import BaseClient  # type: ignore[import-untyped]
 from botocore.config import Config, _S3Dict  # type: ignore[import-untyped]
 from mypy_boto3_s3.client import S3Client
-from pydantic import Field
+from pydantic import BaseModel, Field
+
+
+class S3DictModel(BaseModel):
+    addressing_style: str
+
 
 from models.infrastructure.connection import ConnectionManager
 from models.s3_models import S3Config
@@ -26,7 +30,8 @@ class S3ConnectionManager(ConnectionManager):
                 aws_access_key_id=self.config.access_key,
                 aws_secret_access_key=self.config.secret_key,
                 config=Config(
-                    signature_version="s3v4", s3=cast(_S3Dict, cast(object, {"addressing_style": "path"}))
+                    signature_version="s3v4",
+                    s3=S3DictModel(addressing_style="path").model_dump(),
                 ),
                 region_name="us-east-1",
             )
