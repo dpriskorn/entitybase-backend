@@ -19,15 +19,18 @@ class Settings(BaseSettings):
     s3_endpoint: str = "http://minio:9000"
     s3_access_key: str = "fakekey"
     s3_secret_key: str = "fakesecret"
-    s3_bucket: str = "testbucket"
     s3_references_bucket: str = "testbucket-references"
     s3_qualifiers_bucket: str = "testbucket-qualifiers"
+    s3_sitelinks_bucket: str = "testbucket-sitelinks"
+    s3_statements_bucket: str = "testbucket-statements"
+    s3_terms_bucket: str = "testbucket-terms"
+    s3_revisions_bucket: str = "testbucket-revisions"
     vitess_host: str = "vitess"
     vitess_port: int = 15309
     vitess_database: str = "entitybase"
     vitess_user: str = "root"
     vitess_password: str = ""
-    s3_revision_version: str = "latest"
+    s3_schema_revision_version: str = "latest"
     s3_statement_version: str = "latest"
     wmf_recentchange_version: str = "latest"
     wikibase_repository_name: str = "wikidata"
@@ -71,7 +74,6 @@ class Settings(BaseSettings):
             endpoint_url=self.s3_endpoint,
             access_key=self.s3_access_key,
             secret_key=self.s3_secret_key,
-            bucket=self.s3_bucket,
         )
 
     def to_vitess_config(self) -> "VitessConfig":

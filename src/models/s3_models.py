@@ -1,11 +1,16 @@
 """S3-related models and configurations."""
-
+from datetime import timezone, datetime
+from enum import Enum
 from typing import Any, Dict
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.root_model import RootModel
 
+from models.config.settings import settings
 from models.infrastructure.config import Config
+from models.infrastructure.s3.enums import CreatedBy
+from models.internal_representation.entity_types import EntityType
+from models.rest_api.entitybase.response import EntityState
 
 
 class EntityData(BaseModel):
@@ -26,7 +31,6 @@ class S3Config(Config):
     endpoint_url: str
     access_key: str
     secret_key: str
-    bucket: str
 
 
 class RevisionMetadata(BaseModel):
@@ -55,38 +59,6 @@ class StatementsHashes(RootModel[dict[str, list[int]]]):
     """Hash map for entity statements by property."""
 
 
-class RevisionCreateData(BaseModel):
-    """Model for comprehensive revision data during creation process.
-
-    Contains full revision context including statements, properties, edit metadata,
-    and protection flags. Used internally during entity creation before
-    converting to RevisionData for storage.
-    """
-
-    schema_version: str
-    revision_id: int
-    created_at: str
-    created_by: str
-    entity_type: str
-    entity: dict[str, Any]
-    statements: list[int]
-    properties: list[str]
-    property_counts: dict[str, int]
-    sitelinks_hashes: dict[str, int] | None
-    content_hash: int
-    edit_summary: str = ""
-    editor: str = ""
-    is_mass_edit: bool
-    edit_type: str
-    is_semi_protected: bool | None
-    is_locked: bool | None
-    is_archived: bool | None
-    is_dangling: bool | None
-    is_mass_edit_protected: bool | None
-    is_deleted: bool
-    is_redirect: bool
-
-
 class RevisionData(BaseModel):
     """Model for immutable revision snapshots stored in S3.
 
@@ -94,13 +66,14 @@ class RevisionData(BaseModel):
     sitelinks, and statements. Used for persistent storage and retrieval.
     """
 
-    schema_version: str
-    revision_id: int = Field(default=0)
-    created_at: str = Field(default="")
-    created_by: str = Field(default="")
-    entity_type: str = Field(default="")
+    revision_id: int
     entity: EntityData
-    redirects_to: str = Field(default="")
+    schema_version: str = Field(default=settings.s3_schema_revision_version, description="Version of schema. E.g. 1.0.0")
+    created_at: str = Field(default=datetime.now(timezone.utc).isoformat(), description="Timestamp when entity was created.")
+    created_by: CreatedBy = Field(default=CreatedBy.UNKNOWN)
+    entity_type: EntityType = Field(default=EntityType.UNKNOWN)
+    redirects_to: str = Field(default="", description="Entity ID this entity redirects to. E.g. Q1")
+    state: EntityState = Field(default=EntityState())
     labels_hashes: LabelsHashes | None = Field(default=None)
     descriptions_hashes: DescriptionsHashes | None = Field(default=None)
     aliases_hashes: AliasesHashes | None = Field(default=None)

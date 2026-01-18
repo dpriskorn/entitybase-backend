@@ -23,7 +23,7 @@ class JsonSchemaValidator:
         s3_statement_version: str = "",
         wmf_recentchange_version: str = "",
     ) -> None:
-        self.s3_revision_version = s3_revision_version or settings.s3_revision_version
+        self.s3_revision_version = s3_revision_version or settings.s3_schema_revision_version
         self.s3_statement_version = (
             s3_statement_version or settings.s3_statement_version
         )

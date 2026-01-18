@@ -132,20 +132,24 @@ class EntityState(BaseModel):
 
     is_semi_protected: bool = Field(
         alias="sp",
+        default=False,
         description="Whether the entity is semi-protected. Example: true.",
     )
-    is_locked: bool = Field(description="Whether the entity is locked. Example: false.")
+    is_locked: bool = Field(default=False,
+                            description="Whether the entity is locked. Example: false.")
     is_archived: bool = Field(
+        default=False,
         alias="archived", description="Whether the entity is archived. Example: false."
     )
     is_dangling: bool = Field(
+        default=False,
         alias="dangling", description="Whether the entity is dangling. Example: false."
     )
     is_mass_edit_protected: bool = Field(
+        default=False,
         alias="mep",
         description="Whether the entity has mass edit protection. Example: true.",
     )
-
 
 class EntityResponse(BaseModel):
     """Response model for entity data."""

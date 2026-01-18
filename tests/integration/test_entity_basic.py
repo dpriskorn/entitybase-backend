@@ -1,5 +1,6 @@
 import json
 import logging
+from pprint import pprint
 from typing import Any, Dict, cast
 
 import pytest
@@ -78,10 +79,14 @@ def test_get_entity(api_client: requests.Session, base_url: str) -> None:
     #     "labels": {"en": {"language": "en", "value": "Test Entity for Get"}},
     # }
     response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data1.model_dump(mode="json"))
+    logger.debug("Response")
+    pprint(response.json())
     assert response.status_code == 200
 
     # Then retrieve it
     response2 = api_client.get(f"{base_url}/entitybase/v1/entities/Q99998")
+    logger.debug("Response2")
+    pprint(response2.json())
     assert response2.status_code == 200
 
     result = response2.json()

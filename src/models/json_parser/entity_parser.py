@@ -20,7 +20,7 @@ from models.rest_api.entitybase.response.entity import (
 
 from models.json_parser.statement_parser import parse_statement
 from models.internal_representation.entity import Entity
-from models.internal_representation.entity_types import EntityKind
+from models.internal_representation.entity_types import EntityType
 from models.internal_representation.json_fields import JsonField
 
 
@@ -48,7 +48,7 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
     # Create EntityMetadata instance with structured data
     metadata = EntityMetadataResponse(
         id=metadata_dict.get(JsonField.ID.value, ""),
-        type=metadata_dict.get(JsonField.TYPE.value, EntityKind.ITEM.value),
+        type=metadata_dict.get(JsonField.TYPE.value, EntityType.ITEM.value),
         labels=EntityLabelsResponse(
             data={lang: LabelValue(**val) for lang, val in labels_dict.items()}
         ),
@@ -69,7 +69,7 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> Entity:
         sitelinks=EntitySitelinksResponse(data=sitelinks_json),
     )
 
-    entity_type = EntityKind(metadata.type)
+    entity_type = EntityType(metadata.type)
 
     statements = [parse_statement(stmt) for stmt in metadata.statements.data]
 

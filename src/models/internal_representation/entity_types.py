@@ -3,8 +3,11 @@
 from enum import Enum
 
 
-class EntityKind(str, Enum):
+class EntityType(str, Enum):
+    """Type of entity.
+    UNKNOWN is considered a bug"""
     ITEM = "item"
     PROPERTY = "property"
     LEXEME = "lexeme"
-    ENTITY_SCHEMA = "entityschema"
+    UNKNOWN = "unknown"
+    # ENTITY_SCHEMA = "entityschema"

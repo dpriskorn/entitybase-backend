@@ -2,6 +2,7 @@ from typing import Dict, Any
 
 from pydantic import BaseModel, Field
 
+from models.rest_api.entitybase.response import EntityState
 from models.rest_api.misc import EditType, DeleteType
 
 
@@ -23,6 +24,7 @@ class EntityCreateRequest(BaseModel):
         default=EditType.UNSPECIFIED,
         description="Classification of edit type",
     )
+    state: EntityState = Field(default=EntityState(), description="Entity state")
     is_semi_protected: bool = Field(default=False, description="Item is semi-protected")
     is_locked: bool = Field(default=False, description="Item is locked from edits")
     is_archived: bool = Field(default=False, description="Item is archived")

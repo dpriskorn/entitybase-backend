@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import os
 
-from models.internal_representation.entity_types import EntityKind
+from models.internal_representation.entity_types import EntityType
 from models.internal_representation.ranks import Rank
 from models.internal_representation.value_kinds import ValueKind
 from models.json_parser import parse_entity
@@ -20,7 +20,7 @@ def test_parse_q42_comprehensive() -> None:
     entity = parse_entity(entity_json)
 
     assert entity.id == "Q42"
-    assert entity.type == EntityKind.ITEM
+    assert entity.type == EntityType.ITEM
 
     assert len(entity.labels) == 72
     assert entity.labels["ru"] == "Дуглас Адамс"

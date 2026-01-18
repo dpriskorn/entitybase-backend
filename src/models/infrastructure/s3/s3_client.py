@@ -9,6 +9,7 @@ from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from pydantic import Field
 
+from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
@@ -16,7 +17,6 @@ from models.rest_api.entitybase.response import StatementResponse
 from models.s3_models import (
     RevisionData,
     S3Config,
-    RevisionMetadata,
     RevisionReadResponse,
     StoredStatement,
     S3QualifierData,
@@ -45,67 +45,72 @@ class MyS3Client(Client):
             raise_validation_error("S3 service unavailable", status_code=503)
         self.connection_manager = manager  # type: ignore[assignment]
         self.connection_manager.connect()
-        self._ensure_bucket_exists()
+        # self._ensure_bucket_exists()
 
-    def _ensure_bucket_exists(self) -> None:
-        """Ensure the S3 bucket exists, creating it if necessary."""
-        logger.debug(f"Ensuring bucket {self.config.bucket} exists")
-        if not self.connection_manager or not self.connection_manager.boto_client:
-            raise_validation_error("S3 service unavailable", status_code=503)
-        try:
-            self.connection_manager.boto_client.head_bucket(Bucket=self.config.bucket)
-        except ClientError as e:
-            if (
-                e.response["Error"]["Code"] == "404"
-                or e.response["Error"]["Code"] == "NoSuchBucket"
-            ):
-                try:
-                    # noinspection PyTypeChecker
-                    self.connection_manager.boto_client.create_bucket(
-                        Bucket=self.config.bucket,
-                        CreateBucketConfiguration={"LocationConstraint": "us-east-1"},  # type: ignore[typeddict-item]
-                    )
-                except ClientError as ce:
-                    print(f"Error creating bucket {self.config.bucket}: {ce}")
-                    raise
-            else:
-                print(f"Error checking bucket {self.config.bucket}: {e}")
-                raise
-        except Exception as e:
-            print(
-                f"Unexpected error checking/creating bucket {self.config.bucket}: {e}"
-            )
-            raise
+    # def _ensure_bucket_exists(self) -> None:
+    #     """Ensure the S3 bucket exists, creating it if necessary."""
+    #     logger.debug(f"Ensuring bucket {bucket} exists")
+    #     if not self.connection_manager or not self.connection_manager.boto_client:
+    #         raise_validation_error("S3 service unavailable", status_code=503)
+    #     try:
+    #         self.connection_manager.boto_client.head_bucket(Bucket=bucket)
+    #     except ClientError as e:
+    #         if (
+    #             e.response["Error"]["Code"] == "404"
+    #             or e.response["Error"]["Code"] == "NoSuchBucket"
+    #         ):
+    #             try:
+    #                 # noinspection PyTypeChecker
+    #                 self.connection_manager.boto_client.create_bucket(
+    #                     Bucket=bucket,
+    #                     CreateBucketConfiguration={"LocationConstraint": "us-east-1"},  # type: ignore[typeddict-item]
+    #                 )
+    #             except ClientError as ce:
+    #                 print(f"Error creating bucket {bucket}: {ce}")
+    #                 raise
+    #         else:
+    #             print(f"Error checking bucket {bucket}: {e}")
+    #             raise
+    #     except Exception as e:
+    #         print(
+    #             f"Unexpected error checking/creating bucket {bucket}: {e}"
+    #         )
+    #         raise
 
     def write_revision(
         self,
         entity_id: str,
         revision_id: int,
-        data: Dict[str, Any],
-        publication_state: str,
-    ) -> RevisionMetadata:
+        data: RevisionData,
+    ) -> OperationResult[None]:
         """Write entity revision data to S3."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
-        key = f"entities/{entity_id}/{revision_id}.json"
-        self.connection_manager.boto_client.put_object(
-            Bucket=self.config.bucket,
-            Key=key,
-            Body=json.dumps(data),
-            Metadata={
-                "schema_version": publication_state,
-                "created_at": datetime.now(timezone.utc).isoformat(),
-            },
-        )
-        return RevisionMetadata(key=key)
+        bucket = settings.s3_revisions_bucket
+        key = f"entities/{entity_id}/{revision_id}"
+        try:
+            self.connection_manager.boto_client.put_object(
+                Bucket=bucket,
+                Key=key,
+                Body=data.model_dump(mode="json"),
+                Metadata={
+                    "schema_version": data.schema_version,
+                    "created_at": datetime.now(timezone.utc).isoformat(),
+                },
+            )
+            return OperationResult(success=True)
+        except Exception:
+            raise_validation_error("S3 storage service unavailable", status_code=503)
+
 
     def read_revision(self, entity_id: str, revision_id: int) -> RevisionReadResponse:
         """Read S3 object and return parsed JSON."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
-        key = f"entities/{entity_id}/{revision_id}.json"
+        bucket = settings.s3_revisions_bucket
+        key = f"{entity_id}/{revision_id}"
         response = self.connection_manager.boto_client.get_object(
-            Bucket=self.config.bucket, Key=key
+            Bucket=bucket, Key=key
         )
 
         parsed_data = json.loads(response["Body"].read().decode("utf-8"))
@@ -125,45 +130,25 @@ class MyS3Client(Client):
         """Update the publication state of an entity revision."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
-        key = f"{entity_id}/r{revision_id}.json"
+        bucket = settings.s3_revisions_bucket
+        key = f"{entity_id}/{revision_id}"
         # noinspection PyTypeChecker
         self.connection_manager.boto_client.copy_object(
-            Bucket=self.config.bucket,
-            CopySource={"Bucket": self.config.bucket, "Key": key},
+            Bucket=bucket,
+            CopySource={"Bucket": bucket, "Key": key},
             Key=key,
             Metadata={"publication_state": publication_state},
             MetadataDirective="REPLACE",
-        )
-
-    def read_full_revision(
-        self, entity_id: str, revision_id: int
-    ) -> RevisionReadResponse:
-        """Read S3 object and return parsed full revision JSON."""
-        if not self.connection_manager or not self.connection_manager.boto_client:
-            raise_validation_error("S3 service unavailable", status_code=503)
-        key = f"{entity_id}/r{revision_id}.json"
-        response = self.connection_manager.boto_client.get_object(
-            Bucket=self.config.bucket, Key=key
-        )
-
-        parsed_data: Dict[str, Any] = json.loads(
-            response["Body"].read().decode("utf-8")
-        )
-
-        return RevisionReadResponse(
-            entity_id=entity_id,
-            revision_id=revision_id,
-            data=RevisionData(**parsed_data),
-            content=parsed_data.get("entity", {}),
         )
 
     def delete_statement(self, content_hash: int) -> None:
         """Delete statement from S3."""
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
-        key = f"statements/{content_hash}.json"
+        bucket = settings.s3_statements_bucket
+        key = f"{content_hash}"
         self.connection_manager.boto_client.delete_object(
-            Bucket=self.config.bucket, Key=key
+            Bucket=bucket, Key=key
         )
 
     def write_statement(
@@ -174,21 +159,22 @@ class MyS3Client(Client):
     ) -> None:
         """Write statement snapshot to S3.
 
-        Stores statement at path: statements/{hash}.json.
+        Stores statement at path: {hash}.
         """
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
-        key = f"statements/{content_hash}.json"
+        bucket = settings.s3_statements_bucket
+        key = f"{content_hash}"
         stored = StoredStatement(
             hash=content_hash,
             statement=statement_data["statement"],
             schema=schema_version,
             created_at=datetime.now(timezone.utc).isoformat(),
         )
-        statement_json = json.dumps(stored.model_dump())
+        statement_json = stored.model_dump(mode="json")
 
         # Enhanced pre-write validation logging
-        logger.debug(f"S3 write_statement: bucket={self.config.bucket}, key={key}")
+        logger.debug(f"S3 write_statement: bucket={bucket}, key={key}")
         # noinspection PyProtectedMember
         logger.debug(
             f"S3 client endpoint: {self.connection_manager.boto_client.meta.endpoint_url}"
@@ -198,17 +184,17 @@ class MyS3Client(Client):
 
         # Verify bucket exists before write
         try:
-            self.connection_manager.boto_client.head_bucket(Bucket=self.config.bucket)
-            logger.debug(f"S3 bucket {self.config.bucket} exists and is accessible")
+            self.connection_manager.boto_client.head_bucket(Bucket=bucket)
+            logger.debug(f"S3 bucket {bucket} exists and is accessible")
         except Exception as bucket_error:
             logger.error(
-                f"S3 bucket {self.config.bucket} not accessible: {bucket_error}"
+                f"S3 bucket {bucket} not accessible: {bucket_error}"
             )
             raise
 
         try:
             response = self.connection_manager.boto_client.put_object(
-                Bucket=self.config.bucket,
+                Bucket=bucket,
                 Key=key,
                 Body=statement_json,
                 Metadata={"schema_version": schema_version},
@@ -216,14 +202,14 @@ class MyS3Client(Client):
 
             # Enhanced response logging with S3 metadata
             logger.debug(
-                f"S3 write_statement successful: bucket={self.config.bucket}, key={key}, "
+                f"S3 write_statement successful: bucket={bucket}, key={key}, "
                 f"ETag={response.get('ETag')}, RequestId={response.get('ResponseMetadata', {}).get('RequestId')}"
             )
 
             # High Priority: Immediate verification by reading back written object
             try:
                 verify_response = self.connection_manager.boto_client.get_object(
-                    Bucket=self.config.bucket, Key=key
+                    Bucket=bucket, Key=key
                 )
                 verify_data = json.loads(verify_response["Body"].read().decode("utf-8"))
                 logger.debug(
@@ -252,7 +238,7 @@ class MyS3Client(Client):
                 f"S3 write_statement failed for {content_hash}: {type(e).__name__}: {e}",
                 extra={
                     "content_hash": content_hash,
-                    "bucket": self.config.bucket,
+                    "bucket": bucket,
                     "key": key,
                     "statement_data_size": len(statement_json),
                     "s3_endpoint": self.connection_manager.boto_client.meta.endpoint_url,
@@ -272,12 +258,13 @@ class MyS3Client(Client):
         """
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
-        key = f"statements/{content_hash}.json"
-        logger.debug(f"S3 read_statement: bucket={self.config.bucket}, key={key}")
+        bucket = settings.s3_statements_bucket
+        key = f"{content_hash}"
+        logger.debug(f"S3 read_statement: bucket={bucket}, key={key}")
 
         try:
             response = self.connection_manager.boto_client.get_object(
-                Bucket=self.config.bucket, Key=key
+                Bucket=bucket, Key=key
             )
             parsed_data: Dict[str, Any] = json.loads(
                 response["Body"].read().decode("utf-8")
@@ -286,7 +273,7 @@ class MyS3Client(Client):
             stored_statement = StoredStatement.model_validate(parsed_data)
 
             logger.debug(
-                f"S3 read_statement successful: bucket={self.config.bucket}, key={key}"
+                f"S3 read_statement successful: bucket={bucket}, key={key}"
             )
             return StatementResponse(
                 schema=stored_statement.schema_version,
@@ -300,7 +287,7 @@ class MyS3Client(Client):
                 "S3 ClientError in read_statement",
                 extra={
                     "content_hash": content_hash,
-                    "bucket": self.config.bucket,
+                    "bucket": bucket,
                     "key": key,
                     "error_code": error_code,
                     "error_message": str(e),
@@ -313,7 +300,7 @@ class MyS3Client(Client):
                 f"S3 read_statement failed with non-ClientError for {content_hash}: {type(e).__name__}: {e}",
                 extra={
                     "content_hash": content_hash,
-                    "bucket": self.config.bucket,
+                    "bucket": bucket,
                     "key": key,
                 },
                 exc_info=True,
@@ -324,30 +311,21 @@ class MyS3Client(Client):
         self,
         entity_id: str,
         revision_id: int,
-        entity_type: str,
-        revision_data: dict,
-        edit_type: str = "",
-        created_by: str = "rest-api",
-        publication_state: str = "",
+        revision_data: RevisionData,
     ) -> int:
         """Write revision as part of redirect operations (no mark_pending/published flow)."""
         logger.debug(f"Writing entity revision {revision_id} for {entity_id}")
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
+
         full_data = {
-            "schema_version": "1.2.0",
+            "schema_version": settings.s3_schema_revision_version,
             "revision_id": revision_id,
             "created_at": datetime.now(timezone.utc).isoformat() + "Z",
             "created_by": created_by,
             "is_mass_edit": False,
             "edit_type": edit_type,
             "entity_type": entity_type,
-            "is_semi_protected": False,
-            "is_locked": False,
-            "is_archived": False,
-            "is_dangling": False,
-            "is_mass_edit_protected": False,
-            "is_deleted": False,
             "is_redirect": False,
             "statements": [],
             "properties": [],
@@ -362,11 +340,11 @@ class MyS3Client(Client):
             },
         }
 
-        key = f"entities/{entity_id}/{revision_id}.json"
+        key = f"entities/{entity_id}/{revision_id}"
         self.connection_manager.boto_client.put_object(
-            Bucket=self.config.bucket,
+            Bucket=bucket,
             Key=key,
-            Body=json.dumps(full_data),
+            Body=full_data,
             Metadata={
                 "schema_version": publication_state,
                 "created_at": datetime.now(timezone.utc).isoformat(),
@@ -376,15 +354,15 @@ class MyS3Client(Client):
 
     def delete_metadata(self, metadata_type: str, content_hash: int) -> None:
         """Delete metadata content from S3 when ref_count reaches 0."""
-        key = f"metadata/{metadata_type}/{content_hash}.json"
+        key = f"metadata/{metadata_type}/{content_hash}"
         try:
             self.connection_manager.boto_client.delete_object(  # type: ignore[union-attr]
-                Bucket=self.config.bucket, Key=key
+                Bucket=bucket, Key=key
             )
-            logger.debug(f"S3 delete_metadata: bucket={self.config.bucket}, key={key}")
+            logger.debug(f"S3 delete_metadata: bucket={bucket}, key={key}")
         except Exception as e:
             logger.error(
-                f"S3 delete_metadata failed: bucket={self.config.bucket}, key={key}, error={e}"
+                f"S3 delete_metadata failed: bucket={bucket}, key={key}, error={e}"
             )
 
     def store_term_metadata(self, term: str, content_hash: int) -> None:
@@ -398,7 +376,7 @@ class MyS3Client(Client):
             raise_validation_error("S3 service unavailable", status_code=503)
 
         key = str(content_hash)
-        bucket = "wikibase-terms"
+        bucket = settings.s3_terms_bucket
 
         try:
             self.connection_manager.boto_client.put_object(
@@ -406,7 +384,7 @@ class MyS3Client(Client):
                 Key=key,
                 Body=term.encode("utf-8"),
                 ContentType="text/plain",
-                Metadata={"content_hash": str(content_hash)},
+                # Metadata={"content_hash": str(content_hash)},
             )
             logger.debug(f"S3 store_term_metadata: bucket={bucket}, key={key}")
         except Exception as e:
@@ -428,7 +406,7 @@ class MyS3Client(Client):
             raise_validation_error("S3 service unavailable", status_code=503)
 
         key = str(content_hash)
-        bucket = "wikibase-terms"
+        bucket = settings.s3_terms_bucket
 
         try:
             response = self.connection_manager.boto_client.get_object(
@@ -471,7 +449,7 @@ class MyS3Client(Client):
                 Key=key,
                 Body=title.encode("utf-8"),
                 ContentType="text/plain",
-                Metadata={"content_hash": str(content_hash)},
+                # Metadata={"content_hash": str(content_hash)},
             )
             logger.debug(f"S3 store_sitelink_metadata: bucket={bucket}, key={key}")
         except Exception as e:
@@ -493,7 +471,7 @@ class MyS3Client(Client):
             raise_validation_error("S3 service unavailable", status_code=503)
 
         key = str(content_hash)
-        bucket = "wikibase-sitelinks"
+        bucket = settings.s3_sitelinks_bucket
 
         try:
             response = self.connection_manager.boto_client.get_object(
@@ -532,7 +510,7 @@ class MyS3Client(Client):
                 f"Unknown metadata type: {metadata_type}", status_code=400
             )
 
-    def store_reference(self, content_hash: int, reference_data: dict) -> None:
+    def store_reference(self, content_hash: int, reference_data: S3ReferenceData) -> None:
         """Store a reference by its content hash.
 
         Args:
@@ -542,12 +520,12 @@ class MyS3Client(Client):
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         bucket = settings.s3_references_bucket
-        key = f"references/{content_hash}"
+        key = f"{content_hash}"
         try:
             self.connection_manager.boto_client.put_object(
                 Bucket=bucket,
                 Key=key,
-                Body=json.dumps(reference_data),
+                Body=reference_data.model_dump(mode="json"),
                 ContentType="application/json",
                 Metadata={"content_hash": str(content_hash)},
             )
@@ -575,7 +553,7 @@ class MyS3Client(Client):
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
         bucket = settings.s3_references_bucket
-        key = f"references/{content_hash}"
+        key = f"{content_hash}"
         try:
             response = self.connection_manager.boto_client.get_object(
                 Bucket=bucket, Key=key
@@ -618,7 +596,7 @@ class MyS3Client(Client):
                 results.append(None)
         return results
 
-    def store_qualifier(self, content_hash: int, qualifier_data: dict) -> None:
+    def store_qualifier(self, content_hash: int, qualifier_data: S3QualifierData) -> None:
         """Store a qualifier by its content hash.
 
         Args:
@@ -633,7 +611,7 @@ class MyS3Client(Client):
             self.connection_manager.boto_client.put_object(
                 Bucket=bucket,
                 Key=key,
-                Body=json.dumps(qualifier_data),
+                Body=qualifier_data.model_dump(mode="json"),
                 ContentType="application/json",
                 Metadata={"content_hash": str(content_hash)},
             )

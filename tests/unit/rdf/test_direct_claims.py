@@ -58,11 +58,11 @@ def test_entity_converter_no_direct_claim_for_non_best_rank() -> None:
     """Test that EntityConverter does NOT generate direct claims for non-best-rank statements"""
     from models.internal_representation.values.entity_value import EntityValue
     from models.internal_representation.statements import Statement
-    from models.internal_representation.entity_types import EntityKind
+    from models.internal_representation.entity_types import EntityType
 
     entity = Entity(
         id="Q999",
-        type=EntityKind.ITEM,
+        type=EntityType.ITEM,
         labels={},
         descriptions={},
         aliases={},

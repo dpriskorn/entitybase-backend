@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.internal_representation.entity_types import EntityKind
+from models.internal_representation.entity_types import EntityType
 from models.internal_representation.statements import Statement
 from models.rest_api.entitybase.response import (
     EntityLabelsResponse,
@@ -18,7 +18,7 @@ class Entity(BaseModel):
     """Internal representation of a Wikibase entity."""
 
     id: str
-    type: EntityKind
+    type: EntityType
     labels: EntityLabelsResponse
     descriptions: EntityDescriptionsResponse
     aliases: EntityAliasesResponse

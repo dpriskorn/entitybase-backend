@@ -104,7 +104,7 @@ class EntityDeleteHandler:
         )
 
         revision_data = {
-            "schema_version": settings.s3_revision_version,
+            "schema_version": settings.s3_schema_revision_version,
             "revision_id": new_revision_id,
             "created_at": datetime.now(timezone.utc).isoformat() + "Z",
             "created_by": "rest-api",

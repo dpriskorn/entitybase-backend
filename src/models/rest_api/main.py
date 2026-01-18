@@ -83,7 +83,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             logger.info("RDF stream producer started")
 
         app_.state.validator = JsonSchemaValidator(
-            s3_revision_version=settings.s3_revision_version,
+            s3_revision_version=settings.s3_schema_revision_version,
             s3_statement_version=settings.s3_statement_version,
             wmf_recentchange_version=settings.wmf_recentchange_version,
         )
@@ -180,7 +180,7 @@ if not hasattr(app.state, "clients"):
     )
 
     app.state.validator = JsonSchemaValidator(
-        s3_revision_version=settings.s3_revision_version,
+        s3_revision_version=settings.s3_schema_revision_version,
         s3_statement_version=settings.s3_statement_version,
         wmf_recentchange_version=settings.wmf_recentchange_version,
     )

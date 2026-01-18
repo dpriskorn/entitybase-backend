@@ -84,7 +84,7 @@ class EntityRevertHandler:
             entity_id=entity_id,
             revision_id=new_revision_id,
             data=new_revision_data,
-            publication_state="pending",
+            # publication_state="pending",
         )
 
         # Insert revision in DB
@@ -99,11 +99,11 @@ class EntityRevertHandler:
         )
 
         # Mark as published
-        s3_client.mark_published(
-            entity_id=entity_id,
-            revision_id=new_revision_id,
-            publication_state="published",
-        )
+        # s3_client.mark_published(
+        #     entity_id=entity_id,
+        #     revision_id=new_revision_id,
+        #     publication_state="published",
+        # )
 
         # Publish event
         if stream_producer:

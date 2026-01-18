@@ -339,7 +339,7 @@ class EntityHandler(BaseModel):
         )
 
         revision_data = RevisionCreateData(
-            schema_version=settings.s3_revision_version,
+            schema_version=settings.s3_schema_revision_version,
             revision_id=new_revision_id,
             created_at=created_at,
             created_by="rest-api",
