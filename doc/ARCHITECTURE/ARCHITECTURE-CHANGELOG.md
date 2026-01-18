@@ -1110,6 +1110,36 @@ Added `PATCH /entitybase/v1/entities/{entity_id}/statements/{statement_hash}` en
 - Maintains property structure
 - Full validation and processing
 
+## [2026-01-18] Refactor EntityTransaction Base Class
+
+### Summary
+
+Moved `EntityTransaction` base class to dedicated file and updated inheritance structure for better code organization.
+
+### Changes
+
+#### New Base Class File
+
+**File**: `src/models/rest_api/entitybase/handlers/entity/entity_transaction.py`
+
+- Created dedicated file for `EntityTransaction` base class
+- Includes shared rollback logic and abstract `process_statements` method
+- Provides consistent interface for creation and update transactions
+
+#### Updated Transaction Classes
+
+**Files**: `src/models/rest_api/entitybase/handlers/entity/creation_transaction.py`, `src/models/rest_api/entitybase/handlers/entity/update_transaction.py`
+
+- Removed duplicate `EntityTransaction` definitions
+- Updated to inherit from shared base class
+- Maintained existing functionality and method signatures
+
+### Impact
+
+- **Code Organization**: Cleaner separation of concerns
+- **Maintainability**: Single source of truth for transaction base logic
+- **No Functional Changes**: All existing behavior preserved
+
 ## [2026-01-18] Test Fixes and API Parameter Updates
 
 ### Summary

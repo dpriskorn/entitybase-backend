@@ -15,7 +15,7 @@ class TestMyS3Client:
             endpoint_url="http://localhost:9000",
             access_key="test",
             secret_key="test",
-            bucket="test-bucket",
+            bucket="testbucket-revisions",
             region="us-east-1",
         )
 
@@ -36,18 +36,20 @@ class TestMyS3Client:
         mock_connection_manager.connect.assert_called_once()
         # _ensure_bucket_exists would be called
 
+    @patch("models.infrastructure.s3.s3_client.settings")
     @patch("models.infrastructure.s3.s3_client.S3ConnectionManager")
     def test_ensure_bucket_exists_bucket_exists(
-        self, mock_manager_class, config, mock_connection_manager
+        self, mock_manager_class, mock_settings, config, mock_connection_manager
     ):
         """Test _ensure_bucket_exists when bucket exists."""
         mock_manager_class.return_value = mock_connection_manager
         mock_connection_manager.boto_client.head_bucket.return_value = None
+        mock_settings.s3_revisions_bucket = "testbucket-revisions"
 
         client = MyS3Client(config)
 
         mock_connection_manager.boto_client.head_bucket.assert_called_once_with(
-            Bucket="test-bucket"
+            Bucket="testbucket-revisions"
         )
 
     @patch("models.infrastructure.s3.s3_client.S3ConnectionManager")
@@ -136,15 +138,16 @@ class TestMyS3Client:
         """Test write_revision method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
-        ) as mock_manager_class:
+        ) as mock_manager_class, patch("models.infrastructure.s3.s3_client.settings") as mock_settings:
             mock_manager_class.return_value = mock_connection_manager
+            mock_settings.s3_revisions_bucket = "testbucket-revisions"
 
             client = MyS3Client(config)
             client.write_revision("Q42", 123, {"entity": {"id": "Q42"}}, "1.0")
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
             call_args = mock_connection_manager.boto_client.put_object.call_args
-            assert call_args[1]["Bucket"] == "test-bucket"
+            assert call_args[1]["Bucket"] == "testbucket-revisions"
             assert call_args[1]["Key"] == "entities/Q42/123.json"
             assert call_args[1]["Metadata"]["schema_version"] == "1.0"
             assert "Body" in call_args[1]

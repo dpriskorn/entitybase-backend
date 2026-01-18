@@ -8,19 +8,16 @@ from fastapi import APIRouter, HTTPException, Request
 from models.rest_api.entitybase.handlers.entity.item import ItemCreateHandler
 from models.rest_api.entitybase.handlers.entity.items import ItemUpdateHandler
 from models.rest_api.entitybase.handlers.entity.lexeme import LexemeUpdateHandler
+from models.rest_api.entitybase.handlers.entity.property import PropertyUpdateHandler
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
-
-
+from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.request.entity import (
     EntityCreateRequest,
     EntityUpdateRequest,
 )
 from models.rest_api.entitybase.response import (
-    EntityJsonImportResponse,
     EntityResponse,
 )
-from models.rest_api.entitybase.handlers.entity.property import PropertyUpdateHandler
-from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.response.misc import DescriptionResponse, LabelResponse
 
 logger = logging.getLogger(__name__)

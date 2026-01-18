@@ -1,26 +1,21 @@
 """Entity update transaction management."""
 
 import logging
-from abc import ABC, abstractmethod
-from typing import List, Callable, Any
+from typing import Any
 
-from pydantic import BaseModel, Field
-
+from models.infrastructure.s3.enums import EntityType
 from models.rest_api.entitybase.response import EntityResponse
 from models.rest_api.entitybase.response import StatementHashResult
-from models.rest_api.entitybase.response.entity.entitybase import EntityRevisionResponse
+
+from models.rest_api.entitybase.handlers.entity.entity_transaction import EntityTransaction
+
 
 logger = logging.getLogger(__name__)
 
 
-class EntityTransaction(BaseModel, ABC):
-    """Base class for entity transactions with shared rollback logic."""
+class UpdateTransaction(EntityTransaction):
+    """Transaction for updating entities."""
 
-    entity_id: str = Field(default="")
-    operations: List[Callable[[], None]] = Field(default_factory=list)
-    statement_hashes: List[int] = Field(default_factory=list)
-
-    @abstractmethod
     def process_statements(
         self,
         entity_id: str,
@@ -30,66 +25,33 @@ class EntityTransaction(BaseModel, ABC):
         validator: Any,
     ) -> StatementHashResult:
         """Process statements for the entity transaction."""
-        pass
+        logger.info(f"[UpdateTransaction] Starting statement processing for {entity_id}")
+        # Import here to avoid circular imports
+        from models.rest_api.entitybase.services.statement_service import (
+            hash_entity_statements,
+        )
 
-    @abstractmethod
-    async def create_revision(
-        self,
-        entity_id: str,
-        new_revision_id: int,
-        head_revision_id: int,
-        request_data: dict,
-        entity_type: str,
-        hash_result: Any,
-        content_hash: int,
-        is_mass_edit: bool,
-        edit_type: Any,
-        edit_summary: str,
-        is_semi_protected: bool,
-        is_locked: bool,
-        is_archived: bool,
-        is_dangling: bool,
-        is_mass_edit_protected: bool,
-        vitess_client: Any,
-        s3_client: Any,
-        stream_producer: Any,
-        is_creation: bool,
-    ) -> EntityRevisionResponse:
-        pass
+        hash_result = hash_entity_statements(request_data)
+        if not hash_result.success:
+            from models.rest_api.utils import raise_validation_error
+            raise_validation_error(f"Failed to hash statements: {hash_result.error}", status_code=500)
 
-    @abstractmethod
-    def publish_event(
-        self,
-        entity_id: str,
-        revision_id: int,
-        change_type: Any,
-        from_revision_id: int,
-        changed_at: Any,
-        edit_summary: str,
-        user_id: int,
-        stream_producer: Any,
-    ) -> None:
-        """Publish the change event."""
-        pass
+        # Store new statements
+        from models.rest_api.entitybase.services.statement_service import (
+            deduplicate_and_store_statements,
+        )
 
-    def commit(self) -> None:
-        """Commit the transaction by clearing rollback operations."""
-        logger.info("[EntityTransaction] Committing transaction")
-        self.operations.clear()
+        store_result = deduplicate_and_store_statements(
+            hash_result.data, vitess_client, s3_client, validator
+        )
+        if not store_result.success:
+            from models.rest_api.utils import raise_validation_error
+            raise_validation_error(f"Failed to store statements: {store_result.error}", status_code=500)
 
-    def rollback(self) -> None:
-        """Rollback by executing operations in reverse."""
-        logger.info("[EntityTransaction] Rolling back transaction")
-        for op in reversed(self.operations):
-            try:
-                op()
-            except Exception as e:
-                logger.warning(f"[EntityTransaction] Rollback operation failed: {e}")
-        self.operations.clear()
+        # Record hashes for rollback
+        self.statement_hashes.extend(hash_result.data.statements)
 
-
-class UpdateTransaction(EntityTransaction):
-    """Transaction for updating entities."""
+        return hash_result.data
 
     async def create_revision(
         self,
@@ -97,7 +59,7 @@ class UpdateTransaction(EntityTransaction):
         new_revision_id: int,
         head_revision_id: int,
         request_data: dict,
-        entity_type: str,
+        entity_type: EntityType,
         hash_result: StatementHashResult,
         content_hash: int,
         is_mass_edit: bool,

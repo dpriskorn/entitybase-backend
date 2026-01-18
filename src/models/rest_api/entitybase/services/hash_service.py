@@ -37,7 +37,8 @@ class HashService:
         """Hash statements from entity data."""
         hash_result = hash_entity_statements(entity_data)
         if not hash_result.success:
-            raise ValueError(f"Failed to hash statements: {hash_result.error}")
+            from models.rest_api.utils import raise_validation_error
+            raise_validation_error(f"Failed to hash statements: {hash_result.error}", status_code=500)
         
         # Deduplicate and store
         store_result = deduplicate_and_store_statements(
@@ -47,7 +48,8 @@ class HashService:
             validator,
         )
         if not store_result.success:
-            raise ValueError(f"Failed to store statements: {store_result.error}")
+            from models.rest_api.utils import raise_validation_error
+            raise_validation_error(f"Failed to store statements: {store_result.error}", status_code=500)
         
         return StatementsHashes(root=hash_result.data.statements)
 

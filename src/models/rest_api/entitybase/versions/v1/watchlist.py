@@ -14,7 +14,6 @@ from models.rest_api.entitybase.response.user import (
     NotificationResponse,
     WatchlistResponse,
 )
-from models.rest_api.utils import raise_validation_error
 
 watchlist_router = APIRouter(tags=["watchlist"])
 

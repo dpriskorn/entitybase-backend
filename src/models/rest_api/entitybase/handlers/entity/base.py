@@ -19,6 +19,7 @@ from models.infrastructure.vitess_client import VitessClient
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.request import EntityCreateRequest
 from models.rest_api.entitybase.request.entity.add_property import AddPropertyRequest
+from models.rest_api.entitybase.request.entity.patch import LabelPatchRequest
 from models.rest_api.entitybase.request.entity.patch_statement import PatchStatementRequest
 from models.rest_api.entitybase.response import (
     EntityResponse,
@@ -520,6 +521,80 @@ class EntityHandler(BaseModel):
             vitess_client=vitess_client,
             s3_client=s3_client,
             stream_producer=None,  # TODO: add if needed
+            is_creation=False,
+            edit_summary=request.edit_summary,
+            user_id=user_id,
+        )
+
+        if not revision_result.success:
+            return revision_result
+
+        return OperationResult(success=True, data={"revision_id": revision_result.data.rev_id})
+
+    async def patch_labels(
+        self,
+        entity_id: str,
+        request: LabelPatchRequest,
+        vitess_client: VitessClient,
+        s3_client: MyS3Client,
+        validator: Any | None = None,
+        user_id: int = 0,
+    ) -> OperationResult[dict]:
+        """Patch entity labels using JSON Patch."""
+        logger.info(f"Entity {entity_id}: Patching labels with 1 operation")
+
+        # Fetch current entity data
+        try:
+            read_handler = EntityReadHandler()
+            entity_response = read_handler.get_entity(entity_id, vitess_client, s3_client)
+            current_data = entity_response.entity_data
+        except Exception as e:
+            return OperationResult(success=False, error=f"Failed to fetch entity: {e}")
+
+        # Apply patch to labels
+        if "labels" not in current_data:
+            current_data["labels"] = {}
+        try:
+            op = request.patch.op
+            path = request.patch.path
+            if not path.startswith("/labels/"):
+                return OperationResult(success=False, error="Path must start with /labels/")
+            key = path[len("/labels/"):]
+            if op == "add":
+                if key in current_data["labels"]:
+                    return OperationResult(success=False, error=f"Label {key} already exists")
+                current_data["labels"][key] = request.patch.value
+            elif op == "replace":
+                if key not in current_data["labels"]:
+                    return OperationResult(success=False, error=f"Label {key} does not exist")
+                current_data["labels"][key] = request.patch.value
+            elif op == "remove":
+                if key not in current_data["labels"]:
+                    return OperationResult(success=False, error=f"Label {key} does not exist")
+                del current_data["labels"][key]
+            else:
+                return OperationResult(success=False, error=f"Unsupported operation: {op}")
+        except Exception as e:
+            return OperationResult(success=False, error=f"Invalid patch: {e}")
+
+        # Process as update
+        revision_result = self._create_and_store_revision(
+            entity_id=entity_id,
+            new_revision_id=entity_response.revision_id + 1,
+            head_revision_id=entity_response.revision_id,
+            request_data=current_data,
+            entity_type=entity_response.entity_type,
+            hash_result=self.process_statements(entity_id, current_data, vitess_client, s3_client, validator),
+            is_mass_edit=False,
+            edit_type=EditType.UNSPECIFIED,
+            is_semi_protected=entity_response.state.sp if entity_response.state else False,
+            is_locked=entity_response.state.is_locked if entity_response.state else False,
+            is_archived=entity_response.state.archived if entity_response.state else False,
+            is_dangling=entity_response.state.dangling if entity_response.state else False,
+            is_mass_edit_protected=entity_response.state.mep if entity_response.state else False,
+            vitess_client=vitess_client,
+            s3_client=s3_client,
+            stream_producer=None,
             is_creation=False,
             edit_summary=request.edit_summary,
             user_id=user_id,

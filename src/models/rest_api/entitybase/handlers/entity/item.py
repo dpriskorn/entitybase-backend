@@ -5,6 +5,7 @@ import traceback
 from datetime import datetime
 from typing import Any
 
+from models.infrastructure.s3.enums import EntityType
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
@@ -83,17 +84,16 @@ class ItemCreateHandler(EntityCreateHandler):
                 new_revision_id=1,
                 head_revision_id=0,
                 request_data=request_data,
-                entity_type="item",
+                entity_type=EntityType.ITEM,
                 hash_result=hash_result,
-                content_hash=0,
                 is_mass_edit=request.is_mass_edit,
                 edit_type=request.edit_type,
                 edit_summary=request.edit_summary,
-                is_semi_protected=request.is_semi_protected,
-                is_locked=request.is_locked,
-                is_archived=request.is_archived,
-                is_dangling=request.is_dangling,
-                is_mass_edit_protected=request.is_mass_edit_protected,
+                is_semi_protected=request.state.is_semi_protected,
+                is_locked=request.state.is_locked,
+                is_archived=request.state.is_archived,
+                is_dangling=request.state.is_dangling,
+                is_mass_edit_protected=request.state.is_mass_edit_protected,
                 vitess_client=vitess_client,
                 s3_client=s3_client,
                 stream_producer=stream_producer,

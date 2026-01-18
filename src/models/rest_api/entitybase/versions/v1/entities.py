@@ -2,7 +2,7 @@
 
 from typing import Any, Dict
 
-from fastapi import APIRouter, Query, Request, Response
+from fastapi import APIRouter, Header, Query, Request, Response
 
 from models.rest_api.clients import Clients
 from models.rest_api.entitybase.handlers.admin import AdminHandler
@@ -14,6 +14,7 @@ from models.rest_api.entitybase.handlers.statement import StatementHandler
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.request.entity.add_property import AddPropertyRequest
 from models.rest_api.entitybase.request.entity.remove_statement import RemoveStatementRequest
+from models.rest_api.entitybase.request.entity.patch import LabelPatchRequest
 from models.rest_api.entitybase.request.entity.patch_statement import PatchStatementRequest
 from models.rest_api.entitybase.response import (
     EntityResponse,
@@ -248,6 +249,23 @@ async def patch_entity_statement(
     handler = EntityHandler()
     result = handler.patch_statement(
         entity_id, statement_hash, request, clients.vitess, clients.s3, clients.validator
+    )
+    if not isinstance(result, OperationResult):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
+
+
+@router.patch("/entities/{entity_id}/labels", response_model=OperationResult[dict])
+async def patch_entity_labels(
+    entity_id: str, request: LabelPatchRequest, req: Request, x_user_id: int = Header(..., alias="X-User-ID")
+) -> OperationResult[dict]:
+    """Patch entity labels with a single JSON Patch operation."""
+    clients = req.app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityHandler()
+    result = handler.patch_labels(
+        entity_id, request, clients.vitess, clients.s3, clients.validator, x_user_id
     )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)

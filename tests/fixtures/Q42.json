@@ -1,0 +1,45 @@
+{
+  "id": "Q42",
+  "type": "item",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "Douglas Adams"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "English writer and humorist"
+    }
+  },
+  "aliases": {},
+  "claims": {
+    "P31": [
+      {
+        "mainsnak": {
+          "snaktype": "value",
+          "property": "P31",
+          "datavalue": {
+            "value": {
+              "entity-type": "item",
+              "numeric-id": 5,
+              "id": "Q5"
+            },
+            "type": "wikibase-entityid"
+          }
+        },
+        "type": "statement",
+        "id": "Q42$12345678-1234-1234-1234-123456789012",
+        "rank": "normal"
+      }
+    ]
+  },
+  "sitelinks": {
+    "enwiki": {
+      "site": "enwiki",
+      "title": "Douglas Adams",
+      "badges": []
+    }
+  }
+}

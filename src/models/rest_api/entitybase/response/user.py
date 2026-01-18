@@ -2,8 +2,6 @@
 
 from pydantic import BaseModel, Field
 
-from models.watchlist import WatchlistResponse, NotificationResponse
-
 
 class UserCreateResponse(BaseModel):
     """Response for user creation."""

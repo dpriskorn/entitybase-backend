@@ -52,6 +52,7 @@ class TestItemUpdateHandler:
                 "labels": {"en": {"language": "en", "value": "Updated Item"}},
             },
             edit_summary="test",
+            state=EntityState(is_semi_protected=True),
         )
 
         # Mock the parent update_entity to return a response

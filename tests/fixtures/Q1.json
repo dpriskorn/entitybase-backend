@@ -1,0 +1,19 @@
+{
+  "id": "Q1",
+  "type": "item",
+  "labels": {
+    "en": {
+      "language": "en",
+      "value": "Universe"
+    }
+  },
+  "descriptions": {
+    "en": {
+      "language": "en",
+      "value": "The totality of all existence"
+    }
+  },
+  "aliases": {},
+  "claims": {},
+  "sitelinks": {}
+}
