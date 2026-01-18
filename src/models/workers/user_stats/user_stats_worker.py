@@ -5,6 +5,7 @@ from datetime import date, datetime
 
 from models.config.settings import settings
 from models.rest_api.entitybase.services.user_stats_service import (
+    UserStatsData,
     UserStatsService,
 )
 from models.workers.base_stats_worker import BaseStatsWorker
@@ -47,7 +48,7 @@ class UserStatsWorker(BaseStatsWorker):
             logger.error(f"Failed to compute user statistics: {e}")
             raise
 
-    async def _store_statistics(self, stats) -> None:
+    async def _store_statistics(self, stats: UserStatsData) -> None:
         """Store computed statistics in database via repository."""
         if not self.vitess_client:
             return

@@ -87,9 +87,6 @@ class VitessClient(Client):
     metadata_repository: Optional[MetadataRepository] = Field(
         default=None, init=False, exclude=True
     )
-    user_repository: Optional[UserRepository] = Field(
-        default=None, init=False, exclude=True
-    )
     watchlist_repository: Optional[WatchlistRepository] = Field(
         default=None, init=False, exclude=True
     )

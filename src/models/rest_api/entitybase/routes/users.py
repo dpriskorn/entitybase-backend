@@ -64,13 +64,13 @@ def toggle_watchlist(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@users_router.get("/v1/users/stat", response_model=UserStatsResponse, tags=["stats"])
+@users_router.get("/v1/users/stat", response_model=UserStatsResponse)
 def get_user_stats(req: Request) -> UserStatsResponse:
     """Get user statistics."""
     clients = req.app.state.clients
     handler = UserHandler()
     try:
         stats = handler.get_user_stats(clients.vitess)
-        return UserStatsResponse(**stats)
+        return stats
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

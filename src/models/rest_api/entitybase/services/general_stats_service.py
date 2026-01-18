@@ -117,7 +117,7 @@ class GeneralStatsService(BaseModel):
 
     def get_terms_per_language(self, vitess_client: VitessClient) -> TermsPerLanguage:
         """Count terms per language."""
-        terms_per_lang = {}
+        terms_per_lang: dict[str, int] = {}
         with vitess_client.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:
                 # Labels per language
