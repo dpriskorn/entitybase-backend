@@ -6,6 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from models.infrastructure.vitess_client import VitessClient
+from models.rest_api.entitybase.response.misc import GeneralStatsResponse, UserStatsResponse
 from models.rest_api.entitybase.response.user import (
     WatchlistToggleResponse,
     UserCreateResponse,
@@ -62,7 +63,7 @@ class UserHandler:
             )
         return WatchlistToggleResponse(user_id=user_id, enabled=request.enabled)
 
-    def get_user_stats(self, vitess_client: VitessClient) -> dict:
+    def get_user_stats(self, vitess_client: VitessClient) -> UserStatsResponse:
         """Get user statistics from the daily stats table."""
         with vitess_client.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:
@@ -71,23 +72,23 @@ class UserHandler:
                 )
                 row = cursor.fetchone()
                 if row:
-                    return {
-                        "date": row[0].isoformat(),
-                        "total_users": row[1],
-                        "active_users": row[2],
-                    }
+                    return UserStatsResponse(
+                        date=row[0].isoformat(),
+                        total_users=row[1],
+                        active_users=row[2],
+                    )
                 else:
                     # Fallback to live computation if no data
                     from models.rest_api.entitybase.services.user_stats_service import UserStatsService
                     service = UserStatsService()
                     stats = service.compute_daily_stats(vitess_client)
-                    return {
-                        "date": "live",
-                        "total_users": stats.total_users,
-                        "active_users": stats.active_users,
-                    }
+                    return UserStatsResponse(
+                        date="live",
+                        total_users=stats.total_users,
+                        active_users=stats.active_users,
+                    )
 
-    def get_general_stats(self, vitess_client: VitessClient) -> dict:
+    def get_general_stats(self, vitess_client: VitessClient) -> GeneralStatsResponse:
         """Get general wiki statistics from the daily stats table."""
         logger.debug("Fetching general stats from database")
         with vitess_client.connection_manager.get_connection() as conn:
@@ -97,34 +98,34 @@ class UserHandler:
                 )
                 row = cursor.fetchone()
                 if row:
-                    return {
-                        "date": row[0].isoformat(),
-                        "total_statements": row[1],
-                        "total_qualifiers": row[2],
-                        "total_references": row[3],
-                        "total_items": row[4],
-                        "total_lexemes": row[5],
-                        "total_properties": row[6],
-                        "total_sitelinks": row[7],
-                        "total_terms": row[8],
-                        "terms_per_language": json.loads(row[9]) if row[9] else {},
-                        "terms_by_type": json.loads(row[10]) if row[10] else {},
-                    }
+                    return GeneralStatsResponse(
+                        date=row[0].isoformat(),
+                        total_statements=row[1],
+                        total_qualifiers=row[2],
+                        total_references=row[3],
+                        total_items=row[4],
+                        total_lexemes=row[5],
+                        total_properties=row[6],
+                        total_sitelinks=row[7],
+                        total_terms=row[8],
+                        terms_per_language=json.loads(row[9]) if row[9] else {},
+                        terms_by_type=json.loads(row[10]) if row[10] else {},
+                    )
                 else:
                     # Fallback to live computation if no data
                     from models.rest_api.entitybase.services.general_stats_service import GeneralStatsService
                     service = GeneralStatsService()
                     stats = service.compute_daily_stats(vitess_client)
-                    return {
-                        "date": "live",
-                        "total_statements": stats.total_statements,
-                        "total_qualifiers": stats.total_qualifiers,
-                        "total_references": stats.total_references,
-                        "total_items": stats.total_items,
-                        "total_lexemes": stats.total_lexemes,
-                        "total_properties": stats.total_properties,
-                        "total_sitelinks": stats.total_sitelinks,
-                        "total_terms": stats.total_terms,
-                        "terms_per_language": stats.terms_per_language,
-                        "terms_by_type": stats.terms_by_type,
-                    }
+                    return GeneralStatsResponse(
+                        date="live",
+                        total_statements=stats.total_statements,
+                        total_qualifiers=stats.total_qualifiers,
+                        total_references=stats.total_references,
+                        total_items=stats.total_items,
+                        total_lexemes=stats.total_lexemes,
+                        total_properties=stats.total_properties,
+                        total_sitelinks=stats.total_sitelinks,
+                        total_terms=stats.total_terms,
+                        terms_per_language=stats.terms_per_language,
+                        terms_by_type=stats.terms_by_type,
+                    )

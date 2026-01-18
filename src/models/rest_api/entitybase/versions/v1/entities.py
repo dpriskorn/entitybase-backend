@@ -123,7 +123,7 @@ async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse
 
 
 @router.get("/entities/{entity_id}.json", response_model=Dict[str, Any])
-async def get_entity_data_json(entity_id: str, req: Request) -> Dict[str, Any]:
+async def get_entity_data_json(entity_id: str, req: Request) -> dict[str, Any]:
     """Get entity data in JSON format."""
     clients = req.app.state.clients
     handler = EntityReadHandler()

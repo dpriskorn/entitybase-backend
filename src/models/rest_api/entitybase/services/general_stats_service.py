@@ -1,6 +1,7 @@
 """Service for computing general wiki statistics."""
 
 import logging
+from typing import Dict
 
 from pydantic import BaseModel
 
@@ -110,7 +111,7 @@ class GeneralStatsService(BaseModel):
                 result = cursor.fetchone()
                 return result[0] if result else 0
 
-    def get_terms_per_language(self, vitess_client: VitessClient) -> dict[str, int]:
+    def get_terms_per_language(self, vitess_client: VitessClient) -> Dict[str, int]:
         """Count terms per language."""
         terms_per_lang = {}
         with vitess_client.connection_manager.get_connection() as conn:
@@ -135,7 +136,7 @@ class GeneralStatsService(BaseModel):
 
         return terms_per_lang
 
-    def get_terms_by_type(self, vitess_client: VitessClient) -> dict[str, int]:
+    def get_terms_by_type(self, vitess_client: VitessClient) -> Dict[str, int]:
         """Count terms by type (labels, descriptions, aliases)."""
         with vitess_client.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:

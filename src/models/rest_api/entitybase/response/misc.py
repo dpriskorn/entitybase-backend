@@ -202,7 +202,7 @@ class UserStatsData(BaseModel):
 class UserStatsResponse(BaseModel):
     """API response for user statistics."""
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(populate_by_name=True)
 
     date: str = Field(
         description="Date of statistics computation. Example: '2023-01-01'."
@@ -237,7 +237,7 @@ class GeneralStatsData(BaseModel):
 class GeneralStatsResponse(BaseModel):
     """API response for general wiki statistics."""
 
-    model_config = ConfigDict()
+    model_config = ConfigDict(populate_by_name=True)
 
     date: str = Field(description="Date of statistics computation.")
     total_statements: int = Field(description="Total number of statements.")
