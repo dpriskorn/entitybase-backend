@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     s3_qualifiers_bucket: str = "testbucket-qualifiers"
     vitess_host: str = "vitess"
     vitess_port: int = 15309
-    vitess_database: str = "wikibase"
+    vitess_database: str = "entitybase"
     vitess_user: str = "root"
     vitess_password: str = ""
     s3_revision_version: str = "latest"

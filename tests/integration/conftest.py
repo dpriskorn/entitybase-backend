@@ -13,7 +13,7 @@ def db_conn():
     for attempt in range(max_retries):
         try:
             conn = pymysql.connect(
-                host="vitess", port=15309, user="root", password="", database="page"
+                host="vitess", port=15309, user="root", password="", database="entitybase"
             )
             # Test connection with a simple query
             with conn.cursor() as cursor:
