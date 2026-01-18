@@ -6,9 +6,6 @@ from typing import TYPE_CHECKING
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-if TYPE_CHECKING:
-    from models.infrastructure.s3.s3_client import S3Config
-
 
 class Settings(BaseSettings):
     """Application settings with environment variable support."""

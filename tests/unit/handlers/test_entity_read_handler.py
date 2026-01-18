@@ -893,6 +893,38 @@ class TestEntityReadHandler(unittest.TestCase):
             "Invalid response type", status_code=500
         )
 
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_revision_invalid_revision_id_zero(self, mock_raise_error):
+        """Test get_entity_revision with revision_id <= 0."""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 10
+
+        EntityReadHandler.get_entity_revision("Q42", 0, self.mock_s3)
+
+        mock_raise_error.assert_called_once_with("Invalid revision ID", status_code=400)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_revision_invalid_revision_id_negative(self, mock_raise_error):
+        """Test get_entity_revision with negative revision_id."""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 10
+
+        EntityReadHandler.get_entity_revision("Q42", -1, self.mock_s3)
+
+        mock_raise_error.assert_called_once_with("Invalid revision ID", status_code=400)
+
+    @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
+    def test_get_entity_revision_revision_too_high(self, mock_raise_error):
+        """Test get_entity_revision with revision_id > head."""
+        self.mock_vitess.entity_exists.return_value = True
+        self.mock_vitess.get_head.return_value = 10
+
+        EntityReadHandler.get_entity_revision("Q42", 11, self.mock_s3)
+
+        mock_raise_error.assert_called_once_with(
+            "Revision 11 not found for entity Q42", status_code=404
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

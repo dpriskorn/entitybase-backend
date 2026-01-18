@@ -172,7 +172,9 @@ class TestThanksRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
-    def test_get_thanks_received_database_error(self, repository, mock_connection_manager):
+    def test_get_thanks_received_database_error(
+        self, repository, mock_connection_manager
+    ):
         """Test get_thanks_received with database error."""
         mock_conn = Mock()
         mock_cursor = Mock()
