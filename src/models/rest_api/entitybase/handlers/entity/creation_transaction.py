@@ -78,7 +78,7 @@ class EntityTransaction(BaseModel, ABC):
         stream_producer: Any,
         is_creation: bool,
     ) -> EntityResponse:
-        pass
+        logger.debug(f'Creating revision for {entity_id}')
         from models.rest_api.entitybase.handlers.entity.base import EntityHandler
 
         handler = EntityHandler()
