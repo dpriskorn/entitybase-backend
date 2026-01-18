@@ -94,7 +94,7 @@ def categorize_file(package_path: str, filename: str) -> str:
     if "rest_api" in package_path:
         if "services" in package_path:
             return "service"
-        elif "handlers" in package_path:
+        elif "handlers" in package_path or "routes" in package_path:
             return "handler"
         elif "response" in package_path:
             return "model"
