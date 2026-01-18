@@ -8,12 +8,12 @@ from .entity.entitybase import (
     EntityRevisionResponse,
     EntityResponse,
     EntityRedirectResponse,
-    EntityState,
     EntityMetadataBatchResponse,
     EntityListResponse,
     EntityJsonImportResponse,
     EntityDeleteResponse,
 )
+from models.types import EntityState
 from .entity import (
     EntityMetadataResponse,
     EntityLabelsResponse,

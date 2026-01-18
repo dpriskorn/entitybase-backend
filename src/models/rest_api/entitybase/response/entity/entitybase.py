@@ -8,10 +8,8 @@ from models.rest_api.entitybase.response.entity.wikibase import (
     DescriptionValue,
     AliasValue,
 )
+from models.types import RevisionData, EntityState
 from models.rest_api.utils import raise_validation_error
-
-if TYPE_CHECKING:
-    from models.infrastructure.s3.data import RevisionData
 
 
 class EntityLabelsResponse(BaseModel):
@@ -127,41 +125,6 @@ class EntityHistoryEntry(BaseModel):
     )
 
 
-class EntityState(BaseModel):
-    """Model for entity state information."""
-
-    model_config = ConfigDict(populate_by_name=True)
-
-    is_semi_protected: bool = Field(
-        alias="sp",
-        default=False,
-        description="Whether the entity is semi-protected. Example: true.",
-    )
-    is_locked: bool = Field(
-        alias="locked",
-        default=False,
-        description="Whether the entity is locked. Example: false.",
-    )
-    is_archived: bool = Field(
-        default=False,
-        alias="archived",
-        description="Whether the entity is archived. Example: false.",
-    )
-    is_dangling: bool = Field(
-        default=False,
-        alias="dangling",
-        description="Whether the entity is dangling. Example: false.",
-    )
-    is_mass_edit_protected: bool = Field(
-        default=False,
-        alias="mep",
-        description="Whether the entity has mass edit protection. Example: true.",
-    )
-    is_deleted: bool = Field(
-        default=False,
-        alias="deleted",
-        description="Whether the entity is deleted. Example: true.",
-    )
 
 
 class EntityResponse(BaseModel):
@@ -256,7 +219,7 @@ class EntityRevisionResponse(BaseModel):
 
     entity_id: str = Field(description="Entity ID")
     revision_id: int = Field(description="Revision ID")
-    revision_data: "RevisionData" = Field(description="Revision data")
+    revision_data: RevisionData = Field(description="Revision data")
 
 
 class ProtectionResponse(BaseModel):

@@ -3,7 +3,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from models.rest_api.entitybase.services.hash_service import HashService
-from models.s3_models import (
+from models.types import (
     LabelsHashes,
     DescriptionsHashes,
     AliasesHashes,

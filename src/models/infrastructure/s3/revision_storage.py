@@ -6,7 +6,7 @@ from datetime import timezone, datetime
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage
-from models.infrastructure.s3.data import RevisionReadResponse, RevisionData
+from models.types import RevisionReadResponse, RevisionData
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class RevisionStorage(BaseS3Storage):
         data: RevisionData,
     ) -> OperationResult[None]:
         """Write entity revision data to S3."""
-        key = f"entities/{entity_id}/{revision_id}"
+        key = f"{entity_id}/{revision_id}"
         metadata = {
             "schema_version": data.schema_version,
             "created_at": datetime.now(timezone.utc).isoformat(),

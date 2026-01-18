@@ -11,7 +11,7 @@ from rapidhash import rapidhash
 
 from models.common import OperationResult
 from models.config.settings import settings
-from models.infrastructure.s3.data import RevisionData
+from models.types import RevisionData
 from models.infrastructure.s3.hashmaps import StatementsHashes, HashMaps
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
