@@ -108,7 +108,12 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             logger.info("RDF stream producer stopped")
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    title="EntityBase",
+    version="1.0.0",
+    openapi_version="3.1",
+    lifespan=lifespan
+)
 
 
 @app.exception_handler(ValidationError)
