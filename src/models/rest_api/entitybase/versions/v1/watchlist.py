@@ -16,7 +16,7 @@ from models.rest_api.entitybase.response.user import (
 )
 from models.validation.utils import raise_validation_error
 
-watchlist_router = APIRouter(prefix="/entitybase", tags=["watchlist"])
+watchlist_router = APIRouter(tags=["watchlist"])
 
 
 @watchlist_router.post("/users/{user_id}/watchlist", response_model=MessageResponse)

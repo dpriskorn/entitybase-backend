@@ -2,13 +2,6 @@
 
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
-| ✅ | GET | `/entitybase/health` | Health check endpoint for monitoring service status. |
-| ✅ | POST | `/entitybase/users/{user_id}/watchlist` | Add a watchlist entry for user. |
-| ✅ | GET | `/entitybase/users/{user_id}/watchlist` | Get user's watchlist. |
-| ✅ | GET | `/entitybase/users/{user_id}/watchlist/notifications` | Get user's recent watchlist notifications. |
-| ✅ | PUT | `/entitybase/users/{user_id}/watchlist/notifications/{notification_id}/check` | Mark a notification as checked. |
-| ✅ | POST | `/entitybase/users/{user_id}/watchlist/remove` | Remove a watchlist entry for user. |
-| ✅ | GET | `/entitybase/users/{user_id}/watchlist/stats` | Get user's watchlist statistics. |
 | ✅ | GET | `/entitybase/v1/entities` | List entities based on type, limit, and offset. |
 | ✅ | GET | `/entitybase/v1/entities/aliases/{hashes}` | Get batch aliases by hashes. |
 | ✅ | GET | `/entitybase/v1/entities/descriptions/{hashes}` | Get batch descriptions by hashes. |
@@ -69,7 +62,14 @@
 | ✅ | GET | `/entitybase/v1/users/{user_id}/endorsements/stats` | Get endorsement statistics for a user. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}/thanks/received` | Get thanks received by user. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}/thanks/sent` | Get thanks sent by user. |
+| ✅ | POST | `/entitybase/v1/users/{user_id}/watchlist` | Add a watchlist entry for user. |
+| ✅ | GET | `/entitybase/v1/users/{user_id}/watchlist` | Get user's watchlist. |
+| ✅ | GET | `/entitybase/v1/users/{user_id}/watchlist/notifications` | Get user's recent watchlist notifications. |
+| ✅ | PUT | `/entitybase/v1/users/{user_id}/watchlist/notifications/{notification_id}/check` | Mark a notification as checked. |
+| ✅ | POST | `/entitybase/v1/users/{user_id}/watchlist/remove` | Remove a watchlist entry for user. |
+| ✅ | GET | `/entitybase/v1/users/{user_id}/watchlist/stats` | Get user's watchlist statistics. |
 | ✅ | PUT | `/entitybase/v1/users/{user_id}/watchlist/toggle` | Enable or disable watchlist for user. |
+| ✅ | GET | `/health` | Health check endpoint for monitoring service status. |
 
 | Status | Count |
 |--------|-------|
