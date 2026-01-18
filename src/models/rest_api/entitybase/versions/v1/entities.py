@@ -280,34 +280,6 @@ async def patch_entity_statement(
     return result
 
 
-@router.put("/entities/{entity_id}/sitelinks", response_model=EntityResponse)
-async def put_entity_sitelinks(
-    entity_id: str, sitelinks_data: Dict[str, Dict[str, Any]], req: Request
-) -> EntityResponse:
-    """Update entity sitelinks."""
-    clients = req.app.state.clients
-    validator = req.app.state.validator
-
-    # Get current entity
-    handler = EntityReadHandler()
-    current_entity = handler.get_entity(entity_id, clients.vitess, clients.s3)
-
-    # Update sitelinks
-    current_entity.entity_data["sitelinks"] = sitelinks_data
-
-    # Create new revision
-    update_handler = EntityUpdateHandler()
-    entity_type = current_entity.entity_data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
-
-    return await update_handler.update_entity(
-        entity_id,
-        update_request,
-        clients.vitess,
-        clients.s3,
-        clients.stream_producer,
-        validator,
-    )
 
 
 @router.get("/entities/{entity_id}/sitelinks/{site}", response_model=SitelinkData)

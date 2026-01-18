@@ -40,7 +40,6 @@
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/ttl` | Get Turtle (TTL) representation of a specific entity revision. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thank` | Send a thank for a specific revision. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks` | Get all thanks for a specific revision. |
-| ✅ | PUT | `/entitybase/v1/entities/{entity_id}/sitelinks` | Update entity sitelinks. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Get a single sitelink for an entity. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Add a new sitelink for an entity. |
 | ✅ | PUT | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Update an existing sitelink for an entity. |
