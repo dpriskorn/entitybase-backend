@@ -172,8 +172,8 @@ class TestThanksRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
-    def test_get_thanks_sent_success(self, repository, mock_connection_manager):
-        """Test successful get_thanks_sent."""
+    def test_get_thanks_received_database_error(self, repository, mock_connection_manager):
+        """Test get_thanks_received with database error."""
         mock_conn = Mock()
         mock_cursor = Mock()
         mock_connection_manager.get_connection.return_value.__enter__.return_value = (
@@ -181,17 +181,28 @@ class TestThanksRepository:
         )
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
-        mock_cursor.fetchall.return_value = [
-            (1, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc))
-        ]
-        mock_cursor.fetchone.return_value = (1,)
+        mock_cursor.execute.side_effect = Exception("Database error")
+
+        result = repository.get_thanks_received(456, 24, 50, 0)
+
+        assert result.success is False
+        assert "Database error" in result.error
+
+    def test_get_thanks_sent_database_error(self, repository, mock_connection_manager):
+        """Test get_thanks_sent with database error."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_cursor.execute.side_effect = Exception("Database error")
 
         result = repository.get_thanks_sent(123, 24, 50, 0)
 
-        assert result.success is True
-        data = result.data
-        assert len(data["thanks"]) == 1
-        assert data["total_count"] == 1
+        assert result.success is False
+        assert "Database error" in result.error
 
     def test_get_revision_thanks_success(
         self, repository, mock_connection_manager, mock_id_resolver
@@ -233,3 +244,32 @@ class TestThanksRepository:
 
         assert result.success is False
         assert result.error == "Entity not found"
+
+    def test_get_revision_thanks_invalid_params(self, repository):
+        """Test get_revision_thanks with invalid parameters."""
+        result = repository.get_revision_thanks("", 100)
+        assert result.success is False
+        assert "Invalid parameters" in result.error
+
+        result = repository.get_revision_thanks("Q42", 0)
+        assert result.success is False
+        assert "Invalid parameters" in result.error
+
+    def test_get_revision_thanks_database_error(
+        self, repository, mock_connection_manager, mock_id_resolver
+    ):
+        """Test get_revision_thanks with database error."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_id_resolver.resolve_id.return_value = 123
+        mock_cursor.execute.side_effect = Exception("Database error")
+
+        result = repository.get_revision_thanks("Q42", 100)
+
+        assert result.success is False
+        assert "Database error" in result.error

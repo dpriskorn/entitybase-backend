@@ -477,6 +477,60 @@ class TestEndorsementRepository:
         assert result.success is False
         assert "Database error" in result.error
 
+    def test_get_user_endorsements_database_error(
+        self, repository, mock_connection_manager
+    ):
+        """Test user endorsements retrieval with database error."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_cursor.execute.side_effect = Exception("Database error")
+
+        result = repository.get_user_endorsements(123, 50, 0, False)
+
+        assert result.success is False
+        assert "Database error" in result.error
+
+    def test_get_user_endorsement_stats_database_error(
+        self, repository, mock_connection_manager
+    ):
+        """Test user endorsement stats with database error."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_cursor.execute.side_effect = Exception("Database error")
+
+        result = repository.get_user_endorsement_stats(123)
+
+        assert result.success is False
+        assert "Database error" in result.error
+
+    def test_get_batch_statement_endorsement_stats_database_error(
+        self, repository, mock_connection_manager
+    ):
+        """Test batch statement endorsement stats with database error."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_cursor.execute.side_effect = Exception("Database error")
+
+        result = repository.get_batch_statement_endorsement_stats([456789])
+
+        assert result.success is False
+        assert "Database error" in result.error
+
     def test_get_user_endorsements_success(self, repository, mock_connection_manager):
         """Test successful user endorsements retrieval."""
         mock_conn = Mock()
