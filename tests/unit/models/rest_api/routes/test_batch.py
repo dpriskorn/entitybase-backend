@@ -30,7 +30,9 @@ class TestBatchRoutes(unittest.TestCase):
     async def test_get_batch_statements_success(self, mock_handler_class):
         """Test successful batch statements retrieval."""
         mock_handler = Mock()
-        mock_handler.get_entity.return_value = Mock(entity_data={"statements": {"P31": []}})
+        mock_handler.get_entity.return_value = Mock(
+            entity_data={"statements": {"P31": []}}
+        )
         mock_handler_class.return_value = mock_handler
 
         result = await get_batch_statements(self.mock_request, "Q42")
@@ -57,9 +59,9 @@ class TestBatchRoutes(unittest.TestCase):
     async def test_get_batch_statements_with_properties(self, mock_handler_class):
         """Test batch statements with property filtering."""
         mock_handler = Mock()
-        mock_handler.get_entity.return_value = Mock(entity_data={
-            "statements": {"P31": [], "P21": [], "P27": []}
-        })
+        mock_handler.get_entity.return_value = Mock(
+            entity_data={"statements": {"P31": [], "P21": [], "P27": []}}
+        )
         mock_handler_class.return_value = mock_handler
 
         result = await get_batch_statements(self.mock_request, "Q42", "P31,P21")
@@ -80,7 +82,9 @@ class TestBatchRoutes(unittest.TestCase):
 
     async def test_get_batch_sitelinks_success(self):
         """Test successful batch sitelinks retrieval."""
-        self.mock_s3.load_sitelink_metadata.side_effect = lambda h: f"Title{h}" if h % 2 == 0 else None
+        self.mock_s3.load_sitelink_metadata.side_effect = (
+            lambda h: f"Title{h}" if h % 2 == 0 else None
+        )
 
         result = await get_batch_sitelinks("100,200,300", self.mock_request)
 
@@ -104,6 +108,7 @@ class TestBatchRoutes(unittest.TestCase):
 
     async def test_get_batch_labels_success(self):
         """Test successful batch labels retrieval."""
+
         def mock_load_metadata(key, hash_val):
             if key == "labels":
                 if hash_val == 200:
@@ -116,11 +121,15 @@ class TestBatchRoutes(unittest.TestCase):
 
         result = await get_batch_labels("100,200,300", self.mock_request)
 
-        expected = {"200": {"en": {"value": "Label200"}}, "300": {"en": {"value": "Label300"}}}
+        expected = {
+            "200": {"en": {"value": "Label200"}},
+            "300": {"en": {"value": "Label300"}},
+        }
         self.assertEqual(result, expected)
 
     async def test_get_batch_descriptions_success(self):
         """Test successful batch descriptions retrieval."""
+
         def mock_load_metadata(key, hash_val):
             if key == "descriptions":
                 if hash_val == 150:
@@ -133,17 +142,24 @@ class TestBatchRoutes(unittest.TestCase):
 
         result = await get_batch_descriptions("50,150,250", self.mock_request)
 
-        expected = {"150": {"en": {"value": "Desc150"}}, "250": {"en": {"value": "Desc250"}}}
+        expected = {
+            "150": {"en": {"value": "Desc150"}},
+            "250": {"en": {"value": "Desc250"}},
+        }
         self.assertEqual(result, expected)
 
     async def test_get_batch_aliases_success(self):
         """Test successful batch aliases retrieval."""
+
         def mock_load_metadata(key, hash_val):
             if key == "aliases":
                 if hash_val == 100:
                     return [{"language": "en", "value": "Alias100"}]
                 elif hash_val == 200:
-                    return [{"language": "en", "value": "Alias200-1"}, {"language": "es", "value": "Alias200-2"}]
+                    return [
+                        {"language": "en", "value": "Alias200-1"},
+                        {"language": "es", "value": "Alias200-2"},
+                    ]
             return None
 
         self.mock_s3.load_metadata.side_effect = mock_load_metadata
@@ -152,7 +168,10 @@ class TestBatchRoutes(unittest.TestCase):
 
         expected = {
             "100": [{"language": "en", "value": "Alias100"}],
-            "200": [{"language": "en", "value": "Alias200-1"}, {"language": "es", "value": "Alias200-2"}]
+            "200": [
+                {"language": "en", "value": "Alias200-1"},
+                {"language": "es", "value": "Alias200-2"},
+            ],
         }
         self.assertEqual(result, expected)
 
