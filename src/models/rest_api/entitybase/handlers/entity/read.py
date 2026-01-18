@@ -121,14 +121,14 @@ class EntityReadHandler:
 
             response = EntityResponse(
                 id=entity_id,
-                revision_id=head_revision_id,
-                entity_data=data,
+                rev_id=head_revision_id,
+                data=data,
                 state=EntityState(
-                    is_semi_protected=revision.content.get("is_semi_protected", False),
+                    sp=revision.content.get("is_semi_protected", False),
                     is_locked=revision.content.get("is_locked", False),
-                    is_archived=revision.content.get("is_archived", False),
-                    is_dangling=revision.content.get("is_dangling", False),
-                    is_mass_edit_protected=revision.content.get(
+                    archived=revision.content.get("is_archived", False),
+                    dangling=revision.content.get("is_dangling", False),
+                    mep=revision.content.get(
                         "is_mass_edit_protected", False
                     ),
                 ),

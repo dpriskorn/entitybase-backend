@@ -2,13 +2,12 @@
 
 import logging
 from abc import ABC
-from typing import List, Callable, Any, cast
+from typing import List, Callable, Any
 
 from pydantic import BaseModel, Field
 
-from models.common import OperationResult
-from models.rest_api.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.response import EntityResponse
+from models.rest_api.entitybase.response import StatementHashResult
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +109,7 @@ class EntityTransaction(BaseModel, ABC):
             from models.validation.utils import raise_validation_error
 
             raise_validation_error(response.error or "Failed to create revision")
-        return cast(EntityResponse, response.data)
+        return response.data
 
     def publish_event(
         self,

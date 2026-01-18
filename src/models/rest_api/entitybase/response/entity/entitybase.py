@@ -127,10 +127,10 @@ class EntityHistoryEntry(BaseModel):
 class EntityState(BaseModel):
     """Model for entity state information."""
 
-    model_config = ConfigDict(populate_by_name=True, by_alias=True)
+    model_config = ConfigDict(populate_by_name=True)
 
     is_semi_protected: bool = Field(
-        alias="semi_prot",
+        alias="sp",
         description="Whether the entity is semi-protected. Example: true.",
     )
     is_locked: bool = Field(description="Whether the entity is locked. Example: false.")
@@ -141,7 +141,7 @@ class EntityState(BaseModel):
         alias="dangling", description="Whether the entity is dangling. Example: false."
     )
     is_mass_edit_protected: bool = Field(
-        alias="mass_edit",
+        alias="mep",
         description="Whether the entity has mass edit protection. Example: true.",
     )
 

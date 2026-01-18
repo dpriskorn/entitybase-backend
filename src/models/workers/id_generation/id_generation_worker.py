@@ -64,7 +64,7 @@ class IdGeneratorWorker(BaseModel):
 
         Args:
             signum: Signal number (e.g., signal.SIGTERM.value).
-            frame: Current stack frame (unused, required by signal handler signature).
+            _frame: Current stack frame (unused, required by signal handler signature).
         """
         logger.info(f"Received signal {signum}, shutting down...")
         self.running = False

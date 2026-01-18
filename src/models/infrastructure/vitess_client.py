@@ -3,16 +3,13 @@
 import json
 import logging
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generator, Optional
+from typing import TYPE_CHECKING, Any, Generator
 
 from pydantic import BaseModel, Field
 from pymysql import Connection
 
 from models.rest_api.entitybase.response.entity import EntityHistoryEntry
-from models.infrastructure.vitess.listing_repository import (
-    EntityHeadListing,
-    EntityEditListing,
-)
+from models.rest_api.entitybase.response.misc import EntityListing
 
 logger = logging.getLogger(__name__)
 
@@ -402,35 +399,35 @@ class VitessClient(Client):
             cursor.close()
             return [row[0] for row in results]
 
-    def list_locked_entities(self, limit: int) -> list[EntityHeadListing]:
+    def list_locked_entities(self, limit: int) -> list[EntityListing]:
         """List entities that are locked."""
         with self._connection_manager.get_connection() as conn:
             result = self.listing_repository.list_locked(conn, limit)
-            return result
+            return [EntityListing(**item) for item in result]
 
-    def list_semi_protected_entities(self, limit: int) -> list[EntityHeadListing]:
+    def list_semi_protected_entities(self, limit: int) -> list[EntityListing]:
         """List entities that are semi-protected."""
         with self._connection_manager.get_connection() as conn:
             result = self.listing_repository.list_semi_protected(conn, limit)
-            return result
+            return [EntityListing(**item) for item in result]
 
-    def list_archived_entities(self, limit: int) -> list[EntityHeadListing]:
+    def list_archived_entities(self, limit: int) -> list[EntityListing]:
         """List entities that are archived."""
         with self._connection_manager.get_connection() as conn:
             result = self.listing_repository.list_archived(conn, limit)
-            return result
+            return [EntityListing(**item) for item in result]
 
-    def list_dangling_entities(self, limit: int) -> list[EntityHeadListing]:
+    def list_dangling_entities(self, limit: int) -> list[EntityListing]:
         """List entities that are dangling."""
         with self._connection_manager.get_connection() as conn:
             result = self.listing_repository.list_dangling(conn, limit)
-            return result
+            return [EntityListing(**item) for item in result]
 
-    def list_by_edit_type(self, edit_type: str, limit: int) -> list[EntityEditListing]:
+    def list_by_edit_type(self, edit_type: str, limit: int) -> list[EntityListing]:
         """List entities by edit type."""
         with self._connection_manager.get_connection() as conn:
             result = self.listing_repository.list_by_edit_type(conn, edit_type, limit)
-            return result
+            return [EntityListing(**item) for item in result]
 
     def insert_statement_content(self, content_hash: int) -> bool:
         """Insert statement content hash."""

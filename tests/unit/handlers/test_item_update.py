@@ -64,11 +64,11 @@ class TestItemUpdateHandler:
                 "labels": {"en": {"language": "en", "value": "Updated Item"}},
             },
             state=EntityState(
-                semi_prot=False,
+                sp=False,
                 is_locked=False,
                 archived=False,
                 dangling=False,
-                mass_edit=False,
+                mep=False,
             ),
         )
 

@@ -3,7 +3,7 @@
 import json
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict, cast
+from typing import Any, Dict
 
 from fastapi import HTTPException
 from pydantic import BaseModel
@@ -13,23 +13,22 @@ from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
-from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.stream.event import EntityChangeEvent
-from models.s3_models import RevisionCreateData
+from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess_client import VitessClient
 from models.internal_representation.metadata_extractor import MetadataExtractor
-from models.rest_api.misc import EditType
 from models.rest_api.entitybase.request import EntityCreateRequest
 from models.rest_api.entitybase.response import (
-    EntityRevisionResponse,
     EntityResponse,
 )
-from models.rest_api.entitybase.response.entity import EntityState
 from models.rest_api.entitybase.response import StatementHashResult
+from models.rest_api.entitybase.response.entity import EntityState
 from models.rest_api.entitybase.services.statement_service import (
     hash_entity_statements,
     deduplicate_and_store_statements,
 )
+from models.rest_api.misc import EditType
+from models.s3_models import RevisionCreateData
 from models.validation.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -144,7 +143,7 @@ class EntityHandler(BaseModel):
         if not revision_result.success:
             raise_validation_error(revision_result.error or "Failed to create revision")
 
-        return cast(EntityResponse, revision_result.data)
+        return revision_result.data
 
     def _check_idempotency(
         self,
@@ -170,18 +169,14 @@ class EntityHandler(BaseModel):
                 )
                 return EntityResponse(
                     id=entity_id,
-                    revision_id=head_revision_id,
-                    entity_data=head_revision.entity,
+                    rev_id=head_revision_id,
+                    data=head_revision.entity,
                     state=EntityState(
-                        is_semi_protected=head_revision.data.get(
-                            "is_semi_protected", False
-                        ),
+                        sp=head_revision.data.get("is_semi_protected", False),
                         is_locked=head_revision.data.get("is_locked", False),
-                        is_archived=head_revision.data.get("is_archived", False),
-                        is_dangling=head_revision.data.get("is_dangling", False),
-                        is_mass_edit_protected=head_revision.data.get(
-                            "is_mass_edit_protected", False
-                        ),
+                        archived=head_revision.data.get("is_archived", False),
+                        dangling=head_revision.data.get("is_dangling", False),
+                        mep=head_revision.data.get("is_mass_edit_protected", False),
                     ),
                 )
         except Exception as e:
@@ -447,14 +442,14 @@ class EntityHandler(BaseModel):
             success=True,
             data=EntityResponse(
                 id=entity_id,
-                revision_id=new_revision_id,
-                entity_data=request_data,
+                rev_id=new_revision_id,
+                data=request_data,
                 state=EntityState(
-                    is_semi_protected=is_semi_protected or False,
+                    sp=is_semi_protected or False,
                     is_locked=is_locked or False,
-                    is_archived=is_archived or False,
-                    is_dangling=is_dangling or False,
-                    is_mass_edit_protected=is_mass_edit_protected or False,
+                    archived=is_archived or False,
+                    dangling=is_dangling or False,
+                    mep=is_mass_edit_protected or False,
                 ),
             ),
         )
