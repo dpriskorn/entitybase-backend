@@ -20,8 +20,8 @@ async def test_add_watch() -> None:
 
         # Add watch
         response = await client.post(
-            "/entitybase/v1/watchlist",
-            json={"user_id": 12345, "entity_id": "Q42", "properties": ["P31"]},
+            "/entitybase/v1/users/12345/watchlist",
+            json="entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 200
         data = response.json()
@@ -38,7 +38,7 @@ async def test_add_watch_user_not_registered() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/entitybase/v1/watchlist",
+            "/entitybase/v1/users/12345/watchlist",
             json={"user_id": 99999, "entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 400
@@ -57,15 +57,15 @@ async def test_remove_watch() -> None:
         # Register user and add watch
         await client.post("/entitybase/v1/users", json={"user_id": 12345})
         await client.post(
-            "/entitybase/v1/watchlist",
-            json={"user_id": 12345, "entity_id": "Q42", "properties": ["P31"]},
+            "/entitybase/v1/users/12345/watchlist",
+            json="entity_id": "Q42", "properties": ["P31"]},
         )
 
         # Remove watch
         response = await client.request(
             "DELETE",
-            "/entitybase/v1/watchlist",
-            json={"user_id": 12345, "entity_id": "Q42", "properties": ["P31"]},
+            "/entitybase/v1/users/12345/watchlist",
+            json="entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 200
         data = response.json()
@@ -84,12 +84,12 @@ async def test_get_watchlist() -> None:
         # Register user and add watch
         await client.post("/entitybase/v1/users", json={"user_id": 12345})
         await client.post(
-            "/entitybase/v1/watchlist",
-            json={"user_id": 12345, "entity_id": "Q42", "properties": ["P31"]},
+            "/entitybase/v1/users/12345/watchlist",
+            json="entity_id": "Q42", "properties": ["P31"]},
         )
 
         # Get watchlist
-        response = await client.get("/entitybase/v1/watchlist?user_id=12345")
+        response = await client.get("/entitybase/v1/users/12345/watchlist")
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -107,7 +107,7 @@ async def test_get_watchlist_user_not_registered() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/entitybase/v1/watchlist?user_id=99999")
+        response = await client.get("/entitybase/v1/users/99999/watchlist")
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
 
@@ -126,7 +126,7 @@ async def test_get_notifications() -> None:
 
         # Get notifications (should be empty initially)
         response = await client.get(
-            "/entitybase/v1/watchlist/notifications?user_id=12345"
+            "/entitybase/v1/users/12345/watchlist/notifications"
         )
         assert response.status_code == 200
         data = response.json()
@@ -144,7 +144,7 @@ async def test_get_notifications_user_not_registered() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.get(
-            "/entitybase/v1/watchlist/notifications?user_id=99999"
+            "/entitybase/v1/users/99999/watchlist/notifications"
         )
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
@@ -164,7 +164,7 @@ async def test_mark_notification_checked() -> None:
 
         # Mark notification checked (even if doesn't exist, should not error)
         response = await client.post(
-            "/entitybase/v1/watchlist/notifications/check?user_id=12345",
+            "/entitybase/v1/users/12345/watchlist/notifications/check",
             json={"notification_id": 1},
         )
         assert response.status_code == 200

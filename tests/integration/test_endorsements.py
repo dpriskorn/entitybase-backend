@@ -18,12 +18,12 @@ async def test_endorse_statement() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # First create a user
-        response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
+        response = await client.post("/v1/users", json={"user_id": 12345})
         assert response.status_code == 200
 
         # Try to endorse a statement (this might fail due to missing statement, but tests the endpoint)
         response = await client.post(
-            "/entitybase/v1/statements/123456789/endorse",
+            "/v1/statements/123456789/endorse",
             headers={"X-User-ID": "12345"},
         )
 
@@ -41,12 +41,12 @@ async def test_withdraw_endorsement() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create a user
-        response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
+        response = await client.post("/v1/users", json={"user_id": 12345})
         assert response.status_code == 200
 
         # Try to withdraw endorsement
         response = await client.delete(
-            "/entitybase/v1/statements/123456789/endorse",
+            "/v1/statements/123456789/endorse",
             headers={"X-User-ID": "12345"},
         )
 
@@ -63,7 +63,7 @@ async def test_get_statement_endorsements() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/entitybase/v1/statements/123456789/endorsements")
+        response = await client.get("/v1/statements/123456789/endorsements")
 
         # Should return endorsements list (might be empty)
         assert response.status_code == 200
@@ -84,7 +84,7 @@ async def test_get_statement_endorsement_stats() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.get(
-            "/entitybase/v1/statements/123456789/endorsements/stats"
+            "/v1/statements/123456789/endorsements/stats"
         )
 
         # Should return stats object
@@ -105,11 +105,11 @@ async def test_get_user_endorsements() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create a user first
-        response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
+        response = await client.post("/v1/users", json={"user_id": 12345})
         assert response.status_code == 200
 
         # Get user endorsements
-        response = await client.get("/entitybase/v1/users/12345/endorsements")
+        response = await client.get("/v1/users/12345/endorsements")
 
         assert response.status_code == 200
         data = response.json()
@@ -129,11 +129,11 @@ async def test_get_user_endorsement_stats() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create a user first
-        response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
+        response = await client.post("/v1/users", json={"user_id": 12345})
         assert response.status_code == 200
 
         # Get user endorsement stats
-        response = await client.get("/entitybase/v1/users/12345/endorsements/stats")
+        response = await client.get("/v1/users/12345/endorsements/stats")
 
         assert response.status_code == 200
         data = response.json()
@@ -152,7 +152,7 @@ async def test_batch_endorsement_stats() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.get(
-            "/entitybase/v1/statements/123456789/endorsements/stats"
+            "/v1/statements/123456789/endorsements/stats"
         )
 
         # Should return single statement stats
