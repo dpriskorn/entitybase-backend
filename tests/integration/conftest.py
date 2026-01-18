@@ -4,6 +4,8 @@ import time
 from unittest.mock import AsyncMock, MagicMock
 from moto import mock_aws as mock_s3
 
+from models.config.settings import settings
+
 
 @pytest.fixture(scope="session")
 def db_conn():
@@ -13,7 +15,11 @@ def db_conn():
     for attempt in range(max_retries):
         try:
             conn = pymysql.connect(
-                host="vitess", port=15309, user="root", password="", database="entitybase"
+                host=settings.vitess_host,
+                port=settings.vitess_port,
+                user=settings.vitess_user,
+                password=settings.vitess_password,
+                database=settings.vitess_database,
             )
             # Test connection with a simple query
             with conn.cursor() as cursor:
