@@ -33,6 +33,11 @@ class EntityCreateRequest(BaseModel):
         min_length=1, max_length=200, description="Edit summary for this change"
     )
     user_id: int = Field(default=0, description="User who made this change")
+    is_semi_protected: bool = Field(default=False, description="Whether the entity is semi-protected")
+    is_locked: bool = Field(default=False, description="Whether the entity is locked")
+    is_archived: bool = Field(default=False, description="Whether the entity is archived")
+    is_dangling: bool = Field(default=False, description="Whether the entity is dangling")
+    is_mass_edit_protected: bool = Field(default=False, description="Whether the entity is mass edit protected")
 
     @property
     def data(self) -> Dict[str, Any]:
