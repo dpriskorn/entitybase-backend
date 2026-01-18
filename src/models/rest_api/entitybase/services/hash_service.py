@@ -3,6 +3,8 @@
 import logging
 from typing import Any
 
+from models.infrastructure.s3.hashmaps import HashMaps, AliasesHashes, DescriptionsHashes, LabelsHashes, \
+    SitelinksHashes, StatementsHashes
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.internal_representation.metadata_extractor import MetadataExtractor

@@ -11,6 +11,8 @@ from rapidhash import rapidhash
 
 from models.common import OperationResult
 from models.config.settings import settings
+from models.infrastructure.s3.data import RevisionData
+from models.infrastructure.s3.hashmaps import StatementsHashes, HashMaps
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
@@ -460,7 +462,7 @@ class EntityHandler(BaseModel):
                 data=request_data,
                 state=EntityState(
                     sp=is_semi_protected or False,
-                    is_locked=is_locked or False,
+                    locked=is_locked or False,
                     archived=is_archived or False,
                     dangling=is_dangling or False,
                     mep=is_mass_edit_protected or False,
@@ -468,7 +470,7 @@ class EntityHandler(BaseModel):
             ),
         )
 
-    def add_property(
+    async def add_property(
         self,
         entity_id: str,
         property_id: str,
@@ -516,7 +518,7 @@ class EntityHandler(BaseModel):
         current_data["claims"][property_id].extend(request.claims)
 
         # Process as update
-        revision_result = self._create_and_store_revision(
+        revision_result = await self._create_and_store_revision(
             entity_id=entity_id,
             new_revision_id=entity_response.revision_id + 1,  # Assume increment
             head_revision_id=entity_response.revision_id,
@@ -649,7 +651,7 @@ class EntityHandler(BaseModel):
             edit_summary=request.edit_summary,
             user_id=user_id,
         )
-
+        assert isinstance(revision_result, OperationResult)
         if not revision_result.success:
             return revision_result
 
@@ -827,7 +829,7 @@ class EntityHandler(BaseModel):
             edit_summary=request.edit_summary,
             user_id=user_id,
         )
-
+        assert isinstance(revision_result, OperationResult)
         if not revision_result.success:
             return revision_result
 

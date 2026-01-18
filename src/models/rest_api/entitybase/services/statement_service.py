@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from models.common import OperationResult
+from models.infrastructure.s3.data import StoredStatement, S3ReferenceData
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.vitess_client import VitessClient
 from models.internal_representation.statement_extractor import StatementExtractor
@@ -263,7 +264,7 @@ def deduplicate_references_in_statements(
         ):
             new_references = []
             for ref in statement_data["references"]:
-                if isinstance(ref, dict):
+                if isinstance(ref, S3ReferenceData):
                     # Compute rapidhash
                     ref_hash = ReferenceHasher.compute_hash(ref)
                     # Store in S3 (idempotent)

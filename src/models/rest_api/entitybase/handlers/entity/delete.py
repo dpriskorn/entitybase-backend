@@ -6,13 +6,17 @@ from typing import TYPE_CHECKING
 
 from fastapi import HTTPException
 
+from models.infrastructure.s3.data import RevisionData
+from models.infrastructure.s3.hashmaps import AliasesHashes, DescriptionsHashes, LabelsHashes, SitelinksHashes, \
+    StatementsHashes, HashMaps
+
 from models.user_activity import ActivityType
 
 logger = logging.getLogger(__name__)
 
 from models.infrastructure.s3.enums import DeleteType, EditType, EditData, EntityType
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
-from models.rest_api.entitybase.response import EntityDeleteResponse
+from models.rest_api.entitybase.response import EntityDeleteResponse, EntityState
 from models.config.settings import settings
 from models.rest_api.utils import raise_validation_error
 from models.infrastructure.stream.producer import (

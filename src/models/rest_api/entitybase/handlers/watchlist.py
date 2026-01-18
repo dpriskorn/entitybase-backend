@@ -9,12 +9,11 @@ from models.rest_api.entitybase.request.user import (
     WatchlistRemoveRequest as WatchlistRemoveCompositeRequest,
 )
 from models.rest_api.entitybase.response.misc import WatchCounts
-from models.rest_api.entitybase.response.user import MessageResponse
+from models.rest_api.entitybase.response.user import MessageResponse, NotificationResponse
 from models.rest_api.utils import raise_validation_error
 from models.watchlist import (
     WatchlistAddRequest,
     WatchlistResponse,
-    NotificationResponse,
     MarkCheckedRequest,
 )
 

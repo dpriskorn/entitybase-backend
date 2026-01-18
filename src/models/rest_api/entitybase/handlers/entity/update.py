@@ -3,6 +3,7 @@
 import logging
 from typing import Any
 
+from models.infrastructure.s3.enums import EntityType
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.user_activity import ActivityType
 
@@ -67,7 +68,7 @@ class EntityUpdateHandler(EntityHandler):
                 new_revision_id=tx.head_revision_id + 1,
                 head_revision_id=tx.head_revision_id,
                 request_data=request_data,
-                entity_type=request.type,
+                entity_type=EntityType(request.type),
                 hash_result=hash_result,
                 content_hash=0,  # TODO: calculate
                 is_mass_edit=request.is_mass_edit,
