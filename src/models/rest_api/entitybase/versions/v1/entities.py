@@ -15,6 +15,7 @@ from models.rest_api.entitybase.response import (
     EntityResponse,
     EntityListResponse,
     EntityRevisionResponse,
+    EntityJsonResponse,
 )
 from models.rest_api.entitybase.response import TurtleResponse
 from models.rest_api.entitybase.response.misc import RawRevisionResponse

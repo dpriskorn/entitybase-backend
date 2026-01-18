@@ -1,6 +1,6 @@
 """Miscellaneous response models."""
 
-from typing import Any
+from typing import Any, Dict
 
 from pydantic import BaseModel, ConfigDict, Field
 
