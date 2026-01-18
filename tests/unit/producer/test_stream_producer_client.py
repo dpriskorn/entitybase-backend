@@ -238,12 +238,12 @@ class TestStreamProducerClient:
             await producer.start()
             assert producer.producer is not None
 
-        event = EntityChangeEvent(
-            id="Q888888",
-            rev=101,
-            type=ChangeType.CREATION,
-            at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
-        )
+            event = EntityChangeEvent(
+                id="Q888888",
+                rev=101,
+                type=ChangeType.CREATION,
+                at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
+            )
             await producer.publish_change(event)
             mock_aiokafka_producer.send_and_wait.assert_called_once()
 
