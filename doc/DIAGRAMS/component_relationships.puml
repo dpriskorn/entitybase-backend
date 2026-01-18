@@ -11,6 +11,8 @@ title Wikibase Backend - Component Relationships
 database "Vitess" as Vitess
 storage "S3 Terms" as S3Terms
 storage "S3 Statements" as S3Statements
+storage "S3 References" as S3References
+storage "S3 Qualifiers" as S3Qualifiers
 storage "S3 Revisions" as S3Revisions
 storage "S3 Dumps" as S3Dumps
 queue "Kafka" as Kafka
