@@ -306,6 +306,37 @@ def generate_data_flow_diagram(analysis: Dict) -> str:
     return "\n".join(lines)
 
 
+def generate_detailed_api_diagram(analysis: Dict) -> str:
+    """Generate PlantUML detailed API diagram showing all handlers/routes."""
+    lines = [
+        "@startuml Detailed API Components",
+        "",
+        "title Wikibase Backend - Detailed API Components",
+        "",
+    ]
+
+    # Get all API components (handlers)
+    api_components = sorted(analysis.get("handlers", []))
+    if api_components:
+        lines.append('package "API Handlers" as APIHandlers #LightBlue {')
+        for component in api_components:
+            component_name = component.replace("Handler", "").replace("Service", "").strip()
+            if not component_name:
+                continue
+            safe_id = component.replace(" ", "_").replace("-", "_").replace("(", "").replace(")", "").replace("[", "").replace("]", "")
+            if not safe_id:
+                safe_id = f"Component_{len(lines)}"
+            lines.append(f'    "{component_name}" as {safe_id}')
+        lines.append("}")
+    else:
+        lines.append("note: No API components found")
+
+    lines.append("")
+    lines.append("@enduml")
+
+    return "\n".join(lines)
+
+
 def generate_component_relationship_diagram(analysis: Dict) -> str:
     """Generate PlantUML component relationship diagram."""
     lines = [
@@ -408,6 +439,11 @@ def save_diagrams():
     component_diagram = generate_component_relationship_diagram(analysis)
     with open(diagrams_dir / "component_relationships.puml", "w") as f:
         f.write(component_diagram)
+
+    # Generate detailed API diagram
+    detailed_api_diagram = generate_detailed_api_diagram(analysis)
+    with open(diagrams_dir / "detailed_api_components.puml", "w") as f:
+        f.write(detailed_api_diagram)
 
     print(f"Diagrams generated in {diagrams_dir}/")
 

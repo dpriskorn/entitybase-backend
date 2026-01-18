@@ -16,11 +16,13 @@ sudo apt-get install plantuml
 - `system_architecture.puml` - System architecture diagram source
 - `data_flow.puml` - Data flow diagram source
 - `component_relationships.puml` - Component relationships source
+- `detailed_api_components.puml` - Detailed API components diagram source
 
 ### Rendered PNGs (requires PlantUML)
 - `png/system_architecture.png` - System architecture diagram
 - `png/data_flow.png` - Data flow diagram
 - `png/component_relationships.png` - Component relationships diagram
+- `png/detailed_api_components.png` - Detailed API components diagram
 
 ## Viewing Diagrams
 

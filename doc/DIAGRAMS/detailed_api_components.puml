@@ -1,0 +1,37 @@
+@startuml Detailed API Components
+
+title Wikibase Backend - Detailed API Components
+
+package "API Handlers" as APIHandlers #LightBlue {
+    "Admin" as AdminHandler
+    "Backlink" as BacklinkHandler
+    "Endorsement" as EndorsementHandler
+    "EntityCreate" as EntityCreateHandler
+    "EntityCreate" as EntityCreateHandler
+    "EntityDelete" as EntityDeleteHandler
+    "Entity" as EntityHandler
+    "EntityJsonImport" as EntityJsonImportHandler
+    "EntityRead" as EntityReadHandler
+    "EntityRevert" as EntityRevertHandler
+    "EntityTransaction" as EntityTransaction
+    "EntityTransaction" as EntityTransaction
+    "EntityUpdate" as EntityUpdateHandler
+    "EntityUpdate" as EntityUpdateHandler
+    "Export" as ExportHandler
+    "ItemCreate" as ItemCreateHandler
+    "ItemUpdate" as ItemUpdateHandler
+    "LexemeCreate" as LexemeCreateHandler
+    "LexemeUpdate" as LexemeUpdateHandler
+    "PropertyCreate" as PropertyCreateHandler
+    "PropertyUpdate" as PropertyUpdateHandler
+    "Redirect" as RedirectHandler
+    "Statement" as StatementHandler
+    "Thanks" as ThanksHandler
+    "UpdateTransaction" as UpdateTransaction
+    "UserActivity" as UserActivityHandler
+    "User" as UserHandler
+    "UserPreferences" as UserPreferencesHandler
+    "Watchlist" as WatchlistHandler
+}
+
+@enduml
