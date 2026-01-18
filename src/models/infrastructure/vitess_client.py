@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from pymysql import Connection
 
 from models.rest_api.entitybase.response.entity import EntityHistoryEntry
-from models.rest_api.entitybase.response.misc import EntityListing
+from models.infrastructure.vitess.listing_repository import EntityHeadListing, EntityEditListing
 
 logger = logging.getLogger(__name__)
 
@@ -399,11 +399,11 @@ class VitessClient(Client):
             cursor.close()
             return [row[0] for row in results]
 
-    def list_locked_entities(self, limit: int) -> list[EntityListing]:
+    def list_locked_entities(self, limit: int) -> list[EntityHeadListing]:
         """List entities that are locked."""
         with self._connection_manager.get_connection() as conn:
             result = self.listing_repository.list_locked(conn, limit)
-            return [EntityListing(**item) for item in result]
+            return result
 
     def list_semi_protected_entities(self, limit: int) -> list[EntityListing]:
         """List entities that are semi-protected."""
