@@ -8,7 +8,7 @@ from models.rest_api.entitybase.handlers.entity.delete import EntityDeleteHandle
 from models.rest_api.entitybase.handlers.export import ExportHandler
 from models.rest_api.entitybase.handlers.statement import StatementHandler
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
-from models.rest_api.entitybase.response import TtlResponse
+from models.rest_api.entitybase.response import TurtleResponse
 from models.rest_api.entitybase.response.misc import RawRevisionResponse
 from models.rest_api.entitybase.response import (
     PropertyHashesResponse,
@@ -20,13 +20,13 @@ from models.validation.utils import raise_validation_error
 
 
 @v1_router.get("/entities/{entity_id}.ttl")
-async def get_entity_data_turtle(entity_id: str, req: Request) -> TtlResponse:
+async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse:
     clients = req.app.state.clients
     handler = ExportHandler()
     result = handler.get_entity_data_turtle(
         entity_id, clients.vitess, clients.s3, clients.property_registry
     )
-    if not isinstance(result, TtlResponse):
+    if not isinstance(result, TurtleResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
 

@@ -31,7 +31,7 @@ from .statement import (
     StatementResponse,
 )
 from .health import HealthCheckResponse, HealthResponse, WorkerHealthCheckResponse
-from .misc import CleanupOrphanedResponse, RevisionMetadataResponse, TtlResponse
+from .misc import CleanupOrphanedResponse, RevisionMetadataResponse, TurtleResponse
 from .qualifiers_references import QualifierResponse, ReferenceResponse
 from .rdf import (
     DeduplicationStatsResponse,
@@ -72,7 +72,7 @@ __all__ = [
     "StatementBatchResponse",
     "StatementHashResult",
     "StatementResponse",
-    "TtlResponse",
+    \"TurtleResponse\",
     "WikibasePredicatesResponse",
     "WorkerHealthCheckResponse",
 ]

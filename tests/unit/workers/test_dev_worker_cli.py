@@ -85,10 +85,10 @@ class TestDevWorkerCLI:
     @patch("models.workers.dev.create_buckets.CreateBuckets")
     def test_custom_arguments(
         self,
-        mock_create_buckets,
-        mock_asyncio_run,
-        mock_run_setup,
         mock_argv,
+        mock_run_setup,
+        mock_asyncio_run,
+        mock_create_buckets,
     ):
         """Test CLI with custom arguments."""
         mock_worker = MagicMock()

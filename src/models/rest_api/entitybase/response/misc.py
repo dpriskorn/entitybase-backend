@@ -198,7 +198,7 @@ class RawRevisionResponse(BaseModel):
     data: dict[str, Any] = Field(..., description="Raw revision data from storage")
 
 
-class TtlResponse(BaseModel):
-    """Response model for Turtle format entity data."""
+class TurtleResponse(BaseModel):
+    \"\"\"Response model for Turtle format entity data.\"\"\"
 
-    turtle: str = Field(..., description="Entity data in Turtle format")
+    turtle: str = Field(..., description=\"Entity data in Turtle format\")

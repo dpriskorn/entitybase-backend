@@ -1,14 +1,13 @@
 """Integration tests for reference deduplication."""
 
 import pytest
-from models.test_helpers import TestClient
 
 
 @pytest.mark.integration
 class TestReferenceDeduplication:
     """Integration tests for reference deduplication."""
 
-    def test_entity_creation_with_references_deduplicates(self, test_client: TestClient):
+    def test_entity_creation_with_references_deduplicates(self, api_client):
         """Test that creating an entity with references deduplicates them."""
         # Create entity with statement containing references
         entity_data = {
@@ -59,7 +58,7 @@ class TestReferenceDeduplication:
         ref_data = response.json()
         assert "snaks" in ref_data
 
-    def test_reference_batch_endpoint(self, test_client: TestClient):
+    def test_reference_batch_endpoint(self, api_client):
         """Test batch reference fetching."""
         # Assume some references exist from previous test
         response = test_client.get("/references/123,456")

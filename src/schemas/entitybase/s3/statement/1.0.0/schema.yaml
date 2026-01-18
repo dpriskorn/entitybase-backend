@@ -23,64 +23,59 @@ properties:
     - 987654321012345678
     - -918273876123456789
   statement:
-    type: object
-    description: Complete statement block including mainsnak, qualifiers, and references.
-      Full Wikidata statement structure.
-    required:
-    - mainsnak
-    properties:
-      mainsnak:
-        type: object
-        description: Main statement value (snak) containing property, data type, and
-          value.
-        required:
-        - snaktype
-        - property
-        - datatype
-        properties:
-          snaktype:
-            type: string
-            enum:
-            - value
-            - somevalue
-            - novalue
-            description: 'Type of snak: value, somevalue, or novalue.'
-          property:
-            type: string
-            description: Wikidata property identifier (e.g., P31, P569, P19).
-          datatype:
-            type: string
-            description: Data type of the property value (e.g., wikibase-item, time,
-              quantity).
-          hash:
-            type: string
-            description: Hash of the datavalue for deduplication.
-      type:
-        type: string
-        enum:
-        - statement
-        description: 'Type of node: statement.'
-      rank:
-        type: string
-        enum:
-        - preferred
-        - normal
-        - deprecated
-        default: normal
-        description: Rank of statement among other statements for the same property
-          (preferred > normal > deprecated).
+     type: object
+     description: Complete statement block including mainsnak, qualifiers, and references. Full Wikidata statement structure.
+     required:
+       - mainsnak
+     properties:
+       mainsnak:
+         type: object
+         description: Main statement value (snak) containing property, data type, and value.
+         required:
+           - snaktype
+           - property
+           - datatype
+         properties:
+           snaktype:
+             type: string
+             enum:
+               - value
+               - somevalue
+               - novalue
+             description: 'Type of snak: value, somevalue, or novalue.'
+           property:
+             type: string
+             description: Wikidata property identifier (e.g., P31, P569, P19).
+           datatype:
+             type: string
+             description: Data type of the property value (e.g., wikibase-item, time, quantity).
+           hash:
+             type: string
+             description: Hash of the datavalue for deduplication.
+       type:
+         type: string
+         enum:
+           - statement
+         description: 'Type of node: statement.'
+       rank:
+         type: string
+         enum:
+           - preferred
+           - normal
+           - deprecated
+         default: normal
+         description: Rank of statement among other statements for the same property (preferred > normal > deprecated).
        qualifiers:
-        type: integer
-        description: Rapidhash of the qualifiers object. Full qualifiers stored separately.
-        minimum: -922337203685477581
+         type: integer
+         description: Rapidhash of the qualifiers object. Full qualifiers stored separately.
+         minimum: -922337203685477581
        references:
-        type: array
-        description: References providing sources for this statement. Array of rapidhash
-          integers pointing to deduplicated reference JSON in S3.
-        items:
-          type: integer
-          description: Rapidhash of the reference content.
-          minimum: -922337203685477581
+         type: array
+         description: References providing sources for this statement. Array of rapidhash integers pointing to deduplicated reference JSON in S3.
+         items:
+           type: integer
+           description: Rapidhash of the reference content.
+           minimum: -922337203685477581
   created_at:
     type: string
     format: date-time
