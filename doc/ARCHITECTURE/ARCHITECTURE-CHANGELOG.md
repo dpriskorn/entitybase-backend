@@ -3014,3 +3014,62 @@ New `HashService` class with static methods for hashing each metadata component:
 
 - Fully backward compatible, no API or data format changes
 - Existing entity processing continues to work unchanged
+
+## [2026-01-18] JSON Patch Labels Endpoint
+
+### Summary
+
+Added `PATCH /entitybase/v1/entities/{entity_id}/labels` endpoint to apply single JSON Patch operations to entity labels. Supports add, replace, and remove operations with user_id in header and edit_summary in request body.
+
+### Motivation
+
+- **Granular Updates**: Enable targeted label modifications without full entity replacement
+- **Clear History**: Patches provide explicit change descriptions for better audit trails
+- **Client Flexibility**: Allow frontends to send precise updates instead of nested objects
+- **API Evolution**: Transition toward patch-based operations for improved maintainability
+
+### Changes
+
+#### New Request Models
+
+**File**: `src/models/rest_api/entitybase/request/entity/patch.py`
+
+- `JsonPatchOperation`: Model for individual patch operations (op, path, value, from)
+- `BasePatchRequest`: Base class with edit_summary
+- `LabelPatchRequest`: Specific request for label patches
+
+#### Handler Method
+
+**File**: `src/models/rest_api/entitybase/handlers/entity/base.py`
+
+- `patch_labels()`: Async method to apply patch to labels and create new revision
+- Validates path starts with `/labels/`
+- Supports add, replace, remove operations
+- Integrates with existing revision creation workflow
+
+#### API Endpoint
+
+**File**: `src/models/rest_api/entitybase/versions/v1/entities.py`
+
+- `PATCH /entities/{entity_id}/labels` with `LabelPatchRequest`
+- Requires `X-User-ID` header (no validation, inserts if missing)
+- Response: `OperationResult[dict]` with revision_id
+
+#### Operation Support
+
+- **Add**: `{"op": "add", "path": "/labels/en", "value": "English Label"}`
+- **Replace**: `{"op": "replace", "path": "/labels/en", "value": "Updated Label"}`
+- **Remove**: `{"op": "remove", "path": "/labels/en"}`
+
+### Impact
+
+- **New Functionality**: Single-operation label patching
+- **Backward Compatibility**: No breaking changes, new endpoint
+- **Performance**: Minimal overhead, reuses existing update infrastructure
+- **History Clarity**: Patches logged explicitly in revisions
+
+### Notes
+
+- Single operation per request for simplicity
+- User ID required in header, auto-inserted if missing
+- Future expansion to other entity components (descriptions, claims, etc.)
