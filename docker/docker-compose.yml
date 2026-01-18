@@ -160,7 +160,7 @@ services:
      WORKER_COUNT: 1
      VITESS_HOST: vitess
      VITESS_PORT: 15309
-      VITESS_DATABASE: entitybase
+     VITESS_DATABASE: entitybase
      VITESS_USER: root
      VITESS_PASSWORD: ""
    depends_on:
