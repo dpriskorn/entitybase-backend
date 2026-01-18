@@ -15,7 +15,6 @@ from models.rest_api.entitybase.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.response import EntityDeleteResponse
 from models.config.settings import settings
 from models.validation.utils import raise_validation_error
-from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.producer import (
     StreamProducerClient,
 )
@@ -23,6 +22,7 @@ from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 
 if TYPE_CHECKING:
+    from models.infrastructure.s3.s3_client import MyS3Client
     from models.infrastructure.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)
@@ -36,7 +36,7 @@ class EntityDeleteHandler:
         entity_id: str,
         request: EntityDeleteRequest,
         vitess_client: "VitessClient",
-        s3_client: MyS3Client,
+        s3_client: "MyS3Client",
         stream_producer: StreamProducerClient | None,
         user_id: int = 0,
     ) -> EntityDeleteResponse:

@@ -208,9 +208,9 @@ class EndorsementHandler:
         data = result.data
         return EndorsementListResponse(
             hash=statement_hash,
-            endorsements=data["endorsements"],
-            total_count=data["total_count"],
-            has_more=data["has_more"],
+            list=data["endorsements"],
+            count=data["total_count"],
+            more=data["has_more"],
             stats=stats,
         )
 
@@ -233,9 +233,10 @@ class EndorsementHandler:
         data = result.data
         return EndorsementListResponse(
             user_id=user_id,
-            endorsements=data["endorsements"],
-            total_count=data["total_count"],
-            has_more=data["has_more"],
+            list=data["endorsements"],
+            count=data["total_count"],
+            more=data["has_more"],
+            stats=None,
         )
 
     def get_user_endorsement_stats(
