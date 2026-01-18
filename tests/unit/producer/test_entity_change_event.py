@@ -38,10 +38,10 @@ class TestEntityChangeEvent:
     def test_entity_change_event_defaults(self) -> None:
         """Test default values for optional fields"""
         event = EntityChangeEvent(
-            entity_id="Q888888",
-            revision_id=101,
-            change_type=ChangeType.EDIT,
-            changed_at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
+            id="Q888888",
+            rev=101,
+            type=ChangeType.EDIT,
+            at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
         )
         assert event.from_revision_id is None
         assert event.edit_summary == ""
@@ -68,11 +68,11 @@ class TestEntityChangeEvent:
     def test_entity_change_event_with_edit_type(self) -> None:
         """Test event with EDIT change type"""
         event = EntityChangeEvent(
-            entity_id="Q888888",
-            revision_id=102,
-            change_type=ChangeType.EDIT,
-            from_revision_id=101,
-            changed_at=datetime(2026, 1, 8, 20, 30, 0, tzinfo=timezone.utc),
+            id="Q888888",
+            rev=102,
+            type=ChangeType.EDIT,
+            from_rev=101,
+            at=datetime(2026, 1, 8, 20, 30, 0, tzinfo=timezone.utc),
         )
         assert event.change_type == ChangeType.EDIT
         assert event.from_revision_id == 101
@@ -80,77 +80,77 @@ class TestEntityChangeEvent:
     def test_entity_change_event_with_all_deletion_types(self) -> None:
         """Test events with soft_delete and hard_delete types"""
         soft_delete_event = EntityChangeEvent(
-            entity_id="Q888888",
-            revision_id=103,
-            change_type=ChangeType.SOFT_DELETE,
-            from_revision_id=102,
-            changed_at=datetime(2026, 1, 8, 21, 0, 0, tzinfo=timezone.utc),
+            id="Q888888",
+            rev=103,
+            type=ChangeType.SOFT_DELETE,
+            from_rev=102,
+            at=datetime(2026, 1, 8, 21, 0, 0, tzinfo=timezone.utc),
         )
         assert soft_delete_event.change_type == ChangeType.SOFT_DELETE
 
         hard_delete_event = EntityChangeEvent(
-            entity_id="Q888888",
-            revision_id=104,
-            change_type=ChangeType.HARD_DELETE,
-            from_revision_id=103,
-            changed_at=datetime(2026, 1, 8, 21, 30, 0, tzinfo=timezone.utc),
+            id="Q888888",
+            rev=104,
+            type=ChangeType.HARD_DELETE,
+            from_rev=103,
+            at=datetime(2026, 1, 8, 21, 30, 0, tzinfo=timezone.utc),
         )
         assert hard_delete_event.change_type == ChangeType.HARD_DELETE
 
     def test_entity_change_event_with_redirect_types(self) -> None:
         """Test events with redirect and unredirect types"""
         redirect_event = EntityChangeEvent(
-            entity_id="Q888889",
-            revision_id=2,
-            change_type=ChangeType.REDIRECT,
-            from_revision_id=1,
-            changed_at=datetime(2026, 1, 8, 22, 0, 0, tzinfo=timezone.utc),
+            id="Q888889",
+            rev=2,
+            type=ChangeType.REDIRECT,
+            from_rev=1,
+            at=datetime(2026, 1, 8, 22, 0, 0, tzinfo=timezone.utc),
         )
         assert redirect_event.change_type == ChangeType.REDIRECT
 
         unredirect_event = EntityChangeEvent(
-            entity_id="Q888889",
-            revision_id=3,
-            change_type=ChangeType.UNREDIRECT,
-            from_revision_id=2,
-            changed_at=datetime(2026, 1, 8, 22, 30, 0, tzinfo=timezone.utc),
+            id="Q888889",
+            rev=3,
+            type=ChangeType.UNREDIRECT,
+            from_rev=2,
+            at=datetime(2026, 1, 8, 22, 30, 0, tzinfo=timezone.utc),
         )
         assert unredirect_event.change_type == ChangeType.UNREDIRECT
 
     def test_entity_change_event_with_protection_types(self) -> None:
         """Test events with lock/unlock and archival types"""
         lock_event = EntityChangeEvent(
-            entity_id="Q888890",
-            revision_id=5,
-            change_type=ChangeType.LOCK,
-            from_revision_id=4,
-            changed_at=datetime(2026, 1, 8, 23, 0, 0, tzinfo=timezone.utc),
+            id="Q888890",
+            rev=5,
+            type=ChangeType.LOCK,
+            from_rev=4,
+            at=datetime(2026, 1, 8, 23, 0, 0, tzinfo=timezone.utc),
         )
         assert lock_event.change_type == ChangeType.LOCK
 
         unlock_event = EntityChangeEvent(
-            entity_id="Q888890",
-            revision_id=6,
-            change_type=ChangeType.UNLOCK,
-            from_revision_id=5,
-            changed_at=datetime(2026, 1, 8, 23, 30, 0, tzinfo=timezone.utc),
+            id="Q888890",
+            rev=6,
+            type=ChangeType.UNLOCK,
+            from_rev=5,
+            at=datetime(2026, 1, 8, 23, 30, 0, tzinfo=timezone.utc),
         )
         assert unlock_event.change_type == ChangeType.UNLOCK
 
         archival_event = EntityChangeEvent(
-            entity_id="Q888890",
-            revision_id=7,
-            change_type=ChangeType.ARCHIVAL,
-            from_revision_id=6,
-            changed_at=datetime(2026, 1, 9, 0, 0, 0, tzinfo=timezone.utc),
+            id="Q888890",
+            rev=7,
+            type=ChangeType.ARCHIVAL,
+            from_rev=6,
+            at=datetime(2026, 1, 9, 0, 0, 0, tzinfo=timezone.utc),
         )
         assert archival_event.change_type == ChangeType.ARCHIVAL
 
         unarchival_event = EntityChangeEvent(
-            entity_id="Q888890",
-            revision_id=8,
-            change_type=ChangeType.UNARCHIVAL,
-            from_revision_id=7,
-            changed_at=datetime(2026, 1, 9, 0, 30, 0, tzinfo=timezone.utc),
+            id="Q888890",
+            rev=8,
+            type=ChangeType.UNARCHIVAL,
+            from_rev=7,
+            at=datetime(2026, 1, 9, 0, 30, 0, tzinfo=timezone.utc),
         )
         assert unarchival_event.change_type == ChangeType.UNARCHIVAL

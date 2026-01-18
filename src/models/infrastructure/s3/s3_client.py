@@ -565,7 +565,7 @@ class MyS3Client(Client):
             )
             raise
 
-    def load_reference(self, content_hash: int) -> ReferenceModel:
+    def load_reference(self, content_hash: int) -> dict:
         """Load a reference by its content hash.
 
         Args:
@@ -651,7 +651,7 @@ class MyS3Client(Client):
             )
             raise
 
-    def load_qualifier(self, content_hash: int) -> QualifierModel:
+    def load_qualifier(self, content_hash: int) -> dict:
         """Load a qualifier by its content hash.
 
         Args:
@@ -670,7 +670,7 @@ class MyS3Client(Client):
             )
             data = json.loads(response["Body"].read().decode("utf-8"))
             logger.debug(f"S3 qualifier loaded: bucket={bucket}, key={key}")
-            return QualifierModel(**data)
+            return data
         except ClientError as e:
             if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
                 logger.warning(f"S3 qualifier not found: bucket={bucket}, key={key}")
@@ -688,7 +688,7 @@ class MyS3Client(Client):
 
     def load_qualifiers_batch(
         self, content_hashes: list[int]
-    ) -> list[QualifierModel | None]:
+    ) -> list[dict | None]:
         """Load multiple qualifiers by their content hashes.
 
         Args:

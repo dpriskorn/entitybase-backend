@@ -124,14 +124,14 @@ class RedirectService:
 
         if self.stream_producer:
             event = EntityChangeEvent(
-                entity_id=request.redirect_from_id,
-                revision_id=redirect_revision_id,
-                change_type=ChangeType.REDIRECT,
-                from_revision_id=from_head_revision_id
+                id=request.redirect_from_id,
+                rev=redirect_revision_id,
+                type=ChangeType.REDIRECT,
+                from_rev=from_head_revision_id
                 if from_head_revision_id
                 else None,
-                changed_at=datetime.now(timezone.utc),
-                edit_summary=request.revert_reason,
+                at=datetime.now(timezone.utc),
+                summary=request.revert_reason,
             )
             await self.stream_producer.publish_change(event)
 

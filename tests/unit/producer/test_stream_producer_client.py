@@ -106,10 +106,10 @@ class TestStreamProducerClient:
         producer.producer = mock_aiokafka_producer
 
         event = EntityChangeEvent(
-            entity_id="Q888889",
-            revision_id=102,
-            change_type=ChangeType.EDIT,
-            changed_at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
+            id="Q888889",
+            rev=102,
+            type=ChangeType.EDIT,
+            at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
         )
         await producer.publish_change(event)
 
@@ -128,10 +128,10 @@ class TestStreamProducerClient:
         assert producer.producer is None
 
         event = EntityChangeEvent(
-            entity_id="Q888888",
-            revision_id=101,
-            change_type=ChangeType.CREATION,
-            changed_at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
+            id="Q888888",
+            rev=101,
+            type=ChangeType.CREATION,
+            at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
         )
         await producer.publish_change(event)
         assert "Kafka producer not started" in caplog.text
@@ -152,10 +152,10 @@ class TestStreamProducerClient:
         producer.producer = mock_aiokafka_producer
 
         event = EntityChangeEvent(
-            entity_id="Q888888",
-            revision_id=101,
-            change_type=ChangeType.CREATION,
-            changed_at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
+            id="Q888888",
+            rev=101,
+            type=ChangeType.CREATION,
+            at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
         )
         await producer.publish_change(event)
         assert "Failed to publish event" in caplog.text
@@ -173,10 +173,10 @@ class TestStreamProducerClient:
 
         events = [
             EntityChangeEvent(
-                entity_id="Q888888",
-                revision_id=i,
-                change_type=ChangeType.EDIT,
-                changed_at=datetime(2026, 1, 8, 20, i, 0, tzinfo=timezone.utc),
+                id="Q888888",
+                rev=i,
+                type=ChangeType.EDIT,
+                at=datetime(2026, 1, 8, 20, i, 0, tzinfo=timezone.utc),
             )
             for i in range(1, 4)
         ]
@@ -238,12 +238,12 @@ class TestStreamProducerClient:
             await producer.start()
             assert producer.producer is not None
 
-            event = EntityChangeEvent(
-                entity_id="Q888888",
-                revision_id=101,
-                change_type=ChangeType.CREATION,
-                changed_at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
-            )
+        event = EntityChangeEvent(
+            id="Q888888",
+            rev=101,
+            type=ChangeType.CREATION,
+            at=datetime(2026, 1, 8, 20, 0, 0, tzinfo=timezone.utc),
+        )
             await producer.publish_change(event)
             mock_aiokafka_producer.send_and_wait.assert_called_once()
 
