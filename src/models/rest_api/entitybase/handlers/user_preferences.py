@@ -17,7 +17,7 @@ class UserPreferencesHandler:
         if not vitess_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=400)
 
-        result = vitess_client.user_repository.get_user_preferences(user_id)
+        result = vitess_client.user_repository.get_user_preferences(user_id)  # type: ignore[union-attr]
         if not result.success:
             if "User preferences not found" in (result.error or ""):
                 # Return defaults if no custom preferences set
@@ -43,10 +43,10 @@ class UserPreferencesHandler:
     ) -> UserPreferencesResponse:
         """Update user's notification preferences."""
         # Check if user exists
-        if not vitess_client.user_repository.user_exists(user_id):
+        if not vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=400)
 
-        result = vitess_client.user_repository.update_user_preferences(
+        result = vitess_client.user_repository.update_user_preferences(  # type: ignore[union-attr]
             user_id=user_id,
             notification_limit=request.notification_limit,
             retention_hours=request.retention_hours,

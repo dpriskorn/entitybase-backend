@@ -14,7 +14,7 @@ from . import (
 )
 
 
-def include_routes(app):
+def include_routes(app) -> None:
     """Include all route routers in the app."""
     app.include_router(health.health_router)
     app.include_router(users.users_router)

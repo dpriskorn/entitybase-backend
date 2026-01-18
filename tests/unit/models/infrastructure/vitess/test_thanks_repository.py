@@ -210,7 +210,9 @@ class TestThanksRepository:
         assert data["total_count"] == 0
         assert data["has_more"] is False
 
-    def test_get_thanks_received_offset_pagination(self, repository, mock_connection_manager):
+    def test_get_thanks_received_offset_pagination(
+        self, repository, mock_connection_manager
+    ):
         """Test get_thanks_received with offset pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -221,7 +223,8 @@ class TestThanksRepository:
 
         # Mock with offset 50, limit 10, total 55, so has_more = False
         mock_cursor.fetchall.return_value = [
-            (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc)) for i in range(51, 56)
+            (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc))
+            for i in range(51, 56)
         ]
         mock_cursor.fetchone.return_value = (55,)
 
@@ -323,7 +326,9 @@ class TestThanksRepository:
         assert data["total_count"] == 0
         assert data["has_more"] is False
 
-    def test_get_thanks_sent_offset_pagination(self, repository, mock_connection_manager):
+    def test_get_thanks_sent_offset_pagination(
+        self, repository, mock_connection_manager
+    ):
         """Test get_thanks_sent with offset pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -334,7 +339,8 @@ class TestThanksRepository:
 
         # Mock with offset 50, limit 10, total 55, so has_more = False
         mock_cursor.fetchall.return_value = [
-            (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc)) for i in range(51, 56)
+            (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc))
+            for i in range(51, 56)
         ]
         mock_cursor.fetchone.return_value = (55,)
 
@@ -395,7 +401,9 @@ class TestThanksRepository:
         thanks = result.data
         assert len(thanks) == 0
 
-    def test_get_revision_thanks_multiple(self, repository, mock_connection_manager, mock_id_resolver):
+    def test_get_revision_thanks_multiple(
+        self, repository, mock_connection_manager, mock_id_resolver
+    ):
         """Test get_revision_thanks with multiple thanks."""
         mock_conn = Mock()
         mock_cursor = Mock()
