@@ -6,7 +6,8 @@ from typing import List, Callable, Any
 
 from pydantic import BaseModel, Field
 
-from models.rest_api.entitybase.response import EntityRevisionResponse
+from models.common import OperationResult
+from models.rest_api.entitybase.response import EntityResponse
 from models.rest_api.entitybase.response import StatementHashResult
 
 logger = logging.getLogger(__name__)
@@ -88,41 +89,7 @@ class EntityTransaction(BaseModel, ABC):
 
 
 class UpdateTransaction(EntityTransaction):
-    """Manages atomic update operations with rollback support."""
-
-    head_revision_id: int = 0
-
-    def get_head(self, vitess_client: Any) -> None:
-        """Retrieve the head revision ID."""
-        logger.info(f"[UpdateTransaction] Getting head revision for {self.entity_id}")
-        self.head_revision_id = vitess_client.get_head(self.entity_id)
-
-    def process_statements(
-        self,
-        entity_id: str,
-        request_data: dict,
-        vitess_client: Any,
-        s3_client: Any,
-        validator: Any,
-    ) -> StatementHashResult:
-        """Process statements and prepare rollback operations."""
-        logger.info(
-            f"[UpdateTransaction] Starting statement processing for {entity_id}"
-        )
-        # Import here to avoid circular imports
-        from models.rest_api.entitybase.handlers.entity.base import EntityHandler
-
-        handler = EntityHandler()
-        hash_result = handler.process_statements(
-            entity_id, request_data, vitess_client, s3_client, validator
-        )
-        # Track hashes for rollback
-        self.statement_hashes.extend(hash_result.statements)
-        for hash_val in hash_result.statements:
-            self.operations.append(
-                lambda h=hash_val: self._rollback_statement(h, vitess_client, s3_client)  # type: ignore[misc]
-            )
-        return hash_result
+    """Transaction for updating entities."""
 
     async def create_revision(
         self,
@@ -131,7 +98,7 @@ class UpdateTransaction(EntityTransaction):
         head_revision_id: int,
         request_data: dict,
         entity_type: str,
-        hash_result: Any,
+        hash_result: StatementHashResult,
         content_hash: int,
         is_mass_edit: bool,
         edit_type: Any,
@@ -145,7 +112,7 @@ class UpdateTransaction(EntityTransaction):
         s3_client: Any,
         stream_producer: Any,
         is_creation: bool,
-    ) -> EntityRevisionResponse:
+    ) -> EntityResponse:
         logger.debug(f"[UpdateTransaction] Starting revision creation for {entity_id}")
         from models.rest_api.entitybase.handlers.entity.base import EntityHandler
 
@@ -174,7 +141,10 @@ class UpdateTransaction(EntityTransaction):
         self.operations.append(
             lambda: self._rollback_revision(entity_id, new_revision_id, vitess_client)
         )
-        return response
+        if not response.success:
+            from models.validation.utils import raise_validation_error
+            raise_validation_error(response.error or "Failed to create revision")
+        return response.data
 
     def publish_event(
         self,

@@ -118,7 +118,7 @@ class EntityHandler(BaseModel):
         )
 
         # Create and store revision
-        revision_response = await self._create_and_store_revision(
+        revision_result = await self._create_and_store_revision(
             entity_id=entity_id,
             new_revision_id=new_revision_id,
             head_revision_id=head_revision_id,
@@ -140,10 +140,10 @@ class EntityHandler(BaseModel):
             is_creation=is_creation,
         )
 
-        if not isinstance(revision_response, (EntityResponse, EntityRevisionResponse)):
-            raise_validation_error("Invalid response type", status_code=500)
-        # noinspection PyTypeChecker
-        return revision_response
+        if not revision_result.success:
+            raise_validation_error(revision_result.error or "Failed to create revision")
+
+        return revision_result.data
 
     def _check_idempotency(
         self,

@@ -6,8 +6,9 @@ from typing import List, Callable, Any
 
 from pydantic import BaseModel, Field
 
+from models.common import OperationResult
 from models.rest_api.entitybase.response import StatementHashResult
-from models.rest_api.entitybase.response import EntityRevisionResponse
+from models.rest_api.entitybase.response import EntityResponse
 
 logger = logging.getLogger(__name__)
 
@@ -76,10 +77,8 @@ class EntityTransaction(BaseModel, ABC):
         s3_client: Any,
         stream_producer: Any,
         is_creation: bool,
-    ) -> EntityRevisionResponse:
-        logger.debug(
-            f"[CreationTransaction] Starting revision creation for {entity_id}"
-        )
+    ) -> EntityResponse:
+        pass
         from models.rest_api.entitybase.handlers.entity.base import EntityHandler
 
         handler = EntityHandler()
@@ -107,7 +106,10 @@ class EntityTransaction(BaseModel, ABC):
         self.operations.append(
             lambda: self._rollback_revision(entity_id, new_revision_id, vitess_client)
         )
-        return response
+        if not response.success:
+            from models.validation.utils import raise_validation_error
+            raise_validation_error(response.error or "Failed to create revision")
+        return response.data
 
     def publish_event(
         self,
