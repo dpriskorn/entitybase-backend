@@ -166,6 +166,49 @@ class TestThanksRepository:
         assert data["total_count"] == 1
         assert data["has_more"] is False
 
+    def test_get_thanks_received_pagination(self, repository, mock_connection_manager):
+        """Test get_thanks_received with pagination."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        # Mock 55 thanks total, fetching 50 with offset 0, so has_more=True
+        mock_cursor.fetchall.return_value = [
+            (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc)) for i in range(1, 51)
+        ]
+        mock_cursor.fetchone.return_value = (55,)
+
+        result = repository.get_thanks_received(456, 24, 50, 0)
+
+        assert result.success is True
+        data = result.data
+        assert len(data["thanks"]) == 50
+        assert data["total_count"] == 55
+        assert data["has_more"] is True
+
+    def test_get_thanks_received_empty(self, repository, mock_connection_manager):
+        """Test get_thanks_received with no results."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_cursor.fetchall.return_value = []
+        mock_cursor.fetchone.return_value = (0,)
+
+        result = repository.get_thanks_received(456, 24, 50, 0)
+
+        assert result.success is True
+        data = result.data
+        assert len(data["thanks"]) == 0
+        assert data["total_count"] == 0
+        assert data["has_more"] is False
+
     def test_get_thanks_received_invalid_params(self, repository):
         """Test get_thanks_received with invalid parameters."""
         result = repository.get_thanks_received(0, 24, 50, 0)
@@ -190,8 +233,8 @@ class TestThanksRepository:
         assert result.success is False
         assert "Database error" in result.error
 
-    def test_get_thanks_sent_database_error(self, repository, mock_connection_manager):
-        """Test get_thanks_sent with database error."""
+    def test_get_thanks_sent_success(self, repository, mock_connection_manager):
+        """Test successful get_thanks_sent."""
         mock_conn = Mock()
         mock_cursor = Mock()
         mock_connection_manager.get_connection.return_value.__enter__.return_value = (
@@ -199,12 +242,67 @@ class TestThanksRepository:
         )
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
-        mock_cursor.execute.side_effect = Exception("Database error")
+        mock_cursor.fetchall.return_value = [
+            (1, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc))
+        ]
+        mock_cursor.fetchone.return_value = (1,)
 
         result = repository.get_thanks_sent(123, 24, 50, 0)
 
+        assert result.success is True
+        data = result.data
+        assert len(data["thanks"]) == 1
+        assert data["total_count"] == 1
+        assert data["has_more"] is False
+
+    def test_get_thanks_sent_pagination(self, repository, mock_connection_manager):
+        """Test get_thanks_sent with pagination."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        # Mock 55 thanks total, fetching 50 with offset 0, so has_more=True
+        mock_cursor.fetchall.return_value = [
+            (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc)) for i in range(1, 51)
+        ]
+        mock_cursor.fetchone.return_value = (55,)
+
+        result = repository.get_thanks_sent(123, 24, 50, 0)
+
+        assert result.success is True
+        data = result.data
+        assert len(data["thanks"]) == 50
+        assert data["total_count"] == 55
+        assert data["has_more"] is True
+
+    def test_get_thanks_sent_empty(self, repository, mock_connection_manager):
+        """Test get_thanks_sent with no results."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_cursor.fetchall.return_value = []
+        mock_cursor.fetchone.return_value = (0,)
+
+        result = repository.get_thanks_sent(123, 24, 50, 0)
+
+        assert result.success is True
+        data = result.data
+        assert len(data["thanks"]) == 0
+        assert data["total_count"] == 0
+        assert data["has_more"] is False
+
+    def test_get_thanks_sent_invalid_params(self, repository):
+        """Test get_thanks_sent with invalid parameters."""
+        result = repository.get_thanks_sent(0, 24, 50, 0)
         assert result.success is False
-        assert "Database error" in result.error
+        assert "Invalid parameters" in result.error
 
     def test_get_revision_thanks_success(
         self, repository, mock_connection_manager, mock_id_resolver
@@ -228,6 +326,26 @@ class TestThanksRepository:
         thanks = result.data
         assert len(thanks) == 1
         assert thanks[0].id == 1
+
+    def test_get_revision_thanks_empty(
+        self, repository, mock_connection_manager, mock_id_resolver
+    ):
+        """Test get_revision_thanks with no results."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_id_resolver.resolve_id.return_value = 123
+        mock_cursor.fetchall.return_value = []
+
+        result = repository.get_revision_thanks("Q42", 100)
+
+        assert result.success is True
+        thanks = result.data
+        assert len(thanks) == 0
 
     def test_get_revision_thanks_entity_not_found(
         self, repository, mock_connection_manager, mock_id_resolver
