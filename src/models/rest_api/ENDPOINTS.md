@@ -2,6 +2,9 @@
 
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
+| ✅ | POST | `/entitybase/entitybase/v1/users` | Create a new user. |
+| ✅ | GET | `/entitybase/entitybase/v1/users/stat` | Get user statistics. |
+| ✅ | GET | `/entitybase/entitybase/v1/users/{user_id}` | Get user information by MediaWiki user ID. |
 | ✅ | GET | `/entitybase/v1/entities` | List entities based on type, limit, and offset. |
 | ✅ | GET | `/entitybase/v1/entities/aliases/{hashes}` | Get batch aliases by hashes. |
 | ✅ | GET | `/entitybase/v1/entities/descriptions/{hashes}` | Get batch descriptions by hashes. |
@@ -28,15 +31,17 @@
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}.ttl` | Get entity data in Turtle format. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/history` | Get the revision history for an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties` | Get entity property hashes for specified properties. |
+| ✅ | POST | `/entitybase/v1/entities/{entity_id}/properties/{property_id}` | Add claims for a single property to an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties/{property_list}` | Get entity property hashes for specified properties. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert` | Revert entity to a previous revision. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert-redirect` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}` | Get a specific revision of an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/json` | Get JSON representation of a specific entity revision. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}/ttl` | Get Turtle (TTL) representation of a specific entity revision. |
-| ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/raw/{revision_id}` | Get entity property hashes for specified properties. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thank` | Send a thank for a specific revision. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks` | Get all thanks for a specific revision. |
+| ✅ | DELETE | `/entitybase/v1/entities/{entity_id}/statements/{statement_hash}` | Remove a statement by hash from an entity. |
+| ✅ | PATCH | `/entitybase/v1/entities/{entity_id}/statements/{statement_hash}` | Replace a statement by hash with new claim data. |
 | ✅ | GET | `/entitybase/v1/entity/{entity_id}/properties/{property_list}` | Get statement hashes for specified properties in an entity. |
 | ✅ | PUT | `/entitybase/v1/item/{entity_id}` | Update an existing item entity. |
 | ✅ | POST | `/entitybase/v1/json-import` | Import entities from Wikidata JSONL dump file. |
@@ -55,9 +60,6 @@
 | ✅ | GET | `/entitybase/v1/statements/{statement_hash}/endorsements` | Get endorsements for a statement. |
 | ✅ | GET | `/entitybase/v1/statements/{statement_hash}/endorsements/stats` | Get endorsement statistics for a statement. |
 | ✅ | GET | `/entitybase/v1/stats` | Get general wiki statistics. |
-| ✅ | POST | `/entitybase/v1/users` | Create a new user. |
-| ✅ | GET | `/entitybase/v1/users/stat` | Get user statistics. |
-| ✅ | GET | `/entitybase/v1/users/{user_id}` | Get user information by MediaWiki user ID. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}/endorsements` | Get endorsements given by a user. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}/endorsements/stats` | Get endorsement statistics for a user. |
 | ✅ | GET | `/entitybase/v1/users/{user_id}/thanks/received` | Get thanks received by user. |
@@ -73,6 +75,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 68 |
+| Implemented | 70 |
 | Not Implemented | 0 |
-| Total | 68 |
+| Total | 70 |

@@ -6,6 +6,7 @@ package "Services" as Services #LightGreen {
     "BacklinkStatistics" as BacklinkStatisticsService
     "Enumeration" as EnumerationService
     "GeneralStats" as GeneralStatsService
+    "Hash" as HashService
     "IdRange" as IdRange
     "IdRangeManager" as IdRangeManager
     "Redirect" as RedirectService

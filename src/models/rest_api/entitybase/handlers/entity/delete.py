@@ -10,7 +10,7 @@ from models.user_activity import ActivityType
 
 logger = logging.getLogger(__name__)
 
-from models.rest_api.misc import DeleteType
+from models.infrastructure.s3.enums import DeleteType
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.response import EntityDeleteResponse
 from models.config.settings import settings

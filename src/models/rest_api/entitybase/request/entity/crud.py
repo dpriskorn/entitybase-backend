@@ -3,7 +3,7 @@ from typing import Dict, Any
 from pydantic import BaseModel, Field
 
 from models.rest_api.entitybase.response import EntityState
-from models.rest_api.misc import EditType, DeleteType
+from models.infrastructure.s3.enums import EditType, DeleteType
 
 
 class EntityCreateRequest(BaseModel):
@@ -25,20 +25,10 @@ class EntityCreateRequest(BaseModel):
         description="Classification of edit type",
     )
     state: EntityState = Field(default=EntityState(), description="Entity state")
-    is_semi_protected: bool = Field(default=False, description="Item is semi-protected")
-    is_locked: bool = Field(default=False, description="Item is locked from edits")
-    is_archived: bool = Field(default=False, description="Item is archived")
-    is_dangling: bool = Field(
-        default=False,
-        description="Item has no maintaining WikiProject (computed by frontend)",
+    is_autoconfirmed_user: bool = Field(
+        default=False, description="User is autoconfirmed (not a new/unconfirmed account)"
     )
-    is_mass_edit_protected: bool = Field(
-        default=False, description="Item is protected from mass edits"
-    )
-    is_not_autoconfirmed_user: bool = Field(
-        default=False, description="User is not autoconfirmed (new/unconfirmed account)"
-    )
-    edit_summary: str = Field(min_length=1, description="Edit summary for this change")
+    edit_summary: str = Field(min_length=1, max_length=200, description="Edit summary for this change")
     user_id: int = Field(default=0, description="User who made this change")
 
     @property
@@ -60,19 +50,10 @@ class EntityUpdateRequest(BaseModel):
     aliases: Dict[str, Any] = {}
     sitelinks: Dict[str, Any] = {}
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
+    state: EntityState = Field(default=EntityState(), description="Entity state")
     edit_type: EditType = Field(
         default=EditType.UNSPECIFIED,
         description="Classification of edit type",
-    )
-    is_semi_protected: bool = Field(default=False, description="Item is semi-protected")
-    is_locked: bool = Field(default=False, description="Item is locked from edits")
-    is_archived: bool = Field(default=False, description="Item is archived")
-    is_dangling: bool = Field(
-        default=False,
-        description="Item has no maintaining WikiProject (computed by frontend)",
-    )
-    is_mass_edit_protected: bool = Field(
-        default=False, description="Item is protected from mass edits"
     )
     is_not_autoconfirmed_user: bool = Field(
         default=False, description="User is not autoconfirmed (new/unconfirmed account)"

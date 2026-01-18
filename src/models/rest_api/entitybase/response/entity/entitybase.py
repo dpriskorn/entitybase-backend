@@ -137,7 +137,8 @@ class EntityState(BaseModel):
         default=False,
         description="Whether the entity is semi-protected. Example: true.",
     )
-    is_locked: bool = Field(default=False,
+    is_locked: bool = Field(alias="locked",
+                            default=False,
                             description="Whether the entity is locked. Example: false.")
     is_archived: bool = Field(
         default=False,
@@ -151,6 +152,11 @@ class EntityState(BaseModel):
         default=False,
         alias="mep",
         description="Whether the entity has mass edit protection. Example: true.",
+    )
+    is_deleted: bool = Field(
+        default=False,
+        alias="deleted",
+        description="Whether the entity is deleted. Example: true.",
     )
 
 class EntityResponse(BaseModel):

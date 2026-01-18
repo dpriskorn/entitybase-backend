@@ -12,11 +12,11 @@ package "API Layer" as APILayer #LightBlue {
 }
 
 package "Service Layer" as ServiceLayer #LightGreen {
+    "Hash" as HashService
     "Enumeration" as EnumerationService
     "BacklinkStatistics" as BacklinkStatisticsService
     "UserStats" as UserStatsService
     "Redirect" as RedirectService
-    "IdRange" as IdRange
 }
 
 package "Worker Layer" as WorkerLayer #LightYellow {

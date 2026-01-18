@@ -16,21 +16,20 @@ src/
 │   │   ├── property_registry
 │   │   └── writers
 │   ├── rest_api
-│   │   ├── entitybase
-│   │   │   ├── handlers
-│   │   │   │   └── entity
-│   │   │   │       ├── items
-│   │   │   │       ├── lexeme
-│   │   │   │       └── property
-│   │   │   ├── request
-│   │   │   │   └── entity
-│   │   │   ├── response
-│   │   │   │   └── entity
-│   │   │   ├── routes
-│   │   │   ├── services
-│   │   │   └── versions
-│   │   │       └── v1
-│   │   └── utils
+│   │   └── entitybase
+│   │       ├── handlers
+│   │       │   └── entity
+│   │       │       ├── items
+│   │       │       ├── lexeme
+│   │       │       └── property
+│   │       ├── request
+│   │       │   └── entity
+│   │       ├── response
+│   │       │   └── entity
+│   │       ├── routes
+│   │       ├── services
+│   │       └── versions
+│   │           └── v1
 │   ├── services
 │   ├── validation
 │   └── workers
@@ -79,4 +78,4 @@ src/
             ├── 1.0.0
             └── latest
 
-80 directories
+79 directories

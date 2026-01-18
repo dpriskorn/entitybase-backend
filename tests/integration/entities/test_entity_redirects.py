@@ -10,7 +10,7 @@ from models.rest_api.entitybase.response.entity import (
     EntityRedirectResponse,
     EntityResponse,
 )
-from models.rest_api.misc import EditType
+from models.infrastructure.s3.enums import EditType
 from fastapi import HTTPException
 
 

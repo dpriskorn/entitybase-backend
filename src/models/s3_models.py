@@ -8,9 +8,8 @@ from pydantic.root_model import RootModel
 
 from models.config.settings import settings
 from models.infrastructure.config import Config
-from models.infrastructure.s3.enums import CreatedBy
-from models.internal_representation.entity_types import EntityType
-from models.rest_api.entitybase.response import EntityState
+from models.infrastructure.s3.enums import CreatedBy, EditType, EntityType, EditData
+from models.rest_api.entitybase.response import EntityState, PropertyCounts
 
 
 class EntityData(BaseModel):
@@ -55,8 +54,16 @@ class SitelinksHashes(RootModel[dict[str, int]]):
     """Hash map for entity sitelinks by site."""
 
 
-class StatementsHashes(RootModel[dict[str, list[int]]]):
-    """Hash map for entity statements by property."""
+class StatementsHashes(RootModel[list[int]]):
+    """Hash list for entity statements."""
+
+
+class HashMaps(BaseModel):
+    labels: LabelsHashes | None = Field(default=None)
+    descriptions: DescriptionsHashes | None = Field(default=None)
+    aliases: AliasesHashes | None = Field(default=None)
+    sitelinks: SitelinksHashes | None = Field(default=None)
+    statements: StatementsHashes | None = Field(default=None)
 
 
 class RevisionData(BaseModel):
@@ -67,18 +74,15 @@ class RevisionData(BaseModel):
     """
 
     revision_id: int
-    entity: EntityData
+    entity_type: EntityType
+    edit: EditData
+    hashes: HashMaps
     schema_version: str = Field(default=settings.s3_schema_revision_version, description="Version of schema. E.g. 1.0.0")
     created_at: str = Field(default=datetime.now(timezone.utc).isoformat(), description="Timestamp when entity was created.")
-    created_by: CreatedBy = Field(default=CreatedBy.UNKNOWN)
-    entity_type: EntityType = Field(default=EntityType.UNKNOWN)
     redirects_to: str = Field(default="", description="Entity ID this entity redirects to. E.g. Q1")
     state: EntityState = Field(default=EntityState())
-    labels_hashes: LabelsHashes | None = Field(default=None)
-    descriptions_hashes: DescriptionsHashes | None = Field(default=None)
-    aliases_hashes: AliasesHashes | None = Field(default=None)
-    sitelinks_hashes: SitelinksHashes | None = Field(default=None)
-    statements_hashes: StatementsHashes | None = Field(default=None)
+    property_counts: PropertyCounts | None = Field(default=None)
+    properties: list[str] = Field(default_factory=list)
 
 
 class S3QualifierData(BaseModel):

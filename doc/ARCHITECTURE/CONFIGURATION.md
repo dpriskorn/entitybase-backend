@@ -26,7 +26,7 @@ All settings can be overridden using environment variables with the same name.
 ### `vitess_database`
 
 - **Type**: `str`
-- **Default**: `'wikibase'`
+- **Default**: `'entitybase'`
 - **Description**: No description available
 
 ### `vitess_user`
@@ -61,12 +61,6 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'fakesecret'`
 - **Description**: No description available
 
-### `s3_bucket`
-
-- **Type**: `str`
-- **Default**: `'testbucket'`
-- **Description**: No description available
-
 ### `s3_references_bucket`
 
 - **Type**: `str`
@@ -79,7 +73,31 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'testbucket-qualifiers'`
 - **Description**: No description available
 
-### `s3_revision_version`
+### `s3_sitelinks_bucket`
+
+- **Type**: `str`
+- **Default**: `'testbucket-sitelinks'`
+- **Description**: No description available
+
+### `s3_statements_bucket`
+
+- **Type**: `str`
+- **Default**: `'testbucket-statements'`
+- **Description**: No description available
+
+### `s3_terms_bucket`
+
+- **Type**: `str`
+- **Default**: `'testbucket-terms'`
+- **Description**: No description available
+
+### `s3_revisions_bucket`
+
+- **Type**: `str`
+- **Default**: `'testbucket-revisions'`
+- **Description**: No description available
+
+### `s3_schema_revision_version`
 
 - **Type**: `str`
 - **Default**: `'latest'`
@@ -113,10 +131,10 @@ All settings can be overridden using environment variables with the same name.
 
 ## RDF Settings
 
-### `kafka_rdf_topic`
+### `kafka_entitychange_rdf_topic`
 
 - **Type**: `str`
-- **Default**: `'wikibase.entity_diff'`
+- **Default**: `'entitybase.entity_ttl_diff'`
 - **Description**: No description available
 
 ## Development Settings
@@ -183,10 +201,10 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `''`
 - **Description**: No description available
 
-### `kafka_topic`
+### `kafka_entitychange_json_topic`
 
 - **Type**: `str`
-- **Default**: `'wikibase.entity_change'`
+- **Default**: `'entitybase.entity_change'`
 - **Description**: No description available
 
 ### `user_stats_enabled`

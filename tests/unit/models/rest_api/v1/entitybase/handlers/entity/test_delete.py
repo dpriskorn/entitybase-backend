@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from models.rest_api.entitybase.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.response import EntityDeleteResponse
-from models.rest_api.misc import DeleteType
+from models.infrastructure.s3.enums import DeleteType
 
 
 class TestEntityDeleteHandler:

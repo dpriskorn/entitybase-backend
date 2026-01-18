@@ -61,6 +61,14 @@ class MostUsedStatementsResponse(BaseModel):
     )
 
 
+class PropertyCounts(BaseModel):
+    """Model for property statement counts."""
+
+    counts: dict[str, int] = Field(
+        description="Dictionary mapping property ID to statement count"
+    )
+
+
 class StatementHashResult(BaseModel):
     model_config = ConfigDict()
 
@@ -72,9 +80,9 @@ class StatementHashResult(BaseModel):
         default_factory=list,
         description="Sorted list of unique property IDs. Example: ['P31', 'P279'].",
     )
-    property_counts: dict[str, int] = Field(
+    property_counts: PropertyCounts = Field(
         alias="counts",
-        default_factory=dict,
+        default_factory=PropertyCounts,
         description="Dict mapping property ID to count of statements. Example: {'P31': 5}.",
     )
     full_statements: list[Dict[str, Any]] = Field(
@@ -83,13 +91,6 @@ class StatementHashResult(BaseModel):
         description="List of full statement dicts (parallel with hashes). Example: [{'id': 'P31', 'value': 'Q5'}].",
     )
 
-
-class PropertyCounts(BaseModel):
-    """Model for property statement counts."""
-
-    counts: dict[str, int] = Field(
-        description="Dictionary mapping property ID to statement count"
-    )
 
 
 class StatementsResponse(BaseModel):

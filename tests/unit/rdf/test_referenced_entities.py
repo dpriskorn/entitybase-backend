@@ -6,7 +6,7 @@ from models.internal_representation import Rank
 from models.internal_representation.entity import Entity
 from models.internal_representation.values.entity_value import EntityValue
 from models.internal_representation.statements import Statement
-from models.internal_representation.entity_types import EntityType
+from models.infrastructure.s3.enums import EntityType
 from models.rdf_builder.converter import EntityConverter
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.ontology.datatypes import property_shape

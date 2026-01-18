@@ -956,6 +956,161 @@ Added preference management methods:
 
 This enables personalized notification management while maintaining system performance and scalability.
 
+## [2026-01-18] Add Single Property Endpoint
+
+### Summary
+
+Added `POST /entitybase/v1/entities/{entity_id}/properties/{property_id}` endpoint to add claims for a single property to an existing entity. Includes property existence validation and integrates with existing entity update workflow.
+
+### Motivation
+
+- **Incremental Updates**: Allow adding statements for specific properties without full entity replacement
+- **API Completeness**: Support property-level operations for better client flexibility
+- **Data Integrity**: Validate property existence and type before allowing additions
+
+### Changes
+
+#### New Request Model
+
+**File**: `src/models/rest_api/entitybase/request/entity/add_property.py`
+
+- `AddPropertyRequest`: claims (list of statements), edit_summary
+
+#### Handler Method
+
+**File**: `src/models/rest_api/entitybase/handlers/entity/base.py`
+
+- `EntityHandler.add_property()`: Validates property, fetches entity, merges claims, processes update
+- Returns `OperationResult[dict]` with `{"revision_id": int}`
+
+#### API Endpoint
+
+**File**: `src/models/rest_api/entitybase/versions/v1/entities.py`
+
+- `POST /entities/{entity_id}/properties/{property_id}` with `AddPropertyRequest`
+- Response: `OperationResult[dict]`
+
+#### Validation
+
+- Property ID format check (P followed by digits)
+- Property existence and type verification via entity fetch
+- Claim merging with existing property claims
+
+### Impact
+
+- **New Functionality**: Single-property additions for entities
+- **Backward Compatibility**: No breaking changes to existing APIs
+- **Performance**: Reuses existing update infrastructure
+
+### Notes
+
+- Claims are appended to existing ones for the property
+- Full entity re-processing ensures consistency
+- Property must exist as a "property" type entity
+
+## [2026-01-18] Remove Statement by Hash Endpoint
+
+### Summary
+
+Added `DELETE /entitybase/v1/entities/{entity_id}/statements/{statement_hash}` endpoint to remove a specific statement from an entity by its hash. Uses optimized direct hash removal from revision data with automatic property count recalculation.
+
+### Motivation
+
+- **Granular Editing**: Allow targeted removal of individual statements
+- **Performance**: Avoid full entity re-processing for efficient removals
+- **Data Integrity**: Maintain accurate property counts and metadata
+
+### Changes
+
+#### Request Model
+
+**File**: `src/models/rest_api/entitybase/request/entity/remove_statement.py`
+
+- `RemoveStatementRequest`: edit_summary for audit trail
+
+#### Handler Method
+
+**File**: `src/models/rest_api/entitybase/handlers/entity/base.py`
+
+- `EntityHandler.remove_statement()`: Direct revision hash modification
+- Removes hash from statements list, decrements ref_count, recalculates property counts
+- Removes properties with 0 statements from metadata
+
+#### API Endpoint
+
+**File**: `src/models/rest_api/entitybase/versions/v1/entities.py`
+
+- `DELETE /entities/{entity_id}/statements/{statement_hash}` with `RemoveStatementRequest`
+- Response: `OperationResult[dict]` with revision_id
+
+#### Validation
+
+- Statement hash exists in revision statements list
+- Fails if ref_count decrement fails (strict consistency)
+
+### Impact
+
+- **New Functionality**: Efficient statement removal without full re-hashing
+- **Backward Compatibility**: No breaking changes
+- **Performance**: Minimal processing compared to full entity updates
+
+### Notes
+
+- Directly modifies revision hashes and metadata
+- Automatic property cleanup when counts reach 0
+
+## [2026-01-18] Patch Statement by Hash Endpoint
+
+### Summary
+
+Added `PATCH /entitybase/v1/entities/{entity_id}/statements/{statement_hash}` endpoint to replace a specific statement with new claim data. Provides efficient in-place editing without remove+add operations.
+
+### Motivation
+
+- **Simplified Editing**: Single operation for statement modifications
+- **Better UX**: Avoids two-step process for frontend edits
+- **Performance**: Reuses full processing for consistency
+- **API Completeness**: Complete CRUD operations for statements
+
+### Changes
+
+#### Request Model
+
+**File**: `src/models/rest_api/entitybase/request/entity/patch_statement.py`
+
+- `PatchStatementRequest`: claim (new statement data), edit_summary
+
+#### Handler Method
+
+**File**: `src/models/rest_api/entitybase/handlers/entity/base.py`
+
+- `EntityHandler.patch_statement()`: Finds statement by hash, replaces with new claim, processes update
+
+#### API Endpoint
+
+**File**: `src/models/rest_api/entitybase/versions/v1/entities.py`
+
+- `PATCH /entities/{entity_id}/statements/{statement_hash}` with `PatchStatementRequest`
+- Response: `OperationResult[dict]` with revision_id
+
+#### Validation
+
+- Statement hash exists in entity's claims
+- New claim data is valid JSON
+
+### Impact
+
+- **New Functionality**: Direct statement editing
+- **Backward Compatibility**: No breaking changes
+- **Performance**: Same as full entity updates
+
+### Notes
+
+- Replaces entire statement with new claim
+- Maintains property structure
+- Full validation and processing
+- Strict error handling for ref_count operations
+
 ## [2026-01-12] EntityBase Revert API for Subgraph Protection
 
 ### Summary
@@ -2738,3 +2893,61 @@ class EntityDeleteResponse(BaseModel):
 - Entity ID stored in S3 path and entity.id, not metadata
 - `revision_id` must be monotonic per entity
 - `content_hash` provides integrity verification and idempotency
+
+## [2026-01-18] HashService Implementation
+
+### Summary
+
+Implemented a centralized HashService for processing and storing all entity metadata (statements, sitelinks, labels, descriptions, aliases). This service handles hashing, deduplication, and storage in S3/Vitess, replacing scattered processing logic in handlers.
+
+### Motivation
+
+- **Centralization**: Consolidate metadata hashing logic into a reusable service
+- **Consistency**: Ensure uniform processing for all metadata types
+- **Maintainability**: Simplify handler code by delegating to service methods
+- **Extensibility**: Easy to add new metadata types or modify hashing logic
+
+### Changes
+
+#### New HashService
+
+**File**: `src/models/rest_api/entitybase/services/hash_service.py`
+
+New `HashService` class with static methods for hashing each metadata component:
+
+- `hash_statements()`: Processes statements with references/qualifiers deduplication
+- `hash_sitelinks()`: Hashes sitelink titles
+- `hash_labels()`, `hash_descriptions()`, `hash_aliases()`: Hashes term strings
+- `hash_entity_metadata()`: Orchestrates all hashing and returns `HashMaps`
+
+#### Model Updates
+
+**File**: `src/models/s3_models.py`
+
+- Updated `StatementsHashes` to `RootModel[list[int]]` for flat statement hash lists
+- Used existing `HashMaps`, `LabelsHashes`, etc. models
+
+#### Handler Integration
+
+**File**: `src/models/rest_api/entitybase/handlers/entity/base.py`
+
+- Integrated HashService for sitelinks, labels, descriptions, aliases processing
+- Updated `RevisionData` creation to include all hashed metadata
+- Replaced manual sitelink hashing with service call
+
+#### Storage Integration
+
+- S3: Stores metadata in respective buckets (`wikibase-statements`, `wikibase-sitelinks`, `wikibase-terms`)
+- Vitess: Manages ref_counts for statements/terms via repositories
+
+### Impact
+
+- **Performance**: No change, maintains existing storage patterns
+- **API**: No breaking changes, internal refactoring
+- **Storage**: Consistent deduplication across all metadata types
+- **Code Quality**: Reduced duplication, improved modularity
+
+### Backward Compatibility
+
+- Fully backward compatible, no API or data format changes
+- Existing entity processing continues to work unchanged

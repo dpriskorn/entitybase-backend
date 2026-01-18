@@ -108,7 +108,7 @@ class EntityCreateHandler(EntityHandler):
             is_archived=request.is_archived,
             is_dangling=request.is_dangling,
             is_mass_edit_protected=request.is_mass_edit_protected,
-            is_not_autoconfirmed_user=request.is_not_autoconfirmed_user,
+            is_not_autoconfirmed_user=request.is_autoconfirmed_user,
             vitess_client=vitess_client,
             s3_client=s3_client,
             stream_producer=stream_producer,

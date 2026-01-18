@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 import os
 
-from models.internal_representation.entity_types import EntityType
+from models.infrastructure.s3.enums import EntityType
 from models.internal_representation.ranks import Rank
 from models.internal_representation.value_kinds import ValueKind
 from models.json_parser import parse_entity

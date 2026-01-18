@@ -10,7 +10,7 @@ from models.rest_api.entitybase.response import (
     EntityRedirectResponse,
 )
 from models.rest_api.entitybase.response.entity import EntityRevertResponse
-from models.rest_api.misc import EditType
+from models.infrastructure.s3.enums import EditType
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:

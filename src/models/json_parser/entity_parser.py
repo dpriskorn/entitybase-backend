@@ -20,7 +20,7 @@ from models.rest_api.entitybase.response.entity import (
 
 from models.json_parser.statement_parser import parse_statement
 from models.internal_representation.entity import Entity
-from models.internal_representation.entity_types import EntityType
+from models.infrastructure.s3.enums import EntityType
 from models.internal_representation.json_fields import JsonField
 
 

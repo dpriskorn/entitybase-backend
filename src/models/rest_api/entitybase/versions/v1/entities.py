@@ -8,9 +8,13 @@ from models.rest_api.clients import Clients
 from models.rest_api.entitybase.handlers.admin import AdminHandler
 from models.rest_api.entitybase.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.handlers.entity.base import EntityHandler
 from models.rest_api.entitybase.handlers.export import ExportHandler
 from models.rest_api.entitybase.handlers.statement import StatementHandler
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
+from models.rest_api.entitybase.request.entity.add_property import AddPropertyRequest
+from models.rest_api.entitybase.request.entity.remove_statement import RemoveStatementRequest
+from models.rest_api.entitybase.request.entity.patch_statement import PatchStatementRequest
 from models.rest_api.entitybase.response import (
     EntityResponse,
     EntityRevisionResponse,
@@ -25,6 +29,7 @@ from models.rest_api.entitybase.response import (
 from models.rest_api.entitybase.response.entity.entitybase import EntityHistoryEntry
 from models.rest_api.entitybase.response.entity.entitybase import EntityDeleteResponse
 from models.rest_api.utils import raise_validation_error
+from models.common import OperationResult
 
 router = APIRouter()
 
@@ -196,3 +201,54 @@ async def get_entity_property_hashes(
     return handler.get_entity_property_hashes(
         entity_id, property_list, clients.vitess, clients.s3
     )
+
+
+@router.post("/entities/{entity_id}/properties/{property_id}", response_model=OperationResult[dict])
+async def add_entity_property(
+    entity_id: str, property_id: str, request: AddPropertyRequest, req: Request
+) -> OperationResult[dict]:
+    """Add claims for a single property to an entity."""
+    clients = req.app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityHandler()
+    result = handler.add_property(
+        entity_id, property_id, request, clients.vitess, clients.s3, clients.validator
+    )
+    if not isinstance(result, OperationResult):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
+
+
+@router.delete("/entities/{entity_id}/statements/{statement_hash}", response_model=OperationResult[dict])
+async def remove_entity_statement(
+    entity_id: str, statement_hash: str, request: RemoveStatementRequest, req: Request
+) -> OperationResult[dict]:
+    """Remove a statement by hash from an entity."""
+    clients = req.app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityHandler()
+    result = handler.remove_statement(
+        entity_id, statement_hash, request.edit_summary, clients.vitess, clients.s3, clients.validator
+    )
+    if not isinstance(result, OperationResult):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
+
+
+@router.patch("/entities/{entity_id}/statements/{statement_hash}", response_model=OperationResult[dict])
+async def patch_entity_statement(
+    entity_id: str, statement_hash: str, request: PatchStatementRequest, req: Request
+) -> OperationResult[dict]:
+    """Replace a statement by hash with new claim data."""
+    clients = req.app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityHandler()
+    result = handler.patch_statement(
+        entity_id, statement_hash, request, clients.vitess, clients.s3, clients.validator
+    )
+    if not isinstance(result, OperationResult):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
