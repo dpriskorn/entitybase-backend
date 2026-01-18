@@ -109,6 +109,7 @@ async def get_entity_json_revision(  # type: ignore[return]
 
 @router.get("/entities/{entity_id}.ttl")
 async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse:
+    """Get entity data in Turtle format."""
     clients = req.app.state.clients
     handler = ExportHandler()
     result = handler.get_entity_data_turtle(
@@ -123,6 +124,7 @@ async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse
 async def delete_entity(  # type: ignore[no-any-return]
     entity_id: str, request: EntityDeleteRequest, req: Request
 ) -> EntityDeleteResponse:
+    """Delete an entity."""
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)

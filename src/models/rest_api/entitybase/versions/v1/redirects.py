@@ -20,6 +20,7 @@ redirects_router = APIRouter()
 async def create_entity_redirect(
     request: EntityRedirectRequest, req: Request
 ) -> EntityRedirectResponse:
+    """Create a redirect for an entity."""
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)
