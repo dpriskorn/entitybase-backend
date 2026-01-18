@@ -348,6 +348,15 @@ class MyS3Client(Client):
     def delete_metadata(self, metadata_type: str, content_hash: int) -> None:
         """Delete metadata content from S3 when ref_count reaches 0."""
         key = f"metadata/{metadata_type}/{content_hash}"
+
+        # Determine bucket based on metadata type
+        if metadata_type in ("labels", "descriptions", "aliases"):
+            bucket = settings.s3_terms_bucket
+        elif metadata_type == "sitelinks":
+            bucket = settings.s3_sitelinks_bucket
+        else:
+            raise_validation_error(f"Unknown metadata type for deletion: {metadata_type}", status_code=400)
+
         try:
             self.connection_manager.boto_client.delete_object(  # type: ignore[union-attr]
                 Bucket=bucket, Key=key

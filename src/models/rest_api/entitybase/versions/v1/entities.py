@@ -18,6 +18,7 @@ from models.rest_api.entitybase.request.entity.remove_statement import (
     RemoveStatementRequest,
 )
 from models.rest_api.entitybase.request.entity import EntityUpdateRequest
+from models.rest_api.entitybase.request.entity.sitelink import SitelinkData
 from models.rest_api.entitybase.request.entity.patch_statement import (
     PatchStatementRequest,
 )
@@ -307,3 +308,140 @@ async def put_entity_sitelinks(
         clients.stream_producer,
         validator,
     )
+
+
+@router.get("/entities/{entity_id}/sitelinks/{site}", response_model=SitelinkData)
+async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> SitelinkData:
+    """Get a single sitelink for an entity."""
+    clients = req.app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityReadHandler()
+    entity_response = handler.get_entity(entity_id, clients.vitess, clients.s3)
+
+    sitelinks = entity_response.entity_data.get("sitelinks", {})
+    if site not in sitelinks:
+        raise_validation_error(f"Sitelink for site {site} not found", status_code=404)
+
+    sitelink_data = sitelinks[site]
+    return SitelinkData(title=sitelink_data.get("title", ""), badges=sitelink_data.get("badges", []))
+
+
+@router.post("/entities/{entity_id}/sitelinks/{site}", response_model=OperationResult[dict])
+async def post_entity_sitelink(
+    entity_id: str, site: str, sitelink_data: SitelinkData, req: Request, x_user_id: int = Header(..., alias="X-User-ID")
+) -> OperationResult[dict]:
+    """Add a new sitelink for an entity."""
+    clients = req.app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
+
+    # Get current entity
+    handler = EntityReadHandler()
+    current_entity = handler.get_entity(entity_id, clients.vitess, clients.s3)
+
+    # Check if sitelink already exists
+    sitelinks = current_entity.entity_data.get("sitelinks", {})
+    if site in sitelinks:
+        raise_validation_error(f"Sitelink for site {site} already exists", status_code=409)
+
+    # Add sitelink
+    if "sitelinks" not in current_entity.entity_data:
+        current_entity.entity_data["sitelinks"] = {}
+    current_entity.entity_data["sitelinks"][site] = {"title": sitelink_data.title, "badges": sitelink_data.badges}
+
+    # Create new revision
+    update_handler = EntityUpdateHandler()
+    entity_type = current_entity.entity_data.get("type") or "item"
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
+
+    result = await update_handler.update_entity(
+        entity_id,
+        update_request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        clients.validator,
+        user_id=x_user_id,
+    )
+
+    return OperationResult(success=True, data={"revision_id": result.revision_id})
+
+
+@router.put("/entities/{entity_id}/sitelinks/{site}", response_model=OperationResult[dict])
+async def put_entity_sitelink(
+    entity_id: str, site: str, sitelink_data: SitelinkData, req: Request, x_user_id: int = Header(..., alias="X-User-ID")
+) -> OperationResult[dict]:
+    """Update an existing sitelink for an entity."""
+    clients = req.app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
+
+    # Get current entity
+    handler = EntityReadHandler()
+    current_entity = handler.get_entity(entity_id, clients.vitess, clients.s3)
+
+    # Check if sitelink exists
+    sitelinks = current_entity.entity_data.get("sitelinks", {})
+    if site not in sitelinks:
+        raise_validation_error(f"Sitelink for site {site} not found", status_code=404)
+
+    # Update sitelink
+    current_entity.entity_data["sitelinks"][site] = {"title": sitelink_data.title, "badges": sitelink_data.badges}
+
+    # Create new revision
+    update_handler = EntityUpdateHandler()
+    entity_type = current_entity.entity_data.get("type") or "item"
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
+
+    result = await update_handler.update_entity(
+        entity_id,
+        update_request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        clients.validator,
+        user_id=x_user_id,
+    )
+
+    return OperationResult(success=True, data={"revision_id": result.revision_id})
+
+
+@router.delete("/entities/{entity_id}/sitelinks/{site}", response_model=OperationResult[dict])
+async def delete_entity_sitelink(
+    entity_id: str, site: str, req: Request, x_user_id: int = Header(..., alias="X-User-ID")
+) -> OperationResult[dict]:
+    """Delete a sitelink from an entity."""
+    clients = req.app.state.clients
+    if not isinstance(clients, Clients):
+        raise_validation_error("Invalid clients type", status_code=500)
+
+    # Get current entity
+    handler = EntityReadHandler()
+    current_entity = handler.get_entity(entity_id, clients.vitess, clients.s3)
+
+    # Check if sitelink exists
+    sitelinks = current_entity.entity_data.get("sitelinks", {})
+    if site not in sitelinks:
+        # Idempotent - return success if not found
+        return OperationResult(success=True, data={"revision_id": None})
+
+    # Remove sitelink
+    del current_entity.entity_data["sitelinks"][site]
+
+    # Create new revision
+    update_handler = EntityUpdateHandler()
+    entity_type = current_entity.entity_data.get("type") or "item"
+    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
+
+    result = await update_handler.update_entity(
+        entity_id,
+        update_request,
+        clients.vitess,
+        clients.s3,
+        clients.stream_producer,
+        clients.validator,
+        user_id=x_user_id,
+    )
+
+    return OperationResult(success=True, data={"revision_id": result.revision_id})

@@ -34,6 +34,10 @@
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/properties/{property_id}` | Add claims for a single property to an entity. |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/properties/{property_list}` | Get entity property hashes for specified properties. |
 | ✅ | PUT | `/entitybase/v1/entities/{entity_id}/sitelinks` | Update entity sitelinks. |
+| ✅ | GET | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Get single sitelink. |
+| ✅ | POST | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Add new sitelink. |
+| ✅ | PUT | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Update existing sitelink. |
+| ✅ | DELETE | `/entitybase/v1/entities/{entity_id}/sitelinks/{site}` | Delete sitelink. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert` | Revert entity to a previous revision. |
 | ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert-redirect` | No description |
 | ✅ | GET | `/entitybase/v1/entities/{entity_id}/revision/{revision_id}` | Get a specific revision of an entity. |
@@ -74,6 +78,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 70 |
+| Implemented | 74 |
 | Not Implemented | 0 |
-| Total | 70 |
+| Total | 74 |

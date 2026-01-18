@@ -3078,6 +3078,61 @@ New `HashService` class with static methods for hashing each metadata component:
 - Fully backward compatible, no API or data format changes
 - Existing entity processing continues to work unchanged
 
+## [2026-01-18] Individual Sitelink CRUD Endpoints
+
+### Summary
+
+Added complete CRUD operations for individual entity sitelinks with badge support: GET, POST, PUT, DELETE endpoints for granular sitelink management.
+
+### Motivation
+
+- **Granular Control**: Enable operations on single sitelinks without affecting others
+- **Badge Support**: Full support for sitelink badges in updates
+- **RESTful Design**: Proper HTTP methods for create, read, update, delete operations
+- **Client Flexibility**: Allow targeted sitelink modifications
+
+### Changes
+
+#### New Endpoints
+
+**File**: `src/models/rest_api/entitybase/versions/v1/entities.py`
+
+- `GET /entities/{entity_id}/sitelinks/{site}` - Retrieve single sitelink data
+- `POST /entities/{entity_id}/sitelinks/{site}` - Add new sitelink (fails if exists)
+- `PUT /entities/{entity_id}/sitelinks/{site}` - Update existing sitelink (fails if not exists)
+- `DELETE /entities/{entity_id}/sitelinks/{site}` - Remove sitelink (idempotent)
+
+#### Request/Response Models
+
+**File**: `src/models/rest_api/entitybase/request/entity/sitelink.py`
+
+- `SitelinkData`: `{"title": str, "badges": List[str] = []}`
+
+#### Response Format
+
+All mutation operations return: `{"success": true, "revision_id": "hash"}`
+
+#### Validation
+
+- Site parameter format validation
+- Title required for POST/PUT
+- Badges optional array
+- Proper HTTP status codes (404 for missing, 409 for conflicts)
+
+### Impact
+
+- **New Functionality**: Complete individual sitelink management
+- **Backward Compatibility**: No breaking changes, complements existing bulk endpoint
+- **API Consistency**: Follows same patterns as other granular operations
+- **Badge Support**: Full CRUD for sitelink badges
+
+### Notes
+
+- GET returns sitelink data directly
+- POST/PUT require `X-User-ID` header
+- DELETE succeeds even if sitelink doesn't exist
+- Bulk `PUT /entities/{entity_id}/sitelinks` remains for full replacements
+
 ## [2026-01-18] JSON Patch Labels Endpoint
 
 ### Summary
