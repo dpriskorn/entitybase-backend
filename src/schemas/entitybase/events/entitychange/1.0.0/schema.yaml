@@ -13,10 +13,10 @@ properties:
     description: The new revision ID after the change
     minimum: 1
     examples: [12345]
-change_type:
-  $ref: "#/$defs/ChangeType"
-  description: The type of change
-  examples: ["edit"]
+  change_type:
+    $ref: "#/$defs/ChangeType"
+    description: The type of change
+    examples: ["edit"]
   from_revision_id:
     type: integer
     description: The previous revision ID (0 for creations)

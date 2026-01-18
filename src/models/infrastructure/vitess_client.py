@@ -52,7 +52,9 @@ class VitessClient(Client):
     """Vitess database client for entity operations."""
 
     config: VitessConfig  # type: ignore[override]
-    connection_manager: Optional[VitessConnectionManager] = Field(default=None, exclude=True)  # type: ignore[override]
+    connection_manager: Optional[VitessConnectionManager] = Field(
+        default=None, exclude=True
+    )  # type: ignore[override]
     schema_manager: SchemaManager = Field(exclude=True)
     id_resolver: Optional[IdResolver] = Field(default=None, exclude=True)
     entity_repository: Optional[EntityRepository] = Field(default=None, exclude=True)

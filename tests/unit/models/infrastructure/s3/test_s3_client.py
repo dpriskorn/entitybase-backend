@@ -4,7 +4,7 @@ from botocore.exceptions import ClientError
 
 pytestmark = pytest.mark.unit
 
-from models.infrastructure.s3.s3_client import MyMyS3Client
+from models.infrastructure.s3.s3_client import MyS3Client
 from models.s3_models import S3Config
 
 

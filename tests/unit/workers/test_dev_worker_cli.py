@@ -88,18 +88,18 @@ class TestDevWorkerCLI:
         mock_argv,
         mock_run_setup,
         mock_asyncio_run,
-        mock_dev_worker_class,
+        mock_create_buckets,
     ):
         """Test CLI with custom arguments."""
         mock_worker = MagicMock()
-        mock_dev_worker_class.return_value = mock_worker
+        mock_create_buckets.return_value = mock_worker
 
         mock_asyncio_run.return_value = True
 
         result = main()
 
         assert result == 0
-        mock_dev_worker_class.assert_called_once_with(
+        mock_create_buckets.assert_called_once_with(
             minio_endpoint="http://custom:9000",
             minio_access_key="minioadmin",
             minio_secret_key="minioadmin",
