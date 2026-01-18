@@ -171,6 +171,7 @@ async def get_entity_properties(entity_id: str, req: Request) -> PropertyListRes
 async def get_entity_property_hashes(
     entity_id: str, property_list: str, req: Request
 ) -> PropertyHashesResponse:
+    """Get entity property hashes for specified properties."""
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)
