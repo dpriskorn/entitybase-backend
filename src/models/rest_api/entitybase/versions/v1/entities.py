@@ -9,6 +9,7 @@ from models.rest_api.entitybase.handlers.admin import AdminHandler
 from models.rest_api.entitybase.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.handlers.entity.base import EntityHandler
+from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.handlers.export import ExportHandler
 from models.rest_api.entitybase.handlers.statement import StatementHandler
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
@@ -16,6 +17,7 @@ from models.rest_api.entitybase.request.entity.add_property import AddPropertyRe
 from models.rest_api.entitybase.request.entity.remove_statement import (
     RemoveStatementRequest,
 )
+from models.rest_api.entitybase.request.entity import EntityUpdateRequest
 from models.rest_api.entitybase.request.entity.patch_statement import (
     PatchStatementRequest,
 )
