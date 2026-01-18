@@ -30,8 +30,8 @@ logger = logging.getLogger(__name__)
 class MyS3Client(Client):
     """Client for S3 storage operations."""
 
-    config: S3Config
-    connection_manager: S3ConnectionManager = Field(default=None, exclude=True)
+    config: S3Config  # type: ignore[override]
+    connection_manager: Optional[S3ConnectionManager] = Field(default=None, exclude=True)  # type: ignore[override]
 
     def __init__(self, config: S3Config, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)

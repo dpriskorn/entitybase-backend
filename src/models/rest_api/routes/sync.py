@@ -28,7 +28,9 @@ def get_entity_property_hashes_sync(
     )
 
 
-def get_entity_property_counts(entity_id: str, req: Request) -> None:  # PropertyCountsResponse
+def get_entity_property_counts(
+    entity_id: str, req: Request
+) -> None:  # PropertyCountsResponse
     """Get statement counts for each property in an entity."""
     clients = req.app.state.clients
     handler = StatementHandler()

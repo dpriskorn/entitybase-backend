@@ -41,7 +41,7 @@ class EntityCreateRequest(BaseModel):
 
     @property
     def data(self) -> Dict[str, Any]:
-        return self.model_dump(exclude_unset=True)
+        return self.model_dump(exclude_unset=True)  # type: ignore[no-any-return]
 
 
 class EntityUpdateRequest(BaseModel):
@@ -80,7 +80,7 @@ class EntityUpdateRequest(BaseModel):
 
     @property
     def data(self) -> Dict[str, Any]:
-        return self.model_dump(exclude_unset=True)
+        return self.model_dump(exclude_unset=True)  # type: ignore[no-any-return]
 
 
 class EntityDeleteRequest(BaseModel):
@@ -93,7 +93,7 @@ class EntityDeleteRequest(BaseModel):
 
     @property
     def data(self) -> Dict[str, Any]:
-        return self.model_dump(exclude_unset=True)
+        return self.model_dump(exclude_unset=True)  # type: ignore[no-any-return]
 
 
 class EntityInsertDataRequest(BaseModel):

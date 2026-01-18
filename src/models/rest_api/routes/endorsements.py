@@ -116,7 +116,9 @@ def get_user_endorsements_endpoint(
     "/entitybase/v1/users/{user_id}/endorsements/stats",
     response_model=EndorsementStatsResponse,
 )
-def get_user_endorsement_stats_endpoint(req: Request, user_id: int) -> EndorsementStatsResponse:
+def get_user_endorsement_stats_endpoint(
+    req: Request, user_id: int
+) -> EndorsementStatsResponse:
     """Get endorsement statistics for a user."""
     clients = req.app.state.clients
     if not isinstance(clients, Clients):

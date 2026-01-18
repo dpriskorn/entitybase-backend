@@ -177,7 +177,8 @@ class TestThanksRepository:
 
         # Mock 55 thanks total, fetching 50 with offset 0, so has_more=True
         mock_cursor.fetchall.return_value = [
-            (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc)) for i in range(1, 51)
+            (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc))
+            for i in range(1, 51)
         ]
         mock_cursor.fetchone.return_value = (55,)
 
@@ -266,7 +267,8 @@ class TestThanksRepository:
 
         # Mock 55 thanks total, fetching 50 with offset 0, so has_more=True
         mock_cursor.fetchall.return_value = [
-            (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc)) for i in range(1, 51)
+            (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc))
+            for i in range(1, 51)
         ]
         mock_cursor.fetchone.return_value = (55,)
 

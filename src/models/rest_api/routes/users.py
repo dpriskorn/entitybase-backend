@@ -44,7 +44,9 @@ def get_user(user_id: int, req: Request) -> User:
     return result
 
 
-@users_router.put("/v1/users/{user_id}/watchlist/toggle", response_model=WatchlistToggleResponse)
+@users_router.put(
+    "/v1/users/{user_id}/watchlist/toggle", response_model=WatchlistToggleResponse
+)
 def toggle_watchlist(
     user_id: int, request: WatchlistToggleRequest, req: Request
 ) -> WatchlistToggleResponse:

@@ -17,7 +17,10 @@ thanks_router = APIRouter()
     response_model=ThankResponse,
 )
 def send_thank_endpoint(
-    req: Request, entity_id: str, revision_id: int, user_id: int = Header(..., alias="X-User-ID")
+    req: Request,
+    entity_id: str,
+    revision_id: int,
+    user_id: int = Header(..., alias="X-User-ID"),
 ) -> ThankResponse:
     """Send a thank for a specific revision."""
     clients = req.app.state.clients

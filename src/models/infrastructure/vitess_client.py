@@ -51,8 +51,8 @@ class Backlink(BaseModel):
 class VitessClient(Client):
     """Vitess database client for entity operations."""
 
-    config: VitessConfig
-    connection_manager: VitessConnectionManager = Field(exclude=True)
+    config: VitessConfig  # type: ignore[override]
+    connection_manager: Optional[VitessConnectionManager] = Field(default=None, exclude=True)  # type: ignore[override]
     schema_manager: SchemaManager = Field(exclude=True)
     id_resolver: Optional[IdResolver] = Field(default=None, exclude=True)
     entity_repository: Optional[EntityRepository] = Field(default=None, exclude=True)
@@ -177,7 +177,7 @@ class VitessClient(Client):
     def get_head(self, entity_id: str) -> int:
         """Get the current head revision ID for an entity."""
         with self.connection_manager.get_connection() as conn:
-            return self.entity_repository.get_head(conn, entity_id)  # type: ignore[no-any-return]
+            return self.entity_repository.get_head(conn, entity_id)  # type: ignore[no-any-return,union-attr]
 
     def is_entity_deleted(self, entity_id: str) -> bool:
         """Check if an entity is marked as deleted."""

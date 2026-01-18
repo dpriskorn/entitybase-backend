@@ -10,7 +10,10 @@ from models.rest_api.entitybase.handlers.statement import StatementHandler
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.response import TtlResponse
 from models.rest_api.entitybase.response.misc import RawRevisionResponse
-from models.rest_api.entitybase.response import PropertyHashesResponse, PropertyListResponse
+from models.rest_api.entitybase.response import (
+    PropertyHashesResponse,
+    PropertyListResponse,
+)
 from models.rest_api.entitybase.response.entity.entitybase import EntityDeleteResponse
 from models.rest_api.entitybase.v1 import v1_router
 from models.validation.utils import raise_validation_error
@@ -48,7 +51,9 @@ async def delete_entity(  # type: ignore[no-any-return]
     "/entities/{entity_id}/revisions/raw/{revision_id}",
     response_model=RawRevisionResponse,
 )
-def get_raw_revision(entity_id: str, revision_id: int, req: Request) -> RawRevisionResponse:
+def get_raw_revision(
+    entity_id: str, revision_id: int, req: Request
+) -> RawRevisionResponse:
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)

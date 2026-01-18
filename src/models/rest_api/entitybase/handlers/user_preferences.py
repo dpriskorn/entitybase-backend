@@ -19,13 +19,18 @@ class UserPreferencesHandler:
 
         result = vitess_client.user_repository.get_user_preferences(user_id)
         if not result.success:
-            raise_validation_error(
-                result.error or "Failed to get user preferences", status_code=500
-            )
-        prefs = result.data
-        if prefs is None:
-            # Return defaults if no custom preferences set
-            prefs = {"notification_limit": 50, "retention_hours": 24}
+            if "User preferences not found" in (result.error or ""):
+                # Return defaults if no custom preferences set
+                prefs = {"notification_limit": 50, "retention_hours": 24}
+            else:
+                raise_validation_error(
+                    result.error or "Failed to get user preferences", status_code=500
+                )
+        else:
+            prefs = result.data
+            if prefs is None:
+                # Return defaults if no custom preferences set
+                prefs = {"notification_limit": 50, "retention_hours": 24}
 
         return UserPreferencesResponse(
             user_id=user_id,

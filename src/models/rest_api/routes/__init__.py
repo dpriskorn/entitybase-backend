@@ -1,6 +1,17 @@
 """Routes package."""
 
-from . import admin, batch, endorsements, entities, health, redirects, sync, thanks, users, v1_entities
+from . import (
+    admin,
+    batch,
+    endorsements,
+    entities,
+    health,
+    redirects,
+    sync,
+    thanks,
+    users,
+    v1_entities,
+)
 
 
 def include_routes(app):

@@ -18,8 +18,7 @@ redirects_router = APIRouter()
 
 @redirects_router.post("/redirects")
 async def create_entity_redirect(
-    request: EntityRedirectRequest,
-    req: Request
+    request: EntityRedirectRequest, req: Request
 ) -> EntityRedirectResponse:
     clients = req.app.state.clients
     if not isinstance(clients, Clients):

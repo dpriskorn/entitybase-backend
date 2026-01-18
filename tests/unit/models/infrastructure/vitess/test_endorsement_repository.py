@@ -459,7 +459,9 @@ class TestEndorsementRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
-    def test_get_statement_endorsements_pagination(self, repository, mock_connection_manager):
+    def test_get_statement_endorsements_pagination(
+        self, repository, mock_connection_manager
+    ):
         """Test statement endorsements retrieval with pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -470,7 +472,7 @@ class TestEndorsementRepository:
 
         # Mock 55 endorsements total, fetching 50 with offset 0, so has_more=True
         mock_cursor.fetchall.return_value = [
-            (i, 123, 456789, '2023-01-01T00:00:00Z', None) for i in range(1, 51)
+            (i, 123, 456789, "2023-01-01T00:00:00Z", None) for i in range(1, 51)
         ]
         mock_cursor.fetchone.return_value = (55,)  # total count
 
@@ -481,7 +483,9 @@ class TestEndorsementRepository:
         assert result.data["total_count"] == 55
         assert result.data["has_more"] is True
 
-    def test_get_statement_endorsements_empty(self, repository, mock_connection_manager):
+    def test_get_statement_endorsements_empty(
+        self, repository, mock_connection_manager
+    ):
         """Test statement endorsements retrieval with no results."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -600,7 +604,9 @@ class TestEndorsementRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
-    def test_get_user_endorsements_pagination(self, repository, mock_connection_manager):
+    def test_get_user_endorsements_pagination(
+        self, repository, mock_connection_manager
+    ):
         """Test user endorsements retrieval with pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -611,7 +617,7 @@ class TestEndorsementRepository:
 
         # Mock 55 endorsements total, fetching 50 with offset 0, so has_more=True
         mock_cursor.fetchall.return_value = [
-            (i, 123, 456789, '2023-01-01T00:00:00Z', None) for i in range(1, 51)
+            (i, 123, 456789, "2023-01-01T00:00:00Z", None) for i in range(1, 51)
         ]
         mock_cursor.fetchone.return_value = (55,)  # total count
 
