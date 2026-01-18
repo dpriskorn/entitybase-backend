@@ -21,7 +21,7 @@ async def test_add_watch() -> None:
         # Add watch
         response = await client.post(
             "/entitybase/v1/users/12345/watchlist",
-            json="entity_id": "Q42", "properties": ["P31"]},
+            json={"entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 200
         data = response.json()
@@ -58,14 +58,14 @@ async def test_remove_watch() -> None:
         await client.post("/entitybase/v1/users", json={"user_id": 12345})
         await client.post(
             "/entitybase/v1/users/12345/watchlist",
-            json="entity_id": "Q42", "properties": ["P31"]},
+            json={"entity_id": "Q42", "properties": ["P31"]},
         )
 
         # Remove watch
         response = await client.request(
             "DELETE",
             "/entitybase/v1/users/12345/watchlist",
-            json="entity_id": "Q42", "properties": ["P31"]},
+            json={"entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 200
         data = response.json()
@@ -85,7 +85,7 @@ async def test_get_watchlist() -> None:
         await client.post("/entitybase/v1/users", json={"user_id": 12345})
         await client.post(
             "/entitybase/v1/users/12345/watchlist",
-            json="entity_id": "Q42", "properties": ["P31"]},
+            json={"entity_id": "Q42", "properties": ["P31"]},
         )
 
         # Get watchlist
