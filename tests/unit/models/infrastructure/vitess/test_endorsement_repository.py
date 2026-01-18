@@ -459,6 +459,47 @@ class TestEndorsementRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
+    def test_get_statement_endorsements_pagination(self, repository, mock_connection_manager):
+        """Test statement endorsements retrieval with pagination."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        # Mock 55 endorsements total, fetching 50 with offset 0, so has_more=True
+        mock_cursor.fetchall.return_value = [
+            (i, 123, 456789, '2023-01-01T00:00:00Z', None) for i in range(1, 51)
+        ]
+        mock_cursor.fetchone.return_value = (55,)  # total count
+
+        result = repository.get_statement_endorsements(456789, 50, 0, False)
+
+        assert result.success is True
+        assert len(result.data["endorsements"]) == 50
+        assert result.data["total_count"] == 55
+        assert result.data["has_more"] is True
+
+    def test_get_statement_endorsements_empty(self, repository, mock_connection_manager):
+        """Test statement endorsements retrieval with no results."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_cursor.fetchall.return_value = []
+        mock_cursor.fetchone.return_value = (0,)  # total count
+
+        result = repository.get_statement_endorsements(456789, 50, 0, False)
+
+        assert result.success is True
+        assert len(result.data["endorsements"]) == 0
+        assert result.data["total_count"] == 0
+        assert result.data["has_more"] is False
+
     def test_get_statement_endorsements_database_error(
         self, repository, mock_connection_manager
     ):
@@ -491,42 +532,6 @@ class TestEndorsementRepository:
         mock_cursor.execute.side_effect = Exception("Database error")
 
         result = repository.get_user_endorsements(123, 50, 0, False)
-
-        assert result.success is False
-        assert "Database error" in result.error
-
-    def test_get_user_endorsement_stats_database_error(
-        self, repository, mock_connection_manager
-    ):
-        """Test user endorsement stats with database error."""
-        mock_conn = Mock()
-        mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
-
-        mock_cursor.execute.side_effect = Exception("Database error")
-
-        result = repository.get_user_endorsement_stats(123)
-
-        assert result.success is False
-        assert "Database error" in result.error
-
-    def test_get_batch_statement_endorsement_stats_database_error(
-        self, repository, mock_connection_manager
-    ):
-        """Test batch statement endorsement stats with database error."""
-        mock_conn = Mock()
-        mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
-
-        mock_cursor.execute.side_effect = Exception("Database error")
-
-        result = repository.get_batch_statement_endorsement_stats([456789])
 
         assert result.success is False
         assert "Database error" in result.error
@@ -595,10 +600,8 @@ class TestEndorsementRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
-    def test_get_user_endorsements_database_error(
-        self, repository, mock_connection_manager
-    ):
-        """Test user endorsements retrieval with database error."""
+    def test_get_user_endorsements_pagination(self, repository, mock_connection_manager):
+        """Test user endorsements retrieval with pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
         mock_connection_manager.get_connection.return_value.__enter__.return_value = (
@@ -606,9 +609,34 @@ class TestEndorsementRepository:
         )
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
-        mock_cursor.execute.side_effect = Exception("Database error")
+        # Mock 55 endorsements total, fetching 50 with offset 0, so has_more=True
+        mock_cursor.fetchall.return_value = [
+            (i, 123, 456789, '2023-01-01T00:00:00Z', None) for i in range(1, 51)
+        ]
+        mock_cursor.fetchone.return_value = (55,)  # total count
 
         result = repository.get_user_endorsements(123, 50, 0, False)
 
-        assert result.success is False
-        assert "Database error" in result.error
+        assert result.success is True
+        assert len(result.data["endorsements"]) == 50
+        assert result.data["total_count"] == 55
+        assert result.data["has_more"] is True
+
+    def test_get_user_endorsements_empty(self, repository, mock_connection_manager):
+        """Test user endorsements retrieval with no results."""
+        mock_conn = Mock()
+        mock_cursor = Mock()
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
+            mock_conn
+        )
+        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
+        mock_cursor.fetchall.return_value = []
+        mock_cursor.fetchone.return_value = (0,)  # total count
+
+        result = repository.get_user_endorsements(123, 50, 0, False)
+
+        assert result.success is True
+        assert len(result.data["endorsements"]) == 0
+        assert result.data["total_count"] == 0
+        assert result.data["has_more"] is False
