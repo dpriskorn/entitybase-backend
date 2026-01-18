@@ -182,23 +182,7 @@ def test_create_entity_already_exists(
     logger.info("✓ POST with existing entity correctly returns 409")
 
 
-@pytest.mark.integration
-def test_update_entity_not_found(api_client: requests.Session, base_url: str) -> None:
-    """Test that PUT /entity/{id} fails with 404 when entity doesn't exist"""
-    logger = logging.getLogger(__name__)
 
-    # Try to update non-existent entity
-    update_data = {
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Updated Entity"}},
-    }
-    response = api_client.put(
-        f"{base_url}/entitybase/v1/entities/items/Q99999", json=update_data
-    )
-    assert response.status_code == 404
-    assert "not found" in response.json().get("detail", "").lower()
-
-    logger.info("✓ PUT with non-existent entity correctly returns 404")
 
 
 @pytest.mark.integration

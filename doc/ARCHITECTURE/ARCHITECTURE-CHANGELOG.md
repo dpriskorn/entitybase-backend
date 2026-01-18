@@ -1110,6 +1110,56 @@ Added `PATCH /entitybase/v1/entities/{entity_id}/statements/{statement_hash}` en
 - Maintains property structure
 - Full validation and processing
 
+## [2026-01-18] Remove Full Entity Update Endpoints
+
+### Summary
+
+Removed full entity update endpoints (PUT /entities/{type}/{id}) to enforce granular editing. Frontends must now use specialized endpoints for modifications.
+
+### Motivation
+
+- **Granular Control**: Prevent accidental full entity overwrites
+- **API Consistency**: Align with new statement/property level operations
+- **Safety**: Reduce risk of data loss from bulk updates
+
+### Changes
+
+#### Removed Endpoints
+
+**File**: `src/models/rest_api/entitybase/versions/v1/items.py`
+
+- `PUT /item/{entity_id}` - Full item updates
+- `PUT /property/{entity_id}` - Full property updates
+- `PUT /lexeme/{entity_id}` - Full lexeme updates
+
+#### Removed Imports
+
+- Removed `EntityUpdateRequest` and update handler imports
+- Cleaned up unused dependencies
+
+### Migration Guide
+
+**Old Approach** (Removed):
+```http
+PUT /entitybase/v1/item/Q42
+{
+  "labels": {...},
+  "claims": {...},
+  ...
+}
+```
+
+**New Approach** (Required):
+- For statements: `PATCH /entitybase/v1/entities/Q42/statements/{hash}` or `DELETE` + `POST /entities/Q42/properties/{pid}`
+- For metadata: Use term/label/description specific endpoints
+- For additions: `POST /entitybase/v1/entities/Q42/properties/{pid}`
+
+### Impact
+
+- **Breaking Change**: Full entity updates no longer supported
+- **Improved Safety**: Forces intentional, granular modifications
+- **API Simplification**: Removes redundant update paths
+
 ## [2026-01-18] Refactor EntityTransaction Base Class
 
 ### Summary

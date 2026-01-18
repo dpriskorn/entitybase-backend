@@ -5,7 +5,7 @@ from pydantic import ConfigDict, Field, field_validator, model_validator
 """Quantity value type."""
 
 from typing_extensions import Literal
-from models.rest_api.utils import raise_validation_error
+from models.common import raise_validation_error
 from .base import Value
 
 

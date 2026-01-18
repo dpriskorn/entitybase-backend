@@ -7,6 +7,8 @@ from fastapi import APIRouter, HTTPException, Request
 
 from models.rest_api.entitybase.handlers.entity.item import ItemCreateHandler
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler
+from models.rest_api.entitybase.request.entity import EntityCreateRequest, EntityUpdateRequest
 from models.rest_api.entitybase.response import (
     EntityResponse,
 )
