@@ -19,6 +19,9 @@ from models.infrastructure.s3.data import (
     S3QualifierData,
     S3ReferenceData,
 )
+from models.infrastructure.s3.enums import EntityType, EditData
+from models.rest_api.entitybase.response import EntityState
+from models.s3_models import HashMaps
 from models.infrastructure.s3.metadata_storage import MetadataStorage
 from models.infrastructure.s3.qualifier_storage import QualifierStorage
 from models.infrastructure.s3.reference_storage import ReferenceStorage
@@ -142,28 +145,24 @@ class MyS3Client(Client):
         logger.debug(f"Writing entity revision {revision_id} for {entity_id}")
         if not self.connection_manager or not self.connection_manager.boto_client:
             raise_validation_error("S3 service unavailable", status_code=503)
+        bucket = settings.s3_revisions_bucket
 
-        full_data = {
-            "schema_version": settings.s3_schema_revision_version,
-            "revision_id": revision_id,
-            "created_at": datetime.now(timezone.utc).isoformat() + "Z",
-            "created_by": created_by,
-            "is_mass_edit": False,
-            "edit_type": edit_type,
-            "entity_type": entity_type,
-            "is_redirect": False,
-            "statements": [],
-            "properties": [],
-            "property_counts": {},
-            "entity": {
-                "id": revision_data.get("id"),
-                "type": entity_type,
-                "labels": revision_data.get("labels"),
-                "descriptions": revision_data.get("descriptions"),
-                "aliases": revision_data.get("aliases"),
-                "sitelinks": revision_data.get("sitelinks"),
-            },
-        }
+        # Create RevisionData from parameters - this IS the full data
+        revision_obj = RevisionData(
+            revision_id=revision_id,
+            entity_type=entity_type,  # This might need to be EntityType enum
+            edit=EditData(created_by=created_by, edit_type=edit_type),
+            hashes=HashMaps(),  # Empty hashes for this simple case
+            schema_version=publication_state,
+            created_at=datetime.now(timezone.utc).isoformat(),
+            redirects_to="",
+            state=EntityState(),
+            property_counts=None,
+            properties=[],
+        )
+
+        # Use RevisionData as the full data
+        full_data = revision_obj.model_dump(mode="json")
 
         key = f"entities/{entity_id}/{revision_id}"
         self.connection_manager.boto_client.put_object(
@@ -171,7 +170,7 @@ class MyS3Client(Client):
             Key=key,
             Body=full_data,
             Metadata={
-                "schema_version": publication_state,
+                "schema_version": settings.s3_schema_revision_version,
                 "created_at": datetime.now(timezone.utc).isoformat(),
             },
         )
