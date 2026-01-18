@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from fastapi import HTTPException
 
 from models.rest_api.entitybase.request.entity import EntityUpdateRequest
-from models.rest_api.entitybase.response.entity import EntityResponse
+from models.rest_api.entitybase.response.entity import EntityResponse, EntityState
 from models.rest_api.entitybase.handlers.entity.items.update import ItemUpdateHandler
 
 
@@ -63,11 +63,13 @@ class TestItemUpdateHandler:
                 "type": "item",
                 "labels": {"en": {"language": "en", "value": "Updated Item"}},
             },
-            semi_prot=False,
-            is_locked=False,
-            archived=False,
-            dangling=False,
-            mass_edit=False,
+            state=EntityState(
+                semi_prot=False,
+                is_locked=False,
+                archived=False,
+                dangling=False,
+                mass_edit=False,
+            ),
         )
 
         with patch.object(

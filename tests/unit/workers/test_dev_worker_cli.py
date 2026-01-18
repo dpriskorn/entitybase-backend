@@ -80,7 +80,7 @@ class TestDevWorkerCLI:
         "sys.argv",
         ["devworker", "--endpoint", "http://custom:9000", "setup"],
     )
-    @patch("models.workers.dev.create_buckets.CreateBuckets")
+    @patch("models.workers.dev.__main__.CreateBuckets")
     def test_custom_arguments(
         self,
         mock_create_buckets,
