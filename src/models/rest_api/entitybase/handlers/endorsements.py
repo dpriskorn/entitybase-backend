@@ -27,11 +27,11 @@ class EndorsementHandler:
         """Create an endorsement for a statement."""
         logger.debug(f"Endorsing statement {statement_hash} for user {user_id}")
         # Validate user exists
-        if not vitess_client.user_repository.user_exists(user_id):
+        if not vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=400)
 
         # Create endorsement via repository
-        result = vitess_client.endorsement_repository.create_endorsement(
+        result = vitess_client.endorsement_repository.create_endorsement(  # type: ignore[union-attr]
             user_id, statement_hash
         )
         if not result.success:
@@ -51,7 +51,7 @@ class EndorsementHandler:
             )
 
         endorsements_data = endorsements_result.data
-        if not endorsements_data["endorsements"]:
+        if not endorsements_data["endorsements"]:  # type: ignore[index]
             raise_validation_error(
                 "Failed to retrieve created endorsement", status_code=500
             )
@@ -60,7 +60,7 @@ class EndorsementHandler:
         created_endorsement = next(
             (
                 e
-                for e in endorsements_data["endorsements"]
+                for e in endorsements_data["endorsements"]  # type: ignore[index]
                 if e.user_id == user_id and not e.removed_at
             ),
             None,
@@ -96,7 +96,7 @@ class EndorsementHandler:
             f"Withdrawing endorsement for statement {statement_hash} by user {user_id}"
         )
         # Validate user exists
-        if not vitess_client.user_repository.user_exists(user_id):
+        if not vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=400)
 
         # Withdraw endorsement via repository
@@ -120,7 +120,7 @@ class EndorsementHandler:
             )
 
         endorsements_data = endorsements_result.data
-        if not endorsements_data["endorsements"]:
+        if not endorsements_data["endorsements"]:  # type: ignore[index]
             raise_validation_error(
                 "Failed to retrieve withdrawn endorsement", status_code=500
             )
@@ -129,7 +129,7 @@ class EndorsementHandler:
         withdrawn_endorsement = next(
             (
                 e
-                for e in endorsements_data["endorsements"]
+                for e in endorsements_data["endorsements"]  # type: ignore[index]
                 if e.user_id == user_id and e.removed_at is not None
             ),
             None,
@@ -208,9 +208,9 @@ class EndorsementHandler:
         data = result.data
         return EndorsementListResponse(
             hash=statement_hash,
-            list=data["endorsements"],
-            count=data["total_count"],
-            more=data["has_more"],
+            list=data["endorsements"],  # type: ignore[index]
+            count=data["total_count"],  # type: ignore[index]
+            more=data["has_more"],  # type: ignore[index]
             stats=stats,
         )
 
@@ -219,7 +219,7 @@ class EndorsementHandler:
     ) -> EndorsementListResponse:
         """Get endorsements given by a user."""
         # Validate user exists
-        if not vitess_client.user_repository.user_exists(user_id):
+        if not vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=400)
 
         result = vitess_client.endorsement_repository.get_user_endorsements(
@@ -233,9 +233,9 @@ class EndorsementHandler:
         data = result.data
         return EndorsementListResponse(
             user_id=user_id,
-            list=data["endorsements"],
-            count=data["total_count"],
-            more=data["has_more"],
+            list=data["endorsements"],  # type: ignore[index]
+            count=data["total_count"],  # type: ignore[index]
+            more=data["has_more"],  # type: ignore[index]
             stats=None,
         )
 
@@ -244,7 +244,7 @@ class EndorsementHandler:
     ) -> EndorsementStatsResponse:
         """Get endorsement statistics for a user."""
         # Validate user exists
-        if not vitess_client.user_repository.user_exists(user_id):
+        if not vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=400)
 
         result = vitess_client.endorsement_repository.get_user_endorsement_stats(
@@ -258,8 +258,8 @@ class EndorsementHandler:
         data = result.data
         return EndorsementStatsResponse(
             user_id=user_id,
-            total_endorsements_given=data["total_endorsements_given"],
-            total_endorsements_active=data["total_endorsements_active"],
+            total_endorsements_given=data["total_endorsements_given"],  # type: ignore[index]
+            total_endorsements_active=data["total_endorsements_active"],  # type: ignore[index]
         )
 
     def get_batch_statement_endorsement_stats(

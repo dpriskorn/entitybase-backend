@@ -160,7 +160,7 @@ class VitessClient(Client):
             bool: True if the entity exists, False otherwise.
         """
         with self.connection_manager.get_connection() as conn:
-            return self.id_resolver.entity_exists(conn, entity_id)  # type: ignore[no-any-return]
+            return self.id_resolver.entity_exists(conn, entity_id)  # type: ignore[no-any-return,union-attr]
 
     def register_entity(self, entity_id: str) -> None:
         """Register a new entity in the database.
@@ -172,7 +172,7 @@ class VitessClient(Client):
             None
         """
         with self.connection_manager.get_connection() as conn:
-            return self.id_resolver.register_entity(conn, entity_id)  # type: ignore[no-any-return]
+            return self.id_resolver.register_entity(conn, entity_id)  # type: ignore[no-any-return,union-attr,return-value]
 
     def get_head(self, entity_id: str) -> int:
         """Get the current head revision ID for an entity."""
