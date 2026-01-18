@@ -11,6 +11,7 @@ from models.infrastructure.vitess_client import VitessClient
 from models.internal_representation.statement_extractor import StatementExtractor
 from models.internal_representation.statement_hasher import StatementHasher
 from models.internal_representation.reference_hasher import ReferenceHasher
+from models.internal_representation.qualifier_hasher import QualifierHasher
 from models.rest_api.entitybase.response import StatementHashResult
 from models.infrastructure.s3.s3_client import StoredStatement
 from models.validation.json_schema_validator import JsonSchemaValidator
@@ -225,6 +226,11 @@ def deduplicate_and_store_statements(
     if not ref_result.success:
         return ref_result
 
+    # Deduplicate qualifiers in statements
+    qual_result = deduplicate_qualifiers_in_statements(hash_result, s3_client)
+    if not qual_result.success:
+        return qual_result
+
     logger.info(
         f"Successfully stored all {len(hash_result.statements)} statements (new + existing)"
     )
@@ -271,4 +277,39 @@ def deduplicate_references_in_statements(
             statement_data["references"] = new_references
 
     logger.info(f"Reference deduplication completed for {len(hash_result.full_statements)} statements")
+    return OperationResult(success=True)
+
+
+def deduplicate_qualifiers_in_statements(
+    hash_result: StatementHashResult,
+    s3_client: MyS3Client,
+) -> OperationResult:
+    """Deduplicate qualifiers in statements by storing unique qualifiers in S3.
+
+    For each statement, extract qualifiers, compute rapidhash, store in S3 if new,
+    and replace qualifiers object with hash.
+
+    Args:
+        hash_result: StatementHashResult with statements to process.
+        s3_client: S3 client for qualifier storage.
+
+    Returns:
+        OperationResult indicating success/failure.
+    """
+    logger.debug(f"Deduplicating qualifiers in {len(hash_result.full_statements)} statements")
+
+    for idx, statement_data in enumerate(hash_result.full_statements):
+        if "qualifiers" in statement_data and isinstance(statement_data["qualifiers"], dict):
+            # Compute rapidhash
+            qual_hash = QualifierHasher.compute_hash(statement_data["qualifiers"])
+            # Store in S3 (idempotent)
+            try:
+                s3_client.store_qualifier(qual_hash, statement_data["qualifiers"])
+            except Exception as e:
+                logger.warning(f"Failed to store qualifiers {qual_hash}: {e}")
+                # Continue, perhaps already exists
+            # Replace with hash
+            statement_data["qualifiers"] = qual_hash
+
+    logger.info(f"Qualifier deduplication completed for {len(hash_result.full_statements)} statements")
     return OperationResult(success=True)

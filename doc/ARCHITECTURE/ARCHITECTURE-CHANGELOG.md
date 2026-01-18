@@ -2,6 +2,36 @@
 
 This file tracks architectural changes, feature additions, and modifications to the entitybase-backend.
 
+## [2026-01-18] Qualifier Deduplication Implementation
+
+### Summary
+
+Extended deduplication to qualifiers in Wikibase statements using rapidhash. Qualifiers are now stored in the same S3 bucket with hash-based keys, reducing storage for repetitive qualifier sets. Updated statement schema to use hash pointers for qualifiers.
+
+### Changes
+
+#### Storage Architecture
+- **Shared S3 Bucket**: Uses `wikibase-references` for qualifiers (e.g., `qualifiers/123456789`).
+- **Hash Computation**: Added `QualifierHasher` using rapidhash for qualifier content.
+- **Deduplication Logic**: Modified `deduplicate_qualifiers_in_statements` to extract, hash, store, and replace qualifiers in statements.
+
+#### API Updates
+- **Schema Update**: Updated statement schema to 3.0.0; qualifiers now rapidhash integer instead of object.
+- **New Endpoints**:
+  - `GET /references/qualifiers/{hash}`: Fetch single qualifiers by hash.
+  - `GET /references/qualifiers/{hash1},{hash2},...`: Batch fetch (up to 100 hashes), returns array with nulls for missing.
+- **Response Changes**: Statement responses now include qualifier hashes; frontend must expand via endpoints.
+
+#### Implementation Details
+- **S3 Client Extensions**: Added `store_qualifier`, `load_qualifier`, `load_qualifiers_batch`.
+- **Statement Processing**: Integrated qualifier deduplication into `deduplicate_and_store_statements`.
+- **No Migration**: Only new qualifiers are deduplicated; existing statements unchanged.
+
+#### Benefits
+- **Space Savings**: Eliminates duplicate qualifier storage across statements.
+- **Consistency**: Aligns with reference deduplication.
+- **Integrity**: Rapidhash ensures content verification.
+
 ## [2026-01-18] Reference Deduplication Implementation
 
 ### Summary

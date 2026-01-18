@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     s3_secret_key: str = "fakesecret"
     s3_bucket: str = "testbucket"
     s3_references_bucket: str = "testbucket-references"
+    s3_qualifiers_bucket: str = "testbucket-qualifiers"
     vitess_host: str = "vitess"
     vitess_port: int = 15309
     vitess_database: str = "wikibase"

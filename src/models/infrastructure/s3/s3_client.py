@@ -606,4 +606,82 @@ class MyS3Client(Client):
             except ClientError:
                 results.append(None)
         return results  # type: ignore[no-any-return]
+
+    def store_qualifier(self, content_hash: int, qualifier_data: dict) -> None:
+        """Store a qualifier by its content hash.
+
+        Args:
+            content_hash: Rapidhash of the qualifier content.
+            qualifier_data: Full qualifier JSON dict.
+        """
+        bucket = self.settings.s3_qualifiers_bucket
+        key = f"{content_hash}"
+        try:
+            self.client.put_object(
+                Bucket=bucket,
+                Key=key,
+                Body=json.dumps(qualifier_data),
+                ContentType="application/json",
+                Metadata={"content_hash": str(content_hash)},
+            )
+            logger.debug(f"S3 qualifier stored: bucket={bucket}, key={key}")
+        except ClientError as e:
+            logger.error(
+                f"S3 store_qualifier failed: bucket={bucket}, key={key}, error={e}"
+            )
+            raise
+        except Exception as e:
+            logger.error(
+                f"S3 store_qualifier failed: bucket={bucket}, key={key}, error={e}"
+            )
+            raise
+
+    def load_qualifier(self, content_hash: int) -> dict:  # type: ignore[no-any-return]
+        """Load a qualifier by its content hash.
+
+        Args:
+            content_hash: Rapidhash of the qualifier content.
+
+        Returns:
+            Full qualifier JSON dict.
+        """
+        bucket = self.settings.s3_qualifiers_bucket
+        key = f"{content_hash}"
+        try:
+            response = self.client.get_object(Bucket=bucket, Key=key)
+            data = json.loads(response["Body"].read().decode("utf-8"))
+            logger.debug(f"S3 qualifier loaded: bucket={bucket}, key={key}")
+            return data  # type: ignore[no-any-return]
+        except ClientError as e:
+            if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:
+                logger.warning(f"S3 qualifier not found: bucket={bucket}, key={key}")
+                raise
+            else:
+                logger.error(
+                    f"S3 load_qualifier failed: bucket={bucket}, key={key}, error={e}"
+                )
+                raise
+        except Exception as e:
+            logger.error(
+                f"S3 load_qualifier failed: bucket={bucket}, key={key}, error={e}"
+            )
+            raise
+
+    def load_qualifiers_batch(self, content_hashes: list[int]) -> list[dict | None]:  # type: ignore[no-any-return]
+        """Load multiple qualifiers by their content hashes.
+
+        Args:
+            content_hashes: List of rapidhashes.
+
+        Returns:
+            List of qualifier JSON dicts, in same order. None for missing.
+        """
+        results = []
+        for h in content_hashes:
+            try:
+                qual = self.load_qualifier(h)
+                results.append(qual)
+            except ClientError:
+                results.append(None)
+        return results  # type: ignore[no-any-return]
         return ""  # unreachable, but for linter

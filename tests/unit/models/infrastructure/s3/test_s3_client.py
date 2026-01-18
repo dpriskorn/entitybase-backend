@@ -455,3 +455,63 @@ class TestMyS3Client:
 
             assert result == [{"snaks": {"P1": []}}, None, {"snaks": {"P2": []}}]
             assert client.load_reference.call_count == 3
+
+    def test_store_qualifier(self, config, mock_connection_manager):
+        """Test store_qualifier method."""
+        with patch(
+            "models.infrastructure.s3.s3_client.S3ConnectionManager"
+        ) as mock_manager_class:
+            mock_manager_class.return_value = mock_connection_manager
+
+            client = MyS3Client(config)
+            qualifier_data = {"P580": []}
+            client.store_qualifier(123, qualifier_data)
+
+            mock_connection_manager.boto_client.put_object.assert_called_once()
+            call_args = mock_connection_manager.boto_client.put_object.call_args
+            assert call_args[1]["Bucket"] == "testbucket-qualifiers"
+            assert call_args[1]["Key"] == "123"
+            assert call_args[1]["ContentType"] == "application/json"
+
+    def test_load_qualifier(self, config, mock_connection_manager):
+        """Test load_qualifier method."""
+        with patch(
+            "models.infrastructure.s3.s3_client.S3ConnectionManager"
+        ) as mock_manager_class:
+            mock_manager_class.return_value = mock_connection_manager
+            mock_connection_manager.boto_client.get_object.return_value = {
+                "Body": MagicMock()
+            }
+            mock_body = MagicMock()
+            mock_body.read.return_value = b'{"P580": []}'
+            mock_connection_manager.boto_client.get_object.return_value["Body"] = (
+                mock_body
+            )
+
+            client = MyS3Client(config)
+            result = client.load_qualifier(123)
+
+            assert result == {"P580": []}
+            mock_connection_manager.boto_client.get_object.assert_called_once_with(
+                Bucket="testbucket-qualifiers", Key="123"
+            )
+
+    def test_load_qualifiers_batch(self, config, mock_connection_manager):
+        """Test load_qualifiers_batch method."""
+        with patch(
+            "models.infrastructure.s3.s3_client.S3ConnectionManager"
+        ) as mock_manager_class:
+            mock_manager_class.return_value = mock_connection_manager
+
+            # Mock load_qualifier calls
+            client = MyS3Client(config)
+            client.load_qualifier = MagicMock(side_effect=[
+                {"P1": []},
+                None,  # Missing
+                {"P2": []}
+            ])
+
+            result = client.load_qualifiers_batch([123, 456, 789])
+
+            assert result == [{"P1": []}, None, {"P2": []}]
+            assert client.load_qualifier.call_count == 3
