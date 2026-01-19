@@ -1,7 +1,5 @@
 """Tests for diff classes."""
 
-import pytest
-
 from models.rdf_builder.diffs import DiffResult, StatementDiff, TermsDiff, SitelinksDiff
 
 

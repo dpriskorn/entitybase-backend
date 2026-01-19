@@ -1,10 +1,8 @@
-import pytest
 from unittest.mock import MagicMock, patch
-from botocore.exceptions import ClientError
+
+import pytest
 
 pytestmark = pytest.mark.unit
-
-from typing import Any
 
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.s3.config import S3Config

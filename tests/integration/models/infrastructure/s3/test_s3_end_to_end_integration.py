@@ -1,17 +1,17 @@
+import boto3
 import pytest
 from moto import mock_s3
-import boto3
 
-from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.s3.config import S3Config
-from models.infrastructure.s3.enums import EntityType, EditType, EditData
-from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.s3.hashes.hash_maps import HashMaps
-from models.infrastructure.s3.hashes.statements_hashes import StatementsHashes
-from models.infrastructure.s3.hashes.labels_hashes import LabelsHashes
-from models.infrastructure.s3.hashes.descriptions_hashes import DescriptionsHashes
+from models.infrastructure.s3.enums import EntityType, EditType
 from models.infrastructure.s3.hashes.aliases_hashes import AliasesHashes
+from models.infrastructure.s3.hashes.descriptions_hashes import DescriptionsHashes
+from models.infrastructure.s3.hashes.hash_maps import HashMaps
+from models.infrastructure.s3.hashes.labels_hashes import LabelsHashes
 from models.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
+from models.infrastructure.s3.hashes.statements_hashes import StatementsHashes
+from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.s3.s3_client import MyS3Client
 
 
 @pytest.fixture

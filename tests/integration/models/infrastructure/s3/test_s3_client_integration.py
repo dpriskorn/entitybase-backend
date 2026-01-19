@@ -220,5 +220,4 @@ class TestS3ClientIntegration:
         # This should handle connection errors gracefully
         client = MyS3Client(bad_config)
         # The client should still initialize but operations may fail
-        assert client.config == bad_config</content>
-<parameter name="filePath">/home/dpriskorn/src/python/wikibase-backend/tests/integration/models/infrastructure/s3/test_s3_client_integration.py
+        assert client.config == bad_config

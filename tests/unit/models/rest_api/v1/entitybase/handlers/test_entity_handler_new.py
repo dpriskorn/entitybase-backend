@@ -1,6 +1,5 @@
 """Unit tests for new EntityHandler services and methods."""
 
-import asyncio
 import unittest
 from unittest.mock import AsyncMock, MagicMock, patch
 

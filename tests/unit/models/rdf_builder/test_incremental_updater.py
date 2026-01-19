@@ -1,7 +1,5 @@
 """Tests for IncrementalRDFUpdater."""
 
-import pytest
-
 from models.internal_representation.entity_data import EntityData
 from models.rdf_builder.diffs import EntityDiffs
 from models.rdf_builder.incremental_updater import IncrementalRDFUpdater

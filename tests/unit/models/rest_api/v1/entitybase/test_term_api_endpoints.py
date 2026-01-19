@@ -1,8 +1,6 @@
-import unittest
 import asyncio
+import unittest
 from unittest.mock import Mock, patch
-
-import pytest
 
 
 class TestTermAPIEndpoints(unittest.TestCase):

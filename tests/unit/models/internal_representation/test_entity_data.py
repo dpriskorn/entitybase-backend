@@ -1,7 +1,5 @@
 """Tests for EntityData and parse_entity_data."""
 
-import pytest
-
 from models.internal_representation.entity_data import EntityData
 from models.json_parser.entity_parser import parse_entity_data
 
