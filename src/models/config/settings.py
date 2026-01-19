@@ -82,7 +82,7 @@ class Settings(BaseSettings):
         Returns:
             VitessConfig object with the settings.
         """
-        from models.infrastructure.vitess.vitess_client import VitessConfig
+        from models.infrastructure.vitess.vitess_config import VitessConfig
 
         return VitessConfig(
             host=self.vitess_host,
