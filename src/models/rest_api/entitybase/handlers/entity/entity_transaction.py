@@ -5,6 +5,8 @@ from typing import Any, Callable, List
 
 from pydantic import BaseModel, Field
 
+from models.rest_api.entitybase.response.statement import StatementHashResult
+
 
 class EntityTransaction(BaseModel, ABC):
     """Base class for entity transactions with shared rollback logic."""
@@ -21,7 +23,7 @@ class EntityTransaction(BaseModel, ABC):
         vitess_client: Any,
         s3_client: Any,
         validator: Any,
-    ) -> Any:
+    ) -> StatementHashResult:
         """Process statements for the transaction."""
         pass
 

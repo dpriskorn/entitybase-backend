@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.enums import EditType, EditData, EntityType
-from models.infrastructure.s3.hashes.hash_maps import StatementsHashes, HashMaps
+from models.infrastructure.s3.hashes.hash_maps import StatementsHashes, HashMaps, SitelinksHashes
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
@@ -126,7 +126,7 @@ class EntityHashingService(BaseModel):
             aliases=aliases_hashes,
         )
 
-    async def hash_sitelinks(self, request_data: Dict[str, Any], s3_client: MyS3Client) -> Any:
+    async def hash_sitelinks(self, request_data: Dict[str, Any], s3_client: MyS3Client) -> SitelinksHashes:
         """Hash entity sitelinks."""
         return HashService.hash_sitelinks(
             request_data.get("sitelinks", {}), s3_client
@@ -300,7 +300,7 @@ class EntityHandler(BaseModel):
         hashing_service = EntityHashingService()
         return await hashing_service.hash_terms(ctx.request_data, ctx.s3_client, ctx.vitess_client)
 
-    async def _hash_sitelinks_new(self, ctx: RevisionContext) -> Any:
+    async def _hash_sitelinks_new(self, ctx: RevisionContext) -> SitelinksHashes:
         """Hash entity sitelinks."""
         hashing_service = EntityHashingService()
         return await hashing_service.hash_sitelinks(ctx.request_data, ctx.s3_client)

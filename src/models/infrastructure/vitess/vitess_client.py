@@ -3,7 +3,7 @@
 import json
 import logging
 from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generator, Optional
+from typing import TYPE_CHECKING, Any, Generator, Optional, cast
 
 from pydantic import BaseModel, Field
 from pymysql import Connection
@@ -33,6 +33,7 @@ from models.infrastructure.client import Client
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import MyS3Client
     from models.infrastructure.vitess.vitess_config import VitessConfig
+    from models.infrastructure.vitess.repositories.user import UserRepository
 from models.infrastructure.vitess.schema import SchemaManager
 
 from models.rest_api.entitybase.response import ProtectionResponse
@@ -135,14 +136,14 @@ class VitessClient(Client):
         return self.connection_manager
 
     @property
-    def _user_repository(self) -> Any:
+    def _user_repository(self) -> "UserRepository":
         """Get the user repository, lazy loading it if necessary."""
         if self.user_repository is None:
             import importlib
             user_repo_module = importlib.import_module('models.infrastructure.vitess.repositories.user')
             UserRepository = user_repo_module.UserRepository
             self.user_repository = UserRepository(self.connection_manager)
-        return self.user_repository
+        return cast("UserRepository", self.user_repository)
 
     def _create_tables(self) -> None:
         """Create database tables if they don't exist."""

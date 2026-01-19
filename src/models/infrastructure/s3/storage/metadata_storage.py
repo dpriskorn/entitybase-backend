@@ -1,7 +1,7 @@
 """Metadata storage operations for terms and sitelinks."""
 
 import logging
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, Union
 
 from models.common import OperationResult
 from models.config.settings import settings
@@ -46,7 +46,7 @@ class MetadataStorage(BaseS3Storage):
         finally:
             self.bucket = original_bucket
 
-    def load_metadata(self, metadata_type: str, content_hash: int) -> Any:
+    def load_metadata(self, metadata_type: str, content_hash: int) -> Union[str, dict[str, Any]]:
         """Load metadata value."""
         bucket = self._get_bucket_for_type(metadata_type)
         original_bucket = self.bucket
