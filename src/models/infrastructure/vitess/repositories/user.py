@@ -5,7 +5,7 @@ import logging
 from typing import Any, List
 
 from models.common import OperationResult
-from models.user import User
+from models.rest_api.v1.entitybase.response.user import UserResponse
 from models.rest_api.v1.entitybase.request.enums import UserActivityType
 from models.rest_api.v1.entitybase.response.user_activity import UserActivityItemResponse
 from models.rest_api.utils import raise_validation_error
@@ -66,7 +66,7 @@ class UserRepository:
                 )
                 return cursor.fetchone() is not None
 
-    def get_user(self, user_id: int) -> User | None:
+    def get_user(self, user_id: int) -> UserResponse | None:
         """Get user data by ID."""
         with self.connection_manager.get_connection() as conn:
             with conn.cursor() as cursor:
@@ -76,7 +76,7 @@ class UserRepository:
                 )
                 row = cursor.fetchone()
                 if row:
-                    return User(
+                    return UserResponse(
                         user_id=row[0],
                         created_at=row[1],
                         preferences=row[2],
