@@ -1,5 +1,6 @@
 """Unit tests for new EntityHandler services and methods."""
 
+import asyncio
 import unittest
 from unittest.mock import MagicMock, patch
 
@@ -24,22 +25,20 @@ class TestEntityHashingService:
         self.service = EntityHashingService()
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.hash_entity_statements")
-    @pytest.mark.asyncio
-    async def test_hash_statements_success(self, mock_hash):
+    def test_hash_statements_success(self, mock_hash):
         """Test successful statement hashing."""
         mock_result = MagicMock()
         mock_result.success = True
         mock_result.data = MagicMock()
         mock_hash.return_value = mock_result
 
-        result = await self.service.hash_statements({"claims": {}})
+        result = asyncio.run(self.service.hash_statements({"claims": {}}))
 
         assert result == mock_result.data
         mock_hash.assert_called_once_with({"claims": {}})
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.hash_entity_statements")
-    @pytest.mark.asyncio
-    async def test_hash_statements_failure(self, mock_hash):
+    def test_hash_statements_failure(self, mock_hash):
         """Test statement hashing failure."""
         mock_result = MagicMock()
         mock_result.success = False
@@ -47,7 +46,7 @@ class TestEntityHashingService:
         mock_hash.return_value = mock_result
 
         with pytest.raises(Exception):  # EntityProcessingError
-            await self.service.hash_statements({"claims": {}})
+            asyncio.run(self.service.hash_statements({"claims": {}}))
 
 
 @pytest.mark.unit
