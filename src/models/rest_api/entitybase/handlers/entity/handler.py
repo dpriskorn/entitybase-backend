@@ -37,7 +37,7 @@ from models.rest_api.entitybase.services.statement_service import (
     deduplicate_and_store_statements,
 )
 from models.rest_api.utils import raise_validation_error
-from .entity_errors import EntityProcessingError
+from .exceptions import EntityProcessingError
 from .entity_hashing_service import EntityHashingService
 from .entity_validation_service import EntityValidationService
 

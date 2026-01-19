@@ -11,7 +11,7 @@ from models.infrastructure.s3.hashes.hash_maps import (
 )
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.vitess.vitess_client import VitessClient
-from models.rest_api.entitybase.handlers.entity.entity_errors import EntityProcessingError
+from models.rest_api.entitybase.handlers.entity.exceptions import EntityProcessingError
 from models.rest_api.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.services.hash_service import HashService
 from models.rest_api.entitybase.services.statement_service import hash_entity_statements
