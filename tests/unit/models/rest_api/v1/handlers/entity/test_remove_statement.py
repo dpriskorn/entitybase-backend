@@ -2,7 +2,7 @@
 
 import unittest
 from unittest.mock import MagicMock, patch
-from models.rest_api.entitybase.handlers.entity.base import EntityHandler
+from models.rest_api.entitybase.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.request.entity.remove_statement import (
     RemoveStatementRequest,
 )

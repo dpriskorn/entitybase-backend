@@ -5,7 +5,7 @@ import re
 from pydantic import ConfigDict, Field, field_validator
 from typing_extensions import Literal
 from models.common import raise_validation_error
-from .base import Value
+from .handler import Value
 
 
 class TimeValue(Value):

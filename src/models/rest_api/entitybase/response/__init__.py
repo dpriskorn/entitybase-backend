@@ -2,7 +2,7 @@
 
 # Response models
 
-from .entity.backlinks import BacklinksResponse, Backlink
+from .entity.backlinks import BacklinksResponse, BacklinkResponse
 from .entity.entitybase import (
     ProtectionResponse,
     EntityRevisionResponse,
@@ -48,7 +48,7 @@ from .rdf import (
 )
 
 __all__ = [
-    "Backlink",
+    "BacklinkResponse",
     "BacklinksResponse",
     "CleanupOrphanedResponse",
     "DeduplicationStatsResponse",

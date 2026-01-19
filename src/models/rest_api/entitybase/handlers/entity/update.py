@@ -12,7 +12,7 @@ from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess.vitess_client import VitessClient
 from models.rest_api.utils import raise_validation_error
 from models.rest_api.entitybase.request import EntityUpdateRequest
-from .base import EntityHandler
+from .handler import EntityHandler
 from .update_transaction import UpdateTransaction
 
 from models.rest_api.entitybase.response import EntityResponse

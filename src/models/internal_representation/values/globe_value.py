@@ -4,7 +4,7 @@ from pydantic import ConfigDict, Field, field_validator
 
 from typing_extensions import Literal
 from typing import Optional
-from .base import Value
+from .handler import Value
 
 
 class GlobeValue(Value):

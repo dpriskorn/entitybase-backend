@@ -87,7 +87,7 @@ class UpdateTransaction(EntityTransaction):
         user_id: int,
     ) -> EntityResponse:
         logger.debug(f"[UpdateTransaction] Starting revision creation for {entity_id}")
-        from models.rest_api.entitybase.handlers.entity.base import EntityHandler
+        from models.rest_api.entitybase.handlers.entity.handler import EntityHandler
 
         handler = EntityHandler()
         response = await handler._create_and_store_revision(

@@ -5,7 +5,7 @@ from contextlib import contextmanager
 from typing import Any, Generator
 
 from models.infrastructure.connection import ConnectionManager
-from models.infrastructure.vitess.config import VitessConfig
+from models.infrastructure.vitess.vitess_config import VitessConfig
 
 
 class VitessConnectionManager(ConnectionManager):

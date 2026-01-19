@@ -1,5 +1,5 @@
 from unittest.mock import Mock, patch
-from models.rest_api.entitybase.handlers.entity.base import EntityHandler
+from models.rest_api.entitybase.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.response.statement import StatementHashResult
 
 

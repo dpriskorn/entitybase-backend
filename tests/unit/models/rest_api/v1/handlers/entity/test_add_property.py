@@ -2,7 +2,7 @@
 
 import unittest
 from unittest.mock import MagicMock, patch
-from models.rest_api.entitybase.handlers.entity.base import EntityHandler
+from models.rest_api.entitybase.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.request.entity.add_property import AddPropertyRequest
 from models.common import OperationResult
 from models.rest_api.entitybase.response import EntityResponse, EntityState
@@ -61,10 +61,9 @@ class TestAddProperty(unittest.TestCase):
         self.assertIn("Entity is not a property", result.error)
 
     @patch("models.rest_api.entitybase.handlers.entity.base.EntityReadHandler")
-    @patch.object(EntityHandler, "_create_and_store_revision")
-    @patch.object(EntityHandler, "process_statements")
+    @patch.object(EntityHandler, "process_entity_revision_new")
     def test_successful_add_property(
-        self, mock_process, mock_create, mock_read_handler_class
+        self, mock_process_revision, mock_read_handler_class
     ):
         """Test successful property addition."""
         mock_read_handler = MagicMock()
@@ -90,10 +89,9 @@ class TestAddProperty(unittest.TestCase):
         mock_process.return_value = mock_hash_result
 
         # Create revision
-        mock_revision_result = MagicMock()
-        mock_revision_result.success = True
-        mock_revision_result.data.rev_id = 101
-        mock_create.return_value = mock_revision_result
+        mock_entity_response = MagicMock()
+        mock_entity_response.rev_id = 101
+        mock_process_revision.return_value = mock_entity_response
 
         request = AddPropertyRequest(
             claims=[{"mainsnak": {"property": "P1", "value": "test"}}],
@@ -106,7 +104,7 @@ class TestAddProperty(unittest.TestCase):
 
         self.assertTrue(result.success)
         self.assertEqual(result.data, {"revision_id": 101})
-        mock_create.assert_called_once()
+        mock_process_revision.assert_called_once()
 
 
 if __name__ == "__main__":

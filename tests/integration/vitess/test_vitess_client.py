@@ -6,7 +6,7 @@ import pytest
 sys.path.insert(0, "src")
 
 from models.infrastructure.vitess.vitess_client import VitessClient
-from models.infrastructure.vitess.misc import VitessConfig
+from models.infrastructure.vitess.vitess_config import VitessConfig
 
 
 @pytest.fixture

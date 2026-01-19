@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from models.rest_api.entitybase.handlers.entity.base import (
+from models.rest_api.entitybase.handlers.entity.handler import (
     EntityHandler,
     EntityHashingService,
     EntityValidationService,

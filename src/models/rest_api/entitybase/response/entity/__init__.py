@@ -1,6 +1,6 @@
 """Entity response models."""
 
-from .backlinks import Backlink, BacklinksResponse
+from .backlinks import BacklinkResponse, BacklinksResponse
 from .entitybase import (
     EntityDeleteResponse,
     EntityHistoryEntry,
@@ -29,7 +29,7 @@ from .wikibase import (
 
 __all__ = [
     "AliasValue",
-    "Backlink",
+    "BacklinkResponse",
     "BacklinksResponse",
     "DescriptionValue",
     "EntityAliasesResponse",

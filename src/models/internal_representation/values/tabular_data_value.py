@@ -3,7 +3,7 @@ from pydantic import ConfigDict, Field
 """Tabular data value type."""
 
 from typing_extensions import Literal
-from .base import Value
+from .handler import Value
 
 
 class TabularDataValue(Value):

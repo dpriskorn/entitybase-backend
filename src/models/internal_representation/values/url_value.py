@@ -3,7 +3,7 @@ from pydantic import ConfigDict, Field
 """URL value type."""
 
 from typing_extensions import Literal
-from .base import Value
+from .handler import Value
 
 
 class URLValue(Value):

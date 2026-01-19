@@ -29,7 +29,7 @@ class CreationTransaction(EntityTransaction):
             f"[CreationTransaction] Starting statement processing for {entity_id}"
         )
         # Import here to avoid circular imports
-        from models.rest_api.entitybase.handlers.entity.base import EntityHandler
+        from models.rest_api.entitybase.handlers.entity.handler import EntityHandler
 
         handler = EntityHandler()
         hash_result = handler.process_statements(
@@ -66,7 +66,7 @@ class CreationTransaction(EntityTransaction):
         user_id: int,
     ) -> EntityResponse:
         logger.debug(f"Creating revision for {entity_id}")
-        from models.rest_api.entitybase.handlers.entity.base import EntityHandler
+        from models.rest_api.entitybase.handlers.entity.handler import EntityHandler
 
         handler = EntityHandler()
         response = await handler._create_and_store_revision(

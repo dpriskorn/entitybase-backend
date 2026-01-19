@@ -6,7 +6,7 @@ from fastapi import APIRouter, Header, Query, Request, Response
 
 from models.common import OperationResult
 from models.rest_api.clients import Clients
-from models.rest_api.entitybase.handlers.entity.base import EntityHandler
+from models.rest_api.entitybase.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler

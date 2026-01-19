@@ -243,11 +243,11 @@ class TestUserRepository:
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
-        repository.log_user_activity(12345, UserActivityType.EDIT, "Q42", 123)
+        repository.log_user_activity(12345, UserActivityType.ENTITY_EDIT, "Q42", 123)
 
         mock_cursor.execute.assert_called_once_with(
             "INSERT INTO user_activity (user_id, activity_type, entity_id, revision_id) VALUES (%s, %s, %s, %s)",
-            (12345, "edit", "Q42", 123),
+            (12345, "entity_edit", "Q42", 123),
         )
 
     def test_get_user_activities(

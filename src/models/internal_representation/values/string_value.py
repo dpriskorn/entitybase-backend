@@ -3,7 +3,7 @@ from pydantic import ConfigDict, Field
 """String value type."""
 
 from typing_extensions import Literal
-from .base import Value
+from .handler import Value
 
 
 class StringValue(Value):
