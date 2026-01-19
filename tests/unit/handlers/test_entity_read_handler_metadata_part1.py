@@ -39,7 +39,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         mock_entity_response.return_value = mock_response_instance
 
         result = EntityReadHandler.get_entity(
-            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+            "Q42", self.mock_vitess, self.mock_s3, 
         )
 
         self.assertEqual(result, mock_response_instance)
@@ -74,7 +74,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         mock_entity_response.return_value = mock_response_instance
 
         result = EntityReadHandler.get_entity(
-            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+            "Q42", self.mock_vitess, self.mock_s3, 
         )
 
         self.assertEqual(result, mock_response_instance)
@@ -107,7 +107,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         mock_entity_response.return_value = mock_response_instance
 
         result = EntityReadHandler.get_entity(
-            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+            "Q42", self.mock_vitess, self.mock_s3, 
         )
 
         self.assertEqual(result, mock_response_instance)
@@ -145,7 +145,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         mock_entity_response.return_value = mock_response_instance
 
         result = EntityReadHandler.get_entity(
-            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=False
+            "Q42", self.mock_vitess, self.mock_s3
         )
 
         self.assertEqual(result, mock_response_instance)
@@ -216,7 +216,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         mock_entity_response.return_value = mock_response_instance
 
         result = EntityReadHandler.get_entity(
-            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+            "Q42", self.mock_vitess, self.mock_s3, 
         )
 
         self.assertEqual(result, mock_response_instance)
@@ -250,7 +250,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         mock_entity_response.return_value = mock_response_instance
 
         result = EntityReadHandler.get_entity(
-            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+            "Q42", self.mock_vitess, self.mock_s3, 
         )
 
         self.assertEqual(result, mock_response_instance)
@@ -284,7 +284,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         mock_entity_response.return_value = mock_response_instance
 
         result = EntityReadHandler.get_entity(
-            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+            "Q42", self.mock_vitess, self.mock_s3, 
         )
 
         self.assertEqual(result, mock_response_instance)
@@ -322,7 +322,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         mock_entity_response.return_value = mock_response_instance
 
         result = EntityReadHandler.get_entity(
-            "Q42", self.mock_vitess, self.mock_s3, fetch_metadata=True
+            "Q42", self.mock_vitess, self.mock_s3, 
         )
 
         self.assertEqual(result, mock_response_instance)

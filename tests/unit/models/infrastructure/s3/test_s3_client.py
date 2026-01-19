@@ -193,7 +193,8 @@ class TestMyS3Client:
         ) as mock_manager_class:
             mock_manager_class.return_value = mock_connection_manager
             mock_connection_manager.boto_client.get_object.return_value = {
-                "Body": MagicMock()
+                "Body": MagicMock(),
+                "ContentType": "text/plain"
             }
             mock_body = MagicMock()
             mock_body.read.return_value = b"test label"
