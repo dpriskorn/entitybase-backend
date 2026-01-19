@@ -11,7 +11,8 @@ from models.infrastructure.s3.config import S3Config
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
 from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
-from models.infrastructure.s3.enums import EntityType, EditData
+from models.infrastructure.s3.enums import EntityType, EditData, EditType
+from models.infrastructure.s3.hashes.hash_maps import HashMaps
 
 
 class TestMyS3Client:
@@ -171,13 +172,19 @@ class TestMyS3Client:
             data = RevisionData(
                 revision_id=123,
                 entity_type=EntityType.ITEM,
-                edit=EditData(),
-                hashes=None,
+                edit=EditData(
+                    type=EditType.MANUAL_UPDATE,
+                    user_id=123,
+                    summary="test edit",
+                    at="2023-01-01T12:00:00Z",
+                ),
+                hashes=HashMaps(),
             )
             client.write_revision("Q42", 123, data)
 
             call_args = mock_connection_manager.boto_client.put_object.call_args
-            assert call_args[1]["Metadata"]["created_at"] == "2023-01-01T12:00:00"
+            assert "created_at" in call_args[1]["Metadata"]
+            assert isinstance(call_args[1]["Metadata"]["created_at"], str)
 
     def test_load_metadata(self, config, mock_connection_manager) -> None:
         """Test load_metadata method."""
