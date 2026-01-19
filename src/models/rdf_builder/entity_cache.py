@@ -7,16 +7,16 @@ from pathlib import Path
 
 import requests
 
-from models.rest_api.entitybase.response import (
+from models.rest_api.v1.entitybase.response import (
     EntityMetadataResponse,
     EntityMetadataBatchResponse,
 )
-from models.rest_api.entitybase.response import MetadataLoadResponse
-from models.rest_api.entitybase.response.entity.entitybase import (
+from models.rest_api.v1.entitybase.response import MetadataLoadResponse
+from models.rest_api.v1.entitybase.response.entity.entitybase import (
     EntityAliasesResponse,
     EntityDescriptionsResponse,
 )
-from models.rest_api.entitybase.response.entity.entitybase import (
+from models.rest_api.v1.entitybase.response.entity.entitybase import (
     EntityLabelsResponse,
     EntitySitelinksResponse,
     EntityStatementsResponse,

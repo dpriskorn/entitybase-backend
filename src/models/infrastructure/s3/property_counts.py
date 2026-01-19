@@ -8,5 +8,5 @@ class PropertyCounts(BaseModel):
 
     counts: dict[str, int] = Field(
         default_factory=dict,
-        description="Dictionary mapping property ID to statement count"
+        description="Dictionary mapping property ID to statement count",
     )

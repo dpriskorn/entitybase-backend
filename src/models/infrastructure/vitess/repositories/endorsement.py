@@ -4,7 +4,9 @@ import logging
 from typing import Any, List
 
 from models.common import OperationResult
-from models.rest_api.entitybase.response.endorsements import StatementEndorsementResponse
+from models.rest_api.v1.entitybase.response.endorsements import (
+    StatementEndorsementResponse,
+)
 
 logger = logging.getLogger(__name__)
 

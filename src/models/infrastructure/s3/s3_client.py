@@ -23,7 +23,7 @@ from models.infrastructure.s3.storage.qualifier_storage import QualifierStorage
 from models.infrastructure.s3.storage.reference_storage import ReferenceStorage
 from models.infrastructure.s3.storage.revision_storage import RevisionStorage
 from models.infrastructure.s3.storage.statement_storage import StatementStorage
-from models.rest_api.entitybase.response import StatementResponse
+from models.rest_api.v1.entitybase.response import StatementResponse
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
@@ -39,11 +39,11 @@ class MyS3Client(Client):
     connection_manager: Optional[S3ConnectionManager] = Field(
         default=None, exclude=True
     )  # type: ignore[override]
-    revisions: RevisionStorage = Field(exclude=True)
-    statements: StatementStorage = Field(exclude=True)
-    metadata: MetadataStorage = Field(exclude=True)
-    references: ReferenceStorage = Field(exclude=True)
-    qualifiers: QualifierStorage = Field(exclude=True)
+    revisions: Optional[RevisionStorage] = Field(default=None, exclude=True)
+    statements: Optional[StatementStorage] = Field(default=None, exclude=True)
+    metadata: Optional[MetadataStorage] = Field(default=None, exclude=True)
+    references: Optional[ReferenceStorage] = Field(default=None, exclude=True)
+    qualifiers: Optional[QualifierStorage] = Field(default=None, exclude=True)
 
     def __init__(self, config: S3Config, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)

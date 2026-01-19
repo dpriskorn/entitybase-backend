@@ -27,7 +27,8 @@ class TestThanksRepository:
         """Test successful thank sending."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_id_resolver.resolve_id.return_value = 123
@@ -53,7 +54,8 @@ class TestThanksRepository:
         """Test send_thank when entity not found."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_id_resolver.resolve_id.return_value = None
@@ -69,7 +71,8 @@ class TestThanksRepository:
         """Test send_thank when revision not found."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_id_resolver.resolve_id.return_value = 123
@@ -86,7 +89,8 @@ class TestThanksRepository:
         """Test send_thank for own revision."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_id_resolver.resolve_id.return_value = 123
@@ -103,7 +107,8 @@ class TestThanksRepository:
         """Test send_thank when already thanked."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_id_resolver.resolve_id.return_value = 123
@@ -120,7 +125,8 @@ class TestThanksRepository:
         """Test send_thank with database error."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_id_resolver.resolve_id.return_value = 123
@@ -131,17 +137,20 @@ class TestThanksRepository:
         assert result.success is False
         assert "Database error" in result.error
 
-    def test_get_thanks_received_success(self, repository, mock_connection_manager) -> None:
+    def test_get_thanks_received_success(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test successful get_thanks_received."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = [
             (1, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc))
         ]
-        mock_cursor.fetchone.return_value = (1,)
+        mock_cursor.fetchone.return_value = 1
 
         result = repository.get_thanks_received(456, 24, 50, 0)
 
@@ -151,11 +160,14 @@ class TestThanksRepository:
         assert data["total_count"] == 1
         assert data["has_more"] is False
 
-    def test_get_thanks_received_pagination(self, repository, mock_connection_manager) -> None:
+    def test_get_thanks_received_pagination(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test get_thanks_received with pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         # Mock 55 thanks total, fetching 50 with offset 0, so has_more=True
@@ -163,7 +175,7 @@ class TestThanksRepository:
             (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc))
             for i in range(1, 51)
         ]
-        mock_cursor.fetchone.return_value = (55,)
+        mock_cursor.fetchone.return_value = 55
 
         result = repository.get_thanks_received(456, 24, 50, 0)
 
@@ -173,15 +185,18 @@ class TestThanksRepository:
         assert data["total_count"] == 55
         assert data["has_more"] is True
 
-    def test_get_thanks_received_empty(self, repository, mock_connection_manager) -> None:
+    def test_get_thanks_received_empty(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test get_thanks_received with no results."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = []
-        mock_cursor.fetchone.return_value = (0,)
+        mock_cursor.fetchone.return_value = 0
 
         result = repository.get_thanks_received(456, 24, 50, 0)
 
@@ -197,7 +212,8 @@ class TestThanksRepository:
         """Test get_thanks_received with offset pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         # Mock with offset 50, limit 10, total 55, so has_more = False
@@ -205,7 +221,7 @@ class TestThanksRepository:
             (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc))
             for i in range(51, 56)
         ]
-        mock_cursor.fetchone.return_value = (55,)
+        mock_cursor.fetchone.return_value = 55
 
         result = repository.get_thanks_received(456, 24, 10, 50)
 
@@ -227,7 +243,8 @@ class TestThanksRepository:
         """Test get_thanks_received with database error."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.execute.side_effect = Exception("Database error")
@@ -241,13 +258,14 @@ class TestThanksRepository:
         """Test successful get_thanks_sent."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = [
             (1, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc))
         ]
-        mock_cursor.fetchone.return_value = (1,)
+        mock_cursor.fetchone.return_value = 1
 
         result = repository.get_thanks_sent(123, 24, 50, 0)
 
@@ -257,11 +275,14 @@ class TestThanksRepository:
         assert data["total_count"] == 1
         assert data["has_more"] is False
 
-    def test_get_thanks_sent_pagination(self, repository, mock_connection_manager) -> None:
+    def test_get_thanks_sent_pagination(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test get_thanks_sent with pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         # Mock 55 thanks total, fetching 50 with offset 0, so has_more=True
@@ -269,7 +290,7 @@ class TestThanksRepository:
             (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc))
             for i in range(1, 51)
         ]
-        mock_cursor.fetchone.return_value = (55,)
+        mock_cursor.fetchone.return_value = 55
 
         result = repository.get_thanks_sent(123, 24, 50, 0)
 
@@ -283,11 +304,12 @@ class TestThanksRepository:
         """Test get_thanks_sent with no results."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = []
-        mock_cursor.fetchone.return_value = (0,)
+        mock_cursor.fetchone.return_value = 0
 
         result = repository.get_thanks_sent(123, 24, 50, 0)
 
@@ -303,7 +325,8 @@ class TestThanksRepository:
         """Test get_thanks_sent with offset pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         # Mock with offset 50, limit 10, total 55, so has_more = False
@@ -311,7 +334,7 @@ class TestThanksRepository:
             (i, 123, 456, "Q42", 100, datetime(2023, 1, 1, tzinfo=timezone.utc))
             for i in range(51, 56)
         ]
-        mock_cursor.fetchone.return_value = (55,)
+        mock_cursor.fetchone.return_value = 55
 
         result = repository.get_thanks_sent(123, 24, 10, 50)
 
@@ -333,7 +356,8 @@ class TestThanksRepository:
         """Test successful get_revision_thanks."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_id_resolver.resolve_id.return_value = 123
@@ -354,7 +378,8 @@ class TestThanksRepository:
         """Test get_revision_thanks with no results."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_id_resolver.resolve_id.return_value = 123
@@ -372,7 +397,8 @@ class TestThanksRepository:
         """Test get_revision_thanks with multiple thanks."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_id_resolver.resolve_id.return_value = 123
@@ -407,7 +433,8 @@ class TestThanksRepository:
         """Test get_revision_thanks with database error."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = 
+            mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_id_resolver.resolve_id.return_value = 123

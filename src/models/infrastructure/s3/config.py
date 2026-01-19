@@ -9,3 +9,5 @@ class S3Config(BaseModel):
     endpoint_url: str
     access_key: str
     secret_key: str
+    bucket: str
+    region: str

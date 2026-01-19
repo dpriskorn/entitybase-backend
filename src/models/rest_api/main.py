@@ -11,7 +11,7 @@ from jsonschema import ValidationError  # type: ignore[import-untyped]
 
 from models.config.settings import settings
 from models.rest_api.clients import Clients
-from models.rest_api.entitybase.versions.v1 import v1_router
+from models.rest_api.v1.entitybase.versions.v1 import v1_router
 from models.validation.json_schema_validator import JsonSchemaValidator
 from .entitybase.services.enumeration_service import EnumerationService
 
@@ -134,7 +134,7 @@ async def validation_error_handler(exc: ValidationError) -> JSONResponse:
     )
 
 
-from models.rest_api.entitybase.routes import include_routes
+from models.rest_api.v1.entitybase.routes import include_routes
 
 include_routes(app)
 

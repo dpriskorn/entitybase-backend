@@ -7,7 +7,8 @@ from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
 
 from models.common import OperationResult
 from models.config.settings import settings
-from models.infrastructure.s3.base_storage import BaseS3Storage, S3NotFoundError
+from models.infrastructure.s3.base_storage import BaseS3Storage
+from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.infrastructure.s3.connection import S3ConnectionManager
 
 logger = logging.getLogger(__name__)
@@ -19,7 +20,9 @@ class ReferenceStorage(BaseS3Storage):
     def __init__(self, connection_manager: S3ConnectionManager) -> None:
         super().__init__(connection_manager, settings.s3_references_bucket)
 
-    def store_reference(self, content_hash: int, reference_data: S3ReferenceData) -> OperationResult[None]:
+    def store_reference(
+        self, content_hash: int, reference_data: S3ReferenceData
+    ) -> OperationResult[None]:
         """Store a reference by its content hash."""
         key = str(content_hash)
         metadata = {"content_hash": str(content_hash)}
@@ -31,7 +34,9 @@ class ReferenceStorage(BaseS3Storage):
         data = self.load(key)
         return S3ReferenceData(**data)
 
-    def load_references_batch(self, content_hashes: List[int]) -> List[S3ReferenceData | None]:
+    def load_references_batch(
+        self, content_hashes: List[int]
+    ) -> List[S3ReferenceData | None]:
         """Load multiple references by their content hashes."""
         results: List[S3ReferenceData | None] = []
         for h in content_hashes:

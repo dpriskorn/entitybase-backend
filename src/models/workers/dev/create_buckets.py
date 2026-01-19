@@ -2,6 +2,7 @@
 
 import logging
 import os
+import sys
 from typing import Any, Dict, List
 
 import boto3 as _boto3  # noqa  # type: ignore[import-untyped]
@@ -9,6 +10,12 @@ from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
+
+# Add src to path for imports
+src_path = os.path.join(os.path.dirname(__file__), "..", "..")
+sys.path.insert(0, src_path)
+
+from models.config.settings import settings
 
 
 class CreateBuckets(BaseModel):
@@ -18,11 +25,12 @@ class CreateBuckets(BaseModel):
     minio_access_key: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
     minio_secret_key: str = os.getenv("MINIO_SECRET_KEY", "minioadmin")
     required_buckets: List[str] = [
-        "terms",
-        "statements",
-        "revisions",
-        "dumps",
-        "sitelinks",
+        settings.s3_terms_bucket,
+        settings.s3_statements_bucket,
+        settings.s3_references_bucket,
+        settings.s3_qualifiers_bucket,
+        settings.s3_revisions_bucket,
+        settings.s3_sitelinks_bucket,
     ]
 
     def __init__(self, **data: Any):

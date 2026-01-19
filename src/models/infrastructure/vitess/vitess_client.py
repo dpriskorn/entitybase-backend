@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from pydantic import Field
 
 from models.infrastructure.vitess.connection import VitessConnectionManager
-from models.infrastructure.vitess.entities import IdResolver
+from models.infrastructure.vitess.id_resolver import IdResolver
 from models.infrastructure.vitess.repositories.backlink import BacklinkRepository
 from models.infrastructure.vitess.repositories.endorsement import EndorsementRepository
 from models.infrastructure.vitess.repositories.entity import EntityRepository

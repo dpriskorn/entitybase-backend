@@ -12,8 +12,12 @@ from unittest.mock import AsyncMock, patch, MagicMock
 with (
     patch("boto3.client") as mock_boto_client,
     patch("pymysql.connect") as mock_db_connect,
-    patch("models.infrastructure.vitess.connection.VitessConnectionManager.connect") as mock_vitess_connect,
-    patch("models.infrastructure.s3.connection.S3ConnectionManager.connect") as mock_s3_connect,
+    patch(
+        "models.infrastructure.vitess.connection.VitessConnectionManager.connect"
+    ) as mock_vitess_connect,
+    patch(
+        "models.infrastructure.s3.connection.S3ConnectionManager.connect"
+    ) as mock_s3_connect,
 ):
     mock_client = MagicMock()
     mock_boto_client.return_value = mock_client
@@ -47,6 +51,27 @@ def api_client():
     return TestClient(app)
 
 
+@pytest.fixture
+def mock_kafka_consumer():
+    """Mock Kafka consumer"""
+    mock_consumer = AsyncMock()
+    mock_consumer.start = AsyncMock()
+    mock_consumer.stop = AsyncMock()
+    mock_consumer.__aenter__ = AsyncMock(return_value=mock_consumer)
+    mock_consumer.__aexit__ = AsyncMock(return_value=None)
+    return mock_consumer
+
+
+@pytest.fixture
+def mock_kafka_producer():
+    """Mock Kafka producer"""
+    mock_producer = MagicMock()
+    mock_producer.start = AsyncMock()
+    mock_producer.stop = AsyncMock()
+    mock_producer.send_and_wait = AsyncMock()
+    return mock_producer
+
+
 @pytest.fixture(autouse=True)
 def mock_aiokafka():
     """Mock aiokafka to prevent real Kafka connections in tests."""
@@ -55,3 +80,12 @@ def mock_aiokafka():
             "aiokafka.AIOKafkaProducer", new_callable=AsyncMock
         ) as mock_producer:
             yield mock_consumer, mock_producer
+
+
+@pytest.fixture(autouse=True)
+def mock_vitess_get_connection():
+    """Mock VitessClient.get_connection to return a mock context manager."""
+    mock_context = MagicMock()
+    with patch("models.infrastructure.vitess.vitess_client.VitessClient.get_connection", return_value=mock_context):
+        mock_context.__enter__.return_value = MagicMock()
+        yield

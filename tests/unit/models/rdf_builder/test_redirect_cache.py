@@ -13,7 +13,7 @@ from models.rdf_builder.redirect_cache import (
     load_entity_redirects_batch,
     load_entity_redirects,
 )
-from models.rest_api.entitybase.response import (
+from models.rest_api.v1.entitybase.response import (
     MetadataLoadResponse,
     RedirectBatchResponse,
 )

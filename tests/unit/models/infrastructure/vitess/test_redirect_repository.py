@@ -18,7 +18,6 @@ class TestRedirectRepository:
 
         self.repository = RedirectRepository(
             self.mock_connection_manager, self.mock_id_resolver
-        )
 
     def test_init(self) -> None:
         """Test repository initialization."""
@@ -30,7 +29,6 @@ class TestRedirectRepository:
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
             self.mock_cursor
-        )
         self.mock_cursor.rowcount = 1
 
         result = self.repository.set_target(self.mock_connection, "Q100", "Q200")
@@ -45,12 +43,10 @@ class TestRedirectRepository:
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
             self.mock_cursor
-        )
         self.mock_cursor.rowcount = 1
 
         result = self.repository.set_target(
             self.mock_connection, "Q100", "Q200", expected_redirects_to=150
-        )
 
         assert result is True
         # Verify the SQL includes the expected value condition
@@ -68,7 +64,6 @@ class TestRedirectRepository:
         # Should call raise_validation_error
         self.mock_id_resolver.resolve_id.assert_called_once_with(
             self.mock_connection, "Q100"
-        )
 
     def test_set_target_target_entity_not_found(self) -> None:
         """Test setting redirect target when target entity not found."""
@@ -85,7 +80,6 @@ class TestRedirectRepository:
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
             self.mock_cursor
-        )
         self.mock_cursor.rowcount = 0
 
         result = self.repository.set_target(self.mock_connection, "Q100", "Q200")
@@ -97,7 +91,6 @@ class TestRedirectRepository:
         self.mock_id_resolver.resolve_id.return_value = 100
         self.mock_connection.cursor.return_value.__enter__.return_value = (
             self.mock_cursor
-        )
         self.mock_cursor.rowcount = 1
 
         result = self.repository.set_target(self.mock_connection, "Q100", None)
@@ -105,14 +98,12 @@ class TestRedirectRepository:
         assert result is True
         self.mock_id_resolver.resolve_id.assert_called_once_with(
             self.mock_connection, "Q100"
-        )
 
     def test_create_success(self) -> None:
         """Test successful redirect creation."""
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
             self.mock_cursor
-        )
 
         self.repository.create(self.mock_connection, "Q100", "Q200", "test-user")
 
@@ -130,7 +121,6 @@ class TestRedirectRepository:
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
             self.mock_cursor
-        )
 
         self.repository.create(self.mock_connection, "Q100", "Q200")
 
@@ -156,7 +146,6 @@ class TestRedirectRepository:
         self.mock_id_resolver.resolve_id.return_value = 100
         self.mock_connection.cursor.return_value.__enter__.return_value = (
             self.mock_cursor
-        )
         self.mock_cursor.fetchall.return_value = [("Q50",), ("Q75",)]
 
         result = self.repository.get_incoming_redirects(self.mock_connection, "Q100")
@@ -164,7 +153,6 @@ class TestRedirectRepository:
         assert result == ["Q50", "Q75"]
         self.mock_id_resolver.resolve_id.assert_called_once_with(
             self.mock_connection, "Q100"
-        )
         self.mock_cursor.execute.assert_called_once()
 
     def test_get_incoming_redirects_entity_not_found(self) -> None:
@@ -176,7 +164,6 @@ class TestRedirectRepository:
         assert result == []
         self.mock_id_resolver.resolve_id.assert_called_once_with(
             self.mock_connection, "Q100"
-        )
         self.mock_cursor.execute.assert_not_called()
 
     def test_get_incoming_redirects_no_results(self) -> None:
@@ -184,7 +171,6 @@ class TestRedirectRepository:
         self.mock_id_resolver.resolve_id.return_value = 100
         self.mock_connection.cursor.return_value.__enter__.return_value = (
             self.mock_cursor
-        )
         self.mock_cursor.fetchall.return_value = []
 
         result = self.repository.get_incoming_redirects(self.mock_connection, "Q100")
@@ -196,15 +182,13 @@ class TestRedirectRepository:
         self.mock_id_resolver.resolve_id.return_value = 100
         self.mock_connection.cursor.return_value.__enter__.return_value = (
             self.mock_cursor
-        )
-        self.mock_cursor.fetchone.return_value = ("Q200",)
+        self.mock_cursor.fetchone.return_value = "Q200"
 
         result = self.repository.get_target(self.mock_connection, "Q100")
 
         assert result == "Q200"
         self.mock_id_resolver.resolve_id.assert_called_once_with(
             self.mock_connection, "Q100"
-        )
         self.mock_cursor.execute.assert_called_once()
 
     def test_get_target_no_redirect(self) -> None:
@@ -212,7 +196,6 @@ class TestRedirectRepository:
         self.mock_id_resolver.resolve_id.return_value = 100
         self.mock_connection.cursor.return_value.__enter__.return_value = (
             self.mock_cursor
-        )
         self.mock_cursor.fetchone.return_value = None
 
         result = self.repository.get_target(self.mock_connection, "Q100")
@@ -234,7 +217,6 @@ class TestRedirectRepository:
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
             self.mock_cursor
-        )
         self.mock_cursor.rowcount = 1
 
         self.repository.set_target(self.mock_connection, "Q100", "Q200")
@@ -247,7 +229,6 @@ class TestRedirectRepository:
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
             self.mock_cursor
-        )
 
         self.repository.create(self.mock_connection, "Q100", "Q200")
 

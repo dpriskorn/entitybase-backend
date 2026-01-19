@@ -73,6 +73,8 @@ class Settings(BaseSettings):
             endpoint_url=self.s3_endpoint,
             access_key=self.s3_access_key,
             secret_key=self.s3_secret_key,
+            bucket=self.s3_revisions_bucket,
+            region="us-east-1",
         )
 
     def to_vitess_config(self) -> "VitessConfig":

@@ -19,8 +19,13 @@ class TestEndorsementRepository:
         """Test successful endorsement creation."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+        mock_connection_manager.get_connection.return_value = mock_conn
+        mock_conn.__enter__ = Mock(return_value=mock_conn)
+        mock_conn.__exit__ = Mock(return_value=None)
+        mock_cursor_context = Mock()
+        mock_conn.cursor.return_value = mock_cursor_context
+        mock_cursor_context.__enter__ = Mock(return_value=mock_cursor)
+        mock_cursor_context.__exit__ = Mock(return_value=None)
 
         # Mock statement exists check
         mock_cursor.fetchone.side_effect = [
@@ -33,7 +38,7 @@ class TestEndorsementRepository:
 
         assert result.success is True
         assert result.data == 789
-        assert result.error is None
+        assert result.error == ""
 
     def test_create_endorsement_invalid_parameters(self, repository) -> None:
         """Test create_endorsement with invalid parameters."""

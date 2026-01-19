@@ -5,7 +5,6 @@ from io import StringIO
 from pathlib import Path
 from typing import Any, TextIO
 
-from models.internal_representation.entity_data import EntityData
 from models.json_parser.statement_parser import parse_statement
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 from models.rdf_builder.models.rdf_statement import RDFStatement
@@ -13,7 +12,7 @@ from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.redirect_cache import load_entity_redirects
 from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
 from models.rdf_builder.writers.triple import TripleWriters
-from models.rest_api.entitybase.response.entity import EntityMetadataResponse
+from models.rest_api.v1.entitybase.response.entity import EntityMetadataResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -46,7 +45,9 @@ class EntityConverter:
         self._write_referenced_entity_metadata(entity, output)
         self._write_property_metadata(entity, output)
 
-    def _write_entity_metadata(self, entity: EntityMetadataResponse, output: TextIO) -> None:
+    def _write_entity_metadata(
+        self, entity: EntityMetadataResponse, output: TextIO
+    ) -> None:
         """Write entity type, labels, descriptions, aliases, sitelinks."""
         self.writers.write_entity_type(output, entity.id)
         self.writers.write_dataset_triples(output, entity.id)
@@ -84,7 +85,9 @@ class EntityConverter:
             output, entity_id, rdf_stmt, shape, self.properties, self.dedupe
         )
 
-    def _write_property_metadata(self, entity: EntityMetadataResponse, output: TextIO) -> None:
+    def _write_property_metadata(
+        self, entity: EntityMetadataResponse, output: TextIO
+    ) -> None:
         """Write property metadata blocks for properties used in entity."""
         property_ids = set()
 
@@ -145,7 +148,9 @@ class EntityConverter:
             return parse_entity(data)
         raise FileNotFoundError(f"Entity {entity_id} not found at {json_path}")
 
-    def _write_referenced_entity_metadata(self, entity: EntityMetadataResponse, output: TextIO) -> None:
+    def _write_referenced_entity_metadata(
+        self, entity: EntityMetadataResponse, output: TextIO
+    ) -> None:
         """Write metadata blocks for referenced entities."""
         logger.info(f"Writing referenced entity metadata for entity {entity.id}")
         if not self.entity_metadata_dir:

@@ -8,7 +8,7 @@ import yaml
 from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
 
 from models.config.settings import settings
-from models.rest_api.entitybase.response.misc import JsonSchema
+from models.rest_api.v1.entitybase.response.misc import JsonSchema
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

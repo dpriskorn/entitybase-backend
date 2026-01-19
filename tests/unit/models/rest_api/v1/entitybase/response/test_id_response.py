@@ -2,7 +2,7 @@ import pytest
 
 pytestmark = pytest.mark.unit
 
-from models.rest_api.entitybase.response.id_response import IdResponse
+from models.rest_api.v1.entitybase.response.id_response import IdResponse
 
 
 class TestIdResponse:

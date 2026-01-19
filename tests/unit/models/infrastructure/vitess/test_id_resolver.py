@@ -18,7 +18,7 @@ class TestIdResolver:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
-        mock_cursor.fetchone.return_value = (12345,)
+        mock_cursor.fetchone.return_value = 12345
 
         result = IdResolver.resolve_id(mock_conn, "Q42")
         assert result == 12345
@@ -26,7 +26,6 @@ class TestIdResolver:
         mock_cursor.execute.assert_called_once_with(
             "SELECT internal_id FROM entity_id_mapping WHERE entity_id = %s",
             ("Q42",),
-        )
 
     def test_resolve_id_nonexistent(self, resolver):
         """Test resolving a non-existent entity ID."""
@@ -43,7 +42,7 @@ class TestIdResolver:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
-        mock_cursor.fetchone.return_value = (12345,)
+        mock_cursor.fetchone.return_value = 12345
 
         result = resolver.entity_exists(mock_conn, "Q42")
         assert result is True
@@ -63,7 +62,7 @@ class TestIdResolver:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
-        mock_cursor.fetchone.return_value = ("Q42",)
+        mock_cursor.fetchone.return_value = "Q42"
 
         result = IdResolver.resolve_entity_id(mock_conn, 12345)
         assert result == "Q42"

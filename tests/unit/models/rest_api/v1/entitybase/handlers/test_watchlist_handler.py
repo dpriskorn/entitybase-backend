@@ -3,8 +3,8 @@
 import pytest
 from unittest.mock import Mock
 
-from models.rest_api.entitybase.handlers.watchlist import WatchlistHandler
-from models.rest_api.entitybase.request.watchlist import (
+from models.rest_api.v1.entitybase.handlers.watchlist import WatchlistHandler
+from models.rest_api.v1.entitybase.request.watchlist import (
     WatchlistAddRequest,
     WatchlistRemoveRequest,
     MarkCheckedRequest,

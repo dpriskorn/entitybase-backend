@@ -2,14 +2,14 @@
 
 import unittest
 from unittest.mock import MagicMock, patch
-from models.rest_api.entitybase.services.hash_service import HashService
+from models.rest_api.v1.entitybase.services.hash_service import HashService
 from models.infrastructure.s3.hashes.labels_hashes import LabelsHashes
 from models.infrastructure.s3.hashes.descriptions_hashes import DescriptionsHashes
 from models.infrastructure.s3.hashes.aliases_hashes import AliasesHashes
 from models.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
 from models.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.infrastructure.s3.hashes.hash_maps import HashMaps
-from models.rest_api.entitybase.response import StatementHashResult
+from models.rest_api.v1.entitybase.response import StatementHashResult
 
 
 class TestHashService(unittest.TestCase):
@@ -21,9 +21,9 @@ class TestHashService(unittest.TestCase):
         self.mock_s3 = MagicMock()
         self.mock_validator = MagicMock()
 
-    @patch("models.rest_api.entitybase.services.hash_service.hash_entity_statements")
+    @patch("models.rest_api.v1.entitybase.services.hash_service.hash_entity_statements")
     @patch(
-        "models.rest_api.entitybase.services.hash_service.deduplicate_and_store_statements"
+        "models.rest_api.v1.entitybase.services.hash_service.deduplicate_and_store_statements"
     )
     def test_hash_statements_success(self, mock_store, mock_hash) -> None:
         """Test successful statement hashing."""
@@ -51,7 +51,7 @@ class TestHashService(unittest.TestCase):
         mock_hash.assert_called_once_with(entity_data)
         mock_store.assert_called_once()
 
-    @patch("models.rest_api.entitybase.services.hash_service.hash_entity_statements")
+    @patch("models.rest_api.v1.entitybase.services.hash_service.hash_entity_statements")
     def test_hash_statements_hash_failure(self, mock_hash) -> None:
         """Test statement hashing when hash operation fails."""
         mock_hash.return_value = MagicMock(success=False, error="Hash failed")
@@ -62,9 +62,9 @@ class TestHashService(unittest.TestCase):
         self.assertIn("Failed to hash statements", str(cm.exception))
 
     @patch(
-        "models.rest_api.entitybase.services.hash_service.deduplicate_and_store_statements"
+        "models.rest_api.v1.entitybase.services.hash_service.deduplicate_and_store_statements"
     )
-    @patch("models.rest_api.entitybase.services.hash_service.hash_entity_statements")
+    @patch("models.rest_api.v1.entitybase.services.hash_service.hash_entity_statements")
     def test_hash_statements_store_failure(self, mock_hash, mock_store) -> None:
         """Test statement hashing when store operation fails."""
         mock_hash_result = StatementHashResult(
@@ -79,10 +79,10 @@ class TestHashService(unittest.TestCase):
         self.assertIn("Failed to store statements", str(cm.exception))
 
     @patch(
-        "models.rest_api.entitybase.services.hash_service.MetadataExtractor.hash_string"
+        "models.rest_api.v1.entitybase.services.hash_service.MetadataExtractor.hash_string"
     )
     @patch(
-        "models.rest_api.entitybase.services.hash_service.MyS3Client.store_sitelink_metadata"
+        "models.rest_api.v1.entitybase.services.hash_service.MyS3Client.store_sitelink_metadata"
     )
     def test_hash_sitelinks(self, mock_store, mock_hash) -> None:
         """Test sitelink hashing."""
@@ -107,11 +107,11 @@ class TestHashService(unittest.TestCase):
         self.assertEqual(result.root, {})
 
     @patch(
-        "models.rest_api.entitybase.services.hash_service.MetadataExtractor.hash_string"
+        "models.rest_api.v1.entitybase.services.hash_service.MetadataExtractor.hash_string"
     )
-    @patch("models.rest_api.entitybase.services.hash_service.TermsRepository")
+    @patch("models.rest_api.v1.entitybase.services.hash_service.TermsRepository")
     @patch(
-        "models.rest_api.entitybase.services.hash_service.MyS3Client.store_term_metadata"
+        "models.rest_api.v1.entitybase.services.hash_service.MyS3Client.store_term_metadata"
     )
     def test_hash_labels(self, mock_store, mock_repo_class, mock_hash) -> None:
         """Test label hashing."""
@@ -135,11 +135,11 @@ class TestHashService(unittest.TestCase):
         self.assertEqual(result.root, {})
 
     @patch(
-        "models.rest_api.entitybase.services.hash_service.MetadataExtractor.hash_string"
+        "models.rest_api.v1.entitybase.services.hash_service.MetadataExtractor.hash_string"
     )
-    @patch("models.rest_api.entitybase.services.hash_service.TermsRepository")
+    @patch("models.rest_api.v1.entitybase.services.hash_service.TermsRepository")
     @patch(
-        "models.rest_api.entitybase.services.hash_service.MyS3Client.store_term_metadata"
+        "models.rest_api.v1.entitybase.services.hash_service.MyS3Client.store_term_metadata"
     )
     def test_hash_descriptions(self, mock_store, mock_repo_class, mock_hash) -> None:
         """Test description hashing."""
@@ -161,11 +161,11 @@ class TestHashService(unittest.TestCase):
         mock_repo.insert_term.assert_any_call(123, "Test Description", "description")
 
     @patch(
-        "models.rest_api.entitybase.services.hash_service.MetadataExtractor.hash_string"
+        "models.rest_api.v1.entitybase.services.hash_service.MetadataExtractor.hash_string"
     )
-    @patch("models.rest_api.entitybase.services.hash_service.TermsRepository")
+    @patch("models.rest_api.v1.entitybase.services.hash_service.TermsRepository")
     @patch(
-        "models.rest_api.entitybase.services.hash_service.MyS3Client.store_term_metadata"
+        "models.rest_api.v1.entitybase.services.hash_service.MyS3Client.store_term_metadata"
     )
     def test_hash_aliases(self, mock_store, mock_repo_class, mock_hash) -> None:
         """Test alias hashing."""

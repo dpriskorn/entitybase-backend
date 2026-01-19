@@ -5,9 +5,9 @@ from unittest.mock import MagicMock
 import pytest
 
 from models.infrastructure.s3.enums import DeleteType
-from models.rest_api.entitybase.handlers.entity.delete import EntityDeleteHandler
-from models.rest_api.entitybase.request.entity import EntityDeleteRequest
-from models.rest_api.entitybase.response import EntityDeleteResponse
+from models.rest_api.v1.entitybase.handlers.entity.delete import EntityDeleteHandler
+from models.rest_api.v1.entitybase.request.entity import EntityDeleteRequest
+from models.rest_api.v1.entitybase.response import EntityDeleteResponse
 
 
 class TestEntityDeleteHandler:

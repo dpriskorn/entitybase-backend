@@ -21,7 +21,6 @@ class TestEntitiesEndpoints:
         response.entity_data = {
             "type": "item",
             "labels": {},
-            "sitelinks": {"enwiki": {"title": "Old Page"}}
+            "sitelinks": {"enwiki": {"title": "Old Page"}},
         }
         return response
-

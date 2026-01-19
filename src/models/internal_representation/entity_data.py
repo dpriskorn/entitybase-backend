@@ -1,11 +1,8 @@
 """Internal data models for entity representation."""
 
-from typing import TYPE_CHECKING
-
 from pydantic import BaseModel, Field
 
 from models.internal_representation.statements import Statement
-from models.rest_api.entitybase.response.entity import EntitySitelinksResponse
 
 
 class EntityData(BaseModel):
@@ -13,7 +10,9 @@ class EntityData(BaseModel):
 
     id: str
     type: str  # Simplified, or use EntityType
-    labels: dict[str, dict[str, str]]  # e.g., {"en": {"language": "en", "value": "Test"}}
+    labels: dict[
+        str, dict[str, str]
+    ]  # e.g., {"en": {"language": "en", "value": "Test"}}
     descriptions: dict[str, dict[str, str]]
     aliases: dict[str, list[dict[str, str]]]
     statements: list[Statement]

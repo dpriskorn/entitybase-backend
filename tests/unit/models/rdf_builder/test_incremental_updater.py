@@ -21,7 +21,7 @@ def test_apply_diffs():
     diffs = EntityDiffs(
         statements={"added": ["stmt1"], "removed": [], "modified": []},
         terms={"added": ["term1"], "removed": [], "modified": []},
-        sitelinks={"added": ["link1"], "removed": [], "modified": []}
+        sitelinks={"added": ["link1"], "removed": [], "modified": []},
     )
 
     updater.apply_diffs(diffs)
@@ -41,7 +41,7 @@ def test_compute_diffs():
         descriptions={},
         aliases={},
         statements=[],
-        sitelinks={"enwiki": "Old_Page"}
+        sitelinks={"enwiki": "Old_Page"},
     )
 
     new_entity = EntityData(
@@ -51,7 +51,7 @@ def test_compute_diffs():
         descriptions={},
         aliases={},
         statements=[],
-        sitelinks={"enwiki": "New_Page", "frwiki": "Page_Fr"}
+        sitelinks={"enwiki": "New_Page", "frwiki": "Page_Fr"},
     )
 
     diffs = IncrementalRDFUpdater.compute_diffs(old_entity, new_entity)

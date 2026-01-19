@@ -1,11 +1,15 @@
 """Incremental RDF updater for diff-based updates."""
 
-from typing import Dict
-
 from pydantic import BaseModel
 
 from models.internal_representation.entity_data import EntityData
-from models.rdf_builder.diffs import DiffResult, StatementDiff, TermsDiff, SitelinksDiff, EntityDiffs
+from models.rdf_builder.diffs import (
+    DiffResult,
+    StatementDiff,
+    TermsDiff,
+    SitelinksDiff,
+    EntityDiffs,
+)
 
 
 class IncrementalRDFUpdater(BaseModel):
@@ -51,7 +55,13 @@ class IncrementalRDFUpdater(BaseModel):
     def compute_diffs(old_entity: EntityData, new_entity: EntityData) -> EntityDiffs:
         """Compute diffs between two entities."""
         return EntityDiffs(
-            statements=StatementDiff.compute(old_entity.statements, new_entity.statements),
-            terms=TermsDiff.compute(old_entity.labels, new_entity.labels),  # Simplify: just labels
-            sitelinks=SitelinksDiff.compute(old_entity.sitelinks or {}, new_entity.sitelinks or {}),
+            statements=StatementDiff.compute(
+                old_entity.statements, new_entity.statements
+            ),
+            terms=TermsDiff.compute(
+                old_entity.labels, new_entity.labels
+            ),  # Simplify: just labels
+            sitelinks=SitelinksDiff.compute(
+                old_entity.sitelinks or {}, new_entity.sitelinks or {}
+            ),
         )

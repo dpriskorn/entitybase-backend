@@ -15,7 +15,7 @@ def test_parse_entity_data_basic():
         "descriptions": {"en": {"language": "en", "value": "A test item"}},
         "aliases": {"en": [{"language": "en", "value": "Test"}]},
         "claims": {},
-        "sitelinks": {"enwiki": "Test_Item"}
+        "sitelinks": {"enwiki": "Test_Item"},
     }
 
     entity = parse_entity_data(raw_data)
@@ -37,7 +37,7 @@ def test_entity_data_model():
         descriptions={},
         aliases={},
         statements=[],
-        sitelinks=None
+        sitelinks=None,
     )
 
     assert entity.id == "Q1"

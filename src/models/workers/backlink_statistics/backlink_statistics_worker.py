@@ -5,7 +5,7 @@ from datetime import date, datetime, timezone
 from typing import Any
 
 from models.config.settings import settings
-from models.rest_api.entitybase.services.backlink_statistics_service import (
+from models.rest_api.v1.entitybase.services.backlink_statistics_service import (
     BacklinkStatisticsService,
 )
 from models.workers.base_stats_worker import BaseStatsWorker

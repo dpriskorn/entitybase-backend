@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch
 
 pytestmark = pytest.mark.unit
 
-from models.rest_api.entitybase.services.backlink_statistics_service import (
+from models.rest_api.v1.entitybase.services.backlink_statistics_service import (
     BacklinkStatisticsService,
 )
 

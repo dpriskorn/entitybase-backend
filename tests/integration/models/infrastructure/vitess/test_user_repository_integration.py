@@ -7,7 +7,7 @@ sys.path.insert(0, "src")
 
 from models.infrastructure.vitess.repositories.user import UserRepository
 from models.user import User
-from models.rest_api.entitybase.request.enums import UserActivityType
+from models.rest_api.v1.entitybase.request.enums import UserActivityType
 
 
 class TestUserRepository:
@@ -254,7 +254,7 @@ class TestUserRepository:
         self, repository: UserRepository, mock_connection_manager: MagicMock
     ) -> None:
         """Test getting user activities"""
-        from models.rest_api.entitybase.response.user_activity import (
+        from models.rest_api.v1.entitybase.response.user_activity import (
             UserActivityItemResponse,
         )
 

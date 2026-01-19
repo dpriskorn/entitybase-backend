@@ -8,7 +8,7 @@ from typing import Any, List
 
 import requests
 
-from models.rest_api.entitybase.response import (
+from models.rest_api.v1.entitybase.response import (
     MetadataLoadResponse,
     RedirectBatchResponse,
 )

@@ -3,11 +3,11 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from models.rest_api.entitybase.handlers.entity.handler import EntityHandler
-from models.rest_api.entitybase.request.entity.patch_statement import (
+from models.rest_api.v1.entitybase.handlers.entity.handler import EntityHandler
+from models.rest_api.v1.entitybase.request.entity.patch_statement import (
     PatchStatementRequest,
 )
-from models.rest_api.entitybase.response import EntityState
+from models.rest_api.v1.entitybase.response import EntityState
 
 
 class TestPatchStatement:
@@ -27,7 +27,7 @@ class TestPatchStatement:
         )
 
         with patch(
-            "models.rest_api.entitybase.handlers.entity.handler.EntityReadHandler"
+            "models.rest_api.v1.entitybase.handlers.entity.handler.EntityReadHandler"
         ) as mock_read_handler_class:
             mock_read_handler = MagicMock()
             mock_read_handler_class.return_value = mock_read_handler
@@ -43,7 +43,7 @@ class TestPatchStatement:
             assert not result.success
             assert "Statement not found" in result.error
 
-    @patch("models.rest_api.entitybase.handlers.entity.handler.EntityReadHandler")
+    @patch("models.rest_api.v1.entitybase.handlers.entity.handler.EntityReadHandler")
     @patch.object(EntityHandler, "_create_and_store_revision")
     @patch.object(EntityHandler, "process_statements")
     @patch(

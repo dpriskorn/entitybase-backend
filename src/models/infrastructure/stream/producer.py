@@ -1,7 +1,6 @@
 """Kafka streaming infrastructure for publishing change events."""
 
 import logging
-from datetime import datetime
 from typing import Any
 
 from aiokafka import AIOKafkaProducer  # type: ignore[import-untyped]
@@ -13,8 +12,6 @@ logger = logging.getLogger(__name__)
 
 __all__ = [
     "EndorseAction",
-    "EndorseChangeEvent",
-    "NewThankEvent",
     "RDFChangeEvent",
     "StreamProducerClient",
 ]

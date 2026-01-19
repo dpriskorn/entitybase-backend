@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from models.rest_api.entitybase.response import ProtectionResponse
+from models.rest_api.v1.entitybase.response import ProtectionResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -101,7 +101,12 @@ class EntityRepository:
         """Create a new entity in the database."""
         internal_id = self.id_resolver.resolve_id(conn, entity_id)
         if not internal_id:
-            raise_validation_error(f"Entity {entity_id} not registered", status_code=400)
+            self.id_resolver.register_entity(conn, entity_id)
+            internal_id = self.id_resolver.resolve_id(conn, entity_id)
+            if not internal_id:
+                raise_validation_error(
+                    f"Failed to register entity {entity_id}", status_code=500
+                )
         with conn.cursor() as cursor:
             cursor.execute(
                 """INSERT INTO entity_head
@@ -116,7 +121,9 @@ class EntityRepository:
         if not internal_id:
             return
         with conn.cursor() as cursor:
-            cursor.execute("DELETE FROM entity_head WHERE internal_id = %s", (internal_id,))
+            cursor.execute(
+                "DELETE FROM entity_head WHERE internal_id = %s", (internal_id,)
+            )
 
     def update_head_revision(self, conn: Any, entity_id: str, revision_id: int) -> None:
         """Update the head revision for an entity."""
@@ -126,5 +133,5 @@ class EntityRepository:
         with conn.cursor() as cursor:
             cursor.execute(
                 "UPDATE entity_head SET head_revision_id = %s WHERE internal_id = %s",
-                (revision_id, internal_id)
+                (revision_id, internal_id),
             )

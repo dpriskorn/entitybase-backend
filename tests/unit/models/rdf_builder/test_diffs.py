@@ -7,7 +7,9 @@ from models.rdf_builder.diffs import DiffResult, StatementDiff, TermsDiff, Sitel
 
 def test_diff_result_model():
     """Test DiffResult model."""
-    diff = DiffResult(added=["item1"], removed=["item2"], modified=[{"old": "a", "new": "b"}])
+    diff = DiffResult(
+        added=["item1"], removed=["item2"], modified=[{"old": "a", "new": "b"}]
+    )
     assert diff.added == ["item1"]
     assert diff.removed == ["item2"]
     assert diff.modified == [{"old": "a", "new": "b"}]
@@ -15,6 +17,7 @@ def test_diff_result_model():
 
 def test_statement_diff():
     """Test StatementDiff computation."""
+
     # Mock statements with ids
     class MockStmt:
         def __init__(self, stmt_id):
@@ -34,7 +37,10 @@ def test_statement_diff():
 def test_terms_diff():
     """Test TermsDiff computation."""
     old_terms = {"en": {"language": "en", "value": "Old"}}
-    new_terms = {"en": {"language": "en", "value": "New"}, "fr": {"language": "fr", "value": "Nouveau"}}
+    new_terms = {
+        "en": {"language": "en", "value": "New"},
+        "fr": {"language": "fr", "value": "Nouveau"},
+    }
 
     diff = TermsDiff.compute(old_terms, new_terms)
 

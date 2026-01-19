@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 import pytest
 from fastapi import HTTPException
 
-from models.rest_api.entitybase.routes.batch import (
+from models.rest_api.v1.entitybase.routes.batch import (
     get_batch_sitelinks,
     get_batch_labels,
     get_batch_descriptions,
@@ -28,7 +28,7 @@ class TestBatchRoutes:
         self.mock_vitess = Mock()
         self.mock_clients.vitess = self.mock_vitess
 
-    @patch("models.rest_api.entitybase.routes.batch.EntityReadHandler")
+    @patch("models.rest_api.v1.entitybase.routes.batch.EntityReadHandler")
     async def test_get_batch_statements_success(self, mock_handler_class):
         """Test successful batch statements retrieval."""
         mock_handler = Mock()
@@ -57,7 +57,7 @@ class TestBatchRoutes:
         assert exc_info.value.status_code == 400
         assert exc_info.value.detail == "Too many entities (max 20)"
 
-    @patch("models.rest_api.entitybase.routes.batch.EntityReadHandler")
+    @patch("models.rest_api.v1.entitybase.routes.batch.EntityReadHandler")
     async def test_get_batch_statements_with_properties(self, mock_handler_class):
         """Test batch statements with property filtering."""
         mock_handler = Mock()
@@ -71,7 +71,7 @@ class TestBatchRoutes:
         expected = {"P31": [], "P21": []}
         assert result["Q42"] == expected
 
-    @patch("models.rest_api.entitybase.routes.batch.EntityReadHandler")
+    @patch("models.rest_api.v1.entitybase.routes.batch.EntityReadHandler")
     async def test_get_batch_statements_exception(self, mock_handler_class):
         """Test batch statements handles entity read exceptions."""
         mock_handler = Mock()

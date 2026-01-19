@@ -2,11 +2,11 @@ from typing import Any
 
 import pytest
 
-from models.rest_api.entitybase.request.entity import (
+from models.rest_api.v1.entitybase.request.entity import (
     EntityRedirectRequest,
     RedirectRevertRequest,
 )
-from models.rest_api.entitybase.response.entity import (
+from models.rest_api.v1.entitybase.response.entity import (
     EntityRedirectResponse,
     EntityResponse,
 )

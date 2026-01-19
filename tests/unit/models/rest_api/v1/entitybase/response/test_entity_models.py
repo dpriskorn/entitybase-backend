@@ -5,7 +5,7 @@ import pytest
 pytestmark = pytest.mark.unit
 from pydantic import ValidationError
 
-from models.rest_api.entitybase.response.entity import (
+from models.rest_api.v1.entitybase.response.entity import (
     AliasValue,
     DescriptionValue,
     EntityAliasesResponse,

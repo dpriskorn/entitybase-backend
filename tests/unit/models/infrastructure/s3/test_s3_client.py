@@ -31,7 +31,9 @@ class TestMyS3Client:
         return MagicMock()
 
     @patch("models.infrastructure.s3.s3_client.S3ConnectionManager")
-    def test_init_success(self, mock_manager_class, config, mock_connection_manager) -> None:
+    def test_init_success(
+        self, mock_manager_class, config, mock_connection_manager
+    ) -> None:
         """Test MyS3Client initialization success."""
         mock_manager_class.return_value = mock_connection_manager
 
@@ -42,8 +44,6 @@ class TestMyS3Client:
         mock_manager_class.assert_called_once_with(config=config)
         mock_connection_manager.connect.assert_called_once()
         # _ensure_bucket_exists would be called
-
-
 
         assert "S3 service unavailable" in str(exc_info.value)
 
@@ -118,7 +118,7 @@ class TestMyS3Client:
                 entity_type=EntityType.ITEM,
                 edit=EditData(),
                 hashes=None,
-                schema_version="1.0"
+                schema_version="1.0",
             )
             client.write_revision("Q42", 123, data)
 
@@ -194,7 +194,7 @@ class TestMyS3Client:
             mock_manager_class.return_value = mock_connection_manager
             mock_connection_manager.boto_client.get_object.return_value = {
                 "Body": MagicMock(),
-                "ContentType": "text/plain"
+                "ContentType": "text/plain",
             }
             mock_body = MagicMock()
             mock_body.read.return_value = b"test label"

@@ -15,7 +15,9 @@ class Client(ABC, BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
     config: Config
-    connection_manager: Optional[ConnectionManager] = Field(default=None, init=False, exclude=True)
+    connection_manager: Optional[ConnectionManager] = Field(
+        default=None, init=False, exclude=True
+    )
 
     @property
     def healthy_connection(self) -> bool:
