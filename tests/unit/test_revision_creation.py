@@ -139,7 +139,7 @@ class TestRevisionCreationLogic(unittest.TestCase):
         # Verify hash values are integers
         self.assertIsInstance(revision.labels_hashes["en"], int)
         self.assertIsInstance(revision.descriptions_hashes["en"], int)
-        self.assertIsInstance(revision_data["aliases_hashes"]["en"], list)
+        self.assertIsInstance(revision.aliases_hashes["en"], list)
 
 
 if __name__ == "__main__":

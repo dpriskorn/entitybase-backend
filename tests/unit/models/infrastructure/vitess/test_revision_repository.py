@@ -90,6 +90,7 @@ class TestRevisionRepository:
 
         result = repo.get_revision(123, 456, mock_vitess)
 
+        assert result is not None
         assert result["statements"] == [{"id": "P1"}]
         assert result["properties"] == [{"type": "string"}]
         assert result["property_counts"] == {"P1": 1}

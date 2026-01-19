@@ -119,7 +119,9 @@ class VitessClient(Client):
         self.statement_repository = StatementRepository(self.connection_manager)
         self.backlink_repository = BacklinkRepository(self.connection_manager)
         self.metadata_repository = MetadataRepository(self.connection_manager)
-        from models.infrastructure.vitess.repositories.user import UserRepository
+        import importlib
+        user_repo_module = importlib.import_module('models.infrastructure.vitess.repositories.user')
+        UserRepository = user_repo_module.UserRepository
         self.user_repository = UserRepository(self.connection_manager)
         self.watchlist_repository = WatchlistRepository(
             self.connection_manager, self.id_resolver

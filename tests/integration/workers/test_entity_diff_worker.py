@@ -143,7 +143,7 @@ def test_diff_rdf_content() -> None:
           wdt:P21 wd:Q6581097 .  # Added gender
     """
 
-    result = diff_rdf_content(rdf_v1, rdf_v2)
+    result = await diff_rdf_content(rdf_v1, rdf_v2)
 
     assert "added" in result
     assert "removed" in result
