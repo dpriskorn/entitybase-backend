@@ -74,13 +74,13 @@ class RevisionContext(BaseModel):
     entity_id: str
     request_data: Dict[str, Any]
     entity_type: EntityType
-    edit_type: EditType | None = None
+    edit_type: EditType | None = Field(default=None)
     edit_summary: str = ""
     is_creation: bool = False
     vitess_client: VitessClient
     s3_client: MyS3Client
-    stream_producer: StreamProducerClient | None = None
-    validator: Any | None = None
+    stream_producer: StreamProducerClient | None = Field(default=None)
+    validator: Any | None = Field(default=None)
 
 
 class RevisionResult(BaseModel):

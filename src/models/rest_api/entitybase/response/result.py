@@ -1,12 +1,14 @@
 """Result response models."""
 
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
 class RevisionIdResult(BaseModel):
     """Model for operations that return a revision ID."""
 
-    revision_id: int | None = Field(description="The revision ID of the created/updated entity, or None for idempotent operations")
+    revision_id: int = Field(default=0, description="The revision ID of the created/updated entity, or 0 for idempotent operations")
 
 
 class RevisionResult(BaseModel):
