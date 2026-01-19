@@ -119,10 +119,9 @@ class VitessClient(Client):
         assert self.connection_manager is not None
         return self.connection_manager
 
-    @property
     def get_connection(self):
         """Get a database connection."""
-        return lambda: self.connection_manager.get_connection()
+        return self.connection_manager.get_connection()
 
     def _user_repository(self) -> "UserRepository":
         """Get the user repository, creating it if necessary."""
