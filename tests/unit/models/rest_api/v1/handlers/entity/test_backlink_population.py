@@ -194,11 +194,8 @@ class TestBacklinkPopulation:
     @patch(
         "models.rest_api.entitybase.services.statement_service.hash_entity_statements"
     )
-    @patch(
-        "models.rest_api.entitybase.services.statement_service.deduplicate_and_store_statements"
-    )
     def test_backlink_population_referenced_entity_not_found(
-        self, mock_dedup: Mock, mock_hash: Mock
+        self, mock_hash: Mock
     ) -> None:
         """Test backlink population when referenced entity cannot be resolved."""
         entity_id = "Q123"
