@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
-from models.user_activity import ActivityType
+from ...request.enums import UserActivityType
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ class EntityCreateHandler(EntityHandler):
         if user_id > 0:
             activity_result = vitess_client.user_repository.log_user_activity(
                 user_id=user_id,
-                activity_type=ActivityType.ENTITY_CREATE,
+                activity_type=UserActivityType.ENTITY_CREATE,
                 entity_id=entity_id,
                 revision_id=response.revision_id,
             )

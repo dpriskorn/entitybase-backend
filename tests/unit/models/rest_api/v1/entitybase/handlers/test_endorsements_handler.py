@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import Mock
 
-from models.endorsements import Endorsement, EndorsementStats
+from models.endorsements import EndorsementResponse, EndorsementStats
 from models.rest_api.entitybase.request.endorsements import EndorsementListRequest
 from models.rest_api.entitybase.response.endorsements import (
     EndorsementListResponse,
@@ -41,7 +41,7 @@ class TestEndorsementHandler:
                 success=True,
                 data={
                     "endorsements": [
-                        Endorsement(
+                        EndorsementResponse(
                             id=1,
                             user_id=123,
                             hash=456789,
@@ -58,7 +58,7 @@ class TestEndorsementHandler:
             success=True,
             data={
                 "endorsements": [
-                    Endorsement(
+                    EndorsementResponse(
                         id=1,
                         user_id=123,
                         hash=456789,

@@ -6,7 +6,8 @@ from typing import Any, List
 
 from models.common import OperationResult
 from models.user import User
-from models.user_activity import UserActivityItemResponse, ActivityType
+from models.rest_api.entitybase.request.enums import UserActivityType
+from models.rest_api.entitybase.response.user_activity import UserActivityItemResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -132,7 +133,7 @@ class UserRepository:
     def log_user_activity(
         self,
         user_id: int,
-        activity_type: ActivityType,
+        activity_type: UserActivityType,
         entity_id: str,
         revision_id: int = 0,
     ) -> OperationResult:
@@ -229,7 +230,7 @@ class UserRepository:
     def get_user_activities(
         self,
         user_id: int,
-        activity_type: ActivityType | None = None,
+        activity_type: UserActivityType | None = None,
         hours: int = 24,
         limit: int = 50,
         offset: int = 0,

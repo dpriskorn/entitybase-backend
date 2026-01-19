@@ -2,7 +2,7 @@
 
 from models.infrastructure.vitess_client import VitessClient
 from models.rest_api.entitybase.response.user_activity import UserActivityResponse
-from models.user_activity import ActivityType
+from models.rest_api.entitybase.request.enums import UserActivityType
 from models.rest_api.utils import raise_validation_error
 
 
@@ -24,13 +24,13 @@ class UserActivityHandler:
             raise_validation_error("User not registered", status_code=400)
 
         # Validate activity_type if provided
-        if activity_type and activity_type not in [t.value for t in ActivityType]:
+        if activity_type and activity_type not in [t.value for t in UserActivityType]:
             raise_validation_error(
                 f"Invalid activity type: {activity_type}", status_code=400
             )
 
         activity_type_param = (
-            None if activity_type == "" else ActivityType(activity_type)
+            None if activity_type == "" else UserActivityType(activity_type)
         )
         result = vitess_client.user_repository.get_user_activities(
             user_id, activity_type_param, hours, limit, offset

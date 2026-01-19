@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, Mock
 from models.infrastructure.vitess.user_repository import UserRepository
 from models.common import OperationResult
 from models.user import User
-from models.user_activity import ActivityType
+from models.rest_api.entitybase.request.enums import UserActivityType
 
 
 class TestUserRepository:
@@ -238,7 +238,7 @@ class TestUserRepository:
         )
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
-        result = repository.log_user_activity(123, ActivityType.EDIT, "Q42", 456)
+        result = repository.log_user_activity(123, UserActivityType.EDIT, "Q42", 456)
 
         assert result.success is True
         mock_cursor.execute.assert_called_once_with(
@@ -248,7 +248,7 @@ class TestUserRepository:
 
     def test_log_user_activity_invalid_user_id(self, repository):
         """Test log user activity with invalid user ID."""
-        result = repository.log_user_activity(0, ActivityType.EDIT, "Q42")
+        result = repository.log_user_activity(0, UserActivityType.EDIT, "Q42")
 
         assert result.success is False
         assert "Invalid user ID" in result.error
@@ -351,7 +351,7 @@ class TestUserRepository:
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchall.return_value = []
 
-        result = repository.get_user_activities(123, ActivityType.EDIT, 48, 100, 10)
+        result = repository.get_user_activities(123, UserActivityType.EDIT, 48, 100, 10)
 
         assert result.success is True
         # Check query includes activity_type filter

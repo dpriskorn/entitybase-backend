@@ -4,14 +4,14 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-from models.user_activity import UserActivityType
+from models.rest_api.entitybase.request.enums import UserActivityType
 
 
 class UserActivityResponse(BaseModel):
     """Response for user activity query."""
 
     user_id: int = Field(description="User ID")
-    activities: List[UserActivityItemResponse] = Field(description="List of user activities")
+    activities: List["UserActivityItemResponse"] = Field(description="List of user activities")
 
 
 class UserActivityItemResponse(BaseModel):

@@ -10,7 +10,7 @@ from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.s3.hashes.hash_maps import AliasesHashes, DescriptionsHashes, LabelsHashes, SitelinksHashes, \
     StatementsHashes, HashMaps
 
-from models.user_activity import ActivityType
+from models.rest_api.entitybase.request.enums import UserActivityType
 
 logger = logging.getLogger(__name__)
 
@@ -201,7 +201,7 @@ class EntityDeleteHandler:
         if user_id > 0:
             activity_result = vitess_client.user_repository.log_user_activity(
                 user_id=user_id,
-                activity_type=ActivityType.ENTITY_DELETE,
+                activity_type=UserActivityType.ENTITY_DELETE,
                 entity_id=entity_id,
                 revision_id=new_revision_id,
             )

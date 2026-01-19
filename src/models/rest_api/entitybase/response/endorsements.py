@@ -4,8 +4,6 @@ from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.endorsements import Endorsement
-
 
 class EndorsementResponse(BaseModel):
     """Response for endorsement operations."""
@@ -44,7 +42,7 @@ class EndorsementListResponse(BaseModel):
         default=0,
         description="ID of the user whose endorsements are listed. Example: 67890",
     )
-    endorsements: List[Endorsement] = Field(
+    endorsements: List[EndorsementResponse] = Field(
         alias="list",
         description="List of endorsements. Example: [{'id': 1, 'user_id': 123}]",
     )

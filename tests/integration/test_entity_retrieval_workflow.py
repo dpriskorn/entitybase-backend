@@ -9,8 +9,7 @@ sys.path.insert(0, "src")
 
 from models.infrastructure.vitess_client import VitessClient
 from models.infrastructure.s3.s3_client import MyS3Client
-from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
-from models.vitess_models import VitessConfig
+from models.infrastructure.vitess.vitess_config import VitessConfig
 
 
 @pytest.fixture

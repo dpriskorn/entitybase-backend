@@ -3,7 +3,7 @@
 import pytest
 from datetime import datetime, timezone
 
-from models.endorsements import Endorsement
+from models.endorsements import EndorsementResponse
 from models.rest_api.entitybase.request.endorsements import EndorsementListRequest
 from models.rest_api.entitybase.response.endorsements import (
     EndorsementListResponse,
@@ -11,7 +11,7 @@ from models.rest_api.entitybase.response.endorsements import (
     StatementEndorsementStats,
     SingleEndorsementStatsResponse,
 )
-from models.endorsements import Endorsement
+from models.endorsements import EndorsementResponse
 
 
 class TestStatementEndorsementStats:
@@ -121,7 +121,7 @@ class TestEndorsementListResponse:
     def test_valid_response(self):
         """Test creating a valid EndorsementListResponse."""
         endorsements = [
-            Endorsement(
+            EndorsementResponse(
                 id=1,
                 user_id=123,
                 hash=456789,
@@ -146,7 +146,7 @@ class TestEndorsementListResponse:
     def test_response_without_statement_hash(self):
         """Test EndorsementListResponse for user listings (no statement_hash)."""
         endorsements = [
-            Endorsement(
+            EndorsementResponse(
                 id=1,
                 user_id=123,
                 hash=456789,

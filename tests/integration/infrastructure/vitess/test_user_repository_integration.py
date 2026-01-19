@@ -7,7 +7,7 @@ sys.path.insert(0, "src")
 
 from models.infrastructure.vitess.user_repository import UserRepository
 from models.user import User
-from models.user_activity import ActivityType
+from models.rest_api.entitybase.request.enums import UserActivityType
 
 
 class TestUserRepository:
@@ -243,7 +243,7 @@ class TestUserRepository:
         mock_cursor = MagicMock()
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
-        repository.log_user_activity(12345, ActivityType.EDIT, "Q42", 123)
+        repository.log_user_activity(12345, UserActivityType.EDIT, "Q42", 123)
 
         mock_cursor.execute.assert_called_once_with(
             "INSERT INTO user_activity (user_id, activity_type, entity_id, revision_id) VALUES (%s, %s, %s, %s)",
@@ -254,7 +254,7 @@ class TestUserRepository:
         self, repository: UserRepository, mock_connection_manager: MagicMock
     ) -> None:
         """Test getting user activities"""
-        from models.user_activity import UserActivityItemResponse
+        from models.rest_api.entitybase.response.user_activity import UserActivityItemResponse
 
         mock_conn = MagicMock()
         mock_connection_manager.get_connection.return_value.__enter__.return_value = (

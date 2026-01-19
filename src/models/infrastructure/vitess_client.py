@@ -28,7 +28,7 @@ from models.infrastructure.vitess.redirect_repository import RedirectRepository
 from models.infrastructure.vitess.revision_repository import RevisionRepository
 from models.infrastructure.vitess.schema import SchemaManager
 from models.infrastructure.vitess.statement_repository import StatementRepository
-from models.infrastructure.vitess.user_repository import UserRepository
+
 from models.infrastructure.vitess.watchlist_repository import WatchlistRepository
 from models.infrastructure.vitess.thanks_repository import ThanksRepository
 from models.infrastructure.vitess.endorsement_repository import EndorsementRepository
@@ -36,7 +36,11 @@ from models.infrastructure.vitess.endorsement_repository import EndorsementRepos
 from models.rest_api.entitybase.response import ProtectionResponse
 from models.rest_api.entitybase.response import FullRevisionResponse
 from models.rest_api.utils import raise_validation_error
-from models.vitess_models import VitessConfig, BacklinkEntry
+from models.infrastructure.vitess.backlink_entry import BacklinkEntry
+from models.infrastructure.vitess.vitess_config import VitessConfig
+
+if TYPE_CHECKING:
+    from models.infrastructure.vitess.user_repository import UserRepository
 
 
 class Backlink(BaseModel):
@@ -80,7 +84,7 @@ class VitessClient(Client):
     backlink_repository: Optional[BacklinkRepository] = Field(
         default=None, init=False, exclude=True
     )
-    user_repository: Optional[UserRepository] = Field(
+    user_repository: Optional["UserRepository"] = Field(
         default=None, init=False, exclude=True
     )
     metadata_repository: Optional[MetadataRepository] = Field(
@@ -97,6 +101,8 @@ class VitessClient(Client):
     )
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
+        from models.infrastructure.vitess.user_repository import UserRepository
+
         super().__init__(config=config, **kwargs)
         logger.debug(f"Initializing VitessClient with host {config.host}")
         self.connection_manager = VitessConnectionManager(config=config)  # type: ignore[assignment]

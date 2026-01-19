@@ -8,7 +8,7 @@ pytestmark = pytest.mark.unit
 sys.path.insert(0, "src")
 
 from models.rest_api.entitybase.handlers.user_activity import UserActivityHandler
-from models.rest_api.entitybase.response.user_activity import UserActivityResponse
+from models.rest_api.entitybase.response.user_activity import UserActivityResponse, UserActivityItemResponse
 
 
 class TestUserActivityHandler:
@@ -30,7 +30,6 @@ class TestUserActivityHandler:
         self, handler: UserActivityHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test getting user activities successfully"""
-        from models.user_activity import UserActivityItemResponse
         from datetime import datetime
 
         mock_activity = UserActivityItemResponse(

@@ -7,7 +7,7 @@ from fastapi import HTTPException
 sys.path.insert(0, "src")
 
 from models.rest_api.entitybase.handlers.entity.backlinks import BacklinkHandler
-from models.vitess_models import BacklinkEntry
+from models.infrastructure.vitess.backlink_entry import BacklinkEntry
 
 
 class TestBacklinkAPI:

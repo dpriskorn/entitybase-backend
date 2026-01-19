@@ -86,7 +86,7 @@ class IdGeneratorWorker(BaseModel):
 
         try:
             # Initialize Vitess client with default config
-            from models.vitess_models import VitessConfig
+            from models.infrastructure.vitess.vitess_config import VitessConfig
             from models.infrastructure.vitess_client import VitessClient
 
             vitess_config = VitessConfig(

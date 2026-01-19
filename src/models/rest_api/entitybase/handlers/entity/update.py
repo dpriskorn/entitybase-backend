@@ -5,7 +5,7 @@ from typing import Any
 
 from models.infrastructure.s3.enums import EntityType
 from models.infrastructure.s3.s3_client import MyS3Client
-from models.user_activity import ActivityType
+from ...request.enums import UserActivityType
 
 logger = logging.getLogger(__name__)
 from models.infrastructure.stream.producer import StreamProducerClient
@@ -100,7 +100,7 @@ class EntityUpdateHandler(EntityHandler):
             if user_id:
                 activity_result = vitess_client.user_repository.log_user_activity(
                     user_id=user_id,
-                    activity_type=ActivityType.ENTITY_EDIT,
+                    activity_type=UserActivityType.ENTITY_EDIT,
                     entity_id=entity_id,
                     revision_id=response.revision_id,
                 )

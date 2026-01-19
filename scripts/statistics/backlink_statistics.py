@@ -26,7 +26,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
 
 from models.infrastructure.s3.s3_client import MyS3Client  # type: ignore
 from models.infrastructure.vitess_client import VitessClient  # type: ignore
-from models.vitess_models import VitessConfig  # type: ignore
+from models.infrastructure.vitess.vitess_config import VitessConfig  # type: ignore
 from models.infrastructure.s3.s3_config import S3Config  # type: ignore
 
 logger = logging.getLogger(__name__)

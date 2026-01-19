@@ -5,8 +5,6 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-__all__ = ["StatementEndorsement", "Endorsement", "EndorsementStats"]
-
 
 class StatementEndorsement(BaseModel):
     """Endorsement record."""
@@ -18,14 +16,6 @@ class StatementEndorsement(BaseModel):
     removed_at: Optional[datetime] = Field(default=None)
 
 
-class Endorsement(BaseModel):
-    """Endorsement record."""
-
-    id: int
-    user_id: int
-    statement_hash: int
-    created_at: datetime
-    removed_at: Optional[datetime] = Field(default=None)
 
 
 class EndorsementStats(BaseModel):
