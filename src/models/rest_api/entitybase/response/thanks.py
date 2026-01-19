@@ -22,7 +22,7 @@ class ThanksListResponse(BaseModel):
     """Response for thanks list queries."""
 
     user_id: int = Field(description="User ID")
-    thanks: List[ThankItemResponse] = Field(description="List of thanks")
+    thanks: List["ThankItemResponse"] = Field(description="List of thanks")
     total_count: int = Field(description="Total count of thanks")
     has_more: bool = Field(description="Whether there are more thanks available")
 

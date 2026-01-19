@@ -11,6 +11,7 @@ from pymysql import Connection
 from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.entities import IdResolver
 from models.infrastructure.vitess.vitess_config import VitessConfig
+from models.infrastructure.vitess.repositories.backlink import BacklinkRepository
 from models.infrastructure.vitess.repositories.endorsement import EndorsementRepository
 from models.infrastructure.vitess.repositories.entity import EntityRepository
 from models.infrastructure.vitess.repositories.head import HeadRepository
@@ -49,10 +50,6 @@ class Backlink(BaseModel):
     statement_id: str
 
 
-class BacklinkRepository:
-    pass
-
-
 class VitessClient(Client):
     """Vitess database client for entity operations."""
 
@@ -82,7 +79,9 @@ class VitessClient(Client):
     statement_repository: Optional[StatementRepository] = Field(
         default=None, init=False, exclude=True
     )
-    backlink_repository: BacklinkRepository
+    backlink_repository: Optional[BacklinkRepository] = Field(
+        default=None, init=False, exclude=True
+    )
     user_repository: Optional[UserRepository] = Field(
         default=None, init=False, exclude=True
     )
