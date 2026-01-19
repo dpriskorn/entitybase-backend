@@ -2,6 +2,23 @@
 
 This file tracks architectural changes, feature additions, and modifications to the entitybase-backend.
 
+## [2026-01-19] Internal Data Models and RDF Builder Updates
+
+### Summary
+
+Introduced internal `EntityData` model for RDF processing, separated parsing logic for API vs internal use, and updated RDF converter to use structured internal data instead of API models.
+
+### Changes
+
+#### Data Model Improvements
+- **Added EntityData Model**: New internal representation with nested structures for labels, descriptions, aliases, statements, and sitelinks, avoiding API model dependencies in internal code
+- **Fixed parse_entity**: Corrected return type to consistently return `EntityMetadataResponse` for API use
+- **Added parse_entity_data**: New function for parsing raw JSON into `EntityData` for internal/RDF processing
+
+#### RDF Builder Updates
+- **Updated EntityConverter**: Modified to accept `EntityData` instead of `Entity`, enabling use of structured internal data
+- **Improved Type Safety**: Resolved type mismatches between parsing and conversion layers
+
 ## [2026-01-18] API Fixes and Endpoint Removal
 
 ### Summary
