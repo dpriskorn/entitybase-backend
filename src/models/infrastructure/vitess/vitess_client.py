@@ -83,7 +83,7 @@ class VitessClient(Client):
     backlink_repository: Optional[BacklinkRepository] = Field(
         default=None, init=False, exclude=True
     )
-    user_repository: Optional[Any] = Field(
+    user_repository: Optional["UserRepository"] = Field(
         default=None, init=False, exclude=True
     )
     metadata_repository: Optional[MetadataRepository] = Field(
@@ -143,7 +143,7 @@ class VitessClient(Client):
             user_repo_module = importlib.import_module('models.infrastructure.vitess.repositories.user')
             UserRepository = user_repo_module.UserRepository
             self.user_repository = UserRepository(self.connection_manager)
-        return cast("UserRepository", self.user_repository)
+        return self.user_repository
 
     def _create_tables(self) -> None:
         """Create database tables if they don't exist."""

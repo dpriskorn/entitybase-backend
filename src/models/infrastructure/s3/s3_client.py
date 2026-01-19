@@ -115,7 +115,8 @@ class MyS3Client(Client):
     def load_term_metadata(self, content_hash: int) -> str:
         """Load term metadata as plain UTF-8 text from S3."""
         result = self.metadata.load_metadata("labels", content_hash)
-        return cast(str, result)
+        assert isinstance(result, str)
+        return result
 
     def store_sitelink_metadata(self, title: str, content_hash: int) -> None:
         """Store sitelink metadata as plain UTF-8 text in S3."""
@@ -126,7 +127,8 @@ class MyS3Client(Client):
     def load_sitelink_metadata(self, content_hash: int) -> str:
         """Load sitelink metadata as plain UTF-8 text from S3."""
         result = self.metadata.load_metadata("sitelinks", content_hash)
-        return cast(str, result)
+        assert isinstance(result, str)
+        return result
 
     def load_metadata(self, metadata_type: str, content_hash: int) -> Union[str, Dict[str, Any]]:
         """Load metadata by type."""
