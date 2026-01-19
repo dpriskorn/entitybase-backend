@@ -27,7 +27,7 @@ class TestPatchStatement(unittest.TestCase):
         )
 
         with patch(
-            "models.rest_api.entitybase.handlers.entity.base.EntityReadHandler"
+            "models.rest_api.entitybase.handlers.entity.handler.EntityReadHandler"
         ) as mock_read_handler_class:
             mock_read_handler = MagicMock()
             mock_read_handler_class.return_value = mock_read_handler
@@ -43,7 +43,7 @@ class TestPatchStatement(unittest.TestCase):
             self.assertFalse(result.success)
             self.assertIn("Statement not found", result.error)
 
-    @patch("models.rest_api.entitybase.handlers.entity.base.EntityReadHandler")
+    @patch("models.rest_api.entitybase.handlers.entity.handler.EntityReadHandler")
     @patch.object(EntityHandler, "_create_and_store_revision")
     @patch.object(EntityHandler, "process_statements")
     @patch(

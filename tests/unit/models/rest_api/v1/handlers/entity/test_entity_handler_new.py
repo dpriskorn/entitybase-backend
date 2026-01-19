@@ -22,7 +22,7 @@ class TestEntityHashingService(unittest.TestCase):
         """Set up test fixtures."""
         self.service = EntityHashingService()
 
-    @patch("models.rest_api.entitybase.handlers.entity.base.hash_entity_statements")
+    @patch("models.rest_api.entitybase.handlers.entity.handler.hash_entity_statements")
     async def test_hash_statements_success(self, mock_hash):
         """Test successful statement hashing."""
         mock_result = MagicMock()
@@ -35,7 +35,7 @@ class TestEntityHashingService(unittest.TestCase):
         self.assertEqual(result, mock_result.data)
         mock_hash.assert_called_once_with({"claims": {}})
 
-    @patch("models.rest_api.entitybase.handlers.entity.base.hash_entity_statements")
+    @patch("models.rest_api.entitybase.handlers.entity.handler.hash_entity_statements")
     async def test_hash_statements_failure(self, mock_hash):
         """Test statement hashing failure."""
         mock_result = MagicMock()
