@@ -28,3 +28,14 @@ class Entity(BaseModel):
     sitelinks: Optional["EntitySitelinksResponse"] = Field(default=None)
 
     model_config = ConfigDict(frozen=True)
+
+
+# Import referenced classes and rebuild model to resolve forward references
+from models.rest_api.entitybase.response.entity.entitybase import (
+    EntityLabelsResponse,
+    EntityDescriptionsResponse,
+    EntityAliasesResponse,
+    EntitySitelinksResponse,
+)
+
+Entity.model_rebuild()
