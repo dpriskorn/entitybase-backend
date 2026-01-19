@@ -2,7 +2,7 @@
 
 import asyncio
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -66,14 +66,14 @@ class TestEntityValidationService(unittest.TestCase):
 
         with pytest.raises(Exception):  # ValidationError
             self.service.validate_protection_settings(
-                "Q1", True, False, self.mock_vitess
+                "Q1", True, True, self.mock_vitess
             )
 
     def test_validate_idempotency_with_existing_revision(self) -> None:
         """Test idempotency validation with existing revision."""
         mock_s3 = MagicMock()
         mock_revision = MagicMock()
-        mock_revision.data.get.return_value = 12345  # content_hash
+        mock_revision.data.get.side_effect = lambda key, default=False: 12345 if key == "content_hash" else default
         mock_revision.entity = {"id": "Q1", "labels": {}}
         mock_s3.read_revision.return_value = mock_revision
 
@@ -95,6 +95,7 @@ class TestEntityHandlerNewMethods:
         self.mock_stream = MagicMock()
 
     @pytest.mark.asyncio
+    @pytest.mark.asyncio
     async def test_process_entity_revision_new_success(self):
         """Test successful entity revision processing."""
         ctx = RevisionContext(
@@ -111,12 +112,13 @@ class TestEntityHandlerNewMethods:
         )
 
         # Mock the helper methods
+        mock_response = MagicMock(spec=EntityResponse)
         with patch.object(self.handler, '_validate_revision_request') as mock_validate, \
-             patch.object(self.handler, '_check_idempotency_new', return_value=None) as mock_idem, \
+             patch.object(self.handler, '_check_idempotency_new', new_callable=AsyncMock, return_value=None) as mock_idem, \
              patch.object(self.handler, '_process_entity_data_new') as mock_process, \
              patch.object(self.handler, '_create_revision_new') as mock_create, \
              patch.object(self.handler, '_publish_events_new') as mock_publish, \
-             patch.object(self.handler, '_build_entity_response') as mock_build:
+             patch.object(self.handler, '_build_entity_response', new_callable=AsyncMock, return_value=mock_response) as mock_build:
 
             mock_hash_result = MagicMock()
             mock_process.return_value = mock_hash_result
@@ -124,9 +126,6 @@ class TestEntityHandlerNewMethods:
             mock_revision_result = MagicMock()
             mock_revision_result.success = True
             mock_create.return_value = mock_revision_result
-
-            mock_response = MagicMock(spec=EntityResponse)
-            mock_build.return_value = mock_response
 
             result = await self.handler.process_entity_revision_new(
                 entity_id="Q1",
@@ -138,9 +137,10 @@ class TestEntityHandlerNewMethods:
                 vitess_client=self.mock_vitess,
                 s3_client=self.mock_s3,
                 stream_producer=self.mock_stream,
+                validator=None,
             )
 
-            assert result == mock_response
+            assert result is mock_response
             mock_validate.assert_called_once_with(ctx)
             mock_idem.assert_called_once_with(ctx)
             mock_process.assert_called_once_with(ctx)
