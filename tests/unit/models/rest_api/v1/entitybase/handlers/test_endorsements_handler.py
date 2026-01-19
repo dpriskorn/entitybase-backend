@@ -3,12 +3,13 @@
 import pytest
 from unittest.mock import Mock
 
-from models.endorsements import EndorsementResponse, EndorsementStats
 from models.rest_api.entitybase.request.endorsements import EndorsementListRequest
 from models.rest_api.entitybase.response.endorsements import (
     EndorsementListResponse,
     EndorsementResponse,
+    EndorsementStatsResponse,
     SingleEndorsementStatsResponse,
+    StatementEndorsementStats,
 )
 from models.rest_api.entitybase.handlers.endorsements import EndorsementHandler
 
@@ -46,7 +47,7 @@ class TestEndorsementHandler:
                             user_id=123,
                             hash=456789,
                             created_at="2023-01-01T00:00:00Z",
-                            removed_at=None,
+                            removed_at="",
                         )
                     ],
                     "total_count": 1,
@@ -63,7 +64,7 @@ class TestEndorsementHandler:
                         user_id=123,
                         hash=456789,
                         created_at="2023-01-01T00:00:00Z",
-                        removed_at=None,
+                        removed_at="",
                     )
                 ],
                 "total_count": 1,
