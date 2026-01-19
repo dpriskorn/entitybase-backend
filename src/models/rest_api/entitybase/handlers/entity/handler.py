@@ -263,7 +263,7 @@ class EntityHandler(BaseModel):
 
             # Calculate content hash
             import json
-            import rapidhash
+            from rapidhash import rapidhash
             entity_json = json.dumps(ctx.request_data, sort_keys=True)
             content_hash = rapidhash(entity_json.encode())
 
