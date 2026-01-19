@@ -1,6 +1,7 @@
 """Unit tests for UserRepository."""
 
 import pytest
+from datetime import datetime
 from unittest.mock import MagicMock
 
 from models.infrastructure.vitess.repositories.user import UserRepository
@@ -92,7 +93,7 @@ class TestUserRepository:
 
         assert result is not None
         assert result.user_id == 123
-        assert result.created_at == "2023-01-01"
+        assert result.created_at == datetime(2023, 1, 1)
         assert result.preferences == {"key": "value"}
 
     def test_get_user_not_found(self, repository, mock_connection_manager) -> None:
