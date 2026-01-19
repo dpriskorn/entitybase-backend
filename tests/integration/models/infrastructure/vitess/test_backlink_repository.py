@@ -246,7 +246,7 @@ class TestBacklinkRepository:
 
         with pytest.raises(ValueError) as exc_info:
             self.repository.insert_backlink_statistics(
-                self.conn, "2024-01-13", 100, 50, "not-a-list"
+                self.conn, "2024-01-13", 100, 50, "not-a-list"  # type: ignore[arg-type]
             )
 
         assert "top_entities_by_backlinks must be a list" in str(exc_info.value)
@@ -263,7 +263,7 @@ class TestBacklinkRepository:
 
         with pytest.raises(ValueError) as exc_info:
             self.repository.insert_backlink_statistics(
-                self.conn, "2024-01-13", 100, 50, top_entities
+                self.conn, "2024-01-13", 100, 50, top_entities  # type: ignore[arg-type]
             )
 
         assert "Failed to serialize top_entities_by_backlinks" in str(exc_info.value)
