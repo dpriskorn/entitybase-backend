@@ -1,11 +1,12 @@
 """Unit tests for statement service functions."""
 
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from models.rest_api.entitybase.services.statement_service import (
     deduplicate_references_in_statements,
 )
 from models.rest_api.entitybase.response import StatementHashResult
+from models.internal_representation.reference_hasher import ReferenceHasher
 
 
 class TestStatementService(unittest.TestCase):
@@ -30,12 +31,7 @@ class TestStatementService(unittest.TestCase):
         )
 
         # Mock hasher to return specific hashes
-        from models.internal_representation.reference_hasher import ReferenceHasher
-
-        original_compute = ReferenceHasher.compute_hash
-        ReferenceHasher.compute_hash = MagicMock(side_effect=[456, 789])
-
-        try:
+        with patch.object(ReferenceHasher, "compute_hash", side_effect=[456, 789]):
             result = deduplicate_references_in_statements(hash_result, mock_s3)
 
             self.assertTrue(result.success)
@@ -49,8 +45,6 @@ class TestStatementService(unittest.TestCase):
             mock_s3.store_reference.assert_any_call(
                 789, {"hash": "oldhash2", "snaks": {"P2": []}}
             )
-        finally:
-            ReferenceHasher.compute_hash = original_compute
 
 
 if __name__ == "__main__":

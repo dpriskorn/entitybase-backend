@@ -21,8 +21,8 @@ class EntityReadHandler:
     @staticmethod
     def get_entity(
         entity_id: str,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
+        vitess_client: VitessClient | None,
+        s3_client: MyS3Client | None,
     ) -> EntityResponse:
         """Get entity by ID."""
         if vitess_client is None:
@@ -64,7 +64,7 @@ class EntityReadHandler:
     @staticmethod
     def get_entity_history(  # type: ignore[return,func-returns-value]
         entity_id: str,
-        vitess_client: VitessClient,
+        vitess_client: VitessClient | None,
         s3_client: MyS3Client,
         limit: int = 20,
         offset: int = 0,
@@ -86,7 +86,7 @@ class EntityReadHandler:
     def get_entity_revision(  # type: ignore[return]
         entity_id: str,
         revision_id: int,
-        s3_client: MyS3Client,
+        s3_client: MyS3Client | None,
     ) -> EntityRevisionResponse:
         """Get specific entity revision."""
         if s3_client is None:

@@ -1,5 +1,5 @@
 import sys
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -250,14 +250,13 @@ class TestWatchlistRepository:
         mock_id_resolver.resolve_id.return_value = 1001
 
         # Mock count at limit
-        repository.get_entity_watch_count = MagicMock(return_value=500)
+        with patch.object(repository, 'get_entity_watch_count', return_value=500) as mock_count:
+            with pytest.raises(
+                ValueError, match="Maximum 500 entity watches per user exceeded"
+            ):
+                repository.add_watch(12345, "Q42", None)
 
-        with pytest.raises(
-            ValueError, match="Maximum 500 entity watches per user exceeded"
-        ):
-            repository.add_watch(12345, "Q42", None)
-
-        repository.get_entity_watch_count.assert_called_once_with(12345)
+            mock_count.assert_called_once_with(12345)
 
     def test_add_watch_property_limit_exceeded(
         self,
@@ -269,11 +268,10 @@ class TestWatchlistRepository:
         mock_id_resolver.resolve_id.return_value = 1001
 
         # Mock count at limit
-        repository.get_property_watch_count = MagicMock(return_value=500)
+        with patch.object(repository, 'get_property_watch_count', return_value=500) as mock_count:
+            with pytest.raises(
+                ValueError, match="Maximum 500 entity-property watches per user exceeded"
+            ):
+                repository.add_watch(12345, "Q42", ["P31"])
 
-        with pytest.raises(
-            ValueError, match="Maximum 500 entity-property watches per user exceeded"
-        ):
-            repository.add_watch(12345, "Q42", ["P31"])
-
-        repository.get_property_watch_count.assert_called_once_with(12345)
+            mock_count.assert_called_once_with(12345)

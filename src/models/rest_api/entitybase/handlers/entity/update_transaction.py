@@ -49,8 +49,9 @@ class UpdateTransaction(EntityTransaction):
         )
 
         assert hash_result.data is not None  # Guaranteed by success check above
+        hash_data: StatementHashResult = hash_result.data
         store_result = deduplicate_and_store_statements(
-            hash_result.data, vitess_client, s3_client, validator
+            hash_data, vitess_client, s3_client, validator
         )
         if not store_result.success:
             from models.rest_api.utils import raise_validation_error
@@ -60,9 +61,9 @@ class UpdateTransaction(EntityTransaction):
             )
 
         # Record hashes for rollback
-        self.statement_hashes.extend(hash_result.data.statements)
+        self.statement_hashes.extend(hash_data.statements)
 
-        return hash_result.data
+        return hash_data
 
     async def create_revision(
         self,

@@ -29,7 +29,7 @@ class StatementHandler:
     """Handles all statement operations."""
 
     def get_statement(
-        self, content_hash: int, s3_client: "MyS3Client"
+        self, content_hash: int, s3_client: "MyS3Client | None"
     ) -> StatementResponse:
         """Get a single statement by its hash.
 
@@ -69,7 +69,7 @@ class StatementHandler:
             )
 
     def get_statements_batch(
-        self, request: StatementBatchRequest, s3_client: "MyS3Client"
+        self, request: StatementBatchRequest, s3_client: "MyS3Client | None"
     ) -> StatementBatchResponse:
         """Get multiple statements by their hashes.
 
