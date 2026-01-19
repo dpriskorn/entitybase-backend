@@ -31,10 +31,10 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
     # ===== ENTITYBASE GET ENDPOINTS =====
 
-    @patch("models.rest_api.entitybase.v1.items.EntityReadHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
     def test_entitybase_get_item_label_success(self, mock_handler_class):
         """Test entitybase GET item label"""
-        from models.rest_api.entitybase.v1.items import get_item_label
+        from models.rest_api.entitybase.versions.v1.items import get_item_label
 
         mock_handler = Mock()
         mock_handler_class.return_value = mock_handler
@@ -45,10 +45,10 @@ class TestTermAPIEndpoints(unittest.TestCase):
         self.assertEqual(result, {"language": "en", "value": "Douglas Adams"})
         mock_handler.get_entity.assert_called_once()
 
-    @patch("models.rest_api.entitybase.v1.items.EntityReadHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
     def test_entitybase_get_item_description_success(self, mock_handler_class):
         """Test entitybase GET item description"""
-        from models.rest_api.entitybase.v1.items import get_item_description
+        from models.rest_api.entitybase.versions.v1.items import get_item_description
 
         mock_handler = Mock()
         mock_handler_class.return_value = mock_handler
@@ -60,10 +60,10 @@ class TestTermAPIEndpoints(unittest.TestCase):
             result, {"language": "en", "value": "English writer and comedian"}
         )
 
-    @patch("models.rest_api.entitybase.v1.items.EntityReadHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
     def test_entitybase_get_item_aliases_success(self, mock_handler_class):
         """Test entitybase GET item aliases"""
-        from models.rest_api.entitybase.v1.items import get_item_aliases_for_language
+        from models.rest_api.entitybase.versions.v1.items import get_item_aliases_for_language
 
         mock_handler = Mock()
         mock_handler_class.return_value = mock_handler
@@ -79,13 +79,13 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
     # ===== ENTITYBASE PUT ENDPOINTS =====
 
-    @patch("models.rest_api.entitybase.v1.items.EntityUpdateHandler")
-    @patch("models.rest_api.entitybase.v1.items.EntityReadHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
     def test_entitybase_put_item_label_success(
         self, mock_read_handler_class, mock_update_handler_class
     ):
         """Test entitybase PUT item label"""
-        from models.rest_api.entitybase.v1.items import update_item_label
+        from models.rest_api.entitybase.versions.v1.items import update_item_label
 
         mock_read_handler = Mock()
         mock_read_handler_class.return_value = mock_read_handler
@@ -102,13 +102,13 @@ class TestTermAPIEndpoints(unittest.TestCase):
         self.assertEqual(result, mock_update_result)
         mock_update_handler.update_entity.assert_called_once()
 
-    @patch("models.rest_api.entitybase.v1.items.EntityUpdateHandler")
-    @patch("models.rest_api.entitybase.v1.items.EntityReadHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
     def test_entitybase_put_item_description_success(
         self, mock_read_handler_class, mock_update_handler_class
     ):
         """Test entitybase PUT item description"""
-        from models.rest_api.entitybase.v1.items import update_item_description
+        from models.rest_api.entitybase.versions.v1.items import update_item_description
 
         mock_read_handler = Mock()
         mock_read_handler_class.return_value = mock_read_handler
@@ -126,13 +126,13 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
     # ===== ENTITYBASE PATCH ENDPOINTS =====
 
-    @patch("models.rest_api.entitybase.v1.items.EntityUpdateHandler")
-    @patch("models.rest_api.entitybase.v1.items.EntityReadHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
     def test_entitybase_patch_item_aliases_success(
         self, mock_read_handler_class, mock_update_handler_class
     ):
         """Test entitybase PATCH item aliases"""
-        from models.rest_api.entitybase.v1.items import patch_item_aliases_for_language
+        from models.rest_api.entitybase.versions.v1.items import patch_item_aliases_for_language
 
         mock_read_handler = Mock()
         mock_read_handler_class.return_value = mock_read_handler
@@ -152,13 +152,13 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
     # ===== ENTITYBASE DELETE ENDPOINTS =====
 
-    @patch("models.rest_api.entitybase.v1.items.EntityUpdateHandler")
-    @patch("models.rest_api.entitybase.v1.items.EntityReadHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
     def test_entitybase_delete_item_label_success(
         self, mock_read_handler_class, mock_update_handler_class
     ):
         """Test entitybase DELETE item label"""
-        from models.rest_api.entitybase.v1.items import delete_item_label
+        from models.rest_api.entitybase.versions.v1.items import delete_item_label
 
         mock_read_handler = Mock()
         mock_read_handler_class.return_value = mock_read_handler
@@ -173,13 +173,13 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
         self.assertEqual(result, mock_update_result)
 
-    @patch("models.rest_api.entitybase.v1.items.EntityUpdateHandler")
-    @patch("models.rest_api.entitybase.v1.items.EntityReadHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
     def test_entitybase_delete_item_description_success(
         self, mock_read_handler_class, mock_update_handler_class
     ):
         """Test entitybase DELETE item description"""
-        from models.rest_api.entitybase.v1.items import delete_item_description
+        from models.rest_api.entitybase.versions.v1.items import delete_item_description
 
         mock_read_handler = Mock()
         mock_read_handler_class.return_value = mock_read_handler
@@ -252,10 +252,10 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
     # ===== ERROR SCENARIOS =====
 
-    @patch("models.rest_api.entitybase.v1.items.EntityReadHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
     def test_entitybase_get_item_label_not_found(self, mock_handler_class):
         """Test entitybase GET item label - term not found"""
-        from models.rest_api.entitybase.v1.items import get_item_label
+        from models.rest_api.entitybase.versions.v1.items import get_item_label
         from fastapi import HTTPException
 
         mock_handler = Mock()
@@ -271,10 +271,10 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
         self.assertEqual(context.exception.status_code, 404)
 
-    @patch("models.rest_api.entitybase.v1.items.EntityReadHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
     def test_entitybase_put_item_label_missing_value(self, mock_handler_class):
         """Test entitybase PUT item label - missing value field"""
-        from models.rest_api.entitybase.v1.items import update_item_label
+        from models.rest_api.entitybase.versions.v1.items import update_item_label
         from fastapi import HTTPException
 
         with self.assertRaises(HTTPException) as context:
@@ -283,12 +283,12 @@ class TestTermAPIEndpoints(unittest.TestCase):
         self.assertEqual(context.exception.status_code, 400)
         self.assertIn("Missing 'value' field", str(context.exception.detail))
 
-    @patch("models.rest_api.entitybase.v1.items.EntityReadHandler")
+    @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
     def test_entitybase_put_item_description_missing_description(
         self, mock_handler_class
     ):
         """Test entitybase PUT item description - missing description field"""
-        from models.rest_api.entitybase.v1.items import update_item_description
+        from models.rest_api.entitybase.versions.v1.items import update_item_description
         from fastapi import HTTPException
 
         with self.assertRaises(HTTPException) as context:

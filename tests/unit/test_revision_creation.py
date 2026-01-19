@@ -51,7 +51,7 @@ class TestRevisionCreationLogic(unittest.TestCase):
 
         self.assertEqual(labels.labels, expected_labels)
         self.assertEqual(descriptions.descriptions, expected_descriptions)
-        self.assertEqual(aliases, expected_aliases)
+        self.assertEqual(aliases.aliases, expected_aliases)
 
         # Hash terms (this would normally happen in the handler)
         label_hashes = {}
