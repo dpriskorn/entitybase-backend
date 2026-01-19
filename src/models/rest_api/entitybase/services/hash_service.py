@@ -39,6 +39,7 @@ class HashService:
             )
 
         # Deduplicate and store
+        assert hash_result.data is not None  # Guaranteed by success check above
         store_result = deduplicate_and_store_statements(
             hash_result.data,
             vitess_client,

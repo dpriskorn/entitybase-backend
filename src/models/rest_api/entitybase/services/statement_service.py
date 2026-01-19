@@ -314,7 +314,14 @@ def deduplicate_qualifiers_in_statements(
             qual_hash = QualifierHasher.compute_hash(statement_data["qualifiers"])
             # Store in S3 (idempotent)
             try:
-                s3_client.store_qualifier(qual_hash, statement_data["qualifiers"])
+                from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
+                import datetime
+                qual_data = S3QualifierData(
+                    qualifier=statement_data["qualifiers"],
+                    content_hash=qual_hash,
+                    created_at=datetime.datetime.now(datetime.timezone.utc).isoformat()
+                )
+                s3_client.store_qualifier(qual_hash, qual_data)
             except Exception as e:
                 logger.warning(f"Failed to store qualifiers {qual_hash}: {e}")
                 # Continue, perhaps already exists

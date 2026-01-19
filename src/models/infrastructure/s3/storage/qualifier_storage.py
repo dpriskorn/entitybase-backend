@@ -32,7 +32,7 @@ class QualifierStorage(BaseS3Storage):
 
     def load_qualifiers_batch(self, content_hashes: List[int]) -> List[S3QualifierData | None]:
         """Load multiple qualifiers by their content hashes."""
-        results = []
+        results: List[S3QualifierData | None] = []
         for h in content_hashes:
             try:
                 qual = self.load_qualifier(h)

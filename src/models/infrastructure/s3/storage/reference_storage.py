@@ -33,7 +33,7 @@ class ReferenceStorage(BaseS3Storage):
 
     def load_references_batch(self, content_hashes: List[int]) -> List[S3ReferenceData | None]:
         """Load multiple references by their content hashes."""
-        results = []
+        results: List[S3ReferenceData | None] = []
         for h in content_hashes:
             try:
                 ref = self.load_reference(h)

@@ -74,19 +74,17 @@ class RedirectService:
         from_head_revision_id = self.vitess.get_head(request.redirect_from_id)
         redirect_revision_id = from_head_revision_id + 1 if from_head_revision_id else 1
 
-        redirect_revision_data = {
-            "schema_version": "1.1.0",
-            "redirects_to": request.redirect_to_id,
-            "entity": {
-                "id": request.redirect_from_id,
-                "type": "item",
-                "labels": {},
-                "descriptions": {},
-                "aliases": {},
-                "claims": {},
-                "sitelinks": {},
-            },
-        }
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+        from models.infrastructure.s3.enums import EntityType, EditType
+
+        redirect_revision_data = RevisionData(
+            revision_id=redirect_revision_id,
+            entity_type=EntityType.ITEM,
+            edit=EditType.REDIRECT_CREATE,
+            hashes=None,
+            redirects_to=request.redirect_to_id,
+            state=None,  # Empty state for redirect
+        )
 
         self.s3.write_revision(
             entity_id=request.redirect_from_id,
