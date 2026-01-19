@@ -709,8 +709,9 @@ class EntityHandler(BaseModel):
         logger.info(f"Entity {entity_id}: Removing statement {statement_hash}")
 
         # Fetch current revision
+        head_revision_id = vitess_client.get_head(entity_id)
         try:
-            revision_data = s3_client.read_revision(entity_id)
+            revision_data = s3_client.read_revision(entity_id, head_revision_id)
             from models.infrastructure.s3.revision.revision_read_response import RevisionReadResponse
             assert isinstance(revision_data, RevisionReadResponse)
         except Exception as e:
@@ -764,7 +765,7 @@ class EntityHandler(BaseModel):
         )
 
         stmt_repo = StatementRepository(vitess_client.connection_manager)
-        result = stmt_repo.decrement_ref_count(int(statement_hash))
+        result = stmt_repo.decrement_ref_count(vitess_client.connection_manager, int(statement_hash))
         if not result.success:
             raise_validation_error(
                 f"Failed to decrement ref_count for statement {statement_hash}: {result.error}",
@@ -848,7 +849,7 @@ class EntityHandler(BaseModel):
             is_semi_protected=entity_response.state.sp
             if entity_response.state
             else False,
-            locked=entity_response.state.is_locked
+            is_locked=entity_response.state.is_locked
             if entity_response.state
             else False,
             is_archived=entity_response.state.archived

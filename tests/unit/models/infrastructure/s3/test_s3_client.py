@@ -6,6 +6,8 @@ pytestmark = pytest.mark.unit
 
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.s3.config import S3Config
+from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.s3.enums import EntityType, EditData
 
 
 class TestMyS3Client:
@@ -146,7 +148,14 @@ class TestMyS3Client:
             mock_settings.s3_revisions_bucket = "testbucket-revisions"
 
             client = MyS3Client(config)
-            client.write_revision("Q42", 123, {"entity": {"id": "Q42"}}, "1.0")
+            data = RevisionData(
+                revision_id=123,
+                entity_type=EntityType.item,
+                edit=EditData(),
+                hashes=None,
+                schema_version="1.0"
+            )
+            client.write_revision("Q42", 123, data)
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
             call_args = mock_connection_manager.boto_client.put_object.call_args
@@ -195,7 +204,13 @@ class TestMyS3Client:
             mock_manager_class.return_value = mock_connection_manager
 
             client = MyS3Client(config)
-            client.write_revision("Q42", 123, {"entity": {"id": "Q42"}}, "1.0")
+            data = RevisionData(
+                revision_id=123,
+                entity_type=EntityType.item,
+                edit=EditData(),
+                hashes=None,
+            )
+            client.write_revision("Q42", 123, data)
 
             call_args = mock_connection_manager.boto_client.put_object.call_args
             assert call_args[1]["Metadata"]["created_at"] == "2023-01-01T12:00:00"

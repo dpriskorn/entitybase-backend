@@ -10,6 +10,7 @@ sys.path.insert(0, "src")
 from models.infrastructure.vitess.vitess_client import VitessClient
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.vitess.vitess_config import VitessConfig
+from models.infrastructure.s3.config import S3Config
 
 
 @pytest.fixture
@@ -30,7 +31,14 @@ def vitess_client() -> Generator[VitessClient, None, None]:
 def s3_client() -> Generator[MyS3Client, None, None]:
     """Create S3 client fixture"""
     # Assuming S3Client can be mocked or real
-    client = MyS3Client()
+    config = S3Config(
+        endpoint_url="http://localhost:9000",
+        access_key="test",
+        secret_key="test",
+        bucket="testbucket",
+        region="us-east-1",
+    )
+    client = MyS3Client(config)
     yield client
 
 
