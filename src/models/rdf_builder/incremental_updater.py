@@ -4,7 +4,8 @@ from typing import Dict
 
 from pydantic import BaseModel
 
-from models.rdf_builder.diffs import DiffResult, StatementDiff, TermsDiff, SitelinksDiff
+from models.internal_representation.entity_data import EntityData
+from models.rdf_builder.diffs import DiffResult, StatementDiff, TermsDiff, SitelinksDiff, EntityDiffs
 
 
 class IncrementalRDFUpdater(BaseModel):
@@ -13,17 +14,13 @@ class IncrementalRDFUpdater(BaseModel):
     entity_id: str
     current_rdf: str = ""
 
-    def apply_diffs(self, diffs: Dict[str, DiffResult]) -> None:
+    def apply_diffs(self, diffs: EntityDiffs) -> None:
         """Apply diffs to the current RDF."""
         # Simplified: just append diff info to RDF string
         # In real impl, parse RDF and modify triples
-        for component, diff in diffs.items():
-            if component == "statements":
-                self._apply_statement_diffs(diff)
-            elif component == "terms":
-                self._apply_terms_diffs(diff)
-            elif component == "sitelinks":
-                self._apply_sitelinks_diffs(diff)
+        self._apply_statement_diffs(diffs.statements)
+        self._apply_terms_diffs(diffs.terms)
+        self._apply_sitelinks_diffs(diffs.sitelinks)
 
     def _apply_statement_diffs(self, diff: DiffResult) -> None:
         # Add/remove statement triples
@@ -51,10 +48,10 @@ class IncrementalRDFUpdater(BaseModel):
         return self.current_rdf
 
     @staticmethod
-    def compute_diffs(old_entity: "EntityData", new_entity: "EntityData") -> Dict[str, DiffResult]:
+    def compute_diffs(old_entity: EntityData, new_entity: EntityData) -> EntityDiffs:
         """Compute diffs between two entities."""
-        return {
-            "statements": StatementDiff.compute(old_entity.statements, new_entity.statements),
-            "terms": TermsDiff.compute(old_entity.labels, new_entity.labels),  # Simplify: just labels
-            "sitelinks": SitelinksDiff.compute(old_entity.sitelinks or {}, new_entity.sitelinks or {}),
-        }
+        return EntityDiffs(
+            statements=StatementDiff.compute(old_entity.statements, new_entity.statements),
+            terms=TermsDiff.compute(old_entity.labels, new_entity.labels),  # Simplify: just labels
+            sitelinks=SitelinksDiff.compute(old_entity.sitelinks or {}, new_entity.sitelinks or {}),
+        )

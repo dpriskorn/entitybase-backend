@@ -13,6 +13,14 @@ class DiffResult(BaseModel):
     modified: List[Dict[str, Any]] = []  # e.g., {"old": stmt, "new": stmt}
 
 
+class EntityDiffs(BaseModel):
+    """Collection of diffs for an entity."""
+
+    statements: DiffResult
+    terms: DiffResult
+    sitelinks: DiffResult
+
+
 class StatementDiff(BaseModel):
     """Diff for statements."""
 
