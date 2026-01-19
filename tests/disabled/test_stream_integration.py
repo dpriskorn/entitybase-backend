@@ -3,7 +3,7 @@ import logging
 from typing import Any
 
 import pytest
-from aiokafka import AIOKafkaConsumer
+from aiokafka import AIOKafkaConsumer  # type: ignore[import-untyped]
 
 
 logger = logging.getLogger(__name__)

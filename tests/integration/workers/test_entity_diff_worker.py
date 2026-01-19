@@ -126,7 +126,7 @@ class TestEntityDiffWorker:
         assert response.triple_count_v2 > response.triple_count_v1
 
 
-def test_diff_rdf_content() -> None:
+async def test_diff_rdf_content() -> None:
     """Test the convenience function."""
     rdf_v1 = """
     @prefix wd: <http://www.wikidata.org/entity/> .
