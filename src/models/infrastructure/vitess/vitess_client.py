@@ -21,6 +21,7 @@ from models.infrastructure.vitess.repositories.redirect import RedirectRepositor
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
 from models.infrastructure.vitess.repositories.statement import StatementRepository
 from models.infrastructure.vitess.repositories.thanks import ThanksRepository
+from models.infrastructure.vitess.repositories.user import UserRepository
 
 from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
 from models.rest_api.entitybase.response.entity import EntityHistoryEntry
@@ -83,7 +84,7 @@ class VitessClient(Client):
     backlink_repository: Optional[BacklinkRepository] = Field(
         default=None, init=False, exclude=True
     )
-    user_repository: Optional[UserRepository] = Field(
+    user_repository: Optional["UserRepository"] = Field(
         default=None, init=False, exclude=True
     )
     metadata_repository: Optional[MetadataRepository] = Field(
