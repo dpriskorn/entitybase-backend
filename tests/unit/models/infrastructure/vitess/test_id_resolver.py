@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from models.infrastructure.vitess.id_resolver import IdResolver
 
@@ -102,7 +102,7 @@ class TestIdResolver:
         mock_conn = MagicMock()
 
         # Mock entity_exists to return True
-        with pytest.mock.patch.object(resolver, 'entity_exists', return_value=True):
+        with patch.object(resolver, 'entity_exists', return_value=True):
             resolver.register_entity(mock_conn, "Q100")
 
             # Should not execute insert
