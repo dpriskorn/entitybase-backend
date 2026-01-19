@@ -1,6 +1,6 @@
 """Revision metadata model."""
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class RevisionMetadata(BaseModel):

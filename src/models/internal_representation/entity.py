@@ -31,11 +31,5 @@ class Entity(BaseModel):
 
 
 # Import referenced classes and rebuild model to resolve forward references
-from models.rest_api.entitybase.response.entity.entitybase import (
-    EntityLabelsResponse,
-    EntityDescriptionsResponse,
-    EntityAliasesResponse,
-    EntitySitelinksResponse,
-)
 
 Entity.model_rebuild()

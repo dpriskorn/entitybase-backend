@@ -3,7 +3,7 @@ from pydantic import ConfigDict, Field
 """Geographic shape value type."""
 
 from typing_extensions import Literal
-from .handler import Value
+from .base import Value
 
 
 class GeoShapeValue(Value):

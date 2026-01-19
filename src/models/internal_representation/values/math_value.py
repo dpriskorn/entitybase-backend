@@ -3,7 +3,7 @@ from pydantic import ConfigDict, Field
 """Mathematical expression value type."""
 
 from typing_extensions import Literal
-from .handler import Value
+from .base import Value
 
 
 class MathValue(Value):

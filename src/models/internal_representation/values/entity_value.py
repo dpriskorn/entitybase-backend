@@ -3,7 +3,7 @@ from pydantic import ConfigDict
 """Entity reference value type."""
 
 from typing_extensions import Literal
-from .handler import Value
+from .base import Value
 
 
 class EntityValue(Value):
