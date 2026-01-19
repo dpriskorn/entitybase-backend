@@ -17,36 +17,38 @@ from models.rest_api.entitybase.response import EntityResponse
 
 
 @pytest.mark.unit
-class TestEntityHashingService:
+class TestEntityHashingService(unittest.TestCase):
     """Unit tests for EntityHashingService."""
 
-    def setup_method(self):
+    def setUp(self):
         """Set up test fixtures."""
         self.service = EntityHashingService()
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.hash_entity_statements")
-    def test_hash_statements_success(self, mock_hash):
+    @pytest.mark.asyncio
+    async def test_hash_statements_success(self, mock_hash):
         """Test successful statement hashing."""
         mock_result = MagicMock()
         mock_result.success = True
         mock_result.data = MagicMock()
         mock_hash.return_value = mock_result
 
-        result = asyncio.run(self.service.hash_statements({"claims": {}}))
+        result = await self.service.hash_statements({"claims": {}})
 
-        assert result == mock_result.data
+        self.assertEqual(result, mock_result.data)
         mock_hash.assert_called_once_with({"claims": {}})
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.hash_entity_statements")
-    def test_hash_statements_failure(self, mock_hash):
+    @pytest.mark.asyncio
+    async def test_hash_statements_failure(self, mock_hash):
         """Test statement hashing failure."""
         mock_result = MagicMock()
         mock_result.success = False
         mock_result.error = "Hash failed"
         mock_hash.return_value = mock_result
 
-        with pytest.raises(Exception):  # EntityProcessingError
-            asyncio.run(self.service.hash_statements({"claims": {}}))
+        with self.assertRaises(Exception):  # EntityProcessingError
+            await self.service.hash_statements({"claims": {}})
 
 
 @pytest.mark.unit
@@ -82,10 +84,10 @@ class TestEntityValidationService(unittest.TestCase):
 
 
 @pytest.mark.unit
-class TestEntityHandlerNewMethods:
+class TestEntityHandlerNewMethods(unittest.TestCase):
     """Unit tests for new EntityHandler methods."""
 
-    def setup_method(self, method):
+    def setUp(self):
         """Set up test fixtures."""
         self.handler = EntityHandler()
         self.mock_vitess = MagicMock()
