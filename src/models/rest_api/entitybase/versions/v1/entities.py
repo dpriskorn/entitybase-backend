@@ -225,7 +225,7 @@ async def add_entity_property(
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityHandler()
-    result = handler.add_property(
+    result = await handler.add_property(
         entity_id, property_id, request, clients.vitess, clients.s3, clients.validator
     )
     if not isinstance(result, OperationResult):
@@ -270,7 +270,7 @@ async def patch_entity_statement(
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityHandler()
-    result = handler.patch_statement(
+    result = await handler.patch_statement(
         entity_id,
         statement_hash,
         request,

@@ -6,12 +6,14 @@ from pathlib import Path
 from typing import Any, TextIO
 
 from models.internal_representation.entity_data import EntityData
+from models.json_parser.statement_parser import parse_statement
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 from models.rdf_builder.models.rdf_statement import RDFStatement
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.redirect_cache import load_entity_redirects
 from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
 from models.rdf_builder.writers.triple import TripleWriters
+from models.rest_api.entitybase.response.entity import EntityMetadataResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -35,7 +37,7 @@ class EntityConverter:
         self.vitess_client = vitess_client
         self.dedupe = HashDedupeBag() if enable_deduplication else None
 
-    def convert_to_turtle(self, entity: Entity, output: TextIO) -> None:
+    def convert_to_turtle(self, entity: EntityMetadataResponse, output: TextIO) -> None:
         """Convert entity to Turtle format."""
         self.writers.write_header(output)
         self._write_entity_metadata(entity, output)
@@ -44,20 +46,20 @@ class EntityConverter:
         self._write_referenced_entity_metadata(entity, output)
         self._write_property_metadata(entity, output)
 
-    def _write_entity_metadata(self, entity: Entity, output: TextIO) -> None:
+    def _write_entity_metadata(self, entity: EntityMetadataResponse, output: TextIO) -> None:
         """Write entity type, labels, descriptions, aliases, sitelinks."""
         self.writers.write_entity_type(output, entity.id)
         self.writers.write_dataset_triples(output, entity.id)
 
-        for lang, label in entity.labels.model_dump().items():
-            self.writers.write_label(output, entity.id, lang, label)
+        for lang, label in entity.labels.data.items():
+            self.writers.write_label(output, entity.id, lang, label.value)
 
-        for lang, description in entity.descriptions.model_dump().items():
-            self.writers.write_description(output, entity.id, lang, description)
+        for lang, description in entity.descriptions.data.items():
+            self.writers.write_description(output, entity.id, lang, description.value)
 
-        for lang, aliases in entity.aliases.model_dump().items():
+        for lang, aliases in entity.aliases.data.items():
             for alias in aliases:
-                self.writers.write_alias(output, entity.id, lang, alias)
+                self.writers.write_alias(output, entity.id, lang, alias.value)
 
         if entity.sitelinks:
             for site_key, sitelink_data in entity.sitelinks.data.items():
@@ -65,9 +67,10 @@ class EntityConverter:
                     output, entity.id, sitelink_data.model_dump()
                 )
 
-    def _write_statements(self, entity: Entity, output: TextIO) -> None:
+    def _write_statements(self, entity: EntityMetadataResponse, output: TextIO) -> None:
         """Write all statements."""
-        for stmt in entity.statements:
+        for stmt_dict in entity.statements.data:
+            stmt = parse_statement(stmt_dict)
             rdf_stmt = RDFStatement(stmt)
             self._write_statement(entity.id, rdf_stmt, output)
 
@@ -81,16 +84,18 @@ class EntityConverter:
             output, entity_id, rdf_stmt, shape, self.properties, self.dedupe
         )
 
-    def _write_property_metadata(self, entity: Entity, output: TextIO) -> None:
+    def _write_property_metadata(self, entity: EntityMetadataResponse, output: TextIO) -> None:
         """Write property metadata blocks for properties used in entity."""
         property_ids = set()
 
         # Collect from main statements
-        for stmt in entity.statements:
+        for stmt_dict in entity.statements.data:
+            stmt = parse_statement(stmt_dict)
             property_ids.add(stmt.property)
 
         # Collect from qualifiers and references
-        for stmt in entity.statements:
+        for stmt_dict in entity.statements.data:
+            stmt = parse_statement(stmt_dict)
             for qualifier in stmt.qualifiers:
                 property_ids.add(qualifier.property)
 
@@ -105,10 +110,11 @@ class EntityConverter:
             PropertyOntologyWriter.write_novalue_class(output, pid)
 
     @staticmethod
-    def _collect_referenced_entities(entity: Entity) -> set[str]:
+    def _collect_referenced_entities(entity: EntityMetadataResponse) -> set[str]:
         """Collect unique entity IDs referenced in statement values, qualifiers, and references."""
         referenced = set()
-        for stmt in entity.statements:
+        for stmt_dict in entity.statements.data:
+            stmt = parse_statement(stmt_dict)
             if stmt.value.kind == "entity":
                 referenced.add(stmt.value.value)
             for qual in stmt.qualifiers:
@@ -120,7 +126,7 @@ class EntityConverter:
                         referenced.add(ref_value.value.value)
         return referenced
 
-    def _load_referenced_entity(self, entity_id: str) -> Entity:
+    def _load_referenced_entity(self, entity_id: str) -> EntityMetadataResponse:
         """Load entity metadata (labels, descriptions)."""
         from models.json_parser.entity_parser import parse_entity
 
@@ -136,11 +142,10 @@ class EntityConverter:
             import json
 
             data = json.loads(json_path.read_text(encoding="utf-8"))
-            from models.json_parser.entity_parser import parse_entity_data
-            return parse_entity_data(data)
+            return parse_entity(data)
         raise FileNotFoundError(f"Entity {entity_id} not found at {json_path}")
 
-    def _write_referenced_entity_metadata(self, entity: Entity, output: TextIO) -> None:
+    def _write_referenced_entity_metadata(self, entity: EntityMetadataResponse, output: TextIO) -> None:
         """Write metadata blocks for referenced entities."""
         logger.info(f"Writing referenced entity metadata for entity {entity.id}")
         if not self.entity_metadata_dir:
@@ -159,15 +164,13 @@ class EntityConverter:
 
             self.writers.write_entity_type(output, ref_entity.id)
 
-            for lang, label in ref_entity.labels.model_dump().items():
-                if label:
-                    self.writers.write_label(output, ref_entity.id, lang, label)
+            for lang, label in ref_entity.labels.data.items():
+                self.writers.write_label(output, ref_entity.id, lang, label.value)
 
-            for lang, description in ref_entity.descriptions.model_dump().items():
-                if description:
-                    self.writers.write_description(
-                        output, ref_entity.id, lang, description
-                    )
+            for lang, description in ref_entity.descriptions.data.items():
+                self.writers.write_description(
+                    output, ref_entity.id, lang, description.value
+                )
 
     def _fetch_redirects(self, entity_id: str) -> list[str]:
         """Load entity redirects from Vitess or fallback to cache."""
@@ -191,13 +194,13 @@ class EntityConverter:
 
         return list(set(redirects))
 
-    def _write_redirects(self, entity: Entity, output: TextIO) -> None:
+    def _write_redirects(self, entity: EntityMetadataResponse, output: TextIO) -> None:
         """Write redirect triples for entity."""
         redirects = self._fetch_redirects(entity.id)
         for redirect_id in redirects:
             self.writers.write_redirect(output, redirect_id, entity.id)
 
-    def convert_to_string(self, entity: EntityData) -> str:
+    def convert_to_string(self, entity: EntityMetadataResponse) -> str:
         """Convert entity to Turtle string."""
         buf = StringIO()
         self.convert_to_turtle(entity, buf)

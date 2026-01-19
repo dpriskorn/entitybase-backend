@@ -89,6 +89,7 @@ module = "tests.*"
 disallow_untyped_defs = false
 
 [tool.ruff]
+select = ["PL"]
 # Max line length
 line-length = 88
 

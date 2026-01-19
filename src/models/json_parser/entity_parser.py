@@ -1,11 +1,11 @@
 """JSON entity parser."""
 
 import logging
-
 from typing import Any
 
+from models.infrastructure.s3.enums import EntityType
 from models.internal_representation.entity_data import EntityData
-from models.internal_representation.statements import Statement
+from models.internal_representation.json_fields import JsonField
 from models.json_parser.statement_parser import parse_statement
 from models.rest_api.entitybase.response import (
     EntityAliasesResponse,
@@ -13,7 +13,6 @@ from models.rest_api.entitybase.response import (
     EntityLabelsResponse,
     EntityMetadataResponse,
 )
-from models.rest_api.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.response.entity import (
     AliasValue,
     DescriptionValue,
@@ -21,11 +20,6 @@ from models.rest_api.entitybase.response.entity import (
     EntityStatementsResponse,
     EntitySitelinksResponse,
 )
-
-from models.json_parser.statement_parser import parse_statement
-from models.infrastructure.s3.enums import EntityType
-from models.internal_representation.json_fields import JsonField
-
 
 logger = logging.getLogger(__name__)
 

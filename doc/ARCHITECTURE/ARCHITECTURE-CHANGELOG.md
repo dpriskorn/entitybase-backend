@@ -6,7 +6,7 @@ This file tracks architectural changes, feature additions, and modifications to 
 
 ### Summary
 
-Introduced internal `EntityData` model for RDF processing, separated parsing logic for API vs internal use, and updated RDF converter to use structured internal data instead of API models.
+Introduced internal `EntityData` model for RDF processing, separated parsing logic for API vs internal use, and updated RDF converter to use structured internal data instead of API models. Added diff classes and incremental RDF updater for efficient updates.
 
 ### Changes
 
@@ -17,6 +17,9 @@ Introduced internal `EntityData` model for RDF processing, separated parsing log
 
 #### RDF Builder Updates
 - **Updated EntityConverter**: Modified to accept `EntityData` instead of `Entity`, enabling use of structured internal data
+- **Added Diff Classes**: `StatementDiff`, `TermsDiff`, `SitelinksDiff` for computing changes between entity versions
+- **Added IncrementalRDFUpdater**: Separate class for applying diffs to RDF output incrementally, avoiding full rebuilds
+- **Added Tests**: Comprehensive tests for `EntityData`, `parse_entity_data`, diff classes, and `IncrementalRDFUpdater`
 - **Improved Type Safety**: Resolved type mismatches between parsing and conversion layers
 
 ## [2026-01-18] API Fixes and Endpoint Removal
