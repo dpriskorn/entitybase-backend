@@ -211,9 +211,9 @@ class TestBacklinkRepository:
 
     def test_insert_backlink_statistics_invalid_date(self) -> None:
         """Test validation of invalid date format."""
-        from pydantic import ValidationError
 
-        with pytest.raises(ValidationError) as exc_info:
+
+        with pytest.raises(ValueError) as exc_info:
             self.repository.insert_backlink_statistics(
                 self.conn, "invalid-date", 100, 50, []
             )
@@ -222,17 +222,17 @@ class TestBacklinkRepository:
 
     def test_insert_backlink_statistics_negative_counts(self) -> None:
         """Test validation of negative count values."""
-        from pydantic import ValidationError
+
 
         # Test negative total_backlinks
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValueError) as exc_info:
             self.repository.insert_backlink_statistics(
                 self.conn, "2024-01-13", -1, 50, []
             )
         assert "total_backlinks must be non-negative" in str(exc_info.value)
 
         # Test negative unique_entities
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValueError) as exc_info:
             self.repository.insert_backlink_statistics(
                 self.conn, "2024-01-13", 100, -1, []
             )
@@ -242,9 +242,9 @@ class TestBacklinkRepository:
 
     def test_insert_backlink_statistics_invalid_top_entities(self) -> None:
         """Test validation of invalid top_entities type."""
-        from pydantic import ValidationError
 
-        with pytest.raises(ValidationError) as exc_info:
+
+        with pytest.raises(ValueError) as exc_info:
             self.repository.insert_backlink_statistics(
                 self.conn, "2024-01-13", 100, 50, "not-a-list"
             )
@@ -253,7 +253,7 @@ class TestBacklinkRepository:
 
     def test_insert_backlink_statistics_json_serialization_error(self) -> None:
         """Test handling of JSON serialization errors."""
-        from pydantic import ValidationError
+
 
         # Create an object that can't be JSON serialized
         class NonSerializable:
@@ -261,7 +261,7 @@ class TestBacklinkRepository:
 
         top_entities = [{"valid": "data"}, NonSerializable()]
 
-        with pytest.raises(ValidationError) as exc_info:
+        with pytest.raises(ValueError) as exc_info:
             self.repository.insert_backlink_statistics(
                 self.conn, "2024-01-13", 100, 50, top_entities
             )

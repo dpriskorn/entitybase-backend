@@ -142,7 +142,7 @@ def test_create_revision_cas_success(vitess_client: VitessClient) -> None:
 
 def test_create_revision_cas_failure(vitess_client: VitessClient) -> None:
     """Test create_revision with CAS fails when expected_revision_id doesn't match"""
-    from models.rest_api.utils import ValidationError
+
 
     entity_id = "Q222222222"
     revision_id = 1
@@ -179,7 +179,7 @@ def test_create_revision_cas_failure(vitess_client: VitessClient) -> None:
     data2 = data.copy()
     data2["revision_id"] = revision_id2
 
-    with pytest.raises(ValidationError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         vitess_client.create_revision(
             entity_id, revision_id2, data2, expected_revision_id=2
         )
@@ -220,7 +220,7 @@ def test_set_redirect_target_cas_success(vitess_client: VitessClient) -> None:
 
 def test_set_redirect_target_cas_failure(vitess_client: VitessClient) -> None:
     """Test set_redirect_target with CAS fails when expected doesn't match"""
-    from models.rest_api.utils import ValidationError
+
 
     entity_id = "Q555555555"
     redirect_to1 = "Q666666666"
@@ -234,7 +234,7 @@ def test_set_redirect_target_cas_failure(vitess_client: VitessClient) -> None:
     vitess_client.set_redirect_target(entity_id, redirect_to1)
 
     # Try to set to redirect_to2 with wrong expected (e.g., None or wrong id)
-    with pytest.raises(ValidationError) as exc_info:
+    with pytest.raises(ValueError) as exc_info:
         vitess_client.set_redirect_target(
             entity_id, redirect_to2, expected_redirects_to=999
         )  # Wrong expected

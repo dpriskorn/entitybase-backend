@@ -21,7 +21,6 @@ from models.infrastructure.vitess.repositories.redirect import RedirectRepositor
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
 from models.infrastructure.vitess.repositories.statement import StatementRepository
 from models.infrastructure.vitess.repositories.thanks import ThanksRepository
-from models.infrastructure.vitess.repositories.user import UserRepository
 
 from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
 from models.rest_api.entitybase.response.entity import EntityHistoryEntry

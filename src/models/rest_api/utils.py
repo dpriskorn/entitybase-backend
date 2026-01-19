@@ -17,6 +17,9 @@ def raise_validation_error(
 
     HTTPException is only raised in production when explicitly requested.
     In development, HTTPException requests fall back to ValueError.
+
+    NOTE: Always use this function instead of raising ValidationError directly
+    to ensure proper HTTP error handling for user responses.
     """
     logger.info(f"Raising validation error: {message} with status {status_code}")
     from fastapi import HTTPException
