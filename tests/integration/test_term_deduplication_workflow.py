@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import Mock, patch, MagicMock
-import json
 
 
 # Mock rapidhash since it's not available in test environment
@@ -224,7 +223,6 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
     def test_sitelink_plain_text_storage(self, mock_boto3):
         """Test that sitelinks are stored as plain UTF-8 text in S3"""
         from models.infrastructure.s3.s3_client import MyS3Client
-        from models.infrastructure.s3.connection import S3ConnectionManager
 
         # Mock S3 connection
         mock_client = MagicMock()
@@ -255,7 +253,6 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
     def test_sitelink_plain_text_loading(self, mock_boto3):
         """Test that sitelinks are loaded as plain UTF-8 text from S3"""
         from models.infrastructure.s3.s3_client import MyS3Client
-        from models.infrastructure.s3.connection import S3ConnectionManager
 
         # Mock S3 connection
         mock_client = MagicMock()
@@ -288,7 +285,6 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
     def test_term_plain_text_storage(self, mock_boto3):
         """Test that terms are stored as plain UTF-8 text in S3"""
         from models.infrastructure.s3.s3_client import MyS3Client
-        from models.infrastructure.s3.connection import S3ConnectionManager
 
         # Mock S3 connection
         mock_client = MagicMock()
@@ -319,7 +315,6 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
     def test_term_plain_text_loading(self, mock_boto3):
         """Test that terms are loaded as plain UTF-8 text from S3"""
         from models.infrastructure.s3.s3_client import MyS3Client
-        from models.infrastructure.s3.connection import S3ConnectionManager
 
         # Mock S3 connection
         mock_client = MagicMock()

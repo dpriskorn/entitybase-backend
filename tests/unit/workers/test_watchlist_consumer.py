@@ -1,4 +1,7 @@
-import asyncio
+import sys
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 import sys
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -8,7 +11,7 @@ pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")
 
-from models.infrastructure.stream.consumer import Consumer, EntityChangeEvent
+from models.infrastructure.stream.consumer import EntityChangeEvent
 from models.workers.watchlist_consumer.main import WatchlistConsumerWorker
 
 

@@ -1,10 +1,10 @@
 """Unit tests for ThanksRepository."""
 
-import pytest
-from unittest.mock import Mock
 from datetime import datetime, timezone
+from unittest.mock import Mock
 
-from models.infrastructure.vitess.records.thanks import ThankItem
+import pytest
+
 from models.infrastructure.vitess.repositories.thanks import ThanksRepository
 
 

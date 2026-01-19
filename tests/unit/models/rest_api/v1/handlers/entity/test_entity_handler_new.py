@@ -1,17 +1,18 @@
 """Unit tests for new EntityHandler services and methods."""
 
 import unittest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 import pytest
+
+from models.infrastructure.s3.enums import EntityType, EditType
 from models.rest_api.entitybase.handlers.entity.handler import (
     EntityHandler,
     EntityHashingService,
     EntityValidationService,
     RevisionContext,
 )
-from models.infrastructure.s3.enums import EntityType, EditType
-from models.rest_api.entitybase.response import EntityResponse, EntityState
+from models.rest_api.entitybase.response import EntityResponse
 
 
 @pytest.mark.unit

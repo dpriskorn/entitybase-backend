@@ -1,17 +1,16 @@
 """Unit tests for endorsement handlers."""
 
-import pytest
 from unittest.mock import Mock
 
+import pytest
+
+from models.rest_api.entitybase.handlers.endorsements import EndorsementHandler
 from models.rest_api.entitybase.request.endorsements import EndorsementListRequest
 from models.rest_api.entitybase.response.endorsements import (
     EndorsementListResponse,
     EndorsementResponse,
-    EndorsementStatsResponse,
-    SingleEndorsementStatsResponse,
     StatementEndorsementStats,
 )
-from models.rest_api.entitybase.handlers.endorsements import EndorsementHandler
 
 
 class TestEndorsementHandler:

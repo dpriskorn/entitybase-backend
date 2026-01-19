@@ -210,7 +210,6 @@ class TestEntityChange:
 
     def test_entity_change_json_schema_validation(self):
         """Test EntityChange validates against JSON schema."""
-        import json
         import jsonschema
         import yaml
         from datetime import datetime

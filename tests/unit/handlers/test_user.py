@@ -78,7 +78,6 @@ class TestUserHandler:
         self, handler: UserHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test getting a user that doesn't exist"""
-        from fastapi import HTTPException
 
         mock_vitess_client.user_repository.get_user.return_value = None
 

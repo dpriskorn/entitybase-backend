@@ -1,5 +1,6 @@
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import MagicMock, patch
 from fastapi import HTTPException
 
 pytestmark = pytest.mark.unit

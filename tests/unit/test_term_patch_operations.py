@@ -1,6 +1,4 @@
 import unittest
-from unittest.mock import Mock, patch
-import json
 
 
 class TestTermPatchOperations(unittest.TestCase):

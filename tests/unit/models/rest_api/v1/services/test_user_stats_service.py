@@ -1,6 +1,5 @@
 """Unit tests for UserStatsService."""
 
-import pytest
 from unittest.mock import Mock
 
 from models.rest_api.entitybase.services.user_stats_service import UserStatsService

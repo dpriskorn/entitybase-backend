@@ -1,6 +1,5 @@
 """Unit tests for UserHandler."""
 
-import pytest
 from datetime import date
 from unittest.mock import Mock
 

@@ -1,13 +1,13 @@
 """Unit tests for EntityDeleteHandler."""
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-from datetime import datetime, timezone
+from unittest.mock import MagicMock
 
+import pytest
+
+from models.infrastructure.s3.enums import DeleteType
 from models.rest_api.entitybase.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.entitybase.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.response import EntityDeleteResponse
-from models.infrastructure.s3.enums import DeleteType
 
 
 class TestEntityDeleteHandler:

@@ -1,14 +1,12 @@
+import os
 import sys
 from pathlib import Path
-import os
 
 sys.path.insert(0, "src")
 os.environ["TEST_DATA_DIR"] = str(Path(__file__).parent.parent.parent / "test_data")
 
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
-import boto3
-from moto import mock_aws
 
 # Mock S3 and DB before importing app to prevent connection attempts
 with (

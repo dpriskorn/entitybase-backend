@@ -1,8 +1,7 @@
 import json
-import json
 import logging
-from pathlib import Path
 import os
+from pathlib import Path
 from typing import Any
 
 from models.json_parser.entity_parser import parse_entity

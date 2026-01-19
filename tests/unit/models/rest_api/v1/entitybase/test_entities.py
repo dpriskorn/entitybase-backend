@@ -1,10 +1,8 @@
 """Unit tests for entities endpoints."""
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock
 
-from models.rest_api.entitybase.handlers.entity.update import EntityUpdateHandler
-from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
+import pytest
 
 
 class TestEntitiesEndpoints:

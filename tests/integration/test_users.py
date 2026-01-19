@@ -5,8 +5,6 @@ from httpx import ASGITransport, AsyncClient
 
 sys.path.insert(0, "src")
 
-from datetime import date
-
 
 @pytest.mark.asyncio
 @pytest.mark.integration

@@ -1,7 +1,8 @@
 """Unit tests for batch routes."""
 
 import unittest
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import Mock, patch
+
 from fastapi import HTTPException
 
 from models.rest_api.entitybase.routes.batch import (

@@ -2,8 +2,10 @@
 Tests for EntityDiffWorker
 """
 
-import pytest
 from unittest.mock import Mock
+
+import pytest
+
 from models.workers.entity_diff_worker import (
     EntityDiffWorker,
     EntityDiffRequest,
@@ -167,7 +169,6 @@ class TestRDFStreaming:
     def test_rdf_change_event_creation(self):
         """Test RDF change event model creation."""
         from models.infrastructure.stream.producer import RDFChangeEvent
-        from datetime import datetime
 
         event = RDFChangeEvent(
             meta={

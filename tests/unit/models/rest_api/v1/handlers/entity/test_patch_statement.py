@@ -2,12 +2,12 @@
 
 import unittest
 from unittest.mock import MagicMock, patch
+
 from models.rest_api.entitybase.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.request.entity.patch_statement import (
     PatchStatementRequest,
 )
-from models.common import OperationResult
-from models.rest_api.entitybase.response import EntityResponse, EntityState
+from models.rest_api.entitybase.response import EntityState
 
 
 class TestPatchStatement(unittest.TestCase):

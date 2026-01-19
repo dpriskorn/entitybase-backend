@@ -1,6 +1,6 @@
-import pytest
-from unittest.mock import MagicMock
 from io import StringIO
+
+import pytest
 
 pytestmark = pytest.mark.unit
 

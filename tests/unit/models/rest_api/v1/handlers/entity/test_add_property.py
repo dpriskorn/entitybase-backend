@@ -2,10 +2,10 @@
 
 import unittest
 from unittest.mock import MagicMock, patch
+
 from models.rest_api.entitybase.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.request.entity.add_property import AddPropertyRequest
-from models.common import OperationResult
-from models.rest_api.entitybase.response import EntityResponse, EntityState
+from models.rest_api.entitybase.response import EntityState
 
 
 class TestAddProperty(unittest.TestCase):

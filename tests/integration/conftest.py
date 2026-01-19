@@ -1,11 +1,10 @@
-import pytest
-import pymysql
 import time
 from unittest.mock import AsyncMock, MagicMock
 
+import pymysql
+import pytest
 import requests
 from moto import mock_aws as mock_s3
-from tenacity import retry, stop_after_attempt, wait_exponential
 
 from models.config.settings import settings
 
