@@ -550,8 +550,8 @@ def test_revert_redirect_success(redirect_service: RedirectService) -> None:
 
     assert response.id == "Q100"
     assert response.revision_id == 2
-    assert response.data["id"] == "Q100"
-    assert response.data["labels"]["en"]["value"] == "Original Label"
+    assert response.entity_data["id"] == "Q100"
+    assert response.entity_data["labels"]["en"]["value"] == "Original Label"
 
     assert vitess.get_redirect_target("Q100") is None
 

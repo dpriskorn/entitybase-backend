@@ -54,8 +54,6 @@ class EntityReadHandler:
                     mep=revision.content.get("is_mass_edit_protected", False),
                 ),
             )
-            if not isinstance(response, EntityResponse):
-                raise_validation_error("Invalid response type", status_code=500)
             return response
         except Exception as e:
             logger.error(f"Failed to read entity {entity_id}: {e}")
