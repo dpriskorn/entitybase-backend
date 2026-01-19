@@ -3,7 +3,7 @@
 import logging
 from typing import List
 
-from models.types import S3ReferenceData
+from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
 
 from models.common import OperationResult
 from models.config.settings import settings

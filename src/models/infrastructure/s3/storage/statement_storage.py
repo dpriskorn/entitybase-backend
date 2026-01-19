@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage, S3NotFoundError
-from models.types import StoredStatement
+from models.infrastructure.s3.revision.stored_statement import StoredStatement
 from models.rest_api.entitybase.response import StatementResponse
 
 if TYPE_CHECKING:

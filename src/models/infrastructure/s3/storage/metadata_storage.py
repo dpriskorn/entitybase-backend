@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage
+from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
     pass
@@ -27,7 +28,7 @@ class MetadataStorage(BaseS3Storage):
         elif metadata_type == "sitelinks":
             return settings.s3_sitelinks_bucket
         else:
-            raise ValueError(f"Unknown metadata type: {metadata_type}")
+            raise_validation_error(f"Unknown metadata type: {metadata_type}", status_code=400)
 
     def store_metadata(self, metadata_type: str, content_hash: int, value: str) -> OperationResult[None]:
         """Store metadata value (term or sitelink title)."""
