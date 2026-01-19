@@ -254,7 +254,9 @@ class TestUserRepository:
         self, repository: UserRepository, mock_connection_manager: MagicMock
     ) -> None:
         """Test getting user activities"""
-        from models.rest_api.entitybase.response.user_activity import UserActivityItemResponse
+        from models.rest_api.entitybase.response.user_activity import (
+            UserActivityItemResponse,
+        )
 
         mock_conn = MagicMock()
         mock_connection_manager.get_connection.return_value.__enter__.return_value = (

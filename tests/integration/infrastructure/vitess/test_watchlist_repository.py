@@ -250,7 +250,9 @@ class TestWatchlistRepository:
         mock_id_resolver.resolve_id.return_value = 1001
 
         # Mock count at limit
-        with patch.object(repository, 'get_entity_watch_count', return_value=500) as mock_count:
+        with patch.object(
+            repository, "get_entity_watch_count", return_value=500
+        ) as mock_count:
             with pytest.raises(
                 ValueError, match="Maximum 500 entity watches per user exceeded"
             ):
@@ -268,9 +270,12 @@ class TestWatchlistRepository:
         mock_id_resolver.resolve_id.return_value = 1001
 
         # Mock count at limit
-        with patch.object(repository, 'get_property_watch_count', return_value=500) as mock_count:
+        with patch.object(
+            repository, "get_property_watch_count", return_value=500
+        ) as mock_count:
             with pytest.raises(
-                ValueError, match="Maximum 500 entity-property watches per user exceeded"
+                ValueError,
+                match="Maximum 500 entity-property watches per user exceeded",
             ):
                 repository.add_watch(12345, "Q42", ["P31"])
 
