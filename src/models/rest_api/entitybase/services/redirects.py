@@ -91,14 +91,11 @@ class RedirectService:
             data=redirect_revision_data,
         )
 
-        self.vitess.insert_revision(
+        self.vitess.create_revision(
             request.redirect_from_id,
             redirect_revision_id,
-            is_mass_edit=False,
-            edit_type=EditType.REDIRECT_CREATE.value,
-            statements=[],
-            properties=[],
-            property_counts={},
+            from_head_revision_id,
+            {},
         )
 
         self.vitess.create_redirect(
