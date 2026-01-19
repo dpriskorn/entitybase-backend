@@ -863,15 +863,8 @@ class EntityHandler(BaseModel):
         except EntityProcessingError as e:
             return OperationResult(success=False, error=str(e))
         except Exception as e:
-            logger.error(f"Unexpected error in patch_labels for {entity_id}: {e}")
+            logger.error(f"Unexpected error in add_property for {entity_id}: {e}")
             return OperationResult(success=False, error="Internal server error")
-
-        if not revision_result.success:
-            return revision_result
-
-        return OperationResult(
-            success=True, data={"revision_id": revision_result.data.rev_id}
-        )
 
     async def patch_labels(
         self,
