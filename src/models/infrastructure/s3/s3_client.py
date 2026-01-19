@@ -112,7 +112,7 @@ class MyS3Client(Client):
         if not result.success:
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
-    def load_term_metadata(self, content_hash: int) -> str:
+    def load_term_metadata(self, content_hash: int) -> Any:
         """Load term metadata as plain UTF-8 text from S3."""
         return self.metadata.load_metadata("labels", content_hash)
 
@@ -122,11 +122,11 @@ class MyS3Client(Client):
         if not result.success:
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
-    def load_sitelink_metadata(self, content_hash: int) -> str:
+    def load_sitelink_metadata(self, content_hash: int) -> Any:
         """Load sitelink metadata as plain UTF-8 text from S3."""
         return self.metadata.load_metadata("sitelinks", content_hash)
 
-    def load_metadata(self, metadata_type: str, content_hash: int) -> str:
+    def load_metadata(self, metadata_type: str, content_hash: int) -> Any:
         """Load metadata by type."""
         return self.metadata.load_metadata(metadata_type, content_hash)
 

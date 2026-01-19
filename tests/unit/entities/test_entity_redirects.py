@@ -219,7 +219,7 @@ class RedirectService:
             revision_id=1,
             entity_type="item",
             data=redirect_revision_data,
-            edit_type=EditType.REDIRECT_CREATE,
+            edit_type=EditType.REDIRECT_CREATE.value,
             created_by=request.created_by,
         )
 
@@ -279,7 +279,7 @@ class RedirectService:
             revision_id=2,
             entity_type="item",
             data=new_revision_data,
-            edit_type=EditType.REDIRECT_REVERT,
+            edit_type=EditType.REDIRECT_REVERT.value,
             created_by="rest-api",
         )
 

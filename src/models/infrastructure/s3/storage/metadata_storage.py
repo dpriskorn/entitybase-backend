@@ -1,7 +1,7 @@
 """Metadata storage operations for terms and sitelinks."""
 
 import logging
-from typing import TYPE_CHECKING
+from typing import Any, TYPE_CHECKING
 
 from models.common import OperationResult
 from models.config.settings import settings

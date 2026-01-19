@@ -9,6 +9,8 @@ from typing import Any
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.s3.config import S3Config
 from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
+from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
 from models.infrastructure.s3.enums import EntityType, EditData
 
 
@@ -429,7 +431,7 @@ class TestMyS3Client:
             mock_manager_class.return_value = mock_connection_manager
 
             client = MyS3Client(config)
-            reference_data: dict[str, Any] = {"snaks": {"P1": []}}
+            reference_data = S3ReferenceData(snaks={"P1": []})
             client.store_reference(123, reference_data)
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
@@ -489,7 +491,7 @@ class TestMyS3Client:
             mock_manager_class.return_value = mock_connection_manager
 
             client = MyS3Client(config)
-            qualifier_data: dict[str, Any] = {"P580": []}
+            qualifier_data = S3QualifierData(datavalue=None, qualifiers={"P580": []})
             client.store_qualifier(123, qualifier_data)
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
