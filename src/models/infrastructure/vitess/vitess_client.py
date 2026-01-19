@@ -1,6 +1,7 @@
 """Vitess client for database operations."""
 
 import logging
+from contextlib import _GeneratorContextManager
 from typing import Any, Optional
 from typing import TYPE_CHECKING
 
@@ -28,17 +29,19 @@ from models.infrastructure.vitess.vitess_config import VitessConfig
 logger = logging.getLogger(__name__)
 
 from models.infrastructure.client import Client
+from models.infrastructure.vitess.schema import SchemaManager
 
 if TYPE_CHECKING:
     from models.infrastructure.vitess.vitess_config import VitessConfig
-from models.infrastructure.vitess.schema import SchemaManager
 
 
 class VitessClient(Client):
     """Vitess database client for entity operations."""
 
     config: "VitessConfig"  # type: ignore[override]
-    connection_manager: Optional[VitessConnectionManager] = Field(default=None, init=False, exclude=True)
+    connection_manager: Optional[VitessConnectionManager] = Field(
+        default=None, init=False, exclude=True
+    )
     schema_manager: Optional[SchemaManager] = Field(
         default=None, init=False, exclude=True
     )
@@ -117,9 +120,9 @@ class VitessClient(Client):
         return self.connection_manager
 
     @property
-    def get_connection(self) -> Generator[Any, None, None]:
+    def get_connection(self):
         """Get a database connection."""
-        return self.connection_manager.get_connection()
+        return lambda: self.connection_manager.get_connection()
 
     def _user_repository(self) -> "UserRepository":
         """Get the user repository, creating it if necessary."""
