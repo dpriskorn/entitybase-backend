@@ -8,12 +8,12 @@ pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")
 
-from models.rest_api.v1.entitybase.request.watchlist import (
+from models.rest_api.entitybase.v1.request.watchlist import (
     WatchlistAddRequest,
 )
-from models.rest_api.v1.entitybase.response.watchlist import WatchlistResponse
-from models.rest_api.v1.entitybase.request.user import WatchlistRemoveRequest
-from models.rest_api.v1.entitybase.handlers.watchlist import WatchlistHandler
+from models.rest_api.entitybase.v1.response.watchlist import WatchlistResponse
+from models.rest_api.entitybase.v1.request.user import WatchlistRemoveRequest
+from models.rest_api.entitybase.v1.handlers.watchlist import WatchlistHandler
 
 
 class TestWatchlistHandler:
@@ -114,7 +114,7 @@ class TestWatchlistHandler:
         self, handler: WatchlistHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test getting notifications successfully"""
-        from models.rest_api.v1.entitybase.response.user import NotificationResponse
+        from models.rest_api.entitybase.v1.response.user import NotificationResponse
 
         dt = datetime(2023, 1, 1, 12, 0, tzinfo=timezone.utc)
         mock_vitess_client.user_repository.user_exists.return_value = True
@@ -171,7 +171,7 @@ class TestWatchlistHandler:
         self, handler: WatchlistHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test marking notification as checked"""
-        from models.rest_api.v1.entitybase.request.watchlist import MarkCheckedRequest
+        from models.rest_api.entitybase.v1.request.watchlist import MarkCheckedRequest
 
         request = MarkCheckedRequest(notification_id=1)
 

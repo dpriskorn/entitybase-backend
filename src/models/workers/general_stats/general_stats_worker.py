@@ -4,7 +4,7 @@ import logging
 from datetime import date, datetime, timezone
 
 from models.config.settings import settings
-from models.rest_api.v1.entitybase.services.general_stats_service import (
+from models.rest_api.entitybase.v1.services.general_stats_service import (
     GeneralStatsData,
     GeneralStatsService,
 )

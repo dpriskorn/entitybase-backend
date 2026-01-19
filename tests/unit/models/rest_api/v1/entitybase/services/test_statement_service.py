@@ -2,10 +2,10 @@
 
 import unittest
 from unittest.mock import MagicMock, patch
-from models.rest_api.v1.entitybase.services.statement_service import (
+from models.rest_api.entitybase.v1.services.statement_service import (
     deduplicate_references_in_statements,
 )
-from models.rest_api.v1.entitybase.response import StatementHashResult
+from models.rest_api.entitybase.v1.response import StatementHashResult
 from models.internal_representation.reference_hasher import ReferenceHasher
 
 

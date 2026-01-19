@@ -7,13 +7,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from models.infrastructure.s3.enums import EntityType, EditType
-from models.rest_api.v1.entitybase.handlers.entity.handler import (
+from models.rest_api.entitybase.v1.handlers.entity.handler import (
     EntityHandler,
     EntityHashingService,
     EntityValidationService,
     RevisionContext,
 )
-from models.rest_api.v1.entitybase.response import EntityResponse
+from models.rest_api.entitybase.v1.response import EntityResponse
 
 
 @pytest.mark.unit
@@ -24,7 +24,7 @@ class TestEntityHashingService:
         """Set up test fixtures."""
         self.service = EntityHashingService()
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.handler.hash_entity_statements")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.handler.hash_entity_statements")
     @pytest.mark.asyncio
     async def test_hash_statements_success(self, mock_hash):
         """Test successful statement hashing."""
@@ -38,7 +38,7 @@ class TestEntityHashingService:
         assert result == mock_result.data
         mock_hash.assert_called_once_with({"claims": {}})
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.handler.hash_entity_statements")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.handler.hash_entity_statements")
     @pytest.mark.asyncio
     async def test_hash_statements_failure(self, mock_hash):
         """Test statement hashing failure."""

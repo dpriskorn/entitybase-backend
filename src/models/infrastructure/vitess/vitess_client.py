@@ -1,7 +1,6 @@
 """Vitess client for database operations."""
 
 import logging
-from contextlib import _GeneratorContextManager
 from typing import Any, Optional
 from typing import TYPE_CHECKING
 

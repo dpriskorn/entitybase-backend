@@ -4,8 +4,8 @@ import pytest
 from datetime import datetime, timezone
 
 from models.infrastructure.vitess.records.thanks import ThankItem, Thank
-from models.rest_api.v1.entitybase.request.thanks import ThanksListRequest
-from models.rest_api.v1.entitybase.response.thanks import (
+from models.rest_api.entitybase.v1.request.thanks import ThanksListRequest
+from models.rest_api.entitybase.v1.response.thanks import (
     ThankResponse,
     ThanksListResponse,
     ThankItemResponse,

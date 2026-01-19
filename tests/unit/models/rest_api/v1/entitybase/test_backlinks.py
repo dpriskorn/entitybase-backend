@@ -5,8 +5,8 @@ from fastapi import HTTPException
 
 pytestmark = pytest.mark.unit
 
-from models.rest_api.v1.entitybase.handlers.entity.backlinks import BacklinkHandler
-from models.rest_api.v1.entitybase.response.entity.backlinks import BacklinkResponse
+from models.rest_api.entitybase.v1.handlers.entity.backlinks import BacklinkHandler
+from models.rest_api.entitybase.v1.response.entity.backlinks import BacklinkResponse
 
 
 class TestBacklinkHandler:

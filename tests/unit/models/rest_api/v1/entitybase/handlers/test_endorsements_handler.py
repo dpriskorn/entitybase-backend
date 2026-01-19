@@ -4,9 +4,9 @@ from unittest.mock import Mock
 
 import pytest
 
-from models.rest_api.v1.entitybase.handlers.endorsements import EndorsementHandler
-from models.rest_api.v1.entitybase.request.endorsements import EndorsementListRequest
-from models.rest_api.v1.entitybase.response.endorsements import (
+from models.rest_api.entitybase.v1.handlers.endorsements import EndorsementHandler
+from models.rest_api.entitybase.v1.request.endorsements import EndorsementListRequest
+from models.rest_api.entitybase.v1.response.endorsements import (
     EndorsementListResponse,
     EndorsementResponse,
     StatementEndorsementStats,

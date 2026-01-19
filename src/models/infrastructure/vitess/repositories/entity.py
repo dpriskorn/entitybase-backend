@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from models.rest_api.v1.entitybase.response import ProtectionResponse
+from models.rest_api.entitybase.v1.response import ProtectionResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

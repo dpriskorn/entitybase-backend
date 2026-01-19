@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 
 from models.config.settings import settings
 from models.infrastructure.vitess.vitess_client import VitessClient
-from models.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
+from models.rest_api.entitybase.v1.response import WorkerHealthCheckResponse
 
 logger = logging.getLogger(__name__)
 

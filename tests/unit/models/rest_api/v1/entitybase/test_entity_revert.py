@@ -8,9 +8,9 @@ pytestmark = pytest.mark.unit
 sys.path.insert(0, "src")
 
 from models.common import OperationResult
-from models.rest_api.v1.entitybase.request.entity.revert import EntityRevertRequest
-from models.rest_api.v1.entitybase.response.entity.revert import EntityRevertResponse
-from models.rest_api.v1.entitybase.handlers.entity.revert import EntityRevertHandler
+from models.rest_api.entitybase.v1.request.entity.revert import EntityRevertRequest
+from models.rest_api.entitybase.v1.response.entity.revert import EntityRevertResponse
+from models.rest_api.entitybase.v1.handlers.entity.revert import EntityRevertHandler
 
 
 class TestEntityRevertHandler:

@@ -5,7 +5,7 @@ from datetime import datetime
 from unittest.mock import MagicMock
 
 from models.infrastructure.vitess.repositories.user import UserRepository
-from models.rest_api.v1.entitybase.request.enums import UserActivityType
+from models.rest_api.entitybase.v1.request.enums import UserActivityType
 
 
 class TestUserRepository:

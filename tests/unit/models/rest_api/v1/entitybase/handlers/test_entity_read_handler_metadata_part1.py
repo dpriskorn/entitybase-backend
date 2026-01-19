@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from models.rest_api.v1.entitybase.handlers.entity.read import EntityReadHandler
-from models.rest_api.v1.entitybase.response.entity import EntityHistoryEntry
+from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.v1.response.entity import EntityHistoryEntry
 
 
 class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
@@ -51,7 +51,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         self.assertIn("labels", entity_data)
         self.assertEqual(entity_data["labels"]["en"]["value"], "Label EN")
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_success_with_metadata_descriptions(
         self, mock_terms_repo_class, mock_entity_response
@@ -84,7 +84,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         self.assertEqual(result, mock_response_instance)
         self.mock_s3.load_metadata.assert_called_with("descriptions", "hash_desc")
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_success_with_metadata_aliases(
         self, mock_terms_repo_class, mock_entity_response
@@ -123,7 +123,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         self.assertIn("aliases", entity_data)
         self.assertEqual(len(entity_data["aliases"]["en"]), 2)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_success_legacy_metadata(
         self, mock_terms_repo_class, mock_entity_response
@@ -159,7 +159,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         self.assertIn("entity", entity_data)
         self.assertIn("labels", entity_data["entity"])
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.raise_validation_error")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.raise_validation_error")
     def test_get_entity_exception_on_read_revision(self, mock_raise_error) -> None:
         """Test get_entity handles exception during read_revision"""
         self.mock_vitess.entity_exists.return_value = True
@@ -169,7 +169,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
         mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityRevisionResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityRevisionResponse")
     def test_get_entity_revision_with_metadata(self, mock_revision_response) -> None:
         """Test get_entity_revision with metadata loading"""
         mock_revision = Mock()
@@ -195,7 +195,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         self.assertEqual(result, mock_response_instance)
         self.assertEqual(self.mock_s3.load_metadata.call_count, 0)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_metadata_labels_none(
         self, mock_terms_repo_class, mock_entity_response
@@ -231,7 +231,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         entity_data = call_args[1]["entity_data"]
         self.assertNotIn("labels", entity_data)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_metadata_descriptions_load_failure(
         self, mock_terms_repo_class, mock_entity_response
@@ -267,7 +267,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         entity_data = call_args[1]["entity_data"]
         self.assertNotIn("descriptions", entity_data)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_metadata_aliases_none(
         self, mock_terms_repo_class, mock_entity_response
@@ -303,7 +303,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         entity_data = call_args[1]["entity_data"]
         self.assertNotIn("aliases", entity_data)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_metadata_combined(
         self, mock_terms_repo_class, mock_entity_response
@@ -344,7 +344,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         self.assertIn("descriptions", entity_data)
         self.assertIn("aliases", entity_data)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityRevisionResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityRevisionResponse")
     def test_get_entity_revision_missing_labels_hash(
         self, mock_revision_response
     ) -> None:
@@ -371,7 +371,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         # load_metadata not called in this method
         self.assertEqual(self.mock_s3.load_metadata.call_count, 0)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityRevisionResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityRevisionResponse")
     def test_get_entity_revision_invalid_descriptions_hash(
         self, mock_revision_response
     ):

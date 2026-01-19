@@ -12,6 +12,7 @@ class TestS3MetadataStorage:
             access_key="test",
             secret_key="test",
             bucket="test",
+            region="us-east-1",
         )
         with (
             patch("models.infrastructure.s3.s3_client.BotoSession"),

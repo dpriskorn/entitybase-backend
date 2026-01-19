@@ -4,7 +4,7 @@ import pytest
 pytestmark = pytest.mark.unit
 
 from models.json_parser import parse_entity
-from models.rest_api.v1.entitybase.response.entity import (
+from models.rest_api.entitybase.v1.response.entity import (
     LabelValue,
     DescriptionValue,
     AliasValue,

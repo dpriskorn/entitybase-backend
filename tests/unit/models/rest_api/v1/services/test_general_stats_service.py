@@ -2,7 +2,7 @@
 
 from unittest.mock import Mock
 
-from models.rest_api.v1.entitybase.services.general_stats_service import (
+from models.rest_api.entitybase.v1.services.general_stats_service import (
     GeneralStatsService,
 )
 

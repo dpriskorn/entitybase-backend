@@ -5,9 +5,9 @@ import logging
 from typing import Any, List
 
 from models.common import OperationResult
-from models.rest_api.v1.entitybase.response.user import UserResponse
-from models.rest_api.v1.entitybase.request.enums import UserActivityType
-from models.rest_api.v1.entitybase.response.user_activity import UserActivityItemResponse
+from models.rest_api.entitybase.v1.response.user import UserResponse
+from models.rest_api.entitybase.v1.request.enums import UserActivityType
+from models.rest_api.entitybase.v1.response.user_activity import UserActivityItemResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

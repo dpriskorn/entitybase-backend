@@ -7,12 +7,12 @@ pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")
 
-from models.rest_api.v1.entitybase.request.entity import EntityCreateRequest
-from models.rest_api.v1.entitybase.handlers.entity.item import ItemCreateHandler
-from models.rest_api.v1.entitybase.handlers.entity.property.create import (
+from models.rest_api.entitybase.v1.request.entity import EntityCreateRequest
+from models.rest_api.entitybase.v1.handlers.entity.item import ItemCreateHandler
+from models.rest_api.entitybase.v1.handlers.entity.property.create import (
     PropertyCreateHandler,
 )
-from models.rest_api.v1.entitybase.services.enumeration_service import EnumerationService
+from models.rest_api.entitybase.v1.services.enumeration_service import EnumerationService
 
 
 class TestItemCreateHandler:

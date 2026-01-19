@@ -7,7 +7,7 @@ import pytest
 import requests
 from rapidhash import rapidhash
 
-from models.rest_api.v1.entitybase.request import EntityCreateRequest
+from models.rest_api.entitybase.v1.request import EntityCreateRequest
 
 
 @pytest.mark.integration

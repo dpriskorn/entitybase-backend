@@ -12,7 +12,7 @@ from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.redirect_cache import load_entity_redirects
 from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
 from models.rdf_builder.writers.triple import TripleWriters
-from models.rest_api.v1.entitybase.response.entity import EntityMetadataResponse
+from models.rest_api.entitybase.v1.response.entity import EntityMetadataResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

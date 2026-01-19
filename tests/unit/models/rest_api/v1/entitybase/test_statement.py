@@ -3,8 +3,8 @@ from unittest.mock import MagicMock, patch
 
 pytestmark = pytest.mark.unit
 
-from models.rest_api.v1.entitybase.handlers.statement import StatementHandler
-from models.rest_api.v1.entitybase.request.statement import StatementBatchRequest
+from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
+from models.rest_api.entitybase.v1.request.statement import StatementBatchRequest
 
 
 class TestStatementHandler:
@@ -12,7 +12,7 @@ class TestStatementHandler:
         """Test get_statement raises error when s3_client is None"""
         handler = StatementHandler()
         with patch(
-            "models.rest_api.v1.entitybase.handlers.statement.raise_validation_error"
+            "models.rest_api.entitybase.v1.handlers.statement.raise_validation_error"
         ) as mock_raise:
             handler.get_statement(123, None)
             mock_raise.assert_called_with("Statement 123 not found", status_code=404)
@@ -28,7 +28,7 @@ class TestStatementHandler:
         mock_s3.read_statement.return_value = mock_statement_data
 
         with patch(
-            "models.rest_api.v1.entitybase.handlers.statement.StatementResponse"
+            "models.rest_api.entitybase.v1.handlers.statement.StatementResponse"
         ) as mock_response:
             mock_response_instance = MagicMock()
             mock_response.return_value = mock_response_instance
@@ -51,7 +51,7 @@ class TestStatementHandler:
         mock_s3.read_statement.side_effect = Exception("S3 error")
 
         with patch(
-            "models.rest_api.v1.entitybase.handlers.statement.raise_validation_error"
+            "models.rest_api.entitybase.v1.handlers.statement.raise_validation_error"
         ) as mock_raise:
             handler.get_statement(123, mock_s3)
             mock_raise.assert_called_once_with(
@@ -83,10 +83,10 @@ class TestStatementHandler:
 
         with (
             patch(
-                "models.rest_api.v1.entitybase.handlers.statement.StatementResponse"
+                "models.rest_api.entitybase.v1.handlers.statement.StatementResponse"
             ) as mock_response,
             patch(
-                "models.rest_api.v1.entitybase.handlers.statement.StatementBatchResponse"
+                "models.rest_api.entitybase.v1.handlers.statement.StatementBatchResponse"
             ) as mock_batch_response,
         ):
             mock_response_instance = MagicMock()
@@ -116,10 +116,10 @@ class TestStatementHandler:
 
         with (
             patch(
-                "models.rest_api.v1.entitybase.handlers.statement.StatementResponse"
+                "models.rest_api.entitybase.v1.handlers.statement.StatementResponse"
             ) as mock_response,
             patch(
-                "models.rest_api.v1.entitybase.handlers.statement.StatementBatchResponse"
+                "models.rest_api.entitybase.v1.handlers.statement.StatementBatchResponse"
             ) as mock_batch_response,
         ):
             mock_response_instance = MagicMock()

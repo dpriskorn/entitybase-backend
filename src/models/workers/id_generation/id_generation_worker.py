@@ -10,9 +10,9 @@ import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-from models.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
-from models.rest_api.v1.entitybase.response.id_response import IdResponse
-from models.rest_api.v1.entitybase.services.enumeration_service import EnumerationService
+from models.rest_api.entitybase.v1.response import WorkerHealthCheckResponse
+from models.rest_api.entitybase.v1.response.id_response import IdResponse
+from models.rest_api.entitybase.v1.services.enumeration_service import EnumerationService
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

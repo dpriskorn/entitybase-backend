@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 from models.infrastructure.vitess.repositories.terms import TermsRepository
-from models.rest_api.v1.entitybase.response.misc import TermsResponse
+from models.rest_api.entitybase.v1.response.misc import TermsResponse
 
 
 class TestTermsRepository(unittest.TestCase):

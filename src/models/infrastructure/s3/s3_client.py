@@ -23,7 +23,7 @@ from models.infrastructure.s3.storage.qualifier_storage import QualifierStorage
 from models.infrastructure.s3.storage.reference_storage import ReferenceStorage
 from models.infrastructure.s3.storage.revision_storage import RevisionStorage
 from models.infrastructure.s3.storage.statement_storage import StatementStorage
-from models.rest_api.v1.entitybase.response import StatementResponse
+from models.rest_api.entitybase.v1.response import StatementResponse
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:

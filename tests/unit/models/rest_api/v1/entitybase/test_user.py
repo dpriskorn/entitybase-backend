@@ -7,9 +7,9 @@ pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")
 
-from models.rest_api.v1.entitybase.request.user import UserCreateRequest
-from models.rest_api.v1.entitybase.response.user import UserCreateResponse
-from models.rest_api.v1.entitybase.handlers.user import UserHandler
+from models.rest_api.entitybase.v1.request.user import UserCreateRequest
+from models.rest_api.entitybase.v1.response.user import UserCreateResponse
+from models.rest_api.entitybase.v1.handlers.user import UserHandler
 
 
 class TestUserHandler:
@@ -90,8 +90,8 @@ class TestUserHandler:
         self, handler: UserHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test successful watchlist toggle"""
-        from models.rest_api.v1.entitybase.request.user import WatchlistToggleRequest
-        from models.rest_api.v1.entitybase.response.user import WatchlistToggleResponse
+        from models.rest_api.entitybase.v1.request.user import WatchlistToggleRequest
+        from models.rest_api.entitybase.v1.response.user import WatchlistToggleResponse
 
         request = WatchlistToggleRequest(enabled=False)
         mock_vitess_client.user_repository.user_exists.return_value = True
@@ -110,7 +110,7 @@ class TestUserHandler:
         self, handler: UserHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test toggle for non-existent user"""
-        from models.rest_api.v1.entitybase.request.user import WatchlistToggleRequest
+        from models.rest_api.entitybase.v1.request.user import WatchlistToggleRequest
 
         request = WatchlistToggleRequest(enabled=True)
         mock_vitess_client.user_repository.user_exists.return_value = False

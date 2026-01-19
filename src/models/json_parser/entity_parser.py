@@ -7,13 +7,13 @@ from models.infrastructure.s3.enums import EntityType
 from models.internal_representation.entity_data import EntityData
 from models.internal_representation.json_fields import JsonField
 from models.json_parser.statement_parser import parse_statement
-from models.rest_api.v1.entitybase.response import (
+from models.rest_api.entitybase.v1.response import (
     EntityAliasesResponse,
     EntityDescriptionsResponse,
     EntityLabelsResponse,
     EntityMetadataResponse,
 )
-from models.rest_api.v1.entitybase.response.entity import (
+from models.rest_api.entitybase.v1.response.entity import (
     AliasValue,
     DescriptionValue,
     LabelValue,

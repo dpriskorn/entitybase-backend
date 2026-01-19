@@ -3,9 +3,9 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from models.rest_api.v1.entitybase.handlers.entity.handler import EntityHandler
-from models.rest_api.v1.entitybase.request.entity.add_property import AddPropertyRequest
-from models.rest_api.v1.entitybase.response import EntityState
+from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
+from models.rest_api.entitybase.v1.request.entity.add_property import AddPropertyRequest
+from models.rest_api.entitybase.v1.response import EntityState
 
 
 class TestAddProperty(unittest.TestCase):
@@ -27,7 +27,7 @@ class TestAddProperty(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertIn("Invalid property ID format", result.error)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.handler.EntityReadHandler")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.handler.EntityReadHandler")
     def test_property_does_not_exist(self, mock_read_handler_class) -> None:
         """Test property does not exist."""
         mock_read_handler = MagicMock()
@@ -41,7 +41,7 @@ class TestAddProperty(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertIn("Property does not exist", result.error)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.handler.EntityReadHandler")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.handler.EntityReadHandler")
     def test_entity_is_not_property(self, mock_read_handler_class) -> None:
         """Test entity exists but is not a property."""
         mock_read_handler = MagicMock()
@@ -60,7 +60,7 @@ class TestAddProperty(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertIn("Entity is not a property", result.error)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.handler.EntityReadHandler")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.handler.EntityReadHandler")
     @patch.object(EntityHandler, "process_entity_revision_new")
     def test_successful_add_property(
         self, mock_process_revision, mock_read_handler_class

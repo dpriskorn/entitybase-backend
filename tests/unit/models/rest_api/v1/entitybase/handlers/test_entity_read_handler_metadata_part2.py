@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import Mock, patch
-from models.rest_api.v1.entitybase.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 
 
 class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
@@ -12,7 +12,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         self.mock_vitess = Mock()
         self.mock_s3 = Mock()
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_metadata_aliases_load_failure(
         self, mock_terms_repo_class, mock_entity_response
@@ -40,7 +40,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         entity_data = call_args[1]["entity_data"]
         self.assertNotIn("aliases", entity_data)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_partial_metadata_none_terms(
         self, mock_terms_repo_class, mock_entity_response
@@ -75,7 +75,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         self.assertIn("en", entity_data["labels"])
         self.assertNotIn("fr", entity_data["labels"])  # None term not included
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     def test_get_entity_legacy_empty_hashes(self, mock_entity_response) -> None:
         """Test get_entity legacy path with empty hashes dicts"""
         self.mock_vitess.entity_exists.return_value = True
@@ -97,7 +97,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         self.assertEqual(result, mock_response_instance)
         # Should not attempt metadata loading
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_mixed_metadata_types(
         self, mock_terms_repo_class, mock_entity_response
@@ -133,7 +133,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         self.assertNotIn("descriptions", entity_data)  # empty dict skipped
         self.assertIn("aliases", entity_data)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityRevisionResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityRevisionResponse")
     def test_get_entity_revision_s3_load_labels_failure(
         self, mock_revision_response
     ) -> None:
@@ -161,7 +161,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         self.assertEqual(result, mock_response_instance)
         # Should not include labels in response due to failure
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityRevisionResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityRevisionResponse")
     def test_get_entity_revision_missing_hash_keys(
         self, mock_revision_response
     ) -> None:
@@ -183,7 +183,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         self.assertEqual(result, mock_response_instance)
         self.assertEqual(self.mock_s3.load_metadata.call_count, 0)  # no hashes
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityRevisionResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityRevisionResponse")
     def test_get_entity_revision_invalid_hash_keys(
         self, mock_revision_response
     ) -> None:
@@ -211,7 +211,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
             self.mock_s3.load_metadata.call_count, 0
         )  # invalid hashes not loaded
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     def test_get_entity_revision_content_missing_entity_key(
         self, mock_entity_response
     ) -> None:
@@ -233,7 +233,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         self.assertEqual(result, mock_response_instance)
         # Should handle missing entity key
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     def test_get_entity_invalid_hash_structures(self, mock_entity_response) -> None:
         """Test get_entity with invalid hash structures"""
         self.mock_vitess.entity_exists.return_value = True
@@ -255,7 +255,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         self.assertEqual(result, mock_response_instance)
         # Should handle invalid structures
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     def test_get_entity_empty_metadata_dicts(self, mock_entity_response) -> None:
         """Test get_entity with empty metadata dicts"""
         self.mock_vitess.entity_exists.return_value = True
@@ -277,7 +277,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         self.assertEqual(result, mock_response_instance)
         # Should not load metadata for empty dicts
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.raise_validation_error")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.raise_validation_error")
     def test_get_entity_exception(self, mock_raise_error) -> None:
         """Test get_entity handles exceptions during processing."""
         self.mock_vitess.entity_exists.return_value = True
@@ -290,9 +290,9 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
             "Failed to read entity", status_code=500
         )
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.raise_validation_error")
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.isinstance")
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.raise_validation_error")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.isinstance")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_invalid_response_type(
         self, mock_terms_repo, mock_entity_response, mock_isinstance, mock_raise_error
@@ -316,7 +316,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
             "Invalid response type", status_code=500
         )
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.raise_validation_error")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.raise_validation_error")
     def test_get_entity_revision_invalid_revision_id_zero(
         self, mock_raise_error
     ) -> None:
@@ -328,7 +328,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
 
         mock_raise_error.assert_called_once_with("Invalid revision ID", status_code=400)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.raise_validation_error")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.raise_validation_error")
     def test_get_entity_revision_invalid_revision_id_negative(
         self, mock_raise_error
     ) -> None:
@@ -340,7 +340,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
 
         mock_raise_error.assert_called_once_with("Invalid revision ID", status_code=400)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.raise_validation_error")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.raise_validation_error")
     def test_get_entity_revision_revision_too_high(self, mock_raise_error) -> None:
         """Test get_entity_revision with revision_id > head."""
         self.mock_vitess.entity_exists.return_value = True

@@ -6,12 +6,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from models.infrastructure.s3.enums import EntityType
 from models.internal_representation.statements import Statement
-from models.rest_api.v1.entitybase.response import (
+from models.rest_api.entitybase.v1.response import (
     EntityLabelsResponse,
     EntityDescriptionsResponse,
     EntityAliasesResponse,
 )
-from models.rest_api.v1.entitybase.response.entity import EntitySitelinksResponse
+from models.rest_api.entitybase.v1.response.entity import EntitySitelinksResponse
 
 if TYPE_CHECKING:
     pass

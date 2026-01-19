@@ -1,6 +1,6 @@
 """Repository for metadata content operations."""
 
-from models.rest_api.v1.entitybase.response.misc import MetadataContent
+from models.rest_api.entitybase.v1.response.misc import MetadataContent
 
 """Repository for metadata content operations."""
 

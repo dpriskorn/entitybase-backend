@@ -3,7 +3,7 @@
 from datetime import date
 from unittest.mock import Mock
 
-from models.rest_api.v1.entitybase.handlers.user import UserHandler
+from models.rest_api.entitybase.v1.handlers.user import UserHandler
 
 
 class TestUserHandler:

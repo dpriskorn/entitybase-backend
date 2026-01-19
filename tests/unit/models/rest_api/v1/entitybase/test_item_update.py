@@ -3,9 +3,9 @@ import pytest
 pytestmark = pytest.mark.unit
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from models.rest_api.v1.entitybase.request.entity import EntityUpdateRequest
-from models.rest_api.v1.entitybase.response.entity import EntityResponse, EntityState
-from models.rest_api.v1.entitybase.handlers.entity.items.update import ItemUpdateHandler
+from models.rest_api.entitybase.v1.request.entity import EntityUpdateRequest
+from models.rest_api.entitybase.v1.response.entity import EntityResponse, EntityState
+from models.rest_api.entitybase.v1.handlers.entity.items.update import ItemUpdateHandler
 
 
 class TestItemUpdateHandler:

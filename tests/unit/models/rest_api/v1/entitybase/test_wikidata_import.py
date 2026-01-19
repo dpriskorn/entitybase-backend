@@ -8,11 +8,11 @@ import pytest
 
 pytestmark = pytest.mark.unit
 
-from models.rest_api.v1.entitybase.handlers.entity.wikidata_import import (
+from models.rest_api.entitybase.v1.handlers.entity.wikidata_import import (
     EntityJsonImportHandler,
 )
-from models.rest_api.v1.entitybase.request import EntityJsonImportRequest
-from models.rest_api.v1.entitybase.response import EntityJsonImportResponse
+from models.rest_api.entitybase.v1.request import EntityJsonImportRequest
+from models.rest_api.entitybase.v1.response import EntityJsonImportResponse
 from models.services.wikidata_import_service import WikidataImportService
 
 
@@ -139,7 +139,7 @@ class TestEntityJsonImportHandler:
 
         try:
             # Mock dependencies
-            from models.rest_api.v1.entitybase.request import EntityCreateRequest
+            from models.rest_api.entitybase.v1.request import EntityCreateRequest
 
             mock_transform.return_value = EntityCreateRequest(
                 id="Q123",

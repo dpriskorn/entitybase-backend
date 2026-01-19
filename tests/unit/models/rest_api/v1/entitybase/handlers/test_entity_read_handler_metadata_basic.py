@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import Mock, patch
-from models.rest_api.v1.entitybase.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 
 
 class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
@@ -12,7 +12,7 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
         self.mock_vitess = Mock()
         self.mock_s3 = Mock()
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_success_with_metadata_labels(
         self, mock_terms_repo_class, mock_entity_response
@@ -49,7 +49,7 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
         self.assertIn("labels", entity_data)
         self.assertEqual(entity_data["labels"]["en"]["value"], "Label EN")
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_success_with_metadata_descriptions(
         self, mock_terms_repo_class, mock_entity_response
@@ -80,7 +80,7 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
         self.assertEqual(result, mock_response_instance)
         self.mock_s3.load_metadata.assert_called_with("descriptions", "hash_desc")
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_success_with_metadata_aliases(
         self, mock_terms_repo_class, mock_entity_response
@@ -117,7 +117,7 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
         self.assertIn("aliases", entity_data)
         self.assertEqual(len(entity_data["aliases"]["en"]), 2)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_success_legacy_metadata(
         self, mock_terms_repo_class, mock_entity_response
@@ -153,7 +153,7 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
         self.assertIn("entity", entity_data)
         self.assertIn("labels", entity_data["entity"])
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_legacy_labels_none(
         self, mock_terms_repo_class, mock_entity_response
@@ -187,7 +187,7 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
         entity_data = call_args[1]["entity_data"]
         self.assertNotIn("labels", entity_data["entity"])
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_legacy_aliases_partial_none(
         self, mock_terms_repo_class, mock_entity_response
@@ -225,7 +225,7 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
         self.assertEqual(len(entity_data["entity"]["aliases"]["en"]), 1)
         self.assertEqual(entity_data["entity"]["aliases"]["en"][0]["value"], "Alias1")
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_legacy_descriptions(
         self, mock_terms_repo_class, mock_entity_response
@@ -262,7 +262,7 @@ class TestEntityReadHandlerMetadataBasic(unittest.TestCase):
             entity_data["entity"]["descriptions"]["en"]["value"], "Description EN"
         )
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_success_all_metadata_types(
         self, mock_terms_repo_class, mock_entity_response

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from models.rest_api.v1.entitybase.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 
 
 class TestEntityReadHandlerEntity(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestEntityReadHandlerEntity(unittest.TestCase):
         self.mock_s3 = Mock()
 
     @patch(
-        "models.rest_api.v1.entitybase.handlers.entity.read.EntityReadHandler.get_entity"
+        "models.rest_api.entitybase.v1.handlers.entity.read.EntityReadHandler.get_entity"
     )
     def test_get_entity_with_terms(self, mock_get_entity) -> None:
         """Test that get_entity calls work with term loading"""
@@ -30,7 +30,7 @@ class TestEntityReadHandlerEntity(unittest.TestCase):
         # This just verifies the method exists and can be called
         self.assertTrue(hasattr(self.handler, "get_entity"))
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.raise_validation_error")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.raise_validation_error")
     def test_get_entity_vitess_none(self, mock_raise_error) -> None:
         """Test get_entity raises error when vitess_client is None"""
         EntityReadHandler.get_entity("Q42", None, self.mock_s3)
@@ -38,20 +38,20 @@ class TestEntityReadHandlerEntity(unittest.TestCase):
             "Vitess not initialized", status_code=503
         )
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.raise_validation_error")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.raise_validation_error")
     def test_get_entity_s3_none(self, mock_raise_error) -> None:
         """Test get_entity raises error when s3_client is None"""
         EntityReadHandler.get_entity("Q42", self.mock_vitess, None)
         mock_raise_error.assert_called_once_with("S3 not initialized", status_code=503)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.raise_validation_error")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.raise_validation_error")
     def test_get_entity_not_found(self, mock_raise_error) -> None:
         """Test get_entity raises error when entity does not exist"""
         self.mock_vitess.entity_exists.return_value = False
         EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
         mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.raise_validation_error")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.raise_validation_error")
     def test_get_entity_no_head_revision(self, mock_raise_error) -> None:
         """Test get_entity raises error when no head revision"""
         self.mock_vitess.entity_exists.return_value = True
@@ -59,7 +59,7 @@ class TestEntityReadHandlerEntity(unittest.TestCase):
         EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
         mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
 
-    @patch("models.rest_api.v1.entitybase.handlers.entity.read.EntityResponse")
+    @patch("models.rest_api.entitybase.v1.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_success_no_metadata(
         self, mock_terms_repo, mock_entity_response

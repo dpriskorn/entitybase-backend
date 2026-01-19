@@ -25,7 +25,8 @@ class TestIdResolver:
 
         mock_cursor.execute.assert_called_once_with(
             "SELECT internal_id FROM entity_id_mapping WHERE entity_id = %s",
-            ("Q42",),
+            ("Q42",)
+        )
 
     def test_resolve_id_nonexistent(self, resolver):
         """Test resolving a non-existent entity ID."""

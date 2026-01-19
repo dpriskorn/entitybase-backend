@@ -2,7 +2,7 @@ import pytest
 
 pytestmark = pytest.mark.unit
 
-from models.rest_api.v1.entitybase.request.user_activity import UserActivityRequest
+from models.rest_api.entitybase.v1.request.user_activity import UserActivityRequest
 
 
 class TestUserActivityRequest:

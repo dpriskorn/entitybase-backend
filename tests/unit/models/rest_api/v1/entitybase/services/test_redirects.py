@@ -4,12 +4,12 @@ from unittest.mock import Mock, AsyncMock, patch
 
 import pytest
 
-from models.rest_api.v1.entitybase.request.entity import EntityRedirectRequest
-from models.rest_api.v1.entitybase.response import (
+from models.rest_api.entitybase.v1.request.entity import EntityRedirectRequest
+from models.rest_api.entitybase.v1.response import (
     EntityRedirectResponse,
     EntityResponse,
 )
-from models.rest_api.v1.entitybase.services.redirects import RedirectService
+from models.rest_api.entitybase.v1.services.redirects import RedirectService
 
 
 class TestRedirectService:
@@ -78,7 +78,7 @@ class TestRedirectService:
         )
 
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ) as mock_raise:
             await self.service.create_redirect(request)
             mock_raise.assert_called_once_with(
@@ -95,7 +95,7 @@ class TestRedirectService:
         )
 
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ) as mock_raise:
             await self.service.create_redirect(request)
             mock_raise.assert_called_once_with(
@@ -113,7 +113,7 @@ class TestRedirectService:
         )
 
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ) as mock_raise:
             await self.service.create_redirect(request)
             mock_raise.assert_called_once_with(
@@ -131,7 +131,7 @@ class TestRedirectService:
         )
 
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ) as mock_raise:
             await self.service.create_redirect(request)
             mock_raise.assert_called_once_with(
@@ -150,7 +150,7 @@ class TestRedirectService:
         )
 
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ) as mock_raise:
             await self.service.create_redirect(request)
             mock_raise.assert_called_once_with(
@@ -170,7 +170,7 @@ class TestRedirectService:
         )
 
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ) as mock_raise:
             await self.service.create_redirect(request)
             mock_raise.assert_called_once_with(
@@ -191,7 +191,7 @@ class TestRedirectService:
         )
 
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ) as mock_raise:
             await self.service.create_redirect(request)
             mock_raise.assert_called_once_with(
@@ -242,7 +242,7 @@ class TestRedirectService:
         assert not hasattr(service_no_stream, "mock_stream_producer")
 
     @pytest.mark.asyncio
-    @patch("models.rest_api.v1.entitybase.services.redirects.EntityRevertHandler")
+    @patch("models.rest_api.entitybase.v1.services.redirects.EntityRevertHandler")
     async def test_revert_redirect_success(self, mock_revert_handler):
         """Test successful redirect revert."""
         # Setup mocks
@@ -277,7 +277,7 @@ class TestRedirectService:
         self.mock_vitess_client.get_redirect_target.return_value = None
 
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ) as mock_raise:
             await self.service.revert_redirect("Q100", 5, 1)
             mock_raise.assert_called_once_with(
@@ -291,7 +291,7 @@ class TestRedirectService:
         self.mock_vitess_client.is_entity_deleted.return_value = True
 
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ) as mock_raise:
             await self.service.revert_redirect("Q100", 5, 1)
             mock_raise.assert_called_once_with(
@@ -306,7 +306,7 @@ class TestRedirectService:
         self.mock_vitess_client.is_entity_locked.return_value = True
 
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ) as mock_raise:
             await self.service.revert_redirect("Q100", 5, 1)
             mock_raise.assert_called_once_with(
@@ -322,7 +322,7 @@ class TestRedirectService:
         self.mock_vitess_client.is_entity_archived.return_value = True
 
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ) as mock_raise:
             await self.service.revert_redirect("Q100", 5, 1)
             mock_raise.assert_called_once_with(
@@ -368,11 +368,11 @@ class TestRedirectService:
         assert isinstance(result, EntityResponse)
         # Stream producer should not be called
 
-    @patch("models.rest_api.v1.entitybase.services.redirects.logger")
+    @patch("models.rest_api.entitybase.v1.services.redirects.logger")
     def test_debug_logging_create(self, mock_logger) -> None:
         """Test debug logging for create redirect."""
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ):
             request = EntityRedirectRequest(
                 redirect_from_id="Q100", redirect_to_id="Q200", created_by="test-user"
@@ -392,11 +392,11 @@ class TestRedirectService:
             "Creating redirect from %s to %s", "Q100", "Q200"
         )
 
-    @patch("models.rest_api.v1.entitybase.services.redirects.logger")
+    @patch("models.rest_api.entitybase.v1.services.redirects.logger")
     def test_debug_logging_revert(self, mock_logger) -> None:
         """Test debug logging for revert redirect."""
         with patch(
-            "models.rest_api.v1.entitybase.services.redirects.raise_validation_error"
+            "models.rest_api.entitybase.v1.services.redirects.raise_validation_error"
         ):
             import asyncio
 
