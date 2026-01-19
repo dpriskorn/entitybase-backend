@@ -37,6 +37,7 @@ from models.rest_api.entitybase.services.statement_service import (
     deduplicate_and_store_statements,
 )
 from models.rest_api.utils import raise_validation_error
+from .entity_errors import EntityProcessingError
 from .entity_hashing_service import EntityHashingService
 from .entity_validation_service import EntityValidationService
 
@@ -95,15 +96,6 @@ class RevisionResult(BaseModel):
     success: bool
     revision_id: int = Field(default=0)
     error: str = Field(default="")
-
-
-class EntityProcessingError(Exception):
-    """Custom exception for entity processing errors."""
-
-    def __init__(self, message: str, status_code: int = 500):
-        self.message = message
-        self.status_code = status_code
-        super().__init__(message)
 
 
 
