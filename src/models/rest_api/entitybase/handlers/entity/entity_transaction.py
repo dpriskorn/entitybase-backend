@@ -31,8 +31,9 @@ class EntityTransaction(BaseModel, ABC):
 
         logger.info(f"[EntityTransaction] Registering entity {entity_id}")
         self.entity_id = entity_id
-        entity_repo = EntityRepository(vitess_client.connection_manager)
-        entity_repo.create_entity(entity_id)
+        with vitess_client.get_connection() as conn:
+            entity_repo = EntityRepository(vitess_client.connection_manager, vitess_client.id_resolver)
+            entity_repo.create_entity(conn, entity_id)
         self.operations.append(
             lambda: self._rollback_entity_registration(vitess_client)
         )
@@ -44,8 +45,9 @@ class EntityTransaction(BaseModel, ABC):
         logger.info(
             f"[EntityTransaction] Rolling back entity registration for {self.entity_id}"
         )
-        entity_repo = EntityRepository(vitess_client.connection_manager)
-        entity_repo.delete_entity(self.entity_id)
+        with vitess_client.get_connection() as conn:
+            entity_repo = EntityRepository(vitess_client.connection_manager, vitess_client.id_resolver)
+            entity_repo.delete_entity(conn, self.entity_id)
 
     def _rollback_revision(
         self, entity_id: str, revision_id: int, vitess_client: Any
@@ -56,8 +58,9 @@ class EntityTransaction(BaseModel, ABC):
         logger.info(
             f"[EntityTransaction] Rolling back revision {revision_id} for {entity_id}"
         )
-        revision_repo = RevisionRepository(vitess_client.connection_manager)
-        revision_repo.delete(revision_id, entity_id)
+        with vitess_client.get_connection() as conn:
+            revision_repo = RevisionRepository(vitess_client.connection_manager, vitess_client.id_resolver)
+            revision_repo.delete(conn, entity_id, revision_id)
 
     def publish_event(
         self,
@@ -67,6 +70,7 @@ class EntityTransaction(BaseModel, ABC):
         user_id: int = 0,
     ) -> None:
         """Publish a change event."""
+        from datetime import datetime, timezone
         from models.infrastructure.stream.event import EntityChangeEvent
         from models.infrastructure.stream.change_type import ChangeType
 
@@ -74,10 +78,11 @@ class EntityTransaction(BaseModel, ABC):
             f"[EntityTransaction] Publishing event for {entity_id} revision {revision_id}"
         )
         event = EntityChangeEvent(
-            entity_id=entity_id,
-            revision_id=revision_id,
-            change_type=ChangeType(change_type),
-            user_id=user_id,
+            id=entity_id,
+            rev=revision_id,
+            type=ChangeType(change_type),
+            at=datetime.now(timezone.utc),
+            summary="",
         )
         # TODO: Publish to stream
         logger.debug(f"Event: {event}")

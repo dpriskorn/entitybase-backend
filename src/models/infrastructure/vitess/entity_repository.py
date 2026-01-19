@@ -4,6 +4,7 @@ import logging
 from typing import Any
 
 from models.rest_api.entitybase.response import ProtectionResponse
+from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
@@ -95,3 +96,24 @@ class EntityRepository:
             dangling=bool(result[3]),
             mass_edit=bool(result[4]),
         )
+
+    def create_entity(self, conn: Any, entity_id: str) -> None:
+        """Create a new entity in the database."""
+        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        if not internal_id:
+            raise_validation_error(f"Entity {entity_id} not registered", status_code=400)
+        with conn.cursor() as cursor:
+            cursor.execute(
+                """INSERT INTO entity_head
+                   (internal_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected, is_deleted, is_redirect)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                (internal_id, 0, False, False, False, False, False, False, False),
+            )
+
+    def delete_entity(self, conn: Any, entity_id: str) -> None:
+        """Delete an entity from the database."""
+        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        if not internal_id:
+            return
+        with conn.cursor() as cursor:
+            cursor.execute("DELETE FROM entity_head WHERE internal_id = %s", (internal_id,))
