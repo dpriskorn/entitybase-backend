@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 from models.infrastructure.vitess.records.thanks import ThankItem, Thank
 from models.rest_api.entitybase.request.thanks import ThanksListRequest
-from models.rest_api.entitybase.response.thanks import ThankResponse, ThanksListResponse
+from models.rest_api.entitybase.response.thanks import ThankResponse, ThanksListResponse, ThankItemResponse
 
 
 class TestThankItem:
@@ -130,7 +130,7 @@ class TestThanksListResponse:
     def test_valid_response(self) -> None:
         """Test creating a valid ThanksListResponse."""
         items = [
-            ThankItem(
+            ThankItemResponse(
                 id=1,
                 from_user_id=123,
                 to_user_id=456,
@@ -150,7 +150,7 @@ class TestThanksListResponse:
     def test_response_serialization(self) -> None:
         """Test JSON serialization of ThanksListResponse."""
         items = [
-            ThankItem(
+            ThankItemResponse(
                 id=1,
                 from_user_id=123,
                 to_user_id=456,
