@@ -208,41 +208,6 @@ class TestTermAPIEndpoints(unittest.TestCase):
             result.headers["location"], "/entitybase/v1/entities/items/Q42/labels/en"
         )
 
-    @unittest.skip("Wikibase redirect endpoints are not implemented")
-    def test_wikibase_put_item_label_redirect(self) -> None:
-        """Test Wikibase PUT item label redirects"""
-        # from models.rest_api.wikibase.v1.entity.items import set_item_label
-        # from fastapi.responses import RedirectResponse
-        # result = set_item_label("Q42", "en")
-        # self.assertIsInstance(result, RedirectResponse)
-        # self.assertEqual(result.status_code, 307)
-        # self.assertEqual(result.headers["location"], "/entitybase/v1/entities/items/Q42/labels/en")
-        self.skipTest("Wikibase redirect functionality not implemented")
-
-    @unittest.skip("Wikibase redirect endpoints are not implemented")
-    def test_wikibase_patch_item_aliases_redirect(self) -> None:
-        """Test Wikibase PATCH item aliases redirects"""
-        # from models.rest_api.wikibase.v1.entity.items import (
-        #     patch_item_aliases_for_language,
-        # )
-        # from fastapi.responses import RedirectResponse
-        # result = patch_item_aliases_for_language("Q42", "en", {})
-        # self.assertIsInstance(result, RedirectResponse)
-        # self.assertEqual(result.status_code, 307)
-        # self.assertEqual(result.headers["location"], "/entitybase/v1/entities/items/Q42/aliases/en")
-        self.skipTest("Wikibase redirect functionality not implemented")
-
-    @unittest.skip("Wikibase redirect endpoints are not implemented")
-    def test_wikibase_delete_item_label_redirect(self) -> None:
-        """Test Wikibase DELETE item label redirects"""
-        # from models.rest_api.wikibase.v1.entity.items import delete_item_label
-        # from fastapi.responses import RedirectResponse
-        # result = delete_item_label("Q42", "en")
-        # self.assertIsInstance(result, RedirectResponse)
-        # self.assertEqual(result.status_code, 307)
-        # self.assertEqual(result.headers["location"], "/entitybase/v1/entities/items/Q42/labels/en")
-        self.skipTest("Wikibase redirect functionality not implemented")
-
     # ===== ERROR SCENARIOS =====
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
