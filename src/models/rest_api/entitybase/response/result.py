@@ -11,6 +11,6 @@ class RevisionIdResult(BaseModel):
 
 class RevisionResult(BaseModel):
     """Result of revision processing."""
-    success: bool
-    revision_id: int = Field(default=0)
-    error: str = Field(default="")
+    success: bool = Field(description="Whether the revision processing was successful")
+    revision_id: int = Field(default=0, description="The ID of the created or updated revision")
+    error: str = Field(default="", description="Error message if the operation failed")

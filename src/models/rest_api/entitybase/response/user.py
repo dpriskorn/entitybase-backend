@@ -9,14 +9,14 @@ from datetime import datetime
 class Notification(BaseModel):
     """Notification model."""
 
-    id: int
-    entity_id: str
-    revision_id: int = Field(default=0)
-    change_type: str
-    changed_properties: Optional[List[str]]
-    event_timestamp: datetime
-    is_checked: bool
-    checked_at: Optional[datetime]
+    id: int = Field(description="Unique identifier for the notification")
+    entity_id: str = Field(description="Entity ID associated with the notification")
+    revision_id: int = Field(default=0, description="Revision ID associated with the notification")
+    change_type: str = Field(description="Type of change that triggered the notification")
+    changed_properties: Optional[List[str]] = Field(description="List of properties that changed")
+    event_timestamp: datetime = Field(description="Timestamp when the event occurred")
+    is_checked: bool = Field(description="Whether the notification has been checked")
+    checked_at: Optional[datetime] = Field(description="Timestamp when the notification was checked")
 
 
 class UserCreateResponse(BaseModel):
@@ -52,5 +52,5 @@ class TermsByType(BaseModel):
 class NotificationResponse(BaseModel):
     """Response for user notifications."""
 
-    user_id: int
-    notifications: List[Notification]
+    user_id: int = Field(description="User ID for whom notifications are returned")
+    notifications: List[Notification] = Field(description="List of notifications for the user")

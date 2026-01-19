@@ -10,12 +10,12 @@ from models.rest_api.entitybase.request.enums import UserActivityType
 class UserActivityItemResponse(BaseModel):
     """Individual user activity item."""
 
-    id: int
-    user_id: int
-    activity_type: UserActivityType
-    entity_id: str = Field(default="")
-    revision_id: int = Field(default=0)
-    created_at: datetime
+    id: int = Field(description="Unique identifier for the activity")
+    user_id: int = Field(description="User ID who performed the activity")
+    activity_type: UserActivityType = Field(description="Type of activity performed")
+    entity_id: str = Field(default="", description="Entity ID associated with the activity")
+    revision_id: int = Field(default=0, description="Revision ID associated with the activity")
+    created_at: datetime = Field(description="Timestamp when the activity occurred")
 
 
 class UserActivityResponse(BaseModel):

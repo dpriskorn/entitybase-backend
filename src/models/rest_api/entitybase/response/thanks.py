@@ -30,9 +30,9 @@ class ThanksListResponse(BaseModel):
 class ThankItemResponse(BaseModel):
     """Individual thank item."""
 
-    id: int
-    from_user_id: int
-    to_user_id: int
-    entity_id: str
-    revision_id: int
-    created_at: datetime
+    id: int = Field(description="Unique identifier for the thank")
+    from_user_id: int = Field(description="User ID who sent the thank")
+    to_user_id: int = Field(description="User ID who received the thank")
+    entity_id: str = Field(description="Entity ID associated with the thank")
+    revision_id: int = Field(description="Revision ID associated with the thank")
+    created_at: datetime = Field(description="Timestamp when the thank was created")

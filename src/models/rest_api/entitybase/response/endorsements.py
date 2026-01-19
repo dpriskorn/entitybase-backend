@@ -116,8 +116,8 @@ class SingleEndorsementStatsResponse(BaseModel):
 class StatementEndorsementResponse(BaseModel):
     """Endorsement record."""
 
-    id: int
-    user_id: int
-    statement_hash: int
-    created_at: datetime
-    removed_at: Optional[datetime] = Field(default=None)
+    id: int = Field(description="Unique identifier for the endorsement")
+    user_id: int = Field(description="ID of the user who gave the endorsement")
+    statement_hash: int = Field(description="Hash of the endorsed statement")
+    created_at: datetime = Field(description="Timestamp when the endorsement was created")
+    removed_at: Optional[datetime] = Field(default=None, description="Timestamp when the endorsement was removed, null if active")
