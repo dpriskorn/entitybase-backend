@@ -27,6 +27,7 @@ from models.rest_api.entitybase.response import (
     EntityResponse,
 )
 from models.rest_api.entitybase.response import StatementHashResult
+from models.rest_api.entitybase.response.result import RevisionIdResult
 from models.rest_api.entitybase.response.entity import EntityState
 from models.rest_api.entitybase.services.statement_service import (
     hash_entity_statements,
@@ -632,7 +633,7 @@ class EntityHandler(BaseModel):
         s3_client: MyS3Client,
         validator: Any | None = None,
         user_id: int = 0,
-    ) -> OperationResult[dict]:
+    ) -> OperationResult[RevisionIdResult]:
         """Add claims for a single property to an existing entity."""
         logger.info(
             f"Entity {entity_id}: Adding property {property_id} with {len(request.claims)} claims"
@@ -686,7 +687,7 @@ class EntityHandler(BaseModel):
             )
 
             return OperationResult(
-                success=True, data={"revision_id": entity_response_new.rev_id}
+                success=True, data=RevisionIdResult(revision_id=entity_response_new.rev_id)
             )
         except EntityProcessingError as e:
             return OperationResult(success=False, error=str(e))
@@ -705,7 +706,7 @@ class EntityHandler(BaseModel):
         s3_client: MyS3Client,
         validator: Any | None = None,
         user_id: int = 0,
-    ) -> OperationResult[dict]:
+    ) -> OperationResult[RevisionIdResult]:
         """Remove a statement by hash from an entity."""
         logger.info(f"Entity {entity_id}: Removing statement {statement_hash}")
 
@@ -788,7 +789,7 @@ class EntityHandler(BaseModel):
                 success=False, error=f"Failed to store updated revision: {e}"
             )
 
-        return OperationResult(success=True, data={"revision_id": new_revision_id})
+        return OperationResult(success=True, data=RevisionIdResult(revision_id=new_revision_id))
 
     async def patch_statement(
         self,
@@ -799,7 +800,7 @@ class EntityHandler(BaseModel):
         s3_client: MyS3Client,
         validator: Any | None = None,
         user_id: int = 0,
-    ) -> OperationResult[dict]:
+    ) -> OperationResult[RevisionIdResult]:
         """Replace a statement by hash with new claim data."""
         logger.info(f"Entity {entity_id}: Patching statement {statement_hash}")
 
@@ -873,7 +874,7 @@ class EntityHandler(BaseModel):
             return revision_result
 
         return OperationResult(
-            success=True, data={"revision_id": revision_result.data.rev_id}
+            success=True, data=RevisionIdResult(revision_id=revision_result.data.rev_id)
         )
 
 

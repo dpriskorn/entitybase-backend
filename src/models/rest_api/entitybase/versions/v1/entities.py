@@ -34,6 +34,7 @@ from models.rest_api.entitybase.response import (
 from models.rest_api.entitybase.response import TurtleResponse
 from models.rest_api.entitybase.response.entity.entitybase import EntityDeleteResponse
 from models.rest_api.entitybase.response.entity.entitybase import EntityHistoryEntry
+from models.rest_api.entitybase.response.result import RevisionIdResult
 from models.rest_api.utils import raise_validation_error
 
 router = APIRouter()
@@ -210,11 +211,11 @@ async def get_entity_property_hashes(
 
 @router.post(
     "/entities/{entity_id}/properties/{property_id}",
-    response_model=OperationResult[dict],
+    response_model=OperationResult[RevisionIdResult],
 )
 async def add_entity_property(
     entity_id: str, property_id: str, request: AddPropertyRequest, req: Request
-) -> OperationResult[dict]:
+) -> OperationResult[RevisionIdResult]:
     """Add claims for a single property to an entity."""
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
@@ -230,11 +231,11 @@ async def add_entity_property(
 
 @router.delete(
     "/entities/{entity_id}/statements/{statement_hash}",
-    response_model=OperationResult[dict],
+    response_model=OperationResult[RevisionIdResult],
 )
 async def remove_entity_statement(
     entity_id: str, statement_hash: str, request: RemoveStatementRequest, req: Request
-) -> OperationResult[dict]:
+) -> OperationResult[RevisionIdResult]:
     """Remove a statement by hash from an entity."""
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
@@ -255,11 +256,11 @@ async def remove_entity_statement(
 
 @router.patch(
     "/entities/{entity_id}/statements/{statement_hash}",
-    response_model=OperationResult[dict],
+    response_model=OperationResult[RevisionIdResult],
 )
 async def patch_entity_statement(
     entity_id: str, statement_hash: str, request: PatchStatementRequest, req: Request
-) -> OperationResult[dict]:
+) -> OperationResult[RevisionIdResult]:
     """Replace a statement by hash with new claim data."""
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
@@ -297,10 +298,10 @@ async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> Siteli
     return SitelinkData(title=sitelink_data.get("title", ""), badges=sitelink_data.get("badges", []))
 
 
-@router.post("/entities/{entity_id}/sitelinks/{site}", response_model=OperationResult[dict])
+@router.post("/entities/{entity_id}/sitelinks/{site}", response_model=OperationResult[RevisionIdResult])
 async def post_entity_sitelink(
     entity_id: str, site: str, sitelink_data: SitelinkData, req: Request, x_user_id: int = Header(..., alias="X-User-ID")
-) -> OperationResult[dict]:
+) -> OperationResult[RevisionIdResult]:
     """Add a new sitelink for an entity."""
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
@@ -335,13 +336,13 @@ async def post_entity_sitelink(
         user_id=x_user_id,
     )
 
-    return OperationResult(success=True, data={"revision_id": result.revision_id})
+    return OperationResult(success=True, data=RevisionIdResult(revision_id=result.revision_id))
 
 
-@router.put("/entities/{entity_id}/sitelinks/{site}", response_model=OperationResult[dict])
+@router.put("/entities/{entity_id}/sitelinks/{site}", response_model=OperationResult[RevisionIdResult])
 async def put_entity_sitelink(
     entity_id: str, site: str, sitelink_data: SitelinkData, req: Request, x_user_id: int = Header(..., alias="X-User-ID")
-) -> OperationResult[dict]:
+) -> OperationResult[RevisionIdResult]:
     """Update an existing sitelink for an entity."""
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
@@ -374,13 +375,13 @@ async def put_entity_sitelink(
         user_id=x_user_id,
     )
 
-    return OperationResult(success=True, data={"revision_id": result.revision_id})
+    return OperationResult(success=True, data=RevisionIdResult(revision_id=result.revision_id))
 
 
-@router.delete("/entities/{entity_id}/sitelinks/{site}", response_model=OperationResult[dict])
+@router.delete("/entities/{entity_id}/sitelinks/{site}", response_model=OperationResult[RevisionIdResult])
 async def delete_entity_sitelink(
     entity_id: str, site: str, req: Request, x_user_id: int = Header(..., alias="X-User-ID")
-) -> OperationResult[dict]:
+) -> OperationResult[RevisionIdResult]:
     """Delete a sitelink from an entity."""
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
@@ -394,7 +395,7 @@ async def delete_entity_sitelink(
     sitelinks = current_entity.entity_data.get("sitelinks", {})
     if site not in sitelinks:
         # Idempotent - return success if not found
-        return OperationResult(success=True, data={"revision_id": None})
+        return OperationResult(success=True, data=RevisionIdResult(revision_id=None))
 
     # Remove sitelink
     del current_entity.entity_data["sitelinks"][site]
@@ -414,4 +415,4 @@ async def delete_entity_sitelink(
         user_id=x_user_id,
     )
 
-    return OperationResult(success=True, data={"revision_id": result.revision_id})
+    return OperationResult(success=True, data=RevisionIdResult(revision_id=result.revision_id))
