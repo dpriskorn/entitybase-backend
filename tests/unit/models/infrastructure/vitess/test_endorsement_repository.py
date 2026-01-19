@@ -19,9 +19,7 @@ class TestEndorsementRepository:
         """Test successful endorsement creation."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         # Mock statement exists check
@@ -53,9 +51,7 @@ class TestEndorsementRepository:
         """Test endorsement creation when statement doesn't exist."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchone.return_value = None  # statement doesn't exist
@@ -71,9 +67,7 @@ class TestEndorsementRepository:
         """Test endorsement creation when endorsement already exists."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchone.side_effect = [
@@ -92,9 +86,7 @@ class TestEndorsementRepository:
         """Test endorsement creation reactivates previously withdrawn endorsement."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchone.side_effect = [
@@ -114,9 +106,7 @@ class TestEndorsementRepository:
         """Test endorsement creation with database error."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchone.side_effect = Exception("Database connection failed")
@@ -130,9 +120,7 @@ class TestEndorsementRepository:
         """Test successful endorsement withdrawal."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchone.return_value = (5,)  # existing active endorsement
@@ -146,9 +134,7 @@ class TestEndorsementRepository:
         """Test withdrawal when no active endorsement exists."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchone.return_value = None  # no active endorsement
@@ -174,9 +160,7 @@ class TestEndorsementRepository:
         """Test withdrawal with database error."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchone.side_effect = Exception("Database error")
@@ -192,9 +176,7 @@ class TestEndorsementRepository:
         """Test successful batch endorsement stats retrieval."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = [
@@ -216,9 +198,7 @@ class TestEndorsementRepository:
         """Test batch endorsement stats retrieval with multiple statement hashes."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = [
@@ -229,7 +209,6 @@ class TestEndorsementRepository:
 
         result = repository.get_batch_statement_endorsement_stats(
             [456789, 456790, 456791]
-        )
 
         assert result.success is True
         assert len(result.data) == 3
@@ -249,9 +228,7 @@ class TestEndorsementRepository:
         """Test batch stats when statement has no endorsements."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = []  # no endorsements
@@ -325,7 +302,6 @@ class TestEndorsementRepository:
                 50,
                 51,
             ]
-        )
         assert result.success is False
         assert "Invalid parameters" in result.error
 
@@ -335,9 +311,7 @@ class TestEndorsementRepository:
         """Test batch statement endorsement stats with database error."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.execute.side_effect = Exception("Database error")
@@ -353,9 +327,7 @@ class TestEndorsementRepository:
         """Test successful user endorsement stats retrieval."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchone.side_effect = [(15,), (12,)]  # total given, active
@@ -378,9 +350,7 @@ class TestEndorsementRepository:
         """Test user endorsement stats retrieval with database error."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchone.side_effect = Exception("Database error")
@@ -396,9 +366,7 @@ class TestEndorsementRepository:
         """Test successful statement endorsements retrieval."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = [
@@ -419,9 +387,7 @@ class TestEndorsementRepository:
         """Test statement endorsements retrieval with include_removed=True."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = [
@@ -462,9 +428,7 @@ class TestEndorsementRepository:
         """Test statement endorsements retrieval with pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         # Mock 55 endorsements total, fetching 50 with offset 0, so has_more=True
@@ -486,9 +450,7 @@ class TestEndorsementRepository:
         """Test statement endorsements retrieval with no results."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = []
@@ -507,9 +469,7 @@ class TestEndorsementRepository:
         """Test statement endorsements retrieval with database error."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.execute.side_effect = Exception("Database error")
@@ -525,9 +485,7 @@ class TestEndorsementRepository:
         """Test user endorsements retrieval with database error."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.execute.side_effect = Exception("Database error")
@@ -541,9 +499,7 @@ class TestEndorsementRepository:
         """Test successful user endorsements retrieval."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = [
@@ -564,9 +520,7 @@ class TestEndorsementRepository:
         """Test user endorsements retrieval with include_removed=True."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = [
@@ -607,9 +561,7 @@ class TestEndorsementRepository:
         """Test user endorsements retrieval with pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         # Mock 55 endorsements total, fetching 50 with offset 0, so has_more=True
@@ -629,9 +581,7 @@ class TestEndorsementRepository:
         """Test user endorsements retrieval with no results."""
         mock_conn = Mock()
         mock_cursor = Mock()
-        mock_connection_manager.get_connection.return_value.__enter__.return_value = (
-            mock_conn
-        )
+        mock_connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         mock_cursor.fetchall.return_value = []

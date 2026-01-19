@@ -328,7 +328,7 @@ class TestUserRepository:
         )
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchall.return_value = [
-            (1, 123, "edit", "Q42", 456, "2023-01-01"),
+            (1, 123, "entity_edit", "Q42", 456, "2023-01-01"),
         ]
 
         result = repository.get_user_activities(123)
