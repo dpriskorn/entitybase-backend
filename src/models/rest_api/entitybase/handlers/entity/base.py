@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict
 
 from fastapi import HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from rapidhash import rapidhash
 
 from models.common import OperationResult
@@ -74,9 +74,213 @@ class RevisionHeadData:
     pass
 
 
+class RevisionContext(BaseModel):
+    """Context for revision processing operations."""
+    entity_id: str
+    request_data: Dict[str, Any]
+    entity_type: EntityType
+    edit_type: EditType | None = None
+    edit_summary: str = ""
+    is_creation: bool = False
+    vitess_client: VitessClient
+    s3_client: MyS3Client
+    stream_producer: StreamProducerClient | None = None
+    validator: Any | None = None
+
+
+class RevisionResult(BaseModel):
+    """Result of revision processing."""
+    success: bool
+    revision_id: int = Field(default=0)
+    error: str = Field(default="")
+
+
+class EntityProcessingError(Exception):
+    """Custom exception for entity processing errors."""
+    def __init__(self, message: str, status_code: int = 500):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(message)
+
+
+class EntityHashingService(BaseModel):
+    """Service for handling entity data hashing operations."""
+
+    async def hash_statements(self, request_data: Dict[str, Any]) -> StatementHashResult:
+        """Hash entity statements."""
+        hash_operation = hash_entity_statements(request_data)
+        if not hash_operation.success:
+            raise EntityProcessingError(hash_operation.error or "Failed to hash statements")
+        return hash_operation.data
+
+    async def hash_terms(self, request_data: Dict[str, Any], s3_client: MyS3Client, vitess_client: VitessClient) -> HashMaps:
+        """Hash entity terms (labels, descriptions, aliases)."""
+        from models.infrastructure.s3.hashes.labels_hashes import LabelsHashes
+        from models.infrastructure.s3.hashes.descriptions_hashes import DescriptionsHashes
+        from models.infrastructure.s3.hashes.aliases_hashes import AliasesHashes
+
+        labels_hashes = HashService.hash_labels(
+            request_data.get("labels", {}), s3_client, vitess_client
+        )
+        descriptions_hashes = HashService.hash_descriptions(
+            request_data.get("descriptions", {}), s3_client, vitess_client
+        )
+        aliases_hashes = HashService.hash_aliases(
+            request_data.get("aliases", {}), s3_client, vitess_client
+        )
+
+        return HashMaps(
+            labels=labels_hashes,
+            descriptions=descriptions_hashes,
+            aliases=aliases_hashes,
+        )
+
+    async def hash_sitelinks(self, request_data: Dict[str, Any], s3_client: MyS3Client):
+        """Hash entity sitelinks."""
+        return HashService.hash_sitelinks(
+            request_data.get("sitelinks", {}), s3_client
+        )
+
+
+class EntityValidationService(BaseModel):
+    """Service for entity validation operations."""
+
+    def validate_protection_settings(self, entity_id: str, is_mass_edit: bool | None, is_not_autoconfirmed_user: bool | None, vitess_client: VitessClient) -> None:
+        """Validate protection settings."""
+        if is_mass_edit and is_not_autoconfirmed_user:
+            if vitess_client.is_entity_semi_protected(entity_id):
+                raise_validation_error("Semi-protected entity cannot be mass edited", status_code=403)
+
+    def validate_idempotency(self, entity_id: str, head_revision_id: int, content_hash: int, request_data: Dict[str, Any], s3_client: MyS3Client) -> EntityResponse | None:
+        """Check if request is idempotent."""
+        if head_revision_id == 0:
+            return None
+
+        logger.debug(f"Checking idempotency against head revision {head_revision_id}")
+        try:
+            head_revision = s3_client.read_revision(entity_id, head_revision_id)
+            head_content_hash = head_revision.data.get("content_hash")
+            logger.debug(f"Head revision content hash: {head_content_hash}")
+
+            if head_content_hash == content_hash:
+                logger.debug(
+                    f"Content unchanged, returning existing revision {head_revision_id}"
+                )
+                return EntityResponse(
+                    id=entity_id,
+                    rev_id=head_revision_id,
+                    data=head_revision.entity,
+                    state=EntityState(
+                        sp=head_revision.data.get("is_semi_protected", False),
+                        locked=head_revision.data.get("is_locked", False),
+                        archived=head_revision.data.get("is_archived", False),
+                        dangling=head_revision.data.get("is_dangling", False),
+                        mep=head_revision.data.get("is_mass_edit_protected", False),
+                    ),
+                )
+        except Exception as e:
+            logger.warning(f"Failed to read head revision for idempotency check: {e}")
+
+        return None
+
+
 class EntityHandler(BaseModel):
     """Base entity handler with common functionality"""
 
+    # New simplified method using context and services
+    async def process_entity_revision_new(
+        self,
+        entity_id: str,
+        request_data: Dict[str, Any],
+        entity_type: EntityType,
+        edit_type: EditType | None,
+        edit_summary: str,
+        is_creation: bool,
+        vitess_client: VitessClient,
+        s3_client: MyS3Client,
+        stream_producer: StreamProducerClient | None,
+        validator: Any | None,
+    ) -> EntityResponse:
+        """New simplified entity revision processing using services."""
+        ctx = RevisionContext(
+            entity_id=entity_id,
+            request_data=request_data,
+            entity_type=entity_type,
+            edit_type=edit_type,
+            edit_summary=edit_summary,
+            is_creation=is_creation,
+            vitess_client=vitess_client,
+            s3_client=s3_client,
+            stream_producer=stream_producer,
+            validator=validator,
+        )
+
+        # 1. Validate request
+        self._validate_revision_request(ctx)
+
+        # 2. Check idempotency
+        if cached := self._check_idempotency_new(ctx):
+            return cached
+
+        # 3. Process entity data
+        hash_result = await self._process_entity_data_new(ctx)
+
+        # 4. Create revision
+        result = await self._create_revision_new(ctx, hash_result)
+
+        # 5. Publish events
+        await self._publish_events_new(ctx, result)
+
+        if not result.success:
+            raise EntityProcessingError(result.error or "Revision creation failed")
+
+        # Build response
+        return self._build_entity_response(ctx, result)
+
+    def _validate_revision_request(self, ctx: RevisionContext) -> None:
+        """Validate the revision request."""
+        # Basic validation
+        if not ctx.entity_id:
+            raise EntityProcessingError("Entity ID is required", 400)
+
+    async def _check_idempotency_new(self, ctx: RevisionContext) -> EntityResponse | None:
+        """Check if request is idempotent using validation service."""
+        validation_service = EntityValidationService()
+        return validation_service.validate_idempotency(
+            ctx.entity_id,
+            ctx.vitess_client.get_head(ctx.entity_id),
+            0,  # content_hash - need to calculate
+            ctx.request_data,
+            ctx.s3_client
+        )
+
+    async def _process_entity_data_new(self, ctx: RevisionContext) -> StatementHashResult:
+        """Process entity data using hashing service."""
+        hashing_service = EntityHashingService()
+        return await hashing_service.hash_statements(ctx.request_data)
+
+    async def _create_revision_new(self, ctx: RevisionContext, hash_result: StatementHashResult) -> RevisionResult:
+        """Create revision using simplified logic."""
+        # This will replace the complex _create_and_store_revision
+        # For now, return a placeholder
+        return RevisionResult(success=True, revision_id=1)
+
+    async def _publish_events_new(self, ctx: RevisionContext, result: RevisionResult) -> None:
+        """Publish revision events."""
+        if ctx.stream_producer and result.revision_id:
+            # Event publishing logic
+            pass
+
+    def _build_entity_response(self, ctx: RevisionContext, result: RevisionResult) -> EntityResponse:
+        """Build EntityResponse from revision result."""
+        # Placeholder implementation
+        return EntityResponse(
+            id=ctx.entity_id,
+            rev_id=result.revision_id or 0,
+            data=ctx.request_data,
+        )
+
+    # Original method (keeping for now)
     async def _process_entity_revision(
         self,
         entity_id: str,
