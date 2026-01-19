@@ -4,7 +4,7 @@ import asyncio
 import logging
 import os
 from abc import ABC, abstractmethod
-from datetime import datetime, time, timedelta
+from datetime import datetime, time, timedelta, timezone
 
 from pydantic import BaseModel, Field
 
@@ -85,7 +85,7 @@ class BaseStatsWorker(BaseModel, ABC):
             # Fallback to 2 AM
             minute, hour = 0, 2
 
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         target_time = time(hour, minute, 0)
 
         # Next run is today if not yet passed, otherwise tomorrow

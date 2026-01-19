@@ -55,22 +55,22 @@ class RDFCanonicalizer:
     ):
         self.method = method
 
-    def canonicalize(self, rdf_content: str, format: str = "turtle") -> Set[Triple]:
+    def canonicalize(self, rdf_content: str, format_: str = "turtle") -> Set[Triple]:
         """Canonicalize RDF content and return normalized triples."""
         if self.method == CanonicalizationMethod.URDNA2015:
-            return self._canonicalize_urdna2015(rdf_content, format)
+            return self._canonicalize_urdna2015(rdf_content, format_)
         elif self.method == CanonicalizationMethod.SKOLEM:
-            return self._canonicalize_skolem(rdf_content, format)
+            return self._canonicalize_skolem(rdf_content, format_)
         elif self.method == CanonicalizationMethod.STRUCTURAL_HASH:
-            return self._canonicalize_structural_hash(rdf_content, format)
+            return self._canonicalize_structural_hash(rdf_content, format_)
         else:
             raise ValueError(f"Unsupported canonicalization method: {self.method}")
 
-    def _canonicalize_urdna2015(self, rdf_content: str, format: str) -> Set[Triple]:
+    def _canonicalize_urdna2015(self, rdf_content: str, format_: str) -> Set[Triple]:
         """Canonicalize using URDNA2015 algorithm."""
         # Parse RDF to JSON-LD
         g = Graph()
-        g.parse(data=rdf_content, format=format)
+        g.parse(data=rdf_content, format=format_)
         jsonld_data = jsonld.from_rdf(g)
 
         # Canonicalize to N-Quads
@@ -81,10 +81,10 @@ class RDFCanonicalizer:
         # Extract triples from N-Quads
         return self._extract_triples_from_nquads(canonical)
 
-    def _canonicalize_skolem(self, rdf_content: str, format: str) -> Set[Triple]:
+    def _canonicalize_skolem(self, rdf_content: str, format_: str) -> Set[Triple]:
         """Canonicalize by skolemizing blank nodes."""
         g = Graph()
-        g.parse(data=rdf_content, format=format)
+        g.parse(data=rdf_content, format=format_)
 
         # Convert to normalized N-Triples
         ntriples = g.serialize(format="ntriples")
@@ -92,11 +92,11 @@ class RDFCanonicalizer:
         return self._extract_triples_from_nquads(ntriples)
 
     def _canonicalize_structural_hash(
-        self, rdf_content: str, format: str
+        self, rdf_content: str, format_: str
     ) -> Set[Triple]:
         """Canonicalize by structural hashing (ignores bnode IDs)."""
         g = Graph()
-        g.parse(data=rdf_content, format=format)
+        g.parse(data=rdf_content, format=format_)
 
         triples = set()
         for s, p, o in g:
@@ -140,7 +140,7 @@ class RDFCanonicalizer:
 class RDFSerializer:
     """Serialize Wikibase entity data to RDF formats."""
 
-    def entity_data_to_rdf(self, entity_data: dict, format: str = "turtle") -> str:
+    def entity_data_to_rdf(self, entity_data: dict, format_: str = "turtle") -> str:
         """Convert Wikibase entity JSON data to RDF."""
         from rdflib import Graph, URIRef, Literal
         from rdflib.namespace import RDF, RDFS
@@ -205,7 +205,7 @@ class RDFSerializer:
                                     )
                                 )
 
-        return g.serialize(format=format)  # type: ignore[no-any-return]
+        return g.serialize(format=format_)  # type: ignore[no-any-return]
 
 
 class EntityDiffWorker:
@@ -221,14 +221,14 @@ class EntityDiffWorker:
         self.rdf_stream_producer = rdf_stream_producer
 
     async def compute_diff_from_rdf(
-        self, entity_id: str, rdf_v1: str, rdf_v2: str, format: str = "turtle"
+        self, entity_id: str, rdf_v1: str, rdf_v2: str, format_: str = "turtle"
     ) -> EntityDiffResponse:
         """Compute diff from RDF content strings."""
         request = EntityDiffRequest(
             entity_id=entity_id,
             rdf_content_v1=rdf_v1,
             rdf_content_v2=rdf_v2,
-            format=format,
+            format=format_,
             canonicalization_method=self.canonicalizer.method,
         )
         return await self.compute_diff(request)
@@ -238,13 +238,13 @@ class EntityDiffWorker:
         entity_id: str,
         entity_data_v1: dict,
         entity_data_v2: dict,
-        format: str = "turtle",
+        format_: str = "turtle",
     ) -> EntityDiffResponse:
         """Compute diff from Wikibase entity data dictionaries."""
-        rdf_v1 = self.serializer.entity_data_to_rdf(entity_data_v1, format)
-        rdf_v2 = self.serializer.entity_data_to_rdf(entity_data_v2, format)
+        rdf_v1 = self.serializer.entity_data_to_rdf(entity_data_v1, format_)
+        rdf_v2 = self.serializer.entity_data_to_rdf(entity_data_v2, format_)
 
-        return await self.compute_diff_from_rdf(entity_id, rdf_v1, rdf_v2, format)
+        return await self.compute_diff_from_rdf(entity_id, rdf_v1, rdf_v2, format_)
 
     async def compute_diff(self, request: EntityDiffRequest) -> EntityDiffResponse:
         """Compute diff between two RDF versions of an entity."""
@@ -331,7 +331,7 @@ class EntityDiffWorker:
 async def diff_rdf_content(
     rdf_v1: str,
     rdf_v2: str,
-    format: str = "turtle",
+    format_: str = "turtle",
     method: CanonicalizationMethod = CanonicalizationMethod.URDNA2015,
 ) -> Dict[str, Any]:
     """Compute diff between two RDF strings."""
@@ -341,7 +341,7 @@ async def diff_rdf_content(
         entity_id="test",
         rdf_content_v1=rdf_v1,
         rdf_content_v2=rdf_v2,
-        format=format,
+        format=format_,
         canonicalization_method=method,
     )
 

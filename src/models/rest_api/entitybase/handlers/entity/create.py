@@ -7,8 +7,6 @@ from pydantic import ConfigDict, Field
 
 from ...request.enums import UserActivityType
 
-logger = logging.getLogger(__name__)
-
 from models.rest_api.utils import raise_validation_error
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient

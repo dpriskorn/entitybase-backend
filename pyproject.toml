@@ -62,8 +62,6 @@ markers = [
     "integration: marks tests as integration tests",
     "e2e: marks tests as e2e tests",
 ]
-# allow skipping whole class
-allow_module_level = true
 
 [tool.vulture]
 paths = ["src"]

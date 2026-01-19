@@ -1,7 +1,7 @@
 """Backlink statistics worker for computing daily analytics."""
 
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 from typing import Any
 
 from models.config.settings import settings
@@ -40,7 +40,7 @@ class BacklinkStatisticsWorker(BaseStatsWorker):
             # Store in database
             await self._store_statistics(stats)
 
-            self.last_run = datetime.utcnow()
+            self.last_run = datetime.now(timezone.utc)
             logger.info(
                 f"Completed backlink statistics computation: {stats.total_backlinks} backlinks, "
                 f"{stats.unique_entities_with_backlinks} entities with backlinks"

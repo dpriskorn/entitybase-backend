@@ -1,7 +1,7 @@
 """Handler for endorsement operations."""
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 from models.infrastructure.stream.actions import EndorseAction
 from models.infrastructure.stream.event import EndorseChangeEvent
@@ -76,7 +76,7 @@ class EndorsementHandler:
                 hash=str(statement_hash),
                 user=str(user_id),
                 act=EndorseAction.ENDORSE,
-                ts=datetime.utcnow(),
+                ts=datetime.now(timezone.utc),
             )
             vitess_client.stream_producer.publish_change(event)
 
@@ -145,7 +145,7 @@ class EndorsementHandler:
                 hash=str(statement_hash),
                 user=str(user_id),
                 act=EndorseAction.WITHDRAW,
-                ts=datetime.utcnow(),
+                ts=datetime.now(timezone.utc),
             )
             vitess_client.stream_producer.publish_change(event)
 

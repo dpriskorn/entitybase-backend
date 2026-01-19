@@ -1,7 +1,7 @@
 """General statistics worker for computing daily analytics."""
 
 import logging
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 from models.config.settings import settings
 from models.rest_api.entitybase.services.general_stats_service import (
@@ -38,7 +38,7 @@ class GeneralStatsWorker(BaseStatsWorker):
             # Store in database
             await self._store_statistics(stats)
 
-            self.last_run = datetime.utcnow()
+            self.last_run = datetime.now(timezone.utc)
             logger.info(
                 f"Completed general statistics computation: {stats.total_statements} statements, "
                 f"{stats.total_items} items, {stats.total_terms} terms"

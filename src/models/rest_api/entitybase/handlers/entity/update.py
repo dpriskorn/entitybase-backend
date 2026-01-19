@@ -6,8 +6,6 @@ from typing import Any
 from models.infrastructure.s3.enums import EntityType
 from models.infrastructure.s3.s3_client import MyS3Client
 from ...request.enums import UserActivityType
-
-logger = logging.getLogger(__name__)
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess.vitess_client import VitessClient
 from models.rest_api.utils import raise_validation_error
