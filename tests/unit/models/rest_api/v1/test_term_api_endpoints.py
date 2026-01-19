@@ -16,6 +16,8 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
         # Mock common response data
         self.mock_entity_response = Mock()
+        self.mock_entity_response.id = "Q42"
+        self.mock_entity_response.type = "item"
         self.mock_entity_response.data = {
             "id": "Q42",
             "type": "item",
@@ -30,6 +32,28 @@ class TestTermAPIEndpoints(unittest.TestCase):
                 ]
             },
         }
+
+        # Mock labels
+        mock_label = Mock()
+        mock_label.value = "Douglas Adams"
+        mock_label.language = "en"
+        self.mock_entity_response.labels = Mock()
+        self.mock_entity_response.labels.get.return_value = mock_label
+
+        # Mock descriptions
+        mock_desc = Mock()
+        mock_desc.value = "English mathematician and writer"
+        mock_desc.language = "en"
+        self.mock_entity_response.descriptions = Mock()
+        self.mock_entity_response.descriptions.get.return_value = mock_desc
+
+        # Mock aliases
+        mock_alias1 = Mock()
+        mock_alias1.value = "alias1"
+        mock_alias2 = Mock()
+        mock_alias2.value = "alias2"
+        self.mock_entity_response.aliases = Mock()
+        self.mock_entity_response.aliases.get.return_value = [mock_alias1, mock_alias2]
 
     # ===== ENTITYBASE GET ENDPOINTS =====
 
