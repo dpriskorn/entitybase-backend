@@ -2,22 +2,6 @@
 
 title Wikibase Backend - Detailed Infrastructure Components
 
-package "Repositories" as Repositories #LightGray {
-    "Backlink" as BacklinkRepository
-    "Endorsement" as EndorsementRepository
-    "EntityEditListing" as EntityEditListing
-    "EntityHeadListing" as EntityHeadListing
-    "Entity" as EntityRepository
-    "Head" as HeadRepository
-    "Listing" as ListingRepository
-    "Metadata" as MetadataRepository
-    "Redirect" as RedirectRepository
-    "Revision" as RevisionRepository
-    "Statement" as StatementRepository
-    "Terms" as TermsRepository
-    "Thanks" as ThanksRepository
-    "User" as UserRepository
-    "Watchlist" as WatchlistRepository
-}
+note: No repository components found
 
 @enduml

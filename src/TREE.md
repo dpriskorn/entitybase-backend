@@ -3,8 +3,13 @@ src/
 │   ├── config
 │   ├── infrastructure
 │   │   ├── s3
+│   │   │   ├── hashes
+│   │   │   ├── revision
+│   │   │   └── storage
 │   │   ├── stream
 │   │   └── vitess
+│   │       ├── records
+│   │       └── repositories
 │   ├── internal_representation
 │   │   └── values
 │   ├── json_parser
@@ -78,4 +83,4 @@ src/
             ├── 1.0.0
             └── latest
 
-79 directories
+84 directories

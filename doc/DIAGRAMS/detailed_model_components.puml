@@ -6,7 +6,7 @@ package "Models" as Models #LightCyan {
     "AliasValue" as AliasValue
     "Aliases" as Aliases
     "Aliases" as AliasesResponse
-    "Backlink" as Backlink
+    "Backlink" as BacklinkResponse
     "BacklinkStatisticsData" as BacklinkStatisticsData
     "BacklinkStatistics" as BacklinkStatisticsResponse
     "Backlinks" as BacklinksResponse
@@ -37,7 +37,6 @@ package "Models" as Models #LightCyan {
     "EntityRevert" as EntityRevertResponse
     "EntityRevision" as EntityRevisionResponse
     "EntitySitelinks" as EntitySitelinksResponse
-    "EntityState" as EntityState
     "EntityStatements" as EntityStatementsResponse
     "FullRevision" as FullRevisionResponse
     "GeneralStatsData" as GeneralStatsData
@@ -56,7 +55,6 @@ package "Models" as Models #LightCyan {
     "Notification" as Notification
     "Notification" as NotificationResponse
     "Properties" as PropertiesResponse
-    "PropertyCounts" as PropertyCounts
     "PropertyCounts" as PropertyCountsResponse
     "PropertyHashes" as PropertyHashesResponse
     "PropertyList" as PropertyListResponse
@@ -68,11 +66,14 @@ package "Models" as Models #LightCyan {
     "RawRevision" as RawRevisionResponse
     "RedirectBatch" as RedirectBatchResponse
     "Reference" as ReferenceResponse
+    "RevisionIdResult" as RevisionIdResult
     "RevisionMetadata" as RevisionMetadataResponse
+    "RevisionResult" as RevisionResult
     "SingleEndorsementStats" as SingleEndorsementStatsResponse
     "SitelinkValue" as SitelinkValue
     "Sitelinks" as SitelinksResponse
     "StatementBatch" as StatementBatchResponse
+    "StatementEndorsement" as StatementEndorsementResponse
     "StatementEndorsementStats" as StatementEndorsementStats
     "StatementHashResult" as StatementHashResult
     "Statement" as StatementResponse
@@ -81,16 +82,20 @@ package "Models" as Models #LightCyan {
     "TermsByType" as TermsByType
     "TermsPerLanguage" as TermsPerLanguage
     "Terms" as TermsResponse
+    "ThankItem" as ThankItemResponse
     "Thank" as ThankResponse
     "ThanksList" as ThanksListResponse
     "TopEntityByBacklinks" as TopEntityByBacklinks
     "Turtle" as TurtleResponse
+    "UserActivityItem" as UserActivityItemResponse
     "UserActivity" as UserActivityResponse
     "UserCreate" as UserCreateResponse
     "UserPreferences" as UserPreferencesResponse
     "UserStatsData" as UserStatsData
     "UserStats" as UserStatsResponse
     "WatchCounts" as WatchCounts
+    "WatchlistEntry" as WatchlistEntryResponse
+    "Watchlist" as WatchlistResponse
     "WatchlistToggle" as WatchlistToggleResponse
     "WikibasePredicates" as WikibasePredicatesResponse
     "WorkerHealthCheck" as WorkerHealthCheckResponse

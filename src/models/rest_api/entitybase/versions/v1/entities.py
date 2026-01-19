@@ -185,6 +185,10 @@ async def delete_entity(  # type: ignore[no-any-return]
 
 @router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)
 async def get_entity_properties(entity_id: str, req: Request) -> PropertyListResponse:
+    """Get list of unique property IDs for an entity's head revision.
+
+    Returns sorted list of properties used in entity statements.
+    """
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)

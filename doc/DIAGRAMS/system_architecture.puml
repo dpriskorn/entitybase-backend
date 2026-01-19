@@ -8,7 +8,7 @@ package "API Layer" as APILayer #LightBlue {
     "Admin" as AdminHandler
     "Thanks" as ThanksHandler
     "UserActivity" as UserActivityHandler
-    ... (31 total components)
+    ... (34 total components)
 }
 
 package "Service Layer" as ServiceLayer #LightGreen {
@@ -29,20 +29,16 @@ package "Worker Layer" as WorkerLayer #LightYellow {
 }
 
 package "Infrastructure Layer" as InfrastructureLayer #LightGray {
-    "Metadata" as MetadataRepository
-    "Redirect" as RedirectRepository
-    "Revision" as RevisionRepository
-    "Head" as HeadRepository
-    "EntityHeadListing" as EntityHeadListing
-    ... (17 total components)
+    "Vitess Client" as Vitess_Client
+    "S3 Client" as S3_Client
 }
 
 package "Data Models" as DataModels #LightCyan {
+    "WatchlistEntryResponse" as WatchlistEntryResponse
+    "WatchlistResponse" as WatchlistResponse
     "EndorsementResponse" as EndorsementResponse
     "EndorsementListResponse" as EndorsementListResponse
     "EndorsementStatsResponse" as EndorsementStatsResponse
-    "StatementEndorsementStats" as StatementEndorsementStats
-    "BatchEndorsementStatsResponse" as BatchEndorsementStatsResponse
     ... (10 total components)
 }
 

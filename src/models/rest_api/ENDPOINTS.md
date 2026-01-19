@@ -77,6 +77,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 73 |
+| Implemented | 72 |
 | Not Implemented | 0 |
-| Total | 73 |
+| Total | 72 |

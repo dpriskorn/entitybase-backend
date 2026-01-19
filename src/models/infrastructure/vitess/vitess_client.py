@@ -83,7 +83,7 @@ class VitessClient(Client):
     backlink_repository: Optional[BacklinkRepository] = Field(
         default=None, init=False, exclude=True
     )
-    user_repository: Optional["UserRepository"] = Field(
+    user_repository: Optional[Any] = Field(
         default=None, init=False, exclude=True
     )
     metadata_repository: Optional[MetadataRepository] = Field(

@@ -8,15 +8,16 @@ package "API Handlers" as APIHandlers #LightBlue {
     "CreationTransaction" as CreationTransaction
     "Endorsement" as EndorsementHandler
     "EntityCreate" as EntityCreateHandler
-    "EntityCreate" as EntityCreateHandler
     "EntityDelete" as EntityDeleteHandler
     "Entity" as EntityHandler
+    "EntityHashing" as EntityHashingService
     "EntityJsonImport" as EntityJsonImportHandler
+    "EntityProcessingError" as EntityProcessingError
     "EntityRead" as EntityReadHandler
     "EntityRevert" as EntityRevertHandler
     "EntityTransaction" as EntityTransaction
     "EntityUpdate" as EntityUpdateHandler
-    "EntityUpdate" as EntityUpdateHandler
+    "EntityValidation" as EntityValidationService
     "Export" as ExportHandler
     "ItemCreate" as ItemCreateHandler
     "ItemUpdate" as ItemUpdateHandler
@@ -25,6 +26,8 @@ package "API Handlers" as APIHandlers #LightBlue {
     "PropertyCreate" as PropertyCreateHandler
     "PropertyUpdate" as PropertyUpdateHandler
     "Redirect" as RedirectHandler
+    "RevisionContext" as RevisionContext
+    "RevisionResult" as RevisionResult
     "Statement" as StatementHandler
     "Thanks" as ThanksHandler
     "UpdateTransaction" as UpdateTransaction
