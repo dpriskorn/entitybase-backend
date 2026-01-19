@@ -3,7 +3,7 @@
 import pytest
 from datetime import datetime, timezone
 
-from models.thanks import ThankItem, Thank
+from models.infrastructure.vitess.records.thanks import ThankItem, Thank
 from models.rest_api.entitybase.request.thanks import ThanksListRequest
 from models.rest_api.entitybase.response.thanks import ThankResponse, ThanksListResponse
 

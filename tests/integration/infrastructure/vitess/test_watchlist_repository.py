@@ -1,12 +1,11 @@
 import sys
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 sys.path.insert(0, "src")
 
-from models.infrastructure.vitess.watchlist_repository import WatchlistRepository
-from models.rest_api.entitybase.response.watchlist import WatchlistEntryResponse
+from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
 
 
 class TestWatchlistRepository:

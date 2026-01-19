@@ -3,7 +3,7 @@
 from pydantic import BaseModel, Field
 
 
-class BacklinkEntry(BaseModel):
+class BacklinkRecord(BaseModel):
     """Raw backlink data from database."""
 
     referencing_internal_id: int = Field(

@@ -17,7 +17,7 @@ from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess_client import VitessClient
+from models.infrastructure.vitess.vitess_client import VitessClient
 from models.rest_api.entitybase.request import EntityCreateRequest
 from models.rest_api.entitybase.request.entity.add_property import AddPropertyRequest
 from models.rest_api.entitybase.request.entity.patch import LabelPatchRequest
@@ -727,7 +727,7 @@ class EntityHandler(BaseModel):
             )
 
         # Decrement ref_count for the statement
-        from models.infrastructure.vitess.statement_repository import (
+        from models.infrastructure.vitess.repositories.statement import (
             StatementRepository,
         )
 

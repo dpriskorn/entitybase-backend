@@ -1,5 +1,5 @@
 from unittest.mock import Mock
-from models.infrastructure.vitess.metadata_repository import MetadataRepository
+from models.infrastructure.vitess.repositories.metadata import MetadataRepository
 
 
 class TestMetadataRepository:

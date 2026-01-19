@@ -1,12 +1,10 @@
 """Unit tests for endorsement repository."""
 
 import pytest
-from unittest.mock import Mock, MagicMock, patch
-from datetime import datetime, timezone
+from unittest.mock import Mock
 
-from models.common import OperationResult
 from models.endorsements import StatementEndorsement
-from models.infrastructure.vitess.endorsement_repository import EndorsementRepository
+from models.infrastructure.vitess.repositories.endorsement import EndorsementRepository
 
 
 class TestEndorsementRepository:

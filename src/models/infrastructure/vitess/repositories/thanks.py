@@ -4,7 +4,7 @@ import logging
 from typing import Any
 
 from models.common import OperationResult
-from models.thanks import ThankItem
+from models.infrastructure.vitess.records.thanks import ThankItem
 
 logger = logging.getLogger(__name__)
 

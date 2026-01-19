@@ -6,9 +6,9 @@ from typing import Any
 from models.infrastructure.s3.hashes.hash_maps import HashMaps, AliasesHashes, DescriptionsHashes, LabelsHashes, \
     SitelinksHashes, StatementsHashes
 from models.infrastructure.s3.s3_client import MyS3Client
-from models.infrastructure.vitess_client import VitessClient
+from models.infrastructure.vitess.vitess_client import VitessClient
 from models.internal_representation.metadata_extractor import MetadataExtractor
-from models.infrastructure.vitess.terms_repository import TermsRepository
+from models.infrastructure.vitess.repositories.terms import TermsRepository
 from models.rest_api.entitybase.services.statement_service import (
     hash_entity_statements,
     deduplicate_and_store_statements,

@@ -5,7 +5,7 @@ from datetime import datetime
 
 from models.infrastructure.stream.actions import EndorseAction
 from models.infrastructure.stream.event import EndorseChangeEvent
-from models.infrastructure.vitess_client import VitessClient
+from models.infrastructure.vitess.vitess_client import VitessClient
 from models.rest_api.entitybase.request.endorsements import EndorsementListRequest
 from models.rest_api.entitybase.response.endorsements import (
     BatchEndorsementStatsResponse,

@@ -1,5 +1,6 @@
 """Response models for endorsement operations."""
 
+from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -110,3 +111,13 @@ class SingleEndorsementStatsResponse(BaseModel):
     withdrawn: int = Field(
         description="Number of withdrawn endorsements for the statement. Example: 3"
     )
+
+
+class StatementEndorsementResponse(BaseModel):
+    """Endorsement record."""
+
+    id: int
+    user_id: int
+    statement_hash: int
+    created_at: datetime
+    removed_at: Optional[datetime] = Field(default=None)

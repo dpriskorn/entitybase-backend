@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from typing import AsyncGenerator
 
 from models.config.settings import settings
-from models.infrastructure.vitess_client import VitessClient
+from models.infrastructure.vitess.vitess_client import VitessClient
 
 
 class NotificationCleanupWorker:

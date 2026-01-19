@@ -17,30 +17,27 @@ from models.infrastructure.client import Client
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import MyS3Client
-from models.infrastructure.vitess.backlink_repository import BacklinkRepository
+from models.infrastructure.vitess.repositories.backlink import BacklinkRepository
 from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.entities import IdResolver
-from models.infrastructure.vitess.entity_repository import EntityRepository
-from models.infrastructure.vitess.head_repository import HeadRepository
-from models.infrastructure.vitess.listing_repository import ListingRepository
-from models.infrastructure.vitess.metadata_repository import MetadataRepository
-from models.infrastructure.vitess.redirect_repository import RedirectRepository
-from models.infrastructure.vitess.revision_repository import RevisionRepository
+from models.infrastructure.vitess.repositories.entity import EntityRepository
+from models.infrastructure.vitess.repositories.head import HeadRepository
+from models.infrastructure.vitess.repositories.listing import ListingRepository
+from models.infrastructure.vitess.repositories.metadata import MetadataRepository
+from models.infrastructure.vitess.repositories.redirect import RedirectRepository
+from models.infrastructure.vitess.repositories.revision import RevisionRepository
 from models.infrastructure.vitess.schema import SchemaManager
-from models.infrastructure.vitess.statement_repository import StatementRepository
-
-from models.infrastructure.vitess.watchlist_repository import WatchlistRepository
-from models.infrastructure.vitess.thanks_repository import ThanksRepository
-from models.infrastructure.vitess.endorsement_repository import EndorsementRepository
+from models.infrastructure.vitess.repositories.statement import StatementRepository
+from models.infrastructure.vitess.repositories.user import UserRepository
+from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
+from models.infrastructure.vitess.repositories.thanks import ThanksRepository
+from models.infrastructure.vitess.repositories.endorsement import EndorsementRepository
 
 from models.rest_api.entitybase.response import ProtectionResponse
 from models.rest_api.entitybase.response import FullRevisionResponse
 from models.rest_api.utils import raise_validation_error
-from models.infrastructure.vitess.backlink_entry import BacklinkEntry
+from models.infrastructure.vitess.backlink_entry import BacklinkRecord
 from models.infrastructure.vitess.vitess_config import VitessConfig
-
-if TYPE_CHECKING:
-    from models.infrastructure.vitess.user_repository import UserRepository
 
 
 class Backlink(BaseModel):
@@ -84,7 +81,7 @@ class VitessClient(Client):
     backlink_repository: Optional[BacklinkRepository] = Field(
         default=None, init=False, exclude=True
     )
-    user_repository: Optional["UserRepository"] = Field(
+    user_repository: Optional[UserRepository] = Field(
         default=None, init=False, exclude=True
     )
     metadata_repository: Optional[MetadataRepository] = Field(
@@ -101,8 +98,6 @@ class VitessClient(Client):
     )
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
-        from models.infrastructure.vitess.user_repository import UserRepository
-
         super().__init__(config=config, **kwargs)
         logger.debug(f"Initializing VitessClient with host {config.host}")
         self.connection_manager = VitessConnectionManager(config=config)  # type: ignore[assignment]
@@ -634,14 +629,14 @@ class VitessClient(Client):
 
     def get_backlinks(
         self, referenced_internal_id: int, limit: int = 100, offset: int = 0
-    ) -> list[BacklinkEntry]:
+    ) -> list[BacklinkRecord]:
         """Get backlinks for an entity."""
         with self._connection_manager.get_connection() as conn:
             tuples = self.backlink_repository.get_backlinks(
                 conn, referenced_internal_id, limit, offset
             )
             return [
-                BacklinkEntry(
+                BacklinkRecord(
                     referencing_internal_id=t[0],
                     statement_hash=t[1],
                     property_id=t[2],

@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock
-from models.infrastructure.vitess.backlink_repository import (
+from models.infrastructure.vitess.repositories.backlink import (
     BacklinkRepository,
 )
 

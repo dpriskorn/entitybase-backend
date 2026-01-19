@@ -1,6 +1,6 @@
 import unittest
-from unittest.mock import Mock, MagicMock
-from models.infrastructure.vitess.terms_repository import TermsRepository
+from unittest.mock import Mock
+from models.infrastructure.vitess.repositories.terms import TermsRepository
 from models.rest_api.entitybase.response.misc import TermsResponse
 
 

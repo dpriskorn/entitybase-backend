@@ -3,7 +3,6 @@
 import pytest
 from datetime import datetime, timezone
 
-from models.endorsements import EndorsementResponse
 from models.rest_api.entitybase.request.endorsements import EndorsementListRequest
 from models.rest_api.entitybase.response.endorsements import (
     EndorsementListResponse,
@@ -11,7 +10,6 @@ from models.rest_api.entitybase.response.endorsements import (
     StatementEndorsementStats,
     SingleEndorsementStatsResponse,
 )
-from models.endorsements import EndorsementResponse
 
 
 class TestStatementEndorsementStats:

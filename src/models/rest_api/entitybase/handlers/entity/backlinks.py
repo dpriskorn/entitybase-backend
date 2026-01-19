@@ -4,8 +4,9 @@ import logging
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from models.infrastructure.vitess_client import VitessClient
-from models.rest_api.entitybase.response import BacklinksResponse, Backlink
+from models.infrastructure.vitess.vitess_client import VitessClient
+from models.rest_api.entitybase.response import BacklinksResponse
+from models.rest_api.entitybase.response.entity.backlinks import BacklinkResponse
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ class BacklinkHandler(BaseModel):
                 )
                 if referencing_entity_id:
                     backlink_models.append(
-                        Backlink(
+                        BacklinkResponse(
                             entity_id=referencing_entity_id,
                             property_id=b.property_id,
                             rank=b.rank,

@@ -1,11 +1,11 @@
 import sys
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
 sys.path.insert(0, "src")
 
-from models.infrastructure.vitess.user_repository import UserRepository
+from models.infrastructure.vitess.repositories.user import UserRepository
 from models.user import User
 from models.rest_api.entitybase.request.enums import UserActivityType
 

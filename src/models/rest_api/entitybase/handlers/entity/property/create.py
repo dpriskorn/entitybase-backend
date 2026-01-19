@@ -5,7 +5,7 @@ from typing import Any
 
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess_client import VitessClient
+from models.infrastructure.vitess.vitess_client import VitessClient
 from models.rest_api.entitybase.request.entity import EntityCreateRequest
 from models.rest_api.entitybase.response import EntityResponse
 from models.rest_api.entitybase.services.enumeration_service import EnumerationService

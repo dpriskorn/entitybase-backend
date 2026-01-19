@@ -23,7 +23,7 @@
 - use pydantic models for all dict-style returns from functions in src/
 - add at least 1 logger.info() to all methods >20 lines
 - all tests have to be marked either unit/integration/e2e
-- new data models have to be suffixed with either *Request or *Response or *Data
+- new data models have to be suffixed with *Request, *Response, *Record (Vitess) or *Data (S3)
 - no relative imports
 - no __future__ imports
 - no strings in code - everything is enums

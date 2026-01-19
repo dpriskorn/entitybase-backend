@@ -8,7 +8,7 @@ from typing import AsyncGenerator
 
 from models.config.settings import settings
 from models.infrastructure.stream.consumer import Consumer, EntityChangeEvent
-from models.infrastructure.vitess_client import VitessClient
+from models.infrastructure.vitess.vitess_client import VitessClient
 
 
 class WatchlistConsumerWorker:

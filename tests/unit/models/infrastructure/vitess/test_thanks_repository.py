@@ -1,12 +1,11 @@
 """Unit tests for ThanksRepository."""
 
 import pytest
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock
 from datetime import datetime, timezone
 
-from models.common import OperationResult
-from models.thanks import ThankItem
-from models.infrastructure.vitess.thanks_repository import ThanksRepository
+from models.infrastructure.vitess.records.thanks import ThankItem
+from models.infrastructure.vitess.repositories.thanks import ThanksRepository
 
 
 class TestThanksRepository:

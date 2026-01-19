@@ -2,7 +2,7 @@
 
 import logging
 
-from models.infrastructure.vitess_client import VitessClient
+from models.infrastructure.vitess.vitess_client import VitessClient
 from models.rest_api.entitybase.request.thanks import ThanksListRequest
 from models.rest_api.entitybase.response.thanks import ThankResponse, ThanksListResponse
 from models.rest_api.utils import raise_validation_error

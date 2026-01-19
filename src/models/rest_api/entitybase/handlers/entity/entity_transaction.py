@@ -27,7 +27,7 @@ class EntityTransaction(BaseModel, ABC):
 
     def register_entity(self, vitess_client: Any, entity_id: str) -> None:
         """Register the entity in the database."""
-        from models.infrastructure.vitess.entity_repository import EntityRepository
+        from models.infrastructure.vitess.repositories.entity import EntityRepository
 
         logger.info(f"[EntityTransaction] Registering entity {entity_id}")
         self.entity_id = entity_id
@@ -40,7 +40,7 @@ class EntityTransaction(BaseModel, ABC):
 
     def _rollback_entity_registration(self, vitess_client: Any) -> None:
         """Rollback entity registration."""
-        from models.infrastructure.vitess.entity_repository import EntityRepository
+        from models.infrastructure.vitess.repositories.entity import EntityRepository
 
         logger.info(
             f"[EntityTransaction] Rolling back entity registration for {self.entity_id}"
@@ -53,7 +53,7 @@ class EntityTransaction(BaseModel, ABC):
         self, entity_id: str, revision_id: int, vitess_client: Any
     ) -> None:
         """Rollback a revision."""
-        from models.infrastructure.vitess.revision_repository import RevisionRepository
+        from models.infrastructure.vitess.repositories.revision import RevisionRepository
 
         logger.info(
             f"[EntityTransaction] Rolling back revision {revision_id} for {entity_id}"

@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from models.infrastructure.vitess.head_repository import HeadRepository
+from models.infrastructure.vitess.repositories.head import HeadRepository
 
 
 class TestHeadRepository:

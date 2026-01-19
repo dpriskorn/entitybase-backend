@@ -7,7 +7,7 @@ from fastapi import HTTPException
 sys.path.insert(0, "src")
 
 from models.rest_api.entitybase.handlers.entity.backlinks import BacklinkHandler
-from models.infrastructure.vitess.backlink_entry import BacklinkEntry
+from models.infrastructure.vitess.backlink_entry import BacklinkRecord
 
 
 class TestBacklinkAPI:
@@ -22,13 +22,13 @@ class TestBacklinkAPI:
         """Test successful backlinks retrieval."""
         entity_id = "Q5"
         mock_results = [
-            BacklinkEntry(
+            BacklinkRecord(
                 referencing_internal_id=123,
                 statement_hash="456",
                 property_id="P31",
                 rank="normal",
             ),
-            BacklinkEntry(
+            BacklinkRecord(
                 referencing_internal_id=124,
                 statement_hash="457",
                 property_id="P17",
@@ -106,7 +106,7 @@ class TestBacklinkAPI:
         limit = 50
         offset = 25
         mock_results = [
-            BacklinkEntry(
+            BacklinkRecord(
                 referencing_internal_id=123,
                 statement_hash="456",
                 property_id="P31",
@@ -140,13 +140,13 @@ class TestBacklinkAPI:
         """Test handling when referencing entity cannot be resolved."""
         entity_id = "Q5"
         mock_results = [
-            BacklinkEntry(
+            BacklinkRecord(
                 referencing_internal_id=123,
                 statement_hash="456",
                 property_id="P31",
                 rank="normal",
             ),
-            BacklinkEntry(
+            BacklinkRecord(
                 referencing_internal_id=124,
                 statement_hash="457",
                 property_id="P17",
@@ -187,7 +187,7 @@ class TestBacklinkAPI:
         entity_id = "Q5"
         # Simulate 150 results (more than default limit)
         mock_results = [
-            BacklinkEntry(
+            BacklinkRecord(
                 referencing_internal_id=i,
                 statement_hash=str(456 + i),
                 property_id="P31",

@@ -8,7 +8,7 @@ from typing import Any
 
 from models.common import OperationResult
 from models.rest_api.utils import raise_validation_error
-from models.infrastructure.vitess.backlink_entry import BacklinkEntry
+from models.infrastructure.vitess.backlink_entry import BacklinkRecord
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ class BacklinkRepository:
 
     def get_backlinks(
         self, conn: Any, referenced_internal_id: int, limit: int = 100, offset: int = 0
-    ) -> list[BacklinkEntry]:
+    ) -> list[BacklinkRecord]:
         """Get backlinks for an entity."""
         logger.debug(
             f"Getting backlinks for internal_id {referenced_internal_id}, limit {limit}"
@@ -83,7 +83,7 @@ class BacklinkRepository:
                 (referenced_internal_id, limit, offset),
             )
             return [
-                BacklinkEntry(
+                BacklinkRecord(
                     referencing_internal_id=row[0],
                     statement_hash=str(row[1]),
                     property_id=str(row[2]),

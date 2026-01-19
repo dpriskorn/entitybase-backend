@@ -4,7 +4,7 @@ import logging
 from typing import Any, List
 
 from models.common import OperationResult
-from models.endorsements import StatementEndorsement
+from models.rest_api.entitybase.response.endorsements import StatementEndorsementResponse
 
 logger = logging.getLogger(__name__)
 
@@ -147,7 +147,7 @@ class EndorsementRepository:
             endorsements = []
             for row in rows:
                 endorsements.append(
-                    StatementEndorsement(
+                    StatementEndorsementResponse(
                         id=row[0],
                         user_id=row[1],
                         statement_hash=row[2],
@@ -212,7 +212,7 @@ class EndorsementRepository:
             endorsements = []
             for row in rows:
                 endorsements.append(
-                    StatementEndorsement(
+                    StatementEndorsementResponse(
                         id=row[0],
                         user_id=row[1],
                         statement_hash=row[2],

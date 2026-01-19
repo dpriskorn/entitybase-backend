@@ -3,8 +3,7 @@
 from unittest.mock import Mock, patch
 import pytest
 
-from models.infrastructure.vitess.redirect_repository import RedirectRepository
-from models.rest_api.utils import raise_validation_error
+from models.infrastructure.vitess.repositories.redirect import RedirectRepository
 
 
 class TestRedirectRepository:

@@ -5,7 +5,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from models.infrastructure.vitess_client import VitessClient
+from models.infrastructure.vitess.vitess_client import VitessClient
 from models.rest_api.entitybase.response.misc import (
     GeneralStatsResponse,
     TermsByType,

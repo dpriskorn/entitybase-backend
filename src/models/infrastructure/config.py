@@ -1,11 +1,8 @@
-"""Base configuration classes for infrastructure services."""
-
-"""Base configuration classes for infrastructure services."""
+"""Base configuration classes."""
 
 from pydantic import BaseModel
 
 
 class Config(BaseModel):
-    """Base configuration model for all infrastructure services."""
-
+    """Base configuration class."""
     pass

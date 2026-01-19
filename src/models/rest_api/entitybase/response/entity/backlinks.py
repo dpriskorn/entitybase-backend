@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field
 
 
-class Backlink(BaseModel):
+class BacklinkResponse(BaseModel):
     """Model representing a backlink from one entity to another."""
 
     entity_id: str = Field(description="Entity ID that references the target")
@@ -12,6 +12,6 @@ class Backlink(BaseModel):
 class BacklinksResponse(BaseModel):
     """Response model for backlinks API."""
 
-    backlinks: list[Backlink] = Field(description="List of backlinks")
+    backlinks: list[BacklinkResponse] = Field(description="List of backlinks")
     limit: int = Field(description="Requested limit")
     offset: int = Field(description="Requested offset")

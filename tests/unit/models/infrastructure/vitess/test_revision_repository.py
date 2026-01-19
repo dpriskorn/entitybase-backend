@@ -1,10 +1,9 @@
 import pytest
 from unittest.mock import MagicMock, patch
-from datetime import datetime
 
 pytestmark = pytest.mark.unit
 
-from models.infrastructure.vitess.revision_repository import RevisionRepository
+from models.infrastructure.vitess.repositories.revision import RevisionRepository
 
 
 class TestRevisionRepository:

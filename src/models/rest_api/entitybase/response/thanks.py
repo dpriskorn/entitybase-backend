@@ -1,10 +1,8 @@
 """Response models for thanks operations."""
-
+from datetime import datetime
 from typing import List
 
 from pydantic import BaseModel, Field
-
-from models.thanks import ThankItem
 
 
 class ThankResponse(BaseModel):
@@ -24,6 +22,17 @@ class ThanksListResponse(BaseModel):
     """Response for thanks list queries."""
 
     user_id: int = Field(description="User ID")
-    thanks: List[ThankItem] = Field(description="List of thanks")
+    thanks: List[ThankItemResponse] = Field(description="List of thanks")
     total_count: int = Field(description="Total count of thanks")
     has_more: bool = Field(description="Whether there are more thanks available")
+
+
+class ThankItemResponse(BaseModel):
+    """Individual thank item."""
+
+    id: int
+    from_user_id: int
+    to_user_id: int
+    entity_id: str
+    revision_id: int
+    created_at: datetime

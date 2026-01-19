@@ -20,7 +20,7 @@ from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import MyS3Client
-    from models.infrastructure.vitess_client import VitessClient
+    from models.infrastructure.vitess.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)
 

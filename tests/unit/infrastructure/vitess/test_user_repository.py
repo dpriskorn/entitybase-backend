@@ -1,11 +1,9 @@
 """Unit tests for UserRepository."""
 
 import pytest
-from unittest.mock import MagicMock, Mock
+from unittest.mock import MagicMock
 
-from models.infrastructure.vitess.user_repository import UserRepository
-from models.common import OperationResult
-from models.user import User
+from models.infrastructure.vitess.repositories.user import UserRepository
 from models.rest_api.entitybase.request.enums import UserActivityType
 
 

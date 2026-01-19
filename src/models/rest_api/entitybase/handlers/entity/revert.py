@@ -11,7 +11,7 @@ from models.rest_api.entitybase.response.entity.revert import EntityRevertRespon
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
-    from models.infrastructure.vitess_client import VitessClient
+    from models.infrastructure.vitess.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)
 
