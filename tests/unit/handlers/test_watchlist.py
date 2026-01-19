@@ -114,7 +114,7 @@ class TestWatchlistHandler:
         self, handler: WatchlistHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test getting notifications successfully"""
-        from models.rest_api.entitybase.request.watchlist import NotificationResponse
+        from models.rest_api.entitybase.response.user import NotificationResponse
 
         dt = datetime(2023, 1, 1, 12, 0, tzinfo=timezone.utc)
         mock_vitess_client.user_repository.user_exists.return_value = True
