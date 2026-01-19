@@ -17,6 +17,10 @@ from models.infrastructure.vitess.repositories.redirect import RedirectRepositor
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
 from models.infrastructure.vitess.repositories.statement import StatementRepository
 from models.infrastructure.vitess.repositories.thanks import ThanksRepository
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from models.infrastructure.vitess.repositories.user import UserRepository
 from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
 from models.infrastructure.vitess.vitess_config import VitessConfig
 
@@ -25,7 +29,6 @@ logger = logging.getLogger(__name__)
 from models.infrastructure.client import Client
 
 if TYPE_CHECKING:
-    from models.infrastructure.vitess.repositories.user import UserRepository
     from models.infrastructure.vitess.vitess_config import VitessConfig
 from models.infrastructure.vitess.schema import SchemaManager
 
@@ -117,10 +120,10 @@ class VitessClient(Client):
     @property
     def _user_repository(self) -> "UserRepository":
         """Get the user repository, lazy loading it if necessary."""
-        from models.infrastructure.vitess.repositories.user import UserRepository
         if self.user_repository is None:
+            from models.infrastructure.vitess.repositories.user import UserRepository
             self.user_repository = UserRepository(self.connection_manager)
-        assert isinstance(self.user_repository, UserRepository)
+        assert self.user_repository is not None
         return self.user_repository
 
     def update_head_revision(self, entity_id: str, revision_id: int) -> None:
