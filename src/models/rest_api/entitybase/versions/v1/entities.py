@@ -1,10 +1,13 @@
 """General entity endpoints for Entitybase v1 API."""
 
+import logging
 from typing import Any, Dict
 
 from fastapi import APIRouter, Header, Query, Request, Response
 
 from models.common import OperationResult
+
+logger = logging.getLogger(__name__)
 from models.rest_api.clients import Clients
 from models.rest_api.entitybase.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.handlers.entity.delete import EntityDeleteHandler
@@ -283,8 +286,6 @@ async def patch_entity_statement(
     return result
 
 
-
-
 @router.get("/entities/{entity_id}/sitelinks/{site}", response_model=SitelinkData)
 async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> SitelinkData:
     """Get a single sitelink for an entity."""
@@ -299,14 +300,24 @@ async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> Siteli
         raise_validation_error(f"Sitelink for site {site} not found", status_code=404)
 
     sitelink_data = sitelinks[site]
-    return SitelinkData(title=sitelink_data.get("title", ""), badges=sitelink_data.get("badges", []))
+    return SitelinkData(
+        title=sitelink_data.get("title", ""), badges=sitelink_data.get("badges", [])
+    )
 
 
-@router.post("/entities/{entity_id}/sitelinks/{site}", response_model=OperationResult[RevisionIdResult])
+@router.post(
+    "/entities/{entity_id}/sitelinks/{site}",
+    response_model=OperationResult[RevisionIdResult],
+)
 async def post_entity_sitelink(
-    entity_id: str, site: str, sitelink_data: SitelinkData, req: Request, x_user_id: int = Header(..., alias="X-User-ID")
+    entity_id: str,
+    site: str,
+    sitelink_data: SitelinkData,
+    req: Request,
+    x_user_id: int = Header(..., alias="X-User-ID"),
 ) -> OperationResult[RevisionIdResult]:
     """Add a new sitelink for an entity."""
+    logger.debug(f"Starting post_entity_sitelink for entity_id: {entity_id}, site: {site}")
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)
@@ -318,12 +329,17 @@ async def post_entity_sitelink(
     # Check if sitelink already exists
     sitelinks = current_entity.entity_data.get("sitelinks", {})
     if site in sitelinks:
-        raise_validation_error(f"Sitelink for site {site} already exists", status_code=409)
+        raise_validation_error(
+            f"Sitelink for site {site} already exists", status_code=409
+        )
 
     # Add sitelink
     if "sitelinks" not in current_entity.entity_data:
         current_entity.entity_data["sitelinks"] = {}
-    current_entity.entity_data["sitelinks"][site] = {"title": sitelink_data.title, "badges": sitelink_data.badges}
+    current_entity.entity_data["sitelinks"][site] = {
+        "title": sitelink_data.title,
+        "badges": sitelink_data.badges,
+    }
 
     # Create new revision
     update_handler = EntityUpdateHandler()
@@ -340,14 +356,24 @@ async def post_entity_sitelink(
         user_id=x_user_id,
     )
 
-    return OperationResult(success=True, data=RevisionIdResult(revision_id=result.revision_id))
+    return OperationResult(
+        success=True, data=RevisionIdResult(revision_id=result.revision_id)
+    )
 
 
-@router.put("/entities/{entity_id}/sitelinks/{site}", response_model=OperationResult[RevisionIdResult])
+@router.put(
+    "/entities/{entity_id}/sitelinks/{site}",
+    response_model=OperationResult[RevisionIdResult],
+)
 async def put_entity_sitelink(
-    entity_id: str, site: str, sitelink_data: SitelinkData, req: Request, x_user_id: int = Header(..., alias="X-User-ID")
+    entity_id: str,
+    site: str,
+    sitelink_data: SitelinkData,
+    req: Request,
+    x_user_id: int = Header(..., alias="X-User-ID"),
 ) -> OperationResult[RevisionIdResult]:
     """Update an existing sitelink for an entity."""
+    logger.debug(f"Starting put_entity_sitelink for entity_id: {entity_id}, site: {site}")
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)
@@ -362,7 +388,10 @@ async def put_entity_sitelink(
         raise_validation_error(f"Sitelink for site {site} not found", status_code=404)
 
     # Update sitelink
-    current_entity.entity_data["sitelinks"][site] = {"title": sitelink_data.title, "badges": sitelink_data.badges}
+    current_entity.entity_data["sitelinks"][site] = {
+        "title": sitelink_data.title,
+        "badges": sitelink_data.badges,
+    }
 
     # Create new revision
     update_handler = EntityUpdateHandler()
@@ -379,14 +408,23 @@ async def put_entity_sitelink(
         user_id=x_user_id,
     )
 
-    return OperationResult(success=True, data=RevisionIdResult(revision_id=result.revision_id))
+    return OperationResult(
+        success=True, data=RevisionIdResult(revision_id=result.revision_id)
+    )
 
 
-@router.delete("/entities/{entity_id}/sitelinks/{site}", response_model=OperationResult[RevisionIdResult])
+@router.delete(
+    "/entities/{entity_id}/sitelinks/{site}",
+    response_model=OperationResult[RevisionIdResult],
+)
 async def delete_entity_sitelink(
-    entity_id: str, site: str, req: Request, x_user_id: int = Header(..., alias="X-User-ID")
+    entity_id: str,
+    site: str,
+    req: Request,
+    x_user_id: int = Header(..., alias="X-User-ID"),
 ) -> OperationResult[RevisionIdResult]:
     """Delete a sitelink from an entity."""
+    logger.debug(f"Starting delete_entity_sitelink for entity_id: {entity_id}, site: {site}")
     clients = req.app.state.clients
     if not isinstance(clients, Clients):
         raise_validation_error("Invalid clients type", status_code=500)
@@ -419,4 +457,6 @@ async def delete_entity_sitelink(
         user_id=x_user_id,
     )
 
-    return OperationResult(success=True, data=RevisionIdResult(revision_id=result.revision_id))
+    return OperationResult(
+        success=True, data=RevisionIdResult(revision_id=result.revision_id)
+    )
