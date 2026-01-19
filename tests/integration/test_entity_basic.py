@@ -12,7 +12,8 @@ from models.rest_api.entitybase.request import EntityCreateRequest
 
 @pytest.mark.integration
 def test_health_check(api_client: requests.Session, base_url: str) -> None:
-    """Test that health check endpoint returns OK"""
+    """Test that health check endpoint returns OK
+    This does not test all buckets work"""
     logger = logging.getLogger(__name__)
     response = api_client.get(f"{base_url}/health")
     assert response.status_code == 200
@@ -21,6 +22,35 @@ def test_health_check(api_client: requests.Session, base_url: str) -> None:
     assert data["s3"] == "connected"
     assert data["vitess"] == "connected"
     logger.info("✓ Health check passed")
+
+
+@pytest.mark.integration
+def test_id_resolver_resolve_id(db_conn) -> None:
+    """Test IdResolver.resolve_id method."""
+    from models.infrastructure.vitess.id_resolver import IdResolver
+
+    logger = logging.getLogger(__name__)
+
+    # Insert a test entity_id_mapping
+    test_entity_id = "Q999999"
+    test_internal_id = 999999
+    with db_conn.cursor() as cursor:
+        cursor.execute(
+            "INSERT INTO entity_id_mapping (entity_id, internal_id) VALUES (%s, %s)",
+            (test_entity_id, test_internal_id),
+        )
+    db_conn.commit()
+
+    # Test resolve_id
+    resolver = IdResolver(None)  # connection_manager not needed for static method
+    resolved_id = IdResolver.resolve_id(db_conn, test_entity_id)
+    assert resolved_id == test_internal_id
+
+    # Test non-existent
+    non_existent_id = IdResolver.resolve_id(db_conn, "Q000000")
+    assert non_existent_id == 0
+
+    logger.info("✓ IdResolver.resolve_id test passed")
 
 
 @pytest.mark.integration
