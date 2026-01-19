@@ -55,7 +55,7 @@ class TestBatchRoutes(unittest.TestCase):
         with pytest.raises(HTTPException) as exc_info:
             await get_batch_statements(self.mock_request, entity_ids)
         assert exc_info.value.status_code == 400
-        self.assertEqual(cm.exception.detail, "Too many entities (max 20)")
+        assert exc_info.value.detail == "Too many entities (max 20)"
 
     @patch("models.rest_api.entitybase.routes.batch.EntityReadHandler")
     async def test_get_batch_statements_with_properties(self, mock_handler_class):
@@ -69,7 +69,7 @@ class TestBatchRoutes(unittest.TestCase):
         result = await get_batch_statements(self.mock_request, "Q42", "P31,P21")
 
         expected = {"P31": [], "P21": []}
-        self.assertEqual(result["Q42"], expected)
+        assert result["Q42"] == expected
 
     @patch("models.rest_api.entitybase.routes.batch.EntityReadHandler")
     async def test_get_batch_statements_exception(self, mock_handler_class):
@@ -80,7 +80,7 @@ class TestBatchRoutes(unittest.TestCase):
 
         result = await get_batch_statements(self.mock_request, "Q42")
 
-        self.assertEqual(result["Q42"], {})
+        assert result["Q42"] == {}
 
     async def test_get_batch_sitelinks_success(self):
         """Test successful batch sitelinks retrieval."""
@@ -91,7 +91,7 @@ class TestBatchRoutes(unittest.TestCase):
         result = await get_batch_sitelinks("100,200,300", self.mock_request)
 
         expected = {"200": "Title200", "300": "Title300"}  # 100 returns None
-        self.assertEqual(result, expected)
+        assert result == expected
 
     async def test_get_batch_sitelinks_too_many_hashes(self):
         """Test get_batch_sitelinks raises error for too many hashes."""
@@ -106,7 +106,7 @@ class TestBatchRoutes(unittest.TestCase):
         result = await get_batch_sitelinks("100,invalid,200", self.mock_request)
 
         # Should only process valid hashes
-        self.assertNotIn("invalid", result)
+        assert "invalid" not in result
 
     async def test_get_batch_labels_success(self):
         """Test successful batch labels retrieval."""
@@ -127,7 +127,7 @@ class TestBatchRoutes(unittest.TestCase):
             "200": {"en": {"value": "Label200"}},
             "300": {"en": {"value": "Label300"}},
         }
-        self.assertEqual(result, expected)
+        assert result == expected
 
     async def test_get_batch_descriptions_success(self):
         """Test successful batch descriptions retrieval."""
@@ -148,7 +148,7 @@ class TestBatchRoutes(unittest.TestCase):
             "150": {"en": {"value": "Desc150"}},
             "250": {"en": {"value": "Desc250"}},
         }
-        self.assertEqual(result, expected)
+        assert result == expected
 
     async def test_get_batch_aliases_success(self):
         """Test successful batch aliases retrieval."""
@@ -175,7 +175,7 @@ class TestBatchRoutes(unittest.TestCase):
                 {"language": "es", "value": "Alias200-2"},
             ],
         }
-        self.assertEqual(result, expected)
+        assert result == expected
 
     async def test_get_batch_aliases_no_aliases(self):
         """Test batch aliases when no aliases found."""
@@ -183,31 +183,31 @@ class TestBatchRoutes(unittest.TestCase):
 
         result = await get_batch_aliases("100", self.mock_request)
 
-        self.assertEqual(result, {})
+        assert result == {}
 
     async def test_get_batch_labels_too_many_hashes(self):
         """Test get_batch_labels raises error for too many hashes."""
         hashes = ",".join([str(i) for i in range(21)])
-        with self.assertRaises(HTTPException) as cm:
+        with pytest.raises(HTTPException) as exc_info:
             await get_batch_labels(hashes, self.mock_request)
-        self.assertEqual(cm.exception.status_code, 400)
-        self.assertEqual(cm.exception.detail, "Too many hashes (max 20)")
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "Too many hashes (max 20)"
 
     async def test_get_batch_descriptions_too_many_hashes(self):
         """Test get_batch_descriptions raises error for too many hashes."""
         hashes = ",".join([str(i) for i in range(21)])
-        with self.assertRaises(HTTPException) as cm:
+        with pytest.raises(HTTPException) as exc_info:
             await get_batch_descriptions(hashes, self.mock_request)
-        self.assertEqual(cm.exception.status_code, 400)
-        self.assertEqual(cm.exception.detail, "Too many hashes (max 20)")
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "Too many hashes (max 20)"
 
     async def test_get_batch_aliases_too_many_hashes(self):
         """Test get_batch_aliases raises error for too many hashes."""
         hashes = ",".join([str(i) for i in range(21)])
-        with self.assertRaises(HTTPException) as cm:
+        with pytest.raises(HTTPException) as exc_info:
             await get_batch_aliases(hashes, self.mock_request)
-        self.assertEqual(cm.exception.status_code, 400)
-        self.assertEqual(cm.exception.detail, "Too many hashes (max 20)")
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "Too many hashes (max 20)"
 
     async def test_get_batch_sitelinks_empty_result(self):
         """Test batch sitelinks with no valid results."""
@@ -215,7 +215,7 @@ class TestBatchRoutes(unittest.TestCase):
 
         result = await get_batch_sitelinks("100,200", self.mock_request)
 
-        self.assertEqual(result, {})
+        assert result == {}
 
 
 if __name__ == "__main__":
