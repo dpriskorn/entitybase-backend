@@ -18,7 +18,7 @@ from models.rest_api.entitybase.routes.batch import (
 class TestBatchRoutes(unittest.TestCase):
     """Unit tests for batch route functions."""
 
-    def setup_method(self):
+    def setup_method(self, method):
         """Set up test fixtures."""
         self.mock_request = Mock()
         self.mock_clients = Mock()
@@ -28,7 +28,6 @@ class TestBatchRoutes(unittest.TestCase):
         self.mock_vitess = Mock()
         self.mock_clients.vitess = self.mock_vitess
 
-    @pytest.mark.asyncio
     @patch("models.rest_api.entitybase.routes.batch.EntityReadHandler")
     async def test_get_batch_statements_success(self, mock_handler_class):
         """Test successful batch statements retrieval."""
@@ -43,7 +42,6 @@ class TestBatchRoutes(unittest.TestCase):
         assert result["Q42"] == {"P31": []}
         mock_handler.get_entity.assert_called_once()
 
-    @pytest.mark.asyncio
     async def test_get_batch_statements_request_none(self):
         """Test get_batch_statements raises error when request is None."""
         with pytest.raises(HTTPException) as exc_info:
@@ -51,7 +49,6 @@ class TestBatchRoutes(unittest.TestCase):
         assert exc_info.value.status_code == 500
         assert exc_info.value.detail == "Request not provided"
 
-    @pytest.mark.asyncio
     async def test_get_batch_statements_too_many_entities(self):
         """Test get_batch_statements raises error for too many entities."""
         entity_ids = ",".join([f"Q{i}" for i in range(21)])
@@ -61,7 +58,6 @@ class TestBatchRoutes(unittest.TestCase):
         self.assertEqual(cm.exception.detail, "Too many entities (max 20)")
 
     @patch("models.rest_api.entitybase.routes.batch.EntityReadHandler")
-    @pytest.mark.asyncio
     async def test_get_batch_statements_with_properties(self, mock_handler_class):
         """Test batch statements with property filtering."""
         mock_handler = Mock()
@@ -75,7 +71,6 @@ class TestBatchRoutes(unittest.TestCase):
         expected = {"P31": [], "P21": []}
         self.assertEqual(result["Q42"], expected)
 
-    @pytest.mark.asyncio
     @patch("models.rest_api.entitybase.routes.batch.EntityReadHandler")
     async def test_get_batch_statements_exception(self, mock_handler_class):
         """Test batch statements handles entity read exceptions."""
@@ -87,7 +82,6 @@ class TestBatchRoutes(unittest.TestCase):
 
         self.assertEqual(result["Q42"], {})
 
-    @pytest.mark.asyncio
     async def test_get_batch_sitelinks_success(self):
         """Test successful batch sitelinks retrieval."""
         self.mock_s3.load_sitelink_metadata.side_effect = (
@@ -99,16 +93,14 @@ class TestBatchRoutes(unittest.TestCase):
         expected = {"200": "Title200", "300": "Title300"}  # 100 returns None
         self.assertEqual(result, expected)
 
-    @pytest.mark.asyncio
     async def test_get_batch_sitelinks_too_many_hashes(self):
         """Test get_batch_sitelinks raises error for too many hashes."""
         hashes = ",".join([str(i) for i in range(21)])
-        with self.assertRaises(HTTPException) as cm:
+        with pytest.raises(HTTPException) as exc_info:
             await get_batch_sitelinks(hashes, self.mock_request)
-        self.assertEqual(cm.exception.status_code, 400)
-        self.assertEqual(cm.exception.detail, "Too many hashes (max 20)")
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.detail == "Too many hashes (max 20)"
 
-    @pytest.mark.asyncio
     async def test_get_batch_sitelinks_invalid_hash(self):
         """Test get_batch_sitelinks skips invalid hashes."""
         result = await get_batch_sitelinks("100,invalid,200", self.mock_request)
@@ -116,7 +108,6 @@ class TestBatchRoutes(unittest.TestCase):
         # Should only process valid hashes
         self.assertNotIn("invalid", result)
 
-    @pytest.mark.asyncio
     async def test_get_batch_labels_success(self):
         """Test successful batch labels retrieval."""
 
@@ -138,7 +129,6 @@ class TestBatchRoutes(unittest.TestCase):
         }
         self.assertEqual(result, expected)
 
-    @pytest.mark.asyncio
     async def test_get_batch_descriptions_success(self):
         """Test successful batch descriptions retrieval."""
 
@@ -160,7 +150,6 @@ class TestBatchRoutes(unittest.TestCase):
         }
         self.assertEqual(result, expected)
 
-    @pytest.mark.asyncio
     async def test_get_batch_aliases_success(self):
         """Test successful batch aliases retrieval."""
 
@@ -188,7 +177,6 @@ class TestBatchRoutes(unittest.TestCase):
         }
         self.assertEqual(result, expected)
 
-    @pytest.mark.asyncio
     async def test_get_batch_aliases_no_aliases(self):
         """Test batch aliases when no aliases found."""
         self.mock_s3.load_metadata.return_value = None
@@ -197,7 +185,6 @@ class TestBatchRoutes(unittest.TestCase):
 
         self.assertEqual(result, {})
 
-    @pytest.mark.asyncio
     async def test_get_batch_labels_too_many_hashes(self):
         """Test get_batch_labels raises error for too many hashes."""
         hashes = ",".join([str(i) for i in range(21)])
@@ -206,7 +193,6 @@ class TestBatchRoutes(unittest.TestCase):
         self.assertEqual(cm.exception.status_code, 400)
         self.assertEqual(cm.exception.detail, "Too many hashes (max 20)")
 
-    @pytest.mark.asyncio
     async def test_get_batch_descriptions_too_many_hashes(self):
         """Test get_batch_descriptions raises error for too many hashes."""
         hashes = ",".join([str(i) for i in range(21)])
@@ -215,7 +201,6 @@ class TestBatchRoutes(unittest.TestCase):
         self.assertEqual(cm.exception.status_code, 400)
         self.assertEqual(cm.exception.detail, "Too many hashes (max 20)")
 
-    @pytest.mark.asyncio
     async def test_get_batch_aliases_too_many_hashes(self):
         """Test get_batch_aliases raises error for too many hashes."""
         hashes = ",".join([str(i) for i in range(21)])
@@ -224,7 +209,6 @@ class TestBatchRoutes(unittest.TestCase):
         self.assertEqual(cm.exception.status_code, 400)
         self.assertEqual(cm.exception.detail, "Too many hashes (max 20)")
 
-    @pytest.mark.asyncio
     async def test_get_batch_sitelinks_empty_result(self):
         """Test batch sitelinks with no valid results."""
         self.mock_s3.load_sitelink_metadata.return_value = None
