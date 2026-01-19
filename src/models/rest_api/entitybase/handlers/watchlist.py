@@ -5,9 +5,7 @@ import logging
 from models.infrastructure.vitess.vitess_client import VitessClient
 
 logger = logging.getLogger(__name__)
-from models.rest_api.entitybase.request.user import (
-    WatchlistRemoveRequest as WatchlistRemoveCompositeRequest,
-)
+from models.rest_api.entitybase.request.user import WatchlistRemoveRequest
 from models.rest_api.entitybase.response.misc import WatchCounts
 from models.rest_api.entitybase.response.user import MessageResponse, NotificationResponse
 from models.rest_api.utils import raise_validation_error
@@ -53,7 +51,7 @@ class WatchlistHandler:
         return MessageResponse(message="Watch added")
 
     def remove_watch(
-        self, request: WatchlistRemoveCompositeRequest, vitess_client: VitessClient
+        self, request: WatchlistRemoveRequest, vitess_client: VitessClient
     ) -> MessageResponse:
         """Remove a watchlist entry."""
         vitess_client.watchlist_repository.remove_watch(
