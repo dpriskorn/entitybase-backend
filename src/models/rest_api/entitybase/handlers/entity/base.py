@@ -76,6 +76,9 @@ class RevisionHeadData:
 
 class RevisionContext(BaseModel):
     """Context for revision processing operations."""
+
+    model_config = {"arbitrary_types_allowed": True}
+
     entity_id: str
     request_data: Dict[str, Any]
     entity_type: EntityType
@@ -839,40 +842,29 @@ class EntityHandler(BaseModel):
             current_data["claims"][property_id] = []
         current_data["claims"][property_id].extend(request.claims)
 
-        # Process as update
-        revision_result = await self._create_and_store_revision(
-            entity_id=entity_id,
-            new_revision_id=entity_response.revision_id + 1,  # Assume increment
-            head_revision_id=entity_response.revision_id,
-            request_data=current_data,
-            entity_type=entity_response.entity_type,
-            hash_result=self.process_statements(
-                entity_id, current_data, vitess_client, s3_client, validator
-            ),
-            is_mass_edit=False,
-            edit_type=EditType.UNSPECIFIED,
-            is_semi_protected=entity_response.state.sp
-            if entity_response.state
-            else False,
-            is_locked=entity_response.state.is_locked
-            if entity_response.state
-            else False,
-            is_archived=entity_response.state.archived
-            if entity_response.state
-            else False,
-            is_dangling=entity_response.state.dangling
-            if entity_response.state
-            else False,
-            is_mass_edit_protected=entity_response.state.mep
-            if entity_response.state
-            else False,
-            vitess_client=vitess_client,
-            s3_client=s3_client,
-            stream_producer=None,  # TODO: add if needed
-            is_creation=False,
-            edit_summary=request.edit_summary,
-            user_id=user_id,
-        )
+        # Process as update using new architecture
+        try:
+            entity_response_new = await self.process_entity_revision_new(
+                entity_id=entity_id,
+                request_data=current_data,
+                entity_type=entity_response.entity_type,
+                edit_type=EditType.UNSPECIFIED,
+                edit_summary=request.edit_summary,
+                is_creation=False,
+                vitess_client=vitess_client,
+                s3_client=s3_client,
+                stream_producer=None,  # TODO: add if needed
+                validator=validator,
+            )
+
+            return OperationResult(
+                success=True, data={"revision_id": entity_response_new.rev_id}
+            )
+        except EntityProcessingError as e:
+            return OperationResult(success=False, error=str(e))
+        except Exception as e:
+            logger.error(f"Unexpected error in patch_labels for {entity_id}: {e}")
+            return OperationResult(success=False, error="Internal server error")
 
         if not revision_result.success:
             return revision_result
@@ -1119,7 +1111,7 @@ class EntityHandler(BaseModel):
         if not replaced:
             return OperationResult(success=False, error="Statement not found in entity")
 
-        # Process as update
+        # Process as update using old method for now (new method is async)
         revision_result = self._create_and_store_revision(
             entity_id=entity_id,
             new_revision_id=entity_response.revision_id + 1,

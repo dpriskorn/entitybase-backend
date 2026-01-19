@@ -8,6 +8,20 @@ from typing import TYPE_CHECKING, Any, Generator, Optional
 from pydantic import BaseModel, Field
 from pymysql import Connection
 
+from models.infrastructure.vitess.connection import VitessConnectionManager
+from models.infrastructure.vitess.entities import IdResolver
+from models.infrastructure.vitess.vitess_config import VitessConfig
+from models.infrastructure.vitess.repositories.endorsement import EndorsementRepository
+from models.infrastructure.vitess.repositories.entity import EntityRepository
+from models.infrastructure.vitess.repositories.head import HeadRepository
+from models.infrastructure.vitess.repositories.listing import ListingRepository
+from models.infrastructure.vitess.repositories.metadata import MetadataRepository
+from models.infrastructure.vitess.repositories.redirect import RedirectRepository
+from models.infrastructure.vitess.repositories.revision import RevisionRepository
+from models.infrastructure.vitess.repositories.statement import StatementRepository
+from models.infrastructure.vitess.repositories.thanks import ThanksRepository
+from models.infrastructure.vitess.repositories.user import UserRepository
+from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
 from models.rest_api.entitybase.response.entity import EntityHistoryEntry
 from models.rest_api.entitybase.response.listings import EntityListing
 
@@ -17,27 +31,13 @@ from models.infrastructure.client import Client
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import MyS3Client
-from models.infrastructure.vitess.repositories.backlink import BacklinkRepository
-from models.infrastructure.vitess.connection import VitessConnectionManager
-from models.infrastructure.vitess.entities import IdResolver
-from models.infrastructure.vitess.repositories.entity import EntityRepository
-from models.infrastructure.vitess.repositories.head import HeadRepository
-from models.infrastructure.vitess.repositories.listing import ListingRepository
-from models.infrastructure.vitess.repositories.metadata import MetadataRepository
-from models.infrastructure.vitess.repositories.redirect import RedirectRepository
-from models.infrastructure.vitess.repositories.revision import RevisionRepository
+    from models.infrastructure.vitess.vitess_config import VitessConfig
 from models.infrastructure.vitess.schema import SchemaManager
-from models.infrastructure.vitess.repositories.statement import StatementRepository
-from models.infrastructure.vitess.repositories.user import UserRepository
-from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
-from models.infrastructure.vitess.repositories.thanks import ThanksRepository
-from models.infrastructure.vitess.repositories.endorsement import EndorsementRepository
 
 from models.rest_api.entitybase.response import ProtectionResponse
 from models.rest_api.entitybase.response import FullRevisionResponse
 from models.rest_api.utils import raise_validation_error
 from models.infrastructure.vitess.backlink_entry import BacklinkRecord
-from models.infrastructure.vitess.vitess_config import VitessConfig
 
 
 class Backlink(BaseModel):
@@ -49,10 +49,14 @@ class Backlink(BaseModel):
     statement_id: str
 
 
+class BacklinkRepository:
+    pass
+
+
 class VitessClient(Client):
     """Vitess database client for entity operations."""
 
-    config: VitessConfig  # type: ignore[override]
+    config: "VitessConfig"  # type: ignore[override]
     connection_manager: Optional[VitessConnectionManager] = Field(
         default=None, init=False, exclude=True
     )  # type: ignore[override]
@@ -78,9 +82,7 @@ class VitessClient(Client):
     statement_repository: Optional[StatementRepository] = Field(
         default=None, init=False, exclude=True
     )
-    backlink_repository: Optional[BacklinkRepository] = Field(
-        default=None, init=False, exclude=True
-    )
+    backlink_repository: BacklinkRepository
     user_repository: Optional[UserRepository] = Field(
         default=None, init=False, exclude=True
     )
