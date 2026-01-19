@@ -1,9 +1,10 @@
 """Vitess client for database operations."""
 
 import logging
-from typing import TYPE_CHECKING, Any, Optional
+from typing import Any, Optional
+from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.entities import IdResolver
@@ -17,14 +18,11 @@ from models.infrastructure.vitess.repositories.redirect import RedirectRepositor
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
 from models.infrastructure.vitess.repositories.statement import StatementRepository
 from models.infrastructure.vitess.repositories.thanks import ThanksRepository
-from typing import TYPE_CHECKING
+from models.infrastructure.vitess.repositories.user import UserRepository
+from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
 
 if TYPE_CHECKING:
-    from models.infrastructure.vitess.repositories.user import UserRepository
-
-# Import the module to make UserRepository available for model_rebuild
-import models.infrastructure.vitess.repositories.user
-from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
+    pass
 from models.infrastructure.vitess.vitess_config import VitessConfig
 
 logger = logging.getLogger(__name__)
@@ -40,7 +38,7 @@ class VitessClient(Client):
     """Vitess database client for entity operations."""
 
     config: "VitessConfig"  # type: ignore[override]
-    connection_manager: Optional[VitessConnectionManager] = Field(init=False, exclude=True)
+    connection_manager: Optional[VitessConnectionManager] = Field(default=None, init=False, exclude=True)
     schema_manager: Optional[SchemaManager] = Field(
         default=None, init=False, exclude=True
     )
@@ -135,5 +133,4 @@ class VitessClient(Client):
 
 
 # Import UserRepository for model_rebuild to resolve forward references
-from models.infrastructure.vitess.repositories.user import UserRepository  # noqa: E402
 VitessClient.model_rebuild()

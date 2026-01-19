@@ -12,6 +12,8 @@ from unittest.mock import AsyncMock, patch, MagicMock
 with (
     patch("boto3.client") as mock_boto_client,
     patch("pymysql.connect") as mock_db_connect,
+    patch("models.infrastructure.vitess.connection.VitessConnectionManager.connect") as mock_vitess_connect,
+    patch("models.infrastructure.s3.connection.S3ConnectionManager.connect") as mock_s3_connect,
 ):
     mock_client = MagicMock()
     mock_boto_client.return_value = mock_client
@@ -21,6 +23,8 @@ with (
     mock_db_connect.return_value = mock_conn
     mock_conn.cursor.return_value.__enter__.return_value = MagicMock()
     mock_conn.cursor.return_value.__exit__.return_value = None
+    mock_vitess_connect.return_value = mock_conn
+    mock_s3_connect.return_value = None
     from models.rest_api.main import app
 
 from fastapi.testclient import TestClient
