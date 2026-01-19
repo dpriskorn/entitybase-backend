@@ -7,6 +7,7 @@ from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage
 from models.infrastructure.s3.connection import S3ConnectionManager
+from models.infrastructure.s3.enums import MetadataType
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
@@ -22,16 +23,16 @@ class MetadataStorage(BaseS3Storage):
         # Use a default bucket, but methods will override
         super().__init__(connection_manager, settings.s3_terms_bucket)
 
-    def _get_bucket_for_type(self, metadata_type: str) -> str:
+    def _get_bucket_for_type(self, metadata_type: MetadataType) -> str:
         """Get the appropriate bucket for metadata type."""
-        if metadata_type in ("labels", "descriptions", "aliases"):
+        if metadata_type in (MetadataType.LABELS, MetadataType.DESCRIPTIONS, MetadataType.ALIASES):
             return settings.s3_terms_bucket
-        elif metadata_type == "sitelinks":
+        elif metadata_type == MetadataType.SITELINKS:
             return settings.s3_sitelinks_bucket
         else:
             raise_validation_error(f"Unknown metadata type: {metadata_type}", status_code=400)
 
-    def store_metadata(self, metadata_type: str, content_hash: int, value: str) -> OperationResult[None]:
+    def store_metadata(self, metadata_type: MetadataType, content_hash: int, value: str) -> OperationResult[None]:
         """Store metadata value (term or sitelink title)."""
         bucket = self._get_bucket_for_type(metadata_type)
         # Temporarily change bucket for this operation
@@ -46,7 +47,7 @@ class MetadataStorage(BaseS3Storage):
         finally:
             self.bucket = original_bucket
 
-    def load_metadata(self, metadata_type: str, content_hash: int) -> Union[str, dict[str, Any]]:
+    def load_metadata(self, metadata_type: MetadataType, content_hash: int) -> Union[str, dict[str, Any]]:
         """Load metadata value."""
         bucket = self._get_bucket_for_type(metadata_type)
         original_bucket = self.bucket
@@ -58,7 +59,7 @@ class MetadataStorage(BaseS3Storage):
         finally:
             self.bucket = original_bucket
 
-    def delete_metadata(self, metadata_type: str, content_hash: int) -> OperationResult[None]:
+    def delete_metadata(self, metadata_type: MetadataType, content_hash: int) -> OperationResult[None]:
         """Delete metadata."""
         bucket = self._get_bucket_for_type(metadata_type)
         original_bucket = self.bucket

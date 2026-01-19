@@ -57,6 +57,15 @@ class EntityType(str, Enum):
     # ENTITY_SCHEMA = "entityschema"
 
 
+class MetadataType(str, Enum):
+    """Type of metadata stored in S3."""
+
+    LABELS = "labels"
+    DESCRIPTIONS = "descriptions"
+    ALIASES = "aliases"
+    SITELINKS = "sitelinks"
+
+
 class EditData(BaseModel):
     edit_type: EditType = Field(alias="type", description="Type of edit to be made.")
     user_id: int = Field(description="ID of the user responsible for the edit.")

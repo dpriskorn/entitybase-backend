@@ -11,6 +11,7 @@ from models.common import OperationResult
 from models.infrastructure.client import Client
 from models.infrastructure.s3.config import S3Config
 from models.infrastructure.s3.connection import S3ConnectionManager
+from models.infrastructure.s3.enums import MetadataType
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.s3.revision.revision_read_response import RevisionReadResponse
 from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
@@ -98,7 +99,7 @@ class MyS3Client(Client):
         """Read statement snapshot from S3."""
         return self.statements.load_statement(content_hash)
 
-    def delete_metadata(self, metadata_type: str, content_hash: int) -> None:
+    def delete_metadata(self, metadata_type: MetadataType, content_hash: int) -> None:
         """Delete metadata content from S3 when ref_count reaches 0."""
         result = self.metadata.delete_metadata(metadata_type, content_hash)
         if not result.success:
@@ -108,29 +109,29 @@ class MyS3Client(Client):
         """Store term metadata as plain UTF-8 text in S3."""
         # Assume term type is "labels" for now, but could be generalized
         # Since old method didn't specify type, use "labels" as default
-        result = self.metadata.store_metadata("labels", content_hash, term)
+        result = self.metadata.store_metadata(MetadataType.LABELS, content_hash, term)
         if not result.success:
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
     def load_term_metadata(self, content_hash: int) -> str:
         """Load term metadata as plain UTF-8 text from S3."""
-        result = self.metadata.load_metadata("labels", content_hash)
+        result = self.metadata.load_metadata(MetadataType.LABELS, content_hash)
         assert isinstance(result, str)
         return result
 
     def store_sitelink_metadata(self, title: str, content_hash: int) -> None:
         """Store sitelink metadata as plain UTF-8 text in S3."""
-        result = self.metadata.store_metadata("sitelinks", content_hash, title)
+        result = self.metadata.store_metadata(MetadataType.SITELINKS, content_hash, title)
         if not result.success:
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
     def load_sitelink_metadata(self, content_hash: int) -> str:
         """Load sitelink metadata as plain UTF-8 text from S3."""
-        result = self.metadata.load_metadata("sitelinks", content_hash)
+        result = self.metadata.load_metadata(MetadataType.SITELINKS, content_hash)
         assert isinstance(result, str)
         return result
 
-    def load_metadata(self, metadata_type: str, content_hash: int) -> Union[str, Dict[str, Any]]:
+    def load_metadata(self, metadata_type: MetadataType, content_hash: int) -> Union[str, Dict[str, Any]]:
         """Load metadata by type."""
         return self.metadata.load_metadata(metadata_type, content_hash)
 
