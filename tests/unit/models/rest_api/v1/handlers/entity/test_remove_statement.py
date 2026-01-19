@@ -18,25 +18,31 @@ class TestRemoveStatement(unittest.TestCase):
         self.mock_s3 = MagicMock()
         self.mock_validator = MagicMock()
 
-    @patch("models.rest_api.entitybase.handlers.entity.handler.EntityReadHandler")
-    def test_statement_not_found(self, mock_read_handler_class) -> None:
-        """Test statement not found in entity."""
-        mock_read_handler = MagicMock()
-        mock_read_handler_class.return_value = mock_read_handler
+    @patch("models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision")
+    def test_statement_not_found(self, mock_read_revision) -> None:
+        """Test statement not found in revision."""
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+        from models.infrastructure.s3.hashes.hash_maps import HashMaps
+        from models.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 
-        mock_entity_response = MagicMock()
-        mock_entity_response.revision_id = 100
-        mock_entity_response.entity_data = {
-            "claims": {"P1": [{"mainsnak": {"property": "P1"}}]}
-        }
-        mock_read_handler.get_entity.return_value = mock_entity_response
+        mock_revision = RevisionData(
+            revision_id=100,
+            entity_type="item",
+            properties=["P1"],
+            property_counts={"P1": 1},
+            hashes=HashMaps(statements=StatementsHashes(root=[123])),
+            edit=MagicMock(),
+            state=MagicMock(),
+        )
+        mock_read_revision.return_value = mock_revision
+        self.mock_vitess.get_head.return_value = 100
 
         request = RemoveStatementRequest(edit_summary="Remove statement")
         result = self.handler.remove_statement(
             "Q1", "999", request.edit_summary, self.mock_vitess, self.mock_s3
         )
         self.assertFalse(result.success)
-        self.assertIn("Statement not found", result.error)
+        self.assertIn("Statement hash not found", result.error)
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision")
     @patch("models.rest_api.entitybase.handlers.entity.handler.StatementRepository")
@@ -67,6 +73,7 @@ class TestRemoveStatement(unittest.TestCase):
             state=MagicMock(),
         )
         mock_read_revision.return_value = mock_revision
+        self.mock_vitess.get_head.return_value = 100
 
         # Mock statement repository
         mock_stmt_repo = MagicMock()
@@ -106,6 +113,7 @@ class TestRemoveStatement(unittest.TestCase):
             state=MagicMock(),
         )
         mock_read_revision.return_value = mock_revision
+        self.mock_vitess.get_head.return_value = 100
 
         request = RemoveStatementRequest(edit_summary="Remove statement")
         result = self.handler.remove_statement(
@@ -135,6 +143,7 @@ class TestRemoveStatement(unittest.TestCase):
             state=MagicMock(),
         )
         mock_read_revision.return_value = mock_revision
+        self.mock_vitess.get_head.return_value = 100
 
         mock_stmt_repo = MagicMock()
         mock_stmt_repo_class.return_value = mock_stmt_repo
@@ -192,6 +201,7 @@ class TestRemoveStatement(unittest.TestCase):
             state=MagicMock(),
         )
         mock_read_revision.return_value = mock_revision
+        self.mock_vitess.get_head.return_value = 100
 
         request = RemoveStatementRequest(edit_summary="Remove statement")
         result = self.handler.remove_statement(
