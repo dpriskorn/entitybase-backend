@@ -115,10 +115,6 @@ class EntityHashingService(BaseModel):
 
     async def hash_terms(self, request_data: Dict[str, Any], s3_client: MyS3Client, vitess_client: VitessClient) -> HashMaps:
         """Hash entity terms (labels, descriptions, aliases)."""
-        from models.infrastructure.s3.hashes.labels_hashes import LabelsHashes
-        from models.infrastructure.s3.hashes.descriptions_hashes import DescriptionsHashes
-        from models.infrastructure.s3.hashes.aliases_hashes import AliasesHashes
-
         labels_hashes = HashService.hash_labels(
             request_data.get("labels", {}), s3_client, vitess_client
         )
@@ -202,6 +198,8 @@ class EntityHandler(BaseModel):
         validator: Any | None,
     ) -> EntityResponse:
         """New simplified entity revision processing using services."""
+        logger.debug(f"Starting entity revision processing for {entity_id}")
+
         ctx = RevisionContext(
             entity_id=entity_id,
             request_data=request_data,
@@ -220,6 +218,7 @@ class EntityHandler(BaseModel):
 
         # 2. Check idempotency
         if cached := self._check_idempotency_new(ctx):
+            logger.debug(f"Returning cached revision for {entity_id}")
             return cached
 
         # 3. Process entity data
@@ -261,24 +260,139 @@ class EntityHandler(BaseModel):
 
     async def _create_revision_new(self, ctx: RevisionContext, hash_result: StatementHashResult) -> RevisionResult:
         """Create revision using simplified logic."""
-        # This will replace the complex _create_and_store_revision
-        # For now, return a placeholder
-        return RevisionResult(success=True, revision_id=1)
+        try:
+            # Get current head revision
+            head_revision_id = ctx.vitess_client.get_head(ctx.entity_id)
+
+            # Calculate content hash
+            import json
+            import rapidhash
+            entity_json = json.dumps(ctx.request_data, sort_keys=True)
+            content_hash = rapidhash(entity_json.encode())
+
+            # Calculate new revision ID
+            new_revision_id = head_revision_id + 1 if head_revision_id else 1
+
+            # Process terms and sitelinks
+            term_hashes = await self._hash_terms_new(ctx)
+            sitelink_hashes = await self._hash_sitelinks_new(ctx)
+
+            # Build revision data
+            revision_data = self._build_revision_data_new(
+                ctx, hash_result, term_hashes, sitelink_hashes, content_hash, new_revision_id
+            )
+
+            # Store in database
+            ctx.vitess_client.create_revision(
+                entity_id=ctx.entity_id,
+                entity_data=revision_data.model_dump(),
+                revision_id=new_revision_id,
+            )
+
+            # Store in S3
+            await self._store_revision_s3_new(ctx, revision_data)
+
+            return RevisionResult(success=True, revision_id=new_revision_id)
+
+        except Exception as e:
+            logger.error(f"Failed to create revision for {ctx.entity_id}: {e}")
+            return RevisionResult(success=False, error=str(e))
+
+    async def _hash_terms_new(self, ctx: RevisionContext) -> HashMaps:
+        """Hash entity terms (labels, descriptions, aliases)."""
+        hashing_service = EntityHashingService()
+        return await hashing_service.hash_terms(ctx.request_data, ctx.s3_client, ctx.vitess_client)
+
+    async def _hash_sitelinks_new(self, ctx: RevisionContext):
+        """Hash entity sitelinks."""
+        hashing_service = EntityHashingService()
+        return await hashing_service.hash_sitelinks(ctx.request_data, ctx.s3_client)
+
+    def _build_revision_data_new(
+        self,
+        ctx: RevisionContext,
+        hash_result: StatementHashResult,
+        term_hashes: HashMaps,
+        sitelink_hashes,
+        content_hash: int,
+        new_revision_id: int
+    ) -> RevisionData:
+        """Build RevisionData object."""
+        logger.debug(f"Building revision data for {ctx.entity_id} revision {new_revision_id}")
+
+        from datetime import datetime, timezone
+        from models.infrastructure.s3.enums import EditData
+
+        created_at = datetime.now(timezone.utc).isoformat()
+
+        return RevisionData(
+            revision_id=new_revision_id,
+            entity_type=ctx.entity_type,
+            properties=hash_result.properties,
+            property_counts=hash_result.property_counts,
+            hashes=HashMaps(
+                statements=StatementsHashes(root=hash_result.statements),
+                labels=term_hashes.labels,
+                descriptions=term_hashes.descriptions,
+                aliases=term_hashes.aliases,
+                sitelinks=sitelink_hashes,
+            ),
+            edit=EditData(
+                mass=False,  # Default for now
+                type=ctx.edit_type or EditType.UNSPECIFIED,
+                user_id=0,  # TODO: Get from context
+                summary=ctx.edit_summary,
+                at=created_at,
+            ),
+            state=EntityState(),  # Default state
+            schema_version=settings.s3_schema_revision_version,
+        )
+
+    async def _store_revision_s3_new(self, ctx: RevisionContext, revision_data: RevisionData) -> None:
+        """Store revision data in S3."""
+        # Placeholder - would implement S3 storage logic
+        pass
 
     async def _publish_events_new(self, ctx: RevisionContext, result: RevisionResult) -> None:
         """Publish revision events."""
         if ctx.stream_producer and result.revision_id:
-            # Event publishing logic
-            pass
+            try:
+                change_type = edit_type_to_change_type(ctx.edit_type or EditType.UNSPECIFIED)
+                event = EntityChangeEvent(
+                    id=ctx.entity_id,
+                    rev=result.revision_id,
+                    type=change_type,
+                    at=datetime.now(timezone.utc),
+                    summary=ctx.edit_summary,
+                )
+                # TODO: Actually publish the event
+                logger.debug(f"Would publish event: {event}")
+            except Exception as e:
+                logger.warning(f"Failed to publish event for {ctx.entity_id}: {e}")
 
     def _build_entity_response(self, ctx: RevisionContext, result: RevisionResult) -> EntityResponse:
         """Build EntityResponse from revision result."""
-        # Placeholder implementation
-        return EntityResponse(
-            id=ctx.entity_id,
-            rev_id=result.revision_id or 0,
-            data=ctx.request_data,
-        )
+        if not result.success or not result.revision_id:
+            raise EntityProcessingError(result.error or "Revision creation failed")
+
+        # Read the created revision to build response
+        try:
+            revision = ctx.s3_client.read_revision(ctx.entity_id, result.revision_id)
+            return EntityResponse(
+                id=ctx.entity_id,
+                rev_id=result.revision_id,
+                data=revision.entity,
+                state=EntityState(
+                    sp=revision.data.get("is_semi_protected", False),
+                    locked=revision.data.get("is_locked", False),
+                    archived=revision.data.get("is_archived", False),
+                    dangling=revision.data.get("is_dangling", False),
+                    mep=revision.data.get("is_mass_edit_protected", False),
+                ),
+            )
+        except Exception as e:
+            logger.error(f"Failed to build response for {ctx.entity_id}: {e}")
+            raise EntityProcessingError("Failed to retrieve created revision")
 
     # Original method (keeping for now)
     async def _process_entity_revision(
