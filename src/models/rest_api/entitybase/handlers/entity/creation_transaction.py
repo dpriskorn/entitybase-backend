@@ -104,13 +104,16 @@ class CreationTransaction(EntityTransaction):
         self,
         entity_id: str,
         revision_id: int,
-        change_type: Any,
-        changed_at: Any,
-        stream_producer: Any,
-        from_revision_id: int = 0,
-        edit_summary: str = "",
+        change_type: str,
+        user_id: int = 0,
+        **kwargs: Any,
     ) -> None:
         """Publish the entity creation event."""
+        changed_at = kwargs.get('changed_at')
+        stream_producer = kwargs.get('stream_producer')
+        from_revision_id = kwargs.get('from_revision_id', 0)
+        edit_summary = kwargs.get('edit_summary', '')
+
         logger.info(f"[CreationTransaction] Starting event publishing for {entity_id}")
         if stream_producer:
             from models.infrastructure.stream.event import EntityChangeEvent

@@ -68,6 +68,7 @@ class EntityTransaction(BaseModel, ABC):
         revision_id: int,
         change_type: str,
         user_id: int = 0,
+        **kwargs: Any,
     ) -> None:
         """Publish a change event."""
         from datetime import datetime, timezone

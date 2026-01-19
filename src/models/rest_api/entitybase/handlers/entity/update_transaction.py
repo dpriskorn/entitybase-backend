@@ -125,12 +125,9 @@ class UpdateTransaction(EntityTransaction):
         self,
         entity_id: str,
         revision_id: int,
-        change_type: Any,
-        from_revision_id: int,
-        changed_at: Any,
-        edit_summary: str,
-        user_id: int,
-        stream_producer: Any,
+        change_type: str,
+        user_id: int = 0,
+        **kwargs: Any,
     ) -> None:
         """Publish the entity change event to the stream.
 
@@ -153,6 +150,11 @@ class UpdateTransaction(EntityTransaction):
         Note:
             The editor field in EntityChangeEvent is set to the editor parameter.
         """
+        from_revision_id = kwargs.get('from_revision_id', 0)
+        changed_at = kwargs.get('changed_at')
+        edit_summary = kwargs.get('edit_summary', '')
+        stream_producer = kwargs.get('stream_producer')
+
         logger.info(f"[UpdateTransaction] Starting event publishing for {entity_id}")
         if stream_producer:
             from models.infrastructure.stream.event import EntityChangeEvent
