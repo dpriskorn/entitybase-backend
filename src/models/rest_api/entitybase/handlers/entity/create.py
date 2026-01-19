@@ -95,25 +95,19 @@ class EntityCreateHandler(EntityHandler):
                 f"Entity {entity_id} has been deleted", status_code=410
             )
 
-        # Common processing logic
-        response = await self._process_entity_revision(  # type: ignore[assignment]
+        # Common processing logic using new architecture
+        from models.infrastructure.s3.enums import EntityType
+        response = await self.process_entity_revision_new(
             entity_id=entity_id,
             request_data=request_data,
-            entity_type=request.type,
-            is_mass_edit=request.is_mass_edit,
+            entity_type=EntityType(request.type),
             edit_type=request.edit_type,
             edit_summary=request.edit_summary,
-            is_semi_protected=request.is_semi_protected,
-            is_locked=request.is_locked,
-            is_archived=request.is_archived,
-            is_dangling=request.is_dangling,
-            is_mass_edit_protected=request.is_mass_edit_protected,
-            is_not_autoconfirmed_user=request.is_autoconfirmed_user,
+            is_creation=True,
             vitess_client=vitess_client,
             s3_client=s3_client,
             stream_producer=stream_producer,
             validator=validator,
-            is_creation=True,
         )
 
         # Log activity

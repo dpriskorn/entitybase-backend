@@ -398,84 +398,7 @@ class EntityHandler(BaseModel):
             raise EntityProcessingError("Failed to retrieve created revision")
 
     # Original method (keeping for now)
-    async def _process_entity_revision(
-        self,
-        entity_id: str,
-        request_data: Dict[str, Any],
-        entity_type: str,
-        is_mass_edit: bool | None,
-        edit_type: EditType | None,
-        is_semi_protected: bool | None,
-        is_locked: bool | None,
-        is_archived: bool | None,
-        is_dangling: bool | None,
-        is_mass_edit_protected: bool | None,
-        is_not_autoconfirmed_user: bool | None,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
-        stream_producer: StreamProducerClient | None,
-        validator: Any | None,
-        is_creation: bool,
-        edit_summary: str = "",
-    ) -> EntityResponse:
-        """Common logic for processing entity revisions after validation."""
-        # Get current head revision
-        head_revision_id = vitess_client.get_head(entity_id)
-        logger.debug(f"Current head revision for {entity_id}: {head_revision_id}")
 
-        # Calculate content hash for deduplication
-        entity_json = json.dumps(request_data, sort_keys=True)
-        content_hash = rapidhash(entity_json.encode())
-        logger.debug(f"Entity content hash: {content_hash}")
-
-        # Check idempotency
-        idempotent_response = self._check_idempotency(
-            entity_id, head_revision_id, content_hash, request_data, s3_client
-        )
-        if idempotent_response:
-            return idempotent_response
-
-        # Check protection settings
-        self._check_protection_settings(
-            entity_id, is_mass_edit, is_not_autoconfirmed_user, vitess_client
-        )
-
-        # Calculate new revision ID
-        new_revision_id = head_revision_id + 1 if head_revision_id else 1
-        logger.debug(f"New revision ID will be: {new_revision_id}")
-
-        # Process statements
-        hash_result = self.process_statements(
-            entity_id, request_data, vitess_client, s3_client, validator
-        )
-
-        # Create and store revision
-        revision_result = await self._create_and_store_revision(
-            entity_id=entity_id,
-            new_revision_id=new_revision_id,
-            head_revision_id=head_revision_id,
-            request_data=request_data,
-            entity_type=entity_type,
-            hash_result=hash_result,
-            content_hash=content_hash,
-            is_mass_edit=is_mass_edit,
-            edit_type=edit_type,
-            edit_summary=edit_summary,
-            is_semi_protected=is_semi_protected,
-            is_locked=is_locked,
-            is_archived=is_archived,
-            is_dangling=is_dangling,
-            is_mass_edit_protected=is_mass_edit_protected,
-            vitess_client=vitess_client,
-            s3_client=s3_client,
-            stream_producer=stream_producer,
-            is_creation=is_creation,
-        )
-
-        if not revision_result.success:
-            raise_validation_error(revision_result.error or "Failed to create revision")
-        assert isinstance(revision_result.data, EntityResponse)
-        return revision_result.data
 
     def _check_idempotency(
         self,
@@ -1060,7 +983,7 @@ class EntityHandler(BaseModel):
 
         return OperationResult(success=True, data={"revision_id": new_revision_id})
 
-    def patch_statement(
+    async def patch_statement(
         self,
         entity_id: str,
         statement_hash: str,
