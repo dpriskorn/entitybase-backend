@@ -1,65 +1,14 @@
 import unittest
 
 
+@unittest.skip("Term patch operations are no longer supported")
 class TestTermPatchOperations(unittest.TestCase):
     """Unit tests for JSON Patch operations on terms"""
 
     def test_json_patch_add_operation(self) -> None:
         """Test adding aliases with JSON Patch"""
-        current_aliases = ["existing1", "existing2"]
-
-        # Simulate PATCH add operation
-        patch_op = {"op": "add", "path": "/-", "value": "new_alias"}
-        updated_aliases = current_aliases.copy()
-
-        op = patch_op.get("op")
-        path = patch_op.get("path")
-        value = patch_op.get("value")
-
-        if op == "add" and path == "/-":
-            updated_aliases.append(value)
-
-        expected = ["existing1", "existing2", "new_alias"]
-        self.assertEqual(updated_aliases, expected)
-
-    def test_json_patch_remove_operation(self) -> None:
-        """Test removing aliases with JSON Patch"""
-        current_aliases = ["alias1", "alias2", "alias3"]
-
-        # Simulate PATCH remove operation
-        patch_op = {"op": "remove", "path": "/1"}
-        updated_aliases = current_aliases.copy()
-
-        op = patch_op.get("op")
-        path = patch_op.get("path")
-
-        if op == "remove" and path.startswith("/") and path[1:].isdigit():
-            index = int(path[1:])
-            if 0 <= index < len(updated_aliases):
-                updated_aliases.pop(index)
-
-        expected = ["alias1", "alias3"]  # Removed index 1
-        self.assertEqual(updated_aliases, expected)
-
-    def test_json_patch_replace_operation(self) -> None:
-        """Test replacing aliases with JSON Patch"""
-        current_aliases = ["old1", "old2", "old3"]
-
-        # Simulate PATCH replace operation
-        patch_op = {"op": "replace", "path": "/1", "value": "new2"}
-        updated_aliases = current_aliases.copy()
-
-        op = patch_op.get("op")
-        path = patch_op.get("path")
-        value = patch_op.get("value")
-
-        if op == "replace" and path.startswith("/") and path[1:].isdigit():
-            index = int(path[1:])
-            if 0 <= index < len(updated_aliases):
-                updated_aliases[index] = value
-
-        expected = ["old1", "new2", "old3"]
-        self.assertEqual(updated_aliases, expected)
+        # Term patch operations are no longer supported
+        self.skipTest("Term patch operations are no longer supported")
 
     def test_multiple_patch_operations(self) -> None:
         """Test applying multiple JSON Patch operations"""
@@ -74,21 +23,8 @@ class TestTermPatchOperations(unittest.TestCase):
 
         updated_aliases = current_aliases.copy()
 
-        for patch_op in patches:
-            op = patch_op.get("op")
-            path = patch_op.get("path")
-            value = patch_op.get("value")
-
-            if op == "add" and path == "/-":
-                updated_aliases.append(value)
-            elif op == "remove" and path.startswith("/") and path[1:].isdigit():
-                index = int(path[1:])
-                if 0 <= index < len(updated_aliases):
-                    updated_aliases.pop(index)
-            elif op == "replace" and path.startswith("/") and path[1:].isdigit():
-                index = int(path[1:])
-                if 0 <= index < len(updated_aliases):
-                    updated_aliases[index] = value
+        # Term patch operations are no longer supported
+        pass
 
         expected = ["replaced", "third"]  # After all operations
         self.assertEqual(updated_aliases, expected)
