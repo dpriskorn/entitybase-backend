@@ -3,32 +3,19 @@
 import json
 import logging
 from abc import ABC
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 from botocore.exceptions import ClientError
 
 from models.common import OperationResult
 from models.infrastructure.s3.connection import S3ConnectionManager
+from models.infrastructure.s3.exceptions import (
+    S3StorageError,
+    S3NotFoundError,
+    S3ConnectionError,
+)
 
 logger = logging.getLogger(__name__)
-
-
-class S3StorageError(Exception):
-    """Base exception for S3 storage operations."""
-
-    pass
-
-
-class S3NotFoundError(S3StorageError):
-    """Raised when S3 object is not found."""
-
-    pass
-
-
-class S3ConnectionError(S3StorageError):
-    """Raised when S3 connection fails."""
-
-    pass
 
 
 class BaseS3Storage(ABC):
@@ -107,7 +94,7 @@ class BaseS3Storage(ABC):
             )
             raise S3StorageError(f"Store failed: {e}")
 
-    def load(self, key: str) -> Any:
+    def load(self, key: str) -> object:
         """Load data from S3 with common error handling."""
         self._ensure_connection()
 
