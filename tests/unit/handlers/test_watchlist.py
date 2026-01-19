@@ -1,6 +1,6 @@
 import sys
 from datetime import datetime, timezone
-from unittest.mock import MagicMock, ANY
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -8,10 +8,10 @@ pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")
 
-from models.watchlist import (
+from models.rest_api.entitybase.request.watchlist import (
     WatchlistAddRequest,
-    WatchlistResponse,
 )
+from models.rest_api.entitybase.response.watchlist import WatchlistResponse
 from models.rest_api.entitybase.request.user import WatchlistRemoveRequest as WatchlistRemoveCompositeRequest
 from models.rest_api.entitybase.handlers.watchlist import WatchlistHandler
 
@@ -114,7 +114,7 @@ class TestWatchlistHandler:
         self, handler: WatchlistHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test getting notifications successfully"""
-        from models.watchlist import NotificationResponse
+        from models.rest_api.entitybase.request.watchlist import NotificationResponse
 
         dt = datetime(2023, 1, 1, 12, 0, tzinfo=timezone.utc)
         mock_vitess_client.user_repository.user_exists.return_value = True
@@ -171,7 +171,7 @@ class TestWatchlistHandler:
         self, handler: WatchlistHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test marking notification as checked"""
-        from models.watchlist import MarkCheckedRequest
+        from models.rest_api.entitybase.request.watchlist import MarkCheckedRequest
 
         request = MarkCheckedRequest(notification_id=1)
 

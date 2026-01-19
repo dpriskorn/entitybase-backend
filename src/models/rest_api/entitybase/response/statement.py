@@ -4,6 +4,8 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from models.infrastructure.s3.property_counts import PropertyCounts
+
 
 class StatementResponse(BaseModel):
     """Response model for statement data."""
@@ -60,14 +62,6 @@ class MostUsedStatementsResponse(BaseModel):
         description="List of statement hashes sorted by ref_count DESC",
     )
 
-
-class PropertyCounts(BaseModel):
-    """Model for property statement counts."""
-
-    counts: dict[str, int] = Field(
-        default_factory=dict,
-        description="Dictionary mapping property ID to statement count"
-    )
 
 
 class StatementHashResult(BaseModel):

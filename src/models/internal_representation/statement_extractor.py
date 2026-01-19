@@ -1,6 +1,6 @@
 """Statement extraction utilities."""
 
-from models.rest_api.entitybase.response import PropertyCounts
+from models.infrastructure.s3.property_counts import PropertyCounts
 
 
 class StatementExtractor:

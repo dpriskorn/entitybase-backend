@@ -2,4 +2,4 @@
 
 source .venv/bin/activate
 export PYTHONPATH=src
-pytest -m "unit" -n auto
+pytest tests/unit/ -n auto

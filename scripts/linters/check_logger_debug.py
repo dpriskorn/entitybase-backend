@@ -77,12 +77,17 @@ class LoggerInfoChecker(ast.NodeVisitor):
     def _is_logger_call(self, node: ast.Call) -> bool:
         """Check if this is a logger call (info, debug, warning, error, critical)."""
         if isinstance(node.func, ast.Attribute):
-            if isinstance(node.func.value, ast.Name) and node.func.value.id in [
-                "logger",
-                "log",
-            ]:
+            if self._is_logger_expr(node.func.value):
                 if node.func.attr in ["info", "debug", "warning", "error", "critical"]:
                     return True
+        return False
+
+    def _is_logger_expr(self, node) -> bool:
+        """Check if the expression refers to logger or log."""
+        if isinstance(node, ast.Name) and node.id in ["logger", "log"]:
+            return True
+        if isinstance(node, ast.Attribute):
+            return node.attr in ["logger", "log"] or self._is_logger_expr(node.value)
         return False
 
     def _is_enum_class(self, node: ast.ClassDef) -> bool:

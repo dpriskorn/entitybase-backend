@@ -3,14 +3,12 @@
 import unittest
 from unittest.mock import MagicMock, patch
 from models.rest_api.entitybase.services.hash_service import HashService
-from models.types import (
-    LabelsHashes,
-    DescriptionsHashes,
-    AliasesHashes,
-    SitelinksHashes,
-    StatementsHashes,
-    HashMaps,
-)
+from models.infrastructure.s3.hashes.labels_hashes import LabelsHashes
+from models.infrastructure.s3.hashes.descriptions_hashes import DescriptionsHashes
+from models.infrastructure.s3.hashes.aliases_hashes import AliasesHashes
+from models.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
+from models.infrastructure.s3.hashes.statements_hashes import StatementsHashes
+from models.infrastructure.s3.hashes.hash_maps import HashMaps
 from models.rest_api.entitybase.response import StatementHashResult
 
 

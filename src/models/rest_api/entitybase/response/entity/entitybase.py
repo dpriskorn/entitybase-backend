@@ -1,15 +1,16 @@
-from typing import Dict, Any, TYPE_CHECKING
+from typing import Dict, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from models.infrastructure.s3.revision.entity_state import EntityState
 from models.rest_api.entitybase.response.entity.wikibase import (
     SitelinkValue,
     LabelValue,
     DescriptionValue,
     AliasValue,
 )
-from models.types import RevisionData, EntityState
 from models.rest_api.utils import raise_validation_error
+from models.infrastructure.s3.revision.revision_data import RevisionData
 
 
 class EntityLabelsResponse(BaseModel):

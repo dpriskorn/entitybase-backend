@@ -53,12 +53,9 @@ class TestRemoveStatement(unittest.TestCase):
     ):
         """Test successful statement removal."""
         # Mock revision data
-        from models.types import (
-            RevisionData,
-            HashMaps,
-            StatementsHashes,
-            PropertyCounts,
-        )
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+        from models.infrastructure.s3.hashes.hash_maps import HashMaps
+        from models.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 
         mock_revision = RevisionData(
             revision_id=100,
@@ -95,7 +92,9 @@ class TestRemoveStatement(unittest.TestCase):
     @patch("models.rest_api.entitybase.handlers.entity.base.MyS3Client.read_revision")
     def test_statement_hash_not_found(self, mock_read_revision):
         """Test statement hash not found in revision."""
-        from models.types import RevisionData, HashMaps, StatementsHashes
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+        from models.infrastructure.s3.hashes.hash_maps import HashMaps
+        from models.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 
         mock_revision = RevisionData(
             revision_id=100,
@@ -122,7 +121,9 @@ class TestRemoveStatement(unittest.TestCase):
         self, mock_stmt_repo_class, mock_read_revision
     ):
         """Test failure when decrementing ref_count."""
-        from models.types import RevisionData, HashMaps, StatementsHashes
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+        from models.infrastructure.s3.hashes.hash_maps import HashMaps
+        from models.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 
         mock_revision = RevisionData(
             revision_id=100,
@@ -152,7 +153,9 @@ class TestRemoveStatement(unittest.TestCase):
     @patch("models.rest_api.entitybase.handlers.entity.base.MyS3Client.read_revision")
     def test_invalid_statement_hash_format(self, mock_read_revision):
         """Test invalid statement hash format."""
-        from models.types import RevisionData, HashMaps, StatementsHashes
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+        from models.infrastructure.s3.hashes.hash_maps import HashMaps
+        from models.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 
         mock_revision = RevisionData(
             revision_id=100,
@@ -176,7 +179,8 @@ class TestRemoveStatement(unittest.TestCase):
     @patch("models.rest_api.entitybase.handlers.entity.base.MyS3Client.read_revision")
     def test_no_statements_in_revision(self, mock_read_revision):
         """Test revision with no statements."""
-        from models.types import RevisionData, HashMaps
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+        from models.infrastructure.s3.hashes.hash_maps import HashMaps
 
         mock_revision = RevisionData(
             revision_id=100,

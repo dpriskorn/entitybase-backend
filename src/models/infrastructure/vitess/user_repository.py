@@ -6,7 +6,7 @@ from typing import Any, List
 
 from models.common import OperationResult
 from models.user import User
-from models.user_activity import UserActivityItem, ActivityType
+from models.user_activity import UserActivityItemResponse, ActivityType
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -273,7 +273,7 @@ class UserRepository:
             activities = []
             for row in rows:
                 activities.append(
-                    UserActivityItem(
+                    UserActivityItemResponse(
                         id=row[0],
                         user_id=row[1],
                         activity_type=row[2],

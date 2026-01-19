@@ -13,7 +13,7 @@ from .entity.entitybase import (
     EntityJsonImportResponse,
     EntityDeleteResponse,
 )
-from models.types import EntityState
+from models.infrastructure.s3.revision.entity_state import EntityState
 from .entity import (
     EntityMetadataResponse,
     EntityLabelsResponse,
@@ -23,7 +23,6 @@ from .entity import (
 )
 from .statement import (
     MostUsedStatementsResponse,
-    PropertyCounts,
     PropertyCountsResponse,
     PropertyHashesResponse,
     PropertyListResponse,
@@ -31,6 +30,7 @@ from .statement import (
     StatementHashResult,
     StatementResponse,
 )
+from models.infrastructure.s3.property_counts import PropertyCounts
 from .health import HealthCheckResponse, HealthResponse, WorkerHealthCheckResponse
 from .misc import (
     CleanupOrphanedResponse,

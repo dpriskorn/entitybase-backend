@@ -11,11 +11,11 @@ from models.rest_api.entitybase.request.user import (
 from models.rest_api.entitybase.response.misc import WatchCounts
 from models.rest_api.entitybase.response.user import MessageResponse, NotificationResponse
 from models.rest_api.utils import raise_validation_error
-from models.watchlist import (
+from models.rest_api.entitybase.request.watchlist import (
     WatchlistAddRequest,
-    WatchlistResponse,
     MarkCheckedRequest,
 )
+from models.rest_api.entitybase.response.watchlist import WatchlistResponse
 
 
 class WatchlistHandler:

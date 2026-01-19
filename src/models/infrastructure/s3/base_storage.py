@@ -65,6 +65,7 @@ class BaseS3Storage(ABC):
         metadata: Optional[Dict[str, str]] = None
     ) -> OperationResult[None]:
         """Store data in S3 with common error handling."""
+        self.logger.debug(f"Storing data to S3: bucket={self.bucket}, key={key}")
         self._ensure_connection()
 
         try:

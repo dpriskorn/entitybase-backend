@@ -32,7 +32,7 @@ from models.infrastructure.vitess.user_repository import UserRepository
 from models.infrastructure.vitess.watchlist_repository import WatchlistRepository
 from models.infrastructure.vitess.thanks_repository import ThanksRepository
 from models.infrastructure.vitess.endorsement_repository import EndorsementRepository
-from models.rest_api.entitybase.request.entity import EntityInsertDataRequest
+
 from models.rest_api.entitybase.response import ProtectionResponse
 from models.rest_api.entitybase.response import FullRevisionResponse
 from models.rest_api.utils import raise_validation_error
@@ -237,6 +237,8 @@ class VitessClient(Client):
         property_counts: dict[str, int] | None = None,
     ) -> None:
         """Insert a new revision for an entity."""
+        from models.rest_api.entitybase.request.entity import EntityInsertDataRequest
+
         logger.debug(f"Inserting revision {revision_id} for entity {entity_id}")
         data = EntityInsertDataRequest(
             is_mass_edit=is_mass_edit,

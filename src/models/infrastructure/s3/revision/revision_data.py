@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field
 
 from models.config.settings import settings
 from models.infrastructure.s3.revision.entity_state import EntityState
-from models.hash_maps import HashMaps
+from models.infrastructure.s3.hashes.hash_maps import HashMaps
 from models.infrastructure.s3.enums import EntityType, EditData
 from models.property_counts import PropertyCounts
 

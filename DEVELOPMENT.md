@@ -1,6 +1,6 @@
 # Development Environment Setup
 
-This document describes how to set up and run the Wikibase Backend development environment using Docker.
+This document describes how to set up and run the Enitybase Backend development environment using Docker.
 
 ## Prerequisites
 
@@ -45,7 +45,7 @@ If pytest is not found, install it via `pip install pytest` or activate your vir
 ## Development Workflow
 
 - Make changes to the code
-- Run tests: `./run-linters.sh` for linting, integration tests via Docker
+- Run tests: `./run-linters.sh` for linting
 - Commit changes
 
 ## Troubleshooting

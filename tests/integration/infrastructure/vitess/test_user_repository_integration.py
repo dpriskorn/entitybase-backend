@@ -254,7 +254,7 @@ class TestUserRepository:
         self, repository: UserRepository, mock_connection_manager: MagicMock
     ) -> None:
         """Test getting user activities"""
-        from models.user_activity import UserActivityItem
+        from models.user_activity import UserActivityItemResponse
 
         mock_conn = MagicMock()
         mock_connection_manager.get_connection.return_value.__enter__.return_value = (
@@ -270,7 +270,7 @@ class TestUserRepository:
         result = repository.get_user_activities(12345, limit=30, offset=0)
 
         assert len(result) == 2
-        assert isinstance(result[0], UserActivityItem)
+        assert isinstance(result[0], UserActivityItemResponse)
         assert result[0].id == 1
         assert result[0].user_id == 12345
         assert result[0].activity_type == "entity_revert"

@@ -30,10 +30,10 @@ class TestUserActivityHandler:
         self, handler: UserActivityHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test getting user activities successfully"""
-        from models.user_activity import UserActivityItem
+        from models.user_activity import UserActivityItemResponse
         from datetime import datetime
 
-        mock_activity = UserActivityItem(
+        mock_activity = UserActivityItemResponse(
             id=1,
             user_id=12345,
             activity_type="entity_revert",
@@ -55,7 +55,7 @@ class TestUserActivityHandler:
         assert isinstance(result, UserActivityResponse)
         assert result.user_id == 12345
         assert len(result.activities) == 1
-        assert isinstance(result.activities[0], UserActivityItem)
+        assert isinstance(result.activities[0], UserActivityItemResponse)
         assert result.activities[0].id == 1
 
     def test_get_user_activities_user_not_found(

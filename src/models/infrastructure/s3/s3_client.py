@@ -11,17 +11,15 @@ from models.common import OperationResult
 from models.infrastructure.client import Client
 from models.infrastructure.s3.config import S3Config
 from models.infrastructure.s3.connection import S3ConnectionManager
-from models.types import (
-    RevisionData,
-    RevisionReadResponse,
-    S3QualifierData,
-    S3ReferenceData,
-)
-from models.infrastructure.s3.metadata_storage import MetadataStorage
-from models.infrastructure.s3.qualifier_storage import QualifierStorage
-from models.infrastructure.s3.reference_storage import ReferenceStorage
-from models.infrastructure.s3.revision_storage import RevisionStorage
-from models.infrastructure.s3.statement_storage import StatementStorage
+from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.s3.revision.revision_read_response import RevisionReadResponse
+from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
+from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
+from models.infrastructure.s3.storage.metadata_storage import MetadataStorage
+from models.infrastructure.s3.storage.qualifier_storage import QualifierStorage
+from models.infrastructure.s3.storage.reference_storage import ReferenceStorage
+from models.infrastructure.s3.storage.revision_storage import RevisionStorage
+from models.infrastructure.s3.storage.statement_storage import StatementStorage
 from models.rest_api.entitybase.response import StatementResponse
 from models.rest_api.utils import raise_validation_error
 

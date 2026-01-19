@@ -26,7 +26,7 @@ class ActivityType(str, Enum):
     )
 
 
-class UserActivityItem(BaseModel):
+class UserActivityItemResponse(BaseModel):
     """Individual user activity item."""
 
     id: int

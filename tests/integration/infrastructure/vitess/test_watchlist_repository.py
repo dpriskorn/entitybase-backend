@@ -6,7 +6,7 @@ import pytest
 sys.path.insert(0, "src")
 
 from models.infrastructure.vitess.watchlist_repository import WatchlistRepository
-from models.watchlist import WatchlistEntry
+from models.rest_api.entitybase.response.watchlist import WatchlistEntryResponse
 
 
 class TestWatchlistRepository:

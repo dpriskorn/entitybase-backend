@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import Mock
 
 from models.rest_api.entitybase.handlers.watchlist import WatchlistHandler
-from models.watchlist import (
+from models.rest_api.entitybase.request.watchlist import (
     WatchlistAddRequest,
     WatchlistRemoveRequest,
     MarkCheckedRequest,

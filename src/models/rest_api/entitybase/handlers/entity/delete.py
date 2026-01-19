@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 
 from fastapi import HTTPException
 
-from models.types import RevisionData
-from models.infrastructure.s3.hashmaps import AliasesHashes, DescriptionsHashes, LabelsHashes, SitelinksHashes, \
+from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.s3.hashes.hash_maps import AliasesHashes, DescriptionsHashes, LabelsHashes, SitelinksHashes, \
     StatementsHashes, HashMaps
 
 from models.user_activity import ActivityType

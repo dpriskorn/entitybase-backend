@@ -1,6 +1,6 @@
 import unittest
 from models.internal_representation.metadata_extractor import MetadataExtractor
-from models.types import RevisionData
+from models.infrastructure.s3.revision.revision_data import RevisionData
 
 
 # Mock rapidhash since it's not available in test environment

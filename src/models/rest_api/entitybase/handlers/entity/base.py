@@ -11,8 +11,8 @@ from rapidhash import rapidhash
 
 from models.common import OperationResult
 from models.config.settings import settings
-from models.types import RevisionData
-from models.infrastructure.s3.hashmaps import StatementsHashes, HashMaps
+from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.s3.hashes.hash_maps import StatementsHashes, HashMaps
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
@@ -68,6 +68,10 @@ def edit_type_to_change_type(edit_type: EditType | str) -> ChangeType:
         return ChangeType.HARD_DELETE
     else:
         return ChangeType.EDIT
+
+
+class RevisionHeadData:
+    pass
 
 
 class EntityHandler(BaseModel):
@@ -675,6 +679,8 @@ class EntityHandler(BaseModel):
         # Fetch current revision
         try:
             revision_data = s3_client.read_revision(entity_id)
+            from models.infrastructure.s3.revision.revision_read_response import RevisionReadResponse
+            assert isinstance(revision_data, RevisionReadResponse)
         except Exception as e:
             return OperationResult(
                 success=False, error=f"Failed to fetch revision: {e}"
@@ -742,7 +748,7 @@ class EntityHandler(BaseModel):
 
         # Store the updated revision
         try:
-            s3_client.write_revision(entity_id, new_revision_id, revision_data)
+            s3_client.write_revision(entity_id, new_revision_id, revision_data.data)
             vitess_client.update_head_revision(entity_id, new_revision_id)
         except Exception as e:
             return OperationResult(

@@ -13,7 +13,7 @@ from models.rest_api.entitybase.response.user import (
     MessageResponse,
     NotificationResponse,
 )
-from models.watchlist import WatchlistResponse
+from models.rest_api.entitybase.response.watchlist import WatchlistResponse
 
 watchlist_router = APIRouter(tags=["watchlist"])
 
