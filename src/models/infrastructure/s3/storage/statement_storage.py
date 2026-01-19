@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage, S3NotFoundError
+from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.revision.stored_statement import StoredStatement
 from models.rest_api.entitybase.response import StatementResponse
 
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 class StatementStorage(BaseS3Storage):
     """Storage operations for statements."""
 
-    def __init__(self, connection_manager):
+    def __init__(self, connection_manager: S3ConnectionManager) -> None:
         super().__init__(connection_manager, settings.s3_statements_bucket)
 
     def store_statement(

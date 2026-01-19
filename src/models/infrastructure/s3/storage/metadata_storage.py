@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage
+from models.infrastructure.s3.connection import S3ConnectionManager
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 class MetadataStorage(BaseS3Storage):
     """Storage operations for metadata (terms and sitelinks)."""
 
-    def __init__(self, connection_manager):
+    def __init__(self, connection_manager: S3ConnectionManager) -> None:
         # Use a default bucket, but methods will override
         super().__init__(connection_manager, settings.s3_terms_bucket)
 

@@ -6,6 +6,7 @@ from datetime import timezone, datetime
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage
+from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.revision.revision_read_response import RevisionReadResponse
 from models.infrastructure.s3.revision.revision_data import RevisionData
 
@@ -15,7 +16,7 @@ logger = logging.getLogger(__name__)
 class RevisionStorage(BaseS3Storage):
     """Storage operations for entity revisions."""
 
-    def __init__(self, connection_manager):
+    def __init__(self, connection_manager: S3ConnectionManager) -> None:
         super().__init__(connection_manager, settings.s3_revisions_bucket)
 
     def store_revision(

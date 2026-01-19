@@ -126,7 +126,7 @@ class EntityHashingService(BaseModel):
             aliases=aliases_hashes,
         )
 
-    async def hash_sitelinks(self, request_data: Dict[str, Any], s3_client: MyS3Client):
+    async def hash_sitelinks(self, request_data: Dict[str, Any], s3_client: MyS3Client) -> Any:
         """Hash entity sitelinks."""
         return HashService.hash_sitelinks(
             request_data.get("sitelinks", {}), s3_client
@@ -300,7 +300,7 @@ class EntityHandler(BaseModel):
         hashing_service = EntityHashingService()
         return await hashing_service.hash_terms(ctx.request_data, ctx.s3_client, ctx.vitess_client)
 
-    async def _hash_sitelinks_new(self, ctx: RevisionContext):
+    async def _hash_sitelinks_new(self, ctx: RevisionContext) -> Any:
         """Hash entity sitelinks."""
         hashing_service = EntityHashingService()
         return await hashing_service.hash_sitelinks(ctx.request_data, ctx.s3_client)
@@ -310,7 +310,7 @@ class EntityHandler(BaseModel):
         ctx: RevisionContext,
         hash_result: StatementHashResult,
         term_hashes: HashMaps,
-        sitelink_hashes,
+        sitelink_hashes: Any,
         content_hash: int,
         new_revision_id: int
     ) -> RevisionData:

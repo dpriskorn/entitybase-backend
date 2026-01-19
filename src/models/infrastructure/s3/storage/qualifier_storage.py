@@ -6,6 +6,7 @@ from typing import List
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage, S3NotFoundError
+from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
 
 logger = logging.getLogger(__name__)
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 class QualifierStorage(BaseS3Storage):
     """Storage operations for qualifiers."""
 
-    def __init__(self, connection_manager):
+    def __init__(self, connection_manager: S3ConnectionManager) -> None:
         super().__init__(connection_manager, settings.s3_qualifiers_bucket)
 
     def store_qualifier(self, content_hash: int, qualifier_data: S3QualifierData) -> OperationResult[None]:
