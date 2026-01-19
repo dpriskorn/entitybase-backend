@@ -69,12 +69,13 @@ class BaseS3Storage(ABC):
         self._ensure_connection()
 
         try:
-            body = json.dumps(data, default=str) if isinstance(data, dict) else str(data)
             if isinstance(data, str):
                 body = data.encode('utf-8')
                 content_type = "text/plain"
             elif hasattr(data, 'model_dump'):
-                body = data.model_dump(mode="json")
+                body = json.dumps(data.model_dump(mode="json")).encode('utf-8')
+            else:
+                body = json.dumps(data, default=str).encode('utf-8') if isinstance(data, dict) else str(data).encode('utf-8')
 
             self.connection_manager.boto_client.put_object(
                 Bucket=self.bucket,

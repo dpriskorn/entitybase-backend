@@ -49,6 +49,7 @@ class UserHandler:
         user = vitess_client.user_repository.get_user(user_id)
         if user is None:
             raise_validation_error("User not found", status_code=404)
+        assert isinstance(user, User)
         return user
 
     def toggle_watchlist(

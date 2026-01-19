@@ -46,7 +46,7 @@ class MetadataStorage(BaseS3Storage):
         finally:
             self.bucket = original_bucket
 
-    def load_metadata(self, metadata_type: str, content_hash: int) -> str:
+    def load_metadata(self, metadata_type: str, content_hash: int) -> Any:
         """Load metadata value."""
         bucket = self._get_bucket_for_type(metadata_type)
         original_bucket = self.bucket
