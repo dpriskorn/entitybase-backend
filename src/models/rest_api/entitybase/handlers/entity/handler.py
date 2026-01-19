@@ -4,7 +4,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Dict
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 from models.common import OperationResult
 from models.config.settings import settings
@@ -69,7 +69,7 @@ def edit_type_to_change_type(edit_type: EditType | str) -> ChangeType:
 class RevisionContext(BaseModel):
     """Context for revision processing operations."""
 
-    model_config = {"arbitrary_types_allowed": True}
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     entity_id: str
     request_data: Dict[str, Any]
@@ -77,9 +77,9 @@ class RevisionContext(BaseModel):
     edit_type: EditType | None = Field(default=None)
     edit_summary: str = ""
     is_creation: bool = False
-    vitess_client: VitessClient
-    s3_client: MyS3Client
-    stream_producer: StreamProducerClient | None = Field(default=None)
+    vitess_client: Any
+    s3_client: Any
+    stream_producer: Any = Field(default=None)
     validator: Any | None = Field(default=None)
 
 
@@ -213,7 +213,7 @@ class EntityHandler(BaseModel):
         self._validate_revision_request(ctx)
 
         # 2. Check idempotency
-        if cached := self._check_idempotency_new(ctx):
+        if cached := await self._check_idempotency_new(ctx):
             logger.debug(f"Returning cached revision for {entity_id}")
             assert isinstance(cached, EntityResponse)
             return cached
@@ -231,7 +231,7 @@ class EntityHandler(BaseModel):
             raise EntityProcessingError(result.error or "Revision creation failed")
 
         # Build response
-        return self._build_entity_response(ctx, result)
+        return await self._build_entity_response(ctx, result)
 
     def _validate_revision_request(self, ctx: RevisionContext) -> None:
         """Validate the revision request."""
@@ -367,7 +367,7 @@ class EntityHandler(BaseModel):
             except Exception as e:
                 logger.warning(f"Failed to publish event for {ctx.entity_id}: {e}")
 
-    def _build_entity_response(self, ctx: RevisionContext, result: RevisionResult) -> EntityResponse:
+    async def _build_entity_response(self, ctx: RevisionContext, result: RevisionResult) -> EntityResponse:
         """Build EntityResponse from revision result."""
         if not result.success or not result.revision_id:
             raise EntityProcessingError(result.error or "Revision creation failed")

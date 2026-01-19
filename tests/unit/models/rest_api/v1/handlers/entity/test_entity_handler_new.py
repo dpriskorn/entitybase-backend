@@ -95,7 +95,6 @@ class TestEntityHandlerNewMethods:
         self.mock_stream = MagicMock()
 
     @pytest.mark.asyncio
-    @pytest.mark.asyncio
     async def test_process_entity_revision_new_success(self):
         """Test successful entity revision processing."""
         ctx = RevisionContext(
