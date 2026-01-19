@@ -117,13 +117,16 @@ class VitessClient(Client):
         return self.connection_manager
 
     @property
+    def get_connection(self) -> Generator[Any, None, None]:
+        """Get a database connection."""
+        return self.connection_manager.get_connection()
+
     def _user_repository(self) -> "UserRepository":
-        """Get the user repository, lazy loading it if necessary."""
+        """Get the user repository, creating it if necessary."""
         if self.user_repository is None:
             from models.infrastructure.vitess.repositories.user import UserRepository
 
             self.user_repository = UserRepository(self.connection_manager)
-        assert self.user_repository is not None
         return self.user_repository
 
     def update_head_revision(self, entity_id: str, revision_id: int) -> None:
