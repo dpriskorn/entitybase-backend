@@ -13,7 +13,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         self.mock_s3 = Mock()
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
-    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_metadata_aliases_load_failure(
         self, mock_terms_repo_class, mock_entity_response
     ):
@@ -43,7 +43,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         self.assertNotIn("aliases", entity_data)
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
-    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_partial_metadata_none_terms(
         self, mock_terms_repo_class, mock_entity_response
     ):
@@ -104,7 +104,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
         # Should not attempt metadata loading
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
-    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_mixed_metadata_types(
         self, mock_terms_repo_class, mock_entity_response
     ):
@@ -297,7 +297,7 @@ class TestEntityReadHandlerMetadataPart2(unittest.TestCase):
     @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
     @patch("models.rest_api.entitybase.handlers.entity.read.isinstance")
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
-    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_invalid_response_type(
         self, mock_terms_repo, mock_entity_response, mock_isinstance, mock_raise_error
     ):

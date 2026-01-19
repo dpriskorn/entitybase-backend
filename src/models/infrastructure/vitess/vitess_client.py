@@ -122,3 +122,8 @@ class VitessClient(Client):
             self.user_repository = UserRepository(self.connection_manager)
         assert isinstance(self.user_repository, UserRepository)
         return self.user_repository
+
+    def update_head_revision(self, entity_id: str, revision_id: int) -> None:
+        """Update the head revision for an entity."""
+        with self.connection_manager.get_connection() as conn:
+            self.entity_repository.update_head_revision(conn, entity_id, revision_id)

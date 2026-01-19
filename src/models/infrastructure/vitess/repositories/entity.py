@@ -117,3 +117,14 @@ class EntityRepository:
             return
         with conn.cursor() as cursor:
             cursor.execute("DELETE FROM entity_head WHERE internal_id = %s", (internal_id,))
+
+    def update_head_revision(self, conn: Any, entity_id: str, revision_id: int) -> None:
+        """Update the head revision for an entity."""
+        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        if not internal_id:
+            return
+        with conn.cursor() as cursor:
+            cursor.execute(
+                "UPDATE entity_head SET head_revision_id = %s WHERE internal_id = %s",
+                (revision_id, internal_id)
+            )

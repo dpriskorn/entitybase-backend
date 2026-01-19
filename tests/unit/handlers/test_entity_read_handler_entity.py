@@ -60,7 +60,7 @@ class TestEntityReadHandlerEntity(unittest.TestCase):
         mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
-    @patch("models.rest_api.entitybase.handlers.entity.read.TermsRepository")
+    @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
     def test_get_entity_success_no_metadata(
         self, mock_terms_repo, mock_entity_response
     ):

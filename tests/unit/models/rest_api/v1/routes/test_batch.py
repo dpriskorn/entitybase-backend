@@ -15,7 +15,7 @@ from models.rest_api.entitybase.routes.batch import (
 )
 
 
-class TestBatchRoutes:
+class TestBatchRoutes(unittest.TestCase):
     """Unit tests for batch route functions."""
 
     def setup_method(self):
@@ -29,7 +29,7 @@ class TestBatchRoutes:
         self.mock_clients.vitess = self.mock_vitess
 
     @pytest.mark.asyncio
-    @patch("models.rest_api.routes.batch.EntityReadHandler")
+    @patch("models.rest_api.entitybase.routes.batch.EntityReadHandler")
     async def test_get_batch_statements_success(self, mock_handler_class):
         """Test successful batch statements retrieval."""
         mock_handler = Mock()
@@ -60,7 +60,7 @@ class TestBatchRoutes:
         assert exc_info.value.status_code == 400
         self.assertEqual(cm.exception.detail, "Too many entities (max 20)")
 
-    @patch("models.rest_api.routes.batch.EntityReadHandler")
+    @patch("models.rest_api.entitybase.routes.batch.EntityReadHandler")
     @pytest.mark.asyncio
     async def test_get_batch_statements_with_properties(self, mock_handler_class):
         """Test batch statements with property filtering."""
@@ -76,7 +76,7 @@ class TestBatchRoutes:
         self.assertEqual(result["Q42"], expected)
 
     @pytest.mark.asyncio
-    @patch("models.rest_api.routes.batch.EntityReadHandler")
+    @patch("models.rest_api.entitybase.routes.batch.EntityReadHandler")
     async def test_get_batch_statements_exception(self, mock_handler_class):
         """Test batch statements handles entity read exceptions."""
         mock_handler = Mock()
