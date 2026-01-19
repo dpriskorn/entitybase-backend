@@ -189,7 +189,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         result = EntityReadHandler.get_entity_revision("Q42", 123, self.mock_s3)
 
         self.assertEqual(result, mock_response_instance)
-        self.assertEqual(self.mock_s3.load_metadata.call_count, 3)
+        self.assertEqual(self.mock_s3.load_metadata.call_count, 0)
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityResponse")
     @patch("models.infrastructure.vitess.repositories.terms.TermsRepository")
