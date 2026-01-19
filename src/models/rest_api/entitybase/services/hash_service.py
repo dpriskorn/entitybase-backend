@@ -18,6 +18,7 @@ from models.validation.json_schema_validator import JsonSchemaValidator
 logger = logging.getLogger(__name__)
 
 
+# noinspection PyArgumentList
 class HashService:
     """Service for hashing entity metadata components."""
 

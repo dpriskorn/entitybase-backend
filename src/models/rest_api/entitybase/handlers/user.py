@@ -79,8 +79,8 @@ class UserHandler:
                 if row:
                     return UserStatsResponse(
                         date=row[0].isoformat(),
-                        total_users=row[1],
-                        active_users=row[2],
+                        total=row[1],
+                        active=row[2],
                     )
                 else:
                     # Fallback to live computation if no data
@@ -92,8 +92,8 @@ class UserHandler:
                     stats = service.compute_daily_stats(vitess_client)
                     return UserStatsResponse(
                         date="live",
-                        total_users=stats.total_users,
-                        active_users=stats.active_users,
+                        total=stats.total_users,
+                        active=stats.active_users,
                     )
 
     def get_general_stats(self, vitess_client: VitessClient) -> GeneralStatsResponse:

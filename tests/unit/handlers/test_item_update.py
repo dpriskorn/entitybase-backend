@@ -66,7 +66,7 @@ class TestItemUpdateHandler:
             },
             state=EntityState(
                 sp=False,
-                is_locked=False,
+                locked=False,
                 archived=False,
                 dangling=False,
                 mep=False,

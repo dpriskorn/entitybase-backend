@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class S3ReferenceData(BaseModel):
     """Model for individual reference data stored in S3."""
 
-    model_config = ConfigDict(populate_by_name=True, by_alias=True)
+    model_config = ConfigDict(populate_by_name=True)
 
     reference: dict[str, Any] = Field(
         description="Full reference JSON object. Example: {'snaks': {'P854': [{'value': 'https://example.com'}]}}."

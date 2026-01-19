@@ -33,7 +33,7 @@ class StatementStorage(BaseS3Storage):
         stored = StoredStatement(
             hash=content_hash,
             statement=statement_data["statement"],
-            schema_version=schema_version,
+            schema=schema_version,
             created_at=datetime.now(timezone.utc).isoformat(),
         )
 

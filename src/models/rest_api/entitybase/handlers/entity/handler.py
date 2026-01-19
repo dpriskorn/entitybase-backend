@@ -1,24 +1,22 @@
 """Entity CRUD operation handlers."""
 
-import json
 import logging
 from datetime import datetime, timezone
 from typing import Any, Dict
 
-from fastapi import HTTPException
 from pydantic import BaseModel, Field
-from rapidhash import rapidhash
 
 from models.common import OperationResult
 from models.config.settings import settings
-from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.s3.enums import EditType, EditData, EntityType
 from models.infrastructure.s3.hashes.hash_maps import StatementsHashes, HashMaps
+from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess.vitess_client import VitessClient
-from models.rest_api.entitybase.request import EntityCreateRequest
+from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.request.entity.add_property import AddPropertyRequest
 from models.rest_api.entitybase.request.entity.patch_statement import (
     PatchStatementRequest,
@@ -27,15 +25,13 @@ from models.rest_api.entitybase.response import (
     EntityResponse,
 )
 from models.rest_api.entitybase.response import StatementHashResult
-from models.rest_api.entitybase.response.result import RevisionIdResult
 from models.rest_api.entitybase.response.entity import EntityState
+from models.rest_api.entitybase.response.result import RevisionIdResult
+from models.rest_api.entitybase.services.hash_service import HashService
 from models.rest_api.entitybase.services.statement_service import (
     hash_entity_statements,
     deduplicate_and_store_statements,
 )
-from models.infrastructure.s3.enums import EditType, EditData, EntityType
-from models.rest_api.entitybase.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.services.hash_service import HashService
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -179,6 +175,7 @@ class EntityValidationService(BaseModel):
         return None
 
 
+# noinspection PyArgumentList
 class EntityHandler(BaseModel):
     """Base entity handler with common functionality"""
 
@@ -218,6 +215,7 @@ class EntityHandler(BaseModel):
         # 2. Check idempotency
         if cached := self._check_idempotency_new(ctx):
             logger.debug(f"Returning cached revision for {entity_id}")
+            assert isinstance(cached, EntityResponse)
             return cached
 
         # 3. Process entity data
@@ -850,7 +848,7 @@ class EntityHandler(BaseModel):
             is_semi_protected=entity_response.state.sp
             if entity_response.state
             else False,
-            is_locked=entity_response.state.is_locked
+            locked=entity_response.state.is_locked
             if entity_response.state
             else False,
             is_archived=entity_response.state.archived

@@ -92,7 +92,6 @@ class RedirectService:
             entity_id=request.redirect_from_id,
             revision_id=redirect_revision_id,
             data=redirect_revision_data,
-            publication_state="pending",
         )
 
         self.vitess.insert_revision(

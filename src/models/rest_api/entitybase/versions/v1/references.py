@@ -38,9 +38,13 @@ async def get_references(
 
     try:
         result = s3_client.load_references_batch(rapidhashes)
-        # Convert dicts to Pydantic models
+        # Convert S3ReferenceData to ReferenceResponse models
         return [
-            ReferenceResponse(**item) if item is not None else None for item in result
+            ReferenceResponse(
+                reference=item.reference,
+                content_hash=item.content_hash,
+                created_at=item.created_at
+            ) if item is not None else None for item in result
         ]
     except Exception as e:
         logger.error(f"Failed to load references {rapidhashes}: {e}")

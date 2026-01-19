@@ -91,7 +91,7 @@ class EntityRepository:
 
         return ProtectionResponse(
             semi_prot=bool(result[0]),
-            is_locked=bool(result[1]),
+            locked=bool(result[1]),
             archived=bool(result[2]),
             dangling=bool(result[3]),
             mass_edit=bool(result[4]),

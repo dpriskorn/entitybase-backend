@@ -48,7 +48,7 @@ class EntityReadHandler:
                 data=data,
                 state=EntityState(
                     sp=revision.content.get("is_semi_protected", False),
-                    is_locked=revision.content.get("is_locked", False),
+                    locked=revision.content.get("is_locked", False),
                     archived=revision.content.get("is_archived", False),
                     dangling=revision.content.get("is_dangling", False),
                     mep=revision.content.get("is_mass_edit_protected", False),

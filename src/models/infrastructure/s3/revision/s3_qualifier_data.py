@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class S3QualifierData(BaseModel):
     """Model for individual qualifier data stored in S3."""
 
-    model_config = ConfigDict(populate_by_name=True, by_alias=True)
+    model_config = ConfigDict(populate_by_name=True)
 
     qualifier: dict[str, Any] = Field(
         description="Full qualifier JSON object. Example: {'property': 'P580', 'value': '2023-01-01'}."

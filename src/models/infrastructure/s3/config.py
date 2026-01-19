@@ -1,6 +1,5 @@
 """S3 configuration model."""
 
-from models.infrastructure.config import Config
 from pydantic import BaseModel
 
 

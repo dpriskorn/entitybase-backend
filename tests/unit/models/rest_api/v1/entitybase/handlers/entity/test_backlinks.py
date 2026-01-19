@@ -5,7 +5,7 @@ from fastapi import HTTPException
 pytestmark = pytest.mark.unit
 
 from models.rest_api.entitybase.handlers.entity.backlinks import BacklinkHandler
-from models.rest_api.entitybase.response import Backlink
+from models.rest_api.entitybase.response.entity.backlinks import BacklinkResponse
 
 
 class TestBacklinkHandler:
@@ -32,7 +32,7 @@ class TestBacklinkHandler:
 
         assert len(result.backlinks) == 1
         backlink = result.backlinks[0]
-        assert isinstance(backlink, Backlink)
+        assert isinstance(backlink, BacklinkResponse)
         assert backlink.entity_id == "Q456"
         assert backlink.property_id == "P31"
         assert backlink.rank == "normal"

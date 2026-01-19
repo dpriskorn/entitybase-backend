@@ -30,6 +30,7 @@ class TestEntityDeleteHandler:
     @pytest.fixture
     def delete_request(self):
         return EntityDeleteRequest(
+            entity_id="Q123",
             delete_type=DeleteType.SOFT,
             edit_summary="Test delete",
             tags=[],

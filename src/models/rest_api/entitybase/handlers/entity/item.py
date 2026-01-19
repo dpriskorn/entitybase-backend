@@ -2,19 +2,18 @@
 
 import logging
 import traceback
-from datetime import datetime
 from typing import Any
 
 from models.infrastructure.s3.enums import EntityType
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess.vitess_client import VitessClient
-from models.rest_api.utils import raise_validation_error
-from models.rest_api.entitybase.services.enumeration_service import EnumerationService
-from .create import EntityCreateHandler
-from .creation_transaction import EntityTransaction
 from models.rest_api.entitybase.request import EntityCreateRequest
 from models.rest_api.entitybase.response import EntityResponse
+from models.rest_api.entitybase.services.enumeration_service import EnumerationService
+from models.rest_api.utils import raise_validation_error
+from .create import EntityCreateHandler
+from .creation_transaction import EntityTransaction
 
 logger = logging.getLogger(__name__)
 
@@ -107,10 +106,10 @@ class ItemCreateHandler(EntityCreateHandler):
                 entity_id=entity_id,
                 revision_id=1,
                 change_type="creation",
-                changed_at=datetime.now(),
-                stream_producer=stream_producer,
-                from_revision_id=0,
-                edit_summary=request.edit_summary,
+                # changed_at=datetime.now(),
+                # stream_producer=stream_producer,
+                # from_revision_id=0,
+                # edit_summary=request.edit_summary,
             )
 
             # Commit
