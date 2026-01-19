@@ -4,12 +4,15 @@ import logging
 
 from typing import Any
 
+from models.internal_representation.entity_data import EntityData
+from models.internal_representation.statements import Statement
 from models.rest_api.entitybase.response import (
     EntityAliasesResponse,
     EntityDescriptionsResponse,
     EntityLabelsResponse,
     EntityMetadataResponse,
 )
+from models.rest_api.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.response.entity import (
     AliasValue,
     DescriptionValue,

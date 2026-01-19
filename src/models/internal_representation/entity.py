@@ -33,4 +33,4 @@ class Entity(BaseModel):
 
 # Import referenced classes and rebuild model to resolve forward references
 
-Entity.model_rebuild()
+# Entity.model_rebuild()

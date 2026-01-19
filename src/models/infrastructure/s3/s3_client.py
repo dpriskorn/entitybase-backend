@@ -1,7 +1,7 @@
 """S3 storage client for entity and statement data."""
 
 import logging
-from typing import Any, Dict, Optional, TYPE_CHECKING, Union, cast
+from typing import Any, Dict, Optional, TYPE_CHECKING, Union
 
 from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]

@@ -399,7 +399,7 @@ async def delete_entity_sitelink(
     sitelinks = current_entity.entity_data.get("sitelinks", {})
     if site not in sitelinks:
         # Idempotent - return success if not found
-        return OperationResult(success=True, data=RevisionIdResult(revision_id=None))
+        return OperationResult(success=True, data=None)
 
     # Remove sitelink
     del current_entity.entity_data["sitelinks"][site]

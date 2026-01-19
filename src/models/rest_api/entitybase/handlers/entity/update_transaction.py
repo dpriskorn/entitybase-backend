@@ -4,6 +4,7 @@ import logging
 from typing import Any
 
 from models.infrastructure.s3.enums import EntityType
+from models.infrastructure.stream.change_type import ChangeType
 from models.rest_api.entitybase.response import EntityResponse
 from models.rest_api.entitybase.response import StatementHashResult
 
@@ -127,7 +128,7 @@ class UpdateTransaction(EntityTransaction):
         self,
         entity_id: str,
         revision_id: int,
-        change_type: str,
+        change_type: ChangeType,
         user_id: int = 0,
         **kwargs: Any,
     ) -> None:

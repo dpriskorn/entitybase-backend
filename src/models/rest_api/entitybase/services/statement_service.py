@@ -318,7 +318,7 @@ def deduplicate_qualifiers_in_statements(
                 import datetime
                 qual_data = S3QualifierData(
                     qualifier=statement_data["qualifiers"],
-                    content_hash=qual_hash,
+                    hash=qual_hash,
                     created_at=datetime.datetime.now(datetime.timezone.utc).isoformat()
                 )
                 s3_client.store_qualifier(qual_hash, qual_data)

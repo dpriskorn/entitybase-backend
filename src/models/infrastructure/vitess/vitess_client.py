@@ -1,16 +1,12 @@
 """Vitess client for database operations."""
 
-import json
 import logging
-from contextlib import contextmanager
-from typing import TYPE_CHECKING, Any, Generator, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional, cast
 
 from pydantic import BaseModel, Field
-from pymysql import Connection
 
 from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.entities import IdResolver
-from models.infrastructure.vitess.vitess_config import VitessConfig
 from models.infrastructure.vitess.repositories.backlink import BacklinkRepository
 from models.infrastructure.vitess.repositories.endorsement import EndorsementRepository
 from models.infrastructure.vitess.repositories.entity import EntityRepository
@@ -21,25 +17,17 @@ from models.infrastructure.vitess.repositories.redirect import RedirectRepositor
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
 from models.infrastructure.vitess.repositories.statement import StatementRepository
 from models.infrastructure.vitess.repositories.thanks import ThanksRepository
-
 from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
-from models.rest_api.entitybase.response.entity import EntityHistoryEntry
-from models.rest_api.entitybase.response.listings import EntityListing
+from models.infrastructure.vitess.vitess_config import VitessConfig
 
 logger = logging.getLogger(__name__)
 
 from models.infrastructure.client import Client
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.s3_client import MyS3Client
     from models.infrastructure.vitess.vitess_config import VitessConfig
     from models.infrastructure.vitess.repositories.user import UserRepository
 from models.infrastructure.vitess.schema import SchemaManager
-
-from models.rest_api.entitybase.response import ProtectionResponse
-from models.rest_api.entitybase.response import FullRevisionResponse
-from models.rest_api.utils import raise_validation_error
-from models.infrastructure.vitess.backlink_entry import BacklinkRecord
 
 
 class Backlink(BaseModel):
