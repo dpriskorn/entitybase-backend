@@ -21,7 +21,7 @@ from models.infrastructure.vitess.repositories.redirect import RedirectRepositor
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
 from models.infrastructure.vitess.repositories.statement import StatementRepository
 from models.infrastructure.vitess.repositories.thanks import ThanksRepository
-from models.infrastructure.vitess.repositories.user import UserRepository
+
 from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
 from models.rest_api.entitybase.response.entity import EntityHistoryEntry
 from models.rest_api.entitybase.response.listings import EntityListing
@@ -33,6 +33,7 @@ from models.infrastructure.client import Client
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import MyS3Client
     from models.infrastructure.vitess.vitess_config import VitessConfig
+    from models.infrastructure.vitess.repositories.user import UserRepository
 from models.infrastructure.vitess.schema import SchemaManager
 
 from models.rest_api.entitybase.response import ProtectionResponse
@@ -118,6 +119,7 @@ class VitessClient(Client):
         self.statement_repository = StatementRepository(self.connection_manager)
         self.backlink_repository = BacklinkRepository(self.connection_manager)
         self.metadata_repository = MetadataRepository(self.connection_manager)
+        from models.infrastructure.vitess.repositories.user import UserRepository
         self.user_repository = UserRepository(self.connection_manager)
         self.watchlist_repository = WatchlistRepository(
             self.connection_manager, self.id_resolver
