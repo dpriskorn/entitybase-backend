@@ -179,7 +179,7 @@ Consume from Kafka topic: `wikibase.entity_published`
   "revision_id": 42,
   "snapshot_uri": "s3://wikibase-revisions/Q123/r0000000042.json",
   "timestamp": "2025-01-15T10:30:00Z",
-  "author_id": "user123"
+  "user_id": "user123"
 }
 ```
 

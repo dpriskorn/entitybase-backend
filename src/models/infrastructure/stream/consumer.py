@@ -18,7 +18,7 @@ class EntityChangeEvent(BaseModel):
     entity_id: str
     revision_id: int
     timestamp: str
-    author_id: str
+    user_id: str
     type: str
 
 

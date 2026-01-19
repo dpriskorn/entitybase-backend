@@ -10,17 +10,17 @@ from models.rest_api.entitybase.request.entity.patch_statement import (
 from models.rest_api.entitybase.response import EntityState
 
 
-class TestPatchStatement(unittest.TestCase):
+class TestPatchStatement:
     """Unit tests for patch_statement functionality."""
 
-    def setUp(self):
+    def setup_method(self):
         """Set up test fixtures."""
         self.handler = EntityHandler()
         self.mock_vitess = MagicMock()
         self.mock_s3 = MagicMock()
         self.mock_validator = MagicMock()
 
-    def test_statement_hash_not_found(self) -> None:
+    async def test_statement_hash_not_found(self) -> None:
         """Test statement hash not found."""
         request = PatchStatementRequest(
             claim={"mainsnak": {"property": "P1"}}, edit_summary="Patch"
@@ -37,11 +37,11 @@ class TestPatchStatement(unittest.TestCase):
             }
             mock_read_handler.get_entity.return_value = mock_entity_response
 
-            result = self.handler.patch_statement(
+            result = await self.handler.patch_statement(
                 "Q1", "999", request, self.mock_vitess, self.mock_s3
             )
-            self.assertFalse(result.success)
-            self.assertIn("Statement not found", result.error)
+            assert not result.success
+            assert "Statement not found" in result.error
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.EntityReadHandler")
     @patch.object(EntityHandler, "_create_and_store_revision")
@@ -49,7 +49,7 @@ class TestPatchStatement(unittest.TestCase):
     @patch(
         "models.internal_representation.statement_hasher.StatementHasher.compute_hash"
     )
-    def test_successful_patch_statement(
+    async def test_successful_patch_statement(
         self, mock_hash, mock_process, mock_create, mock_read_handler_class
     ):
         """Test successful statement patching."""
@@ -79,17 +79,15 @@ class TestPatchStatement(unittest.TestCase):
             edit_summary="Patched statement",
         )
 
-        result = self.handler.patch_statement(
+        result = await self.handler.patch_statement(
             "Q1", "123", request, self.mock_vitess, self.mock_s3
         )
 
-        self.assertTrue(result.success)
-        self.assertEqual(result.data, {"revision_id": 101})
+        assert result.success
+        assert result.data == {"revision_id": 101}
         mock_create.assert_called_once()
         # Verify claim was replaced
-        self.assertEqual(
-            mock_entity_response.entity_data["claims"]["P1"][0], request.claim
-        )
+        assert mock_entity_response.entity_data["claims"]["P1"][0] == request.claim
 
 
 if __name__ == "__main__":

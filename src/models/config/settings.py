@@ -39,7 +39,6 @@ class Settings(BaseSettings):
     test_log_level: str = "INFO"
     test_log_http_requests: bool = False
     test_show_progress: bool = True
-    expose_original_exceptions: bool = False
     enable_streaming: bool = False
     kafka_brokers: str = ""
     kafka_entitychange_json_topic: str = "entitybase.entity_change"

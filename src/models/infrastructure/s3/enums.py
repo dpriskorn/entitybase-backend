@@ -3,11 +3,6 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 
-class CreatedBy(Enum):
-    REST_API = "rest_api"
-    UNSPECIFIED = "unspecified"
-
-
 class EditType(Enum):
     """Enumeration of different types of edits that can be made to entities."""
 

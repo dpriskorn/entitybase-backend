@@ -16,36 +16,39 @@ from models.rest_api.entitybase.response import EntityResponse
 
 
 @pytest.mark.unit
-class TestEntityHashingService(unittest.TestCase):
+class TestEntityHashingService:
     """Unit tests for EntityHashingService."""
 
-    def setUp(self):
+    @pytest.fixture
+    def service(self):
         """Set up test fixtures."""
-        self.service = EntityHashingService()
+        return EntityHashingService()
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.hash_entity_statements")
-    async def test_hash_statements_success(self, mock_hash):
+    @pytest.mark.asyncio
+    async def test_hash_statements_success(self, service, mock_hash):
         """Test successful statement hashing."""
         mock_result = MagicMock()
         mock_result.success = True
         mock_result.data = MagicMock()
         mock_hash.return_value = mock_result
 
-        result = await self.service.hash_statements({"claims": {}})
+        result = await service.hash_statements({"claims": {}})
 
-        self.assertEqual(result, mock_result.data)
+        assert result == mock_result.data
         mock_hash.assert_called_once_with({"claims": {}})
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.hash_entity_statements")
-    async def test_hash_statements_failure(self, mock_hash):
+    @pytest.mark.asyncio
+    async def test_hash_statements_failure(self, service, mock_hash):
         """Test statement hashing failure."""
         mock_result = MagicMock()
         mock_result.success = False
         mock_result.error = "Hash failed"
         mock_hash.return_value = mock_result
 
-        with self.assertRaises(Exception):  # EntityProcessingError
-            await self.service.hash_statements({"claims": {}})
+        with pytest.raises(Exception):  # EntityProcessingError
+            await service.hash_statements({"claims": {}})
 
 
 @pytest.mark.unit
@@ -81,17 +84,31 @@ class TestEntityValidationService(unittest.TestCase):
 
 
 @pytest.mark.unit
-class TestEntityHandlerNewMethods(unittest.TestCase):
+class TestEntityHandlerNewMethods:
     """Unit tests for new EntityHandler methods."""
 
-    def setUp(self):
-        """Set up test fixtures."""
-        self.handler = EntityHandler()
-        self.mock_vitess = MagicMock()
-        self.mock_s3 = MagicMock()
-        self.mock_stream = MagicMock()
+    @pytest.fixture
+    def handler(self):
+        """Set up handler fixture."""
+        return EntityHandler()
 
-    async def test_process_entity_revision_new_success(self):
+    @pytest.fixture
+    def mock_vitess(self):
+        """Set up vitess mock."""
+        return MagicMock()
+
+    @pytest.fixture
+    def mock_s3(self):
+        """Set up s3 mock."""
+        return MagicMock()
+
+    @pytest.fixture
+    def mock_stream(self):
+        """Set up stream mock."""
+        return MagicMock()
+
+    @pytest.mark.asyncio
+    async def test_process_entity_revision_new_success(self, handler, mock_vitess, mock_s3, mock_stream):
         """Test successful entity revision processing."""
         ctx = RevisionContext(
             entity_id="Q1",
@@ -100,19 +117,19 @@ class TestEntityHandlerNewMethods(unittest.TestCase):
             edit_type=EditType.MANUAL_UPDATE,
             edit_summary="Test update",
             is_creation=False,
-            vitess_client=self.mock_vitess,
-            s3_client=self.mock_s3,
-            stream_producer=self.mock_stream,
+            vitess_client=mock_vitess,
+            s3_client=mock_s3,
+            stream_producer=mock_stream,
             validator=None,
         )
 
         # Mock the helper methods
-        with patch.object(self.handler, '_validate_revision_request') as mock_validate, \
-             patch.object(self.handler, '_check_idempotency_new', return_value=None) as mock_idem, \
-             patch.object(self.handler, '_process_entity_data_new') as mock_process, \
-             patch.object(self.handler, '_create_revision_new') as mock_create, \
-             patch.object(self.handler, '_publish_events_new') as mock_publish, \
-             patch.object(self.handler, '_build_entity_response') as mock_build:
+        with patch.object(handler, '_validate_revision_request') as mock_validate, \
+             patch.object(handler, '_check_idempotency_new', return_value=None) as mock_idem, \
+             patch.object(handler, '_process_entity_data_new') as mock_process, \
+             patch.object(handler, '_create_revision_new') as mock_create, \
+             patch.object(handler, '_publish_events_new') as mock_publish, \
+             patch.object(handler, '_build_entity_response') as mock_build:
 
             mock_hash_result = MagicMock()
             mock_process.return_value = mock_hash_result
@@ -124,20 +141,19 @@ class TestEntityHandlerNewMethods(unittest.TestCase):
             mock_response = MagicMock(spec=EntityResponse)
             mock_build.return_value = mock_response
 
-            result = await self.handler.process_entity_revision_new(
+            result = await handler.process_entity_revision_new(
                 entity_id="Q1",
                 request_data={"id": "Q1", "labels": {}},
                 entity_type=EntityType.ITEM,
                 edit_type=EditType.MANUAL_UPDATE,
                 edit_summary="Test update",
                 is_creation=False,
-                vitess_client=self.mock_vitess,
-                s3_client=self.mock_s3,
-                stream_producer=self.mock_stream,
-                validator=None,
+                vitess_client=mock_vitess,
+                s3_client=mock_s3,
+                stream_producer=mock_stream,
             )
 
-            self.assertEqual(result, mock_response)
+            assert result == mock_response
             mock_validate.assert_called_once_with(ctx)
             mock_idem.assert_called_once_with(ctx)
             mock_process.assert_called_once_with(ctx)

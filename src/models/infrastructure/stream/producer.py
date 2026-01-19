@@ -20,45 +20,6 @@ __all__ = [
 ]
 
 
-class EndorseChangeEvent(BaseModel):
-    """Endorsement change event for publishing."""
-
-    model_config = ConfigDict()
-
-    statement_hash: str = Field(
-        alias="hash", description="Hash of the endorsed statement"
-    )
-    user_id: str = Field(
-        alias="user", description="ID of the user performing the action"
-    )
-    action: EndorseAction = Field(alias="act", description="Action performed")
-    timestamp: datetime = Field(alias="ts", description="Timestamp of the action")
-
-    @field_serializer("timestamp")
-    def serialize_timestamp(self, value: datetime) -> str:
-        """Serialize datetime to ISO format with Z suffix."""
-        return value.isoformat() + "Z"
-
-
-class NewThankEvent(BaseModel):
-    """New thank event for publishing."""
-
-    model_config = ConfigDict()
-
-    from_user_id: str = Field(alias="from", description="ID of the user sending thanks")
-    to_user_id: str = Field(alias="to", description="ID of the user receiving thanks")
-    entity_id: str = Field(alias="id", description="Entity ID related to the thanks")
-    revision_id: int = Field(
-        alias="rev", description="Revision ID related to the thanks"
-    )
-    timestamp: datetime = Field(alias="ts", description="Timestamp of the thanks")
-
-    @field_serializer("timestamp")
-    def serialize_timestamp(self, value: datetime) -> str:
-        """Serialize datetime to ISO format with Z suffix."""
-        return value.isoformat() + "Z"
-
-
 class RDFChangeEvent(BaseModel):
     """RDF change event following MediaWiki recentchange schema."""
 

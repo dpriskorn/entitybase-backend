@@ -165,3 +165,5 @@ models.rest_api.entitybase.v1.properties.get_property_label
 models.rest_api.entitybase.v1.properties.get_property_description
 models.rest_api.entitybase.v1.properties.get_property_aliases_for_language
 models.rest_api.entitybase.v1.properties.patch_property_aliases_for_language
+models.infrastructure.s3.enums.LEXEME
+models.infrastructure.s3.revision.revision_data.redirects_to

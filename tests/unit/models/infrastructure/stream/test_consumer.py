@@ -17,13 +17,13 @@ class TestEntityChangeEvent:
             entity_id="Q123",
             revision_id=456,
             timestamp="2023-01-01T00:00:00Z",
-            author_id="user123",
+            user_id="user123",
             type="edit",
         )
         assert event.entity_id == "Q123"
         assert event.revision_id == 456
         assert event.timestamp == "2023-01-01T00:00:00Z"
-        assert event.author_id == "user123"
+        assert event.user_id == "user123"
         assert event.type == "edit"
 
 
@@ -83,7 +83,7 @@ class TestConsumer:
                 "entity_id": "Q123",
                 "revision_id": 456,
                 "timestamp": "2023-01-01T00:00:00Z",
-                "author_id": "user123",
+                "user_id": "user123",
                 "type": "edit",
             }
             yield mock_message

@@ -8,7 +8,7 @@ Each successful revision publication emits an event:
   "entity_id": "Q123",
   "revision_id": 42,
   "timestamp": "...",
-  "author_id": "...",
+  "user_id": "...",
   "type": "entity_updated"
 }
 

@@ -58,21 +58,21 @@ class TestWatchlistConsumerIntegration:
                     entity_id="Q42",
                     revision_id=123,
                     timestamp="2023-01-01T12:00:00Z",
-                    author_id="user123",
+                    user_id="user123",
                     type="edit",
                 ),
                 EntityChangeEvent(
                     entity_id="Q43",
                     revision_id=124,
                     timestamp="2023-01-01T12:01:00Z",
-                    author_id="user124",
+                    user_id="user124",
                     type="create",
                 ),
                 EntityChangeEvent(
                     entity_id="Q42",
                     revision_id=125,
                     timestamp="2023-01-01T12:02:00Z",
-                    author_id="user125",
+                    user_id="user125",
                     type="delete",
                 ),
             ]
@@ -145,7 +145,7 @@ class TestWatchlistConsumerIntegration:
                 entity_id="Q42",
                 revision_id=123,
                 timestamp="2023-01-01T12:00:00Z",
-                author_id="user123",
+                user_id="user123",
                 type="edit",
             )
 
@@ -219,7 +219,7 @@ class TestWatchlistConsumerIntegration:
                 entity_id="Q42",
                 revision_id=123,
                 timestamp="2023-01-01T12:00:00Z",
-                author_id="user123",
+                user_id="user123",
                 type="edit",
             )
 
