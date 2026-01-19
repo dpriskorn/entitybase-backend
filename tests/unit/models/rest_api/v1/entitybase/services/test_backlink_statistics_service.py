@@ -25,21 +25,25 @@ class TestBacklinkStatisticsService:
         mock_vitess = MagicMock()
 
         # Mock the methods
+        mock_get_total = MagicMock(return_value=1000)
+        mock_get_entities = MagicMock(return_value=500)
+        mock_get_top = MagicMock(return_value=[])
+
         with (
             patch.object(
                 BacklinkStatisticsService,
                 "get_total_backlinks",
-                new=MagicMock(return_value=1000),
+                new=mock_get_total,
             ),
             patch.object(
                 BacklinkStatisticsService,
                 "get_entities_with_backlinks",
-                new=MagicMock(return_value=500),
+                new=mock_get_entities,
             ),
             patch.object(
                 BacklinkStatisticsService,
                 "get_top_entities_by_backlinks",
-                new=MagicMock(return_value=[]),
+                new=mock_get_top,
             ),
         ):
             result = service.compute_daily_stats(mock_vitess)
@@ -48,11 +52,9 @@ class TestBacklinkStatisticsService:
             assert result.unique_entities_with_backlinks == 500
             assert result.top_entities_by_backlinks == []
 
-            service.get_total_backlinks.assert_called_once_with(mock_vitess)
-            service.get_entities_with_backlinks.assert_called_once_with(mock_vitess)
-            service.get_top_entities_by_backlinks.assert_called_once_with(
-                mock_vitess, 100
-            )
+            mock_get_total.assert_called_once_with(mock_vitess)
+            mock_get_entities.assert_called_once_with(mock_vitess)
+            mock_get_top.assert_called_once_with(mock_vitess, 100)
 
     def test_get_total_backlinks(self) -> None:
         """Test getting total backlinks count."""
