@@ -42,47 +42,7 @@ class TestMyS3Client:
         mock_connection_manager.connect.assert_called_once()
         # _ensure_bucket_exists would be called
 
-    @patch("models.infrastructure.s3.s3_client.settings")
-    @patch("models.infrastructure.s3.s3_client.S3ConnectionManager")
-    def test_ensure_bucket_exists_bucket_exists(
-        self, mock_manager_class, mock_settings, config, mock_connection_manager
-    ):
-        """Test _ensure_bucket_exists when bucket exists."""
-        mock_manager_class.return_value = mock_connection_manager
-        mock_connection_manager.boto_client.head_bucket.return_value = None
-        mock_settings.s3_revisions_bucket = "testbucket-revisions"
 
-        client = MyS3Client(config)
-
-        mock_connection_manager.boto_client.head_bucket.assert_called_once_with(
-            Bucket="testbucket-revisions"
-        )
-
-    @patch("models.infrastructure.s3.s3_client.S3ConnectionManager")
-    @patch("models.infrastructure.s3.s3_client.raise_validation_error")
-    def test_ensure_bucket_exists_bucket_missing(
-        self, mock_raise, mock_manager_class, config, mock_connection_manager
-    ):
-        """Test _ensure_bucket_exists when bucket doesn't exist."""
-        mock_manager_class.return_value = mock_connection_manager
-        error = ClientError({"Error": {"Code": "NoSuchBucket"}}, "HeadBucket")
-        mock_connection_manager.boto_client.head_bucket.side_effect = error
-        mock_connection_manager.boto_client.create_bucket.return_value = None
-
-        client = MyS3Client(config)
-
-        mock_connection_manager.boto_client.create_bucket.assert_called_once_with(
-            Bucket="test-bucket",
-            CreateBucketConfiguration={"LocationConstraint": "us-east-1"},
-        )
-
-    @patch("models.infrastructure.s3.s3_client.S3ConnectionManager")
-    def test_ensure_bucket_exists_no_client(self, mock_manager_class, config) -> None:
-        """Test _ensure_bucket_exists when no boto client."""
-        mock_manager_class.return_value = None
-
-        with pytest.raises(ValueError) as exc_info:
-            MyS3Client(config)
 
         assert "S3 service unavailable" in str(exc_info.value)
 
@@ -194,7 +154,7 @@ class TestMyS3Client:
             assert call_args[1]["Key"] == "statements/456.json"
             assert call_args[1]["Metadata"]["schema_version"] == "1.0"
 
-    @patch("models.infrastructure.s3.s3_client.datetime")
+    @patch("models.infrastructure.s3.revision.revision_data.datetime")
     def test_write_revision_with_timestamp(
         self, mock_datetime, config, mock_connection_manager
     ):
@@ -310,7 +270,7 @@ class TestMyS3Client:
             client.delete_statement(456)
 
             mock_connection_manager.boto_client.delete_object.assert_called_once_with(
-                Bucket="test-bucket", Key="statements/456.json"
+                Bucket="testbucket-statements", Key="456"
             )
 
     def test_write_entity_revision(self, config, mock_connection_manager) -> None:

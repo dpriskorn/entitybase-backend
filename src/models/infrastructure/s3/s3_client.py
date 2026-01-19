@@ -72,6 +72,9 @@ class MyS3Client(Client):
         """Read S3 object and return parsed JSON."""
         return self.revisions.load_revision(entity_id, revision_id)
 
+    read_full_revision = read_revision
+    write_entity_revision = write_revision
+
     def mark_published(
         self, entity_id: str, revision_id: int, publication_state: str
     ) -> None:
