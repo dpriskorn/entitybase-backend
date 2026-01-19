@@ -24,13 +24,3 @@ class UserActivityResponse(BaseModel):
     user_id: int = Field(description="User ID")
     activities: List[UserActivityItemResponse] = Field(description="List of user activities")
 
-
-
-    """Individual user activity item."""
-
-    id: int
-    user_id: int
-    activity_type: UserActivityType
-    entity_id: str = Field(default="")
-    revision_id: int = Field(default=0)
-    created_at: datetime

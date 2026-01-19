@@ -232,7 +232,7 @@ class ProtectionResponse(BaseModel):
         alias="semi_prot",
         description="Whether entity is semi-protected. Example: true.",
     )
-    is_locked: bool = Field(description="Whether entity is locked. Example: false.")
+    is_locked: bool = Field(alias="locked", description="Whether entity is locked. Example: false.")
     is_archived: bool = Field(
         alias="archived", description="Whether entity is archived. Example: false."
     )

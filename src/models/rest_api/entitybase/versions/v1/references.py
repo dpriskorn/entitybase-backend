@@ -42,7 +42,7 @@ async def get_references(
         return [
             ReferenceResponse(
                 reference=item.reference,
-                content_hash=item.content_hash,
+                hash=item.content_hash,
                 created_at=item.created_at
             ) if item is not None else None for item in result
         ]

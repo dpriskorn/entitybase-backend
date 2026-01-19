@@ -80,7 +80,7 @@ class CreationTransaction(EntityTransaction):
             edit_type=edit_type,
             edit_summary=edit_summary,
             is_semi_protected=is_semi_protected,
-            locked=is_locked,
+            is_locked=is_locked,
             is_archived=is_archived,
             is_dangling=is_dangling,
             is_mass_edit_protected=is_mass_edit_protected,
