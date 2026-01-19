@@ -209,6 +209,7 @@ class TestEndorsementRepository:
 
         result = repository.get_batch_statement_endorsement_stats(
             [456789, 456790, 456791]
+        )
 
         assert result.success is True
         assert len(result.data) == 3
@@ -302,6 +303,8 @@ class TestEndorsementRepository:
                 50,
                 51,
             ]
+        )
+
         assert result.success is False
         assert "Invalid parameters" in result.error
 
