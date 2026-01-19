@@ -15,10 +15,10 @@ from models.rest_api.entitybase.routes.batch import (
 )
 
 
-class TestBatchRoutes(unittest.TestCase):
+class TestBatchRoutes:
     """Unit tests for batch route functions."""
 
-    def setUp(self):
+    def setup_method(self):
         """Set up test fixtures."""
         self.mock_request = Mock()
         self.mock_clients = Mock()
