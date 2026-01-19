@@ -1,7 +1,7 @@
 """S3 storage client for entity and statement data."""
 
 import logging
-from typing import Any, Dict, Optional, TYPE_CHECKING, Union
+from typing import Any, Dict, Optional, TYPE_CHECKING, Union, cast
 
 from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
@@ -114,7 +114,8 @@ class MyS3Client(Client):
 
     def load_term_metadata(self, content_hash: int) -> str:
         """Load term metadata as plain UTF-8 text from S3."""
-        return self.metadata.load_metadata("labels", content_hash)
+        result = self.metadata.load_metadata("labels", content_hash)
+        return cast(str, result)
 
     def store_sitelink_metadata(self, title: str, content_hash: int) -> None:
         """Store sitelink metadata as plain UTF-8 text in S3."""
@@ -124,9 +125,10 @@ class MyS3Client(Client):
 
     def load_sitelink_metadata(self, content_hash: int) -> str:
         """Load sitelink metadata as plain UTF-8 text from S3."""
-        return self.metadata.load_metadata("sitelinks", content_hash)
+        result = self.metadata.load_metadata("sitelinks", content_hash)
+        return cast(str, result)
 
-    def load_metadata(self, metadata_type: str, content_hash: int) -> Any:
+    def load_metadata(self, metadata_type: str, content_hash: int) -> Union[str, Dict[str, Any]]:
         """Load metadata by type."""
         return self.metadata.load_metadata(metadata_type, content_hash)
 

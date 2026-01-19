@@ -3,7 +3,7 @@
 import json
 import logging
 from abc import ABC
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Union
 
 from botocore.exceptions import ClientError
 
@@ -98,7 +98,7 @@ class BaseS3Storage(ABC):
             )
             raise S3StorageError(f"Store failed: {e}")
 
-    def load(self, key: str) -> Any:
+    def load(self, key: str) -> Union[str, Dict[str, Any]]:
         """Load data from S3 with common error handling."""
         self._ensure_connection()
 
