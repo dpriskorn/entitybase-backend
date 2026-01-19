@@ -212,7 +212,6 @@ class TestBacklinkRepository:
     def test_insert_backlink_statistics_invalid_date(self) -> None:
         """Test validation of invalid date format."""
 
-
         with pytest.raises(ValueError) as exc_info:
             self.repository.insert_backlink_statistics(
                 self.conn, "invalid-date", 100, 50, []
@@ -222,7 +221,6 @@ class TestBacklinkRepository:
 
     def test_insert_backlink_statistics_negative_counts(self) -> None:
         """Test validation of negative count values."""
-
 
         # Test negative total_backlinks
         with pytest.raises(ValueError) as exc_info:
@@ -243,17 +241,19 @@ class TestBacklinkRepository:
     def test_insert_backlink_statistics_invalid_top_entities(self) -> None:
         """Test validation of invalid top_entities type."""
 
-
         with pytest.raises(ValueError) as exc_info:
             self.repository.insert_backlink_statistics(
-                self.conn, "2024-01-13", 100, 50, "not-a-list"  # type: ignore[arg-type]
+                self.conn,
+                "2024-01-13",
+                100,
+                50,
+                "not-a-list",  # type: ignore[arg-type]
             )
 
         assert "top_entities_by_backlinks must be a list" in str(exc_info.value)
 
     def test_insert_backlink_statistics_json_serialization_error(self) -> None:
         """Test handling of JSON serialization errors."""
-
 
         # Create an object that can't be JSON serialized
         class NonSerializable:
@@ -263,7 +263,11 @@ class TestBacklinkRepository:
 
         with pytest.raises(ValueError) as exc_info:
             self.repository.insert_backlink_statistics(
-                self.conn, "2024-01-13", 100, 50, top_entities  # type: ignore[arg-type]
+                self.conn,
+                "2024-01-13",
+                100,
+                50,
+                top_entities,  # type: ignore[arg-type]
             )
 
         assert "Failed to serialize top_entities_by_backlinks" in str(exc_info.value)

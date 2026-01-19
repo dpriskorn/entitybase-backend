@@ -143,7 +143,6 @@ def test_create_revision_cas_success(vitess_client: VitessClient) -> None:
 def test_create_revision_cas_failure(vitess_client: VitessClient) -> None:
     """Test create_revision with CAS fails when expected_revision_id doesn't match"""
 
-
     entity_id = "Q222222222"
     revision_id = 1
 
@@ -220,7 +219,6 @@ def test_set_redirect_target_cas_success(vitess_client: VitessClient) -> None:
 
 def test_set_redirect_target_cas_failure(vitess_client: VitessClient) -> None:
     """Test set_redirect_target with CAS fails when expected doesn't match"""
-
 
     entity_id = "Q555555555"
     redirect_to1 = "Q666666666"
