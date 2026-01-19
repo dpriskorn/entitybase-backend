@@ -143,6 +143,7 @@ class VitessClient(Client):
             user_repo_module = importlib.import_module('models.infrastructure.vitess.repositories.user')
             UserRepository = user_repo_module.UserRepository
             self.user_repository = UserRepository(self.connection_manager)
+        assert self.user_repository is not None
         return self.user_repository
 
     def _create_tables(self) -> None:
@@ -678,3 +679,6 @@ class VitessClient(Client):
                 )
                 for record in history
             ]
+
+
+VitessClient.model_rebuild()
