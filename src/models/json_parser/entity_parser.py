@@ -6,6 +6,7 @@ from typing import Any
 
 from models.internal_representation.entity_data import EntityData
 from models.internal_representation.statements import Statement
+from models.json_parser.statement_parser import parse_statement
 from models.rest_api.entitybase.response import (
     EntityAliasesResponse,
     EntityDescriptionsResponse,
@@ -71,18 +72,40 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> EntityMetadataResponse:
         sitelinks=EntitySitelinksResponse(data=sitelinks_json),
     )
 
-    entity_type = EntityType(metadata.type)
+    return metadata
 
-    statements = [parse_statement(stmt) for stmt in metadata.statements.data]
 
-    from models.internal_representation.entity import Entity
+def parse_entity_data(raw_entity_data: dict[str, Any]) -> EntityData:
+    """Parse entity from Wikidata JSON format into internal EntityData."""
+    logger.debug("Parsing entity data from raw data")
+    # Handle nested structure {"entities": {"Q42": {...}}}
+    metadata_dict = raw_entity_data
+    if "entities" in metadata_dict:
+        entities = metadata_dict["entities"]
+        entity_ids = list(entities.keys())
+        if entity_ids:
+            metadata_dict = entities[entity_ids[0]]
 
-    return Entity(
-        id=metadata.id,
+    # Extract raw data
+    labels_dict = metadata_dict.get(JsonField.LABELS.value, {})
+    descriptions_dict = metadata_dict.get(JsonField.DESCRIPTIONS.value, {})
+    aliases_dict = metadata_dict.get(JsonField.ALIASES.value, {})
+    claims_json = metadata_dict.get(JsonField.CLAIMS.value, {})
+    sitelinks_json = metadata_dict.get(JsonField.SITELINKS.value, {})
+
+    entity_type = metadata_dict.get(JsonField.TYPE.value, EntityType.ITEM.value)
+
+    statements = []
+    for prop_claims in claims_json.values():
+        for stmt in prop_claims:
+            statements.append(parse_statement(stmt))
+
+    return EntityData(
+        id=metadata_dict.get(JsonField.ID.value, ""),
         type=entity_type,
-        labels=metadata.labels,
-        descriptions=metadata.descriptions,
-        aliases=metadata.aliases,
+        labels=labels_dict,
+        descriptions=descriptions_dict,
+        aliases=aliases_dict,
         statements=statements,
-        sitelinks=metadata.sitelinks,
+        sitelinks=sitelinks_json,
     )

@@ -7,9 +7,6 @@ from pydantic import BaseModel, Field
 from models.internal_representation.statements import Statement
 from models.rest_api.entitybase.response.entity import EntitySitelinksResponse
 
-if TYPE_CHECKING:
-    pass
-
 
 class EntityData(BaseModel):
     """Internal data model for entity with nested structures."""
@@ -22,5 +19,4 @@ class EntityData(BaseModel):
     statements: list[Statement]
     sitelinks: dict[str, str] | None = Field(default=None)  # Simplified sitelinks
 
-    model_config = {"frozen": True}</content>
-<parameter name="filePath">src/models/internal_representation/entity_data.py
+    model_config = {"frozen": True}

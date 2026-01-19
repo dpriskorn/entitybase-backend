@@ -5,7 +5,7 @@ from io import StringIO
 from pathlib import Path
 from typing import Any, TextIO
 
-from models.internal_representation.entity import Entity
+from models.internal_representation.entity_data import EntityData
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 from models.rdf_builder.models.rdf_statement import RDFStatement
 from models.rdf_builder.property_registry.registry import PropertyRegistry
@@ -136,7 +136,8 @@ class EntityConverter:
             import json
 
             data = json.loads(json_path.read_text(encoding="utf-8"))
-            return parse_entity(raw_entity_data=data)
+            from models.json_parser.entity_parser import parse_entity_data
+            return parse_entity_data(data)
         raise FileNotFoundError(f"Entity {entity_id} not found at {json_path}")
 
     def _write_referenced_entity_metadata(self, entity: Entity, output: TextIO) -> None:
@@ -196,7 +197,7 @@ class EntityConverter:
         for redirect_id in redirects:
             self.writers.write_redirect(output, redirect_id, entity.id)
 
-    def convert_to_string(self, entity: Entity) -> str:
+    def convert_to_string(self, entity: EntityData) -> str:
         """Convert entity to Turtle string."""
         buf = StringIO()
         self.convert_to_turtle(entity, buf)
