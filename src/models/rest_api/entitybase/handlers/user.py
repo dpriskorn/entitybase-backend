@@ -78,8 +78,10 @@ class UserHandler:
                 )
                 row = cursor.fetchone()
                 if row:
+                    # Handle both datetime objects and string dates
+                    date_str = row[0].isoformat() if hasattr(row[0], 'isoformat') else str(row[0])
                     return UserStatsResponse(
-                        date=row[0].isoformat(),
+                        date=date_str,
                         total=row[1],
                         active=row[2],
                     )

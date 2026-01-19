@@ -34,7 +34,7 @@ class TestUserHandler:
             "total_users": 1000,
             "active_users": 500,
         }
-        assert stats == expected
+        assert stats.model_dump() == expected
 
     def test_get_user_stats_no_data_fallback(self) -> None:
         """Test getting user stats when no stored data, falls back to live computation."""
@@ -74,7 +74,7 @@ class TestUserHandler:
             "total_users": 150,
             "active_users": 75,
         }
-        assert stats == expected
+        assert stats.model_dump() == expected
 
     def test_get_general_stats_with_data(self) -> None:
         """Test getting general stats when data exists."""
@@ -121,4 +121,4 @@ class TestUserHandler:
             "terms_per_language": {"en": 2000, "de": 500},
             "terms_by_type": {"labels": 1500, "descriptions": 1000, "aliases": 500},
         }
-        assert stats == expected
+        assert stats.model_dump() == expected
