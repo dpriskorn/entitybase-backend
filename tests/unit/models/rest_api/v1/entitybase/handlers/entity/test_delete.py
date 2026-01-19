@@ -48,7 +48,7 @@ class TestEntityDeleteHandler:
         """Test successful soft delete."""
         mock_vitess_client.entity_exists.return_value = True
         mock_vitess_client.get_head.return_value = 100
-        mock_vitess_client.create_entity_revision.return_value = 101
+        mock_vitess_client.create_revision.return_value = 101
 
         response = await handler.delete_entity(
             "Q42",
@@ -61,8 +61,7 @@ class TestEntityDeleteHandler:
 
         assert isinstance(response, EntityDeleteResponse)
         assert response.revision_id == 101
-        mock_vitess_client.create_entity_revision.assert_called_once()
-        mock_vitess_client.delete_entity.assert_called_once()
+        mock_vitess_client.create_revision.assert_called_once()
         mock_stream_producer.send_entity_change_event.assert_called_once()
 
     @pytest.mark.asyncio
@@ -78,7 +77,7 @@ class TestEntityDeleteHandler:
 
         mock_vitess_client.entity_exists.return_value = True
         mock_vitess_client.get_head.return_value = 100
-        mock_vitess_client.hard_delete_entity.return_value = None
+        mock_vitess_client.create_revision.return_value = 101
 
         response = await handler.delete_entity(
             "Q42",
@@ -90,8 +89,10 @@ class TestEntityDeleteHandler:
         )
 
         assert isinstance(response, EntityDeleteResponse)
-        assert response.revision_id == 100
-        mock_vitess_client.hard_delete_entity.assert_called_once()
+        assert response.revision_id == 101
+        mock_vitess_client.create_revision.assert_called_once()
+        mock_vitess_client.delete_entity.assert_called_once()
+        mock_stream_producer.send_entity_change_event.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_delete_entity_not_found(
