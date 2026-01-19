@@ -98,7 +98,7 @@ class BaseS3Storage(ABC):
             )
             raise S3StorageError(f"Store failed: {e}")
 
-    def load(self, key: str) -> Union[str, Dict[str, Any]]:
+    def load(self, key: str) -> Union[str, Any]:
         """Load data from S3 with common error handling."""
         self._ensure_connection()
 
