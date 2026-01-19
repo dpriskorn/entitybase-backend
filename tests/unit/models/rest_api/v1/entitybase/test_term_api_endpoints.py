@@ -97,15 +97,16 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
         result = asyncio.run(get_item_aliases("Q42", "en", self.mock_request))
 
-        expected = [{"language": "en", "value": "alias1"}, {"language": "en", "value": "alias2"}]
+        expected = [
+            {"language": "en", "value": "alias1"},
+            {"language": "en", "value": "alias2"},
+        ]
         self.assertEqual(result, expected)
 
     # ===== ENTITYBASE PUT ENDPOINTS =====
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
-    def test_entitybase_delete_item_label_success(
-        self, mock_handler_class
-    ):
+    def test_entitybase_delete_item_label_success(self, mock_handler_class):
         """Test entitybase DELETE item label"""
         from models.rest_api.entitybase.versions.v1.items import delete_item_label
 
@@ -120,9 +121,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_update_handler.update_entity.assert_called_once()
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
-    def test_entitybase_delete_item_description_success(
-        self, mock_handler_class
-    ):
+    def test_entitybase_delete_item_description_success(self, mock_handler_class):
         """Test entitybase DELETE item description"""
         from models.rest_api.entitybase.versions.v1.items import delete_item_description
 
@@ -143,7 +142,9 @@ class TestTermAPIEndpoints(unittest.TestCase):
         self, mock_read_handler_class, mock_update_handler_class
     ):
         """Test entitybase PATCH item aliases"""
-        from models.rest_api.entitybase.versions.v1.items import patch_item_aliases_for_language
+        from models.rest_api.entitybase.versions.v1.items import (
+            patch_item_aliases_for_language,
+        )
 
         mock_read_handler = Mock()
         mock_read_handler_class.return_value = mock_read_handler
@@ -230,7 +231,9 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
         mock_handler = Mock()
         mock_handler_class.return_value = mock_handler
-        mock_handler.get_entity.side_effect = HTTPException(status_code=404, detail="Label not found")
+        mock_handler.get_entity.side_effect = HTTPException(
+            status_code=404, detail="Label not found"
+        )
 
         with self.assertRaises(HTTPException) as context:
             asyncio.run(get_item_label("Q42", "en", self.mock_request))
@@ -243,7 +246,9 @@ class TestTermAPIEndpoints(unittest.TestCase):
         from fastapi import HTTPException
 
         with self.assertRaises(HTTPException) as context:
-            asyncio.run(update_item_label("Q42", "en", {}, self.mock_request))  # Empty data
+            asyncio.run(
+                update_item_label("Q42", "en", {}, self.mock_request)
+            )  # Empty data
 
         self.assertEqual(context.exception.status_code, 400)
         self.assertIn("Missing 'value' field", str(context.exception.detail))
@@ -257,7 +262,9 @@ class TestTermAPIEndpoints(unittest.TestCase):
         from fastapi import HTTPException
 
         with self.assertRaises(HTTPException) as context:
-            asyncio.run(update_item_description("Q42", "en", {}, self.mock_request))  # Empty data
+            asyncio.run(
+                update_item_description("Q42", "en", {}, self.mock_request)
+            )  # Empty data
 
         self.assertEqual(context.exception.status_code, 400)
         self.assertIn("Missing 'description' field", str(context.exception.detail))

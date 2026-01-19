@@ -18,7 +18,9 @@ class TestRemoveStatement(unittest.TestCase):
         self.mock_s3 = MagicMock()
         self.mock_validator = MagicMock()
 
-    @patch("models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision")
+    @patch(
+        "models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision"
+    )
     def test_statement_not_found(self, mock_read_revision) -> None:
         """Test statement not found in revision."""
         from models.infrastructure.s3.revision.revision_data import RevisionData
@@ -44,9 +46,13 @@ class TestRemoveStatement(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertIn("Statement hash not found", result.error)
 
-    @patch("models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision")
+    @patch(
+        "models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision"
+    )
     @patch("models.rest_api.entitybase.handlers.entity.handler.StatementRepository")
-    @patch("models.rest_api.entitybase.handlers.entity.handler.MyS3Client.store_revision")
+    @patch(
+        "models.rest_api.entitybase.handlers.entity.handler.MyS3Client.store_revision"
+    )
     @patch(
         "models.rest_api.entitybase.handlers.entity.handler.VitessClient.update_head_revision"
     )
@@ -96,7 +102,9 @@ class TestRemoveStatement(unittest.TestCase):
         mock_store_revision.assert_called_once()
         mock_update_head.assert_called_once_with("Q1", 101)
 
-    @patch("models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision")
+    @patch(
+        "models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision"
+    )
     def test_statement_hash_not_found(self, mock_read_revision) -> None:
         """Test statement hash not found in revision."""
         from models.infrastructure.s3.revision.revision_data import RevisionData
@@ -123,7 +131,9 @@ class TestRemoveStatement(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertIn("Statement hash not found", result.error)
 
-    @patch("models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision")
+    @patch(
+        "models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision"
+    )
     @patch("models.rest_api.entitybase.handlers.entity.handler.StatementRepository")
     def test_decrement_ref_count_failure(
         self, mock_stmt_repo_class, mock_read_revision
@@ -159,7 +169,9 @@ class TestRemoveStatement(unittest.TestCase):
                 "Q1", "123", request.edit_summary, self.mock_vitess, self.mock_s3
             )
 
-    @patch("models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision")
+    @patch(
+        "models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision"
+    )
     def test_invalid_statement_hash_format(self, mock_read_revision) -> None:
         """Test invalid statement hash format."""
         from models.infrastructure.s3.revision.revision_data import RevisionData
@@ -185,7 +197,9 @@ class TestRemoveStatement(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertIn("Invalid statement hash format", result.error)
 
-    @patch("models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision")
+    @patch(
+        "models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision"
+    )
     def test_no_statements_in_revision(self, mock_read_revision) -> None:
         """Test revision with no statements."""
         from models.infrastructure.s3.revision.revision_data import RevisionData

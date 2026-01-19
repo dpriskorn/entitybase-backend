@@ -269,9 +269,7 @@ class TestBacklinkPopulation:
     @patch(
         "models.rest_api.entitybase.services.statement_service.hash_entity_statements"
     )
-    def test_backlink_population_multiple_statements(
-        self, mock_hash: Mock
-    ) -> None:
+    def test_backlink_population_multiple_statements(self, mock_hash: Mock) -> None:
         """Test backlink population with multiple statements and references."""
         entity_id = "Q123"
         request_data = {

@@ -38,7 +38,9 @@ class TestUserRepository:
             (123,),
         )
 
-    def test_create_user_database_error(self, repository, mock_connection_manager) -> None:
+    def test_create_user_database_error(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test user creation with database error."""
         mock_connection_manager.get_connection.side_effect = Exception("DB error")
 
@@ -110,7 +112,9 @@ class TestUserRepository:
 
         assert result is None
 
-    def test_update_user_activity_success(self, repository, mock_connection_manager) -> None:
+    def test_update_user_activity_success(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test successful user activity update."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -145,7 +149,9 @@ class TestUserRepository:
         assert result.success is False
         assert "DB error" in result.error
 
-    def test_is_watchlist_enabled_true(self, repository, mock_connection_manager) -> None:
+    def test_is_watchlist_enabled_true(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test watchlist enabled returns True."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -159,7 +165,9 @@ class TestUserRepository:
 
         assert result is True
 
-    def test_is_watchlist_enabled_false(self, repository, mock_connection_manager) -> None:
+    def test_is_watchlist_enabled_false(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test watchlist enabled returns False."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -173,7 +181,9 @@ class TestUserRepository:
 
         assert result is False
 
-    def test_is_watchlist_enabled_no_user(self, repository, mock_connection_manager) -> None:
+    def test_is_watchlist_enabled_no_user(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test watchlist enabled when user not found."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -187,7 +197,9 @@ class TestUserRepository:
 
         assert result is False
 
-    def test_set_watchlist_enabled_success(self, repository, mock_connection_manager) -> None:
+    def test_set_watchlist_enabled_success(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test successful watchlist enable/disable."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -228,7 +240,9 @@ class TestUserRepository:
             (False, 123),
         )
 
-    def test_log_user_activity_success(self, repository, mock_connection_manager) -> None:
+    def test_log_user_activity_success(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test successful user activity logging."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -237,7 +251,9 @@ class TestUserRepository:
         )
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
-        result = repository.log_user_activity(123, UserActivityType.ENTITY_EDIT, "Q42", 456)
+        result = repository.log_user_activity(
+            123, UserActivityType.ENTITY_EDIT, "Q42", 456
+        )
 
         assert result.success is True
         mock_cursor.execute.assert_called_once_with(
@@ -259,7 +275,9 @@ class TestUserRepository:
         assert result.success is False
         assert "Invalid user ID or activity type" in result.error
 
-    def test_get_user_preferences_success(self, repository, mock_connection_manager) -> None:
+    def test_get_user_preferences_success(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test successful user preferences retrieval."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -281,7 +299,9 @@ class TestUserRepository:
         assert result.success is False
         assert "Invalid user ID" in result.error
 
-    def test_get_user_preferences_not_found(self, repository, mock_connection_manager) -> None:
+    def test_get_user_preferences_not_found(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test get user preferences when user not found."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -296,7 +316,9 @@ class TestUserRepository:
         assert result.success is False
         assert "User preferences not found" in result.error
 
-    def test_update_user_preferences_success(self, repository, mock_connection_manager) -> None:
+    def test_update_user_preferences_success(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test successful user preferences update."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -320,7 +342,9 @@ class TestUserRepository:
         assert result.success is False
         assert "Invalid user ID" in result.error
 
-    def test_get_user_activities_success(self, repository, mock_connection_manager) -> None:
+    def test_get_user_activities_success(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test successful user activities retrieval."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -350,7 +374,9 @@ class TestUserRepository:
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchall.return_value = []
 
-        result = repository.get_user_activities(123, UserActivityType.ENTITY_EDIT, 48, 100, 10)
+        result = repository.get_user_activities(
+            123, UserActivityType.ENTITY_EDIT, 48, 100, 10
+        )
 
         assert result.success is True
         # Check query includes activity_type filter
@@ -372,7 +398,9 @@ class TestUserRepository:
         assert result.success is False
         assert "limit must be positive" in result.error
 
-    def test_insert_user_statistics_success(self, repository, mock_connection_manager) -> None:
+    def test_insert_user_statistics_success(
+        self, repository, mock_connection_manager
+    ) -> None:
         """Test successful insertion of user statistics."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()

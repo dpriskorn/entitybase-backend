@@ -60,7 +60,10 @@ class TestUserHandler:
         conn2.cursor.return_value.__exit__ = Mock(return_value=None)
         cursor2.fetchone.side_effect = [(150,), (75,)]  # Live: total=150, active=75
 
-        vitess_client.connection_manager.get_connection.side_effect = [mock_cm1, mock_cm2]
+        vitess_client.connection_manager.get_connection.side_effect = [
+            mock_cm1,
+            mock_cm2,
+        ]
 
         handler = UserHandler()
         stats = handler.get_user_stats(vitess_client)

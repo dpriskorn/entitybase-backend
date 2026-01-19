@@ -73,7 +73,9 @@ class TestEntityValidationService(unittest.TestCase):
         """Test idempotency validation with existing revision."""
         mock_s3 = MagicMock()
         mock_revision = MagicMock()
-        mock_revision.data.get.side_effect = lambda key, default=False: 12345 if key == "content_hash" else default
+        mock_revision.data.get.side_effect = (
+            lambda key, default=False: 12345 if key == "content_hash" else default
+        )
         mock_revision.entity = {"id": "Q1", "labels": {}}
         mock_s3.read_revision.return_value = mock_revision
 
@@ -112,13 +114,24 @@ class TestEntityHandlerNewMethods:
 
         # Mock the helper methods
         mock_response = MagicMock(spec=EntityResponse)
-        with patch.object(self.handler, '_validate_revision_request') as mock_validate, \
-             patch.object(self.handler, '_check_idempotency_new', new_callable=AsyncMock, return_value=None) as mock_idem, \
-             patch.object(self.handler, '_process_entity_data_new') as mock_process, \
-             patch.object(self.handler, '_create_revision_new') as mock_create, \
-             patch.object(self.handler, '_publish_events_new') as mock_publish, \
-             patch.object(self.handler, '_build_entity_response', new_callable=AsyncMock, return_value=mock_response) as mock_build:
-
+        with (
+            patch.object(self.handler, "_validate_revision_request") as mock_validate,
+            patch.object(
+                self.handler,
+                "_check_idempotency_new",
+                new_callable=AsyncMock,
+                return_value=None,
+            ) as mock_idem,
+            patch.object(self.handler, "_process_entity_data_new") as mock_process,
+            patch.object(self.handler, "_create_revision_new") as mock_create,
+            patch.object(self.handler, "_publish_events_new") as mock_publish,
+            patch.object(
+                self.handler,
+                "_build_entity_response",
+                new_callable=AsyncMock,
+                return_value=mock_response,
+            ) as mock_build,
+        ):
             mock_hash_result = MagicMock()
             mock_process.return_value = mock_hash_result
 
