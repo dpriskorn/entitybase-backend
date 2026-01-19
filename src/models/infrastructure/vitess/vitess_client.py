@@ -17,7 +17,6 @@ from models.infrastructure.vitess.repositories.redirect import RedirectRepositor
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
 from models.infrastructure.vitess.repositories.statement import StatementRepository
 from models.infrastructure.vitess.repositories.thanks import ThanksRepository
-from models.infrastructure.vitess.repositories.user import UserRepository
 from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
 from models.infrastructure.vitess.vitess_config import VitessConfig
 
@@ -26,6 +25,7 @@ logger = logging.getLogger(__name__)
 from models.infrastructure.client import Client
 
 if TYPE_CHECKING:
+    from models.infrastructure.vitess.repositories.user import UserRepository
     from models.infrastructure.vitess.vitess_config import VitessConfig
 from models.infrastructure.vitess.schema import SchemaManager
 
