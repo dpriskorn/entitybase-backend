@@ -1,10 +1,10 @@
 """Response models for user activity operations."""
-
+from datetime import datetime
 from typing import List
 
 from pydantic import BaseModel, Field
 
-from models.user_activity import UserActivityItemResponse
+from models.user_activity import UserActivityType
 
 
 class UserActivityResponse(BaseModel):
@@ -12,3 +12,14 @@ class UserActivityResponse(BaseModel):
 
     user_id: int = Field(description="User ID")
     activities: List[UserActivityItemResponse] = Field(description="List of user activities")
+
+
+class UserActivityItemResponse(BaseModel):
+    """Individual user activity item."""
+
+    id: int
+    user_id: int
+    activity_type: UserActivityType
+    entity_id: str = Field(default="")
+    revision_id: int = Field(default=0)
+    created_at: datetime

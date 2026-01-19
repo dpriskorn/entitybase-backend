@@ -6,7 +6,7 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 
-class ActivityType(str, Enum):
+class UserActivityType(str, Enum):
     """User activity types for entity operations."""
 
     ENTITY_CREATE = "entity_create"  # Creating new entities
@@ -26,23 +26,3 @@ class ActivityType(str, Enum):
     )
 
 
-class UserActivityItemResponse(BaseModel):
-    """Individual user activity item."""
-
-    id: int
-    user_id: int
-    activity_type: ActivityType
-    entity_id: str = Field(default="")
-    revision_id: int = Field(default=0)
-    created_at: datetime
-
-
-class UserActivity(BaseModel):
-    """User activity record."""
-
-    id: int
-    user_id: int
-    activity_type: ActivityType
-    entity_id: str = Field(default="")
-    revision_id: int = Field(default=0)
-    created_at: datetime
