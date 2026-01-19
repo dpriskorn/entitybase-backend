@@ -36,7 +36,7 @@ class TestReferenceHasher(unittest.TestCase):
 
     def test_compute_hash_deterministic(self) -> None:
         """Test that hash is deterministic."""
-        reference = {"snaks": {"P1": []}}
+        reference: dict[str, Any] = {"snaks": {"P1": []}}
         hash1 = ReferenceHasher.compute_hash(reference)
         hash2 = ReferenceHasher.compute_hash(reference)
         self.assertEqual(hash1, hash2)

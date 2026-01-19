@@ -127,7 +127,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
                 reconstructed_descriptions[lang] = {"language": lang, "value": term}
 
         # Reconstruct aliases
-        reconstructed_aliases = {}
+        reconstructed_aliases: dict[str, Any] = {}
         for lang, hash_list in alias_hashes.items():
             reconstructed_aliases[lang] = []
             for hash_val in hash_list:

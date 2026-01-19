@@ -93,7 +93,7 @@ class TestEntityReadHandlerHistory(unittest.TestCase):
     def test_get_entity_history_large_limit_offset(self) -> None:
         """Test get_entity_history with large limit and offset"""
         self.mock_vitess.entity_exists.return_value = True
-        mock_history = []
+        mock_history: list[Any] = []
         self.mock_vitess.get_entity_history.return_value = mock_history
 
         result = EntityReadHandler.get_entity_history(

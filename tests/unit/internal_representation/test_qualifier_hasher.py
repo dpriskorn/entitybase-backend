@@ -28,15 +28,15 @@ class TestQualifierHasher(unittest.TestCase):
 
     def test_compute_hash_deterministic(self) -> None:
         """Test that hash is deterministic."""
-        qualifiers = {"P1": []}
+        qualifiers: dict[str, Any] = {"P1": []}
         hash1 = QualifierHasher.compute_hash(qualifiers)
         hash2 = QualifierHasher.compute_hash(qualifiers)
         self.assertEqual(hash1, hash2)
 
     def test_compute_hash_order_independent(self) -> None:
         """Test that hash depends on content, not key order."""
-        qual1 = {"P1": [], "P2": []}
-        qual2 = {"P2": [], "P1": []}
+        qual1: dict[str, Any] = {"P1": [], "P2": []}
+        qual2: dict[str, Any] = {"P2": [], "P1": []}
         hash1 = QualifierHasher.compute_hash(qual1)
         hash2 = QualifierHasher.compute_hash(qual2)
         self.assertEqual(hash1, hash2)

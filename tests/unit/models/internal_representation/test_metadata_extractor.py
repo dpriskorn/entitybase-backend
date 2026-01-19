@@ -69,7 +69,7 @@ class TestMetadataExtractor:
 
     def test_extract_missing_metadata(self) -> None:
         """Test extracting from entity without metadata."""
-        entity = {"id": "Q1"}
+        entity: dict[str, Any] = {"id": "Q1"}
 
         assert MetadataExtractor.extract_labels(entity) == LabelsResponse(labels={})
         assert MetadataExtractor.extract_descriptions(entity) == DescriptionsResponse(
@@ -89,7 +89,7 @@ class TestMetadataExtractor:
 
     def test_hash_metadata_empty(self) -> None:
         """Test hashing empty metadata."""
-        metadata = {}
+        metadata: dict[str, Any] = {}
 
         hash_value = MetadataExtractor.hash_metadata(metadata)
 
@@ -97,8 +97,8 @@ class TestMetadataExtractor:
 
     def test_hash_metadata_different(self) -> None:
         """Test hashing different metadata produces different hashes."""
-        metadata1 = {"en": {"language": "en", "value": "Test1"}}
-        metadata2 = {"en": {"language": "en", "value": "Test2"}}
+        metadata1: dict[str, Any] = {"en": {"language": "en", "value": "Test1"}}
+        metadata2: dict[str, Any] = {"en": {"language": "en", "value": "Test2"}}
 
         hash1 = MetadataExtractor.hash_metadata(metadata1)
         hash2 = MetadataExtractor.hash_metadata(metadata2)

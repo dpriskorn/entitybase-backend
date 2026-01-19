@@ -321,7 +321,7 @@ class TestStatementBacklinkExtractor:
 
     def test_extract_backlink_data_empty_statement(self) -> None:
         """Test extraction from empty statement dict."""
-        statement = {}
+        statement: dict[str, Any] = {}
         result = StatementBacklinkExtractor.extract_backlink_data(statement)
         assert result == []
 

@@ -25,7 +25,7 @@ class TestMetadataExtractor(unittest.TestCase):
 
     def test_extract_labels_empty(self) -> None:
         """Test extracting labels when none exist"""
-        entity = {}
+        entity: dict[str, Any] = {}
         result = MetadataExtractor.extract_labels(entity)
         self.assertEqual(result, LabelsResponse(labels={}))
 
@@ -45,7 +45,7 @@ class TestMetadataExtractor(unittest.TestCase):
 
     def test_extract_descriptions_empty(self) -> None:
         """Test extracting descriptions when none exist"""
-        entity = {}
+        entity: dict[str, Any] = {}
         result = MetadataExtractor.extract_descriptions(entity)
         self.assertEqual(result, DescriptionsResponse(descriptions={}))
 
@@ -68,7 +68,7 @@ class TestMetadataExtractor(unittest.TestCase):
 
     def test_extract_aliases_empty(self) -> None:
         """Test extracting aliases when none exist"""
-        entity = {}
+        entity: dict[str, Any] = {}
         result = MetadataExtractor.extract_aliases(entity)
         self.assertEqual(result, AliasesResponse(aliases={}))
 

@@ -427,7 +427,7 @@ class TestMyS3Client:
             mock_manager_class.return_value = mock_connection_manager
 
             client = MyS3Client(config)
-            reference_data = {"snaks": {"P1": []}}
+            reference_data: dict[str, Any] = {"snaks": {"P1": []}}
             client.store_reference(123, reference_data)
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
@@ -487,7 +487,7 @@ class TestMyS3Client:
             mock_manager_class.return_value = mock_connection_manager
 
             client = MyS3Client(config)
-            qualifier_data = {"P580": []}
+            qualifier_data: dict[str, Any] = {"P580": []}
             client.store_qualifier(123, qualifier_data)
 
             mock_connection_manager.boto_client.put_object.assert_called_once()
