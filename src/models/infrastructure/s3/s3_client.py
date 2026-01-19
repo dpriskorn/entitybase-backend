@@ -13,7 +13,9 @@ from models.infrastructure.s3.config import S3Config
 from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.enums import MetadataType
 from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.s3.revision.revision_read_response import RevisionReadResponse
+from models.infrastructure.s3.revision.revision_read_response import (
+    RevisionReadResponse,
+)
 from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
 from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
 from models.infrastructure.s3.storage.metadata_storage import MetadataStorage
@@ -37,11 +39,11 @@ class MyS3Client(Client):
     connection_manager: Optional[S3ConnectionManager] = Field(
         default=None, exclude=True
     )  # type: ignore[override]
-    revisions: Optional[RevisionStorage] = Field(default=None, exclude=True)
-    statements: Optional[StatementStorage] = Field(default=None, exclude=True)
-    metadata: Optional[MetadataStorage] = Field(default=None, exclude=True)
-    references: Optional[ReferenceStorage] = Field(default=None, exclude=True)
-    qualifiers: Optional[QualifierStorage] = Field(default=None, exclude=True)
+    revisions: RevisionStorage = Field(exclude=True)
+    statements: StatementStorage = Field(exclude=True)
+    metadata: MetadataStorage = Field(exclude=True)
+    references: ReferenceStorage = Field(exclude=True)
+    qualifiers: QualifierStorage = Field(exclude=True)
 
     def __init__(self, config: S3Config, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
@@ -94,7 +96,9 @@ class MyS3Client(Client):
         schema_version: str,
     ) -> None:
         """Write statement snapshot to S3."""
-        result = self.statements.store_statement(content_hash, statement_data, schema_version)
+        result = self.statements.store_statement(
+            content_hash, statement_data, schema_version
+        )
         if not result.success:
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
@@ -106,7 +110,9 @@ class MyS3Client(Client):
         """Delete metadata content from S3 when ref_count reaches 0."""
         result = self.metadata.delete_metadata(metadata_type, content_hash)
         if not result.success:
-            logger.error(f"S3 delete_metadata failed for {metadata_type}:{content_hash}")
+            logger.error(
+                f"S3 delete_metadata failed for {metadata_type}:{content_hash}"
+            )
 
     def store_term_metadata(self, term: str, content_hash: int) -> None:
         """Store term metadata as plain UTF-8 text in S3."""
@@ -124,7 +130,9 @@ class MyS3Client(Client):
 
     def store_sitelink_metadata(self, title: str, content_hash: int) -> None:
         """Store sitelink metadata as plain UTF-8 text in S3."""
-        result = self.metadata.store_metadata(MetadataType.SITELINKS, content_hash, title)
+        result = self.metadata.store_metadata(
+            MetadataType.SITELINKS, content_hash, title
+        )
         if not result.success:
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
@@ -134,11 +142,15 @@ class MyS3Client(Client):
         assert isinstance(result, str)
         return result
 
-    def load_metadata(self, metadata_type: MetadataType, content_hash: int) -> Union[str, Dict[str, Any]]:
+    def load_metadata(
+        self, metadata_type: MetadataType, content_hash: int
+    ) -> Union[str, Dict[str, Any]]:
         """Load metadata by type."""
         return self.metadata.load_metadata(metadata_type, content_hash)
 
-    def store_reference(self, content_hash: int, reference_data: S3ReferenceData) -> None:
+    def store_reference(
+        self, content_hash: int, reference_data: S3ReferenceData
+    ) -> None:
         """Store a reference by its content hash."""
         result = self.references.store_reference(content_hash, reference_data)
         if not result.success:
@@ -148,11 +160,15 @@ class MyS3Client(Client):
         """Load a reference by its content hash."""
         return self.references.load_reference(content_hash)
 
-    def load_references_batch(self, content_hashes: list[int]) -> list[S3ReferenceData | None]:
+    def load_references_batch(
+        self, content_hashes: list[int]
+    ) -> list[S3ReferenceData | None]:
         """Load multiple references by their content hashes."""
         return self.references.load_references_batch(content_hashes)
 
-    def store_qualifier(self, content_hash: int, qualifier_data: S3QualifierData) -> None:
+    def store_qualifier(
+        self, content_hash: int, qualifier_data: S3QualifierData
+    ) -> None:
         """Store a qualifier by its content hash."""
         result = self.qualifiers.store_qualifier(content_hash, qualifier_data)
         if not result.success:
@@ -162,7 +178,9 @@ class MyS3Client(Client):
         """Load a qualifier by its content hash."""
         return self.qualifiers.load_qualifier(content_hash)
 
-    def load_qualifiers_batch(self, content_hashes: list[int]) -> list[S3QualifierData | None]:
+    def load_qualifiers_batch(
+        self, content_hashes: list[int]
+    ) -> list[S3QualifierData | None]:
         """Load multiple qualifiers by their content hashes."""
         return self.qualifiers.load_qualifiers_batch(content_hashes)
 

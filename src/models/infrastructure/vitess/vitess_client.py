@@ -40,9 +40,7 @@ class VitessClient(Client):
     """Vitess database client for entity operations."""
 
     config: "VitessConfig"  # type: ignore[override]
-    connection_manager: Optional[VitessConnectionManager] = Field(
-        default=None, init=False, exclude=True
-    )  # type: ignore[override]
+    connection_manager: Optional[VitessConnectionManager] = Field(init=False, exclude=True)
     schema_manager: Optional[SchemaManager] = Field(
         default=None, init=False, exclude=True
     )
@@ -132,8 +130,8 @@ class VitessClient(Client):
 
     def update_head_revision(self, entity_id: str, revision_id: int) -> None:
         """Update the head revision for an entity."""
-        with self.connection_manager.get_connection() as conn:
-            self.entity_repository.update_head_revision(conn, entity_id, revision_id)
+        with self.connection_manager.get_connection() as conn:  # type: ignore
+            self.entity_repository.update_head_revision(conn, entity_id, revision_id)  # type: ignore
 
 
 # Import UserRepository for model_rebuild to resolve forward references

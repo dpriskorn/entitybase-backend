@@ -7,7 +7,9 @@ from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage
 from models.infrastructure.s3.connection import S3ConnectionManager
-from models.infrastructure.s3.revision.revision_read_response import RevisionReadResponse
+from models.infrastructure.s3.revision.revision_read_response import (
+    RevisionReadResponse,
+)
 from models.infrastructure.s3.revision.revision_data import RevisionData
 
 logger = logging.getLogger(__name__)
@@ -47,8 +49,8 @@ class RevisionStorage(BaseS3Storage):
             entity_id=entity_id,
             revision_id=revision_id,
             data=revision_data,
-            content=parsed_data.get("entity", {}),
-            schema_version=parsed_data.get("schema_version", ""),
+            content=parsed_data.get("entity", {}),  # type: ignore
+            schema_version=parsed_data.get("schema_version", ""),  # type: ignore
             created_at=response["Metadata"].get("created_at", ""),
         )
 

@@ -15,16 +15,19 @@ logger = logging.getLogger(__name__)
 
 class S3StorageError(Exception):
     """Base exception for S3 storage operations."""
+
     pass
 
 
 class S3NotFoundError(S3StorageError):
     """Raised when S3 object is not found."""
+
     pass
 
 
 class S3ConnectionError(S3StorageError):
     """Raised when S3 connection fails."""
+
     pass
 
 
@@ -47,13 +50,15 @@ class BaseS3Storage(ABC):
         error_message = e.response["Error"].get("Message", str(e))
 
         if error_code in ["NoSuchKey", "404"]:
-            self.logger.warning(f"S3 {operation} not found: bucket={self.bucket}, key={key}")
+            self.logger.warning(
+                f"S3 {operation} not found: bucket={self.bucket}, key={key}"
+            )
             raise S3NotFoundError(f"Object not found: {key}")
         else:
             self.logger.error(
                 f"S3 {operation} failed: bucket={self.bucket}, key={key}, "
                 f"error_code={error_code}, error_message={error_message}",
-                exc_info=True
+                exc_info=True,
             )
             raise S3StorageError(f"{operation} failed: {error_message}")
 
@@ -62,7 +67,7 @@ class BaseS3Storage(ABC):
         key: str,
         data: Any,
         content_type: str = "application/json",
-        metadata: Optional[Dict[str, str]] = None
+        metadata: Optional[Dict[str, str]] = None,
     ) -> OperationResult[None]:
         """Store data in S3 with common error handling."""
         self.logger.debug(f"Storing data to S3: bucket={self.bucket}, key={key}")
@@ -70,19 +75,23 @@ class BaseS3Storage(ABC):
 
         try:
             if isinstance(data, str):
-                body = data.encode('utf-8')
+                body = data.encode("utf-8")
                 content_type = "text/plain"
-            elif hasattr(data, 'model_dump'):
-                body = json.dumps(data.model_dump(mode="json")).encode('utf-8')
+            elif hasattr(data, "model_dump"):
+                body = json.dumps(data.model_dump(mode="json")).encode("utf-8")
             else:
-                body = json.dumps(data, default=str).encode('utf-8') if isinstance(data, dict) else str(data).encode('utf-8')
+                body = (
+                    json.dumps(data, default=str).encode("utf-8")
+                    if isinstance(data, dict)
+                    else str(data).encode("utf-8")
+                )
 
             self.connection_manager.boto_client.put_object(
                 Bucket=self.bucket,
                 Key=key,
                 Body=body,
                 ContentType=content_type,
-                Metadata=metadata or {}
+                Metadata=metadata or {},
             )
 
             self.logger.debug(f"S3 store successful: bucket={self.bucket}, key={key}")
@@ -94,11 +103,11 @@ class BaseS3Storage(ABC):
         except Exception as e:
             self.logger.error(
                 f"S3 store failed: bucket={self.bucket}, key={key}, error={e}",
-                exc_info=True
+                exc_info=True,
             )
             raise S3StorageError(f"Store failed: {e}")
 
-    def load(self, key: str) -> Union[str, Any]:
+    def load(self, key: str) -> Any:
         """Load data from S3 with common error handling."""
         self._ensure_connection()
 
@@ -121,7 +130,7 @@ class BaseS3Storage(ABC):
         except Exception as e:
             self.logger.error(
                 f"S3 load failed: bucket={self.bucket}, key={key}, error={e}",
-                exc_info=True
+                exc_info=True,
             )
             raise S3StorageError(f"Load failed: {e}")
 
@@ -130,7 +139,9 @@ class BaseS3Storage(ABC):
         self._ensure_connection()
 
         try:
-            self.connection_manager.boto_client.delete_object(Bucket=self.bucket, Key=key)
+            self.connection_manager.boto_client.delete_object(
+                Bucket=self.bucket, Key=key
+            )
             self.logger.debug(f"S3 delete successful: bucket={self.bucket}, key={key}")
             return OperationResult(success=True)
 
@@ -140,7 +151,7 @@ class BaseS3Storage(ABC):
         except Exception as e:
             self.logger.error(
                 f"S3 delete failed: bucket={self.bucket}, key={key}, error={e}",
-                exc_info=True
+                exc_info=True,
             )
             raise S3StorageError(f"Delete failed: {e}")
 

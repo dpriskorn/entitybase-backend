@@ -33,7 +33,7 @@ class StatementDiff(BaseModel):
         added = [stmt for stmt in new_statements if stmt.id not in old_ids]
         removed = [stmt for stmt in old_statements if stmt.id not in new_ids]
         # Modified: compare properties, but simplify
-        modified = []
+        modified: List[Any] = []
 
         return DiffResult(added=added, removed=removed, modified=modified)
 
@@ -46,18 +46,36 @@ class TermsDiff(BaseModel):
         # Simplified diff for terms dict
         added = {k: v for k, v in new_terms.items() if k not in old_terms}
         removed = {k: v for k, v in old_terms.items() if k not in new_terms}
-        modified = {k: {"old": old_terms[k], "new": v} for k, v in new_terms.items() if k in old_terms and old_terms[k] != v}
+        modified = {
+            k: {"old": old_terms[k], "new": v}
+            for k, v in new_terms.items()
+            if k in old_terms and old_terms[k] != v
+        }
 
-        return DiffResult(added=list(added.values()), removed=list(removed.values()), modified=list(modified.values()))
+        return DiffResult(
+            added=list(added.values()),
+            removed=list(removed.values()),
+            modified=list(modified.values()),
+        )
 
 
 class SitelinksDiff(BaseModel):
     """Diff for sitelinks."""
 
     @staticmethod
-    def compute(old_sitelinks: Dict[str, str], new_sitelinks: Dict[str, str]) -> DiffResult:
+    def compute(
+        old_sitelinks: Dict[str, str], new_sitelinks: Dict[str, str]
+    ) -> DiffResult:
         added = {k: v for k, v in new_sitelinks.items() if k not in old_sitelinks}
         removed = {k: v for k, v in old_sitelinks.items() if k not in new_sitelinks}
-        modified = {k: {"old": old_sitelinks[k], "new": v} for k, v in new_sitelinks.items() if k in old_sitelinks and old_sitelinks[k] != v}
+        modified = {
+            k: {"old": old_sitelinks[k], "new": v}
+            for k, v in new_sitelinks.items()
+            if k in old_sitelinks and old_sitelinks[k] != v
+        }
 
-        return DiffResult(added=list(added.values()), removed=list(removed.values()), modified=list(modified.values()))
+        return DiffResult(
+            added=list(added.values()),
+            removed=list(removed.values()),
+            modified=list(modified.values()),
+        )
