@@ -1,5 +1,5 @@
 """REST API for Wikibase backend."""
 
-from .entitybase import handlers
+from .v1.entitybase import handlers
 
 __all__ = ["handlers"]
