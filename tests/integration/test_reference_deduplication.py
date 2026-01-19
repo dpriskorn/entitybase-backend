@@ -52,12 +52,12 @@ class TestReferenceDeduplication:
         }
 
         # Create entity
-        response = test_client.post("/entities", json=entity_data)
+        response = api_client.post("/entities", json=entity_data)
         assert response.status_code == 201
         entity_id = response.json()["id"]
 
         # Read entity back
-        response = test_client.get(f"/entities/{entity_id}")
+        response = api_client.get(f"/entities/{entity_id}")
         assert response.status_code == 200
         data = response.json()
 
@@ -69,7 +69,7 @@ class TestReferenceDeduplication:
 
         # Verify reference can be fetched
         ref_hash = references[0]
-        response = test_client.get(f"/references/{ref_hash}")
+        response = api_client.get(f"/references/{ref_hash}")
         assert response.status_code == 200
         ref_data = response.json()
         assert "snaks" in ref_data
@@ -77,7 +77,7 @@ class TestReferenceDeduplication:
     def test_reference_batch_endpoint(self, api_client) -> None:
         """Test batch reference fetching."""
         # Assume some references exist from previous test
-        response = test_client.get("/references/123,456")
+        response = api_client.get("/references/123,456")
         # Should return array with nulls for missing
         assert response.status_code == 200
         data = response.json()
