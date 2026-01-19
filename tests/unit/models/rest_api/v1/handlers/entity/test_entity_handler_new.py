@@ -17,10 +17,10 @@ from models.rest_api.entitybase.response import EntityResponse
 
 
 @pytest.mark.unit
-class TestEntityHashingService(unittest.TestCase):
+class TestEntityHashingService:
     """Unit tests for EntityHashingService."""
 
-    def setUp(self):
+    def setup_method(self):
         """Set up test fixtures."""
         self.service = EntityHashingService()
 
@@ -35,7 +35,7 @@ class TestEntityHashingService(unittest.TestCase):
 
         result = await self.service.hash_statements({"claims": {}})
 
-        self.assertEqual(result, mock_result.data)
+        assert result == mock_result.data
         mock_hash.assert_called_once_with({"claims": {}})
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.hash_entity_statements")
@@ -47,7 +47,7 @@ class TestEntityHashingService(unittest.TestCase):
         mock_result.error = "Hash failed"
         mock_hash.return_value = mock_result
 
-        with self.assertRaises(Exception):  # EntityProcessingError
+        with pytest.raises(Exception):  # EntityProcessingError
             await self.service.hash_statements({"claims": {}})
 
 
@@ -64,7 +64,7 @@ class TestEntityValidationService(unittest.TestCase):
         """Test mass edit protection validation."""
         self.mock_vitess.is_entity_semi_protected.return_value = True
 
-        with self.assertRaises(Exception):  # ValidationError
+        with pytest.raises(Exception):  # ValidationError
             self.service.validate_protection_settings(
                 "Q1", True, False, self.mock_vitess
             )
@@ -79,15 +79,15 @@ class TestEntityValidationService(unittest.TestCase):
 
         result = self.service.validate_idempotency("Q1", 1, 12345, {}, mock_s3)
 
-        self.assertIsInstance(result, EntityResponse)
-        self.assertEqual(result.id, "Q1")
+        assert isinstance(result, EntityResponse)
+        assert result.id == "Q1"
 
 
 @pytest.mark.unit
-class TestEntityHandlerNewMethods(unittest.TestCase):
+class TestEntityHandlerNewMethods:
     """Unit tests for new EntityHandler methods."""
 
-    def setUp(self):
+    def setup_method(self):
         """Set up test fixtures."""
         self.handler = EntityHandler()
         self.mock_vitess = MagicMock()
@@ -171,7 +171,7 @@ class TestEntityHandlerNewMethods(unittest.TestCase):
             s3_client=self.mock_s3,
         )
 
-        with self.assertRaises(Exception):  # EntityProcessingError
+        with pytest.raises(Exception):  # EntityProcessingError
             self.handler._validate_revision_request(ctx)
 
 
