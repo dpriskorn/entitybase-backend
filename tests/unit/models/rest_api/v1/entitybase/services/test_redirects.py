@@ -229,7 +229,7 @@ class TestRedirectService:
         self.mock_vitess_client.is_entity_deleted.return_value = False
         self.mock_vitess_client.is_entity_locked.return_value = False
         self.mock_vitess_client.is_entity_archived.return_value = False
-        self.mock_vitess_client.get_head.side_effect = [5, 0]
+        self.mock_vitess_client.get_head.side_effect = [5, 5]
 
         request = EntityRedirectRequest(
             redirect_from_id="Q100", redirect_to_id="Q200", created_by="test-user"

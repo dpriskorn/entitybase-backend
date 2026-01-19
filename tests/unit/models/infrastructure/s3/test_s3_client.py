@@ -170,7 +170,7 @@ class TestMyS3Client:
             client = MyS3Client(config)
             data = RevisionData(
                 revision_id=123,
-                entity_type=EntityType.item,
+                entity_type=EntityType.ITEM,
                 edit=EditData(),
                 hashes=None,
             )

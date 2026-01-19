@@ -354,7 +354,8 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         result = EntityReadHandler.get_entity_revision("Q42", 123, self.mock_s3)
 
         self.assertEqual(result, mock_response_instance)
-        self.assertEqual(self.mock_s3.load_metadata.call_count, 2)  # desc and aliases
+        # load_metadata not called in this method
+        self.assertEqual(self.mock_s3.load_metadata.call_count, 0)
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityRevisionResponse")
     def test_get_entity_revision_invalid_descriptions_hash(

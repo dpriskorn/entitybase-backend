@@ -289,7 +289,7 @@ class RedirectService:
         )
 
         return EntityResponse(
-            id=entity_id, revision_id=new_revision_id, data=new_revision_data["entity"]
+            id=entity_id, revision_id=new_revision_id, data=new_revision_data["entity"], state=EntityState()
         )
 
 
