@@ -21,6 +21,9 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from models.infrastructure.vitess.repositories.user import UserRepository
+
+# Import the module to make UserRepository available for model_rebuild
+import models.infrastructure.vitess.repositories.user
 from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
 from models.infrastructure.vitess.vitess_config import VitessConfig
 
@@ -122,6 +125,7 @@ class VitessClient(Client):
         """Get the user repository, lazy loading it if necessary."""
         if self.user_repository is None:
             from models.infrastructure.vitess.repositories.user import UserRepository
+
             self.user_repository = UserRepository(self.connection_manager)
         assert self.user_repository is not None
         return self.user_repository
@@ -130,3 +134,8 @@ class VitessClient(Client):
         """Update the head revision for an entity."""
         with self.connection_manager.get_connection() as conn:
             self.entity_repository.update_head_revision(conn, entity_id, revision_id)
+
+
+# Import UserRepository for model_rebuild to resolve forward references
+from models.infrastructure.vitess.repositories.user import UserRepository  # noqa: E402
+VitessClient.model_rebuild()
