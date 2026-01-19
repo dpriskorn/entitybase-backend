@@ -1,5 +1,7 @@
 import unittest
+from typing import Any
 from unittest.mock import patch
+
 from models.internal_representation.metadata_extractor import (
     MetadataExtractor,
     LabelsResponse,

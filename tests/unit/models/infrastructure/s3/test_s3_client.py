@@ -4,6 +4,8 @@ from botocore.exceptions import ClientError
 
 pytestmark = pytest.mark.unit
 
+from typing import Any
+
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.s3.config import S3Config
 from models.infrastructure.s3.revision.revision_data import RevisionData

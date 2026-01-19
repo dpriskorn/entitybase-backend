@@ -1,3 +1,5 @@
+from typing import Any
+
 from models.internal_representation.statement_backlink_extractor import (
     StatementBacklinkExtractor,
 )

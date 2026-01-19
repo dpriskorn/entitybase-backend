@@ -1,6 +1,8 @@
 """Unit tests for ReferenceHasher."""
 
 import unittest
+from typing import Any
+
 from models.internal_representation.reference_hasher import ReferenceHasher
 
 

@@ -1,3 +1,5 @@
+from typing import Any
+
 from models.internal_representation.metadata_extractor import (
     MetadataExtractor,
     LabelsResponse,

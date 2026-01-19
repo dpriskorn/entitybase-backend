@@ -1,6 +1,8 @@
 """Unit tests for QualifierHasher."""
 
 import unittest
+from typing import Any
+
 from models.internal_representation.qualifier_hasher import QualifierHasher
 
 

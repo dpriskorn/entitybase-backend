@@ -197,7 +197,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
     def test_wikibase_get_item_label_redirect(self) -> None:
         """Test Wikibase GET item label redirects"""
-        from models.rest_api.wikibase.v1.entity.items import get_item_label
+        from models.rest_api.entitybase.versions.v1.items import get_item_label
         from fastapi.responses import RedirectResponse
 
         result = get_item_label("Q42", "en")
