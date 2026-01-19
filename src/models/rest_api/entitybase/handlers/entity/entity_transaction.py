@@ -34,7 +34,9 @@ class EntityTransaction(BaseModel, ABC):
         logger.info(f"[EntityTransaction] Registering entity {entity_id}")
         self.entity_id = entity_id
         with vitess_client.get_connection() as conn:
-            entity_repo = EntityRepository(vitess_client.connection_manager, vitess_client.id_resolver)
+            entity_repo = EntityRepository(
+                vitess_client.connection_manager, vitess_client.id_resolver
+            )
             entity_repo.create_entity(conn, entity_id)
         self.operations.append(
             lambda: self._rollback_entity_registration(vitess_client)
@@ -48,20 +50,26 @@ class EntityTransaction(BaseModel, ABC):
             f"[EntityTransaction] Rolling back entity registration for {self.entity_id}"
         )
         with vitess_client.get_connection() as conn:
-            entity_repo = EntityRepository(vitess_client.connection_manager, vitess_client.id_resolver)
+            entity_repo = EntityRepository(
+                vitess_client.connection_manager, vitess_client.id_resolver
+            )
             entity_repo.delete_entity(conn, self.entity_id)
 
     def _rollback_revision(
         self, entity_id: str, revision_id: int, vitess_client: Any
     ) -> None:
         """Rollback a revision."""
-        from models.infrastructure.vitess.repositories.revision import RevisionRepository
+        from models.infrastructure.vitess.repositories.revision import (
+            RevisionRepository,
+        )
 
         logger.info(
             f"[EntityTransaction] Rolling back revision {revision_id} for {entity_id}"
         )
         with vitess_client.get_connection() as conn:
-            revision_repo = RevisionRepository(vitess_client.connection_manager, vitess_client.id_resolver)
+            revision_repo = RevisionRepository(
+                vitess_client.connection_manager, vitess_client.id_resolver
+            )
             revision_repo.delete(conn, entity_id, revision_id)
 
     def publish_event(

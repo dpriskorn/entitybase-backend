@@ -13,7 +13,7 @@ from models.rest_api.entitybase.response import EntityResponse
 from models.rest_api.entitybase.services.enumeration_service import EnumerationService
 from models.rest_api.utils import raise_validation_error
 from .create import EntityCreateHandler
-from .creation_transaction import EntityTransaction
+from .creation_transaction import CreationTransaction
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class ItemCreateHandler(EntityCreateHandler):
 
         # Create transaction
         logger.info("Creating transaction")
-        tx = EntityTransaction()  # type: ignore[abstract]
+        tx = CreationTransaction()
         try:
             # Register entity
             logger.info(f"Registering entity {entity_id}")

@@ -141,11 +141,7 @@ class UpdateTransaction(EntityTransaction):
             entity_id: The ID of the entity that changed.
             revision_id: The new revision ID after the change.
             change_type: The type of change (e.g., 'edit', 'create').
-            from_revision_id: The previous revision ID (0 for creations).
-            changed_at: Timestamp of the change.
-            edit_summary: Summary of the edit.
             user_id: The id of the user who made the change.
-            stream_producer: The producer instance for publishing events.
 
         Returns:
             None
@@ -153,10 +149,10 @@ class UpdateTransaction(EntityTransaction):
         Note:
             The editor field in EntityChangeEvent is set to the editor parameter.
         """
-        from_revision_id = kwargs.get('from_revision_id', 0)
-        changed_at = kwargs.get('changed_at')
-        edit_summary = kwargs.get('edit_summary', '')
-        stream_producer = kwargs.get('stream_producer')
+        from_revision_id = kwargs.get("from_revision_id", 0)
+        changed_at = kwargs.get("changed_at")
+        edit_summary = kwargs.get("edit_summary", "")
+        stream_producer = kwargs.get("stream_producer")
 
         logger.info(f"[UpdateTransaction] Starting event publishing for {entity_id}")
         if stream_producer:

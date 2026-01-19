@@ -9,7 +9,11 @@ from pydantic import BaseModel, Field, ConfigDict
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.enums import EditType, EditData, EntityType
-from models.infrastructure.s3.hashes.hash_maps import StatementsHashes, HashMaps, SitelinksHashes
+from models.infrastructure.s3.hashes.hash_maps import (
+    StatementsHashes,
+    HashMaps,
+    SitelinksHashes,
+)
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
@@ -33,6 +37,8 @@ from models.rest_api.entitybase.services.statement_service import (
     deduplicate_and_store_statements,
 )
 from models.rest_api.utils import raise_validation_error
+from .entity_hashing_service import EntityHashingService
+from .entity_validation_service import EntityValidationService
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +91,7 @@ class RevisionContext(BaseModel):
 
 class RevisionResult(BaseModel):
     """Result of revision processing."""
+
     success: bool
     revision_id: int = Field(default=0)
     error: str = Field(default="")
@@ -92,87 +99,12 @@ class RevisionResult(BaseModel):
 
 class EntityProcessingError(Exception):
     """Custom exception for entity processing errors."""
+
     def __init__(self, message: str, status_code: int = 500):
         self.message = message
         self.status_code = status_code
         super().__init__(message)
 
-
-class EntityHashingService(BaseModel):
-    """Service for handling entity data hashing operations."""
-
-    async def hash_statements(self, request_data: Dict[str, Any]) -> StatementHashResult:
-        """Hash entity statements."""
-        hash_operation = hash_entity_statements(request_data)
-        if not hash_operation.success:
-            raise EntityProcessingError(hash_operation.error or "Failed to hash statements")
-        return hash_operation.data
-
-    async def hash_terms(self, request_data: Dict[str, Any], s3_client: MyS3Client, vitess_client: VitessClient) -> HashMaps:
-        """Hash entity terms (labels, descriptions, aliases)."""
-        labels_hashes = HashService.hash_labels(
-            request_data.get("labels", {}), s3_client, vitess_client
-        )
-        descriptions_hashes = HashService.hash_descriptions(
-            request_data.get("descriptions", {}), s3_client, vitess_client
-        )
-        aliases_hashes = HashService.hash_aliases(
-            request_data.get("aliases", {}), s3_client, vitess_client
-        )
-
-        return HashMaps(
-            labels=labels_hashes,
-            descriptions=descriptions_hashes,
-            aliases=aliases_hashes,
-        )
-
-    async def hash_sitelinks(self, request_data: Dict[str, Any], s3_client: MyS3Client) -> SitelinksHashes:
-        """Hash entity sitelinks."""
-        return HashService.hash_sitelinks(
-            request_data.get("sitelinks", {}), s3_client
-        )
-
-
-class EntityValidationService(BaseModel):
-    """Service for entity validation operations."""
-
-    def validate_protection_settings(self, entity_id: str, is_mass_edit: bool | None, is_not_autoconfirmed_user: bool | None, vitess_client: VitessClient) -> None:
-        """Validate protection settings."""
-        if is_mass_edit and is_not_autoconfirmed_user:
-            if vitess_client.is_entity_semi_protected(entity_id):
-                raise_validation_error("Semi-protected entity cannot be mass edited", status_code=403)
-
-    def validate_idempotency(self, entity_id: str, head_revision_id: int, content_hash: int, request_data: Dict[str, Any], s3_client: MyS3Client) -> EntityResponse | None:
-        """Check if request is idempotent."""
-        if head_revision_id == 0:
-            return None
-
-        logger.debug(f"Checking idempotency against head revision {head_revision_id}")
-        try:
-            head_revision = s3_client.read_revision(entity_id, head_revision_id)
-            head_content_hash = head_revision.data.get("content_hash")
-            logger.debug(f"Head revision content hash: {head_content_hash}")
-
-            if head_content_hash == content_hash:
-                logger.debug(
-                    f"Content unchanged, returning existing revision {head_revision_id}"
-                )
-                return EntityResponse(
-                    id=entity_id,
-                    rev_id=head_revision_id,
-                    data=head_revision.entity,
-                    state=EntityState(
-                        sp=head_revision.data.get("is_semi_protected", False),
-                        locked=head_revision.data.get("is_locked", False),
-                        archived=head_revision.data.get("is_archived", False),
-                        dangling=head_revision.data.get("is_dangling", False),
-                        mep=head_revision.data.get("is_mass_edit_protected", False),
-                    ),
-                )
-        except Exception as e:
-            logger.warning(f"Failed to read head revision for idempotency check: {e}")
-
-        return None
 
 
 # noinspection PyArgumentList
@@ -239,7 +171,9 @@ class EntityHandler(BaseModel):
         if not ctx.entity_id:
             raise EntityProcessingError("Entity ID is required", 400)
 
-    async def _check_idempotency_new(self, ctx: RevisionContext) -> EntityResponse | None:
+    async def _check_idempotency_new(
+        self, ctx: RevisionContext
+    ) -> EntityResponse | None:
         """Check if request is idempotent using validation service."""
         validation_service = EntityValidationService()
         return validation_service.validate_idempotency(
@@ -247,15 +181,19 @@ class EntityHandler(BaseModel):
             ctx.vitess_client.get_head(ctx.entity_id),
             0,  # content_hash - need to calculate
             ctx.request_data,
-            ctx.s3_client
+            ctx.s3_client,
         )
 
-    async def _process_entity_data_new(self, ctx: RevisionContext) -> StatementHashResult:
+    async def _process_entity_data_new(
+        self, ctx: RevisionContext
+    ) -> StatementHashResult:
         """Process entity data using hashing service."""
         hashing_service = EntityHashingService()
         return await hashing_service.hash_statements(ctx.request_data)
 
-    async def _create_revision_new(self, ctx: RevisionContext, hash_result: StatementHashResult) -> RevisionResult:
+    async def _create_revision_new(
+        self, ctx: RevisionContext, hash_result: StatementHashResult
+    ) -> RevisionResult:
         """Create revision using simplified logic."""
         try:
             # Get current head revision
@@ -264,6 +202,7 @@ class EntityHandler(BaseModel):
             # Calculate content hash
             import json
             from rapidhash import rapidhash
+
             entity_json = json.dumps(ctx.request_data, sort_keys=True)
             content_hash = rapidhash(entity_json.encode())
 
@@ -276,7 +215,12 @@ class EntityHandler(BaseModel):
 
             # Build revision data
             revision_data = self._build_revision_data_new(
-                ctx, hash_result, term_hashes, sitelink_hashes, content_hash, new_revision_id
+                ctx,
+                hash_result,
+                term_hashes,
+                sitelink_hashes,
+                content_hash,
+                new_revision_id,
             )
 
             # Store in database
@@ -298,7 +242,9 @@ class EntityHandler(BaseModel):
     async def _hash_terms_new(self, ctx: RevisionContext) -> HashMaps:
         """Hash entity terms (labels, descriptions, aliases)."""
         hashing_service = EntityHashingService()
-        return await hashing_service.hash_terms(ctx.request_data, ctx.s3_client, ctx.vitess_client)
+        return await hashing_service.hash_terms(
+            ctx.request_data, ctx.s3_client, ctx.vitess_client
+        )
 
     async def _hash_sitelinks_new(self, ctx: RevisionContext) -> SitelinksHashes:
         """Hash entity sitelinks."""
@@ -312,10 +258,12 @@ class EntityHandler(BaseModel):
         term_hashes: HashMaps,
         sitelink_hashes: Any,
         content_hash: int,
-        new_revision_id: int
+        new_revision_id: int,
     ) -> RevisionData:
         """Build RevisionData object."""
-        logger.debug(f"Building revision data for {ctx.entity_id} revision {new_revision_id}")
+        logger.debug(
+            f"Building revision data for {ctx.entity_id} revision {new_revision_id}"
+        )
 
         from datetime import datetime, timezone
         from models.infrastructure.s3.enums import EditData
@@ -345,16 +293,22 @@ class EntityHandler(BaseModel):
             schema_version=settings.s3_schema_revision_version,
         )
 
-    async def _store_revision_s3_new(self, ctx: RevisionContext, revision_data: RevisionData) -> None:
+    async def _store_revision_s3_new(
+        self, ctx: RevisionContext, revision_data: RevisionData
+    ) -> None:
         """Store revision data in S3."""
         # Placeholder - would implement S3 storage logic
         pass
 
-    async def _publish_events_new(self, ctx: RevisionContext, result: RevisionResult) -> None:
+    async def _publish_events_new(
+        self, ctx: RevisionContext, result: RevisionResult
+    ) -> None:
         """Publish revision events."""
         if ctx.stream_producer and result.revision_id:
             try:
-                change_type = edit_type_to_change_type(ctx.edit_type or EditType.UNSPECIFIED)
+                change_type = edit_type_to_change_type(
+                    ctx.edit_type or EditType.UNSPECIFIED
+                )
                 event = EntityChangeEvent(
                     id=ctx.entity_id,
                     rev=result.revision_id,
@@ -367,7 +321,9 @@ class EntityHandler(BaseModel):
             except Exception as e:
                 logger.warning(f"Failed to publish event for {ctx.entity_id}: {e}")
 
-    async def _build_entity_response(self, ctx: RevisionContext, result: RevisionResult) -> EntityResponse:
+    async def _build_entity_response(
+        self, ctx: RevisionContext, result: RevisionResult
+    ) -> EntityResponse:
         """Build EntityResponse from revision result."""
         if not result.success or not result.revision_id:
             raise EntityProcessingError(result.error or "Revision creation failed")
@@ -390,8 +346,6 @@ class EntityHandler(BaseModel):
         except Exception as e:
             logger.error(f"Failed to build response for {ctx.entity_id}: {e}")
             raise EntityProcessingError("Failed to retrieve created revision")
-
-
 
     def process_statements(
         self,
@@ -685,15 +639,14 @@ class EntityHandler(BaseModel):
             )
 
             return OperationResult(
-                success=True, data=RevisionIdResult(revision_id=entity_response_new.rev_id)
+                success=True,
+                data=RevisionIdResult(revision_id=entity_response_new.rev_id),
             )
         except EntityProcessingError as e:
             return OperationResult(success=False, error=str(e))
         except Exception as e:
             logger.error(f"Unexpected error in add_property for {entity_id}: {e}")
             return OperationResult(success=False, error="Internal server error")
-
-
 
     def remove_statement(
         self,
@@ -712,7 +665,10 @@ class EntityHandler(BaseModel):
         head_revision_id = vitess_client.get_head(entity_id)
         try:
             revision_data = s3_client.read_revision(entity_id, head_revision_id)
-            from models.infrastructure.s3.revision.revision_read_response import RevisionReadResponse
+            from models.infrastructure.s3.revision.revision_read_response import (
+                RevisionReadResponse,
+            )
+
             assert isinstance(revision_data, RevisionReadResponse)
         except Exception as e:
             return OperationResult(
@@ -765,7 +721,9 @@ class EntityHandler(BaseModel):
         )
 
         stmt_repo = StatementRepository(vitess_client.connection_manager)
-        result = stmt_repo.decrement_ref_count(vitess_client.connection_manager, int(statement_hash))
+        result = stmt_repo.decrement_ref_count(
+            vitess_client.connection_manager, int(statement_hash)
+        )
         if not result.success:
             raise_validation_error(
                 f"Failed to decrement ref_count for statement {statement_hash}: {result.error}",
@@ -788,7 +746,9 @@ class EntityHandler(BaseModel):
                 success=False, error=f"Failed to store updated revision: {e}"
             )
 
-        return OperationResult(success=True, data=RevisionIdResult(revision_id=new_revision_id))
+        return OperationResult(
+            success=True, data=RevisionIdResult(revision_id=new_revision_id)
+        )
 
     async def patch_statement(
         self,
@@ -875,6 +835,3 @@ class EntityHandler(BaseModel):
         return OperationResult(
             success=True, data=RevisionIdResult(revision_id=revision_result.data.rev_id)
         )
-
-
-

@@ -7,8 +7,14 @@ from typing import TYPE_CHECKING
 from fastapi import HTTPException
 
 from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.s3.hashes.hash_maps import AliasesHashes, DescriptionsHashes, LabelsHashes, SitelinksHashes, \
-    StatementsHashes, HashMaps
+from models.infrastructure.s3.hashes.hash_maps import (
+    AliasesHashes,
+    DescriptionsHashes,
+    LabelsHashes,
+    SitelinksHashes,
+    StatementsHashes,
+    HashMaps,
+)
 
 from models.rest_api.entitybase.request.enums import UserActivityType
 

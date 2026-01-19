@@ -110,10 +110,10 @@ class CreationTransaction(EntityTransaction):
         **kwargs: Any,
     ) -> None:
         """Publish the entity creation event."""
-        changed_at = kwargs.get('changed_at')
-        stream_producer = kwargs.get('stream_producer')
-        from_revision_id = kwargs.get('from_revision_id', 0)
-        edit_summary = kwargs.get('edit_summary', '')
+        changed_at = kwargs.get("changed_at")
+        stream_producer = kwargs.get("stream_producer")
+        from_revision_id = kwargs.get("from_revision_id", 0)
+        edit_summary = kwargs.get("edit_summary", "")
 
         logger.info(f"[CreationTransaction] Starting event publishing for {entity_id}")
         if stream_producer:

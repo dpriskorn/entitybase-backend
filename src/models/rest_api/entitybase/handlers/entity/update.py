@@ -5,6 +5,7 @@ from typing import Any
 
 from models.infrastructure.s3.enums import EntityType
 from models.infrastructure.s3.s3_client import MyS3Client
+from models.infrastructure.stream.change_type import ChangeType
 from ...request.enums import UserActivityType
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess.vitess_client import VitessClient
@@ -87,7 +88,7 @@ class EntityUpdateHandler(EntityHandler):
             tx.publish_event(
                 entity_id=entity_id,
                 revision_id=response.revision_id,
-                change_type="edit",
+                change_type=ChangeType.EDIT,
                 user_id=0,  # TODO: get from auth
                 from_revision_id=tx.head_revision_id,
                 changed_at=None,  # TODO
