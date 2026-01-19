@@ -50,7 +50,7 @@ def test_entity_retrieval_without_metadata(
     pass
 
 
-def test_entity_history_pagination(vitess_client: VitessClient, s3_client: MyS3Client):
+def test_entity_history_pagination(vitess_client: VitessClient, s3_client: MyS3Client) -> None:
     """Test entity history retrieval with pagination"""
     pass
 

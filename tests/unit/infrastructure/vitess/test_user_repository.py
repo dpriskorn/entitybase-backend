@@ -20,7 +20,7 @@ class TestUserRepository:
         """Create repository with mocked connection manager."""
         return UserRepository(mock_connection_manager)
 
-    def test_create_user_success(self, repository, mock_connection_manager):
+    def test_create_user_success(self, repository, mock_connection_manager) -> None:
         """Test successful user creation."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -37,7 +37,7 @@ class TestUserRepository:
             (123,),
         )
 
-    def test_create_user_database_error(self, repository, mock_connection_manager):
+    def test_create_user_database_error(self, repository, mock_connection_manager) -> None:
         """Test user creation with database error."""
         mock_connection_manager.get_connection.side_effect = Exception("DB error")
 
@@ -46,7 +46,7 @@ class TestUserRepository:
         assert result.success is False
         assert "DB error" in result.error
 
-    def test_user_exists_true(self, repository, mock_connection_manager):
+    def test_user_exists_true(self, repository, mock_connection_manager) -> None:
         """Test user exists returns True."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -64,7 +64,7 @@ class TestUserRepository:
             (123,),
         )
 
-    def test_user_exists_false(self, repository, mock_connection_manager):
+    def test_user_exists_false(self, repository, mock_connection_manager) -> None:
         """Test user exists returns False."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -78,7 +78,7 @@ class TestUserRepository:
 
         assert result is False
 
-    def test_get_user_success(self, repository, mock_connection_manager):
+    def test_get_user_success(self, repository, mock_connection_manager) -> None:
         """Test successful user retrieval."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -95,7 +95,7 @@ class TestUserRepository:
         assert result.created_at == "2023-01-01"
         assert result.preferences == {"key": "value"}
 
-    def test_get_user_not_found(self, repository, mock_connection_manager):
+    def test_get_user_not_found(self, repository, mock_connection_manager) -> None:
         """Test user retrieval when not found."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -109,7 +109,7 @@ class TestUserRepository:
 
         assert result is None
 
-    def test_update_user_activity_success(self, repository, mock_connection_manager):
+    def test_update_user_activity_success(self, repository, mock_connection_manager) -> None:
         """Test successful user activity update."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -126,7 +126,7 @@ class TestUserRepository:
             (123,),
         )
 
-    def test_update_user_activity_invalid_user_id(self, repository):
+    def test_update_user_activity_invalid_user_id(self, repository) -> None:
         """Test update user activity with invalid user ID."""
         result = repository.update_user_activity(0)
 
@@ -144,7 +144,7 @@ class TestUserRepository:
         assert result.success is False
         assert "DB error" in result.error
 
-    def test_is_watchlist_enabled_true(self, repository, mock_connection_manager):
+    def test_is_watchlist_enabled_true(self, repository, mock_connection_manager) -> None:
         """Test watchlist enabled returns True."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -158,7 +158,7 @@ class TestUserRepository:
 
         assert result is True
 
-    def test_is_watchlist_enabled_false(self, repository, mock_connection_manager):
+    def test_is_watchlist_enabled_false(self, repository, mock_connection_manager) -> None:
         """Test watchlist enabled returns False."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -172,7 +172,7 @@ class TestUserRepository:
 
         assert result is False
 
-    def test_is_watchlist_enabled_no_user(self, repository, mock_connection_manager):
+    def test_is_watchlist_enabled_no_user(self, repository, mock_connection_manager) -> None:
         """Test watchlist enabled when user not found."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -186,7 +186,7 @@ class TestUserRepository:
 
         assert result is False
 
-    def test_set_watchlist_enabled_success(self, repository, mock_connection_manager):
+    def test_set_watchlist_enabled_success(self, repository, mock_connection_manager) -> None:
         """Test successful watchlist enable/disable."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -203,14 +203,14 @@ class TestUserRepository:
             (True, 123),
         )
 
-    def test_set_watchlist_enabled_invalid_user_id(self, repository):
+    def test_set_watchlist_enabled_invalid_user_id(self, repository) -> None:
         """Test set watchlist with invalid user ID."""
         result = repository.set_watchlist_enabled(0, True)
 
         assert result.success is False
         assert "Invalid user ID" in result.error
 
-    def test_disable_watchlist(self, repository, mock_connection_manager):
+    def test_disable_watchlist(self, repository, mock_connection_manager) -> None:
         """Test disable watchlist calls set_watchlist_enabled."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -227,7 +227,7 @@ class TestUserRepository:
             (False, 123),
         )
 
-    def test_log_user_activity_success(self, repository, mock_connection_manager):
+    def test_log_user_activity_success(self, repository, mock_connection_manager) -> None:
         """Test successful user activity logging."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -244,21 +244,21 @@ class TestUserRepository:
             (123, "entity_edit", "Q42", 456),
         )
 
-    def test_log_user_activity_invalid_user_id(self, repository):
+    def test_log_user_activity_invalid_user_id(self, repository) -> None:
         """Test log user activity with invalid user ID."""
         result = repository.log_user_activity(0, UserActivityType.ENTITY_EDIT, "Q42")
 
         assert result.success is False
         assert "Invalid user ID" in result.error
 
-    def test_log_user_activity_invalid_activity_type(self, repository):
+    def test_log_user_activity_invalid_activity_type(self, repository) -> None:
         """Test log user activity with invalid activity type."""
         result = repository.log_user_activity(123, None, "Q42")
 
         assert result.success is False
         assert "Invalid user ID or activity type" in result.error
 
-    def test_get_user_preferences_success(self, repository, mock_connection_manager):
+    def test_get_user_preferences_success(self, repository, mock_connection_manager) -> None:
         """Test successful user preferences retrieval."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -273,14 +273,14 @@ class TestUserRepository:
         assert result.success is True
         assert result.data == {"notification_limit": 10, "retention_hours": 24}
 
-    def test_get_user_preferences_invalid_user_id(self, repository):
+    def test_get_user_preferences_invalid_user_id(self, repository) -> None:
         """Test get user preferences with invalid user ID."""
         result = repository.get_user_preferences(0)
 
         assert result.success is False
         assert "Invalid user ID" in result.error
 
-    def test_get_user_preferences_not_found(self, repository, mock_connection_manager):
+    def test_get_user_preferences_not_found(self, repository, mock_connection_manager) -> None:
         """Test get user preferences when user not found."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -295,7 +295,7 @@ class TestUserRepository:
         assert result.success is False
         assert "User preferences not found" in result.error
 
-    def test_update_user_preferences_success(self, repository, mock_connection_manager):
+    def test_update_user_preferences_success(self, repository, mock_connection_manager) -> None:
         """Test successful user preferences update."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -312,14 +312,14 @@ class TestUserRepository:
             (10, 24, 123),
         )
 
-    def test_update_user_preferences_invalid_user_id(self, repository):
+    def test_update_user_preferences_invalid_user_id(self, repository) -> None:
         """Test update user preferences with invalid user ID."""
         result = repository.update_user_preferences(10, 24, 0)
 
         assert result.success is False
         assert "Invalid user ID" in result.error
 
-    def test_get_user_activities_success(self, repository, mock_connection_manager):
+    def test_get_user_activities_success(self, repository, mock_connection_manager) -> None:
         """Test successful user activities retrieval."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
@@ -357,7 +357,7 @@ class TestUserRepository:
         query = call_args[0][0]
         assert "AND activity_type = %s" in query
 
-    def test_get_user_activities_invalid_params(self, repository):
+    def test_get_user_activities_invalid_params(self, repository) -> None:
         """Test get user activities with invalid parameters."""
         result = repository.get_user_activities(0)
         assert result.success is False
@@ -371,7 +371,7 @@ class TestUserRepository:
         assert result.success is False
         assert "limit must be positive" in result.error
 
-    def test_insert_user_statistics_success(self, repository, mock_connection_manager):
+    def test_insert_user_statistics_success(self, repository, mock_connection_manager) -> None:
         """Test successful insertion of user statistics."""
         mock_conn = MagicMock()
         mock_cursor = MagicMock()

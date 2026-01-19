@@ -25,7 +25,7 @@ class TestRedirectService:
             self.mock_s3_client, self.mock_vitess_client, self.mock_stream_producer
         )
 
-    def test_init(self):
+    def test_init(self) -> None:
         """Test service initialization."""
         assert self.service.s3 == self.mock_s3_client
         assert self.service.vitess == self.mock_vitess_client
@@ -369,7 +369,7 @@ class TestRedirectService:
         # Stream producer should not be called
 
     @patch("models.rest_api.entitybase.services.redirects.logger")
-    def test_debug_logging_create(self, mock_logger):
+    def test_debug_logging_create(self, mock_logger) -> None:
         """Test debug logging for create redirect."""
         with patch(
             "models.rest_api.entitybase.services.redirects.raise_validation_error"
@@ -393,7 +393,7 @@ class TestRedirectService:
         )
 
     @patch("models.rest_api.entitybase.services.redirects.logger")
-    def test_debug_logging_revert(self, mock_logger):
+    def test_debug_logging_revert(self, mock_logger) -> None:
         """Test debug logging for revert redirect."""
         with patch(
             "models.rest_api.entitybase.services.redirects.raise_validation_error"

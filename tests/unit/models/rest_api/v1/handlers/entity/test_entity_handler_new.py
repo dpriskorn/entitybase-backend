@@ -57,7 +57,7 @@ class TestEntityValidationService(unittest.TestCase):
         self.service = EntityValidationService()
         self.mock_vitess = MagicMock()
 
-    def test_validate_protection_settings_mass_edit_blocked(self):
+    def test_validate_protection_settings_mass_edit_blocked(self) -> None:
         """Test mass edit protection validation."""
         self.mock_vitess.is_entity_semi_protected.return_value = True
 
@@ -66,7 +66,7 @@ class TestEntityValidationService(unittest.TestCase):
                 "Q1", True, False, self.mock_vitess
             )
 
-    def test_validate_idempotency_with_existing_revision(self):
+    def test_validate_idempotency_with_existing_revision(self) -> None:
         """Test idempotency validation with existing revision."""
         mock_s3 = MagicMock()
         mock_revision = MagicMock()
@@ -145,7 +145,7 @@ class TestEntityHandlerNewMethods(unittest.TestCase):
             mock_publish.assert_called_once_with(ctx, mock_revision_result)
             mock_build.assert_called_once_with(ctx, mock_revision_result)
 
-    def test_validate_revision_request_success(self):
+    def test_validate_revision_request_success(self) -> None:
         """Test successful revision request validation."""
         ctx = RevisionContext(
             entity_id="Q1",
@@ -158,7 +158,7 @@ class TestEntityHandlerNewMethods(unittest.TestCase):
         # Should not raise
         self.handler._validate_revision_request(ctx)
 
-    def test_validate_revision_request_invalid_id(self):
+    def test_validate_revision_request_invalid_id(self) -> None:
         """Test validation failure for invalid entity ID."""
         ctx = RevisionContext(
             entity_id="",

@@ -11,7 +11,7 @@ from models.rest_api.entitybase.response import StatementHashResult
 class TestStatementService(unittest.TestCase):
     """Unit tests for statement service functions."""
 
-    def test_deduplicate_references_in_statements(self):
+    def test_deduplicate_references_in_statements(self) -> None:
         """Test reference deduplication in statements."""
         # Mock S3 client
         mock_s3 = MagicMock()

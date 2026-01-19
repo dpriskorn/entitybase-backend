@@ -18,7 +18,7 @@ class TestAddProperty(unittest.TestCase):
         self.mock_s3 = MagicMock()
         self.mock_validator = MagicMock()
 
-    def test_invalid_property_id_format(self):
+    def test_invalid_property_id_format(self) -> None:
         """Test invalid property ID format."""
         request = AddPropertyRequest(claims=[], edit_summary="test")
         result = self.handler.add_property(
@@ -28,7 +28,7 @@ class TestAddProperty(unittest.TestCase):
         self.assertIn("Invalid property ID format", result.error)
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.EntityReadHandler")
-    def test_property_does_not_exist(self, mock_read_handler_class):
+    def test_property_does_not_exist(self, mock_read_handler_class) -> None:
         """Test property does not exist."""
         mock_read_handler = MagicMock()
         mock_read_handler_class.return_value = mock_read_handler
@@ -42,7 +42,7 @@ class TestAddProperty(unittest.TestCase):
         self.assertIn("Property does not exist", result.error)
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.EntityReadHandler")
-    def test_entity_is_not_property(self, mock_read_handler_class):
+    def test_entity_is_not_property(self, mock_read_handler_class) -> None:
         """Test entity exists but is not a property."""
         mock_read_handler = MagicMock()
         mock_read_handler_class.return_value = mock_read_handler

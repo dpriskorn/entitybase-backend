@@ -9,7 +9,7 @@ from models.rest_api.entitybase.response.thanks import ThankResponse, ThanksList
 
 
 class TestThankItem:
-    def test_valid_thank_item(self):
+    def test_valid_thank_item(self) -> None:
         """Test creating a valid ThankItem."""
         item = ThankItem(
             id=1,
@@ -22,7 +22,7 @@ class TestThankItem:
         assert item.id == 1
         assert item.entity_id == "Q42"
 
-    def test_thank_item_serialization(self):
+    def test_thank_item_serialization(self) -> None:
         """Test JSON serialization of ThankItem."""
         item = ThankItem(
             id=1,
@@ -38,7 +38,7 @@ class TestThankItem:
 
 
 class TestThank:
-    def test_valid_thank(self):
+    def test_valid_thank(self) -> None:
         """Test creating a valid Thank."""
         thank = Thank(
             id=1,
@@ -51,7 +51,7 @@ class TestThank:
         assert thank.id == 1
         assert thank.to_user_id == 456
 
-    def test_thank_serialization(self):
+    def test_thank_serialization(self) -> None:
         """Test JSON serialization of Thank."""
         thank = Thank(
             id=1,
@@ -66,21 +66,21 @@ class TestThank:
 
 
 class TestThanksListRequest:
-    def test_valid_request(self):
+    def test_valid_request(self) -> None:
         """Test creating a valid ThanksListRequest."""
         request = ThanksListRequest(limit=100, offset=10, hours=48)
         assert request.limit == 100
         assert request.offset == 10
         assert request.hours == 48
 
-    def test_default_values(self):
+    def test_default_values(self) -> None:
         """Test default values for ThanksListRequest."""
         request = ThanksListRequest()
         assert request.limit == 50
         assert request.offset == 0
         assert request.hours == 24
 
-    def test_validation_limits(self):
+    def test_validation_limits(self) -> None:
         """Test validation limits for ThanksListRequest."""
         with pytest.raises(ValueError):
             ThanksListRequest(limit=0)  # Below min
@@ -99,7 +99,7 @@ class TestThanksListRequest:
 
 
 class TestThankResponse:
-    def test_valid_response(self):
+    def test_valid_response(self) -> None:
         """Test creating a valid ThankResponse."""
         response = ThankResponse(
             thank_id=1,
@@ -112,7 +112,7 @@ class TestThankResponse:
         assert response.thank_id == 1
         assert response.created_at == "2023-01-01T00:00:00Z"
 
-    def test_response_serialization(self):
+    def test_response_serialization(self) -> None:
         """Test JSON serialization of ThankResponse."""
         response = ThankResponse(
             thank_id=1,
@@ -127,7 +127,7 @@ class TestThankResponse:
 
 
 class TestThanksListResponse:
-    def test_valid_response(self):
+    def test_valid_response(self) -> None:
         """Test creating a valid ThanksListResponse."""
         items = [
             ThankItem(
@@ -147,7 +147,7 @@ class TestThanksListResponse:
         assert response.total_count == 1
         assert not response.has_more
 
-    def test_response_serialization(self):
+    def test_response_serialization(self) -> None:
         """Test JSON serialization of ThanksListResponse."""
         items = [
             ThankItem(

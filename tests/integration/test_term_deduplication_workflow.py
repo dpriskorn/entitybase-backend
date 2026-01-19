@@ -28,7 +28,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         # Mock connection manager for TermsRepository
         self.mock_conn_manager = Mock()
 
-    def test_full_term_workflow(self):
+    def test_full_term_workflow(self) -> None:
         """Test the complete workflow from term extraction to storage and retrieval"""
         # Test data
         entity_data = {
@@ -162,7 +162,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
             },
         )
 
-    def test_deduplication_benefit(self):
+    def test_deduplication_benefit(self) -> None:
         """Test that identical terms get the same hash (deduplication)"""
         from models.internal_representation.metadata_extractor import MetadataExtractor
 
@@ -185,7 +185,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
             hash1, hash3, "Different terms should produce different hashes"
         )
 
-    def test_schema_validation(self):
+    def test_schema_validation(self) -> None:
         """Test that revision data conforms to schema 2.1.0"""
         import json
 
@@ -220,7 +220,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         self.assertIsInstance(parsed["aliases_hashes"]["en"], list)
 
     @patch("models.infrastructure.s3.s3_client.boto3")
-    def test_sitelink_plain_text_storage(self, mock_boto3):
+    def test_sitelink_plain_text_storage(self, mock_boto3) -> None:
         """Test that sitelinks are stored as plain UTF-8 text in S3"""
         from models.infrastructure.s3.s3_client import MyS3Client
 
@@ -250,7 +250,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         self.assertEqual(call_args[1]["Metadata"]["content_hash"], str(content_hash))
 
     @patch("models.infrastructure.s3.s3_client.boto3")
-    def test_sitelink_plain_text_loading(self, mock_boto3):
+    def test_sitelink_plain_text_loading(self, mock_boto3) -> None:
         """Test that sitelinks are loaded as plain UTF-8 text from S3"""
         from models.infrastructure.s3.s3_client import MyS3Client
 
@@ -282,7 +282,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         self.assertEqual(result, "Main Page")
 
     @patch("models.infrastructure.s3.s3_client.boto3")
-    def test_term_plain_text_storage(self, mock_boto3):
+    def test_term_plain_text_storage(self, mock_boto3) -> None:
         """Test that terms are stored as plain UTF-8 text in S3"""
         from models.infrastructure.s3.s3_client import MyS3Client
 
@@ -312,7 +312,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
         self.assertEqual(call_args[1]["Metadata"]["content_hash"], str(content_hash))
 
     @patch("models.infrastructure.s3.s3_client.boto3")
-    def test_term_plain_text_loading(self, mock_boto3):
+    def test_term_plain_text_loading(self, mock_boto3) -> None:
         """Test that terms are loaded as plain UTF-8 text from S3"""
         from models.infrastructure.s3.s3_client import MyS3Client
 

@@ -8,7 +8,7 @@ from models.rest_api.entitybase.request.statement import StatementBatchRequest
 
 
 class TestStatementHandler:
-    def test_get_statement_s3_none(self):
+    def test_get_statement_s3_none(self) -> None:
         """Test get_statement raises error when s3_client is None"""
         handler = StatementHandler()
         with patch(
@@ -17,7 +17,7 @@ class TestStatementHandler:
             handler.get_statement(123, None)
             mock_raise.assert_called_with("Statement 123 not found", status_code=404)
 
-    def test_get_statement_success(self):
+    def test_get_statement_success(self) -> None:
         """Test get_statement success"""
         handler = StatementHandler()
         mock_s3 = MagicMock()
@@ -44,7 +44,7 @@ class TestStatementHandler:
                 created_at="2023-01-01",
             )
 
-    def test_get_statement_exception(self):
+    def test_get_statement_exception(self) -> None:
         """Test get_statement handles exceptions"""
         handler = StatementHandler()
         mock_s3 = MagicMock()
@@ -58,7 +58,7 @@ class TestStatementHandler:
                 "Statement 123 not found", status_code=404
             )
 
-    def test_get_statements_batch_s3_none(self):
+    def test_get_statements_batch_s3_none(self) -> None:
         """Test get_statements_batch raises error when s3_client is None"""
         handler = StatementHandler()
         request = StatementBatchRequest(hashes=[123, 456])
@@ -66,7 +66,7 @@ class TestStatementHandler:
             handler.get_statements_batch(request, None)
         assert "Statement 123 not found" in str(exc_info.value)
 
-    def test_get_statements_batch_success(self):
+    def test_get_statements_batch_success(self) -> None:
         """Test get_statements_batch success"""
         handler = StatementHandler()
         request = StatementBatchRequest(hashes=[123, 456])
@@ -102,7 +102,7 @@ class TestStatementHandler:
                 not_found=[],
             )
 
-    def test_get_statements_batch_all_found(self):
+    def test_get_statements_batch_all_found(self) -> None:
         """Test get_statements_batch when all statements found"""
         handler = StatementHandler()
         request = StatementBatchRequest(hashes=[123])

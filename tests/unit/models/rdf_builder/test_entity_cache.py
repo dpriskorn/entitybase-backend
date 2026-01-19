@@ -13,13 +13,13 @@ from models.rdf_builder.entity_cache import (
 
 
 class TestFetchEntityMetadataBatch:
-    def test_fetch_empty_list(self):
+    def test_fetch_empty_list(self) -> None:
         """Test fetching with empty entity list."""
         result = _fetch_entity_metadata_batch([])
         assert result.metadata == {}
 
     @patch("models.rdf_builder.entity_cache.requests.post")
-    def test_fetch_single_entity_success(self, mock_post):
+    def test_fetch_single_entity_success(self, mock_post) -> None:
         """Test fetching metadata for single entity."""
         mock_response = MagicMock()
         mock_response.json.return_value = {
@@ -45,7 +45,7 @@ class TestFetchEntityMetadataBatch:
         assert metadata.descriptions["en"].value == "English writer and humorist"
 
     @patch("models.rdf_builder.entity_cache.requests.post")
-    def test_fetch_multiple_entities_batch(self, mock_post):
+    def test_fetch_multiple_entities_batch(self, mock_post) -> None:
         """Test fetching metadata in batches."""
         mock_response = MagicMock()
         mock_response.json.return_value = {
@@ -69,7 +69,7 @@ class TestFetchEntityMetadataBatch:
         assert mock_post.call_count == 2
 
     @patch("models.rdf_builder.entity_cache.requests.post")
-    def test_fetch_request_failure(self, mock_post):
+    def test_fetch_request_failure(self, mock_post) -> None:
         """Test handling of request failure."""
         mock_post.side_effect = Exception("Network error")
 
@@ -80,7 +80,7 @@ class TestFetchEntityMetadataBatch:
 
 class TestLoadEntityMetadataBatch:
     @patch("models.rdf_builder.entity_cache._fetch_entity_metadata_batch")
-    def test_load_batch_success(self, mock_fetch, tmp_path):
+    def test_load_batch_success(self, mock_fetch, tmp_path) -> None:
         """Test loading and saving metadata batch successfully."""
         mock_fetch.return_value.metadata = {
             "Q42": MagicMock(
@@ -97,7 +97,7 @@ class TestLoadEntityMetadataBatch:
         assert data["id"] == "Q42"
 
     @patch("models.rdf_builder.entity_cache._fetch_entity_metadata_batch")
-    def test_load_batch_failure(self, mock_fetch, tmp_path):
+    def test_load_batch_failure(self, mock_fetch, tmp_path) -> None:
         """Test loading batch with fetch failure."""
         mock_fetch.return_value.metadata = {"Q42": None}
 
@@ -109,7 +109,7 @@ class TestLoadEntityMetadataBatch:
 
 
 class TestLoadEntityMetadata:
-    def test_load_existing_metadata(self, tmp_path):
+    def test_load_existing_metadata(self, tmp_path) -> None:
         """Test loading existing metadata file."""
         data = {"id": "Q42", "labels": {"en": {"language": "en", "value": "test"}}}
         json_file = tmp_path / "Q42.json"
@@ -120,12 +120,12 @@ class TestLoadEntityMetadata:
         assert result.id == "Q42"
         assert result.labels["en"].value == "test"
 
-    def test_load_nonexistent_metadata(self, tmp_path):
+    def test_load_nonexistent_metadata(self, tmp_path) -> None:
         """Test loading nonexistent metadata raises FileNotFoundError."""
         with pytest.raises(FileNotFoundError, match="Entity Q42 not found"):
             load_entity_metadata("Q42", tmp_path)
 
-    def test_load_corrupted_metadata(self, tmp_path):
+    def test_load_corrupted_metadata(self, tmp_path) -> None:
         """Test loading corrupted JSON metadata."""
         json_file = tmp_path / "Q42.json"
         json_file.write_text("invalid json")
@@ -134,7 +134,7 @@ class TestLoadEntityMetadata:
             load_entity_metadata("Q42", tmp_path)
 
     @patch("models.rdf_builder.entity_cache._fetch_entity_metadata_batch")
-    def test_load_batch_serialization_error(self, mock_fetch, tmp_path):
+    def test_load_batch_serialization_error(self, mock_fetch, tmp_path) -> None:
         """Test loading batch with serialization error."""
         mock_fetch.return_value.metadata = {
             "Q42": MagicMock(
@@ -153,7 +153,7 @@ class TestLoadEntityMetadata:
         json_file = tmp_path / "Q42.json"
         assert not json_file.exists()
 
-    def test_cache_hit_scenario(self, tmp_path):
+    def test_cache_hit_scenario(self, tmp_path) -> None:
         """Test cache hit when metadata file exists and is valid."""
         data = {"id": "Q42", "labels": {"en": {"language": "en", "value": "test"}}}
         json_file = tmp_path / "Q42.json"
@@ -164,7 +164,7 @@ class TestLoadEntityMetadata:
         assert result.id == "Q42"
         assert result.labels["en"].value == "test"
 
-    def test_cache_miss_scenario(self, tmp_path):
+    def test_cache_miss_scenario(self, tmp_path) -> None:
         """Test cache miss when metadata file does not exist."""
         with pytest.raises(FileNotFoundError, match="Entity Q42 not found"):
             load_entity_metadata("Q42", tmp_path)

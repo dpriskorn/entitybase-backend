@@ -9,7 +9,7 @@ from models.rest_api.entitybase.handlers.user import UserHandler
 class TestUserHandler:
     """Test cases for UserHandler."""
 
-    def test_get_user_stats_with_data(self):
+    def test_get_user_stats_with_data(self) -> None:
         """Test getting user stats when data exists."""
         vitess_client = Mock()
         conn = Mock()
@@ -36,7 +36,7 @@ class TestUserHandler:
         }
         assert stats == expected
 
-    def test_get_user_stats_no_data_fallback(self):
+    def test_get_user_stats_no_data_fallback(self) -> None:
         """Test getting user stats when no stored data, falls back to live computation."""
         vitess_client = Mock()
 
@@ -76,7 +76,7 @@ class TestUserHandler:
         }
         assert stats == expected
 
-    def test_get_general_stats_with_data(self):
+    def test_get_general_stats_with_data(self) -> None:
         """Test getting general stats when data exists."""
         vitess_client = Mock()
         conn = Mock()

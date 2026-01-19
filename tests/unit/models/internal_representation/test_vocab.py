@@ -6,7 +6,7 @@ from models.internal_representation.vocab import Vocab
 
 
 class TestVocab:
-    def test_vocab_constants(self):
+    def test_vocab_constants(self) -> None:
         vocab = Vocab()
         assert vocab.WD == "http://www.wikidata.org/entity/"
         assert vocab.WDT == "http://www.wikidata.org/prop/direct/"

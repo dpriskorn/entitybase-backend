@@ -43,7 +43,7 @@ class TestThanksRepository:
         assert result.data == 789
         assert result.error is None
 
-    def test_send_thank_invalid_parameters(self, repository):
+    def test_send_thank_invalid_parameters(self, repository) -> None:
         """Test send_thank with invalid parameters."""
         result = repository.send_thank(0, "Q42", 100)
         assert result.success is False
@@ -143,7 +143,7 @@ class TestThanksRepository:
         assert result.success is False
         assert "Database error" in result.error
 
-    def test_get_thanks_received_success(self, repository, mock_connection_manager):
+    def test_get_thanks_received_success(self, repository, mock_connection_manager) -> None:
         """Test successful get_thanks_received."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -165,7 +165,7 @@ class TestThanksRepository:
         assert data["total_count"] == 1
         assert data["has_more"] is False
 
-    def test_get_thanks_received_pagination(self, repository, mock_connection_manager):
+    def test_get_thanks_received_pagination(self, repository, mock_connection_manager) -> None:
         """Test get_thanks_received with pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -189,7 +189,7 @@ class TestThanksRepository:
         assert data["total_count"] == 55
         assert data["has_more"] is True
 
-    def test_get_thanks_received_empty(self, repository, mock_connection_manager):
+    def test_get_thanks_received_empty(self, repository, mock_connection_manager) -> None:
         """Test get_thanks_received with no results."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -235,7 +235,7 @@ class TestThanksRepository:
         assert data["total_count"] == 55
         assert data["has_more"] is False
 
-    def test_get_thanks_received_invalid_params(self, repository):
+    def test_get_thanks_received_invalid_params(self, repository) -> None:
         """Test get_thanks_received with invalid parameters."""
         result = repository.get_thanks_received(0, 24, 50, 0)
         assert result.success is False
@@ -259,7 +259,7 @@ class TestThanksRepository:
         assert result.success is False
         assert "Database error" in result.error
 
-    def test_get_thanks_sent_success(self, repository, mock_connection_manager):
+    def test_get_thanks_sent_success(self, repository, mock_connection_manager) -> None:
         """Test successful get_thanks_sent."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -281,7 +281,7 @@ class TestThanksRepository:
         assert data["total_count"] == 1
         assert data["has_more"] is False
 
-    def test_get_thanks_sent_pagination(self, repository, mock_connection_manager):
+    def test_get_thanks_sent_pagination(self, repository, mock_connection_manager) -> None:
         """Test get_thanks_sent with pagination."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -305,7 +305,7 @@ class TestThanksRepository:
         assert data["total_count"] == 55
         assert data["has_more"] is True
 
-    def test_get_thanks_sent_empty(self, repository, mock_connection_manager):
+    def test_get_thanks_sent_empty(self, repository, mock_connection_manager) -> None:
         """Test get_thanks_sent with no results."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -351,7 +351,7 @@ class TestThanksRepository:
         assert data["total_count"] == 55
         assert data["has_more"] is False
 
-    def test_get_thanks_sent_invalid_params(self, repository):
+    def test_get_thanks_sent_invalid_params(self, repository) -> None:
         """Test get_thanks_sent with invalid parameters."""
         result = repository.get_thanks_sent(0, 24, 50, 0)
         assert result.success is False
@@ -427,7 +427,7 @@ class TestThanksRepository:
         assert thanks[1].id == 2
         assert thanks[2].id == 3
 
-    def test_get_revision_thanks_invalid_params(self, repository):
+    def test_get_revision_thanks_invalid_params(self, repository) -> None:
         """Test get_revision_thanks with invalid parameters."""
         result = repository.get_revision_thanks("", 100)
         assert result.success is False

@@ -76,7 +76,7 @@ class TestEndorsementHandler:
     def handler(self):
         return EndorsementHandler()
 
-    def test_endorse_statement_success(self, handler, mock_vitess_client):
+    def test_endorse_statement_success(self, handler, mock_vitess_client) -> None:
         """Test successful statement endorsement."""
         result = handler.endorse_statement(456789, 123, mock_vitess_client)
 
@@ -85,14 +85,14 @@ class TestEndorsementHandler:
         assert result.user_id == 123
         assert result.statement_hash == 456789
 
-    def test_endorse_statement_user_not_found(self, handler, mock_vitess_client):
+    def test_endorse_statement_user_not_found(self, handler, mock_vitess_client) -> None:
         """Test endorsement with non-existent user."""
         mock_vitess_client.user_repository.user_exists.return_value = False
 
         with pytest.raises(Exception):  # Should raise validation error
             handler.endorse_statement(456789, 123, mock_vitess_client)
 
-    def test_endorse_statement_repository_error(self, handler, mock_vitess_client):
+    def test_endorse_statement_repository_error(self, handler, mock_vitess_client) -> None:
         """Test endorsement with repository error."""
         mock_vitess_client.endorsement_repository.create_endorsement.return_value = (
             Mock(success=False, error="Database error")
@@ -101,14 +101,14 @@ class TestEndorsementHandler:
         with pytest.raises(Exception):  # Should raise validation error
             handler.endorse_statement(456789, 123, mock_vitess_client)
 
-    def test_withdraw_endorsement_success(self, handler, mock_vitess_client):
+    def test_withdraw_endorsement_success(self, handler, mock_vitess_client) -> None:
         """Test successful endorsement withdrawal."""
         result = handler.withdraw_endorsement(456789, 123, mock_vitess_client)
 
         assert isinstance(result, EndorsementResponse)
         assert result.endorsement_id == 123
 
-    def test_withdraw_endorsement_repository_error(self, handler, mock_vitess_client):
+    def test_withdraw_endorsement_repository_error(self, handler, mock_vitess_client) -> None:
         """Test withdrawal with repository error."""
         mock_vitess_client.endorsement_repository.withdraw_endorsement.return_value = (
             Mock(success=False, error="No active endorsement")
@@ -117,7 +117,7 @@ class TestEndorsementHandler:
         with pytest.raises(Exception):  # Should raise validation error
             handler.withdraw_endorsement(456789, 123, mock_vitess_client)
 
-    def test_get_statement_endorsements_success(self, handler, mock_vitess_client):
+    def test_get_statement_endorsements_success(self, handler, mock_vitess_client) -> None:
         """Test successful statement endorsements retrieval."""
         request = EndorsementListRequest(limit=50, offset=0, include_removed=False)
 
@@ -143,7 +143,7 @@ class TestEndorsementHandler:
         with pytest.raises(Exception):  # Should raise validation error
             handler.get_statement_endorsements(456789, request, mock_vitess_client)
 
-    def test_get_user_endorsements_success(self, handler, mock_vitess_client):
+    def test_get_user_endorsements_success(self, handler, mock_vitess_client) -> None:
         """Test successful user endorsements retrieval."""
         request = EndorsementListRequest(limit=50, offset=0, include_removed=False)
 
@@ -156,7 +156,7 @@ class TestEndorsementHandler:
         assert not result.has_more
         assert isinstance(result.stats, StatementEndorsementStats)
 
-    def test_get_user_endorsements_user_not_found(self, handler, mock_vitess_client):
+    def test_get_user_endorsements_user_not_found(self, handler, mock_vitess_client) -> None:
         """Test user endorsements with non-existent user."""
         mock_vitess_client.user_repository.user_exists.return_value = False
 

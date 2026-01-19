@@ -25,7 +25,7 @@ class TestHashService(unittest.TestCase):
     @patch(
         "models.rest_api.entitybase.services.hash_service.deduplicate_and_store_statements"
     )
-    def test_hash_statements_success(self, mock_store, mock_hash):
+    def test_hash_statements_success(self, mock_store, mock_hash) -> None:
         """Test successful statement hashing."""
         # Mock the hash result
         mock_hash_result = StatementHashResult(
@@ -52,7 +52,7 @@ class TestHashService(unittest.TestCase):
         mock_store.assert_called_once()
 
     @patch("models.rest_api.entitybase.services.hash_service.hash_entity_statements")
-    def test_hash_statements_hash_failure(self, mock_hash):
+    def test_hash_statements_hash_failure(self, mock_hash) -> None:
         """Test statement hashing when hash operation fails."""
         mock_hash.return_value = MagicMock(success=False, error="Hash failed")
 
@@ -65,7 +65,7 @@ class TestHashService(unittest.TestCase):
         "models.rest_api.entitybase.services.hash_service.deduplicate_and_store_statements"
     )
     @patch("models.rest_api.entitybase.services.hash_service.hash_entity_statements")
-    def test_hash_statements_store_failure(self, mock_hash, mock_store):
+    def test_hash_statements_store_failure(self, mock_hash, mock_store) -> None:
         """Test statement hashing when store operation fails."""
         mock_hash_result = StatementHashResult(
             statements=[123], properties=[], property_counts={}, full_statements=[]
@@ -84,7 +84,7 @@ class TestHashService(unittest.TestCase):
     @patch(
         "models.rest_api.entitybase.services.hash_service.MyS3Client.store_sitelink_metadata"
     )
-    def test_hash_sitelinks(self, mock_store, mock_hash):
+    def test_hash_sitelinks(self, mock_store, mock_hash) -> None:
         """Test sitelink hashing."""
         mock_hash.side_effect = [123, 456]
 
@@ -101,7 +101,7 @@ class TestHashService(unittest.TestCase):
         mock_store.assert_any_call("Test Page", 123)
         mock_store.assert_any_call("Test Seite", 456)
 
-    def test_hash_sitelinks_empty(self):
+    def test_hash_sitelinks_empty(self) -> None:
         """Test sitelink hashing with empty data."""
         result = HashService.hash_sitelinks({}, self.mock_s3)
         self.assertEqual(result.root, {})
@@ -113,7 +113,7 @@ class TestHashService(unittest.TestCase):
     @patch(
         "models.rest_api.entitybase.services.hash_service.MyS3Client.store_term_metadata"
     )
-    def test_hash_labels(self, mock_store, mock_repo_class, mock_hash):
+    def test_hash_labels(self, mock_store, mock_repo_class, mock_hash) -> None:
         """Test label hashing."""
         mock_hash.side_effect = [123, 456]
         mock_repo = MagicMock()
@@ -129,7 +129,7 @@ class TestHashService(unittest.TestCase):
         mock_repo.insert_term.assert_any_call(123, "Test Label", "label")
         mock_repo.insert_term.assert_any_call(456, "Test Etikett", "label")
 
-    def test_hash_labels_empty(self):
+    def test_hash_labels_empty(self) -> None:
         """Test label hashing with empty data."""
         result = HashService.hash_labels({}, self.mock_s3, self.mock_vitess)
         self.assertEqual(result.root, {})
@@ -141,7 +141,7 @@ class TestHashService(unittest.TestCase):
     @patch(
         "models.rest_api.entitybase.services.hash_service.MyS3Client.store_term_metadata"
     )
-    def test_hash_descriptions(self, mock_store, mock_repo_class, mock_hash):
+    def test_hash_descriptions(self, mock_store, mock_repo_class, mock_hash) -> None:
         """Test description hashing."""
         mock_hash.side_effect = [123, 456]
         mock_repo = MagicMock()
@@ -167,7 +167,7 @@ class TestHashService(unittest.TestCase):
     @patch(
         "models.rest_api.entitybase.services.hash_service.MyS3Client.store_term_metadata"
     )
-    def test_hash_aliases(self, mock_store, mock_repo_class, mock_hash):
+    def test_hash_aliases(self, mock_store, mock_repo_class, mock_hash) -> None:
         """Test alias hashing."""
         mock_hash.side_effect = [123, 456, 789]
         mock_repo = MagicMock()
@@ -185,7 +185,7 @@ class TestHashService(unittest.TestCase):
         self.assertEqual(mock_store.call_count, 3)
         mock_repo.insert_term.assert_any_call(123, "Test Alias", "alias")
 
-    def test_hash_aliases_empty(self):
+    def test_hash_aliases_empty(self) -> None:
         """Test alias hashing with empty data."""
         result = HashService.hash_aliases({}, self.mock_s3, self.mock_vitess)
         self.assertEqual(result.root, {})

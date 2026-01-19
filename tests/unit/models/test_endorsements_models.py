@@ -13,7 +13,7 @@ from models.rest_api.entitybase.response.endorsements import (
 
 
 class TestStatementEndorsementStats:
-    def test_valid_stats(self):
+    def test_valid_stats(self) -> None:
         """Test creating valid StatementEndorsementStats."""
         stats = StatementEndorsementStats(
             total=50,
@@ -24,7 +24,7 @@ class TestStatementEndorsementStats:
         assert stats.active == 42
         assert stats.withdrawn == 8
 
-    def test_stats_serialization(self):
+    def test_stats_serialization(self) -> None:
         """Test JSON serialization of StatementEndorsementStats."""
         stats = StatementEndorsementStats(
             total=50,
@@ -38,21 +38,21 @@ class TestStatementEndorsementStats:
 
 
 class TestEndorsementListRequest:
-    def test_valid_request(self):
+    def test_valid_request(self) -> None:
         """Test creating a valid EndorsementListRequest."""
         request = EndorsementListRequest(limit=100, offset=10, include_removed=True)
         assert request.limit == 100
         assert request.offset == 10
         assert request.include_removed is True
 
-    def test_default_values(self):
+    def test_default_values(self) -> None:
         """Test default values for EndorsementListRequest."""
         request = EndorsementListRequest()
         assert request.limit == 50
         assert request.offset == 0
         assert request.include_removed is False
 
-    def test_validation_limits(self):
+    def test_validation_limits(self) -> None:
         """Test validation limits for EndorsementListRequest."""
         with pytest.raises(ValueError):
             EndorsementListRequest(limit=0)  # Below min
@@ -65,7 +65,7 @@ class TestEndorsementListRequest:
 
 
 class TestEndorsementResponse:
-    def test_valid_response(self):
+    def test_valid_response(self) -> None:
         """Test creating a valid EndorsementResponse."""
         response = EndorsementResponse(
             endorsement_id=1,
@@ -78,7 +78,7 @@ class TestEndorsementResponse:
         assert response.user_id == 123
         assert response.removed_at is None
 
-    def test_response_with_removal(self):
+    def test_response_with_removal(self) -> None:
         """Test EndorsementResponse with removal timestamp."""
         response = EndorsementResponse(
             endorsement_id=1,
@@ -91,7 +91,7 @@ class TestEndorsementResponse:
 
 
 class TestSingleEndorsementStatsResponse:
-    def test_valid_response(self):
+    def test_valid_response(self) -> None:
         """Test creating a valid SingleEndorsementStatsResponse."""
         response = SingleEndorsementStatsResponse(
             total=50,
@@ -102,7 +102,7 @@ class TestSingleEndorsementStatsResponse:
         assert response.active == 42
         assert response.withdrawn == 8
 
-    def test_response_serialization(self):
+    def test_response_serialization(self) -> None:
         """Test JSON serialization of SingleEndorsementStatsResponse."""
         response = SingleEndorsementStatsResponse(
             total=50,
@@ -116,7 +116,7 @@ class TestSingleEndorsementStatsResponse:
 
 
 class TestEndorsementListResponse:
-    def test_valid_response(self):
+    def test_valid_response(self) -> None:
         """Test creating a valid EndorsementListResponse."""
         endorsements = [
             EndorsementResponse(
@@ -141,7 +141,7 @@ class TestEndorsementListResponse:
         assert not response.has_more
         assert response.stats.total == 50
 
-    def test_response_without_statement_hash(self):
+    def test_response_without_statement_hash(self) -> None:
         """Test EndorsementListResponse for user listings (no statement_hash)."""
         endorsements = [
             EndorsementResponse(

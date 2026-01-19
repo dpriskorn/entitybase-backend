@@ -20,12 +20,12 @@ class TestRedirectRepository:
             self.mock_connection_manager, self.mock_id_resolver
         )
 
-    def test_init(self):
+    def test_init(self) -> None:
         """Test repository initialization."""
         assert self.repository.connection_manager == self.mock_connection_manager
         assert self.repository.id_resolver == self.mock_id_resolver
 
-    def test_set_target_success(self):
+    def test_set_target_success(self) -> None:
         """Test successful redirect target setting."""
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
@@ -40,7 +40,7 @@ class TestRedirectRepository:
         self.mock_id_resolver.resolve_id.assert_any_call(self.mock_connection, "Q200")
         self.mock_cursor.execute.assert_called_once()
 
-    def test_set_target_with_expected_value(self):
+    def test_set_target_with_expected_value(self) -> None:
         """Test setting redirect target with expected value."""
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
@@ -58,7 +58,7 @@ class TestRedirectRepository:
         assert "AND redirects_to = %s" in call_args[0]
         assert call_args[1] == (200, 100, 150)
 
-    def test_set_target_entity_not_found(self):
+    def test_set_target_entity_not_found(self) -> None:
         """Test setting redirect target when source entity not found."""
         self.mock_id_resolver.resolve_id.return_value = None
 
@@ -70,7 +70,7 @@ class TestRedirectRepository:
             self.mock_connection, "Q100"
         )
 
-    def test_set_target_target_entity_not_found(self):
+    def test_set_target_target_entity_not_found(self) -> None:
         """Test setting redirect target when target entity not found."""
         self.mock_id_resolver.resolve_id.side_effect = [100, None]
 
@@ -80,7 +80,7 @@ class TestRedirectRepository:
         # Should call raise_validation_error for target
         assert self.mock_id_resolver.resolve_id.call_count == 2
 
-    def test_set_target_no_rows_affected(self):
+    def test_set_target_no_rows_affected(self) -> None:
         """Test setting redirect target when no rows are affected."""
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
@@ -92,7 +92,7 @@ class TestRedirectRepository:
 
         assert result is False
 
-    def test_set_target_none_target(self):
+    def test_set_target_none_target(self) -> None:
         """Test setting redirect target to None (removing redirect)."""
         self.mock_id_resolver.resolve_id.return_value = 100
         self.mock_connection.cursor.return_value.__enter__.return_value = (
@@ -107,7 +107,7 @@ class TestRedirectRepository:
             self.mock_connection, "Q100"
         )
 
-    def test_create_success(self):
+    def test_create_success(self) -> None:
         """Test successful redirect creation."""
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
@@ -125,7 +125,7 @@ class TestRedirectRepository:
         assert "INSERT INTO entity_redirects" in call_args[0]
         assert call_args[1] == (100, 200, "test-user")
 
-    def test_create_default_created_by(self):
+    def test_create_default_created_by(self) -> None:
         """Test redirect creation with default created_by value."""
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
@@ -137,21 +137,21 @@ class TestRedirectRepository:
         call_args = self.mock_cursor.execute.call_args[0]
         assert call_args[1] == (100, 200, "rest-api")
 
-    def test_create_source_not_found(self):
+    def test_create_source_not_found(self) -> None:
         """Test redirect creation when source entity not found."""
         self.mock_id_resolver.resolve_id.side_effect = [None, 200]
 
         with pytest.raises(Exception):
             self.repository.create(self.mock_connection, "Q100", "Q200")
 
-    def test_create_target_not_found(self):
+    def test_create_target_not_found(self) -> None:
         """Test redirect creation when target entity not found."""
         self.mock_id_resolver.resolve_id.side_effect = [100, None]
 
         with pytest.raises(Exception):
             self.repository.create(self.mock_connection, "Q100", "Q200")
 
-    def test_get_incoming_redirects_success(self):
+    def test_get_incoming_redirects_success(self) -> None:
         """Test getting incoming redirects successfully."""
         self.mock_id_resolver.resolve_id.return_value = 100
         self.mock_connection.cursor.return_value.__enter__.return_value = (
@@ -167,7 +167,7 @@ class TestRedirectRepository:
         )
         self.mock_cursor.execute.assert_called_once()
 
-    def test_get_incoming_redirects_entity_not_found(self):
+    def test_get_incoming_redirects_entity_not_found(self) -> None:
         """Test getting incoming redirects when entity not found."""
         self.mock_id_resolver.resolve_id.return_value = None
 
@@ -179,7 +179,7 @@ class TestRedirectRepository:
         )
         self.mock_cursor.execute.assert_not_called()
 
-    def test_get_incoming_redirects_no_results(self):
+    def test_get_incoming_redirects_no_results(self) -> None:
         """Test getting incoming redirects with no results."""
         self.mock_id_resolver.resolve_id.return_value = 100
         self.mock_connection.cursor.return_value.__enter__.return_value = (
@@ -191,7 +191,7 @@ class TestRedirectRepository:
 
         assert result == []
 
-    def test_get_target_success(self):
+    def test_get_target_success(self) -> None:
         """Test getting redirect target successfully."""
         self.mock_id_resolver.resolve_id.return_value = 100
         self.mock_connection.cursor.return_value.__enter__.return_value = (
@@ -207,7 +207,7 @@ class TestRedirectRepository:
         )
         self.mock_cursor.execute.assert_called_once()
 
-    def test_get_target_no_redirect(self):
+    def test_get_target_no_redirect(self) -> None:
         """Test getting redirect target when no redirect exists."""
         self.mock_id_resolver.resolve_id.return_value = 100
         self.mock_connection.cursor.return_value.__enter__.return_value = (
@@ -219,7 +219,7 @@ class TestRedirectRepository:
 
         assert result is None
 
-    def test_get_target_entity_not_found(self):
+    def test_get_target_entity_not_found(self) -> None:
         """Test getting redirect target when entity not found."""
         self.mock_id_resolver.resolve_id.return_value = None
 
@@ -229,7 +229,7 @@ class TestRedirectRepository:
         self.mock_cursor.execute.assert_not_called()
 
     @patch("models.infrastructure.vitess.redirect_repository.logger")
-    def test_debug_logging(self, mock_logger):
+    def test_debug_logging(self, mock_logger) -> None:
         """Test that debug logging is called."""
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (
@@ -242,7 +242,7 @@ class TestRedirectRepository:
         mock_logger.debug.assert_called_with("Setting redirect target for Q100 to Q200")
 
     @patch("models.infrastructure.vitess.redirect_repository.logger")
-    def test_create_debug_logging(self, mock_logger):
+    def test_create_debug_logging(self, mock_logger) -> None:
         """Test that debug logging is called for create."""
         self.mock_id_resolver.resolve_id.side_effect = [100, 200]
         self.mock_connection.cursor.return_value.__enter__.return_value = (

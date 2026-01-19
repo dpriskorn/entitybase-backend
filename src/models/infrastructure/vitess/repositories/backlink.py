@@ -9,6 +9,7 @@ from typing import Any
 from models.common import OperationResult
 from models.rest_api.utils import raise_validation_error
 from models.infrastructure.vitess.backlink_entry import BacklinkRecord
+from pydantic import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -110,28 +111,18 @@ class BacklinkRepository:
             top_entities_by_backlinks: List of top entities by backlink count
 
         Raises:
-            ValueError: If input validation fails
+            ValidationError: If input validation fails
             Exception: If database operation fails
         """
         # Input validation
         if not isinstance(date, str) or len(date) != 10:
-            raise_validation_error(
-                f"Invalid date format: {date}. Expected YYYY-MM-DD", status_code=400
-            )
+            raise ValidationError(f"Invalid date format: {date}. Expected YYYY-MM-DD")
         if total_backlinks < 0:
-            raise_validation_error(
-                f"total_backlinks must be non-negative: {total_backlinks}",
-                status_code=400,
-            )
+            raise ValidationError(f"total_backlinks must be non-negative: {total_backlinks}")
         if unique_entities_with_backlinks < 0:
-            raise_validation_error(
-                f"unique_entities_with_backlinks must be non-negative: {unique_entities_with_backlinks}",
-                status_code=400,
-            )
+            raise ValidationError(f"unique_entities_with_backlinks must be non-negative: {unique_entities_with_backlinks}")
         if not isinstance(top_entities_by_backlinks, list):
-            raise_validation_error(
-                "top_entities_by_backlinks must be a list", status_code=400
-            )
+            raise ValidationError("top_entities_by_backlinks must be a list")
 
         logger.debug(f"Inserting backlink statistics for date {date}")
 
@@ -139,9 +130,7 @@ class BacklinkRepository:
             # Serialize top entities to JSON
             top_entities_json = json.dumps(top_entities_by_backlinks)
         except (TypeError, ValueError) as e:
-            raise_validation_error(
-                f"Failed to serialize top_entities_by_backlinks: {e}", status_code=400
-            )
+            raise ValidationError(f"Failed to serialize top_entities_by_backlinks: {e}")
 
         with conn.cursor() as cursor:
             try:

@@ -8,7 +8,7 @@ from models.rdf_builder.writers.turtle import TurtleWriter
 
 
 class TestTurtleWriter:
-    def test_init(self):
+    def test_init(self) -> None:
         output = StringIO()
         writer = TurtleWriter(output, buffer_size=1024)
         assert writer.output == output
@@ -16,7 +16,7 @@ class TestTurtleWriter:
         assert writer._buffer == []
         assert writer._buffer_len == 0
 
-    def test_write_header(self):
+    def test_write_header(self) -> None:
         output = StringIO()
         writer = TurtleWriter(output)
         writer.write_header()
@@ -24,7 +24,7 @@ class TestTurtleWriter:
         content = output.getvalue()
         assert "@prefix" in content  # TURTLE_PREFIXES contains prefixes
 
-    def test_write_no_flush(self):
+    def test_write_no_flush(self) -> None:
         output = StringIO()
         writer = TurtleWriter(output, buffer_size=100)
         writer.write("test text")
@@ -32,7 +32,7 @@ class TestTurtleWriter:
         assert writer._buffer_len == 9
         assert output.getvalue() == ""  # Not flushed yet
 
-    def test_write_with_flush(self):
+    def test_write_with_flush(self) -> None:
         output = StringIO()
         writer = TurtleWriter(output, buffer_size=5)
         writer.write("long text")  # len=9 > 5, should flush
@@ -40,7 +40,7 @@ class TestTurtleWriter:
         assert writer._buffer_len == 0
         assert output.getvalue() == "long text"
 
-    def test_flush(self):
+    def test_flush(self) -> None:
         output = StringIO()
         writer = TurtleWriter(output)
         writer.write("test")
@@ -49,13 +49,13 @@ class TestTurtleWriter:
         assert writer._buffer_len == 0
         assert output.getvalue() == "test"
 
-    def test_flush_empty(self):
+    def test_flush_empty(self) -> None:
         output = StringIO()
         writer = TurtleWriter(output)
         writer.flush()  # No-op
         assert output.getvalue() == ""
 
-    def test_multiple_writes_and_flush(self):
+    def test_multiple_writes_and_flush(self) -> None:
         output = StringIO()
         writer = TurtleWriter(output, buffer_size=20)
         writer.write("line1")

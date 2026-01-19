@@ -31,7 +31,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
     # ===== ENTITYBASE GET ENDPOINTS =====
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_get_item_label_success(self, mock_handler_class):
+    def test_entitybase_get_item_label_success(self, mock_handler_class) -> None:
         """Test entitybase GET item label"""
         from models.rest_api.entitybase.versions.v1.items import get_item_label
 
@@ -45,7 +45,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_handler.get_entity.assert_called_once()
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_get_item_description_success(self, mock_handler_class):
+    def test_entitybase_get_item_description_success(self, mock_handler_class) -> None:
         """Test entitybase GET item description"""
         from models.rest_api.entitybase.versions.v1.items import get_item_description
 
@@ -60,7 +60,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
         )
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_get_item_aliases_success(self, mock_handler_class):
+    def test_entitybase_get_item_aliases_success(self, mock_handler_class) -> None:
         """Test entitybase GET item aliases"""
         from models.rest_api.entitybase.versions.v1.items import get_item_aliases_for_language
 
@@ -195,7 +195,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
     # ===== WIKIBASE REDIRECT ENDPOINTS =====
 
-    def test_wikibase_get_item_label_redirect(self):
+    def test_wikibase_get_item_label_redirect(self) -> None:
         """Test Wikibase GET item label redirects"""
         from models.rest_api.wikibase.v1.entity.items import get_item_label
         from fastapi.responses import RedirectResponse
@@ -208,7 +208,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
             result.headers["location"], "/entitybase/v1/entities/items/Q42/labels/en"
         )
 
-    def test_wikibase_put_item_label_redirect(self):
+    def test_wikibase_put_item_label_redirect(self) -> None:
         """Test Wikibase PUT item label redirects"""
         from models.rest_api.wikibase.v1.entity.items import set_item_label
         from fastapi.responses import RedirectResponse
@@ -221,7 +221,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
             result.headers["location"], "/entitybase/v1/entities/items/Q42/labels/en"
         )
 
-    def test_wikibase_patch_item_aliases_redirect(self):
+    def test_wikibase_patch_item_aliases_redirect(self) -> None:
         """Test Wikibase PATCH item aliases redirects"""
         from models.rest_api.wikibase.v1.entity.items import (
             patch_item_aliases_for_language,
@@ -236,7 +236,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
             result.headers["location"], "/entitybase/v1/entities/items/Q42/aliases/en"
         )
 
-    def test_wikibase_delete_item_label_redirect(self):
+    def test_wikibase_delete_item_label_redirect(self) -> None:
         """Test Wikibase DELETE item label redirects"""
         from models.rest_api.wikibase.v1.entity.items import delete_item_label
         from fastapi.responses import RedirectResponse
@@ -252,7 +252,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
     # ===== ERROR SCENARIOS =====
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_get_item_label_not_found(self, mock_handler_class):
+    def test_entitybase_get_item_label_not_found(self, mock_handler_class) -> None:
         """Test entitybase GET item label - term not found"""
         from models.rest_api.entitybase.versions.v1.items import get_item_label
         from fastapi import HTTPException
@@ -271,7 +271,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
         self.assertEqual(context.exception.status_code, 404)
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_put_item_label_missing_value(self, mock_handler_class):
+    def test_entitybase_put_item_label_missing_value(self, mock_handler_class) -> None:
         """Test entitybase PUT item label - missing value field"""
         from models.rest_api.entitybase.versions.v1.items import update_item_label
         from fastapi import HTTPException

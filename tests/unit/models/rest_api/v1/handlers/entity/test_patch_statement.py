@@ -20,7 +20,7 @@ class TestPatchStatement(unittest.TestCase):
         self.mock_s3 = MagicMock()
         self.mock_validator = MagicMock()
 
-    def test_statement_hash_not_found(self):
+    def test_statement_hash_not_found(self) -> None:
         """Test statement hash not found."""
         request = PatchStatementRequest(
             claim={"mainsnak": {"property": "P1"}}, edit_summary="Patch"

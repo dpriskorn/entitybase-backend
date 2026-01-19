@@ -22,29 +22,29 @@ from models.rest_api.entitybase.response.entity import (
 class TestValueModels:
     """Test individual value models."""
 
-    def test_label_value_valid(self):
+    def test_label_value_valid(self) -> None:
         """Test valid LabelValue creation."""
         label = LabelValue(language="en", value="Test Label")
         assert label.language == "en"
         assert label.value == "Test Label"
 
-    def test_label_value_empty_language(self):
+    def test_label_value_empty_language(self) -> None:
         """Test LabelValue with empty language raises error."""
         with pytest.raises(ValidationError):
             LabelValue(language="", value="Test")
 
-    def test_label_value_empty_value(self):
+    def test_label_value_empty_value(self) -> None:
         """Test LabelValue with empty value raises error."""
         with pytest.raises(ValidationError):
             LabelValue(language="en", value="")
 
-    def test_description_value_valid(self):
+    def test_description_value_valid(self) -> None:
         """Test valid DescriptionValue creation."""
         desc = DescriptionValue(language="en", value="Test description")
         assert desc.language == "en"
         assert desc.value == "Test description"
 
-    def test_alias_value_valid(self):
+    def test_alias_value_valid(self) -> None:
         """Test valid AliasValue creation."""
         alias = AliasValue(language="en", value="Test alias")
         assert alias.language == "en"
@@ -54,7 +54,7 @@ class TestValueModels:
 class TestCollectionModels:
     """Test collection models."""
 
-    def test_entity_labels_valid(self):
+    def test_entity_labels_valid(self) -> None:
         """Test EntityLabels with valid data."""
         data = {
             "en": {"language": "en", "value": "English label"},
@@ -64,7 +64,7 @@ class TestCollectionModels:
         assert len(labels.data) == 2
         assert labels.data["en"].value == "English label"
 
-    def test_entity_labels_invalid_structure(self):
+    def test_entity_labels_invalid_structure(self) -> None:
         """Test EntityLabels with invalid nested structure."""
         data = {
             "en": {"invalid": "structure"}  # Missing language/value
@@ -72,13 +72,13 @@ class TestCollectionModels:
         with pytest.raises(ValidationError):
             EntityLabelsResponse(data=data)
 
-    def test_entity_descriptions_valid(self):
+    def test_entity_descriptions_valid(self) -> None:
         """Test EntityDescriptions with valid data."""
         data = {"en": {"language": "en", "value": "English description"}}
         descriptions = EntityDescriptionsResponse(data=data)
         assert descriptions.data["en"].value == "English description"
 
-    def test_entity_aliases_valid(self):
+    def test_entity_aliases_valid(self) -> None:
         """Test EntityAliases with valid data."""
         data = {
             "en": [
@@ -89,13 +89,13 @@ class TestCollectionModels:
         aliases = EntityAliasesResponse(data=data)
         assert len(aliases.data["en"]) == 2
 
-    def test_entity_statements_valid(self):
+    def test_entity_statements_valid(self) -> None:
         """Test EntityStatements with valid data."""
         data = [{"property": "P31", "value": "Q5"}]
         statements = EntityStatementsResponse(data=data)
         assert len(statements.data) == 1
 
-    def test_entity_sitelinks_valid(self):
+    def test_entity_sitelinks_valid(self) -> None:
         """Test EntitySitelinks with valid data."""
         data = {
             "enwiki": {"site": "enwiki", "title": "Test Page", "url": "", "badges": []}
@@ -107,7 +107,7 @@ class TestCollectionModels:
 class TestEntityMetadata:
     """Test EntityMetadata model."""
 
-    def test_entity_metadata_minimal(self):
+    def test_entity_metadata_minimal(self) -> None:
         """Test minimal EntityMetadata creation."""
         metadata = EntityMetadataResponse(id="Q123")
         assert metadata.id == "Q123"
@@ -118,7 +118,7 @@ class TestEntityMetadata:
         assert metadata.statements.data == []
         assert metadata.sitelinks.data == {}
 
-    def test_entity_metadata_full(self):
+    def test_entity_metadata_full(self) -> None:
         """Test EntityMetadata with full data."""
         metadata = EntityMetadataResponse(
             id="Q123",
@@ -148,7 +148,7 @@ class TestEntityMetadata:
         assert metadata.type == "property"
         assert metadata.labels.data["en"].value == "Test Label"
 
-    def test_entity_metadata_invalid_id(self):
+    def test_entity_metadata_invalid_id(self) -> None:
         """Test EntityMetadata with invalid data raises error."""
         with pytest.raises(ValidationError):
             EntityMetadataResponse(
@@ -159,7 +159,7 @@ class TestEntityMetadata:
 class TestEntityChange:
     """Test EntityChange model."""
 
-    def test_entity_change_valid(self):
+    def test_entity_change_valid(self) -> None:
         """Test valid EntityChange creation."""
         from datetime import datetime
         from models.infrastructure.stream.change_type import ChangeType
@@ -179,7 +179,7 @@ class TestEntityChange:
         assert change.from_revision_id == 122
         assert change.edit_summary == "Updated label"
 
-    def test_entity_change_minimal(self):
+    def test_entity_change_minimal(self) -> None:
         """Test EntityChange with minimal required fields."""
         from datetime import datetime
         from models.infrastructure.stream.change_type import ChangeType
@@ -196,7 +196,7 @@ class TestEntityChange:
         assert change.from_revision_id == 0  # default
         assert change.edit_summary == ""  # default
 
-    def test_entity_change_invalid_change_type(self):
+    def test_entity_change_invalid_change_type(self) -> None:
         """Test EntityChange with invalid change_type raises error."""
         from datetime import datetime
 
@@ -208,7 +208,7 @@ class TestEntityChange:
                 changed_at=datetime(2023, 1, 1, 12, 0, 0),
             )
 
-    def test_entity_change_json_schema_validation(self):
+    def test_entity_change_json_schema_validation(self) -> None:
         """Test EntityChange validates against JSON schema."""
         import jsonschema
         import yaml

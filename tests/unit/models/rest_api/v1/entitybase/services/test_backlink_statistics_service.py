@@ -9,17 +9,17 @@ from models.rest_api.entitybase.services.backlink_statistics_service import (
 
 
 class TestBacklinkStatisticsService:
-    def test_service_init_default(self):
+    def test_service_init_default(self) -> None:
         """Test service initialization with default values."""
         service = BacklinkStatisticsService()
         assert service.top_limit == 100
 
-    def test_service_init_custom_limit(self):
+    def test_service_init_custom_limit(self) -> None:
         """Test service initialization with custom limit."""
         service = BacklinkStatisticsService(top_limit=50)
         assert service.top_limit == 50
 
-    def test_compute_daily_stats(self):
+    def test_compute_daily_stats(self) -> None:
         """Test computing daily statistics."""
         service = BacklinkStatisticsService()
         mock_vitess = MagicMock()
@@ -54,7 +54,7 @@ class TestBacklinkStatisticsService:
                 mock_vitess, 100
             )
 
-    def test_get_total_backlinks(self):
+    def test_get_total_backlinks(self) -> None:
         """Test getting total backlinks count."""
         service = BacklinkStatisticsService()
         mock_vitess = MagicMock()
@@ -71,7 +71,7 @@ class TestBacklinkStatisticsService:
             "SELECT COUNT(*) FROM entity_backlinks"
         )
 
-    def test_get_total_backlinks_no_results(self):
+    def test_get_total_backlinks_no_results(self) -> None:
         """Test getting total backlinks when no results."""
         service = BacklinkStatisticsService()
         mock_vitess = MagicMock()
@@ -85,7 +85,7 @@ class TestBacklinkStatisticsService:
 
         assert result == 0
 
-    def test_get_entities_with_backlinks(self):
+    def test_get_entities_with_backlinks(self) -> None:
         """Test getting count of entities with backlinks."""
         service = BacklinkStatisticsService()
         mock_vitess = MagicMock()
@@ -102,7 +102,7 @@ class TestBacklinkStatisticsService:
             "SELECT COUNT(DISTINCT referenced_internal_id) FROM entity_backlinks"
         )
 
-    def test_get_top_entities_by_backlinks(self):
+    def test_get_top_entities_by_backlinks(self) -> None:
         """Test getting top entities by backlinks."""
         service = BacklinkStatisticsService()
         mock_vitess = MagicMock()
@@ -128,7 +128,7 @@ class TestBacklinkStatisticsService:
         assert "LIMIT %s" in args[0]
         assert args[1] == (10,)
 
-    def test_get_top_entities_by_backlinks_resolve_failure(self):
+    def test_get_top_entities_by_backlinks_resolve_failure(self) -> None:
         """Test top entities when entity ID resolution fails."""
         service = BacklinkStatisticsService()
         mock_vitess = MagicMock()

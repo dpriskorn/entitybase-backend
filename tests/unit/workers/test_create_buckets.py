@@ -11,7 +11,7 @@ from models.workers.dev.create_buckets import CreateBuckets
 class TestCreateBuckets:
     """Test cases for CreateBuckets functionality."""
 
-    def test_initialization(self):
+    def test_initialization(self) -> None:
         """Test CreateBuckets initialization with default values."""
         worker = CreateBuckets()
 
@@ -26,7 +26,7 @@ class TestCreateBuckets:
             "sitelinks",
         ]
 
-    def test_custom_initialization(self):
+    def test_custom_initialization(self) -> None:
         """Test CreateBuckets initialization with custom values."""
         worker = CreateBuckets(
             minio_endpoint="http://custom:9000",
@@ -41,7 +41,7 @@ class TestCreateBuckets:
         assert worker.required_buckets == ["custom1", "custom2"]
 
     @patch("models.workers.dev.create_buckets._boto3")
-    def test_s3_client_creation(self, mock_boto3):
+    def test_s3_client_creation(self, mock_boto3) -> None:
         """Test S3 client creation."""
         mock_client = MagicMock()
         mock_boto3.client.return_value = mock_client

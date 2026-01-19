@@ -7,7 +7,7 @@ from models.internal_representation.qualifier_hasher import QualifierHasher
 class TestQualifierHasher(unittest.TestCase):
     """Unit tests for qualifier hashing."""
 
-    def test_compute_hash_basic(self):
+    def test_compute_hash_basic(self) -> None:
         """Test basic qualifier hash computation."""
         qualifiers = {
             "P580": [
@@ -26,14 +26,14 @@ class TestQualifierHasher(unittest.TestCase):
         self.assertIsInstance(hash_value, int)
         self.assertNotEqual(hash_value, 0)
 
-    def test_compute_hash_deterministic(self):
+    def test_compute_hash_deterministic(self) -> None:
         """Test that hash is deterministic."""
         qualifiers = {"P1": []}
         hash1 = QualifierHasher.compute_hash(qualifiers)
         hash2 = QualifierHasher.compute_hash(qualifiers)
         self.assertEqual(hash1, hash2)
 
-    def test_compute_hash_order_independent(self):
+    def test_compute_hash_order_independent(self) -> None:
         """Test that hash depends on content, not key order."""
         qual1 = {"P1": [], "P2": []}
         qual2 = {"P2": [], "P1": []}

@@ -13,13 +13,13 @@ class TestEntityReadHandlerRevision(unittest.TestCase):
         self.mock_s3 = Mock()
 
     @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_revision_s3_none(self, mock_raise_error):
+    def test_get_entity_revision_s3_none(self, mock_raise_error) -> None:
         """Test get_entity_revision raises error when s3_client is None"""
         EntityReadHandler.get_entity_revision("Q42", 123, None)
         mock_raise_error.assert_called_once_with("S3 not initialized", status_code=503)
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityRevisionResponse")
-    def test_get_entity_revision_success(self, mock_revision_response):
+    def test_get_entity_revision_success(self, mock_revision_response) -> None:
         """Test get_entity_revision success"""
         mock_revision = Mock()
         mock_revision.data = Mock()
@@ -38,7 +38,7 @@ class TestEntityReadHandlerRevision(unittest.TestCase):
         mock_revision_response.assert_called_once()
 
     @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_revision_exception(self, mock_raise_error):
+    def test_get_entity_revision_exception(self, mock_raise_error) -> None:
         """Test get_entity_revision handles exceptions"""
         self.mock_s3.read_revision.side_effect = Exception("S3 error")
 
@@ -47,7 +47,7 @@ class TestEntityReadHandlerRevision(unittest.TestCase):
         mock_raise_error.assert_called_once_with("Revision not found", status_code=404)
 
     @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_revision_invalid_revision_id_zero(self, mock_raise_error):
+    def test_get_entity_revision_invalid_revision_id_zero(self, mock_raise_error) -> None:
         """Test get_entity_revision with invalid revision_id 0"""
         EntityReadHandler.get_entity_revision("Q42", 0, self.mock_s3)
         mock_raise_error.assert_called_once_with(
@@ -55,7 +55,7 @@ class TestEntityReadHandlerRevision(unittest.TestCase):
         )
 
     @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_revision_invalid_revision_id_negative(self, mock_raise_error):
+    def test_get_entity_revision_invalid_revision_id_negative(self, mock_raise_error) -> None:
         """Test get_entity_revision with negative revision_id"""
         EntityReadHandler.get_entity_revision("Q42", -1, self.mock_s3)
         mock_raise_error.assert_called_once_with(
@@ -63,7 +63,7 @@ class TestEntityReadHandlerRevision(unittest.TestCase):
         )
 
     @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_revision_revision_too_high(self, mock_raise_error):
+    def test_get_entity_revision_revision_too_high(self, mock_raise_error) -> None:
         """Test get_entity_revision when revision > current head"""
         self.mock_s3.read_revision.side_effect = Exception("Revision not found")
 

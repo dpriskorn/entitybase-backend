@@ -10,7 +10,7 @@ from models.rest_api.entitybase.services.general_stats_service import (
 class TestGeneralStatsService:
     """Test cases for GeneralStatsService."""
 
-    def test_compute_daily_stats(self):
+    def test_compute_daily_stats(self) -> None:
         """Test computing daily general stats."""
         # Mock vitess client
         vitess_client = Mock()
@@ -68,7 +68,7 @@ class TestGeneralStatsService:
             "aliases": 500,
         }
 
-    def test_get_total_statements_zero(self):
+    def test_get_total_statements_zero(self) -> None:
         """Test getting total statements when none exist."""
         vitess_client = Mock()
         conn = Mock()
@@ -89,7 +89,7 @@ class TestGeneralStatsService:
 
         assert total == 0
 
-    def test_get_terms_per_language_empty(self):
+    def test_get_terms_per_language_empty(self) -> None:
         """Test terms per language when no data."""
         vitess_client = Mock()
         conn = Mock()

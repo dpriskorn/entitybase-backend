@@ -19,7 +19,7 @@ from models.workers.entity_diff_worker import (
 class TestRDFCanonicalizer:
     """Test RDF canonicalization methods."""
 
-    def test_urdna2015_canonicalization(self):
+    def test_urdna2015_canonicalization(self) -> None:
         """Test URDNA2015 canonicalization with simple RDF."""
         canonicalizer = RDFCanonicalizer(CanonicalizationMethod.URDNA2015)
 
@@ -41,7 +41,7 @@ class TestRDFCanonicalizer:
             assert isinstance(triple, tuple)
             assert len(triple) == 3
 
-    def test_skolem_canonicalization(self):
+    def test_skolem_canonicalization(self) -> None:
         """Test skolemization canonicalization."""
         canonicalizer = RDFCanonicalizer(CanonicalizationMethod.SKOLEM)
 
@@ -126,7 +126,7 @@ class TestEntityDiffWorker:
         assert response.triple_count_v2 > response.triple_count_v1
 
 
-def test_diff_rdf_content():
+def test_diff_rdf_content() -> None:
     """Test the convenience function."""
     rdf_v1 = """
     @prefix wd: <http://www.wikidata.org/entity/> .
@@ -166,7 +166,7 @@ class TestRDFStreaming:
         )
         self.rdf_producer.producer = self.mock_producer
 
-    def test_rdf_change_event_creation(self):
+    def test_rdf_change_event_creation(self) -> None:
         """Test RDF change event model creation."""
         from models.infrastructure.stream.producer import RDFChangeEvent
 

@@ -4,6 +4,10 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from .revision_data import RevisionData
+
+from .revision_data import RevisionData
+
 
 class RevisionReadResponse(BaseModel):
     """Response model for reading revisions."""

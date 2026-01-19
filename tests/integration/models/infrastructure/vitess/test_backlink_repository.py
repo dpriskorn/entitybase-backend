@@ -211,7 +211,7 @@ class TestBacklinkRepository:
 
     def test_insert_backlink_statistics_invalid_date(self) -> None:
         """Test validation of invalid date format."""
-        from models.rest_api.utils import ValidationError
+        from pydantic import ValidationError
 
         with pytest.raises(ValidationError) as exc_info:
             self.repository.insert_backlink_statistics(
@@ -222,7 +222,7 @@ class TestBacklinkRepository:
 
     def test_insert_backlink_statistics_negative_counts(self) -> None:
         """Test validation of negative count values."""
-        from models.rest_api.utils import ValidationError
+        from pydantic import ValidationError
 
         # Test negative total_backlinks
         with pytest.raises(ValidationError) as exc_info:
@@ -242,7 +242,7 @@ class TestBacklinkRepository:
 
     def test_insert_backlink_statistics_invalid_top_entities(self) -> None:
         """Test validation of invalid top_entities type."""
-        from models.rest_api.utils import ValidationError
+        from pydantic import ValidationError
 
         with pytest.raises(ValidationError) as exc_info:
             self.repository.insert_backlink_statistics(
@@ -253,7 +253,7 @@ class TestBacklinkRepository:
 
     def test_insert_backlink_statistics_json_serialization_error(self) -> None:
         """Test handling of JSON serialization errors."""
-        from models.rest_api.utils import ValidationError
+        from pydantic import ValidationError
 
         # Create an object that can't be JSON serialized
         class NonSerializable:

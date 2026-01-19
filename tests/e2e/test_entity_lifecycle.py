@@ -2,7 +2,7 @@ import pytest
 
 
 @pytest.mark.e2e
-def test_entity_lifecycle(e2e_api_client, e2e_base_url):
+def test_entity_lifecycle(e2e_api_client, e2e_base_url) -> None:
     """E2E test: Create, read, update, delete entity."""
     base_url = e2e_base_url
 

@@ -11,7 +11,7 @@ from models.internal_representation.property_metadata import (
 
 
 class TestPropertyWriter:
-    def test_write_property_item(self):
+    def test_write_property_item(self) -> None:
         """Test writing property with wikibase-item datatype."""
         output = StringIO()
         prop = PropertyMetadata(
@@ -33,7 +33,7 @@ class TestPropertyWriter:
         for line in expected_lines:
             assert line in result
 
-    def test_write_property_string(self):
+    def test_write_property_string(self) -> None:
         """Test writing property with string datatype."""
         output = StringIO()
         prop = PropertyMetadata(property_id="P123", datatype=WikibaseDatatype.STRING)
@@ -43,7 +43,7 @@ class TestPropertyWriter:
         result = output.getvalue()
         assert "wd:P123 wikibase:propertyType wikibase:String ." in result
 
-    def test_write_property_quantity(self):
+    def test_write_property_quantity(self) -> None:
         """Test writing property with quantity datatype."""
         output = StringIO()
         prop = PropertyMetadata(property_id="P456", datatype=WikibaseDatatype.QUANTITY)
@@ -53,7 +53,7 @@ class TestPropertyWriter:
         result = output.getvalue()
         assert "wd:P456 wikibase:propertyType wikibase:Quantity ." in result
 
-    def test_write_property_time(self):
+    def test_write_property_time(self) -> None:
         """Test writing property with time datatype."""
         output = StringIO()
         prop = PropertyMetadata(property_id="P789", datatype=WikibaseDatatype.TIME)
@@ -63,7 +63,7 @@ class TestPropertyWriter:
         result = output.getvalue()
         assert "wd:P789 wikibase:propertyType wikibase:Time ." in result
 
-    def test_write_property_commons_media(self):
+    def test_write_property_commons_media(self) -> None:
         """Test writing property with commonsMedia datatype."""
         output = StringIO()
         prop = PropertyMetadata(
@@ -75,7 +75,7 @@ class TestPropertyWriter:
         result = output.getvalue()
         assert "wd:P999 wikibase:propertyType wikibase:CommonsMedia ." in result
 
-    def test_write_property_external_id(self):
+    def test_write_property_external_id(self) -> None:
         """Test writing property with external-id datatype."""
         output = StringIO()
         prop = PropertyMetadata(
@@ -87,7 +87,7 @@ class TestPropertyWriter:
         result = output.getvalue()
         assert "wd:P111 wikibase:propertyType wikibase:ExternalId ." in result
 
-    def test_write_property_url(self):
+    def test_write_property_url(self) -> None:
         """Test writing property with url datatype."""
         output = StringIO()
         prop = PropertyMetadata(property_id="P222", datatype=WikibaseDatatype.URL)
@@ -97,7 +97,7 @@ class TestPropertyWriter:
         result = output.getvalue()
         assert "wd:P222 wikibase:propertyType wikibase:Url ." in result
 
-    def test_property_type_mapping(self):
+    def test_property_type_mapping(self) -> None:
         """Test _property_type method for all datatypes."""
         test_cases = [
             (WikibaseDatatype.WIKIBASE_ITEM, "WikibaseItem"),

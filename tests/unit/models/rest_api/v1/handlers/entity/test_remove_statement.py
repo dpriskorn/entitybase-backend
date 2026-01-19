@@ -19,7 +19,7 @@ class TestRemoveStatement(unittest.TestCase):
         self.mock_validator = MagicMock()
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.EntityReadHandler")
-    def test_statement_not_found(self, mock_read_handler_class):
+    def test_statement_not_found(self, mock_read_handler_class) -> None:
         """Test statement not found in entity."""
         mock_read_handler = MagicMock()
         mock_read_handler_class.return_value = mock_read_handler
@@ -90,7 +90,7 @@ class TestRemoveStatement(unittest.TestCase):
         mock_update_head.assert_called_once_with("Q1", 101)
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision")
-    def test_statement_hash_not_found(self, mock_read_revision):
+    def test_statement_hash_not_found(self, mock_read_revision) -> None:
         """Test statement hash not found in revision."""
         from models.infrastructure.s3.revision.revision_data import RevisionData
         from models.infrastructure.s3.hashes.hash_maps import HashMaps
@@ -151,7 +151,7 @@ class TestRemoveStatement(unittest.TestCase):
             )
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision")
-    def test_invalid_statement_hash_format(self, mock_read_revision):
+    def test_invalid_statement_hash_format(self, mock_read_revision) -> None:
         """Test invalid statement hash format."""
         from models.infrastructure.s3.revision.revision_data import RevisionData
         from models.infrastructure.s3.hashes.hash_maps import HashMaps
@@ -177,7 +177,7 @@ class TestRemoveStatement(unittest.TestCase):
         self.assertIn("Invalid statement hash format", result.error)
 
     @patch("models.rest_api.entitybase.handlers.entity.handler.MyS3Client.read_revision")
-    def test_no_statements_in_revision(self, mock_read_revision):
+    def test_no_statements_in_revision(self, mock_read_revision) -> None:
         """Test revision with no statements."""
         from models.infrastructure.s3.revision.revision_data import RevisionData
         from models.infrastructure.s3.hashes.hash_maps import HashMaps

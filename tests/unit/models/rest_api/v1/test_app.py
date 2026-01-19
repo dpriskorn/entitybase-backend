@@ -7,7 +7,7 @@ from models.rest_api.app import app, lifespan
 
 
 class TestApp:
-    def test_app_creation(self):
+    def test_app_creation(self) -> None:
         """Test that FastAPI app is created with correct configuration."""
         assert app.title == "Wikibase Backend API"
         assert app.description == "Backend API for Wikibase entity management"

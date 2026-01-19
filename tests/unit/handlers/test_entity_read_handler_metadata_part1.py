@@ -154,7 +154,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         self.assertIn("labels", entity_data["entity"])
 
     @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_exception_on_read_revision(self, mock_raise_error):
+    def test_get_entity_exception_on_read_revision(self, mock_raise_error) -> None:
         """Test get_entity handles exception during read_revision"""
         self.mock_vitess.entity_exists.return_value = True
         self.mock_vitess.get_head.return_value = 123
@@ -164,7 +164,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityRevisionResponse")
-    def test_get_entity_revision_with_metadata(self, mock_revision_response):
+    def test_get_entity_revision_with_metadata(self, mock_revision_response) -> None:
         """Test get_entity_revision with metadata loading"""
         mock_revision = Mock()
         mock_revision.data = Mock()
@@ -331,7 +331,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         self.assertIn("aliases", entity_data)
 
     @patch("models.rest_api.entitybase.handlers.entity.read.EntityRevisionResponse")
-    def test_get_entity_revision_missing_labels_hash(self, mock_revision_response):
+    def test_get_entity_revision_missing_labels_hash(self, mock_revision_response) -> None:
         """Test get_entity_revision with missing labels_hash"""
         mock_revision = Mock()
         mock_revision.data = Mock()
@@ -385,7 +385,7 @@ class TestEntityReadHandlerMetadataPart1(unittest.TestCase):
         self.assertEqual(result, mock_response_instance)
         # descriptions not loaded due to exception
 
-    def test_get_entity_history_large_limit_offset(self):
+    def test_get_entity_history_large_limit_offset(self) -> None:
         """Test get_entity_history with large limit and offset"""
         self.mock_vitess.entity_exists.return_value = True
         mock_history = [

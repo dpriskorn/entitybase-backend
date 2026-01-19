@@ -15,7 +15,7 @@ class TestEndorsementRepository:
     def repository(self, mock_connection_manager):
         return EndorsementRepository(mock_connection_manager)
 
-    def test_create_endorsement_success(self, repository, mock_connection_manager):
+    def test_create_endorsement_success(self, repository, mock_connection_manager) -> None:
         """Test successful endorsement creation."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -37,7 +37,7 @@ class TestEndorsementRepository:
         assert result.data == 789
         assert result.error is None
 
-    def test_create_endorsement_invalid_parameters(self, repository):
+    def test_create_endorsement_invalid_parameters(self, repository) -> None:
         """Test create_endorsement with invalid parameters."""
         result = repository.create_endorsement(0, 456789)
         assert result.success is False
@@ -126,7 +126,7 @@ class TestEndorsementRepository:
         assert result.success is False
         assert "Database connection failed" in result.error
 
-    def test_withdraw_endorsement_success(self, repository, mock_connection_manager):
+    def test_withdraw_endorsement_success(self, repository, mock_connection_manager) -> None:
         """Test successful endorsement withdrawal."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -142,7 +142,7 @@ class TestEndorsementRepository:
         assert result.success is True
         assert result.data == 5
 
-    def test_withdraw_endorsement_not_found(self, repository, mock_connection_manager):
+    def test_withdraw_endorsement_not_found(self, repository, mock_connection_manager) -> None:
         """Test withdrawal when no active endorsement exists."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -158,7 +158,7 @@ class TestEndorsementRepository:
         assert result.success is False
         assert "No active endorsement found" in result.error
 
-    def test_withdraw_endorsement_invalid_parameters(self, repository):
+    def test_withdraw_endorsement_invalid_parameters(self, repository) -> None:
         """Test withdraw_endorsement with invalid parameters."""
         result = repository.withdraw_endorsement(0, 456789)
         assert result.success is False
@@ -265,7 +265,7 @@ class TestEndorsementRepository:
         assert result.data[0]["active_endorsements"] == 0
         assert result.data[0]["withdrawn_endorsements"] == 0
 
-    def test_get_batch_statement_endorsement_stats_invalid_params(self, repository):
+    def test_get_batch_statement_endorsement_stats_invalid_params(self, repository) -> None:
         """Test batch stats with invalid parameters."""
         result = repository.get_batch_statement_endorsement_stats([])
         assert result.success is False
@@ -366,7 +366,7 @@ class TestEndorsementRepository:
         assert result.data["total_endorsements_given"] == 15
         assert result.data["total_endorsements_active"] == 12
 
-    def test_get_user_endorsement_stats_invalid_parameters(self, repository):
+    def test_get_user_endorsement_stats_invalid_parameters(self, repository) -> None:
         """Test get_user_endorsement_stats with invalid parameters."""
         result = repository.get_user_endorsement_stats(0)
         assert result.success is False
@@ -442,7 +442,7 @@ class TestEndorsementRepository:
         query = calls[0][0][0]  # First call's query
         assert "removed_at IS NULL" not in query
 
-    def test_get_statement_endorsements_invalid_parameters(self, repository):
+    def test_get_statement_endorsements_invalid_parameters(self, repository) -> None:
         """Test get_statement_endorsements with invalid parameters."""
         result = repository.get_statement_endorsements(0, 50, 0, False)
         assert result.success is False
@@ -537,7 +537,7 @@ class TestEndorsementRepository:
         assert result.success is False
         assert "Database error" in result.error
 
-    def test_get_user_endorsements_success(self, repository, mock_connection_manager):
+    def test_get_user_endorsements_success(self, repository, mock_connection_manager) -> None:
         """Test successful user endorsements retrieval."""
         mock_conn = Mock()
         mock_cursor = Mock()
@@ -587,7 +587,7 @@ class TestEndorsementRepository:
         query = calls[0][0][0]  # First call's query
         assert "AND removed_at IS NULL" not in query
 
-    def test_get_user_endorsements_invalid_parameters(self, repository):
+    def test_get_user_endorsements_invalid_parameters(self, repository) -> None:
         """Test get_user_endorsements with invalid parameters."""
         result = repository.get_user_endorsements(0, 50, 0, False)
         assert result.success is False
@@ -625,7 +625,7 @@ class TestEndorsementRepository:
         assert result.data["total_count"] == 55
         assert result.data["has_more"] is True
 
-    def test_get_user_endorsements_empty(self, repository, mock_connection_manager):
+    def test_get_user_endorsements_empty(self, repository, mock_connection_manager) -> None:
         """Test user endorsements retrieval with no results."""
         mock_conn = Mock()
         mock_cursor = Mock()

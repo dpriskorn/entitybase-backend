@@ -16,7 +16,7 @@ class TestEntityReadHandlerEntity(unittest.TestCase):
     @patch(
         "models.rest_api.entitybase.handlers.entity.read.EntityReadHandler.get_entity"
     )
-    def test_get_entity_with_terms(self, mock_get_entity):
+    def test_get_entity_with_terms(self, mock_get_entity) -> None:
         """Test that get_entity calls work with term loading"""
         # This is more of an integration test, but ensures the method exists
         mock_entity_response = Mock()
@@ -31,7 +31,7 @@ class TestEntityReadHandlerEntity(unittest.TestCase):
         self.assertTrue(hasattr(self.handler, "get_entity"))
 
     @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_vitess_none(self, mock_raise_error):
+    def test_get_entity_vitess_none(self, mock_raise_error) -> None:
         """Test get_entity raises error when vitess_client is None"""
         EntityReadHandler.get_entity("Q42", None, self.mock_s3)
         mock_raise_error.assert_called_once_with(
@@ -39,20 +39,20 @@ class TestEntityReadHandlerEntity(unittest.TestCase):
         )
 
     @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_s3_none(self, mock_raise_error):
+    def test_get_entity_s3_none(self, mock_raise_error) -> None:
         """Test get_entity raises error when s3_client is None"""
         EntityReadHandler.get_entity("Q42", self.mock_vitess, None)
         mock_raise_error.assert_called_once_with("S3 not initialized", status_code=503)
 
     @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_not_found(self, mock_raise_error):
+    def test_get_entity_not_found(self, mock_raise_error) -> None:
         """Test get_entity raises error when entity does not exist"""
         self.mock_vitess.entity_exists.return_value = False
         EntityReadHandler.get_entity("Q42", self.mock_vitess, self.mock_s3)
         mock_raise_error.assert_called_once_with("Entity not found", status_code=404)
 
     @patch("models.rest_api.entitybase.handlers.entity.read.raise_validation_error")
-    def test_get_entity_no_head_revision(self, mock_raise_error):
+    def test_get_entity_no_head_revision(self, mock_raise_error) -> None:
         """Test get_entity raises error when no head revision"""
         self.mock_vitess.entity_exists.return_value = True
         self.mock_vitess.get_head.return_value = 0

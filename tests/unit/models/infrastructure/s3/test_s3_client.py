@@ -24,7 +24,7 @@ class TestMyS3Client:
         return MagicMock()
 
     @patch("models.infrastructure.s3.s3_client.S3ConnectionManager")
-    def test_init_success(self, mock_manager_class, config, mock_connection_manager):
+    def test_init_success(self, mock_manager_class, config, mock_connection_manager) -> None:
         """Test MyS3Client initialization success."""
         mock_manager_class.return_value = mock_connection_manager
 
@@ -71,7 +71,7 @@ class TestMyS3Client:
         )
 
     @patch("models.infrastructure.s3.s3_client.S3ConnectionManager")
-    def test_ensure_bucket_exists_no_client(self, mock_manager_class, config):
+    def test_ensure_bucket_exists_no_client(self, mock_manager_class, config) -> None:
         """Test _ensure_bucket_exists when no boto client."""
         mock_manager_class.return_value = None
 
@@ -80,7 +80,7 @@ class TestMyS3Client:
 
         assert "S3 service unavailable" in str(exc_info.value)
 
-    def test_read_revision(self, config, mock_connection_manager):
+    def test_read_revision(self, config, mock_connection_manager) -> None:
         """Test read_revision method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -108,7 +108,7 @@ class TestMyS3Client:
                 Bucket="test-bucket", Key="entities/Q42/123.json"
             )
 
-    def test_read_statement(self, config, mock_connection_manager):
+    def test_read_statement(self, config, mock_connection_manager) -> None:
         """Test read_statement method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -134,7 +134,7 @@ class TestMyS3Client:
                 Bucket="test-bucket", Key="statements/456.json"
             )
 
-    def test_write_revision(self, config, mock_connection_manager):
+    def test_write_revision(self, config, mock_connection_manager) -> None:
         """Test write_revision method."""
         with (
             patch(
@@ -155,7 +155,7 @@ class TestMyS3Client:
             assert call_args[1]["Metadata"]["schema_version"] == "1.0"
             assert "Body" in call_args[1]
 
-    def test_write_statement(self, config, mock_connection_manager):
+    def test_write_statement(self, config, mock_connection_manager) -> None:
         """Test write_statement method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -200,7 +200,7 @@ class TestMyS3Client:
             call_args = mock_connection_manager.boto_client.put_object.call_args
             assert call_args[1]["Metadata"]["created_at"] == "2023-01-01T12:00:00"
 
-    def test_load_metadata(self, config, mock_connection_manager):
+    def test_load_metadata(self, config, mock_connection_manager) -> None:
         """Test load_metadata method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -223,7 +223,7 @@ class TestMyS3Client:
                 Bucket="wikibase-terms", Key="789"
             )
 
-    def test_mark_published(self, config, mock_connection_manager):
+    def test_mark_published(self, config, mock_connection_manager) -> None:
         """Test mark_published method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -244,7 +244,7 @@ class TestMyS3Client:
             assert call_args[1]["Metadata"] == {"publication_state": "published"}
             assert call_args[1]["MetadataDirective"] == "REPLACE"
 
-    def test_read_full_revision(self, config, mock_connection_manager):
+    def test_read_full_revision(self, config, mock_connection_manager) -> None:
         """Test read_full_revision method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -280,7 +280,7 @@ class TestMyS3Client:
                 Bucket="test-bucket", Key="Q42/r123.json"
             )
 
-    def test_delete_statement(self, config, mock_connection_manager):
+    def test_delete_statement(self, config, mock_connection_manager) -> None:
         """Test delete_statement method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -294,7 +294,7 @@ class TestMyS3Client:
                 Bucket="test-bucket", Key="statements/456.json"
             )
 
-    def test_write_entity_revision(self, config, mock_connection_manager):
+    def test_write_entity_revision(self, config, mock_connection_manager) -> None:
         """Test write_entity_revision method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -312,7 +312,7 @@ class TestMyS3Client:
             assert call_args[1]["Key"] == "entities/Q42/123.json"
             assert call_args[1]["Metadata"]["schema_version"] == "1.0"
 
-    def test_delete_metadata(self, config, mock_connection_manager):
+    def test_delete_metadata(self, config, mock_connection_manager) -> None:
         """Test delete_metadata method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -326,7 +326,7 @@ class TestMyS3Client:
                 Bucket="testbucket-terms", Key="metadata/labels/789"
             )
 
-    def test_store_term_metadata(self, config, mock_connection_manager):
+    def test_store_term_metadata(self, config, mock_connection_manager) -> None:
         """Test store_term_metadata method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -342,7 +342,7 @@ class TestMyS3Client:
             assert call_args[1]["Key"] == "789"
             assert call_args[1]["Body"] == b"test label"
 
-    def test_load_term_metadata(self, config, mock_connection_manager):
+    def test_load_term_metadata(self, config, mock_connection_manager) -> None:
         """Test load_term_metadata method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -365,7 +365,7 @@ class TestMyS3Client:
                 Bucket="wikibase-terms", Key="789"
             )
 
-    def test_store_sitelink_metadata(self, config, mock_connection_manager):
+    def test_store_sitelink_metadata(self, config, mock_connection_manager) -> None:
         """Test store_sitelink_metadata method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -381,7 +381,7 @@ class TestMyS3Client:
             assert call_args[1]["Key"] == "789"
             assert call_args[1]["Body"] == b"test title"
 
-    def test_load_sitelink_metadata(self, config, mock_connection_manager):
+    def test_load_sitelink_metadata(self, config, mock_connection_manager) -> None:
         """Test load_sitelink_metadata method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -404,7 +404,7 @@ class TestMyS3Client:
                 Bucket="wikibase-sitelinks", Key="789"
             )
 
-    def test_store_reference(self, config, mock_connection_manager):
+    def test_store_reference(self, config, mock_connection_manager) -> None:
         """Test store_reference method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -421,7 +421,7 @@ class TestMyS3Client:
             assert call_args[1]["Key"] == "references/123"
             assert call_args[1]["ContentType"] == "application/json"
 
-    def test_load_reference(self, config, mock_connection_manager):
+    def test_load_reference(self, config, mock_connection_manager) -> None:
         """Test load_reference method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -444,7 +444,7 @@ class TestMyS3Client:
                 Bucket="testbucket-references", Key="references/123"
             )
 
-    def test_load_references_batch(self, config, mock_connection_manager):
+    def test_load_references_batch(self, config, mock_connection_manager) -> None:
         """Test load_references_batch method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -464,7 +464,7 @@ class TestMyS3Client:
 
                 assert result == [{"snaks": {"P1": []}}, None, {"snaks": {"P2": []}}]
 
-    def test_store_qualifier(self, config, mock_connection_manager):
+    def test_store_qualifier(self, config, mock_connection_manager) -> None:
         """Test store_qualifier method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -481,7 +481,7 @@ class TestMyS3Client:
             assert call_args[1]["Key"] == "123"
             assert call_args[1]["ContentType"] == "application/json"
 
-    def test_load_qualifier(self, config, mock_connection_manager):
+    def test_load_qualifier(self, config, mock_connection_manager) -> None:
         """Test load_qualifier method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"
@@ -504,7 +504,7 @@ class TestMyS3Client:
                 Bucket="testbucket-qualifiers", Key="123"
             )
 
-    def test_load_qualifiers_batch(self, config, mock_connection_manager):
+    def test_load_qualifiers_batch(self, config, mock_connection_manager) -> None:
         """Test load_qualifiers_batch method."""
         with patch(
             "models.infrastructure.s3.s3_client.S3ConnectionManager"

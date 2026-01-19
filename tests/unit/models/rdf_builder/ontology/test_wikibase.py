@@ -6,7 +6,7 @@ from models.rdf_builder.ontology.wikibase import wikibase_predicates
 
 
 class TestWikibasePredicates:
-    def test_wikibase_predicates_standard_property(self):
+    def test_wikibase_predicates_standard_property(self) -> None:
         """Test wikibase_predicates for a standard property ID."""
         result = wikibase_predicates("P31")
         assert result.direct == "wdt:P31"
@@ -16,7 +16,7 @@ class TestWikibasePredicates:
         assert result.reference == "pr:P31"
         assert result.statement_value_node == "psv:P31"
 
-    def test_wikibase_predicates_different_pid(self):
+    def test_wikibase_predicates_different_pid(self) -> None:
         """Test wikibase_predicates with different property ID."""
         result = wikibase_predicates("P123")
         assert result.direct == "wdt:P123"
@@ -26,7 +26,7 @@ class TestWikibasePredicates:
         assert result.reference == "pr:P123"
         assert result.statement_value_node == "psv:P123"
 
-    def test_wikibase_predicates_numeric_pid(self):
+    def test_wikibase_predicates_numeric_pid(self) -> None:
         """Test wikibase_predicates with numeric property ID."""
         result = wikibase_predicates("123")
         assert result.direct == "wdt:123"

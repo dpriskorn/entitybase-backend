@@ -84,6 +84,10 @@ exclude = ["src/types/", "types/", ".venv/"]
 module = "src/models/rest_api/main.py"
 warn_return_any = false
 
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
 [tool.ruff]
 # Max line length
 line-length = 88

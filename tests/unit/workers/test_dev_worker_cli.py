@@ -12,7 +12,7 @@ class TestDevWorkerCLI:
 
     @patch("models.workers.dev.__main__.run_setup")
     @patch("sys.argv", ["devworker", "setup"])
-    def test_setup_command(self, mock_run_setup):
+    def test_setup_command(self, mock_run_setup) -> None:
         """Test setup command execution."""
         mock_run_setup.return_value = True
 
@@ -23,7 +23,7 @@ class TestDevWorkerCLI:
 
     @patch("models.workers.dev.__main__.run_health_check")
     @patch("sys.argv", ["devworker", "health"])
-    def test_health_command(self, mock_run_health):
+    def test_health_command(self, mock_run_health) -> None:
         """Test health check command execution."""
         mock_run_health.return_value = True
 
@@ -34,7 +34,7 @@ class TestDevWorkerCLI:
 
     @patch("models.workers.dev.__main__.run_cleanup")
     @patch("sys.argv", ["devworker", "cleanup", "--force"])
-    def test_cleanup_command_force(self, mock_run_cleanup):
+    def test_cleanup_command_force(self, mock_run_cleanup) -> None:
         """Test cleanup command with force flag."""
         mock_run_cleanup.return_value = True
 
@@ -46,7 +46,7 @@ class TestDevWorkerCLI:
     @patch("builtins.input", return_value="yes")
     @patch("models.workers.dev.create_buckets.CreateBuckets.cleanup_buckets")
     @patch("sys.argv", ["devworker", "cleanup"])
-    def test_cleanup_command_with_confirmation(self, mock_cleanup, mock_input):
+    def test_cleanup_command_with_confirmation(self, mock_cleanup, mock_input) -> None:
         """Test cleanup command with user confirmation."""
         mock_cleanup.return_value = {"bucket1": "deleted"}
 
@@ -59,7 +59,7 @@ class TestDevWorkerCLI:
     @patch("builtins.input", return_value="no")
     @patch("models.workers.dev.create_buckets.CreateBuckets.cleanup_buckets")
     @patch("sys.argv", ["devworker", "cleanup"])
-    def test_cleanup_command_cancelled(self, mock_cleanup, mock_input):
+    def test_cleanup_command_cancelled(self, mock_cleanup, mock_input) -> None:
         """Test cleanup command cancellation."""
         result = main()
 
@@ -68,7 +68,7 @@ class TestDevWorkerCLI:
         mock_input.assert_called_once_with("Are you sure? Type 'yes' to confirm: ")
 
     @patch("sys.argv", ["devworker"])
-    def test_no_command_error(self, capsys):
+    def test_no_command_error(self, capsys) -> None:
         """Test error when no command is provided."""
         result = main()
 
@@ -112,7 +112,7 @@ class TestDevWorkerCLI:
 
     @patch("models.workers.dev.__main__.run_setup")
     @patch("sys.argv", ["devworker", "setup"])
-    def test_command_failure(self, mock_run_setup):
+    def test_command_failure(self, mock_run_setup) -> None:
         """Test handling of command failure."""
         mock_run_setup.return_value = False  # Command failed
 
@@ -122,7 +122,7 @@ class TestDevWorkerCLI:
         mock_run_setup.assert_called_once()
 
     @patch("sys.argv", ["devworker", "invalid_command"])
-    def test_invalid_command(self, capsys):
+    def test_invalid_command(self, capsys) -> None:
         """Test error for invalid command."""
         with pytest.raises(SystemExit) as exc_info:
             main()

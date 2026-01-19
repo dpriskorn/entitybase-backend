@@ -7,7 +7,7 @@ from models.infrastructure.vitess.repositories.revision import RevisionRepositor
 
 
 class TestRevisionRepository:
-    def test_init(self):
+    def test_init(self) -> None:
         """Test RevisionRepository initialization."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -17,7 +17,7 @@ class TestRevisionRepository:
         assert repo.connection_manager == mock_connection_manager
         assert repo.id_resolver == mock_id_resolver
 
-    def test_insert_success(self):
+    def test_insert_success(self) -> None:
         """Test successful revision insertion."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -52,7 +52,7 @@ class TestRevisionRepository:
         assert call_args[0][1][2] is True  # is_mass_edit
 
     @patch("models.infrastructure.vitess.revision_repository.raise_validation_error")
-    def test_insert_entity_not_found(self, mock_raise):
+    def test_insert_entity_not_found(self, mock_raise) -> None:
         """Test insert when entity not found."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -65,7 +65,7 @@ class TestRevisionRepository:
 
         mock_raise.assert_called_once_with("Entity Q999 not found", status_code=404)
 
-    def test_get_revision_success(self):
+    def test_get_revision_success(self) -> None:
         """Test successful revision retrieval."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -98,7 +98,7 @@ class TestRevisionRepository:
         assert result["aliases_hashes"] == {"en": ["hash3"]}
         assert result["sitelinks_hashes"] == {"enwiki": "hash4"}
 
-    def test_get_revision_not_found(self):
+    def test_get_revision_not_found(self) -> None:
         """Test get_revision when revision not found."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -115,7 +115,7 @@ class TestRevisionRepository:
 
         assert result is None
 
-    def test_revert_entity_revision_not_found(self):
+    def test_revert_entity_revision_not_found(self) -> None:
         """Test revert_entity when target revision not found."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -129,7 +129,7 @@ class TestRevisionRepository:
 
         assert "Revision 456 not found" in str(exc_info.value)
 
-    def test_revert_entity_success(self):
+    def test_revert_entity_success(self) -> None:
         """Test successful entity revert."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -165,7 +165,7 @@ class TestRevisionRepository:
             mock_cursor.execute.call_count >= 3
         )  # get next ID, insert revision, update head
 
-    def test_get_history_success(self):
+    def test_get_history_success(self) -> None:
         """Test successful history retrieval."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -194,7 +194,7 @@ class TestRevisionRepository:
         assert result[1].revision_id == 455
         assert result[1].created_at == ""
 
-    def test_get_history_entity_not_found(self):
+    def test_get_history_entity_not_found(self) -> None:
         """Test get_history when entity not found."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -207,7 +207,7 @@ class TestRevisionRepository:
 
         assert result == []
 
-    def test_delete_success(self):
+    def test_delete_success(self) -> None:
         """Test successful revision deletion."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -222,7 +222,7 @@ class TestRevisionRepository:
 
         assert mock_cursor.execute.call_count == 2  # DELETE and UPDATE
 
-    def test_delete_entity_not_found(self):
+    def test_delete_entity_not_found(self) -> None:
         """Test delete when entity not found."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -236,7 +236,7 @@ class TestRevisionRepository:
         # Should not execute any SQL
         mock_conn.cursor.assert_not_called()
 
-    def test_create_with_cas_success(self):
+    def test_create_with_cas_success(self) -> None:
         """Test successful create with compare-and-swap."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -266,7 +266,7 @@ class TestRevisionRepository:
         assert result is True
         assert mock_cursor.execute.call_count == 2  # INSERT and UPDATE
 
-    def test_create_with_cas_entity_not_found(self):
+    def test_create_with_cas_entity_not_found(self) -> None:
         """Test create_with_cas when entity not found."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -279,7 +279,7 @@ class TestRevisionRepository:
 
         assert result is False
 
-    def test_create_success(self):
+    def test_create_success(self) -> None:
         """Test successful revision creation."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()
@@ -308,7 +308,7 @@ class TestRevisionRepository:
         assert mock_cursor.execute.call_count == 2  # INSERT into revisions and head
 
     @patch("models.infrastructure.vitess.revision_repository.raise_validation_error")
-    def test_create_entity_not_found(self, mock_raise):
+    def test_create_entity_not_found(self, mock_raise) -> None:
         """Test create when entity not found."""
         mock_connection_manager = MagicMock()
         mock_id_resolver = MagicMock()

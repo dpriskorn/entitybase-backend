@@ -8,7 +8,7 @@ from models.rest_api.entitybase.services.user_stats_service import UserStatsServ
 class TestUserStatsService:
     """Test cases for UserStatsService."""
 
-    def test_compute_daily_stats(self):
+    def test_compute_daily_stats(self) -> None:
         """Test computing daily stats."""
         # Mock vitess client
         vitess_client = Mock()
@@ -44,7 +44,7 @@ class TestUserStatsService:
             "SELECT COUNT(*) FROM users WHERE last_activity >= DATE_SUB(NOW(), INTERVAL 30 DAY)"
         )
 
-    def test_get_total_users_zero(self):
+    def test_get_total_users_zero(self) -> None:
         """Test getting total users when none exist."""
         vitess_client = Mock()
         conn = Mock()
@@ -65,7 +65,7 @@ class TestUserStatsService:
 
         assert total == 0
 
-    def test_get_active_users_none(self):
+    def test_get_active_users_none(self) -> None:
         """Test getting active users when none exist."""
         vitess_client = Mock()
         conn = Mock()
