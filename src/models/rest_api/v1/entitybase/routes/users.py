@@ -13,7 +13,7 @@ from models.rest_api.v1.entitybase.response.user import (
     UserCreateResponse,
 )
 from models.rest_api.v1.entitybase.response.misc import UserStatsResponse
-from models.user import User
+from models.rest_api.v1.entitybase.response.user import UserResponse
 from models.rest_api.utils import raise_validation_error
 
 
@@ -34,13 +34,13 @@ def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
     return result
 
 
-@users_router.get("/entitybase/v1/users/{user_id}", response_model=User)
-def get_user(user_id: int, req: Request) -> User:
+@users_router.get("/entitybase/v1/users/{user_id}", response_model=UserResponse)
+def get_user(user_id: int, req: Request) -> UserResponse:
     """Get user information by MediaWiki user ID."""
     clients = req.app.state.clients
     handler = UserHandler()
     result = handler.get_user(user_id, clients.vitess)
-    if not isinstance(result, User):
+    if not isinstance(result, UserResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
 
