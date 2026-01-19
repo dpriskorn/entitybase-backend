@@ -1,7 +1,7 @@
 """Vitess client for database operations."""
 
 import logging
-from typing import TYPE_CHECKING, Any, Optional, cast
+from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic import BaseModel, Field
 
@@ -17,6 +17,7 @@ from models.infrastructure.vitess.repositories.redirect import RedirectRepositor
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
 from models.infrastructure.vitess.repositories.statement import StatementRepository
 from models.infrastructure.vitess.repositories.thanks import ThanksRepository
+from models.infrastructure.vitess.repositories.user import UserRepository
 from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
 from models.infrastructure.vitess.vitess_config import VitessConfig
 
@@ -26,17 +27,7 @@ from models.infrastructure.client import Client
 
 if TYPE_CHECKING:
     from models.infrastructure.vitess.vitess_config import VitessConfig
-    from models.infrastructure.vitess.repositories.user import UserRepository
 from models.infrastructure.vitess.schema import SchemaManager
-
-
-class Backlink(BaseModel):
-    """Model for a backlink entry."""
-
-    internal_id: int
-    entity_id: str
-    property_id: str
-    statement_id: str
 
 
 class VitessClient(Client):
@@ -115,7 +106,7 @@ class VitessClient(Client):
             self.connection_manager, self.id_resolver
         )
         self.endorsement_repository = EndorsementRepository(self.connection_manager)
-        self._create_tables()
+        self.schema_manager.create_tables()
 
     @property
     def _connection_manager(self) -> VitessConnectionManager:
@@ -126,9 +117,8 @@ class VitessClient(Client):
     @property
     def _user_repository(self) -> "UserRepository":
         """Get the user repository, lazy loading it if necessary."""
+        from models.infrastructure.vitess.repositories.user import UserRepository
         if self.user_repository is None:
-            import importlib
-            user_repo_module = importlib.import_module('models.infrastructure.vitess.repositories.user')
-            UserRepository = user_repo_module.UserRepository
             self.user_repository = UserRepository(self.connection_manager)
-        return cast("UserRepository", self.user_repository)
+        assert isinstance(self.user_repository, UserRepository)
+        return self.user_repository

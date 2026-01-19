@@ -141,8 +141,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    @pytest.mark.asyncio
-    async def test_entitybase_delete_item_label_success(
+    def test_entitybase_delete_item_label_success(
         self, mock_read_handler_class, mock_update_handler_class
     ):
         """Test entitybase DELETE item label"""
@@ -157,14 +156,13 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_update_result = Mock()
         mock_update_handler.update_entity.return_value = mock_update_result
 
-        result = await delete_item_label("Q42", "en", self.mock_request)
+        result = asyncio.run(delete_item_label("Q42", "en", self.mock_request))
 
         self.assertEqual(result, mock_update_result)
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    @pytest.mark.asyncio
-    async def test_entitybase_delete_item_description_success(
+    def test_entitybase_delete_item_description_success(
         self, mock_read_handler_class, mock_update_handler_class
     ):
         """Test entitybase DELETE item description"""
@@ -179,7 +177,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_update_result = Mock()
         mock_update_handler.update_entity.return_value = mock_update_result
 
-        result = await delete_item_description("Q42", "en", self.mock_request)
+        result = asyncio.run(delete_item_description("Q42", "en", self.mock_request))
 
         self.assertEqual(result, mock_update_result)
 
