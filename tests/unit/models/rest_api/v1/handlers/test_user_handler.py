@@ -43,12 +43,9 @@ class TestUserHandler:
         # Mock no stored data
         conn1 = Mock()
         cursor1 = Mock()
-        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(
-            return_value=conn1
-        )
-        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(
-            return_value=None
-        )
+        mock_cm1 = Mock()
+        mock_cm1.__enter__ = Mock(return_value=conn1)
+        mock_cm1.__exit__ = Mock(return_value=None)
         conn1.cursor.return_value.__enter__ = Mock(return_value=cursor1)
         conn1.cursor.return_value.__exit__ = Mock(return_value=None)
         cursor1.fetchone.return_value = None  # No stored stats
@@ -56,15 +53,14 @@ class TestUserHandler:
         # Mock live computation
         conn2 = Mock()
         cursor2 = Mock()
-        vitess_client.connection_manager.get_connection.return_value.__enter__ = Mock(
-            return_value=conn2
-        )
-        vitess_client.connection_manager.get_connection.return_value.__exit__ = Mock(
-            return_value=None
-        )
+        mock_cm2 = Mock()
+        mock_cm2.__enter__ = Mock(return_value=conn2)
+        mock_cm2.__exit__ = Mock(return_value=None)
         conn2.cursor.return_value.__enter__ = Mock(return_value=cursor2)
         conn2.cursor.return_value.__exit__ = Mock(return_value=None)
         cursor2.fetchone.side_effect = [(150,), (75,)]  # Live: total=150, active=75
+
+        vitess_client.connection_manager.get_connection.side_effect = [mock_cm1, mock_cm2]
 
         handler = UserHandler()
         stats = handler.get_user_stats(vitess_client)
