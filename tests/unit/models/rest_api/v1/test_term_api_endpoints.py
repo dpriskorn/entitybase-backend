@@ -31,7 +31,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
     # ===== ENTITYBASE GET ENDPOINTS =====
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_get_item_label_success(self, mock_handler_class) -> None:
+    async def test_entitybase_get_item_label_success(self, mock_handler_class) -> None:
         """Test entitybase GET item label"""
         from models.rest_api.entitybase.versions.v1.items import get_item_label
 
@@ -39,13 +39,13 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_handler_class.return_value = mock_handler
         mock_handler.get_entity.return_value = self.mock_entity_response
 
-        result = get_item_label("Q42", "en", self.mock_request)
+        result = await get_item_label("Q42", "en", self.mock_request)
 
         self.assertEqual(result, {"language": "en", "value": "Douglas Adams"})
         mock_handler.get_entity.assert_called_once()
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_get_item_description_success(self, mock_handler_class) -> None:
+    async def test_entitybase_get_item_description_success(self, mock_handler_class) -> None:
         """Test entitybase GET item description"""
         from models.rest_api.entitybase.versions.v1.items import get_item_description
 
@@ -53,14 +53,14 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_handler_class.return_value = mock_handler
         mock_handler.get_entity.return_value = self.mock_entity_response
 
-        result = get_item_description("Q42", "en", self.mock_request)
+        result = await get_item_description("Q42", "en", self.mock_request)
 
         self.assertEqual(
             result, {"language": "en", "value": "English writer and comedian"}
         )
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_get_item_aliases_success(self, mock_handler_class) -> None:
+    async def test_entitybase_get_item_aliases_success(self, mock_handler_class) -> None:
         """Test entitybase GET item aliases"""
         from models.rest_api.entitybase.versions.v1.items import get_item_aliases_for_language
 
@@ -68,7 +68,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_handler_class.return_value = mock_handler
         mock_handler.get_entity.return_value = self.mock_entity_response
 
-        result = get_item_aliases_for_language("Q42", "en", self.mock_request)
+        result = await get_item_aliases_for_language("Q42", "en", self.mock_request)
 
         expected = [
             {"language": "en", "value": "DNA"},
@@ -80,7 +80,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_put_item_label_success(
+    async def test_entitybase_put_item_label_success(
         self, mock_read_handler_class, mock_update_handler_class
     ):
         """Test entitybase PUT item label"""
@@ -96,14 +96,14 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_update_handler.update_entity.return_value = mock_update_result
 
         update_data = {"value": "Updated Label"}
-        result = update_item_label("Q42", "en", update_data, self.mock_request)
+        result = await update_item_label("Q42", "en", update_data, self.mock_request)
 
         self.assertEqual(result, mock_update_result)
         mock_update_handler.update_entity.assert_called_once()
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_put_item_description_success(
+    async def test_entitybase_put_item_description_success(
         self, mock_read_handler_class, mock_update_handler_class
     ):
         """Test entitybase PUT item description"""
@@ -119,7 +119,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_update_handler.update_entity.return_value = mock_update_result
 
         update_data = {"description": "Updated description"}
-        result = update_item_description("Q42", "en", update_data, self.mock_request)
+        result = await update_item_description("Q42", "en", update_data, self.mock_request)
 
         self.assertEqual(result, mock_update_result)
 
@@ -153,7 +153,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_delete_item_label_success(
+    async def test_entitybase_delete_item_label_success(
         self, mock_read_handler_class, mock_update_handler_class
     ):
         """Test entitybase DELETE item label"""
@@ -168,13 +168,13 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_update_result = Mock()
         mock_update_handler.update_entity.return_value = mock_update_result
 
-        result = delete_item_label("Q42", "en", self.mock_request)
+        result = await delete_item_label("Q42", "en", self.mock_request)
 
         self.assertEqual(result, mock_update_result)
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityUpdateHandler")
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_delete_item_description_success(
+    async def test_entitybase_delete_item_description_success(
         self, mock_read_handler_class, mock_update_handler_class
     ):
         """Test entitybase DELETE item description"""
@@ -189,7 +189,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_update_result = Mock()
         mock_update_handler.update_entity.return_value = mock_update_result
 
-        result = delete_item_description("Q42", "en", self.mock_request)
+        result = await delete_item_description("Q42", "en", self.mock_request)
 
         self.assertEqual(result, mock_update_result)
 
@@ -211,10 +211,9 @@ class TestTermAPIEndpoints(unittest.TestCase):
     # ===== ERROR SCENARIOS =====
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_get_item_label_not_found(self, mock_handler_class) -> None:
+    async def test_entitybase_get_item_label_not_found(self, mock_handler_class) -> None:
         """Test entitybase GET item label - term not found"""
         from models.rest_api.entitybase.versions.v1.items import get_item_label
-        from fastapi import HTTPException
 
         mock_handler = Mock()
         mock_handler_class.return_value = mock_handler
@@ -225,24 +224,24 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_handler.get_entity.return_value = mock_response
 
         with self.assertRaises(HTTPException) as context:
-            get_item_label("Q42", "en", self.mock_request)
+            await get_item_label("Q42", "en", self.mock_request)
 
         self.assertEqual(context.exception.status_code, 404)
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_put_item_label_missing_value(self, mock_handler_class) -> None:
+    async def test_entitybase_put_item_label_missing_value(self, mock_handler_class) -> None:
         """Test entitybase PUT item label - missing value field"""
         from models.rest_api.entitybase.versions.v1.items import update_item_label
         from fastapi import HTTPException
 
         with self.assertRaises(HTTPException) as context:
-            update_item_label("Q42", "en", {}, self.mock_request)  # Empty data
+            await update_item_label("Q42", "en", {}, self.mock_request)  # Empty data
 
         self.assertEqual(context.exception.status_code, 400)
         self.assertIn("Missing 'value' field", str(context.exception.detail))
 
     @patch("models.rest_api.entitybase.versions.v1.items.EntityReadHandler")
-    def test_entitybase_put_item_description_missing_description(
+    async def test_entitybase_put_item_description_missing_description(
         self, mock_handler_class
     ):
         """Test entitybase PUT item description - missing description field"""
@@ -250,7 +249,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
         from fastapi import HTTPException
 
         with self.assertRaises(HTTPException) as context:
-            update_item_description("Q42", "en", {}, self.mock_request)  # Empty data
+            await update_item_description("Q42", "en", {}, self.mock_request)  # Empty data
 
         self.assertEqual(context.exception.status_code, 400)
         self.assertIn("Missing 'description' field", str(context.exception.detail))
