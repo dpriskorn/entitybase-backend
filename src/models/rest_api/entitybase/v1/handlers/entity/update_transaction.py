@@ -4,13 +4,14 @@ import logging
 from typing import Any
 
 from models.infrastructure.s3.enums import EntityType
-from models.infrastructure.stream.change_type import ChangeType
+
 from models.rest_api.entitybase.v1.response import EntityResponse
 from models.rest_api.entitybase.v1.response import StatementHashResult
 
 from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import (
     EntityTransaction,
 )
+from models.infrastructure.stream.change_type import ChangeType
 
 
 logger = logging.getLogger(__name__)
@@ -128,7 +129,7 @@ class UpdateTransaction(EntityTransaction):
         self,
         entity_id: str,
         revision_id: int,
-        change_type: ChangeType,
+        change_type: str,
         user_id: int = 0,
         **kwargs: Any,
     ) -> None:
@@ -161,7 +162,7 @@ class UpdateTransaction(EntityTransaction):
             event = EntityChangeEvent(
                 id=entity_id,
                 rev=revision_id,
-                type=change_type,
+                type=ChangeType(change_type),
                 from_rev=from_revision_id,
                 at=changed_at,
                 summary=edit_summary,

@@ -251,7 +251,7 @@ class TestMyS3Client:
                 "entity_type": "item",
                 "entity": {"id": "Q42", "type": "item"},
                 "redirects_to": "",
-                "labels_hashes": null,
+                "MetadataType.LABELS_hashes": null,
                 "descriptions_hashes": null,
                 "aliases_hashes": null
             }"""
@@ -314,10 +314,10 @@ class TestMyS3Client:
             mock_manager_class.return_value = mock_connection_manager
 
             client = MyS3Client(config)
-            client.delete_metadata("labels", 789)
+            client.delete_metadata(MetadataType.LABELS, 789)
 
             mock_connection_manager.boto_client.delete_object.assert_called_once_with(
-                Bucket="testbucket-terms", Key="metadata/labels/789"
+                Bucket="testbucket-terms",                 Key="metadata/labels/789"
             )
 
     def test_store_term_metadata(self, config, mock_connection_manager) -> None:

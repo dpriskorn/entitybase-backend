@@ -2,6 +2,7 @@ import pytest
 
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
 from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.config import VitessConfig
 
 
 @pytest.mark.integration
@@ -17,7 +18,8 @@ def test_revision_repository_insert_and_get(db_conn):
             return cm()
 
     mock_cm = MockConnectionManager()
-    mock_client = VitessClient(connection_manager=mock_cm, id_resolver=None)
+    config = VitessConfig(host="localhost", port=3306, user="test", password="test", database="test")
+    mock_client = VitessClient(config, connection_manager=mock_cm, id_resolver=None)
 
     repo = RevisionRepository(mock_cm, mock_client.id_resolver)
 

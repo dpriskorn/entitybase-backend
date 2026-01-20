@@ -82,6 +82,7 @@ tenacity==9.1.2
 types-awscrt==0.31.1
 types-boto3==1.42.30
 types-jsonschema==4.26.0.20260109
+types-pymysql==1.1.0.20251220
 types-pyyaml==6.0.12.20250915
 types-requests==2.32.4.20260107
 types-s3transfer==0.16.0

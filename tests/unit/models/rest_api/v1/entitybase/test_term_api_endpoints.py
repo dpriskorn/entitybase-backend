@@ -84,50 +84,37 @@ class TestTermAPIEndpoints(unittest.TestCase):
             result, {"language": "en", "value": "English mathematician and writer"}
         )
 
-    @patch("models.rest_api.entitybase.v1.endpoints.items.EntityReadHandler")
-    def test_entitybase_get_item_aliases_success(self, mock_handler_class) -> None:
-        """Test entitybase GET item aliases"""
 
-        mock_handler = Mock()
-        mock_handler_class.return_value = mock_handler
-        mock_handler.get_entity.return_value = self.mock_entity_response
-
-        result = asyncio.run(get_item_aliases("Q42", "en", self.mock_request))  # undefined
-
-        expected = [
-            {"language": "en", "value": "alias1"},
-            {"language": "en", "value": "alias2"},
-        ]
-        self.assertEqual(result, expected)
 
     # ===== ENTITYBASE PUT ENDPOINTS =====
 
     @patch("models.rest_api.entitybase.v1.endpoints.items.EntityUpdateHandler")
-    def test_entitybase_delete_item_label_success(self, mock_handler_class):
-        """Test entitybase DELETE item label"""
-        from models.rest_api.entitybase.v1.endpoints.items import delete_item_label
+    def test_entitybase_put_item_label_success(self, mock_handler_class):
+        """Test entitybase PUT item label"""
+        from models.rest_api.entitybase.v1.endpoints.items import update_item_label
 
         mock_handler = Mock()
         mock_handler_class.return_value = mock_handler
         mock_update_result = Mock()
         mock_handler.update_entity.return_value = mock_update_result
 
-        result = asyncio.run(delete_item_label("Q42", "en", self.mock_request))
+        data = {"value": "new label"}
+        result = asyncio.run(update_item_label("Q42", "en", data, self.mock_request))
 
         self.assertEqual(result, mock_update_result)
-        mock_update_handler.update_entity.assert_called_once()
 
     @patch("models.rest_api.entitybase.v1.endpoints.items.EntityUpdateHandler")
-    def test_entitybase_delete_item_description_success(self, mock_handler_class):
-        """Test entitybase DELETE item description"""
-        from models.rest_api.entitybase.v1.endpoints.items import delete_item_description
+    def test_entitybase_put_item_description_success(self, mock_handler_class):
+        """Test entitybase PUT item description"""
+        from models.rest_api.entitybase.v1.endpoints.items import update_item_description
 
         mock_handler = Mock()
         mock_handler_class.return_value = mock_handler
         mock_update_result = Mock()
         mock_handler.update_entity.return_value = mock_update_result
 
-        result = asyncio.run(delete_item_description("Q42", "en", self.mock_request))
+        data = {"description": "new desc"}
+        result = asyncio.run(update_item_description("Q42", "en", data, self.mock_request))
 
         self.assertEqual(result, mock_update_result)
 

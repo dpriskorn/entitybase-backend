@@ -11,12 +11,12 @@ class TestWatchlistRepository:
     def test_init(self) -> None:
         """Test WatchlistRepository initialization."""
         mock_connection_manager = MagicMock()
-        mock_id_resolver = MagicMock()
+        id_resolver = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver)
 
         assert repo.connection_manager == mock_connection_manager
-        assert repo.id_resolver == mock_id_resolver
+        assert repo.id_resolver == id_resolver
 
     def test_get_entity_watch_count(self) -> None:
         """Test getting entity watch count."""
@@ -24,7 +24,7 @@ class TestWatchlistRepository:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver=None)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver=None)
         mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchone.return_value = (5,)
@@ -39,7 +39,7 @@ class TestWatchlistRepository:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver=None)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver=None)
         mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchone.return_value = (3,)
@@ -51,13 +51,13 @@ class TestWatchlistRepository:
     def test_add_watch_success(self) -> None:
         """Test successful watch addition."""
         mock_connection_manager = MagicMock()
-        mock_id_resolver = MagicMock()
+        id_resolver = MagicMock()
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver)
         mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
-        mock_id_resolver.resolve_id.return_value = 456
+        id_resolver.resolve_id.return_value = 456
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.lastrowid = 789
 
@@ -69,9 +69,9 @@ class TestWatchlistRepository:
     def test_add_watch_invalid_user(self) -> None:
         """Test add watch with invalid user ID."""
         mock_connection_manager = MagicMock()
-        mock_id_resolver = MagicMock()
+        id_resolver = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver)
 
         result = repo.add_watch(0, "Q42", ["P31"])
 
@@ -81,10 +81,10 @@ class TestWatchlistRepository:
     def test_add_watch_entity_not_found(self) -> None:
         """Test add watch when entity not found."""
         mock_connection_manager = MagicMock()
-        mock_id_resolver = MagicMock()
+        id_resolver = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver)
-        mock_id_resolver.resolve_id.return_value = 0
+        repo = WatchlistRepository(mock_connection_manager, id_resolver)
+        id_resolver.resolve_id.return_value = 0
 
         result = repo.add_watch(123, "Q42", ["P31"])
 
@@ -94,13 +94,13 @@ class TestWatchlistRepository:
     def test_remove_watch(self) -> None:
         """Test removing a watch."""
         mock_connection_manager = MagicMock()
-        mock_id_resolver = MagicMock()
+        id_resolver = MagicMock()
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver)
         mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
-        mock_id_resolver.resolve_id.return_value = 456
+        id_resolver.resolve_id.return_value = 456
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 
         repo.remove_watch(123, "Q42", ["P31"])
@@ -113,7 +113,7 @@ class TestWatchlistRepository:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver=None)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver=None)
         mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.rowcount = 1
@@ -128,7 +128,7 @@ class TestWatchlistRepository:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver=None)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver=None)
         mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.rowcount = 0
@@ -141,18 +141,18 @@ class TestWatchlistRepository:
     def test_get_watches_for_user(self) -> None:
         """Test getting watches for user."""
         mock_connection_manager = MagicMock()
-        mock_id_resolver = MagicMock()
+        id_resolver = MagicMock()
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver)
         mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchall.return_value = [
             (1, 456, "P31,P279"),
             (2, 789, "")
         ]
-        mock_id_resolver.resolve_entity_id.side_effect = ["Q42", "Q43"]
+        id_resolver.resolve_entity_id.side_effect = ["Q42", "Q43"]
 
         result = repo.get_watches_for_user(123)
 
@@ -165,13 +165,13 @@ class TestWatchlistRepository:
     def test_get_watchers_for_entity(self) -> None:
         """Test getting watchers for entity."""
         mock_connection_manager = MagicMock()
-        mock_id_resolver = MagicMock()
+        id_resolver = MagicMock()
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver)
         mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
-        mock_id_resolver.resolve_id.return_value = 456
+        id_resolver.resolve_id.return_value = 456
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchall.return_value = [
             (123, "P31,P279"),
@@ -192,7 +192,7 @@ class TestWatchlistRepository:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver=None)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver=None)
         mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchone.return_value = (7,)
@@ -207,7 +207,7 @@ class TestWatchlistRepository:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver=None)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver=None)
         mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
         mock_cursor.fetchall.return_value = [
@@ -227,7 +227,7 @@ class TestWatchlistRepository:
         mock_conn = MagicMock()
         mock_cursor = MagicMock()
 
-        repo = WatchlistRepository(mock_connection_manager, mock_id_resolver=None)
+        repo = WatchlistRepository(mock_connection_manager, id_resolver=None)
         mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
         mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
 

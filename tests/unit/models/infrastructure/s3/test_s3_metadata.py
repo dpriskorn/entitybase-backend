@@ -2,6 +2,7 @@ from typing import Any, Dict
 from unittest.mock import Mock, patch
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.s3.config import S3Config
+from models.infrastructure.s3.enums import MetadataType
 
 
 class TestS3MetadataStorage:
@@ -31,13 +32,13 @@ class TestS3MetadataStorage:
         with patch.object(
             self.s3_client.connection_manager, "boto_client"
         ) as mock_boto:
-            self.s3_client.store_metadata("labels", 12345, metadata)
+            self.s3_client.store_metadata(MetadataType.LABELS, 12345, metadata)
 
             mock_boto.put_object.assert_called_once_with(
                 Bucket="test",
                 Key="metadata/labels/12345.json",
                 Body='{"en": {"language": "en", "value": "Test"}}',
-                Metadata={"content_type": "labels", "content_hash": "12345"},
+                Metadata={"content_type": MetadataType.LABELS, "content_hash": "12345"},
             )
 
     def test_load_metadata_success(self) -> None:
@@ -52,7 +53,7 @@ class TestS3MetadataStorage:
         ) as mock_boto:
             mock_boto.get_object.return_value = mock_response
 
-            result = self.s3_client.load_metadata("labels", 12345)
+            result = self.s3_client.load_metadata(MetadataType.LABELS, 12345)
 
             mock_boto.get_object.assert_called_once_with(
                 Bucket="test", Key="metadata/labels/12345.json"
@@ -68,7 +69,7 @@ class TestS3MetadataStorage:
                 self.s3_client.connection_manager.boto_client.exceptions.NoSuchKey({})
             )
 
-            result = self.s3_client.load_metadata("labels", 12345)
+            result = self.s3_client.load_metadata(MetadataType.LABELS, 12345)
 
             assert result == {}
 
@@ -79,7 +80,7 @@ class TestS3MetadataStorage:
         ) as mock_boto:
             mock_boto.get_object.side_effect = Exception("Network error")
 
-            result = self.s3_client.load_metadata("labels", 12345)
+            result = self.s3_client.load_metadata(MetadataType.LABELS, 12345)
 
             assert result == {}
 
@@ -88,7 +89,7 @@ class TestS3MetadataStorage:
         with patch.object(
             self.s3_client.connection_manager, "boto_client"
         ) as mock_boto:
-            self.s3_client.delete_metadata("labels", 12345)
+            self.s3_client.delete_metadata(MetadataType.LABELS, 12345)
 
             mock_boto.delete_object.assert_called_once_with(
                 Bucket="test", Key="metadata/labels/12345.json"
@@ -102,7 +103,7 @@ class TestS3MetadataStorage:
             mock_boto.delete_object.side_effect = Exception("Delete failed")
 
             # Should not raise
-            self.s3_client.delete_metadata("labels", 12345)
+            self.s3_client.delete_metadata(MetadataType.LABELS, 12345)
 
             mock_boto.delete_object.assert_called_once()
 
@@ -113,13 +114,13 @@ class TestS3MetadataStorage:
         with patch.object(
             self.s3_client.connection_manager, "boto_client"
         ) as mock_boto:
-            self.s3_client.store_metadata("labels", 12345, metadata)
+            self.s3_client.store_metadata(MetadataType.LABELS, 12345, metadata)
 
             mock_boto.put_object.assert_called_once_with(
                 Bucket="test",
                 Key="metadata/labels/12345.json",
                 Body="{}",
-                Metadata={"content_type": "labels", "content_hash": "12345"},
+                Metadata={"content_type": MetadataType.LABELS, "content_hash": "12345"},
             )
 
     def test_load_metadata_malformed_json(self) -> None:
@@ -132,6 +133,6 @@ class TestS3MetadataStorage:
         ) as mock_boto:
             mock_boto.get_object.return_value = mock_response
 
-            result = self.s3_client.load_metadata("labels", 12345)
+            result = self.s3_client.load_metadata(MetadataType.LABELS, 12345)
 
             assert result == {}  # Should return empty dict on error
