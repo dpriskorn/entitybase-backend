@@ -184,5 +184,5 @@ if not hasattr(app.state, "clients"):
     )
 
     app.state.enumeration_service = EnumerationService(
-        app.state.clients.vitess_config, worker_id="rest-api"
+        worker_id="rest-api"
     )

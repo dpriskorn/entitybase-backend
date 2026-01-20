@@ -12,15 +12,15 @@ from models.rest_api.entitybase.v1.request import EntityJsonImportRequest
 from models.rest_api.entitybase.v1.response import EntityJsonImportResponse
 from models.services.wikidata_import_service import WikidataImportService
 from .create import EntityCreateHandler
+from ...handler import Handler
 
 logger = logging.getLogger(__name__)
 
 
-class EntityJsonImportHandler:
+class EntityJsonImportHandler(Handler):
     """Handler for importing entities from Wikidata JSONL dump files."""
 
-    @staticmethod
-    async def import_entities_from_jsonl(
+    async def import_entities_from_jsonl(self,
         request: EntityJsonImportRequest,
         validator: Any | None = None,
     ) -> EntityJsonImportResponse:
@@ -28,9 +28,6 @@ class EntityJsonImportHandler:
 
         Args:
             request: Import request with file path and options
-            vitess_client: Database client
-            s3_client: Storage client
-            stream_producer: Event producer
             validator: Data validator
 
         Returns:
@@ -52,7 +49,7 @@ class EntityJsonImportHandler:
         )
         try:
             with open(request.jsonl_file_path, "r", encoding="utf-8") as f:
-                create_handler = EntityCreateHandler(state=state)
+                create_handler = EntityCreateHandler(state=self.state)
 
                 for line_num, line in enumerate(f, 1):
                     # Skip lines before start_line
