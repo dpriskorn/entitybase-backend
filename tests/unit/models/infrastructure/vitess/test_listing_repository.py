@@ -112,5 +112,4 @@ class TestListingRepository:
         assert len(result) == 1
         assert result[0].entity_id == "Q42"
         assert result[0].entity_type == "item"
-        assert result[0].reason == "create"</content>
-<parameter name="filePath">/home/dpriskorn/src/python/wikibase-backend/tests/unit/models/infrastructure/vitess/test_listing_repository.py
+        assert result[0].reason == "create"

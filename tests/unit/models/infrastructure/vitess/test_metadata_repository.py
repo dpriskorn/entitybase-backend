@@ -167,5 +167,4 @@ class TestMetadataRepository:
 
         repo.delete_metadata_content(mock_conn, 12345, "property")
 
-        mock_cursor.execute.assert_called_once()</content>
-<parameter name="filePath">/home/dpriskorn/src/python/wikibase-backend/tests/unit/models/infrastructure/vitess/test_metadata_repository.py
+        mock_cursor.execute.assert_called_once()

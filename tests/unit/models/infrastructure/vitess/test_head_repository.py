@@ -230,5 +230,4 @@ class TestHeadRepository:
         result = repo.get_head_revision(123)
 
         assert result.success is False
-        assert "DB error" in result.error</content>
-<parameter name="filePath">/home/dpriskorn/src/python/wikibase-backend/tests/unit/models/infrastructure/vitess/test_head_repository.py
+        assert "DB error" in result.error

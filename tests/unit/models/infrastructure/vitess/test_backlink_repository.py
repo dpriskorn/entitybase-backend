@@ -202,5 +202,4 @@ class TestBacklinkRepository:
         mock_cursor.execute.side_effect = Exception("DB insert error")
 
         with pytest.raises(Exception, match="DB insert error"):
-            repo.insert_backlink_statistics(mock_conn, "2023-01-01", 100, 50, [])</content>
-<parameter name="filePath">/home/dpriskorn/src/python/wikibase-backend/tests/unit/models/infrastructure/vitess/test_backlink_repository.py
+            repo.insert_backlink_statistics(mock_conn, "2023-01-01", 100, 50, [])

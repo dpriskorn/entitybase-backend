@@ -86,6 +86,7 @@ class TestRevisionRepository:
             '{"en": "hash2"}',  # descriptions_hashes
             '{"en": ["hash3"]}',  # aliases_hashes
             '{"enwiki": "hash4"}',  # sitelinks_hashes
+        )
 
         result = repo.get_revision(123, 456, mock_vitess)
 

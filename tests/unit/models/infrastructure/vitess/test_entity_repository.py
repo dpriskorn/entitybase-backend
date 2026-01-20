@@ -96,5 +96,4 @@ class TestEntityRepository:
         mock_raise.assert_not_called()
         # Should have registered and created
         mock_id_resolver.register_entity.assert_called_once()
-        mock_cursor.execute.assert_called_once()</content>
-<parameter name="filePath">/home/dpriskorn/src/python/wikibase-backend/tests/unit/models/infrastructure/vitess/test_entity_repository.py
+        mock_cursor.execute.assert_called_once()

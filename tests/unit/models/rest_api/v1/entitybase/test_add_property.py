@@ -3,6 +3,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
+import pytest_asyncio
+
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.v1.request.entity.add_property import AddPropertyRequest
 from models.rest_api.entitybase.v1.response import EntityState
@@ -18,10 +20,10 @@ class TestAddProperty(unittest.TestCase):
         self.mock_s3 = MagicMock()
         self.mock_validator = MagicMock()
 
-    def test_invalid_property_id_format(self) -> None:
+    async def test_invalid_property_id_format(self) -> None:
         """Test invalid property ID format."""
         request = AddPropertyRequest(claims=[], edit_summary="test")
-        result = self.handler.add_property(
+        result = await self.handler.add_property(
             "Q1", "invalid", request, self.mock_vitess, self.mock_s3
         )
         self.assertFalse(result.success)
