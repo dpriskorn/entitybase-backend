@@ -30,7 +30,7 @@ class QualifierStorage(BaseS3Storage):
     def load_qualifier(self, content_hash: int) -> S3QualifierData:
         """Load a qualifier by its content hash."""
         key = str(content_hash)
-        data = self.load(key)
+        data = self.load(key).data
         return S3QualifierData(**data)
 
     def load_qualifiers_batch(

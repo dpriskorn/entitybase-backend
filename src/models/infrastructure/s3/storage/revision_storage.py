@@ -42,7 +42,7 @@ class RevisionStorage(BaseS3Storage):
             Bucket=self.bucket, Key=key
         )
 
-        parsed_data = self.load(key)
+        parsed_data = self.load(key).data
         revision_data = RevisionData(**parsed_data)
 
         return RevisionReadResponse(

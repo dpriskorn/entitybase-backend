@@ -65,7 +65,7 @@ class MetadataStorage(BaseS3Storage):
 
         try:
             key = str(content_hash)
-            return cast(Union[str, dict[str, Any]], self.load(key))
+            return cast(Union[str, dict[str, Any]], self.load(key).data)
         finally:
             self.bucket = original_bucket
 

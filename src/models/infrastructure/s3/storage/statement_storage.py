@@ -47,7 +47,7 @@ class StatementStorage(BaseS3Storage):
         key = str(content_hash)
 
         try:
-            data = self.load(key)
+            data = self.load(key).data
             stored_statement = StoredStatement.model_validate(data)
 
             return StatementResponse(

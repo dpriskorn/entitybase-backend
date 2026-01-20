@@ -31,7 +31,7 @@ class ReferenceStorage(BaseS3Storage):
     def load_reference(self, content_hash: int) -> S3ReferenceData:
         """Load a reference by its content hash."""
         key = str(content_hash)
-        data = self.load(key)
+        data = self.load(key).data
         return S3ReferenceData(**data)
 
     def load_references_batch(

@@ -118,7 +118,7 @@ class VitessClient(Client):
         assert self.connection_manager is not None
         return self.connection_manager
 
-    def get_connection(self) -> Any:
+    def get_connection(self) -> Any:  # noqa
         """Get a database connection."""
         return self.connection_manager.get_connection()
 
