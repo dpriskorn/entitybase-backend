@@ -32,7 +32,7 @@ class GeneralStatsWorker(BaseStatsWorker):
             logger.info("Starting daily general statistics computation")
 
             # Compute statistics
-            service = GeneralStatsService()
+            service = GeneralStatsService(state=self.state)
             stats = service.compute_daily_stats(self.vitess_client)
 
             # Store in database

@@ -32,8 +32,8 @@ class UserStatsWorker(BaseStatsWorker):
             logger.info("Starting daily user statistics computation")
 
             # Compute statistics
-            service = UserStatsService()
-            stats = service.compute_daily_stats(self.vitess_client)
+            service = UserStatsService(state=self.state)
+            stats = service.compute_daily_stats()
 
             # Store in database
             await self._store_statistics(stats)

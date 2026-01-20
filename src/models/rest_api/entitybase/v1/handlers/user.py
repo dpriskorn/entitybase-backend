@@ -94,7 +94,7 @@ class UserHandler(Handler):
                     UserStatsService,
                 )
 
-                service = UserStatsService()
+                service = UserStatsService(state=self.state)
                 stats = service.compute_daily_stats()
                 return UserStatsResponse(
                     date="live",
@@ -134,7 +134,7 @@ class UserHandler(Handler):
                     GeneralStatsService,
                 )
 
-                service = GeneralStatsService()
+                service = GeneralStatsService(state=self.state)
                 stats = service.compute_daily_stats()
                 return GeneralStatsResponse(
                     date="live",

@@ -70,7 +70,7 @@ def get_user_stats(req: Request) -> UserStatsResponse:
     state = req.app.state.state
     handler = UserHandler(state=state)
     try:
-        stats = handler.get_user_stats(clients.vitess_config)
+        stats = handler.get_user_stats()
         return stats
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

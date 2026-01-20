@@ -156,7 +156,7 @@ class EntityHandler(Handler):
         self, ctx: RevisionContext
     ) -> EntityResponse | None:
         """Check if request is idempotent using validation service."""
-        validation_service = EntityValidationService()
+        validation_service = EntityValidationService(state=self.state)
         return validation_service.validate_idempotency(
             ctx.entity_id,
             ctx.vitess_client.get_head(ctx.entity_id),
@@ -169,7 +169,7 @@ class EntityHandler(Handler):
         self, ctx: RevisionContext
     ) -> StatementHashResult:
         """Process entity data using hashing service."""
-        hashing_service = EntityHashingService()
+        hashing_service = EntityHashingService(state=self.state)
         return await hashing_service.hash_statements(ctx.request_data)
 
     async def _create_revision_new(
@@ -222,14 +222,14 @@ class EntityHandler(Handler):
 
     async def _hash_terms_new(self, ctx: RevisionContext) -> HashMaps:
         """Hash entity terms (labels, descriptions, aliases)."""
-        hashing_service = EntityHashingService()
+        hashing_service = EntityHashingService(state=self.state)
         return await hashing_service.hash_terms(
             ctx.request_data, ctx.s3_client, ctx.vitess_client
         )
 
     async def _hash_sitelinks_new(self, ctx: RevisionContext) -> SitelinksHashes:
         """Hash entity sitelinks."""
-        hashing_service = EntityHashingService()
+        hashing_service = EntityHashingService(state=self.state)
         return await hashing_service.hash_sitelinks(ctx.request_data, ctx.s3_client)
 
     def _build_revision_data_new(
