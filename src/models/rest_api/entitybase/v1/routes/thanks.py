@@ -2,10 +2,13 @@
 
 from fastapi import APIRouter, Header, Query, Request
 
-from models.rest_api.clients import Clients
+from models.rest_api.state import State
 from models.rest_api.entitybase.v1.handlers.thanks import ThanksHandler
 from models.rest_api.entitybase.v1.request.thanks import ThanksListRequest
-from models.rest_api.entitybase.v1.response.thanks import ThankResponse, ThanksListResponse
+from models.rest_api.entitybase.v1.response.thanks import (
+    ThankResponse,
+    ThanksListResponse,
+)
 from models.rest_api.utils import raise_validation_error
 
 
@@ -24,10 +27,10 @@ def send_thank_endpoint(
 ) -> ThankResponse:
     """Send a thank for a specific revision."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler()
-    result = handler.send_thank(entity_id, revision_id, user_id, clients.vitess)
+    result = handler.send_thank(entity_id, revision_id, user_id, clients.vitess_config)
     if not isinstance(result, ThankResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, ThankResponse)
@@ -48,11 +51,11 @@ def get_thanks_received_endpoint(
 ) -> ThanksListResponse:
     """Get thanks received by user."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler()
     request = ThanksListRequest(limit=limit, offset=offset, hours=hours)
-    result = handler.get_thanks_received(user_id, request, clients.vitess)
+    result = handler.get_thanks_received(user_id, request, clients.vitess_config)
     if not isinstance(result, ThanksListResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, ThanksListResponse)
@@ -73,11 +76,11 @@ def get_thanks_sent_endpoint(
 ) -> ThanksListResponse:
     """Get thanks sent by user."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler()
     request = ThanksListRequest(limit=limit, offset=offset, hours=hours)
-    result = handler.get_thanks_sent(user_id, request, clients.vitess)
+    result = handler.get_thanks_sent(user_id, request, clients.vitess_config)
     if not isinstance(result, ThanksListResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, ThanksListResponse)
@@ -93,10 +96,10 @@ def get_revision_thanks_endpoint(
 ) -> ThanksListResponse:
     """Get all thanks for a specific revision."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler()
-    result = handler.get_revision_thanks(entity_id, revision_id, clients.vitess)
+    result = handler.get_revision_thanks(entity_id, revision_id, clients.vitess_config)
     if not isinstance(result, ThanksListResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, ThanksListResponse)

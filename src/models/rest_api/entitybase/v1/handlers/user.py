@@ -3,6 +3,8 @@
 import json
 import logging
 
+from models.rest_api.entitybase.v1.handler import Handler
+
 logger = logging.getLogger(__name__)
 
 from models.infrastructure.vitess.client import VitessClient
@@ -24,7 +26,7 @@ from models.rest_api.entitybase.v1.request.user import (
 from models.rest_api.entitybase.v1.response.user import UserResponse
 
 
-class UserHandler:
+class UserHandler(Handler):
     """Handler for user-related operations."""
 
     def create_user(
@@ -79,9 +81,7 @@ class UserHandler:
             if row:
                 # Handle both datetime objects and string dates
                 date_str = (
-                    row[0].isoformat()
-                    if hasattr(row[0], "isoformat")
-                    else str(row[0])
+                    row[0].isoformat() if hasattr(row[0], "isoformat") else str(row[0])
                 )
                 return UserStatsResponse(
                     date=date_str,

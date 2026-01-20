@@ -4,7 +4,7 @@ import logging
 from typing import Any
 
 from models.infrastructure.s3.enums import EntityType
-from models.infrastructure.s3.s3_client import MyS3Client
+from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
 from ...request.enums import UserActivityType
 from models.infrastructure.stream.producer import StreamProducerClient

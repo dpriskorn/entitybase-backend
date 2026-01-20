@@ -5,10 +5,9 @@ from typing import Any, Dict, Optional, TYPE_CHECKING, Union
 
 from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
-from pydantic import Field
+from pydantic import Field, BaseModel
 
 from models.common import OperationResult
-from models.infrastructure.client import Client
 from models.infrastructure.s3.config import S3Config
 from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.enums import MetadataType
@@ -32,10 +31,10 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class MyS3Client(Client):
+class MyS3Client(BaseModel):
     """Client for S3 storage operations."""
 
-    config: S3Config  # type: ignore[override]
+    state: State  # type: ignore[override]
     connection_manager: Optional[S3ConnectionManager] = Field(
         default=None, exclude=True
     )  # type: ignore[override]

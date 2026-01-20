@@ -1,16 +1,14 @@
 """Vitess terms repository for managing deduplicated terms."""
 
-from typing import Any, List
+from typing import List
 
 from models.common import OperationResult
+from models.infrastructure.vitess.repository import Repository
 from models.rest_api.entitybase.v1.response.misc import TermsResponse
 
 
-class TermsRepository:
+class TermsRepository(Repository):
     """Repository for managing deduplicated terms (labels and aliases) in Vitess."""
-
-    def __init__(self, connection_manager: Any) -> None:
-        self.connection_manager = connection_manager
 
     def insert_term(
         self, hash_value: int, term: str, term_type: str
@@ -52,9 +50,7 @@ class TermsRepository:
                 hashes,
             )
             results = cursor.fetchall()
-            return TermsResponse(
-                terms={row[0]: (row[1], row[2]) for row in results}
-            )
+            return TermsResponse(terms={row[0]: (row[1], row[2]) for row in results})
 
     def hash_exists(self, hash_value: int) -> bool:
         """Check if a hash exists in the terms table."""

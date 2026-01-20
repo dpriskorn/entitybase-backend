@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Request
 
-from models.rest_api.clients import Clients
+from models.rest_api.state import State
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 from models.rest_api.entitybase.v1.response import (
     PropertyHashesResponse,
@@ -22,9 +22,9 @@ def get_entity_property_hashes(
 ) -> PropertyHashesResponse:
     """Get statement hashes for specified properties in an entity."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = StatementHandler()
     return handler.get_entity_property_hashes(
-        entity_id, property_list, clients.vitess, clients.s3
+        entity_id, property_list, clients.vitess_config, clients.s3_config
     )

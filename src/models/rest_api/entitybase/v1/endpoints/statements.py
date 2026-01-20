@@ -15,7 +15,7 @@ from models.rest_api.entitybase.v1.response import (
     StatementResponse,
 )
 from models.rest_api.utils import raise_validation_error
-from models.rest_api.clients import Clients
+from models.rest_api.state import State
 
 router = APIRouter()
 
@@ -24,10 +24,10 @@ router = APIRouter()
 def get_statement(content_hash: int, req: Request) -> StatementResponse:
     """Retrieve a single statement by its content hash."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler()
-    return handler.get_statement(content_hash, clients.s3)  # type: ignore[no-any-return]
+    return handler.get_statement(content_hash, clients.s3_config)  # type: ignore[no-any-return]
 
 
 @router.post("/statements/batch", response_model=StatementBatchResponse)
@@ -36,10 +36,10 @@ def get_statements_batch(  # type: ignore[no-any-return]
 ) -> StatementBatchResponse:
     """Retrieve multiple statements by their content hashes in a batch request."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler()
-    return handler.get_statements_batch(request, clients.s3)  # type: ignore[no-any-return]
+    return handler.get_statements_batch(request, clients.s3_config)  # type: ignore[no-any-return]
 
 
 @router.get("/statements/most_used", response_model=MostUsedStatementsResponse)
@@ -48,11 +48,11 @@ def get_most_used_statements(  # type: ignore[no-any-return]
 ) -> MostUsedStatementsResponse:
     """Get the most used statements based on reference count."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler()
     result = handler.get_most_used_statements(
-        clients.vitess, request.limit, request.min_ref_count
+        clients.vitess_config, request.limit, request.min_ref_count
     )
     if not isinstance(result, MostUsedStatementsResponse):
         raise_validation_error("Invalid response type", status_code=500)
@@ -65,7 +65,7 @@ def cleanup_orphaned_statements(  # type: ignore[no-any-return]
 ) -> CleanupOrphanedResponse:
     """Clean up orphaned statements that are no longer referenced."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler()
-    return handler.cleanup_orphaned_statements(request, clients.vitess, clients.s3)  # type: ignore[no-any-return]
+    return handler.cleanup_orphaned_statements(request, clients.vitess_config, clients.s3_config)  # type: ignore[no-any-return]

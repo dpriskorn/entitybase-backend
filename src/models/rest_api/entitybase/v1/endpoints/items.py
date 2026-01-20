@@ -15,7 +15,10 @@ from models.rest_api.entitybase.v1.request.entity import (
 from models.rest_api.entitybase.v1.response import (
     EntityResponse,
 )
-from models.rest_api.entitybase.v1.response.misc import DescriptionResponse, LabelResponse
+from models.rest_api.entitybase.v1.response.misc import (
+    DescriptionResponse,
+    LabelResponse,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +34,8 @@ async def create_item(request: EntityCreateRequest, req: Request) -> EntityRespo
     handler = ItemCreateHandler(enumeration_service)
     return await handler.create_entity(
         request,
-        clients.vitess,
-        clients.s3,
+        clients.vitess_config,
+        clients.s3_config,
         clients.stream_producer,
         validator,
     )
@@ -47,7 +50,7 @@ async def get_item_label(
     """Get item label for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    response = handler.get_entity(item_id, clients.vitess, clients.s3)
+    response = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
     labels = response.data.get("labels", {})
     if language_code not in labels:
         raise HTTPException(
@@ -73,7 +76,7 @@ async def update_item_label(
 
     # Get current entity
     handler = EntityReadHandler()
-    current_entity = handler.get_entity(item_id, clients.vitess, clients.s3)
+    current_entity = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
 
     # Update label
     if "labels" not in current_entity.entity_data:
@@ -91,8 +94,8 @@ async def update_item_label(
     return await update_handler.update_entity(
         item_id,
         update_request,
-        clients.vitess,
-        clients.s3,
+        clients.vitess_config,
+        clients.s3_config,
         clients.stream_producer,
         validator,
     )
@@ -110,7 +113,7 @@ async def delete_item_label(
 
     # Get current entity
     handler = EntityReadHandler()
-    current_entity = handler.get_entity(item_id, clients.vitess, clients.s3)
+    current_entity = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
 
     # Check if label exists
     labels = current_entity.entity_data.get("labels", {})
@@ -129,8 +132,8 @@ async def delete_item_label(
     return await update_handler.update_entity(
         item_id,
         update_request,
-        clients.vitess,
-        clients.s3,
+        clients.vitess_config,
+        clients.s3_config,
         clients.stream_producer,
         validator,
     )
@@ -146,7 +149,7 @@ async def get_item_description(
     """Get item description for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    response = handler.get_entity(item_id, clients.vitess, clients.s3)
+    response = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
     descriptions = response.data.get("descriptions", {})
     if language_code not in descriptions:
         raise HTTPException(
@@ -174,7 +177,7 @@ async def update_item_description(
 
     # Get current entity
     handler = EntityReadHandler()
-    current_entity = handler.get_entity(item_id, clients.vitess, clients.s3)
+    current_entity = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
 
     # Update description
     if "descriptions" not in current_entity.entity_data:
@@ -192,8 +195,8 @@ async def update_item_description(
     return await update_handler.update_entity(
         item_id,
         update_request,
-        clients.vitess,
-        clients.s3,
+        clients.vitess_config,
+        clients.s3_config,
         clients.stream_producer,
         validator,
     )
@@ -212,7 +215,7 @@ async def delete_item_description(
 
     # Get current entity
     handler = EntityReadHandler()
-    current_entity = handler.get_entity(item_id, clients.vitess, clients.s3)
+    current_entity = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
 
     # Check if description exists
     descriptions = current_entity.entity_data.get("descriptions", {})
@@ -231,8 +234,8 @@ async def delete_item_description(
     return await update_handler.update_entity(
         item_id,
         update_request,
-        clients.vitess,
-        clients.s3,
+        clients.vitess_config,
+        clients.s3_config,
         clients.stream_producer,
         validator,
     )
@@ -247,7 +250,7 @@ async def get_item_aliases_for_language(
     """Get item aliases for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    response = handler.get_entity(item_id, clients.vitess, clients.s3)
+    response = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
     aliases = response.data.get("aliases", {})
     if language_code not in aliases:
         raise HTTPException(
@@ -269,7 +272,7 @@ async def put_item_aliases_for_language(
 
     # Get current entity
     handler = EntityReadHandler()
-    current_entity = handler.get_entity(item_id, clients.vitess, clients.s3)
+    current_entity = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
 
     # Update aliases: expect list of strings
     if "aliases" not in current_entity.entity_data:
@@ -287,8 +290,8 @@ async def put_item_aliases_for_language(
     return await update_handler.update_entity(
         item_id,
         update_request,
-        clients.vitess,
-        clients.s3,
+        clients.vitess_config,
+        clients.s3_config,
         clients.stream_producer,
         validator,
     )

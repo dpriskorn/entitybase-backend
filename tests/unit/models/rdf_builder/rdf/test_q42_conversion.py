@@ -21,7 +21,9 @@ def test_q42_conversion(full_property_registry: Any) -> None:
     entity_json = json.loads(json_path.read_text(encoding="utf-8"))
     entity = parse_entity(entity_json)
 
-    logger.info(f"Parsed entity: {entity.id}, statements: {len(entity.statements.data)}")
+    logger.info(
+        f"Parsed entity: {entity.id}, statements: {len(entity.statements.data)}"
+    )
 
     # Use full property registry from CSV cache
     converter = EntityConverter(property_registry=full_property_registry)

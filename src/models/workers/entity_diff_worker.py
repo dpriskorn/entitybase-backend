@@ -11,7 +11,8 @@ from typing import List, Set, Tuple, Dict, Any, Optional
 from pyld import jsonld  # type: ignore[import-untyped]
 from rdflib import Graph
 
-from models.infrastructure.stream.producer import StreamProducerClient, RDFChangeEvent
+from models.infrastructure.stream.producer import StreamProducerClient
+from models.rest_api.entitybase.v1.response.events import RDFChangeEvent
 
 Triple = Tuple[str, str, str]  # (subject, predicate, object)
 
@@ -324,7 +325,7 @@ class EntityDiffWorker:
             patrolled=False,
         )
 
-        await self.rdf_stream_producer.publish_rdf_change(event)
+        await self.rdf_stream_producer.publish_change(event)
 
 
 # Convenience functions for testing

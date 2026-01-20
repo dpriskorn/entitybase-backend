@@ -11,7 +11,6 @@ def test_incremental_rdf_updater_init():
     assert updater.current_rdf == "<rdf>"
 
 
-
 def test_compute_diffs():
     """Test computing diffs between entities."""
     old_entity = EntityData(

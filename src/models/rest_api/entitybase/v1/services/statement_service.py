@@ -8,7 +8,7 @@ from typing import Any
 from models.common import OperationResult
 from models.infrastructure.s3.revision.stored_statement import StoredStatement
 from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
-from models.infrastructure.s3.s3_client import MyS3Client
+from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.vitess.client import VitessClient
 from models.internal_representation.statement_extractor import StatementExtractor
 from models.internal_representation.statement_hasher import StatementHasher

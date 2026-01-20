@@ -4,16 +4,13 @@ import logging
 from typing import Any
 
 from models.common import OperationResult
+from models.infrastructure.vitess.repository import Repository
 
 logger = logging.getLogger(__name__)
 
 
-class HeadRepository:
+class HeadRepository(Repository):
     """Repository for entity head revision database operations."""
-
-    def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
-        self.connection_manager = connection_manager
-        self.id_resolver = id_resolver
 
     def cas_update_with_status(
         self,
@@ -119,15 +116,14 @@ class HeadRepository:
             return OperationResult(success=False, error="Invalid internal entity ID")
 
         try:
-            
-                with self.connection_manager.connection.cursor() as cursor:
-                    cursor.execute(
-                        """SELECT head_revision_id FROM entity_head WHERE internal_id = %s""",
-                        (internal_entity_id,),
-                    )
-                    result = cursor.fetchone()
-                    if result and len(result) > 0:
-                        return OperationResult(success=True, data=int(result[0]))
-                    return OperationResult(success=False, error="Entity not found")
+            with self.connection_manager.connection.cursor() as cursor:
+                cursor.execute(
+                    """SELECT head_revision_id FROM entity_head WHERE internal_id = %s""",
+                    (internal_entity_id,),
+                )
+                result = cursor.fetchone()
+                if result and len(result) > 0:
+                    return OperationResult(success=True, data=int(result[0]))
+                return OperationResult(success=False, error="Entity not found")
         except Exception as e:
             return OperationResult(success=False, error=str(e))

@@ -6,6 +6,7 @@ from typing import Any, TYPE_CHECKING
 
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
+from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.request.entity import EntityRevertRequest
 from models.rest_api.entitybase.v1.response.entity.revert import EntityRevertResponse
 from models.rest_api.utils import raise_validation_error
@@ -16,7 +17,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class EntityRevertHandler:
+class EntityRevertHandler(Handler):
     """Handler for reverting entities to previous revisions."""
 
     async def revert_entity(

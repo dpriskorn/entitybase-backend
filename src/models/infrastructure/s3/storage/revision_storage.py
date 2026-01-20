@@ -43,16 +43,16 @@ class RevisionStorage(BaseS3Storage):
         )
 
         parsed_data = self.load(key).data
-        revision_data = RevisionData(**parsed_data)
-
-        return RevisionReadResponse(
-            entity_id=entity_id,
-            revision_id=revision_id,
-            data=revision_data,
-            content=parsed_data.get("entity", {}),  # type: ignore
-            schema_version=parsed_data.get("schema_version", ""),  # type: ignore
-            created_at=response["Metadata"].get("created_at", ""),
-        )
+        assert isinstance(parsed_data, RevisionReadResponse)
+        return parsed_data
+        # return RevisionReadResponse(
+        #     entity_id=entity_id,
+        #     revision_id=revision_id,
+        #     data=revision_data,
+        #     content=parsed_data.get("entity", {}),  # type: ignore
+        #     schema_version=parsed_data.get("schema_version", ""),  # type: ignore
+        #     created_at=response["Metadata"].get("created_at", ""),
+        # )
 
     def mark_published(
         self, entity_id: str, revision_id: int, publication_state: str

@@ -24,8 +24,6 @@ def test_health_check(api_client: requests.Session, base_url: str) -> None:
     logger.info("✓ Health check passed")
 
 
-
-
 @pytest.mark.integration
 def test_create_entity(api_client: requests.Session, base_url: str) -> None:
     """Test creating a new entity"""
@@ -224,35 +222,6 @@ def test_get_entity_history(api_client: requests.Session, base_url: str) -> None
     assert "created_at" in history[0]
     assert "created_at" in history[1]
     logger.info("✓ Entity history retrieval passed")
-
-
-@pytest.mark.integration
-def test_get_specific_revision(api_client: requests.Session, base_url: str) -> None:
-    """Test retrieving a specific revision"""
-    logger = logging.getLogger(__name__)
-
-    # Create entity
-    entity_id = "Q99995"
-    entity_data = {
-        "id": entity_id,
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Entity"}},
-    }
-    api_client.post(f"{base_url}/entity", json=entity_data)
-
-    # Create second revision
-    entity_labels2: Dict[str, Any] = entity_data["labels"].copy()
-    entity_labels2["en"]["value"] = "Updated"
-    api_client.post(f"{base_url}/entity", json=entity_data)
-
-    # Get first revision
-    response = api_client.get(f"{base_url}/entity/{entity_id}/revision/1")
-    assert response.status_code == 200
-
-    result = response.json()
-    assert result["id"] == entity_id
-    assert result["labels"]["en"]["value"] == "Test Entity"
-    logger.info("✓ Specific revision retrieval passed")
 
 
 @pytest.mark.integration

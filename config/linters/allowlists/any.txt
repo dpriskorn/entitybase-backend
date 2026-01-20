@@ -12,3 +12,4 @@ src/models/infrastructure/s3/s3_client.py:439
 src/models/infrastructure/s3/s3_client.py:504
 src/models/infrastructure/vitess_client.py:93
 src/models/infrastructure/connection.py:18
+src/models/infrastructure/vitess/client.py:104

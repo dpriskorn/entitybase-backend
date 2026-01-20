@@ -1,20 +1,16 @@
 """Repository for managing thanks in Vitess."""
 
 import logging
-from typing import Any
 
 from models.common import OperationResult
 from models.infrastructure.vitess.records.thanks import ThankItem
+from models.infrastructure.vitess.repository import Repository
 
 logger = logging.getLogger(__name__)
 
 
-class ThanksRepository:
+class ThanksRepository(Repository):
     """Repository for managing thanks in Vitess."""
-
-    def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
-        self.connection_manager = connection_manager
-        self.id_resolver = id_resolver
 
     def send_thank(
         self, from_user_id: int, entity_id: str, revision_id: int
@@ -28,7 +24,6 @@ class ThanksRepository:
                 f"Sending thank from user {from_user_id} for {entity_id}:{revision_id}"
             )
 
-            
             with self.connection_manager.connection.cursor() as cursor:
                 # Resolve entity_id to internal_id
                 internal_id = self.id_resolver.resolve_id(entity_id)
@@ -42,9 +37,7 @@ class ThanksRepository:
                 )
                 row = cursor.fetchone()
                 if not row:
-                    return OperationResult(
-                        success=False, error="Revision not found"
-                    )
+                    return OperationResult(success=False, error="Revision not found")
 
                 to_user_id = row[0]
                 if to_user_id == from_user_id:
@@ -82,7 +75,6 @@ class ThanksRepository:
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """
@@ -140,7 +132,6 @@ class ThanksRepository:
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """
@@ -196,7 +187,6 @@ class ThanksRepository:
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            
             with self.connection_manager.connection.cursor() as cursor:
                 # Resolve entity_id to internal_id
                 internal_id = self.id_resolver.resolve_id(entity_id)

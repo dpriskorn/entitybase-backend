@@ -6,21 +6,17 @@ from typing import Any
 
 from models.common import OperationResult
 from models.infrastructure.vitess.records.revision import RevisionRecord
+from models.infrastructure.vitess.repository import Repository
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
 
-class RevisionRepository:
+class RevisionRepository(Repository):
     """Repository for entity revision database operations."""
-
-    def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
-        self.connection_manager = connection_manager
-        self.id_resolver = id_resolver
 
     def insert(
         self,
-        conn: Any,
         entity_id: str,
         revision_id: int,
         data: dict,

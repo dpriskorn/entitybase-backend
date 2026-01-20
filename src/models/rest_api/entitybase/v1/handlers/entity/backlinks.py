@@ -1,17 +1,18 @@
 """Handler for entity backlinks operations."""
 
 import logging
+
 from fastapi import HTTPException
-from pydantic import BaseModel
 
 from models.infrastructure.vitess.client import VitessClient
+from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.response import BacklinksResponse
 from models.rest_api.entitybase.v1.response.entity.backlinks import BacklinkResponse
 
 logger = logging.getLogger(__name__)
 
 
-class BacklinkHandler(BaseModel):
+class BacklinkHandler(Handler):
     """Handler for entity backlink operations."""
 
     async def get(

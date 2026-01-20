@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 
 from fastapi import HTTPException
 
-from models.infrastructure.s3.s3_client import MyS3Client
+from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess.client import VitessClient
 from models.services.wikidata_import_service import WikidataImportService

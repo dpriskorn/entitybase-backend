@@ -62,5 +62,6 @@ class TestAddProperty(unittest.TestCase):
         self.assertFalse(result.success)
         self.assertIn("Entity is not a property", result.error)
 
+
 if __name__ == "__main__":
     unittest.main()

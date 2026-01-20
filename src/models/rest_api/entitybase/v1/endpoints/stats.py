@@ -14,7 +14,7 @@ def get_general_stats(req: Request) -> GeneralStatsResponse:
     clients = req.app.state.clients
     handler = UserHandler()
     try:
-        stats = handler.get_general_stats(clients.vitess)
+        stats = handler.get_general_stats(clients.vitess_config)
         return stats
     except ValueError as e:
         from fastapi import HTTPException

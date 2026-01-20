@@ -10,7 +10,7 @@ from models.infrastructure.s3.property_counts import PropertyCounts
 class StatementResponse(BaseModel):
     """Response model for statement data."""
 
-    model_config = ConfigDict(by_alias=True, populate_by_name=True)  # type: ignore[typeddict-unknown-key]
+    model_config = {"populate_by_name": True}
 
     schema_version: str = Field(
         alias="schema", description="Schema version for the statement. Example: '1.0'."

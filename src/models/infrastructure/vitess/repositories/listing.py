@@ -1,34 +1,13 @@
 """Repository for entity listing operations."""
 
-from typing import Any
-
-from pydantic import BaseModel
-
+from models.infrastructure.vitess.repository import Repository
 from models.rest_api.entitybase.v1.response.listings import EntityListing
 
 
-class EntityHeadListing(BaseModel):
-    """Model for entity head listings."""
-
-    entity_id: str
-    head_revision_id: int
-
-
-class EntityEditListing(BaseModel):
-    """Model for entity edit type listings."""
-
-    entity_id: str
-    edit_type: str
-    revision_id: int
-
-
-class ListingRepository:
+class ListingRepository(Repository):
     """Repository for entity listing operations."""
 
-    def __init__(self, connection_manager: Any) -> None:
-        self.connection_manager = connection_manager
-
-    def list_locked(self, conn: Any, limit: int) -> list[EntityListing]:
+    def list_locked(self, limit: int) -> list[EntityListing]:
         with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT m.entity_id, r.entity_type
@@ -45,7 +24,7 @@ class ListingRepository:
             ]
             return result
 
-    def list_semi_protected(self, conn: Any, limit: int) -> list[EntityListing]:
+    def list_semi_protected(self, limit: int) -> list[EntityListing]:
         with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT m.entity_id, r.entity_type
@@ -64,7 +43,7 @@ class ListingRepository:
             ]
             return result
 
-    def list_archived(self, conn: Any, limit: int) -> list[EntityListing]:
+    def list_archived(self, limit: int) -> list[EntityListing]:
         with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT m.entity_id, r.entity_type
@@ -81,7 +60,7 @@ class ListingRepository:
             ]
             return result
 
-    def list_dangling(self, conn: Any, limit: int) -> list[EntityListing]:
+    def list_dangling(self, limit: int) -> list[EntityListing]:
         with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT m.entity_id, r.entity_type
@@ -99,7 +78,7 @@ class ListingRepository:
             return result
 
     def _list_entities_by_edit_type(
-        self, conn: Any, edit_type: str, limit: int
+        self, edit_type: str, limit: int
     ) -> list[EntityListing]:
         with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(

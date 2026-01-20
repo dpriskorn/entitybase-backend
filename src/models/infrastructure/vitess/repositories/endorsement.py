@@ -1,9 +1,10 @@
 """Repository for managing statement endorsements in Vitess."""
 
 import logging
-from typing import Any, List
+from typing import List
 
 from models.common import OperationResult
+from models.infrastructure.vitess.repository import Repository
 from models.rest_api.entitybase.v1.response.endorsements import (
     StatementEndorsementResponse,
 )
@@ -11,11 +12,8 @@ from models.rest_api.entitybase.v1.response.endorsements import (
 logger = logging.getLogger(__name__)
 
 
-class EndorsementRepository:
+class EndorsementRepository(Repository):
     """Repository for managing statement endorsements in Vitess."""
-
-    def __init__(self, connection_manager: Any) -> None:
-        self.connection_manager = connection_manager
 
     def create_endorsement(self, user_id: int, statement_hash: int) -> OperationResult:
         """Create an endorsement for a statement."""
@@ -27,7 +25,6 @@ class EndorsementRepository:
                 f"Creating endorsement from user {user_id} for statement {statement_hash}"
             )
 
-            
             with self.connection_manager.connection.cursor() as cursor:
                 # Check if statement exists
                 cursor.execute(
@@ -35,9 +32,7 @@ class EndorsementRepository:
                     (statement_hash,),
                 )
                 if not cursor.fetchone():
-                    return OperationResult(
-                        success=False, error="Statement not found"
-                    )
+                    return OperationResult(success=False, error="Statement not found")
 
                 # Check for existing endorsement (active or removed)
                 cursor.execute(
@@ -179,12 +174,9 @@ class EndorsementRepository:
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            
             with self.connection_manager.connection.cursor() as cursor:
                 # Build query based on include_removed flag
-                removed_condition = (
-                    "" if include_removed else " AND removed_at IS NULL"
-                )
+                removed_condition = "" if include_removed else " AND removed_at IS NULL"
 
                 cursor.execute(
                     f"""
@@ -238,7 +230,6 @@ class EndorsementRepository:
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            
             with self.connection_manager.connection.cursor() as cursor:
                 # Total endorsements given (including withdrawn)
                 cursor.execute(
@@ -276,7 +267,6 @@ class EndorsementRepository:
             # Create placeholders for SQL IN clause
             placeholders = ",".join(["%s"] * len(statement_hashes))
 
-            
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     f"""

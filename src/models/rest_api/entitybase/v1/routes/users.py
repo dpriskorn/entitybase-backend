@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, HTTPException, Request
 
-from models.rest_api.clients import Clients
+from models.rest_api.state import State
 from models.rest_api.entitybase.v1.handlers.user import UserHandler
 from models.rest_api.entitybase.v1.request.user import (
     UserCreateRequest,
@@ -24,10 +24,10 @@ users_router = APIRouter(prefix="/entitybase", tags=["users"])
 def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
     """Create a new user."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = UserHandler()
-    result = handler.create_user(request, clients.vitess)
+    result = handler.create_user(request, clients.vitess_config)
     if not isinstance(result, UserCreateResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, UserCreateResponse)
@@ -39,7 +39,7 @@ def get_user(user_id: int, req: Request) -> UserResponse:
     """Get user information by MediaWiki user ID."""
     clients = req.app.state.clients
     handler = UserHandler()
-    result = handler.get_user(user_id, clients.vitess)
+    result = handler.get_user(user_id, clients.vitess_config)
     if not isinstance(result, UserResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -55,7 +55,7 @@ def toggle_watchlist(
     clients = req.app.state.clients
     handler = UserHandler()
     try:
-        result = handler.toggle_watchlist(user_id, request, clients.vitess)
+        result = handler.toggle_watchlist(user_id, request, clients.vitess_config)
         if not isinstance(result, WatchlistToggleResponse):
             raise_validation_error("Invalid response type", status_code=500)
         assert isinstance(result, WatchlistToggleResponse)
@@ -70,7 +70,7 @@ def get_user_stats(req: Request) -> UserStatsResponse:
     clients = req.app.state.clients
     handler = UserHandler()
     try:
-        stats = handler.get_user_stats(clients.vitess)
+        stats = handler.get_user_stats(clients.vitess_config)
         return stats
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

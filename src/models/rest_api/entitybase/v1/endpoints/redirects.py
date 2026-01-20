@@ -2,14 +2,16 @@
 
 from fastapi import APIRouter, Request
 
-from models.rest_api.clients import Clients
-from models.rest_api.entitybase.v1.handlers.redirect import RedirectHandler
+from models.rest_api.state import State
+from models.rest_api.entitybase.v1.handlers.entity.redirect import RedirectHandler
 from models.rest_api.entitybase.v1.request.entity import (
     EntityRedirectRequest,
     RedirectRevertRequest,
 )
 from models.rest_api.entitybase.v1.response.entity import EntityRevertResponse
-from models.rest_api.entitybase.v1.response.entity.entitybase import EntityRedirectResponse
+from models.rest_api.entitybase.v1.response.entity.entitybase import (
+    EntityRedirectResponse,
+)
 from models.rest_api.utils import raise_validation_error
 
 
@@ -22,9 +24,9 @@ async def create_entity_redirect(
 ) -> EntityRedirectResponse:
     """Create a redirect for an entity."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
+    handler = RedirectHandler(clients.s3_config, clients.vitess_config, clients.stream_producer)
     result = await handler.create_entity_redirect(request)
     if not isinstance(result, EntityRedirectResponse):
         raise_validation_error("Invalid response type", status_code=500)
@@ -38,9 +40,9 @@ async def revert_entity_redirect(  # type: ignore[no-any-return]
     entity_id: str, request: RedirectRevertRequest, req: Request
 ) -> EntityRevertResponse:
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = RedirectHandler(clients.s3, clients.vitess, clients.stream_producer)
+    handler = RedirectHandler(clients.s3_config, clients.vitess_config, clients.stream_producer)
     result = await handler.revert_entity_redirect(entity_id, request)
     if not isinstance(result, EntityRevertResponse):
         raise_validation_error("Invalid response type", status_code=500)

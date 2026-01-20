@@ -7,9 +7,15 @@ from models.infrastructure.s3.enums import EntityType
 from models.internal_representation.ranks import Rank
 from models.internal_representation.value_kinds import ValueKind
 from models.json_parser import parse_entity
-from models.rest_api.entitybase.v1.response import EntityLabelsResponse, EntityDescriptionsResponse, \
-    EntityAliasesResponse
-from models.rest_api.entitybase.v1.response.entity import EntityStatementsResponse, EntitySitelinksResponse
+from models.rest_api.entitybase.v1.response import (
+    EntityLabelsResponse,
+    EntityDescriptionsResponse,
+    EntityAliasesResponse,
+)
+from models.rest_api.entitybase.v1.response.entity import (
+    EntityStatementsResponse,
+    EntitySitelinksResponse,
+)
 
 TEST_DATA_JSON_DIR = Path(os.environ["TEST_DATA_DIR"]) / "json"
 

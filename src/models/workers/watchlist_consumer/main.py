@@ -162,9 +162,7 @@ class WatchlistConsumerWorker:
                     event_timestamp,
                 ),
             )
-            self.logger.debug(
-                f"Created notification for user {user_id} on {entity_id}"
-            )
+            self.logger.debug(f"Created notification for user {user_id} on {entity_id}")
 
 
 async def main() -> None:

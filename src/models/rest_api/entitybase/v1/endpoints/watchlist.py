@@ -27,7 +27,7 @@ def add_watch(
     handler = WatchlistHandler()
     try:
         request.user_id = user_id  # Override to ensure consistency
-        result = handler.add_watch(request, clients.vitess)
+        result = handler.add_watch(request, clients.vitess_config)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -44,7 +44,7 @@ def remove_watch(
     handler = WatchlistHandler()
     try:
         request.user_id = user_id  # Override to ensure consistency
-        result = handler.remove_watch(request, clients.vitess)
+        result = handler.remove_watch(request, clients.vitess_config)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -58,7 +58,7 @@ def remove_watch_by_id(user_id: int, watch_id: int, req: Request) -> MessageResp
     clients = req.app.state.clients
     handler = WatchlistHandler()
     try:
-        result = handler.remove_watch_by_id(user_id, watch_id, clients.vitess)
+        result = handler.remove_watch_by_id(user_id, watch_id, clients.vitess_config)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -70,7 +70,7 @@ def get_watches(user_id: int, req: Request) -> WatchlistResponse:
     clients = req.app.state.clients
     handler = WatchlistHandler()
     try:
-        result = handler.get_watches(user_id, clients.vitess)
+        result = handler.get_watches(user_id, clients.vitess_config)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -91,7 +91,7 @@ def get_notifications(
     handler = WatchlistHandler()
     try:
         result = handler.get_notifications(
-            user_id, clients.vitess, hours, limit, offset
+            user_id, clients.vitess_config, hours, limit, offset
         )
         return result
     except ValueError as e:
@@ -108,7 +108,7 @@ def mark_checked(user_id: int, notification_id: int, req: Request) -> MessageRes
     handler = WatchlistHandler()
     try:
         request = MarkCheckedRequest(notification_id=notification_id)
-        result = handler.mark_checked(user_id, request, clients.vitess)
+        result = handler.mark_checked(user_id, request, clients.vitess_config)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -120,7 +120,7 @@ def get_watch_counts(user_id: int, req: Request) -> WatchCounts:
     clients = req.app.state.clients
     handler = WatchlistHandler()
     try:
-        result = handler.get_watch_counts(user_id, clients.vitess)
+        result = handler.get_watch_counts(user_id, clients.vitess_config)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

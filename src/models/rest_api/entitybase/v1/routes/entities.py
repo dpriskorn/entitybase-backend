@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Header, Request
 
-from models.rest_api.clients import Clients
+from models.rest_api.state import State
 from models.rest_api.entitybase.v1.handlers.entity.revert import EntityRevertHandler
 from models.rest_api.entitybase.v1.request.entity import EntityRevertRequest
 from models.rest_api.entitybase.v1.response.entity import EntityRevertResponse
@@ -25,11 +25,11 @@ async def revert_entity(
 ) -> EntityRevertResponse:
     """Revert entity to a previous revision."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityRevertHandler()
     result = await handler.revert_entity(
-        entity_id, request, clients.vitess, clients.s3, clients.stream_producer, user_id
+        entity_id, request, clients.vitess_config, clients.s3_config, clients.stream_producer, user_id
     )
     if not isinstance(result, EntityRevertResponse):
         raise_validation_error("Invalid response type", status_code=500)

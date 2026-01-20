@@ -3,6 +3,7 @@
 import logging
 from typing import TYPE_CHECKING
 
+from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.handlers.entity.revert import EntityRevertHandler
 from models.rest_api.entitybase.v1.request.entity import EntityRedirectRequest
 from models.rest_api.entitybase.v1.request.entity import EntityRevertRequest
@@ -14,14 +15,14 @@ from models.rest_api.entitybase.v1.response.entity.revert import EntityRevertRes
 from models.rest_api.entitybase.v1.services.redirects import RedirectService
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.s3_client import MyS3Client
+    from models.infrastructure.s3.client import MyS3Client
     from models.infrastructure.stream.producer import StreamProducerClient
     from models.infrastructure.vitess.client import VitessClient
 
 logger = logging.getLogger(__name__)
 
 
-class RedirectHandler:
+class RedirectHandler(Handler):
     """Handles redirect operations."""
 
     def __init__(

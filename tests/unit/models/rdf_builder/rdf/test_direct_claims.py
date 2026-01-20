@@ -50,4 +50,3 @@ def test_entity_converter_generates_direct_claims_for_best_rank() -> None:
 
     assert "wd:Q17948861 wdt:P31 wd:Q17633526" in actual_ttl
     assert "wdt:P31" in actual_ttl
-

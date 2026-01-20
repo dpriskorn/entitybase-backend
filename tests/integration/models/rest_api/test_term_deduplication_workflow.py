@@ -223,7 +223,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
     @patch("models.infrastructure.s3.s3_client.boto3")
     def test_sitelink_plain_text_storage(self, mock_boto3) -> None:
         """Test that sitelinks are stored as plain UTF-8 text in S3"""
-        from models.infrastructure.s3.s3_client import MyS3Client
+        from models.infrastructure.s3.client import MyS3Client
 
         # Mock S3 connection
         mock_client = MagicMock()
@@ -253,7 +253,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
     @patch("models.infrastructure.s3.s3_client.boto3")
     def test_sitelink_plain_text_loading(self, mock_boto3) -> None:
         """Test that sitelinks are loaded as plain UTF-8 text from S3"""
-        from models.infrastructure.s3.s3_client import MyS3Client
+        from models.infrastructure.s3.client import MyS3Client
 
         # Mock S3 connection
         mock_client = MagicMock()
@@ -285,7 +285,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
     @patch("models.infrastructure.s3.s3_client.boto3")
     def test_term_plain_text_storage(self, mock_boto3) -> None:
         """Test that terms are stored as plain UTF-8 text in S3"""
-        from models.infrastructure.s3.s3_client import MyS3Client
+        from models.infrastructure.s3.client import MyS3Client
 
         # Mock S3 connection
         mock_client = MagicMock()
@@ -315,7 +315,7 @@ class TestTermDeduplicationIntegration(unittest.TestCase):
     @patch("models.infrastructure.s3.s3_client.boto3")
     def test_term_plain_text_loading(self, mock_boto3) -> None:
         """Test that terms are loaded as plain UTF-8 text from S3"""
-        from models.infrastructure.s3.s3_client import MyS3Client
+        from models.infrastructure.s3.client import MyS3Client
 
         # Mock S3 connection
         mock_client = MagicMock()

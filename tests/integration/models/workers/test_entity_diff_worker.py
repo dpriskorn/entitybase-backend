@@ -168,7 +168,7 @@ class TestRDFStreaming:
 
     def test_rdf_change_event_creation(self) -> None:
         """Test RDF change event model creation."""
-        from models.infrastructure.stream.producer import RDFChangeEvent
+        from models.rest_api.entitybase.v1.response.events import RDFChangeEvent
 
         event = RDFChangeEvent(
             meta={
@@ -206,7 +206,7 @@ class TestRDFStreaming:
 
     async def test_publish_rdf_change(self):
         """Test publishing RDF change event."""
-        from models.infrastructure.stream.producer import RDFChangeEvent
+        from models.rest_api.entitybase.v1.response.events import RDFChangeEvent
 
         event = RDFChangeEvent(
             meta={
@@ -234,7 +234,7 @@ class TestRDFStreaming:
             patrolled=False,
         )
 
-        await self.rdf_producer.publish_rdf_change(event)
+        await self.rdf_producer.publish_change(event)
 
         self.mock_producer.send_and_wait.assert_called_once()
         call_args = self.mock_producer.send_and_wait.call_args

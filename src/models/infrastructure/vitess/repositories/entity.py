@@ -1,22 +1,18 @@
 """Vitess entity repository for database operations."""
 
 import logging
-from typing import Any
 
+from models.infrastructure.vitess.repository import Repository
 from models.rest_api.entitybase.v1.response import ProtectionResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
 
-class EntityRepository:
+class EntityRepository(Repository):
     """Repository for entity-related database operations."""
 
-    def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
-        self.connection_manager = connection_manager
-        self.id_resolver = id_resolver
-
-    def get_head(self, conn: Any, entity_id: str) -> int:
+    def get_head(self, entity_id: str) -> int:
         """Get the current head revision ID for an entity."""
         internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
@@ -29,7 +25,7 @@ class EntityRepository:
             result = cursor.fetchone()
             return result[0] if result else 0
 
-    def is_deleted(self, conn: Any, entity_id: str) -> bool:
+    def is_deleted(self, entity_id: str) -> bool:
         """Check if an entity is marked as deleted."""
         internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
@@ -42,7 +38,7 @@ class EntityRepository:
             result = cursor.fetchone()
             return result[0] if result else False
 
-    def is_locked(self, conn: Any, entity_id: str) -> bool:
+    def is_locked(self, entity_id: str) -> bool:
         """Check if an entity is locked for editing."""
         internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
@@ -55,7 +51,7 @@ class EntityRepository:
             result = cursor.fetchone()
             return result[0] if result else False
 
-    def is_archived(self, conn: Any, entity_id: str) -> bool:
+    def is_archived(self, entity_id: str) -> bool:
         """Check if an entity is archived."""
         internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
@@ -68,9 +64,7 @@ class EntityRepository:
             result = cursor.fetchone()
             return result[0] if result else False
 
-    def get_protection_info(
-        self, conn: Any, entity_id: str
-    ) -> ProtectionResponse | None:
+    def get_protection_info(self, entity_id: str) -> ProtectionResponse | None:
         """Get protection status information for an entity."""
         logger.debug(f"Getting protection info for entity {entity_id}")
         internal_id = self.id_resolver.resolve_id(entity_id)
@@ -97,11 +91,11 @@ class EntityRepository:
             mass_edit=bool(result[4]),
         )
 
-    def create_entity(self, conn: Any, entity_id: str) -> None:
+    def create_entity(self, entity_id: str) -> None:
         """Create a new entity in the database."""
         internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
-            self.id_resolver.register_entity(conn, entity_id)
+            self.id_resolver.register_entity(entity_id)
             internal_id = self.id_resolver.resolve_id(entity_id)
             if not internal_id:
                 raise_validation_error(
@@ -115,7 +109,7 @@ class EntityRepository:
                 (internal_id, 0, False, False, False, False, False, False, False),
             )
 
-    def delete_entity(self, conn: Any, entity_id: str) -> None:
+    def delete_entity(self, entity_id: str) -> None:
         """Delete an entity from the database."""
         internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
@@ -125,7 +119,7 @@ class EntityRepository:
                 "DELETE FROM entity_head WHERE internal_id = %s", (internal_id,)
             )
 
-    def update_head_revision(self, conn: Any, entity_id: str, revision_id: int) -> None:
+    def update_head_revision(self, entity_id: str, revision_id: int) -> None:
         """Update the head revision for an entity."""
         internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:

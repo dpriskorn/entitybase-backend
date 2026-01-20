@@ -79,33 +79,32 @@ class NotificationCleanupWorker:
 
         # Get users with excess notifications
         assert self.vitess_client is not None
-        with self.vitess_client.get_connection() as conn:
-            with self.connection_manager.connection.cursor() as cursor:
-                # Find users with too many notifications
+        with self.vitess_client.cursor as cursor:
+            # Find users with too many notifications
+            cursor.execute(
+                """
+                SELECT user_id, COUNT(*) as count
+                FROM user_notifications
+                GROUP BY user_id
+                HAVING COUNT(*) > %s
+                """,
+                (self.max_per_user,),
+            )
+            users_with_excess = cursor.fetchall()
+
+            for user_id, count in users_with_excess:
+                # Delete oldest excess notifications
+                excess = count - self.max_per_user
                 cursor.execute(
                     """
-                    SELECT user_id, COUNT(*) as count
-                    FROM user_notifications
-                    GROUP BY user_id
-                    HAVING COUNT(*) > %s
+                    DELETE FROM user_notifications
+                    WHERE user_id = %s
+                    ORDER BY event_timestamp ASC
+                    LIMIT %s
                     """,
-                    (self.max_per_user,),
+                    (user_id, excess),
                 )
-                users_with_excess = cursor.fetchall()
-
-                for user_id, count in users_with_excess:
-                    # Delete oldest excess notifications
-                    excess = count - self.max_per_user
-                    cursor.execute(
-                        """
-                        DELETE FROM user_notifications
-                        WHERE user_id = %s
-                        ORDER BY event_timestamp ASC
-                        LIMIT %s
-                        """,
-                        (user_id, excess),
-                    )
-                    total_deleted += cursor.rowcount
+                total_deleted += cursor.rowcount
 
         return total_deleted
 

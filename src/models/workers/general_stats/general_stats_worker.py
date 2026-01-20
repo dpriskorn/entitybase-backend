@@ -57,7 +57,6 @@ class GeneralStatsWorker(BaseStatsWorker):
 
         with self.vitess_client.connection_manager.get_connection() as conn:
             self.vitess_client.user_repository.insert_general_statistics(
-                conn=conn,
                 date=today,
                 total_statements=stats.total_statements,
                 total_qualifiers=stats.total_qualifiers,

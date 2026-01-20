@@ -40,7 +40,6 @@ class TestWatchlistRepository:
 
         mock_cursor = MagicMock()
 
-
         repository.add_watch(12345, "Q42", ["P31"])
 
         mock_id_resolver.resolve_id.assert_called_once_with(mock_conn, "Q42")
@@ -64,7 +63,6 @@ class TestWatchlistRepository:
         mock_conn = MagicMock()
 
         mock_cursor = MagicMock()
-
 
         repository.remove_watch(12345, "Q42", ["P31"])
 
@@ -191,7 +189,6 @@ class TestWatchlistRepository:
         mock_conn = MagicMock()
 
         mock_cursor = MagicMock()
-
 
         repository.mark_notification_checked(1, 12345)
 

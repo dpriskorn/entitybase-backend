@@ -31,7 +31,6 @@ class TestVitessClientBacklinks:
 
         mock_conn = Mock()
 
-
         self.vitess_client.insert_backlinks(backlinks)
 
         self.vitess_client.backlink_repository.insert_backlinks.assert_called_once_with(
@@ -47,7 +46,6 @@ class TestVitessClientBacklinks:
         # Should still get connection but repository not called
         self.vitess_client.connection_manager.get_connection.assert_called_once()
         self.vitess_client.backlink_repository.insert_backlinks.assert_called_once_with(
-
             backlinks,
         )
 
@@ -56,7 +54,6 @@ class TestVitessClientBacklinks:
         referencing_internal_id = 456
 
         mock_conn = Mock()
-
 
         self.vitess_client.delete_backlinks_for_entity(referencing_internal_id)
 

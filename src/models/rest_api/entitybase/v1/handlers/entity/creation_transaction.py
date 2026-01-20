@@ -157,9 +157,7 @@ class CreationTransaction(EntityTransaction):
         pass
 
     @staticmethod
-    def _rollback_statement(
-            hash_val: int, vitess_client: Any, s3_client: Any
-    ) -> None:
+    def _rollback_statement(hash_val: int, vitess_client: Any, s3_client: Any) -> None:
         logger.info(f"[CreationTransaction] Rolling back statement {hash_val}")
         # Decrement ref_count
         vitess_client.decrement_ref_count(hash_val)

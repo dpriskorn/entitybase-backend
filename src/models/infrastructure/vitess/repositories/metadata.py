@@ -1,11 +1,11 @@
 """Repository for metadata content operations."""
 
+from models.infrastructure.vitess.repository import Repository
 from models.rest_api.entitybase.v1.response.misc import MetadataContent
 
 """Repository for metadata content operations."""
 
 import logging
-from typing import Any
 
 from models.common import OperationResult
 
@@ -13,14 +13,11 @@ from models.common import OperationResult
 logger = logging.getLogger(__name__)
 
 
-class MetadataRepository:
+class MetadataRepository(Repository):
     """Repository for metadata content operations."""
 
-    def __init__(self, connection_manager: Any) -> None:
-        self.connection_manager = connection_manager
-
     def insert_metadata_content(
-            self, content_hash: int, content_type: str
+        self, content_hash: int, content_type: str
     ) -> OperationResult:
         """Insert or increment ref_count for metadata content."""
         try:
@@ -38,7 +35,7 @@ class MetadataRepository:
             return OperationResult(success=False, error=str(e))
 
     def get_metadata_content(
-            self, content_hash: int, content_type: str
+        self, content_hash: int, content_type: str
     ) -> OperationResult:
         """Get metadata content by hash and type."""
         if content_hash <= 0 or not content_type:
@@ -61,9 +58,8 @@ class MetadataRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    
     def decrement_ref_count(
-            self, content_hash: int, content_type: str
+        self, content_hash: int, content_type: str
     ) -> OperationResult:
         """Decrement ref_count and return True if it reaches 0."""
         if content_hash <= 0 or not content_type:
@@ -96,10 +92,7 @@ class MetadataRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    
-    def delete_metadata_content(
-            self, content_hash: int, content_type: str
-    ) -> None:
+    def delete_metadata_content(self, content_hash: int, content_type: str) -> None:
         """Delete metadata content when ref_count reaches 0."""
         with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(

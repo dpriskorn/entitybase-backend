@@ -3,14 +3,18 @@
 import logging
 
 from models.infrastructure.vitess.client import VitessClient
+from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.request.thanks import ThanksListRequest
-from models.rest_api.entitybase.v1.response.thanks import ThankResponse, ThanksListResponse
+from models.rest_api.entitybase.v1.response.thanks import (
+    ThankResponse,
+    ThanksListResponse,
+)
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
 
-class ThanksHandler:
+class ThanksHandler(Handler):
     """Handler for thanks operations."""
 
     def send_thank(

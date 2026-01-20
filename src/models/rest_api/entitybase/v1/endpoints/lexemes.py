@@ -4,7 +4,9 @@ import logging
 
 from fastapi import APIRouter, Request
 
-from models.rest_api.entitybase.v1.handlers.entity.lexeme.create import LexemeCreateHandler
+from models.rest_api.entitybase.v1.handlers.entity.lexeme.create import (
+    LexemeCreateHandler,
+)
 
 logger = logging.getLogger(__name__)
 from models.rest_api.entitybase.v1.request import EntityCreateRequest
@@ -22,8 +24,8 @@ async def create_lexeme(request: EntityCreateRequest, req: Request) -> EntityRes
     handler = LexemeCreateHandler(enumeration_service)
     return await handler.create_entity(  # type: ignore[no-any-return]
         request,
-        clients.vitess,
-        clients.s3,
+        clients.vitess_config,
+        clients.s3_config,
         clients.stream_producer,
         validator,
     )

@@ -5,19 +5,19 @@ import logging
 from typing import Any, List
 
 from models.common import OperationResult
-from models.rest_api.entitybase.v1.response.user import UserResponse
+from models.infrastructure.vitess.repository import Repository
 from models.rest_api.entitybase.v1.request.enums import UserActivityType
-from models.rest_api.entitybase.v1.response.user_activity import UserActivityItemResponse
+from models.rest_api.entitybase.v1.response.user import UserResponse
+from models.rest_api.entitybase.v1.response.user_activity import (
+    UserActivityItemResponse,
+)
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
 
-class UserRepository:
+class UserRepository(Repository):
     """Repository for managing users in Vitess."""
-
-    def __init__(self, connection_manager: Any) -> None:
-        self.connection_manager = connection_manager
 
     def create_user(self, user_id: int) -> OperationResult:
         """Create a new user record if it does not exist (idempotent).
@@ -33,7 +33,6 @@ class UserRepository:
                 On failure (e.g., database error), success=False with an error message.
         """
         try:
-            
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """
@@ -58,7 +57,7 @@ class UserRepository:
         Returns:
             bool: True if the user exists, False otherwise.
         """
-        
+
         with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT 1 FROM users WHERE user_id = %s",
@@ -68,7 +67,7 @@ class UserRepository:
 
     def get_user(self, user_id: int) -> UserResponse | None:
         """Get user data by ID."""
-        
+
         with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT user_id, created_at, preferences FROM users WHERE user_id = %s",
@@ -89,7 +88,6 @@ class UserRepository:
             return OperationResult(success=False, error="Invalid user ID")
 
         try:
-            
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "UPDATE users SET last_activity = NOW() WHERE user_id = %s",
@@ -101,7 +99,7 @@ class UserRepository:
 
     def is_watchlist_enabled(self, user_id: int) -> bool:
         """Check if watchlist is enabled for user."""
-        
+
         with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT watchlist_enabled FROM users WHERE user_id = %s",
@@ -116,7 +114,6 @@ class UserRepository:
             return OperationResult(success=False, error="Invalid user ID")
 
         try:
-            
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "UPDATE users SET watchlist_enabled = %s WHERE user_id = %s",
@@ -156,7 +153,6 @@ class UserRepository:
             )
 
         try:
-            
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """
@@ -175,22 +171,21 @@ class UserRepository:
             return OperationResult(success=False, error="Invalid user ID")
 
         try:
-            
-                with self.connection_manager.connection.cursor() as cursor:
-                    cursor.execute(
-                        "SELECT notification_limit, retention_hours FROM users WHERE user_id = %s",
-                        (user_id,),
-                    )
-                    row = cursor.fetchone()
-                    if row:
-                        prefs = {
-                            "notification_limit": row[0],
-                            "retention_hours": row[1],
-                        }
-                        return OperationResult(success=True, data=prefs)
-                    return OperationResult(
-                        success=False, error="User preferences not found"
-                    )
+            with self.connection_manager.connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT notification_limit, retention_hours FROM users WHERE user_id = %s",
+                    (user_id,),
+                )
+                row = cursor.fetchone()
+                if row:
+                    prefs = {
+                        "notification_limit": row[0],
+                        "retention_hours": row[1],
+                    }
+                    return OperationResult(success=True, data=prefs)
+                return OperationResult(
+                    success=False, error="User preferences not found"
+                )
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -205,7 +200,6 @@ class UserRepository:
             return OperationResult(success=False, error="Invalid user ID")
 
         try:
-            
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "UPDATE users SET notification_limit = %s, retention_hours = %s WHERE user_id = %s",
@@ -240,7 +234,7 @@ class UserRepository:
             logger.debug(
                 f"Getting activities for user {user_id}, type {activity_type}, hours {hours}"
             )
-            
+
             with self.connection_manager.connection.cursor() as cursor:
                 query = """
                     SELECT id, user_id, activity_type, entity_id, revision_id, created_at

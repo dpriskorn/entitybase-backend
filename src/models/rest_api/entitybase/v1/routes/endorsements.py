@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Header, Query, Request
 
-from models.rest_api.clients import Clients
+from models.rest_api.state import State
 from models.rest_api.entitybase.v1.handlers.endorsements import EndorsementHandler
 from models.rest_api.entitybase.v1.request.endorsements import EndorsementListRequest
 from models.rest_api.entitybase.v1.response.endorsements import (
@@ -27,10 +27,10 @@ def endorse_statement_endpoint(
 ) -> EndorsementResponse:
     """Endorse a statement to signal trust."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler()
-    result = handler.endorse_statement(statement_hash, user_id, clients.vitess)
+    result = handler.endorse_statement(statement_hash, user_id, clients.vitess_config)
     if not isinstance(result, EndorsementResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, EndorsementResponse)
@@ -46,10 +46,10 @@ def withdraw_endorsement_endpoint(
 ) -> EndorsementResponse:
     """Withdraw endorsement from a statement."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler()
-    result = handler.withdraw_endorsement(statement_hash, user_id, clients.vitess)
+    result = handler.withdraw_endorsement(statement_hash, user_id, clients.vitess_config)
     if not isinstance(result, EndorsementResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, EndorsementResponse)
@@ -71,13 +71,13 @@ def get_statement_endorsements_endpoint(
 ) -> EndorsementListResponse:
     """Get endorsements for a statement."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler()
     request = EndorsementListRequest(
         limit=limit, offset=offset, include_removed=include_removed
     )
-    result = handler.get_statement_endorsements(statement_hash, request, clients.vitess)
+    result = handler.get_statement_endorsements(statement_hash, request, clients.vitess_config)
     if not isinstance(result, EndorsementListResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, EndorsementListResponse)
@@ -99,13 +99,13 @@ def get_user_endorsements_endpoint(
 ) -> EndorsementListResponse:
     """Get endorsements given by a user."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler()
     request = EndorsementListRequest(
         limit=limit, offset=offset, include_removed=include_removed
     )
-    result = handler.get_user_endorsements(user_id, request, clients.vitess)
+    result = handler.get_user_endorsements(user_id, request, clients.vitess_config)
     if not isinstance(result, EndorsementListResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, EndorsementListResponse)
@@ -121,10 +121,10 @@ def get_user_endorsement_stats_endpoint(
 ) -> EndorsementStatsResponse:
     """Get endorsement statistics for a user."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler()
-    result = handler.get_user_endorsement_stats(user_id, clients.vitess)
+    result = handler.get_user_endorsement_stats(user_id, clients.vitess_config)
     if not isinstance(result, EndorsementStatsResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, EndorsementStatsResponse)
@@ -141,13 +141,13 @@ def get_statement_endorsement_stats(
 ) -> SingleEndorsementStatsResponse:
     """Get endorsement statistics for a statement."""
     clients = req.app.state.clients
-    if not isinstance(clients, Clients):
+    if not isinstance(clients, State):
         raise_validation_error("Invalid clients type", status_code=500)
 
     # Get stats for single statement
     handler = EndorsementHandler()
     result = handler.get_batch_statement_endorsement_stats(
-        [statement_hash], clients.vitess
+        [statement_hash], clients.vitess_config
     )
     if not isinstance(result, BatchEndorsementStatsResponse):
         raise_validation_error("Invalid response type", status_code=500)

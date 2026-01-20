@@ -4,100 +4,29 @@ import logging
 from typing import Any
 
 from aiokafka import AIOKafkaProducer  # type: ignore[import-untyped]
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
+from models.infrastructure.client import Client
 from models.infrastructure.stream.actions import EndorseAction
+from models.infrastructure.stream.config import StreamConfig
 
 logger = logging.getLogger(__name__)
 
-__all__ = [
-    "EndorseAction",
-    "RDFChangeEvent",
-    "StreamProducerClient",
-]
 
-
-class RDFChangeEvent(BaseModel):
-    """RDF change event following MediaWiki recentchange schema."""
-
-    # Required fields from schema
-    schema_uri: str = Field(
-        default="/wikibase/entity_diff/1.0.0",
-        alias="$schema",
-        description="Schema URI for this event",
-    )
-    meta: dict = Field(..., description="Event metadata")
-
-    # Wikibase-specific fields
-    entity_id: str = Field(..., description="Entity ID (e.g., Q42)")
-    revision_id: int = Field(..., description="New revision ID")
-    from_revision_id: int = Field(
-        default=0, description="Previous revision ID (0 for creation)"
-    )
-    # RDF diff data
-    added_triples: list[tuple[str, str, str]] = Field(
-        default_factory=list, description="RDF triples added in this revision"
-    )
-    removed_triples: list[tuple[str, str, str]] = Field(
-        default_factory=list, description="RDF triples removed in this revision"
-    )
-
-    # Canonicalization metadata
-    canonicalization_method: str = Field(
-        default="urdna2015", description="RDF canonicalization method used"
-    )
-    triple_count_diff: int = Field(..., description="Net change in triple count")
-
-    # MediaWiki recentchange schema fields
-    type: str = Field(default="edit", description="Type of change")
-    title: str = Field(..., description="Entity title")
-    user: str = Field(..., description="Editor username")
-    timestamp: int = Field(..., description="Unix timestamp")
-    comment: str = Field(default="", description="Edit summary")
-    bot: bool = Field(default=False, description="Whether editor is a bot")
-    minor: bool = Field(default=False, description="Whether this is a minor edit")
-    patrolled: bool | None = Field(None, description="Patrol status")
-
-    # Revision info following schema
-    revision: dict = Field(
-        default_factory=lambda: {"new": None, "old": None},
-        description="Old and new revision IDs",
-    )
-
-    # Length info
-    length: dict = Field(
-        default_factory=lambda: {"new": None, "old": None},
-        description="Length of old and new revisions",
-    )
-
-    # Additional fields
-    namespace: int = Field(default=0, description="Namespace ID")
-    server_name: str = Field(..., description="Server name")
-    server_url: str = Field(..., description="Server URL")
-    wiki: str = Field(..., description="Wiki identifier")
-
-    @field_serializer("added_triples", "removed_triples")
-    def serialize_triples(self, value: list[tuple[str, str, str]]) -> list[list[str]]:
-        """Serialize triple tuples to lists for JSON."""
-        return [list(triple) for triple in value]
-
-    model_config = ConfigDict()
-
-
-class StreamProducerClient:
+class StreamProducerClient(Client):
     """Kafka producer client for publishing events."""
+    producer: AIOKafkaProducer | None = None
+    model_config = {"arbitrary_types_allowed": True}
 
-    def __init__(self, bootstrap_servers: str, topic: str):
-        self.bootstrap_servers = bootstrap_servers
-        self.topic = topic
-        self.producer: AIOKafkaProducer | None = None
+    def __init__(self, config: StreamConfig) -> None:
+        super().__init__(config=config)
+        self.start()
 
     async def start(self) -> None:
         """Start the Kafka producer."""
         if self.producer is not None:
             return
         self.producer = AIOKafkaProducer(
-            bootstrap_servers=self.bootstrap_servers,
+            bootstrap_servers=self.config.bootstrap_servers,
             value_serializer=lambda v: v.model_dump_json(by_alias=True).encode("utf-8"),
         )
         await self.producer.start()
@@ -123,14 +52,10 @@ class StreamProducerClient:
                 return
 
             await self.producer.send_and_wait(
-                topic=self.topic,
+                topic=self.config.topic,
                 key=str(key),
                 value=event,
             )
             logger.debug(f"Published event: {event}")
         except Exception as e:
             logger.error(f"Failed to publish event: {e}")
-
-    async def publish_rdf_change(self, event: Any) -> None:
-        """Publish an RDF change event to Kafka."""
-        await self.publish_change(event)

@@ -7,16 +7,13 @@ from typing import Any, List
 import pymysql
 
 from models.common import OperationResult
+from models.infrastructure.vitess.repository import Repository
 
 logger = logging.getLogger(__name__)
 
 
-class WatchlistRepository:
+class WatchlistRepository(Repository):
     """Repository for managing watchlists in Vitess."""
-
-    def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
-        self.connection_manager = connection_manager
-        self.id_resolver = id_resolver
 
     def get_entity_watch_count(self, user_id: int) -> int:
         """Get count of entity watches (whole entity, no properties) for user."""
@@ -113,7 +110,7 @@ class WatchlistRepository:
         watches = []
         for row in rows:
             watch_id, internal_entity_id, properties_json = row
-            entity_id = self.id_resolver.resolve_entity_id(conn, internal_entity_id)
+            entity_id = self.id_resolver.resolve_entity_id(internal_entity_id)
             properties = properties_json.split(",") if properties_json else None
             watches.append(
                 {"id": watch_id, "entity_id": entity_id, "properties": properties}

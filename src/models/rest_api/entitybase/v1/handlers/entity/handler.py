@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict
+from typing import Any, Dict, TYPE_CHECKING
 
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -15,11 +15,6 @@ from models.infrastructure.s3.hashes.hash_maps import (
     SitelinksHashes,
 )
 from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.s3.s3_client import MyS3Client
-from models.infrastructure.stream.change_type import ChangeType
-from models.infrastructure.stream.event import EntityChangeEvent
-from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.request.entity.add_property import AddPropertyRequest
 from models.rest_api.entitybase.v1.request.entity.patch_statement import (
@@ -36,10 +31,19 @@ from models.rest_api.entitybase.v1.services.statement_service import (
     hash_entity_statements,
     deduplicate_and_store_statements,
 )
+from models.infrastructure.stream.change_type import ChangeType
+from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.utils import raise_validation_error
 from .exceptions import EntityProcessingError
 from .entity_hashing_service import EntityHashingService
 from .entity_validation_service import EntityValidationService
+from ...handler import Handler
+from ...result import RevisionResult
+
+if TYPE_CHECKING:
+    from models.infrastructure.s3.client import MyS3Client
+    from models.infrastructure.stream.producer import StreamProducerClient
+    from models.infrastructure.vitess.client import VitessClient
 
 logger = logging.getLogger(__name__)
 
@@ -90,17 +94,8 @@ class RevisionContext(BaseModel):
     validator: Any | None = Field(default=None)
 
 
-class RevisionResult(BaseModel):
-    """Result of revision processing."""
-
-    success: bool
-    revision_id: int = Field(default=0)
-    error: str = Field(default="")
-
-
-
 # noinspection PyArgumentList
-class EntityHandler(BaseModel):
+class EntityHandler(Handler):
     """Base entity handler with common functionality"""
 
     # New simplified method using context and services
@@ -112,9 +107,9 @@ class EntityHandler(BaseModel):
         edit_type: EditType | None,
         edit_summary: str,
         is_creation: bool,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
-        stream_producer: StreamProducerClient | None,
+        vitess_client: "VitessClient",
+        s3_client: "MyS3Client",
+        stream_producer: "StreamProducerClient | None",
         validator: Any | None,
     ) -> EntityResponse:
         """New simplified entity revision processing using services."""
@@ -712,10 +707,8 @@ class EntityHandler(BaseModel):
             StatementRepository,
         )
 
-        stmt_repo = StatementRepository(vitess_client.connection_manager)
-        result = stmt_repo.decrement_ref_count(
-            vitess_client.connection_manager, int(statement_hash)
-        )
+        stmt_repo = StatementRepository(vitess_client=vitess_client)
+        result = stmt_repo.decrement_ref_count(int(statement_hash))
         if not result.success:
             raise_validation_error(
                 f"Failed to decrement ref_count for statement {statement_hash}: {result.error}",

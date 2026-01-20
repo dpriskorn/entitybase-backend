@@ -4,8 +4,10 @@ from pathlib import Path
 import os
 from typing import Any
 
+from models.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.json_parser.entity_parser import parse_entity
 from models.rdf_builder.converter import EntityConverter
+from models.rest_api.entitybase.v1.response.entity import EntityStatementsResponse
 
 TEST_DATA_DIR = Path(os.environ["TEST_DATA_DIR"])
 
@@ -21,8 +23,11 @@ def test_q120248304_conversion(full_property_registry: Any) -> None:
     entity_json = json.loads(json_path.read_text(encoding="utf-8"))
     entity = parse_entity(entity_json)
 
-    logger.info(f"Parsed entity: {entity.id}, statements: {len(entity.statements.data)}")
+    logger.info(
+        f"Parsed entity: {entity.id}, statements: {len(entity.statements.data)}"
+    )
 
+    assert isinstance(entity.statements.data, EntityStatementsResponse)
     for stmt in entity.statements.data:
         logger.debug(f"  Property: {stmt.property}, Rank: {stmt.rank}")
 

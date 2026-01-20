@@ -10,7 +10,10 @@ from models.rest_api.entitybase.v1.handlers.entity.property import PropertyCreat
 logger = logging.getLogger(__name__)
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
-from models.rest_api.entitybase.v1.request import EntityCreateRequest, EntityUpdateRequest
+from models.rest_api.entitybase.v1.request import (
+    EntityCreateRequest,
+    EntityUpdateRequest,
+)
 from models.rest_api.entitybase.v1.response import EntityResponse
 from models.rest_api.entitybase.v1.response.misc import (
     AliasesResponse,
@@ -30,8 +33,8 @@ async def create_property(request: EntityCreateRequest, req: Request) -> EntityR
     handler = PropertyCreateHandler(enumeration_service)
     return await handler.create_entity(  # type: ignore[no-any-return]
         request,
-        clients.vitess,
-        clients.s3,
+        clients.vitess_config,
+        clients.s3_config,
         clients.stream_producer,
         validator,
     )
@@ -47,7 +50,7 @@ async def get_property_label(
     """Get property label for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    response = handler.get_entity(property_id, clients.vitess, clients.s3)
+    response = handler.get_entity(property_id, clients.vitess_config, clients.s3_config)
     labels = response.data.get("labels", {})
     if language_code not in labels:
         raise HTTPException(
@@ -66,7 +69,7 @@ async def get_property_description(
     """Get property description for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    response = handler.get_entity(property_id, clients.vitess, clients.s3)
+    response = handler.get_entity(property_id, clients.vitess_config, clients.s3_config)
     descriptions = response.data.get("descriptions", {})
     if language_code not in descriptions:
         raise HTTPException(
@@ -86,7 +89,7 @@ async def get_property_aliases_for_language(
     """Get property aliases for language."""
     clients = req.app.state.clients
     handler = EntityReadHandler()
-    response = handler.get_entity(property_id, clients.vitess, clients.s3)
+    response = handler.get_entity(property_id, clients.vitess_config, clients.s3_config)
     aliases = response.data.get("aliases", {})
     if language_code not in aliases:
         raise HTTPException(
@@ -111,7 +114,7 @@ async def put_property_aliases_for_language(
 
     # Get current entity
     handler = EntityReadHandler()
-    current_entity = handler.get_entity(property_id, clients.vitess, clients.s3)
+    current_entity = handler.get_entity(property_id, clients.vitess_config, clients.s3_config)
 
     # Update aliases: expect list of strings
     if "aliases" not in current_entity.data:
@@ -130,8 +133,8 @@ async def put_property_aliases_for_language(
     return await update_handler.update_entity(
         property_id,
         update_request,
-        clients.vitess,
-        clients.s3,
+        clients.vitess_config,
+        clients.s3_config,
         clients.stream_producer,
         validator,
     )

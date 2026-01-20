@@ -308,6 +308,7 @@ def redirect_service() -> RedirectService:
 
     return RedirectService(s3, vitess)
 
+
 def test_revert_redirect_success(redirect_service: RedirectService) -> None:
     """Test successful redirect revert"""
     vitess = redirect_service.vitess

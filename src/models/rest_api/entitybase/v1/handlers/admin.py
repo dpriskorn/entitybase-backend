@@ -3,9 +3,10 @@
 import logging
 from typing import TYPE_CHECKING
 
+from models.rest_api.entitybase.v1.handler import Handler
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.s3_client import MyS3Client
+    from models.infrastructure.s3.client import MyS3Client
     from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.response import EntityListResponse
 from models.rest_api.entitybase.v1.response.misc import RawRevisionResponse
@@ -14,7 +15,7 @@ from models.rest_api.utils import raise_validation_error
 logger = logging.getLogger(__name__)
 
 
-class AdminHandler:
+class AdminHandler(Handler):
     """Handles administrative operations."""
 
     def list_entities(

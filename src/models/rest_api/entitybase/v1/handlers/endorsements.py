@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from models.infrastructure.stream.actions import EndorseAction
 from models.infrastructure.stream.event import EndorseChangeEvent
 from models.infrastructure.vitess.client import VitessClient
+from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.request.endorsements import EndorsementListRequest
 from models.rest_api.entitybase.v1.response.endorsements import (
     BatchEndorsementStatsResponse,
@@ -18,7 +19,7 @@ from models.rest_api.utils import raise_validation_error
 logger = logging.getLogger(__name__)
 
 
-class EndorsementHandler:
+class EndorsementHandler(Handler):
     """Handler for endorsement operations."""
 
     def endorse_statement(

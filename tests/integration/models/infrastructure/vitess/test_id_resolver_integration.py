@@ -28,5 +28,7 @@ def test_id_resolver_resolve_id(db_conn):
 
     # Clean up
     with db_conn.cursor() as cursor:
-        cursor.execute("DELETE FROM entity_id_mapping WHERE entity_id = %s", (test_entity_id,))
+        cursor.execute(
+            "DELETE FROM entity_id_mapping WHERE entity_id = %s", (test_entity_id,)
+        )
     db_conn.commit()

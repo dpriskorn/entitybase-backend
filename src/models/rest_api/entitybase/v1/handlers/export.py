@@ -3,18 +3,21 @@
 import logging
 from typing import Any, TYPE_CHECKING
 
+from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.response import TurtleResponse
-from models.rest_api.entitybase.v1.services.rdf_service import serialize_entity_to_turtle
+from models.rest_api.entitybase.v1.services.rdf_service import (
+    serialize_entity_to_turtle,
+)
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.s3_client import MyS3Client
+    from models.infrastructure.s3.client import MyS3Client
     from models.infrastructure.vitess.client import VitessClient
 
 logger = logging.getLogger(__name__)
 
 
-class ExportHandler:
+class ExportHandler(Handler):
     """Handles export operations."""
 
     def get_entity_data_turtle(

@@ -7,6 +7,7 @@ from models.rdf_builder.property_registry.registry import PropertyRegistry
 
 TEST_DATA_DIR = Path(os.environ["TEST_DATA_DIR"])
 
+
 def test_load_referenced_entity_missing_file() -> None:
     """Test that missing referenced entity JSON raises FileNotFoundError"""
     entity_metadata_dir = TEST_DATA_DIR / "json" / "entities"

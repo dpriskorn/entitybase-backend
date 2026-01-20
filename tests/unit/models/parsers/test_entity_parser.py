@@ -77,6 +77,7 @@ def test_parse_q6_complex_qualifiers() -> None:
     p9_qualifiers = [q for q in qualifiers if q.property == "P9"]
     assert len(p9_qualifiers) == 2
 
+
 def test_parse_entity_with_sitelinks() -> None:
     """Test parsing entity with sitelinks"""
     entity_json = {

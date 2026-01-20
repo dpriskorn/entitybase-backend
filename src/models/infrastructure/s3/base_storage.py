@@ -121,6 +121,7 @@ class BaseS3Storage(ABC):
 
         except ClientError as e:
             self._handle_client_error(e, "load", key)
+            return
         except Exception as e:
             self.logger.error(
                 f"S3 load failed: bucket={self.bucket}, key={key}, error={e}",

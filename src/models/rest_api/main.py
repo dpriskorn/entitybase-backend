@@ -10,7 +10,7 @@ from fastapi.responses import JSONResponse
 from jsonschema import ValidationError  # type: ignore[import-untyped]
 
 from models.config.settings import settings
-from models.rest_api.clients import Clients
+from models.rest_api.state import State
 from models.rest_api.entitybase.v1.endpoints import v1_router
 from models.validation.json_schema_validator import JsonSchemaValidator
 from .entitybase.v1.services.enumeration_service import EnumerationService
@@ -62,10 +62,10 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         )
         logger.debug(f"Property registry path: {property_registry_path}")
 
-        app_.state.clients = Clients(
+        app_.state.clients = State(
             s3=s3_config,
             vitess=vitess_config,
-            enable_streaming=settings.enable_streaming,
+            enable_streaming=settings.streaming_enabled,
             kafka_brokers=kafka_brokers,
             kafka_topic=kafka_topic,
             kafka_rdf_topic=settings.kafka_entitychange_rdf_topic,
@@ -87,7 +87,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         )
 
         app_.state.enumeration_service = EnumerationService(
-            app_.state.clients.vitess, worker_id="rest-api"
+            app_.state.clients.vitess_config, worker_id="rest-api"
         )
         logger.debug(
             "Clients, validator, and enumeration service initialized successfully"
@@ -167,10 +167,10 @@ if not hasattr(app.state, "clients"):
         Path("test_data/properties") if Path("test_data/properties").exists() else None
     )
 
-    app.state.clients = Clients(
+    app.state.clients = State(
         s3=s3_config,
         vitess=vitess_config,
-        enable_streaming=settings.enable_streaming,
+        enable_streaming=settings.streaming_enabled,
         kafka_brokers=kafka_brokers,
         kafka_topic=kafka_topic,
         kafka_rdf_topic=settings.kafka_entitychange_rdf_topic,
@@ -184,5 +184,5 @@ if not hasattr(app.state, "clients"):
     )
 
     app.state.enumeration_service = EnumerationService(
-        app.state.clients.vitess, worker_id="rest-api"
+        app.state.clients.vitess_config, worker_id="rest-api"
     )

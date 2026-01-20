@@ -4,17 +4,14 @@ import logging
 from typing import Any
 
 from models.common import OperationResult
+from models.infrastructure.vitess.repository import Repository
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
 
-class RedirectRepository:
+class RedirectRepository(Repository):
     """Repository for entity redirect database operations."""
-
-    def __init__(self, connection_manager: Any, id_resolver: Any) -> None:
-        self.connection_manager = connection_manager
-        self.id_resolver = id_resolver
 
     def set_target(
         self,
@@ -34,7 +31,7 @@ class RedirectRepository:
         redirects_to_internal_id = None
         if redirects_to_entity_id:
             redirects_to_internal_id = self.id_resolver.resolve_id(
-                conn, redirects_to_entity_id
+                redirects_to_entity_id
             )
             if not redirects_to_internal_id:
                 return OperationResult(
@@ -75,10 +72,10 @@ class RedirectRepository:
             f"Creating redirect from {redirect_from_entity_id} to {redirect_to_entity_id}"
         )
         redirect_from_internal_id = self.id_resolver.resolve_id(
-            conn, redirect_from_entity_id
+            redirect_from_entity_id
         )
         redirect_to_internal_id = self.id_resolver.resolve_id(
-            conn, redirect_to_entity_id
+            redirect_to_entity_id
         )
 
         if not redirect_from_internal_id:

@@ -3,6 +3,7 @@
 import logging
 
 from models.infrastructure.vitess.client import VitessClient
+from models.rest_api.entitybase.v1.handler import Handler
 
 logger = logging.getLogger(__name__)
 from models.rest_api.entitybase.v1.request.user import WatchlistRemoveRequest
@@ -19,7 +20,7 @@ from models.rest_api.entitybase.v1.request.watchlist import (
 from models.rest_api.entitybase.v1.response.watchlist import WatchlistResponse
 
 
-class WatchlistHandler:
+class WatchlistHandler(Handler):
     """Handler for watchlist-related operations."""
 
     def add_watch(

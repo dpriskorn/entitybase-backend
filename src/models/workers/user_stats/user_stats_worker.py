@@ -57,7 +57,6 @@ class UserStatsWorker(BaseStatsWorker):
 
         with self.vitess_client.connection_manager.get_connection() as conn:
             self.vitess_client.user_repository.insert_user_statistics(
-                conn=conn,
                 date=today,
                 total_users=stats.total_users,
                 active_users=stats.active_users,

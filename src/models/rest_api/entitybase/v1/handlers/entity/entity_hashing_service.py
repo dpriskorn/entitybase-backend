@@ -9,12 +9,16 @@ from models.infrastructure.s3.hashes.hash_maps import (
     HashMaps,
     SitelinksHashes,
 )
-from models.infrastructure.s3.s3_client import MyS3Client
+from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.vitess.client import VitessClient
-from models.rest_api.entitybase.v1.handlers.entity.exceptions import EntityProcessingError
+from models.rest_api.entitybase.v1.handlers.entity.exceptions import (
+    EntityProcessingError,
+)
 from models.rest_api.entitybase.v1.response import StatementHashResult
 from models.rest_api.entitybase.v1.services.hash_service import HashService
-from models.rest_api.entitybase.v1.services.statement_service import hash_entity_statements
+from models.rest_api.entitybase.v1.services.statement_service import (
+    hash_entity_statements,
+)
 
 logger = logging.getLogger(__name__)
 

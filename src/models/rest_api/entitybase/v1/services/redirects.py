@@ -15,7 +15,7 @@ from models.rest_api.entitybase.v1.response.entity import EntityRevertResponse
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.s3_client import MyS3Client
+    from models.infrastructure.s3.client import MyS3Client
     from models.infrastructure.vitess.client import VitessClient
     from models.infrastructure.stream.producer import StreamProducerClient
     from models.infrastructure.stream.event import EntityChangeEvent
@@ -85,7 +85,7 @@ class RedirectService:
                 type=EditType.REDIRECT_CREATE,
                 at="",
                 summary="Create redirect",  # todo improve
-                user_id=request.user_id
+                user_id=request.user_id,
             ),
             hashes=HashMaps(),
             redirects_to=request.redirect_to_id,

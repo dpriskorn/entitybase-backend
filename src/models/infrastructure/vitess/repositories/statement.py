@@ -1,20 +1,16 @@
 """Vitess statement repository for statement operations."""
 
 import logging
-from typing import Any
 
 from models.common import OperationResult
+from models.infrastructure.vitess.repository import Repository
 
 logger = logging.getLogger(__name__)
 
 
-class StatementRepository:
+class StatementRepository(Repository):
     """Repository for statement-related database operations."""
 
-    def __init__(self, connection_manager: Any) -> None:
-        self.connection_manager = connection_manager
-
-    
     def insert_content(self, content_hash: int) -> OperationResult:
         """Insert statement content hash if it doesn't exist."""
         try:
@@ -36,7 +32,6 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    
     def increment_ref_count(self, content_hash: int) -> OperationResult:
         """Increment reference count for statement content."""
         if content_hash <= 0:
@@ -58,7 +53,6 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    
     def decrement_ref_count(self, content_hash: int) -> OperationResult:
         """Decrement reference count for statement content."""
         if content_hash <= 0:
@@ -81,10 +75,7 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    
-    def get_orphaned(
-            self, older_than_days: int, limit: int
-    ) -> OperationResult:
+    def get_orphaned(self, older_than_days: int, limit: int) -> OperationResult:
         """Get orphaned statement content hashes."""
         if older_than_days <= 0 or limit <= 0:
             return OperationResult(success=False, error="Invalid parameters")
@@ -104,7 +95,6 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    
     def get_most_used(self, limit: int, min_ref_count: int = 1) -> list[int]:
         """Get most used statement content hashes."""
         with self.connection_manager.connection.cursor() as cursor:
@@ -119,7 +109,6 @@ class StatementRepository:
             result = [row[0] for row in cursor.fetchall()]
             return result
 
-    
     def get_ref_count(self, content_hash: int) -> int:
         """Get the reference count for a statement."""
         with self.connection_manager.connection.cursor() as cursor:
@@ -130,7 +119,6 @@ class StatementRepository:
             result = cursor.fetchone()
             return result[0] if result else 0
 
-    
     def delete_content(self, content_hash: int) -> None:
         """Delete statement content when ref_count reaches 0."""
         with self.connection_manager.connection.cursor() as cursor:
@@ -139,7 +127,6 @@ class StatementRepository:
                 (content_hash,),
             )
 
-    
     def get_all_statement_hashes(self) -> list[int]:
         """Get all statement content hashes."""
         with self.connection_manager.connection.cursor() as cursor:

@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from models.config.settings import settings
-from models.rest_api.clients import Clients
+from models.rest_api.state import State
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         logger.debug("Initializing clients...")
         from pathlib import Path
 
-        clients = Clients(
+        clients = State(
             s3=settings.to_s3_config(),
             vitess=settings.to_vitess_config(),
             property_registry_path=Path(settings.property_registry_path)
@@ -26,19 +26,6 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             else None,
         )
         app_.state.clients = clients
-
-        if clients.s3 and clients.s3.healthy_connection:
-            logger.debug("S3 client connected successfully")
-        else:
-            logger.warning("S3 client connection failed")
-
-        if clients.vitess and clients.vitess.healthy_connection:  # type: ignore[truthy-function]
-            logger.debug("Vitess client connected successfully")
-        else:
-            logger.warning("Vitess client connection failed")
-
-        logger.debug("Clients initialized successfully")
-
         yield
 
     except Exception as e:

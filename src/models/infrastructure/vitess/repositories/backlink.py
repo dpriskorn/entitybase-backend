@@ -1,5 +1,7 @@
 """Repository for managing entity backlinks in Vitess."""
 
+from models.infrastructure.vitess.repository import Repository
+
 """Repository for managing entity backlinks in Vitess."""
 
 import json
@@ -13,14 +15,11 @@ from models.infrastructure.vitess.backlink_entry import BacklinkRecord
 logger = logging.getLogger(__name__)
 
 
-class BacklinkRepository:
+class BacklinkRepository(Repository):
     """Repository for managing entity backlinks in Vitess."""
 
-    def __init__(self, connection_manager: Any) -> None:
-        self.connection_manager = connection_manager
-
     def insert_backlinks(
-        self, conn: Any, backlinks: list[tuple[int, int, int, str, str]]
+        self, backlinks: list[tuple[int, int, int, str, str]]
     ) -> OperationResult:
         """Insert backlinks into entity_backlinks table.
 
@@ -30,7 +29,8 @@ class BacklinkRepository:
             return OperationResult(success=True)
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            # todo replace all call to self.vitess_client in repositories with this
+            with super().cursor as cursor:
                 cursor.executemany(
                     """
                     INSERT INTO entity_backlinks
@@ -46,7 +46,7 @@ class BacklinkRepository:
             return OperationResult(success=False, error=str(e))
 
     def delete_backlinks_for_entity(
-        self, conn: Any, referencing_internal_id: int
+        self, referencing_internal_id: int
     ) -> OperationResult:
         """Delete all backlinks for a referencing entity (used for updates)."""
         if referencing_internal_id <= 0:
@@ -65,7 +65,7 @@ class BacklinkRepository:
             return OperationResult(success=False, error=str(e))
 
     def get_backlinks(
-        self, conn: Any, referenced_internal_id: int, limit: int = 100, offset: int = 0
+        self, referenced_internal_id: int, limit: int = 100, offset: int = 0
     ) -> list[BacklinkRecord]:
         """Get backlinks for an entity."""
         logger.debug(

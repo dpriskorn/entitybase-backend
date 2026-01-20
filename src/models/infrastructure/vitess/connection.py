@@ -14,7 +14,7 @@ class VitessConnectionManager(BaseModel):
     connection: Connection | None = Field(default=None)
     model_config = {"arbitrary_types_allowed": True}
 
-    def __del__(self):
+    def __del__(self) -> None:
         """Deconstructor that disconnect from the database"""
         self.disconnect()
 
@@ -27,12 +27,12 @@ class VitessConnectionManager(BaseModel):
     def connect(self) -> None:
         if self.connection is None:
             self.connection = pymysql.connect(
-                    host=self.config.host,
-                    port=self.config.port,
-                    user=self.config.user,
-                    passwd=self.config.password,
-                    database=self.config.database,
-                    autocommit=True,
+                host=self.config.host,
+                port=self.config.port,
+                user=self.config.user,
+                passwd=self.config.password,
+                database=self.config.database,
+                autocommit=True,
             )
 
     @property
@@ -50,7 +50,7 @@ class VitessConnectionManager(BaseModel):
         except Exception:
             return False
 
-    def disconnect(self):
+    def disconnect(self) -> None:
         if self.connection is not None:
             self.connection.close()
             self.connection = None

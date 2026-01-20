@@ -15,7 +15,7 @@ class TestMetadataRepository:
         conn.cursor = Mock(return_value=cursor)
         cursor.__exit__ = Mock(return_value=None)
 
-        self.repository.insert_metadata_content(conn, 12345, "labels")
+        self.repository.insert_metadata_content(12345, "labels")
 
         cursor.execute.assert_called_with(
             """
@@ -34,7 +34,7 @@ class TestMetadataRepository:
         cursor.__exit__ = Mock(return_value=None)
         cursor.fetchone.return_value = (5,)  # ref_count = 5
 
-        result = self.repository.get_metadata_content(conn, 12345, "labels")
+        result = self.repository.get_metadata_content(12345, "labels")
 
         cursor.execute.assert_called_with(
             "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
@@ -50,7 +50,7 @@ class TestMetadataRepository:
         cursor.__exit__ = Mock(return_value=None)
         cursor.fetchone.return_value = None
 
-        result = self.repository.get_metadata_content(conn, 12345, "labels")
+        result = self.repository.get_metadata_content(12345, "labels")
 
         assert result is None
 
@@ -62,7 +62,7 @@ class TestMetadataRepository:
         cursor.__exit__ = Mock(return_value=None)
         cursor.fetchone.return_value = (3,)  # ref_count = 3 after decrement
 
-        result = self.repository.decrement_ref_count(conn, 12345, "labels")
+        result = self.repository.decrement_ref_count(12345, "labels")
 
         cursor.execute.assert_any_call(
             """
@@ -86,7 +86,7 @@ class TestMetadataRepository:
         cursor.__exit__ = Mock(return_value=None)
         cursor.fetchone.return_value = (0,)  # ref_count = 0 after decrement
 
-        result = self.repository.decrement_ref_count(conn, 12345, "labels")
+        result = self.repository.decrement_ref_count(12345, "labels")
 
         assert result is True
 
@@ -97,7 +97,7 @@ class TestMetadataRepository:
         conn.cursor = Mock(return_value=cursor)
         cursor.__exit__ = Mock(return_value=None)
 
-        self.repository.delete_metadata_content(conn, 12345, "labels")
+        self.repository.delete_metadata_content(12345, "labels")
 
         cursor.execute.assert_called_with(
             "DELETE FROM metadata_content WHERE content_hash = %s AND content_type = %s AND ref_count <= 0",
@@ -112,7 +112,7 @@ class TestMetadataRepository:
         cursor.__exit__ = Mock(return_value=None)
         conn.cursor.return_value.__exit__.return_value = None
 
-        self.repository.insert_metadata_content(conn, 12345, "labels")
+        self.repository.insert_metadata_content(12345, "labels")
 
         conn.cursor.assert_called_once()
 

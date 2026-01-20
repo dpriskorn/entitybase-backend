@@ -21,7 +21,7 @@ async def get_batch_sitelinks(hashes: str, req: Request) -> dict[str, str]:
     for h in hash_list:
         try:
             hash_value = int(h.strip())
-            title = clients.s3.load_sitelink_metadata(hash_value)
+            title = clients.s3_config.load_sitelink_metadata(hash_value)
             if title:
                 result[h] = title
         except ValueError:
@@ -42,7 +42,7 @@ async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
     for h in hash_list:
         try:
             hash_value = int(h.strip())
-            label = clients.s3.load_metadata("labels", hash_value)
+            label = clients.s3_config.load_metadata("labels", hash_value)
             if label:
                 result[h] = label
         except ValueError:
@@ -65,7 +65,7 @@ async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
     for h in hash_list:
         try:
             hash_value = int(h.strip())
-            desc = clients.s3.load_metadata("descriptions", hash_value)
+            desc = clients.s3_config.load_metadata("descriptions", hash_value)
             if desc:
                 result[h] = desc
         except ValueError:
@@ -88,7 +88,7 @@ async def get_batch_aliases(hashes: str, req: Request) -> dict[str, list[str]]:
     for h in hash_list:
         try:
             hash_value = int(h.strip())
-            aliases = clients.s3.load_metadata("aliases", hash_value)
+            aliases = clients.s3_config.load_metadata("aliases", hash_value)
             if aliases:
                 result[h] = aliases
         except ValueError:
@@ -118,7 +118,7 @@ async def get_batch_statements(
         try:
             # Get entity revision
             handler = EntityReadHandler()
-            entity_response = handler.get_entity(entity_id, clients.vitess, clients.s3)
+            entity_response = handler.get_entity(entity_id, clients.vitess_config, clients.s3_config)
             statements = entity_response.entity_data.get("statements", {})
             if property_list:
                 filtered = {p: statements.get(p, []) for p in property_list}

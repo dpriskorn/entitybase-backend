@@ -7,9 +7,15 @@ pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")
 
-from models.rest_api.entitybase.v1.handlers.user_preferences import UserPreferencesHandler
-from models.rest_api.entitybase.v1.request.user_preferences import UserPreferencesRequest
-from models.rest_api.entitybase.v1.response.user_preferences import UserPreferencesResponse
+from models.rest_api.entitybase.v1.handlers.user_preferences import (
+    UserPreferencesHandler,
+)
+from models.rest_api.entitybase.v1.request.user_preferences import (
+    UserPreferencesRequest,
+)
+from models.rest_api.entitybase.v1.response.user_preferences import (
+    UserPreferencesResponse,
+)
 
 
 class TestUserPreferencesHandler:
