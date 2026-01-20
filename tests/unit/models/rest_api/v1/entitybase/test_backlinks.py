@@ -3,6 +3,8 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi import HTTPException
 
+from models.rest_api.state import State
+
 pytestmark = pytest.mark.unit
 
 from models.rest_api.entitybase.v1.handlers.entity.backlinks import BacklinkHandler
@@ -13,7 +15,7 @@ class TestBacklinkHandler:
     @pytest.mark.asyncio
     async def test_get_backlinks_success(self):
         """Test successful backlinks retrieval."""
-        handler = BacklinkHandler()
+        handler = BacklinkHandler(state=State())
 
         # Mock vitess client
         mock_vitess = MagicMock()
@@ -42,7 +44,7 @@ class TestBacklinkHandler:
     @pytest.mark.asyncio
     async def test_get_backlinks_entity_not_found(self):
         """Test backlinks retrieval for non-existent entity."""
-        handler = BacklinkHandler()
+        handler = BacklinkHandler(state=State())
 
         mock_vitess = MagicMock()
         mock_conn = MagicMock()
@@ -58,7 +60,7 @@ class TestBacklinkHandler:
     @pytest.mark.asyncio
     async def test_get_backlinks_no_backlinks(self):
         """Test backlinks retrieval with no backlinks."""
-        handler = BacklinkHandler()
+        handler = BacklinkHandler(state=State())
 
         mock_vitess = MagicMock()
         mock_conn = MagicMock()
@@ -75,7 +77,7 @@ class TestBacklinkHandler:
     @pytest.mark.asyncio
     async def test_get_backlinks_resolve_entity_id_failure(self):
         """Test backlinks when entity ID resolution fails."""
-        handler = BacklinkHandler()
+        handler = BacklinkHandler(state=State())
 
         mock_vitess = MagicMock()
         mock_conn = MagicMock()
