@@ -64,50 +64,53 @@ def test_parse_q42_comprehensive() -> None:
 
     assert isinstance(entity.statements, EntityStatementsResponse)
     assert len(entity.statements.data) == 332
-    unique_properties = len(set(stmt.property for stmt in entity.statements))
+    unique_properties = len(set(stmt['property'] for stmt in entity.statements.data))
     assert unique_properties == 293
 
-    p31_statements = [stmt for stmt in entity.statements if stmt.property == "P31"]
+    p31_statements = [stmt for stmt in entity.statements.data if stmt['property'] == "P31"]
     assert len(p31_statements) > 0
-    assert p31_statements[0].value.kind == ValueKind.ENTITY
-    assert p31_statements[0].value.value == "Q5"
+    datavalue = p31_statements[0]['mainsnak']['datavalue']
+    assert datavalue['type'] == 'wikibase-entityid'
+    assert datavalue['value']['id'] == "Q5"
 
-    p569_statements = [stmt for stmt in entity.statements if stmt.property == "P569"]
+    p569_statements = [stmt for stmt in entity.statements.data if stmt['property'] == "P569"]
     assert len(p569_statements) > 0
-    assert p569_statements[0].value.kind == ValueKind.TIME
-    assert p569_statements[0].value.value == "+1952-03-11T00:00:00Z"
-    assert p569_statements[0].value.precision == 11
+    datavalue = p569_statements[0]['mainsnak']['datavalue']
+    assert datavalue['type'] == 'time'
+    assert datavalue['value']['time'] == "+1952-03-11T00:00:00Z"
+    assert datavalue['value']['precision'] == 11
 
-    p570_statements = [stmt for stmt in entity.statements if stmt.property == "P570"]
+    p570_statements = [stmt for stmt in entity.statements.data if stmt['property'] == "P570"]
     assert len(p570_statements) > 0
-    assert p570_statements[0].value.kind == ValueKind.TIME
-    assert p570_statements[0].value.value == "+2001-05-11T00:00:00Z"
+    datavalue = p570_statements[0]['mainsnak']['datavalue']
+    assert datavalue['type'] == 'time'
+    assert datavalue['value']['time'] == "+2001-05-11T00:00:00Z"
 
-    p106_statements = [stmt for stmt in entity.statements if stmt.property == "P106"]
+    p106_statements = [stmt for stmt in entity.statements.data if stmt['property'] == "P106"]
     assert len(p106_statements) > 1
     occupation_ids = [
-        stmt.value.value
+        stmt['mainsnak']['datavalue']['value']['id']
         for stmt in p106_statements
-        if stmt.value.kind == ValueKind.ENTITY
+        if stmt['mainsnak']['datavalue']['type'] == 'wikibase-entityid'
     ]
     assert len(occupation_ids) > 0
 
-    ranks = [stmt.rank for stmt in entity.statements]
+    ranks = [stmt['rank'] for stmt in entity.statements.data]
     assert Rank.NORMAL in ranks
     assert Rank.PREFERRED in ranks
 
-    statements_with_qualifiers = [stmt for stmt in entity.statements if stmt.qualifiers]
+    statements_with_qualifiers = [stmt for stmt in entity.statements.data if stmt.get('qualifiers')]
     assert len(statements_with_qualifiers) > 0
 
-    statements_with_references = [stmt for stmt in entity.statements if stmt.references]
+    statements_with_references = [stmt for stmt in entity.statements.data if stmt.get('references')]
     assert len(statements_with_references) > 0
 
     assert isinstance(entity.sitelinks, EntitySitelinksResponse)
     assert len(entity.sitelinks.data) == 129
-    assert "enwiki" in entity.sitelinks
-    assert entity.sitelinks.get("enwiki").site == "enwiki"
-    assert entity.sitelinks.get("enwiki").title == "Douglas Adams"
-    assert entity.sitelinks.get("enwiki").badges == []
-    assert "dewiki" in entity.sitelinks
-    assert "enwikiquote" in entity.sitelinks
-    assert "ruwiki" in entity.sitelinks
+    assert "zhwiki" in entity.sitelinks.data
+    assert entity.sitelinks.get("zhwiki").site == "zhwiki"
+    assert entity.sitelinks.get("zhwiki").title == "道格拉斯·亚当斯"
+    assert entity.sitelinks.get("zhwiki").badges == []
+    assert "dewiki" in entity.sitelinks.data
+    assert "enwikiquote" in entity.sitelinks.data
+    assert "ruwiki" in entity.sitelinks.data

@@ -128,9 +128,9 @@ class TestEntityJsonImportHandler:
         mock_transform: MagicMock,
         mock_clients: tuple[MagicMock, MagicMock, AsyncMock, MagicMock],
         sample_entity_json: dict[str, Any],
-    ) -> None:
+     ) -> None:
         """Test successful import of entities from JSONL file."""
-         stream_producer, validator = mock_clients
+        stream_producer, validator = mock_clients
 
         # Create temporary JSONL file
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:

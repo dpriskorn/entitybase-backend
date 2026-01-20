@@ -10,6 +10,7 @@ from models.rest_api.entitybase.v1.request.entity.patch_statement import (
     PatchStatementRequest,
 )
 from models.rest_api.entitybase.v1.response import EntityState
+from models.rest_api.state import State
 
 
 @pytest.mark.asyncio

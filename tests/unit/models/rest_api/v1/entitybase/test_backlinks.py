@@ -12,13 +12,25 @@ from models.rest_api.entitybase.v1.response.entity.backlinks import BacklinkResp
 
 
 class TestBacklinkHandler:
+    @pytest.fixture
+    def mock_vitess(self) -> MagicMock:
+        """Mock Vitess client"""
+        client = MagicMock()
+        client.id_resolver = MagicMock()
+        client.get_backlinks = MagicMock()
+        return client
+
+    @pytest.fixture
+    def handler(self, mock_vitess: MagicMock) -> BacklinkHandler:
+        """Create handler instance"""
+        state = MagicMock()
+        state.vitess_client = mock_vitess
+        return BacklinkHandler(state=state)
+
     @pytest.mark.asyncio
-    async def test_get_backlinks_success(self):
+    async def test_get_backlinks_success(self, handler: BacklinkHandler, mock_vitess: MagicMock):
         """Test successful backlinks retrieval."""
-        state = State()
         # Mock vitess client
-        mock_vitess = MagicMock()
-        mock_conn = MagicMock()
         mock_vitess.id_resolver.resolve_id.return_value = 123
         mock_vitess.id_resolver.resolve_entity_id.return_value = "Q456"
 
@@ -28,9 +40,6 @@ class TestBacklinkHandler:
         mock_backlink.property_id = "P31"
         mock_backlink.rank = "normal"
         mock_vitess.get_backlinks.return_value = [mock_backlink]
-
-        state.vitess_client = mock_vitess
-        handler = BacklinkHandler(state=state)
 
         result = await handler.get("Q123", limit=50, offset=10)
 
@@ -44,16 +53,9 @@ class TestBacklinkHandler:
         assert result.offset == 10
 
     @pytest.mark.asyncio
-    async def test_get_backlinks_entity_not_found(self):
+    async def test_get_backlinks_entity_not_found(self, handler: BacklinkHandler, mock_vitess: MagicMock):
         """Test backlinks retrieval for non-existent entity."""
-        state = State()
-        mock_vitess = MagicMock()
-        mock_conn = MagicMock()
-
         mock_vitess.id_resolver.resolve_id.return_value = 0  # Not found
-
-        state.vitess_client = mock_vitess
-        handler = BacklinkHandler(state=state)
 
         with pytest.raises(HTTPException) as exc_info:
             await handler.get("Q999")
@@ -62,17 +64,10 @@ class TestBacklinkHandler:
         assert "Entity not found" in exc_info.value.detail
 
     @pytest.mark.asyncio
-    async def test_get_backlinks_no_backlinks(self):
+    async def test_get_backlinks_no_backlinks(self, handler: BacklinkHandler, mock_vitess: MagicMock):
         """Test backlinks retrieval with no backlinks."""
-        state = State()
-        mock_vitess = MagicMock()
-        mock_conn = MagicMock()
-
         mock_vitess.id_resolver.resolve_id.return_value = 123
         mock_vitess.get_backlinks.return_value = []
-
-        state.vitess_client = mock_vitess
-        handler = BacklinkHandler(state=state)
 
         result = await handler.get("Q123")
 
@@ -81,12 +76,8 @@ class TestBacklinkHandler:
         assert result.offset == 0
 
     @pytest.mark.asyncio
-    async def test_get_backlinks_resolve_entity_id_failure(self):
+    async def test_get_backlinks_resolve_entity_id_failure(self, handler: BacklinkHandler, mock_vitess: MagicMock):
         """Test backlinks when entity ID resolution fails."""
-        state = State()
-        mock_vitess = MagicMock()
-        mock_conn = MagicMock()
-
         mock_vitess.id_resolver.resolve_id.return_value = 123
         mock_vitess.id_resolver.resolve_entity_id.return_value = ""  # Resolution failed
 
@@ -95,9 +86,6 @@ class TestBacklinkHandler:
         mock_backlink.property_id = "P31"
         mock_backlink.rank = "normal"
         mock_vitess.get_backlinks.return_value = [mock_backlink]
-
-        state.vitess_client = mock_vitess
-        handler = BacklinkHandler(state=state)
 
         result = await handler.get("Q123")
 

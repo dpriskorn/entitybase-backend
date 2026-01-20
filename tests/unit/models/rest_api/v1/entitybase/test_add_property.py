@@ -7,6 +7,7 @@ import pytest
 
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.v1.request.entity.add_property import AddPropertyRequest
+from models.rest_api.state import State
 
 
 @pytest.mark.asyncio

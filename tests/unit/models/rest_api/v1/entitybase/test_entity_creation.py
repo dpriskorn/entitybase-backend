@@ -28,9 +28,13 @@ class TestItemCreateHandler:
         return service
 
     @pytest.fixture
-    def handler(self, enumeration_service: EnumerationService) -> ItemCreateHandler:
+    def handler(self, enumeration_service: EnumerationService, mock_vitess_client: MagicMock, mock_s3_client: MagicMock, mock_stream_producer: MagicMock) -> ItemCreateHandler:
         """Create handler instance"""
-        return ItemCreateHandler(enumeration_service)
+        state = MagicMock()
+        state.vitess_client = mock_vitess_client
+        state.s3_client = mock_s3_client
+        state.entity_change_stream_producer = mock_stream_producer
+        return ItemCreateHandler(enumeration_service=enumeration_service, state=state)
 
     @pytest.fixture
     def mock_vitess_client(self) -> MagicMock:
@@ -78,12 +82,7 @@ class TestItemCreateHandler:
             is_deleted=False, is_archived=False
         )
 
-        result = await handler.create_entity(
-            request=request,
-            vitess_client=mock_vitess_client,
-            s3_client=mock_s3_client,
-            stream_producer=mock_stream_producer,
-        )
+        result = await handler.create_entity(request=request)
 
         # Verify vitess interactions
         mock_vitess_client.id_resolver.entity_exists.assert_called_once_with(
@@ -111,12 +110,7 @@ class TestItemCreateHandler:
         request = EntityCreateRequest(id="Q123", edit_summary="test")
 
         with pytest.raises(Exception) as exc_info:
-            await handler.create_entity(
-                request=request,
-                vitess_client=mock_vitess_client,
-                s3_client=mock_s3_client,
-                stream_producer=mock_stream_producer,
-            )
+            await handler.create_entity(request=request)
 
         assert "already exists" in str(exc_info.value)
 
@@ -132,9 +126,13 @@ class TestPropertyCreateHandler:
         return service
 
     @pytest.fixture
-    def handler(self, enumeration_service: EnumerationService) -> PropertyCreateHandler:
+    def handler(self, enumeration_service: EnumerationService, mock_vitess_client: MagicMock, mock_s3_client: MagicMock, mock_stream_producer: MagicMock) -> PropertyCreateHandler:
         """Create handler instance"""
-        return PropertyCreateHandler(enumeration_service)
+        state = MagicMock()
+        state.vitess_client = mock_vitess_client
+        state.s3_client = mock_s3_client
+        state.entity_change_stream_producer = mock_stream_producer
+        return PropertyCreateHandler(enumeration_service=enumeration_service, state=state)
 
     @pytest.fixture
     def mock_vitess_client(self) -> MagicMock:

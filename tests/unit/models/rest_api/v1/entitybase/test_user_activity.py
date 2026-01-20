@@ -3,6 +3,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from models.rest_api.state import State
+
 pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")
@@ -25,9 +27,11 @@ class TestUserActivityHandler:
         return client
 
     @pytest.fixture
-    def handler(self) -> UserActivityHandler:
+    def handler(self, mock_vitess_client: MagicMock) -> UserActivityHandler:
         """Create handler instance"""
-        return UserActivityHandler()
+        state = MagicMock()
+        state.vitess_client = mock_vitess_client
+        return UserActivityHandler(state=state)
 
     def test_get_user_activities_success(
         self, handler: UserActivityHandler, mock_vitess_client: MagicMock
@@ -44,6 +48,7 @@ class TestUserActivityHandler:
             revision_id=123,
             created_at=datetime(2023, 1, 1, 12, 0, 0),
         )
+
         mock_vitess_client.user_repository.user_exists.return_value = True
         from models.common import OperationResult
 
@@ -52,7 +57,7 @@ class TestUserActivityHandler:
         )
 
         result = handler.get_user_activities(
-            12345, mock_vitess_client, limit=30, offset=0
+            12345, limit=30, offset=0
         )
 
         assert isinstance(result, UserActivityResponse)
@@ -65,18 +70,20 @@ class TestUserActivityHandler:
         self, handler: UserActivityHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test getting activities for non-existent user"""
+
         mock_vitess_client.user_repository.user_exists.return_value = False
 
         with pytest.raises(ValueError, match="User not registered"):
-            handler.get_user_activities(12345, mock_vitess_client)
+            handler.get_user_activities(12345)
 
     def test_get_user_activities_invalid_type(
         self, handler: UserActivityHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test getting activities with invalid type"""
+
         mock_vitess_client.user_repository.user_exists.return_value = True
 
         with pytest.raises(ValueError, match="Invalid activity type"):
             handler.get_user_activities(
-                12345, mock_vitess_client, activity_type="invalid"
+                12345, activity_type="invalid"
             )

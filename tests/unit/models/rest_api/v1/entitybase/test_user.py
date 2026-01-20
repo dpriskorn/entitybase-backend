@@ -3,6 +3,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from models.rest_api.state import State
+
 pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")
@@ -23,18 +25,21 @@ class TestUserHandler:
         return client
 
     @pytest.fixture
-    def handler(self) -> UserHandler:
+    def handler(self, mock_vitess_client: MagicMock) -> UserHandler:
         """Create handler instance"""
-        return UserHandler()
+        state = MagicMock()
+        state.vitess_client = mock_vitess_client
+        return UserHandler(state=state)
 
     def test_create_user_new(
         self, handler: UserHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test creating a new user"""
         request = UserCreateRequest(user_id=12345)
+
         mock_vitess_client.user_repository.user_exists.return_value = False
 
-        result = handler.create_user(request, mock_vitess_client)
+        result = handler.create_user(request)
 
         assert isinstance(result, UserCreateResponse)
         assert result.user_id == 12345
@@ -47,9 +52,10 @@ class TestUserHandler:
     ) -> None:
         """Test creating a user that already exists"""
         request = UserCreateRequest(user_id=12345)
+
         mock_vitess_client.user_repository.user_exists.return_value = True
 
-        result = handler.create_user(request, mock_vitess_client)
+        result = handler.create_user(request)
 
         assert isinstance(result, UserCreateResponse)
         assert result.user_id == 12345
@@ -67,9 +73,10 @@ class TestUserHandler:
         mock_user = UserResponse(
             user_id=12345, created_at=datetime(2023, 1, 1), preferences=None
         )
+
         mock_vitess_client.user_repository.get_user.return_value = mock_user
 
-        result = handler.get_user(12345, mock_vitess_client)
+        result = handler.get_user(12345)
 
         assert result == mock_user
         mock_vitess_client.user_repository.get_user.assert_called_once_with(12345)
@@ -79,10 +86,11 @@ class TestUserHandler:
     ) -> None:
         """Test getting a user that doesn't exist"""
 
+
         mock_vitess_client.user_repository.get_user.return_value = None
 
         with pytest.raises(ValueError) as exc_info:
-            handler.get_user(12345, mock_vitess_client)
+            handler.get_user(12345)
 
         assert str(exc_info.value) == "User not found"
 
@@ -94,9 +102,10 @@ class TestUserHandler:
         from models.rest_api.entitybase.v1.response.user import WatchlistToggleResponse
 
         request = WatchlistToggleRequest(enabled=False)
+
         mock_vitess_client.user_repository.user_exists.return_value = True
 
-        result = handler.toggle_watchlist(12345, request, mock_vitess_client)
+        result = handler.toggle_watchlist(12345, request)
 
         assert isinstance(result, WatchlistToggleResponse)
         assert result.user_id == 12345
@@ -113,10 +122,11 @@ class TestUserHandler:
         from models.rest_api.entitybase.v1.request.user import WatchlistToggleRequest
 
         request = WatchlistToggleRequest(enabled=True)
+
         mock_vitess_client.user_repository.user_exists.return_value = False
 
         with pytest.raises(ValueError, match="User not registered"):
-            handler.toggle_watchlist(12345, request, mock_vitess_client)
+            handler.toggle_watchlist(12345, request)
 
         mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
         mock_vitess_client.user_repository.set_watchlist_enabled.assert_not_called()
