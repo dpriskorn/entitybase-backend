@@ -8,13 +8,10 @@ from typing import Any, Dict, Optional
 
 from fastapi import HTTPException
 
-from models.infrastructure.s3.client import MyS3Client
-from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.client import VitessClient
-from models.services.wikidata_import_service import WikidataImportService
-from .create import EntityCreateHandler
 from models.rest_api.entitybase.v1.request import EntityJsonImportRequest
 from models.rest_api.entitybase.v1.response import EntityJsonImportResponse
+from models.services.wikidata_import_service import WikidataImportService
+from .create import EntityCreateHandler
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,6 @@ import logging
 
 from fastapi import HTTPException
 
-from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.response import BacklinksResponse
 from models.rest_api.entitybase.v1.response.entity.backlinks import BacklinkResponse

@@ -1,7 +1,7 @@
 """Data export handlers for RDF and TTL formats."""
 
 import logging
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.response import TurtleResponse
@@ -11,8 +11,7 @@ from models.rest_api.entitybase.v1.services.rdf_service import (
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.client import MyS3Client
-    from models.infrastructure.vitess.client import VitessClient
+    pass
 
 logger = logging.getLogger(__name__)
 

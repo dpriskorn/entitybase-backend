@@ -2,9 +2,6 @@
 
 import logging
 
-from pydantic import BaseModel
-
-from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.response.misc import UserStatsData
 from models.rest_api.entitybase.v1.service import Service
 

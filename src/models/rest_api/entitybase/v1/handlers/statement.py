@@ -6,8 +6,9 @@ from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from typing_extensions import TYPE_CHECKING
 
 from models.rest_api.entitybase.v1.handler import Handler
-from models.rest_api.entitybase.v1.request.statement import StatementBatchRequest
 from models.rest_api.entitybase.v1.request.misc import CleanupOrphanedRequest
+from models.rest_api.entitybase.v1.request.statement import StatementBatchRequest
+from models.rest_api.entitybase.v1.response import CleanupOrphanedResponse
 from models.rest_api.entitybase.v1.response import (
     MostUsedStatementsResponse,
     PropertyCountsResponse,
@@ -16,11 +17,9 @@ from models.rest_api.entitybase.v1.response import (
     StatementBatchResponse,
     StatementResponse,
 )
-from models.rest_api.entitybase.v1.response import CleanupOrphanedResponse
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.client import MyS3Client
     from models.infrastructure.vitess.client import VitessClient
 
 logger = logging.getLogger(__name__)

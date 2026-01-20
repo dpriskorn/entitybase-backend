@@ -108,7 +108,7 @@ class CreationTransaction(EntityTransaction):
         edit_summary = kwargs.get("edit_summary", "")
 
         logger.info(f"[CreationTransaction] Starting event publishing for {entity_id}")
-        if stream_producer:
+        if self.state.stream_producer:
             from models.infrastructure.stream.event import EntityChangeEvent
 
             event = EntityChangeEvent(

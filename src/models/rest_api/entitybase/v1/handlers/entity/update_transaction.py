@@ -148,7 +148,7 @@ class UpdateTransaction(EntityTransaction):
         stream_producer = kwargs.get("stream_producer")
 
         logger.info(f"[UpdateTransaction] Starting event publishing for {entity_id}")
-        if stream_producer:
+        if self.state.stream_producer:
             from models.infrastructure.stream.event import EntityChangeEvent
 
             event = EntityChangeEvent(

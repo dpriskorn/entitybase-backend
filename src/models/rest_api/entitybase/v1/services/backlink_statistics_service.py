@@ -4,7 +4,6 @@ import logging
 
 from pydantic import BaseModel, Field
 
-from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.response.misc import (
     BacklinkStatisticsData,
     TopEntityByBacklinks,

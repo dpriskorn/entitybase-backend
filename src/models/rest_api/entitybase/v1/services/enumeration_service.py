@@ -2,10 +2,9 @@
 
 import logging
 
-from models.rest_api.utils import raise_validation_error
-from models.infrastructure.vitess.client import VitessClient
-from .id_range_manager import IdRangeManager
 from models.rest_api.entitybase.v1.response.misc import RangeStatuses
+from models.rest_api.utils import raise_validation_error
+from .id_range_manager import IdRangeManager
 from ..service import Service
 
 logger = logging.getLogger(__name__)

@@ -11,10 +11,8 @@ from models.infrastructure.s3.hashes.hash_maps import (
     SitelinksHashes,
     StatementsHashes,
 )
-from models.infrastructure.s3.client import MyS3Client
-from models.infrastructure.vitess.client import VitessClient
-from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.infrastructure.vitess.repositories.terms import TermsRepository
+from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.service import Service
 from models.validation.json_schema_validator import JsonSchemaValidator
 

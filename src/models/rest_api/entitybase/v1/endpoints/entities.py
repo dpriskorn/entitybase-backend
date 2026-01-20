@@ -99,7 +99,7 @@ async def get_entity_ttl_revision(
     from models.workers.entity_diff_worker import RDFSerializer
 
     state = req.app.state.state
-    revision_data = self.state.s3_client.read_revision(entity_id, revision_id)
+    revision_data = state.s3_client.read_revision(entity_id, revision_id)
 
     serializer = RDFSerializer()
     rdf_content = serializer.entity_data_to_rdf(revision_data.data, format_)
@@ -236,7 +236,7 @@ async def add_entity_property(
     # todo pass clients to the handler here
     handler = EntityHandler(state=state)
     result = await handler.add_property(
-        entity_id, property_id, request, clients.validator
+        entity_id, property_id, request, state.validator
     )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)
@@ -355,7 +355,7 @@ async def post_entity_sitelink(
     result = await update_handler.update_entity(
         entity_id,
         update_request,
-        clients.validator,
+        state.validator,
         user_id=x_user_id,
     )
 
@@ -408,7 +408,7 @@ async def put_entity_sitelink(
     result = await update_handler.update_entity(
         entity_id,
         update_request,
-        clients.validator,
+        state.validator,
         user_id=x_user_id,
     )
 
@@ -458,7 +458,7 @@ async def delete_entity_sitelink(
     result = await update_handler.update_entity(
         entity_id,
         update_request,
-        clients.validator,
+        state.validator,
         user_id=x_user_id,
     )
 

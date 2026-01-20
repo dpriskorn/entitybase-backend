@@ -6,8 +6,7 @@ from typing import TYPE_CHECKING
 from models.rest_api.entitybase.v1.handler import Handler
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.client import MyS3Client
-    from models.infrastructure.vitess.client import VitessClient
+    pass
 from models.rest_api.entitybase.v1.response import EntityListResponse
 from models.rest_api.entitybase.v1.response.misc import RawRevisionResponse
 from models.rest_api.utils import raise_validation_error

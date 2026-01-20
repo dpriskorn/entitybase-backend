@@ -104,7 +104,7 @@ class EntityRevertHandler(Handler):
         # )
 
         # Publish event
-        if stream_producer:
+        if self.state.stream_producer:
             event = EntityChangeEvent(
                 id=entity_id,
                 rev=new_revision_id,

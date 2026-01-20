@@ -7,7 +7,6 @@ from models.rest_api.entitybase.v1.handler import Handler
 
 logger = logging.getLogger(__name__)
 
-from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.response.misc import (
     GeneralStatsResponse,
     TermsByType,

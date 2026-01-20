@@ -15,6 +15,8 @@ from models.infrastructure.s3.hashes.hash_maps import (
     SitelinksHashes,
 )
 from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.stream.change_type import ChangeType
+from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.request.entity.add_property import AddPropertyRequest
 from models.rest_api.entitybase.v1.request.entity.patch_statement import (
@@ -27,19 +29,16 @@ from models.rest_api.entitybase.v1.response import StatementHashResult
 from models.rest_api.entitybase.v1.response.entity import EntityState
 from models.rest_api.entitybase.v1.response.result import RevisionIdResult
 from models.rest_api.entitybase.v1.services.hash_service import HashService
-from models.infrastructure.stream.change_type import ChangeType
-from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.utils import raise_validation_error
-from .exceptions import EntityProcessingError
 from .entity_hashing_service import EntityHashingService
 from .entity_validation_service import EntityValidationService
+from .exceptions import EntityProcessingError
 from ...handler import Handler
 from ...result import RevisionResult
+from ...services.statement_service import StatementService
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.client import MyS3Client
-    from models.infrastructure.stream.producer import StreamProducerClient
-    from models.infrastructure.vitess.client import VitessClient
+    pass
 
 logger = logging.getLogger(__name__)
 
@@ -333,8 +332,9 @@ class EntityHandler(Handler):
         """Process and store statements for the entity."""
         logger.debug("Starting statement hashing process")
         logger.info(f"Entity {entity_id}: Starting statement hashing")
+        ss = StatementService(state=self.state)
         try:
-            hash_operation = hash_entity_statements(request_data)
+            hash_operation = ss.hash_entity_statements(request_data)
             if not hash_operation.success:
                 raise_validation_error(
                     hash_operation.error or "Failed to hash statements", status_code=500
@@ -364,7 +364,7 @@ class EntityHandler(Handler):
 
         # Deduplicate and store statements
         logger.info(f"Entity {entity_id}: Starting statement deduplication and storage")
-        store_result = deduplicate_and_store_statements(
+        store_result = ss.deduplicate_and_store_statements(
             hash_result=hash_result,
             validator=validator,
             schema_version=settings.s3_statement_version,
@@ -402,20 +402,21 @@ class EntityHandler(Handler):
     ) -> OperationResult:
         """Create revision data, store it, and publish events."""
         # Process sitelinks: hash titles and store metadata
-        sitelinks_hashes = HashService.hash_sitelinks(
+        hs = HashService(state=self.state)
+        sitelinks_hashes = hs.hash_sitelinks(
             request_data.get("sitelinks", {})
         )
         # Replace sitelinks with hashes in entity data
         request_data["sitelinks"] = sitelinks_hashes.root
 
         # Process terms: hash labels, descriptions, aliases and store metadata
-        labels_hashes = HashService.hash_labels(
+        labels_hashes = hs.hash_labels(
             request_data.get("labels", {})
         )
-        descriptions_hashes = HashService.hash_descriptions(
+        descriptions_hashes = hs.hash_descriptions(
             request_data.get("descriptions", {})
         )
-        aliases_hashes = HashService.hash_aliases(
+        aliases_hashes = hs.hash_aliases(
             request_data.get("aliases", {})
         )
 
@@ -485,14 +486,14 @@ class EntityHandler(Handler):
                 )
 
         # Publish change event
-        if stream_producer:
+        if self.state.stream_producer:
             try:
                 change_type = (
                     ChangeType.CREATION
                     if is_creation
                     else edit_type_to_change_type(revision_edit_type)
                 )
-                await stream_producer.publish_change(
+                await self.state.stream_producer.publish_change(
                     EntityChangeEvent(
                         id=entity_id,
                         rev=new_revision_id,
@@ -565,7 +566,7 @@ class EntityHandler(Handler):
 
         # Check if property exists and is a property
         try:
-            read_handler = EntityReadHandler(state=state)
+            read_handler = EntityReadHandler(state=self.state)
             property_response = read_handler.get_entity(
                 property_id
             )
@@ -576,7 +577,7 @@ class EntityHandler(Handler):
 
         # Fetch current entity data
         try:
-            read_handler = EntityReadHandler(state=state)
+            read_handler = EntityReadHandler(state=self.state)
             entity_response = read_handler.get_entity(
                 entity_id
             )
@@ -600,8 +601,6 @@ class EntityHandler(Handler):
                 edit_type=EditType.UNSPECIFIED,
                 edit_summary=request.edit_summary,
                 is_creation=False,
-                vitess_client=vitess_client,
-                s3_client=s3_client,
                 stream_producer=None,  # TODO: add if needed
                 validator=validator,
             )

@@ -2,7 +2,6 @@
 
 import logging
 
-from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.handler import Handler
 
 logger = logging.getLogger(__name__)

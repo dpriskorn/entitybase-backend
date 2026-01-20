@@ -1,17 +1,12 @@
 """Handler for property update operations in the REST API."""
 
 import logging
-from typing import Any
-
 import re
+from typing import Any
 
 from models.rest_api.entitybase.v1.request import EntityUpdateRequest
 from models.rest_api.entitybase.v1.response import EntityResponse
-
 from models.rest_api.utils import raise_validation_error
-from models.infrastructure.s3.client import MyS3Client
-from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.client import VitessClient
 from ..update import EntityUpdateHandler
 
 logger = logging.getLogger(__name__)
