@@ -43,7 +43,7 @@ class EntityValidationService(BaseModel):
 
         logger.debug(f"Checking idempotency against head revision {head_revision_id}")
         try:
-            head_revision = s3_client.read_revision(entity_id, head_revision_id)
+            head_revision = self.state.s3_client.read_revision(entity_id, head_revision_id)
             head_content_hash = head_revision.data.get("content_hash")
             logger.debug(f"Head revision content hash: {head_content_hash}")
 

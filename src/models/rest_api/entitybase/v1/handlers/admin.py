@@ -52,8 +52,6 @@ class AdminHandler(Handler):
         self,
         entity_id: str,
         revision_id: int,
-        vitess_client: "VitessClient",
-        s3_client: "MyS3Client",
     ) -> RawRevisionResponse:
         """Returns raw S3 entity data for specific revision.
 
@@ -71,13 +69,13 @@ class AdminHandler(Handler):
             raise_validation_error("Vitess not initialized", status_code=503)
 
         # Check if entity exists and get history
-        if not vitess_client.entity_exists(entity_id):
+        if not self.state.vitess_client.entity_exists(entity_id):
             raise_validation_error(
                 f"Entity {entity_id} not found in ID mapping", status_code=404
             )
 
         # Check if revisions exist for entity
-        history = vitess_client.get_history(entity_id)
+        history = self.state.vitess_client.get_history(entity_id)
         if not history:
             raise_validation_error(
                 f"Entity {entity_id} has no revisions", status_code=404
@@ -95,7 +93,7 @@ class AdminHandler(Handler):
         if s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
 
-        revision = s3_client.read_full_revision(entity_id, revision_id)
+        revision = self.state.s3_client.read_full_revision(entity_id, revision_id)
 
         # Type assertion to ensure MyPy compatibility
         if not isinstance(revision.data, dict):

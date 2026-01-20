@@ -169,7 +169,7 @@ class UpdateTransaction(EntityTransaction):
         # Decrement ref_count
         self.state.vitess_client.decrement_ref_count(hash_val)
         # Check if orphaned and delete from S3
-        ref_count = vitess_client.get_ref_count(hash_val)
+        ref_count = self.state.vitess_client.get_ref_count(hash_val)
         if ref_count == 0:
             s3_client.delete_statement(hash_val)
 

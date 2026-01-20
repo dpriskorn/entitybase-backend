@@ -632,9 +632,9 @@ class EntityHandler(Handler):
         logger.info(f"Entity {entity_id}: Removing statement {statement_hash}")
 
         # Fetch current revision
-        head_revision_id = vitess_client.get_head(entity_id)
+        head_revision_id = self.state.vitess_client.get_head(entity_id)
         try:
-            revision_data = s3_client.read_revision(entity_id, head_revision_id)
+            revision_data = self.state.s3_client.read_revision(entity_id, head_revision_id)
             from models.infrastructure.s3.revision.revision_read_response import (
                 RevisionReadResponse,
             )

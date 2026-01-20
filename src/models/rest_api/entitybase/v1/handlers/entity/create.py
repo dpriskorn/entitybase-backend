@@ -68,7 +68,7 @@ class EntityCreateHandler(EntityHandler):
 
         # Check if entity already exists - for create, this should fail
         vitess_client = self.state.vitess_client
-        entity_existed = vitess_client.entity_exists(entity_id)
+        entity_existed = self.state.vitess_client.entity_exists(entity_id)
         if entity_existed:
             logger.error(f"Entity {entity_id} already exists, cannot create")
             raise_validation_error("Entity already exists", status_code=409)
@@ -77,7 +77,7 @@ class EntityCreateHandler(EntityHandler):
         self.state.vitess_client.register_entity(entity_id)
 
         # Check deletion status
-        is_deleted = vitess_client.is_entity_deleted(entity_id)
+        is_deleted = self.state.vitess_client.is_entity_deleted(entity_id)
         if is_deleted:
             raise_validation_error(
                 f"Entity {entity_id} has been deleted", status_code=410
@@ -98,7 +98,7 @@ class EntityCreateHandler(EntityHandler):
 
         # Log activity
         if user_id > 0:
-            activity_result = vitess_client.user_repository.log_user_activity(
+            activity_result = self.state.vitess_client.user_repository.log_user_activity(
                 user_id=user_id,
                 activity_type=UserActivityType.ENTITY_CREATE,
                 entity_id=entity_id,

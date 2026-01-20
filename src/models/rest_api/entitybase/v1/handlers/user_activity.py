@@ -20,7 +20,7 @@ class UserActivityHandler(Handler):
     ) -> UserActivityResponse:
         """Get user's activities."""
         # Check if user exists
-        if not vitess_client.user_repository.user_exists(user_id):
+        if not self.state.vitess_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=400)
 
         # Validate activity_type if provided
@@ -32,7 +32,7 @@ class UserActivityHandler(Handler):
         activity_type_param = (
             None if activity_type == "" else UserActivityType(activity_type)
         )
-        result = vitess_client.user_repository.get_user_activities(
+        result = self.state.vitess_client.user_repository.get_user_activities(
             user_id, activity_type_param, hours, limit, offset
         )
 

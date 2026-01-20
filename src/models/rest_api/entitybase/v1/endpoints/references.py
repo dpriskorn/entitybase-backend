@@ -38,7 +38,7 @@ async def get_references(
         raise HTTPException(status_code=400, detail="Invalid hash format")
 
     try:
-        result = s3_client.load_references_batch(rapidhashes)
+        result = self.state.s3_client.load_references_batch(rapidhashes)
         # Convert S3ReferenceData to ReferenceResponse models
         return [
             ReferenceResponse(

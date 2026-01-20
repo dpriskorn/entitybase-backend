@@ -27,7 +27,7 @@ class EntityUpdateHandler(EntityHandler):
     ) -> EntityResponse:
         """Update an existing entity with transaction rollback."""
         # Check entity exists (404 if not)
-        if not vitess_client.entity_exists(entity_id):
+        if not self.state.vitess_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
         # Check deletion status (410 if deleted)
@@ -87,7 +87,7 @@ class EntityUpdateHandler(EntityHandler):
             )
             # Log activity
             if user_id:
-                activity_result = vitess_client.user_repository.log_user_activity(
+                activity_result = self.state.vitess_client.user_repository.log_user_activity(
                     user_id=user_id,
                     activity_type=UserActivityType.ENTITY_EDIT,
                     entity_id=entity_id,

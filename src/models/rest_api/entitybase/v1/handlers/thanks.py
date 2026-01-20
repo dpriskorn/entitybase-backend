@@ -98,10 +98,10 @@ class ThanksHandler(Handler):
     ) -> ThanksListResponse:
         """Get thanks sent by user."""
         # Validate user exists
-        if not vitess_client.user_repository.user_exists(user_id):
+        if not self.state.vitess_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=400)
 
-        result = vitess_client.thanks_repository.get_thanks_sent(
+        result = self.state.vitess_client.thanks_repository.get_thanks_sent(
             user_id, request.hours, request.limit, request.offset
         )
         if not result.success:

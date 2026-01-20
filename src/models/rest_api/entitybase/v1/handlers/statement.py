@@ -30,7 +30,7 @@ class StatementHandler(Handler):
     """Handles all statement operations."""
 
     def get_statement(
-        self, content_hash: int: "MyS3Client | None"
+        self, content_hash: int
     ) -> StatementResponse:
         """Get a single statement by its hash.
 
@@ -38,7 +38,7 @@ class StatementHandler(Handler):
         """
         logger.debug(f"Getting statement {content_hash}")
 
-        if s3_client is None:
+        if self.state.s3_client is None:
             logger.error("S3 client is None - not initialized")
             raise_validation_error("S3 not initialized", status_code=503)
 
@@ -47,7 +47,7 @@ class StatementHandler(Handler):
         )
 
         try:
-            statement_data = s3_client.read_statement(content_hash)
+            statement_data = self.state.s3_client.read_statement(content_hash)
             logger.debug(f"Successfully retrieved statement {content_hash} from S3")
             return StatementResponse(  # type: ignore[call-arg]
                 schema=statement_data.schema_version,
@@ -62,7 +62,7 @@ class StatementHandler(Handler):
                     "content_hash": content_hash,
                     "error_type": type(e).__name__,
                     "error_message": str(e),
-                    "s3_client_initialized": s3_client is not None,
+                    "s3_client_initialized": self.state.s3_client is not None,
                 },
             )
             raise_validation_error(
@@ -70,7 +70,7 @@ class StatementHandler(Handler):
             )
 
     def get_statements_batch(
-        self, request: StatementBatchRequest: "MyS3Client | None"
+        self, request: StatementBatchRequest
     ) -> StatementBatchResponse:
         """Get multiple statements by their hashes.
 
@@ -87,7 +87,7 @@ class StatementHandler(Handler):
 
         for content_hash in request.hashes:
             try:
-                statement_data = s3_client.read_statement(content_hash)
+                statement_data = self.state.s3_client.read_statement(content_hash)
                 statements.append(
                     StatementResponse(  # type: ignore[call-arg]
                         schema=statement_data.schema_version,
@@ -102,7 +102,7 @@ class StatementHandler(Handler):
         return StatementBatchResponse(statements=statements, not_found=not_found)
 
     def get_entity_properties(
-        self, entity_id: str: "VitessClient": "MyS3Client"
+        self, entity_id: str
     ) -> PropertyListResponse:
         """Get list of unique property IDs for an entity's head revision.
 
@@ -111,14 +111,14 @@ class StatementHandler(Handler):
         if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
-        if not vitess_client.entity_exists(entity_id):
+        if not self.state.vitess_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        head_revision_id = vitess_client.get_head(entity_id)
+        head_revision_id = self.state.vitess_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 
-        history = vitess_client.get_history(entity_id)
+        history = self.state.vitess_client.get_history(entity_id)
         revision_record = next(
             (r for r in history if r.revision_id == head_revision_id), None
         )
@@ -128,12 +128,12 @@ class StatementHandler(Handler):
                 "Head revision not found in history", status_code=404
             )
 
-        revision_metadata = s3_client.read_full_revision(entity_id, head_revision_id)
+        revision_metadata = self.state.s3_client.read_full_revision(entity_id, head_revision_id)
         properties = revision_metadata.data.get("properties", [])  # type: ignore[attr-defined]
         return PropertyListResponse(properties=properties)
 
     def get_entity_property_counts(
-        self, entity_id: str: "VitessClient": "MyS3Client"
+        self, entity_id: str
     ) -> PropertyCountsResponse:
         """Get statement counts per property for an entity's head revision.
 
@@ -142,14 +142,14 @@ class StatementHandler(Handler):
         if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
-        if not vitess_client.entity_exists(entity_id):
+        if not self.state.vitess_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        head_revision_id = vitess_client.get_head(entity_id)
+        head_revision_id = self.state.vitess_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 
-        revision_metadata = s3_client.read_full_revision(entity_id, head_revision_id)
+        revision_metadata = self.state.s3_client.read_full_revision(entity_id, head_revision_id)
         property_counts = revision_metadata.data.get("property_counts", {})  # type: ignore[attr-defined]
         return PropertyCountsResponse(property_counts=property_counts)
 
@@ -157,8 +157,6 @@ class StatementHandler(Handler):
         self,
         entity_id: str,
         property_list: str,
-        vitess_client: "VitessClient",
-        s3_client: "MyS3Client",
     ) -> PropertyHashesResponse:
         """Get statement hashes for specific properties.
 
@@ -171,14 +169,14 @@ class StatementHandler(Handler):
         if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
-        if not vitess_client.entity_exists(entity_id):
+        if not self.state.vitess_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
-        head_revision_id = vitess_client.get_head(entity_id)
+        head_revision_id = self.state.vitess_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 
-        revision_metadata = s3_client.read_full_revision(entity_id, head_revision_id)
+        revision_metadata = self.state.s3_client.read_full_revision(entity_id, head_revision_id)
 
         requested_property_ids = [
             p.strip() for p in property_list.split(",") if p.strip()
@@ -189,7 +187,7 @@ class StatementHandler(Handler):
 
         for statement_hash in statement_hashes:
             try:
-                statement_data = s3_client.read_statement(statement_hash)
+                statement_data = self.state.s3_client.read_statement(statement_hash)
 
                 property_id = statement_data.statement["mainsnak"]["property"]
 
@@ -220,7 +218,7 @@ class StatementHandler(Handler):
         if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
-        statement_hashes = vitess_client.get_most_used_statements(
+        statement_hashes = self.state.vitess_client.get_most_used_statements(
             limit=limit, min_ref_count=min_ref_count
         )
         return MostUsedStatementsResponse(statements=statement_hashes)
@@ -228,8 +226,6 @@ class StatementHandler(Handler):
     def cleanup_orphaned_statements(
         self,
         request: CleanupOrphanedRequest,
-        vitess_client: "VitessClient",
-        s3_client: "MyS3Client",
     ) -> CleanupOrphanedResponse:
         """Clean up orphaned statements that are no longer referenced.
 
@@ -243,7 +239,7 @@ class StatementHandler(Handler):
             raise_validation_error("S3 not initialized", status_code=503)
 
         # Get orphaned statements older than specified days
-        orphaned_hashes = vitess_client.get_orphaned_statements(
+        orphaned_hashes = self.state.vitess_client.get_orphaned_statements(
             request.older_than_days, request.limit
         )
 

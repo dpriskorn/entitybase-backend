@@ -28,16 +28,16 @@ class WatchlistHandler(Handler):
     ) -> MessageResponse:
         """Add a watchlist entry."""
         # Check if user exists
-        if not vitess_client.user_repository.user_exists(request.user_id):
+        if not self.state.vitess_client.user_repository.user_exists(request.user_id):
             raise_validation_error("User not registered", status_code=400)
 
         # Check if watchlist is enabled
-        if not vitess_client.user_repository.is_watchlist_enabled(request.user_id):
+        if not self.state.vitess_client.user_repository.is_watchlist_enabled(request.user_id):
             raise_validation_error(
                 "Watchlist is disabled for this user", status_code=400
             )
 
-        result = vitess_client.watchlist_repository.add_watch(
+        result = self.state.vitess_client.watchlist_repository.add_watch(
             request.user_id, request.entity_id, request.properties
         )
         if not result.success:
@@ -46,7 +46,7 @@ class WatchlistHandler(Handler):
             )
 
         # Update activity
-        activity_result = vitess_client.user_repository.update_user_activity(
+        activity_result = self.state.vitess_client.user_repository.update_user_activity(
             request.user_id
         )
         if not activity_result.success:
@@ -67,7 +67,7 @@ class WatchlistHandler(Handler):
         self, user_id: int, watch_id: int
     ) -> MessageResponse:
         """Remove a watchlist entry by ID."""
-        result = vitess_client.watchlist_repository.remove_watch_by_id(watch_id)
+        result = self.state.vitess_client.watchlist_repository.remove_watch_by_id(watch_id)
         if not result.success:
             raise_validation_error(
                 result.error or "Failed to remove watch", status_code=404
@@ -79,16 +79,16 @@ class WatchlistHandler(Handler):
     ) -> WatchlistResponse:
         """Get user's watchlist."""
         # Check if user exists
-        if not vitess_client.user_repository.user_exists(user_id):
+        if not self.state.vitess_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=400)
 
         # Check if watchlist is enabled
-        if not vitess_client.user_repository.is_watchlist_enabled(user_id):
+        if not self.state.vitess_client.user_repository.is_watchlist_enabled(user_id):
             raise_validation_error(
                 "Watchlist is disabled for this user", status_code=400
             )
 
-        watches = vitess_client.watchlist_repository.get_watches_for_user(user_id)
+        watches = self.state.vitess_client.watchlist_repository.get_watches_for_user(user_id)
         # Update activity
         self.state.vitess_client.user_repository.update_user_activity(user_id)
         return WatchlistResponse(user_id=user_id, watches=watches)
@@ -102,16 +102,16 @@ class WatchlistHandler(Handler):
     ) -> NotificationResponse:
         """Get user's recent notifications within time span."""
         # Check if user exists
-        if not vitess_client.user_repository.user_exists(user_id):
+        if not self.state.vitess_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=400)
 
         # Check if watchlist is enabled
-        if not vitess_client.user_repository.is_watchlist_enabled(user_id):
+        if not self.state.vitess_client.user_repository.is_watchlist_enabled(user_id):
             raise_validation_error(
                 "Watchlist is disabled for this user", status_code=400
             )
 
-        notifications = vitess_client.watchlist_repository.get_user_notifications(
+        notifications = self.state.vitess_client.watchlist_repository.get_user_notifications(
             user_id, hours, limit, offset
         )
         # Update activity
@@ -131,10 +131,10 @@ class WatchlistHandler(Handler):
         self, user_id: int
     ) -> WatchCounts:
         """Get user's watch counts."""
-        entity_count = vitess_client.watchlist_repository.get_entity_watch_count(
+        entity_count = self.state.vitess_client.watchlist_repository.get_entity_watch_count(
             user_id
         )
-        property_count = vitess_client.watchlist_repository.get_property_watch_count(
+        property_count = self.state.vitess_client.watchlist_repository.get_property_watch_count(
             user_id
         )
         return WatchCounts(entity_count=entity_count, property_count=property_count)

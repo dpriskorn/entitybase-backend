@@ -38,7 +38,7 @@ class EntityRevertHandler(Handler):
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
         # Validate target revision exists
-        target_revision = vitess_client.revision_repository.get_revision(
+        target_revision = self.state.vitess_client.revision_repository.get_revision(
             internal_entity_id, request.to_revision_id
         )
         if not target_revision:
@@ -48,12 +48,12 @@ class EntityRevertHandler(Handler):
             )
 
         # Read target revision content from S3
-        target_revision_data = s3_client.read_full_revision(
+        target_revision_data = self.state.s3_client.read_full_revision(
             entity_id, request.to_revision_id
         )
 
         # Get current head revision
-        head_result = vitess_client.head_repository.get_head_revision(
+        head_result = self.state.vitess_client.head_repository.get_head_revision(
             internal_entity_id
         )
         if not head_result.success:

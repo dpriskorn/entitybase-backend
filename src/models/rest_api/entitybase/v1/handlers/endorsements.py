@@ -28,11 +28,11 @@ class EndorsementHandler(Handler):
         """Create an endorsement for a statement."""
         logger.debug(f"Endorsing statement {statement_hash} for user {user_id}")
         # Validate user exists
-        if not vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
+        if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=400)
 
         # Create endorsement via repository
-        result = vitess_client.endorsement_repository.create_endorsement(  # type: ignore[union-attr]
+        result = self.state.vitess_client.endorsement_repository.create_endorsement(  # type: ignore[union-attr]
             user_id, statement_hash
         )
         if not result.success:
@@ -97,11 +97,11 @@ class EndorsementHandler(Handler):
             f"Withdrawing endorsement for statement {statement_hash} by user {user_id}"
         )
         # Validate user exists
-        if not vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
+        if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=400)
 
         # Withdraw endorsement via repository
-        result = vitess_client.endorsement_repository.withdraw_endorsement(
+        result = self.state.vitess_client.endorsement_repository.withdraw_endorsement(
             user_id, statement_hash
         )
         if not result.success:
@@ -167,7 +167,7 @@ class EndorsementHandler(Handler):
     ) -> EndorsementListResponse:
         """Get endorsements for a statement."""
         logger.debug(f"Getting endorsements for statement {statement_hash}")
-        result = vitess_client.endorsement_repository.get_statement_endorsements(
+        result = self.state.vitess_client.endorsement_repository.get_statement_endorsements(
             statement_hash, request.limit, request.offset, request.include_removed
         )
         if not result.success:
@@ -219,10 +219,10 @@ class EndorsementHandler(Handler):
     ) -> EndorsementListResponse:
         """Get endorsements given by a user."""
         # Validate user exists
-        if not vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
+        if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=400)
 
-        result = vitess_client.endorsement_repository.get_user_endorsements(
+        result = self.state.vitess_client.endorsement_repository.get_user_endorsements(
             user_id, request.limit, request.offset, request.include_removed
         )
         if not result.success:
@@ -244,10 +244,10 @@ class EndorsementHandler(Handler):
     ) -> EndorsementStatsResponse:
         """Get endorsement statistics for a user."""
         # Validate user exists
-        if not vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
+        if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=400)
 
-        result = vitess_client.endorsement_repository.get_user_endorsement_stats(
+        result = self.state.vitess_client.endorsement_repository.get_user_endorsement_stats(
             user_id
         )
         if not result.success:

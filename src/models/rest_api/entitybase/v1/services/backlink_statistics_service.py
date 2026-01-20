@@ -76,7 +76,7 @@ class BacklinkStatisticsService(BaseModel):
                     backlink_count = row[1]
 
                     # Resolve entity ID
-                    entity_id = vitess_client.id_resolver.resolve_entity_id(internal_id)
+                    entity_id = self.state.vitess_client.id_resolver.resolve_entity_id(internal_id)
                     if entity_id:
                         results.append(
                             TopEntityByBacklinks(

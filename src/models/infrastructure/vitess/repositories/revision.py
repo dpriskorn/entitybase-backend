@@ -140,7 +140,7 @@ class RevisionRepository(Repository):
                 )
 
                 # Log the revert
-                entity_id = vitess_client.id_resolver.resolve_entity_id(
+                entity_id = self.state.vitess_client.id_resolver.resolve_entity_id(
                     conn, internal_entity_id
                 )
                 cursor.execute(
@@ -159,7 +159,7 @@ class RevisionRepository(Repository):
                 )
 
                 # Log user activity
-                activity_result = vitess_client.user_repository.log_user_activity(
+                activity_result = self.state.vitess_client.user_repository.log_user_activity(
                     user_id=reverted_by_user_id,
                     activity_type="entity_revert",
                     entity_id=entity_id,
