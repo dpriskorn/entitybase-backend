@@ -18,10 +18,10 @@ class EntityRepository:
 
     def get_head(self, conn: Any, entity_id: str) -> int:
         """Get the current head revision ID for an entity."""
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return 0
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT head_revision_id FROM entity_head WHERE internal_id = %s",
                 (internal_id,),
@@ -31,10 +31,10 @@ class EntityRepository:
 
     def is_deleted(self, conn: Any, entity_id: str) -> bool:
         """Check if an entity is marked as deleted."""
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT is_deleted FROM entity_head WHERE internal_id = %s",
                 (internal_id,),
@@ -44,10 +44,10 @@ class EntityRepository:
 
     def is_locked(self, conn: Any, entity_id: str) -> bool:
         """Check if an entity is locked for editing."""
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT is_locked FROM entity_head WHERE internal_id = %s",
                 (internal_id,),
@@ -57,10 +57,10 @@ class EntityRepository:
 
     def is_archived(self, conn: Any, entity_id: str) -> bool:
         """Check if an entity is archived."""
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT is_archived FROM entity_head WHERE internal_id = %s",
                 (internal_id,),
@@ -73,11 +73,11 @@ class EntityRepository:
     ) -> ProtectionResponse | None:
         """Get protection status information for an entity."""
         logger.debug(f"Getting protection info for entity {entity_id}")
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return None
 
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected
                        FROM entity_head
@@ -99,15 +99,15 @@ class EntityRepository:
 
     def create_entity(self, conn: Any, entity_id: str) -> None:
         """Create a new entity in the database."""
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             self.id_resolver.register_entity(conn, entity_id)
-            internal_id = self.id_resolver.resolve_id(conn, entity_id)
+            internal_id = self.id_resolver.resolve_id(entity_id)
             if not internal_id:
                 raise_validation_error(
                     f"Failed to register entity {entity_id}", status_code=500
                 )
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """INSERT INTO entity_head
                    (internal_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected, is_deleted, is_redirect)
@@ -117,20 +117,20 @@ class EntityRepository:
 
     def delete_entity(self, conn: Any, entity_id: str) -> None:
         """Delete an entity from the database."""
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "DELETE FROM entity_head WHERE internal_id = %s", (internal_id,)
             )
 
     def update_head_revision(self, conn: Any, entity_id: str, revision_id: int) -> None:
         """Update the head revision for an entity."""
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "UPDATE entity_head SET head_revision_id = %s WHERE internal_id = %s",
                 (revision_id, internal_id),

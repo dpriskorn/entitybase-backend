@@ -12,7 +12,7 @@ from models.infrastructure.s3.hashes.hash_maps import (
     StatementsHashes,
 )
 from models.infrastructure.s3.s3_client import MyS3Client
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.infrastructure.vitess.repositories.terms import TermsRepository
 from models.rest_api.entitybase.v1.services.statement_service import (

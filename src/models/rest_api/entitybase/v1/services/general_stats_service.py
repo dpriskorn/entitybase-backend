@@ -4,7 +4,7 @@ import logging
 
 from pydantic import BaseModel
 
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.response.misc import (
     GeneralStatsData,
     TermsByType,
@@ -46,7 +46,7 @@ class GeneralStatsService(BaseModel):
     def get_total_statements(self, vitess_client: VitessClient) -> int:
         """Count total statements."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM statements")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -54,7 +54,7 @@ class GeneralStatsService(BaseModel):
     def get_total_qualifiers(self, vitess_client: VitessClient) -> int:
         """Count total qualifiers."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM qualifiers")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -62,7 +62,7 @@ class GeneralStatsService(BaseModel):
     def get_total_references(self, vitess_client: VitessClient) -> int:
         """Count total references."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM references")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -70,7 +70,7 @@ class GeneralStatsService(BaseModel):
     def get_total_items(self, vitess_client: VitessClient) -> int:
         """Count total items."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM entities WHERE type = 'item'")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -78,7 +78,7 @@ class GeneralStatsService(BaseModel):
     def get_total_lexemes(self, vitess_client: VitessClient) -> int:
         """Count total lexemes."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM entities WHERE type = 'lexeme'")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -86,7 +86,7 @@ class GeneralStatsService(BaseModel):
     def get_total_properties(self, vitess_client: VitessClient) -> int:
         """Count total properties."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM entities WHERE type = 'property'")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -94,7 +94,7 @@ class GeneralStatsService(BaseModel):
     def get_total_sitelinks(self, vitess_client: VitessClient) -> int:
         """Count total sitelinks."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM sitelinks")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -102,7 +102,7 @@ class GeneralStatsService(BaseModel):
     def get_total_terms(self, vitess_client: VitessClient) -> int:
         """Count total terms (labels + descriptions + aliases)."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """
                     SELECT
@@ -118,7 +118,7 @@ class GeneralStatsService(BaseModel):
         """Count terms per language."""
         terms_per_lang: dict[str, int] = {}
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 # Labels per language
                 cursor.execute(
                     "SELECT language_code, COUNT(*) FROM labels GROUP BY language_code"
@@ -148,7 +148,7 @@ class GeneralStatsService(BaseModel):
     def get_terms_by_type(self, vitess_client: VitessClient) -> TermsByType:
         """Count terms by type (labels, descriptions, aliases)."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """
                     SELECT 'labels' AS type, COUNT(*) FROM labels

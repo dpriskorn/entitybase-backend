@@ -1,7 +1,7 @@
 import json
 import logging
 from pprint import pprint
-from typing import Any, Dict, cast
+from typing import Any, Dict
 
 import pytest
 import requests
@@ -241,7 +241,7 @@ def test_get_specific_revision(api_client: requests.Session, base_url: str) -> N
     api_client.post(f"{base_url}/entity", json=entity_data)
 
     # Create second revision
-    entity_labels2: Dict[str, Any] = cast(Dict[str, Any], entity_data["labels"]).copy()
+    entity_labels2: Dict[str, Any] = entity_data["labels"].copy()
     entity_labels2["en"]["value"] = "Updated"
     api_client.post(f"{base_url}/entity", json=entity_data)
 

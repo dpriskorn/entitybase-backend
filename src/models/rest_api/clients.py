@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import S3Config
-    from models.infrastructure.vitess.vitess_client import VitessClient
-    from models.infrastructure.vitess.vitess_config import VitessConfig
+    from models.infrastructure.vitess.client import VitessClient
+    from models.infrastructure.vitess.config import VitessConfig
 
 
 class Clients(BaseModel):
@@ -41,7 +41,7 @@ class Clients(BaseModel):
         property_registry_path: Path | None = None,
         **kwargs: str,
     ) -> None:
-        from models.infrastructure.vitess.vitess_client import VitessClient
+        from models.infrastructure.vitess.client import VitessClient
 
         super().__init__(
             s3=MyS3Client(config=s3),

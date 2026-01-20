@@ -4,7 +4,7 @@ import logging
 from fastapi import HTTPException
 from pydantic import BaseModel
 
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.response import BacklinksResponse
 from models.rest_api.entitybase.v1.response.entity.backlinks import BacklinkResponse
 
@@ -24,7 +24,7 @@ class BacklinkHandler(BaseModel):
         """Get backlinks for an entity."""
         logger.debug(f"Getting backlinks for entity {entity_id}, limit {limit}")
         with vitess_client.connection_manager.get_connection() as conn:
-            internal_id = vitess_client.id_resolver.resolve_id(conn, entity_id)
+            internal_id = vitess_client.id_resolver.resolve_id(entity_id)
             if not internal_id:
                 raise HTTPException(status_code=404, detail="Entity not found")
 
@@ -33,7 +33,7 @@ class BacklinkHandler(BaseModel):
             backlink_models = []
             for b in backlinks:
                 referencing_entity_id = vitess_client.id_resolver.resolve_entity_id(
-                    conn, b.referencing_internal_id
+                    b.referencing_internal_id
                 )
                 if referencing_entity_id:
                     backlink_models.append(

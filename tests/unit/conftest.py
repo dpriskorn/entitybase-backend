@@ -2,19 +2,17 @@ import os
 import sys
 from pathlib import Path
 
-sys.path.insert(0, "src")
-os.environ["TEST_DATA_DIR"] = str(Path(__file__).parent.parent.parent / "test_data")
-
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
+from fastapi.testclient import TestClient
+
+sys.path.insert(0, "src")
+os.environ["TEST_DATA_DIR"] = str(Path(__file__).parent.parent.parent / "test_data")
 
 # Mock S3 and DB before importing app to prevent connection attempts
 with (
     patch("boto3.client") as mock_boto_client,
     patch("pymysql.connect") as mock_db_connect,
-    patch(
-        "models.infrastructure.vitess.connection.VitessConnectionManager.connect"
-    ) as mock_vitess_connect,
     patch(
         "models.infrastructure.s3.connection.S3ConnectionManager.connect"
     ) as mock_s3_connect,
@@ -25,13 +23,8 @@ with (
     mock_client.create_bucket.return_value = None
     mock_conn = MagicMock()
     mock_db_connect.return_value = mock_conn
-    mock_conn.cursor.return_value.__enter__.return_value = MagicMock()
-    mock_conn.cursor.return_value.__exit__.return_value = None
-    mock_vitess_connect.return_value = mock_conn
     mock_s3_connect.return_value = None
     from models.rest_api.main import app
-
-from fastapi.testclient import TestClient
 
 
 @pytest.fixture(scope="session")
@@ -80,12 +73,3 @@ def mock_aiokafka():
             "aiokafka.AIOKafkaProducer", new_callable=AsyncMock
         ) as mock_producer:
             yield mock_consumer, mock_producer
-
-
-@pytest.fixture(autouse=True)
-def mock_vitess_get_connection():
-    """Mock VitessClient.get_connection to return a mock context manager."""
-    mock_context = MagicMock()
-    with patch("models.infrastructure.vitess.vitess_client.VitessClient.get_connection", return_value=mock_context):
-        mock_context.__enter__.return_value = MagicMock()
-        yield

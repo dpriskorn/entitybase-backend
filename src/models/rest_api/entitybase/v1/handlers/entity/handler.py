@@ -19,7 +19,7 @@ from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.request.entity.add_property import AddPropertyRequest
 from models.rest_api.entitybase.v1.request.entity.patch_statement import (

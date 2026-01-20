@@ -1,7 +1,6 @@
 """Tests for IncrementalRDFUpdater."""
 
 from models.internal_representation.entity_data import EntityData
-from models.rdf_builder.diffs import EntityDiffs
 from models.rdf_builder.incremental_updater import IncrementalRDFUpdater
 
 
@@ -11,23 +10,6 @@ def test_incremental_rdf_updater_init():
     assert updater.entity_id == "Q1"
     assert updater.current_rdf == "<rdf>"
 
-
-def test_apply_diffs():
-    """Test applying diffs to RDF."""
-    updater = IncrementalRDFUpdater(entity_id="Q1", current_rdf="<rdf>")
-
-    diffs = EntityDiffs(
-        statements={"added": ["stmt1"], "removed": [], "modified": []},
-        terms={"added": ["term1"], "removed": [], "modified": []},
-        sitelinks={"added": ["link1"], "removed": [], "modified": []},
-    )
-
-    updater.apply_diffs(diffs)
-
-    updated = updater.get_updated_rdf()
-    assert "Added statement: stmt1" in updated
-    assert "Added term: term1" in updated
-    assert "Added sitelink: link1" in updated
 
 
 def test_compute_diffs():

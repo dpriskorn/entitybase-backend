@@ -7,9 +7,9 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.infrastructure.s3.s3_client import MyS3Client
-from models.infrastructure.vitess.vitess_config import VitessConfig
+from models.infrastructure.vitess.config import VitessConfig
 from models.infrastructure.s3.config import S3Config
 
 

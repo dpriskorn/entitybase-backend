@@ -33,16 +33,16 @@ class UserRepository:
                 On failure (e.g., database error), success=False with an error message.
         """
         try:
-            with self.connection_manager.get_connection() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        """
-                        INSERT INTO users (user_id)
-                        VALUES (%s)
-                        ON DUPLICATE KEY UPDATE user_id = user_id
-                        """,
-                        (user_id,),
-                    )
+            
+            with self.connection_manager.connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO users (user_id)
+                    VALUES (%s)
+                    ON DUPLICATE KEY UPDATE user_id = user_id
+                    """,
+                    (user_id,),
+                )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
@@ -58,30 +58,30 @@ class UserRepository:
         Returns:
             bool: True if the user exists, False otherwise.
         """
-        with self.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT 1 FROM users WHERE user_id = %s",
-                    (user_id,),
-                )
-                return cursor.fetchone() is not None
+        
+        with self.connection_manager.connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT 1 FROM users WHERE user_id = %s",
+                (user_id,),
+            )
+            return cursor.fetchone() is not None
 
     def get_user(self, user_id: int) -> UserResponse | None:
         """Get user data by ID."""
-        with self.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT user_id, created_at, preferences FROM users WHERE user_id = %s",
-                    (user_id,),
+        
+        with self.connection_manager.connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT user_id, created_at, preferences FROM users WHERE user_id = %s",
+                (user_id,),
+            )
+            row = cursor.fetchone()
+            if row:
+                return UserResponse(
+                    user_id=row[0],
+                    created_at=row[1],
+                    preferences=row[2],
                 )
-                row = cursor.fetchone()
-                if row:
-                    return UserResponse(
-                        user_id=row[0],
-                        created_at=row[1],
-                        preferences=row[2],
-                    )
-                return None
+            return None
 
     def update_user_activity(self, user_id: int) -> OperationResult:
         """Update user's last activity timestamp."""
@@ -89,26 +89,26 @@ class UserRepository:
             return OperationResult(success=False, error="Invalid user ID")
 
         try:
-            with self.connection_manager.get_connection() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        "UPDATE users SET last_activity = NOW() WHERE user_id = %s",
-                        (user_id,),
-                    )
+            
+            with self.connection_manager.connection.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE users SET last_activity = NOW() WHERE user_id = %s",
+                    (user_id,),
+                )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
     def is_watchlist_enabled(self, user_id: int) -> bool:
         """Check if watchlist is enabled for user."""
-        with self.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "SELECT watchlist_enabled FROM users WHERE user_id = %s",
-                    (user_id,),
-                )
-                row = cursor.fetchone()
-                return bool(row[0]) if row else False
+        
+        with self.connection_manager.connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT watchlist_enabled FROM users WHERE user_id = %s",
+                (user_id,),
+            )
+            row = cursor.fetchone()
+            return bool(row[0]) if row else False
 
     def set_watchlist_enabled(self, user_id: int, enabled: bool) -> OperationResult:
         """Enable or disable watchlist for user."""
@@ -116,12 +116,12 @@ class UserRepository:
             return OperationResult(success=False, error="Invalid user ID")
 
         try:
-            with self.connection_manager.get_connection() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        "UPDATE users SET watchlist_enabled = %s WHERE user_id = %s",
-                        (enabled, user_id),
-                    )
+            
+            with self.connection_manager.connection.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE users SET watchlist_enabled = %s WHERE user_id = %s",
+                    (enabled, user_id),
+                )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
@@ -142,18 +142,6 @@ class UserRepository:
         Inserts a record into the user_activity table to record user actions
         such as edits, views, or other interactions on entities.
 
-        Args:
-            user_id: The ID of the user performing the activity. Must be positive.
-            activity_type: A string describing the type of activity (e.g., 'edit', 'view').
-            entity_id: The ID of the entity involved in the activity (e.g., 'Q42').
-            revision_id: The revision ID associated with the activity. Defaults to 0,
-                indicating no specific revision (e.g., for non-edit activities like views).
-                Pass the actual revision ID for revision-specific actions.
-
-        Returns:
-            OperationResult: Indicates success or failure of the logging operation.
-                On success, success=True. On failure, success=False with an error message.
-
         Note:
             Basic validation is performed on user_id and activity_type before insertion.
             Database errors (e.g., connection issues) are caught and returned as failures.
@@ -168,15 +156,15 @@ class UserRepository:
             )
 
         try:
-            with self.connection_manager.get_connection() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        """
-                        INSERT INTO user_activity (user_id, activity_type, entity_id, revision_id)
-                        VALUES (%s, %s, %s, %s)
-                        """,
-                        (user_id, activity_type.value, entity_id, revision_id),
-                    )
+            
+            with self.connection_manager.connection.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO user_activity (user_id, activity_type, entity_id, revision_id)
+                    VALUES (%s, %s, %s, %s)
+                    """,
+                    (user_id, activity_type.value, entity_id, revision_id),
+                )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
@@ -187,8 +175,8 @@ class UserRepository:
             return OperationResult(success=False, error="Invalid user ID")
 
         try:
-            with self.connection_manager.get_connection() as conn:
-                with conn.cursor() as cursor:
+            
+                with self.connection_manager.connection.cursor() as cursor:
                     cursor.execute(
                         "SELECT notification_limit, retention_hours FROM users WHERE user_id = %s",
                         (user_id,),
@@ -217,12 +205,12 @@ class UserRepository:
             return OperationResult(success=False, error="Invalid user ID")
 
         try:
-            with self.connection_manager.get_connection() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(
-                        "UPDATE users SET notification_limit = %s, retention_hours = %s WHERE user_id = %s",
-                        (notification_limit, retention_hours, user_id),
-                    )
+            
+            with self.connection_manager.connection.cursor() as cursor:
+                cursor.execute(
+                    "UPDATE users SET notification_limit = %s, retention_hours = %s WHERE user_id = %s",
+                    (notification_limit, retention_hours, user_id),
+                )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
@@ -252,24 +240,24 @@ class UserRepository:
             logger.debug(
                 f"Getting activities for user {user_id}, type {activity_type}, hours {hours}"
             )
-            with self.connection_manager.get_connection() as conn:
-                with conn.cursor() as cursor:
-                    query = """
-                        SELECT id, user_id, activity_type, entity_id, revision_id, created_at
-                        FROM user_activity
-                        WHERE user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
-                    """
-                    params: List[Any] = [user_id, hours]
+            
+            with self.connection_manager.connection.cursor() as cursor:
+                query = """
+                    SELECT id, user_id, activity_type, entity_id, revision_id, created_at
+                    FROM user_activity
+                    WHERE user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
+                """
+                params: List[Any] = [user_id, hours]
 
-                    if activity_type:
-                        query += " AND activity_type = %s"
-                        params.append(activity_type)
+                if activity_type:
+                    query += " AND activity_type = %s"
+                    params.append(activity_type)
 
-                    query += " ORDER BY created_at DESC LIMIT %s OFFSET %s"
-                    params.extend([limit, offset])
+                query += " ORDER BY created_at DESC LIMIT %s OFFSET %s"
+                params.extend([limit, offset])
 
-                    cursor.execute(query, params)
-                    rows = cursor.fetchall()
+                cursor.execute(query, params)
+                rows = cursor.fetchall()
 
             activities = []
             for row in rows:
@@ -290,7 +278,6 @@ class UserRepository:
 
     def insert_general_statistics(
         self,
-        conn: Any,
         date: str,
         total_statements: int,
         total_qualifiers: int,
@@ -304,20 +291,6 @@ class UserRepository:
         terms_by_type: dict[str, int],
     ) -> None:
         """Insert daily general statistics.
-
-        Args:
-            conn: Database connection
-            date: Date string in ISO format (YYYY-MM-DD)
-            total_statements: Total statements
-            total_qualifiers: Total qualifiers
-            total_references: Total references
-            total_items: Total items
-            total_lexemes: Total lexemes
-            total_properties: Total properties
-            total_sitelinks: Total sitelinks
-            total_terms: Total terms
-            terms_per_language: Terms per language dict
-            terms_by_type: Terms by type dict
 
         Raises:
             ValueError: If input validation fails
@@ -346,7 +319,7 @@ class UserRepository:
 
         logger.debug(f"Inserting general statistics for date {date}")
 
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             try:
                 cursor.execute(
                     """
@@ -386,18 +359,11 @@ class UserRepository:
 
     def insert_user_statistics(
         self,
-        conn: Any,
         date: str,
         total_users: int,
         active_users: int,
     ) -> None:
         """Insert daily user statistics.
-
-        Args:
-            conn: Database connection
-            date: Date string in ISO format (YYYY-MM-DD)
-            total_users: Total number of users
-            active_users: Number of active users
 
         Raises:
             ValueError: If input validation fails
@@ -421,7 +387,7 @@ class UserRepository:
 
         logger.debug(f"Inserting user statistics for date {date}")
 
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             try:
                 cursor.execute(
                     """

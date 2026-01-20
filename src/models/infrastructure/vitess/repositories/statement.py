@@ -14,11 +14,11 @@ class StatementRepository:
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 
-    @staticmethod
-    def insert_content(conn: Any, content_hash: int) -> OperationResult:
+    
+    def insert_content(self, content_hash: int) -> OperationResult:
         """Insert statement content hash if it doesn't exist."""
         try:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT 1 FROM statement_content WHERE content_hash = %s",
                     (content_hash,),
@@ -36,14 +36,14 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    @staticmethod
-    def increment_ref_count(conn: Any, content_hash: int) -> OperationResult:
+    
+    def increment_ref_count(self, content_hash: int) -> OperationResult:
         """Increment reference count for statement content."""
         if content_hash <= 0:
             return OperationResult(success=False, error="Invalid content hash")
 
         try:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "UPDATE statement_content SET ref_count = ref_count + 1 WHERE content_hash = %s",
                     (content_hash,),
@@ -58,15 +58,15 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    @staticmethod
-    def decrement_ref_count(conn: Any, content_hash: int) -> OperationResult:
+    
+    def decrement_ref_count(self, content_hash: int) -> OperationResult:
         """Decrement reference count for statement content."""
         if content_hash <= 0:
             return OperationResult(success=False, error="Invalid content hash")
 
         logger.debug(f"Decrementing ref count for content hash {content_hash}")
         try:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "UPDATE statement_content SET ref_count = ref_count - 1 WHERE content_hash = %s",
                     (content_hash,),
@@ -81,16 +81,16 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    @staticmethod
+    
     def get_orphaned(
-            conn: Any, older_than_days: int, limit: int
+            self, older_than_days: int, limit: int
     ) -> OperationResult:
         """Get orphaned statement content hashes."""
         if older_than_days <= 0 or limit <= 0:
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """SELECT content_hash
                             FROM statement_content
@@ -104,10 +104,10 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    @staticmethod
-    def get_most_used(conn: Any, limit: int, min_ref_count: int = 1) -> list[int]:
+    
+    def get_most_used(self, limit: int, min_ref_count: int = 1) -> list[int]:
         """Get most used statement content hashes."""
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT content_hash
                         FROM statement_content
@@ -119,10 +119,10 @@ class StatementRepository:
             result = [row[0] for row in cursor.fetchall()]
             return result
 
-    @staticmethod
-    def get_ref_count(conn: Any, content_hash: int) -> int:
+    
+    def get_ref_count(self, content_hash: int) -> int:
         """Get the reference count for a statement."""
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT ref_count FROM statement_content WHERE content_hash = %s",
                 (content_hash,),
@@ -130,19 +130,19 @@ class StatementRepository:
             result = cursor.fetchone()
             return result[0] if result else 0
 
-    @staticmethod
-    def delete_content(conn: Any, content_hash: int) -> None:
+    
+    def delete_content(self, content_hash: int) -> None:
         """Delete statement content when ref_count reaches 0."""
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "DELETE FROM statement_content WHERE content_hash = %s AND ref_count <= 0",
                 (content_hash,),
             )
 
-    @staticmethod
-    def get_all_statement_hashes(conn: Any) -> list[int]:
+    
+    def get_all_statement_hashes(self) -> list[int]:
         """Get all statement content hashes."""
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute("SELECT content_hash FROM statement_content")
             result = [row[0] for row in cursor.fetchall()]
             return result

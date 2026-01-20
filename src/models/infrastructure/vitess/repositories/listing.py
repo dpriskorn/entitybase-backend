@@ -29,7 +29,7 @@ class ListingRepository:
         self.connection_manager = connection_manager
 
     def list_locked(self, conn: Any, limit: int) -> list[EntityListing]:
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT m.entity_id, r.entity_type
                         FROM entity_head h
@@ -46,7 +46,7 @@ class ListingRepository:
             return result
 
     def list_semi_protected(self, conn: Any, limit: int) -> list[EntityListing]:
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT m.entity_id, r.entity_type
                         FROM entity_head h
@@ -65,7 +65,7 @@ class ListingRepository:
             return result
 
     def list_archived(self, conn: Any, limit: int) -> list[EntityListing]:
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT m.entity_id, r.entity_type
                         FROM entity_head h
@@ -82,7 +82,7 @@ class ListingRepository:
             return result
 
     def list_dangling(self, conn: Any, limit: int) -> list[EntityListing]:
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT m.entity_id, r.entity_type
                         FROM entity_head h
@@ -101,7 +101,7 @@ class ListingRepository:
     def _list_entities_by_edit_type(
         self, conn: Any, edit_type: str, limit: int
     ) -> list[EntityListing]:
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT DISTINCT m.entity_id, r.entity_type, r.edit_type
                         FROM entity_revisions r

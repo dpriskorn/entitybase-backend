@@ -1,24 +1,28 @@
 """Manager for Vitess database schema operations."""
+from pydantic import BaseModel
+
+from models.infrastructure.vitess.connection import VitessConnectionManager
+from models.rest_api.utils import raise_validation_error
 
 """Manager for Vitess database schema operations."""
 
 import logging
-from typing import Any
 
 logger = logging.getLogger(__name__)
 
 
-class SchemaManager:
+class SchemaManager(BaseModel):
     """Manager for creating and managing Vitess database schema."""
-
-    def __init__(self, connection_manager: Any) -> None:
-        self.connection_manager = connection_manager
+    connection_manager: VitessConnectionManager
 
     def create_tables(self) -> None:
         """Create all required database tables."""
         logger.debug("Creating database tables")
-        conn = self.connection_manager.connect()
-        cursor = conn.cursor()
+        if not self.connection_manager:
+            raise_validation_error(message="Connection manager not initialized")
+        if not self.connection_manager.connection:
+            raise_validation_error(message="Connection manager conn variable not initialized")
+        cursor = self.connection_manager.connection.cursor()
 
         cursor.execute(
             """

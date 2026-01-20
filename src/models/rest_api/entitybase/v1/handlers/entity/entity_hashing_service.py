@@ -10,7 +10,7 @@ from models.infrastructure.s3.hashes.hash_maps import (
     SitelinksHashes,
 )
 from models.infrastructure.s3.s3_client import MyS3Client
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.handlers.entity.exceptions import EntityProcessingError
 from models.rest_api.entitybase.v1.response import StatementHashResult
 from models.rest_api.entitybase.v1.services.hash_service import HashService

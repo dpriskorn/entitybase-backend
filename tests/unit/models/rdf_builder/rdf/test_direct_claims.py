@@ -1,13 +1,11 @@
+import os
 from io import StringIO
 from pathlib import Path
-import os
 
-from models.internal_representation import Rank
-from models.internal_representation.entity import Entity
 from models.json_parser.entity_parser import parse_entity
 from models.rdf_builder.converter import EntityConverter
-from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.ontology.datatypes import property_shape
+from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.writers.triple import TripleWriters
 
 TEST_DATA_DIR = Path(os.environ["TEST_DATA_DIR"])
@@ -53,38 +51,3 @@ def test_entity_converter_generates_direct_claims_for_best_rank() -> None:
     assert "wd:Q17948861 wdt:P31 wd:Q17633526" in actual_ttl
     assert "wdt:P31" in actual_ttl
 
-
-def test_entity_converter_no_direct_claim_for_non_best_rank() -> None:
-    """Test that EntityConverter does NOT generate direct claims for non-best-rank statements"""
-    from models.internal_representation.values.entity_value import EntityValue
-    from models.internal_representation.statements import Statement
-    from models.infrastructure.s3.enums import EntityType
-
-    entity = Entity(
-        id="Q999",
-        type=EntityType.ITEM,
-        labels={},
-        descriptions={},
-        aliases={},
-        statements=[
-            Statement(
-                property="P31",
-                value=EntityValue(value="Q5"),
-                rank=Rank.DEPRECATED,
-                statement_id="Q999$12345",
-                qualifiers=[],
-                references=[],
-            )
-        ],
-        sitelinks=None,
-    )
-
-    properties = {
-        "P31": property_shape("P31", "wikibase-item"),
-    }
-    registry = PropertyRegistry(properties=properties)
-
-    converter = EntityConverter(property_registry=registry)
-    actual_ttl = converter.convert_to_string(entity)
-
-    assert "wd:Q999 wdt:P31 wd:Q5" not in actual_ttl

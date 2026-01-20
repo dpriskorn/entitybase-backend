@@ -3,7 +3,7 @@
 import logging
 
 from models.infrastructure.s3.s3_client import MyS3Client
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.response.entity.entitybase import EntityResponse
 from models.rest_api.entitybase.v1.response import (
     EntityRevisionResponse,

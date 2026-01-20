@@ -21,9 +21,9 @@ def test_q120248304_conversion(full_property_registry: Any) -> None:
     entity_json = json.loads(json_path.read_text(encoding="utf-8"))
     entity = parse_entity(entity_json)
 
-    logger.info(f"Parsed entity: {entity.id}, statements: {len(entity.statements)}")
+    logger.info(f"Parsed entity: {entity.id}, statements: {len(entity.statements.data)}")
 
-    for stmt in entity.statements:
+    for stmt in entity.statements.data:
         logger.debug(f"  Property: {stmt.property}, Rank: {stmt.rank}")
 
     converter = EntityConverter(property_registry=full_property_registry)

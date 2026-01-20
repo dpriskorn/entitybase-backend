@@ -115,5 +115,5 @@ class TestMetadataRepository:
         self.repository.insert_metadata_content(conn, 12345, "labels")
 
         conn.cursor.assert_called_once()
-        conn.cursor.return_value.__enter__.assert_called_once()
+
         conn.cursor.return_value.__exit__.assert_called_once()

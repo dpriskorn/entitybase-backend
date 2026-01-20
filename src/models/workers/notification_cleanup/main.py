@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from typing import AsyncGenerator
 
 from models.config.settings import settings
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 
 
 class NotificationCleanupWorker:
@@ -66,13 +66,12 @@ class NotificationCleanupWorker:
     def _delete_old_notifications(self, cutoff_date: datetime) -> int:
         """Delete notifications older than cutoff date."""
         assert self.vitess_client is not None
-        with self.vitess_client.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    "DELETE FROM user_notifications WHERE event_timestamp < %s",
-                    (cutoff_date.isoformat() + "Z",),
-                )
-                return int(cursor.rowcount)
+        with self.vitess_client.connection_manager.connection.cursor() as cursor:
+            cursor.execute(
+                "DELETE FROM user_notifications WHERE event_timestamp < %s",
+                (cutoff_date.isoformat() + "Z",),
+            )
+            return int(cursor.rowcount)
 
     def _enforce_user_limits(self) -> int:
         """For each user with > max_per_user notifications, keep only the latest max_per_user."""
@@ -81,7 +80,7 @@ class NotificationCleanupWorker:
         # Get users with excess notifications
         assert self.vitess_client is not None
         with self.vitess_client.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 # Find users with too many notifications
                 cursor.execute(
                     """

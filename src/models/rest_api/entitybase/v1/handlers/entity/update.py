@@ -8,7 +8,7 @@ from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
 from ...request.enums import UserActivityType
 from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.utils import raise_validation_error
 from models.rest_api.entitybase.v1.request import EntityUpdateRequest
 from .handler import EntityHandler

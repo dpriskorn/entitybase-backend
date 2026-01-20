@@ -27,7 +27,7 @@ class RevisionRepository:
     ) -> None:
         """Insert a new revision for an entity."""
         logger.debug(f"Inserting revision {revision_id} for entity {entity_id}")
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
@@ -43,7 +43,7 @@ class RevisionRepository:
         user_id = data.get("user_id")
         edit_summary = data.get("edit_summary", "")
 
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes, user_id, edit_summary) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 (
@@ -69,7 +69,7 @@ class RevisionRepository:
         """Get a specific revision data."""
         logger.debug(f"Getting revision {revision_id} for entity {internal_entity_id}")
         with vitess_client.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
                     (internal_entity_id, revision_id),
@@ -111,7 +111,7 @@ class RevisionRepository:
 
         # Get next revision ID
         with vitess_client.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT COALESCE(MAX(revision_id), 0) + 1 FROM entity_revisions WHERE internal_id = %s",
                     (internal_entity_id,),
@@ -182,11 +182,11 @@ class RevisionRepository:
         """Get revision history for an entity."""
         logger.debug(f"Getting history for entity {entity_id}, limit {limit}")
 
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return []
 
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT revision_id, created_at, user_id, edit_summary FROM entity_revisions WHERE internal_id = %s ORDER BY revision_id DESC LIMIT %s OFFSET %s",
                 (internal_id, limit, offset),
@@ -213,10 +213,10 @@ class RevisionRepository:
             return OperationResult(success=False, error="Entity ID is required")
         if revision_id <= 0:
             return OperationResult(success=False, error="Invalid revision ID")
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return OperationResult(success=False, error="Entity not found")
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "DELETE FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
                 (internal_id, revision_id),
@@ -240,11 +240,11 @@ class RevisionRepository:
         logger.debug(
             f"Creating revision {revision_id} for entity {entity_id} with CAS, expected {expected_revision_id}"
         )
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
 
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """INSERT INTO entity_revisions 
                         (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
@@ -287,11 +287,11 @@ class RevisionRepository:
     def create(self, conn: Any, entity_id: str, revision_id: int, data: dict) -> None:
         """Create a new revision for an entity."""
         logger.debug(f"Creating revision {revision_id} for entity {entity_id}")
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """INSERT INTO entity_revisions 
                         (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)

@@ -4,7 +4,7 @@ import logging
 
 from pydantic import BaseModel, Field
 
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.response.misc import (
     BacklinkStatisticsData,
     TopEntityByBacklinks,
@@ -35,7 +35,7 @@ class BacklinkStatisticsService(BaseModel):
     def get_total_backlinks(self, vitess_client: VitessClient) -> int:
         """Count total backlink relationships."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM entity_backlinks")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -43,7 +43,7 @@ class BacklinkStatisticsService(BaseModel):
     def get_entities_with_backlinks(self, vitess_client: VitessClient) -> int:
         """Count entities that have incoming backlinks."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT COUNT(DISTINCT referenced_internal_id) FROM entity_backlinks"
                 )
@@ -56,7 +56,7 @@ class BacklinkStatisticsService(BaseModel):
         """Get top entities ranked by backlink count."""
         logger.debug("Getting top %d entities by backlinks", limit)
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """
                     SELECT
@@ -77,7 +77,7 @@ class BacklinkStatisticsService(BaseModel):
 
                     # Resolve entity ID
                     entity_id = vitess_client.id_resolver.resolve_entity_id(
-                        conn, internal_id
+                        internal_id
                     )
                     if entity_id:
                         results.append(

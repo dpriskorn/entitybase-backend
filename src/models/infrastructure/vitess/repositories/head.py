@@ -33,12 +33,12 @@ class HeadRepository:
         logger.debug(
             f"CAS update for entity {entity_id}, expected head {expected_head}, new head {new_head}"
         )
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return OperationResult(success=False, error="Entity not found")
 
         try:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """UPDATE entity_head
                            SET head_revision_id = %s,
@@ -77,12 +77,12 @@ class HeadRepository:
         self, conn: Any, entity_id: str, head_revision_id: int
     ) -> OperationResult:
         """Mark an entity as hard deleted."""
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return OperationResult(success=False, error=f"Entity {entity_id} not found")
 
         try:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """UPDATE entity_head
                            SET is_deleted = TRUE,
@@ -96,12 +96,12 @@ class HeadRepository:
 
     def soft_delete(self, conn: Any, entity_id: str) -> OperationResult:
         """Mark an entity as soft deleted."""
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return OperationResult(success=False, error=f"Entity {entity_id} not found")
 
         try:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """UPDATE entity_head
                             SET is_deleted = TRUE,
@@ -119,8 +119,8 @@ class HeadRepository:
             return OperationResult(success=False, error="Invalid internal entity ID")
 
         try:
-            with self.connection_manager.get_connection() as conn:
-                with conn.cursor() as cursor:
+            
+                with self.connection_manager.connection.cursor() as cursor:
                     cursor.execute(
                         """SELECT head_revision_id FROM entity_head WHERE internal_id = %s""",
                         (internal_entity_id,),

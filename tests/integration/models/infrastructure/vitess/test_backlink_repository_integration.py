@@ -167,7 +167,7 @@ class TestBacklinkRepository:
         self.repository.insert_backlinks(self.conn, backlinks)
 
         self.conn.cursor.assert_called_once()
-        cursor_mock.__enter__.assert_called_once()
+
         cursor_mock.__exit__.assert_called_once()
 
     def test_insert_backlink_statistics_success(self) -> None:

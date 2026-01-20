@@ -8,7 +8,7 @@ from models.infrastructure.s3.enums import EntityType
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.request import EntityCreateRequest
 from models.rest_api.entitybase.v1.response import EntityResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import EnumerationService
@@ -46,7 +46,7 @@ class ItemCreateHandler(EntityCreateHandler):
             logger.info(f"Using provided entity_id: {entity_id}")
             # Check if entity already exists
             with vitess_client.connection_manager.get_connection() as conn:
-                if vitess_client.id_resolver.entity_exists(conn, entity_id):
+                if vitess_client.id_resolver.entity_exists(entity_id):
                     raise_validation_error("Entity already exists", status_code=409)
         else:
             if self.enumeration_service is None:

@@ -37,4 +37,5 @@ class TestRDFReference:
     def test_rdf_reference_none_hash_raises_error(self) -> None:
         """Test that None hash raises validation error."""
         with pytest.raises(ValidationError):
+            # noinspection PyTypeChecker
             reference = Reference(hash=None)

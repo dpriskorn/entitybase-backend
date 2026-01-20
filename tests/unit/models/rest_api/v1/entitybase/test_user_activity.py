@@ -34,11 +34,12 @@ class TestUserActivityHandler:
     ) -> None:
         """Test getting user activities successfully"""
         from datetime import datetime
+        from models.rest_api.entitybase.v1.request.enums import UserActivityType
 
         mock_activity = UserActivityItemResponse(
             id=1,
             user_id=12345,
-            activity_type="entity_revert",
+            activity_type=UserActivityType.ENTITY_REVERT,
             entity_id="Q42",
             revision_id=123,
             created_at=datetime(2023, 1, 1, 12, 0, 0),

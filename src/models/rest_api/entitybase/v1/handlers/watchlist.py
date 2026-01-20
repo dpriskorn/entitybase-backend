@@ -2,7 +2,7 @@
 
 import logging
 
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 
 logger = logging.getLogger(__name__)
 from models.rest_api.entitybase.v1.request.user import WatchlistRemoveRequest

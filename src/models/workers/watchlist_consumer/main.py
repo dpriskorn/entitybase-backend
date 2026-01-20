@@ -8,7 +8,7 @@ from typing import AsyncGenerator
 
 from models.config.settings import settings
 from models.infrastructure.stream.consumer import Consumer, EntityChangeEvent
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 
 
 class WatchlistConsumerWorker:
@@ -146,26 +146,25 @@ class WatchlistConsumerWorker:
         # For now, insert into user_notifications table
         # In a real system, this might trigger email/webhook
         assert self.vitess_client is not None
-        with self.vitess_client.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    INSERT INTO user_notifications
-                    (user_id, entity_id, revision_id, change_type, changed_properties, event_timestamp)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                    """,
-                    (
-                        user_id,
-                        entity_id,
-                        revision_id,
-                        change_type,
-                        json.dumps(changed_properties) if changed_properties else None,
-                        event_timestamp,
-                    ),
-                )
-                self.logger.debug(
-                    f"Created notification for user {user_id} on {entity_id}"
-                )
+        with self.vitess_client.connection_manager.connection.cursor() as cursor:
+            cursor.execute(
+                """
+                INSERT INTO user_notifications
+                (user_id, entity_id, revision_id, change_type, changed_properties, event_timestamp)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    user_id,
+                    entity_id,
+                    revision_id,
+                    change_type,
+                    json.dumps(changed_properties) if changed_properties else None,
+                    event_timestamp,
+                ),
+            )
+            self.logger.debug(
+                f"Created notification for user {user_id} on {entity_id}"
+            )
 
 
 async def main() -> None:

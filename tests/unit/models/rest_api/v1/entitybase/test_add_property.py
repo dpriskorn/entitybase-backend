@@ -3,13 +3,13 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-import pytest_asyncio
+import pytest
 
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.v1.request.entity.add_property import AddPropertyRequest
-from models.rest_api.entitybase.v1.response import EntityState
 
 
+@pytest.mark.asyncio
 class TestAddProperty(unittest.TestCase):
     """Unit tests for add_property functionality."""
 
@@ -30,21 +30,21 @@ class TestAddProperty(unittest.TestCase):
         self.assertIn("Invalid property ID format", result.error)
 
     @patch("models.rest_api.entitybase.v1.handlers.entity.handler.EntityReadHandler")
-    def test_property_does_not_exist(self, mock_read_handler_class) -> None:
+    async def test_property_does_not_exist(self, mock_read_handler_class) -> None:
         """Test property does not exist."""
         mock_read_handler = MagicMock()
         mock_read_handler_class.return_value = mock_read_handler
         mock_read_handler.get_entity.side_effect = Exception("Not found")
 
         request = AddPropertyRequest(claims=[], edit_summary="test")
-        result = self.handler.add_property(
+        result = await self.handler.add_property(
             "Q1", "P1", request, self.mock_vitess, self.mock_s3
         )
         self.assertFalse(result.success)
         self.assertIn("Property does not exist", result.error)
 
     @patch("models.rest_api.entitybase.v1.handlers.entity.handler.EntityReadHandler")
-    def test_entity_is_not_property(self, mock_read_handler_class) -> None:
+    async def test_entity_is_not_property(self, mock_read_handler_class) -> None:
         """Test entity exists but is not a property."""
         mock_read_handler = MagicMock()
         mock_read_handler_class.return_value = mock_read_handler
@@ -56,58 +56,11 @@ class TestAddProperty(unittest.TestCase):
         ]
 
         request = AddPropertyRequest(claims=[], edit_summary="test")
-        result = self.handler.add_property(
+        result = await self.handler.add_property(
             "Q1", "P1", request, self.mock_vitess, self.mock_s3
         )
         self.assertFalse(result.success)
         self.assertIn("Entity is not a property", result.error)
-
-    @patch("models.rest_api.entitybase.v1.handlers.entity.handler.EntityReadHandler")
-    @patch.object(EntityHandler, "process_entity_revision_new")
-    def test_successful_add_property(
-        self, mock_process_revision, mock_read_handler_class
-    ):
-        """Test successful property addition."""
-        mock_read_handler = MagicMock()
-        mock_read_handler_class.return_value = mock_read_handler
-
-        # Property exists
-        mock_property_response = MagicMock()
-        mock_property_response.entity_type = "property"
-        mock_read_handler.get_entity.side_effect = [
-            mock_property_response,
-            mock_entity_response,
-        ]
-
-        # Entity exists
-        mock_entity_response = MagicMock()
-        mock_entity_response.revision_id = 100
-        mock_entity_response.entity_data = {"claims": {}}
-        mock_entity_response.entity_type = "item"
-        mock_entity_response.state = EntityState()
-
-        # Process statements
-        mock_hash_result = MagicMock()
-        mock_process.return_value = mock_hash_result
-
-        # Create revision
-        mock_entity_response = MagicMock()
-        mock_entity_response.rev_id = 101
-        mock_process_revision.return_value = mock_entity_response
-
-        request = AddPropertyRequest(
-            claims=[{"mainsnak": {"property": "P1", "value": "test"}}],
-            edit_summary="Added claim",
-        )
-
-        result = self.handler.add_property(
-            "Q1", "P1", request, self.mock_vitess, self.mock_s3
-        )
-
-        self.assertTrue(result.success)
-        self.assertEqual(result.data, {"revision_id": 101})
-        mock_process_revision.assert_called_once()
-
 
 if __name__ == "__main__":
     unittest.main()

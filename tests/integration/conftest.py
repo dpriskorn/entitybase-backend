@@ -12,6 +12,7 @@ def db_conn():
     """Database connection for cleanup"""
     # Wait for DB to be ready
     max_retries = 30
+    conn = None
     for attempt in range(max_retries):
         try:
             conn = pymysql.connect(

@@ -30,7 +30,7 @@ class BacklinkRepository:
             return OperationResult(success=True)
 
         try:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.executemany(
                     """
                     INSERT INTO entity_backlinks
@@ -55,7 +55,7 @@ class BacklinkRepository:
             )
 
         try:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "DELETE FROM entity_backlinks WHERE referencing_internal_id = %s",
                     (referencing_internal_id,),
@@ -71,7 +71,7 @@ class BacklinkRepository:
         logger.debug(
             f"Getting backlinks for internal_id {referenced_internal_id}, limit {limit}"
         )
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """
                 SELECT referencing_internal_id, statement_hash, property_id, rank
@@ -143,7 +143,7 @@ class BacklinkRepository:
                 f"Failed to serialize top_entities_by_backlinks: {e}", status_code=400
             )
 
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             try:
                 cursor.execute(
                     """

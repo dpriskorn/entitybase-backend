@@ -4,7 +4,7 @@ import logging
 
 from pydantic import BaseModel
 
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.response.misc import UserStatsData
 
 logger = logging.getLogger(__name__)
@@ -26,7 +26,7 @@ class UserStatsService(BaseModel):
     def get_total_users(self, vitess_client: VitessClient) -> int:
         """Count total users."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM users")
                 result = cursor.fetchone()
                 return result[0] if result else 0
@@ -34,7 +34,7 @@ class UserStatsService(BaseModel):
     def get_active_users(self, vitess_client: VitessClient) -> int:
         """Count active users (active in last 30 days)."""
         with vitess_client.connection_manager.get_connection() as conn:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT COUNT(*) FROM users WHERE last_activity >= DATE_SUB(NOW(), INTERVAL 30 DAY)"
                 )

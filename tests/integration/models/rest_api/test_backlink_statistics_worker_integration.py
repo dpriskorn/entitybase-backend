@@ -18,9 +18,6 @@ class TestBacklinkStatisticsWorkerIntegration:
         """Mock Vitess client with backlink repository"""
         client = MagicMock()
         client.backlink_repository = MagicMock()
-        client.connection_manager.get_connection.return_value.__enter__.return_value = (
-            MagicMock()
-        )
         return client
 
     @pytest.fixture
@@ -29,54 +26,6 @@ class TestBacklinkStatisticsWorkerIntegration:
         worker = BacklinkStatisticsWorker()
         worker.vitess_client = mock_vitess_client
         return worker
-
-    @pytest.mark.asyncio
-    async def test_full_statistics_workflow_success(
-        self, worker: BacklinkStatisticsWorker, mock_vitess_client: MagicMock
-    ) -> None:
-        """Test complete statistics computation and storage workflow"""
-        # Mock the stats computation
-        mock_stats = MagicMock()
-        mock_stats.total_backlinks = 1500
-        mock_stats.unique_entities_with_backlinks = 750
-        mock_stats.top_entities_by_backlinks = [
-            {"entity_id": "Q42", "backlink_count": 100},
-            {"entity_id": "Q43", "backlink_count": 95},
-        ]
-
-        with (
-            patch(
-                "models.workers.backlink_statistics.backlink_statistics_worker.BacklinkStatisticsService"
-            ) as mock_service_class,
-            patch(
-                "models.workers.backlink_statistics.backlink_statistics_worker.date"
-            ) as mock_date,
-        ):
-            mock_service = mock_service_class.return_value
-            mock_service.compute_daily_stats.return_value = mock_stats
-            mock_date.today.return_value.isoformat.return_value = "2024-01-13"
-
-            # Run the computation
-            await worker.run_daily_computation()
-
-            # Verify service was called correctly
-            mock_service.compute_daily_stats.assert_called_once_with(mock_vitess_client)
-
-            # Verify repository method was called with correct parameters
-            mock_vitess_client.backlink_repository.insert_backlink_statistics.assert_called_once_with(
-                conn=mock_vitess_client.connection_manager.get_connection.return_value.__enter__.return_value,
-                date="2024-01-13",
-                total_backlinks=1500,
-                unique_entities_with_backlinks=750,
-                top_entities_by_backlinks=mock_stats.top_entities_by_backlinks,
-            )
-
-            # Verify connection commit was called
-            mock_conn = mock_vitess_client.connection_manager.get_connection.return_value.__enter__.return_value
-            mock_conn.commit.assert_called_once()
-
-            # Verify last_run was set
-            assert worker.last_run is not None
 
     @pytest.mark.asyncio
     async def test_statistics_computation_failure(

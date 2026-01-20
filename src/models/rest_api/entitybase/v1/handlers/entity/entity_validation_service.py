@@ -6,7 +6,7 @@ from typing import Any, Dict
 from pydantic import BaseModel
 
 from models.infrastructure.s3.s3_client import MyS3Client
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.response import EntityResponse
 from models.rest_api.entitybase.v1.response.entity import EntityState
 from models.rest_api.utils import raise_validation_error

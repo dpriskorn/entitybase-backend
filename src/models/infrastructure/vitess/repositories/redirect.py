@@ -27,7 +27,7 @@ class RedirectRepository:
         logger.debug(
             f"Setting redirect target for {entity_id} to {redirects_to_entity_id}"
         )
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return OperationResult(success=False, error=f"Entity {entity_id} not found")
 
@@ -42,7 +42,7 @@ class RedirectRepository:
                 )
 
         try:
-            with conn.cursor() as cursor:
+            with self.connection_manager.connection.cursor() as cursor:
                 if expected_redirects_to != 0:
                     cursor.execute(
                         "UPDATE entity_head SET redirects_to = %s WHERE internal_id = %s AND redirects_to = %s",
@@ -90,7 +90,7 @@ class RedirectRepository:
                 f"Target entity {redirect_to_entity_id} not found", status_code=404
             )
 
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """INSERT INTO entity_redirects
                        (redirect_from_id, redirect_to_id, created_by)
@@ -100,11 +100,11 @@ class RedirectRepository:
 
     def get_incoming_redirects(self, conn: Any, entity_id: str) -> list[str]:
         """Get entities that redirect to the given entity."""
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return []
 
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT m.entity_id
                        FROM entity_redirects r
@@ -117,10 +117,10 @@ class RedirectRepository:
 
     def get_target(self, conn: Any, entity_id: str) -> str:
         """Get the redirect target for an entity."""
-        internal_id = self.id_resolver.resolve_id(conn, entity_id)
+        internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return ""
-        with conn.cursor() as cursor:
+        with self.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 """SELECT m.entity_id
                        FROM entity_head h

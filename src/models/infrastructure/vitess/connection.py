@@ -1,37 +1,48 @@
 """Vitess database connection management."""
 
 import pymysql
-from pydantic import Field
+from pydantic import Field, BaseModel
+from pymysql.connections import Connection
 
-from models.infrastructure.connection import ConnectionManager
-from models.infrastructure.vitess.vitess_config import VitessConfig
+from models.infrastructure.vitess.config import VitessConfig
 
 
-class VitessConnectionManager(ConnectionManager):
+class VitessConnectionManager(BaseModel):
     """Vitess connection manager that ensures connections are properly opened and closed."""
 
     config: VitessConfig
-    conn: pymysql.Connection = Field(default=None)
+    connection: Connection | None = Field(default=None)
+    model_config = {"arbitrary_types_allowed": True}
 
-    def __enter__(self) -> None:
+    def __del__(self):
+        """Deconstructor that disconnect from the database"""
+        self.disconnect()
+
+    def __init__(self, config: VitessConfig) -> None:
         """Create a new database connection."""
-        if self.conn is None:
-            self.conn = pymysql.connect(
-                host=self.config.host,
-                port=self.config.port,
-                user=self.config.user,
-                passwd=self.config.password,
-                database=self.config.database,
-                autocommit=True,
+        super().__init__(config=config)
+        self.config = config
+        self.connect()
+
+    def connect(self) -> None:
+        if self.connection is None:
+            self.connection = pymysql.connect(
+                    host=self.config.host,
+                    port=self.config.port,
+                    user=self.config.user,
+                    passwd=self.config.password,
+                    database=self.config.database,
+                    autocommit=True,
             )
 
     @property
     def healthy_connection(self) -> bool:
         """Check if the database connection is healthy."""
+        if self.connection is None:
+            self.connect()
         # noinspection PyBroadException
         try:
-            conn = self.connect()
-            cursor = conn.cursor()
+            cursor = self.connection.cursor()
             cursor.execute("SELECT 1")
             cursor.fetchone()
             cursor.close()
@@ -39,14 +50,7 @@ class VitessConnectionManager(ConnectionManager):
         except Exception:
             return False
 
-    # @contextmanager
-    # def get_connection(self) -> Generator[Any, None, None]:
-    #     """Context manager for database connection."""
-    #     conn = self.connect()
-    #     try:
-    #         yield conn
-    #     finally:
-    #         conn.close()  # Close connection after use
-
-    def __exit__(self):
-        self.conn.close()
+    def disconnect(self):
+        if self.connection is not None:
+            self.connection.close()
+            self.connection = None

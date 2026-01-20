@@ -9,7 +9,7 @@ from datetime import datetime, time, timedelta, timezone
 from pydantic import BaseModel, Field
 
 from models.config.settings import settings
-from models.infrastructure.vitess.vitess_client import VitessClient
+from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.response import WorkerHealthCheckResponse
 
 logger = logging.getLogger(__name__)

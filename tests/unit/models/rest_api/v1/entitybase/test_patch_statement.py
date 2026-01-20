@@ -3,6 +3,8 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
+import pytest
+
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.v1.request.entity.patch_statement import (
     PatchStatementRequest,
@@ -10,6 +12,7 @@ from models.rest_api.entitybase.v1.request.entity.patch_statement import (
 from models.rest_api.entitybase.v1.response import EntityState
 
 
+@pytest.mark.asyncio
 class TestPatchStatement:
     """Unit tests for patch_statement functionality."""
 

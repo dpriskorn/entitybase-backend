@@ -33,7 +33,7 @@ from models.infrastructure.stream.event import EntityChangeEvent
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import MyS3Client
-    from models.infrastructure.vitess.vitess_client import VitessClient
+    from models.infrastructure.vitess.client import VitessClient
 
 logger = logging.getLogger(__name__)
 

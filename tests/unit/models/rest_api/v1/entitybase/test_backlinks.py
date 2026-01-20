@@ -18,7 +18,6 @@ class TestBacklinkHandler:
         # Mock vitess client
         mock_vitess = MagicMock()
         mock_conn = MagicMock()
-        mock_vitess.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
         mock_vitess.id_resolver.resolve_id.return_value = 123
         mock_vitess.id_resolver.resolve_entity_id.return_value = "Q456"
 
@@ -47,7 +46,7 @@ class TestBacklinkHandler:
 
         mock_vitess = MagicMock()
         mock_conn = MagicMock()
-        mock_vitess.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+
         mock_vitess.id_resolver.resolve_id.return_value = 0  # Not found
 
         with pytest.raises(HTTPException) as exc_info:
@@ -63,7 +62,7 @@ class TestBacklinkHandler:
 
         mock_vitess = MagicMock()
         mock_conn = MagicMock()
-        mock_vitess.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+
         mock_vitess.id_resolver.resolve_id.return_value = 123
         mock_vitess.get_backlinks.return_value = []
 
@@ -80,7 +79,7 @@ class TestBacklinkHandler:
 
         mock_vitess = MagicMock()
         mock_conn = MagicMock()
-        mock_vitess.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+
         mock_vitess.id_resolver.resolve_id.return_value = 123
         mock_vitess.id_resolver.resolve_entity_id.return_value = ""  # Resolution failed
 

@@ -1,7 +1,7 @@
 from unittest.mock import Mock, patch
 from typing import Union
-from models.infrastructure.vitess.vitess_client import VitessClient
-from models.infrastructure.vitess.vitess_config import VitessConfig
+from models.infrastructure.vitess.client import VitessClient
+from models.infrastructure.vitess.config import VitessConfig
 
 
 class TestVitessClientBacklinks:
@@ -30,7 +30,7 @@ class TestVitessClientBacklinks:
         ]
 
         mock_conn = Mock()
-        self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+
 
         self.vitess_client.insert_backlinks(backlinks)
 
@@ -47,7 +47,7 @@ class TestVitessClientBacklinks:
         # Should still get connection but repository not called
         self.vitess_client.connection_manager.get_connection.assert_called_once()
         self.vitess_client.backlink_repository.insert_backlinks.assert_called_once_with(
-            self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value,
+
             backlinks,
         )
 
@@ -56,7 +56,7 @@ class TestVitessClientBacklinks:
         referencing_internal_id = 456
 
         mock_conn = Mock()
-        self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+
 
         self.vitess_client.delete_backlinks_for_entity(referencing_internal_id)
 
@@ -77,7 +77,7 @@ class TestVitessClientBacklinks:
         ]
 
         mock_conn = Mock()
-        self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+
         self.vitess_client.backlink_repository.get_backlinks.return_value = mock_results
 
         result = self.vitess_client.get_backlinks(referenced_internal_id)
@@ -95,7 +95,7 @@ class TestVitessClientBacklinks:
         mock_results: list[dict[str, Union[int, str]]] = []
 
         mock_conn = Mock()
-        self.vitess_client.connection_manager.get_connection.return_value.__enter__.return_value = mock_conn
+
         self.vitess_client.backlink_repository.get_backlinks.return_value = mock_results
 
         result = self.vitess_client.get_backlinks(referenced_internal_id, limit, offset)
@@ -113,13 +113,13 @@ class TestVitessClientBacklinks:
 
         mock_conn_manager = self.vitess_client.connection_manager
         mock_conn = Mock()
-        mock_conn_manager.get_connection.return_value.__enter__.return_value = mock_conn
+
         mock_conn_manager.get_connection.return_value.__exit__.return_value = None
 
         self.vitess_client.insert_backlinks(backlinks)
 
         mock_conn_manager.get_connection.assert_called_once()
-        mock_conn_manager.get_connection.return_value.__enter__.assert_called_once()
+
         mock_conn_manager.get_connection.return_value.__exit__.assert_called_once()
 
     def test_repository_initialization(self) -> None:

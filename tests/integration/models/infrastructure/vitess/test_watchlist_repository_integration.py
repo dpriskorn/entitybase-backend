@@ -37,9 +37,9 @@ class TestWatchlistRepository:
         """Test adding a watch"""
         mock_id_resolver.resolve_id.return_value = 1001
         mock_conn = MagicMock()
-        mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
+
         mock_cursor = MagicMock()
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
 
         repository.add_watch(12345, "Q42", ["P31"])
 
@@ -62,9 +62,9 @@ class TestWatchlistRepository:
         """Test removing a watch"""
         mock_id_resolver.resolve_id.return_value = 1001
         mock_conn = MagicMock()
-        mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
+
         mock_cursor = MagicMock()
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
 
         repository.remove_watch(12345, "Q42", ["P31"])
 
@@ -85,9 +85,9 @@ class TestWatchlistRepository:
     ) -> None:
         """Test getting watches for user"""
         mock_conn = MagicMock()
-        mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
+
         mock_cursor = MagicMock()
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
         mock_cursor.fetchall.return_value = [
             (1001, "P31"),
             (1002, ""),
@@ -120,9 +120,9 @@ class TestWatchlistRepository:
         """Test getting watchers for entity"""
         mock_id_resolver.resolve_id.return_value = 1001
         mock_conn = MagicMock()
-        mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
+
         mock_cursor = MagicMock()
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
         mock_cursor.fetchall.return_value = [
             (12345, "P31"),
             (67890, None),
@@ -141,9 +141,9 @@ class TestWatchlistRepository:
     ) -> None:
         """Test getting user notifications"""
         mock_conn = MagicMock()
-        mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
+
         mock_cursor = MagicMock()
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
         mock_cursor.fetchall.return_value = [
             (1, "Q42", 123, "edit", '["P31"]', "2023-01-01T12:00:00Z", False, None),
             (
@@ -189,9 +189,9 @@ class TestWatchlistRepository:
     ) -> None:
         """Test marking notification as checked"""
         mock_conn = MagicMock()
-        mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
+
         mock_cursor = MagicMock()
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
 
         repository.mark_notification_checked(1, 12345)
 
@@ -209,9 +209,9 @@ class TestWatchlistRepository:
     ) -> None:
         """Test getting entity watch count"""
         mock_conn = MagicMock()
-        mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
+
         mock_cursor = MagicMock()
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
         mock_cursor.fetchone.return_value = (250,)
 
         result = repository.get_entity_watch_count(12345)
@@ -227,9 +227,9 @@ class TestWatchlistRepository:
     ) -> None:
         """Test getting property watch count"""
         mock_conn = MagicMock()
-        mock_connection_manager.connect.return_value.__enter__.return_value = mock_conn
+
         mock_cursor = MagicMock()
-        mock_conn.cursor.return_value.__enter__.return_value = mock_cursor
+
         mock_cursor.fetchone.return_value = (150,)
 
         result = repository.get_property_watch_count(12345)

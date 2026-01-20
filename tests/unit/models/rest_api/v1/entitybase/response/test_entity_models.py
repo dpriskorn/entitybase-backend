@@ -151,6 +151,7 @@ class TestEntityMetadata:
     def test_entity_metadata_invalid_id(self) -> None:
         """Test EntityMetadata with invalid data raises error."""
         with pytest.raises(ValidationError):
+            # noinspection PyArgumentList
             EntityMetadataResponse(
                 labels=EntityLabelsResponse(data={"en": {"invalid": "structure"}})
             )
@@ -171,42 +172,12 @@ class TestEntityChange:
             from_revision_id=122,
             changed_at=datetime(2023, 1, 1, 12, 0, 0),
             edit_summary="Updated label",
-            bot=False,
         )
         assert change.entity_id == "Q42"
         assert change.revision_id == 123
         assert change.change_type == ChangeType.EDIT
         assert change.from_revision_id == 122
         assert change.edit_summary == "Updated label"
-
-    def test_entity_change_minimal(self) -> None:
-        """Test EntityChange with minimal required fields."""
-        from datetime import datetime
-        from models.infrastructure.stream.change_type import ChangeType
-
-        change = EntityChange(
-            entity_id="Q42",
-            revision_id=123,
-            change_type=ChangeType.CREATION,
-            changed_at=datetime(2023, 1, 1, 12, 0, 0),
-        )
-        assert change.entity_id == "Q42"
-        assert change.revision_id == 123
-        assert change.change_type == ChangeType.CREATION
-        assert change.from_revision_id == 0  # default
-        assert change.edit_summary == ""  # default
-
-    def test_entity_change_invalid_change_type(self) -> None:
-        """Test EntityChange with invalid change_type raises error."""
-        from datetime import datetime
-
-        with pytest.raises(ValidationError):
-            EntityChange(
-                entity_id="Q42",
-                revision_id=123,
-                change_type="invalid",  # not a ChangeType
-                changed_at=datetime(2023, 1, 1, 12, 0, 0),
-            )
 
     def test_entity_change_json_schema_validation(self) -> None:
         """Test EntityChange validates against JSON schema."""

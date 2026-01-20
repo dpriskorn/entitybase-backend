@@ -23,13 +23,13 @@ from models.infrastructure.vitess.repositories.watchlist import WatchlistReposit
 
 if TYPE_CHECKING:
     pass
-from models.infrastructure.vitess.vitess_config import VitessConfig
+from models.infrastructure.vitess.config import VitessConfig
 
 from models.infrastructure.client import Client
 from models.infrastructure.vitess.schema import SchemaManager
 
 if TYPE_CHECKING:
-    from models.infrastructure.vitess.vitess_config import VitessConfig
+    from models.infrastructure.vitess.config import VitessConfig
 
 logger = logging.getLogger(__name__)
 
@@ -85,8 +85,8 @@ class VitessClient(Client):
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
         logger.debug(f"Initializing VitessClient with host {config.host}")
-        self.connection_manager = VitessConnectionManager(config=config)  # type: ignore[assignment]
-        self.schema_manager = SchemaManager(self.connection_manager)
+        self.connection_manager = VitessConnectionManager(config=config)
+        self.schema_manager = SchemaManager(connection_manager=self.connection_manager)
         self.id_resolver = IdResolver(self.connection_manager)
         self.entity_repository = EntityRepository(
             self.connection_manager, self.id_resolver
@@ -122,14 +122,12 @@ class VitessClient(Client):
         """Get the user repository, creating it if necessary."""
         if self.user_repository is None:
             from models.infrastructure.vitess.repositories.user import UserRepository
-
             self.user_repository = UserRepository(self.connection_manager)
         return self.user_repository
 
     def update_head_revision(self, entity_id: str, revision_id: int) -> None:
         """Update the head revision for an entity."""
-        with self.connection_manager.get_connection() as conn:  # type: ignore
-            self.entity_repository.update_head_revision(conn, entity_id, revision_id)  # type: ignore
+        self.entity_repository.update_head_revision(conn, entity_id, revision_id)  # type: ignore
 
 
 # Import UserRepository for model_rebuild to resolve forward references

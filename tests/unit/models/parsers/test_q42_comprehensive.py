@@ -14,6 +14,7 @@ from models.rest_api.entitybase.v1.response.entity import EntityStatementsRespon
 TEST_DATA_JSON_DIR = Path(os.environ["TEST_DATA_DIR"]) / "json"
 
 
+# noinspection PyUnresolvedReferences
 def test_parse_q42_comprehensive() -> None:
     """Test comprehensive parsing of Q42.json (Douglas Adams entity)"""
     with open(TEST_DATA_JSON_DIR / "entities/Q42.json") as f:

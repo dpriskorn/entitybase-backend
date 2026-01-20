@@ -8,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 if TYPE_CHECKING:
     from models.infrastructure.s3.s3_client import S3Config
-    from models.infrastructure.vitess.vitess_client import VitessConfig
+    from models.infrastructure.vitess.client import VitessConfig
 
 
 class Settings(BaseSettings):
@@ -83,7 +83,7 @@ class Settings(BaseSettings):
         Returns:
             VitessConfig object with the settings.
         """
-        from models.infrastructure.vitess.vitess_config import VitessConfig
+        from models.infrastructure.vitess.config import VitessConfig
 
         return VitessConfig(
             host=self.vitess_host,

@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 pytestmark = pytest.mark.unit
 
@@ -18,5 +19,6 @@ class TestIdResponse:
 
     def test_id_response_validation(self) -> None:
         """Test IdResponse requires id field."""
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
+            # noinspection PyArgumentList
             IdResponse()
