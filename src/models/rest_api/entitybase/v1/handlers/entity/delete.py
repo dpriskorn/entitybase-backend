@@ -15,6 +15,7 @@ from models.infrastructure.s3.hashes.hash_maps import (
     StatementsHashes,
     HashMaps,
 )
+from models.rest_api.entitybase.v1.handler import Handler
 
 from models.rest_api.entitybase.v1.request.enums import UserActivityType
 
@@ -39,23 +40,20 @@ logger = logging.getLogger(__name__)
 
 
 # noinspection PyArgumentList
-class EntityDeleteHandler:
+class EntityDeleteHandler(Handler):
     """Handler for entity delete operations"""
 
     async def delete_entity(
         self,
         entity_id: str,
         request: EntityDeleteRequest,
-        vitess_client: "VitessClient",
-        s3_client: "MyS3Client",
-        stream_producer: StreamProducerClient | None,
         user_id: int = 0,
     ) -> EntityDeleteResponse:
         """Delete entity (soft or hard delete)."""
         if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
-        if s3_client is None:
+        if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
 
         logger.info(
@@ -69,7 +67,7 @@ class EntityDeleteHandler:
         )
 
         # Check entity exists
-        if not vitess_client.entity_exists(entity_id):
+        if not self.state.vitess_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
         # Check if entity is already deleted
@@ -78,14 +76,14 @@ class EntityDeleteHandler:
                 f"Entity {entity_id} has been deleted", status_code=410
             )
 
-        head_revision_id = vitess_client.get_head(entity_id)
+        head_revision_id = self.state.vitess_client.get_head(entity_id)
         if head_revision_id == 0:
             raise_validation_error("Entity not found", status_code=404)
 
         logger.debug(f"Current head revision for {entity_id}: {head_revision_id}")
 
         # Check protection settings
-        protection_info = vitess_client.get_protection_info(entity_id)
+        protection_info = self.state.vitess_client.get_protection_info(entity_id)
         logger.debug(f"Protection info for {entity_id}: {protection_info}")
 
         try:
@@ -107,7 +105,7 @@ class EntityDeleteHandler:
         new_revision_id = head_revision_id + 1
 
         # Read current revision to preserve entity data
-        current_revision = s3_client.read_revision(entity_id, head_revision_id)
+        current_revision = self.state.s3_client.read_revision(entity_id, head_revision_id)
 
         # Prepare deletion revision data
         revision_data = RevisionData(
@@ -164,7 +162,7 @@ class EntityDeleteHandler:
                     )
 
         # Write deletion revision to S3
-        s3_client.write_revision(
+        self.state.s3_client.write_revision(
             entity_id=entity_id,
             revision_id=new_revision_id,
             data=revision_data,
@@ -179,14 +177,14 @@ class EntityDeleteHandler:
         )
 
         # Publish change event
-        if stream_producer:
+        if self.state.stream_producer:
             try:
                 change_type = (
                     ChangeType.SOFT_DELETE
                     if request.delete_type == DeleteType.SOFT
                     else ChangeType.HARD_DELETE
                 )
-                await stream_producer.publish_change(
+                await self.state.stream_producer.publish_change(
                     EntityChangeEvent(
                         id=entity_id,
                         rev=new_revision_id,
@@ -206,7 +204,7 @@ class EntityDeleteHandler:
 
         # Log activity
         if user_id > 0:
-            activity_result = vitess_client.user_repository.log_user_activity(
+            activity_result = self.state.vitess_client.user_repository.log_user_activity(
                 user_id=user_id,
                 activity_type=UserActivityType.ENTITY_DELETE,
                 entity_id=entity_id,

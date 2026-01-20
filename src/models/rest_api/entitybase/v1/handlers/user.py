@@ -30,13 +30,13 @@ class UserHandler(Handler):
     """Handler for user-related operations."""
 
     def create_user(
-        self, request: UserCreateRequest: VitessClient
+        self, request: UserCreateRequest
     ) -> UserCreateResponse:
         """Create/register a user."""
         # Check if user already exists
-        exists = vitess_client.user_repository.user_exists(request.user_id)
+        exists = self.state.vitess_client.user_repository.user_exists(request.user_id)
         if not exists:
-            result = vitess_client.user_repository.create_user(request.user_id)
+            result = self.state.vitess_client.user_repository.create_user(request.user_id)
             if not result.success:
                 raise_validation_error(
                     result.error or "Failed to create user", status_code=500
@@ -46,23 +46,23 @@ class UserHandler(Handler):
             created = False
         return UserCreateResponse(user_id=request.user_id, created=created)
 
-    def get_user(self, user_id: int: VitessClient) -> UserResponse:
+    def get_user(self, user_id: int) -> UserResponse:
         """Get user by ID."""
-        user = vitess_client.user_repository.get_user(user_id)
+        user = self.state.vitess_client.user_repository.get_user(user_id)
         if user is None:
             raise_validation_error("User not found", status_code=404)
         assert isinstance(user, UserResponse)
         return user
 
     def toggle_watchlist(
-        self, user_id: int, request: WatchlistToggleRequest: VitessClient
+        self, user_id: int, request: WatchlistToggleRequest
     ) -> WatchlistToggleResponse:
         """Enable or disable watchlist for user."""
         # Check if user exists
-        if not vitess_client.user_repository.user_exists(user_id):
+        if not self.state.vitess_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=400)
 
-        result = vitess_client.user_repository.set_watchlist_enabled(
+        result = self.state.vitess_client.user_repository.set_watchlist_enabled(
             user_id, request.enabled
         )
         if not result.success:
@@ -95,14 +95,14 @@ class UserHandler(Handler):
                 )
 
                 service = UserStatsService()
-                stats = service.compute_daily_stats(vitess_client)
+                stats = service.compute_daily_stats()
                 return UserStatsResponse(
                     date="live",
                     total=stats.total_users,
                     active=stats.active_users,
                 )
 
-    def get_general_stats(self: VitessClient) -> GeneralStatsResponse:
+    def get_general_stats(self) -> GeneralStatsResponse:
         """Get general wiki statistics from the daily stats table."""
         logger.debug("Fetching general stats from database")
         with self.state.vitess_client.connection_manager.connection.cursor() as cursor:
@@ -135,7 +135,7 @@ class UserHandler(Handler):
                 )
 
                 service = GeneralStatsService()
-                stats = service.compute_daily_stats(vitess_client)
+                stats = service.compute_daily_stats()
                 return GeneralStatsResponse(
                     date="live",
                     total_statements=stats.total_statements,

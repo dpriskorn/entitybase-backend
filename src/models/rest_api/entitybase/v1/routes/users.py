@@ -27,7 +27,7 @@ def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = UserHandler(state=state)
-    result = handler.create_user(request, clients.vitess_config)
+    result = handler.create_user(request)
     if not isinstance(result, UserCreateResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, UserCreateResponse)
@@ -39,7 +39,7 @@ def get_user(user_id: int, req: Request) -> UserResponse:
     """Get user information by MediaWiki user ID."""
     state = req.app.state.state
     handler = UserHandler(state=state)
-    result = handler.get_user(user_id, clients.vitess_config)
+    result = handler.get_user(user_id)
     if not isinstance(result, UserResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -55,7 +55,7 @@ def toggle_watchlist(
     state = req.app.state.state
     handler = UserHandler(state=state)
     try:
-        result = handler.toggle_watchlist(user_id, request, clients.vitess_config)
+        result = handler.toggle_watchlist(user_id, request)
         if not isinstance(result, WatchlistToggleResponse):
             raise_validation_error("Invalid response type", status_code=500)
         assert isinstance(result, WatchlistToggleResponse)

@@ -30,7 +30,7 @@ def send_thank_endpoint(
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler(state=state)
-    result = handler.send_thank(entity_id, revision_id, user_id, clients.vitess_config)
+    result = handler.send_thank(entity_id, revision_id, user_id)
     if not isinstance(result, ThankResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, ThankResponse)
@@ -55,7 +55,7 @@ def get_thanks_received_endpoint(
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler(state=state)
     request = ThanksListRequest(limit=limit, offset=offset, hours=hours)
-    result = handler.get_thanks_received(user_id, request, clients.vitess_config)
+    result = handler.get_thanks_received(user_id, request)
     if not isinstance(result, ThanksListResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, ThanksListResponse)
@@ -80,7 +80,7 @@ def get_thanks_sent_endpoint(
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler(state=state)
     request = ThanksListRequest(limit=limit, offset=offset, hours=hours)
-    result = handler.get_thanks_sent(user_id, request, clients.vitess_config)
+    result = handler.get_thanks_sent(user_id, request)
     if not isinstance(result, ThanksListResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, ThanksListResponse)
@@ -99,7 +99,7 @@ def get_revision_thanks_endpoint(
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler(state=state)
-    result = handler.get_revision_thanks(entity_id, revision_id, clients.vitess_config)
+    result = handler.get_revision_thanks(entity_id, revision_id)
     if not isinstance(result, ThanksListResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, ThanksListResponse)

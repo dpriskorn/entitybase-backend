@@ -49,7 +49,7 @@ def withdraw_endorsement_endpoint(
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler(state=state)
-    result = handler.withdraw_endorsement(statement_hash, user_id, clients.vitess_config)
+    result = handler.withdraw_endorsement(statement_hash, user_id)
     if not isinstance(result, EndorsementResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, EndorsementResponse)
@@ -77,7 +77,7 @@ def get_statement_endorsements_endpoint(
     request = EndorsementListRequest(
         limit=limit, offset=offset, include_removed=include_removed
     )
-    result = handler.get_statement_endorsements(statement_hash, request, clients.vitess_config)
+    result = handler.get_statement_endorsements(statement_hash, request)
     if not isinstance(result, EndorsementListResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, EndorsementListResponse)
@@ -105,7 +105,7 @@ def get_user_endorsements_endpoint(
     request = EndorsementListRequest(
         limit=limit, offset=offset, include_removed=include_removed
     )
-    result = handler.get_user_endorsements(user_id, request, clients.vitess_config)
+    result = handler.get_user_endorsements(user_id, request)
     if not isinstance(result, EndorsementListResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, EndorsementListResponse)
@@ -124,7 +124,7 @@ def get_user_endorsement_stats_endpoint(
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler(state=state)
-    result = handler.get_user_endorsement_stats(user_id, clients.vitess_config)
+    result = handler.get_user_endorsement_stats(user_id)
     if not isinstance(result, EndorsementStatsResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, EndorsementStatsResponse)
@@ -147,7 +147,7 @@ def get_statement_endorsement_stats(
     # Get stats for single statement
     handler = EndorsementHandler(state=state)
     result = handler.get_batch_statement_endorsement_stats(
-        [statement_hash], clients.vitess_config
+        [statement_hash]
     )
     if not isinstance(result, BatchEndorsementStatsResponse):
         raise_validation_error("Invalid response type", status_code=500)
