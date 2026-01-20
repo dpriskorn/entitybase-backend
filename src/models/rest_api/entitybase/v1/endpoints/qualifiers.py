@@ -3,6 +3,7 @@
 import logging
 
 from fastapi import APIRouter, HTTPException
+from starlette.requests import Request
 
 from models.rest_api.entitybase.v1.response.qualifiers_references import (
     QualifierResponse,
@@ -15,7 +16,9 @@ qualifiers_router = APIRouter(prefix="/qualifiers", tags=["statements"])
 
 @qualifiers_router.get("/{hashes}")
 async def get_qualifiers(
-    hashes: str
+        req: Request,
+
+        hashes: str
 ) -> list[QualifierResponse | None]:
     """Fetch qualifiers by hash(es).
 
@@ -24,6 +27,7 @@ async def get_qualifiers(
     Returns array of qualifier dicts in request order; null for missing hashes.
     Max 100 hashes per request.
     """
+    state = req.app.state.state
     hash_list = [h.strip() for h in hashes.split(",") if h.strip()]
     if not hash_list:
         raise HTTPException(status_code=400, detail="No hashes provided")
