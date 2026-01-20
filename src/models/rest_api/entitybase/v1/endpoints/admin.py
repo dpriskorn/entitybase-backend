@@ -24,12 +24,11 @@ def list_entities(  # type: ignore[no-any-return]
     offset: int = Query(0, ge=0, description="Number of entities to skip"),
 ) -> EntityListResponse:
     """List entities based on type, limit, and offset."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = AdminHandler()
+    handler = AdminHandler(state=state)
     result = handler.list_entities(
-        vitess_client=clients.vitess_config,
         entity_type=entity_type,
         limit=limit,
         offset=offset,

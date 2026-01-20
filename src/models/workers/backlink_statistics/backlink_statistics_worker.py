@@ -35,7 +35,7 @@ class BacklinkStatisticsWorker(BaseStatsWorker):
             service = BacklinkStatisticsService(
                 top_limit=settings.backlink_stats_top_limit
             )
-            stats = service.compute_daily_stats(self.vitess_client)
+            stats = service.compute_daily_stats()
 
             # Store in database
             await self._store_statistics(stats)

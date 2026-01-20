@@ -28,15 +28,12 @@ router = APIRouter()
 @router.post("/entities/items", response_model=EntityResponse)
 async def create_item(request: EntityCreateRequest, req: Request) -> EntityResponse:
     """Create a new item entity."""
-    clients = req.app.state.clients
+    state = req.app.state.state
     validator = req.app.state.validator
     enumeration_service = req.app.state.enumeration_service
-    handler = ItemCreateHandler(enumeration_service)
+    handler = ItemCreateHandler(state=state, enumeration_service=enumeration_service)
     return await handler.create_entity(
         request,
-        clients.vitess_config,
-        clients.s3_config,
-        clients.stream_producer,
         validator,
     )
 
@@ -48,9 +45,9 @@ async def get_item_label(
     item_id: str, language_code: str, req: Request
 ) -> LabelResponse:
     """Get item label for language."""
-    clients = req.app.state.clients
-    handler = EntityReadHandler()
-    response = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
+    state = req.app.state.state
+    handler = EntityReadHandler(state=state)
+    response = handler.get_entity(item_id)
     labels = response.data.get("labels", {})
     if language_code not in labels:
         raise HTTPException(
@@ -66,7 +63,7 @@ async def update_item_label(
     item_id: str, language_code: str, update_data: Dict[str, Any], req: Request
 ) -> EntityResponse:
     """Update item label for language."""
-    clients = req.app.state.clients
+    state = req.app.state.state
     validator = req.app.state.validator
 
     # Extract label from request
@@ -75,8 +72,8 @@ async def update_item_label(
         raise HTTPException(status_code=400, detail="Missing 'value' field")
 
     # Get current entity
-    handler = EntityReadHandler()
-    current_entity = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(item_id)
 
     # Update label
     if "labels" not in current_entity.entity_data:
@@ -87,16 +84,13 @@ async def update_item_label(
     }
 
     # Create new revision
-    update_handler = EntityUpdateHandler()
+    update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
     update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
 
     return await update_handler.update_entity(
         item_id,
         update_request,
-        clients.vitess_config,
-        clients.s3_config,
-        clients.stream_producer,
         validator,
     )
 
@@ -108,12 +102,12 @@ async def delete_item_label(
     item_id: str, language_code: str, req: Request
 ) -> EntityResponse:
     """Delete item label for language."""
-    clients = req.app.state.clients
+    state = req.app.state.state
     validator = req.app.state.validator
 
     # Get current entity
-    handler = EntityReadHandler()
-    current_entity = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(item_id)
 
     # Check if label exists
     labels = current_entity.entity_data.get("labels", {})
@@ -125,16 +119,13 @@ async def delete_item_label(
     del current_entity.entity_data["labels"][language_code]
 
     # Create new revision
-    update_handler = EntityUpdateHandler()
+    update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
     update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
 
     return await update_handler.update_entity(
         item_id,
         update_request,
-        clients.vitess_config,
-        clients.s3_config,
-        clients.stream_producer,
         validator,
     )
 
@@ -147,9 +138,9 @@ async def get_item_description(
     item_id: str, language_code: str, req: Request
 ) -> DescriptionResponse:
     """Get item description for language."""
-    clients = req.app.state.clients
-    handler = EntityReadHandler()
-    response = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
+    state = req.app.state.state
+    handler = EntityReadHandler(state=state)
+    response = handler.get_entity(item_id)
     descriptions = response.data.get("descriptions", {})
     if language_code not in descriptions:
         raise HTTPException(
@@ -167,7 +158,7 @@ async def update_item_description(
     item_id: str, language_code: str, update_data: Dict[str, Any], req: Request
 ) -> EntityResponse:
     """Update item description for language."""
-    clients = req.app.state.clients
+    state = req.app.state.state
     validator = req.app.state.validator
 
     # Extract description from Wikibase format
@@ -176,8 +167,8 @@ async def update_item_description(
         raise HTTPException(status_code=400, detail="Missing 'description' field")
 
     # Get current entity
-    handler = EntityReadHandler()
-    current_entity = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(item_id)
 
     # Update description
     if "descriptions" not in current_entity.entity_data:
@@ -188,16 +179,13 @@ async def update_item_description(
     }
 
     # Create new revision
-    update_handler = EntityUpdateHandler()
+    update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
     update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
 
     return await update_handler.update_entity(
         item_id,
         update_request,
-        clients.vitess_config,
-        clients.s3_config,
-        clients.stream_producer,
         validator,
     )
 
@@ -210,12 +198,12 @@ async def delete_item_description(
     item_id: str, language_code: str, req: Request
 ) -> EntityResponse:
     """Delete item description for language."""
-    clients = req.app.state.clients
+    state = req.app.state.state
     validator = req.app.state.validator
 
     # Get current entity
-    handler = EntityReadHandler()
-    current_entity = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(item_id)
 
     # Check if description exists
     descriptions = current_entity.entity_data.get("descriptions", {})
@@ -227,16 +215,13 @@ async def delete_item_description(
     del current_entity.entity_data["descriptions"][language_code]
 
     # Create new revision
-    update_handler = EntityUpdateHandler()
+    update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
     update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
 
     return await update_handler.update_entity(
         item_id,
         update_request,
-        clients.vitess_config,
-        clients.s3_config,
-        clients.stream_producer,
         validator,
     )
 
@@ -248,9 +233,9 @@ async def get_item_aliases_for_language(
     item_id: str, language_code: str, req: Request
 ) -> list[str]:
     """Get item aliases for language."""
-    clients = req.app.state.clients
-    handler = EntityReadHandler()
-    response = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
+    state = req.app.state.state
+    handler = EntityReadHandler(state=state)
+    response = handler.get_entity(item_id)
     aliases = response.data.get("aliases", {})
     if language_code not in aliases:
         raise HTTPException(
@@ -267,12 +252,12 @@ async def put_item_aliases_for_language(
 ) -> EntityResponse:
     """Update item aliases for language."""
     logger.debug(f"Updating aliases for item {item_id}, language {language_code}")
-    clients = req.app.state.clients
+    state = req.app.state.state
     validator = req.app.state.validator
 
     # Get current entity
-    handler = EntityReadHandler()
-    current_entity = handler.get_entity(item_id, clients.vitess_config, clients.s3_config)
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(item_id)
 
     # Update aliases: expect list of strings
     if "aliases" not in current_entity.entity_data:
@@ -283,15 +268,12 @@ async def put_item_aliases_for_language(
     ]
 
     # Create new revision
-    update_handler = EntityUpdateHandler()
+    update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
     update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
 
     return await update_handler.update_entity(
         item_id,
         update_request,
-        clients.vitess_config,
-        clients.s3_config,
-        clients.stream_producer,
         validator,
     )

@@ -24,9 +24,6 @@ class PropertyUpdateHandler(EntityUpdateHandler):
         self,
         entity_id: str,
         request: EntityUpdateRequest,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
-        stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         user_id: int = 0,
     ) -> EntityResponse:
@@ -43,8 +40,5 @@ class PropertyUpdateHandler(EntityUpdateHandler):
         return await super().update_entity(
             entity_id,
             request,
-            vitess_client,
-            s3_client,
-            stream_producer,
             validator,
         )

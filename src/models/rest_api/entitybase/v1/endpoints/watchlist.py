@@ -23,8 +23,8 @@ def add_watch(
     user_id: int, request: WatchlistAddRequest, req: Request
 ) -> MessageResponse:
     """Add a watchlist entry for user."""
-    clients = req.app.state.clients
-    handler = WatchlistHandler()
+    state = req.app.state.state
+    handler = WatchlistHandler(state=state)
     try:
         request.user_id = user_id  # Override to ensure consistency
         result = handler.add_watch(request, clients.vitess_config)
@@ -40,8 +40,8 @@ def remove_watch(
     user_id: int, request: WatchlistRemoveRequest, req: Request
 ) -> MessageResponse:
     """Remove a watchlist entry for user."""
-    clients = req.app.state.clients
-    handler = WatchlistHandler()
+    state = req.app.state.state
+    handler = WatchlistHandler(state=state)
     try:
         request.user_id = user_id  # Override to ensure consistency
         result = handler.remove_watch(request, clients.vitess_config)
@@ -55,8 +55,8 @@ def remove_watch(
 )
 def remove_watch_by_id(user_id: int, watch_id: int, req: Request) -> MessageResponse:
     """Remove a watchlist entry by ID."""
-    clients = req.app.state.clients
-    handler = WatchlistHandler()
+    state = req.app.state.state
+    handler = WatchlistHandler(state=state)
     try:
         result = handler.remove_watch_by_id(user_id, watch_id, clients.vitess_config)
         return result
@@ -67,8 +67,8 @@ def remove_watch_by_id(user_id: int, watch_id: int, req: Request) -> MessageResp
 @watchlist_router.get("/users/{user_id}/watchlist", response_model=WatchlistResponse)
 def get_watches(user_id: int, req: Request) -> WatchlistResponse:
     """Get user's watchlist."""
-    clients = req.app.state.clients
-    handler = WatchlistHandler()
+    state = req.app.state.state
+    handler = WatchlistHandler(state=state)
     try:
         result = handler.get_watches(user_id, clients.vitess_config)
         return result
@@ -87,8 +87,8 @@ def get_notifications(
     offset: int = Query(0, ge=0, description="Offset for pagination"),
 ) -> NotificationResponse:
     """Get user's recent watchlist notifications."""
-    clients = req.app.state.clients
-    handler = WatchlistHandler()
+    state = req.app.state.state
+    handler = WatchlistHandler(state=state)
     try:
         result = handler.get_notifications(
             user_id, clients.vitess_config, hours, limit, offset
@@ -104,8 +104,8 @@ def get_notifications(
 )
 def mark_checked(user_id: int, notification_id: int, req: Request) -> MessageResponse:
     """Mark a notification as checked."""
-    clients = req.app.state.clients
-    handler = WatchlistHandler()
+    state = req.app.state.state
+    handler = WatchlistHandler(state=state)
     try:
         request = MarkCheckedRequest(notification_id=notification_id)
         result = handler.mark_checked(user_id, request, clients.vitess_config)
@@ -117,8 +117,8 @@ def mark_checked(user_id: int, notification_id: int, req: Request) -> MessageRes
 @watchlist_router.get("/users/{user_id}/watchlist/stats", response_model=WatchCounts)
 def get_watch_counts(user_id: int, req: Request) -> WatchCounts:
     """Get user's watchlist statistics."""
-    clients = req.app.state.clients
-    handler = WatchlistHandler()
+    state = req.app.state.state
+    handler = WatchlistHandler(state=state)
     try:
         result = handler.get_watch_counts(user_id, clients.vitess_config)
         return result

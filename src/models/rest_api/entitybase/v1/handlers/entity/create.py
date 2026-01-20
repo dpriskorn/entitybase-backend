@@ -5,18 +5,14 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
-from ...request.enums import UserActivityType
-
-from models.rest_api.utils import raise_validation_error
-from models.infrastructure.s3.client import MyS3Client
-from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.client import VitessClient
-from .handler import EntityHandler
 from models.rest_api.entitybase.v1.request import EntityCreateRequest
 from models.rest_api.entitybase.v1.response import EntityResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import (
     EnumerationService,
 )
+from models.rest_api.utils import raise_validation_error
+from .handler import EntityHandler
+from ...request.enums import UserActivityType
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +33,6 @@ class EntityCreateHandler(EntityHandler):
     async def create_entity(
         self,
         request: EntityCreateRequest,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
-        stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         auto_assign_id: bool = False,
         user_id: int = 0,
@@ -80,13 +73,14 @@ class EntityCreateHandler(EntityHandler):
         )
 
         # Check if entity already exists - for create, this should fail
+        vitess_client = self.state.vitess_client
         entity_existed = vitess_client.entity_exists(entity_id)
         if entity_existed:
             logger.error(f"Entity {entity_id} already exists, cannot create")
             raise_validation_error("Entity already exists", status_code=409)
 
         # Register the new entity
-        vitess_client.register_entity(entity_id)
+        self.state.vitess_client.register_entity(entity_id)
 
         # Check deletion status
         is_deleted = vitess_client.is_entity_deleted(entity_id)
@@ -105,9 +99,6 @@ class EntityCreateHandler(EntityHandler):
             edit_type=request.edit_type,
             edit_summary=request.edit_summary,
             is_creation=True,
-            vitess_client=vitess_client,
-            s3_client=s3_client,
-            stream_producer=stream_producer,
             validator=validator,
         )
 

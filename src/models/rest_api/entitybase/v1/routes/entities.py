@@ -24,12 +24,12 @@ async def revert_entity(
     user_id: int = Header(..., alias="X-User-ID"),
 ) -> EntityRevertResponse:
     """Revert entity to a previous revision."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = EntityRevertHandler()
+    handler = EntityRevertHandler(state=state)
     result = await handler.revert_entity(
-        entity_id, request, clients.vitess_config, clients.s3_config, clients.stream_producer, user_id
+        entity_id, request, user_id
     )
     if not isinstance(result, EntityRevertResponse):
         raise_validation_error("Invalid response type", status_code=500)

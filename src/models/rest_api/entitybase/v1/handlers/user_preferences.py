@@ -15,7 +15,7 @@ class UserPreferencesHandler(Handler):
     """Handler for user preference operations."""
 
     def get_preferences(
-        self, user_id: int, vitess_client: VitessClient
+        self, user_id: int: VitessClient
     ) -> UserPreferencesResponse:
         """Get user's notification preferences."""
         # Check if user exists
@@ -45,7 +45,7 @@ class UserPreferencesHandler(Handler):
         )
 
     def update_preferences(
-        self, user_id: int, request: UserPreferencesRequest, vitess_client: VitessClient
+        self, user_id: int, request: UserPreferencesRequest: VitessClient
     ) -> UserPreferencesResponse:
         """Update user's notification preferences."""
         # Check if user exists

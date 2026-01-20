@@ -26,9 +26,6 @@ class EntityUpdateHandler(EntityHandler):
         self,
         entity_id: str,
         request: EntityUpdateRequest,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
-        stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         user_id: int = 0,
     ) -> EntityResponse:
@@ -38,18 +35,18 @@ class EntityUpdateHandler(EntityHandler):
             raise_validation_error("Entity not found", status_code=404)
 
         # Check deletion status (410 if deleted)
-        if vitess_client.is_entity_deleted(entity_id):
+        if self.state.vitess_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity deleted", status_code=410)
 
         # Check lock status (423 if locked)
-        if vitess_client.is_entity_locked(entity_id):
+        if self.state.vitess_client.is_entity_locked(entity_id):
             raise_validation_error("Entity locked", status_code=423)
 
         # Validate JSON (Pydantic)
         # Already handled by FastAPI
 
         # Create transaction
-        tx = UpdateTransaction()
+        tx = UpdateTransaction(state=self.state)
         tx.entity_id = entity_id
         try:
             # Get head revision
@@ -59,7 +56,7 @@ class EntityUpdateHandler(EntityHandler):
             request_data["id"] = entity_id
             # Process statements
             hash_result = tx.process_statements(
-                entity_id, request_data, vitess_client, s3_client, validator
+                entity_id, request_data,  validator
             )
             # Create revision
             response = await tx.create_revision(
@@ -78,9 +75,6 @@ class EntityUpdateHandler(EntityHandler):
                 is_archived=request.is_archived,
                 is_dangling=request.is_dangling,
                 is_mass_edit_protected=request.is_mass_edit_protected,
-                vitess_client=vitess_client,
-                s3_client=s3_client,
-                stream_producer=stream_producer,
                 is_creation=False,
                 user_id=request.user_id,
             )

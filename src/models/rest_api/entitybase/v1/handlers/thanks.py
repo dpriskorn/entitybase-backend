@@ -70,7 +70,7 @@ class ThanksHandler(Handler):
         )
 
     def get_thanks_received(
-        self, user_id: int, request: ThanksListRequest, vitess_client: VitessClient
+        self, user_id: int, request: ThanksListRequest: VitessClient
     ) -> ThanksListResponse:
         """Get thanks received by user."""
         # Validate user exists
@@ -95,7 +95,7 @@ class ThanksHandler(Handler):
         )
 
     def get_thanks_sent(
-        self, user_id: int, request: ThanksListRequest, vitess_client: VitessClient
+        self, user_id: int, request: ThanksListRequest: VitessClient
     ) -> ThanksListResponse:
         """Get thanks sent by user."""
         # Validate user exists
@@ -120,7 +120,7 @@ class ThanksHandler(Handler):
         )
 
     def get_revision_thanks(
-        self, entity_id: str, revision_id: int, vitess_client: VitessClient
+        self, entity_id: str, revision_id: int: VitessClient
     ) -> ThanksListResponse:
         """Get all thanks for a specific revision."""
         result = vitess_client.thanks_repository.get_revision_thanks(

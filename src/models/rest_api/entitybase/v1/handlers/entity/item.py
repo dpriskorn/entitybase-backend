@@ -31,9 +31,6 @@ class ItemCreateHandler(EntityCreateHandler):
     async def create_entity(
         self,
         request: EntityCreateRequest,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
-        stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         auto_assign_id: bool = False,
         user_id: int = 0,
@@ -47,8 +44,8 @@ class ItemCreateHandler(EntityCreateHandler):
             entity_id = request.id
             logger.info(f"Using provided entity_id: {entity_id}")
             # Check if entity already exists
-            with vitess_client.connection_manager.get_connection() as conn:
-                if vitess_client.id_resolver.entity_exists(entity_id):
+            with self.state.vitess_client.connection_manager.get_connection() as conn:
+                if self.state.vitess_client.id_resolver.entity_exists(entity_id):
                     raise_validation_error("Entity already exists", status_code=409)
         else:
             if self.enumeration_service is None:
@@ -67,7 +64,7 @@ class ItemCreateHandler(EntityCreateHandler):
 
         # Create transaction
         logger.info("Creating transaction")
-        tx = CreationTransaction()
+        tx = CreationTransaction(state=self.state)
         try:
             # Register entity
             logger.info(f"Registering entity {entity_id}")
@@ -76,7 +73,7 @@ class ItemCreateHandler(EntityCreateHandler):
             # Process statements
             logger.info("Processing statements")
             hash_result = tx.process_statements(
-                entity_id, request_data, vitess_client, s3_client, validator
+                entity_id, request_data,  validator
             )
 
             # Create revision
@@ -96,9 +93,6 @@ class ItemCreateHandler(EntityCreateHandler):
                 is_archived=request.state.is_archived,
                 is_dangling=request.state.is_dangling,
                 is_mass_edit_protected=request.state.is_mass_edit_protected,
-                vitess_client=vitess_client,
-                s3_client=s3_client,
-                stream_producer=stream_producer,
                 is_creation=True,
                 user_id=request.user_id,
             )

@@ -26,11 +26,11 @@ def endorse_statement_endpoint(
     req: Request, statement_hash: int, user_id: int = Header(..., alias="X-User-ID")
 ) -> EndorsementResponse:
     """Endorse a statement to signal trust."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = EndorsementHandler()
-    result = handler.endorse_statement(statement_hash, user_id, clients.vitess_config)
+    handler = EndorsementHandler(state=state)
+    result = handler.endorse_statement(statement_hash, user_id)
     if not isinstance(result, EndorsementResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, EndorsementResponse)
@@ -45,10 +45,10 @@ def withdraw_endorsement_endpoint(
     req: Request, statement_hash: int, user_id: int = Header(..., alias="X-User-ID")
 ) -> EndorsementResponse:
     """Withdraw endorsement from a statement."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = EndorsementHandler()
+    handler = EndorsementHandler(state=state)
     result = handler.withdraw_endorsement(statement_hash, user_id, clients.vitess_config)
     if not isinstance(result, EndorsementResponse):
         raise_validation_error("Invalid response type", status_code=500)
@@ -70,10 +70,10 @@ def get_statement_endorsements_endpoint(
     include_removed: bool = Query(False, description="Include withdrawn endorsements"),
 ) -> EndorsementListResponse:
     """Get endorsements for a statement."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = EndorsementHandler()
+    handler = EndorsementHandler(state=state)
     request = EndorsementListRequest(
         limit=limit, offset=offset, include_removed=include_removed
     )
@@ -98,10 +98,10 @@ def get_user_endorsements_endpoint(
     include_removed: bool = Query(False, description="Include withdrawn endorsements"),
 ) -> EndorsementListResponse:
     """Get endorsements given by a user."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = EndorsementHandler()
+    handler = EndorsementHandler(state=state)
     request = EndorsementListRequest(
         limit=limit, offset=offset, include_removed=include_removed
     )
@@ -120,10 +120,10 @@ def get_user_endorsement_stats_endpoint(
     req: Request, user_id: int
 ) -> EndorsementStatsResponse:
     """Get endorsement statistics for a user."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = EndorsementHandler()
+    handler = EndorsementHandler(state=state)
     result = handler.get_user_endorsement_stats(user_id, clients.vitess_config)
     if not isinstance(result, EndorsementStatsResponse):
         raise_validation_error("Invalid response type", status_code=500)
@@ -140,12 +140,12 @@ def get_statement_endorsement_stats(
     statement_hash: int,
 ) -> SingleEndorsementStatsResponse:
     """Get endorsement statistics for a statement."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
 
     # Get stats for single statement
-    handler = EndorsementHandler()
+    handler = EndorsementHandler(state=state)
     result = handler.get_batch_statement_endorsement_stats(
         [statement_hash], clients.vitess_config
     )

@@ -23,10 +23,10 @@ router = APIRouter()
 @router.get("/statements/{content_hash}", response_model=StatementResponse)
 def get_statement(content_hash: int, req: Request) -> StatementResponse:
     """Retrieve a single statement by its content hash."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
-    handler = StatementHandler()
+    handler = StatementHandler(state=state)
     return handler.get_statement(content_hash, clients.s3_config)  # type: ignore[no-any-return]
 
 
@@ -35,10 +35,10 @@ def get_statements_batch(  # type: ignore[no-any-return]
     request: StatementBatchRequest, req: Request
 ) -> StatementBatchResponse:
     """Retrieve multiple statements by their content hashes in a batch request."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
-    handler = StatementHandler()
+    handler = StatementHandler(state=state)
     return handler.get_statements_batch(request, clients.s3_config)  # type: ignore[no-any-return]
 
 
@@ -47,10 +47,10 @@ def get_most_used_statements(  # type: ignore[no-any-return]
     request: MostUsedStatementsRequest, req: Request
 ) -> MostUsedStatementsResponse:
     """Get the most used statements based on reference count."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
-    handler = StatementHandler()
+    handler = StatementHandler(state=state)
     result = handler.get_most_used_statements(
         clients.vitess_config, request.limit, request.min_ref_count
     )
@@ -64,8 +64,8 @@ def cleanup_orphaned_statements(  # type: ignore[no-any-return]
     request: CleanupOrphanedRequest, req: Request
 ) -> CleanupOrphanedResponse:
     """Clean up orphaned statements that are no longer referenced."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
-    handler = StatementHandler()
-    return handler.cleanup_orphaned_statements(request, clients.vitess_config, clients.s3_config)  # type: ignore[no-any-return]
+    handler = StatementHandler(state=state)
+    return handler.cleanup_orphaned_statements(request)  # type: ignore[no-any-return]

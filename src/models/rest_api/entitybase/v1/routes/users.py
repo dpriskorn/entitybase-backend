@@ -23,10 +23,10 @@ users_router = APIRouter(prefix="/entitybase", tags=["users"])
 @users_router.post("/entitybase/v1/users", response_model=UserCreateResponse)
 def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
     """Create a new user."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = UserHandler()
+    handler = UserHandler(state=state)
     result = handler.create_user(request, clients.vitess_config)
     if not isinstance(result, UserCreateResponse):
         raise_validation_error("Invalid response type", status_code=500)
@@ -37,8 +37,8 @@ def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
 @users_router.get("/entitybase/v1/users/{user_id}", response_model=UserResponse)
 def get_user(user_id: int, req: Request) -> UserResponse:
     """Get user information by MediaWiki user ID."""
-    clients = req.app.state.clients
-    handler = UserHandler()
+    state = req.app.state.state
+    handler = UserHandler(state=state)
     result = handler.get_user(user_id, clients.vitess_config)
     if not isinstance(result, UserResponse):
         raise_validation_error("Invalid response type", status_code=500)
@@ -52,8 +52,8 @@ def toggle_watchlist(
     user_id: int, request: WatchlistToggleRequest, req: Request
 ) -> WatchlistToggleResponse:
     """Enable or disable watchlist for user."""
-    clients = req.app.state.clients
-    handler = UserHandler()
+    state = req.app.state.state
+    handler = UserHandler(state=state)
     try:
         result = handler.toggle_watchlist(user_id, request, clients.vitess_config)
         if not isinstance(result, WatchlistToggleResponse):
@@ -67,8 +67,8 @@ def toggle_watchlist(
 @users_router.get("/entitybase/v1/users/stat", response_model=UserStatsResponse)
 def get_user_stats(req: Request) -> UserStatsResponse:
     """Get user statistics."""
-    clients = req.app.state.clients
-    handler = UserHandler()
+    state = req.app.state.state
+    handler = UserHandler(state=state)
     try:
         stats = handler.get_user_stats(clients.vitess_config)
         return stats

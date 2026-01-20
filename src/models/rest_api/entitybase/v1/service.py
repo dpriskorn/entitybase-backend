@@ -4,5 +4,7 @@ from typing import Any
 from pydantic import BaseModel
 
 
-class Handler(ABC, BaseModel):
-    state: Any  # This is the app state
+class Service(ABC, BaseModel):
+    state: Any  # this is the app state
+
+

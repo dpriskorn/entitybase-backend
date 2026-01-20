@@ -179,7 +179,7 @@ def test_create_revision_cas_failure(vitess_client: VitessClient) -> None:
     data2["revision_id"] = revision_id2
 
     with pytest.raises(ValueError) as exc_info:
-        vitess_client.create_revision(
+        self.state.vitess_client.create_revision(
             entity_id, revision_id2, data2, expected_revision_id=2
         )
 
@@ -233,7 +233,7 @@ def test_set_redirect_target_cas_failure(vitess_client: VitessClient) -> None:
 
     # Try to set to redirect_to2 with wrong expected (e.g., None or wrong id)
     with pytest.raises(ValueError) as exc_info:
-        vitess_client.set_redirect_target(
+        self.state.vitess_client.set_redirect_target(
             entity_id, redirect_to2, expected_redirects_to=999
         )  # Wrong expected
 

@@ -102,13 +102,13 @@ class StatementHandler(Handler):
         return StatementBatchResponse(statements=statements, not_found=not_found)
 
     def get_entity_properties(
-        self, entity_id: str, vitess_client: "VitessClient", s3_client: "MyS3Client"
+        self, entity_id: str: "VitessClient", s3_client: "MyS3Client"
     ) -> PropertyListResponse:
         """Get list of unique property IDs for an entity's head revision.
 
         Returns sorted list of properties used in entity statements.
         """
-        if vitess_client is None:
+        if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
         if not vitess_client.entity_exists(entity_id):
@@ -133,13 +133,13 @@ class StatementHandler(Handler):
         return PropertyListResponse(properties=properties)
 
     def get_entity_property_counts(
-        self, entity_id: str, vitess_client: "VitessClient", s3_client: "MyS3Client"
+        self, entity_id: str: "VitessClient", s3_client: "MyS3Client"
     ) -> PropertyCountsResponse:
         """Get statement counts per property for an entity's head revision.
 
         Returns dict mapping property ID -> count of statements.
         """
-        if vitess_client is None:
+        if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
         if not vitess_client.entity_exists(entity_id):
@@ -168,7 +168,7 @@ class StatementHandler(Handler):
         Uses schema 1.2.0 architecture where statements are stored separately by hash.
         """
         logger.debug(f"get_entity_property_hashes called for entity {entity_id}")
-        if vitess_client is None:
+        if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
         if not vitess_client.entity_exists(entity_id):
@@ -217,7 +217,7 @@ class StatementHandler(Handler):
         - limit: Maximum number of statements to return (1-10000, default 100)
         - min_ref_count: Minimum ref_count threshold (default 1)
         """
-        if vitess_client is None:
+        if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
         statement_hashes = vitess_client.get_most_used_statements(
@@ -236,7 +236,7 @@ class StatementHandler(Handler):
         Removes statements with ref_count <= 0 that are older than the specified days.
         Limited to the specified number to avoid long-running operations.
         """
-        if vitess_client is None:
+        if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
         if s3_client is None:
@@ -256,7 +256,7 @@ class StatementHandler(Handler):
                 # Delete from S3 first
                 s3_client.delete_statement(statement_hash)
                 # Then delete from Vitess
-                vitess_client.delete_statement(statement_hash)
+                self.state.vitess_client.delete_statement(statement_hash)
                 cleaned_count += 1
                 logger.info(f"Cleaned up orphaned statement {statement_hash}")
             except Exception as e:

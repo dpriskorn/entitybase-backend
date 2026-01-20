@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class UserStatsService(BaseModel):
     """Service for computing user statistics."""
 
-    def compute_daily_stats(self, vitess_client: VitessClient) -> UserStatsData:
+    def compute_daily_stats(self: VitessClient) -> UserStatsData:
         """Compute comprehensive user statistics for current date."""
         total_users = self.get_total_users(vitess_client)
         active_users = self.get_active_users(vitess_client)
@@ -23,17 +23,17 @@ class UserStatsService(BaseModel):
             active=active_users,
         )
 
-    def get_total_users(self, vitess_client: VitessClient) -> int:
+    def get_total_users(self: VitessClient) -> int:
         """Count total users."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM users")
                 result = cursor.fetchone()
                 return result[0] if result else 0
 
-    def get_active_users(self, vitess_client: VitessClient) -> int:
+    def get_active_users(self: VitessClient) -> int:
         """Count active users (active in last 30 days)."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT COUNT(*) FROM users WHERE last_activity >= DATE_SUB(NOW(), INTERVAL 30 DAY)"

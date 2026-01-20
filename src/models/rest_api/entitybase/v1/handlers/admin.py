@@ -20,23 +20,22 @@ class AdminHandler(Handler):
 
     def list_entities(
         self,
-        vitess_client: "VitessClient",
         entity_type: str = "",
         limit: int = 100,
         offset: int = 0,
     ) -> EntityListResponse:
         """List entities by type or all entities."""
-        if vitess_client is None:
+        if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
         # Get entity IDs
-        entity_ids = vitess_client.list_entities_by_type(entity_type, limit, offset)
+        entity_ids = self.state.vitess_client.list_entities_by_type(entity_type, limit, offset)
 
         # Build response with ID and revision info
         entities = []
         for entity_id in entity_ids:
             try:
-                head_revision_id = vitess_client.get_head(entity_id)
+                head_revision_id = self.state.vitess_client.get_head(entity_id)
                 entities.append(
                     {
                         "id": entity_id,
@@ -68,7 +67,7 @@ class AdminHandler(Handler):
         logger.debug(
             f"get_raw_revision called for entity {entity_id}, revision {revision_id}"
         )
-        if vitess_client is None:
+        if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
         # Check if entity exists and get history

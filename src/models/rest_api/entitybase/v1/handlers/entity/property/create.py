@@ -26,9 +26,6 @@ class PropertyCreateHandler(EntityCreateHandler):
     async def create_entity(
         self,
         request: EntityCreateRequest,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
-        stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         auto_assign_id: bool = False,
         user_id: int = 0,
@@ -37,9 +34,6 @@ class PropertyCreateHandler(EntityCreateHandler):
         logger.debug("Creating new property")
         response = await super().create_entity(
             request,
-            vitess_client,
-            s3_client,
-            stream_producer,
             validator,
             auto_assign_id=True,
         )

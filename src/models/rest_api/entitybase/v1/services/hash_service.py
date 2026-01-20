@@ -142,22 +142,22 @@ class HashService:
     ) -> HashMaps:
         """Hash all entity metadata and return HashMaps."""
         statements_hashes = HashService.hash_statements(
-            entity_data, vitess_client, s3_client, validator
+            entity_data,  validator
         )
 
         sitelinks = entity_data.get("sitelinks", {})
         sitelinks_hashes = HashService.hash_sitelinks(sitelinks, s3_client)
 
         labels = entity_data.get("labels", {})
-        labels_hashes = HashService.hash_labels(labels, s3_client, vitess_client)
+        labels_hashes = HashService.hash_labels(labels, s3_client)
 
         descriptions = entity_data.get("descriptions", {})
         descriptions_hashes = HashService.hash_descriptions(
-            descriptions, s3_client, vitess_client
+            descriptions, s3_client
         )
 
         aliases = entity_data.get("aliases", {})
-        aliases_hashes = HashService.hash_aliases(aliases, s3_client, vitess_client)
+        aliases_hashes = HashService.hash_aliases(aliases, s3_client)
 
         return HashMaps(
             statements=statements_hashes,

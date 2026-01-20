@@ -25,9 +25,6 @@ class EntityJsonImportHandler:
     @staticmethod
     async def import_entities_from_jsonl(
         request: EntityJsonImportRequest,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
-        stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
     ) -> EntityJsonImportResponse:
         """Import entities from a JSONL dump file.
@@ -58,7 +55,7 @@ class EntityJsonImportHandler:
         )
         try:
             with open(request.jsonl_file_path, "r", encoding="utf-8") as f:
-                create_handler = EntityCreateHandler()
+                create_handler = EntityCreateHandler(state=state)
 
                 for line_num, line in enumerate(f, 1):
                     # Skip lines before start_line

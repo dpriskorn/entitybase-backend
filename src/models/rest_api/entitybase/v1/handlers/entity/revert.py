@@ -24,9 +24,6 @@ class EntityRevertHandler(Handler):
         self,
         entity_id: str,
         request: EntityRevertRequest,
-        vitess_client: "VitessClient",
-        s3_client: Any,
-        stream_producer: Any,
         user_id: int,
     ) -> EntityRevertResponse:
         """Revert an entity to a specified revision."""
@@ -34,15 +31,15 @@ class EntityRevertHandler(Handler):
             f"Reverting entity {entity_id} to revision {request.to_revision_id}"
         )
         # Resolve internal ID
-        with vitess_client.get_connection() as conn:
-            internal_entity_id = vitess_client.id_resolver.resolve_id(entity_id)
+        with self.state.vitess_client.get_connection() as conn:
+            internal_entity_id = self.state.vitess_client.id_resolver.resolve_id(entity_id)
 
         if internal_entity_id == 0:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
         # Validate target revision exists
         target_revision = vitess_client.revision_repository.get_revision(
-            internal_entity_id, request.to_revision_id, vitess_client
+            internal_entity_id, request.to_revision_id
         )
         if not target_revision:
             raise_validation_error(
@@ -89,7 +86,7 @@ class EntityRevertHandler(Handler):
         )
 
         # Insert revision in DB
-        vitess_client.insert_revision(
+        self.state.vitess_client.insert_revision(
             entity_id,
             new_revision_id,
             is_mass_edit=False,

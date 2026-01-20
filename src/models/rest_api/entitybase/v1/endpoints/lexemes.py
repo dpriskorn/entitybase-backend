@@ -18,14 +18,11 @@ router = APIRouter()
 @router.post("/entities/lexemes", response_model=EntityResponse)
 async def create_lexeme(request: EntityCreateRequest, req: Request) -> EntityResponse:
     """Create a new lexeme entity."""
-    clients = req.app.state.clients
+    state = req.app.state.state
     validator = req.app.state.validator
     enumeration_service = req.app.state.enumeration_service
     handler = LexemeCreateHandler(enumeration_service)
     return await handler.create_entity(  # type: ignore[no-any-return]
         request,
-        clients.vitess_config,
-        clients.s3_config,
-        clients.stream_producer,
         validator,
     )

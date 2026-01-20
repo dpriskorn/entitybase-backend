@@ -3,9 +3,6 @@
 import logging
 from typing import Any
 
-from models.infrastructure.s3.client import MyS3Client
-from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.request.entity import EntityCreateRequest
 from models.rest_api.entitybase.v1.response import EntityResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import (
@@ -26,9 +23,6 @@ class LexemeCreateHandler(EntityCreateHandler):
     async def create_entity(
         self,
         request: EntityCreateRequest,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
-        stream_producer: StreamProducerClient | None,
         validator: Any | None = None,
         auto_assign_id: bool = False,
         user_id: int = 0,
@@ -37,9 +31,6 @@ class LexemeCreateHandler(EntityCreateHandler):
         logger.debug("Creating new lexeme")
         response = await super().create_entity(
             request,
-            vitess_client,
-            s3_client,
-            stream_producer,
             validator,
             auto_assign_id=True,
         )

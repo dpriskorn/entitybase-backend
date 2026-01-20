@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class GeneralStatsService(BaseModel):
     """Service for computing general wiki statistics."""
 
-    def compute_daily_stats(self, vitess_client: VitessClient) -> GeneralStatsData:
+    def compute_daily_stats(self: VitessClient) -> GeneralStatsData:
         """Compute comprehensive general wiki statistics for current date."""
         total_statements = self.get_total_statements(vitess_client)
         total_qualifiers = self.get_total_qualifiers(vitess_client)
@@ -43,65 +43,65 @@ class GeneralStatsService(BaseModel):
             terms_by_type=TermsByType(counts=terms_by_type),
         )
 
-    def get_total_statements(self, vitess_client: VitessClient) -> int:
+    def get_total_statements(self: VitessClient) -> int:
         """Count total statements."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM statements")
                 result = cursor.fetchone()
                 return result[0] if result else 0
 
-    def get_total_qualifiers(self, vitess_client: VitessClient) -> int:
+    def get_total_qualifiers(self: VitessClient) -> int:
         """Count total qualifiers."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM qualifiers")
                 result = cursor.fetchone()
                 return result[0] if result else 0
 
-    def get_total_references(self, vitess_client: VitessClient) -> int:
+    def get_total_references(self: VitessClient) -> int:
         """Count total references."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM references")
                 result = cursor.fetchone()
                 return result[0] if result else 0
 
-    def get_total_items(self, vitess_client: VitessClient) -> int:
+    def get_total_items(self: VitessClient) -> int:
         """Count total items."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM entities WHERE type = 'item'")
                 result = cursor.fetchone()
                 return result[0] if result else 0
 
-    def get_total_lexemes(self, vitess_client: VitessClient) -> int:
+    def get_total_lexemes(self: VitessClient) -> int:
         """Count total lexemes."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM entities WHERE type = 'lexeme'")
                 result = cursor.fetchone()
                 return result[0] if result else 0
 
-    def get_total_properties(self, vitess_client: VitessClient) -> int:
+    def get_total_properties(self: VitessClient) -> int:
         """Count total properties."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM entities WHERE type = 'property'")
                 result = cursor.fetchone()
                 return result[0] if result else 0
 
-    def get_total_sitelinks(self, vitess_client: VitessClient) -> int:
+    def get_total_sitelinks(self: VitessClient) -> int:
         """Count total sitelinks."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM sitelinks")
                 result = cursor.fetchone()
                 return result[0] if result else 0
 
-    def get_total_terms(self, vitess_client: VitessClient) -> int:
+    def get_total_terms(self: VitessClient) -> int:
         """Count total terms (labels + descriptions + aliases)."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """
@@ -114,10 +114,10 @@ class GeneralStatsService(BaseModel):
                 result = cursor.fetchone()
                 return result[0] if result else 0
 
-    def get_terms_per_language(self, vitess_client: VitessClient) -> TermsPerLanguage:
+    def get_terms_per_language(self: VitessClient) -> TermsPerLanguage:
         """Count terms per language."""
         terms_per_lang: dict[str, int] = {}
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 # Labels per language
                 cursor.execute(
@@ -145,9 +145,9 @@ class GeneralStatsService(BaseModel):
 
         return TermsPerLanguage(terms=terms_per_lang)
 
-    def get_terms_by_type(self, vitess_client: VitessClient) -> TermsByType:
+    def get_terms_by_type(self: VitessClient) -> TermsByType:
         """Count terms by type (labels, descriptions, aliases)."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """

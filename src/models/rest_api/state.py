@@ -2,18 +2,17 @@
 
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from models.common import raise_validation_error
-from models.infrastructure.stream.producer import StreamProducerClient
-from models.rdf_builder.property_registry.loader import load_property_registry
-from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.infrastructure.s3.client import S3Config, MyS3Client
+from models.infrastructure.stream.config import StreamConfig
+from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess.client import VitessClient
 from models.infrastructure.vitess.config import VitessConfig
-from models.infrastructure.stream.config import StreamConfig
+from models.rdf_builder.property_registry.loader import load_property_registry
+from models.rdf_builder.property_registry.registry import PropertyRegistry
 
 logger = logging.getLogger(__name__)
 

@@ -176,7 +176,7 @@ class RedirectService:
             reason="Reverted redirect",
             watchlist_context=None,
         )
-        general_handler = EntityRevertHandler()
+        general_handler = EntityRevertHandler(state=state)
         revert_result = await general_handler.revert_entity(
             entity_id,
             general_request,

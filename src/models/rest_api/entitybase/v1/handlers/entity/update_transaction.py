@@ -24,8 +24,6 @@ class UpdateTransaction(EntityTransaction):
         self,
         entity_id: str,
         request_data: dict,
-        vitess_client: Any,
-        s3_client: Any,
         validator: Any,
     ) -> StatementHashResult:
         """Process statements for the entity transaction."""
@@ -53,7 +51,7 @@ class UpdateTransaction(EntityTransaction):
         assert hash_result.data is not None  # Guaranteed by success check above
         hash_data: StatementHashResult = hash_result.data
         store_result = deduplicate_and_store_statements(
-            hash_data, vitess_client, s3_client, validator
+            hash_data,  validator
         )
         if not store_result.success:
             from models.rest_api.utils import raise_validation_error
@@ -84,16 +82,13 @@ class UpdateTransaction(EntityTransaction):
         is_archived: bool,
         is_dangling: bool,
         is_mass_edit_protected: bool,
-        vitess_client: Any,
-        s3_client: Any,
-        stream_producer: Any,
         is_creation: bool,
         user_id: int,
     ) -> EntityResponse:
         logger.debug(f"[UpdateTransaction] Starting revision creation for {entity_id}")
         from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 
-        handler = EntityHandler()
+        handler = EntityHandler(state=state)
         response = await handler._create_and_store_revision(
             entity_id=entity_id,
             new_revision_id=new_revision_id,
@@ -109,14 +104,11 @@ class UpdateTransaction(EntityTransaction):
             is_archived=is_archived,
             is_dangling=is_dangling,
             is_mass_edit_protected=is_mass_edit_protected,
-            vitess_client=vitess_client,
-            s3_client=s3_client,
-            stream_producer=stream_producer,
             is_creation=is_creation,
             user_id=user_id,
         )
         self.operations.append(
-            lambda: self._rollback_revision(entity_id, new_revision_id, vitess_client)
+            lambda: self._rollback_revision(entity_id, new_revision_id)
         )
         if not response.success:
             from models.rest_api.utils import raise_validation_error
@@ -171,21 +163,21 @@ class UpdateTransaction(EntityTransaction):
         # Events are fire-and-forget, no rollback needed
 
     def _rollback_statement(
-        self, hash_val: int, vitess_client: Any, s3_client: Any
+        self, hash_val: int
     ) -> None:
         logger.info(f"[UpdateTransaction] Rolling back statement {hash_val}")
         # Decrement ref_count
-        vitess_client.decrement_ref_count(hash_val)
+        self.state.vitess_client.decrement_ref_count(hash_val)
         # Check if orphaned and delete from S3
         ref_count = vitess_client.get_ref_count(hash_val)
         if ref_count == 0:
             s3_client.delete_statement(hash_val)
 
     def _rollback_revision(
-        self, entity_id: str, revision_id: int, vitess_client: Any
+        self, entity_id: str, revision_id: int
     ) -> None:
         logger.info(
             f"[UpdateTransaction] Rolling back revision {revision_id} for {entity_id}"
         )
         # Delete from entity_revisions and revert head
-        vitess_client.delete_revision(entity_id, revision_id)
+        self.state.vitess_client.delete_revision(entity_id, revision_id)

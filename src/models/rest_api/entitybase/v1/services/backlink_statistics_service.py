@@ -19,7 +19,7 @@ class BacklinkStatisticsService(BaseModel):
     top_limit: int = Field(default=100, description="Number of top entities to include")
 
     def compute_daily_stats(
-        self, vitess_client: VitessClient
+        self: VitessClient
     ) -> BacklinkStatisticsData:
         """Compute comprehensive backlink statistics for current date."""
         total_backlinks = self.get_total_backlinks(vitess_client)
@@ -32,17 +32,17 @@ class BacklinkStatisticsService(BaseModel):
             top=top_entities,
         )
 
-    def get_total_backlinks(self, vitess_client: VitessClient) -> int:
+    def get_total_backlinks(self: VitessClient) -> int:
         """Count total backlink relationships."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM entity_backlinks")
                 result = cursor.fetchone()
                 return result[0] if result else 0
 
-    def get_entities_with_backlinks(self, vitess_client: VitessClient) -> int:
+    def get_entities_with_backlinks(self: VitessClient) -> int:
         """Count entities that have incoming backlinks."""
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT COUNT(DISTINCT referenced_internal_id) FROM entity_backlinks"
@@ -51,11 +51,11 @@ class BacklinkStatisticsService(BaseModel):
                 return result[0] if result else 0
 
     def get_top_entities_by_backlinks(
-        self, vitess_client: VitessClient, limit: int = 100
+        self: VitessClient, limit: int = 100
     ) -> list[TopEntityByBacklinks]:
         """Get top entities ranked by backlink count."""
         logger.debug("Getting top %d entities by backlinks", limit)
-        with vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as conn:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """

@@ -35,7 +35,7 @@ class RedirectHandler(Handler):
         self._vitess = vitess_client
         self._stream_producer = stream_producer
         self.redirect_service = RedirectService(
-            s3_client, vitess_client, stream_producer
+            s3_client, stream_producer
         )
 
     async def create_entity_redirect(
@@ -60,7 +60,7 @@ class RedirectHandler(Handler):
             reason=request.revert_reason,
             watchlist_context=None,  # Not used for redirects
         )
-        general_handler = EntityRevertHandler()
+        general_handler = EntityRevertHandler(state=state)
         revert_result = await general_handler.revert_entity(
             entity_id,
             general_request,

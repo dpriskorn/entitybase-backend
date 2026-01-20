@@ -52,7 +52,7 @@ class EntityDeleteHandler:
         user_id: int = 0,
     ) -> EntityDeleteResponse:
         """Delete entity (soft or hard delete)."""
-        if vitess_client is None:
+        if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
         if s3_client is None:
@@ -73,7 +73,7 @@ class EntityDeleteHandler:
             raise_validation_error("Entity not found", status_code=404)
 
         # Check if entity is already deleted
-        if vitess_client.is_entity_deleted(entity_id):
+        if self.state.vitess_client.is_entity_deleted(entity_id):
             raise_validation_error(
                 f"Entity {entity_id} has been deleted", status_code=410
             )
@@ -157,7 +157,7 @@ class EntityDeleteHandler:
             old_statements = current_revision.data.get("statements", [])
             for statement_hash in old_statements:
                 try:
-                    vitess_client.decrement_ref_count(statement_hash)
+                    self.state.vitess_client.decrement_ref_count(statement_hash)
                 except Exception as e:
                     logger.warning(
                         f"Failed to decrement ref count for statement {statement_hash}: {e}"
@@ -171,7 +171,7 @@ class EntityDeleteHandler:
         )
 
         # Update head pointer
-        vitess_client.create_revision(
+        self.state.vitess_client.create_revision(
             entity_id=entity_id,
             revision_id=new_revision_id,
             expected_revision_id=head_revision_id,

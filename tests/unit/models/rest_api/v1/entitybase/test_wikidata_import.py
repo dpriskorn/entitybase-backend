@@ -26,7 +26,7 @@ class TestEntityJsonImportHandler:
         s3_client = MagicMock()
         stream_producer = AsyncMock()
         validator = MagicMock()
-        return vitess_client, s3_client, stream_producer, validator
+        return  stream_producer, validator
 
     @pytest.fixture
     def sample_entity_json(self) -> dict[str, Any]:
@@ -130,7 +130,7 @@ class TestEntityJsonImportHandler:
         sample_entity_json: dict[str, Any],
     ) -> None:
         """Test successful import of entities from JSONL file."""
-        vitess_client, s3_client, stream_producer, validator = mock_clients
+         stream_producer, validator = mock_clients
 
         # Create temporary JSONL file
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
@@ -146,14 +146,14 @@ class TestEntityJsonImportHandler:
                 labels={},
                 edit_summary="test",
             )
-            vitess_client.create_entity = AsyncMock()
-            vitess_client.entity_exists.return_value = False
-            vitess_client.is_locked.return_value = False
-            vitess_client.entity_repository.get_entity.return_value = MagicMock(
+            self.state.vitess_client.create_entity = AsyncMock()
+            self.state.vitess_client.entity_exists.return_value = False
+            self.state.vitess_client.is_locked.return_value = False
+            self.state.vitess_client.entity_repository.get_entity.return_value = MagicMock(
                 is_deleted=False
             )
-            vitess_client.is_entity_deleted.return_value = False
-            vitess_client.get_protection_info.return_value = MagicMock(
+            self.state.vitess_client.is_entity_deleted.return_value = False
+            self.state.vitess_client.get_protection_info.return_value = MagicMock(
                 is_archived=False
             )
             s3_client.read_revision = MagicMock(
@@ -167,7 +167,7 @@ class TestEntityJsonImportHandler:
             )
 
             result = await EntityJsonImportHandler.import_entities_from_jsonl(
-                request, vitess_client, s3_client, stream_producer, validator
+                request,  stream_producer, validator
             )
 
             assert isinstance(result, EntityJsonImportResponse)

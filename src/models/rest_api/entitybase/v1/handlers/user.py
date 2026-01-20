@@ -30,7 +30,7 @@ class UserHandler(Handler):
     """Handler for user-related operations."""
 
     def create_user(
-        self, request: UserCreateRequest, vitess_client: VitessClient
+        self, request: UserCreateRequest: VitessClient
     ) -> UserCreateResponse:
         """Create/register a user."""
         # Check if user already exists
@@ -46,7 +46,7 @@ class UserHandler(Handler):
             created = False
         return UserCreateResponse(user_id=request.user_id, created=created)
 
-    def get_user(self, user_id: int, vitess_client: VitessClient) -> UserResponse:
+    def get_user(self, user_id: int: VitessClient) -> UserResponse:
         """Get user by ID."""
         user = vitess_client.user_repository.get_user(user_id)
         if user is None:
@@ -55,7 +55,7 @@ class UserHandler(Handler):
         return user
 
     def toggle_watchlist(
-        self, user_id: int, request: WatchlistToggleRequest, vitess_client: VitessClient
+        self, user_id: int, request: WatchlistToggleRequest: VitessClient
     ) -> WatchlistToggleResponse:
         """Enable or disable watchlist for user."""
         # Check if user exists
@@ -71,9 +71,9 @@ class UserHandler(Handler):
             )
         return WatchlistToggleResponse(user_id=user_id, enabled=request.enabled)
 
-    def get_user_stats(self, vitess_client: VitessClient) -> UserStatsResponse:
+    def get_user_stats(self: VitessClient) -> UserStatsResponse:
         """Get user statistics from the daily stats table."""
-        with vitess_client.connection_manager.connection.cursor() as cursor:
+        with self.state.vitess_client.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT stat_date, total_users, active_users FROM user_daily_stats ORDER BY stat_date DESC LIMIT 1"
             )
@@ -102,10 +102,10 @@ class UserHandler(Handler):
                     active=stats.active_users,
                 )
 
-    def get_general_stats(self, vitess_client: VitessClient) -> GeneralStatsResponse:
+    def get_general_stats(self: VitessClient) -> GeneralStatsResponse:
         """Get general wiki statistics from the daily stats table."""
         logger.debug("Fetching general stats from database")
-        with vitess_client.connection_manager.connection.cursor() as cursor:
+        with self.state.vitess_client.connection_manager.connection.cursor() as cursor:
             cursor.execute(
                 "SELECT stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, terms_per_language, terms_by_type FROM general_daily_stats ORDER BY stat_date DESC LIMIT 1"
             )

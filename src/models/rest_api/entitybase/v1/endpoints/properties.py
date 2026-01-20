@@ -27,15 +27,12 @@ router = APIRouter()
 @router.post("/entities/properties", response_model=EntityResponse)
 async def create_property(request: EntityCreateRequest, req: Request) -> EntityResponse:
     """Create a new property entity."""
-    clients = req.app.state.clients
+    state = req.app.state.state
     validator = req.app.state.validator
     enumeration_service = req.app.state.enumeration_service
-    handler = PropertyCreateHandler(enumeration_service)
+    handler = PropertyCreateHandler(state=state, enumeration_service=enumeration_service)
     return await handler.create_entity(  # type: ignore[no-any-return]
         request,
-        clients.vitess_config,
-        clients.s3_config,
-        clients.stream_producer,
         validator,
     )
 
@@ -48,9 +45,9 @@ async def get_property_label(
     property_id: str, language_code: str, req: Request
 ) -> LabelResponse:
     """Get property label for language."""
-    clients = req.app.state.clients
-    handler = EntityReadHandler()
-    response = handler.get_entity(property_id, clients.vitess_config, clients.s3_config)
+    state = req.app.state.state
+    handler = EntityReadHandler(state=state)
+    response = handler.get_entity(property_id)
     labels = response.data.get("labels", {})
     if language_code not in labels:
         raise HTTPException(
@@ -67,9 +64,9 @@ async def get_property_description(
     property_id: str, language_code: str, req: Request
 ) -> DescriptionResponse:
     """Get property description for language."""
-    clients = req.app.state.clients
-    handler = EntityReadHandler()
-    response = handler.get_entity(property_id, clients.vitess_config, clients.s3_config)
+    state = req.app.state.state
+    handler = EntityReadHandler(state=state)
+    response = handler.get_entity(property_id)
     descriptions = response.data.get("descriptions", {})
     if language_code not in descriptions:
         raise HTTPException(
@@ -87,9 +84,9 @@ async def get_property_aliases_for_language(
     property_id: str, language_code: str, req: Request
 ) -> AliasesResponse:
     """Get property aliases for language."""
-    clients = req.app.state.clients
-    handler = EntityReadHandler()
-    response = handler.get_entity(property_id, clients.vitess_config, clients.s3_config)
+    state = req.app.state.state
+    handler = EntityReadHandler(state=state)
+    response = handler.get_entity(property_id)
     aliases = response.data.get("aliases", {})
     if language_code not in aliases:
         raise HTTPException(
@@ -109,12 +106,12 @@ async def put_property_aliases_for_language(
     logger.debug(
         f"Updating aliases for property {property_id}, language {language_code}"
     )
-    clients = req.app.state.clients
+    state = req.app.state.state
     validator = req.app.state.validator
 
     # Get current entity
-    handler = EntityReadHandler()
-    current_entity = handler.get_entity(property_id, clients.vitess_config, clients.s3_config)
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(property_id)
 
     # Update aliases: expect list of strings
     if "aliases" not in current_entity.data:
@@ -125,7 +122,7 @@ async def put_property_aliases_for_language(
     ]
 
     # Create new revision
-    update_handler = EntityUpdateHandler()
+    update_handler = EntityUpdateHandler(state=state)
     update_request = EntityUpdateRequest(
         type=current_entity.data.get("type"), **current_entity.data
     )
@@ -133,8 +130,5 @@ async def put_property_aliases_for_language(
     return await update_handler.update_entity(
         property_id,
         update_request,
-        clients.vitess_config,
-        clients.s3_config,
-        clients.stream_producer,
         validator,
     )

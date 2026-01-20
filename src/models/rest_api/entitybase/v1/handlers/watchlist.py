@@ -24,7 +24,7 @@ class WatchlistHandler(Handler):
     """Handler for watchlist-related operations."""
 
     def add_watch(
-        self, request: WatchlistAddRequest, vitess_client: VitessClient
+        self, request: WatchlistAddRequest: VitessClient
     ) -> MessageResponse:
         """Add a watchlist entry."""
         # Check if user exists
@@ -55,16 +55,16 @@ class WatchlistHandler(Handler):
         return MessageResponse(message="Watch added")
 
     def remove_watch(
-        self, request: WatchlistRemoveRequest, vitess_client: VitessClient
+        self, request: WatchlistRemoveRequest: VitessClient
     ) -> MessageResponse:
         """Remove a watchlist entry."""
-        vitess_client.watchlist_repository.remove_watch(
+        self.state.vitess_client.watchlist_repository.remove_watch(
             request.user_id, request.entity_id, request.properties
         )
         return MessageResponse(message="Watch removed")
 
     def remove_watch_by_id(
-        self, user_id: int, watch_id: int, vitess_client: VitessClient
+        self, user_id: int, watch_id: int: VitessClient
     ) -> MessageResponse:
         """Remove a watchlist entry by ID."""
         result = vitess_client.watchlist_repository.remove_watch_by_id(watch_id)
@@ -75,7 +75,7 @@ class WatchlistHandler(Handler):
         return MessageResponse(message="Watch removed")
 
     def get_watches(
-        self, user_id: int, vitess_client: VitessClient
+        self, user_id: int: VitessClient
     ) -> WatchlistResponse:
         """Get user's watchlist."""
         # Check if user exists
@@ -90,7 +90,7 @@ class WatchlistHandler(Handler):
 
         watches = vitess_client.watchlist_repository.get_watches_for_user(user_id)
         # Update activity
-        vitess_client.user_repository.update_user_activity(user_id)
+        self.state.vitess_client.user_repository.update_user_activity(user_id)
         return WatchlistResponse(user_id=user_id, watches=watches)
 
     def get_notifications(
@@ -116,20 +116,20 @@ class WatchlistHandler(Handler):
             user_id, hours, limit, offset
         )
         # Update activity
-        vitess_client.user_repository.update_user_activity(user_id)
+        self.state.vitess_client.user_repository.update_user_activity(user_id)
         return NotificationResponse(user_id=user_id, notifications=notifications)
 
     def mark_checked(
-        self, user_id: int, request: MarkCheckedRequest, vitess_client: VitessClient
+        self, user_id: int, request: MarkCheckedRequest: VitessClient
     ) -> MessageResponse:
         """Mark a notification as checked."""
-        vitess_client.watchlist_repository.mark_notification_checked(
+        self.state.vitess_client.watchlist_repository.mark_notification_checked(
             request.notification_id, user_id
         )
         return MessageResponse(message="Notification marked as checked")
 
     def get_watch_counts(
-        self, user_id: int, vitess_client: VitessClient
+        self, user_id: int: VitessClient
     ) -> WatchCounts:
         """Get user's watch counts."""
         entity_count = vitess_client.watchlist_repository.get_entity_watch_count(

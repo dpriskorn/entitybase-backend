@@ -13,7 +13,7 @@ from models.rest_api.entitybase.v1.endpoints import v1_router
 )
 async def get_batch_sitelinks(hashes: str, req: Request) -> dict[str, str]:
     """Get batch sitelink titles by hashes."""
-    clients = req.app.state.clients
+    state = req.app.state.state
     hash_list = hashes.split(",")
     if len(hash_list) > 20:
         raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
@@ -34,7 +34,7 @@ async def get_batch_sitelinks(hashes: str, req: Request) -> dict[str, str]:
 )
 async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
     """Get batch labels by hashes."""
-    clients = req.app.state.clients
+    state = req.app.state.state
     hash_list = hashes.split(",")
     if len(hash_list) > 20:
         raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
@@ -57,7 +57,7 @@ async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
 )
 async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
     """Get batch descriptions by hashes."""
-    clients = req.app.state.clients
+    state = req.app.state.state
     hash_list = hashes.split(",")
     if len(hash_list) > 20:
         raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
@@ -80,7 +80,7 @@ async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
 )
 async def get_batch_aliases(hashes: str, req: Request) -> dict[str, list[str]]:
     """Get batch aliases by hashes."""
-    clients = req.app.state.clients
+    state = req.app.state.state
     hash_list = hashes.split(",")
     if len(hash_list) > 20:
         raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
@@ -107,7 +107,7 @@ async def get_batch_statements(
     """Get batch statements for entities and properties."""
     if req is None:
         raise HTTPException(status_code=500, detail="Request not provided")
-    clients = req.app.state.clients
+    state = req.app.state.state
     entity_list = entity_ids.split(",")
     property_list = property_ids.split(",") if property_ids else None
     if len(entity_list) > 20:
@@ -117,8 +117,8 @@ async def get_batch_statements(
         entity_id = entity_id.strip()
         try:
             # Get entity revision
-            handler = EntityReadHandler()
-            entity_response = handler.get_entity(entity_id, clients.vitess_config, clients.s3_config)
+            handler = EntityReadHandler(state=state)
+            entity_response = handler.get_entity(entity_id)
             statements = entity_response.entity_data.get("statements", {})
             if property_list:
                 filtered = {p: statements.get(p, []) for p in property_list}

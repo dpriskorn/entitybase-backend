@@ -107,9 +107,6 @@ class EntityHandler(Handler):
         edit_type: EditType | None,
         edit_summary: str,
         is_creation: bool,
-        vitess_client: "VitessClient",
-        s3_client: "MyS3Client",
-        stream_producer: "StreamProducerClient | None",
         validator: Any | None,
     ) -> EntityResponse:
         """New simplified entity revision processing using services."""
@@ -122,9 +119,6 @@ class EntityHandler(Handler):
             edit_type=edit_type,
             edit_summary=edit_summary,
             is_creation=is_creation,
-            vitess_client=vitess_client,
-            s3_client=s3_client,
-            stream_producer=stream_producer,
             validator=validator,
         )
 
@@ -338,8 +332,6 @@ class EntityHandler(Handler):
         self,
         entity_id: str,
         request_data: Dict[str, Any],
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
         validator: Any | None,
     ) -> StatementHashResult:
         """Process and store statements for the entity."""
@@ -378,8 +370,6 @@ class EntityHandler(Handler):
         logger.info(f"Entity {entity_id}: Starting statement deduplication and storage")
         store_result = deduplicate_and_store_statements(
             hash_result=hash_result,
-            vitess_client=vitess_client,
-            s3_client=s3_client,
             validator=validator,
             schema_version=settings.s3_statement_version,
         )
@@ -410,9 +400,6 @@ class EntityHandler(Handler):
         is_archived: bool | None,
         is_dangling: bool | None,
         is_mass_edit_protected: bool | None,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
-        stream_producer: StreamProducerClient | None,
         is_creation: bool,
         edit_summary: str,
         user_id: int,
@@ -427,13 +414,13 @@ class EntityHandler(Handler):
 
         # Process terms: hash labels, descriptions, aliases and store metadata
         labels_hashes = HashService.hash_labels(
-            request_data.get("labels", {}), s3_client, vitess_client
+            request_data.get("labels", {}), s3_client
         )
         descriptions_hashes = HashService.hash_descriptions(
-            request_data.get("descriptions", {}), s3_client, vitess_client
+            request_data.get("descriptions", {}), s3_client
         )
         aliases_hashes = HashService.hash_aliases(
-            request_data.get("aliases", {}), s3_client, vitess_client
+            request_data.get("aliases", {}), s3_client
         )
 
         # Create revision data
@@ -474,7 +461,7 @@ class EntityHandler(Handler):
         # Store revision in S3 and update head
         logger.info(f"Entity {entity_id}: Creating revision {new_revision_id}")
         try:
-            vitess_client.create_revision(
+            self.state.vitess_client.create_revision(
                 entity_id=entity_id,
                 entity_data=revision_data.model_dump(),
                 revision_id=new_revision_id,
@@ -584,9 +571,9 @@ class EntityHandler(Handler):
 
         # Check if property exists and is a property
         try:
-            read_handler = EntityReadHandler()
+            read_handler = EntityReadHandler(state=state)
             property_response = read_handler.get_entity(
-                property_id, vitess_client, s3_client
+                property_id, s3_client
             )
             if property_response.entity_type != "property":
                 return OperationResult(success=False, error="Entity is not a property")
@@ -595,9 +582,9 @@ class EntityHandler(Handler):
 
         # Fetch current entity data
         try:
-            read_handler = EntityReadHandler()
+            read_handler = EntityReadHandler(state=state)
             entity_response = read_handler.get_entity(
-                entity_id, vitess_client, s3_client
+                entity_id, s3_client
             )
             current_data = entity_response.entity_data
         except Exception as e:
@@ -725,7 +712,7 @@ class EntityHandler(Handler):
         # Store the updated revision
         try:
             s3_client.write_revision(entity_id, new_revision_id, revision_data.data)
-            vitess_client.update_head_revision(entity_id, new_revision_id)
+            self.state.vitess_client.update_head_revision(entity_id, new_revision_id)
         except Exception as e:
             return OperationResult(
                 success=False, error=f"Failed to store updated revision: {e}"
@@ -750,9 +737,9 @@ class EntityHandler(Handler):
 
         # Fetch current entity data
         try:
-            read_handler = EntityReadHandler()
+            read_handler = EntityReadHandler(state=state)
             entity_response = read_handler.get_entity(
-                entity_id, vitess_client, s3_client
+                entity_id, s3_client
             )
             current_data = entity_response.entity_data
         except Exception as e:
@@ -787,7 +774,7 @@ class EntityHandler(Handler):
             request_data=current_data,
             entity_type=entity_response.entity_data.get("type", "item"),
             hash_result=self.process_statements(
-                entity_id, current_data, vitess_client, s3_client, validator
+                entity_id, current_data,  validator
             ),
             is_mass_edit=False,
             edit_type=EditType.UNSPECIFIED,

@@ -45,13 +45,13 @@ class EntityHashingService(BaseModel):
     ) -> HashMaps:
         """Hash entity terms (labels, descriptions, aliases)."""
         labels_hashes = HashService.hash_labels(
-            request_data.get("labels", {}), s3_client, vitess_client
+            request_data.get("labels", {}), s3_client
         )
         descriptions_hashes = HashService.hash_descriptions(
-            request_data.get("descriptions", {}), s3_client, vitess_client
+            request_data.get("descriptions", {}), s3_client
         )
         aliases_hashes = HashService.hash_aliases(
-            request_data.get("aliases", {}), s3_client, vitess_client
+            request_data.get("aliases", {}), s3_client
         )
 
         return HashMaps(

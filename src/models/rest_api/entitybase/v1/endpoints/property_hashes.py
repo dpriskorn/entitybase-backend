@@ -21,10 +21,10 @@ def get_entity_property_hashes(
     entity_id: str, property_list: str, req: Request
 ) -> PropertyHashesResponse:
     """Get statement hashes for specified properties in an entity."""
-    clients = req.app.state.clients
-    if not isinstance(clients, State):
+    state = req.app.state.state
+    if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = StatementHandler()
+    handler = StatementHandler(state=state)
     return handler.get_entity_property_hashes(
-        entity_id, property_list, clients.vitess_config, clients.s3_config
+        entity_id, property_list
     )

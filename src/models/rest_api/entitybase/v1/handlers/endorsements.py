@@ -23,7 +23,7 @@ class EndorsementHandler(Handler):
     """Handler for endorsement operations."""
 
     def endorse_statement(
-        self, statement_hash: int, user_id: int, vitess_client: VitessClient
+        self, statement_hash: int, user_id: int: VitessClient
     ) -> EndorsementResponse:
         """Create an endorsement for a statement."""
         logger.debug(f"Endorsing statement {statement_hash} for user {user_id}")
@@ -42,7 +42,7 @@ class EndorsementHandler(Handler):
 
         # Get the endorsement details for response
         endorsements_result = (
-            vitess_client.endorsement_repository.get_statement_endorsements(
+            self.state.vitess_client.endorsement_repository.get_statement_endorsements(
                 statement_hash, limit=1, offset=0, include_removed=True
             )
         )
@@ -72,14 +72,14 @@ class EndorsementHandler(Handler):
             )
 
         # Publish event
-        if vitess_client.stream_producer:
+        if self.state.vitess_client.stream_producer:
             event = EndorseChangeEvent(
                 hash=str(statement_hash),
                 user=str(user_id),
                 act=EndorseAction.ENDORSE,
                 ts=datetime.now(timezone.utc),
             )
-            vitess_client.stream_producer.publish_change(event)
+            self.state.vitess_client.stream_producer.publish_change(event)
 
         return EndorsementResponse(
             id=created_endorsement.id,  # type: ignore[union-attr]
@@ -90,7 +90,7 @@ class EndorsementHandler(Handler):
         )
 
     def withdraw_endorsement(
-        self, statement_hash: int, user_id: int, vitess_client: VitessClient
+        self, statement_hash: int, user_id: int: VitessClient
     ) -> EndorsementResponse:
         """Withdraw an endorsement for a statement."""
         logger.debug(
@@ -111,7 +111,7 @@ class EndorsementHandler(Handler):
 
         # Get the withdrawn endorsement details for response
         endorsements_result = (
-            vitess_client.endorsement_repository.get_statement_endorsements(
+            self.state.vitess_client.endorsement_repository.get_statement_endorsements(
                 statement_hash, limit=1, offset=0, include_removed=True
             )
         )
@@ -141,14 +141,14 @@ class EndorsementHandler(Handler):
             )
 
         # Publish event
-        if vitess_client.stream_producer:
+        if self.state.vitess_client.stream_producer:
             event = EndorseChangeEvent(
                 hash=str(statement_hash),
                 user=str(user_id),
                 act=EndorseAction.WITHDRAW,
                 ts=datetime.now(timezone.utc),
             )
-            vitess_client.stream_producer.publish_change(event)
+            self.state.vitess_client.stream_producer.publish_change(event)
 
         return EndorsementResponse(
             id=withdrawn_endorsement.id,  # type: ignore[union-attr]
@@ -178,7 +178,7 @@ class EndorsementHandler(Handler):
 
         # Get stats for this statement
         stats_result = (
-            vitess_client.endorsement_repository.get_batch_statement_endorsement_stats(
+            self.state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats(
                 [statement_hash]
             )
         )
@@ -216,7 +216,7 @@ class EndorsementHandler(Handler):
         )
 
     def get_user_endorsements(
-        self, user_id: int, request: EndorsementListRequest, vitess_client: VitessClient
+        self, user_id: int, request: EndorsementListRequest: VitessClient
     ) -> EndorsementListResponse:
         """Get endorsements given by a user."""
         # Validate user exists
@@ -241,7 +241,7 @@ class EndorsementHandler(Handler):
         )
 
     def get_user_endorsement_stats(
-        self, user_id: int, vitess_client: VitessClient
+        self, user_id: int: VitessClient
     ) -> EndorsementStatsResponse:
         """Get endorsement statistics for a user."""
         # Validate user exists
@@ -264,7 +264,7 @@ class EndorsementHandler(Handler):
         )
 
     def get_batch_statement_endorsement_stats(
-        self, statement_hashes: list[int], vitess_client: VitessClient
+        self, statement_hashes: list[int]: VitessClient
     ) -> BatchEndorsementStatsResponse:
         """Get endorsement statistics for multiple statements."""
         # Validate statement hashes exist (basic validation)
@@ -273,7 +273,7 @@ class EndorsementHandler(Handler):
                 raise_validation_error("Invalid statement hash", status_code=400)
 
         result = (
-            vitess_client.endorsement_repository.get_batch_statement_endorsement_stats(
+            self.state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats(
                 statement_hashes
             )
         )
