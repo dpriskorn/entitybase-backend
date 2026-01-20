@@ -1,4 +1,5 @@
 """Manager for Vitess database schema operations."""
+from typing import Any
 
 from models.infrastructure.vitess.repository import Repository
 from models.rest_api.utils import raise_validation_error
@@ -12,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 class SchemaRepository(Repository):
     """Manager for creating and managing Vitess database schema."""
+    vitess_client: Any
 
     def create_tables(self) -> None:
         """Create all required database tables."""

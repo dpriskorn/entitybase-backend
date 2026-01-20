@@ -2,14 +2,13 @@
 
 import logging
 from typing import Any
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 
 from pydantic import Field, BaseModel
 
+from models.infrastructure.vitess.config import VitessConfig
 from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.id_resolver import IdResolver
-
-from models.infrastructure.vitess.config import VitessConfig
 
 logger = logging.getLogger(__name__)
 
@@ -20,22 +19,23 @@ class VitessClient(BaseModel):
         default=None, init=False, exclude=True
     )
     id_resolver: Optional[IdResolver] = Field(default=None, init=False, exclude=True)
-    config: VitessConfig
+    config: VitessConfig | None = None
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)
         logger.debug(f"Initializing VitessClient with host {config.host}")
         self.connection_manager = VitessConnectionManager(config=self.config)
         self.id_resolver = IdResolver(vitess_client=self)
-
-        # Repositories
-        from models.infrastructure.vitess.repositories.schema import SchemaRepository
-        schema_repository: SchemaRepository = SchemaRepository(config=config)
-        schema_repository.create_tables()
+        # self.create_tables()
 
     @property
     def cursor(self) -> Any:
         return self.connection_manager.connection.cursor()
+
+    def create_tables(self) -> None:
+        from models.infrastructure.vitess.repositories.schema import SchemaRepository
+        schema_repository: SchemaRepository = SchemaRepository(vitess_client=self)
+        schema_repository.create_tables()
 
 
 # Import UserRepository for model_rebuild to resolve forward references
