@@ -80,7 +80,7 @@ class EntityJsonImportHandler(Handler):
 
                         # Check if entity already exists
                         entity_exists = EntityJsonImportHandler._check_entity_exists(
-                            entity_id=create_request.id
+                            entity_id=create_request.id, s3_client=self.state.s3_client
                         )
 
                         if entity_exists and not request.overwrite_existing:
@@ -161,10 +161,11 @@ class EntityJsonImportHandler(Handler):
                 log_f.write("---\n")
             return None
 
-    def _check_entity_exists(self, entity_id: str) -> bool:
+    @staticmethod
+    def _check_entity_exists(entity_id: str, s3_client) -> bool:
         """Check if an entity already exists by trying to read its latest revision."""
         try:
-            self.state.s3_client.read_revision(entity_id, 1)  # Try to read revision 1
+            s3_client.read_revision(entity_id, 1)  # Try to read revision 1
             return True
         except Exception:
             return False

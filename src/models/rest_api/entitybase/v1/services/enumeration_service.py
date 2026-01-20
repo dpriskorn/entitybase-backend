@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from models.rest_api.entitybase.v1.response.misc import RangeStatuses
 from models.rest_api.utils import raise_validation_error
@@ -16,9 +16,10 @@ class EnumerationService(BaseModel):
     """Service for managing entity ID enumeration across different entity types."""
     worker_id: str
     vitess_client: Any
+    range_manager: Any = Field(default=None, exclude=True)
 
     def __init__(self, vitess_client, worker_id: str = "default-worker"):
-        super().__init__(worker_id=worker_id)
+        super().__init__(vitess_client=vitess_client, worker_id=worker_id)
         # Minimum IDs to avoid collisions with Wikidata.org
         min_ids = {
             "Q": 300_000_000,
