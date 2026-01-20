@@ -1,7 +1,9 @@
 """Vitess client for database operations."""
 
 import logging
-from typing import Any, Optional
+from typing import Any, Generator
+
+import pymysql, Optional
 from typing import TYPE_CHECKING
 
 from pydantic import Field
@@ -118,7 +120,7 @@ class VitessClient(Client):
         assert self.connection_manager is not None
         return self.connection_manager
 
-    def get_connection(self) -> Any:  # noqa
+    def get_connection(self) -> Generator[pymysql.Connection, None, None]:
         """Get a database connection."""
         return self.connection_manager.get_connection()
 
