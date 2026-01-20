@@ -27,6 +27,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             if settings.property_registry_path
             else None,
         )
+        clients.start()
         app_.state.clients = clients
         yield
 

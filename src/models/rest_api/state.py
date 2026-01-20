@@ -33,13 +33,7 @@ class State(BaseModel):
     property_registry_path: Path | None = None,
     streaming_enabled: bool = False,
 
-    def __init__(
-        self,
-        **kwargs,
-    ) -> None:
-        super().__init__(
-            **kwargs,
-        )
+    def start(self):
         if not self.streaming_enabled:
             logger.info("Streaming is disabled")
         self.health_check()
@@ -70,6 +64,8 @@ class State(BaseModel):
     def vitess_client(self) -> "VitessClient":
         """Get a fully ready client"""
         from models.infrastructure.vitess.client import VitessClient
+        if self.vitess_config is None:
+            raise_validation_error(message="No vitess config provided")
         return VitessClient(config=self.vitess_config)
 
     @property

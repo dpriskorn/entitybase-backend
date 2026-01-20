@@ -49,10 +49,10 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         s3_config = settings.to_s3_config()
         vitess_config = settings.to_vitess_config()
         kafka_brokers = settings.kafka_brokers
-        kafka_topic = settings.kafka_entitychange_json_topic
+        kafka_entity_change_topic = settings.kafka_entitychange_json_topic
         logger.debug(f"S3 config: {s3_config}")
         logger.debug(f"Vitess config: {vitess_config}")
-        logger.debug(f"Kafka config: brokers={kafka_brokers}, topic={kafka_topic}")
+        logger.debug(f"Kafka config: brokers={kafka_brokers}, topic={kafka_entity_change_topic}")
 
         property_registry_path = (
             Path("test_data/properties")
@@ -62,12 +62,12 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         logger.debug(f"Property registry path: {property_registry_path}")
 
         app_.state.clients = State(
-            s3=s3_config,
-            vitess=vitess_config,
-            enable_streaming=settings.streaming_enabled,
-            kafka_brokers=kafka_brokers,
-            kafka_topic=kafka_topic,
-            kafka_rdf_topic=settings.kafka_entitydiff_ttl_topic,
+            s3_config=s3_config,
+            vitess_config=vitess_config,
+            streaming_enabled=settings.streaming_enabled,
+            kafka_brokers=settings.kafka_brokers,
+            kafka_entitychange_topic=settings.kafka_entitychange_json_topic,
+            kafka_entitydiff_topic=settings.kafka_entitydiff_ttl_topic,
             property_registry_path=property_registry_path,
         )
 
