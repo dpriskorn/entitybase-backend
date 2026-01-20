@@ -161,11 +161,10 @@ class EntityJsonImportHandler(Handler):
                 log_f.write("---\n")
             return None
 
-    @staticmethod
-    def _check_entity_exists(entity_id: str, s3_client) -> bool:
+    def _check_entity_exists(self, entity_id: str) -> bool:
         """Check if an entity already exists by trying to read its latest revision."""
         try:
-            s3_client.read_revision(entity_id, 1)  # Try to read revision 1
+            self.state.s3_client.read_revision(entity_id, 1)  # Try to read revision 1
             return True
         except Exception:
             return False

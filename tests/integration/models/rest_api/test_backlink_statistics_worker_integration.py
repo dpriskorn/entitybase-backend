@@ -23,8 +23,7 @@ class TestBacklinkStatisticsWorkerIntegration:
     @pytest.fixture
     def worker(self, mock_vitess_client: MagicMock) -> BacklinkStatisticsWorker:
         """Create worker instance with mocked client"""
-        worker = BacklinkStatisticsWorker()
-        worker.vitess_client = mock_vitess_client
+        worker = BacklinkStatisticsWorker(vitess_client=mock_vitess_client)
         return worker
 
     @pytest.mark.asyncio

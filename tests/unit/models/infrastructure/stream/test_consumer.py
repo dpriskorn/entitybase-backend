@@ -88,6 +88,7 @@ class TestConsumer:
             }
             yield mock_message
 
+        # noinspection PyTypeChecker
         consumer.consumer = mock_messages()  # Assign the async generator
 
         events = []

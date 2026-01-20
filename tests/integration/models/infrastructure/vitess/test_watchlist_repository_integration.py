@@ -26,7 +26,7 @@ class TestWatchlistRepository:
         self, mock_connection_manager: MagicMock, mock_id_resolver: MagicMock
     ) -> WatchlistRepository:
         """Create repository instance"""
-        return WatchlistRepository(mock_connection_manager, mock_id_resolver)
+        return WatchlistRepository(mock_id_resolver)
 
     def test_add_watch(
         self,

@@ -6,7 +6,7 @@ class TestMetadataRepository:
     def setup_method(self) -> None:
         """Set up test fixtures."""
         self.connection_manager = Mock()
-        self.repository = MetadataRepository(self.connection_manager)
+        self.repository = MetadataRepository()
 
     def test_insert_metadata_content_new(self) -> None:
         """Test inserting new metadata content."""

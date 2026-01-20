@@ -127,15 +127,6 @@ class UpdateTransaction(EntityTransaction):
         Creates and sends an EntityChangeEvent to the configured stream producer
         for downstream processing (e.g., notifications, logging).
 
-        Args:
-            entity_id: The ID of the entity that changed.
-            revision_id: The new revision ID after the change.
-            change_type: The type of change (e.g., 'edit', 'create').
-            user_id: The id of the user who made the change.
-
-        Returns:
-            None
-
         Note:
             The editor field in EntityChangeEvent is set to the editor parameter.
         """
