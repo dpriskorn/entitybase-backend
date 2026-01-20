@@ -12,7 +12,7 @@ from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import (
     EntityTransaction,
 )
 from models.infrastructure.stream.change_type import ChangeType
-
+from models.rest_api.entitybase.v1.services.statement_service import StatementService
 
 logger = logging.getLogger(__name__)
 
@@ -31,11 +31,9 @@ class UpdateTransaction(EntityTransaction):
             f"[UpdateTransaction] Starting statement processing for {entity_id}"
         )
         # Import here to avoid circular imports
-        from models.rest_api.entitybase.v1.services.statement_service import (
-            hash_entity_statements,
-        )
+        ss = StatementService(state=self.state)
 
-        hash_result = hash_entity_statements(request_data)
+        hash_result = ss.hash_entity_statements(request_data)
         if not hash_result.success:
             from models.rest_api.utils import raise_validation_error
 
@@ -44,13 +42,9 @@ class UpdateTransaction(EntityTransaction):
             )
 
         # Store new statements
-        from models.rest_api.entitybase.v1.services.statement_service import (
-            deduplicate_and_store_statements,
-        )
-
         assert hash_result.data is not None  # Guaranteed by success check above
         hash_data: StatementHashResult = hash_result.data
-        store_result = deduplicate_and_store_statements(
+        store_result = ss.deduplicate_and_store_statements(
             hash_data,  validator
         )
         if not store_result.success:
@@ -88,7 +82,7 @@ class UpdateTransaction(EntityTransaction):
         logger.debug(f"[UpdateTransaction] Starting revision creation for {entity_id}")
         from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 
-        handler = EntityHandler(state=state)
+        handler = EntityHandler(state=self.state)
         response = await handler._create_and_store_revision(
             entity_id=entity_id,
             new_revision_id=new_revision_id,
@@ -171,7 +165,7 @@ class UpdateTransaction(EntityTransaction):
         # Check if orphaned and delete from S3
         ref_count = self.state.vitess_client.get_ref_count(hash_val)
         if ref_count == 0:
-            s3_client.delete_statement(hash_val)
+            self.state.s3_client.delete_statement(hash_val)
 
     def _rollback_revision(
         self, entity_id: str, revision_id: int

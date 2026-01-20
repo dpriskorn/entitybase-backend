@@ -87,7 +87,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         )
 
         app_.state.enumeration_service = EnumerationService(
-            app_.state.clients.vitess_config, worker_id="rest-api"
+            worker_id="rest-api"
         )
         logger.debug(
             "Clients, validator, and enumeration service initialized successfully"
