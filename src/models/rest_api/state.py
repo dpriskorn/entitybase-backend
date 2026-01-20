@@ -13,6 +13,7 @@ from models.infrastructure.vitess.client import VitessClient
 from models.infrastructure.vitess.config import VitessConfig
 from models.rdf_builder.property_registry.loader import load_property_registry
 from models.rdf_builder.property_registry.registry import PropertyRegistry
+from models.rest_api.entitybase.v1.services.enumeration_service import EnumerationService
 
 logger = logging.getLogger(__name__)
 
@@ -99,3 +100,9 @@ class State(BaseModel):
             return load_property_registry(self.property_registry_path)
         else:
             raise_validation_error(message="No property registry path provided")
+
+    @property
+    def enumeration_service(self):
+        return EnumerationService(
+            worker_id="rest-api"
+        )

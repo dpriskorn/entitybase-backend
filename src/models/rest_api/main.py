@@ -72,22 +72,18 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             property_registry_path=property_registry_path,
         )
 
-        if app_.state.clients.stream_producer:
+        if app_.state.clients.entitychange_stream_producer:
             await app_.state.clients.stream_producer.start()
-            logger.info("Stream producer started")
+            logger.info("entitychange_stream_producer started")
 
-        if app_.state.clients.rdf_stream_producer:
+        if app_.state.clients.entitydiff_stream_producer:
             await app_.state.clients.rdf_stream_producer.start()
-            logger.info("RDF stream producer started")
+            logger.info("RDF entitydiff_stream_producer started")
 
         app_.state.validator = JsonSchemaValidator(
             s3_revision_version=settings.s3_schema_revision_version,
             s3_statement_version=settings.s3_statement_version,
             wmf_recentchange_version=settings.wmf_recentchange_version,
-        )
-
-        app_.state.enumeration_service = EnumerationService(
-            worker_id="rest-api"
         )
         logger.debug(
             "Clients, validator, and enumeration service initialized successfully"

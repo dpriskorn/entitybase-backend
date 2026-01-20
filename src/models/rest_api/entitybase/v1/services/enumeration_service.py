@@ -1,6 +1,9 @@
 """Entity ID enumeration service."""
 
 import logging
+from typing import Any
+
+from pydantic import BaseModel
 
 from models.rest_api.entitybase.v1.response.misc import RangeStatuses
 from models.rest_api.utils import raise_validation_error
@@ -10,12 +13,12 @@ from ..service import Service
 logger = logging.getLogger(__name__)
 
 
-class EnumerationService(Service):
+class EnumerationService(BaseModel):
     """Service for managing entity ID enumeration across different entity types."""
     worker_id: str
 
     def __init__(self, worker_id: str = "default-worker"):
-        super().__init__(worker_id)
+        super().__init__(worker_id=worker_id)
         # Minimum IDs to avoid collisions with Wikidata.org
         min_ids = {
             "Q": 300_000_000,
