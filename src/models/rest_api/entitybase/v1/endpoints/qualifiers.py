@@ -38,7 +38,7 @@ async def get_qualifiers(
         raise HTTPException(status_code=400, detail="Invalid hash format")
 
     try:
-        result = self.state.s3_client.load_qualifiers_batch(rapidhashes)
+        result = state.s3_client.load_qualifiers_batch(rapidhashes)
         # Convert S3QualifierData to QualifierResponse models
         return [
             QualifierResponse(

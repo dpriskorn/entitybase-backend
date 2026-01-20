@@ -78,7 +78,7 @@ class EntityRevertHandler(Handler):
         }
 
         # Write new revision to S3
-        s3_client.write_revision(
+        self.state.s3_client.write_revision(
             entity_id=entity_id,
             revision_id=new_revision_id,
             data=new_revision_data,
@@ -113,7 +113,7 @@ class EntityRevertHandler(Handler):
                 at=datetime.now(timezone.utc),
                 summary=request.reason,
             )
-            await stream_producer.publish_event(event)
+            await self.state.stream_producer.publish_event(event)
 
         return EntityRevertResponse(
             entity_id=entity_id,

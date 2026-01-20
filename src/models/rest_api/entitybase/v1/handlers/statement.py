@@ -20,7 +20,7 @@ from models.rest_api.entitybase.v1.response import (
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
-    from models.infrastructure.vitess.client import VitessClient
+    pass
 
 logger = logging.getLogger(__name__)
 
@@ -201,7 +201,6 @@ class StatementHandler(Handler):
 
     def get_most_used_statements(
         self,
-        vitess_client: "VitessClient",
         limit: int = 100,
         min_ref_count: int = 1,
     ) -> MostUsedStatementsResponse:
@@ -249,7 +248,7 @@ class StatementHandler(Handler):
         for statement_hash in orphaned_hashes:
             try:
                 # Delete from S3 first
-                s3_client.delete_statement(statement_hash)
+                self.state.s3_client.delete_statement(statement_hash)
                 # Then delete from Vitess
                 self.state.vitess_client.delete_statement(statement_hash)
                 cleaned_count += 1

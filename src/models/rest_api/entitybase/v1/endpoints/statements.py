@@ -52,7 +52,7 @@ def get_most_used_statements(  # type: ignore[no-any-return]
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
     result = handler.get_most_used_statements(
-        clients.vitess_config, request.limit, request.min_ref_count
+        request.limit, request.min_ref_count
     )
     if not isinstance(result, MostUsedStatementsResponse):
         raise_validation_error("Invalid response type", status_code=500)

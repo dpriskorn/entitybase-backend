@@ -244,7 +244,6 @@ class StatementService(Service):
 
         Args:
             hash_result: StatementHashResult with statements to process.
-            s3_client: S3 client for reference storage.
 
         Returns:
             OperationResult indicating success/failure.
@@ -291,7 +290,6 @@ class StatementService(Service):
 
         Args:
             hash_result: StatementHashResult with statements to process.
-            s3_client: S3 client for qualifier storage.
 
         Returns:
             OperationResult indicating success/failure.

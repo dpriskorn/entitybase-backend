@@ -2,7 +2,7 @@
 
 import logging
 import time
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 from pydantic import BaseModel
 
@@ -26,14 +26,15 @@ class IdRangeManager:
 
     def __init__(
         self,
+            state: Any,
         range_size: int = 1_000_000,
         min_ids: Optional[Dict[str, int]] = None,
     ):
-        self.vitess_client = vitess_client
         self.range_size = range_size
         self._local_ranges: Dict[str, IdRange] = {}
         self.worker_id: str = ""
         self.min_ids = min_ids or {}
+        self.state=state  # this is the app state
 
     def set_worker_id(self, worker_id: str) -> None:
         """Set the worker ID for range allocation tracking."""
