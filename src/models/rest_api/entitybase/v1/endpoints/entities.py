@@ -123,7 +123,7 @@ async def get_entity_json_revision(  # type: ignore[return]
 ) -> dict:
     """Get JSON representation of a specific entity revision."""
     state = req.app.state.state
-    revision_data = self.state.s3_client.read_revision(entity_id, revision_id)
+    revision_data = state.s3_client.read_revision(entity_id, revision_id)
 
     return revision_data.data  # type: ignore[no-any-return]
 

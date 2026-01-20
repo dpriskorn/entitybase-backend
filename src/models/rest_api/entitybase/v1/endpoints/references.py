@@ -3,6 +3,7 @@
 import logging
 
 from fastapi import APIRouter, HTTPException
+from starlette.requests import Request
 
 from models.rest_api.entitybase.v1.response.qualifiers_references import (
     ReferenceResponse,
@@ -15,7 +16,8 @@ references_router = APIRouter(prefix="/references", tags=["statements"])
 
 @references_router.get("/{hashes}")
 async def get_references(
-    hashes: str
+        req: Request,
+        hashes: str
 ) -> list[ReferenceResponse | None]:
     """Fetch references by hash(es).
 
@@ -24,6 +26,7 @@ async def get_references(
     Returns array of reference dicts in request order; null for missing hashes.
     Max 100 hashes per request.
     """
+    state = req.app.state.state
     hash_list = [h.strip() for h in hashes.split(",") if h.strip()]
     if not hash_list:
         raise HTTPException(status_code=400, detail="No hashes provided")
@@ -38,7 +41,7 @@ async def get_references(
         raise HTTPException(status_code=400, detail="Invalid hash format")
 
     try:
-        result = self.state.s3_client.load_references_batch(rapidhashes)
+        result = state.s3_client.load_references_batch(rapidhashes)
         # Convert S3ReferenceData to ReferenceResponse models
         return [
             ReferenceResponse(

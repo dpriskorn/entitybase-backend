@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class EnumerationService(Service):
     """Service for managing entity ID enumeration across different entity types."""
-
+    worker_id: str
     def __init__(self, worker_id: str = "default-worker"):
         super().__init__(worker_id)
         # Minimum IDs to avoid collisions with Wikidata.org
@@ -30,8 +30,6 @@ class EnumerationService(Service):
             self.range_manager.initialize_from_database()
         except Exception as e:
             # Log but don't fail - ranges will be allocated on demand
-            import logging
-
             logger.warning(f"Failed to initialize ID ranges from database: {e}")
 
     def get_next_entity_id(self, entity_type: str) -> str:

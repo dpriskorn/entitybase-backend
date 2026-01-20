@@ -14,6 +14,7 @@ from models.infrastructure.s3.hashes.hash_maps import (
 from models.infrastructure.vitess.repositories.terms import TermsRepository
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.service import Service
+from models.rest_api.entitybase.v1.services.statement_service import StatementService
 from models.validation.json_schema_validator import JsonSchemaValidator
 
 logger = logging.getLogger(__name__)
@@ -28,7 +29,8 @@ class HashService(Service):
         validator: JsonSchemaValidator | None = None,
     ) -> StatementsHashes:
         """Hash statements from entity data."""
-        hash_result = hash_entity_statements(entity_data)
+        ss = StatementService(state=self.state)
+        hash_result = ss.hash_entity_statements(entity_data)
         if not hash_result.success:
             from models.rest_api.utils import raise_validation_error
 
@@ -38,7 +40,7 @@ class HashService(Service):
 
         # Deduplicate and store
         assert hash_result.data is not None  # Guaranteed by success check above
-        store_result = deduplicate_and_store_statements(
+        store_result = ss.deduplicate_and_store_statements(
             hash_result.data,
             validator,
         )
@@ -51,8 +53,7 @@ class HashService(Service):
 
         return StatementsHashes(root=hash_result.data.statements)
 
-    @staticmethod
-    def hash_sitelinks(
+    def hash_sitelinks(self,
         sitelinks: dict[str, Any],
     ) -> SitelinksHashes:
         """Hash sitelink titles and store in S3."""
@@ -62,7 +63,7 @@ class HashService(Service):
                 title = sitelink_data["title"]
                 hash_value = MetadataExtractor.hash_string(title)
                 hashes[wiki] = hash_value
-                s3_client.store_sitelink_metadata(title, hash_value)
+                self.state.s3_client.store_sitelink_metadata(title, hash_value)
         return SitelinksHashes(root=hashes)
 
     def hash_labels(self,

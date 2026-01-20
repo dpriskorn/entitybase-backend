@@ -83,7 +83,7 @@ class EntityJsonImportHandler:
 
                         # Check if entity already exists
                         entity_exists = EntityJsonImportHandler._check_entity_exists(
-                            create_request.id
+                            entity_id=create_request.id
                         )
 
                         if entity_exists and not request.overwrite_existing:

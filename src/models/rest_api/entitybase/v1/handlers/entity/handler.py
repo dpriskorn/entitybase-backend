@@ -685,7 +685,7 @@ class EntityHandler(Handler):
             StatementRepository,
         )
 
-        stmt_repo = StatementRepository(vitess_client=vitess_client)
+        stmt_repo = StatementRepository(state=self.state)
         result = stmt_repo.decrement_ref_count(int(statement_hash))
         if not result.success:
             raise_validation_error(
@@ -702,7 +702,7 @@ class EntityHandler(Handler):
 
         # Store the updated revision
         try:
-            s3_client.write_revision(entity_id, new_revision_id, revision_data.data)
+            self.state.s3_client.write_revision(entity_id, new_revision_id, revision_data.data)
             self.state.vitess_client.update_head_revision(entity_id, new_revision_id)
         except Exception as e:
             return OperationResult(
@@ -726,7 +726,7 @@ class EntityHandler(Handler):
 
         # Fetch current entity data
         try:
-            read_handler = EntityReadHandler(state=state)
+            read_handler = EntityReadHandler(state=self.state)
             entity_response = read_handler.get_entity(
                 entity_id
             )
@@ -756,7 +756,7 @@ class EntityHandler(Handler):
             return OperationResult(success=False, error="Statement not found in entity")
 
         # Process as update using old method for now (new method is async)
-        revision_result = self._create_and_store_revision(
+        revision_result = await self._create_and_store_revision(
             entity_id=entity_id,
             new_revision_id=entity_response.revision_id + 1,
             head_revision_id=entity_response.revision_id,
@@ -782,9 +782,6 @@ class EntityHandler(Handler):
             is_mass_edit_protected=entity_response.state.mep
             if entity_response.state
             else False,
-            vitess_client=vitess_client,
-            s3_client=s3_client,
-            stream_producer=None,
             is_creation=False,
             edit_summary=request.edit_summary,
             user_id=user_id,
