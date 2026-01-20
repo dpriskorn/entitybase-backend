@@ -28,13 +28,13 @@ class TestItemCreateHandler:
         return service
 
     @pytest.fixture
-    def handler(self, enumeration_service: EnumerationService, mock_vitess_client: MagicMock, mock_s3_client: MagicMock, mock_stream_producer: MagicMock) -> ItemCreateHandler:
+    def handler(self, enumeration_service: EnumerationService, mock_vitess_client: MagicMock) -> ItemCreateHandler:
         """Create handler instance"""
         state = MagicMock()
         state.vitess_client = mock_vitess_client
         state.vitess_config = None
-        state.s3_client = mock_s3_client
-        state.entity_change_stream_producer = mock_stream_producer
+        state.s3_client = MagicMock()
+        state.entity_change_stream_producer = AsyncMock()
         return ItemCreateHandler(enumeration_service=enumeration_service, state=state)
 
     @pytest.fixture
@@ -43,7 +43,7 @@ class TestItemCreateHandler:
         client = MagicMock()
         client.entity_exists.return_value = False
         client.id_resolver.entity_exists.return_value = False
-        client.register_entity = MagicMock()
+        client.entity_repository.create_entity = MagicMock()
         client.is_entity_deleted.return_value = False
         client.get_head.return_value = 0
         client.create_revision = MagicMock()
@@ -86,10 +86,8 @@ class TestItemCreateHandler:
         result = await handler.create_entity(request=request)
 
         # Verify vitess interactions
-        mock_vitess_client.id_resolver.entity_exists.assert_called_once_with(
-            ANY, "Q99999"
-        )
-        mock_vitess_client.register_entity.assert_called_once_with("Q99999")
+        mock_vitess_client.id_resolver.entity_exists.assert_called_once_with("Q99999")
+        mock_vitess_client.entity_repository.create_entity.assert_called_once_with("Q99999")
 
         # Verify response
         assert result.id == "Q99999"

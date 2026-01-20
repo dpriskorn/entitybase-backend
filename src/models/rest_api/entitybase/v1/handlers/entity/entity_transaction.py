@@ -59,7 +59,9 @@ class EntityTransaction(BaseModel, ABC):
         revision_id: int,
         change_type: str,
         user_id: int = 0,
-        **kwargs: Any,
+        changed_at: datetime | None = None,
+        from_revision_id: int = 0,
+        edit_summary: str = "",
     ) -> None:
         """Publish a change event."""
         from datetime import datetime, timezone
@@ -69,12 +71,15 @@ class EntityTransaction(BaseModel, ABC):
         logger.info(
             f"[EntityTransaction] Publishing event for {entity_id} revision {revision_id}"
         )
+        if changed_at is None:
+            changed_at = datetime.now(timezone.utc)
         event = EntityChangeEvent(
             id=entity_id,
             rev=revision_id,
             type=ChangeType(change_type),
-            at=datetime.now(timezone.utc),
-            summary="",
+            from_rev=from_revision_id,
+            at=changed_at,
+            summary=edit_summary,
         )
         # TODO: Publish to stream
         logger.debug(f"Event: {event}")

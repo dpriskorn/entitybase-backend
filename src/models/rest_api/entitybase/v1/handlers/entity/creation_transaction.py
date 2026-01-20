@@ -1,6 +1,7 @@
 """Entity creation transaction management."""
 
 import logging
+from datetime import datetime
 from typing import Any
 
 from models.infrastructure.s3.enums import EntityType
@@ -99,16 +100,15 @@ class CreationTransaction(EntityTransaction):
         revision_id: int,
         change_type: str,
         user_id: int = 0,
-        **kwargs: Any,
+        changed_at: datetime | None = None,
+        from_revision_id: int = 0,
+        edit_summary: str = "",
     ) -> None:
         """Publish the entity creation event."""
-        changed_at = kwargs.get("changed_at")
-        stream_producer = kwargs.get("stream_producer")
-        from_revision_id = kwargs.get("from_revision_id", 0)
-        edit_summary = kwargs.get("edit_summary", "")
-
+        if changed_at is None:
+            changed_at = datetime.now()
         logger.info(f"[CreationTransaction] Starting event publishing for {entity_id}")
-        if self.state.stream_producer:
+        if self.state.entity_change_stream_producer:
             from models.infrastructure.stream.event import EntityChangeEvent
 
             event = EntityChangeEvent(
@@ -119,7 +119,7 @@ class CreationTransaction(EntityTransaction):
                 at=changed_at,
                 summary=edit_summary,
             )
-            stream_producer.publish_change(event)
+            self.state.entity_change_stream_producer.publish_change(event)
         # Events are fire-and-forget, no rollback needed
 
     def commit(self) -> None:

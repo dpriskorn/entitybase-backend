@@ -2,6 +2,7 @@
 
 import logging
 import traceback
+from datetime import datetime
 from typing import Any
 
 from models.infrastructure.s3.enums import EntityType
@@ -93,7 +94,7 @@ class ItemCreateHandler(EntityCreateHandler):
                 entity_id=entity_id,
                 revision_id=1,
                 change_type=ChangeType.CREATION,
-                # changed_at=datetime.now(),
+                changed_at=datetime.now(),
                 # stream_producer=stream_producer,
                 # from_revision_id=0,
                 # edit_summary=request.edit_summary,

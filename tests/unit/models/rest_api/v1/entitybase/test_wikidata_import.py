@@ -136,7 +136,7 @@ class TestEntityJsonImportHandler:
         sample_entity_json: dict[str, Any],
      ) -> None:
         """Test successful import of entities from JSONL file."""
-        stream_producer, validator = mock_clients
+        vitess_client, s3_client, stream_producer, validator = mock_clients
 
         # Create temporary JSONL file
         with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
@@ -172,8 +172,9 @@ class TestEntityJsonImportHandler:
                 worker_id="test-worker",
             )
 
-            result = await EntityJsonImportHandler.import_entities_from_jsonl(
-                request,  stream_producer, validator
+            handler = EntityJsonImportHandler(state=self.state)
+            result = await handler.import_entities_from_jsonl(
+                request, validator
             )
 
             assert isinstance(result, EntityJsonImportResponse)
