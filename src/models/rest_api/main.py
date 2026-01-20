@@ -95,11 +95,11 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         raise
     finally:
         # assert isinstance(app_.state.clients, State)
-        if app_.state.clients.entitychange_stream_producer:
+        if settings.streaming_enabled and app_.state.clients.entitychange_stream_producer:
             await app_.state.clients.entitychange_stream_producer.stop()
             logger.info("entitychange_stream_producer stopped")
 
-        if app_.state.clients.entitydiff_stream_producer:
+        if settings.streaming_enabled and app_.state.clients.entitydiff_stream_producer:
             await app_.state.clients.entitydiff_stream_producer.stop()
             logger.info("entitydiff_stream_producer stopped")
 
