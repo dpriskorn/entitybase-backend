@@ -1,13 +1,10 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
-if TYPE_CHECKING:
-    from models.infrastructure.vitess.client import VitessClient
-
 
 class IdResolver(BaseModel):
-    vitess_client: "VitessClient"
+    vitess_client: Any  # VitessClient
 
     def resolve_id(self, entity_id: str) -> int:
         with self.vitess_client.cursor as cursor:
