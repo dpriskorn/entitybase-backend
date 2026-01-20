@@ -21,20 +21,13 @@ class IdRange(BaseModel):
     next_id: int
 
 
-class IdRangeManager:
+class IdRangeManager(BaseModel):
     """Manages ID range allocation and local ID generation to prevent write hotspots."""
-
-    def __init__(
-        self,
-            state: Any,
-        range_size: int = 1_000_000,
-        min_ids: Optional[Dict[str, int]] = None,
-    ):
-        self.range_size = range_size
-        self._local_ranges: Dict[str, IdRange] = {}
-        self.worker_id: str = ""
-        self.min_ids = min_ids or {}
-        self.state=state  # this is the app state
+    vitess_client: Any
+    range_size: int = 1_000_000,
+    min_ids: Optional[Dict[str, int]] = None,
+    local_ranges: Dict[str, IdRange] = {}
+    worker_id: str = ""
 
     def set_worker_id(self, worker_id: str) -> None:
         """Set the worker ID for range allocation tracking."""
@@ -47,7 +40,7 @@ class IdRangeManager:
         if entity_type not in self._local_ranges:
             self._ensure_range_available(entity_type)
 
-        range_obj = self._local_ranges[entity_type]
+        range_obj = self.local_ranges[entity_type]
 
         # Check if we need to allocate a new range (when 80% consumed)
         if self._should_allocate_new_range(range_obj):
@@ -60,7 +53,7 @@ class IdRangeManager:
                 raise RuntimeError(
                     f"Failed to allocate range for {entity_type}: {result.error}"
                 )
-            self._local_ranges[entity_type] = result.data  # type: ignore[assignment]
+            self.local_ranges[entity_type] = result.data  # type: ignore[assignment]
             range_obj = result.data  # type: ignore[assignment]
 
         # Get next ID from current range

@@ -100,5 +100,6 @@ class State(BaseModel):
     @property
     def enumeration_service(self):
         return EnumerationService(
-            worker_id="rest-api"
+            worker_id="rest-api",
+            vitess_client=self.vitess_client
         )
