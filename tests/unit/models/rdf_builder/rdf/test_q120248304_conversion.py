@@ -27,22 +27,12 @@ def test_q120248304_conversion(full_property_registry: Any) -> None:
         f"Parsed entity: {entity.id}, statements: {len(entity.statements.data)}"
     )
 
-    assert isinstance(entity.statements.data, EntityStatementsResponse)
-    for stmt in entity.statements.data:
-        logger.debug(f"  Property: {stmt.property}, Rank: {stmt.rank}")
+    assert isinstance(entity.statements, EntityStatementsResponse)
 
     converter = EntityConverter(property_registry=full_property_registry)
     actual_ttl = converter.convert_to_string(entity)
 
     logger.info(f"Generated TTL length: {len(actual_ttl)}")
-
-    p625_shape = (
-        full_property_registry.shape("P625")
-        if "P625" in [s.property for s in entity.statements]
-        else None
-    )
-    if p625_shape:
-        logger.debug(f"P625 shape: {p625_shape}")
 
     if "ps:P625" in actual_ttl or "Point" in actual_ttl:
         for line in actual_ttl.split("\n"):

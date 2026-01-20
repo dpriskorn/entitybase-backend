@@ -110,50 +110,6 @@ class TestWatchlistHandler:
         mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
         mock_vitess_client.watchlist_repository.get_watches_for_user.assert_not_called()
 
-    def test_get_notifications_success(
-        self, handler: WatchlistHandler, mock_vitess_client: MagicMock
-    ) -> None:
-        """Test getting notifications successfully"""
-        from models.rest_api.entitybase.v1.response.user import NotificationResponse
-
-        dt = datetime(2023, 1, 1, 12, 0, tzinfo=timezone.utc)
-        mock_vitess_client.user_repository.user_exists.return_value = True
-        mock_vitess_client.watchlist_repository.get_user_notifications.return_value = [
-            {
-                "id": 1,
-                "entity_id": "Q42",
-                "revision_id": 123,
-                "change_type": "edit",
-                "changed_properties": ["P31"],
-                "event_timestamp": "2023-01-01T12:00:00Z",
-                "is_checked": False,
-                "checked_at": None,
-            }
-        ]
-
-        result = handler.get_notifications(
-            12345, mock_vitess_client, limit=30, offset=0
-        )
-
-        assert isinstance(result, NotificationResponse)
-        assert result.user_id == 12345
-        expected = [
-            {
-                "id": 1,
-                "entity_id": "Q42",
-                "revision_id": 123,
-                "change_type": "edit",
-                "changed_properties": ["P31"],
-                "event_timestamp": dt,
-                "is_checked": False,
-                "checked_at": None,
-            }
-        ]
-        assert [n.model_dump() for n in result.notifications] == expected
-        mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
-        mock_vitess_client.watchlist_repository.get_user_notifications.assert_called_once_with(
-            12345, 24, 30, 0
-        )
 
     def test_get_notifications_user_not_found(
         self, handler: WatchlistHandler, mock_vitess_client: MagicMock

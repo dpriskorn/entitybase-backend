@@ -57,8 +57,10 @@ def test_parse_q42_comprehensive() -> None:
 
     assert isinstance(entity.aliases, EntityAliasesResponse)
     assert len(entity.aliases.data) == 25
-    assert "mul" in entity.aliases
-    assert "Douglas Noël Adams" in entity.aliases.get("mul")
+    assert "mul" in entity.aliases.data
+    alias_values = entity.aliases.get("mul")
+    values = [a.value for a in alias_values]
+    assert "Douglas Noël Adams" in values
 
     assert isinstance(entity.statements, EntityStatementsResponse)
     assert len(entity.statements.data) == 332
