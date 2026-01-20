@@ -32,6 +32,7 @@ class TestItemCreateHandler:
         """Create handler instance"""
         state = MagicMock()
         state.vitess_client = mock_vitess_client
+        state.vitess_config = None
         state.s3_client = mock_s3_client
         state.entity_change_stream_producer = mock_stream_producer
         return ItemCreateHandler(enumeration_service=enumeration_service, state=state)
@@ -130,6 +131,7 @@ class TestPropertyCreateHandler:
         """Create handler instance"""
         state = MagicMock()
         state.vitess_client = mock_vitess_client
+        state.vitess_config = None
         state.s3_client = mock_s3_client
         state.entity_change_stream_producer = mock_stream_producer
         return PropertyCreateHandler(enumeration_service=enumeration_service, state=state)

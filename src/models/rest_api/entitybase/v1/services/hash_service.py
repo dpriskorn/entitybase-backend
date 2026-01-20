@@ -71,14 +71,15 @@ class HashService(Service):
     ) -> LabelsHashes:
         """Hash label values, store in S3 and Vitess."""
         hashes = {}
-        terms_repo = TermsRepository(state=self.state)
-        for lang, label_data in labels.items():
-            if "value" in label_data:
-                value = label_data["value"]
-                hash_value = MetadataExtractor.hash_string(value)
-                hashes[lang] = hash_value
-                self.state.s3_client.store_term_metadata(value, hash_value)
-                terms_repo.insert_term(hash_value, value, "label")
+        if self.state.vitess_config:
+            terms_repo = TermsRepository(config=self.state.vitess_config)
+            for lang, label_data in labels.items():
+                if "value" in label_data:
+                    value = label_data["value"]
+                    hash_value = MetadataExtractor.hash_string(value)
+                    hashes[lang] = hash_value
+                    self.state.s3_client.store_term_metadata(value, hash_value)
+                    terms_repo.insert_term(hash_value, value, "label")
         return LabelsHashes(root=hashes)
 
     def hash_descriptions(self,
@@ -86,14 +87,15 @@ class HashService(Service):
     ) -> DescriptionsHashes:
         """Hash description values, store in S3 and Vitess."""
         hashes = {}
-        terms_repo = TermsRepository(state=self.state)
-        for lang, desc_data in descriptions.items():
-            if "value" in desc_data:
-                value = desc_data["value"]
-                hash_value = MetadataExtractor.hash_string(value)
-                hashes[lang] = hash_value
-                self.state.s3_client.store_term_metadata(value, hash_value)
-                terms_repo.insert_term(hash_value, value, "description")
+        if self.state.vitess_config:
+            terms_repo = TermsRepository(config=self.state.vitess_config)
+            for lang, desc_data in descriptions.items():
+                if "value" in desc_data:
+                    value = desc_data["value"]
+                    hash_value = MetadataExtractor.hash_string(value)
+                    hashes[lang] = hash_value
+                    self.state.s3_client.store_term_metadata(value, hash_value)
+                    terms_repo.insert_term(hash_value, value, "description")
         return DescriptionsHashes(root=hashes)
 
     def hash_aliases(self,
@@ -101,17 +103,18 @@ class HashService(Service):
     ) -> AliasesHashes:
         """Hash alias values, store in S3 and Vitess."""
         hashes = {}
-        terms_repo = TermsRepository(state=self.state)
-        for lang, alias_list in aliases.items():
-            lang_hashes = []
-            for alias_data in alias_list:
-                if "value" in alias_data:
-                    value = alias_data["value"]
-                    hash_value = MetadataExtractor.hash_string(value)
-                    lang_hashes.append(hash_value)
-                    self.state.s3_client.store_term_metadata(value, hash_value)
-                    terms_repo.insert_term(hash_value, value, "alias")
-            hashes[lang] = lang_hashes
+        if self.state.vitess_config:
+            terms_repo = TermsRepository(config=self.state.vitess_config)
+            for lang, alias_list in aliases.items():
+                lang_hashes = []
+                for alias_data in alias_list:
+                    if "value" in alias_data:
+                        value = alias_data["value"]
+                        hash_value = MetadataExtractor.hash_string(value)
+                        lang_hashes.append(hash_value)
+                        self.state.s3_client.store_term_metadata(value, hash_value)
+                        terms_repo.insert_term(hash_value, value, "alias")
+                hashes[lang] = lang_hashes
         return AliasesHashes(root=hashes)
 
     def hash_entity_metadata(self,

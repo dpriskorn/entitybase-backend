@@ -19,6 +19,12 @@ from models.services.wikidata_import_service import WikidataImportService
 class TestEntityJsonImportHandler:
     """Unit tests for EntityJsonImportHandler."""
 
+    def setup_method(self):
+        """Set up test fixtures."""
+        from models.rest_api.state import State
+        from unittest.mock import MagicMock
+        self.state = MagicMock()
+
     @pytest.fixture
     def mock_clients(self) -> tuple[MagicMock, MagicMock, AsyncMock, MagicMock]:
         """Create mock clients for testing."""
@@ -26,7 +32,7 @@ class TestEntityJsonImportHandler:
         s3_client = MagicMock()
         stream_producer = AsyncMock()
         validator = MagicMock()
-        return  stream_producer, validator
+        return vitess_client, s3_client, stream_producer, validator
 
     @pytest.fixture
     def sample_entity_json(self) -> dict[str, Any]:
