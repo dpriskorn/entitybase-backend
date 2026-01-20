@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import re
-import sys
+
 
 def fix_test_annotations(filepath):
     with open(filepath, 'r') as f:

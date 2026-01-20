@@ -21,7 +21,6 @@ class TestEntityJsonImportHandler:
 
     def setup_method(self):
         """Set up test fixtures."""
-        from models.rest_api.state import State
         from unittest.mock import MagicMock
         self.state = MagicMock()
 

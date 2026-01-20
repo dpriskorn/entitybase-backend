@@ -1,11 +1,9 @@
 import json
-
-from pathlib import Path
 import os
+from pathlib import Path
 
 from models.infrastructure.s3.enums import EntityType
 from models.internal_representation.ranks import Rank
-from models.internal_representation.value_kinds import ValueKind
 from models.json_parser import parse_entity
 from models.rest_api.entitybase.v1.response import (
     EntityLabelsResponse,

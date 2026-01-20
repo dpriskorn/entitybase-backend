@@ -2,6 +2,7 @@
 
 import logging
 from typing import Any
+from datetime import datetime, timezone
 
 from models.infrastructure.s3.enums import EntityType
 
@@ -139,7 +140,6 @@ class UpdateTransaction(EntityTransaction):
             The editor field in EntityChangeEvent is set to the editor parameter.
         """
         if changed_at is None:
-            from datetime import datetime, timezone
             changed_at = datetime.now(timezone.utc)
 
         logger.info(f"[UpdateTransaction] Starting event publishing for {entity_id}")
@@ -154,7 +154,7 @@ class UpdateTransaction(EntityTransaction):
                 at=changed_at,
                 summary=edit_summary,
             )
-            stream_producer.publish_change(event)
+            self.state.stream_producer.publish_change(event)
         # Events are fire-and-forget, no rollback needed
 
     def _rollback_statement(

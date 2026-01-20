@@ -6,8 +6,6 @@ from models.infrastructure.vitess.id_resolver import IdResolver
 @pytest.mark.integration
 def test_id_resolver_resolve_id(db_conn):
     """Test IdResolver.resolve_id with real database."""
-    resolver = IdResolver(None)  # connection_manager not needed for static method
-
     # Insert a test entity_id_mapping
     test_entity_id = "Q999999"
     test_internal_id = 999999

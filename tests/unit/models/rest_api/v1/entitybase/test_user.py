@@ -3,8 +3,6 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from models.rest_api.state import State
-
 pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")

@@ -8,7 +8,7 @@ class TestHeadRepository:
         """Set up test fixtures."""
         self.connection_manager = Mock()
         self.id_resolver = Mock()
-        self.repository = HeadRepository(self.connection_manager, self.id_resolver)
+        self.repository = HeadRepository(, self.id_resolver)
 
     def test_get_head_revision_exists(self) -> None:
         """Test getting head revision when entity exists."""

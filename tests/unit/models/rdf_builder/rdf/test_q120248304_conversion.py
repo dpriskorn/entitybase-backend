@@ -1,10 +1,9 @@
 import json
 import logging
-from pathlib import Path
 import os
+from pathlib import Path
 from typing import Any
 
-from models.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.json_parser.entity_parser import parse_entity
 from models.rdf_builder.converter import EntityConverter
 from models.rest_api.entitybase.v1.response.entity import EntityStatementsResponse

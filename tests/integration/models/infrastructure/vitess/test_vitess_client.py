@@ -179,7 +179,7 @@ def test_create_revision_cas_failure(vitess_client: VitessClient) -> None:
     data2["revision_id"] = revision_id2
 
     with pytest.raises(ValueError) as exc_info:
-        self.state.vitess_client.create_revision(
+        vitess_client.create_revision(
             entity_id, revision_id2, data2, expected_revision_id=2
         )
 

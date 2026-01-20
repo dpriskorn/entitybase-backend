@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class BaseStatsWorker(BaseModel, ABC):
     """Base class for statistics workers."""
 
-    state: Any  # this is the app state
+    vitess_client: Any
     worker_id: str = Field(
         default_factory=lambda: os.getenv("WORKER_ID", f"stats-{os.getpid()}")
     )
@@ -101,12 +101,6 @@ class BaseStatsWorker(BaseModel, ABC):
     async def health_check(self) -> WorkerHealthCheckResponse:
         """Health check for the worker."""
         status = "healthy" if self.running else "unhealthy"
-
-        details = {
-            "worker_id": self.worker_id,
-            "running": self.running,
-            "last_run": self.last_run.isoformat() if self.last_run else None,
-        }
 
         return WorkerHealthCheckResponse(
             status=status, worker_id=self.worker_id, range_status=None

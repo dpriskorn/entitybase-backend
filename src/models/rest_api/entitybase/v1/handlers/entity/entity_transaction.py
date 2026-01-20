@@ -1,6 +1,7 @@
 """Base class for entity transactions."""
 
 from abc import ABC, abstractmethod
+from datetime import datetime, timezone
 from typing import Any, Callable, List
 import logging
 
@@ -64,7 +65,6 @@ class EntityTransaction(BaseModel, ABC):
         edit_summary: str = "",
     ) -> None:
         """Publish a change event."""
-        from datetime import datetime, timezone
         from models.infrastructure.stream.event import EntityChangeEvent
         from models.infrastructure.stream.change_type import ChangeType
 
