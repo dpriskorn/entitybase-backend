@@ -183,12 +183,6 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'properties'`
 - **Description**: No description available
 
-### `expose_original_exceptions`
-
-- **Type**: `bool`
-- **Default**: `False`
-- **Description**: No description available
-
 ### `enable_streaming`
 
 - **Type**: `bool`

@@ -1,7 +1,7 @@
 """Metadata storage operations for terms and sitelinks."""
 
 import logging
-from typing import Any, TYPE_CHECKING, Union, cast
+from typing import Any, TYPE_CHECKING, Union
 
 from models.common import OperationResult
 from models.config.settings import settings
@@ -65,7 +65,7 @@ class MetadataStorage(BaseS3Storage):
 
         try:
             key = str(content_hash)
-            return cast(Union[str, dict[str, Any]], self.load(key).data)
+            return self.load(key).data
         finally:
             self.bucket = original_bucket
 

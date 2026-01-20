@@ -22,19 +22,19 @@ src/
 │   │   └── writers
 │   ├── rest_api
 │   │   └── entitybase
-│   │       ├── handlers
-│   │       │   └── entity
-│   │       │       ├── items
-│   │       │       ├── lexeme
-│   │       │       └── property
-│   │       ├── request
-│   │       │   └── entity
-│   │       ├── response
-│   │       │   └── entity
-│   │       ├── routes
-│   │       ├── services
-│   │       └── versions
-│   │           └── v1
+│   │       └── v1
+│   │           ├── endpoints
+│   │           ├── handlers
+│   │           │   └── entity
+│   │           │       ├── items
+│   │           │       ├── lexeme
+│   │           │       └── property
+│   │           ├── request
+│   │           │   └── entity
+│   │           ├── response
+│   │           │   └── entity
+│   │           ├── routes
+│   │           └── services
 │   ├── services
 │   ├── validation
 │   └── workers

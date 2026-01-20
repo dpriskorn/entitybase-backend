@@ -3,7 +3,7 @@
 
 import os
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 
 def find_schema_versions(schemas_dir: Path) -> Dict[str, str]:
