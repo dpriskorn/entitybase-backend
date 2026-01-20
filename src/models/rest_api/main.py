@@ -153,32 +153,32 @@ async def get_openapi() -> dict:
 #     return
 
 # Fallback initialization in case lifespan didn't run
-if not hasattr(app.state, "clients"):
-    s3_config = settings.to_s3_config()
-    vitess_config = settings.to_vitess_config()
-    kafka_brokers = settings.kafka_brokers
-    kafka_topic = settings.kafka_entitychange_json_topic
-
-    property_registry_path = (
-        Path("test_data/properties") if Path("test_data/properties").exists() else None
-    )
-
-    app.state.clients = State(
-        s3=s3_config,
-        vitess=vitess_config,
-        enable_streaming=settings.streaming_enabled,
-        kafka_brokers=kafka_brokers,
-        kafka_topic=kafka_topic,
-        kafka_rdf_topic=settings.kafka_entitydiff_ttl_topic,
-        property_registry_path=property_registry_path,
-    )
-
-    app.state.validator = JsonSchemaValidator(
-        s3_revision_version=settings.s3_schema_revision_version,
-        s3_statement_version=settings.s3_statement_version,
-        wmf_recentchange_version=settings.wmf_recentchange_version,
-    )
-
-    app.state.enumeration_service = EnumerationService(
-        worker_id="rest-api"
-    )
+# if not hasattr(app.state, "clients"):
+#     s3_config = settings.to_s3_config()
+#     vitess_config = settings.to_vitess_config()
+#     kafka_brokers = settings.kafka_brokers
+#     kafka_topic = settings.kafka_entitychange_json_topic
+#
+#     property_registry_path = (
+#         Path("test_data/properties") if Path("test_data/properties").exists() else None
+#     )
+#
+#     app.state.clients = State(
+#         s3=s3_config,
+#         vitess=vitess_config,
+#         enable_streaming=settings.streaming_enabled,
+#         kafka_brokers=kafka_brokers,
+#         kafka_topic=kafka_topic,
+#         kafka_rdf_topic=settings.kafka_entitydiff_ttl_topic,
+#         property_registry_path=property_registry_path,
+#     )
+#
+#     app.state.validator = JsonSchemaValidator(
+#         s3_revision_version=settings.s3_schema_revision_version,
+#         s3_statement_version=settings.s3_statement_version,
+#         wmf_recentchange_version=settings.wmf_recentchange_version,
+#     )
+#
+#     app.state.enumeration_service = EnumerationService(
+#         worker_id="rest-api"
+#     )

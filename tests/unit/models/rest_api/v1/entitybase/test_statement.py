@@ -1,6 +1,8 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
+from models.rest_api.state import State
+
 pytestmark = pytest.mark.unit
 
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
@@ -10,7 +12,7 @@ from models.rest_api.entitybase.v1.request.statement import StatementBatchReques
 class TestStatementHandler:
     def test_get_statement_s3_none(self) -> None:
         """Test get_statement raises error when s3_client is None"""
-        handler = StatementHandler()
+        handler = StatementHandler(state=State())
         with patch(
             "models.rest_api.entitybase.v1.handlers.statement.raise_validation_error"
         ) as mock_raise:
@@ -19,7 +21,7 @@ class TestStatementHandler:
 
     def test_get_statement_success(self) -> None:
         """Test get_statement success"""
-        handler = StatementHandler()
+        handler = StatementHandler(state=State())
         mock_s3 = MagicMock()
         mock_statement_data = MagicMock()
         mock_statement_data.schema_version = "1.0"
@@ -46,7 +48,7 @@ class TestStatementHandler:
 
     def test_get_statement_exception(self) -> None:
         """Test get_statement handles exceptions"""
-        handler = StatementHandler()
+        handler = StatementHandler(state=State())
         mock_s3 = MagicMock()
         mock_s3.read_statement.side_effect = Exception("S3 error")
 
@@ -60,7 +62,7 @@ class TestStatementHandler:
 
     def test_get_statements_batch_s3_none(self) -> None:
         """Test get_statements_batch raises error when s3_client is None"""
-        handler = StatementHandler()
+        handler = StatementHandler(state=State())
         request = StatementBatchRequest(hashes=[123, 456])
         with pytest.raises(ValueError) as exc_info:
             handler.get_statements_batch(request, None)
@@ -68,7 +70,7 @@ class TestStatementHandler:
 
     def test_get_statements_batch_success(self) -> None:
         """Test get_statements_batch success"""
-        handler = StatementHandler()
+        handler = StatementHandler(state=State())
         request = StatementBatchRequest(hashes=[123, 456])
         mock_s3 = MagicMock()
 
