@@ -17,7 +17,7 @@ class WatchlistConsumerWorker:
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
         self.consumer: Consumer | None = None
-        self.vitess_client: VitessClient | None = None
+        self.vitess_client | None = None
 
     @asynccontextmanager
     async def lifespan(self) -> AsyncGenerator[None, None]:

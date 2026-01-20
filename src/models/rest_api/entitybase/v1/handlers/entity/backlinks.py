@@ -18,7 +18,6 @@ class BacklinkHandler(Handler):
     async def get(
         self,
         entity_id: str,
-        vitess_client: VitessClient,
         limit: int = 100,
         offset: int = 0,
     ) -> BacklinksResponse:

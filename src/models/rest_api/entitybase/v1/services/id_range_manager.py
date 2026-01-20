@@ -27,7 +27,6 @@ class IdRangeManager:
 
     def __init__(
         self,
-        vitess_client: VitessClient,
         range_size: int = 1_000_000,
         min_ids: Optional[Dict[str, int]] = None,
     ):

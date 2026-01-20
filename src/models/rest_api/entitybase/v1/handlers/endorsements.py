@@ -23,7 +23,7 @@ class EndorsementHandler(Handler):
     """Handler for endorsement operations."""
 
     def endorse_statement(
-        self, statement_hash: int, user_id: int: VitessClient
+        self, statement_hash: int, user_id: int
     ) -> EndorsementResponse:
         """Create an endorsement for a statement."""
         logger.debug(f"Endorsing statement {statement_hash} for user {user_id}")
@@ -90,7 +90,7 @@ class EndorsementHandler(Handler):
         )
 
     def withdraw_endorsement(
-        self, statement_hash: int, user_id: int: VitessClient
+        self, statement_hash: int, user_id: int
     ) -> EndorsementResponse:
         """Withdraw an endorsement for a statement."""
         logger.debug(
@@ -164,7 +164,6 @@ class EndorsementHandler(Handler):
         self,
         statement_hash: int,
         request: EndorsementListRequest,
-        vitess_client: VitessClient,
     ) -> EndorsementListResponse:
         """Get endorsements for a statement."""
         logger.debug(f"Getting endorsements for statement {statement_hash}")
@@ -216,7 +215,7 @@ class EndorsementHandler(Handler):
         )
 
     def get_user_endorsements(
-        self, user_id: int, request: EndorsementListRequest: VitessClient
+        self, user_id: int, request: EndorsementListRequest
     ) -> EndorsementListResponse:
         """Get endorsements given by a user."""
         # Validate user exists
@@ -241,7 +240,7 @@ class EndorsementHandler(Handler):
         )
 
     def get_user_endorsement_stats(
-        self, user_id: int: VitessClient
+        self, user_id: int
     ) -> EndorsementStatsResponse:
         """Get endorsement statistics for a user."""
         # Validate user exists
@@ -264,7 +263,7 @@ class EndorsementHandler(Handler):
         )
 
     def get_batch_statement_endorsement_stats(
-        self, statement_hashes: list[int]: VitessClient
+        self, statement_hashes: list[int]
     ) -> BatchEndorsementStatsResponse:
         """Get endorsement statistics for multiple statements."""
         # Validate statement hashes exist (basic validation)

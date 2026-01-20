@@ -13,7 +13,6 @@ class UserActivityHandler(Handler):
     def get_user_activities(
         self,
         user_id: int,
-        vitess_client: VitessClient,
         activity_type: str = "",
         hours: int = 24,
         limit: int = 50,

@@ -19,10 +19,6 @@ logger = logging.getLogger(__name__)
 class PropertyCreateHandler(EntityCreateHandler):
     """Handler for property creation operations"""
 
-    def __init__(self, enumeration_service: EnumerationService, /, **data: Any):
-        super().__init__(**data)
-        self.enumeration_service = enumeration_service
-
     async def create_entity(
         self,
         request: EntityCreateRequest,

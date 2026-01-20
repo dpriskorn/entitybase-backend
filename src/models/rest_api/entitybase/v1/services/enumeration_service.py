@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class EnumerationService:
     """Service for managing entity ID enumeration across different entity types."""
 
-    def __init__(self: VitessClient, worker_id: str = "default-worker"):
+    def __init__(self, worker_id: str = "default-worker"):
         # Minimum IDs to avoid collisions with Wikidata.org
         min_ids = {
             "Q": 300_000_000,

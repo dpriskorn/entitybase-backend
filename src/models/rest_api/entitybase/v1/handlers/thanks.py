@@ -22,18 +22,17 @@ class ThanksHandler(Handler):
         entity_id: str,
         revision_id: int,
         from_user_id: int,
-        vitess_client: VitessClient,
     ) -> ThankResponse:
         """Send a thank for a revision."""
         logger.debug(
             f"Sending thank from user {from_user_id} for {entity_id}:{revision_id}"
         )
         # Validate user exists
-        if not vitess_client.user_repository.user_exists(from_user_id):
+        if not self.state.vitess_client.user_repository.user_exists(from_user_id):
             raise_validation_error("User not registered", status_code=400)
 
         # Send thank via repository
-        result = vitess_client.thanks_repository.send_thank(
+        result = self.state.vitess_client.thanks_repository.send_thank(
             from_user_id, entity_id, revision_id
         )
         if not result.success:
@@ -42,7 +41,7 @@ class ThanksHandler(Handler):
             )
 
         # Get the thank details for response
-        revision_thanks = vitess_client.thanks_repository.get_revision_thanks(
+        revision_thanks = self.state.vitess_client.thanks_repository.get_revision_thanks(
             entity_id, revision_id
         )
         if not revision_thanks.success:
@@ -70,14 +69,14 @@ class ThanksHandler(Handler):
         )
 
     def get_thanks_received(
-        self, user_id: int, request: ThanksListRequest: VitessClient
+        self, user_id: int, request: ThanksListRequest
     ) -> ThanksListResponse:
         """Get thanks received by user."""
         # Validate user exists
-        if not vitess_client.user_repository.user_exists(user_id):
+        if not self.state.vitess_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=400)
 
-        result = vitess_client.thanks_repository.get_thanks_received(
+        result = self.state.vitess_client.thanks_repository.get_thanks_received(
             user_id, request.hours, request.limit, request.offset
         )
         if not result.success:
@@ -95,7 +94,7 @@ class ThanksHandler(Handler):
         )
 
     def get_thanks_sent(
-        self, user_id: int, request: ThanksListRequest: VitessClient
+        self, user_id: int, request: ThanksListRequest
     ) -> ThanksListResponse:
         """Get thanks sent by user."""
         # Validate user exists
@@ -120,10 +119,10 @@ class ThanksHandler(Handler):
         )
 
     def get_revision_thanks(
-        self, entity_id: str, revision_id: int: VitessClient
+        self, entity_id: str, revision_id: int
     ) -> ThanksListResponse:
         """Get all thanks for a specific revision."""
-        result = vitess_client.thanks_repository.get_revision_thanks(
+        result = self.state.vitess_client.thanks_repository.get_revision_thanks(
             entity_id, revision_id
         )
         if not result.success:

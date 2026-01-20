@@ -71,7 +71,7 @@ class UserHandler(Handler):
             )
         return WatchlistToggleResponse(user_id=user_id, enabled=request.enabled)
 
-    def get_user_stats(self: VitessClient) -> UserStatsResponse:
+    def get_user_stats(self) -> UserStatsResponse:
         """Get user statistics from the daily stats table."""
         with self.state.vitess_client.connection_manager.connection.cursor() as cursor:
             cursor.execute(

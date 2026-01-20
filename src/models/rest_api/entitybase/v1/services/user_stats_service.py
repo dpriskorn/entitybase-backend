@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 class UserStatsService(Service):
     """Service for computing user statistics."""
 
-    def compute_daily_stats(self: VitessClient) -> UserStatsData:
+    def compute_daily_stats(self) -> UserStatsData:
         """Compute comprehensive user statistics for current date."""
         total_users = self.get_total_users()
         active_users = self.get_active_users()

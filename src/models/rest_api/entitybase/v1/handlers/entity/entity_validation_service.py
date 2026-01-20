@@ -22,7 +22,6 @@ class EntityValidationService(BaseModel):
         entity_id: str,
         is_mass_edit: bool | None,
         is_not_autoconfirmed_user: bool | None,
-        vitess_client: VitessClient,
     ) -> None:
         """Validate protection settings."""
         if is_mass_edit and is_not_autoconfirmed_user:

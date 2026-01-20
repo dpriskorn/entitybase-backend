@@ -15,7 +15,7 @@ class NotificationCleanupWorker:
 
     def __init__(self) -> None:
         self.logger = logging.getLogger(__name__)
-        self.vitess_client: VitessClient | None = None
+        self.vitess_client | None = None
         # Configurable limits
         self.max_age_days = 30
         self.max_per_user = 500

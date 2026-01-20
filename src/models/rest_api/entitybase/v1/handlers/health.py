@@ -26,7 +26,7 @@ def health_check(response: Response) -> HealthCheckResponse:
         if s3 and isinstance(s3, MyS3Client) and s3.healthy_connection
         else "disconnected"
     )
-    vitess: VitessClient = clients.vitess
+    vitess = clients.vitess
     vitess_status = (
         "connected"
         if vitess
