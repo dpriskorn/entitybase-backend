@@ -43,7 +43,7 @@ class TestMyS3Client:
         mock_connection_manager.connect.assert_called_once()
         # _ensure_bucket_exists would be called
 
-        assert "S3 service unavailable" in str(exc_info.value)
+        assert "S3 service unavailable" in str(exc.value)
 
     def test_read_revision(self, config, mock_connection_manager) -> None:
         """Test read_revision method."""
@@ -201,7 +201,7 @@ class TestMyS3Client:
             )
 
             client = MyS3Client(config)
-            result = client.load_metadata("labels", 789)
+            result = client.load_metadata(MetadataType.LABELS, 789)
 
             assert result == "test label"
             mock_connection_manager.boto_client.get_object.assert_called_once_with(
@@ -287,15 +287,15 @@ class TestMyS3Client:
             mock_manager_class.return_value = mock_connection_manager
 
             client = MyS3Client(config)
-            client.write_entity_revision(
-                "Q42", 123, "item", {"entity": {"id": "Q42"}}, publication_state="1.0"
-            )
+        client.write_entity_revision(
+            "Q42", 123, "item", {"entity": {"id": "Q42"}}
+        )
 
-            mock_connection_manager.boto_client.put_object.assert_called_once()
-            call_args = mock_connection_manager.boto_client.put_object.call_args
-            assert call_args[1]["Bucket"] == "test-bucket"
-            assert call_args[1]["Key"] == "entities/Q42/123.json"
-            assert call_args[1]["Metadata"]["schema_version"] == "1.0"
+        mock_connection_manager.boto_client.put_object.assert_called_once()
+        call_args = mock_connection_manager.boto_client.put_object.call_args
+        assert call_args[1]["Bucket"] == "test-bucket"
+        assert call_args[1]["Key"] == "entities/Q42/123.json"
+        assert call_args[1]["Metadata"]["schema_version"] == "1.0"
 
     def test_delete_metadata(self, config, mock_connection_manager) -> None:
         """Test delete_metadata method."""
