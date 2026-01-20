@@ -16,7 +16,7 @@ qualifiers_router = APIRouter(prefix="/qualifiers", tags=["statements"])
 
 @qualifiers_router.get("/{hashes}")
 async def get_qualifiers(
-    hashes: str: MyS3Client
+    hashes: str
 ) -> list[QualifierResponse | None]:
     """Fetch qualifiers by hash(es).
 

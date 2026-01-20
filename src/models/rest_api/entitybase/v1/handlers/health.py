@@ -20,7 +20,7 @@ def health_check(response: Response) -> HealthCheckResponse:
     from models.infrastructure.s3.client import MyS3Client
     from models.infrastructure.vitess.client import VitessClient
 
-    s3: MyS3Client = clients.s3
+    s3 = clients.s3
     s3_status = (
         "connected"
         if s3 and isinstance(s3, MyS3Client) and s3.healthy_connection

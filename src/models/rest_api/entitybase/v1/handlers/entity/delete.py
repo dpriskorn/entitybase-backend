@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from fastapi import HTTPException
 
-from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.s3.hashes.hash_maps import (
     AliasesHashes,
     DescriptionsHashes,
@@ -15,8 +14,8 @@ from models.infrastructure.s3.hashes.hash_maps import (
     StatementsHashes,
     HashMaps,
 )
+from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.rest_api.entitybase.v1.handler import Handler
-
 from models.rest_api.entitybase.v1.request.enums import UserActivityType
 
 logger = logging.getLogger(__name__)
@@ -26,15 +25,11 @@ from models.rest_api.entitybase.v1.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.v1.response import EntityDeleteResponse, EntityState
 from models.config.settings import settings
 from models.rest_api.utils import raise_validation_error
-from models.infrastructure.stream.producer import (
-    StreamProducerClient,
-)
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.client import MyS3Client
-    from models.infrastructure.vitess.client import VitessClient
+    pass
 
 logger = logging.getLogger(__name__)
 

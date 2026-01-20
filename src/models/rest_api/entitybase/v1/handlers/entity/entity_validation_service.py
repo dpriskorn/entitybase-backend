@@ -36,7 +36,6 @@ class EntityValidationService(BaseModel):
         head_revision_id: int,
         content_hash: int,
         request_data: Dict[str, Any],
-        s3_client: MyS3Client,
     ) -> EntityResponse | None:
         """Check if request is idempotent."""
         if head_revision_id == 0:

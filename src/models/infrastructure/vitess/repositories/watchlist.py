@@ -48,7 +48,7 @@ class WatchlistRepository(Repository):
 
         try:
             internal_entity_id = self.id_resolver.resolve_id(
-                self._get_conn(), entity_id
+                entity_id
             )
             if not internal_entity_id:
                 return OperationResult(success=False, error="Entity not found")
@@ -73,7 +73,7 @@ class WatchlistRepository(Repository):
         self, user_id: int, entity_id: str, properties: List[str] | None
     ) -> None:
         """Remove a watchlist entry."""
-        internal_entity_id = self.id_resolver.resolve_id(self._get_conn(), entity_id)
+        internal_entity_id = self.id_resolver.resolve_id(entity_id)
         properties_json = ",".join(properties) if properties else ""
 
         with self.connection_manager.conn.cursor() as cursor:
@@ -120,7 +120,7 @@ class WatchlistRepository(Repository):
 
     def get_watchers_for_entity(self, entity_id: str) -> List[Any]:
         """Get all watchers for an entity (for notifications)."""
-        internal_entity_id = self.id_resolver.resolve_id(self._get_conn(), entity_id)
+        internal_entity_id = self.id_resolver.resolve_id(entity_id)
 
         with self._get_conn() as conn:
             with self.connection_manager.connection.cursor() as cursor:

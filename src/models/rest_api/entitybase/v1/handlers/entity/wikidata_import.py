@@ -100,8 +100,7 @@ class EntityJsonImportHandler:
                         await create_handler.create_entity(
                             create_request,
                             vitess_client,
-                            s3_client,
-                            stream_producer,
+                                                stream_producer,
                             validator,
                             auto_assign_id=False,  # Use the Wikidata ID
                         )
@@ -171,7 +170,7 @@ class EntityJsonImportHandler:
             return None
 
     @staticmethod
-    def _check_entity_exists(entity_id: str: MyS3Client) -> bool:
+    def _check_entity_exists(entity_id: str) -> bool:
         """Check if an entity already exists by trying to read its latest revision."""
         try:
             s3_client.read_revision(entity_id, 1)  # Try to read revision 1

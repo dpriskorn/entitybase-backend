@@ -102,7 +102,7 @@ class IdGeneratorWorker(BaseModel):
 
             # Initialize enumeration service
             self.enumeration_service = EnumerationService(
-                vitess_client=self.vitess_client, worker_id=self.worker_id
+                self.worker_id
             )
 
             logger.info("ID Generator Worker initialized successfully")

@@ -4,7 +4,6 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 
-from models.infrastructure.s3.client import MyS3Client
 from models.rest_api.entitybase.v1.response.qualifiers_references import (
     ReferenceResponse,
 )
@@ -16,7 +15,7 @@ references_router = APIRouter(prefix="/references", tags=["statements"])
 
 @references_router.get("/{hashes}")
 async def get_references(
-    hashes: str: MyS3Client
+    hashes: str
 ) -> list[ReferenceResponse | None]:
     """Fetch references by hash(es).
 

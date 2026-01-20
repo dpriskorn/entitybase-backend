@@ -56,7 +56,6 @@ class HashService(Service):
     @staticmethod
     def hash_sitelinks(
         sitelinks: dict[str, Any],
-        s3_client: MyS3Client,
     ) -> SitelinksHashes:
         """Hash sitelink titles and store in S3."""
         hashes = {}

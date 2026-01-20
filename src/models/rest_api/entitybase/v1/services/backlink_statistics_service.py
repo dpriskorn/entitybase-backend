@@ -24,7 +24,7 @@ class BacklinkStatisticsService(BaseModel):
         """Compute comprehensive backlink statistics for current date."""
         total_backlinks = self.get_total_backlinks()
         unique_entities = self.get_entities_with_backlinks()
-        top_entities = self.get_top_entities_by_backlinks(vitess_client, self.top_limit)
+        top_entities = self.get_top_entities_by_backlinks(self.top_limit)
 
         return BacklinkStatisticsData(
             total=total_backlinks,

@@ -260,9 +260,6 @@ async def remove_entity_statement(
         entity_id,
         statement_hash,
         request.edit_summary,
-        clients.vitess_config,
-        clients.s3_config,
-        clients.validator,
     )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)
@@ -285,9 +282,6 @@ async def patch_entity_statement(
         entity_id,
         statement_hash,
         request,
-        clients.vitess_config,
-        clients.s3_config,
-        clients.validator,
     )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)

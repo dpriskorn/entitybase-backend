@@ -5,15 +5,9 @@ import traceback
 from typing import Any
 
 from models.infrastructure.s3.enums import EntityType
-from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
-from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.request import EntityCreateRequest
 from models.rest_api.entitybase.v1.response import EntityResponse
-from models.rest_api.entitybase.v1.services.enumeration_service import (
-    EnumerationService,
-)
 from models.rest_api.utils import raise_validation_error
 from .create import EntityCreateHandler
 from .creation_transaction import CreationTransaction
@@ -64,7 +58,7 @@ class ItemCreateHandler(EntityCreateHandler):
         try:
             # Register entity
             logger.info(f"Registering entity {entity_id}")
-            tx.register_entity(vitess_client, entity_id)  # type: ignore[attr-defined]
+            tx.register_entity(entity_id)  # type: ignore[attr-defined]
 
             # Process statements
             logger.info("Processing statements")

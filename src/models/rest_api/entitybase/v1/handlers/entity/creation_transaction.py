@@ -58,7 +58,6 @@ class CreationTransaction(EntityTransaction):
         is_archived: bool,
         is_dangling: bool,
         is_mass_edit_protected: bool,
-        stream_producer: Any,
         is_creation: bool,
         user_id: int,
     ) -> EntityResponse:

@@ -4,17 +4,13 @@ import logging
 from typing import Any
 
 from models.infrastructure.s3.enums import EntityType
-from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.change_type import ChangeType
-from ...request.enums import UserActivityType
-from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.client import VitessClient
-from models.rest_api.utils import raise_validation_error
 from models.rest_api.entitybase.v1.request import EntityUpdateRequest
+from models.rest_api.entitybase.v1.response import EntityResponse
+from models.rest_api.utils import raise_validation_error
 from .handler import EntityHandler
 from .update_transaction import UpdateTransaction
-
-from models.rest_api.entitybase.v1.response import EntityResponse
+from ...request.enums import UserActivityType
 
 logger = logging.getLogger(__name__)
 

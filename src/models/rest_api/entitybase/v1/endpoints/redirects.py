@@ -26,7 +26,7 @@ async def create_entity_redirect(
     state = req.app.state.state
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = RedirectHandler(clients.s3_config, clients.vitess_config)
+    handler = RedirectHandler(clients.s3_config)
     result = await handler.create_entity_redirect(request)
     if not isinstance(result, EntityRedirectResponse):
         raise_validation_error("Invalid response type", status_code=500)
@@ -42,7 +42,7 @@ async def revert_entity_redirect(  # type: ignore[no-any-return]
     state = req.app.state.state
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = RedirectHandler(clients.s3_config, clients.vitess_config)
+    handler = RedirectHandler(clients.s3_config)
     result = await handler.revert_entity_redirect(entity_id, request)
     if not isinstance(result, EntityRevertResponse):
         raise_validation_error("Invalid response type", status_code=500)

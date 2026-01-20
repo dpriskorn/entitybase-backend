@@ -6,14 +6,16 @@ from models.rest_api.utils import raise_validation_error
 from models.infrastructure.vitess.client import VitessClient
 from .id_range_manager import IdRangeManager
 from models.rest_api.entitybase.v1.response.misc import RangeStatuses
+from ..service import Service
 
 logger = logging.getLogger(__name__)
 
 
-class EnumerationService:
+class EnumerationService(Service):
     """Service for managing entity ID enumeration across different entity types."""
 
     def __init__(self, worker_id: str = "default-worker"):
+        super().__init__(worker_id)
         # Minimum IDs to avoid collisions with Wikidata.org
         min_ids = {
             "Q": 300_000_000,
@@ -21,7 +23,7 @@ class EnumerationService:
             "L": 5_000_000,
             "E": 50_000,
         }
-        self.range_manager = IdRangeManager(vitess_client, min_ids=min_ids)
+        self.range_manager = IdRangeManager(min_ids=min_ids)
         self.range_manager.set_worker_id(worker_id)
 
         # Initialize ranges from database
