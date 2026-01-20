@@ -4,6 +4,9 @@ import logging
 from datetime import timezone
 from typing import TYPE_CHECKING
 
+from models.infrastructure.s3.enums import EditData
+from models.infrastructure.s3.hashes.hash_maps import HashMaps
+from models.infrastructure.s3.revision.entity_state import EntityState
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.rest_api.entitybase.v1.request.entity import EntityRedirectRequest
 from models.rest_api.entitybase.v1.response import (
@@ -79,10 +82,15 @@ class RedirectService:
         redirect_revision_data = RevisionData(
             revision_id=redirect_revision_id,
             entity_type=EntityType.ITEM,
-            edit=EditType.REDIRECT_CREATE,
-            hashes=None,
+            edit=EditData(
+                type=EditType.REDIRECT_CREATE,
+                at="",
+                summary="Create redirect",  # todo improve
+                user_id=request.user_id
+            ),
+            hashes=HashMaps(),
             redirects_to=request.redirect_to_id,
-            state=None,  # Empty state for redirect
+            state=EntityState(),  # Empty state for redirect
         )
 
         self.s3.write_revision(

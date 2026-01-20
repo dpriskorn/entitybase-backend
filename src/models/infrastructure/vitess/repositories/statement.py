@@ -14,7 +14,8 @@ class StatementRepository:
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 
-    def insert_content(self, conn: Any, content_hash: int) -> OperationResult:
+    @staticmethod
+    def insert_content(conn: Any, content_hash: int) -> OperationResult:
         """Insert statement content hash if it doesn't exist."""
         try:
             with conn.cursor() as cursor:
@@ -35,7 +36,8 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    def increment_ref_count(self, conn: Any, content_hash: int) -> OperationResult:
+    @staticmethod
+    def increment_ref_count(conn: Any, content_hash: int) -> OperationResult:
         """Increment reference count for statement content."""
         if content_hash <= 0:
             return OperationResult(success=False, error="Invalid content hash")
@@ -56,7 +58,8 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    def decrement_ref_count(self, conn: Any, content_hash: int) -> OperationResult:
+    @staticmethod
+    def decrement_ref_count(conn: Any, content_hash: int) -> OperationResult:
         """Decrement reference count for statement content."""
         if content_hash <= 0:
             return OperationResult(success=False, error="Invalid content hash")
@@ -78,8 +81,9 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
+    @staticmethod
     def get_orphaned(
-        self, conn: Any, older_than_days: int, limit: int
+            conn: Any, older_than_days: int, limit: int
     ) -> OperationResult:
         """Get orphaned statement content hashes."""
         if older_than_days <= 0 or limit <= 0:
@@ -100,7 +104,8 @@ class StatementRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    def get_most_used(self, conn: Any, limit: int, min_ref_count: int = 1) -> list[int]:
+    @staticmethod
+    def get_most_used(conn: Any, limit: int, min_ref_count: int = 1) -> list[int]:
         """Get most used statement content hashes."""
         with conn.cursor() as cursor:
             cursor.execute(
@@ -114,7 +119,8 @@ class StatementRepository:
             result = [row[0] for row in cursor.fetchall()]
             return result
 
-    def get_ref_count(self, conn: Any, content_hash: int) -> int:
+    @staticmethod
+    def get_ref_count(conn: Any, content_hash: int) -> int:
         """Get the reference count for a statement."""
         with conn.cursor() as cursor:
             cursor.execute(
@@ -124,7 +130,8 @@ class StatementRepository:
             result = cursor.fetchone()
             return result[0] if result else 0
 
-    def delete_content(self, conn: Any, content_hash: int) -> None:
+    @staticmethod
+    def delete_content(conn: Any, content_hash: int) -> None:
         """Delete statement content when ref_count reaches 0."""
         with conn.cursor() as cursor:
             cursor.execute(
@@ -132,7 +139,8 @@ class StatementRepository:
                 (content_hash,),
             )
 
-    def get_all_statement_hashes(self, conn: Any) -> list[int]:
+    @staticmethod
+    def get_all_statement_hashes(conn: Any) -> list[int]:
         """Get all statement content hashes."""
         with conn.cursor() as cursor:
             cursor.execute("SELECT content_hash FROM statement_content")

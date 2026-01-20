@@ -19,8 +19,9 @@ class MetadataRepository:
     def __init__(self, connection_manager: Any) -> None:
         self.connection_manager = connection_manager
 
+    @staticmethod
     def insert_metadata_content(
-        self, conn: Any, content_hash: int, content_type: str
+            conn: Any, content_hash: int, content_type: str
     ) -> OperationResult:
         """Insert or increment ref_count for metadata content."""
         try:
@@ -37,8 +38,9 @@ class MetadataRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
+    @staticmethod
     def get_metadata_content(
-        self, conn: Any, content_hash: int, content_type: str
+            conn: Any, content_hash: int, content_type: str
     ) -> OperationResult:
         """Get metadata content by hash and type."""
         if content_hash <= 0 or not content_type:
@@ -61,8 +63,9 @@ class MetadataRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
+    @staticmethod
     def decrement_ref_count(
-        self, conn: Any, content_hash: int, content_type: str
+            conn: Any, content_hash: int, content_type: str
     ) -> OperationResult:
         """Decrement ref_count and return True if it reaches 0."""
         if content_hash <= 0 or not content_type:
@@ -95,8 +98,9 @@ class MetadataRepository:
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
+    @staticmethod
     def delete_metadata_content(
-        self, conn: Any, content_hash: int, content_type: str
+            conn: Any, content_hash: int, content_type: str
     ) -> None:
         """Delete metadata content when ref_count reaches 0."""
         with conn.cursor() as cursor:

@@ -101,7 +101,7 @@ class BaseS3Storage(ABC):
             )
             raise S3StorageError(f"Store failed: {e}")
 
-    def load(self, key: str) -> LoadResponse:
+    def load(self, key: str) -> LoadResponse | None:
         """Load data from S3 with common error handling."""
         self._ensure_connection()
 

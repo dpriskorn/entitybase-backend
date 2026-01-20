@@ -15,11 +15,11 @@ class ConnectionManager(ABC, BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     config: Config
 
-    @abc.abstractmethod
     def connect(self) -> Any:
         """Establish connection to the service."""
         pass
 
+    @abc.abstractmethod
     @property
     def healthy_connection(self) -> bool:
         """Check if the connection to the service is healthy."""

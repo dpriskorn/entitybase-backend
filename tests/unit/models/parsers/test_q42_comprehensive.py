@@ -7,6 +7,9 @@ from models.infrastructure.s3.enums import EntityType
 from models.internal_representation.ranks import Rank
 from models.internal_representation.value_kinds import ValueKind
 from models.json_parser import parse_entity
+from models.rest_api.entitybase.v1.response import EntityLabelsResponse, EntityDescriptionsResponse, \
+    EntityAliasesResponse
+from models.rest_api.entitybase.v1.response.entity import EntityStatementsResponse, EntitySitelinksResponse
 
 TEST_DATA_JSON_DIR = Path(os.environ["TEST_DATA_DIR"]) / "json"
 
@@ -22,13 +25,15 @@ def test_parse_q42_comprehensive() -> None:
     assert entity.id == "Q42"
     assert entity.type == EntityType.ITEM
 
-    assert len(entity.labels) == 72
+    assert isinstance(entity.labels, EntityLabelsResponse)
+    assert len(entity.labels.data) == 72
     assert entity.labels["ru"] == "Дуглас Адамс"
     assert entity.labels["ja"] == "ダグラス・アダムズ"
     assert entity.labels["zh"] == "道格拉斯·亞當斯"
     assert entity.labels["ar"] == "دوغلاس آدمز"
 
-    assert len(entity.descriptions) == 116
+    assert isinstance(entity.descriptions, EntityDescriptionsResponse)
+    assert len(entity.descriptions.data) == 116
     assert (
         entity.descriptions["en"]
         == "British science fiction writer and humorist (1952–2001)"
@@ -43,11 +48,13 @@ def test_parse_q42_comprehensive() -> None:
         == "английский писатель, драматург и сценарист и юморист (1952–2001)"
     )
 
-    assert len(entity.aliases) == 25
+    assert isinstance(entity.aliases, EntityAliasesResponse)
+    assert len(entity.aliases.data) == 25
     assert "mul" in entity.aliases
     assert "Douglas Noël Adams" in entity.aliases["mul"]
 
-    assert len(entity.statements) == 332
+    assert isinstance(entity.statements, EntityStatementsResponse)
+    assert len(entity.statements.data) == 332
     unique_properties = len(set(stmt.property for stmt in entity.statements))
     assert unique_properties == 293
 
@@ -86,8 +93,8 @@ def test_parse_q42_comprehensive() -> None:
     statements_with_references = [stmt for stmt in entity.statements if stmt.references]
     assert len(statements_with_references) > 0
 
-    assert entity.sitelinks is not None
-    assert len(entity.sitelinks) == 129
+    assert isinstance(entity.sitelinks, EntitySitelinksResponse)
+    assert len(entity.sitelinks.data) == 129
     assert "enwiki" in entity.sitelinks
     assert entity.sitelinks["enwiki"]["site"] == "enwiki"
     assert entity.sitelinks["enwiki"]["title"] == "Douglas Adams"

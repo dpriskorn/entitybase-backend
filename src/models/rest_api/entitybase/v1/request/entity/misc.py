@@ -9,6 +9,7 @@ class EntityRedirectRequest(BaseModel):
     created_by: str = Field(
         default="rest-api", description="User or system creating redirect"
     )
+    user_id: int = Field()
 
 
 class EntityJsonImportRequest(BaseModel):

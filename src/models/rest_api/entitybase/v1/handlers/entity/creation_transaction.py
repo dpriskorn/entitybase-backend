@@ -156,8 +156,9 @@ class CreationTransaction(EntityTransaction):
         # Since register_entity just inserts, and we assume no conflicts, perhaps no action needed
         pass
 
+    @staticmethod
     def _rollback_statement(
-        self, hash_val: int, vitess_client: Any, s3_client: Any
+            hash_val: int, vitess_client: Any, s3_client: Any
     ) -> None:
         logger.info(f"[CreationTransaction] Rolling back statement {hash_val}")
         # Decrement ref_count

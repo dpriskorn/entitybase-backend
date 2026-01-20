@@ -1,10 +1,8 @@
 """Vitess client for database operations."""
 
 import logging
-from typing import Any, Generator
-
-import pymysql, Optional
-from typing import TYPE_CHECKING
+from typing import Any
+from typing import TYPE_CHECKING, Optional
 
 from pydantic import Field
 
@@ -27,13 +25,13 @@ if TYPE_CHECKING:
     pass
 from models.infrastructure.vitess.vitess_config import VitessConfig
 
-logger = logging.getLogger(__name__)
-
 from models.infrastructure.client import Client
 from models.infrastructure.vitess.schema import SchemaManager
 
 if TYPE_CHECKING:
     from models.infrastructure.vitess.vitess_config import VitessConfig
+
+logger = logging.getLogger(__name__)
 
 
 class VitessClient(Client):
@@ -119,10 +117,6 @@ class VitessClient(Client):
         """Get the connection manager, asserting it's not None."""
         assert self.connection_manager is not None
         return self.connection_manager
-
-    def get_connection(self) -> Generator[pymysql.Connection, None, None]:
-        """Get a database connection."""
-        return self.connection_manager.get_connection()
 
     def _user_repository(self) -> "UserRepository":
         """Get the user repository, creating it if necessary."""
