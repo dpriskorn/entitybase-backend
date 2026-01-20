@@ -34,31 +34,31 @@ def test_parse_q42_comprehensive() -> None:
 
     assert isinstance(entity.labels, EntityLabelsResponse)
     assert len(entity.labels.data) == 72
-    assert entity.labels["ru"] == "Дуглас Адамс"
-    assert entity.labels["ja"] == "ダグラス・アダムズ"
-    assert entity.labels["zh"] == "道格拉斯·亞當斯"
-    assert entity.labels["ar"] == "دوغلاس آدمز"
+    assert entity.labels.get("ru").value == "Дуглас Адамс"
+    assert entity.labels.get("ja").value == "ダグラス・アダムズ"
+    assert entity.labels.get("zh").value == "道格拉斯·亞當斯"
+    assert entity.labels.get("ar").value == "دوغلاس آدمز"
 
     assert isinstance(entity.descriptions, EntityDescriptionsResponse)
     assert len(entity.descriptions.data) == 116
     assert (
-        entity.descriptions["en"]
+        entity.descriptions.get("en").value
         == "British science fiction writer and humorist (1952–2001)"
     )
     assert (
-        entity.descriptions["fr"]
+        entity.descriptions.get("fr").value
         == "écrivain de science-fiction et humoriste anglais (1952–2001)"
     )
-    assert entity.descriptions["de"] == "britischer Science-Fiction-Autor und Humorist"
+    assert entity.descriptions.get("de").value == "britischer Science-Fiction-Autor und Humorist"
     assert (
-        entity.descriptions["ru"]
+        entity.descriptions.get("ru").value
         == "английский писатель, драматург и сценарист и юморист (1952–2001)"
     )
 
     assert isinstance(entity.aliases, EntityAliasesResponse)
     assert len(entity.aliases.data) == 25
     assert "mul" in entity.aliases
-    assert "Douglas Noël Adams" in entity.aliases["mul"]
+    assert "Douglas Noël Adams" in entity.aliases.get("mul")
 
     assert isinstance(entity.statements, EntityStatementsResponse)
     assert len(entity.statements.data) == 332
@@ -103,9 +103,9 @@ def test_parse_q42_comprehensive() -> None:
     assert isinstance(entity.sitelinks, EntitySitelinksResponse)
     assert len(entity.sitelinks.data) == 129
     assert "enwiki" in entity.sitelinks
-    assert entity.sitelinks["enwiki"]["site"] == "enwiki"
-    assert entity.sitelinks["enwiki"]["title"] == "Douglas Adams"
-    assert entity.sitelinks["enwiki"]["badges"] == []
+    assert entity.sitelinks.get("enwiki").site == "enwiki"
+    assert entity.sitelinks.get("enwiki").title == "Douglas Adams"
+    assert entity.sitelinks.get("enwiki").badges == []
     assert "dewiki" in entity.sitelinks
     assert "enwikiquote" in entity.sitelinks
     assert "ruwiki" in entity.sitelinks

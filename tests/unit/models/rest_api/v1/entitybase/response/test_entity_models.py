@@ -188,7 +188,7 @@ class TestEntityChange:
 
         # Load the schema
         with open(
-            "src/schemas/entitybase/events/entitychange/latest/latest.yaml", "r"
+            "src/schemas/entitybase/events/entity_change/latest/latest.yaml", "r"
         ) as f:
             schema = yaml.safe_load(f)
 
