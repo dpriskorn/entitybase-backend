@@ -61,10 +61,10 @@ class TestUserHandler:
         self, handler: UserHandler, mock_vitess_client: MagicMock
     ) -> None:
         """Test getting a user that exists"""
-        from models.user import User
+        from models.rest_api.entitybase.v1.response.user import UserResponse
         from datetime import datetime
 
-        mock_user = User(
+        mock_user = UserResponse(
             user_id=12345, created_at=datetime(2023, 1, 1), preferences=None
         )
         mock_vitess_client.user_repository.get_user.return_value = mock_user

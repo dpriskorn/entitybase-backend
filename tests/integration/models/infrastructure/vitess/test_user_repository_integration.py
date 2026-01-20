@@ -6,7 +6,7 @@ import pytest
 sys.path.insert(0, "src")
 
 from models.infrastructure.vitess.repositories.user import UserRepository
-from models.user import User
+from models.rest_api.entitybase.v1.response.user import UserResponse
 from models.rest_api.entitybase.v1.request.enums import UserActivityType
 
 
@@ -99,7 +99,7 @@ class TestUserRepository:
         result = repository.get_user(12345)
 
         assert result is not None
-        assert isinstance(result, User)
+        assert isinstance(result, UserResponse)
         assert result.user_id == 12345
         assert result.created_at == created_at
         assert result.preferences == {"theme": "dark"}

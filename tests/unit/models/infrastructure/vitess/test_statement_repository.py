@@ -251,5 +251,4 @@ class TestStatementRepository:
 
         result = repo.get_all_statement_hashes(mock_conn)
 
-        assert result == [12345, 67890]</content>
-<parameter name="filePath">/home/dpriskorn/src/python/wikibase-backend/tests/unit/models/infrastructure/vitess/test_statement_repository.py
+        assert result == [12345, 67890]

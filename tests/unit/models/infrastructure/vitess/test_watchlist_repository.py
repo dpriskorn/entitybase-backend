@@ -233,5 +233,4 @@ class TestWatchlistRepository:
 
         repo.mark_notification_checked(456, 123)
 
-        mock_cursor.execute.assert_called_once()</content>
-<parameter name="filePath">/home/dpriskorn/src/python/wikibase-backend/tests/unit/models/infrastructure/vitess/test_watchlist_repository.py
+        mock_cursor.execute.assert_called_once()
