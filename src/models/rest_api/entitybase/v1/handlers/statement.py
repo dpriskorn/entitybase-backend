@@ -77,7 +77,7 @@ class StatementHandler(Handler):
         Efficiently fetches multiple statements in one request.
         Returns not_found list for any hashes that don't exist.
         """
-        if s3_client is None:
+        if self.state.s3_client is None:
             raise_validation_error(
                 f"Statement {request.hashes[0]} not found", status_code=404
             )
@@ -235,7 +235,7 @@ class StatementHandler(Handler):
         if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
-        if s3_client is None:
+        if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
 
         # Get orphaned statements older than specified days

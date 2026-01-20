@@ -103,8 +103,6 @@ class StatementService(Service):
 
         Args:
             hash_result: StatementHashResult with hashes and full statements
-            vitess_client: Vitess client for statement_content operations
-            s3_client: S3 client for statement storage
             validator: Optional JSON schema validator for statement validation
             schema_version: Version
         """

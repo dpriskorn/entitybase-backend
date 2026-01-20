@@ -25,12 +25,6 @@ logger = logging.getLogger(__name__)
 class RedirectHandler(Handler):
     """Handles redirect operations."""
 
-    def __init__(
-        self,
-    ):
-        self.redirect_service = RedirectService(state=self.state
-        )
-
     async def create_entity_redirect(
         self, request: EntityRedirectRequest
     ) -> EntityRedirectResponse:
@@ -53,15 +47,10 @@ class RedirectHandler(Handler):
             reason=request.revert_reason,
             watchlist_context=None,  # Not used for redirects
         )
-        general_handler = EntityRevertHandler(state=state)
+        general_handler = EntityRevertHandler(state=self.state)
         revert_result = await general_handler.revert_entity(
             entity_id,
             general_request,
-            self._vitess,
-            self._s3,
-            self._stream_producer,
             int(request.created_by),
         )
-        # Clear the redirect target
-        self._vitess.revert_redirect(entity_id)
         return revert_result

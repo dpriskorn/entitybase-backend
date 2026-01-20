@@ -99,7 +99,7 @@ async def get_entity_ttl_revision(
     from models.workers.entity_diff_worker import RDFSerializer
 
     state = req.app.state.state
-    revision_data = clients.s3_config.read_revision(entity_id, revision_id)
+    revision_data = self.state.s3_client.read_revision(entity_id, revision_id)
 
     serializer = RDFSerializer()
     rdf_content = serializer.entity_data_to_rdf(revision_data.data, format_)
@@ -123,7 +123,7 @@ async def get_entity_json_revision(  # type: ignore[return]
 ) -> dict:
     """Get JSON representation of a specific entity revision."""
     state = req.app.state.state
-    revision_data = clients.s3_config.read_revision(entity_id, revision_id)
+    revision_data = self.state.s3_client.read_revision(entity_id, revision_id)
 
     return revision_data.data  # type: ignore[no-any-return]
 

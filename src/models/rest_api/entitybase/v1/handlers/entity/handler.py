@@ -27,10 +27,6 @@ from models.rest_api.entitybase.v1.response import StatementHashResult
 from models.rest_api.entitybase.v1.response.entity import EntityState
 from models.rest_api.entitybase.v1.response.result import RevisionIdResult
 from models.rest_api.entitybase.v1.services.hash_service import HashService
-from models.rest_api.entitybase.v1.services.statement_service import (
-    hash_entity_statements,
-    deduplicate_and_store_statements,
-)
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.utils import raise_validation_error

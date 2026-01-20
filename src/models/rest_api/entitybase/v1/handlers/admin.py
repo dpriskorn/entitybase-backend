@@ -90,7 +90,7 @@ class AdminHandler(Handler):
             )
 
         # Read full revision schema from S3
-        if s3_client is None:
+        if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
 
         revision = self.state.s3_client.read_full_revision(entity_id, revision_id)
