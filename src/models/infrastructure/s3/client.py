@@ -34,7 +34,6 @@ logger = logging.getLogger(__name__)
 class MyS3Client(BaseModel):
     """Client for S3 storage operations."""
 
-    state: State  # type: ignore[override]
     connection_manager: Optional[S3ConnectionManager] = Field(
         default=None, exclude=True
     )  # type: ignore[override]

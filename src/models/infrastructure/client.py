@@ -7,7 +7,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from models.infrastructure.config import Config
 from models.infrastructure.connection import ConnectionManager
-from models.rest_api.state import State
 from models.rest_api.utils import raise_validation_error
 
 

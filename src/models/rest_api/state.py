@@ -10,25 +10,26 @@ from models.common import raise_validation_error
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.rdf_builder.property_registry.loader import load_property_registry
 from models.rdf_builder.property_registry.registry import PropertyRegistry
+from models.infrastructure.s3.client import S3Config, MyS3Client
+from models.infrastructure.vitess.client import VitessClient
+from models.infrastructure.vitess.config import VitessConfig
+from models.infrastructure.stream.config import StreamConfig
 
 logger = logging.getLogger(__name__)
-
-if TYPE_CHECKING:
-    from models.infrastructure.s3.client import S3Config
-    from models.infrastructure.vitess.client import VitessClient
-    from models.infrastructure.vitess.config import VitessConfig
 
 
 class State(BaseModel):
     """State model that helps instantiate clients as needed"""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    vitess_config: "VitessConfig | None" = Field(default=None)
-    s3_config: "S3Config | None" = Field(default=None)
+    vitess_config: VitessConfig | None = Field(default=None)
+    s3_config: S3Config | None = Field(default=None)
+    entity_change_stream_config: StreamConfig | None = Field(default=None)
+    entity_diff_stream_config: StreamConfig | None = Field(default=None)
 
     kafka_brokers: str = "",
     kafka_entitychange_topic: str = "",
-    kafka_rdf_topic: str = "",
+    kafka_entitydiff_topic: str = "",
     property_registry_path: Path | None = None,
     streaming_enabled: bool = False,
 
@@ -53,44 +54,43 @@ class State(BaseModel):
             logger.debug("Vitess client connected successfully")
         else:
             logger.warning("Vitess client connection failed")
-        if self.streaming_enabled and self.entitychange_stream_producer.healthy_connection:
-            logger.debug("Vitess client connected successfully")
-        else:
-            logger.warning("Vitess client connection failed")
+        # todo create healthy_connection method
+        # if self.streaming_enabled and self.entitychange_stream_producer.healthy_connection:
+        #     logger.debug("Kafka entitychange client connected successfully")
+        # else:
+        #     logger.warning("Kafka entitychange connection failed")
+        # if self.streaming_enabled and self.entitydiff_stream_producer.healthy_connection:
+        #     logger.debug("Kafka entitydiff client connected successfully")
+        # else:
+        #     logger.warning("Kafka entitydiff connection failed")
 
         logger.debug("Clients initialized successfully")
 
     @property
-    def vitess_client(self):
+    def vitess_client(self) -> "VitessClient":
         """Get a fully ready client"""
         from models.infrastructure.vitess.client import VitessClient
         return VitessClient(config=self.vitess_config)
 
     @property
-    def s3_client(self):
+    def s3_client(self) -> "MyS3Client":
         """Get a fully ready client"""
-        from models.infrastructure.vitess.client import VitessClient
-        return VitessClient(config=self.vitess_config)
+        from models.infrastructure.s3.client import MyS3Client
+        return MyS3Client(config=self.s3_config)
 
     @property
     def entitychange_stream_producer(self) -> StreamProducerClient:
         """Get a fully ready client"""
         if self.streaming_enabled and self.kafka_brokers and self.kafka_entitychange_topic:
-            return StreamProducerClient(
-                bootstrap_servers=self.kafka_brokers,
-                topic=self.kafka_entitychange_topic,
-            )
+            return StreamProducerClient(config=self.stream_config)
         else:
             raise_validation_error(message="No kafka broker and topic provided")
 
     @property
-    def rdfdiff_stream_producer(self) -> StreamProducerClient:
+    def entitydiff_stream_producer(self) -> StreamProducerClient:
         """Get a fully ready client"""
-        if self.streaming_enabled and self.kafka_brokers and self.kafka_rdf_topic:
-            return StreamProducerClient(
-                bootstrap_servers=self.kafka_brokers,
-                topic=self.kafka_rdf_topic,
-            )
+        if self.streaming_enabled and self.kafka_brokers and self.kafka_entitydiff_topic:
+            return StreamProducerClient(config=self.stream_config)
         else:
             raise_validation_error(message="No kafka broker and rdf topic provided")
 

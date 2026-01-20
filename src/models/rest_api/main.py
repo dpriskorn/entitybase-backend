@@ -68,7 +68,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             enable_streaming=settings.streaming_enabled,
             kafka_brokers=kafka_brokers,
             kafka_topic=kafka_topic,
-            kafka_rdf_topic=settings.kafka_entitychange_rdf_topic,
+            kafka_rdf_topic=settings.kafka_entitydiff_ttl_topic,
             property_registry_path=property_registry_path,
         )
 
@@ -173,7 +173,7 @@ if not hasattr(app.state, "clients"):
         enable_streaming=settings.streaming_enabled,
         kafka_brokers=kafka_brokers,
         kafka_topic=kafka_topic,
-        kafka_rdf_topic=settings.kafka_entitychange_rdf_topic,
+        kafka_rdf_topic=settings.kafka_entitydiff_ttl_topic,
         property_registry_path=property_registry_path,
     )
 

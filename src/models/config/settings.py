@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from models.infrastructure.stream.config import StreamConfig
+
 if TYPE_CHECKING:
     from models.infrastructure.s3.client import S3Config
     from models.infrastructure.vitess.client import VitessConfig
@@ -39,10 +41,10 @@ class Settings(BaseSettings):
     test_log_level: str = "INFO"
     test_log_http_requests: bool = False
     test_show_progress: bool = True
-    enable_streaming: bool = False
+    streaming_enabled: bool = False
     kafka_brokers: str = ""
     kafka_entitychange_json_topic: str = "entitybase.entity_change"
-    kafka_entitychange_rdf_topic: str = "entitybase.entity_ttl_diff"
+    kafka_entitydiff_ttl_topic: str = "entitybase.entity_diff_ttl"
     backlink_stats_enabled: bool = True
     backlink_stats_schedule: str = "0 2 * * *"  # Daily at 2 AM
     backlink_stats_top_limit: int = 100
@@ -93,6 +95,25 @@ class Settings(BaseSettings):
             password=self.vitess_password,
         )
 
+    def to_entity_change_stream_config(self) -> "StreamConfig":
+        """Convert settings to Streaming configuration object.
+        """
+        from models.infrastructure.stream.config import StreamConfig
+
+        return StreamConfig(
+            bootstrap_servers=self.kafka_brokers,
+            topic=self.kafka_entitychange_json_topic,
+        )
+
+    def to_entity_diff_stream_config(self) -> "StreamConfig":
+        """Convert settings to Streaming configuration object.
+        """
+        from models.infrastructure.stream.config import StreamConfig
+
+        return StreamConfig(
+            bootstrap_servers=self.kafka_brokers,
+            topic=self.kafka_entitydiff_ttl_topic,
+        )
 
 # noinspection PyArgumentList
 settings = Settings()

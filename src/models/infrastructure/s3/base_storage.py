@@ -25,10 +25,11 @@ class LoadResponse(BaseModel):
     data: Union[Dict[str, Any], str]
 
 
-class BaseS3Storage(ABC):
+class BaseS3Storage(ABC, BaseModel):
     """Base class for S3 storage operations with common patterns."""
 
     def __init__(self, connection_manager: S3ConnectionManager, bucket: str):
+        super.__init__()
         self.connection_manager = connection_manager
         self.bucket = bucket
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
