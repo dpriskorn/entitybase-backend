@@ -38,7 +38,7 @@ class CreationTransaction(EntityTransaction):
         self.statement_hashes.extend(hash_result.statements)
         for hash_val in hash_result.statements:
             self.operations.append(
-                lambda h=hash_val: self._rollback_statement(h, s3_client)  # type: ignore[misc]
+                lambda h=hash_val: self._rollback_statement(h)  # type: ignore[misc]
             )
         return hash_result
 

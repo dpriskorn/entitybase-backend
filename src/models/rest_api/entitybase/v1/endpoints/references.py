@@ -16,7 +16,7 @@ references_router = APIRouter(prefix="/references", tags=["statements"])
 
 @references_router.get("/{hashes}")
 async def get_references(
-    hashes: str, s3_client: MyS3Client
+    hashes: str: MyS3Client
 ) -> list[ReferenceResponse | None]:
     """Fetch references by hash(es).
 

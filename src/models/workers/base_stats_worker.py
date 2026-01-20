@@ -5,6 +5,7 @@ import logging
 import os
 from abc import ABC, abstractmethod
 from datetime import datetime, time, timedelta, timezone
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -18,10 +19,10 @@ logger = logging.getLogger(__name__)
 class BaseStatsWorker(BaseModel, ABC):
     """Base class for statistics workers."""
 
+    state: Any  # this is the app state
     worker_id: str = Field(
         default_factory=lambda: os.getenv("WORKER_ID", f"stats-{os.getpid()}")
     )
-    vitess_client: VitessClient | None = None
     running: bool = Field(default=False)
     last_run: datetime | None = None
 

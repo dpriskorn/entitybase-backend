@@ -33,7 +33,7 @@ class GeneralStatsWorker(BaseStatsWorker):
 
             # Compute statistics
             service = GeneralStatsService(state=self.state)
-            stats = service.compute_daily_stats(self.vitess_client)
+            stats = service.compute_daily_stats()
 
             # Store in database
             await self._store_statistics(stats)

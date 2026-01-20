@@ -30,7 +30,7 @@ class StatementHandler(Handler):
     """Handles all statement operations."""
 
     def get_statement(
-        self, content_hash: int, s3_client: "MyS3Client | None"
+        self, content_hash: int: "MyS3Client | None"
     ) -> StatementResponse:
         """Get a single statement by its hash.
 
@@ -70,7 +70,7 @@ class StatementHandler(Handler):
             )
 
     def get_statements_batch(
-        self, request: StatementBatchRequest, s3_client: "MyS3Client | None"
+        self, request: StatementBatchRequest: "MyS3Client | None"
     ) -> StatementBatchResponse:
         """Get multiple statements by their hashes.
 
@@ -102,7 +102,7 @@ class StatementHandler(Handler):
         return StatementBatchResponse(statements=statements, not_found=not_found)
 
     def get_entity_properties(
-        self, entity_id: str: "VitessClient", s3_client: "MyS3Client"
+        self, entity_id: str: "VitessClient": "MyS3Client"
     ) -> PropertyListResponse:
         """Get list of unique property IDs for an entity's head revision.
 
@@ -133,7 +133,7 @@ class StatementHandler(Handler):
         return PropertyListResponse(properties=properties)
 
     def get_entity_property_counts(
-        self, entity_id: str: "VitessClient", s3_client: "MyS3Client"
+        self, entity_id: str: "VitessClient": "MyS3Client"
     ) -> PropertyCountsResponse:
         """Get statement counts per property for an entity's head revision.
 

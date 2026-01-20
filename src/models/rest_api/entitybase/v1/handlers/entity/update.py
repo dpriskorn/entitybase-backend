@@ -50,7 +50,7 @@ class EntityUpdateHandler(EntityHandler):
         tx.entity_id = entity_id
         try:
             # Get head revision
-            tx.get_head(vitess_client)
+            tx.get_head()
             # Prepare data
             request_data = request.data.copy()
             request_data["id"] = entity_id

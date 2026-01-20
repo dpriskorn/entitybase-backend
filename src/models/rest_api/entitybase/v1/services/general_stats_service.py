@@ -10,25 +10,26 @@ from models.rest_api.entitybase.v1.response.misc import (
     TermsByType,
     TermsPerLanguage,
 )
+from models.rest_api.entitybase.v1.service import Service
 
 logger = logging.getLogger(__name__)
 
 
-class GeneralStatsService(BaseModel):
+class GeneralStatsService(Service):
     """Service for computing general wiki statistics."""
 
     def compute_daily_stats(self: VitessClient) -> GeneralStatsData:
         """Compute comprehensive general wiki statistics for current date."""
-        total_statements = self.get_total_statements(vitess_client)
-        total_qualifiers = self.get_total_qualifiers(vitess_client)
-        total_references = self.get_total_references(vitess_client)
-        total_items = self.get_total_items(vitess_client)
-        total_lexemes = self.get_total_lexemes(vitess_client)
-        total_properties = self.get_total_properties(vitess_client)
-        total_sitelinks = self.get_total_sitelinks(vitess_client)
-        total_terms = self.get_total_terms(vitess_client)
-        terms_per_language = self.get_terms_per_language(vitess_client)
-        terms_by_type = self.get_terms_by_type(vitess_client)
+        total_statements = self.get_total_statements()
+        total_qualifiers = self.get_total_qualifiers()
+        total_references = self.get_total_references()
+        total_items = self.get_total_items()
+        total_lexemes = self.get_total_lexemes()
+        total_properties = self.get_total_properties()
+        total_sitelinks = self.get_total_sitelinks()
+        total_terms = self.get_total_terms()
+        terms_per_language = self.get_terms_per_language()
+        terms_by_type = self.get_terms_by_type()
 
         return GeneralStatsData(
             total_statements=total_statements,

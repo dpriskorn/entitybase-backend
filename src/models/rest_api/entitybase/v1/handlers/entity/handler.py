@@ -407,20 +407,20 @@ class EntityHandler(Handler):
         """Create revision data, store it, and publish events."""
         # Process sitelinks: hash titles and store metadata
         sitelinks_hashes = HashService.hash_sitelinks(
-            request_data.get("sitelinks", {}), s3_client
+            request_data.get("sitelinks", {})
         )
         # Replace sitelinks with hashes in entity data
         request_data["sitelinks"] = sitelinks_hashes.root
 
         # Process terms: hash labels, descriptions, aliases and store metadata
         labels_hashes = HashService.hash_labels(
-            request_data.get("labels", {}), s3_client
+            request_data.get("labels", {})
         )
         descriptions_hashes = HashService.hash_descriptions(
-            request_data.get("descriptions", {}), s3_client
+            request_data.get("descriptions", {})
         )
         aliases_hashes = HashService.hash_aliases(
-            request_data.get("aliases", {}), s3_client
+            request_data.get("aliases", {})
         )
 
         # Create revision data
@@ -555,8 +555,6 @@ class EntityHandler(Handler):
         entity_id: str,
         property_id: str,
         request: AddPropertyRequest,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
         validator: Any | None = None,
         user_id: int = 0,
     ) -> OperationResult[RevisionIdResult]:
@@ -573,7 +571,7 @@ class EntityHandler(Handler):
         try:
             read_handler = EntityReadHandler(state=state)
             property_response = read_handler.get_entity(
-                property_id, s3_client
+                property_id
             )
             if property_response.entity_type != "property":
                 return OperationResult(success=False, error="Entity is not a property")
@@ -584,7 +582,7 @@ class EntityHandler(Handler):
         try:
             read_handler = EntityReadHandler(state=state)
             entity_response = read_handler.get_entity(
-                entity_id, s3_client
+                entity_id
             )
             current_data = entity_response.entity_data
         except Exception as e:
@@ -627,8 +625,6 @@ class EntityHandler(Handler):
         entity_id: str,
         statement_hash: str,
         edit_summary: str,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
         validator: Any | None = None,
         user_id: int = 0,
     ) -> OperationResult[RevisionIdResult]:
@@ -727,8 +723,6 @@ class EntityHandler(Handler):
         entity_id: str,
         statement_hash: str,
         request: PatchStatementRequest,
-        vitess_client: VitessClient,
-        s3_client: MyS3Client,
         validator: Any | None = None,
         user_id: int = 0,
     ) -> OperationResult[RevisionIdResult]:
@@ -739,7 +733,7 @@ class EntityHandler(Handler):
         try:
             read_handler = EntityReadHandler(state=state)
             entity_response = read_handler.get_entity(
-                entity_id, s3_client
+                entity_id
             )
             current_data = entity_response.entity_data
         except Exception as e:
