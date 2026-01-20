@@ -92,7 +92,7 @@ class TestTermAPIEndpoints(unittest.TestCase):
         mock_handler_class.return_value = mock_handler
         mock_handler.get_entity.return_value = self.mock_entity_response
 
-        # result = asyncio.run(get_item_aliases("Q42", "en", self.mock_request))  # undefined
+        result = asyncio.run(get_item_aliases("Q42", "en", self.mock_request))  # undefined
 
         expected = [
             {"language": "en", "value": "alias1"},

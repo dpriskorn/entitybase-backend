@@ -6,6 +6,7 @@ pytestmark = pytest.mark.unit
 
 from models.infrastructure.s3.s3_client import MyS3Client
 from models.infrastructure.s3.config import S3Config
+from models.infrastructure.s3.enums import MetadataType
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
 from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
@@ -289,6 +290,12 @@ class TestMyS3Client:
             mock_manager_class.return_value = mock_connection_manager
 
             client = MyS3Client(config)
+            revision_data = RevisionData(
+                revision_id=123,
+                entity_type=EntityType.ITEM,
+                edit=EditType.MANUAL_UPDATE,
+                hashes=HashMaps()
+            )
             client.write_entity_revision(
                 "Q42", 123, revision_data
             )

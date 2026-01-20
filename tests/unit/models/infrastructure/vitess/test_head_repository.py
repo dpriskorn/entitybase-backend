@@ -42,6 +42,7 @@ class TestHeadRepository:
         repo = HeadRepository(mock_connection_manager, mock_id_resolver)
         mock_id_resolver.resolve_id.return_value = 0
 
+        mock_conn = MagicMock()
         result = repo.cas_update_with_status(mock_conn, "Q42")
 
         assert result.success is False
