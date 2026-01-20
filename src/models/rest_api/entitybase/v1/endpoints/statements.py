@@ -27,7 +27,7 @@ def get_statement(content_hash: int, req: Request) -> StatementResponse:
     if not isinstance(state, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
-    return handler.get_statement(content_hash, clients.s3_config)  # type: ignore[no-any-return]
+    return handler.get_statement(content_hash)  # type: ignore[no-any-return]
 
 
 @router.post("/statements/batch", response_model=StatementBatchResponse)
@@ -39,7 +39,7 @@ def get_statements_batch(  # type: ignore[no-any-return]
     if not isinstance(state, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
-    return handler.get_statements_batch(request, clients.s3_config)  # type: ignore[no-any-return]
+    return handler.get_statements_batch(request)  # type: ignore[no-any-return]
 
 
 @router.get("/statements/most_used", response_model=MostUsedStatementsResponse)

@@ -27,15 +27,8 @@ class RedirectHandler(Handler):
 
     def __init__(
         self,
-        s3_client: "MyS3Client",
-        vitess_client: "VitessClient",
-        stream_producer: "StreamProducerClient | None" = None,
     ):
-        self._s3 = s3_client
-        self._vitess = vitess_client
-        self._stream_producer = stream_producer
-        self.redirect_service = RedirectService(
-            s3_client, stream_producer
+        self.redirect_service = RedirectService(state=self.state
         )
 
     async def create_entity_redirect(

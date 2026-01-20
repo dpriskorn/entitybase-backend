@@ -12,6 +12,7 @@ from models.rest_api.entitybase.v1.response import (
     EntityRedirectResponse,
 )
 from models.rest_api.entitybase.v1.response.entity import EntityRevertResponse
+from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
@@ -24,18 +25,8 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class RedirectService:
+class RedirectService(Service):
     """Service for managing entity redirects"""
-
-    def __init__(
-        self,
-        s3_client: "MyS3Client",
-        vitess_client: "VitessClient",
-        stream_producer: "StreamProducerClient | None" = None,
-    ):
-        self.s3 = s3_client
-        self.vitess = vitess_client
-        self.stream_producer = stream_producer
 
     async def create_redirect(
         self,

@@ -83,7 +83,7 @@ def get_entity_revision(
     """Get a specific revision of an entity."""
     state = req.app.state.state
     handler = EntityReadHandler(state=state)
-    return handler.get_entity_revision(entity_id, revision_id, clients.s3_config)  # type: ignore
+    return handler.get_entity_revision(entity_id, revision_id)  # type: ignore
 
 
 @router.get("/entities/{entity_id}/revision/{revision_id}/ttl")
