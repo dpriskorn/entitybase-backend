@@ -10,10 +10,9 @@ from fastapi.responses import JSONResponse
 from jsonschema import ValidationError  # type: ignore[import-untyped]
 
 from models.config.settings import settings
-from models.rest_api.state import State
 from models.rest_api.entitybase.v1.endpoints import v1_router
+from models.rest_api.state import State
 from models.validation.json_schema_validator import JsonSchemaValidator
-from .entitybase.v1.services.enumeration_service import EnumerationService
 
 log_level = settings.get_log_level()
 

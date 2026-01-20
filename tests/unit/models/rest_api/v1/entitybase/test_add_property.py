@@ -15,7 +15,7 @@ class TestAddProperty(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        self.handler = EntityHandler()
+        self.handler = EntityHandler(state=State())
         self.mock_vitess = MagicMock()
         self.mock_s3 = MagicMock()
         self.mock_validator = MagicMock()

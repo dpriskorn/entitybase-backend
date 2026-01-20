@@ -4,6 +4,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from models.rest_api.state import State
+
 pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")
@@ -30,7 +32,7 @@ class TestWatchlistHandler:
     @pytest.fixture
     def handler(self) -> WatchlistHandler:
         """Create handler instance"""
-        return WatchlistHandler()
+        return WatchlistHandler(state=State())
 
     def test_add_watch_success(
         self, handler: WatchlistHandler, mock_vitess_client: MagicMock

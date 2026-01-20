@@ -83,7 +83,6 @@ class EntityUpdateHandler(EntityHandler):
                 from_revision_id=tx.head_revision_id,
                 changed_at=None,  # TODO
                 edit_summary=request.edit_summary,
-                stream_producer=stream_producer,
             )
             # Log activity
             if user_id:
