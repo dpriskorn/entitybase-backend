@@ -12,7 +12,7 @@ T = TypeVar("T")
 def raise_validation_error(
     message: str,
     status_code: int = 400,
-    exception_class: Optional[type[Exception]] = Field(default=None),
+    exception_class: Optional[type[Exception]] = None,
 ) -> NoReturn:
     """Raise exception based on ENVIRONMENT and optional exception_class.
 

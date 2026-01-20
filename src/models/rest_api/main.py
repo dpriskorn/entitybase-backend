@@ -94,13 +94,14 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         )
         raise
     finally:
-        if app_.state.clients.stream_producer:
-            await app_.state.clients.stream_producer.stop()
-            logger.info("Stream producer stopped")
+        # assert isinstance(app_.state.clients, State)
+        if app_.state.clients.entitychange_stream_producer:
+            await app_.state.clients.entitychange_stream_producer.stop()
+            logger.info("entitychange_stream_producer stopped")
 
-        if app_.state.clients.rdf_stream_producer:
-            await app_.state.clients.rdf_stream_producer.stop()
-            logger.info("RDF stream producer stopped")
+        if app_.state.clients.entitydiff_stream_producer:
+            await app_.state.clients.entitydiff_stream_producer.stop()
+            logger.info("entitydiff_stream_producer stopped")
 
 
 app = FastAPI(
