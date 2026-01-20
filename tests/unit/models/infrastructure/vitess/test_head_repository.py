@@ -42,7 +42,7 @@ class TestHeadRepository:
         repo = HeadRepository(mock_connection_manager, mock_id_resolver)
         mock_id_resolver.resolve_id.return_value = 0
 
-        result = repo.cas_update_with_status(mock_conn=None, entity_id="Q42")
+        result = repo.cas_update_with_status(mock_conn, "Q42")
 
         assert result.success is False
         assert "Entity not found" in result.error

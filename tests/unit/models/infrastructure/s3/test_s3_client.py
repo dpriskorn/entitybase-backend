@@ -43,7 +43,9 @@ class TestMyS3Client:
         mock_connection_manager.connect.assert_called_once()
         # _ensure_bucket_exists would be called
 
-        assert "S3 service unavailable" in str(exc.value)
+        with pytest.raises(Exception) as exc_info:
+            MyS3Client(config)
+        assert "S3 service unavailable" in str(exc_info.value)
 
     def test_read_revision(self, config, mock_connection_manager) -> None:
         """Test read_revision method."""
@@ -287,9 +289,9 @@ class TestMyS3Client:
             mock_manager_class.return_value = mock_connection_manager
 
             client = MyS3Client(config)
-        client.write_entity_revision(
-            "Q42", 123, "item", {"entity": {"id": "Q42"}}
-        )
+            client.write_entity_revision(
+                "Q42", 123, revision_data
+            )
 
         mock_connection_manager.boto_client.put_object.assert_called_once()
         call_args = mock_connection_manager.boto_client.put_object.call_args

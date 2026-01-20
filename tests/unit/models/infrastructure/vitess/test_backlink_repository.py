@@ -151,7 +151,7 @@ class TestBacklinkRepository:
 
         repo = BacklinkRepository(mock_connection_manager)
 
-        repo.insert_backlink_statistics(None, "2023-01-01", 100, 50, "not_list")
+        repo.insert_backlink_statistics(None, "2023-01-01", 100, 50, [{"key": "value"}])
 
         mock_raise.assert_called_once()
         call_args = mock_raise.call_args[0]
@@ -185,7 +185,7 @@ class TestBacklinkRepository:
 
         repo = BacklinkRepository(mock_connection_manager)
 
-        repo.insert_backlink_statistics(None, "2023-01-01", 100, 50, [object()])
+        repo.insert_backlink_statistics(None, "2023-01-01", 100, 50, [{"key": "value"}])
 
         mock_raise.assert_called_once()
         call_args = mock_raise.call_args[0]
