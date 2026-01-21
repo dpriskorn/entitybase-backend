@@ -4,7 +4,7 @@ Implements MediaWiki's HashDedupeBag pattern to avoid duplicate value node block
 Follows same algorithm as mediawiki-extensions-Wikibase/repo/includes/Rdf/HashDedupeBag.php
 """
 
-from typing import Protocol, Any
+from typing import Protocol
 
 from pydantic import BaseModel, Field
 

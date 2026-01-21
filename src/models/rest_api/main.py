@@ -12,7 +12,6 @@ from jsonschema import ValidationError  # type: ignore[import-untyped]
 from models.config.settings import settings
 from models.rest_api.entitybase.v1.endpoints import v1_router
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
-from models.validation.json_schema_validator import JsonSchemaValidator
 from models.rest_api.entitybase.v1.routes import include_routes
 
 log_level = settings.get_log_level()

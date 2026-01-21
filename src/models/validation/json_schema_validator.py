@@ -52,13 +52,13 @@ class JsonSchemaValidator(BaseModel):
 
     def _get_entity_revision_schema(self) -> JsonSchema:
         if self.entity_revision_schema is None:
-            schema_path = Path(f"schemas/{self.s3_revision_version}/entity.json")
+            schema_path = Path(f"schemas/entitybase/entity/latest/schema.yaml")
             self.entity_revision_schema = self._load_schema(str(schema_path))
         return self.entity_revision_schema
 
     def _get_statement_schema(self) -> JsonSchema:
         if self.statement_schema is None:
-            schema_path = Path(f"schemas/{self.s3_statement_version}/statement.json")
+            schema_path = Path(f"schemas/entitybase/s3/statement/{self.s3_statement_version}/schema.yaml")
             self.statement_schema = self._load_schema(str(schema_path))
         return self.statement_schema
 

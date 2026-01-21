@@ -6,8 +6,8 @@ import time
 from datetime import datetime, timezone
 from typing import Tuple, Dict, Any, Optional
 
+from pydantic import Field
 from pyld import jsonld  # type: ignore[import-untyped]
-from pydantic import BaseModel, Field
 
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.rest_api.entitybase.v1.response.events import RDFChangeEvent
