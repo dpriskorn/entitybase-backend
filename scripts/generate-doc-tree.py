@@ -30,7 +30,7 @@ def find_readmes(root_dir: Path) -> list[Path]:
 
 def generate_markdown(readmes: list[Path], root_dir: Path) -> str:
     """Generate markdown content."""
-    lines = ["# Doc Tree\n", "Links to all README.md files in the doc/ directory.\n"]
+    lines = ["# Doc Tree\n", "Links to all README.md files in the doc/ directory.\n", "```\n"]
 
     for readme in readmes:
         # Get relative path
@@ -49,6 +49,7 @@ def generate_markdown(readmes: list[Path], root_dir: Path) -> str:
         # Add link
         lines.append(f"- [{title}]({rel_path})")
 
+    lines.append("```")
     return "\n".join(lines)
 
 
@@ -58,11 +59,7 @@ def main():
 
     markdown = generate_markdown(readmes, root_dir)
 
-    output_file = root_dir / "FILE-OVERVIEW.md"
-    with open(output_file, "w", encoding="utf-8") as f:
-        f.write(markdown)
-
-    print(f"Generated {output_file} with {len(readmes)} README links")
+    print(markdown)
 
 
 if __name__ == "__main__":

@@ -129,14 +129,6 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `100`
 - **Description**: No description available
 
-## RDF Settings
-
-### `kafka_entitychange_rdf_topic`
-
-- **Type**: `str`
-- **Default**: `'entitybase.entity_ttl_diff'`
-- **Description**: No description available
-
 ## Development Settings
 
 ### `log_level`
@@ -183,7 +175,7 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'properties'`
 - **Description**: No description available
 
-### `enable_streaming`
+### `streaming_enabled`
 
 - **Type**: `bool`
 - **Default**: `False`
@@ -199,6 +191,12 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `'entitybase.entity_change'`
+- **Description**: No description available
+
+### `kafka_entitydiff_ttl_topic`
+
+- **Type**: `str`
+- **Default**: `'entitybase.entity_diff_ttl'`
 - **Description**: No description available
 
 ### `user_stats_enabled`

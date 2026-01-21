@@ -1,0 +1,23 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://www.wikidata.org/schemas/entitybase/newthank/1.0.0
+title: NewThank
+description: Schema for new thank events
+type: object
+properties:
+  from_user_id:
+    type: string
+    description: ID of the user sending the thank
+  to_user_id:
+    type: string
+    description: ID of the user receiving the thank
+  entity_id:
+    type: string
+    description: Entity ID related to the thank
+  revision_id:
+    type: integer
+    description: Revision ID related to the thank
+  timestamp:
+    type: string
+    format: date-time
+    description: Timestamp of the thank action
+required: [from_user_id, to_user_id, timestamp]

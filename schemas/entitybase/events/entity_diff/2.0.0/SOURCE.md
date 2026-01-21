@@ -1,0 +1,1 @@
+Unchanged copy of https://gitlab.wikimedia.org/repos/data-engineering/schemas-event-primary/-/blob/master/jsonschema/mediawiki/wikibase/entity/rdf_change/2.0.0.yaml

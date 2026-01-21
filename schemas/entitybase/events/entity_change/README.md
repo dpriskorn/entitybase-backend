@@ -1,0 +1,1 @@
+Based on https://gitlab.wikimedia.org/repos/data-engineering/schemas-event-primary/-/tree/master/jsonschema/mediawiki/recentchange

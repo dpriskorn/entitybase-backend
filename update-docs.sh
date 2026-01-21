@@ -9,8 +9,8 @@ python scripts/doc/generate_api_models_overview.py > doc/ARCHITECTURE/API_MODELS
 python scripts/doc/generate_database_schema_overview.py > doc/ARCHITECTURE/DATABASE_SCHEMA.md
 python scripts/doc/generate_configuration_overview.py > doc/ARCHITECTURE/CONFIGURATION.md
 python scripts/doc/generate_repositories_overview.py > doc/ARCHITECTURE/REPOSITORIES.md
-python scripts/doc/update_schemas_readme.py
+python scripts/doc/update_schemas_readme.py > schemas/README.md
 python scripts/doc/generate_architecture_diagrams.py
 python scripts/doc/generate_pngs.py
-python scripts/generate-doc-tree.py
+python scripts/generate-doc-tree.py > doc/FILE-OVERVIEW.md
 ./scripts/generate-tree.sh

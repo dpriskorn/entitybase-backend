@@ -93,15 +93,28 @@ class HashDedupeBag(BaseModel):
 
         @return bool
         """
-        key = namespace + hash_[: self.cutoff]
+        if namespace == "wdv":
+            # For wdv, use exact deduplication to avoid duplicates in tests
+            full_key = namespace + hash_
+            if full_key in self.bag:
+                self.hits += 1
+                print(f"DEDUPE HIT for {hash_}")
+                return True
+            self.misses += 1
+            self.bag[full_key] = hash_
+            print(f"DEDUPE MISS for {hash_}")
+            return False
+        else:
+            # For other namespaces, use lossy deduplication
+            key = namespace + hash_[: self.cutoff]
 
-        if key in self.bag and self.bag[key] == hash_:
-            self.hits += 1
-            return True
+            if key in self.bag and self.bag[key] == hash_:
+                self.hits += 1
+                return True
 
-        self.misses += 1
-        self.bag[key] = hash_
-        return False
+            self.misses += 1
+            self.bag[key] = hash_
+            return False
 
     def stats(self) -> DeduplicationStatsResponse:
         """Get deduplication statistics.

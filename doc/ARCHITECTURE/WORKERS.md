@@ -21,6 +21,14 @@
 
 **Health Checks**: Available via worker health endpoint
 
+## Entity Diff Worker
+
+**Class**: ``
+**Location**: `models/workers/entity_diff/rdf_serializer.py`
+**Purpose**: 
+
+**Health Checks**: Available via worker health endpoint
+
 ## General Stats Worker
 
 **Class**: `GeneralStatsWorker`

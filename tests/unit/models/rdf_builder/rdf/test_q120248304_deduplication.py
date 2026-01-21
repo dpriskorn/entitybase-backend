@@ -108,5 +108,12 @@ def test_q42_no_duplicate_value_nodes(full_property_registry: Any) -> None:
 
     logger.info(f"Q42: {len(wdv_ids)} total wdv: blocks, {len(unique_ids)} unique")
 
+    # Debug duplicates
+    from collections import Counter
+    counts = Counter(wdv_ids)
+    duplicates = {k: v for k, v in counts.items() if v > 1}
+    if duplicates:
+        logger.info(f"Duplicate wdv IDs: {duplicates}")
+
     # No duplicates
-    assert len(wdv_ids) == len(unique_ids), "Q42 should have no duplicate value nodes"
+    assert len(wdv_ids) == len(unique_ids), f"Q42 should have no duplicate value nodes. Duplicates: {duplicates}"

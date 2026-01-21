@@ -59,6 +59,7 @@ package "Models" as Models #LightCyan {
     "PropertyList" as PropertyListResponse
     "Protection" as ProtectionResponse
     "Qualifier" as QualifierResponse
+    "RDFChangeEvent" as RDFChangeEvent
     "RangeStatus" as RangeStatus
     "RangeStatuses" as RangeStatuses
     "RawEntityData" as RawEntityData

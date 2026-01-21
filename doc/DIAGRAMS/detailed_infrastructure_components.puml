@@ -2,6 +2,7 @@
 
 title Wikibase Backend - Detailed Infrastructure Components
 
-note: No repository components found
+package "Repositories" as Repositories #LightGray {
+}
 
 @enduml

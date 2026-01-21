@@ -7,6 +7,7 @@ package "Workers" as Workers #LightYellow {
     "BaseStats" as BaseStatsWorker
     "CanonicalizationMethod" as CanonicalizationMethod
     "CreateBuckets" as CreateBuckets
+    "CreateTables" as CreateTables
     "EntityDiffRequest" as EntityDiffRequest
     "EntityDiffResponse" as EntityDiffResponse
     "EntityDiff" as EntityDiffWorker
@@ -16,6 +17,7 @@ package "Workers" as Workers #LightYellow {
     "RDFCanonicalizer" as RDFCanonicalizer
     "RDFSerializer" as RDFSerializer
     "UserStats" as UserStatsWorker
+    "Vitess" as VitessWorker
     "WatchlistConsumer" as WatchlistConsumerWorker
 }
 

@@ -2,6 +2,13 @@
 
 This document describes the repository classes that handle data access to Vitess.
 
+## Other
+
+### Repository
+
+**Location**: `models/infrastructure/vitess/repository.py`
+**Purpose**: 
+
 ## Architecture Notes
 
 - **Connection Management**: All repositories receive a `connection_manager` for database access

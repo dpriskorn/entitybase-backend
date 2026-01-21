@@ -40,13 +40,12 @@ def find_schema_versions(schemas_dir: Path) -> Dict[str, str]:
     return latest_versions
 
 
-def update_readme(schemas_dir: Path, latest_versions: Dict[str, str]):
-    """Update the README.md with latest versions."""
+def update_readme(schemas_dir: Path, latest_versions: Dict[str, str]) -> str:
+    """Generate the updated README.md content with latest versions."""
     readme_path = schemas_dir / "README.md"
 
     if not readme_path.exists():
-        print(f"README.md not found at {readme_path}")
-        return
+        raise FileNotFoundError(f"README.md not found at {readme_path}")
 
     with open(readme_path, "r") as f:
         content = f.read()
@@ -57,20 +56,17 @@ def update_readme(schemas_dir: Path, latest_versions: Dict[str, str]):
         import re
 
         pattern = rf"(Versions:.*?)\(latest: `[^`]+`\)"
-
         def replace_latest(match):
             prefix = match.group(1)
             return f"{prefix}(latest: `{latest_ver}`)"
 
         content = re.sub(pattern, replace_latest, content, flags=re.MULTILINE)
 
-    with open(readme_path, "w") as f:
-        f.write(content)
-
-    print(f"Updated README.md with latest versions: {latest_versions}")
+    return content
 
 
 if __name__ == "__main__":
-    schemas_dir = Path(__file__).parent.parent.parent / "src" / "schemas"
+    schemas_dir = Path(__file__).parent.parent.parent / "schemas"
     latest_versions = find_schema_versions(schemas_dir)
-    update_readme(schemas_dir, latest_versions)
+    updated_content = update_readme(schemas_dir, latest_versions)
+    print(updated_content)

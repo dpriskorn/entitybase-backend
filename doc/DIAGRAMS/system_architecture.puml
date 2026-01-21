@@ -8,7 +8,7 @@ package "API Layer" as APILayer #LightBlue {
     "Admin" as AdminHandler
     "Thanks" as ThanksHandler
     "UserActivity" as UserActivityHandler
-    ... (34 total components)
+    ... (33 total components)
 }
 
 package "Service Layer" as ServiceLayer #LightGreen {
@@ -17,15 +17,16 @@ package "Service Layer" as ServiceLayer #LightGreen {
     "BacklinkStatistics" as BacklinkStatisticsService
     "UserStats" as UserStatsService
     "Redirect" as RedirectService
+    ... (9 total components)
 }
 
 package "Worker Layer" as WorkerLayer #LightYellow {
     "BaseStatsWorker" as BaseStatsWorker
-    "CanonicalizationMethod" as CanonicalizationMethod
-    "EntityDiffRequest" as EntityDiffRequest
-    "EntityDiffResponse" as EntityDiffResponse
-    "RDFCanonicalizer" as RDFCanonicalizer
-    ... (14 total components)
+    "VitessWorker" as VitessWorker
+    "Worker" as Worker
+    "BacklinkStatisticsWorker" as BacklinkStatisticsWorker
+    "NotificationCleanupWorker" as NotificationCleanupWorker
+    ... (17 total components)
 }
 
 package "Infrastructure Layer" as InfrastructureLayer #LightGray {

@@ -44,8 +44,10 @@ class ValueNodeWriter(BaseModel):
     ) -> None:
         """Write time value node block if not already written."""
         logger.debug(f"Writing time value node for {value_id}")
+        print(f"Writing time value node for {value_id}, dedupe is {dedupe is not None}")
         if dedupe is not None:
             if dedupe.already_seen(value_id, "wdv"):
+                print(f"Skipped writing {value_id}")
                 return
 
         time_str = time_value.value
