@@ -19,9 +19,6 @@ class RevisionStorage(BaseS3Storage):
     """Storage operations for entity revisions."""
     model_config = {"arbitrary_types_allowed": True}
 
-    def __init__(self, connection_manager: S3ConnectionManager) -> None:
-        super().__init__(connection_manager, settings.s3_revisions_bucket)
-
     def store_revision(
         self,
         entity_id: str,

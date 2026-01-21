@@ -26,7 +26,7 @@ class TestWatchlistRepository:
         self, mock_connection_manager: MagicMock, mock_id_resolver: MagicMock
     ) -> WatchlistRepository:
         """Create repository instance"""
-        repository = WatchlistRepository(config=MagicMock())
+        repository = WatchlistRepository()
         repository.id_resolver = mock_id_resolver
         repository.connection_manager = mock_connection_manager
         return repository

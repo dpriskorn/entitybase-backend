@@ -19,10 +19,6 @@ logger = logging.getLogger(__name__)
 class MetadataStorage(BaseS3Storage):
     """Storage operations for metadata (terms and sitelinks)."""
 
-    def __init__(self, connection_manager: S3ConnectionManager) -> None:
-        # Use a default bucket, but methods will override
-        super().__init__(connection_manager, settings.s3_terms_bucket)
-
     def _get_bucket_for_type(self, metadata_type: MetadataType) -> str:
         """Get the appropriate bucket for metadata type."""
         if metadata_type in (

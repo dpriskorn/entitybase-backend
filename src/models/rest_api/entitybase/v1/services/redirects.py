@@ -171,9 +171,6 @@ class RedirectService(Service):
         revert_result = await general_handler.revert_entity(
             entity_id,
             general_request,
-            self.vitess,
-            self.s3,
-            self.stream_producer,
             user_id,
         )
 

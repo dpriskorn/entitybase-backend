@@ -21,9 +21,6 @@ logger = logging.getLogger(__name__)
 class StatementStorage(BaseS3Storage):
     """Storage operations for statements."""
 
-    def __init__(self, connection_manager: S3ConnectionManager) -> None:
-        super().__init__(connection_manager, settings.s3_statements_bucket)
-
     def store_statement(
         self,
         content_hash: int,
