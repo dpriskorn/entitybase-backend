@@ -32,7 +32,7 @@ from models.rest_api.entitybase.v1.services.hash_service import HashService
 from models.rest_api.utils import raise_validation_error
 from .entity_hashing_service import EntityHashingService
 from .entity_validation_service import EntityValidationService
-from .exceptions import EntityProcessingError
+
 from ...handler import Handler
 from ...result import RevisionResult
 from ...services.statement_service import StatementService
@@ -116,34 +116,41 @@ class EntityHandler(Handler):
 
         # 1. Validate request
         self._validate_revision_request(ctx)
+        logger.debug(f"Request validation passed for {entity_id}")
 
         # 2. Check idempotency
         if cached := await self._check_idempotency_new(ctx):
             logger.debug(f"Returning cached revision for {entity_id}")
             assert isinstance(cached, EntityResponse)
             return cached
+        logger.debug(f"Idempotency check passed for {entity_id}")
 
         # 3. Process entity data
         hash_result = await self._process_entity_data_new(ctx)
+        logger.debug(f"Entity data processed for {entity_id}")
 
         # 4. Create revision
         result = await self._create_revision_new(ctx, hash_result)
+        logger.debug(f"Revision created for {entity_id}: {result.revision_id}")
 
         # 5. Publish events
         await self._publish_events_new(ctx, result)
+        logger.debug(f"Events published for {entity_id}")
 
         if not result.success:
-            raise EntityProcessingError(result.error or "Revision creation failed")
+            raise_validation_error(result.error or "Revision creation failed")
 
         # Build response
-        return await self._build_entity_response(ctx, result)
+        response = await self._build_entity_response(ctx, result)
+        logger.info(f"Entity revision created successfully for {entity_id}: revision {result.revision_id}")
+        return response
 
     @staticmethod
     def _validate_revision_request(ctx: RevisionContext) -> None:
         """Validate the revision request."""
         # Basic validation
         if not ctx.entity_id:
-            raise EntityProcessingError("Entity ID is required", 400)
+            raise_validation_error("Entity ID is required", 400)
 
     async def _check_idempotency_new(
         self, ctx: RevisionContext
@@ -302,7 +309,7 @@ class EntityHandler(Handler):
     ) -> EntityResponse:
         """Build EntityResponse from revision result."""
         if not result.success or not result.revision_id:
-            raise EntityProcessingError(result.error or "Revision creation failed")
+            raise_validation_error(result.error or "Revision creation failed")
 
         # Read the created revision to build response
         try:
@@ -321,7 +328,7 @@ class EntityHandler(Handler):
             )
         except Exception as e:
             logger.error(f"Failed to build response for {ctx.entity_id}: {e}")
-            raise EntityProcessingError("Failed to retrieve created revision")
+            raise_validation_error("Failed to retrieve created revision")
 
     def process_statements(
         self,
@@ -597,11 +604,8 @@ class EntityHandler(Handler):
                 success=True,
                 data=RevisionIdResult(revision_id=entity_response_new.rev_id),
             )
-        except EntityProcessingError as e:
-            return OperationResult(success=False, error=str(e))
         except Exception as e:
-            logger.error(f"Unexpected error in add_property for {entity_id}: {e}")
-            return OperationResult(success=False, error="Internal server error")
+            return OperationResult(success=False, error=str(e))
 
     def remove_statement(
         self,

@@ -32,9 +32,9 @@ async def create_item(request: EntityCreateRequest, req: Request) -> EntityRespo
     logger.debug(f"🔍 ENDPOINT: Request data: {request.model_dump()}")
 
     try:
-        state = req.app.state.clients
-        validator = req.app.state.validator
-        enumeration_service = req.app.state.clients.enumeration_service
+        state = req.app.state.state_handler
+        validator = req.app.state.state_handler.validator
+        enumeration_service = req.app.state.state_handler.enumeration_service
 
         logger.debug(f"🔍 ENDPOINT: Services available - state: {state is not None}, validator: {validator is not None}, enum_svc: {enumeration_service is not None}")
 
@@ -57,7 +57,7 @@ async def get_item_label(
     item_id: str, language_code: str, req: Request
 ) -> LabelResponse:
     """Get item label for language."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(item_id)
     labels = response.data.get("labels", {})
@@ -75,8 +75,8 @@ async def update_item_label(
     item_id: str, language_code: str, update_data: Dict[str, Any], req: Request
 ) -> EntityResponse:
     """Update item label for language."""
-    state = req.app.state.clients
-    validator = req.app.state.validator
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
 
     # Extract label from request
     label_value = update_data.get("value")
@@ -114,8 +114,8 @@ async def delete_item_label(
     item_id: str, language_code: str, req: Request
 ) -> EntityResponse:
     """Delete item label for language."""
-    state = req.app.state.clients
-    validator = req.app.state.validator
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
 
     # Get current entity
     handler = EntityReadHandler(state=state)
@@ -150,7 +150,7 @@ async def get_item_description(
     item_id: str, language_code: str, req: Request
 ) -> DescriptionResponse:
     """Get item description for language."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(item_id)
     descriptions = response.data.get("descriptions", {})
@@ -170,8 +170,8 @@ async def update_item_description(
     item_id: str, language_code: str, update_data: Dict[str, Any], req: Request
 ) -> EntityResponse:
     """Update item description for language."""
-    state = req.app.state.clients
-    validator = req.app.state.validator
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
 
     # Extract description from Wikibase format
     description_value = update_data.get("description")
@@ -210,8 +210,8 @@ async def delete_item_description(
     item_id: str, language_code: str, req: Request
 ) -> EntityResponse:
     """Delete item description for language."""
-    state = req.app.state.clients
-    validator = req.app.state.validator
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
 
     # Get current entity
     handler = EntityReadHandler(state=state)
@@ -245,7 +245,7 @@ async def get_item_aliases_for_language(
     item_id: str, language_code: str, req: Request
 ) -> list[str]:
     """Get item aliases for language."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(item_id)
     aliases = response.data.get("aliases", {})
@@ -264,8 +264,8 @@ async def put_item_aliases_for_language(
 ) -> EntityResponse:
     """Update item aliases for language."""
     logger.debug(f"Updating aliases for item {item_id}, language {language_code}")
-    state = req.app.state.clients
-    validator = req.app.state.validator
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
 
     # Get current entity
     handler = EntityReadHandler(state=state)

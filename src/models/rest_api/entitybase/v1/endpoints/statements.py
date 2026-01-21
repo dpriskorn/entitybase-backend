@@ -15,7 +15,7 @@ from models.rest_api.entitybase.v1.response import (
     StatementResponse,
 )
 from models.rest_api.utils import raise_validation_error
-from models.rest_api.state import State
+from models.rest_api.entitybase.v1.handlers.state import StateHandler
 
 router = APIRouter()
 
@@ -23,8 +23,8 @@ router = APIRouter()
 @router.get("/statements/{content_hash}", response_model=StatementResponse)
 def get_statement(content_hash: int, req: Request) -> StatementResponse:
     """Retrieve a single statement by its content hash."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
     return handler.get_statement(content_hash)  # type: ignore[no-any-return]
@@ -35,8 +35,8 @@ def get_statements_batch(  # type: ignore[no-any-return]
     request: StatementBatchRequest, req: Request
 ) -> StatementBatchResponse:
     """Retrieve multiple statements by their content hashes in a batch request."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
     return handler.get_statements_batch(request)  # type: ignore[no-any-return]
@@ -47,8 +47,8 @@ def get_most_used_statements(  # type: ignore[no-any-return]
     request: MostUsedStatementsRequest, req: Request
 ) -> MostUsedStatementsResponse:
     """Get the most used statements based on reference count."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
     result = handler.get_most_used_statements(request.limit, request.min_ref_count)
@@ -62,8 +62,8 @@ def cleanup_orphaned_statements(  # type: ignore[no-any-return]
     request: CleanupOrphanedRequest, req: Request
 ) -> CleanupOrphanedResponse:
     """Clean up orphaned statements that are no longer referenced."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
     return handler.cleanup_orphaned_statements(request)  # type: ignore[no-any-return]

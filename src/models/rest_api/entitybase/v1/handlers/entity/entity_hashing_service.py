@@ -3,13 +3,12 @@
 import logging
 from typing import Any, Dict
 
+from models.common import raise_validation_error
 from models.infrastructure.s3.hashes.hash_maps import (
     HashMaps,
     SitelinksHashes,
 )
-from models.rest_api.entitybase.v1.handlers.entity.exceptions import (
-    EntityProcessingError,
-)
+
 from models.rest_api.entitybase.v1.response import StatementHashResult
 from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.entitybase.v1.services.hash_service import HashService
@@ -28,7 +27,7 @@ class EntityHashingService(Service):
             request_data
         )
         if not hash_operation.success:
-            raise EntityProcessingError(
+            raise_validation_error(
                 hash_operation.error or "Failed to hash statements"
             )
         return hash_operation.data

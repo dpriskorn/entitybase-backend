@@ -1,8 +1,8 @@
 """RDF Turtle writer."""
 
-from typing import TextIO, List
+from typing import TextIO
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from models.rdf_builder.writers.prefixes import TURTLE_PREFIXES
 

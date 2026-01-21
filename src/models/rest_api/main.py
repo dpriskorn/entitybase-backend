@@ -6,12 +6,12 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from jsonschema import ValidationError  # type: ignore[import-untyped]
 
 from models.config.settings import settings
 from models.rest_api.entitybase.v1.endpoints import v1_router
-from models.rest_api.state import State
+from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.validation.json_schema_validator import JsonSchemaValidator
 from models.rest_api.entitybase.v1.routes import include_routes
 
@@ -64,7 +64,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         )
         logger.debug(f"Property registry path: {property_registry_path}")
 
-        app_.state.clients = State(
+        app_.state.clients = StateHandler(
             s3_config=s3_config,
             vitess_config=vitess_config,
             streaming_enabled=settings.streaming_enabled,
@@ -98,11 +98,6 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             await app_.state.clients.rdf_stream_producer.start()
             logger.info("RDF entitydiff_stream_producer started")
 
-        app_.state.validator = JsonSchemaValidator(
-            s3_revision_version=settings.s3_schema_revision_version,
-            s3_statement_version=settings.s3_statement_version,
-            wmf_recentchange_version=settings.wmf_recentchange_version,
-        )
         logger.debug(
             "Clients, validator, and enumeration service initialized successfully"
         )
@@ -166,39 +161,8 @@ async def get_openapi() -> dict:
     return app.openapi()  # type: ignore
 
 
-# TODO
-# @app.get("/")
-# async def redirect_to_docs() -> dict:
-#     """Redirect to the OpenAPI docs."""
-#     return
+@app.get("/")
+async def redirect_to_docs():
+    """Redirect to the OpenAPI docs."""
+    return RedirectResponse(url="/docs")
 
-# Fallback initialization in case lifespan didn't run
-# if not hasattr(app.state, "clients"):
-#     s3_config = settings.to_s3_config()
-#     vitess_config = settings.to_vitess_config()
-#     kafka_brokers = settings.kafka_brokers
-#     kafka_topic = settings.kafka_entitychange_json_topic
-#
-#     property_registry_path = (
-#         Path("test_data/properties") if Path("test_data/properties").exists() else None
-#     )
-#
-#     app.state.clients = State(
-#         s3=s3_config,
-#         vitess=vitess_config,
-#         enable_streaming=settings.streaming_enabled,
-#         kafka_brokers=kafka_brokers,
-#         kafka_topic=kafka_topic,
-#         kafka_rdf_topic=settings.kafka_entitydiff_ttl_topic,
-#         property_registry_path=property_registry_path,
-#     )
-#
-#     app.state.validator = JsonSchemaValidator(
-#         s3_revision_version=settings.s3_schema_revision_version,
-#         s3_statement_version=settings.s3_statement_version,
-#         wmf_recentchange_version=settings.wmf_recentchange_version,
-#     )
-#
-#     app.state.enumeration_service = EnumerationService(
-#         worker_id="rest-api"
-#     )

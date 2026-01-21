@@ -3,10 +3,6 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from models.internal_representation.references import Reference
-
-from models.rest_api.utils import raise_validation_error
-
 
 class RDFStatement(BaseModel):
     """RDF statement model for Turtle generation.

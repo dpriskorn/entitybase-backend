@@ -28,9 +28,9 @@ router = APIRouter()
 @router.post("/entities/properties", response_model=EntityResponse)
 async def create_property(request: EntityCreateRequest, req: Request) -> EntityResponse:
     """Create a new property entity."""
-    state = req.app.state.clients
-    validator = req.app.state.validator
-    enumeration_service = req.app.state.clients.enumeration_service
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+    enumeration_service = req.app.state.state_handler.enumeration_service
     handler = PropertyCreateHandler(
         state=state, enumeration_service=enumeration_service
     )
@@ -48,7 +48,7 @@ async def get_property_label(
     property_id: str, language_code: str, req: Request
 ) -> LabelResponse:
     """Get property label for language."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(property_id)
     labels = response.data.get("labels", {})
@@ -67,7 +67,7 @@ async def get_property_description(
     property_id: str, language_code: str, req: Request
 ) -> DescriptionResponse:
     """Get property description for language."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(property_id)
     descriptions = response.data.get("descriptions", {})
@@ -87,7 +87,7 @@ async def get_property_aliases_for_language(
     property_id: str, language_code: str, req: Request
 ) -> AliasesResponse:
     """Get property aliases for language."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(property_id)
     aliases = response.data.get("aliases", {})
@@ -109,8 +109,8 @@ async def put_property_aliases_for_language(
     logger.debug(
         f"Updating aliases for property {property_id}, language {language_code}"
     )
-    state = req.app.state.clients
-    validator = req.app.state.validator
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
 
     # Get current entity
     handler = EntityReadHandler(state=state)

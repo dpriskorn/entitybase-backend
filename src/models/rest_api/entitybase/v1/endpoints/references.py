@@ -23,7 +23,7 @@ async def get_references(req: Request, hashes: str) -> list[ReferenceResponse | 
     Returns array of reference dicts in request order; null for missing hashes.
     Max 100 hashes per request.
     """
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     hash_list = [h.strip() for h in hashes.split(",") if h.strip()]
     if not hash_list:
         raise HTTPException(status_code=400, detail="No hashes provided")

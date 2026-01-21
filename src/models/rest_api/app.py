@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from models.config.settings import settings
-from models.rest_api.state import State
+from models.rest_api.entitybase.v1.handlers.state import StateHandler
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         logger.debug("Initializing clients...")
         from pathlib import Path
 
-        clients = State(
+        clients = StateHandler(
             s3_config=settings.to_s3_config(),
             vitess_config=settings.to_vitess_config(),
             entity_change_stream_config=settings.get_entity_change_stream_config(),
@@ -28,7 +28,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             else None,
         )
         clients.start()
-        app_.state.clients = clients
+        app_.state.state_handler = clients
         yield
 
     except Exception as e:

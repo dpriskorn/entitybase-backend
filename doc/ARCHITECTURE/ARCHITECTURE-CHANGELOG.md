@@ -2007,7 +2007,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
 
         logger.debug(f"Kafka config: brokers={kafka_brokers}, topic={kafka_topic}")
 
-        app_.state.clients = Clients(
+        app_.state.state_handler = Clients(
             s3=s3_config,
             vitess=vitess_config,
             kafka_brokers=kafka_brokers,
@@ -2016,15 +2016,15 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         )
 
         # Start Kafka producer
-        if app_.state.clients.kafka_producer:
-            await app_.state.clients.kafka_producer.start()
+        if app_.state.state_handler.kafka_producer:
+            await app_.state.state_handler.kafka_producer.start()
             logger.info("Kafka producer started")
 
         yield
 
         # Stop Kafka producer
-        if app_.state.clients.kafka_producer:
-            await app_.state.clients.kafka_producer.stop()
+        if app_.state.state_handler.kafka_producer:
+            await app_.state.state_handler.kafka_producer.stop()
             logger.info("Kafka producer stopped")
 
     except Exception as e:

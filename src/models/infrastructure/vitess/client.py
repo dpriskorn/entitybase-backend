@@ -39,43 +39,43 @@ class VitessClient(Client):
     def entity_repository(self) -> Any:
         """Get entity repository."""
         from models.infrastructure.vitess.repositories.entity import EntityRepository
-        return EntityRepository(config=self.config)
+        return EntityRepository(vitess_client=self)
 
     @property
     def revision_repository(self) -> Any:
         """Get revision repository."""
         from models.infrastructure.vitess.repositories.revision import RevisionRepository
-        return RevisionRepository(config=self.config)
+        return RevisionRepository(vitess_client=self)
 
     @property
     def head_repository(self) -> Any:
         """Get head repository."""
         from models.infrastructure.vitess.repositories.head import HeadRepository
-        return HeadRepository(config=self.config)
+        return HeadRepository(vitess_client=self)
 
     @property
     def user_repository(self) -> Any:
         """Get user repository."""
         from models.infrastructure.vitess.repositories.user import UserRepository
-        return UserRepository(config=self.config)
+        return UserRepository(vitess_client=self)
 
     @property
     def watchlist_repository(self) -> Any:
         """Get watchlist repository."""
         from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
-        return WatchlistRepository(config=self.config)
+        return WatchlistRepository(vitess_client=self)
 
     @property
     def endorsement_repository(self) -> Any:
         """Get endorsement repository."""
         from models.infrastructure.vitess.repositories.endorsement import EndorsementRepository
-        return EndorsementRepository(config=self.config)
+        return EndorsementRepository(vitess_client=self)
 
     @property
     def thanks_repository(self) -> Any:
         """Get thanks repository."""
         from models.infrastructure.vitess.repositories.thanks import ThanksRepository
-        return ThanksRepository(config=self.config)
+        return ThanksRepository(vitess_client=self)
 
     def create_tables(self) -> None:
         from models.infrastructure.vitess.repositories.schema import SchemaRepository

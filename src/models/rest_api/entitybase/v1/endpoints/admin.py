@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Query, Request
 
-from models.rest_api.state import State
+from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.admin import AdminHandler
 from models.rest_api.entitybase.v1.response.entity.entitybase import EntityListResponse
 from models.rest_api.utils import raise_validation_error
@@ -24,8 +24,8 @@ def list_entities(  # type: ignore[no-any-return]
     offset: int = Query(0, ge=0, description="Number of entities to skip"),
 ) -> EntityListResponse:
     """List entities based on type, limit, and offset."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = AdminHandler(state=state)
     result = handler.list_entities(

@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Request
 
-from models.rest_api.state import State
+from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.entity.redirect import RedirectHandler
 from models.rest_api.entitybase.v1.request.entity import (
     EntityRedirectRequest,
@@ -23,8 +23,8 @@ async def create_entity_redirect(
     request: EntityRedirectRequest, req: Request
 ) -> EntityRedirectResponse:
     """Create a redirect for an entity."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = RedirectHandler(state=state)
     result = await handler.create_entity_redirect(request)
@@ -39,8 +39,8 @@ async def create_entity_redirect(
 async def revert_entity_redirect(  # type: ignore[no-any-return]
     entity_id: str, request: RedirectRevertRequest, req: Request
 ) -> EntityRevertResponse:
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = RedirectHandler(state=state)
     result = await handler.revert_entity_redirect(entity_id, request)

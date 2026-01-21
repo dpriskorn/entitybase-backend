@@ -7,7 +7,7 @@ from fastapi import APIRouter, Header, Query, Request, Response
 
 from models.common import OperationResult
 
-from models.rest_api.state import State
+from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.v1.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
@@ -49,7 +49,7 @@ router = APIRouter()
 @router.get("/entities/{entity_id}", response_model=EntityResponse)
 def get_entity(entity_id: str, req: Request) -> EntityResponse:
     """Retrieve a single entity by its ID."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     return handler.get_entity(  # type: ignore[no-any-return]
         entity_id
@@ -66,7 +66,7 @@ def get_entity_history(
     offset: int = Query(0, ge=0, description="Number of revisions to skip"),
 ) -> list[EntityHistoryEntry]:
     """Get the revision history for an entity."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     # todo pass clients to the handler here
     handler = EntityReadHandler(state=state)
     return handler.get_entity_history(  # type: ignore[no-any-return]
@@ -82,7 +82,7 @@ def get_entity_revision(
     entity_id: str, revision_id: int, req: Request
 ) -> EntityRevisionResponse:
     """Get a specific revision of an entity."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     return handler.get_entity_revision(entity_id, revision_id)  # type: ignore
 
@@ -97,9 +97,9 @@ async def get_entity_ttl_revision(
     ),
 ) -> Response:
     """Get Turtle (TTL) representation of a specific entity revision."""
-    from models.workers.entity_diff_worker import RDFSerializer
+    from models.workers.entity_diff.rdf_serializer import RDFSerializer
 
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     revision_data = state.s3_client.read_revision(entity_id, revision_id)
 
     serializer = RDFSerializer()
@@ -123,7 +123,7 @@ async def get_entity_json_revision(  # type: ignore[return]
     req: Request,
 ) -> dict:
     """Get JSON representation of a specific entity revision."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     revision_data = state.s3_client.read_revision(entity_id, revision_id)
 
     return revision_data.data  # type: ignore[no-any-return]
@@ -132,7 +132,7 @@ async def get_entity_json_revision(  # type: ignore[return]
 @router.get("/entities/{entity_id}.ttl")
 async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse:
     """Get entity data in Turtle format."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = ExportHandler(state=state)
     result = handler.get_entity_data_turtle(entity_id)
     if not isinstance(result, TurtleResponse):
@@ -143,7 +143,7 @@ async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse
 @router.get("/entities/{entity_id}.json", response_model=EntityJsonResponse)
 async def get_entity_data_json(entity_id: str, req: Request) -> EntityJsonResponse:
     """Get entity data in JSON format."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     entity_response = handler.get_entity(entity_id)
     if not isinstance(entity_response.entity_data, dict):
@@ -156,8 +156,8 @@ async def delete_entity(  # type: ignore[no-any-return]
     entity_id: str, request: EntityDeleteRequest, req: Request
 ) -> EntityDeleteResponse:
     """Delete an entity."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     # todo pass clients to the handler here
     handler = EntityDeleteHandler(state=state)
@@ -174,7 +174,7 @@ async def delete_entity(  # type: ignore[no-any-return]
 # def get_raw_revision(
 #     entity_id: str, revision_id: int, req: Request
 # ) -> RawRevisionResponse:
-#     state = req.app.state.clients
+#     state = req.app.state.state_handler
 #     if not isinstance(clients, Clients):
 #         raise_validation_error("Invalid clients type", status_code=500)
 #     handler = AdminHandler(state=state)
@@ -193,8 +193,8 @@ async def get_entity_properties(entity_id: str, req: Request) -> PropertyListRes
 
     Returns sorted list of properties used in entity statements.
     """
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     # todo pass clients to the handler here
     handler = StatementHandler(state=state)
@@ -209,8 +209,8 @@ async def get_entity_property_hashes(
     entity_id: str, property_list: str, req: Request
 ) -> PropertyHashesResponse:
     """Get entity property hashes for specified properties."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     # todo pass clients to the handler here
     handler = StatementHandler(state=state)
@@ -225,8 +225,8 @@ async def add_entity_property(
     entity_id: str, property_id: str, request: AddPropertyRequest, req: Request
 ) -> OperationResult[RevisionIdResult]:
     """Add claims for a single property to an entity."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     # todo pass clients to the handler here
     handler = EntityHandler(state=state)
@@ -246,8 +246,8 @@ async def remove_entity_statement(
     entity_id: str, statement_hash: str, request: RemoveStatementRequest, req: Request
 ) -> OperationResult[RevisionIdResult]:
     """Remove a statement by hash from an entity."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     # todo pass clients to the handler here
     handler = EntityHandler(state=state)
@@ -269,8 +269,8 @@ async def patch_entity_statement(
     entity_id: str, statement_hash: str, request: PatchStatementRequest, req: Request
 ) -> OperationResult[RevisionIdResult]:
     """Replace a statement by hash with new claim data."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityHandler(state=state)
     result = await handler.patch_statement(
@@ -286,8 +286,8 @@ async def patch_entity_statement(
 @router.get("/entities/{entity_id}/sitelinks/{site}", response_model=SitelinkData)
 async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> SitelinkData:
     """Get a single sitelink for an entity."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     # todo pass clients to the handler here
     handler = EntityReadHandler(state=state)
@@ -318,8 +318,8 @@ async def post_entity_sitelink(
     logger.debug(
         f"Starting post_entity_sitelink for entity_id: {entity_id}, site: {site}"
     )
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
 
     # Get current entity
@@ -374,8 +374,8 @@ async def put_entity_sitelink(
     logger.debug(
         f"Starting put_entity_sitelink for entity_id: {entity_id}, site: {site}"
     )
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
 
     # Get current entity
@@ -426,8 +426,8 @@ async def delete_entity_sitelink(
     logger.debug(
         f"Starting delete_entity_sitelink for entity_id: {entity_id}, site: {site}"
     )
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
 
     # Get current entity

@@ -11,7 +11,7 @@ stats_router = APIRouter(tags=["statistics"])
 @stats_router.get("/stats", response_model=GeneralStatsResponse)
 def get_general_stats(req: Request) -> GeneralStatsResponse:
     """Get general wiki statistics."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = UserHandler(state=state)
     try:
         stats = handler.get_general_stats()

@@ -16,11 +16,12 @@ from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rest_api.entitybase.v1.services.enumeration_service import (
     EnumerationService,
 )
+from models.validation.json_schema_validator import JsonSchemaValidator
 
 logger = logging.getLogger(__name__)
 
 
-class State(BaseModel):
+class StateHandler(BaseModel):
     """State model that helps instantiate clients as needed"""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -114,4 +115,13 @@ class State(BaseModel):
     def enumeration_service(self):
         return EnumerationService(
             worker_id="rest-api", vitess_client=self.vitess_client
+        )
+
+    @property
+    def validator(self):
+        from models.config.settings import settings
+        return JsonSchemaValidator(
+            s3_revision_version=settings.s3_schema_revision_version,
+            s3_statement_version=settings.s3_statement_version,
+            wmf_recentchange_version=settings.wmf_recentchange_version,
         )

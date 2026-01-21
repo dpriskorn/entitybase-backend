@@ -13,9 +13,9 @@ async def test_revert_entity() -> None:
     """Test reverting an entity to a previous revision"""
     from models.rest_api.main import app
 
-    # Mock app.state.clients since lifespan startup doesn't run with ASGITransport
+    # Mock app.state.state_handler since lifespan startup doesn't run with ASGITransport
     mock_clients = MagicMock()
-    app.state.clients = mock_clients
+    app.state.state_handler = mock_clients
 
     # Set up mocks to simulate missing entity
     mock_clients.vitess.id_resolver.resolve_id.return_value = 0
@@ -47,9 +47,9 @@ async def test_revert_entity_missing_user_header() -> None:
     """Test revert without user ID header"""
     from models.rest_api.main import app
 
-    # Mock app.state.clients since lifespan startup doesn't run with ASGITransport
+    # Mock app.state.state_handler since lifespan startup doesn't run with ASGITransport
     mock_clients = MagicMock()
-    app.state.clients = mock_clients
+    app.state.state_handler = mock_clients
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
@@ -67,9 +67,9 @@ async def test_revert_entity_invalid_user_header() -> None:
     """Test revert with invalid user ID header"""
     from models.rest_api.main import app
 
-    # Mock app.state.clients since lifespan startup doesn't run with ASGITransport
+    # Mock app.state.state_handler since lifespan startup doesn't run with ASGITransport
     mock_clients = MagicMock()
-    app.state.clients = mock_clients
+    app.state.state_handler = mock_clients
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
@@ -88,9 +88,9 @@ async def test_revert_entity_invalid_request() -> None:
     """Test revert with invalid request data"""
     from models.rest_api.main import app
 
-    # Mock app.state.clients since lifespan startup doesn't run with ASGITransport
+    # Mock app.state.state_handler since lifespan startup doesn't run with ASGITransport
     mock_clients = MagicMock()
-    app.state.clients = mock_clients
+    app.state.state_handler = mock_clients
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"

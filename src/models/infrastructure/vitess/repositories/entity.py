@@ -14,8 +14,10 @@ class EntityRepository(Repository):
 
     def get_head(self, entity_id: str) -> int:
         """Get the current head revision ID for an entity."""
+        logger.debug(f"Getting head revision for entity {entity_id}")
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
+            logger.debug(f"No internal ID found for entity {entity_id}")
             return 0
         cursor = self.vitess_client.cursor
         cursor.execute(
@@ -23,7 +25,9 @@ class EntityRepository(Repository):
             (internal_id,),
         )
         result = cursor.fetchone()
-        return result[0] if result else 0
+        head_rev = result[0] if result else 0
+        logger.debug(f"Head revision for {entity_id}: {head_rev}")
+        return head_rev
 
     def is_deleted(self, entity_id: str) -> bool:
         """Check if an entity is marked as deleted."""

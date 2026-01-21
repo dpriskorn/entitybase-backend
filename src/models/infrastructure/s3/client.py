@@ -9,7 +9,6 @@ from pydantic import Field
 
 from models.common import OperationResult
 from models.infrastructure.client import Client
-from models.infrastructure.s3.config import S3Config
 from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.enums import MetadataType
 from models.infrastructure.s3.revision.revision_data import RevisionData
@@ -45,6 +44,7 @@ class MyS3Client(Client):
     qualifiers: Optional[QualifierStorage] = Field(default=None, exclude=True)
 
     def model_post_init(self, context) -> None:
+        # noinspection PyTypeChecker
         manager = S3ConnectionManager(config=self.config)
         if manager is None:
             raise_validation_error("S3 service unavailable", status_code=503)

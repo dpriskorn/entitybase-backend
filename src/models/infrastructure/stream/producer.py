@@ -6,7 +6,6 @@ from typing import Any
 from aiokafka import AIOKafkaProducer  # type: ignore[import-untyped]
 
 from models.infrastructure.client import Client
-from models.infrastructure.stream.config import StreamConfig
 
 logger = logging.getLogger(__name__)
 

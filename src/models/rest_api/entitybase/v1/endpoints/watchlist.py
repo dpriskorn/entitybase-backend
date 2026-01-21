@@ -23,7 +23,7 @@ def add_watch(
     user_id: int, request: WatchlistAddRequest, req: Request
 ) -> MessageResponse:
     """Add a watchlist entry for user."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = WatchlistHandler(state=state)
     try:
         request.user_id = user_id  # Override to ensure consistency
@@ -40,7 +40,7 @@ def remove_watch(
     user_id: int, request: WatchlistRemoveRequest, req: Request
 ) -> MessageResponse:
     """Remove a watchlist entry for user."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = WatchlistHandler(state=state)
     try:
         request.user_id = user_id  # Override to ensure consistency
@@ -55,7 +55,7 @@ def remove_watch(
 )
 def remove_watch_by_id(watch_id: int, req: Request) -> MessageResponse:
     """Remove a watchlist entry by ID."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = WatchlistHandler(state=state)
     try:
         result = handler.remove_watch_by_id(watch_id)
@@ -67,7 +67,7 @@ def remove_watch_by_id(watch_id: int, req: Request) -> MessageResponse:
 @watchlist_router.get("/users/{user_id}/watchlist", response_model=WatchlistResponse)
 def get_watches(user_id: int, req: Request) -> WatchlistResponse:
     """Get user's watchlist."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = WatchlistHandler(state=state)
     try:
         result = handler.get_watches(user_id)
@@ -87,7 +87,7 @@ def get_notifications(
     offset: int = Query(0, ge=0, description="Offset for pagination"),
 ) -> NotificationResponse:
     """Get user's recent watchlist notifications."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = WatchlistHandler(state=state)
     try:
         result = handler.get_notifications(user_id, hours, limit, offset)
@@ -102,7 +102,7 @@ def get_notifications(
 )
 def mark_checked(user_id: int, notification_id: int, req: Request) -> MessageResponse:
     """Mark a notification as checked."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = WatchlistHandler(state=state)
     try:
         request = MarkCheckedRequest(notification_id=notification_id)
@@ -115,7 +115,7 @@ def mark_checked(user_id: int, notification_id: int, req: Request) -> MessageRes
 @watchlist_router.get("/users/{user_id}/watchlist/stats", response_model=WatchCounts)
 def get_watch_counts(user_id: int, req: Request) -> WatchCounts:
     """Get user's watchlist statistics."""
-    state = req.app.state.clients
+    state = req.app.state.state_handler
     handler = WatchlistHandler(state=state)
     try:
         result = handler.get_watch_counts(user_id)

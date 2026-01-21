@@ -16,8 +16,8 @@ class QuantityValue(Value):
     value: str
     datatype_uri: str = "http://wikiba.se/ontology#Quantity"
     unit: str = "1"
-    upper_bound: Optional[str] = None
-    lower_bound: Optional[str] = None
+    upper_bound: Optional[str] = Field(default=None)
+    lower_bound: Optional[str] = Field(default=None)
 
     model_config = ConfigDict(frozen=True)
 

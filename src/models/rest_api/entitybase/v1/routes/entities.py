@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Header, Request
 
-from models.rest_api.state import State
+from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.entity.revert import EntityRevertHandler
 from models.rest_api.entitybase.v1.request.entity import EntityRevertRequest
 from models.rest_api.entitybase.v1.response.entity import EntityRevertResponse
@@ -24,8 +24,8 @@ async def revert_entity(
     user_id: int = Header(..., alias="X-User-ID"),
 ) -> EntityRevertResponse:
     """Revert entity to a previous revision."""
-    state = req.app.state.clients
-    if not isinstance(state, State):
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityRevertHandler(state=state)
     result = await handler.revert_entity(entity_id, request, user_id)
