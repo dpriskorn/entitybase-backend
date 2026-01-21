@@ -22,8 +22,8 @@ class EntityRepository(Repository):
             "SELECT head_revision_id FROM entity_head WHERE internal_id = %s",
             (internal_id,),
         )
-            result = cursor.fetchone()
-            return result[0] if result else 0
+        result = cursor.fetchone()
+        return result[0] if result else 0
 
     def is_deleted(self, entity_id: str) -> bool:
         """Check if an entity is marked as deleted."""
@@ -31,12 +31,12 @@ class EntityRepository(Repository):
         if not internal_id:
             return False
         cursor = self.vitess_client.cursor
-            cursor.execute(
-                "SELECT is_deleted FROM entity_head WHERE internal_id = %s",
-                (internal_id,),
-            )
-            result = cursor.fetchone()
-            return result[0] if result else False
+        cursor.execute(
+            "SELECT is_deleted FROM entity_head WHERE internal_id = %s",
+            (internal_id,),
+        )
+        result = cursor.fetchone()
+        return result[0] if result else False
 
     def is_locked(self, entity_id: str) -> bool:
         """Check if an entity is locked for editing."""
@@ -44,12 +44,12 @@ class EntityRepository(Repository):
         if not internal_id:
             return False
         cursor = self.vitess_client.cursor
-            cursor.execute(
-                "SELECT is_locked FROM entity_head WHERE internal_id = %s",
-                (internal_id,),
-            )
-            result = cursor.fetchone()
-            return result[0] if result else False
+        cursor.execute(
+            "SELECT is_locked FROM entity_head WHERE internal_id = %s",
+            (internal_id,),
+        )
+        result = cursor.fetchone()
+        return result[0] if result else False
 
     def is_archived(self, entity_id: str) -> bool:
         """Check if an entity is archived."""
@@ -57,12 +57,12 @@ class EntityRepository(Repository):
         if not internal_id:
             return False
         cursor = self.vitess_client.cursor
-            cursor.execute(
-                "SELECT is_archived FROM entity_head WHERE internal_id = %s",
-                (internal_id,),
-            )
-            result = cursor.fetchone()
-            return result[0] if result else False
+        cursor.execute(
+            "SELECT is_archived FROM entity_head WHERE internal_id = %s",
+            (internal_id,),
+        )
+        result = cursor.fetchone()
+        return result[0] if result else False
 
     def get_protection_info(self, entity_id: str) -> ProtectionResponse | None:
         """Get protection status information for an entity."""
@@ -72,13 +72,13 @@ class EntityRepository(Repository):
             return None
 
         cursor = self.vitess_client.cursor
-            cursor.execute(
-                """SELECT is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected
-                       FROM entity_head
-                       WHERE internal_id = %s""",
-                (internal_id,),
-            )
-            result = cursor.fetchone()
+        cursor.execute(
+            """SELECT is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected
+                   FROM entity_head
+                   WHERE internal_id = %s""",
+            (internal_id,),
+        )
+        result = cursor.fetchone()
 
         if not result:
             return None
@@ -102,12 +102,12 @@ class EntityRepository(Repository):
                     f"Failed to register entity {entity_id}", status_code=500
                 )
         cursor = self.vitess_client.cursor
-            cursor.execute(
-                """INSERT INTO entity_head
-                   (internal_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected, is_deleted, is_redirect)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                (internal_id, 0, False, False, False, False, False, False, False),
-            )
+        cursor.execute(
+            """INSERT INTO entity_head
+               (internal_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected, is_deleted, is_redirect)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (internal_id, 0, False, False, False, False, False, False, False),
+        )
 
     def delete_entity(self, entity_id: str) -> None:
         """Delete an entity from the database."""
@@ -115,9 +115,9 @@ class EntityRepository(Repository):
         if not internal_id:
             return
         cursor = self.vitess_client.cursor
-            cursor.execute(
-                "DELETE FROM entity_head WHERE internal_id = %s", (internal_id,)
-            )
+        cursor.execute(
+            "DELETE FROM entity_head WHERE internal_id = %s", (internal_id,)
+        )
 
     def update_head_revision(self, entity_id: str, revision_id: int) -> None:
         """Update the head revision for an entity."""
@@ -125,7 +125,7 @@ class EntityRepository(Repository):
         if not internal_id:
             return
         cursor = self.vitess_client.cursor
-            cursor.execute(
-                "UPDATE entity_head SET head_revision_id = %s WHERE internal_id = %s",
-                (revision_id, internal_id),
-            )
+        cursor.execute(
+            "UPDATE entity_head SET head_revision_id = %s WHERE internal_id = %s",
+            (revision_id, internal_id),
+        )
