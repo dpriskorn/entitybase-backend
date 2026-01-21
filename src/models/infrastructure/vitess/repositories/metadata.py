@@ -18,14 +18,14 @@ class MetadataRepository(Repository):
         """Insert or increment ref_count for metadata content."""
         try:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    """
-                    INSERT INTO metadata_content (content_hash, content_type, ref_count)
-                    VALUES (%s, %s, 1)
-                    ON DUPLICATE KEY UPDATE ref_count = ref_count + 1
-                    """,
-                    (content_hash, content_type),
-                )
+            cursor.execute(
+                """
+                INSERT INTO metadata_content (content_hash, content_type, ref_count)
+                VALUES (%s, %s, 1)
+                ON DUPLICATE KEY UPDATE ref_count = ref_count + 1
+                """,
+                (content_hash, content_type),
+            )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
@@ -39,18 +39,18 @@ class MetadataRepository(Repository):
 
         try:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
-                    (content_hash, content_type),
+            cursor.execute(
+                "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
+                (content_hash, content_type),
+            )
+            result = cursor.fetchone()
+            if result:
+                content = MetadataContent(ref_count=result[0])
+                return OperationResult(success=True, data=content)
+            else:
+                return OperationResult(
+                    success=False, error="Metadata content not found"
                 )
-                result = cursor.fetchone()
-                if result:
-                    content = MetadataContent(ref_count=result[0])
-                    return OperationResult(success=True, data=content)
-                else:
-                    return OperationResult(
-                        success=False, error="Metadata content not found"
-                    )
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -66,25 +66,25 @@ class MetadataRepository(Repository):
         )
         try:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    """
-                    UPDATE metadata_content
-                    SET ref_count = ref_count - 1
-                    WHERE content_hash = %s AND content_type = %s
-                    """,
-                    (content_hash, content_type),
+            cursor.execute(
+                """
+                UPDATE metadata_content
+                SET ref_count = ref_count - 1
+                WHERE content_hash = %s AND content_type = %s
+                """,
+                (content_hash, content_type),
+            )
+            cursor.execute(
+                "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
+                (content_hash, content_type),
+            )
+            result = cursor.fetchone()
+            if result is None:
+                return OperationResult(
+                    success=False, error="Metadata content not found"
                 )
-                cursor.execute(
-                    "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
-                    (content_hash, content_type),
-                )
-                result = cursor.fetchone()
-                if result is None:
-                    return OperationResult(
-                        success=False, error="Metadata content not found"
-                    )
-                ref_count: int = result[0]
-                return OperationResult(success=True, data=ref_count <= 0)
+            ref_count: int = result[0]
+            return OperationResult(success=True, data=ref_count <= 0)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -94,4 +94,4 @@ class MetadataRepository(Repository):
         cursor.execute(
                 "DELETE FROM metadata_content WHERE content_hash = %s AND content_type = %s AND ref_count <= 0",
                 (content_hash, content_type),
-            )
+        )
