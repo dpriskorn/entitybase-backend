@@ -37,8 +37,6 @@ from ...handler import Handler
 from ...result import RevisionResult
 from ...services.statement_service import StatementService
 
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 

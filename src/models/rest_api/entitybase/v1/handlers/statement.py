@@ -19,8 +19,6 @@ from models.rest_api.entitybase.v1.response import (
 )
 from models.rest_api.utils import raise_validation_error
 
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 

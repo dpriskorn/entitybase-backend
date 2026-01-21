@@ -35,12 +35,6 @@ class VitessConnectionManager(BaseModel):
                 autocommit=True,
             )
 
-    def get_connection(self) -> Connection:
-        """Get the database connection, ensuring it's connected."""
-        if self.connection is None:
-            self.connect()
-        return self.connection
-
     @property
     def healthy_connection(self) -> bool:
         """Check if the database connection is healthy."""

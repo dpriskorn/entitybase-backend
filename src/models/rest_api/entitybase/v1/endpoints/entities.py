@@ -7,7 +7,6 @@ from fastapi import APIRouter, Header, Query, Request, Response
 
 from models.common import OperationResult
 
-logger = logging.getLogger(__name__)
 from models.rest_api.state import State
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.v1.handlers.entity.delete import EntityDeleteHandler
@@ -41,6 +40,8 @@ from models.rest_api.entitybase.v1.response.entity.entitybase import (
 from models.rest_api.entitybase.v1.response.entity.entitybase import EntityHistoryEntry
 from models.rest_api.entitybase.v1.response.result import RevisionIdResult
 from models.rest_api.utils import raise_validation_error
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 

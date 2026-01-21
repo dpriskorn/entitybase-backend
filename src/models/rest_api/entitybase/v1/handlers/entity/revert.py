@@ -15,8 +15,6 @@ from models.rest_api.entitybase.v1.request.entity import EntityRevertRequest
 from models.rest_api.entitybase.v1.response.entity.revert import EntityRevertResponse
 from models.rest_api.utils import raise_validation_error
 
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 
@@ -35,10 +33,9 @@ class EntityRevertHandler(Handler):
             f"Reverting entity {entity_id} to revision {request.to_revision_id}"
         )
         # Resolve internal ID
-        with self.state.vitess_client.get_connection() as _:
-            internal_entity_id = self.state.vitess_client.id_resolver.resolve_id(
-                entity_id
-            )
+        internal_entity_id = self.state.vitess_client.id_resolver.resolve_id(
+            entity_id
+        )
 
         if internal_entity_id == 0:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)

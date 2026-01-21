@@ -43,35 +43,45 @@ class GeneralStatsService(Service):
 
     def get_total_statements(self) -> int:
         """Count total statements."""
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute("SELECT COUNT(*) FROM statements")
-                result = cursor.fetchone()
-                return result[0] if result else 0
+        cursor = self.state.vitess_client.cursor
+        cursor.execute("SELECT COUNT(*) FROM statements")
+        result = cursor.fetchone()
+        return result[0] if result else 0
 
     def get_total_qualifiers(self) -> int:
         """Count total qualifiers."""
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute("SELECT COUNT(*) FROM qualifiers")
-                result = cursor.fetchone()
-                return result[0] if result else 0
+        cursor = self.state.vitess_client.cursor
+        cursor.execute("SELECT COUNT(*) FROM qualifiers")
+        result = cursor.fetchone()
+        return result[0] if result else 0
 
     def get_total_references(self) -> int:
         """Count total references."""
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute("SELECT COUNT(*) FROM references")
-                result = cursor.fetchone()
-                return result[0] if result else 0
+        cursor = self.state.vitess_client.cursor
+        cursor.execute("SELECT COUNT(*) FROM references")
+        result = cursor.fetchone()
+        return result[0] if result else 0
 
     def get_total_items(self) -> int:
         """Count total items."""
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute("SELECT COUNT(*) FROM entities WHERE type = 'item'")
-                result = cursor.fetchone()
-                return result[0] if result else 0
+        cursor = self.state.vitess_client.cursor
+        cursor.execute("SELECT COUNT(*) FROM entity_revisions WHERE entity_type = 'item'")
+        result = cursor.fetchone()
+        return result[0] if result else 0
+
+    def get_total_lexemes(self) -> int:
+        """Count total lexemes."""
+        cursor = self.state.vitess_client.cursor
+        cursor.execute("SELECT COUNT(*) FROM entity_revisions WHERE entity_type = 'lexeme'")
+        result = cursor.fetchone()
+        return result[0] if result else 0
+
+    def get_total_properties(self) -> int:
+        """Count total properties."""
+        cursor = self.state.vitess_client.cursor
+        cursor.execute("SELECT COUNT(*) FROM entity_revisions WHERE entity_type = 'property'")
+        result = cursor.fetchone()
+        return result[0] if result else 0
 
     def get_total_lexemes(self) -> int:
         """Count total lexemes."""
@@ -83,79 +93,89 @@ class GeneralStatsService(Service):
 
     def get_total_properties(self) -> int:
         """Count total properties."""
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute("SELECT COUNT(*) FROM entities WHERE type = 'property'")
-                result = cursor.fetchone()
-                return result[0] if result else 0
+        cursor = self.state.vitess_client.cursor
+        cursor.execute("SELECT COUNT(*) FROM entities WHERE type = 'property'")
+        result = cursor.fetchone()
+        return result[0] if result else 0
 
     def get_total_sitelinks(self) -> int:
         """Count total sitelinks."""
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute("SELECT COUNT(*) FROM sitelinks")
-                result = cursor.fetchone()
-                return result[0] if result else 0
+        cursor = self.state.vitess_client.cursor
+        cursor.execute("SELECT COUNT(*) FROM sitelinks")
+        result = cursor.fetchone()
+        return result[0] if result else 0
+
+    def get_total_terms(self) -> int:
+        """Count total terms."""
+        cursor = self.state.vitess_client.cursor
+        cursor.execute("SELECT COUNT(*) FROM terms")
+        result = cursor.fetchone()
+        return result[0] if result else 0
+
+    def get_total_sitelinks(self) -> int:
+        """Count total sitelinks."""
+        cursor = self.state.vitess_client.cursor
+        cursor.execute("SELECT COUNT(*) FROM sitelinks")
+        result = cursor.fetchone()
+        return result[0] if result else 0
 
     def get_total_terms(self) -> int:
         """Count total terms (labels + descriptions + aliases)."""
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT
-                        (SELECT COUNT(*) FROM labels) +
-                        (SELECT COUNT(*) FROM descriptions) +
-                        (SELECT COUNT(*) FROM aliases) AS total_terms
-                    """
-                )
-                result = cursor.fetchone()
-                return result[0] if result else 0
+        cursor = self.state.vitess_client.cursor
+        cursor.execute(
+            """
+            SELECT
+                (SELECT COUNT(*) FROM labels) +
+                (SELECT COUNT(*) FROM descriptions) +
+                (SELECT COUNT(*) FROM aliases) AS total_terms
+            """
+        )
+        result = cursor.fetchone()
+        return result[0] if result else 0
 
     def get_terms_per_language(self) -> TermsPerLanguage:
         """Count terms per language."""
         terms_per_lang: dict[str, int] = {}
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                # Labels per language
-                cursor.execute(
-                    "SELECT language_code, COUNT(*) FROM labels GROUP BY language_code"
-                )
-                for row in cursor.fetchall():
-                    lang, count = row
-                    terms_per_lang[lang] = terms_per_lang.get(lang, 0) + count
+        cursor = self.state.vitess_client.cursor
+        # Labels per language
+        cursor.execute(
+            "SELECT language_code, COUNT(*) FROM labels GROUP BY language_code"
+        )
+        for row in cursor.fetchall():
+            lang, count = row
+            terms_per_lang[lang] = terms_per_lang.get(lang, 0) + count
 
-                # Descriptions per language
-                cursor.execute(
-                    "SELECT language_code, COUNT(*) FROM descriptions GROUP BY language_code"
-                )
-                for row in cursor.fetchall():
-                    lang, count = row
-                    terms_per_lang[lang] = terms_per_lang.get(lang, 0) + count
+        # Descriptions per language
+        cursor.execute(
+            "SELECT language_code, COUNT(*) FROM descriptions GROUP BY language_code"
+        )
+        for row in cursor.fetchall():
+            lang, count = row
+            terms_per_lang[lang] = terms_per_lang.get(lang, 0) + count
 
-                # Aliases per language
-                cursor.execute(
-                    "SELECT language_code, COUNT(*) FROM aliases GROUP BY language_code"
-                )
-                for row in cursor.fetchall():
-                    lang, count = row
-                    terms_per_lang[lang] = terms_per_lang.get(lang, 0) + count
+        # Aliases per language
+        cursor.execute(
+            "SELECT language_code, COUNT(*) FROM aliases GROUP BY language_code"
+        )
+        for row in cursor.fetchall():
+            lang, count = row
+            terms_per_lang[lang] = terms_per_lang.get(lang, 0) + count
 
         return TermsPerLanguage(terms=terms_per_lang)
 
     def get_terms_by_type(self) -> TermsByType:
         """Count terms by type (labels, descriptions, aliases)."""
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT 'labels' AS type, COUNT(*) FROM labels
-                    UNION ALL
-                    SELECT 'descriptions' AS type, COUNT(*) FROM descriptions
-                    UNION ALL
-                    SELECT 'aliases' AS type, COUNT(*) FROM aliases
-                    """
-                )
-                results = cursor.fetchall()
-                data = {row[0]: row[1] for row in results}
-                return TermsByType(counts=data)
+        cursor = self.state.vitess_client.cursor
+        cursor.execute(
+            """
+            SELECT 'labels' AS type, COUNT(*) FROM labels
+            UNION ALL
+            SELECT 'descriptions' AS type, COUNT(*) FROM descriptions
+            UNION ALL
+            SELECT 'aliases' AS type, COUNT(*) FROM aliases
+            """
+        )
+        results = cursor.fetchall()
+        data = {row[0]: row[1] for row in results}
+
+        return TermsByType(counts=data)

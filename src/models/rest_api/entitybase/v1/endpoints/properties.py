@@ -7,7 +7,6 @@ from fastapi import APIRouter, HTTPException, Request
 
 from models.rest_api.entitybase.v1.handlers.entity.property import PropertyCreateHandler
 
-logger = logging.getLogger(__name__)
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.request import (
@@ -20,6 +19,8 @@ from models.rest_api.entitybase.v1.response.misc import (
     DescriptionResponse,
     LabelResponse,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 

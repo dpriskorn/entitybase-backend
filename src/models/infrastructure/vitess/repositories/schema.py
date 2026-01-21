@@ -1,11 +1,8 @@
 """Manager for Vitess database schema operations."""
 
+import logging
 from models.infrastructure.vitess.repository import Repository
 from models.rest_api.utils import raise_validation_error
-
-"""Manager for Vitess database schema operations."""
-
-import logging
 
 logger = logging.getLogger(__name__)
 

@@ -5,6 +5,8 @@ import traceback
 from datetime import datetime
 from typing import Any
 
+from markdown_it.rules_inline import entity
+
 from models.infrastructure.s3.enums import EntityType
 from models.infrastructure.stream.change_type import ChangeType
 from models.rest_api.entitybase.v1.request import EntityCreateRequest
@@ -29,31 +31,16 @@ class ItemCreateHandler(EntityCreateHandler):
         """Create a new item with auto-assigned Q ID using EntityTransaction."""
         logger.info(f"🔍 HANDLER: Starting item creation for {request.id or 'auto-assign'}")
         logger.debug(f"🔍 HANDLER: Request: {request.model_dump()}")
-
+        entity_id = request.id
         # Check database connectivity
-        try:
-            with self.state.vitess_client.connection_manager.get_connection() as conn:
-                cursor = conn.cursor()
-                cursor.execute("SELECT 1")
-                result = cursor.fetchone()
-                logger.debug(f"🔍 HANDLER: Database connectivity check passed: {result}")
-        except Exception as e:
-            logger.error(f"🔍 HANDLER: Database connectivity check failed: {e}")
-            raise
-
-        # Assign ID
-        logger.info("🔍 HANDLER: Assigning entity ID")
-        if request.id:
-            entity_id = request.id
-            logger.info(f"🔍 HANDLER: Using provided entity_id: {entity_id}")
+        if entity_id:
             # Check if entity already exists
             try:
-                with self.state.vitess_client.connection_manager.get_connection() as _:
-                    exists = self.state.vitess_client.id_resolver.entity_exists(entity_id)
-                    logger.debug(f"🔍 HANDLER: Entity exists check: {exists}")
-                    if exists:
-                        logger.error(f"🔍 HANDLER: Entity {entity_id} already exists")
-                        raise_validation_error("Entity already exists", status_code=409)
+                exists = self.state.vitess_client.id_resolver.entity_exists(entity_id)
+                logger.debug(f"🔍 HANDLER: Entity exists check: {exists}")
+                if exists:
+                    logger.error(f"🔍 HANDLER: Entity {entity_id} already exists")
+                    raise_validation_error("Entity already exists", status_code=409)
             except Exception as e:
                 logger.error(f"🔍 HANDLER: Database connection error during existence check: {e}")
                 raise

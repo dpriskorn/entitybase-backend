@@ -91,73 +91,70 @@ class IdRangeManager(BaseModel):
         for attempt in range(max_retries):
             try:
                 # Get current range end atomically
-                with self.vitess_client.connection_manager.get_connection() as conn:
-                    cursor = conn.cursor()
+                cursor = self.vitess_client.cursor
 
-                    # Lock the row for update
-                    cursor.execute(
-                        """
-                        SELECT current_range_end, version
-                        FROM id_ranges
-                        WHERE entity_type = %s
-                        FOR UPDATE
-                        """,
-                        (entity_type,),
+                # Lock the row for update
+                cursor.execute(
+                    """
+                    SELECT current_range_end, version
+                    FROM id_ranges
+                    WHERE entity_type = %s
+                    FOR UPDATE
+                    """,
+                    (entity_type,),
+                )
+
+                result = cursor.fetchone()
+                if not result:
+                    return OperationResult(
+                        success=False,
+                        error=f"No range configuration found for entity type {entity_type}",
                     )
 
-                    result = cursor.fetchone()
-                    if not result:
+                current_end, version = result
+
+                # Calculate new range, respecting minimum IDs
+                new_start = max(current_end + 1, self.min_ids.get(entity_type, 1))
+                new_end = new_start + self.range_size - 1
+
+                # Update with optimistic locking
+                cursor.execute(
+                    """
+                    UPDATE id_ranges
+                    SET current_range_start = %s,
+                        current_range_end = %s,
+                        allocated_at = NOW(),
+                        worker_id = %s,
+                        version = version + 1
+                    WHERE entity_type = %s AND version = %s
+                    """,
+                    (new_start, new_end, self.worker_id, entity_type, version),
+                )
+
+                if cursor.rowcount == 0:
+                    # Version conflict, retry
+                    if attempt < max_retries - 1:
+                        logger.warning(
+                            f"Range allocation conflict for {entity_type}, retrying..."
+                        )
+                        continue
+                    else:
                         return OperationResult(
                             success=False,
-                            error=f"No range configuration found for entity type {entity_type}",
+                            error=f"Failed to allocate range for {entity_type} after {max_retries} attempts",
                         )
 
-                    current_end, version = result
+                logger.info(
+                    f"Allocated new range for {entity_type}: {new_start}-{new_end}"
+                )
 
-                    # Calculate new range, respecting minimum IDs
-                    new_start = max(current_end + 1, self.min_ids.get(entity_type, 1))
-                    new_end = new_start + self.range_size - 1
-
-                    # Update with optimistic locking
-                    cursor.execute(
-                        """
-                        UPDATE id_ranges
-                        SET current_range_start = %s,
-                            current_range_end = %s,
-                            allocated_at = NOW(),
-                            worker_id = %s,
-                            version = version + 1
-                        WHERE entity_type = %s AND version = %s
-                        """,
-                        (new_start, new_end, self.worker_id, entity_type, version),
-                    )
-
-                    if cursor.rowcount == 0:
-                        # Version conflict, retry
-                        if attempt < max_retries - 1:
-                            logger.warning(
-                                f"Range allocation conflict for {entity_type}, retrying..."
-                            )
-                            continue
-                        else:
-                            return OperationResult(
-                                success=False,
-                                error=f"Failed to allocate range for {entity_type} after {max_retries} attempts",
-                            )
-
-                    conn.commit()
-
-                    logger.info(
-                        f"Allocated new range for {entity_type}: {new_start}-{new_end}"
-                    )
-
-                    range_obj = IdRange(
-                        entity_type=entity_type,
-                        current_start=new_start,
-                        current_end=new_end,
-                        next_id=new_start,
-                    )
-                    return OperationResult(success=True, data=range_obj)
+                range_obj = IdRange(
+                    entity_type=entity_type,
+                    current_start=new_start,
+                    current_end=new_end,
+                    next_id=new_start,
+                )
+                return OperationResult(success=True, data=range_obj)
 
             except Exception as e:
                 logger.error(
@@ -174,40 +171,37 @@ class IdRangeManager(BaseModel):
     def initialize_from_database(self) -> None:
         """Initialize local range state from database (for startup/recovery)."""
         try:
-            with self.vitess_client.connection_manager.get_connection() as conn:
-                cursor = conn.cursor()
+            cursor = self.vitess_client.cursor
+            cursor.execute(
+                "SELECT entity_type, current_range_start, current_range_end FROM id_ranges"
+            )
+
+            for row in cursor.fetchall():
+                entity_type, start, end = row
+                # Get the max used ID for this entity type to avoid collisions
                 cursor.execute(
-                    "SELECT entity_type, current_range_start, current_range_end FROM id_ranges"
+                    "SELECT MAX(CAST(SUBSTRING(entity_id, 2) AS UNSIGNED)) FROM entity_id_mapping WHERE entity_id LIKE %s",
+                    (f"{entity_type}%",),
                 )
-
-                for row in cursor.fetchall():
-                    entity_type, start, end = row
-                    # Get the max used ID for this entity type to avoid collisions
-                    cursor.execute(
-                        "SELECT MAX(CAST(SUBSTRING(entity_id, 2) AS UNSIGNED)) FROM entity_id_mapping WHERE entity_id LIKE %s",
-                        (f"{entity_type}%",),
-                    )
-                    max_used_result = cursor.fetchone()
-                    max_used = (
-                        max_used_result[0]
-                        if max_used_result and max_used_result[0]
-                        else 0
-                    )
-                    # Start from a high number with time-based offset to avoid collisions with leftover test data
-                    next_id = max(
-                        start, max_used + 1, 900000 + int(time.time()) % 100000
-                    )
-                    self.local_ranges[entity_type] = IdRange(
-                        entity_type=entity_type,
-                        current_start=start,
-                        current_end=end,
-                        next_id=next_id,
-                    )
-
-                logger.info(
-                    f"Initialized {len(self.local_ranges)} ID ranges from database"
+                max_used_result = cursor.fetchone()
+                max_used = (
+                    max_used_result[0]
+                    if max_used_result and max_used_result[0]
+                    else 0
                 )
-
+                # Start from a high number with time-based offset to avoid collisions with leftover test data
+                next_id = max(
+                    start, max_used + 1, 900000 + int(time.time()) % 100000
+                )
+                self.local_ranges[entity_type] = IdRange(
+                    entity_type=entity_type,
+                    current_start=start,
+                    current_end=end,
+                    next_id=next_id,
+                )
+            logger.info(
+                f"Initialized {len(self.local_ranges)} ID ranges from database"
+            )
         except Exception as e:
             logger.error(f"Failed to initialize ranges from database: {e}")
             raise

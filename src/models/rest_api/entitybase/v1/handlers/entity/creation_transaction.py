@@ -9,13 +9,12 @@ from models.infrastructure.s3.enums import EntityType
 from models.rest_api.entitybase.v1.response import EntityResponse
 from models.rest_api.entitybase.v1.response import StatementHashResult
 
-logger = logging.getLogger(__name__)
-
-
 from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import (
     EntityTransaction,
 )
 from models.infrastructure.stream.change_type import ChangeType
+
+logger = logging.getLogger(__name__)
 
 
 class CreationTransaction(EntityTransaction):

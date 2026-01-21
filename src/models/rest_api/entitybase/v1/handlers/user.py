@@ -5,8 +5,6 @@ import logging
 
 from models.rest_api.entitybase.v1.handler import Handler
 
-logger = logging.getLogger(__name__)
-
 from models.rest_api.entitybase.v1.response.misc import (
     GeneralStatsResponse,
     TermsByType,
@@ -23,6 +21,8 @@ from models.rest_api.entitybase.v1.request.user import (
     WatchlistToggleRequest,
 )
 from models.rest_api.entitybase.v1.response.user import UserResponse
+
+logger = logging.getLogger(__name__)
 
 
 class UserHandler(Handler):

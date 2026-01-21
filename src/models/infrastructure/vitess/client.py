@@ -32,6 +32,8 @@ class VitessClient(Client):
 
     @property
     def cursor(self) -> Any:
+        if self.connection_manager.connection is None:
+            self.connection_manager.connect()
         return self.connection_manager.connection.cursor()
 
     def create_tables(self) -> None:

@@ -1,14 +1,10 @@
 """Repository for metadata content operations."""
 
-from models.infrastructure.vitess.repository import Repository
-from models.rest_api.entitybase.v1.response.misc import MetadataContent
-
-"""Repository for metadata content operations."""
-
 import logging
 
 from models.common import OperationResult
-
+from models.infrastructure.vitess.repository import Repository
+from models.rest_api.entitybase.v1.response.misc import MetadataContent
 
 logger = logging.getLogger(__name__)
 

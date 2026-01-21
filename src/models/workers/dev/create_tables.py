@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 src_path = os.path.join(os.path.dirname(__file__), "..", "..")
 sys.path.insert(0, src_path)
 
+# noinspection PyPep8
 from models.config.settings import settings
 
 

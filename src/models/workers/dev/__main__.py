@@ -13,7 +13,9 @@ from typing import Any
 src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
+# noinspection PyPep8
 from models.workers.dev.create_buckets import CreateBuckets
+# noinspection PyPep8
 from models.workers.dev.create_tables import CreateTables
 
 
