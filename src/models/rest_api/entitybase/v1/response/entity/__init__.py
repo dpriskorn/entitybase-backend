@@ -49,5 +49,6 @@ __all__ = [
     "EntityStatementsResponse",
     "EntityState",
     "EntityChange",
+    "LabelValue",
     "ProtectionResponse",
 ]
