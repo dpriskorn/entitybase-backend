@@ -1,9 +1,12 @@
+import sys
 import time
+from pathlib import Path
 
 import pymysql
 import pytest
 import requests
 
+sys.path.insert(0, "src")
 from models.config.settings import settings
 
 
@@ -50,6 +53,18 @@ def db_cleanup(db_conn):
         for table in tables:
             cursor.execute(f"TRUNCATE TABLE {table}")
     db_conn.commit()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def create_tables(db_conn):
+    """Create database tables before running integration tests."""
+    from models.infrastructure.vitess.repositories.schema import SchemaRepository
+    from models.config.settings import settings
+
+    # Create Vitess config and schema repository
+    vitess_config = settings.to_vitess_config()
+    schema_repository = SchemaRepository(config=vitess_config)
+    schema_repository.create_tables()
 
 
 @pytest.fixture(scope="session")
