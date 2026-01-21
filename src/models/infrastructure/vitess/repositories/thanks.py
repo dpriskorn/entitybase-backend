@@ -25,42 +25,42 @@ class ThanksRepository(Repository):
             )
 
             cursor = self.vitess_client.cursor
-                # Resolve entity_id to internal_id
-                internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
-                if not internal_id:
-                    return OperationResult(success=False, error="Entity not found")
+            # Resolve entity_id to internal_id
+            internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
+            if not internal_id:
+                return OperationResult(success=False, error="Entity not found")
 
-                # Get the user_id of the revision author
-                cursor.execute(
-                    "SELECT user_id FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
-                    (internal_id, revision_id),
+            # Get the user_id of the revision author
+            cursor.execute(
+                "SELECT user_id FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                (internal_id, revision_id),
+            )
+            row = cursor.fetchone()
+            if not row:
+                return OperationResult(success=False, error="Revision not found")
+
+            to_user_id = row[0]
+            if to_user_id == from_user_id:
+                return OperationResult(
+                    success=False, error="Cannot thank your own revision"
                 )
-                row = cursor.fetchone()
-                if not row:
-                    return OperationResult(success=False, error="Revision not found")
 
-                to_user_id = row[0]
-                if to_user_id == from_user_id:
-                    return OperationResult(
-                        success=False, error="Cannot thank your own revision"
-                    )
-
-                # Check for existing thank
-                cursor.execute(
-                    "SELECT id FROM user_thanks WHERE from_user_id = %s AND internal_entity_id = %s AND revision_id = %s",
-                    (from_user_id, internal_id, revision_id),
+            # Check for existing thank
+            cursor.execute(
+                "SELECT id FROM user_thanks WHERE from_user_id = %s AND internal_entity_id = %s AND revision_id = %s",
+                (from_user_id, internal_id, revision_id),
+            )
+            if cursor.fetchone():
+                return OperationResult(
+                    success=False, error="Already thanked this revision"
                 )
-                if cursor.fetchone():
-                    return OperationResult(
-                        success=False, error="Already thanked this revision"
-                    )
 
-                # Insert thank
-                cursor.execute(
-                    "INSERT INTO user_thanks (from_user_id, to_user_id, internal_entity_id, revision_id) VALUES (%s, %s, %s, %s)",
-                    (from_user_id, to_user_id, internal_id, revision_id),
-                )
-                thank_id = cursor.lastrowid
+            # Insert thank
+            cursor.execute(
+                "INSERT INTO user_thanks (from_user_id, to_user_id, internal_entity_id, revision_id) VALUES (%s, %s, %s, %s)",
+                (from_user_id, to_user_id, internal_id, revision_id),
+            )
+            thank_id = cursor.lastrowid
 
             return OperationResult(success=True, data=thank_id)
         except Exception as e:
@@ -76,28 +76,28 @@ class ThanksRepository(Repository):
 
         try:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    """
-                    SELECT t.id, t.from_user_id, t.to_user_id, m.entity_id, t.revision_id, t.created_at
-                    FROM user_thanks t
-                    JOIN entity_id_mapping m ON t.internal_entity_id = m.internal_id
-                    WHERE t.to_user_id = %s AND t.created_at >= NOW() - INTERVAL %s HOUR
-                    ORDER BY t.created_at DESC
-                    LIMIT %s OFFSET %s
-                    """,
-                    (user_id, hours, limit, offset),
-                )
-                rows = cursor.fetchall()
+            cursor.execute(
+                """
+                SELECT t.id, t.from_user_id, t.to_user_id, m.entity_id, t.revision_id, t.created_at
+                FROM user_thanks t
+                JOIN entity_id_mapping m ON t.internal_entity_id = m.internal_id
+                WHERE t.to_user_id = %s AND t.created_at >= NOW() - INTERVAL %s HOUR
+                ORDER BY t.created_at DESC
+                LIMIT %s OFFSET %s
+                """,
+                (user_id, hours, limit, offset),
+            )
+            rows = cursor.fetchall()
 
-                # Get total count
-                cursor.execute(
-                    """
-                    SELECT COUNT(*) FROM user_thanks
-                    WHERE to_user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
-                    """,
-                    (user_id, hours),
-                )
-                total_count = cursor.fetchone()[0]
+            # Get total count
+            cursor.execute(
+                """
+                SELECT COUNT(*) FROM user_thanks
+                WHERE to_user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
+                """,
+                (user_id, hours),
+            )
+            total_count = cursor.fetchone()[0]
 
             thanks = []
             for row in rows:
@@ -133,28 +133,28 @@ class ThanksRepository(Repository):
 
         try:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    """
-                    SELECT t.id, t.from_user_id, t.to_user_id, m.entity_id, t.revision_id, t.created_at
-                    FROM user_thanks t
-                    JOIN entity_id_mapping m ON t.internal_entity_id = m.internal_id
-                    WHERE t.from_user_id = %s AND t.created_at >= NOW() - INTERVAL %s HOUR
-                    ORDER BY created_at DESC
-                    LIMIT %s OFFSET %s
-                    """,
-                    (user_id, hours, limit, offset),
-                )
-                rows = cursor.fetchall()
+            cursor.execute(
+                """
+                SELECT t.id, t.from_user_id, t.to_user_id, m.entity_id, t.revision_id, t.created_at
+                FROM user_thanks t
+                JOIN entity_id_mapping m ON t.internal_entity_id = m.internal_id
+                WHERE t.from_user_id = %s AND t.created_at >= NOW() - INTERVAL %s HOUR
+                ORDER BY created_at DESC
+                LIMIT %s OFFSET %s
+                """,
+                (user_id, hours, limit, offset),
+            )
+            rows = cursor.fetchall()
 
-                # Get total count
-                cursor.execute(
-                    """
-                    SELECT COUNT(*) FROM user_thanks
-                    WHERE from_user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
-                    """,
-                    (user_id, hours),
-                )
-                total_count = cursor.fetchone()[0]
+            # Get total count
+            cursor.execute(
+                """
+                SELECT COUNT(*) FROM user_thanks
+                WHERE from_user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
+                """,
+                (user_id, hours),
+            )
+            total_count = cursor.fetchone()[0]
 
             thanks = []
             for row in rows:
@@ -188,22 +188,22 @@ class ThanksRepository(Repository):
 
         try:
             cursor = self.vitess_client.cursor
-                # Resolve entity_id to internal_id
-                internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
-                if not internal_id:
-                    return OperationResult(success=False, error="Entity not found")
+            # Resolve entity_id to internal_id
+            internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
+            if not internal_id:
+                return OperationResult(success=False, error="Entity not found")
 
-                cursor.execute(
-                    """
-                    SELECT t.id, t.from_user_id, t.to_user_id, m.entity_id, t.revision_id, t.created_at
-                    FROM user_thanks t
-                    JOIN entity_id_mapping m ON t.internal_entity_id = m.internal_id
-                    WHERE t.internal_entity_id = %s AND t.revision_id = %s
-                    ORDER BY t.created_at DESC
-                    """,
-                    (internal_id, revision_id),
-                )
-                rows = cursor.fetchall()
+            cursor.execute(
+                """
+                SELECT t.id, t.from_user_id, t.to_user_id, m.entity_id, t.revision_id, t.created_at
+                FROM user_thanks t
+                JOIN entity_id_mapping m ON t.internal_entity_id = m.internal_id
+                WHERE t.internal_entity_id = %s AND t.revision_id = %s
+                ORDER BY t.created_at DESC
+                """,
+                (internal_id, revision_id),
+            )
+            rows = cursor.fetchall()
 
             thanks = []
             for row in rows:
