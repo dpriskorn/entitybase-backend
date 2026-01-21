@@ -66,7 +66,7 @@ class UpdateTransaction(EntityTransaction):
         request_data: dict,
         entity_type: EntityType,
         hash_result: StatementHashResult,
-        content_hash: int,
+        # content_hash: int,
         is_mass_edit: bool,
         edit_type: Any,
         edit_summary: str,

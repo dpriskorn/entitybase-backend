@@ -17,7 +17,7 @@ class WatchlistRepository(Repository):
 
     def get_entity_watch_count(self, user_id: int) -> int:
         """Get count of entity watches (whole entity, no properties) for user."""
-        with self._get_conn() as conn:
+        with self._get_conn() as _:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties = ''",
@@ -28,7 +28,7 @@ class WatchlistRepository(Repository):
 
     def get_property_watch_count(self, user_id: int) -> int:
         """Get count of entity-property watches (with properties) for user."""
-        with self._get_conn() as conn:
+        with self._get_conn() as _:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT COUNT(*) FROM watchlist WHERE user_id = %s AND watched_properties != ''",
@@ -52,7 +52,7 @@ class WatchlistRepository(Repository):
                 return OperationResult(success=False, error="Entity not found")
             properties_json = ",".join(properties) if properties else ""
 
-            with self._get_conn() as conn:
+            with self._get_conn() as _:
                 with self.connection_manager.connection.cursor() as cursor:
                     cursor.execute(
                         """
@@ -82,7 +82,7 @@ class WatchlistRepository(Repository):
 
     def remove_watch_by_id(self, watch_id: int) -> OperationResult:
         """Remove a watchlist entry by ID."""
-        with self._get_conn() as conn:
+        with self._get_conn() as _:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("DELETE FROM watchlist WHERE id = %s", (watch_id,))
                 if cursor.rowcount == 0:
@@ -93,7 +93,7 @@ class WatchlistRepository(Repository):
 
     def get_watches_for_user(self, user_id: int) -> List[Any]:
         """Get all watchlist entries for a user."""
-        with self._get_conn() as conn:
+        with self._get_conn() as _:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """
@@ -120,7 +120,7 @@ class WatchlistRepository(Repository):
         """Get all watchers for an entity (for notifications)."""
         internal_entity_id = self.id_resolver.resolve_id(entity_id)
 
-        with self._get_conn() as conn:
+        with self._get_conn() as _:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """
@@ -142,7 +142,7 @@ class WatchlistRepository(Repository):
 
     def get_notification_count(self, user_id: int) -> int:
         """Get count of active notifications for user."""
-        with self._get_conn() as conn:
+        with self._get_conn() as _:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT COUNT(*) FROM user_notifications WHERE user_id = %s",
@@ -158,7 +158,7 @@ class WatchlistRepository(Repository):
         logger.debug(
             f"Getting notifications for user {user_id}, hours {hours}, limit {limit}"
         )
-        with self._get_conn() as conn:
+        with self._get_conn() as _:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """
@@ -192,7 +192,7 @@ class WatchlistRepository(Repository):
 
     def mark_notification_checked(self, notification_id: int, user_id: int) -> None:
         """Mark a notification as checked."""
-        with self._get_conn() as conn:
+        with self._get_conn() as _:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """

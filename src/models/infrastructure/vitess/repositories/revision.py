@@ -64,7 +64,7 @@ class RevisionRepository(Repository):
     ) -> Any | None:
         """Get a specific revision data."""
         logger.debug(f"Getting revision {revision_id} for entity {internal_entity_id}")
-        with vitess_client.get_connection() as conn:
+        with vitess_client.get_connection() as _:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",

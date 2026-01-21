@@ -6,7 +6,6 @@ from models.infrastructure.vitess.repository import Repository
 
 import json
 import logging
-from typing import Any
 
 from models.common import OperationResult
 from models.rest_api.utils import raise_validation_error
@@ -102,7 +101,6 @@ class BacklinkRepository(Repository):
         """Insert daily backlink statistics.
 
         Args:
-            conn: Database connection
             date: Date string in ISO format (YYYY-MM-DD)
             total_backlinks: Total number of backlinks
             unique_entities_with_backlinks: Number of unique entities with backlinks

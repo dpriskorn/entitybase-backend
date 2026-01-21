@@ -1,7 +1,6 @@
 """Vitess redirect repository for redirect operations."""
 
 import logging
-from typing import Any
 
 from models.common import OperationResult
 from models.infrastructure.vitess.repository import Repository

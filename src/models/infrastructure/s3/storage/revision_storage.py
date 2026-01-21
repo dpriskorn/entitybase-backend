@@ -36,9 +36,9 @@ class RevisionStorage(BaseS3Storage):
     def load_revision(self, entity_id: str, revision_id: int) -> RevisionReadResponse:
         """Read S3 object and return parsed revision."""
         key = f"{entity_id}/{revision_id}"
-        response = self.connection_manager.boto_client.get_object(
-            Bucket=self.bucket, Key=key
-        )
+        # response = self.connection_manager.boto_client.get_object(
+        #     Bucket=self.bucket, Key=key
+        # )
 
         parsed_data = self.load(key).data
         assert isinstance(parsed_data, RevisionReadResponse)

@@ -60,7 +60,7 @@ class WatchlistHandler(Handler):
         )
         return MessageResponse(message="Watch removed")
 
-    def remove_watch_by_id(self, user_id: int, watch_id: int) -> MessageResponse:
+    def remove_watch_by_id(self, watch_id: int) -> MessageResponse:
         """Remove a watchlist entry by ID."""
         result = self.state.vitess_client.watchlist_repository.remove_watch_by_id(
             watch_id
