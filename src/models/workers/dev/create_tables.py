@@ -20,7 +20,6 @@ from models.config.settings import settings
 
 class CreateTables(BaseModel):
     """Development worker for database table creation and management."""
-    vitess_client: Any # VitessClient
 
     # Essential tables required for the application
     required_tables: List[str] = [
@@ -60,7 +59,7 @@ class CreateTables(BaseModel):
             from models.infrastructure.vitess.repositories.schema import SchemaRepository
 
             logger.info("Creating database tables using SchemaRepository...")
-            schema_repository = SchemaRepository(vitess_client=self.vitess_client)
+            schema_repository = SchemaRepository(config=self.vitess_config)
             schema_repository.create_tables()
 
             # Assume all tables were created successfully

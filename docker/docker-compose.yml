@@ -133,8 +133,10 @@ services:
        dockerfile: docker/containers/Dockerfile.tests
      container_name: integration
      depends_on:
-       api:
-         condition: service_healthy
+        create-tables:
+          condition: service_completed_successfully
+        api:
+          condition: service_healthy
      command: pytest tests/ -m integration -v -n 0 --tb=auto --log-cli-level=DEBUG --durations=10 --exitfirst
      networks:
        - default
@@ -205,8 +207,8 @@ services:
        dockerfile: docker/containers/Dockerfile.api
      container_name: create-tables
      depends_on:
-        vitess:
-          condition: service_healthy
+       vitess:
+         condition: service_healthy
      command: python -m models.workers.dev setup
      environment:
        VITESS_HOST: vitess
