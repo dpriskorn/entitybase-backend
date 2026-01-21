@@ -199,7 +199,7 @@ services:
    mem_limit: 512m
    cpus: 1
 
-  create_tables:
+  create-tables:
      build:
        context: ..
        dockerfile: docker/containers/Dockerfile.api
@@ -207,7 +207,7 @@ services:
      depends_on:
        vitess:
          condition: service_healthy
-     command: python scripts/create_tables.py
+     command: python -m models.workers.dev.create_tables
      environment:
        VITESS_HOST: vitess
        VITESS_PORT: 15309
