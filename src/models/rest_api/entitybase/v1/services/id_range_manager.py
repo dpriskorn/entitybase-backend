@@ -4,7 +4,7 @@ import logging
 import time
 from typing import Dict, Optional, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from models.common import OperationResult
 from models.rest_api.entitybase.v1.response.misc import RangeStatus, RangeStatuses
@@ -25,7 +25,7 @@ class IdRangeManager(BaseModel):
     """Manages ID range allocation and local ID generation to prevent write hotspots."""
     vitess_client: Any
     range_size: int = 1_000_000,
-    min_ids: Optional[Dict[str, int]] = None,
+    min_ids: Dict[str, int] = Field(default_factory=dict),
     local_ranges: Dict[str, IdRange] = {}
     worker_id: str = ""
 

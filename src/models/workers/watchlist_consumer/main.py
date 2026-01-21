@@ -8,8 +8,6 @@ from typing import AsyncGenerator
 
 from models.config.settings import settings
 from models.infrastructure.stream.consumer import Consumer, EntityChangeEvent
-from models.infrastructure.stream.producer import StreamProducerClient
-from models.infrastructure.vitess.client import VitessClient
 from models.workers.vitess_worker import VitessWorker
 
 logger = logging.getLogger(__name__)

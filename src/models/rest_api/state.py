@@ -30,7 +30,7 @@ class State(BaseModel):
     kafka_brokers: str = "",
     kafka_entitychange_topic: str = "",
     kafka_entitydiff_topic: str = "",
-    property_registry_path: Path | None = None,
+    property_registry_path: Path = Field(default=None),
     streaming_enabled: bool = False,
 
     def start(self):

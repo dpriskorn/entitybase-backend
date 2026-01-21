@@ -19,7 +19,7 @@ class VitessClient(BaseModel):
         default=None, init=False, exclude=True
     )
     id_resolver: Optional[IdResolver] = Field(default=None, init=False, exclude=True)
-    config: VitessConfig | None = None
+    config: VitessConfig
 
     def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
         super().__init__(config=config, **kwargs)

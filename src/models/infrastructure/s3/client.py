@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional, TYPE_CHECKING, Union
 
 from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
-from pydantic import Field, BaseModel
+from pydantic import Field
 
 from models.common import OperationResult
 from models.infrastructure.client import Client
