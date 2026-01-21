@@ -4,7 +4,6 @@ from fastapi import Response
 from starlette import status
 
 from models.rest_api.entitybase.v1.response import HealthCheckResponse
-from models.rest_api.state import State
 
 
 def health_check(response: Response) -> HealthCheckResponse:

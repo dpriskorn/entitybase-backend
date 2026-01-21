@@ -16,9 +16,6 @@ from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.client import MyS3Client
-    from models.infrastructure.vitess.client import VitessClient
-    from models.infrastructure.stream.producer import StreamProducerClient
     from models.infrastructure.stream.event import EntityChangeEvent
     from models.infrastructure.stream.change_type import ChangeType
 

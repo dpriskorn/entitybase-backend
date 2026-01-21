@@ -3,13 +3,10 @@
 import logging
 from typing import List
 
-from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
-
 from models.common import OperationResult
-from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage
 from models.infrastructure.s3.exceptions import S3NotFoundError
-from models.infrastructure.s3.connection import S3ConnectionManager
+from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
 
 logger = logging.getLogger(__name__)
 

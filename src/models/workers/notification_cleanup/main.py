@@ -9,6 +9,8 @@ from typing import AsyncGenerator
 from models.config.settings import settings
 from models.infrastructure.vitess.client import VitessClient
 
+logger = logging.getLogger(__name__)
+
 
 class NotificationCleanupWorker:
     """Worker that periodically cleans up old notifications to enforce limits."""

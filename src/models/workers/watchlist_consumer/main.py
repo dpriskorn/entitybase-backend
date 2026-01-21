@@ -10,6 +10,8 @@ from models.config.settings import settings
 from models.infrastructure.stream.consumer import Consumer, EntityChangeEvent
 from models.infrastructure.vitess.client import VitessClient
 
+logger = logging.getLogger(__name__)
+
 
 class WatchlistConsumerWorker:
     """Worker that consumes entity change events and creates notifications for watchers."""
