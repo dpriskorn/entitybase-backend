@@ -9,8 +9,7 @@ from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.v1.request.entity.add_property import AddPropertyRequest
 
 
-@pytest.mark.asyncio
-class TestAddProperty(unittest.TestCase):
+class TestAddProperty(unittest.IsolatedAsyncioTestCase):
     """Unit tests for add_property functionality."""
 
     def setUp(self):
@@ -33,6 +32,7 @@ class TestAddProperty(unittest.TestCase):
         self.assertIn("Invalid property ID format", result.error)
 
     @patch("models.rest_api.entitybase.v1.handlers.entity.handler.EntityReadHandler")
+    @pytest.mark.asyncio
     async def test_property_does_not_exist(self, mock_read_handler_class) -> None:
         """Test property does not exist."""
         mock_read_handler = MagicMock()
@@ -47,6 +47,7 @@ class TestAddProperty(unittest.TestCase):
         self.assertIn("Property does not exist", result.error)
 
     @patch("models.rest_api.entitybase.v1.handlers.entity.handler.EntityReadHandler")
+    @pytest.mark.asyncio
     async def test_entity_is_not_property(self, mock_read_handler_class) -> None:
         """Test entity exists but is not a property."""
         mock_read_handler = MagicMock()
