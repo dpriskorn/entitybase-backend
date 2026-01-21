@@ -38,8 +38,8 @@ if __name__ == "__main__":
 
 class NotificationCleanupWorker(VitessWorker):
     """Worker that periodically cleans up old notifications to enforce limits."""
-    max_age_days = 30
-    max_per_user = 500
+    max_age_days: int = 30
+    max_per_user: int = 500
 
     @asynccontextmanager
     async def lifespan(self) -> AsyncGenerator[None, None]:
