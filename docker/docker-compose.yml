@@ -91,6 +91,8 @@ services:
           condition: service_healthy
         create-buckets:
           condition: service_completed_successfully
+        create-tables:
+          condition: service_completed_successfully
      environment:
         S3_ENDPOINT: http://minio:9000
         S3_ACCESS_KEY: fakekey
@@ -131,8 +133,6 @@ services:
        dockerfile: docker/containers/Dockerfile.tests
      container_name: integration
      depends_on:
-       create_tables:
-         condition: service_completed_successfully
        api:
          condition: service_healthy
      command: pytest tests/ -m integration -v -n 0 --tb=auto --log-cli-level=DEBUG --durations=10 --exitfirst
@@ -203,11 +203,11 @@ services:
      build:
        context: ..
        dockerfile: docker/containers/Dockerfile.api
-     container_name: create_tables
+     container_name: create-tables
      depends_on:
-       vitess:
-         condition: service_healthy
-     command: python -m models.workers.dev.create_tables
+        vitess:
+          condition: service_healthy
+      command: python -m models.workers.dev setup
      environment:
        VITESS_HOST: vitess
        VITESS_PORT: 15309
