@@ -233,7 +233,7 @@ class EntityHandler(Handler):
         hash_result: StatementHashResult,
         term_hashes: HashMaps,
         sitelink_hashes: Any,
-        content_hash: int,
+        # content_hash: int,
         new_revision_id: int,
     ) -> RevisionData:
         """Build RevisionData object."""
@@ -608,7 +608,7 @@ class EntityHandler(Handler):
         entity_id: str,
         statement_hash: str,
         edit_summary: str,
-        validator: Any | None = None,
+        # validator: Any | None = None,
         user_id: int = 0,
     ) -> OperationResult[RevisionIdResult]:
         """Remove a statement by hash from an entity."""

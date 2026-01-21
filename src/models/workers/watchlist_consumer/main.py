@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 class WatchlistConsumerWorker(VitessWorker):
     """Worker that consumes entity change events and creates notifications for watchers."""
-
     consumer: Consumer | None = None
 
     @asynccontextmanager
@@ -23,8 +22,8 @@ class WatchlistConsumerWorker(VitessWorker):
         """Lifespan context manager for startup/shutdown."""
         try:
             # Initialize clients
-            s3_config = settings.to_s3_config()
-            vitess_config = settings.to_vitess_config()
+            # s3_config = settings.to_s3_config()
+            # vitess_config = settings.to_vitess_config()
             kafka_brokers = (
                 [b.strip() for b in settings.kafka_brokers.split(",")]
                 if settings.kafka_brokers
@@ -169,7 +168,6 @@ async def main() -> None:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 
-    logger = logging.getLogger(__name__)
 
     worker = WatchlistConsumerWorker()
 

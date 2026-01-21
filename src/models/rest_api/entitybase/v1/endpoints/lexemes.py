@@ -18,7 +18,6 @@ router = APIRouter()
 @router.post("/entities/lexemes", response_model=EntityResponse)
 async def create_lexeme(request: EntityCreateRequest, req: Request) -> EntityResponse:
     """Create a new lexeme entity."""
-    state = req.app.state.state
     validator = req.app.state.validator
     enumeration_service = req.app.state.enumeration_service
     handler = LexemeCreateHandler(enumeration_service)

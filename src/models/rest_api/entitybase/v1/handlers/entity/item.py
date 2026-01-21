@@ -35,7 +35,7 @@ class ItemCreateHandler(EntityCreateHandler):
             entity_id = request.id
             logger.info(f"Using provided entity_id: {entity_id}")
             # Check if entity already exists
-            with self.state.vitess_client.connection_manager.get_connection() as conn:
+            with self.state.vitess_client.connection_manager.get_connection() as _:
                 if self.state.vitess_client.id_resolver.entity_exists(entity_id):
                     raise_validation_error("Entity already exists", status_code=409)
         else:

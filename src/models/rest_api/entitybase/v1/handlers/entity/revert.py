@@ -31,7 +31,7 @@ class EntityRevertHandler(Handler):
             f"Reverting entity {entity_id} to revision {request.to_revision_id}"
         )
         # Resolve internal ID
-        with self.state.vitess_client.get_connection() as conn:
+        with self.state.vitess_client.get_connection() as _:
             internal_entity_id = self.state.vitess_client.id_resolver.resolve_id(
                 entity_id
             )
