@@ -14,6 +14,7 @@ src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 from models.workers.dev.create_buckets import CreateBuckets
+from models.workers.dev.create_tables import CreateTables
 
 
 def setup_logging() -> None:
@@ -26,27 +27,51 @@ def setup_logging() -> None:
 
 async def run_setup(args: Any) -> bool:
     """Run the setup command."""
-    worker = CreateBuckets(
+    buckets_worker = CreateBuckets(
         minio_endpoint=args.endpoint,
         minio_access_key=args.access_key,
         minio_secret_key=args.secret_key,
     )
 
-    print("Running development environment setup...")
-    results = await worker.run_setup()
+    tables_worker = CreateTables()
 
-    print(f"Setup status: {results['setup_status']}")
+    print("Running development environment setup...")
+    buckets_results = await buckets_worker.run_setup()
+    tables_results = await tables_worker.run_setup()
+
+    # Combine results
+    overall_status = "completed"
+    if buckets_results["setup_status"] != "completed" or tables_results["setup_status"] != "completed":
+        overall_status = "failed"
+
+    print(f"Setup status: {overall_status}")
+
     print("\nBucket results:")
-    for bucket, status in results["buckets_created"].items():
+    for bucket, status in buckets_results["buckets_created"].items():
         print(f"  {bucket}: {status}")
 
-    print(f"\nHealth check: {results['health_check']['overall_status']}")
-    if results["health_check"]["issues"]:
-        print("Issues:")
-        for issue in results["health_check"]["issues"]:
-            print(f"  - {issue}")
+    print("\nTable results:")
+    for table, status in tables_results["tables_created"].items():
+        print(f"  {table}: {status}")
 
-    return str(results["setup_status"]) == "completed"
+    # Show health status for both
+    buckets_healthy = buckets_results['health_check']['overall_status'] == 'healthy'
+    tables_healthy = tables_results['health_check']['overall_status'] == 'healthy'
+
+    if buckets_healthy and tables_healthy:
+        print("\nHealth check: healthy")
+    else:
+        print("\nHealth check: unhealthy")
+        if not buckets_healthy:
+            print("Bucket issues:")
+            for issue in buckets_results["health_check"]["issues"]:
+                print(f"  - {issue}")
+        if not tables_healthy:
+            print("Table issues:")
+            for issue in tables_results["health_check"]["issues"]:
+                print(f"  - {issue}")
+
+    return overall_status == "completed"
 
 
 async def run_health_check(args: Any) -> Any:

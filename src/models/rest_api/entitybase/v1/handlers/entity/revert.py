@@ -97,12 +97,12 @@ class EntityRevertHandler(Handler):
         target_state = target_data.get("state", {})
         if isinstance(target_state, dict):
             state = EntityState(
-                is_semi_protected=target_state.get("sp", target_state.get("is_semi_protected", False)),
-                is_locked=target_state.get("locked", target_state.get("is_locked", False)),
-                is_archived=target_state.get("archived", target_state.get("is_archived", False)),
-                is_dangling=target_state.get("dangling", target_state.get("is_dangling", False)),
-                is_mass_edit_protected=target_state.get("mep", target_state.get("is_mass_edit_protected", False)),
-                is_deleted=target_state.get("deleted", target_state.get("is_deleted", False)),
+                sp=target_state.get("sp", target_state.get("is_semi_protected", False)),
+                locked=target_state.get("locked", target_state.get("is_locked", False)),
+                archived=target_state.get("archived", target_state.get("is_archived", False)),
+                dangling=target_state.get("dangling", target_state.get("is_dangling", False)),
+                mep=target_state.get("mep", target_state.get("is_mass_edit_protected", False)),
+                deleted=target_state.get("deleted", target_state.get("is_deleted", False)),
             )
         else:
             state = EntityState()

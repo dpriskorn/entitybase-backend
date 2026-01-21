@@ -4,7 +4,7 @@ import logging
 from typing import Any
 from typing import Optional
 
-from pydantic import Field, BaseModel
+from pydantic import Field
 
 from models.infrastructure.client import Client
 from models.infrastructure.vitess.config import VitessConfig
@@ -37,7 +37,7 @@ class VitessClient(Client):
     def create_tables(self) -> None:
         from models.infrastructure.vitess.repositories.schema import SchemaRepository
 
-        schema_repository: SchemaRepository = SchemaRepository(config=self.config)
+        schema_repository: SchemaRepository = SchemaRepository(vitess_client=self)
         schema_repository.create_tables()
 
 
