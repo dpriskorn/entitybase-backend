@@ -1,8 +1,7 @@
 import pytest
 
-from models.infrastructure.vitess.id_resolver import IdResolver
-from models.infrastructure.vitess.client import VitessClient
 from models.config.settings import settings
+from models.infrastructure.vitess.client import VitessClient
 
 
 @pytest.mark.integration
