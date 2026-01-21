@@ -4,15 +4,16 @@ from fastapi import Response
 from starlette import status
 
 from models.rest_api.entitybase.v1.response import HealthCheckResponse
+from models.rest_api.state import State
 
 
 def health_check(response: Response) -> HealthCheckResponse:
     """Health check endpoint for monitoring system status."""
     from models.rest_api.main import app
 
-    clients = getattr(app.state, "clients", None)
-
-    if clients is None:
+    state = getattr(app.state, "clients", None)
+    # assert isinstance(state, State)
+    if state is None:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return HealthCheckResponse(
             status="starting", s3="disconnected", vitess="disconnected"
@@ -20,18 +21,18 @@ def health_check(response: Response) -> HealthCheckResponse:
     from models.infrastructure.s3.client import MyS3Client
     from models.infrastructure.vitess.client import VitessClient
 
-    s3 = clients.s3
+    s3 = state.s3_client
     s3_status = (
         "connected"
         if s3 and isinstance(s3, MyS3Client) and s3.healthy_connection
         else "disconnected"
     )
-    vitess = clients.vitess
+    vitess = state.vitess_client
     vitess_status = (
         "connected"
         if vitess
         and isinstance(vitess, VitessClient)
-        and clients.vitess.healthy_connection
+        and state.vitess.healthy_connection
         else "disconnected"
     )
 
