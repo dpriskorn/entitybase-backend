@@ -18,10 +18,8 @@ class VitessConnectionManager(BaseModel):
         """Deconstructor that disconnect from the database"""
         self.disconnect()
 
-    def __init__(self, config: VitessConfig) -> None:
+    def model_post_init(self, context) -> None:
         """Create a new database connection."""
-        super().__init__(config=config)
-        self.config = config
         self.connect()
 
     def connect(self) -> None:

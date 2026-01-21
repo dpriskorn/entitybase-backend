@@ -34,8 +34,7 @@ class CreateBuckets(BaseModel):
         settings.s3_sitelinks_bucket,
     ]
 
-    def __init__(self, **data: Any):
-        super().__init__(**data)
+
 
     @property
     def s3_client(self) -> Any:

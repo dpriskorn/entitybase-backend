@@ -44,9 +44,8 @@ class MyS3Client(Client):
     references: Optional[ReferenceStorage] = Field(default=None, exclude=True)
     qualifiers: Optional[QualifierStorage] = Field(default=None, exclude=True)
 
-    def __init__(self, config: S3Config, **kwargs: Any) -> None:
-        super().__init__(config=config, **kwargs)
-        manager = S3ConnectionManager(config=config)
+    def model_post_init(self, context) -> None:
+        manager = S3ConnectionManager(config=self.config)
         if manager is None:
             raise_validation_error("S3 service unavailable", status_code=503)
         self.connection_manager = manager  # type: ignore[assignment]

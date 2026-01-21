@@ -19,8 +19,7 @@ class EnumerationService(BaseModel):
     vitess_client: Any
     range_manager: Any = Field(default=None, exclude=True)
 
-    def __init__(self, vitess_client, worker_id: str = "default-worker"):
-        super().__init__(vitess_client=vitess_client, worker_id=worker_id)
+    def model_post_init(self, context):
         # Minimum IDs to avoid collisions with Wikidata.org
         min_ids = {
             "Q": 300_000_000,
@@ -31,7 +30,7 @@ class EnumerationService(BaseModel):
         self.range_manager = IdRangeManager(
             vitess_client=self.vitess_client, min_ids=min_ids
         )
-        self.range_manager.set_worker_id(worker_id)
+        self.range_manager.set_worker_id(self.worker_id)
 
         # Initialize ranges from database
         try:

@@ -70,7 +70,7 @@ class HashDedupeBag(BaseModel):
     hits: int = 0
     misses: int = 0
 
-    def __init__(self, /, cutoff: int = 5, **data: Any):
+    def model_post_init(self, context):
         """Initialize HashDedupeBag with the given cutoff value.
 
         The cutoff is the number of hash characters to use. A larger number means less collisions
@@ -81,12 +81,10 @@ class HashDedupeBag(BaseModel):
         @param int $cutoff
             The number of hash characters to use as key.
         """
-        super().__init__(**data)
-        if cutoff <= 0:
-            raise_validation_error(f"cutoff must be positive, got {cutoff}")
+        if self.cutoff <= 0:
+            raise_validation_error(f"cutoff must be positive, got {self.cutoff}")
 
         self.bag: dict[str, str] = {}
-        self.cutoff = cutoff
         self.hits = 0
         self.misses = 0
 

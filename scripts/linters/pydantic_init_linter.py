@@ -6,18 +6,8 @@ from pathlib import Path
 from typing import List
 
 
-def is_basemodel_subclass(node: ast.ClassDef) -> bool:
-    """Check if a class inherits from BaseModel."""
-    for base in node.bases:
-        if isinstance(base, ast.Name) and base.id == "BaseModel":
-            return True
-        elif isinstance(base, ast.Attribute) and base.attr == "BaseModel":
-            return True
-    return False
-
-
 def check_file(file_path: Path) -> List[str]:
-    """Check a file for __init__ methods in BaseModel subclasses."""
+    """Check a file for __init__ methods in classes."""
     errors = []
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -26,22 +16,17 @@ def check_file(file_path: Path) -> List[str]:
     except SyntaxError:
         return [f"{file_path}:1:1: E999 SyntaxError in file"]
 
-    classes = {}
-    for node in ast.walk(tree):
-        if isinstance(node, ast.ClassDef):
-            classes[node.name] = is_basemodel_subclass(node)
-
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef) and node.name == "__init__":
-            # Check if the class is a BaseModel subclass
+            # Find the class name
             class_name = None
             for parent in ast.walk(tree):
                 if isinstance(parent, ast.ClassDef) and node in parent.body:
                     class_name = parent.name
                     break
-            if class_name and classes.get(class_name, False):
+            if class_name:
                 errors.append(
-                    f"{file_path}:{node.lineno}:1: Class '{class_name}' inherits from BaseModel and defines __init__. Consider using model_post_init instead."
+                    f"{file_path}:{node.lineno}:1: Class '{class_name}' defines __init__. Consider using model_post_init if it's a Pydantic model."
                 )
 
     return errors

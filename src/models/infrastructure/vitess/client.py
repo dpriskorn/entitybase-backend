@@ -23,9 +23,8 @@ class VitessClient(Client):
     id_resolver: Optional[IdResolver] = Field(default=None, init=False, exclude=True)
     config: VitessConfig
 
-    def __init__(self, config: VitessConfig, **kwargs: Any) -> None:
-        super().__init__(config=config, **kwargs)
-        logger.debug(f"Initializing VitessClient with host {config.host}")
+    def model_post_init(self, context) -> None:
+        logger.debug(f"Initializing VitessClient with host {self.config.host}")
         self.connection_manager = VitessConnectionManager(config=self.config)
         self.id_resolver = IdResolver(vitess_client=self)
         # self.create_tables()
@@ -40,43 +39,43 @@ class VitessClient(Client):
     def entity_repository(self) -> Any:
         """Get entity repository."""
         from models.infrastructure.vitess.repositories.entity import EntityRepository
-        return EntityRepository(vitess_client=self)
+        return EntityRepository(config=self.config)
 
     @property
     def revision_repository(self) -> Any:
         """Get revision repository."""
         from models.infrastructure.vitess.repositories.revision import RevisionRepository
-        return RevisionRepository(vitess_client=self)
+        return RevisionRepository(config=self.config)
 
     @property
     def head_repository(self) -> Any:
         """Get head repository."""
         from models.infrastructure.vitess.repositories.head import HeadRepository
-        return HeadRepository(vitess_client=self)
+        return HeadRepository(config=self.config)
 
     @property
     def user_repository(self) -> Any:
         """Get user repository."""
         from models.infrastructure.vitess.repositories.user import UserRepository
-        return UserRepository(vitess_client=self)
+        return UserRepository(config=self.config)
 
     @property
     def watchlist_repository(self) -> Any:
         """Get watchlist repository."""
         from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
-        return WatchlistRepository(vitess_client=self)
+        return WatchlistRepository(config=self.config)
 
     @property
     def endorsement_repository(self) -> Any:
         """Get endorsement repository."""
         from models.infrastructure.vitess.repositories.endorsement import EndorsementRepository
-        return EndorsementRepository(vitess_client=self)
+        return EndorsementRepository(config=self.config)
 
     @property
     def thanks_repository(self) -> Any:
         """Get thanks repository."""
         from models.infrastructure.vitess.repositories.thanks import ThanksRepository
-        return ThanksRepository(vitess_client=self)
+        return ThanksRepository(config=self.config)
 
     def create_tables(self) -> None:
         from models.infrastructure.vitess.repositories.schema import SchemaRepository

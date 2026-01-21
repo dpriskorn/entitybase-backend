@@ -17,8 +17,7 @@ class StreamProducerClient(Client):
     producer: AIOKafkaProducer | None = None
     model_config = {"arbitrary_types_allowed": True}
 
-    def __init__(self, config: StreamConfig) -> None:
-        super().__init__(config=config)
+    def model_post_init(self, context) -> None:
         self.start()
 
     async def start(self) -> None:

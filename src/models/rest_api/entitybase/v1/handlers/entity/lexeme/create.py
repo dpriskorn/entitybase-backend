@@ -16,9 +16,7 @@ logger = logging.getLogger(__name__)
 class LexemeCreateHandler(EntityCreateHandler):
     """Handler for lexeme creation operations"""
 
-    def __init__(self, enumeration_service: EnumerationService, /, **data: Any):
-        super().__init__(**data)
-        self.enumeration_service = enumeration_service
+    enumeration_service: EnumerationService
 
     async def create_entity(
         self,

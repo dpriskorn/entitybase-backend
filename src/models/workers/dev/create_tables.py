@@ -44,8 +44,7 @@ class CreateTables(BaseModel):
         "id_ranges",
     ]
 
-    def __init__(self, **data: Any):
-        super().__init__(**data)
+
 
     @property
     def vitess_config(self) -> Any:
