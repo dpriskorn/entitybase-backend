@@ -199,7 +199,7 @@ class TripleWriters:
         # References
         for ref in rdf_statement.references:
             rdf_ref = RDFReference(reference=ref, statement_uri=stmt_uri_prefixed)
-            ref_uri = rdf_ref.get_reference_uri
+            ref_uri = rdf_ref.reference_uri
             output.write(f"{stmt_uri_prefixed} prov:wasDerivedFrom {ref_uri} .\n")
 
             for snak in ref.snaks:

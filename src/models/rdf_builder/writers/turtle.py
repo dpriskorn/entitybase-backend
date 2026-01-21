@@ -1,5 +1,5 @@
 """RDF Turtle writer."""
-
+from io import StringIO
 from typing import TextIO
 
 from pydantic import BaseModel, ConfigDict
@@ -12,7 +12,7 @@ class TurtleWriter(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    output: TextIO
+    output: TextIO | StringIO
     buffer_size: int = 8192
 
     def model_post_init(self, context):

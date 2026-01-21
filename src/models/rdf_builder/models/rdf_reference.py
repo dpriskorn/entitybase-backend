@@ -31,3 +31,7 @@ class RDFReference(BaseModel):
     def reference_uri(self) -> str:
         """Generate wdref: URI from hash."""
         return f"wdref:{self.reference.hash}"
+
+    @property
+    def hash(self):
+        return self.reference.hash

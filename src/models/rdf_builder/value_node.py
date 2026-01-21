@@ -41,7 +41,7 @@ def serialize_value(value: Any) -> str:
 
     Different value types have different serialization formats.
     """
-    logger.info(f"Serializing value of type {type(value)}")
+    # logger.debug(f"Serializing value of type {type(value)}")
     if hasattr(value, "kind"):
         kind = value.kind
 

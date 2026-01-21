@@ -9,8 +9,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from models.infrastructure.stream.config import StreamConfig
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.client import S3Config
-    from models.infrastructure.vitess.client import VitessConfig
+    from models.infrastructure.s3.config import S3Config
+    from models.infrastructure.vitess.config import VitessConfig
 
 
 class Settings(BaseSettings):

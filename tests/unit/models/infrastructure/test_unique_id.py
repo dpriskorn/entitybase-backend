@@ -27,4 +27,4 @@ class TestUniqueIdGenerator:
         id1 = generator.generate_unique_id()
         id2 = generator.generate_unique_id()
         assert id1 != id2
-        assert generator._counter == 2
+        assert generator.counter == 2

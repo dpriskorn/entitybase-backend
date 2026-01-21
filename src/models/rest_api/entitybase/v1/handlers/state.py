@@ -6,7 +6,8 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field
 
 from models.common import raise_validation_error
-from models.infrastructure.s3.client import S3Config, MyS3Client
+from models.infrastructure.s3.client import MyS3Client
+from models.infrastructure.s3.config import S3Config
 from models.infrastructure.stream.config import StreamConfig
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess.client import VitessClient

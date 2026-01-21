@@ -13,7 +13,7 @@ class ValueFormatter:
     @staticmethod
     def format_value(value: Any) -> str:
         """Format a Value object as RDF string."""
-        logger.info(f"Formatting value of kind {value.kind}")
+        # logger.debug(f"Formatting value of kind {value.kind}")
         kind = value.kind
 
         if kind == ValueKind.ENTITY:

@@ -21,12 +21,14 @@ class JsonSchemaValidator(BaseModel):
     s3_revision_version: str = Field(default_factory=lambda: settings.s3_schema_revision_version)
     s3_statement_version: str = Field(default_factory=lambda: settings.s3_statement_version)
     wmf_recentchange_version: str = Field(default_factory=lambda: settings.wmf_recentchange_version)
-    _entity_revision_schema: JsonSchema | None = None
-    _statement_schema: JsonSchema | None = None
-    _recentchange_schema: JsonSchema | None = None
-    _entity_validator: Draft202012Validator | None = None
-    _statement_validator: Draft202012Validator | None = None
-    _recentchange_validator: Draft202012Validator | None = None
+    entity_revision_schema: JsonSchema | None = Field(default=None)
+    statement_schema: JsonSchema | None = Field(default=None)
+    recentchange_schema: JsonSchema | None = Field(default=None)
+    entity_validator: Draft202012Validator | None = Field(default=None)
+    statement_validator: Draft202012Validator | None = Field(default=None)
+    recentchange_validator: Draft202012Validator | None = Field(default=None)
+
+    model_config = {"arbitrary_types_allowed": True}
 
     @staticmethod
     def _load_schema(schema_path: str) -> JsonSchema:
@@ -49,43 +51,43 @@ class JsonSchemaValidator(BaseModel):
             return JsonSchema(data=data)
 
     def _get_entity_revision_schema(self) -> JsonSchema:
-        if self._entity_revision_schema is None:
+        if self.entity_revision_schema is None:
             schema_path = Path(f"schemas/{self.s3_revision_version}/entity.json")
-            self._entity_revision_schema = self._load_schema(str(schema_path))
-        return self._entity_revision_schema
+            self.entity_revision_schema = self._load_schema(str(schema_path))
+        return self.entity_revision_schema
 
     def _get_statement_schema(self) -> JsonSchema:
-        if self._statement_schema is None:
+        if self.statement_schema is None:
             schema_path = Path(f"schemas/{self.s3_statement_version}/statement.json")
-            self._statement_schema = self._load_schema(str(schema_path))
-        return self._statement_schema
+            self.statement_schema = self._load_schema(str(schema_path))
+        return self.statement_schema
 
     def _get_recentchange_schema(self) -> JsonSchema:
-        if self._recentchange_schema is None:
+        if self.recentchange_schema is None:
             schema_path = (
                 Path(__file__).parent.parent.parent
                 / "schemas/wmf/recentchange/latest/latest.yaml"
             )
-            self._recentchange_schema = self._load_schema(str(schema_path))
-        return self._recentchange_schema
+            self.recentchange_schema = self._load_schema(str(schema_path))
+        return self.recentchange_schema
 
     def _get_entity_validator(self) -> Draft202012Validator:
-        if self._entity_validator is None:
+        if self.entity_validator is None:
             schema = self._get_entity_revision_schema().data
-            self._entity_validator = Draft202012Validator(schema)
-        return self._entity_validator
+            self.entity_validator = Draft202012Validator(schema)
+        return self.entity_validator
 
     def _get_statement_validator(self) -> Draft202012Validator:
-        if self._statement_validator is None:
+        if self.statement_validator is None:
             schema = self._get_statement_schema().data
-            self._statement_validator = Draft202012Validator(schema)
-        return self._statement_validator
+            self.statement_validator = Draft202012Validator(schema)
+        return self.statement_validator
 
     def _get_recentchange_validator(self) -> Draft202012Validator:
-        if self._recentchange_validator is None:
+        if self.recentchange_validator is None:
             schema = self._get_recentchange_schema().data
-            self._recentchange_validator = Draft202012Validator(schema)
-        return self._recentchange_validator
+            self.recentchange_validator = Draft202012Validator(schema)
+        return self.recentchange_validator
 
     def validate_entity_revision(self, data: dict) -> None:
         """Validate entity revision data against schema."""

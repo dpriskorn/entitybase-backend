@@ -30,8 +30,8 @@ class Consumer(BaseModel):
     brokers: list[str]
     topic: str = "wikibase-entity-changes"
     group_id: str = "watchlist-consumer"
-    consumer: AIOKafkaConsumer | None = None
-    bootstrap_servers: str = Field(init=False)
+    consumer: AIOKafkaConsumer | None = Field(default=None)
+    bootstrap_servers: str = Field(default="", init=False)
 
     def model_post_init(self, context) -> None:
         self.bootstrap_servers = ",".join(self.brokers)

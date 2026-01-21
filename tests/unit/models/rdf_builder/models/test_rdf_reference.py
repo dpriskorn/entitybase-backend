@@ -16,11 +16,11 @@ class TestRDFReference:
         assert rdf_ref.statement_uri == "wds:Q42-12345678-ABCD"
         assert rdf_ref.hash == "a4d108601216cffd2ff1819ccf12b483486b62e7"
 
-    def test_get_reference_uri(self) -> None:
+    def test_reference_uri(self) -> None:
         """Test generating reference URI."""
         reference = Reference(hash="test123")
         rdf_ref = RDFReference(reference=reference, statement_uri="wds:Q1-abcdef")
-        assert rdf_ref.get_reference_uri == "wdref:test123"
+        assert rdf_ref.reference_uri == "wdref:test123"
 
     def test_rdf_reference_no_hash_raises_error(self) -> None:
         """Test that missing hash raises validation error."""

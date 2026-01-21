@@ -5,7 +5,7 @@ from io import StringIO
 from pathlib import Path
 from typing import Any, TextIO
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from models.json_parser.statement_parser import parse_statement
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
@@ -23,9 +23,9 @@ logger = logging.getLogger(__name__)
 class EntityConverter(BaseModel):
     """Converts internal Entity representation to RDF Turtle format."""
     property_registry: PropertyRegistry
-    entity_metadata_dir: Path | None = None
-    redirects_dir: Path | None = None
-    vitess_client: Any = None
+    entity_metadata_dir: Path | None = Field(default=None)
+    redirects_dir: Path | None = Field(default=None)
+    vitess_client: Any = Field(default=None)
     enable_deduplication: bool = True
 
     @property
