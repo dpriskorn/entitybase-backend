@@ -18,10 +18,10 @@ class EntityRepository(Repository):
         if not internal_id:
             return 0
         cursor = self.vitess_client.cursor
-            cursor.execute(
-                "SELECT head_revision_id FROM entity_head WHERE internal_id = %s",
-                (internal_id,),
-            )
+        cursor.execute(
+            "SELECT head_revision_id FROM entity_head WHERE internal_id = %s",
+            (internal_id,),
+        )
             result = cursor.fetchone()
             return result[0] if result else 0
 
