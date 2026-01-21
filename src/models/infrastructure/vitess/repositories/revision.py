@@ -201,7 +201,7 @@ class RevisionRepository(Repository):
     def delete(self, entity_id: str, revision_id: int) -> OperationResult:
         """Delete a revision (for rollback)."""
         logger.debug(f"Deleting revision {revision_id} for entity {entity_id}")
-        if not conn:
+        if not self.connection_manager.connection:
             return OperationResult(
                 success=False, error="Database connection not provided"
             )

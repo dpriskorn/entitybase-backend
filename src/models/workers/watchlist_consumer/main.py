@@ -8,18 +8,16 @@ from typing import AsyncGenerator
 
 from models.config.settings import settings
 from models.infrastructure.stream.consumer import Consumer, EntityChangeEvent
+from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess.client import VitessClient
+from models.workers.vitess_worker import VitessWorker
 
 logger = logging.getLogger(__name__)
 
 
-class WatchlistConsumerWorker:
+class WatchlistConsumerWorker(VitessWorker):
     """Worker that consumes entity change events and creates notifications for watchers."""
-
-    def __init__(self) -> None:
-        logger = logging.getLogger(__name__)
-        self.consumer: Consumer | None = None
-        self.vitess_client | None = None
+    consumer: Consumer | None = None
 
     @asynccontextmanager
     async def lifespan(self) -> AsyncGenerator[None, None]:
@@ -34,8 +32,6 @@ class WatchlistConsumerWorker:
                 else []
             )
             kafka_topic = settings.kafka_entitychange_json_topic
-
-            self.vitess_client = VitessClient(vitess_config)
 
             if kafka_brokers and kafka_topic:
                 self.consumer = Consumer(

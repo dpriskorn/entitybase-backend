@@ -7,7 +7,6 @@ import pytest
 
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.v1.request.entity.add_property import AddPropertyRequest
-from models.rest_api.state import State
 
 
 @pytest.mark.asyncio
@@ -16,16 +15,19 @@ class TestAddProperty(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        self.handler = EntityHandler(state=State())
+        self.mock_state = MagicMock()
         self.mock_vitess = MagicMock()
         self.mock_s3 = MagicMock()
         self.mock_validator = MagicMock()
+        self.mock_state.vitess_client = self.mock_vitess
+        self.mock_state.s3_client = self.mock_s3
+        self.handler = EntityHandler(state=self.mock_state)
 
     async def test_invalid_property_id_format(self) -> None:
         """Test invalid property ID format."""
         request = AddPropertyRequest(claims=[], edit_summary="test")
         result = await self.handler.add_property(
-            "Q1", "invalid", request, self.mock_vitess, self.mock_s3
+            "Q1", "invalid", request, self.mock_validator
         )
         self.assertFalse(result.success)
         self.assertIn("Invalid property ID format", result.error)
@@ -39,7 +41,7 @@ class TestAddProperty(unittest.TestCase):
 
         request = AddPropertyRequest(claims=[], edit_summary="test")
         result = await self.handler.add_property(
-            "Q1", "P1", request, self.mock_vitess, self.mock_s3
+            "Q1", "P1", request, self.mock_validator
         )
         self.assertFalse(result.success)
         self.assertIn("Property does not exist", result.error)
@@ -58,7 +60,7 @@ class TestAddProperty(unittest.TestCase):
 
         request = AddPropertyRequest(claims=[], edit_summary="test")
         result = await self.handler.add_property(
-            "Q1", "P1", request, self.mock_vitess, self.mock_s3
+            "Q1", "P1", request, self.mock_validator
         )
         self.assertFalse(result.success)
         self.assertIn("Entity is not a property", result.error)

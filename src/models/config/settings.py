@@ -95,7 +95,7 @@ class Settings(BaseSettings):
             password=self.vitess_password,
         )
 
-    def to_entity_change_stream_config(self) -> "StreamConfig":
+    def get_entity_change_stream_config(self) -> "StreamConfig":
         """Convert settings to Streaming configuration object.
         """
         from models.infrastructure.stream.config import StreamConfig
@@ -105,7 +105,7 @@ class Settings(BaseSettings):
             topic=self.kafka_entitychange_json_topic,
         )
 
-    def to_entity_diff_stream_config(self) -> "StreamConfig":
+    def get_entity_diff_stream_config(self) -> "StreamConfig":
         """Convert settings to Streaming configuration object.
         """
         from models.infrastructure.stream.config import StreamConfig

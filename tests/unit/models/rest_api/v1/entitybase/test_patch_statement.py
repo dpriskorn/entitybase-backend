@@ -9,7 +9,6 @@ from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.v1.request.entity.patch_statement import (
     PatchStatementRequest,
 )
-from models.rest_api.state import State
 
 
 @pytest.mark.asyncio
@@ -18,10 +17,13 @@ class TestPatchStatement:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.handler = EntityHandler(state=State())
+        self.mock_state = MagicMock()
         self.mock_vitess = MagicMock()
         self.mock_s3 = MagicMock()
         self.mock_validator = MagicMock()
+        self.mock_state.vitess_client = self.mock_vitess
+        self.mock_state.s3_client = self.mock_s3
+        self.handler = EntityHandler(state=self.mock_state)
 
     async def test_statement_hash_not_found(self) -> None:
         """Test statement hash not found."""
@@ -41,7 +43,7 @@ class TestPatchStatement:
             mock_read_handler.get_entity.return_value = mock_entity_response
 
             result = await self.handler.patch_statement(
-                "Q1", "999", request, self.mock_vitess, self.mock_s3
+                "Q1", "999", request, self.mock_validator
             )
             assert not result.success
             assert "Statement not found" in result.error

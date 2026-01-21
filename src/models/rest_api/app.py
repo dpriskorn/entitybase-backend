@@ -21,8 +21,8 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         clients = State(
             s3_config=settings.to_s3_config(),
             vitess_config=settings.to_vitess_config(),
-            entity_change_stream_config=settings.to_entity_change_stream_config(),
-            entity_diff_stream_config=settings.to_entity_diff_stream_config(),
+            entity_change_stream_config=settings.get_entity_change_stream_config(),
+            entity_diff_stream_config=settings.get_entity_diff_stream_config(),
             property_registry_path=Path(settings.property_registry_path)
             if settings.property_registry_path
             else None,
