@@ -647,7 +647,7 @@ await compute_backlinks(vitess_client, s3_client)
 Added `get_all_statement_hashes()` method:
 
 ```python
-def get_all_statement_hashes(self, conn: Any) -> list[int]:
+def get_all_statement_hashes(self) -> list[int]:
     """Get all statement content hashes for backlink computation"""
 ```
 
@@ -657,7 +657,7 @@ Added `insert_backlink_statistics()` method:
 
 ```python
 def insert_backlink_statistics(
-    self, conn: Any, date: str, total_backlinks: int,
+    self, date: str, total_backlinks: int,
     unique_entities_with_backlinks: int, top_entities_by_backlinks: list[dict]
 ) -> None:
     """Insert daily backlink statistics with upsert logic"""

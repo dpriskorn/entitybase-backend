@@ -95,7 +95,7 @@ class RedirectRepository(Repository):
                 (redirect_from_internal_id, redirect_to_internal_id, created_by),
             )
 
-    def get_incoming_redirects(self, conn: Any, entity_id: str) -> list[str]:
+    def get_incoming_redirects(self, entity_id: str) -> list[str]:
         """Get entities that redirect to the given entity."""
         internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:
@@ -112,7 +112,7 @@ class RedirectRepository(Repository):
             result = [row[0] for row in cursor.fetchall()]
             return result
 
-    def get_target(self, conn: Any, entity_id: str) -> str:
+    def get_target(self, entity_id: str) -> str:
         """Get the redirect target for an entity."""
         internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:

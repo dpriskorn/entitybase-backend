@@ -14,7 +14,6 @@ class HeadRepository(Repository):
 
     def cas_update_with_status(
         self,
-        conn: Any,
         entity_id: str,
         expected_head: int = 0,
         new_head: int = 0,
@@ -71,7 +70,7 @@ class HeadRepository(Repository):
             return OperationResult(success=False, error=str(e))
 
     def hard_delete(
-        self, conn: Any, entity_id: str, head_revision_id: int
+        self, entity_id: str, head_revision_id: int
     ) -> OperationResult:
         """Mark an entity as hard deleted."""
         internal_id = self.id_resolver.resolve_id(entity_id)
@@ -91,7 +90,7 @@ class HeadRepository(Repository):
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    def soft_delete(self, conn: Any, entity_id: str) -> OperationResult:
+    def soft_delete(self, entity_id: str) -> OperationResult:
         """Mark an entity as soft deleted."""
         internal_id = self.id_resolver.resolve_id(entity_id)
         if not internal_id:

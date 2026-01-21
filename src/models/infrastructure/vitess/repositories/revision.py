@@ -173,7 +173,7 @@ class RevisionRepository(Repository):
         return int(new_revision_id)
 
     def get_history(
-        self, conn: Any, entity_id: str, limit: int = 20, offset: int = 0
+        self, entity_id: str, limit: int = 20, offset: int = 0
     ) -> list[Any]:
         """Get revision history for an entity."""
         logger.debug(f"Getting history for entity {entity_id}, limit {limit}")
@@ -198,7 +198,7 @@ class RevisionRepository(Repository):
             ]
             return result
 
-    def delete(self, conn: Any, entity_id: str, revision_id: int) -> OperationResult:
+    def delete(self, entity_id: str, revision_id: int) -> OperationResult:
         """Delete a revision (for rollback)."""
         logger.debug(f"Deleting revision {revision_id} for entity {entity_id}")
         if not conn:
@@ -280,7 +280,7 @@ class RevisionRepository(Repository):
             affected_rows = int(cursor.rowcount)
             return affected_rows > 0
 
-    def create(self, conn: Any, entity_id: str, revision_id: int, data: dict) -> None:
+    def create(self, entity_id: str, revision_id: int, data: dict) -> None:
         """Create a new revision for an entity."""
         logger.debug(f"Creating revision {revision_id} for entity {entity_id}")
         internal_id = self.id_resolver.resolve_id(entity_id)
