@@ -132,7 +132,7 @@ class TestSerializeValue:
         mock_globe.globe = "Q2"
 
         with patch(
-            "models.rdf_builder.value_node._format_scientific_notation"
+            "models.rdf_builder.value_node.format_scientific_notation"
         ) as mock_format:
             mock_format.return_value = "1.0E-4"
             result = serialize_value(mock_globe)

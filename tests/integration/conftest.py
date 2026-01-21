@@ -66,11 +66,13 @@ def create_tables(db_conn):
     """Create database tables before running integration tests."""
     try:
         from models.infrastructure.vitess.repositories.schema import SchemaRepository
+        from models.infrastructure.vitess.client import VitessClient
         from models.config.settings import settings
 
         # Create Vitess config and schema repository
         vitess_config = settings.to_vitess_config()
-        schema_repository = SchemaRepository(config=vitess_config)
+        vitess_client = VitessClient(config=vitess_config)
+        schema_repository = SchemaRepository(vitess_client=vitess_client)
         schema_repository.create_tables()
         print("Database tables created for integration tests")
     except Exception as e:

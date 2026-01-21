@@ -57,9 +57,11 @@ class CreateTables(BaseModel):
 
         try:
             from models.infrastructure.vitess.repositories.schema import SchemaRepository
+            from models.infrastructure.vitess.client import VitessClient
 
             logger.info("Creating database tables using SchemaRepository...")
-            schema_repository = SchemaRepository(config=self.vitess_config)
+            vitess_client = VitessClient(config=self.vitess_config)
+            schema_repository = SchemaRepository(vitess_client=vitess_client)
             schema_repository.create_tables()
 
             # Assume all tables were created successfully

@@ -10,10 +10,10 @@ from models.workers.dev.__main__ import main
 class TestDevWorkerCLI:
     """Test cases for DevWorker CLI commands."""
 
-    @patch("models.workers.dev.__main__.run_setup")
-    @patch("sys.argv", ["devworker", "setup"])
-    def test_setup_command(self, mock_run_setup) -> None:
-        """Test setup command execution."""
+    @patch("models.workers.dev.__main__.run_buckets_setup")
+    @patch("sys.argv", ["devworker", "buckets", "setup"])
+    def test_buckets_setup_command(self, mock_run_setup) -> None:
+        """Test buckets setup command execution."""
         mock_run_setup.return_value = True
 
         result = main()
@@ -21,10 +21,10 @@ class TestDevWorkerCLI:
         assert result == 0
         mock_run_setup.assert_called_once()
 
-    @patch("models.workers.dev.__main__.run_health_check")
-    @patch("sys.argv", ["devworker", "health"])
-    def test_health_command(self, mock_run_health) -> None:
-        """Test health check command execution."""
+    @patch("models.workers.dev.__main__.run_buckets_health")
+    @patch("sys.argv", ["devworker", "buckets", "health"])
+    def test_buckets_health_command(self, mock_run_health) -> None:
+        """Test buckets health check command execution."""
         mock_run_health.return_value = True
 
         result = main()
@@ -32,10 +32,10 @@ class TestDevWorkerCLI:
         assert result == 0
         mock_run_health.assert_called_once()
 
-    @patch("models.workers.dev.__main__.run_cleanup")
-    @patch("sys.argv", ["devworker", "cleanup", "--force"])
-    def test_cleanup_command_force(self, mock_run_cleanup) -> None:
-        """Test cleanup command with force flag."""
+    @patch("models.workers.dev.__main__.run_buckets_cleanup")
+    @patch("sys.argv", ["devworker", "buckets", "cleanup", "--force"])
+    def test_buckets_cleanup_command_force(self, mock_run_cleanup) -> None:
+        """Test buckets cleanup command with force flag."""
         mock_run_cleanup.return_value = True
 
         result = main()
@@ -45,9 +45,9 @@ class TestDevWorkerCLI:
 
     @patch("builtins.input", return_value="yes")
     @patch("models.workers.dev.create_buckets.CreateBuckets.cleanup_buckets")
-    @patch("sys.argv", ["devworker", "cleanup"])
-    def test_cleanup_command_with_confirmation(self, mock_cleanup, mock_input) -> None:
-        """Test cleanup command with user confirmation."""
+    @patch("sys.argv", ["devworker", "buckets", "cleanup"])
+    def test_buckets_cleanup_command_with_confirmation(self, mock_cleanup, mock_input) -> None:
+        """Test buckets cleanup command with user confirmation."""
         mock_cleanup.return_value = {"bucket1": "deleted"}
 
         result = main()
@@ -58,9 +58,9 @@ class TestDevWorkerCLI:
 
     @patch("builtins.input", return_value="no")
     @patch("models.workers.dev.create_buckets.CreateBuckets.cleanup_buckets")
-    @patch("sys.argv", ["devworker", "cleanup"])
-    def test_cleanup_command_cancelled(self, mock_cleanup, mock_input) -> None:
-        """Test cleanup command cancellation."""
+    @patch("sys.argv", ["devworker", "buckets", "cleanup"])
+    def test_buckets_cleanup_command_cancelled(self, mock_cleanup, mock_input) -> None:
+        """Test buckets cleanup command cancellation."""
         result = main()
 
         assert result == 1
@@ -78,7 +78,7 @@ class TestDevWorkerCLI:
 
     @patch(
         "sys.argv",
-        ["devworker", "--endpoint", "http://custom:9000", "setup"],
+        ["devworker", "--endpoint", "http://custom:9000", "buckets", "setup"],
     )
     @patch("models.workers.dev.__main__.CreateBuckets")
     def test_custom_arguments(
@@ -110,8 +110,8 @@ class TestDevWorkerCLI:
             minio_secret_key="minioadmin",
         )
 
-    @patch("models.workers.dev.__main__.run_setup")
-    @patch("sys.argv", ["devworker", "setup"])
+    @patch("models.workers.dev.__main__.run_buckets_setup")
+    @patch("sys.argv", ["devworker", "buckets", "setup"])
     def test_command_failure(self, mock_run_setup) -> None:
         """Test handling of command failure."""
         mock_run_setup.return_value = False  # Command failed
@@ -121,9 +121,31 @@ class TestDevWorkerCLI:
         assert result == 1
         mock_run_setup.assert_called_once()
 
-    @patch("sys.argv", ["devworker", "invalid_command"])
-    def test_invalid_command(self, capsys) -> None:
-        """Test error for invalid command."""
+    @patch("models.workers.dev.__main__.run_tables_setup")
+    @patch("sys.argv", ["devworker", "tables", "setup"])
+    def test_tables_setup_command(self, mock_run_setup) -> None:
+        """Test tables setup command execution."""
+        mock_run_setup.return_value = True
+
+        result = main()
+
+        assert result == 0
+        mock_run_setup.assert_called_once()
+
+    @patch("models.workers.dev.__main__.run_tables_health")
+    @patch("sys.argv", ["devworker", "tables", "health"])
+    def test_tables_health_command(self, mock_run_health) -> None:
+        """Test tables health check command execution."""
+        mock_run_health.return_value = True
+
+        result = main()
+
+        assert result == 0
+        mock_run_health.assert_called_once()
+
+    @patch("sys.argv", ["devworker", "invalid_component"])
+    def test_invalid_component(self, capsys) -> None:
+        """Test error for invalid component."""
         with pytest.raises(SystemExit) as exc_info:
             main()
 

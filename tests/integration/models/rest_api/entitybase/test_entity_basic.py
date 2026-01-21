@@ -43,6 +43,14 @@ def test_create_entity(api_client: requests.Session, base_url: str) -> None:
         f"{base_url}/entitybase/v1/entities/items",
         json=entity_data1.model_dump(mode="json"),
     )
+
+    # Debug output for 500 error investigation
+    logger.error(f"🔍 TEST: Status Code: {response.status_code}")
+    logger.error(f"🔍 TEST: Response Headers: {dict(response.headers)}")
+    if response.status_code >= 400:
+        logger.error(f"🔍 TEST: Response Body: {response.text}")
+        logger.error(f"🔍 TEST: Request Data: {entity_data1.model_dump(mode='json')}")
+
     assert response.status_code == 200
 
     result = response.json()
