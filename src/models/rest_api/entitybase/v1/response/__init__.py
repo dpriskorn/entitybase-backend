@@ -13,6 +13,7 @@ from .entity.entitybase import (
     EntityJsonImportResponse,
     EntityDeleteResponse,
 )
+from .entity.wikibase import LabelValue
 from models.infrastructure.s3.revision.entity_state import EntityState
 from .entity import (
     EntityMetadataResponse,
@@ -53,8 +54,11 @@ __all__ = [
     "CleanupOrphanedResponse",
     "DeduplicationStatsResponse",
     "EntityAliasesResponse",
+    "EntityDeleteResponse",
     "EntityDescriptionsResponse",
+    "EntityJsonImportResponse",
     "EntityLabelsResponse",
+    "EntityListResponse",
     "EntityMetadataResponse",
     "EntityMetadataBatchResponse",
     "EntityRedirectResponse",
@@ -65,6 +69,7 @@ __all__ = [
     "FullRevisionResponse",
     "HealthCheckResponse",
     "HealthResponse",
+    "LabelValue",
     "MetadataLoadResponse",
     "MostUsedStatementsResponse",
     "PropertyCounts",

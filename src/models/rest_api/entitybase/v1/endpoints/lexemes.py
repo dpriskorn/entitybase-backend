@@ -8,9 +8,10 @@ from models.rest_api.entitybase.v1.handlers.entity.lexeme.create import (
     LexemeCreateHandler,
 )
 
-logger = logging.getLogger(__name__)
 from models.rest_api.entitybase.v1.request import EntityCreateRequest
 from models.rest_api.entitybase.v1.response import EntityResponse
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 

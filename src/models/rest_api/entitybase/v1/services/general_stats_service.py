@@ -83,7 +83,6 @@ class GeneralStatsService(Service):
         result = cursor.fetchone()
         return result[0] if result else 0
 
-
     def get_total_sitelinks(self) -> int:
         """Count total sitelinks."""
         cursor = self.state.vitess_client.cursor

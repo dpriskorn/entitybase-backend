@@ -227,7 +227,7 @@ class EntityHandler(Handler):
 
     @staticmethod
     def _build_revision_data_new(
-            ctx: RevisionContext,
+        ctx: RevisionContext,
         hash_result: StatementHashResult,
         term_hashes: HashMaps,
         sitelink_hashes: Any,
