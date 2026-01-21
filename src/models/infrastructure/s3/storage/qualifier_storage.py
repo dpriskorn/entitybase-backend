@@ -4,6 +4,7 @@ import logging
 from typing import List
 
 from models.common import OperationResult
+from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage
 from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
@@ -13,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 class QualifierStorage(BaseS3Storage):
     """Storage operations for qualifiers."""
+    bucket: str = settings.s3_qualifiers_bucket
 
     def store_qualifier(
         self, content_hash: int, qualifier_data: S3QualifierData

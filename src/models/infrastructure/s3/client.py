@@ -53,7 +53,7 @@ class MyS3Client(BaseModel):
         # self._ensure_bucket_exists()
 
         # Initialize storage components
-        self.revisions = RevisionStorage(self.connection_manager)
+        self.revisions = RevisionStorage(connection_manager=self.connection_manager)
         self.statements = StatementStorage(self.connection_manager)
         self.metadata = MetadataStorage(self.connection_manager)
         self.references = ReferenceStorage(self.connection_manager)
