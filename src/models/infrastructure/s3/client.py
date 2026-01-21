@@ -8,6 +8,7 @@ from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from pydantic import Field, BaseModel
 
 from models.common import OperationResult
+from models.infrastructure.client import Client
 from models.infrastructure.s3.config import S3Config
 from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.enums import MetadataType
@@ -31,7 +32,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-class MyS3Client(BaseModel):
+class MyS3Client(Client):
     """Client for S3 storage operations."""
 
     connection_manager: Optional[S3ConnectionManager] = Field(
