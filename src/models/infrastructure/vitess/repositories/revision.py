@@ -39,7 +39,7 @@ class RevisionRepository(Repository):
         user_id = data.get("user_id")
         edit_summary = data.get("edit_summary", "")
 
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes, user_id, edit_summary) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 (
@@ -65,7 +65,7 @@ class RevisionRepository(Repository):
         """Get a specific revision data."""
         logger.debug(f"Getting revision {revision_id} for entity {internal_entity_id}")
         with vitess_client.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
                     (internal_entity_id, revision_id),
@@ -107,7 +107,7 @@ class RevisionRepository(Repository):
 
         # Get next revision ID
         with vitess_client.get_connection() as conn:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     "SELECT COALESCE(MAX(revision_id), 0) + 1 FROM entity_revisions WHERE internal_id = %s",
                     (internal_entity_id,),
@@ -184,7 +184,7 @@ class RevisionRepository(Repository):
         if not internal_id:
             return []
 
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "SELECT revision_id, created_at, user_id, edit_summary FROM entity_revisions WHERE internal_id = %s ORDER BY revision_id DESC LIMIT %s OFFSET %s",
                 (internal_id, limit, offset),
@@ -214,7 +214,7 @@ class RevisionRepository(Repository):
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return OperationResult(success=False, error="Entity not found")
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "DELETE FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
                 (internal_id, revision_id),
@@ -241,7 +241,7 @@ class RevisionRepository(Repository):
         if not internal_id:
             return False
 
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 """INSERT INTO entity_revisions 
                         (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
@@ -288,7 +288,7 @@ class RevisionRepository(Repository):
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 """INSERT INTO entity_revisions 
                         (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)

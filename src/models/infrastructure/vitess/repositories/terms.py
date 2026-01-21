@@ -15,7 +15,7 @@ class TermsRepository(Repository):
     ) -> OperationResult:
         """Insert a term if it doesn't already exist."""
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     """
                     INSERT INTO entity_terms (hash, term, term_type)
@@ -30,7 +30,7 @@ class TermsRepository(Repository):
 
     def get_term(self, hash_value: int) -> tuple[str, str] | None:
         """Retrieve a term and its type by hash."""
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "SELECT term, term_type FROM entity_terms WHERE hash = %s",
                 (hash_value,),
@@ -42,7 +42,7 @@ class TermsRepository(Repository):
         """Retrieve multiple terms by their hashes."""
         if not hashes:
             return TermsResponse(terms={})
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             # Create placeholders for the IN clause
             placeholders = ",".join(["%s"] * len(hashes))
             cursor.execute(
@@ -54,7 +54,7 @@ class TermsRepository(Repository):
 
     def hash_exists(self, hash_value: int) -> bool:
         """Check if a hash exists in the terms table."""
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "SELECT 1 FROM entity_terms WHERE hash = %s LIMIT 1",
                 (hash_value,),

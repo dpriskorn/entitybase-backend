@@ -52,11 +52,11 @@ class BacklinkRepository(Repository):
             )
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute(
-                    "DELETE FROM entity_backlinks WHERE referencing_internal_id = %s",
-                    (referencing_internal_id,),
-                )
+            cursor = self.vitess_client.cursor
+            cursor.execute(
+                "DELETE FROM entity_backlinks WHERE referencing_internal_id = %s",
+                (referencing_internal_id,),
+            )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
@@ -68,18 +68,18 @@ class BacklinkRepository(Repository):
         logger.debug(
             f"Getting backlinks for internal_id {referenced_internal_id}, limit {limit}"
         )
-        with self.connection_manager.connection.cursor() as cursor:
-            cursor.execute(
-                """
-                SELECT referencing_internal_id, statement_hash, property_id, rank
-                FROM entity_backlinks
-                WHERE referenced_internal_id = %s
-                ORDER BY statement_hash
-                LIMIT %s OFFSET %s
-                """,
-                (referenced_internal_id, limit, offset),
+        cursor = self.vitess_client.cursor
+        cursor.execute(
+            """
+            SELECT referencing_internal_id, statement_hash, property_id, rank
+            FROM entity_backlinks
+            WHERE referenced_internal_id = %s
+            ORDER BY statement_hash
+            LIMIT %s OFFSET %s
+            """,
+            (referenced_internal_id, limit, offset),
             )
-            return [
+        return [
                 BacklinkRecord(
                     referencing_internal_id=row[0],
                     statement_hash=str(row[1]),
@@ -138,9 +138,9 @@ class BacklinkRepository(Repository):
                 f"Failed to serialize top_entities_by_backlinks: {e}", status_code=400
             )
 
-        with self.connection_manager.connection.cursor() as cursor:
-            try:
-                cursor.execute(
+        cursor = self.vitess_client.cursor
+        try:
+            cursor.execute(
                     """
                     INSERT INTO backlink_statistics
                     (date, total_backlinks, unique_entities_with_backlinks, top_entities_by_backlinks)
@@ -157,7 +157,7 @@ class BacklinkRepository(Repository):
                         top_entities_json,
                     ),
                 )
-                logger.info(f"Successfully stored backlink statistics for {date}")
-            except Exception as e:
-                logger.error(f"Failed to insert backlink statistics for {date}: {e}")
-                raise
+            logger.info(f"Successfully stored backlink statistics for {date}")
+        except Exception as e:
+            logger.error(f"Failed to insert backlink statistics for {date}: {e}")
+            raise

@@ -24,7 +24,7 @@ class ThanksRepository(Repository):
                 f"Sending thank from user {from_user_id} for {entity_id}:{revision_id}"
             )
 
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 # Resolve entity_id to internal_id
                 internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
                 if not internal_id:
@@ -75,7 +75,7 @@ class ThanksRepository(Repository):
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     """
                     SELECT t.id, t.from_user_id, t.to_user_id, m.entity_id, t.revision_id, t.created_at
@@ -132,7 +132,7 @@ class ThanksRepository(Repository):
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     """
                     SELECT t.id, t.from_user_id, t.to_user_id, m.entity_id, t.revision_id, t.created_at
@@ -187,7 +187,7 @@ class ThanksRepository(Repository):
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 # Resolve entity_id to internal_id
                 internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
                 if not internal_id:

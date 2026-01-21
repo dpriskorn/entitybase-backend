@@ -17,7 +17,7 @@ class EntityRepository(Repository):
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return 0
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "SELECT head_revision_id FROM entity_head WHERE internal_id = %s",
                 (internal_id,),
@@ -30,7 +30,7 @@ class EntityRepository(Repository):
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "SELECT is_deleted FROM entity_head WHERE internal_id = %s",
                 (internal_id,),
@@ -43,7 +43,7 @@ class EntityRepository(Repository):
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "SELECT is_locked FROM entity_head WHERE internal_id = %s",
                 (internal_id,),
@@ -56,7 +56,7 @@ class EntityRepository(Repository):
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "SELECT is_archived FROM entity_head WHERE internal_id = %s",
                 (internal_id,),
@@ -71,7 +71,7 @@ class EntityRepository(Repository):
         if not internal_id:
             return None
 
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 """SELECT is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected
                        FROM entity_head
@@ -101,7 +101,7 @@ class EntityRepository(Repository):
                 raise_validation_error(
                     f"Failed to register entity {entity_id}", status_code=500
                 )
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 """INSERT INTO entity_head
                    (internal_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected, is_deleted, is_redirect)
@@ -114,7 +114,7 @@ class EntityRepository(Repository):
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "DELETE FROM entity_head WHERE internal_id = %s", (internal_id,)
             )
@@ -124,7 +124,7 @@ class EntityRepository(Repository):
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "UPDATE entity_head SET head_revision_id = %s WHERE internal_id = %s",
                 (revision_id, internal_id),

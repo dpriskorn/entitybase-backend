@@ -33,7 +33,7 @@ class HeadRepository(Repository):
             return OperationResult(success=False, error="Entity not found")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     """UPDATE entity_head
                            SET head_revision_id = %s,
@@ -75,7 +75,7 @@ class HeadRepository(Repository):
             return OperationResult(success=False, error=f"Entity {entity_id} not found")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     """UPDATE entity_head
                            SET is_deleted = TRUE,
@@ -94,7 +94,7 @@ class HeadRepository(Repository):
             return OperationResult(success=False, error=f"Entity {entity_id} not found")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     """UPDATE entity_head
                             SET is_deleted = TRUE,
@@ -112,7 +112,7 @@ class HeadRepository(Repository):
             return OperationResult(success=False, error="Invalid internal entity ID")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     """SELECT head_revision_id FROM entity_head WHERE internal_id = %s""",
                     (internal_entity_id,),

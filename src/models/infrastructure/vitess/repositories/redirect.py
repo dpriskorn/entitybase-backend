@@ -37,7 +37,7 @@ class RedirectRepository(Repository):
                 )
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 if expected_redirects_to != 0:
                     cursor.execute(
                         "UPDATE entity_head SET redirects_to = %s WHERE internal_id = %s AND redirects_to = %s",
@@ -80,7 +80,7 @@ class RedirectRepository(Repository):
                 f"Target entity {redirect_to_entity_id} not found", status_code=404
             )
 
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 """INSERT INTO entity_redirects
                        (redirect_from_id, redirect_to_id, created_by)
@@ -94,7 +94,7 @@ class RedirectRepository(Repository):
         if not internal_id:
             return []
 
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 """SELECT m.entity_id
                        FROM entity_redirects r
@@ -110,7 +110,7 @@ class RedirectRepository(Repository):
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return ""
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 """SELECT m.entity_id
                        FROM entity_head h

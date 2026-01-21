@@ -25,7 +25,7 @@ class EndorsementRepository(Repository):
                 f"Creating endorsement from user {user_id} for statement {statement_hash}"
             )
 
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 # Check if statement exists
                 cursor.execute(
                     "SELECT 1 FROM statement_content WHERE content_hash = %s",
@@ -75,7 +75,7 @@ class EndorsementRepository(Repository):
             logger.debug(
                 f"Withdrawing endorsement from user {user_id} for statement {statement_hash}"
             )
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 # Check if active endorsement exists
                 cursor.execute(
                     "SELECT id FROM user_statement_endorsements WHERE user_id = %s AND statement_hash = %s AND removed_at IS NULL",
@@ -110,7 +110,7 @@ class EndorsementRepository(Repository):
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 # Build query based on include_removed flag
                 removed_condition = (
                     "" if include_removed else " AND e.removed_at IS NULL"
@@ -174,7 +174,7 @@ class EndorsementRepository(Repository):
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 # Build query based on include_removed flag
                 removed_condition = "" if include_removed else " AND removed_at IS NULL"
 
@@ -230,7 +230,7 @@ class EndorsementRepository(Repository):
             return OperationResult(success=False, error="Invalid parameters")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 # Total endorsements given (including withdrawn)
                 cursor.execute(
                     "SELECT COUNT(*) FROM user_statement_endorsements WHERE user_id = %s",
@@ -267,7 +267,7 @@ class EndorsementRepository(Repository):
             # Create placeholders for SQL IN clause
             placeholders = ",".join(["%s"] * len(statement_hashes))
 
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     f"""
                     SELECT

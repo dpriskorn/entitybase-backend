@@ -17,7 +17,7 @@ class MetadataRepository(Repository):
     ) -> OperationResult:
         """Insert or increment ref_count for metadata content."""
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     """
                     INSERT INTO metadata_content (content_hash, content_type, ref_count)
@@ -38,7 +38,7 @@ class MetadataRepository(Repository):
             return OperationResult(success=False, error="Invalid content hash or type")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
                     (content_hash, content_type),
@@ -65,7 +65,7 @@ class MetadataRepository(Repository):
             f"Decrementing ref count for metadata {content_type} hash {content_hash}"
         )
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     """
                     UPDATE metadata_content
@@ -90,7 +90,7 @@ class MetadataRepository(Repository):
 
     def delete_metadata_content(self, content_hash: int, content_type: str) -> None:
         """Delete metadata content when ref_count reaches 0."""
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "DELETE FROM metadata_content WHERE content_hash = %s AND content_type = %s AND ref_count <= 0",
                 (content_hash, content_type),

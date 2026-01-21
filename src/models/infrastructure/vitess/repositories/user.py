@@ -33,7 +33,7 @@ class UserRepository(Repository):
                 On failure (e.g., database error), success=False with an error message.
         """
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     """
                     INSERT INTO users (user_id)
@@ -58,7 +58,7 @@ class UserRepository(Repository):
             bool: True if the user exists, False otherwise.
         """
 
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "SELECT 1 FROM users WHERE user_id = %s",
                 (user_id,),
@@ -68,7 +68,7 @@ class UserRepository(Repository):
     def get_user(self, user_id: int) -> UserResponse | None:
         """Get user data by ID."""
 
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "SELECT user_id, created_at, preferences FROM users WHERE user_id = %s",
                 (user_id,),
@@ -88,7 +88,7 @@ class UserRepository(Repository):
             return OperationResult(success=False, error="Invalid user ID")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     "UPDATE users SET last_activity = NOW() WHERE user_id = %s",
                     (user_id,),
@@ -100,7 +100,7 @@ class UserRepository(Repository):
     def is_watchlist_enabled(self, user_id: int) -> bool:
         """Check if watchlist is enabled for user."""
 
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             cursor.execute(
                 "SELECT watchlist_enabled FROM users WHERE user_id = %s",
                 (user_id,),
@@ -114,7 +114,7 @@ class UserRepository(Repository):
             return OperationResult(success=False, error="Invalid user ID")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     "UPDATE users SET watchlist_enabled = %s WHERE user_id = %s",
                     (enabled, user_id),
@@ -153,7 +153,7 @@ class UserRepository(Repository):
             )
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     """
                     INSERT INTO user_activity (user_id, activity_type, entity_id, revision_id)
@@ -171,7 +171,7 @@ class UserRepository(Repository):
             return OperationResult(success=False, error="Invalid user ID")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     "SELECT notification_limit, retention_hours FROM users WHERE user_id = %s",
                     (user_id,),
@@ -200,7 +200,7 @@ class UserRepository(Repository):
             return OperationResult(success=False, error="Invalid user ID")
 
         try:
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 cursor.execute(
                     "UPDATE users SET notification_limit = %s, retention_hours = %s WHERE user_id = %s",
                     (notification_limit, retention_hours, user_id),
@@ -235,7 +235,7 @@ class UserRepository(Repository):
                 f"Getting activities for user {user_id}, type {activity_type}, hours {hours}"
             )
 
-            with self.connection_manager.connection.cursor() as cursor:
+            cursor = self.vitess_client.cursor
                 query = """
                     SELECT id, user_id, activity_type, entity_id, revision_id, created_at
                     FROM user_activity
@@ -313,7 +313,7 @@ class UserRepository(Repository):
 
         logger.debug(f"Inserting general statistics for date {date}")
 
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             try:
                 cursor.execute(
                     """
@@ -381,7 +381,7 @@ class UserRepository(Repository):
 
         logger.debug(f"Inserting user statistics for date {date}")
 
-        with self.connection_manager.connection.cursor() as cursor:
+        cursor = self.vitess_client.cursor
             try:
                 cursor.execute(
                     """
