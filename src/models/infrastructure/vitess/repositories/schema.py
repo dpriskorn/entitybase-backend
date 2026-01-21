@@ -19,7 +19,7 @@ class SchemaRepository(Repository):
             raise_validation_error(
                 message="Connection manager variable not initialized"
             )
-        with self.vitess_client.cursor as cursor:
+        cursor = self.vitess_client.cursor
         cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS entity_id_mapping (
@@ -192,7 +192,7 @@ class SchemaRepository(Repository):
             """
             )
 
-            # Initialize ID ranges for each entity type
+        # Initialize ID ranges for each entity type
         cursor.execute(
                 """
                 INSERT IGNORE INTO id_ranges (entity_type, current_range_start, current_range_end, range_size) VALUES
