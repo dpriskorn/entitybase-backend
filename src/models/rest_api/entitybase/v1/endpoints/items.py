@@ -28,14 +28,26 @@ router = APIRouter()
 @router.post("/entities/items", response_model=EntityResponse)
 async def create_item(request: EntityCreateRequest, req: Request) -> EntityResponse:
     """Create a new item entity."""
-    state = req.app.state.state
-    validator = req.app.state.validator
-    enumeration_service = req.app.state.enumeration_service
-    handler = ItemCreateHandler(state=state, enumeration_service=enumeration_service)
-    return await handler.create_entity(
-        request,
-        validator,
-    )
+    logger.info(f"🔍 ENDPOINT: Received create request for {request.id or 'auto-assign'}")
+    logger.debug(f"🔍 ENDPOINT: Request data: {request.model_dump()}")
+
+    try:
+        state = req.app.state.clients
+        validator = req.app.state.validator
+        enumeration_service = req.app.state.enumeration_service
+
+        logger.debug(f"🔍 ENDPOINT: Services available - state: {state is not None}, validator: {validator is not None}, enum_svc: {enumeration_service is not None}")
+
+        handler = ItemCreateHandler(state=state, enumeration_service=enumeration_service)
+        logger.info("🔍 ENDPOINT: Handler created, calling create_entity")
+
+        result = await handler.create_entity(request, validator)
+        logger.info(f"🔍 ENDPOINT: Entity creation successful: {result.id}")
+        return result
+
+    except Exception as e:
+        logger.error(f"🔍 ENDPOINT: Create item failed: {e}", exc_info=True)
+        raise
 
 
 @router.get(
@@ -45,7 +57,7 @@ async def get_item_label(
     item_id: str, language_code: str, req: Request
 ) -> LabelResponse:
     """Get item label for language."""
-    state = req.app.state.state
+    state = req.app.state.clients
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(item_id)
     labels = response.data.get("labels", {})
@@ -63,7 +75,7 @@ async def update_item_label(
     item_id: str, language_code: str, update_data: Dict[str, Any], req: Request
 ) -> EntityResponse:
     """Update item label for language."""
-    state = req.app.state.state
+    state = req.app.state.clients
     validator = req.app.state.validator
 
     # Extract label from request
@@ -102,7 +114,7 @@ async def delete_item_label(
     item_id: str, language_code: str, req: Request
 ) -> EntityResponse:
     """Delete item label for language."""
-    state = req.app.state.state
+    state = req.app.state.clients
     validator = req.app.state.validator
 
     # Get current entity
@@ -138,7 +150,7 @@ async def get_item_description(
     item_id: str, language_code: str, req: Request
 ) -> DescriptionResponse:
     """Get item description for language."""
-    state = req.app.state.state
+    state = req.app.state.clients
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(item_id)
     descriptions = response.data.get("descriptions", {})
@@ -158,7 +170,7 @@ async def update_item_description(
     item_id: str, language_code: str, update_data: Dict[str, Any], req: Request
 ) -> EntityResponse:
     """Update item description for language."""
-    state = req.app.state.state
+    state = req.app.state.clients
     validator = req.app.state.validator
 
     # Extract description from Wikibase format
@@ -198,7 +210,7 @@ async def delete_item_description(
     item_id: str, language_code: str, req: Request
 ) -> EntityResponse:
     """Delete item description for language."""
-    state = req.app.state.state
+    state = req.app.state.clients
     validator = req.app.state.validator
 
     # Get current entity
@@ -233,7 +245,7 @@ async def get_item_aliases_for_language(
     item_id: str, language_code: str, req: Request
 ) -> list[str]:
     """Get item aliases for language."""
-    state = req.app.state.state
+    state = req.app.state.clients
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(item_id)
     aliases = response.data.get("aliases", {})
@@ -252,7 +264,7 @@ async def put_item_aliases_for_language(
 ) -> EntityResponse:
     """Update item aliases for language."""
     logger.debug(f"Updating aliases for item {item_id}, language {language_code}")
-    state = req.app.state.state
+    state = req.app.state.clients
     validator = req.app.state.validator
 
     # Get current entity

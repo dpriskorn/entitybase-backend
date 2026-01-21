@@ -27,46 +27,71 @@ class ItemCreateHandler(EntityCreateHandler):
         user_id: int = 0,
     ) -> EntityResponse:
         """Create a new item with auto-assigned Q ID using EntityTransaction."""
-        logger.info(f"Starting item creation for {request.id or 'auto-assign'}")
+        logger.info(f"🔍 HANDLER: Starting item creation for {request.id or 'auto-assign'}")
+        logger.debug(f"🔍 HANDLER: Request: {request.model_dump()}")
+
+        # Check database connectivity
+        try:
+            with self.state.vitess_client.connection_manager.get_connection() as conn:
+                cursor = conn.cursor()
+                cursor.execute("SELECT 1")
+                result = cursor.fetchone()
+                logger.debug(f"🔍 HANDLER: Database connectivity check passed: {result}")
+        except Exception as e:
+            logger.error(f"🔍 HANDLER: Database connectivity check failed: {e}")
+            raise
 
         # Assign ID
-        logger.info("Assigning entity ID")
+        logger.info("🔍 HANDLER: Assigning entity ID")
         if request.id:
             entity_id = request.id
-            logger.info(f"Using provided entity_id: {entity_id}")
+            logger.info(f"🔍 HANDLER: Using provided entity_id: {entity_id}")
             # Check if entity already exists
-            with self.state.vitess_client.connection_manager.get_connection() as _:
-                if self.state.vitess_client.id_resolver.entity_exists(entity_id):
-                    raise_validation_error("Entity already exists", status_code=409)
+            try:
+                with self.state.vitess_client.connection_manager.get_connection() as _:
+                    exists = self.state.vitess_client.id_resolver.entity_exists(entity_id)
+                    logger.debug(f"🔍 HANDLER: Entity exists check: {exists}")
+                    if exists:
+                        logger.error(f"🔍 HANDLER: Entity {entity_id} already exists")
+                        raise_validation_error("Entity already exists", status_code=409)
+            except Exception as e:
+                logger.error(f"🔍 HANDLER: Database connection error during existence check: {e}")
+                raise
         else:
+            logger.info("🔍 HANDLER: Auto-assigning entity ID")
             if self.enumeration_service is None:
+                logger.error("🔍 HANDLER: Enumeration service not available")
                 raise_validation_error(
                     "Enumeration service not available", status_code=500
                 )
             assert self.enumeration_service is not None
             entity_id = self.enumeration_service.get_next_entity_id("item")
-            logger.info(f"Auto-assigned entity_id: {entity_id}")
+            logger.info(f"🔍 HANDLER: Auto-assigned entity_id: {entity_id}")
         request.id = entity_id
 
         # Prepare request data
-        logger.info("Preparing request data")
+        logger.info("🔍 HANDLER: Preparing request data")
         request_data = request.data.copy()
         request_data["id"] = entity_id
+        logger.debug(f"🔍 HANDLER: Prepared request data: {request_data}")
 
         # Create transaction
-        logger.info("Creating transaction")
+        logger.info("🔍 HANDLER: Creating transaction")
         tx = CreationTransaction(state=self.state)
+        logger.debug("🔍 HANDLER: Transaction created successfully")
         try:
             # Register entity
-            logger.info(f"Registering entity {entity_id}")
+            logger.info(f"🔍 HANDLER: Registering entity {entity_id}")
             tx.register_entity(entity_id)  # type: ignore[attr-defined]
+            logger.debug(f"🔍 HANDLER: Entity {entity_id} registered successfully")
 
             # Process statements
-            logger.info("Processing statements")
+            logger.info("🔍 HANDLER: Processing statements")
             hash_result = tx.process_statements(entity_id, request_data, validator)
+            logger.debug(f"🔍 HANDLER: Statements processed, hash_result: {hash_result}")
 
             # Create revision
-            logger.info("Creating revision")
+            logger.info("🔍 HANDLER: Creating revision")
             response = await tx.create_revision(
                 entity_id=entity_id,
                 new_revision_id=1,
@@ -85,9 +110,10 @@ class ItemCreateHandler(EntityCreateHandler):
                 is_creation=True,
                 user_id=request.user_id,
             )
+            logger.debug(f"🔍 HANDLER: Revision created: {response}")
 
             # Publish event
-            logger.info("Publishing event")
+            logger.info("🔍 HANDLER: Publishing event")
             tx.publish_event(
                 entity_id=entity_id,
                 revision_id=1,
@@ -97,10 +123,12 @@ class ItemCreateHandler(EntityCreateHandler):
                 # from_revision_id=0,
                 # edit_summary=request.edit_summary,
             )
+            logger.debug("🔍 HANDLER: Event published successfully")
 
             # Commit
-            logger.info("Committing transaction")
+            logger.info("🔍 HANDLER: Committing transaction")
             tx.commit()
+            logger.debug("🔍 HANDLER: Transaction committed successfully")
 
             # Confirm ID usage to worker
             if self.enumeration_service:
