@@ -81,15 +81,15 @@ services:
      container_name: api
      ports:
        - "8000:8000"
-     depends_on:
-        minio:
-          condition: service_healthy
-        vitess:
-          condition: service_healthy
-        idworker:
-          condition: service_healthy
-        create-buckets:
-          condition: service_completed_successfully
+#     depends_on:
+#        minio:
+#          condition: service_healthy
+#        vitess:
+#          condition: service_healthy
+#        idworker:
+#          condition: service_healthy
+#        create-buckets:
+#          condition: service_completed_successfully
      environment:
         S3_ENDPOINT: http://minio:9000
         S3_ACCESS_KEY: fakekey

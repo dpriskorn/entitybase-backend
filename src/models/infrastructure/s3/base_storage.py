@@ -25,13 +25,10 @@ class LoadResponse(BaseModel):
     data: Union[Dict[str, Any], str]
 
 
-class BaseS3Storage(ABC):
+class BaseS3Storage(ABC, BaseModel):
     """Base class for S3 storage operations with common patterns."""
-
-    def __init__(self, connection_manager: S3ConnectionManager, bucket: str):
-        self.connection_manager = connection_manager
-        self.bucket = bucket
-        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+    connection_manager: S3ConnectionManager
+    bucket: str
 
     def _ensure_connection(self) -> None:
         """Ensure S3 connection is available."""
@@ -44,12 +41,12 @@ class BaseS3Storage(ABC):
         error_message = e.response["Error"].get("Message", str(e))
 
         if error_code in ["NoSuchKey", "404"]:
-            self.logger.warning(
+            logger.warning(
                 f"S3 {operation} not found: bucket={self.bucket}, key={key}"
             )
             raise S3NotFoundError(f"Object not found: {key}")
         else:
-            self.logger.error(
+            logger.error(
                 f"S3 {operation} failed: bucket={self.bucket}, key={key}, "
                 f"error_code={error_code}, error_message={error_message}",
                 exc_info=True,
@@ -64,7 +61,7 @@ class BaseS3Storage(ABC):
         metadata: Optional[Dict[str, str]] = None,
     ) -> OperationResult[None]:
         """Store data in S3 with common error handling."""
-        self.logger.debug(f"Storing data to S3: bucket={self.bucket}, key={key}")
+        logger.debug(f"Storing data to S3: bucket={self.bucket}, key={key}")
         self._ensure_connection()
 
         try:
@@ -88,14 +85,14 @@ class BaseS3Storage(ABC):
                 Metadata=metadata or {},
             )
 
-            self.logger.debug(f"S3 store successful: bucket={self.bucket}, key={key}")
+            logger.debug(f"S3 store successful: bucket={self.bucket}, key={key}")
             return OperationResult(success=True)
 
         except ClientError as e:
             self._handle_client_error(e, "store", key)
             return OperationResult(success=False, error=str(e))  # Won't reach here
         except Exception as e:
-            self.logger.error(
+            logger.error(
                 f"S3 store failed: bucket={self.bucket}, key={key}, error={e}",
                 exc_info=True,
             )
@@ -116,14 +113,14 @@ class BaseS3Storage(ABC):
             else:
                 data = json.loads(response["Body"].read().decode("utf-8"))
 
-            self.logger.debug(f"S3 load successful: bucket={self.bucket}, key={key}")
+            logger.debug(f"S3 load successful: bucket={self.bucket}, key={key}")
             return LoadResponse(data=data)
 
         except ClientError as e:
             self._handle_client_error(e, "load", key)
-            return
+            return None
         except Exception as e:
-            self.logger.error(
+            logger.error(
                 f"S3 load failed: bucket={self.bucket}, key={key}, error={e}",
                 exc_info=True,
             )
@@ -137,14 +134,14 @@ class BaseS3Storage(ABC):
             self.connection_manager.boto_client.delete_object(
                 Bucket=self.bucket, Key=key
             )
-            self.logger.debug(f"S3 delete successful: bucket={self.bucket}, key={key}")
+            logger.debug(f"S3 delete successful: bucket={self.bucket}, key={key}")
             return OperationResult(success=True)
 
         except ClientError as e:
             self._handle_client_error(e, "delete", key)
             return OperationResult(success=False, error=str(e))  # Won't reach here
         except Exception as e:
-            self.logger.error(
+            logger.error(
                 f"S3 delete failed: bucket={self.bucket}, key={key}, error={e}",
                 exc_info=True,
             )

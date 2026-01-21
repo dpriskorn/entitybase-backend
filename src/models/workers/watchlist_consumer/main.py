@@ -15,7 +15,7 @@ class WatchlistConsumerWorker:
     """Worker that consumes entity change events and creates notifications for watchers."""
 
     def __init__(self) -> None:
-        self.logger = logging.getLogger(__name__)
+        logger = logging.getLogger(__name__)
         self.consumer: Consumer | None = None
         self.vitess_client | None = None
 
@@ -43,30 +43,30 @@ class WatchlistConsumerWorker:
                 )
                 assert self.consumer is not None
                 await self.consumer.start()
-                self.logger.info("Watchlist consumer started")
+                logger.info("Watchlist consumer started")
             else:
-                self.logger.warning("Kafka config missing, consumer not started")
+                logger.warning("Kafka config missing, consumer not started")
 
             yield
         except Exception as e:
-            self.logger.error(f"Failed to start watchlist consumer: {e}")
+            logger.error(f"Failed to start watchlist consumer: {e}")
             raise
         finally:
             if self.consumer:
                 await self.consumer.stop()
-                self.logger.info("Watchlist consumer stopped")
+                logger.info("Watchlist consumer stopped")
 
     async def run(self) -> None:
         """Run the consumer loop."""
         if not self.consumer:
-            self.logger.warning("Consumer not started, cannot run")
+            logger.warning("Consumer not started, cannot run")
             return
 
         try:
             async for event in self.consumer.consume_events():
                 await self.process_message(event)
         except Exception as e:
-            self.logger.error(f"Error in consumer loop: {e}")
+            logger.error(f"Error in consumer loop: {e}")
             raise
 
     async def process_message(self, message: EntityChangeEvent) -> None:
@@ -78,12 +78,12 @@ class WatchlistConsumerWorker:
             change_type = message.type
 
             if not entity_id or not revision_id or not change_type:
-                self.logger.warning(
+                logger.warning(
                     f"Invalid event message: missing required fields {message}"
                 )
                 return
 
-            self.logger.info(
+            logger.info(
                 f"Processing event: {entity_id} {change_type} rev {revision_id}"
             )
 
@@ -111,12 +111,12 @@ class WatchlistConsumerWorker:
                     )
                     notifications_created += 1
 
-            self.logger.info(
+            logger.info(
                 f"Created {notifications_created} notifications for {entity_id}"
             )
 
         except Exception as e:
-            self.logger.error(f"Error processing message {message}: {e}")
+            logger.error(f"Error processing message {message}: {e}")
 
     def _should_notify(
         self, watched_properties: list[str] | None, changed_properties: list[str] | None
@@ -162,7 +162,7 @@ class WatchlistConsumerWorker:
                     event_timestamp,
                 ),
             )
-            self.logger.debug(f"Created notification for user {user_id} on {entity_id}")
+            logger.debug(f"Created notification for user {user_id} on {entity_id}")
 
 
 async def main() -> None:

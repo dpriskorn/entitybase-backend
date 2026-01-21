@@ -14,7 +14,7 @@ class NotificationCleanupWorker:
     """Worker that periodically cleans up old notifications to enforce limits."""
 
     def __init__(self) -> None:
-        self.logger = logging.getLogger(__name__)
+        logger = logging.getLogger(__name__)
         self.vitess_client | None = None
         # Configurable limits
         self.max_age_days = 30
@@ -27,41 +27,41 @@ class NotificationCleanupWorker:
             # Initialize client
             vitess_config = settings.to_vitess_config()
             self.vitess_client = VitessClient(vitess_config)
-            self.logger.info("Notification cleanup worker started")
+            logger.info("Notification cleanup worker started")
             yield
         except Exception as e:
-            self.logger.error(f"Failed to start notification cleanup worker: {e}")
+            logger.error(f"Failed to start notification cleanup worker: {e}")
             raise
         finally:
-            self.logger.info("Notification cleanup worker stopped")
+            logger.info("Notification cleanup worker stopped")
 
     async def run_cleanup(self) -> None:
         """Run one cleanup cycle."""
         try:
-            self.logger.info("Starting notification cleanup cycle")
+            logger.info("Starting notification cleanup cycle")
             deleted_count = 0
 
             # 1. Delete notifications older than max_age_days
             cutoff_date = datetime.now(timezone.utc) - timedelta(days=self.max_age_days)
             age_deleted = self._delete_old_notifications(cutoff_date)
             deleted_count += age_deleted
-            self.logger.info(
+            logger.info(
                 f"Deleted {age_deleted} notifications older than {self.max_age_days} days"
             )
 
             # 2. Enforce per-user limits
             user_deleted = self._enforce_user_limits()
             deleted_count += user_deleted
-            self.logger.info(
+            logger.info(
                 f"Deleted {user_deleted} excess notifications to enforce {self.max_per_user} per user limit"
             )
 
-            self.logger.info(
+            logger.info(
                 f"Cleanup cycle complete: {deleted_count} total notifications deleted"
             )
 
         except Exception as e:
-            self.logger.error(f"Error during cleanup cycle: {e}")
+            logger.error(f"Error during cleanup cycle: {e}")
 
     def _delete_old_notifications(self, cutoff_date: datetime) -> int:
         """Delete notifications older than cutoff date."""
