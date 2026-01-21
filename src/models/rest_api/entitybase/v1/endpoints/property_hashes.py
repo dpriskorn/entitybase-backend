@@ -21,7 +21,7 @@ def get_entity_property_hashes(
     entity_id: str, property_list: str, req: Request
 ) -> PropertyHashesResponse:
     """Get statement hashes for specified properties in an entity."""
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = StatementHandler(state=state)

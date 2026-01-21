@@ -24,7 +24,7 @@ async def revert_entity(
     user_id: int = Header(..., alias="X-User-ID"),
 ) -> EntityRevertResponse:
     """Revert entity to a previous revision."""
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityRevertHandler(state=state)

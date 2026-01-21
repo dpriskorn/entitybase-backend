@@ -26,7 +26,7 @@ def send_thank_endpoint(
     user_id: int = Header(..., alias="X-User-ID"),
 ) -> ThankResponse:
     """Send a thank for a specific revision."""
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler(state=state)
@@ -50,7 +50,7 @@ def get_thanks_received_endpoint(
     hours: int = Query(24, ge=1, le=720, description="Time span in hours"),
 ) -> ThanksListResponse:
     """Get thanks received by user."""
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler(state=state)
@@ -75,7 +75,7 @@ def get_thanks_sent_endpoint(
     hours: int = Query(24, ge=1, le=720, description="Time span in hours"),
 ) -> ThanksListResponse:
     """Get thanks sent by user."""
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler(state=state)
@@ -95,7 +95,7 @@ def get_revision_thanks_endpoint(
     req: Request, entity_id: str, revision_id: int
 ) -> ThanksListResponse:
     """Get all thanks for a specific revision."""
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler(state=state)

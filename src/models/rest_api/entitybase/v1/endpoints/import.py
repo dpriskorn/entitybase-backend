@@ -17,6 +17,6 @@
 #     request: EntityJsonImportRequest, req: Request
 # ) -> EntityJsonImportResponse:
 #     """Import entities from Wikidata JSONL dump file."""
-#     state = req.app.state.state
+#     state = req.app.state.clients
 #     handler = EntityJsonImportHandler(state=state)
 #     return await handler.import_entities_from_jsonl(request, clients.vitess, clients.s3)

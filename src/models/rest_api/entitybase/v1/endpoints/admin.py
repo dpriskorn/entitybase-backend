@@ -24,7 +24,7 @@ def list_entities(  # type: ignore[no-any-return]
     offset: int = Query(0, ge=0, description="Number of entities to skip"),
 ) -> EntityListResponse:
     """List entities based on type, limit, and offset."""
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = AdminHandler(state=state)

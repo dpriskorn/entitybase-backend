@@ -23,7 +23,7 @@ router = APIRouter()
 @router.get("/statements/{content_hash}", response_model=StatementResponse)
 def get_statement(content_hash: int, req: Request) -> StatementResponse:
     """Retrieve a single statement by its content hash."""
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
@@ -35,7 +35,7 @@ def get_statements_batch(  # type: ignore[no-any-return]
     request: StatementBatchRequest, req: Request
 ) -> StatementBatchResponse:
     """Retrieve multiple statements by their content hashes in a batch request."""
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
@@ -47,7 +47,7 @@ def get_most_used_statements(  # type: ignore[no-any-return]
     request: MostUsedStatementsRequest, req: Request
 ) -> MostUsedStatementsResponse:
     """Get the most used statements based on reference count."""
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
@@ -62,7 +62,7 @@ def cleanup_orphaned_statements(  # type: ignore[no-any-return]
     request: CleanupOrphanedRequest, req: Request
 ) -> CleanupOrphanedResponse:
     """Clean up orphaned statements that are no longer referenced."""
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)

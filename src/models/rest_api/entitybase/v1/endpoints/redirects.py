@@ -23,7 +23,7 @@ async def create_entity_redirect(
     request: EntityRedirectRequest, req: Request
 ) -> EntityRedirectResponse:
     """Create a redirect for an entity."""
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = RedirectHandler(state=state)
@@ -39,7 +39,7 @@ async def create_entity_redirect(
 async def revert_entity_redirect(  # type: ignore[no-any-return]
     entity_id: str, request: RedirectRevertRequest, req: Request
 ) -> EntityRevertResponse:
-    state = req.app.state.state
+    state = req.app.state.clients
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = RedirectHandler(state=state)

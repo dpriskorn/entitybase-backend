@@ -13,7 +13,7 @@ from models.rest_api.entitybase.v1.endpoints import v1_router
 )
 async def get_batch_sitelinks(hashes: str, req: Request) -> dict[str, str]:
     """Get batch sitelink titles by hashes."""
-    state = req.app.state.state
+    state = req.app.state.clients
     hash_list = hashes.split(",")
     if len(hash_list) > 20:
         raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
@@ -34,7 +34,7 @@ async def get_batch_sitelinks(hashes: str, req: Request) -> dict[str, str]:
 )
 async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
     """Get batch labels by hashes."""
-    state = req.app.state.state
+    state = req.app.state.clients
     hash_list = hashes.split(",")
     if len(hash_list) > 20:
         raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
@@ -57,7 +57,7 @@ async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
 )
 async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
     """Get batch descriptions by hashes."""
-    state = req.app.state.state
+    state = req.app.state.clients
     hash_list = hashes.split(",")
     if len(hash_list) > 20:
         raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
@@ -80,7 +80,7 @@ async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
 )
 async def get_batch_aliases(hashes: str, req: Request) -> dict[str, list[str]]:
     """Get batch aliases by hashes."""
-    state = req.app.state.state
+    state = req.app.state.clients
     hash_list = hashes.split(",")
     if len(hash_list) > 20:
         raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
@@ -107,7 +107,7 @@ async def get_batch_statements(
     """Get batch statements for entities and properties."""
     if req is None:
         raise HTTPException(status_code=500, detail="Request not provided")
-    state = req.app.state.state
+    state = req.app.state.clients
     entity_list = entity_ids.split(",")
     property_list = property_ids.split(",") if property_ids else None
     if len(entity_list) > 20:
