@@ -35,7 +35,8 @@ class MockVitessClient:
             return internal_id
         return None
 
-    def get_incoming_redirects(self, entity_id: str) -> list[str]:
+    @staticmethod
+    def get_incoming_redirects(entity_id: str) -> list[str]:
         return []  # Mock implementation returning empty list
 
     def get_redirect_target(self, entity_id: str) -> str | None:
@@ -50,7 +51,8 @@ class MockVitessClient:
     def is_entity_archived(self, entity_id: str) -> bool:
         return entity_id in self.archived_entities
 
-    def get_head(self, entity_id: int) -> int:
+    @staticmethod
+    def get_head(entity_id: int) -> int:
         """Get current head revision for entity (for testing)"""
         return 42
 

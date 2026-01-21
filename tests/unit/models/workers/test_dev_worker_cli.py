@@ -2,9 +2,9 @@
 
 import pytest
 
-pytestmark = pytest.mark.unit
 from unittest.mock import patch, MagicMock, AsyncMock
 from models.workers.dev.__main__ import main
+pytestmark = pytest.mark.unit
 
 
 class TestDevWorkerCLI:

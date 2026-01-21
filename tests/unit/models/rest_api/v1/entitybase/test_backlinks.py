@@ -3,10 +3,10 @@ from unittest.mock import MagicMock
 import pytest
 from fastapi import HTTPException
 
-pytestmark = pytest.mark.unit
-
 from models.rest_api.entitybase.v1.handlers.entity.backlinks import BacklinkHandler
 from models.rest_api.entitybase.v1.response.entity.backlinks import BacklinkResponse
+
+pytestmark = pytest.mark.unit
 
 
 class TestBacklinkHandler:

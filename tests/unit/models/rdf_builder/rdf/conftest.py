@@ -5,8 +5,6 @@ from pathlib import Path
 
 import pytest
 
-pytestmark = pytest.mark.unit
-
 from models.rdf_builder.ontology.datatypes import property_shape
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 import csv
@@ -16,6 +14,8 @@ logger = logging.getLogger(__name__)
 # Resolve project root:
 # tests/rdf/conftest.py → tests/rdf → tests → project root
 # PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+pytestmark = pytest.mark.unit
 
 
 def load_text(path: Path) -> str:

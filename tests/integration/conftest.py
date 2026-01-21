@@ -6,6 +6,7 @@ import pytest
 import requests
 
 sys.path.insert(0, "src")
+# noinspection PyPep8
 from models.config.settings import settings
 
 

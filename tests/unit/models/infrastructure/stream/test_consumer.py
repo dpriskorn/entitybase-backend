@@ -3,9 +3,9 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-pytestmark = pytest.mark.unit
-
 from models.infrastructure.stream.consumer import Consumer, EntityChangeEvent
+
+pytestmark = pytest.mark.unit
 
 
 class TestEntityChangeEvent:

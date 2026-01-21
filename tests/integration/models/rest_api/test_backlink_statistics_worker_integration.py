@@ -5,6 +5,7 @@ import pytest
 
 sys.path.insert(0, "src")
 
+# noinspection PyPep8
 from models.workers.backlink_statistics.backlink_statistics_worker import (
     BacklinkStatisticsWorker,
 )

@@ -2,8 +2,8 @@
 
 import pytest
 
-pytestmark = pytest.mark.unit
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
+pytestmark = pytest.mark.unit
 
 
 def test_basic_deduplication() -> None:

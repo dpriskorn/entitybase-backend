@@ -22,6 +22,7 @@ def fix_test_annotations(filepath):
             f.writelines(lines)
         print(f"Fixed {filepath}")
 
+
 if __name__ == '__main__':
     for root, dirs, files in os.walk('tests'):
         for file in files:
