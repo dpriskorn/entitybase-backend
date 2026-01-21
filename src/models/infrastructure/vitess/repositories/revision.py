@@ -66,22 +66,22 @@ class RevisionRepository(Repository):
         logger.debug(f"Getting revision {revision_id} for entity {internal_entity_id}")
         with vitess_client.get_connection() as _:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
-                    (internal_entity_id, revision_id),
-                )
-                row = cursor.fetchone()
-                if row:
-                    return {
-                        "statements": json.loads(row[0]) if row[0] else [],
-                        "properties": json.loads(row[1]) if row[1] else [],
-                        "property_counts": json.loads(row[2]) if row[2] else {},
-                        "labels_hashes": json.loads(row[3]) if row[3] else {},
-                        "descriptions_hashes": json.loads(row[4]) if row[4] else {},
-                        "aliases_hashes": json.loads(row[5]) if row[5] else {},
-                        "sitelinks_hashes": json.loads(row[6]) if row[6] else {},
-                    }
-                return None
+            cursor.execute(
+                "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                (internal_entity_id, revision_id),
+            )
+            row = cursor.fetchone()
+            if row:
+                return {
+                    "statements": json.loads(row[0]) if row[0] else [],
+                    "properties": json.loads(row[1]) if row[1] else [],
+                    "property_counts": json.loads(row[2]) if row[2] else {},
+                    "labels_hashes": json.loads(row[3]) if row[3] else {},
+                    "descriptions_hashes": json.loads(row[4]) if row[4] else {},
+                    "aliases_hashes": json.loads(row[5]) if row[5] else {},
+                    "sitelinks_hashes": json.loads(row[6]) if row[6] else {},
+                }
+            return None
 
     def revert_entity(
         self,
@@ -108,69 +108,69 @@ class RevisionRepository(Repository):
         # Get next revision ID
         with vitess_client.get_connection() as conn:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    "SELECT COALESCE(MAX(revision_id), 0) + 1 FROM entity_revisions WHERE internal_id = %s",
-                    (internal_entity_id,),
-                )
-                new_revision_id = cursor.fetchone()[0]
+            cursor.execute(
+                "SELECT COALESCE(MAX(revision_id), 0) + 1 FROM entity_revisions WHERE internal_id = %s",
+                (internal_entity_id,),
+            )
+            new_revision_id = cursor.fetchone()[0]
 
-                # Insert the reverted revision
-                cursor.execute(
-                    """INSERT INTO entity_revisions
-                            (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes)
-                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                    (
-                        internal_entity_id,
-                        new_revision_id,
-                        False,  # is_mass_edit
-                        "revert",
-                        json.dumps(target_data["statements"]),  # type: ignore[index]
-                        json.dumps(target_data["properties"]),  # type: ignore[index]
-                        json.dumps(target_data["property_counts"]),  # type: ignore[index]
-                        json.dumps(target_data["labels_hashes"]),  # type: ignore[index]
-                        json.dumps(target_data["descriptions_hashes"]),  # type: ignore[index]
-                        json.dumps(target_data["aliases_hashes"]),  # type: ignore[index]
-                    ),
-                )
+            # Insert the reverted revision
+            cursor.execute(
+                """INSERT INTO entity_revisions
+                        (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                (
+                    internal_entity_id,
+                    new_revision_id,
+                    False,  # is_mass_edit
+                    "revert",
+                    json.dumps(target_data["statements"]),  # type: ignore[index]
+                    json.dumps(target_data["properties"]),  # type: ignore[index]
+                    json.dumps(target_data["property_counts"]),  # type: ignore[index]
+                    json.dumps(target_data["labels_hashes"]),  # type: ignore[index]
+                    json.dumps(target_data["descriptions_hashes"]),  # type: ignore[index]
+                    json.dumps(target_data["aliases_hashes"]),  # type: ignore[index]
+                ),
+            )
 
-                # Update head
-                cursor.execute(
-                    "UPDATE entity_head SET head_revision_id = %s WHERE internal_id = %s",
-                    (new_revision_id, internal_entity_id),
-                )
+            # Update head
+            cursor.execute(
+                "UPDATE entity_head SET head_revision_id = %s WHERE internal_id = %s",
+                (new_revision_id, internal_entity_id),
+            )
 
-                # Log the revert
-                entity_id = self.state.vitess_client.id_resolver.resolve_entity_id(
-                    conn, internal_entity_id
-                )
-                cursor.execute(
-                    """INSERT INTO revert_log
-                            (entity_id, internal_entity_id, from_revision_id, to_revision_id, reverted_by_user_id, reason, watchlist_context)
-                            VALUES (%s, %s, (SELECT head_revision_id FROM entity_head WHERE internal_id = %s), %s, %s, %s, %s)""",
-                    (
-                        entity_id,
-                        internal_entity_id,
-                        internal_entity_id,
-                        to_revision_id,
-                        reverted_by_user_id,
-                        reason,
-                        json.dumps(watchlist_context) if watchlist_context else None,
-                    ),
-                )
+            # Log the revert
+            entity_id = self.state.vitess_client.id_resolver.resolve_entity_id(
+                conn, internal_entity_id
+            )
+            cursor.execute(
+                """INSERT INTO revert_log
+                        (entity_id, internal_entity_id, from_revision_id, to_revision_id, reverted_by_user_id, reason, watchlist_context)
+                        VALUES (%s, %s, (SELECT head_revision_id FROM entity_head WHERE internal_id = %s), %s, %s, %s, %s)""",
+                (
+                    entity_id,
+                    internal_entity_id,
+                    internal_entity_id,
+                    to_revision_id,
+                    reverted_by_user_id,
+                    reason,
+                    json.dumps(watchlist_context) if watchlist_context else None,
+                ),
+            )
 
-                # Log user activity
-                activity_result = (
-                    self.state.vitess_client.user_repository.log_user_activity(
-                        user_id=reverted_by_user_id,
-                        activity_type="entity_revert",
-                        entity_id=entity_id,
-                        revision_id=new_revision_id,
-                    )
+            # Log user activity
+            activity_result = (
+                self.state.vitess_client.user_repository.log_user_activity(
+                    user_id=reverted_by_user_id,
+                    activity_type="entity_revert",
+                    entity_id=entity_id,
+                    revision_id=new_revision_id,
                 )
-                if not activity_result.success:
-                    logger.warning(
-                        f"Failed to log user activity: {activity_result.error}"
-                    )
+            )
+            if not activity_result.success:
+                logger.warning(
+                    f"Failed to log user activity: {activity_result.error}"
+                )
 
         return int(new_revision_id)
 
@@ -189,16 +189,16 @@ class RevisionRepository(Repository):
                 "SELECT revision_id, created_at, user_id, edit_summary FROM entity_revisions WHERE internal_id = %s ORDER BY revision_id DESC LIMIT %s OFFSET %s",
                 (internal_id, limit, offset),
             )
-            result = [
-                RevisionRecord(
-                    revision_id=row[0],
-                    created_at=row[1].isoformat() if row[1] else "",
-                    user_id=row[2],
-                    edit_summary=row[3] or "",
-                )
-                for row in cursor.fetchall()
-            ]
-            return result
+        result = [
+            RevisionRecord(
+                revision_id=row[0],
+                created_at=row[1].isoformat() if row[1] else "",
+                user_id=row[2],
+                edit_summary=row[3] or "",
+            )
+            for row in cursor.fetchall()
+        ]
+        return result
 
     def delete(self, entity_id: str, revision_id: int) -> OperationResult:
         """Delete a revision (for rollback)."""
@@ -259,27 +259,27 @@ class RevisionRepository(Repository):
 
         cursor.execute(
                 """UPDATE entity_head
-                       SET head_revision_id = %s,
-                           is_semi_protected = %s,
-                           is_locked = %s,
-                           is_archived = %s,
-                           is_dangling = %s,
-                           is_mass_edit_protected = %s
-                       WHERE internal_id = %s AND head_revision_id = %s""",
-                (
-                    revision_id,
-                    data.get("is_semi_protected", False),
-                    data.get("is_locked", False),
-                    data.get("is_archived", False),
-                    data.get("is_dangling", False),
-                    data.get("is_mass_edit_protected", False),
-                    internal_id,
-                    expected_revision_id,
-                ),
-            )
+                   SET head_revision_id = %s,
+                       is_semi_protected = %s,
+                       is_locked = %s,
+                       is_archived = %s,
+                       is_dangling = %s,
+                       is_mass_edit_protected = %s
+                   WHERE internal_id = %s AND head_revision_id = %s""",
+            (
+                revision_id,
+                data.get("is_semi_protected", False),
+                data.get("is_locked", False),
+                data.get("is_archived", False),
+                data.get("is_dangling", False),
+                data.get("is_mass_edit_protected", False),
+                internal_id,
+                expected_revision_id,
+            ),
+        )
 
-            affected_rows = int(cursor.rowcount)
-            return affected_rows > 0
+        affected_rows = int(cursor.rowcount)
+        return affected_rows > 0
 
     def create(self, entity_id: str, revision_id: int, data: dict) -> None:
         """Create a new revision for an entity."""
@@ -290,31 +290,31 @@ class RevisionRepository(Repository):
 
         cursor = self.vitess_client.cursor
         cursor.execute(
-                """INSERT INTO entity_revisions 
-                        (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-                (
-                    internal_id,
-                    revision_id,
-                    data.get("is_mass_edit", False),
-                    data.get("edit_type", ""),
-                    json.dumps(data.get("hashes", [])),
-                    json.dumps(data.get("properties", [])),
-                    json.dumps(data.get("property_counts", {})),
-                ),
-            )
+            """INSERT INTO entity_revisions 
+                    (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+            (
+                internal_id,
+                revision_id,
+                data.get("is_mass_edit", False),
+                data.get("edit_type", ""),
+                json.dumps(data.get("hashes", [])),
+                json.dumps(data.get("properties", [])),
+                json.dumps(data.get("property_counts", {})),
+            ),
+        )
 
         cursor.execute(
-                """INSERT INTO entity_head
-                       (internal_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected)
-                       VALUES (%s, %s, %s, %s, %s, %s, %s)""",
-                (
-                    internal_id,
-                    revision_id,
-                    data.get("is_semi_protected", False),
-                    data.get("is_locked", False),
-                    data.get("is_archived", False),
-                    data.get("is_dangling", False),
-                    data.get("is_mass_edit_protected", False),
-                ),
-            )
+            """INSERT INTO entity_head
+                   (internal_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+            (
+                internal_id,
+                revision_id,
+                data.get("is_semi_protected", False),
+                data.get("is_locked", False),
+                data.get("is_archived", False),
+                data.get("is_dangling", False),
+                data.get("is_mass_edit_protected", False),
+            ),
+        )

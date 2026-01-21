@@ -1,10 +1,7 @@
 """Repository for managing watchlists in Vitess."""
 
-import json
 import logging
-from typing import Any, List
-
-import pymysql
+from typing import List
 
 from models.common import OperationResult
 from models.infrastructure.vitess.repository import Repository
