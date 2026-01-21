@@ -216,14 +216,14 @@ class RevisionRepository(Repository):
             return OperationResult(success=False, error="Entity not found")
         cursor = self.vitess_client.cursor
         cursor.execute(
-                "DELETE FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
-                (internal_id, revision_id),
-            )
-            # Also delete from entity_head if it's the head
+            "DELETE FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+            (internal_id, revision_id),
+        )
+        # Also delete from entity_head if it's the head
         cursor.execute(
-                "UPDATE entity_head SET head_revision_id = head_revision_id - 1 WHERE internal_id = %s AND head_revision_id = %s",
-                (internal_id, revision_id),
-            )
+            "UPDATE entity_head SET head_revision_id = head_revision_id - 1 WHERE internal_id = %s AND head_revision_id = %s",
+            (internal_id, revision_id),
+        )
         return OperationResult(success=True)
 
     def create_with_cas(

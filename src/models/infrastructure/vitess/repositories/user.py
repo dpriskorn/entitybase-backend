@@ -6,6 +6,7 @@ from typing import Any, List
 
 from models.common import OperationResult
 from models.infrastructure.vitess.repository import Repository
+from models.rest_api.entitybase.v1.request.enums import UserActivityType
 from models.rest_api.entitybase.v1.response.user import UserResponse
 from models.rest_api.entitybase.v1.response.user_activity import (
     UserActivityItemResponse,
@@ -33,14 +34,14 @@ class UserRepository(Repository):
         """
         try:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    """
-                    INSERT INTO users (user_id)
-                    VALUES (%s)
-                    ON DUPLICATE KEY UPDATE user_id = user_id
-                    """,
-                    (user_id,),
-                )
+            cursor.execute(
+                """
+                INSERT INTO users (user_id)
+                VALUES (%s)
+                ON DUPLICATE KEY UPDATE user_id = user_id
+                """,
+                (user_id,),
+            )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
@@ -59,27 +60,27 @@ class UserRepository(Repository):
 
         cursor = self.vitess_client.cursor
         cursor.execute(
-                "SELECT 1 FROM users WHERE user_id = %s",
-                (user_id,),
-            )
-            return cursor.fetchone() is not None
+            "SELECT 1 FROM users WHERE user_id = %s",
+            (user_id,),
+        )
+        return cursor.fetchone() is not None
 
     def get_user(self, user_id: int) -> UserResponse | None:
         """Get user data by ID."""
 
         cursor = self.vitess_client.cursor
         cursor.execute(
-                "SELECT user_id, created_at, preferences FROM users WHERE user_id = %s",
-                (user_id,),
+            "SELECT user_id, created_at, preferences FROM users WHERE user_id = %s",
+            (user_id,),
+        )
+        row = cursor.fetchone()
+        if row:
+            return UserResponse(
+                user_id=row[0],
+                created_at=row[1],
+                preferences=row[2],
             )
-            row = cursor.fetchone()
-            if row:
-                return UserResponse(
-                    user_id=row[0],
-                    created_at=row[1],
-                    preferences=row[2],
-                )
-            return None
+        return None
 
     def update_user_activity(self, user_id: int) -> OperationResult:
         """Update user's last activity timestamp."""
@@ -88,10 +89,10 @@ class UserRepository(Repository):
 
         try:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    "UPDATE users SET last_activity = NOW() WHERE user_id = %s",
-                    (user_id,),
-                )
+            cursor.execute(
+                "UPDATE users SET last_activity = NOW() WHERE user_id = %s",
+                (user_id,),
+            )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
@@ -101,11 +102,11 @@ class UserRepository(Repository):
 
         cursor = self.vitess_client.cursor
         cursor.execute(
-                "SELECT watchlist_enabled FROM users WHERE user_id = %s",
-                (user_id,),
-            )
-            row = cursor.fetchone()
-            return bool(row[0]) if row else False
+            "SELECT watchlist_enabled FROM users WHERE user_id = %s",
+            (user_id,),
+        )
+        row = cursor.fetchone()
+        return bool(row[0]) if row else False
 
     def set_watchlist_enabled(self, user_id: int, enabled: bool) -> OperationResult:
         """Enable or disable watchlist for user."""
@@ -114,10 +115,10 @@ class UserRepository(Repository):
 
         try:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    "UPDATE users SET watchlist_enabled = %s WHERE user_id = %s",
-                    (enabled, user_id),
-                )
+            cursor.execute(
+                "UPDATE users SET watchlist_enabled = %s WHERE user_id = %s",
+                (enabled, user_id),
+            )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
@@ -153,13 +154,13 @@ class UserRepository(Repository):
 
         try:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    """
-                    INSERT INTO user_activity (user_id, activity_type, entity_id, revision_id)
-                    VALUES (%s, %s, %s, %s)
-                    """,
-                    (user_id, activity_type.value, entity_id, revision_id),
-                )
+            cursor.execute(
+                """
+                INSERT INTO user_activity (user_id, activity_type, entity_id, revision_id)
+                VALUES (%s, %s, %s, %s)
+                """,
+                (user_id, activity_type.value, entity_id, revision_id),
+            )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
@@ -171,20 +172,20 @@ class UserRepository(Repository):
 
         try:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    "SELECT notification_limit, retention_hours FROM users WHERE user_id = %s",
-                    (user_id,),
-                )
-                row = cursor.fetchone()
-                if row:
-                    prefs = {
-                        "notification_limit": row[0],
-                        "retention_hours": row[1],
-                    }
-                    return OperationResult(success=True, data=prefs)
-                return OperationResult(
-                    success=False, error="User preferences not found"
-                )
+            cursor.execute(
+                "SELECT notification_limit, retention_hours FROM users WHERE user_id = %s",
+                (user_id,),
+            )
+            row = cursor.fetchone()
+            if row:
+                prefs = {
+                    "notification_limit": row[0],
+                    "retention_hours": row[1],
+                }
+                return OperationResult(success=True, data=prefs)
+            return OperationResult(
+                success=False, error="User preferences not found"
+            )
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -200,10 +201,10 @@ class UserRepository(Repository):
 
         try:
             cursor = self.vitess_client.cursor
-                cursor.execute(
-                    "UPDATE users SET notification_limit = %s, retention_hours = %s WHERE user_id = %s",
-                    (notification_limit, retention_hours, user_id),
-                )
+            cursor.execute(
+                "UPDATE users SET notification_limit = %s, retention_hours = %s WHERE user_id = %s",
+                (notification_limit, retention_hours, user_id),
+            )
             return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
@@ -235,22 +236,22 @@ class UserRepository(Repository):
             )
 
             cursor = self.vitess_client.cursor
-                query = """
-                    SELECT id, user_id, activity_type, entity_id, revision_id, created_at
-                    FROM user_activity
-                    WHERE user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
-                """
-                params: List[Any] = [user_id, hours]
+            query = """
+                SELECT id, user_id, activity_type, entity_id, revision_id, created_at
+                FROM user_activity
+                WHERE user_id = %s AND created_at >= NOW() - INTERVAL %s HOUR
+            """
+            params: List[Any] = [user_id, hours]
 
-                if activity_type:
-                    query += " AND activity_type = %s"
-                    params.append(activity_type)
+            if activity_type:
+                query += " AND activity_type = %s"
+                params.append(activity_type)
 
-                query += " ORDER BY created_at DESC LIMIT %s OFFSET %s"
-                params.extend([limit, offset])
+            query += " ORDER BY created_at DESC LIMIT %s OFFSET %s"
+            params.extend([limit, offset])
 
-                cursor.execute(query, params)
-                rows = cursor.fetchall()
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
 
             activities = []
             for row in rows:
@@ -313,42 +314,42 @@ class UserRepository(Repository):
         logger.debug(f"Inserting general statistics for date {date}")
 
         cursor = self.vitess_client.cursor
-            try:
-                cursor.execute(
-                    """
-                    INSERT INTO general_daily_stats
-                    (stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, terms_per_language, terms_by_type)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    ON DUPLICATE KEY UPDATE
-                    total_statements = VALUES(total_statements),
-                    total_qualifiers = VALUES(total_qualifiers),
-                    total_references = VALUES(total_references),
-                    total_items = VALUES(total_items),
-                    total_lexemes = VALUES(total_lexemes),
-                    total_properties = VALUES(total_properties),
-                    total_sitelinks = VALUES(total_sitelinks),
-                    total_terms = VALUES(total_terms),
-                    terms_per_language = VALUES(terms_per_language),
-                    terms_by_type = VALUES(terms_by_type)
-                    """,
-                    (
-                        date,
-                        total_statements,
-                        total_qualifiers,
-                        total_references,
-                        total_items,
-                        total_lexemes,
-                        total_properties,
-                        total_sitelinks,
-                        total_terms,
-                        json.dumps(terms_per_language),
-                        json.dumps(terms_by_type),
-                    ),
-                )
-                logger.info(f"Successfully stored general statistics for {date}")
-            except Exception as e:
-                logger.error(f"Failed to insert general statistics for {date}: {e}")
-                raise
+        try:
+            cursor.execute(
+                """
+                INSERT INTO general_daily_stats
+                (stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, terms_per_language, terms_by_type)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                total_statements = VALUES(total_statements),
+                total_qualifiers = VALUES(total_qualifiers),
+                total_references = VALUES(total_references),
+                total_items = VALUES(total_items),
+                total_lexemes = VALUES(total_lexemes),
+                total_properties = VALUES(total_properties),
+                total_sitelinks = VALUES(total_sitelinks),
+                total_terms = VALUES(total_terms),
+                terms_per_language = VALUES(terms_per_language),
+                terms_by_type = VALUES(terms_by_type)
+                """,
+                (
+                    date,
+                    total_statements,
+                    total_qualifiers,
+                    total_references,
+                    total_items,
+                    total_lexemes,
+                    total_properties,
+                    total_sitelinks,
+                    total_terms,
+                    json.dumps(terms_per_language),
+                    json.dumps(terms_by_type),
+                ),
+            )
+            logger.info(f"Successfully stored general statistics for {date}")
+        except Exception as e:
+            logger.error(f"Failed to insert general statistics for {date}: {e}")
+            raise
 
     def insert_user_statistics(
         self,
@@ -381,23 +382,23 @@ class UserRepository(Repository):
         logger.debug(f"Inserting user statistics for date {date}")
 
         cursor = self.vitess_client.cursor
-            try:
-                cursor.execute(
-                    """
-                    INSERT INTO user_daily_stats
-                    (stat_date, total_users, active_users)
-                    VALUES (%s, %s, %s)
-                    ON DUPLICATE KEY UPDATE
-                    total_users = VALUES(total_users),
-                    active_users = VALUES(active_users)
-                    """,
-                    (
-                        date,
-                        total_users,
-                        active_users,
-                    ),
-                )
-                logger.info(f"Successfully stored user statistics for {date}")
-            except Exception as e:
-                logger.error(f"Failed to insert user statistics for {date}: {e}")
-                raise
+        try:
+            cursor.execute(
+                """
+                INSERT INTO user_daily_stats
+                (stat_date, total_users, active_users)
+                VALUES (%s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                total_users = VALUES(total_users),
+                active_users = VALUES(active_users)
+                """,
+                (
+                    date,
+                    total_users,
+                    active_users,
+                ),
+            )
+            logger.info(f"Successfully stored user statistics for {date}")
+        except Exception as e:
+            logger.error(f"Failed to insert user statistics for {date}: {e}")
+            raise
