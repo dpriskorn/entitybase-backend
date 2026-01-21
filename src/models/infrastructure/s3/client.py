@@ -54,10 +54,10 @@ class MyS3Client(BaseModel):
 
         # Initialize storage components
         self.revisions = RevisionStorage(connection_manager=self.connection_manager)
-        self.statements = StatementStorage(self.connection_manager)
-        self.metadata = MetadataStorage(self.connection_manager)
-        self.references = ReferenceStorage(self.connection_manager)
-        self.qualifiers = QualifierStorage(self.connection_manager)
+        self.statements = StatementStorage(connection_manager=self.connection_manager)
+        self.metadata = MetadataStorage(connection_manager=self.connection_manager)
+        self.references = ReferenceStorage(connection_manager=self.connection_manager)
+        self.qualifiers = QualifierStorage(connection_manager=self.connection_manager)
 
     def write_revision(
         self,
