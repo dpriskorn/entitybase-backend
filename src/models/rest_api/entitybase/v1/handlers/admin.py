@@ -1,10 +1,8 @@
 """Admin API handlers for system management."""
 
 import logging
-from typing import TYPE_CHECKING
 
 from models.rest_api.entitybase.v1.handler import Handler
-
 from models.rest_api.entitybase.v1.response import EntityListResponse
 from models.rest_api.entitybase.v1.response.misc import RawRevisionResponse
 from models.rest_api.utils import raise_validation_error
@@ -33,6 +31,7 @@ class AdminHandler(Handler):
         # Build response with ID and revision info
         entities = []
         for entity_id in entity_ids:
+            # noinspection PyBroadException
             try:
                 head_revision_id = self.state.vitess_client.get_head(entity_id)
                 entities.append(

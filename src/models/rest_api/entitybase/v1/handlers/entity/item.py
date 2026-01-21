@@ -5,8 +5,6 @@ import traceback
 from datetime import datetime
 from typing import Any
 
-from markdown_it.rules_inline import entity
-
 from models.infrastructure.s3.enums import EntityType
 from models.infrastructure.stream.change_type import ChangeType
 from models.rest_api.entitybase.v1.request import EntityCreateRequest

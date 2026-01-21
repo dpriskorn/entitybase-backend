@@ -60,7 +60,8 @@ class EnumerationService(BaseModel):
         """Get status of ID ranges for monitoring."""
         return self.range_manager.get_range_status()
 
-    def confirm_id_usage(self, entity_id: str) -> None:
+    @staticmethod
+    def confirm_id_usage(entity_id: str) -> None:
         """Confirm that an ID has been successfully used (handshake with worker)."""
         # Extract prefix and number
         prefix = entity_id[0]

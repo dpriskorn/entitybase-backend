@@ -20,7 +20,8 @@ class MetadataStorage(BaseS3Storage):
 
     bucket: str = ""  # we use a method to get the right bucket
 
-    def _get_bucket_for_type(self, metadata_type: MetadataType) -> str:
+    @staticmethod
+    def _get_bucket_for_type(metadata_type: MetadataType) -> str:
         """Get the appropriate bucket for metadata type."""
         if metadata_type in (
             MetadataType.LABELS,

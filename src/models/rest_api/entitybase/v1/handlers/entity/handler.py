@@ -2,7 +2,7 @@
 
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict, TYPE_CHECKING
+from typing import Any, Dict
 
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -36,7 +36,6 @@ from .exceptions import EntityProcessingError
 from ...handler import Handler
 from ...result import RevisionResult
 from ...services.statement_service import StatementService
-
 
 logger = logging.getLogger(__name__)
 
@@ -139,7 +138,8 @@ class EntityHandler(Handler):
         # Build response
         return await self._build_entity_response(ctx, result)
 
-    def _validate_revision_request(self, ctx: RevisionContext) -> None:
+    @staticmethod
+    def _validate_revision_request(ctx: RevisionContext) -> None:
         """Validate the revision request."""
         # Basic validation
         if not ctx.entity_id:
@@ -225,9 +225,9 @@ class EntityHandler(Handler):
         hashing_service = EntityHashingService(state=self.state)
         return await hashing_service.hash_sitelinks(ctx.request_data, ctx.s3_client)
 
+    @staticmethod
     def _build_revision_data_new(
-        self,
-        ctx: RevisionContext,
+            ctx: RevisionContext,
         hash_result: StatementHashResult,
         term_hashes: HashMaps,
         sitelink_hashes: Any,
@@ -274,8 +274,9 @@ class EntityHandler(Handler):
         # Placeholder - would implement S3 storage logic
         pass
 
+    @staticmethod
     async def _publish_events_new(
-        self, ctx: RevisionContext, result: RevisionResult
+            ctx: RevisionContext, result: RevisionResult
     ) -> None:
         """Publish revision events."""
         if ctx.stream_producer and result.revision_id:
@@ -295,8 +296,9 @@ class EntityHandler(Handler):
             except Exception as e:
                 logger.warning(f"Failed to publish event for {ctx.entity_id}: {e}")
 
+    @staticmethod
     async def _build_entity_response(
-        self, ctx: RevisionContext, result: RevisionResult
+            ctx: RevisionContext, result: RevisionResult
     ) -> EntityResponse:
         """Build EntityResponse from revision result."""
         if not result.success or not result.revision_id:
@@ -543,7 +545,7 @@ class EntityHandler(Handler):
         property_id: str,
         request: AddPropertyRequest,
         validator: Any | None = None,
-        user_id: int = 0,
+        # user_id: int = 0,
     ) -> OperationResult[RevisionIdResult]:
         """Add claims for a single property to an existing entity."""
         logger.info(

@@ -78,7 +78,8 @@ class IdRangeManager(BaseModel):
             logger.error(f"Failed to allocate range for {entity_type}: {e}")
             raise
 
-    def _should_allocate_new_range(self, range_obj: IdRange) -> bool:
+    @staticmethod
+    def _should_allocate_new_range(range_obj: IdRange) -> bool:
         """Check if we should allocate a new range (when 80% of current range is used)."""
         ids_used = range_obj.next_id - range_obj.current_start
         return ids_used > (range_obj.current_end - range_obj.current_start) * 0.8

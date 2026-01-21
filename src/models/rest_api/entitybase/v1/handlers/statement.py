@@ -3,7 +3,6 @@
 import logging
 
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
-from typing_extensions import TYPE_CHECKING
 
 from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.request.misc import CleanupOrphanedRequest
@@ -18,7 +17,6 @@ from models.rest_api.entitybase.v1.response import (
     StatementResponse,
 )
 from models.rest_api.utils import raise_validation_error
-
 
 logger = logging.getLogger(__name__)
 

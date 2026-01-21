@@ -1,7 +1,6 @@
 """Data export handlers for RDF and TTL formats."""
 
 import logging
-from typing import TYPE_CHECKING
 
 from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.response import TurtleResponse
@@ -9,7 +8,6 @@ from models.rest_api.entitybase.v1.services.rdf_service import (
     serialize_entity_to_turtle,
 )
 from models.rest_api.utils import raise_validation_error
-
 
 logger = logging.getLogger(__name__)
 

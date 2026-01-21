@@ -83,20 +83,6 @@ class GeneralStatsService(Service):
         result = cursor.fetchone()
         return result[0] if result else 0
 
-    def get_total_lexemes(self) -> int:
-        """Count total lexemes."""
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute("SELECT COUNT(*) FROM entities WHERE type = 'lexeme'")
-                result = cursor.fetchone()
-                return result[0] if result else 0
-
-    def get_total_properties(self) -> int:
-        """Count total properties."""
-        cursor = self.state.vitess_client.cursor
-        cursor.execute("SELECT COUNT(*) FROM entities WHERE type = 'property'")
-        result = cursor.fetchone()
-        return result[0] if result else 0
 
     def get_total_sitelinks(self) -> int:
         """Count total sitelinks."""
@@ -109,27 +95,6 @@ class GeneralStatsService(Service):
         """Count total terms."""
         cursor = self.state.vitess_client.cursor
         cursor.execute("SELECT COUNT(*) FROM terms")
-        result = cursor.fetchone()
-        return result[0] if result else 0
-
-    def get_total_sitelinks(self) -> int:
-        """Count total sitelinks."""
-        cursor = self.state.vitess_client.cursor
-        cursor.execute("SELECT COUNT(*) FROM sitelinks")
-        result = cursor.fetchone()
-        return result[0] if result else 0
-
-    def get_total_terms(self) -> int:
-        """Count total terms (labels + descriptions + aliases)."""
-        cursor = self.state.vitess_client.cursor
-        cursor.execute(
-            """
-            SELECT
-                (SELECT COUNT(*) FROM labels) +
-                (SELECT COUNT(*) FROM descriptions) +
-                (SELECT COUNT(*) FROM aliases) AS total_terms
-            """
-        )
         result = cursor.fetchone()
         return result[0] if result else 0
 

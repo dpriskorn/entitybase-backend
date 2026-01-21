@@ -3,8 +3,6 @@
 import logging
 from typing import Any
 
-logger = logging.getLogger(__name__)
-
 from models.rest_api.utils import raise_validation_error
 from models.internal_representation.values.base import Value
 
@@ -27,6 +25,7 @@ from .values.somevalue_value_parser import parse_somevalue_value
 from models.internal_representation.datatypes import Datatype
 from models.internal_representation.json_fields import JsonField
 
+logger = logging.getLogger(__name__)
 
 PARSERS = {
     "wikibase-entityid": parse_entity_value,

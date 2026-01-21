@@ -39,7 +39,8 @@ class JsonSchemaValidator:
         self._statement_validator: Draft202012Validator | None = None
         self._recentchange_validator: Draft202012Validator | None = None
 
-    def _load_schema(self, schema_path: str) -> JsonSchema:
+    @staticmethod
+    def _load_schema(schema_path: str) -> JsonSchema:
         schema_file = Path(schema_path)
         if not schema_file.exists():
             raise_validation_error(

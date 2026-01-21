@@ -13,6 +13,7 @@ from models.config.settings import settings
 from models.rest_api.entitybase.v1.endpoints import v1_router
 from models.rest_api.state import State
 from models.validation.json_schema_validator import JsonSchemaValidator
+from models.rest_api.entitybase.v1.routes import include_routes
 
 log_level = settings.get_log_level()
 
@@ -150,8 +151,6 @@ async def validation_error_handler(exc: ValidationError) -> JSONResponse:
         },
     )
 
-
-from models.rest_api.entitybase.v1.routes import include_routes
 
 include_routes(app)
 

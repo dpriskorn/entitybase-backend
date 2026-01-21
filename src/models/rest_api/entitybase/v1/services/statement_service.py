@@ -20,9 +20,9 @@ logger = logging.getLogger(__name__)
 
 
 class StatementService(Service):
+    @staticmethod
     def hash_entity_statements(
-        self,
-        entity_data: dict[str, Any],
+            entity_data: dict[str, Any],
     ) -> OperationResult:
         """Extract and hash statements from entity data.
 

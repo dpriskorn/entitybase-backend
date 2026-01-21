@@ -4,7 +4,6 @@ import logging
 
 from models.rest_api.entitybase.v1.handler import Handler
 
-logger = logging.getLogger(__name__)
 from models.rest_api.entitybase.v1.request.user import WatchlistRemoveRequest
 from models.rest_api.entitybase.v1.response.misc import WatchCounts
 from models.rest_api.entitybase.v1.response.user import (
@@ -17,6 +16,8 @@ from models.rest_api.entitybase.v1.request.watchlist import (
     MarkCheckedRequest,
 )
 from models.rest_api.entitybase.v1.response.watchlist import WatchlistResponse
+
+logger = logging.getLogger(__name__)
 
 
 class WatchlistHandler(Handler):

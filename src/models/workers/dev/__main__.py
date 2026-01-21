@@ -105,7 +105,7 @@ async def run_buckets_cleanup(args: Any) -> bool:
     return True
 
 
-async def run_tables_setup(args: Any) -> bool:
+async def run_tables_setup() -> bool:
     """Run table setup."""
     worker = CreateTables()
 
@@ -130,7 +130,7 @@ async def run_tables_setup(args: Any) -> bool:
     return results["setup_status"] == "completed"
 
 
-async def run_tables_health(args: Any) -> bool:
+async def run_tables_health() -> bool:
     """Run table health check."""
     worker = CreateTables()
 

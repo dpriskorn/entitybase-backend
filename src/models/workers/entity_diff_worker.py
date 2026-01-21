@@ -110,7 +110,8 @@ class RDFCanonicalizer:
 
         return triples
 
-    def _extract_triples_from_nquads(self, nquads: str) -> Set[Triple]:
+    @staticmethod
+    def _extract_triples_from_nquads(nquads: str) -> Set[Triple]:
         """Extract normalized triples from N-Quads/N-Triples format."""
         triples = set()
 
@@ -131,7 +132,8 @@ class RDFCanonicalizer:
 
         return triples
 
-    def _normalize_term(self, term: Any) -> str:
+    @staticmethod
+    def _normalize_term(term: Any) -> str:
         """Normalize an RDF term for comparison."""
         if hasattr(term, "n3"):
             return term.n3()  # type: ignore[no-any-return]
@@ -141,7 +143,8 @@ class RDFCanonicalizer:
 class RDFSerializer:
     """Serialize Wikibase entity data to RDF formats."""
 
-    def entity_data_to_rdf(self, entity_data: dict, format_: str = "turtle") -> str:
+    @staticmethod
+    def entity_data_to_rdf(entity_data: dict, format_: str = "turtle") -> str:
         """Convert Wikibase entity JSON data to RDF."""
         from rdflib import Graph, URIRef, Literal
         from rdflib.namespace import RDF, RDFS

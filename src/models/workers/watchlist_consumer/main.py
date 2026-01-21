@@ -114,8 +114,9 @@ class WatchlistConsumerWorker(VitessWorker):
         except Exception as e:
             logger.error(f"Error processing message {message}: {e}")
 
+    @staticmethod
     def _should_notify(
-        self, watched_properties: list[str] | None, changed_properties: list[str] | None
+            watched_properties: list[str] | None, changed_properties: list[str] | None
     ) -> bool:
         """Determine if user should be notified based on watched vs changed properties."""
         if watched_properties is None:
@@ -167,8 +168,6 @@ async def main() -> None:
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-
-
     worker = WatchlistConsumerWorker()
 
     # noinspection PyArgumentList
