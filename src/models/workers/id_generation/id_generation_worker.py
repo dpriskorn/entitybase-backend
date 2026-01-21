@@ -8,7 +8,6 @@ from typing import Any
 
 import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseModel, Field
 
 from models.rest_api.entitybase.v1.response import WorkerHealthCheckResponse
 from models.rest_api.entitybase.v1.response.id_response import IdResponse
@@ -16,11 +15,12 @@ from models.rest_api.entitybase.v1.services.enumeration_service import (
     EnumerationService,
 )
 from models.rest_api.utils import raise_validation_error
+from models.workers.notification_cleanup.main import VitessWorker
 
 logger = logging.getLogger(__name__)
 
 
-class IdGeneratorWorker(BaseModel):
+class IdGeneratorWorker(VitessWorker):
     """Asynchronous worker service for generating Wikibase entity IDs using range-based allocation.
 
     This worker reserves blocks (ranges) of IDs from the database to minimize contention
@@ -31,13 +31,7 @@ class IdGeneratorWorker(BaseModel):
     checking ID range availability. IDs are allocated from pre-reserved ranges to ensure
     efficient, low-latency ID generation.
     """
-
-    worker_id: str = Field(
-        default_factory=lambda: os.getenv("WORKER_ID", f"worker-{os.getpid()}")
-    )
-    vitess_client: Any = None
     enumeration_service: Any = None
-    running: bool = False
 
     def __init__(self, worker_id: str = "", **data: Any):
         """Initialize the ID generator worker.

@@ -3,24 +3,43 @@
 import asyncio
 import logging
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone, timedelta
 from typing import AsyncGenerator
 
 from models.config.settings import settings
 from models.infrastructure.vitess.client import VitessClient
+from models.workers.vitess_worker import VitessWorker
+
+from models.workers.worker import Worker
 
 logger = logging.getLogger(__name__)
 
 
-class NotificationCleanupWorker:
-    """Worker that periodically cleans up old notifications to enforce limits."""
 
-    def __init__(self) -> None:
-        logger = logging.getLogger(__name__)
-        self.vitess_client | None = None
-        # Configurable limits
-        self.max_age_days = 30
-        self.max_per_user = 500
+
+async def main() -> None:
+    """Main entry point for the notification cleanup worker."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+
+    worker = NotificationCleanupWorker()
+
+    # noinspection PyArgumentList
+    async with worker.lifespan():
+        # Run cleanup once (for manual execution or cron)
+        await worker.run_cleanup()
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+
+
+class NotificationCleanupWorker(VitessWorker):
+    """Worker that periodically cleans up old notifications to enforce limits."""
+    max_age_days = 30
+    max_per_user = 500
 
     @asynccontextmanager
     async def lifespan(self) -> AsyncGenerator[None, None]:
@@ -109,22 +128,3 @@ class NotificationCleanupWorker:
                 total_deleted += cursor.rowcount
 
         return total_deleted
-
-
-async def main() -> None:
-    """Main entry point for the notification cleanup worker."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
-
-    worker = NotificationCleanupWorker()
-
-    # noinspection PyArgumentList
-    async with worker.lifespan():
-        # Run cleanup once (for manual execution or cron)
-        await worker.run_cleanup()
-
-
-if __name__ == "__main__":
-    asyncio.run(main())

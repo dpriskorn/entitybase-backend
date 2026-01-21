@@ -12,11 +12,12 @@ from pydantic import BaseModel, Field
 from models.config.settings import settings
 from models.infrastructure.vitess.client import VitessClient
 from models.rest_api.entitybase.v1.response import WorkerHealthCheckResponse
+from models.workers.worker import Worker
 
 logger = logging.getLogger(__name__)
 
 
-class BaseStatsWorker(BaseModel, ABC):
+class BaseStatsWorker(Worker, ABC):
     """Base class for statistics workers."""
 
     vitess_client: Any
