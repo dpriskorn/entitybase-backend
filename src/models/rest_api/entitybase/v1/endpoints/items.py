@@ -34,7 +34,7 @@ async def create_item(request: EntityCreateRequest, req: Request) -> EntityRespo
     try:
         state = req.app.state.clients
         validator = req.app.state.validator
-        enumeration_service = req.app.state.enumeration_service
+        enumeration_service = req.app.state.clients.enumeration_service
 
         logger.debug(f"🔍 ENDPOINT: Services available - state: {state is not None}, validator: {validator is not None}, enum_svc: {enumeration_service is not None}")
 

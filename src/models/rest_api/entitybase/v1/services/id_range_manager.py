@@ -38,7 +38,7 @@ class IdRangeManager(BaseModel):
         """Get the next available ID for the given entity type.
         Allocates new ranges automatically when current range is exhausted.
         """
-        if entity_type not in self._local_ranges:
+        if entity_type not in self.local_ranges:
             self._ensure_range_available(entity_type)
 
         range_obj = self.local_ranges[entity_type]
@@ -65,7 +65,7 @@ class IdRangeManager(BaseModel):
 
     def _ensure_range_available(self, entity_type: str) -> None:
         """Ensure we have an available range for the given entity type."""
-        if entity_type in self._local_ranges:
+        if entity_type in self.local_ranges:
             return
 
         # Try to allocate a new range
@@ -73,7 +73,7 @@ class IdRangeManager(BaseModel):
             result = self._allocate_new_range(entity_type)
             if not result.success:
                 raise RuntimeError(result.error)
-            self._local_ranges[entity_type] = result.data  # type: ignore[assignment]
+            self.local_ranges[entity_type] = result.data  # type: ignore[assignment]
         except Exception as e:
             logger.error(f"Failed to allocate range for {entity_type}: {e}")
             raise
@@ -197,7 +197,7 @@ class IdRangeManager(BaseModel):
                     next_id = max(
                         start, max_used + 1, 900000 + int(time.time()) % 100000
                     )
-                    self._local_ranges[entity_type] = IdRange(
+                    self.local_ranges[entity_type] = IdRange(
                         entity_type=entity_type,
                         current_start=start,
                         current_end=end,
@@ -205,7 +205,7 @@ class IdRangeManager(BaseModel):
                     )
 
                 logger.info(
-                    f"Initialized {len(self._local_ranges)} ID ranges from database"
+                    f"Initialized {len(self.local_ranges)} ID ranges from database"
                 )
 
         except Exception as e:
@@ -215,7 +215,7 @@ class IdRangeManager(BaseModel):
     def get_range_status(self) -> RangeStatuses:
         """Get status of all local ranges for monitoring."""
         ranges = {}
-        for entity_type, range_obj in self._local_ranges.items():
+        for entity_type, range_obj in self.local_ranges.items():
             ids_used = range_obj.next_id - range_obj.current_start
             total_ids = range_obj.current_end - range_obj.current_start + 1
             utilization = ids_used / total_ids if total_ids > 0 else 0
