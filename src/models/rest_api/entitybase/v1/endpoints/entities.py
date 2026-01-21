@@ -133,9 +133,7 @@ async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse
     """Get entity data in Turtle format."""
     state = req.app.state.state
     handler = ExportHandler(state=state)
-    result = handler.get_entity_data_turtle(
-        entity_id
-    )
+    result = handler.get_entity_data_turtle(entity_id)
     if not isinstance(result, TurtleResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -162,9 +160,7 @@ async def delete_entity(  # type: ignore[no-any-return]
         raise_validation_error("Invalid clients type", status_code=500)
     # todo pass clients to the handler here
     handler = EntityDeleteHandler(state=state)
-    result = await handler.delete_entity(
-        entity_id, request
-    )
+    result = await handler.delete_entity(entity_id, request)
     if not isinstance(result, EntityDeleteResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -217,9 +213,7 @@ async def get_entity_property_hashes(
         raise_validation_error("Invalid clients type", status_code=500)
     # todo pass clients to the handler here
     handler = StatementHandler(state=state)
-    return handler.get_entity_property_hashes(
-        entity_id, property_list
-    )
+    return handler.get_entity_property_hashes(entity_id, property_list)
 
 
 @router.post(

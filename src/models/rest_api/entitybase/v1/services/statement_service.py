@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 class StatementService(Service):
-    def hash_entity_statements(self,
+    def hash_entity_statements(
+        self,
         entity_data: dict[str, Any],
     ) -> OperationResult:
         """Extract and hash statements from entity data.
@@ -40,7 +41,9 @@ class StatementService(Service):
                 return OperationResult(success=True, data=StatementHashResult())
 
             properties = StatementExtractor.extract_properties_from_claims(claims)
-            property_counts = StatementExtractor.compute_property_counts_from_claims(claims)
+            property_counts = StatementExtractor.compute_property_counts_from_claims(
+                claims
+            )
 
             claims_count = sum(len(claim_list) for claim_list in claims.values())
             logger.debug(
@@ -72,7 +75,9 @@ class StatementService(Service):
 
                 logger.debug(f"Property {property_id}: processed {count} statements")
 
-            logger.debug(f"Generated {len(statements)} hashes, properties: {properties}")
+            logger.debug(
+                f"Generated {len(statements)} hashes, properties: {properties}"
+            )
             logger.debug(f"Property counts: {property_counts}")
 
             result = StatementHashResult(
@@ -85,8 +90,8 @@ class StatementService(Service):
             logger.error(f"Failed to hash entity statements: {e}", exc_info=True)
             return OperationResult(success=False, error=str(e))
 
-
-    def deduplicate_and_store_statements(self,
+    def deduplicate_and_store_statements(
+        self,
         hash_result: StatementHashResult,
         validator: JsonSchemaValidator | None = None,
         schema_version: str = "latest",
@@ -189,7 +194,9 @@ class StatementService(Service):
                 # Step 4: Insert into DB or increment ref_count
                 # Note: We skip the DB existence check and insert directly to be more efficient
                 # The insert is idempotent, so it handles concurrent inserts gracefully
-                inserted = self.state.vitess_client.insert_statement_content(statement_hash)
+                inserted = self.state.vitess_client.insert_statement_content(
+                    statement_hash
+                )
                 if inserted:
                     logger.debug(
                         f"Inserted new statement {statement_hash} into statement_content"
@@ -214,7 +221,8 @@ class StatementService(Service):
                     exc_info=True,
                 )
                 return OperationResult(
-                    success=False, error=f"Failed to store statement {statement_hash}: {e}"
+                    success=False,
+                    error=f"Failed to store statement {statement_hash}: {e}",
                 )
 
         # Deduplicate references in statements
@@ -233,8 +241,8 @@ class StatementService(Service):
         logger.info(f"Final statement hashes: {hash_result.statements}")
         return OperationResult(success=True)
 
-
-    def deduplicate_references_in_statements(self,
+    def deduplicate_references_in_statements(
+        self,
         hash_result: StatementHashResult,
     ) -> OperationResult:
         """Deduplicate references in statements by storing unique references in S3.
@@ -279,8 +287,8 @@ class StatementService(Service):
         )
         return OperationResult(success=True)
 
-
-    def deduplicate_qualifiers_in_statements(self,
+    def deduplicate_qualifiers_in_statements(
+        self,
         hash_result: StatementHashResult,
     ) -> OperationResult:
         """Deduplicate qualifiers in statements by storing unique qualifiers in S3.
@@ -314,7 +322,9 @@ class StatementService(Service):
                     qual_data = S3QualifierData(
                         qualifier=statement_data["qualifiers"],
                         hash=qual_hash,
-                        created_at=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                        created_at=datetime.datetime.now(
+                            datetime.timezone.utc
+                        ).isoformat(),
                     )
                     self.state.s3_client.store_qualifier(qual_hash, qual_data)
                 except Exception as e:

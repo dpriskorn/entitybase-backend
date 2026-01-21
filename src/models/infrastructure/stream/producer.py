@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 class StreamProducerClient(Client):
     """Kafka producer client for publishing events."""
+
     producer: AIOKafkaProducer | None = None
     model_config = {"arbitrary_types_allowed": True}
 

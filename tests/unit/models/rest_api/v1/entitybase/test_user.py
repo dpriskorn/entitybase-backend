@@ -84,7 +84,6 @@ class TestUserHandler:
     ) -> None:
         """Test getting a user that doesn't exist"""
 
-
         mock_vitess_client.user_repository.get_user.return_value = None
 
         with pytest.raises(ValueError) as exc_info:

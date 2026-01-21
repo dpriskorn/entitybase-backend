@@ -90,7 +90,6 @@ module = "tests.*"
 disallow_untyped_defs = false
 
 [tool.ruff]
-select = ["PL"]
 # Max line length
 line-length = 88
 
@@ -99,7 +98,7 @@ exclude = ["tests/", "scripts/"]
 
 [tool.ruff.lint]
 # General rules to check: exclude docstring rules (handled by custom script)
-select = []
+select = ["PL"]
 
 # Optional: ignore private functions/methods
 ignore = ["D105", "D106", "D107"]

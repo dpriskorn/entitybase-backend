@@ -94,7 +94,6 @@ class BacklinkRepository(Repository):
 
     def insert_backlink_statistics(
         self,
-        conn: Any,
         date: str,
         total_backlinks: int,
         unique_entities_with_backlinks: int,

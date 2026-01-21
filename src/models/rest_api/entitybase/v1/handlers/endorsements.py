@@ -166,8 +166,10 @@ class EndorsementHandler(Handler):
     ) -> EndorsementListResponse:
         """Get endorsements for a statement."""
         logger.debug(f"Getting endorsements for statement {statement_hash}")
-        result = self.state.vitess_client.endorsement_repository.get_statement_endorsements(
-            statement_hash, request.limit, request.offset, request.include_removed
+        result = (
+            self.state.vitess_client.endorsement_repository.get_statement_endorsements(
+                statement_hash, request.limit, request.offset, request.include_removed
+            )
         )
         if not result.success:
             raise_validation_error(
@@ -175,10 +177,8 @@ class EndorsementHandler(Handler):
             )
 
         # Get stats for this statement
-        stats_result = (
-            self.state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats(
-                [statement_hash]
-            )
+        stats_result = self.state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats(
+            [statement_hash]
         )
         if not stats_result.success:
             raise_validation_error("Failed to get endorsement stats", status_code=500)
@@ -238,16 +238,16 @@ class EndorsementHandler(Handler):
             stats=None,
         )
 
-    def get_user_endorsement_stats(
-        self, user_id: int
-    ) -> EndorsementStatsResponse:
+    def get_user_endorsement_stats(self, user_id: int) -> EndorsementStatsResponse:
         """Get endorsement statistics for a user."""
         # Validate user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=400)
 
-        result = self.state.vitess_client.endorsement_repository.get_user_endorsement_stats(
-            user_id
+        result = (
+            self.state.vitess_client.endorsement_repository.get_user_endorsement_stats(
+                user_id
+            )
         )
         if not result.success:
             raise_validation_error(
@@ -270,10 +270,8 @@ class EndorsementHandler(Handler):
             if statement_hash <= 0:
                 raise_validation_error("Invalid statement hash", status_code=400)
 
-        result = (
-            self.state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats(
-                statement_hashes
-            )
+        result = self.state.vitess_client.endorsement_repository.get_batch_statement_endorsement_stats(
+            statement_hashes
         )
         if not result.success:
             raise_validation_error(

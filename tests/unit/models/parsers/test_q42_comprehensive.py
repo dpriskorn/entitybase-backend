@@ -47,7 +47,10 @@ def test_parse_q42_comprehensive() -> None:
         entity.descriptions.get("fr").value
         == "écrivain de science-fiction et humoriste anglais (1952–2001)"
     )
-    assert entity.descriptions.get("de").value == "britischer Science-Fiction-Autor und Humorist"
+    assert (
+        entity.descriptions.get("de").value
+        == "britischer Science-Fiction-Autor und Humorist"
+    )
     assert (
         entity.descriptions.get("ru").value
         == "английский писатель, драматург и сценарист и юморист (1952–2001)"
@@ -62,45 +65,57 @@ def test_parse_q42_comprehensive() -> None:
 
     assert isinstance(entity.statements, EntityStatementsResponse)
     assert len(entity.statements.data) == 332
-    unique_properties = len(set(stmt['property'] for stmt in entity.statements.data))
+    unique_properties = len(set(stmt["property"] for stmt in entity.statements.data))
     assert unique_properties == 293
 
-    p31_statements = [stmt for stmt in entity.statements.data if stmt['property'] == "P31"]
+    p31_statements = [
+        stmt for stmt in entity.statements.data if stmt["property"] == "P31"
+    ]
     assert len(p31_statements) > 0
-    datavalue = p31_statements[0]['mainsnak']['datavalue']
-    assert datavalue['type'] == 'wikibase-entityid'
-    assert datavalue['value']['id'] == "Q5"
+    datavalue = p31_statements[0]["mainsnak"]["datavalue"]
+    assert datavalue["type"] == "wikibase-entityid"
+    assert datavalue["value"]["id"] == "Q5"
 
-    p569_statements = [stmt for stmt in entity.statements.data if stmt['property'] == "P569"]
+    p569_statements = [
+        stmt for stmt in entity.statements.data if stmt["property"] == "P569"
+    ]
     assert len(p569_statements) > 0
-    datavalue = p569_statements[0]['mainsnak']['datavalue']
-    assert datavalue['type'] == 'time'
-    assert datavalue['value']['time'] == "+1952-03-11T00:00:00Z"
-    assert datavalue['value']['precision'] == 11
+    datavalue = p569_statements[0]["mainsnak"]["datavalue"]
+    assert datavalue["type"] == "time"
+    assert datavalue["value"]["time"] == "+1952-03-11T00:00:00Z"
+    assert datavalue["value"]["precision"] == 11
 
-    p570_statements = [stmt for stmt in entity.statements.data if stmt['property'] == "P570"]
+    p570_statements = [
+        stmt for stmt in entity.statements.data if stmt["property"] == "P570"
+    ]
     assert len(p570_statements) > 0
-    datavalue = p570_statements[0]['mainsnak']['datavalue']
-    assert datavalue['type'] == 'time'
-    assert datavalue['value']['time'] == "+2001-05-11T00:00:00Z"
+    datavalue = p570_statements[0]["mainsnak"]["datavalue"]
+    assert datavalue["type"] == "time"
+    assert datavalue["value"]["time"] == "+2001-05-11T00:00:00Z"
 
-    p106_statements = [stmt for stmt in entity.statements.data if stmt['property'] == "P106"]
+    p106_statements = [
+        stmt for stmt in entity.statements.data if stmt["property"] == "P106"
+    ]
     assert len(p106_statements) > 1
     occupation_ids = [
-        stmt['mainsnak']['datavalue']['value']['id']
+        stmt["mainsnak"]["datavalue"]["value"]["id"]
         for stmt in p106_statements
-        if stmt['mainsnak']['datavalue']['type'] == 'wikibase-entityid'
+        if stmt["mainsnak"]["datavalue"]["type"] == "wikibase-entityid"
     ]
     assert len(occupation_ids) > 0
 
-    ranks = [stmt['rank'] for stmt in entity.statements.data]
+    ranks = [stmt["rank"] for stmt in entity.statements.data]
     assert Rank.NORMAL in ranks
     assert Rank.PREFERRED in ranks
 
-    statements_with_qualifiers = [stmt for stmt in entity.statements.data if stmt.get('qualifiers')]
+    statements_with_qualifiers = [
+        stmt for stmt in entity.statements.data if stmt.get("qualifiers")
+    ]
     assert len(statements_with_qualifiers) > 0
 
-    statements_with_references = [stmt for stmt in entity.statements.data if stmt.get('references')]
+    statements_with_references = [
+        stmt for stmt in entity.statements.data if stmt.get("references")
+    ]
     assert len(statements_with_references) > 0
 
     assert isinstance(entity.sitelinks, EntitySitelinksResponse)

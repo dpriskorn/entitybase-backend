@@ -1,9 +1,9 @@
 """S3 configuration model."""
 
-from pydantic import BaseModel
+from models.infrastructure.config import Config
 
 
-class S3Config(BaseModel):
+class S3Config(Config):
     """Configuration for S3 connections."""
 
     endpoint_url: str

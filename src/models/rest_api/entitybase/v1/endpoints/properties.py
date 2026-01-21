@@ -30,7 +30,9 @@ async def create_property(request: EntityCreateRequest, req: Request) -> EntityR
     state = req.app.state.state
     validator = req.app.state.validator
     enumeration_service = req.app.state.enumeration_service
-    handler = PropertyCreateHandler(state=state, enumeration_service=enumeration_service)
+    handler = PropertyCreateHandler(
+        state=state, enumeration_service=enumeration_service
+    )
     return await handler.create_entity(  # type: ignore[no-any-return]
         request,
         validator,

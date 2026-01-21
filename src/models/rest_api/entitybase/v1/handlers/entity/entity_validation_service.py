@@ -33,7 +33,7 @@ class EntityValidationService(BaseModel):
         entity_id: str,
         head_revision_id: int,
         content_hash: int,
-        request_data: Dict[str, Any],
+        # request_data: Dict[str, Any],
     ) -> EntityResponse | None:
         """Check if request is idempotent."""
         if head_revision_id == 0:
@@ -41,7 +41,9 @@ class EntityValidationService(BaseModel):
 
         logger.debug(f"Checking idempotency against head revision {head_revision_id}")
         try:
-            head_revision = self.state.s3_client.read_revision(entity_id, head_revision_id)
+            head_revision = self.state.s3_client.read_revision(
+                entity_id, head_revision_id
+            )
             head_content_hash = head_revision.data.get("content_hash")
             logger.debug(f"Head revision content hash: {head_content_hash}")
 

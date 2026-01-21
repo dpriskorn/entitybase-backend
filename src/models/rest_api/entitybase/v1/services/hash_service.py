@@ -24,7 +24,8 @@ logger = logging.getLogger(__name__)
 class HashService(Service):
     """Service for hashing entity metadata components."""
 
-    def hash_statements(self,
+    def hash_statements(
+        self,
         entity_data: dict[str, Any],
         validator: JsonSchemaValidator | None = None,
     ) -> StatementsHashes:
@@ -53,7 +54,8 @@ class HashService(Service):
 
         return StatementsHashes(root=hash_result.data.statements)
 
-    def hash_sitelinks(self,
+    def hash_sitelinks(
+        self,
         sitelinks: dict[str, Any],
     ) -> SitelinksHashes:
         """Hash sitelink titles and store in S3."""
@@ -66,7 +68,8 @@ class HashService(Service):
                 self.state.s3_client.store_sitelink_metadata(title, hash_value)
         return SitelinksHashes(root=hashes)
 
-    def hash_labels(self,
+    def hash_labels(
+        self,
         labels: dict[str, Any],
     ) -> LabelsHashes:
         """Hash label values, store in S3 and Vitess."""
@@ -82,7 +85,8 @@ class HashService(Service):
                     terms_repo.insert_term(hash_value, value, "label")
         return LabelsHashes(root=hashes)
 
-    def hash_descriptions(self,
+    def hash_descriptions(
+        self,
         descriptions: dict[str, Any],
     ) -> DescriptionsHashes:
         """Hash description values, store in S3 and Vitess."""
@@ -98,7 +102,8 @@ class HashService(Service):
                     terms_repo.insert_term(hash_value, value, "description")
         return DescriptionsHashes(root=hashes)
 
-    def hash_aliases(self,
+    def hash_aliases(
+        self,
         aliases: dict[str, Any],
     ) -> AliasesHashes:
         """Hash alias values, store in S3 and Vitess."""
@@ -117,14 +122,13 @@ class HashService(Service):
                 hashes[lang] = lang_hashes
         return AliasesHashes(root=hashes)
 
-    def hash_entity_metadata(self,
+    def hash_entity_metadata(
+        self,
         entity_data: dict[str, Any],
         validator: JsonSchemaValidator | None = None,
     ) -> HashMaps:
         """Hash all entity metadata and return HashMaps."""
-        statements_hashes = self.hash_statements(
-            entity_data,  validator
-        )
+        statements_hashes = self.hash_statements(entity_data, validator)
 
         sitelinks = entity_data.get("sitelinks", {})
         sitelinks_hashes = self.hash_sitelinks(sitelinks)
@@ -133,9 +137,7 @@ class HashService(Service):
         labels_hashes = self.hash_labels(labels)
 
         descriptions = entity_data.get("descriptions", {})
-        descriptions_hashes = self.hash_descriptions(
-            descriptions
-        )
+        descriptions_hashes = self.hash_descriptions(descriptions)
 
         aliases = entity_data.get("aliases", {})
         aliases_hashes = self.hash_aliases(aliases)

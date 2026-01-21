@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 class MetadataStorage(BaseS3Storage):
     """Storage operations for metadata (terms and sitelinks)."""
+
     bucket: str = ""  # we use a method to get the right bucket
 
     def _get_bucket_for_type(self, metadata_type: MetadataType) -> str:

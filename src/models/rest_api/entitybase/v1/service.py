@@ -6,5 +6,3 @@ from pydantic import BaseModel
 
 class Service(ABC, BaseModel):
     state: Any  # this is the app state
-
-

@@ -22,6 +22,7 @@ class TestEntityJsonImportHandler:
     def setup_method(self):
         """Set up test fixtures."""
         from unittest.mock import MagicMock
+
         self.state = MagicMock()
 
     @pytest.fixture
@@ -133,7 +134,7 @@ class TestEntityJsonImportHandler:
         mock_transform: MagicMock,
         mock_clients: tuple[MagicMock, MagicMock, AsyncMock, MagicMock],
         sample_entity_json: dict[str, Any],
-     ) -> None:
+    ) -> None:
         """Test successful import of entities from JSONL file."""
         vitess_client, s3_client, stream_producer, validator = mock_clients
 
@@ -154,8 +155,8 @@ class TestEntityJsonImportHandler:
             self.state.vitess_client.create_entity = AsyncMock()
             self.state.vitess_client.entity_exists.return_value = False
             self.state.vitess_client.is_locked.return_value = False
-            self.state.vitess_client.entity_repository.get_entity.return_value = MagicMock(
-                is_deleted=False
+            self.state.vitess_client.entity_repository.get_entity.return_value = (
+                MagicMock(is_deleted=False)
             )
             self.state.vitess_client.is_entity_deleted.return_value = False
             self.state.vitess_client.get_protection_info.return_value = MagicMock(
@@ -172,9 +173,7 @@ class TestEntityJsonImportHandler:
             )
 
             handler = EntityJsonImportHandler(state=self.state)
-            result = await handler.import_entities_from_jsonl(
-                request, validator
-            )
+            result = await handler.import_entities_from_jsonl(request, validator)
 
             assert isinstance(result, EntityJsonImportResponse)
             assert result.processed_count == 1

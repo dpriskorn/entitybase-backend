@@ -52,7 +52,9 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         kafka_entity_change_topic = settings.kafka_entitychange_json_topic
         logger.debug(f"S3 config: {s3_config}")
         logger.debug(f"Vitess config: {vitess_config}")
-        logger.debug(f"Kafka config: brokers={kafka_brokers}, topic={kafka_entity_change_topic}")
+        logger.debug(
+            f"Kafka config: brokers={kafka_brokers}, topic={kafka_entity_change_topic}"
+        )
 
         property_registry_path = (
             Path("test_data/properties")
@@ -70,10 +72,13 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             kafka_entitydiff_topic=settings.kafka_entitydiff_ttl_topic,
             property_registry_path=property_registry_path,
             entity_change_stream_config=settings.get_entity_change_stream_config(),
-            entity_diff_stream_config=settings.get_entity_diff_stream_config()
+            entity_diff_stream_config=settings.get_entity_diff_stream_config(),
         )
 
-        if settings.streaming_enabled and app_.state.clients.entitychange_stream_producer:
+        if (
+            settings.streaming_enabled
+            and app_.state.clients.entitychange_stream_producer
+        ):
             await app_.state.clients.stream_producer.start()
             logger.info("entitychange_stream_producer started")
 
@@ -97,7 +102,10 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         raise
     finally:
         # assert isinstance(app_.state.clients, State)
-        if settings.streaming_enabled and app_.state.clients.entitychange_stream_producer:
+        if (
+            settings.streaming_enabled
+            and app_.state.clients.entitychange_stream_producer
+        ):
             await app_.state.clients.entitychange_stream_producer.stop()
             logger.info("entitychange_stream_producer stopped")
 

@@ -40,8 +40,10 @@ class ThanksHandler(Handler):
             )
 
         # Get the thank details for response
-        revision_thanks = self.state.vitess_client.thanks_repository.get_revision_thanks(
-            entity_id, revision_id
+        revision_thanks = (
+            self.state.vitess_client.thanks_repository.get_revision_thanks(
+                entity_id, revision_id
+            )
         )
         if not revision_thanks.success:
             raise_validation_error("Failed to retrieve thank details", status_code=500)

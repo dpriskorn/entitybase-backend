@@ -17,7 +17,8 @@ logger = logging.getLogger(__name__)
 class EntityReadHandler(Handler):
     """Handler for entity read operations"""
 
-    def get_entity(self,
+    def get_entity(
+        self,
         entity_id: str,
     ) -> EntityResponse:
         """Get entity by ID."""
@@ -55,7 +56,8 @@ class EntityReadHandler(Handler):
             logger.error(f"Failed to read entity {entity_id}: {e}")
             raise_validation_error("Failed to read entity", status_code=500)
 
-    def get_entity_history(self,  # type: ignore[return,func-returns-value]
+    def get_entity_history(
+        self,  # type: ignore[return,func-returns-value]
         entity_id: str,
         limit: int = 20,
         offset: int = 0,
@@ -73,7 +75,8 @@ class EntityReadHandler(Handler):
             logger.error(f"Failed to get entity history for {entity_id}: {e}")
             raise_validation_error("Failed to get entity history", status_code=500)
 
-    def get_entity_revision(self,  # type: ignore[return]
+    def get_entity_revision(
+        self,  # type: ignore[return]
         entity_id: str,
         revision_id: int,
     ) -> EntityRevisionResponse:

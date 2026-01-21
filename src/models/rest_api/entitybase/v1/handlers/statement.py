@@ -28,9 +28,7 @@ logger = logging.getLogger(__name__)
 class StatementHandler(Handler):
     """Handles all statement operations."""
 
-    def get_statement(
-        self, content_hash: int
-    ) -> StatementResponse:
+    def get_statement(self, content_hash: int) -> StatementResponse:
         """Get a single statement by its hash.
 
         Returns the full statement JSON from S3.
@@ -100,9 +98,7 @@ class StatementHandler(Handler):
 
         return StatementBatchResponse(statements=statements, not_found=not_found)
 
-    def get_entity_properties(
-        self, entity_id: str
-    ) -> PropertyListResponse:
+    def get_entity_properties(self, entity_id: str) -> PropertyListResponse:
         """Get list of unique property IDs for an entity's head revision.
 
         Returns sorted list of properties used in entity statements.
@@ -127,13 +123,13 @@ class StatementHandler(Handler):
                 "Head revision not found in history", status_code=404
             )
 
-        revision_metadata = self.state.s3_client.read_full_revision(entity_id, head_revision_id)
+        revision_metadata = self.state.s3_client.read_full_revision(
+            entity_id, head_revision_id
+        )
         properties = revision_metadata.data.get("properties", [])  # type: ignore[attr-defined]
         return PropertyListResponse(properties=properties)
 
-    def get_entity_property_counts(
-        self, entity_id: str
-    ) -> PropertyCountsResponse:
+    def get_entity_property_counts(self, entity_id: str) -> PropertyCountsResponse:
         """Get statement counts per property for an entity's head revision.
 
         Returns dict mapping property ID -> count of statements.
@@ -148,7 +144,9 @@ class StatementHandler(Handler):
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 
-        revision_metadata = self.state.s3_client.read_full_revision(entity_id, head_revision_id)
+        revision_metadata = self.state.s3_client.read_full_revision(
+            entity_id, head_revision_id
+        )
         property_counts = revision_metadata.data.get("property_counts", {})  # type: ignore[attr-defined]
         return PropertyCountsResponse(property_counts=property_counts)
 
@@ -175,7 +173,9 @@ class StatementHandler(Handler):
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 
-        revision_metadata = self.state.s3_client.read_full_revision(entity_id, head_revision_id)
+        revision_metadata = self.state.s3_client.read_full_revision(
+            entity_id, head_revision_id
+        )
 
         requested_property_ids = [
             p.strip() for p in property_list.split(",") if p.strip()

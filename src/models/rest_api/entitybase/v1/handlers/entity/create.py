@@ -67,7 +67,6 @@ class EntityCreateHandler(EntityHandler):
         )
 
         # Check if entity already exists - for create, this should fail
-        vitess_client = self.state.vitess_client
         entity_existed = self.state.vitess_client.entity_exists(entity_id)
         if entity_existed:
             logger.error(f"Entity {entity_id} already exists, cannot create")
@@ -98,11 +97,13 @@ class EntityCreateHandler(EntityHandler):
 
         # Log activity
         if user_id > 0:
-            activity_result = self.state.vitess_client.user_repository.log_user_activity(
-                user_id=user_id,
-                activity_type=UserActivityType.ENTITY_CREATE,
-                entity_id=entity_id,
-                revision_id=response.revision_id,
+            activity_result = (
+                self.state.vitess_client.user_repository.log_user_activity(
+                    user_id=user_id,
+                    activity_type=UserActivityType.ENTITY_CREATE,
+                    entity_id=entity_id,
+                    revision_id=response.revision_id,
+                )
             )
             if not activity_result.success:
                 logger.warning(f"Failed to log user activity: {activity_result.error}")

@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 class ReferenceStorage(BaseS3Storage):
     """Storage operations for references."""
+
     bucket: str = settings.s3_references_bucket
 
     def store_reference(

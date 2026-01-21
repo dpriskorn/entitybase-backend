@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 class VitessClient(BaseModel):
     """Vitess database client for entity operations."""
+
     connection_manager: Optional[VitessConnectionManager] = Field(
         default=None, init=False, exclude=True
     )
@@ -34,6 +35,7 @@ class VitessClient(BaseModel):
 
     def create_tables(self) -> None:
         from models.infrastructure.vitess.repositories.schema import SchemaRepository
+
         schema_repository: SchemaRepository = SchemaRepository(vitess_client=self)
         schema_repository.create_tables()
 

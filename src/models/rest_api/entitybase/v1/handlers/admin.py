@@ -28,7 +28,9 @@ class AdminHandler(Handler):
             raise_validation_error("Vitess not initialized", status_code=503)
 
         # Get entity IDs
-        entity_ids = self.state.vitess_client.list_entities_by_type(entity_type, limit, offset)
+        entity_ids = self.state.vitess_client.list_entities_by_type(
+            entity_type, limit, offset
+        )
 
         # Build response with ID and revision info
         entities = []

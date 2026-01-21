@@ -61,7 +61,11 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> EntityMetadataResponse:
             }
         ),
         statements=EntityStatementsResponse(
-            data=[{**stmt, "property": prop} for prop, stmts in claims_json.items() for stmt in stmts]
+            data=[
+                {**stmt, "property": prop}
+                for prop, stmts in claims_json.items()
+                for stmt in stmts
+            ]
         ),
         sitelinks=EntitySitelinksResponse(data=sitelinks_json),
     )

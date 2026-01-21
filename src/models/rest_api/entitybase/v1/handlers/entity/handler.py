@@ -381,7 +381,7 @@ class EntityHandler(Handler):
         )
         return hash_result
 
-    async def _create_and_store_revision(
+    async def create_and_store_revision(
         self,
         entity_id: str,
         new_revision_id: int,
@@ -403,22 +403,14 @@ class EntityHandler(Handler):
         """Create revision data, store it, and publish events."""
         # Process sitelinks: hash titles and store metadata
         hs = HashService(state=self.state)
-        sitelinks_hashes = hs.hash_sitelinks(
-            request_data.get("sitelinks", {})
-        )
+        sitelinks_hashes = hs.hash_sitelinks(request_data.get("sitelinks", {}))
         # Replace sitelinks with hashes in entity data
         request_data["sitelinks"] = sitelinks_hashes.root
 
         # Process terms: hash labels, descriptions, aliases and store metadata
-        labels_hashes = hs.hash_labels(
-            request_data.get("labels", {})
-        )
-        descriptions_hashes = hs.hash_descriptions(
-            request_data.get("descriptions", {})
-        )
-        aliases_hashes = hs.hash_aliases(
-            request_data.get("aliases", {})
-        )
+        labels_hashes = hs.hash_labels(request_data.get("labels", {}))
+        descriptions_hashes = hs.hash_descriptions(request_data.get("descriptions", {}))
+        aliases_hashes = hs.hash_aliases(request_data.get("aliases", {}))
 
         # Create revision data
         created_at = datetime.now(timezone.utc).isoformat()
@@ -567,9 +559,7 @@ class EntityHandler(Handler):
         # Check if property exists and is a property
         try:
             read_handler = EntityReadHandler(state=self.state)
-            property_response = read_handler.get_entity(
-                property_id
-            )
+            property_response = read_handler.get_entity(property_id)
             if property_response.entity_type != "property":
                 return OperationResult(success=False, error="Entity is not a property")
         except Exception:
@@ -578,9 +568,7 @@ class EntityHandler(Handler):
         # Fetch current entity data
         try:
             read_handler = EntityReadHandler(state=self.state)
-            entity_response = read_handler.get_entity(
-                entity_id
-            )
+            entity_response = read_handler.get_entity(entity_id)
             current_data = entity_response.entity_data
         except Exception as e:
             return OperationResult(success=False, error=f"Failed to fetch entity: {e}")
@@ -629,7 +617,9 @@ class EntityHandler(Handler):
         # Fetch current revision
         head_revision_id = self.state.vitess_client.get_head(entity_id)
         try:
-            revision_data = self.state.s3_client.read_revision(entity_id, head_revision_id)
+            revision_data = self.state.s3_client.read_revision(
+                entity_id, head_revision_id
+            )
             from models.infrastructure.s3.revision.revision_read_response import (
                 RevisionReadResponse,
             )
@@ -702,7 +692,9 @@ class EntityHandler(Handler):
 
         # Store the updated revision
         try:
-            self.state.s3_client.write_revision(entity_id, new_revision_id, revision_data.data)
+            self.state.s3_client.write_revision(
+                entity_id, new_revision_id, revision_data.data
+            )
             self.state.vitess_client.update_head_revision(entity_id, new_revision_id)
         except Exception as e:
             return OperationResult(
@@ -727,9 +719,7 @@ class EntityHandler(Handler):
         # Fetch current entity data
         try:
             read_handler = EntityReadHandler(state=self.state)
-            entity_response = read_handler.get_entity(
-                entity_id
-            )
+            entity_response = read_handler.get_entity(entity_id)
             current_data = entity_response.entity_data
         except Exception as e:
             return OperationResult(success=False, error=f"Failed to fetch entity: {e}")
@@ -756,15 +746,13 @@ class EntityHandler(Handler):
             return OperationResult(success=False, error="Statement not found in entity")
 
         # Process as update using old method for now (new method is async)
-        revision_result = await self._create_and_store_revision(
+        revision_result = await self.create_and_store_revision(
             entity_id=entity_id,
             new_revision_id=entity_response.revision_id + 1,
             head_revision_id=entity_response.revision_id,
             request_data=current_data,
             entity_type=entity_response.entity_data.get("type", "item"),
-            hash_result=self.process_statements(
-                entity_id, current_data,  validator
-            ),
+            hash_result=self.process_statements(entity_id, current_data, validator),
             is_mass_edit=False,
             edit_type=EditType.UNSPECIFIED,
             is_semi_protected=entity_response.state.sp

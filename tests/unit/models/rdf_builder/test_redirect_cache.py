@@ -9,7 +9,7 @@ import pytest
 import requests
 
 from models.rdf_builder.redirect_cache import (
-    _fetch_entity_redirects_batch,
+    fetch_entity_redirects_batch,
     load_entity_redirects_batch,
     load_entity_redirects,
 )
@@ -166,7 +166,7 @@ class TestRedirectCache:
         }
         mock_get.return_value = mock_response
 
-        result = _fetch_entity_redirects_batch(entity_ids)
+        result = fetch_entity_redirects_batch(entity_ids)
 
         assert isinstance(result, RedirectBatchResponse)
         assert len(result.redirects) == 2
@@ -191,7 +191,7 @@ class TestRedirectCache:
 
     def test_fetch_entity_redirects_batch_empty_list(self) -> None:
         """Test _fetch_entity_redirects_batch with empty list."""
-        result = _fetch_entity_redirects_batch([])
+        result = fetch_entity_redirects_batch([])
 
         assert isinstance(result, RedirectBatchResponse)
         assert len(result.redirects) == 0
@@ -207,7 +207,7 @@ class TestRedirectCache:
 
         mock_get.side_effect = requests.RequestException("Network error")
 
-        result = _fetch_entity_redirects_batch(entity_ids)
+        result = fetch_entity_redirects_batch(entity_ids)
 
         # Should return empty redirects for all entities
         assert isinstance(result, RedirectBatchResponse)
@@ -309,7 +309,7 @@ class TestRedirectCache:
         mock_response.json.return_value = {"query": {"pages": {}}}
         mock_get.return_value = mock_response
 
-        _fetch_entity_redirects_batch(entity_ids)
+        fetch_entity_redirects_batch(entity_ids)
 
         # Verify the API call
         call_args = mock_get.call_args

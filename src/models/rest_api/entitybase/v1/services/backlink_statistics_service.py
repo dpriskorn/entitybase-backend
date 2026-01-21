@@ -17,9 +17,7 @@ class BacklinkStatisticsService(BaseModel):
 
     top_limit: int = Field(default=100, description="Number of top entities to include")
 
-    def compute_daily_stats(
-        self
-    ) -> BacklinkStatisticsData:
+    def compute_daily_stats(self) -> BacklinkStatisticsData:
         """Compute comprehensive backlink statistics for current date."""
         total_backlinks = self.get_total_backlinks()
         unique_entities = self.get_entities_with_backlinks()
@@ -33,7 +31,7 @@ class BacklinkStatisticsService(BaseModel):
 
     def get_total_backlinks(self) -> int:
         """Count total backlink relationships."""
-        with self.state.vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as _:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM entity_backlinks")
                 result = cursor.fetchone()
@@ -41,7 +39,7 @@ class BacklinkStatisticsService(BaseModel):
 
     def get_entities_with_backlinks(self) -> int:
         """Count entities that have incoming backlinks."""
-        with self.state.vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as _:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     "SELECT COUNT(DISTINCT referenced_internal_id) FROM entity_backlinks"
@@ -54,7 +52,7 @@ class BacklinkStatisticsService(BaseModel):
     ) -> list[TopEntityByBacklinks]:
         """Get top entities ranked by backlink count."""
         logger.debug("Getting top %d entities by backlinks", limit)
-        with self.state.vitess_client.connection_manager.get_connection() as conn:
+        with self.state.vitess_client.connection_manager.get_connection() as _:
             with self.connection_manager.connection.cursor() as cursor:
                 cursor.execute(
                     """
@@ -75,7 +73,9 @@ class BacklinkStatisticsService(BaseModel):
                     backlink_count = row[1]
 
                     # Resolve entity ID
-                    entity_id = self.state.vitess_client.id_resolver.resolve_entity_id(internal_id)
+                    entity_id = self.state.vitess_client.id_resolver.resolve_entity_id(
+                        internal_id
+                    )
                     if entity_id:
                         results.append(
                             TopEntityByBacklinks(

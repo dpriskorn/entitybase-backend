@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 class RevisionStorage(BaseS3Storage):
     """Storage operations for entity revisions."""
+
     bucket: str = settings.s3_revisions_bucket
 
     def store_revision(

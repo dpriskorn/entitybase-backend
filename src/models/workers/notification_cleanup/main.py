@@ -13,8 +13,6 @@ from models.workers.vitess_worker import VitessWorker
 logger = logging.getLogger(__name__)
 
 
-
-
 async def main() -> None:
     """Main entry point for the notification cleanup worker."""
     logging.basicConfig(
@@ -36,6 +34,7 @@ if __name__ == "__main__":
 
 class NotificationCleanupWorker(VitessWorker):
     """Worker that periodically cleans up old notifications to enforce limits."""
+
     max_age_days: int = 30
     max_per_user: int = 500
 

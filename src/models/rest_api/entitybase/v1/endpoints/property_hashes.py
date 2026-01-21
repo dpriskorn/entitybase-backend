@@ -25,6 +25,4 @@ def get_entity_property_hashes(
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = StatementHandler(state=state)
-    return handler.get_entity_property_hashes(
-        entity_id, property_list
-    )
+    return handler.get_entity_property_hashes(entity_id, property_list)

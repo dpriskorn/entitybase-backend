@@ -27,6 +27,7 @@ class LoadResponse(BaseModel):
 
 class BaseS3Storage(ABC, BaseModel):
     """Base class for S3 storage operations with common patterns."""
+
     connection_manager: S3ConnectionManager
     bucket: str
 
@@ -41,9 +42,7 @@ class BaseS3Storage(ABC, BaseModel):
         error_message = e.response["Error"].get("Message", str(e))
 
         if error_code in ["NoSuchKey", "404"]:
-            logger.warning(
-                f"S3 {operation} not found: bucket={self.bucket}, key={key}"
-            )
+            logger.warning(f"S3 {operation} not found: bucket={self.bucket}, key={key}")
             raise S3NotFoundError(f"Object not found: {key}")
         else:
             logger.error(

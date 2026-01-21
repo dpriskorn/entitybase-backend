@@ -16,7 +16,7 @@ from models.rest_api.entitybase.v1.response import (
 logger = logging.getLogger(__name__)
 
 
-def _fetch_entity_redirects_batch(entity_ids: list[str]) -> RedirectBatchResponse:
+def fetch_entity_redirects_batch(entity_ids: list[str]) -> RedirectBatchResponse:
     """Fetch redirects for multiple entities via MediaWiki API."""
     if not entity_ids:
         return RedirectBatchResponse(redirects={})
@@ -82,7 +82,7 @@ def load_entity_redirects_batch(
     redirects_dir.mkdir(parents=True, exist_ok=True)
 
     results = {}
-    fetched_redirects = _fetch_entity_redirects_batch(entity_ids)
+    fetched_redirects = fetch_entity_redirects_batch(entity_ids)
 
     for entity_id, redirects in fetched_redirects.redirects.items():
         output_path = redirects_dir / f"{entity_id}.json"

@@ -47,9 +47,7 @@ class WatchlistRepository(Repository):
             return OperationResult(success=False, error="Entity ID is required")
 
         try:
-            internal_entity_id = self.id_resolver.resolve_id(
-                entity_id
-            )
+            internal_entity_id = self.id_resolver.resolve_id(entity_id)
             if not internal_entity_id:
                 return OperationResult(success=False, error="Entity not found")
             properties_json = ",".join(properties) if properties else ""

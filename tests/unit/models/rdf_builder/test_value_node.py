@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 pytestmark = pytest.mark.unit
 
 from models.rdf_builder.value_node import (
-    _format_scientific_notation,
+    format_scientific_notation,
     generate_value_node_uri,
     serialize_value,
 )
@@ -13,27 +13,27 @@ from models.rdf_builder.value_node import (
 class TestFormatScientificNotation:
     def test_format_scientific_notation_with_leading_zero(self) -> None:
         """Test formatting removes leading zero in negative exponent."""
-        result = _format_scientific_notation(1.0e-5)
+        result = format_scientific_notation(1.0e-5)
         assert result == "1.0E-5"
 
     def test_format_scientific_notation_with_leading_zero_positive(self) -> None:
         """Test formatting removes leading zero in positive exponent."""
-        result = _format_scientific_notation(1.0e5)
+        result = format_scientific_notation(1.0e5)
         assert result == "1.0E+5"
 
     def test_format_scientific_notation_without_leading_zero(self) -> None:
         """Test formatting when no leading zero to remove."""
-        result = _format_scientific_notation(1.23e10)
+        result = format_scientific_notation(1.23e10)
         assert result == "1.2E+10"
 
     def test_format_scientific_notation_negative_mantissa(self) -> None:
         """Test formatting with negative mantissa."""
-        result = _format_scientific_notation(-1.0e-5)
+        result = format_scientific_notation(-1.0e-5)
         assert result == "-1.0E-5"
 
     def test_format_scientific_notation_no_match(self) -> None:
         """Test formatting when regex doesn't match."""
-        result = _format_scientific_notation(123.45)
+        result = format_scientific_notation(123.45)
         assert result == "1.2E+2"
 
 

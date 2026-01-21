@@ -51,7 +51,7 @@ def test_q120248304_conversion(full_property_registry: Any) -> None:
 
     # Check some statement values
     assert "ps:P17 wd:Q142" in actual_ttl
-#    assert 'ps:P11840 "I621930023"' in actual_ttl
+    #    assert 'ps:P11840 "I621930023"' in actual_ttl
     # Globe coordinate now uses value node (psv:P625 -> wdv:xxx)
     assert "psv:P625 wdv:" in actual_ttl
     assert "wikibase:GlobecoordinateValue" in actual_ttl

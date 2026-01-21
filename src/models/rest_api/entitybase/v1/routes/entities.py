@@ -28,9 +28,7 @@ async def revert_entity(
     if not isinstance(state, State):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityRevertHandler(state=state)
-    result = await handler.revert_entity(
-        entity_id, request, user_id
-    )
+    result = await handler.revert_entity(entity_id, request, user_id)
     if not isinstance(result, EntityRevertResponse):
         raise_validation_error("Invalid response type", status_code=500)
     assert isinstance(result, EntityRevertResponse)

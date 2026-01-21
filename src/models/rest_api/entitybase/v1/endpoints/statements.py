@@ -51,9 +51,7 @@ def get_most_used_statements(  # type: ignore[no-any-return]
     if not isinstance(state, State):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
-    result = handler.get_most_used_statements(
-        request.limit, request.min_ref_count
-    )
+    result = handler.get_most_used_statements(request.limit, request.min_ref_count)
     if not isinstance(result, MostUsedStatementsResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result  # type: ignore[no-any-return]

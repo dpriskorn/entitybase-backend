@@ -96,8 +96,7 @@ class Settings(BaseSettings):
         )
 
     def get_entity_change_stream_config(self) -> "StreamConfig":
-        """Convert settings to Streaming configuration object.
-        """
+        """Convert settings to Streaming configuration object."""
         from models.infrastructure.stream.config import StreamConfig
 
         return StreamConfig(
@@ -106,14 +105,14 @@ class Settings(BaseSettings):
         )
 
     def get_entity_diff_stream_config(self) -> "StreamConfig":
-        """Convert settings to Streaming configuration object.
-        """
+        """Convert settings to Streaming configuration object."""
         from models.infrastructure.stream.config import StreamConfig
 
         return StreamConfig(
             bootstrap_servers=self.kafka_brokers,
             topic=self.kafka_entitydiff_ttl_topic,
         )
+
 
 # noinspection PyArgumentList
 settings = Settings()

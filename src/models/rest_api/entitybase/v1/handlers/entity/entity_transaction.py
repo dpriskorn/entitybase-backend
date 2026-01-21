@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 class EntityTransaction(BaseModel, ABC):
     """Base class for entity transactions with shared rollback logic."""
+
     state: Any  # This is the app state
     entity_id: str = Field(default="")
     operations: List[Callable[[], None]] = Field(default_factory=list)
@@ -34,9 +35,7 @@ class EntityTransaction(BaseModel, ABC):
         logger.info(f"[EntityTransaction] Registering entity {entity_id}")
         self.entity_id = entity_id
         self.state.vitess_client.entity_repository.create_entity(entity_id)
-        self.operations.append(
-            lambda: self._rollback_entity_registration()
-        )
+        self.operations.append(lambda: self._rollback_entity_registration())
 
     def _rollback_entity_registration(self) -> None:
         """Rollback entity registration."""
@@ -46,7 +45,9 @@ class EntityTransaction(BaseModel, ABC):
         self.state.vitess_client.entity_repository.delete_entity(self.entity_id)
 
     def _rollback_revision(
-        self, entity_id: str, revision_id: int,
+        self,
+        entity_id: str,
+        revision_id: int,
     ) -> None:
         """Rollback a revision."""
         logger.info(

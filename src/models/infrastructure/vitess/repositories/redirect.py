@@ -15,7 +15,6 @@ class RedirectRepository(Repository):
 
     def set_target(
         self,
-        conn: Any,
         entity_id: str,
         redirects_to_entity_id: str = "",
         expected_redirects_to: int = 0,
@@ -62,7 +61,6 @@ class RedirectRepository(Repository):
 
     def create(
         self,
-        conn: Any,
         redirect_from_entity_id: str,
         redirect_to_entity_id: str,
         created_by: str = "rest-api",
@@ -71,12 +69,8 @@ class RedirectRepository(Repository):
         logger.debug(
             f"Creating redirect from {redirect_from_entity_id} to {redirect_to_entity_id}"
         )
-        redirect_from_internal_id = self.id_resolver.resolve_id(
-            redirect_from_entity_id
-        )
-        redirect_to_internal_id = self.id_resolver.resolve_id(
-            redirect_to_entity_id
-        )
+        redirect_from_internal_id = self.id_resolver.resolve_id(redirect_from_entity_id)
+        redirect_to_internal_id = self.id_resolver.resolve_id(redirect_to_entity_id)
 
         if not redirect_from_internal_id:
             raise_validation_error(

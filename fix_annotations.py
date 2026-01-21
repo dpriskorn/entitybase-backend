@@ -12,7 +12,7 @@ def fix_test_annotations(filepath):
         # Match def test_...(): without -> 
         match = re.match(r'^(\s*)def test_[^(]*\([^)]*\):\s*$', line)
         if match and '->' not in line:
-            indent = match.group(1)
+            # indent = match.group(1)
             # Insert -> None before :
             lines[i] = line.rstrip()[:-1] + ' -> None:\n'
             modified = True

@@ -32,7 +32,9 @@ class EntityRevertHandler(Handler):
         )
         # Resolve internal ID
         with self.state.vitess_client.get_connection() as conn:
-            internal_entity_id = self.state.vitess_client.id_resolver.resolve_id(entity_id)
+            internal_entity_id = self.state.vitess_client.id_resolver.resolve_id(
+                entity_id
+            )
 
         if internal_entity_id == 0:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)

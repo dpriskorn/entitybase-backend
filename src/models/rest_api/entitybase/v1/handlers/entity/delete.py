@@ -100,7 +100,9 @@ class EntityDeleteHandler(Handler):
         new_revision_id = head_revision_id + 1
 
         # Read current revision to preserve entity data
-        current_revision = self.state.s3_client.read_revision(entity_id, head_revision_id)
+        current_revision = self.state.s3_client.read_revision(
+            entity_id, head_revision_id
+        )
 
         # Prepare deletion revision data
         revision_data = RevisionData(
@@ -174,11 +176,11 @@ class EntityDeleteHandler(Handler):
         # Publish change event
         if self.state.stream_producer:
             try:
-                change_type = (
-                    ChangeType.SOFT_DELETE
-                    if request.delete_type == DeleteType.SOFT
-                    else ChangeType.HARD_DELETE
-                )
+                # change_type = (
+                #     ChangeType.SOFT_DELETE
+                #     if request.delete_type == DeleteType.SOFT
+                #     else ChangeType.HARD_DELETE
+                # )
                 await self.state.stream_producer.publish_change(
                     EntityChangeEvent(
                         id=entity_id,
@@ -199,11 +201,13 @@ class EntityDeleteHandler(Handler):
 
         # Log activity
         if user_id > 0:
-            activity_result = self.state.vitess_client.user_repository.log_user_activity(
-                user_id=user_id,
-                activity_type=UserActivityType.ENTITY_DELETE,
-                entity_id=entity_id,
-                revision_id=new_revision_id,
+            activity_result = (
+                self.state.vitess_client.user_repository.log_user_activity(
+                    user_id=user_id,
+                    activity_type=UserActivityType.ENTITY_DELETE,
+                    entity_id=entity_id,
+                    revision_id=new_revision_id,
+                )
             )
             if not activity_result.success:
                 logger.warning(f"Failed to log user activity: {activity_result.error}")

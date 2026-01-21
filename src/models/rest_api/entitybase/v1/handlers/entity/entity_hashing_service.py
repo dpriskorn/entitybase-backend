@@ -24,7 +24,9 @@ class EntityHashingService(Service):
         self, request_data: Dict[str, Any]
     ) -> StatementHashResult:
         """Hash entity statements."""
-        hash_operation = HashService(state=self.state).hash_entity_statements(request_data)
+        hash_operation = HashService(state=self.state).hash_entity_statements(
+            request_data
+        )
         if not hash_operation.success:
             raise EntityProcessingError(
                 hash_operation.error or "Failed to hash statements"
@@ -37,15 +39,11 @@ class EntityHashingService(Service):
     ) -> HashMaps:
         """Hash entity terms (labels, descriptions, aliases)."""
         service = HashService(state=self.state)
-        labels_hashes = service.hash_labels(
-            request_data.get("labels", {})
-        )
+        labels_hashes = service.hash_labels(request_data.get("labels", {}))
         descriptions_hashes = service.hash_descriptions(
             request_data.get("descriptions", {})
         )
-        aliases_hashes = service.hash_aliases(
-            request_data.get("aliases", {})
-        )
+        aliases_hashes = service.hash_aliases(request_data.get("aliases", {}))
 
         return HashMaps(
             labels=labels_hashes,
@@ -53,8 +51,8 @@ class EntityHashingService(Service):
             aliases=aliases_hashes,
         )
 
-    async def hash_sitelinks(
-        self, request_data: Dict[str, Any]
-    ) -> SitelinksHashes:
+    async def hash_sitelinks(self, request_data: Dict[str, Any]) -> SitelinksHashes:
         """Hash entity sitelinks."""
-        return HashService(state=self.state).hash_sitelinks(request_data.get("sitelinks", {}))
+        return HashService(state=self.state).hash_sitelinks(
+            request_data.get("sitelinks", {})
+        )

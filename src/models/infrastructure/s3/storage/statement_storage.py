@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 class StatementStorage(BaseS3Storage):
     """Storage operations for statements."""
+
     bucket: str = settings.s3_statements_bucket
 
     def store_statement(

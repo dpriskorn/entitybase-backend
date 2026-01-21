@@ -31,7 +31,7 @@ def health_check(response: Response) -> HealthCheckResponse:
         "connected"
         if vitess
         and isinstance(vitess, VitessClient)
-        and state.vitess.healthy_connection
+        and vitess.healthy_connection
         else "disconnected"
     )
 

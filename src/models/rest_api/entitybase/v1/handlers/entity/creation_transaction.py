@@ -31,10 +31,9 @@ class CreationTransaction(EntityTransaction):
         )
         # Import here to avoid circular imports
         from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
+
         handler = EntityHandler(state=self.state)
-        hash_result = handler.process_statements(
-            entity_id, request_data, validator
-        )
+        hash_result = handler.process_statements(entity_id, request_data, validator)
         # Track hashes for rollback
         self.statement_hashes.extend(hash_result.statements)
         for hash_val in hash_result.statements:
@@ -66,7 +65,7 @@ class CreationTransaction(EntityTransaction):
         from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 
         handler = EntityHandler(state=self.state)
-        response = await handler._create_and_store_revision(
+        response = await handler.create_and_store_revision(
             entity_id=entity_id,
             new_revision_id=new_revision_id,
             head_revision_id=head_revision_id,
@@ -156,9 +155,7 @@ class CreationTransaction(EntityTransaction):
         if ref_count == 0:
             self.state.s3_client.delete_statement(hash_val)
 
-    def _rollback_revision(
-        self, entity_id: str, revision_id: int
-    ) -> None:
+    def _rollback_revision(self, entity_id: str, revision_id: int) -> None:
         logger.info(
             f"[CreationTransaction] Rolling back revision {revision_id} for {entity_id}"
         )

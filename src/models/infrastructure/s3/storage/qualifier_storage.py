@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 class QualifierStorage(BaseS3Storage):
     """Storage operations for qualifiers."""
+
     bucket: str = settings.s3_qualifiers_bucket
 
     def store_qualifier(

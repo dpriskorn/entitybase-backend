@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 class WatchlistConsumerWorker(VitessWorker):
     """Worker that consumes entity change events and creates notifications for watchers."""
+
     consumer: Consumer | None = None
 
     @asynccontextmanager

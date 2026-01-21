@@ -2,7 +2,7 @@
 
 import logging
 import time
-from typing import Dict, Optional, Any
+from typing import Dict, Any
 
 from pydantic import BaseModel, Field
 
@@ -23,9 +23,10 @@ class IdRange(BaseModel):
 
 class IdRangeManager(BaseModel):
     """Manages ID range allocation and local ID generation to prevent write hotspots."""
+
     vitess_client: Any
-    range_size: int = 1_000_000,
-    min_ids: Dict[str, int] = Field(default_factory=dict),
+    range_size: int = (1_000_000,)
+    min_ids: Dict[str, int] = (Field(default_factory=dict),)
     local_ranges: Dict[str, IdRange] = {}
     worker_id: str = ""
 

@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 class EntityJsonImportHandler(Handler):
     """Handler for importing entities from Wikidata JSONL dump files."""
 
-    async def import_entities_from_jsonl(self,
+    async def import_entities_from_jsonl(
+        self,
         request: EntityJsonImportRequest,
         validator: Any | None = None,
     ) -> EntityJsonImportResponse:

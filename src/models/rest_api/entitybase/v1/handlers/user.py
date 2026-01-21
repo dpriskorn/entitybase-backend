@@ -28,14 +28,14 @@ from models.rest_api.entitybase.v1.response.user import UserResponse
 class UserHandler(Handler):
     """Handler for user-related operations."""
 
-    def create_user(
-        self, request: UserCreateRequest
-    ) -> UserCreateResponse:
+    def create_user(self, request: UserCreateRequest) -> UserCreateResponse:
         """Create/register a user."""
         # Check if user already exists
         exists = self.state.vitess_client.user_repository.user_exists(request.user_id)
         if not exists:
-            result = self.state.vitess_client.user_repository.create_user(request.user_id)
+            result = self.state.vitess_client.user_repository.create_user(
+                request.user_id
+            )
             if not result.success:
                 raise_validation_error(
                     result.error or "Failed to create user", status_code=500

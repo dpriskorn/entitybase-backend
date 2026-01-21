@@ -31,12 +31,11 @@ def raise_validation_error(
         else:
             # In dev, or if not HTTPException, raise the specified exception
             raise exception_class(message)
+    # Default behavior
+    elif is_prod:
+        raise HTTPException(status_code=status_code, detail=message)
     else:
-        # Default behavior
-        if is_prod:
-            raise HTTPException(status_code=status_code, detail=message)
-        else:
-            raise ValueError(message)
+        raise ValueError(message)
 
 
 class OperationResult(BaseModel, Generic[T]):

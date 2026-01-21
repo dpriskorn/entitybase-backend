@@ -146,9 +146,7 @@ def get_statement_endorsement_stats(
 
     # Get stats for single statement
     handler = EndorsementHandler(state=state)
-    result = handler.get_batch_statement_endorsement_stats(
-        [statement_hash]
-    )
+    result = handler.get_batch_statement_endorsement_stats([statement_hash])
     if not isinstance(result, BatchEndorsementStatsResponse):
         raise_validation_error("Invalid response type", status_code=500)
 

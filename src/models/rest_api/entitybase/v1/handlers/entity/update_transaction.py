@@ -45,9 +45,7 @@ class UpdateTransaction(EntityTransaction):
         # Store new statements
         assert hash_result.data is not None  # Guaranteed by success check above
         hash_data: StatementHashResult = hash_result.data
-        store_result = ss.deduplicate_and_store_statements(
-            hash_data,  validator
-        )
+        store_result = ss.deduplicate_and_store_statements(hash_data, validator)
         if not store_result.success:
             from models.rest_api.utils import raise_validation_error
 
@@ -84,7 +82,7 @@ class UpdateTransaction(EntityTransaction):
         from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 
         handler = EntityHandler(state=self.state)
-        response = await handler._create_and_store_revision(
+        response = await handler.create_and_store_revision(
             entity_id=entity_id,
             new_revision_id=new_revision_id,
             head_revision_id=head_revision_id,
@@ -148,9 +146,7 @@ class UpdateTransaction(EntityTransaction):
             self.state.stream_producer.publish_change(event)
         # Events are fire-and-forget, no rollback needed
 
-    def _rollback_statement(
-        self, hash_val: int
-    ) -> None:
+    def _rollback_statement(self, hash_val: int) -> None:
         logger.info(f"[UpdateTransaction] Rolling back statement {hash_val}")
         # Decrement ref_count
         self.state.vitess_client.decrement_ref_count(hash_val)
@@ -159,9 +155,7 @@ class UpdateTransaction(EntityTransaction):
         if ref_count == 0:
             self.state.s3_client.delete_statement(hash_val)
 
-    def _rollback_revision(
-        self, entity_id: str, revision_id: int
-    ) -> None:
+    def _rollback_revision(self, entity_id: str, revision_id: int) -> None:
         logger.info(
             f"[UpdateTransaction] Rolling back revision {revision_id} for {entity_id}"
         )

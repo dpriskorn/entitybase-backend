@@ -63,9 +63,7 @@ class ItemCreateHandler(EntityCreateHandler):
 
             # Process statements
             logger.info("Processing statements")
-            hash_result = tx.process_statements(
-                entity_id, request_data,  validator
-            )
+            hash_result = tx.process_statements(entity_id, request_data, validator)
 
             # Create revision
             logger.info("Creating revision")

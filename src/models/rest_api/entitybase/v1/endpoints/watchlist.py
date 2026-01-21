@@ -90,9 +90,7 @@ def get_notifications(
     state = req.app.state.state
     handler = WatchlistHandler(state=state)
     try:
-        result = handler.get_notifications(
-            user_id, hours, limit, offset
-        )
+        result = handler.get_notifications(user_id, hours, limit, offset)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

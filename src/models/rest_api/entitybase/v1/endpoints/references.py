@@ -15,10 +15,7 @@ references_router = APIRouter(prefix="/references", tags=["statements"])
 
 
 @references_router.get("/{hashes}")
-async def get_references(
-        req: Request,
-        hashes: str
-) -> list[ReferenceResponse | None]:
+async def get_references(req: Request, hashes: str) -> list[ReferenceResponse | None]:
     """Fetch references by hash(es).
 
     Supports single hash (e.g., /references/123) or comma-separated batch (e.g., /references/123,456,789).

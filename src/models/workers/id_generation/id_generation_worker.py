@@ -31,6 +31,7 @@ class IdGeneratorWorker(VitessWorker):
     checking ID range availability. IDs are allocated from pre-reserved ranges to ensure
     efficient, low-latency ID generation.
     """
+
     enumeration_service: Any = None
 
     def __init__(self, worker_id: str = "", **data: Any):
@@ -96,8 +97,7 @@ class IdGeneratorWorker(VitessWorker):
 
             # Initialize enumeration service
             self.enumeration_service = EnumerationService(
-                worker_id=self.worker_id,
-                vitess_client=self.vitess_client
+                worker_id=self.worker_id, vitess_client=self.vitess_client
             )
 
             logger.info("ID Generator Worker initialized successfully")

@@ -6,7 +6,7 @@ import pytest
 pytestmark = pytest.mark.unit
 
 from models.rdf_builder.entity_cache import (
-    _fetch_entity_metadata_batch,
+    fetch_entity_metadata_batch,
     load_entity_metadata_batch,
     load_entity_metadata,
 )
@@ -15,7 +15,7 @@ from models.rdf_builder.entity_cache import (
 class TestFetchEntityMetadataBatch:
     def test_fetch_empty_list(self) -> None:
         """Test fetching with empty entity list."""
-        result = _fetch_entity_metadata_batch([])
+        result = fetch_entity_metadata_batch([])
         assert result.metadata == {}
 
     @patch("models.rdf_builder.entity_cache.requests.post")
@@ -36,7 +36,7 @@ class TestFetchEntityMetadataBatch:
         mock_response.raise_for_status.return_value = None
         mock_post.return_value = mock_response
 
-        result = _fetch_entity_metadata_batch(["Q42"])
+        result = fetch_entity_metadata_batch(["Q42"])
 
         assert "Q42" in result.metadata
         metadata = result.metadata["Q42"]
@@ -63,7 +63,7 @@ class TestFetchEntityMetadataBatch:
 
         # 101 entities to trigger batching
         entity_ids = [f"Q{i}" for i in range(101)]
-        result = _fetch_entity_metadata_batch(entity_ids)
+        result = fetch_entity_metadata_batch(entity_ids)
 
         # Should have made 2 requests (100 + 1)
         assert mock_post.call_count == 2
@@ -73,7 +73,7 @@ class TestFetchEntityMetadataBatch:
         """Test handling of request failure."""
         mock_post.side_effect = Exception("Network error")
 
-        result = _fetch_entity_metadata_batch(["Q42"])
+        result = fetch_entity_metadata_batch(["Q42"])
 
         assert result.metadata["Q42"] is None
 

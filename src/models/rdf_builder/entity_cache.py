@@ -25,7 +25,7 @@ from models.rest_api.entitybase.v1.response.entity.entitybase import (
 logger = logging.getLogger(__name__)
 
 
-def _fetch_entity_metadata_batch(entity_ids: list[str]) -> EntityMetadataBatchResponse:
+def fetch_entity_metadata_batch(entity_ids: list[str]) -> EntityMetadataBatchResponse:
     """Fetch labels and descriptions for multiple entities via SPARQL."""
     if not entity_ids:
         return EntityMetadataBatchResponse(metadata={})
@@ -113,7 +113,7 @@ def load_entity_metadata_batch(
     metadata_dir.mkdir(parents=True, exist_ok=True)
 
     results = {}
-    fetched_metadata = _fetch_entity_metadata_batch(entity_ids)
+    fetched_metadata = fetch_entity_metadata_batch(entity_ids)
 
     for entity_id, metadata in fetched_metadata.metadata.items():
         if metadata:

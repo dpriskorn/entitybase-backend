@@ -15,11 +15,7 @@ qualifiers_router = APIRouter(prefix="/qualifiers", tags=["statements"])
 
 
 @qualifiers_router.get("/{hashes}")
-async def get_qualifiers(
-        req: Request,
-
-        hashes: str
-) -> list[QualifierResponse | None]:
+async def get_qualifiers(req: Request, hashes: str) -> list[QualifierResponse | None]:
     """Fetch qualifiers by hash(es).
 
     Supports single hash (e.g., /qualifiers/123) or comma-separated batch (e.g., /qualifiers/123,456,789).

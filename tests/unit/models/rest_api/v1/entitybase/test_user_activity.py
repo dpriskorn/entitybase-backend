@@ -54,9 +54,7 @@ class TestUserActivityHandler:
             OperationResult(success=True, data=[mock_activity])
         )
 
-        result = handler.get_user_activities(
-            12345, limit=30, offset=0
-        )
+        result = handler.get_user_activities(12345, limit=30, offset=0)
 
         assert isinstance(result, UserActivityResponse)
         assert result.user_id == 12345
@@ -82,6 +80,4 @@ class TestUserActivityHandler:
         mock_vitess_client.user_repository.user_exists.return_value = True
 
         with pytest.raises(ValueError, match="Invalid activity type"):
-            handler.get_user_activities(
-                12345, activity_type="invalid"
-            )
+            handler.get_user_activities(12345, activity_type="invalid")

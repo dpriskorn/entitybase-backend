@@ -1,4 +1,5 @@
 """Manager for Vitess database schema operations."""
+
 from typing import Any
 
 from models.infrastructure.vitess.repository import Repository
@@ -13,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 class SchemaRepository(Repository):
     """Manager for creating and managing Vitess database schema."""
+
     vitess_client: Any
 
     def create_tables(self) -> None:

@@ -26,7 +26,9 @@ class TestBacklinkHandler:
         return BacklinkHandler(state=state)
 
     @pytest.mark.asyncio
-    async def test_get_backlinks_success(self, handler: BacklinkHandler, mock_vitess: MagicMock):
+    async def test_get_backlinks_success(
+        self, handler: BacklinkHandler, mock_vitess: MagicMock
+    ):
         """Test successful backlinks retrieval."""
         # Mock vitess client
         mock_vitess.id_resolver.resolve_id.return_value = 123
@@ -51,7 +53,9 @@ class TestBacklinkHandler:
         assert result.offset == 10
 
     @pytest.mark.asyncio
-    async def test_get_backlinks_entity_not_found(self, handler: BacklinkHandler, mock_vitess: MagicMock):
+    async def test_get_backlinks_entity_not_found(
+        self, handler: BacklinkHandler, mock_vitess: MagicMock
+    ):
         """Test backlinks retrieval for non-existent entity."""
         mock_vitess.id_resolver.resolve_id.return_value = 0  # Not found
 
@@ -62,7 +66,9 @@ class TestBacklinkHandler:
         assert "Entity not found" in exc_info.value.detail
 
     @pytest.mark.asyncio
-    async def test_get_backlinks_no_backlinks(self, handler: BacklinkHandler, mock_vitess: MagicMock):
+    async def test_get_backlinks_no_backlinks(
+        self, handler: BacklinkHandler, mock_vitess: MagicMock
+    ):
         """Test backlinks retrieval with no backlinks."""
         mock_vitess.id_resolver.resolve_id.return_value = 123
         mock_vitess.get_backlinks.return_value = []
@@ -74,7 +80,9 @@ class TestBacklinkHandler:
         assert result.offset == 0
 
     @pytest.mark.asyncio
-    async def test_get_backlinks_resolve_entity_id_failure(self, handler: BacklinkHandler, mock_vitess: MagicMock):
+    async def test_get_backlinks_resolve_entity_id_failure(
+        self, handler: BacklinkHandler, mock_vitess: MagicMock
+    ):
         """Test backlinks when entity ID resolution fails."""
         mock_vitess.id_resolver.resolve_id.return_value = 123
         mock_vitess.id_resolver.resolve_entity_id.return_value = ""  # Resolution failed

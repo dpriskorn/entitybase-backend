@@ -51,9 +51,7 @@ class EntityUpdateHandler(EntityHandler):
             request_data = request.data.copy()
             request_data["id"] = entity_id
             # Process statements
-            hash_result = tx.process_statements(
-                entity_id, request_data,  validator
-            )
+            hash_result = tx.process_statements(entity_id, request_data, validator)
             # Create revision
             response = await tx.create_revision(
                 entity_id=entity_id,
@@ -86,11 +84,13 @@ class EntityUpdateHandler(EntityHandler):
             )
             # Log activity
             if user_id:
-                activity_result = self.state.vitess_client.user_repository.log_user_activity(
-                    user_id=user_id,
-                    activity_type=UserActivityType.ENTITY_EDIT,
-                    entity_id=entity_id,
-                    revision_id=response.revision_id,
+                activity_result = (
+                    self.state.vitess_client.user_repository.log_user_activity(
+                        user_id=user_id,
+                        activity_type=UserActivityType.ENTITY_EDIT,
+                        entity_id=entity_id,
+                        revision_id=response.revision_id,
+                    )
                 )
                 if not activity_result.success:
                     logger.warning(

@@ -159,11 +159,13 @@ class RevisionRepository(Repository):
                 )
 
                 # Log user activity
-                activity_result = self.state.vitess_client.user_repository.log_user_activity(
-                    user_id=reverted_by_user_id,
-                    activity_type="entity_revert",
-                    entity_id=entity_id,
-                    revision_id=new_revision_id,
+                activity_result = (
+                    self.state.vitess_client.user_repository.log_user_activity(
+                        user_id=reverted_by_user_id,
+                        activity_type="entity_revert",
+                        entity_id=entity_id,
+                        revision_id=new_revision_id,
+                    )
                 )
                 if not activity_result.success:
                     logger.warning(
@@ -226,7 +228,6 @@ class RevisionRepository(Repository):
 
     def create_with_cas(
         self,
-        conn: Any,
         entity_id: str,
         revision_id: int,
         data: dict,

@@ -8,7 +8,7 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
-def _format_scientific_notation(value: float) -> str:
+def format_scientific_notation(value: float) -> str:
     """Format value in scientific notation without leading zeros in exponent.
 
     Converts Python's 1.0E-05 format to Wikidata's 1.0E-5 format.
@@ -66,7 +66,7 @@ def serialize_value(value: Any) -> str:
             return ":".join(parts)
 
         elif kind == "globe":
-            precision_formatted = _format_scientific_notation(value.precision)
+            precision_formatted = format_scientific_notation(value.precision)
             return f"g:{value.latitude}:{value.longitude}:{precision_formatted}:{value.globe}"
 
     return str(value)

@@ -13,9 +13,7 @@ from models.rest_api.utils import raise_validation_error
 class UserPreferencesHandler(Handler):
     """Handler for user preference operations."""
 
-    def get_preferences(
-        self, user_id: int
-    ) -> UserPreferencesResponse:
+    def get_preferences(self, user_id: int) -> UserPreferencesResponse:
         """Get user's notification preferences."""
         # Check if user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):
@@ -30,12 +28,11 @@ class UserPreferencesHandler(Handler):
                 raise_validation_error(
                     result.error or "Failed to get user preferences", status_code=500
                 )
+        elif result.data is None or not isinstance(result.data, dict):
+            # Return defaults if no custom preferences set or invalid data
+            prefs = {"notification_limit": 50, "retention_hours": 24}
         else:
-            if result.data is None or not isinstance(result.data, dict):
-                # Return defaults if no custom preferences set or invalid data
-                prefs = {"notification_limit": 50, "retention_hours": 24}
-            else:
-                prefs = result.data
+            prefs = result.data
 
         return UserPreferencesResponse(
             user_id=user_id,
