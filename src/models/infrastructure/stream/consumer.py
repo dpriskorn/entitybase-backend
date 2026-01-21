@@ -5,7 +5,7 @@ import logging
 from typing import AsyncGenerator
 
 from aiokafka import AIOKafkaConsumer  # type: ignore[import-untyped]
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
@@ -22,19 +22,19 @@ class EntityChangeEvent(BaseModel):
     type: str
 
 
-class Consumer:
+class Consumer(BaseModel):
     """Kafka consumer for entity change events."""
 
-    def __init__(
-        self,
-        brokers: list[str],
-        topic: str = "wikibase-entity-changes",
-        group_id: str = "watchlist-consumer",
-    ):
-        self.bootstrap_servers = ",".join(brokers)
-        self.topic = topic
-        self.group_id = group_id
-        self.consumer: AIOKafkaConsumer | None = None
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    brokers: list[str]
+    topic: str = "wikibase-entity-changes"
+    group_id: str = "watchlist-consumer"
+    consumer: AIOKafkaConsumer | None = None
+    bootstrap_servers: str = Field(init=False)
+
+    def model_post_init(self, context) -> None:
+        self.bootstrap_servers = ",".join(self.brokers)
 
     async def start(self) -> None:
         """Start the Kafka consumer."""

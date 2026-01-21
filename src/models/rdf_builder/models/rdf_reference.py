@@ -1,11 +1,14 @@
 """RDF reference model."""
+from typing import Any
+
+from pydantic import BaseModel, Field
 
 from models.internal_representation.references import Reference
 
 from models.rest_api.utils import raise_validation_error
 
 
-class RDFReference:
+class RDFReference(BaseModel):
     """RDF reference model for Turtle generation.
 
     Concern: Generate reference URI from hash (stored in IR).
@@ -14,16 +17,17 @@ class RDFReference:
     Example: http://www.wikidata.org/reference/a4d108601216cffd2ff1819ccf12b483486b62e7
     """
 
-    def __init__(self, reference: Reference, statement_uri: str):
-        self.statement_uri = statement_uri
+    statement_uri: str
+    reference: Reference = Field(exclude=True)
 
-        if not reference.hash:
+    def model_post_init(self, context: Any) -> None:
+        if not self.reference.hash:
             raise_validation_error(
                 f"Reference has no hash. "
-                f"Cannot generate wdref: URI for statement: {statement_uri}"
+                f"Cannot generate wdref: URI for statement: {self.statement_uri}"
             )
-        self.hash = reference.hash
 
-    def get_reference_uri(self) -> str:
+    @property
+    def reference_uri(self) -> str:
         """Generate wdref: URI from hash."""
-        return f"wdref:{self.hash}"
+        return f"wdref:{self.reference.hash}"

@@ -2,17 +2,22 @@
 
 from typing import TextIO, List
 
+from pydantic import BaseModel, ConfigDict, Field
+
 from models.rdf_builder.writers.prefixes import TURTLE_PREFIXES
 
 
-class TurtleWriter:
+class TurtleWriter(BaseModel):
     """Buffered Turtle writer for efficient output."""
 
-    def __init__(self, output: TextIO, buffer_size: int = 8192):
-        self.output = output
-        self.buffer_size = buffer_size
-        self._buffer: List[str] = []
-        self._buffer_len = 0
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    output: TextIO
+    buffer_size: int = 8192
+
+    def model_post_init(self, context):
+        self.buffer = []
+        self.buffer_len = 0
 
     def write_header(self) -> None:
         """Write Turtle prefixes."""
@@ -20,18 +25,13 @@ class TurtleWriter:
 
     def write(self, text: str) -> None:
         """Write text to buffer."""
-        self._buffer.append(text)
-        self._buffer_len += len(text)
+        self.buffer.append(text)
+        self.buffer_len += len(text)
 
-        if self._buffer_len >= self.buffer_size:
-            self.flush()
-
-    def flush(self) -> None:
-        """Flush buffer to output."""
-        if self._buffer:
-            self.output.write("".join(self._buffer))
-            self._buffer = []
-            self._buffer_len = 0
+        if self.buffer_len >= self.buffer_size:
+            self.output.write("".join(self.buffer))
+            self.buffer = []
+            self.buffer_len = 0
             self.output.flush()
 
     def _write(self, text: str) -> None:

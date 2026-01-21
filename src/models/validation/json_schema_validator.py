@@ -6,6 +6,7 @@ from pathlib import Path
 
 import yaml
 from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
+from pydantic import BaseModel, Field
 
 from models.config.settings import settings
 from models.rest_api.entitybase.v1.response.misc import JsonSchema
@@ -14,30 +15,18 @@ from models.rest_api.utils import raise_validation_error
 logger = logging.getLogger(__name__)
 
 
-class JsonSchemaValidator:
+class JsonSchemaValidator(BaseModel):
     """Validator for JSON schemas used in entity validation."""
 
-    def __init__(
-        self,
-        s3_revision_version: str = "",
-        s3_statement_version: str = "",
-        wmf_recentchange_version: str = "",
-    ) -> None:
-        self.s3_revision_version = (
-            s3_revision_version or settings.s3_schema_revision_version
-        )
-        self.s3_statement_version = (
-            s3_statement_version or settings.s3_statement_version
-        )
-        self.wmf_recentchange_version = (
-            wmf_recentchange_version or settings.wmf_recentchange_version
-        )
-        self._entity_revision_schema: JsonSchema | None = None
-        self._statement_schema: JsonSchema | None = None
-        self._recentchange_schema: JsonSchema | None = None
-        self._entity_validator: Draft202012Validator | None = None
-        self._statement_validator: Draft202012Validator | None = None
-        self._recentchange_validator: Draft202012Validator | None = None
+    s3_revision_version: str = Field(default_factory=lambda: settings.s3_schema_revision_version)
+    s3_statement_version: str = Field(default_factory=lambda: settings.s3_statement_version)
+    wmf_recentchange_version: str = Field(default_factory=lambda: settings.wmf_recentchange_version)
+    _entity_revision_schema: JsonSchema | None = None
+    _statement_schema: JsonSchema | None = None
+    _recentchange_schema: JsonSchema | None = None
+    _entity_validator: Draft202012Validator | None = None
+    _statement_validator: Draft202012Validator | None = None
+    _recentchange_validator: Draft202012Validator | None = None
 
     @staticmethod
     def _load_schema(schema_path: str) -> JsonSchema:
@@ -61,19 +50,13 @@ class JsonSchemaValidator:
 
     def _get_entity_revision_schema(self) -> JsonSchema:
         if self._entity_revision_schema is None:
-            schema_path = (
-                Path(__file__).parent.parent.parent
-                / f"schemas/entitybase/s3/revision/{self.s3_revision_version}/latest.yaml"
-            )
+            schema_path = Path(f"schemas/{self.s3_revision_version}/entity.json")
             self._entity_revision_schema = self._load_schema(str(schema_path))
         return self._entity_revision_schema
 
     def _get_statement_schema(self) -> JsonSchema:
         if self._statement_schema is None:
-            schema_path = (
-                Path(__file__).parent.parent.parent
-                / f"schemas/entitybase/s3/statement/{self.s3_statement_version}/latest.yaml"
-            )
+            schema_path = Path(f"schemas/{self.s3_statement_version}/statement.json")
             self._statement_schema = self._load_schema(str(schema_path))
         return self._statement_schema
 

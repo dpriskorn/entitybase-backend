@@ -8,11 +8,13 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import List, Set, Tuple, Dict, Any, Optional
 
+from pydantic import BaseModel
 from pyld import jsonld  # type: ignore[import-untyped]
 from rdflib import Graph
 
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.rest_api.entitybase.v1.response.events import RDFChangeEvent
+from models.workers.worker import Worker
 
 Triple = Tuple[str, str, str]  # (subject, predicate, object)
 
@@ -48,13 +50,10 @@ class EntityDiffResponse:
     triple_count_v2: int
 
 
-class RDFCanonicalizer:
+class RDFCanonicalizer(BaseModel):
     """Handles RDF canonicalization using various methods."""
 
-    def __init__(
-        self, method: CanonicalizationMethod = CanonicalizationMethod.URDNA2015
-    ):
-        self.method = method
+    method: CanonicalizationMethod = CanonicalizationMethod.URDNA2015
 
     def canonicalize(self, rdf_content: str, format_: str = "turtle") -> Set[Triple]:
         """Canonicalize RDF content and return normalized triples."""
@@ -212,17 +211,15 @@ class RDFSerializer:
         return g.serialize(format=format_)  # type: ignore[no-any-return]
 
 
-class EntityDiffWorker:
+class EntityDiffWorker(Worker):
     """Worker for computing entity diffs."""
 
-    def __init__(
-        self,
-        canonicalization_method: CanonicalizationMethod = CanonicalizationMethod.URDNA2015,
-        rdf_stream_producer: Optional[StreamProducerClient] = None,
-    ):
-        self.canonicalizer = RDFCanonicalizer(canonicalization_method)
+    canonicalization_method: CanonicalizationMethod = CanonicalizationMethod.URDNA2015
+    rdf_stream_producer: Optional[StreamProducerClient] = None
+
+    def model_post_init(self, context):
+        self.canonicalizer = RDFCanonicalizer(self.canonicalization_method)
         self.serializer = RDFSerializer()
-        self.rdf_stream_producer = rdf_stream_producer
 
     async def compute_diff_from_rdf(
         self, entity_id: str, rdf_v1: str, rdf_v2: str, format_: str = "turtle"

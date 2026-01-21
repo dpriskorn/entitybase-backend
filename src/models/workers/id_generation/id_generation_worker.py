@@ -34,21 +34,7 @@ class IdGeneratorWorker(VitessWorker):
 
     enumeration_service: Any = None
 
-    def __init__(self, worker_id: str = "", **data: Any):
-        """Initialize the ID generator worker.
-
-        Args:
-            worker_id: Unique identifier. Defaults to WORKER_ID env var
-                        or auto-generated "worker-{pid}".
-            **data: Additional Pydantic model data.
-
-        Sets up signal handlers for SIGTERM/SIGINT to enable graceful shutdown.
-        Services (VitessClient, EnumerationService) are initialized in start().
-        """
-        if worker_id:
-            data["worker_id"] = worker_id
-        super().__init__(**data)
-
+    def model_post_init(self, context) -> None:
         # Setup signal handlers for graceful shutdown
         signal.signal(signal.SIGTERM, self._signal_handler)
         signal.signal(signal.SIGINT, self._signal_handler)

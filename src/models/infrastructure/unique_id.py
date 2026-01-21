@@ -1,9 +1,10 @@
 import uuid
 
+from pydantic import BaseModel, Field
 
-class UniqueIdGenerator:
-    def __init__(self) -> None:
-        self._counter = 0
+
+class UniqueIdGenerator(BaseModel):
+    _counter: int = Field(default=0)
 
     def generate_unique_id(self) -> int:
         self._counter += 1

@@ -5,6 +5,8 @@ from io import StringIO
 from pathlib import Path
 from typing import Any, TextIO
 
+from pydantic import BaseModel
+
 from models.json_parser.statement_parser import parse_statement
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 from models.rdf_builder.models.rdf_statement import RDFStatement
@@ -18,23 +20,25 @@ from models.rest_api.utils import raise_validation_error
 logger = logging.getLogger(__name__)
 
 
-class EntityConverter:
+class EntityConverter(BaseModel):
     """Converts internal Entity representation to RDF Turtle format."""
+    property_registry: PropertyRegistry
+    entity_metadata_dir: Path | None = None
+    redirects_dir: Path | None = None
+    vitess_client: Any = None
+    enable_deduplication: bool = True
 
-    def __init__(
-        self,
-        property_registry: PropertyRegistry,
-        entity_metadata_dir: Path | None = None,
-        redirects_dir: Path | None = None,
-        vitess_client: Any = None,
-        enable_deduplication: bool = True,
-    ) -> None:
-        self.properties = property_registry
-        self.writers = TripleWriters()
-        self.entity_metadata_dir = entity_metadata_dir
-        self.redirects_dir = redirects_dir
-        self.vitess_client = vitess_client
-        self.dedupe = HashDedupeBag() if enable_deduplication else None
+    @property
+    def properties(self):
+        return self.property_registry
+
+    @property
+    def writers(self):
+        return TripleWriters()
+
+    @property
+    def dedupe(self):
+        return HashDedupeBag() if self.enable_deduplication else None
 
     def convert_to_turtle(self, entity: EntityMetadataResponse, output: TextIO) -> None:
         """Convert entity to Turtle format."""
@@ -72,7 +76,7 @@ class EntityConverter:
         """Write all statements."""
         for stmt_dict in entity.statements.data:
             stmt = parse_statement(stmt_dict)
-            rdf_stmt = RDFStatement(stmt)
+            rdf_stmt = stmt.get_rdfstatement()
             self._write_statement(entity.id, rdf_stmt, output)
 
     def _write_statement(
