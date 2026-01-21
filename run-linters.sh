@@ -18,6 +18,7 @@ set -e
 ./run-tuple-lint.sh
 ./run-as-lint.sh
 ./run-key-length-lint.sh
+./run-init-lint.sh
 #./run-description-lint.sh
 ./run-backslash-lint.sh
 
