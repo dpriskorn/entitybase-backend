@@ -12,6 +12,7 @@ RUN pip install --no-cache-dir -r requirements-dev.txt
 COPY ./tests/ ./tests/
 COPY ./src/ ./
 COPY ./test_data/ ./test_data/
+COPY ./schemas/ ./schemas/
 COPY pyproject.toml .
 
 ENV PYTHONPATH=/app

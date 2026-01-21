@@ -1,0 +1,58 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://wikibase.org/schemas/s3-qualifier/1.0.0.json
+title: S3 Qualifier Snapshot
+description: Immutable qualifier snapshot stored in S3. Qualifiers with hash-based deduplication and full revision tracking.
+type: object
+required:
+- schema_version
+- content_hash
+- qualifier
+- created_at
+properties:
+  schema_version:
+    type: string
+    pattern: ^\d+\.\d+\.\d+$
+    description: Schema version (MAJOR.MINOR.PATCH)
+  content_hash:
+    type: integer
+    description: Rapidhash integer of qualifier JSON for deduplication and storage key.
+    minimum: -922337203685477581
+    examples:
+    - 987654321012345678
+    - -918273876123456789
+  qualifier:
+    type: object
+    description: Qualifier object with property IDs as keys and arrays of snaks as values.
+    patternProperties:
+      "^P\\d+$":
+        type: array
+        items:
+          type: object
+          description: Snak containing property, data type, and value.
+          required:
+            - snaktype
+            - property
+            - datatype
+          properties:
+            snaktype:
+              type: string
+              enum:
+                - value
+                - somevalue
+                - novalue
+              description: 'Type of snak: value, somevalue, or novalue.'
+            property:
+              type: string
+              description: Wikidata property identifier (e.g., P31, P569, P19).
+            datatype:
+              type: string
+              description: Data type of the property value (e.g., wikibase-item, time, quantity).
+            hash:
+              type: string
+              description: Hash of the datavalue for deduplication.
+  created_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp when this qualifier was created.
+    examples:
+    - '2026-01-05T10:00:00Z'

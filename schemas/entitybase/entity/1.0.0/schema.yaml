@@ -1,0 +1,169 @@
+$defs:
+  datavalue:
+    properties:
+      type:
+        type: string
+      value: {}
+    required:
+    - value
+    - type
+    type: object
+  reference:
+    properties:
+      hash:
+        type: string
+      snaks:
+        patternProperties:
+          ^P[0-9]+$:
+            items:
+              $ref: '#/$defs/snak'
+            type: array
+        type: object
+      snaks-order:
+        items:
+          pattern: ^P[0-9]+$
+          type: string
+        type: array
+    required:
+    - snaks
+    type: object
+  snak:
+    properties:
+      datatype:
+        type: string
+      datavalue:
+        $ref: '#/$defs/datavalue'
+      hash:
+        type: string
+      property:
+        pattern: ^P[0-9]+$
+        type: string
+      snaktype:
+        enum:
+        - value
+        - somevalue
+        - novalue
+        type: string
+    required:
+    - snaktype
+    - property
+    type: object
+  statement:
+    properties:
+      id:
+        type: string
+      mainsnak:
+        $ref: '#/$defs/snak'
+      qualifiers:
+        patternProperties:
+          ^P[0-9]+$:
+            items:
+              $ref: '#/$defs/snak'
+            type: array
+        type: object
+      qualifiers-order:
+        items:
+          pattern: ^P[0-9]+$
+          type: string
+        type: array
+      rank:
+        enum:
+        - preferred
+        - normal
+        - deprecated
+        type: string
+      references:
+        items:
+          $ref: '#/$defs/reference'
+        type: array
+      type:
+        const: statement
+        type: string
+    required:
+    - mainsnak
+    - type
+    - rank
+    type: object
+$schema: https://json-schema.org/draft/2020-12/schema
+description: JSON Schema for Wikibase entity objects
+properties:
+  aliases:
+    patternProperties:
+      ^[a-z]{2,3}(-[a-z0-9]+)?$:
+        items:
+          properties:
+            language:
+              type: string
+            value:
+              type: string
+          required:
+          - language
+          - value
+          type: object
+        type: array
+    type: object
+  claims:
+    patternProperties:
+      ^P[0-9]+$:
+        items:
+          $ref: '#/$defs/statement'
+        type: array
+    type: object
+  descriptions:
+    patternProperties:
+      ^[a-z]{2,3}(-[a-z0-9]+)?$:
+        properties:
+          language:
+            type: string
+          value:
+            type: string
+        required:
+        - language
+        - value
+        type: object
+    type: object
+  id:
+    pattern: ^[QPLENS][0-9]+$
+    type: string
+  labels:
+    patternProperties:
+      ^[a-z]{2,3}(-[a-z0-9]+)?$:
+        properties:
+          language:
+            type: string
+          value:
+            type: string
+        required:
+        - language
+        - value
+        type: object
+    type: object
+  sitelinks:
+    patternProperties:
+      ^[a-z_]+$:
+        properties:
+          badges:
+            items:
+              type: string
+            type: array
+          site:
+            type: string
+          title:
+            type: string
+        required:
+        - site
+        - title
+        type: object
+    type: object
+  type:
+    enum:
+    - item
+    - property
+    - lexeme
+    - entityschema
+    type: string
+required:
+- id
+- type
+title: Wikibase Entity
+type: object
