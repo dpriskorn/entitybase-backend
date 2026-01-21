@@ -69,7 +69,7 @@ class Settings(BaseSettings):
         Returns:
             S3Config object with the settings.
         """
-        from models.infrastructure.s3.client import S3Config
+        from models.infrastructure.s3.config import S3Config
 
         return S3Config(
             endpoint_url=self.s3_endpoint,

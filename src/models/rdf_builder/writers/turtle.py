@@ -1,8 +1,8 @@
 """RDF Turtle writer."""
 from io import StringIO
-from typing import TextIO
+from typing import TextIO, List
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from models.rdf_builder.writers.prefixes import TURTLE_PREFIXES
 
@@ -14,10 +14,8 @@ class TurtleWriter(BaseModel):
 
     output: TextIO | StringIO
     buffer_size: int = 8192
-
-    def model_post_init(self, context):
-        self.buffer = []
-        self.buffer_len = 0
+    buffer: List[str] = Field(default_factory=list)
+    buffer_len: int = 0
 
     def write_header(self) -> None:
         """Write Turtle prefixes."""
