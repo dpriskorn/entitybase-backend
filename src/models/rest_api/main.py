@@ -75,6 +75,13 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             entity_diff_stream_config=settings.get_entity_diff_stream_config(),
         )
 
+        # Create database tables on startup
+        logger.debug("Creating database tables...")
+        from models.infrastructure.vitess.repositories.schema import SchemaRepository
+        schema_repository = SchemaRepository(vitess_client=app_.state.clients.vitess_client)
+        schema_repository.create_tables()
+        logger.info("Database tables created/verified")
+
         if (
             settings.streaming_enabled
             and app_.state.clients.entitychange_stream_producer
