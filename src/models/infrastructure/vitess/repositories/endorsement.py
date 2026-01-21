@@ -5,9 +5,7 @@ from typing import List
 
 from models.common import OperationResult
 from models.infrastructure.vitess.repository import Repository
-from models.rest_api.entitybase.v1.response.endorsements import (
-    StatementEndorsementResponse,
-)
+from models.rest_api.entitybase.v1.response.endorsements import StatementEndorsementResponse
 
 logger = logging.getLogger(__name__)
 

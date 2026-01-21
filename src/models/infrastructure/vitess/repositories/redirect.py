@@ -81,7 +81,7 @@ class RedirectRepository(Repository):
             )
 
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 """INSERT INTO entity_redirects
                        (redirect_from_id, redirect_to_id, created_by)
                        VALUES (%s, %s, %s)""",
@@ -95,7 +95,7 @@ class RedirectRepository(Repository):
             return []
 
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 """SELECT m.entity_id
                        FROM entity_redirects r
                        JOIN entity_id_mapping m ON r.redirect_from_id = m.internal_id
@@ -111,7 +111,7 @@ class RedirectRepository(Repository):
         if not internal_id:
             return ""
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 """SELECT m.entity_id
                        FROM entity_head h
                        JOIN entity_id_mapping m ON h.redirects_to = m.internal_id

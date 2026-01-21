@@ -6,7 +6,6 @@ from typing import Any, List
 
 from models.common import OperationResult
 from models.infrastructure.vitess.repository import Repository
-from models.rest_api.entitybase.v1.request.enums import UserActivityType
 from models.rest_api.entitybase.v1.response.user import UserResponse
 from models.rest_api.entitybase.v1.response.user_activity import (
     UserActivityItemResponse,
@@ -59,7 +58,7 @@ class UserRepository(Repository):
         """
 
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 "SELECT 1 FROM users WHERE user_id = %s",
                 (user_id,),
             )
@@ -69,7 +68,7 @@ class UserRepository(Repository):
         """Get user data by ID."""
 
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 "SELECT user_id, created_at, preferences FROM users WHERE user_id = %s",
                 (user_id,),
             )
@@ -101,7 +100,7 @@ class UserRepository(Repository):
         """Check if watchlist is enabled for user."""
 
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 "SELECT watchlist_enabled FROM users WHERE user_id = %s",
                 (user_id,),
             )

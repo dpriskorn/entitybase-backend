@@ -40,7 +40,7 @@ class RevisionRepository(Repository):
         edit_summary = data.get("edit_summary", "")
 
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes, user_id, edit_summary) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                 (
                     internal_id,
@@ -185,7 +185,7 @@ class RevisionRepository(Repository):
             return []
 
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 "SELECT revision_id, created_at, user_id, edit_summary FROM entity_revisions WHERE internal_id = %s ORDER BY revision_id DESC LIMIT %s OFFSET %s",
                 (internal_id, limit, offset),
             )
@@ -215,12 +215,12 @@ class RevisionRepository(Repository):
         if not internal_id:
             return OperationResult(success=False, error="Entity not found")
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 "DELETE FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
                 (internal_id, revision_id),
             )
             # Also delete from entity_head if it's the head
-            cursor.execute(
+        cursor.execute(
                 "UPDATE entity_head SET head_revision_id = head_revision_id - 1 WHERE internal_id = %s AND head_revision_id = %s",
                 (internal_id, revision_id),
             )
@@ -242,7 +242,7 @@ class RevisionRepository(Repository):
             return False
 
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 """INSERT INTO entity_revisions 
                         (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
                         VALUES (%s, %s, %s, %s, %s, %s, %s)""",
@@ -257,7 +257,7 @@ class RevisionRepository(Repository):
                 ),
             )
 
-            cursor.execute(
+        cursor.execute(
                 """UPDATE entity_head
                        SET head_revision_id = %s,
                            is_semi_protected = %s,
@@ -289,7 +289,7 @@ class RevisionRepository(Repository):
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 """INSERT INTO entity_revisions 
                         (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
                         VALUES (%s, %s, %s, %s, %s, %s, %s)""",
@@ -304,7 +304,7 @@ class RevisionRepository(Repository):
                 ),
             )
 
-            cursor.execute(
+        cursor.execute(
                 """INSERT INTO entity_head
                        (internal_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected)
                        VALUES (%s, %s, %s, %s, %s, %s, %s)""",

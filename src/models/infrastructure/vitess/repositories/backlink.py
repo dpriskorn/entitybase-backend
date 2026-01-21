@@ -141,22 +141,22 @@ class BacklinkRepository(Repository):
         cursor = self.vitess_client.cursor
         try:
             cursor.execute(
-                    """
-                    INSERT INTO backlink_statistics
-                    (date, total_backlinks, unique_entities_with_backlinks, top_entities_by_backlinks)
-                    VALUES (%s, %s, %s, %s)
-                    ON DUPLICATE KEY UPDATE
-                    total_backlinks = VALUES(total_backlinks),
-                    unique_entities_with_backlinks = VALUES(unique_entities_with_backlinks),
-                    top_entities_by_backlinks = VALUES(top_entities_by_backlinks)
-                    """,
-                    (
-                        date,
-                        total_backlinks,
-                        unique_entities_with_backlinks,
-                        top_entities_json,
-                    ),
-                )
+                """
+                INSERT INTO backlink_statistics
+                (date, total_backlinks, unique_entities_with_backlinks, top_entities_by_backlinks)
+                VALUES (%s, %s, %s, %s)
+                ON DUPLICATE KEY UPDATE
+                total_backlinks = VALUES(total_backlinks),
+                unique_entities_with_backlinks = VALUES(unique_entities_with_backlinks),
+                top_entities_by_backlinks = VALUES(top_entities_by_backlinks)
+                """,
+                (
+                    date,
+                    total_backlinks,
+                    unique_entities_with_backlinks,
+                    top_entities_json,
+                ),
+            )
             logger.info(f"Successfully stored backlink statistics for {date}")
         except Exception as e:
             logger.error(f"Failed to insert backlink statistics for {date}: {e}")

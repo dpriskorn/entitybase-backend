@@ -75,7 +75,7 @@ class WatchlistRepository(Repository):
         properties_json = ",".join(properties) if properties else ""
 
         with self.connection_manager.conn.cursor() as cursor:
-            cursor.execute(
+        cursor.execute(
                 "DELETE FROM watchlist WHERE user_id = %s AND internal_entity_id = %s AND watched_properties = %s",
                 (user_id, internal_entity_id, properties_json),
             )

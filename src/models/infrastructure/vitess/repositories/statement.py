@@ -98,7 +98,7 @@ class StatementRepository(Repository):
     def get_most_used(self, limit: int, min_ref_count: int = 1) -> list[int]:
         """Get most used statement content hashes."""
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 """SELECT content_hash
                         FROM statement_content
                         WHERE ref_count >= %s
@@ -112,7 +112,7 @@ class StatementRepository(Repository):
     def get_ref_count(self, content_hash: int) -> int:
         """Get the reference count for a statement."""
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 "SELECT ref_count FROM statement_content WHERE content_hash = %s",
                 (content_hash,),
             )
@@ -122,7 +122,7 @@ class StatementRepository(Repository):
     def delete_content(self, content_hash: int) -> None:
         """Delete statement content when ref_count reaches 0."""
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 "DELETE FROM statement_content WHERE content_hash = %s AND ref_count <= 0",
                 (content_hash,),
             )
@@ -130,6 +130,6 @@ class StatementRepository(Repository):
     def get_all_statement_hashes(self) -> list[int]:
         """Get all statement content hashes."""
         cursor = self.vitess_client.cursor
-            cursor.execute("SELECT content_hash FROM statement_content")
+        cursor.execute("SELECT content_hash FROM statement_content")
             result = [row[0] for row in cursor.fetchall()]
             return result

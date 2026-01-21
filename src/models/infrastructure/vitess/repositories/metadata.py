@@ -91,7 +91,7 @@ class MetadataRepository(Repository):
     def delete_metadata_content(self, content_hash: int, content_type: str) -> None:
         """Delete metadata content when ref_count reaches 0."""
         cursor = self.vitess_client.cursor
-            cursor.execute(
+        cursor.execute(
                 "DELETE FROM metadata_content WHERE content_hash = %s AND content_type = %s AND ref_count <= 0",
                 (content_hash, content_type),
             )
