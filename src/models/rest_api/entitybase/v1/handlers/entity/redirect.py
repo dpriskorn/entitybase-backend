@@ -12,12 +12,9 @@ from models.rest_api.entitybase.v1.response import (
     EntityRedirectResponse,
 )
 from models.rest_api.entitybase.v1.response.entity.revert import EntityRevertResponse
-from models.rest_api.entitybase.v1.services.redirects import RedirectService
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.client import MyS3Client
-    from models.infrastructure.stream.producer import StreamProducerClient
-    from models.infrastructure.vitess.client import VitessClient
+    pass
 
 logger = logging.getLogger(__name__)
 
