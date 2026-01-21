@@ -14,7 +14,7 @@ class EntityRepository(Repository):
 
     def get_head(self, entity_id: str) -> int:
         """Get the current head revision ID for an entity."""
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return 0
         with self.connection_manager.connection.cursor() as cursor:
@@ -27,7 +27,7 @@ class EntityRepository(Repository):
 
     def is_deleted(self, entity_id: str) -> bool:
         """Check if an entity is marked as deleted."""
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
         with self.connection_manager.connection.cursor() as cursor:
@@ -40,7 +40,7 @@ class EntityRepository(Repository):
 
     def is_locked(self, entity_id: str) -> bool:
         """Check if an entity is locked for editing."""
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
         with self.connection_manager.connection.cursor() as cursor:
@@ -53,7 +53,7 @@ class EntityRepository(Repository):
 
     def is_archived(self, entity_id: str) -> bool:
         """Check if an entity is archived."""
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
         with self.connection_manager.connection.cursor() as cursor:
@@ -67,7 +67,7 @@ class EntityRepository(Repository):
     def get_protection_info(self, entity_id: str) -> ProtectionResponse | None:
         """Get protection status information for an entity."""
         logger.debug(f"Getting protection info for entity {entity_id}")
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return None
 
@@ -93,10 +93,10 @@ class EntityRepository(Repository):
 
     def create_entity(self, entity_id: str) -> None:
         """Create a new entity in the database."""
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
-            self.id_resolver.register_entity(entity_id)
-            internal_id = self.id_resolver.resolve_id(entity_id)
+            self.vitess_client.id_resolver.register_entity(entity_id)
+            internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
             if not internal_id:
                 raise_validation_error(
                     f"Failed to register entity {entity_id}", status_code=500
@@ -111,7 +111,7 @@ class EntityRepository(Repository):
 
     def delete_entity(self, entity_id: str) -> None:
         """Delete an entity from the database."""
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return
         with self.connection_manager.connection.cursor() as cursor:
@@ -121,7 +121,7 @@ class EntityRepository(Repository):
 
     def update_head_revision(self, entity_id: str, revision_id: int) -> None:
         """Update the head revision for an entity."""
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return
         with self.connection_manager.connection.cursor() as cursor:

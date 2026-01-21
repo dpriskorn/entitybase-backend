@@ -22,13 +22,13 @@ class RedirectRepository(Repository):
         logger.debug(
             f"Setting redirect target for {entity_id} to {redirects_to_entity_id}"
         )
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return OperationResult(success=False, error=f"Entity {entity_id} not found")
 
         redirects_to_internal_id = None
         if redirects_to_entity_id:
-            redirects_to_internal_id = self.id_resolver.resolve_id(
+            redirects_to_internal_id = self.vitess_client.id_resolver.resolve_id(
                 redirects_to_entity_id
             )
             if not redirects_to_internal_id:
@@ -68,8 +68,8 @@ class RedirectRepository(Repository):
         logger.debug(
             f"Creating redirect from {redirect_from_entity_id} to {redirect_to_entity_id}"
         )
-        redirect_from_internal_id = self.id_resolver.resolve_id(redirect_from_entity_id)
-        redirect_to_internal_id = self.id_resolver.resolve_id(redirect_to_entity_id)
+        redirect_from_internal_id = self.vitess_client.id_resolver.resolve_id(redirect_from_entity_id)
+        redirect_to_internal_id = self.vitess_client.id_resolver.resolve_id(redirect_to_entity_id)
 
         if not redirect_from_internal_id:
             raise_validation_error(
@@ -90,7 +90,7 @@ class RedirectRepository(Repository):
 
     def get_incoming_redirects(self, entity_id: str) -> list[str]:
         """Get entities that redirect to the given entity."""
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return []
 
@@ -107,7 +107,7 @@ class RedirectRepository(Repository):
 
     def get_target(self, entity_id: str) -> str:
         """Get the redirect target for an entity."""
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return ""
         with self.connection_manager.connection.cursor() as cursor:

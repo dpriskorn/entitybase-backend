@@ -26,7 +26,7 @@ class ThanksRepository(Repository):
 
             with self.connection_manager.connection.cursor() as cursor:
                 # Resolve entity_id to internal_id
-                internal_id = self.id_resolver.resolve_id(entity_id)
+                internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
                 if not internal_id:
                     return OperationResult(success=False, error="Entity not found")
 
@@ -189,7 +189,7 @@ class ThanksRepository(Repository):
         try:
             with self.connection_manager.connection.cursor() as cursor:
                 # Resolve entity_id to internal_id
-                internal_id = self.id_resolver.resolve_id(entity_id)
+                internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
                 if not internal_id:
                     return OperationResult(success=False, error="Entity not found")
 

@@ -28,7 +28,7 @@ class HeadRepository(Repository):
         logger.debug(
             f"CAS update for entity {entity_id}, expected head {expected_head}, new head {new_head}"
         )
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return OperationResult(success=False, error="Entity not found")
 
@@ -70,7 +70,7 @@ class HeadRepository(Repository):
 
     def hard_delete(self, entity_id: str, head_revision_id: int) -> OperationResult:
         """Mark an entity as hard deleted."""
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return OperationResult(success=False, error=f"Entity {entity_id} not found")
 
@@ -89,7 +89,7 @@ class HeadRepository(Repository):
 
     def soft_delete(self, entity_id: str) -> OperationResult:
         """Mark an entity as soft deleted."""
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return OperationResult(success=False, error=f"Entity {entity_id} not found")
 

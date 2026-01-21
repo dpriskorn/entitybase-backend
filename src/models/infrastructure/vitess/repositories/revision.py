@@ -23,7 +23,7 @@ class RevisionRepository(Repository):
     ) -> None:
         """Insert a new revision for an entity."""
         logger.debug(f"Inserting revision {revision_id} for entity {entity_id}")
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
@@ -180,7 +180,7 @@ class RevisionRepository(Repository):
         """Get revision history for an entity."""
         logger.debug(f"Getting history for entity {entity_id}, limit {limit}")
 
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return []
 
@@ -211,7 +211,7 @@ class RevisionRepository(Repository):
             return OperationResult(success=False, error="Entity ID is required")
         if revision_id <= 0:
             return OperationResult(success=False, error="Invalid revision ID")
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return OperationResult(success=False, error="Entity not found")
         with self.connection_manager.connection.cursor() as cursor:
@@ -237,7 +237,7 @@ class RevisionRepository(Repository):
         logger.debug(
             f"Creating revision {revision_id} for entity {entity_id} with CAS, expected {expected_revision_id}"
         )
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
 
@@ -284,7 +284,7 @@ class RevisionRepository(Repository):
     def create(self, entity_id: str, revision_id: int, data: dict) -> None:
         """Create a new revision for an entity."""
         logger.debug(f"Creating revision {revision_id} for entity {entity_id}")
-        internal_id = self.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
