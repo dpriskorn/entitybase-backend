@@ -24,9 +24,11 @@ class JsonSchemaValidator(BaseModel):
     entity_revision_schema: JsonSchema | None = Field(default=None)
     statement_schema: JsonSchema | None = Field(default=None)
     recentchange_schema: JsonSchema | None = Field(default=None)
+    snak_schema: JsonSchema | None = Field(default=None)
     entity_validator: Draft202012Validator | None = Field(default=None)
     statement_validator: Draft202012Validator | None = Field(default=None)
     recentchange_validator: Draft202012Validator | None = Field(default=None)
+    snak_validator: Draft202012Validator | None = Field(default=None)
 
     model_config = {"arbitrary_types_allowed": True}
 
@@ -64,12 +66,15 @@ class JsonSchemaValidator(BaseModel):
 
     def _get_recentchange_schema(self) -> JsonSchema:
         if self.recentchange_schema is None:
-            schema_path = (
-                Path(__file__).parent.parent.parent
-                / "schemas/wmf/recentchange/latest/latest.yaml"
-            )
+            schema_path = Path(f"schemas/entitybase/events/recentchange/latest/latest.yaml")
             self.recentchange_schema = self._load_schema(str(schema_path))
         return self.recentchange_schema
+
+    def _get_snak_schema(self) -> JsonSchema:
+        if self.snak_schema is None:
+            schema_path = Path(f"schemas/entitybase/s3/snak/1.0.0/schema.yaml")
+            self.snak_schema = self._load_schema(str(schema_path))
+        return self.snak_schema
 
     def _get_entity_validator(self) -> Draft202012Validator:
         if self.entity_validator is None:

@@ -24,12 +24,11 @@ def save_cache(cache_file: Path, cache: dict):
 
 
 def compute_hash(file_path: Path) -> str:
-    """Compute MD5 hash of a file."""
-    hash_md5 = hashlib.md5()
+    """Compute rapidhash of a file."""
+    from rapidhash import rapidhash
     with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
+        data = f.read()
+    return str(rapidhash(data))
 
 
 def needs_regeneration(puml_file: Path, cache: dict) -> bool:

@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, Request
 from models.rest_api.entitybase.v1.handlers.entity.item import ItemCreateHandler
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
+from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.request.entity import (
     EntityCreateRequest,
     EntityUpdateRequest,
@@ -33,6 +34,7 @@ async def create_item(request: EntityCreateRequest, req: Request) -> EntityRespo
 
     try:
         state = req.app.state.state_handler
+        assert isinstance(state, StateHandler)
         validator = req.app.state.state_handler.validator
         enumeration_service = req.app.state.state_handler.enumeration_service
 
