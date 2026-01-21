@@ -60,7 +60,7 @@ class EntityUpdateHandler(EntityHandler):
                 request_data=request_data,
                 entity_type=EntityType(request.type),
                 hash_result=hash_result,
-                content_hash=0,  # TODO: calculate
+                # content_hash=0,  # TODO: calculate
                 is_mass_edit=request.is_mass_edit,
                 edit_type=request.edit_type,
                 edit_summary=request.edit_summary,

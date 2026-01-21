@@ -11,7 +11,8 @@ def health_check(response: Response) -> HealthCheckResponse:
     from models.rest_api.main import app
 
     state = getattr(app.state, "clients", None)
-    # assert isinstance(state, State)
+    from models.rest_api.state import State
+    assert isinstance(state, State)
     if state is None:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return HealthCheckResponse(

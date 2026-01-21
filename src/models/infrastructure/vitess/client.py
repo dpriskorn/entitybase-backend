@@ -6,6 +6,7 @@ from typing import Optional
 
 from pydantic import Field, BaseModel
 
+from models.infrastructure.client import Client
 from models.infrastructure.vitess.config import VitessConfig
 from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.id_resolver import IdResolver
@@ -13,7 +14,7 @@ from models.infrastructure.vitess.id_resolver import IdResolver
 logger = logging.getLogger(__name__)
 
 
-class VitessClient(BaseModel):
+class VitessClient(Client):
     """Vitess database client for entity operations."""
 
     connection_manager: Optional[VitessConnectionManager] = Field(
@@ -36,7 +37,7 @@ class VitessClient(BaseModel):
     def create_tables(self) -> None:
         from models.infrastructure.vitess.repositories.schema import SchemaRepository
 
-        schema_repository: SchemaRepository = SchemaRepository(vitess_client=self)
+        schema_repository: SchemaRepository = SchemaRepository(config=self.config)
         schema_repository.create_tables()
 
 

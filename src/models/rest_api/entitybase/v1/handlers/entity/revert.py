@@ -4,6 +4,10 @@ import logging
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
+from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.s3.enums import EditType, EditData
+from models.infrastructure.s3.hashes.hash_maps import HashMaps
+from models.infrastructure.s3.revision.entity_state import EntityState
 from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.entitybase.v1.handler import Handler
@@ -72,12 +76,52 @@ class EntityRevertHandler(Handler):
         # Calculate new revision ID
         new_revision_id = head_revision + 1
 
-        # Create new revision data
-        new_revision_data = {
-            "schema_version": "1.1.0",
-            "redirects_to": None,
-            "entity": target_revision_data.data["entity"],
-        }
+        # Create new revision data using RevisionData model
+        # For revert, we need to copy the entity data from target revision
+        target_data = target_revision_data.data if hasattr(target_revision_data, 'data') else target_revision_data
+
+        # Copy hashes from target revision
+        target_hashes = target_data.get("hashes", {})
+        if isinstance(target_hashes, dict):
+            hashes = HashMaps(
+                statements=target_hashes.get("statements"),
+                labels=target_hashes.get("labels"),
+                descriptions=target_hashes.get("descriptions"),
+                aliases=target_hashes.get("aliases"),
+                sitelinks=target_hashes.get("sitelinks"),
+            )
+        else:
+            hashes = HashMaps()
+
+        # Copy state from target revision
+        target_state = target_data.get("state", {})
+        if isinstance(target_state, dict):
+            state = EntityState(
+                is_semi_protected=target_state.get("sp", target_state.get("is_semi_protected", False)),
+                is_locked=target_state.get("locked", target_state.get("is_locked", False)),
+                is_archived=target_state.get("archived", target_state.get("is_archived", False)),
+                is_dangling=target_state.get("dangling", target_state.get("is_dangling", False)),
+                is_mass_edit_protected=target_state.get("mep", target_state.get("is_mass_edit_protected", False)),
+                is_deleted=target_state.get("deleted", target_state.get("is_deleted", False)),
+            )
+        else:
+            state = EntityState()
+
+        new_revision_data = RevisionData(
+            revision_id=new_revision_id,
+            entity_type=target_data.get("entity_type", "item"),
+            edit=EditData(
+                type=EditType.MANUAL_UPDATE,
+                user_id=user_id,
+                summary=f"Revert to revision {request.to_revision_id}",
+                at=datetime.now(timezone.utc).isoformat(),
+            ),
+            hashes=hashes,
+            redirects_to="",
+            state=state,
+            property_counts=target_data.get("property_counts"),
+            properties=target_data.get("properties", []),
+        )
 
         # Write new revision to S3
         self.state.s3_client.write_revision(
