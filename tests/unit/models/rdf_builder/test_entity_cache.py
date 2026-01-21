@@ -79,7 +79,7 @@ class TestFetchEntityMetadataBatch:
 
 
 class TestLoadEntityMetadataBatch:
-    @patch("models.rdf_builder.entity_cache._fetch_entity_metadata_batch")
+    @patch("models.rdf_builder.entity_cache.fetch_entity_metadata_batch")
     def test_load_batch_success(self, mock_fetch, tmp_path) -> None:
         """Test loading and saving metadata batch successfully."""
         mock_fetch.return_value.metadata = {
@@ -96,7 +96,7 @@ class TestLoadEntityMetadataBatch:
         data = json.loads(json_file.read_text())
         assert data["id"] == "Q42"
 
-    @patch("models.rdf_builder.entity_cache._fetch_entity_metadata_batch")
+    @patch("models.rdf_builder.entity_cache.fetch_entity_metadata_batch")
     def test_load_batch_failure(self, mock_fetch, tmp_path) -> None:
         """Test loading batch with fetch failure."""
         mock_fetch.return_value.metadata = {"Q42": None}
@@ -133,7 +133,7 @@ class TestLoadEntityMetadata:
         with pytest.raises(Exception):  # json.JSONDecodeError
             load_entity_metadata("Q42", tmp_path)
 
-    @patch("models.rdf_builder.entity_cache._fetch_entity_metadata_batch")
+    @patch("models.rdf_builder.entity_cache.fetch_entity_metadata_batch")
     def test_load_batch_serialization_error(self, mock_fetch, tmp_path) -> None:
         """Test loading batch with serialization error."""
         mock_fetch.return_value.metadata = {
