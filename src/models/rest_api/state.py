@@ -22,10 +22,10 @@ class State(BaseModel):
     """State model that helps instantiate clients as needed"""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    vitess_config: VitessConfig | None = Field(default=None)
-    s3_config: S3Config | None = Field(default=None)
-    entity_change_stream_config: StreamConfig | None = Field(default=None)
-    entity_diff_stream_config: StreamConfig | None = Field(default=None)
+    vitess_config: VitessConfig
+    s3_config: S3Config
+    entity_change_stream_config: StreamConfig
+    entity_diff_stream_config: StreamConfig
 
     kafka_brokers: str = "",
     kafka_entitychange_topic: str = "",
@@ -72,6 +72,7 @@ class State(BaseModel):
     def s3_client(self) -> "MyS3Client":
         """Get a fully ready client"""
         from models.infrastructure.s3.client import MyS3Client
+        assert isinstance(self.s3_config, S3Config)
         return MyS3Client(config=self.s3_config)
 
     @property
