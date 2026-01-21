@@ -71,11 +71,11 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             property_registry_path=property_registry_path,
         )
 
-        if app_.state.clients.entitychange_stream_producer:
+        if settings.streaming_enabled and app_.state.clients.entitychange_stream_producer:
             await app_.state.clients.stream_producer.start()
             logger.info("entitychange_stream_producer started")
 
-        if app_.state.clients.entitydiff_stream_producer:
+        if settings.streaming_enabled and app_.state.clients.entitydiff_stream_producer:
             await app_.state.clients.rdf_stream_producer.start()
             logger.info("RDF entitydiff_stream_producer started")
 
