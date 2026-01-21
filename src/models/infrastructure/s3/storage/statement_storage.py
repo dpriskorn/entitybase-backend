@@ -8,7 +8,6 @@ from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage
 from models.infrastructure.s3.exceptions import S3NotFoundError
-from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.revision.stored_statement import StoredStatement
 from models.rest_api.entitybase.v1.response import StatementResponse
 

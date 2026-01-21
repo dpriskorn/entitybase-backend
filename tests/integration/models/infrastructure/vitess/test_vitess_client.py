@@ -233,7 +233,7 @@ def test_set_redirect_target_cas_failure(vitess_client: VitessClient) -> None:
 
     # Try to set to redirect_to2 with wrong expected (e.g., None or wrong id)
     with pytest.raises(ValueError) as exc_info:
-        self.state.vitess_client.set_redirect_target(
+        vitess_client.set_redirect_target(
             entity_id, redirect_to2, expected_redirects_to=999
         )  # Wrong expected
 

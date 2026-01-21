@@ -6,7 +6,6 @@ from typing import Any, TYPE_CHECKING, Union
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage
-from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.enums import MetadataType
 from models.rest_api.utils import raise_validation_error
 

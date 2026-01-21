@@ -1,7 +1,6 @@
 """Vitess head repository for entity head operations."""
 
 import logging
-from typing import Any
 
 from models.common import OperationResult
 from models.infrastructure.vitess.repository import Repository

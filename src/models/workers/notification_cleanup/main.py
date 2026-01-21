@@ -10,8 +10,6 @@ from models.config.settings import settings
 from models.infrastructure.vitess.client import VitessClient
 from models.workers.vitess_worker import VitessWorker
 
-from models.workers.worker import Worker
-
 logger = logging.getLogger(__name__)
 
 

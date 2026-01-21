@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime, time, timedelta, timezone
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from models.config.settings import settings
 from models.infrastructure.vitess.client import VitessClient
