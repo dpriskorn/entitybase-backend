@@ -24,6 +24,7 @@
 - add at least 1 logger.info() to all methods >20 lines
 - all tests have to be marked either unit/integration/e2e
 - new data models have to be suffixed with *Request, *Response, *Record (Vitess) or *Data (S3)
+- use .model_dump(mode="json") to dump to json everywhere
 - no relative imports
 - no __future__ imports
 - no strings in code - everything is enums
