@@ -113,3 +113,45 @@ class TestEntity:
                 aliases=aliases,
                 statements=statements,
             )
+
+    def test_entity_get_entity_type(self):
+        """Test get_entity_type method."""
+        labels = EntityLabelsResponse()
+        descriptions = EntityDescriptionsResponse()
+        aliases = EntityAliasesResponse()
+        statements = []
+
+        entity = Entity(
+            id="Q456",
+            type=EntityType.PROPERTY,
+            labels=labels,
+            descriptions=descriptions,
+            aliases=aliases,
+            statements=statements,
+        )
+
+        result = entity.get_entity_type()
+
+        assert result == "property"
+
+    def test_entity_field_access(self):
+        """Test accessing various fields."""
+        labels = EntityLabelsResponse(data={"en": {"language": "en", "value": "Test"}})
+        descriptions = EntityDescriptionsResponse(data={"en": {"language": "en", "value": "A test"}})
+        aliases = EntityAliasesResponse(data={"en": [{"language": "en", "value": "Testing"}]})
+        statements = []
+
+        entity = Entity(
+            id="Q789",
+            type=EntityType.ITEM,
+            labels=labels,
+            descriptions=descriptions,
+            aliases=aliases,
+            statements=statements,
+        )
+
+        # Access fields to ensure coverage
+        assert entity.labels.data["en"]["value"] == "Test"
+        assert entity.descriptions.data["en"]["value"] == "A test"
+        assert entity.aliases.data["en"][0]["value"] == "Testing"
+        assert entity.statements == []
