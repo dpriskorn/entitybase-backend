@@ -25,6 +25,7 @@
 - all tests have to be marked either unit/integration/e2e
 - new data models have to be suffixed with *Request, *Response, *Record (Vitess) or *Data (S3)
 - use .model_dump(mode="json") to dump to json everywhere
+- when counting size of json always use len(xx.model_dump_json()) 
 - no relative imports
 - no __future__ imports
 - no strings in code - everything is enums
