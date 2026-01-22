@@ -1,12 +1,14 @@
 from unittest.mock import Mock
 from models.infrastructure.vitess.repositories.metadata import MetadataRepository
+from models.infrastructure.vitess.client import VitessClient
 
 
 class TestMetadataRepository:
     def setup_method(self) -> None:
         """Set up test fixtures."""
         self.connection_manager = Mock()
-        self.repository = MetadataRepository()
+        self.vitess_client = Mock(spec=VitessClient)
+        self.repository = MetadataRepository(vitess_client=self.vitess_client)
 
     def test_insert_metadata_content_new(self) -> None:
         """Test inserting new metadata content."""

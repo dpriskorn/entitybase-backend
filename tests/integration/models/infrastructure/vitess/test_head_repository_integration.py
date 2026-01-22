@@ -1,6 +1,7 @@
 from unittest.mock import Mock
 
 from models.infrastructure.vitess.repositories.head import HeadRepository
+from models.infrastructure.vitess.client import VitessClient
 
 
 class TestHeadRepository:
@@ -8,7 +9,8 @@ class TestHeadRepository:
         """Set up test fixtures."""
         self.connection_manager = Mock()
         self.id_resolver = Mock()
-        self.repository = HeadRepository()
+        self.vitess_client = Mock(spec=VitessClient)
+        self.repository = HeadRepository(vitess_client=self.vitess_client)
 
     def test_get_head_revision_exists(self) -> None:
         """Test getting head revision when entity exists."""

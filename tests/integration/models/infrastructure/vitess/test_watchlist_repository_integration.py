@@ -6,6 +6,7 @@ import pytest
 sys.path.insert(0, "src")
 
 from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
+from models.infrastructure.vitess.client import VitessClient
 
 
 class TestWatchlistRepository:
@@ -22,11 +23,16 @@ class TestWatchlistRepository:
         return MagicMock()
 
     @pytest.fixture
+    def mock_vitess_client(self) -> MagicMock:
+        """Mock Vitess client"""
+        return MagicMock(spec=VitessClient)
+
+    @pytest.fixture
     def repository(
-        self, mock_connection_manager: MagicMock, mock_id_resolver: MagicMock
+        self, mock_connection_manager: MagicMock, mock_id_resolver: MagicMock, mock_vitess_client: MagicMock
     ) -> WatchlistRepository:
         """Create repository instance"""
-        repository = WatchlistRepository()
+        repository = WatchlistRepository(vitess_client=mock_vitess_client)
         repository.id_resolver = mock_id_resolver
         repository.connection_manager = mock_connection_manager
         return repository
