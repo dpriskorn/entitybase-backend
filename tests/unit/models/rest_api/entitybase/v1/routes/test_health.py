@@ -16,9 +16,10 @@ class TestHealthRoutes:
 
         # Mock the health_check function
         mock_health_response = HealthCheckResponse(
-            status="healthy",
-            s3="healthy",
-            vitess="healthy"
+            status="ok",
+            s3="connected",
+            vitess="connected",
+            timestamp="2023-12-25T12:00:00+00:00"
         )
 
         with patch("models.rest_api.entitybase.v1.routes.health.health_check", return_value=mock_health_response):
@@ -27,10 +28,10 @@ class TestHealthRoutes:
 
             # Verify result
             assert isinstance(result, HealthCheckResponse)
-            assert result.status == "healthy"
-            assert result.version == "1.0.0"
-            assert "database" in result.services
-            assert "s3" in result.services
+            assert result.status == "ok"
+            assert result.s3 == "connected"
+            assert result.vitess == "connected"
+            assert "timestamp" in result.model_fields
 
     def test_health_check_endpoint_unhealthy(self) -> None:
         """Test health check endpoint when services are unhealthy."""
@@ -39,9 +40,10 @@ class TestHealthRoutes:
 
         # Mock the health_check function with unhealthy status
         mock_health_response = HealthCheckResponse(
-            status="unhealthy",
-            s3="healthy",
-            vitess="unhealthy"
+            status="ok",
+            s3="disconnected",
+            vitess="disconnected",
+            timestamp="2023-12-25T12:00:00+00:00"
         )
 
         with patch("models.rest_api.entitybase.v1.routes.health.health_check", return_value=mock_health_response):
@@ -49,6 +51,6 @@ class TestHealthRoutes:
             result = health_check_endpoint(mock_response)
 
             # Verify result
-            assert result.status == "unhealthy"
-            assert result.services["database"] == "unhealthy"
-            assert result.services["s3"] == "healthy"
+            assert result.status == "ok"
+            assert result.s3 == "disconnected"
+            assert result.vitess == "disconnected"

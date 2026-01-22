@@ -1,22 +1,115 @@
-"""Unit tests for entity."""
-
-# TODO: Implement comprehensive unit tests for entity.py
-# This file was auto-generated to highlight missing test coverage
-# Priority: HIGH - Core functionality requiring tests
+"""Unit tests for Entity internal representation."""
 
 import pytest
+from unittest.mock import MagicMock
+
+from models.data.infrastructure.s3.enums import EntityType
+from models.internal_representation.entity import Entity
+from models.rest_api.entitybase.v1.response import (
+    EntityLabelsResponse,
+    EntityDescriptionsResponse,
+    EntityAliasesResponse,
+)
+from models.rest_api.entitybase.v1.response.entity import EntitySitelinksResponse
+from models.internal_representation.statements import Statement
 
 
 class TestEntity:
-    """Placeholder test class for entity."""
-    
-    def test_placeholder(self):
-        """Placeholder test - replace with actual tests.
-        
-        This module contains logic that should be thoroughly tested:
-        - Core functionality and edge cases
-        - Error handling and validation
-        - Integration with dependencies
-        """
-        # Remove this placeholder when implementing real tests
-        assert True
+    """Unit tests for Entity model."""
+
+    def test_entity_creation_valid(self):
+        """Test creating a valid Entity."""
+        labels = EntityLabelsResponse(data={"en": {"language": "en", "value": "Test Entity"}})
+        descriptions = EntityDescriptionsResponse(data={})
+        aliases = EntityAliasesResponse(data={})
+        statements = [MagicMock(spec=Statement)]
+        sitelinks = EntitySitelinksResponse(sitelinks={})
+
+        entity = Entity(
+            id="Q123",
+            type=EntityType.ITEM,
+            labels=labels,
+            descriptions=descriptions,
+            aliases=aliases,
+            statements=statements,
+            sitelinks=sitelinks,
+        )
+
+        assert entity.id == "Q123"
+        assert entity.type == EntityType.ITEM
+        assert entity.labels.data == {"en": {"language": "en", "value": "Test Entity"}}
+        assert entity.statements == statements
+        assert entity.sitelinks == sitelinks
+
+    def test_entity_creation_minimal(self):
+        """Test creating Entity with minimal required fields."""
+        labels = EntityLabelsResponse()
+        descriptions = EntityDescriptionsResponse()
+        aliases = EntityAliasesResponse()
+        statements = []
+
+        entity = Entity(
+            id="Q456",
+            type=EntityType.PROPERTY,
+            labels=labels,
+            descriptions=descriptions,
+            aliases=aliases,
+            statements=statements,
+        )
+
+        assert entity.id == "Q456"
+        assert entity.type == EntityType.PROPERTY
+        assert entity.sitelinks is None
+
+    def test_entity_immutable(self):
+        """Test that Entity is immutable (frozen)."""
+        labels = EntityLabelsResponse()
+        descriptions = EntityDescriptionsResponse()
+        aliases = EntityAliasesResponse()
+        statements = []
+
+        entity = Entity(
+            id="Q789",
+            type=EntityType.ITEM,
+            labels=labels,
+            descriptions=descriptions,
+            aliases=aliases,
+            statements=statements,
+        )
+
+        with pytest.raises(TypeError, match="is immutable and does not support item assignment"):
+            entity.id = "Q999"
+
+    def test_entity_invalid_id(self):
+        """Test Entity creation with invalid id."""
+        labels = EntityLabelsResponse()
+        descriptions = EntityDescriptionsResponse()
+        aliases = EntityAliasesResponse()
+        statements = []
+
+        with pytest.raises(ValueError):  # Pydantic validation
+            Entity(
+                id="",  # Empty id
+                type=EntityType.ITEM,
+                labels=labels,
+                descriptions=descriptions,
+                aliases=aliases,
+                statements=statements,
+            )
+
+    def test_entity_invalid_type(self):
+        """Test Entity creation with invalid type."""
+        labels = EntityLabelsResponse()
+        descriptions = EntityDescriptionsResponse()
+        aliases = EntityAliasesResponse()
+        statements = []
+
+        with pytest.raises(ValueError):  # Invalid enum value
+            Entity(
+                id="Q123",
+                type="invalid",  # Not an EntityType
+                labels=labels,
+                descriptions=descriptions,
+                aliases=aliases,
+                statements=statements,
+            )

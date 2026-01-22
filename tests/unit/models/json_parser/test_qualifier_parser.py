@@ -1,22 +1,17 @@
 """Unit tests for qualifier_parser."""
 
-# TODO: Implement comprehensive unit tests for qualifier_parser.py
-# This file was auto-generated to highlight missing test coverage
-# Priority: HIGH - Core functionality requiring tests
+# NOTE: Actual comprehensive unit tests for qualifier_parser.py are implemented in:
+# tests/unit/models/json_parser/parsers/test_qualifier_parser.py
+#
+# This file was auto-generated as a placeholder but tests were implemented in the parsers/ subdirectory
+# to match the actual code structure.
 
 import pytest
 
 
 class TestQualifierParser:
-    """Placeholder test class for qualifier_parser."""
-    
+    """Placeholder test class for qualifier_parser - see parsers/test_qualifier_parser.py for actual tests."""
+
     def test_placeholder(self):
-        """Placeholder test - replace with actual tests.
-        
-        This module contains logic that should be thoroughly tested:
-        - Core functionality and edge cases
-        - Error handling and validation
-        - Integration with dependencies
-        """
-        # Remove this placeholder when implementing real tests
+        """Placeholder test - actual tests are in parsers/test_qualifier_parser.py"""
         assert True

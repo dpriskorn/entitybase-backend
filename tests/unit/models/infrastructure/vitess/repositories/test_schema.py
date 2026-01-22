@@ -1,22 +1,47 @@
-"""Unit tests for schema."""
-
-# TODO: Implement comprehensive unit tests for schema.py
-# This file was auto-generated to highlight missing test coverage
-# Priority: HIGH - Core functionality requiring tests
+"""Unit tests for SchemaRepository."""
 
 import pytest
+from unittest.mock import MagicMock, patch
+
+from models.infrastructure.vitess.repositories.schema import SchemaRepository
 
 
-class TestSchema:
-    """Placeholder test class for schema."""
-    
-    def test_placeholder(self):
-        """Placeholder test - replace with actual tests.
-        
-        This module contains logic that should be thoroughly tested:
-        - Core functionality and edge cases
-        - Error handling and validation
-        - Integration with dependencies
-        """
-        # Remove this placeholder when implementing real tests
-        assert True
+class TestSchemaRepository:
+    """Unit tests for SchemaRepository."""
+
+    def test_create_tables_success(self):
+        """Test successful table creation."""
+        mock_vitess_client = MagicMock()
+        mock_connection_manager = MagicMock()
+        mock_connection = MagicMock()
+        mock_cursor = MagicMock()
+
+        mock_vitess_client.connection_manager.connection = mock_connection
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = SchemaRepository(vitess_client=mock_vitess_client)
+
+        repo.create_tables()
+
+        # Should execute 16 CREATE TABLE statements (count the cursor.execute calls)
+        assert mock_cursor.execute.call_count == 16
+
+    def test_create_tables_no_vitess_client(self):
+        """Test create_tables with no vitess client."""
+        repo = SchemaRepository(vitess_client=None)
+
+        with pytest.raises(Exception):  # raise_validation_error raises ValueError
+            repo.create_tables()
+
+    def test_create_tables_no_connection(self):
+        """Test create_tables with no database connection."""
+        mock_vitess_client = MagicMock()
+        mock_connection_manager = MagicMock()
+        mock_connection_manager.connection = None
+
+        mock_vitess_client.connection_manager = mock_connection_manager
+
+        repo = SchemaRepository(vitess_client=mock_vitess_client)
+
+        with pytest.raises(Exception):
+            repo.create_tables()

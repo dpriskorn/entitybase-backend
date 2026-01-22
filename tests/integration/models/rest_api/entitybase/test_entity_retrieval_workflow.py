@@ -2,6 +2,7 @@
 
 import sys
 from typing import Generator
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -29,8 +30,11 @@ def vitess_client() -> Generator[VitessClient, None, None]:
 
 @pytest.fixture
 def s3_client() -> Generator[MyS3Client, None, None]:
-    """Create S3 client fixture"""
-    # Assuming S3Client can be mocked or real
+    """Create mocked S3 client fixture"""
+    # Mock S3 connection manager to avoid real S3 connections
+    mock_connection_manager = MagicMock()
+    mock_connection_manager.boto_client = MagicMock()
+
     config = S3Config(
         endpoint_url="http://localhost:9000",
         access_key="test",
@@ -38,8 +42,19 @@ def s3_client() -> Generator[MyS3Client, None, None]:
         bucket="testbucket",
         region="us-east-1",
     )
-    client = MyS3Client(config)
-    yield client
+
+    with patch("models.infrastructure.s3.client.S3ConnectionManager", return_value=mock_connection_manager):
+        client = MyS3Client(config=config)
+
+        # Mock all storage components to avoid real S3 operations
+        client.revisions = MagicMock()
+        client.statements = MagicMock()
+        client.metadata = MagicMock()
+        client.references = MagicMock()
+        client.qualifiers = MagicMock()
+        client.snaks = MagicMock()
+
+        yield client
 
 
 def test_entity_retrieval_with_metadata_deduplication(

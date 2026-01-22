@@ -1,22 +1,252 @@
 """Unit tests for base_storage."""
 
-# TODO: Implement comprehensive unit tests for base_storage.py
-# This file was auto-generated to highlight missing test coverage
-# Priority: HIGH - Core functionality requiring tests
-
+import json
 import pytest
+from unittest.mock import MagicMock, patch
+from botocore.exceptions import ClientError
+
+from models.infrastructure.s3.base_storage import BaseS3Storage, LoadResponse
+from models.infrastructure.s3.exceptions import S3ConnectionError, S3NotFoundError, S3StorageError
+from models.common import OperationResult
 
 
-class TestBaseStorage:
-    """Placeholder test class for base_storage."""
-    
-    def test_placeholder(self):
-        """Placeholder test - replace with actual tests.
-        
-        This module contains logic that should be thoroughly tested:
-        - Core functionality and edge cases
-        - Error handling and validation
-        - Integration with dependencies
-        """
-        # Remove this placeholder when implementing real tests
-        assert True
+class TestBaseStorage(BaseS3Storage):
+    """Concrete test implementation of BaseS3Storage."""
+
+    bucket: str = "test-bucket"
+
+
+class TestBaseStorageUnit:
+    """Unit tests for BaseS3Storage class."""
+
+    def test_store_success(self) -> None:
+        """Test successful data storage."""
+        storage = TestBaseStorage()
+        # Mock the connection manager
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        # Mock successful put_object
+        mock_boto_client.put_object.return_value = {}
+
+        test_data = {"key": "value"}
+        result = storage.store("test-key", test_data)
+
+        assert result.success is True
+        mock_boto_client.put_object.assert_called_once()
+        call_args = mock_boto_client.put_object.call_args
+        assert call_args[1]["Bucket"] == "test-bucket"
+        assert call_args[1]["Key"] == "test-key"
+        assert json.loads(call_args[1]["Body"]) == test_data
+
+    def test_store_string_data(self) -> None:
+        """Test storing string data."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        mock_boto_client.put_object.return_value = {}
+
+        test_string = "plain text content"
+        result = storage.store("test-key", test_string)
+
+        assert result.success is True
+        call_args = mock_boto_client.put_object.call_args
+        assert call_args[1]["ContentType"] == "text/plain"
+        assert call_args[1]["Body"] == test_string.encode("utf-8")
+
+    def test_store_no_connection(self) -> None:
+        """Test store operation when connection is not available."""
+        storage = TestBaseStorage()
+        storage.connection_manager = None  # No connection
+
+        with pytest.raises(S3ConnectionError, match="S3 service unavailable"):
+            storage.store("test-key", {"data": "value"})
+
+    def test_load_success_json(self) -> None:
+        """Test successful JSON data loading."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        test_data = {"loaded": "data"}
+        mock_response = {
+            "Body": MagicMock(),
+            "ContentType": "application/json"
+        }
+        mock_response["Body"].read.return_value = json.dumps(test_data).encode("utf-8")
+        mock_boto_client.get_object.return_value = mock_response
+
+        result = storage.load("test-key")
+
+        assert result is not None
+        assert isinstance(result, LoadResponse)
+        assert result.data == test_data
+        mock_boto_client.get_object.assert_called_once_with(Bucket="test-bucket", Key="test-key")
+
+    def test_load_success_text(self) -> None:
+        """Test successful text data loading."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        test_text = "plain text content"
+        mock_response = {
+            "Body": MagicMock(),
+            "ContentType": "text/plain"
+        }
+        mock_response["Body"].read.return_value = test_text.encode("utf-8")
+        mock_boto_client.get_object.return_value = mock_response
+
+        result = storage.load("test-key")
+
+        assert result is not None
+        assert isinstance(result, LoadResponse)
+        assert result.data == test_text
+
+    def test_load_no_connection(self) -> None:
+        """Test load operation when connection is not available."""
+        storage = TestBaseStorage()
+        storage.connection_manager = None  # No connection
+
+        with pytest.raises(S3ConnectionError, match="S3 service unavailable"):
+            storage.load("test-key")
+
+    def test_load_not_found(self) -> None:
+        """Test loading non-existent key."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        # Simulate NoSuchKey error
+        error_response = {"Error": {"Code": "NoSuchKey", "Message": "The specified key does not exist."}}
+        mock_boto_client.get_object.side_effect = ClientError(error_response, "GetObject")
+
+        with pytest.raises(S3NotFoundError):
+            storage.load("non-existent-key")
+
+    def test_load_client_error_other(self) -> None:
+        """Test load operation with other client errors."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        # Simulate AccessDenied error
+        error_response = {"Error": {"Code": "AccessDenied", "Message": "Access denied."}}
+        mock_boto_client.get_object.side_effect = ClientError(error_response, "GetObject")
+
+        with pytest.raises(S3StorageError):
+            storage.load("test-key")
+
+    def test_delete_success(self) -> None:
+        """Test successful data deletion."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        mock_boto_client.delete_object.return_value = {}
+
+        result = storage.delete("test-key")
+
+        assert result.success is True
+        mock_boto_client.delete_object.assert_called_once_with(Bucket="test-bucket", Key="test-key")
+
+    def test_delete_no_connection(self) -> None:
+        """Test delete operation when connection is not available."""
+        storage = TestBaseStorage()
+        storage.connection_manager = None  # No connection
+
+        with pytest.raises(S3ConnectionError, match="S3 service unavailable"):
+            storage.delete("test-key")
+
+    def test_delete_not_found(self) -> None:
+        """Test deleting non-existent key."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        # Simulate NoSuchKey error
+        error_response = {"Error": {"Code": "NoSuchKey", "Message": "The specified key does not exist."}}
+        mock_boto_client.delete_object.side_effect = ClientError(error_response, "DeleteObject")
+
+        result = storage.delete("non-existent-key")
+        assert result.success is False
+
+    def test_ensure_connection_success(self) -> None:
+        """Test successful connection validation."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_connection_manager.boto_client = MagicMock()
+        storage.connection_manager = mock_connection_manager
+
+        # Should not raise any exception
+        storage._ensure_connection()
+
+    def test_ensure_connection_no_manager(self) -> None:
+        """Test connection validation with no connection manager."""
+        storage = TestBaseStorage()
+        storage.connection_manager = None
+
+        with pytest.raises(S3ConnectionError, match="S3 service unavailable"):
+            storage._ensure_connection()
+
+    def test_ensure_connection_no_client(self) -> None:
+        """Test connection validation with connection manager but no client."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_connection_manager.boto_client = None
+        storage.connection_manager = mock_connection_manager
+
+        with pytest.raises(S3ConnectionError, match="S3 service unavailable"):
+            storage._ensure_connection()
+
+    def test_store_with_metadata(self) -> None:
+        """Test storing data with metadata."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        mock_boto_client.put_object.return_value = {}
+
+        metadata = {"source": "test", "version": "1.0"}
+        result = storage.store("test-key", {"data": "value"}, metadata=metadata)
+
+        assert result.success is True
+        call_args = mock_boto_client.put_object.call_args
+        assert call_args[1]["Metadata"] == metadata
+
+    def test_load_with_json_parsing_error(self) -> None:
+        """Test load operation when JSON parsing fails."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        mock_response = {
+            "Body": MagicMock(),
+            "ContentType": "application/json"
+        }
+        mock_response["Body"].read.return_value = b"invalid json content"
+        mock_boto_client.get_object.return_value = mock_response
+
+        with pytest.raises(S3StorageError):
+            storage.load("test-key")

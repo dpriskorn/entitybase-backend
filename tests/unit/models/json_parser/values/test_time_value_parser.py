@@ -142,7 +142,6 @@ class TestTimeValueParser:
 
         with pytest.raises(ValueError, match="Time value must be in format"):
             parse_time_value(datavalue)
-        assert result.calendarmodel == "http://www.wikidata.org/entity/Q1985727"
 
     def test_parse_time_value_missing_time_field(self):
         """Test parsing when time field is missing from value dict."""
@@ -155,7 +154,6 @@ class TestTimeValueParser:
 
         with pytest.raises(ValueError, match="Time value must be in format"):
             parse_time_value(datavalue)
-        assert result.precision == 9
 
     def test_parse_time_value_result_immutability(self):
         """Test that the parsed result is immutable (frozen model)."""
