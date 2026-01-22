@@ -1,5 +1,7 @@
 """Handler for system health check operations."""
 
+from datetime import datetime, timezone
+
 from fastapi import Response
 from starlette import status
 
@@ -14,7 +16,7 @@ def health_check(response: Response) -> HealthCheckResponse:
     if state is None:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return HealthCheckResponse(
-            status="starting", s3="disconnected", vitess="disconnected"
+            status="starting", s3="disconnected", vitess="disconnected", timestamp=datetime.now(timezone.utc).isoformat()
         )
     from models.rest_api.entitybase.v1.handlers.state import StateHandler
     assert isinstance(state, StateHandler)
@@ -36,4 +38,4 @@ def health_check(response: Response) -> HealthCheckResponse:
         else "disconnected"
     )
 
-    return HealthCheckResponse(status="ok", s3=s3_status, vitess=vitess_status)
+    return HealthCheckResponse(status="ok", s3=s3_status, vitess=vitess_status, timestamp=datetime.now(timezone.utc).isoformat())
