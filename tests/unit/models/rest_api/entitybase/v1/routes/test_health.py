@@ -1,6 +1,6 @@
 """Unit tests for health routes."""
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from models.rest_api.entitybase.v1.response import HealthCheckResponse
 from models.rest_api.entitybase.v1.routes.health import health_check_endpoint
@@ -21,7 +21,7 @@ class TestHealthRoutes:
             vitess="healthy"
         )
 
-        with unittest.mock.patch("models.rest_api.entitybase.v1.routes.health.health_check", return_value=mock_health_response):
+        with patch("models.rest_api.entitybase.v1.routes.health.health_check", return_value=mock_health_response):
             # Call the endpoint
             result = health_check_endpoint(mock_response)
 
@@ -44,7 +44,7 @@ class TestHealthRoutes:
             vitess="unhealthy"
         )
 
-        with unittest.mock.patch("models.rest_api.entitybase.v1.routes.health.health_check", return_value=mock_health_response):
+        with patch("models.rest_api.entitybase.v1.routes.health.health_check", return_value=mock_health_response):
             # Call the endpoint
             result = health_check_endpoint(mock_response)
 

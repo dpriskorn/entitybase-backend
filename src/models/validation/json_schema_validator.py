@@ -98,7 +98,8 @@ class JsonSchemaValidator(BaseModel):
     def validate_entity_revision(self, data: dict) -> None:
         """Validate entity revision data against schema."""
         validator = self._get_entity_validator()
-        errors = list(validator.iter_errors(data))
+        entity_data = data.get("entity", data)
+        errors = list(validator.iter_errors(entity_data))
         if errors:
             error_messages = [
                 {
