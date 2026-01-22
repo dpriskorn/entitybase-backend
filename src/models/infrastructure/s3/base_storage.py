@@ -6,7 +6,7 @@ from abc import ABC
 from typing import Any, Dict, Optional, Union
 
 from botocore.exceptions import ClientError
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from models.common import OperationResult
 from models.infrastructure.s3.connection import S3ConnectionManager
@@ -28,7 +28,7 @@ class LoadResponse(BaseModel):
 class BaseS3Storage(ABC, BaseModel):
     """Base class for S3 storage operations with common patterns."""
 
-    connection_manager: Optional[S3ConnectionManager] = None
+    connection_manager: Optional[S3ConnectionManager] = Field(default=None)
     bucket: str
 
     def _ensure_connection(self) -> None:
