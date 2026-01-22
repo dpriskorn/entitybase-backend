@@ -13,14 +13,14 @@ class TestBacklinkStatisticsWorker:
         """Test getting enabled setting."""
         with patch('models.workers.backlink_statistics.backlink_statistics_worker.settings') as mock_settings:
             mock_settings.backlink_stats_enabled = True
-            worker = BacklinkStatisticsWorker()
+            worker = BacklinkStatisticsWorker(vitess_client=MagicMock())
             assert worker.get_enabled_setting() is True
 
     def test_get_schedule_setting(self):
         """Test getting schedule setting."""
         with patch('models.workers.backlink_statistics.backlink_statistics_worker.settings') as mock_settings:
             mock_settings.backlink_stats_schedule = "daily"
-            worker = BacklinkStatisticsWorker()
+            worker = BacklinkStatisticsWorker(vitess_client=MagicMock())
             assert worker.get_schedule_setting() == "daily"
 
     @pytest.mark.asyncio

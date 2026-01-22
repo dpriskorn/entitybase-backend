@@ -104,5 +104,5 @@ class BaseStatsWorker(Worker, ABC):
         status = "healthy" if self.running else "unhealthy"
 
         return WorkerHealthCheckResponse(
-            status=status, worker_id=self.worker_id, range_status=None
+            status=status, worker_id=self.worker_id, range_status={}
         )

@@ -20,10 +20,10 @@ class TestRedirectService:
     def setup_method(self):
         """Set up test fixtures."""
         self.service = RedirectService.__new__(RedirectService)
-        self.service.vitess = MagicMock()
+        self.service.state = MagicMock()
+        self.service.state.vitess_client = MagicMock()
         self.service.s3 = MagicMock()
         self.service.stream_producer = AsyncMock()
-        self.service.state = MagicMock()
 
     @pytest.mark.asyncio
     async def test_create_redirect_success(self):

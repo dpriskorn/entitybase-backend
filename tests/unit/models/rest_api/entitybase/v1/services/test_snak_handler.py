@@ -36,9 +36,9 @@ class TestSnakHandler:
 
         snak_data = call_args[0][1]
         assert isinstance(snak_data, S3SnakData)
-        assert snak_data.schema == "1.0.0"
+        assert snak_data.schema_version == "1.0.0"
         assert snak_data.snak == snak
-        assert snak_data.hash == 12345
+        assert snak_data.content_hash == 12345
         assert snak_data.created_at == "2023-01-01T12:00:00Z"
 
     @patch('models.rest_api.entitybase.v1.services.snak_handler.MetadataExtractor')

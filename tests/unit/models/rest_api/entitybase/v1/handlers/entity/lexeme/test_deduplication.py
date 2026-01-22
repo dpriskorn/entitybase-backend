@@ -16,7 +16,7 @@ from models.rest_api.entitybase.v1.request.entity import EntityCreateRequest
 async def test_lexeme_deduplication_integration():
     """Integration test for lexeme form/sense deduplication."""
     # Load L42 test data
-    test_data_path = Path(__file__).parent.parent.parent / "test_data" / "json" / "entities" / "L42.json"
+    test_data_path = Path(__file__).parent.parent.parent.parent.parent.parent.parent.parent / "test_data" / "json" / "entities" / "L42.json"
 
     with open(test_data_path, "r", encoding="utf-8") as f:
         raw_data = json.load(f)

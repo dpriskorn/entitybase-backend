@@ -83,7 +83,7 @@ class TestIdResolver:
 
         assert result == ""
 
-    @patch('models.infrastructure.vitess.id_resolver.UniqueIdGenerator')
+    @patch('models.infrastructure.unique_id.UniqueIdGenerator')
     def test_register_entity_new(self, mock_generator_class):
         """Test registering a new entity."""
         mock_generator = MagicMock()
@@ -103,7 +103,7 @@ class TestIdResolver:
                 ("Q42", 789),
             )
 
-    @patch('models.infrastructure.vitess.id_resolver.UniqueIdGenerator')
+    @patch('models.infrastructure.unique_id.UniqueIdGenerator')
     def test_register_entity_already_exists(self, mock_generator_class):
         """Test registering an entity that already exists."""
         with patch.object(self.resolver, 'entity_exists', return_value=True):

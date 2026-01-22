@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from models.rdf_builder.converter import EntityConverter
+from models.rdf_builder.property_registry.registry import PropertyRegistry
 
 
 class TestEntityConverter:
@@ -13,34 +14,34 @@ class TestEntityConverter:
 
     def test_converter_initialization(self) -> None:
         """Test EntityConverter initialization."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
-        assert converter.property_registry == mock_property_registry
+        assert converter.property_registry == property_registry
         assert converter.writers is not None
         assert converter.uri is not None
 
     def test_converter_with_custom_params(self) -> None:
         """Test EntityConverter with custom parameters."""
-        mock_property_registry = MagicMock()
+        property_registry = PropertyRegistry(properties={})
         mock_metadata_dir = MagicMock()
         mock_redirects_dir = MagicMock()
 
         converter = EntityConverter(
-            property_registry=mock_property_registry,
+            property_registry=property_registry,
             entity_metadata_dir=mock_metadata_dir,
             redirects_dir=mock_redirects_dir
         )
 
-        assert converter.property_registry == mock_property_registry
+        assert converter.property_registry == property_registry
         assert converter.entity_metadata_dir == mock_metadata_dir
         assert converter.redirects_dir == mock_redirects_dir
 
     @patch('models.rdf_builder.converter.TripleWriters.write_header')
     def test_convert_to_turtle_basic(self, mock_write_header) -> None:
         """Test basic Turtle conversion."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
         # Mock entity with minimal data
         mock_entity = MagicMock()
@@ -69,8 +70,8 @@ class TestEntityConverter:
 
     def test_write_entity_metadata(self) -> None:
         """Test writing entity metadata."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
 
@@ -104,8 +105,8 @@ class TestEntityConverter:
 
     def test_write_entity_metadata_with_sitelinks(self) -> None:
         """Test writing entity metadata with sitelinks."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
 
@@ -126,8 +127,8 @@ class TestEntityConverter:
 
     def test_write_entity_metadata_with_aliases(self) -> None:
         """Test writing entity metadata with aliases."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
 
@@ -152,8 +153,8 @@ class TestEntityConverter:
     @patch('models.rdf_builder.converter.parse_statement')
     def test_write_statements(self, mock_parse_statement) -> None:
         """Test writing statements."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
 
@@ -187,8 +188,8 @@ class TestEntityConverter:
 
     def test_write_statement(self) -> None:
         """Test writing individual statement."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
 
@@ -204,17 +205,17 @@ class TestEntityConverter:
             converter._write_statement("Q42", mock_rdf_stmt, output)
 
             # Verify property shape lookup
-            mock_property_registry.shape.assert_called_once_with("P31")
+            property_registry.shape.assert_called_once_with("P31")
 
             # Verify statement writing
             mock_write_statement.assert_called_once_with(
-                output, "Q42", mock_rdf_stmt, mock_shape, mock_property_registry, None
+                output, "Q42", mock_rdf_stmt, mock_shape, property_registry, None
             )
 
     def test_write_property_metadata(self) -> None:
         """Test writing property metadata."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
 
@@ -245,10 +246,10 @@ class TestEntityConverter:
             converter._write_property_metadata(mock_entity, output)
 
             # Verify property shape lookups
-            assert mock_property_registry.shape.call_count == 2
-            mock_property_registry.shape.assert_any_call("P31")
-            mock_property_registry.shape.assert_any_call("P279")
-            mock_property_registry.shape.assert_any_call("P580")
+            assert property_registry.shape.call_count == 2
+            property_registry.shape.assert_any_call("P31")
+            property_registry.shape.assert_any_call("P279")
+            property_registry.shape.assert_any_call("P580")
 
             # Verify ontology writing calls
             assert mock_writer.write_property_metadata.call_count == 2
@@ -328,33 +329,33 @@ class TestEntityConverter:
 
     def test_converter_properties_property(self) -> None:
         """Test converter properties property."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
-        assert converter.properties == mock_property_registry
+        assert converter.properties == property_registry
 
     def test_converter_dedupe_property(self) -> None:
         """Test converter dedupe property."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry, enable_deduplication=True)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry, enable_deduplication=True)
 
         dedupe = converter.dedupe
         assert dedupe is not None
 
     def test_converter_dedupe_disabled(self) -> None:
         """Test converter with deduplication disabled."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry, enable_deduplication=False)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry, enable_deduplication=False)
 
         assert converter.dedupe is None
 
     @patch('models.rdf_builder.converter.parse_entity')
     def test_load_referenced_entity_success(self, mock_parse_entity) -> None:
         """Test loading referenced entity successfully."""
-        mock_property_registry = MagicMock()
+        property_registry = PropertyRegistry(properties={})
         from pathlib import Path
         temp_dir = Path("/tmp/test")
-        converter = EntityConverter(property_registry=mock_property_registry, entity_metadata_dir=temp_dir)
+        converter = EntityConverter(property_registry=property_registry, entity_metadata_dir=temp_dir)
 
         mock_entity_data = MagicMock()
         mock_parse_entity.return_value = mock_entity_data
@@ -370,18 +371,18 @@ class TestEntityConverter:
 
     def test_load_referenced_entity_no_metadata_dir(self) -> None:
         """Test loading referenced entity without metadata dir."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
         with pytest.raises(ValueError, match="No entity_metadata_dir set"):
             converter._load_referenced_entity("Q5")
 
     def test_load_referenced_entity_file_not_found(self) -> None:
         """Test loading referenced entity when file doesn't exist."""
-        mock_property_registry = MagicMock()
+        property_registry = PropertyRegistry(properties={})
         from pathlib import Path
         temp_dir = Path("/tmp/test")
-        converter = EntityConverter(property_registry=mock_property_registry, entity_metadata_dir=temp_dir)
+        converter = EntityConverter(property_registry=property_registry, entity_metadata_dir=temp_dir)
 
         with patch('pathlib.Path.exists', return_value=False):
             with pytest.raises(FileNotFoundError, match="Entity Q5 not found"):
@@ -390,10 +391,10 @@ class TestEntityConverter:
     @patch('models.rdf_builder.converter.parse_entity')
     def test_write_referenced_entity_metadata(self, mock_parse_entity) -> None:
         """Test writing referenced entity metadata."""
-        mock_property_registry = MagicMock()
+        property_registry = PropertyRegistry(properties={})
         from pathlib import Path
         temp_dir = Path("/tmp/test")
-        converter = EntityConverter(property_registry=mock_property_registry, entity_metadata_dir=temp_dir)
+        converter = EntityConverter(property_registry=property_registry, entity_metadata_dir=temp_dir)
 
         output = io.StringIO()
 
@@ -422,8 +423,8 @@ class TestEntityConverter:
 
     def test_write_referenced_entity_metadata_no_metadata_dir(self) -> None:
         """Test writing referenced entity metadata without metadata dir."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
         mock_entity = MagicMock()
@@ -434,10 +435,10 @@ class TestEntityConverter:
     @patch('models.rdf_builder.converter.load_entity_redirects')
     def test_fetch_redirects_from_file(self, mock_load_redirects) -> None:
         """Test fetching redirects from file."""
-        mock_property_registry = MagicMock()
+        property_registry = PropertyRegistry(properties={})
         from pathlib import Path
         temp_dir = Path("/tmp/test")
-        converter = EntityConverter(property_registry=mock_property_registry, redirects_dir=temp_dir)
+        converter = EntityConverter(property_registry=property_registry, redirects_dir=temp_dir)
 
         mock_load_redirects.return_value = ["Q100", "Q200"]
 
@@ -448,9 +449,9 @@ class TestEntityConverter:
 
     def test_fetch_redirects_vitess_client(self) -> None:
         """Test fetching redirects from Vitess client."""
-        mock_property_registry = MagicMock()
+        property_registry = PropertyRegistry(properties={})
         mock_vitess = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry, vitess_client=mock_vitess)
+        converter = EntityConverter(property_registry=property_registry, vitess_client=mock_vitess)
 
         mock_vitess.get_incoming_redirects.return_value = ["Q100"]
 
@@ -461,9 +462,9 @@ class TestEntityConverter:
 
     def test_fetch_redirects_vitess_exception(self) -> None:
         """Test fetching redirects when Vitess throws exception."""
-        mock_property_registry = MagicMock()
+        property_registry = PropertyRegistry(properties={})
         mock_vitess = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry, vitess_client=mock_vitess)
+        converter = EntityConverter(property_registry=property_registry, vitess_client=mock_vitess)
 
         mock_vitess.get_incoming_redirects.side_effect = Exception("Vitess error")
 
@@ -475,10 +476,10 @@ class TestEntityConverter:
     @patch('models.rdf_builder.converter.load_entity_redirects')
     def test_fetch_redirects_file_exception(self, mock_load_redirects) -> None:
         """Test fetching redirects when file loading throws exception."""
-        mock_property_registry = MagicMock()
+        property_registry = PropertyRegistry(properties={})
         from pathlib import Path
         temp_dir = Path("/tmp/test")
-        converter = EntityConverter(property_registry=mock_property_registry, redirects_dir=temp_dir)
+        converter = EntityConverter(property_registry=property_registry, redirects_dir=temp_dir)
 
         mock_load_redirects.side_effect = Exception("File error")
 
@@ -489,8 +490,8 @@ class TestEntityConverter:
 
     def test_write_redirects(self) -> None:
         """Test writing redirects."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
         mock_entity = MagicMock()
@@ -508,8 +509,8 @@ class TestEntityConverter:
 
     def test_write_property_metadata_with_references(self) -> None:
         """Test writing property metadata including references."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
 
@@ -540,12 +541,12 @@ class TestEntityConverter:
             converter._write_property_metadata(mock_entity, output)
 
             # Should include P248 from reference
-            mock_property_registry.shape.assert_any_call("P248")
+            property_registry.shape.assert_any_call("P248")
 
     def test_convert_to_string(self) -> None:
         """Test convert_to_string method."""
-        mock_property_registry = MagicMock()
-        converter = EntityConverter(property_registry=mock_property_registry)
+        property_registry = PropertyRegistry(properties={})
+        converter = EntityConverter(property_registry=property_registry)
 
         mock_entity = MagicMock()
 

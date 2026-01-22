@@ -30,7 +30,7 @@ class BaseS3Storage(ABC, BaseModel):
 
     model_config = {"arbitrary_types_allowed": True}
 
-    connection_manager: Optional[S3ConnectionManager] = Field(default=None)
+    connection_manager: Any = Field(default=None)
     bucket: str
 
     def _ensure_connection(self) -> None:

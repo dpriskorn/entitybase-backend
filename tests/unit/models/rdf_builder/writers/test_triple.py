@@ -409,7 +409,7 @@ class TestTripleWriters:
         mock_snak_shape.predicates.reference = "pr:P854"
         mock_registry.shape.return_value = mock_snak_shape
 
-        with patch('models.rdf_builder.writers.triple.RDFReference') as mock_rdf_ref_class:
+        with patch('models.rdf_builder.models.rdf_reference.RDFReference') as mock_rdf_ref_class:
             mock_rdf_ref = MagicMock()
             mock_rdf_ref.reference_uri = "wdref:123"
             mock_rdf_ref_class.return_value = mock_rdf_ref
