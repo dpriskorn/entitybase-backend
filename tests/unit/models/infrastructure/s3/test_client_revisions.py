@@ -15,7 +15,13 @@ class TestS3ClientRevisions:
         # Create a mock S3 client
         mock_connection_manager = MagicMock()
         mock_connection_manager.boto_client = MagicMock()
-        config = S3Config()
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1"
+        )
 
         with patch("models.infrastructure.s3.client.S3ConnectionManager", return_value=mock_connection_manager):
             client = MyS3Client(config=config)
@@ -44,7 +50,13 @@ class TestS3ClientRevisions:
         # Create a mock S3 client
         mock_connection_manager = MagicMock()
         mock_connection_manager.boto_client = MagicMock()
-        config = S3Config()
+        config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1"
+        )
 
         with patch("models.infrastructure.s3.client.S3ConnectionManager", return_value=mock_connection_manager):
             client = MyS3Client(config=config)
@@ -80,7 +92,13 @@ class TestS3ClientRevisions:
                 mock_storage_class.return_value = mock_storage
                 mock_storage.store_revision.return_value = MagicMock(success=True)
 
-                config = S3Config()
+                config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test",
+            secret_key="test",
+            bucket="test-bucket",
+            region="us-east-1"
+        )
                 client = MyS3Client(config=config)
 
                 # Initially revisions should be None

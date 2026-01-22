@@ -88,7 +88,7 @@ class TestS3RevisionData:
             created_at="2023-01-01T00:00:00Z"
         )
 
-        serialized = s3_revision.model_dump()
+        serialized = s3_revision.model_dump(by_alias=True)
         expected = {
             "schema": "1.0.0",
             "revision": revision_data,

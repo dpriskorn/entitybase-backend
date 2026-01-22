@@ -17,8 +17,8 @@ class TestHealthRoutes:
         # Mock the health_check function
         mock_health_response = HealthCheckResponse(
             status="healthy",
-            version="1.0.0",
-            services={"database": "healthy", "s3": "healthy"}
+            s3="healthy",
+            vitess="healthy"
         )
 
         with unittest.mock.patch("models.rest_api.entitybase.v1.routes.health.health_check", return_value=mock_health_response):
@@ -40,8 +40,8 @@ class TestHealthRoutes:
         # Mock the health_check function with unhealthy status
         mock_health_response = HealthCheckResponse(
             status="unhealthy",
-            version="1.0.0",
-            services={"database": "unhealthy", "s3": "healthy"}
+            s3="healthy",
+            vitess="unhealthy"
         )
 
         with unittest.mock.patch("models.rest_api.entitybase.v1.routes.health.health_check", return_value=mock_health_response):
