@@ -11,12 +11,13 @@ import json
 import requests
 from pathlib import Path
 
+headers = {"User-Agent": "EntitybaseBackend/1.0 (User:So9q)"}
+
 
 def download_entity_json(entity_id: str, output_dir: Path) -> None:
     """Download entity JSON from Wikidata."""
     url = f"https://www.wikidata.org/wiki/Special:EntityData/{entity_id}.json"
 
-    headers = {"User-Agent": "WikibaseBackend/1.0 (research@wikibase-backend.org)"}
 
     print(f"Downloading {entity_id}.json from {url}...")
     response = requests.get(url, timeout=30, headers=headers)
@@ -33,8 +34,6 @@ def download_entity_ttl(entity_id: str, output_dir: Path) -> None:
     """Download entity TTL from Wikidata."""
     url = f"https://www.wikidata.org/wiki/Special:EntityData/{entity_id}.ttl"
 
-    headers = {"User-Agent": "WikibaseBackend/1.0 (research@wikibase-backend.org)"}
-
     print(f"Downloading {entity_id}.ttl from {url}...")
     response = requests.get(url, timeout=30, headers=headers)
     response.raise_for_status()
@@ -48,9 +47,9 @@ def download_entity_ttl(entity_id: str, output_dir: Path) -> None:
 
 def download_entity(entity_id: str) -> None:
     """Download both JSON and TTL for an entity."""
-    json_output_dir = Path(__file__).parent.parent / "test_data" / "json" / "entities"
+    json_output_dir = Path(__file__).parent.parent.parent / "test_data" / "json" / "entities"
     json_output_dir.mkdir(parents=True, exist_ok=True)
-    ttl_output_dir = Path(__file__).parent.parent / "test_data" / "rdf" / "ttl"
+    ttl_output_dir = Path(__file__).parent.parent.parent / "test_data" / "rdf" / "ttl"
     ttl_output_dir.mkdir(parents=True, exist_ok=True)
 
     print(f"Downloading data for {entity_id}...")
