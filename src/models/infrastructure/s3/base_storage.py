@@ -28,6 +28,8 @@ class LoadResponse(BaseModel):
 class BaseS3Storage(ABC, BaseModel):
     """Base class for S3 storage operations with common patterns."""
 
+    model_config = {"arbitrary_types_allowed": True}
+
     connection_manager: Optional[S3ConnectionManager] = Field(default=None)
     bucket: str
 
