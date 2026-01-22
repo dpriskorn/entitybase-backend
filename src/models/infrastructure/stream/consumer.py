@@ -7,19 +7,9 @@ from typing import AsyncGenerator
 from aiokafka import AIOKafkaConsumer  # type: ignore[import-untyped]
 from pydantic import BaseModel, ConfigDict, Field
 
+from models.data.infrastructure.stream.consumer import EntityChangeEventData
+
 logger = logging.getLogger(__name__)
-
-
-class EntityChangeEvent(BaseModel):
-    """Model for entity change events."""
-
-    model_config = ConfigDict(populate_by_name=True)
-
-    entity_id: str
-    revision_id: int
-    timestamp: str
-    user_id: str
-    type: str
 
 
 class Consumer(BaseModel):
@@ -54,7 +44,7 @@ class Consumer(BaseModel):
             await self.consumer.stop()
             logger.info("Stopped Kafka consumer")
 
-    async def consume_events(self) -> AsyncGenerator[EntityChangeEvent, None]:
+    async def consume_events(self) -> AsyncGenerator[EntityChangeEventData, None]:
         """Consume entity change events."""
         if not self.consumer:
             raise RuntimeError("Consumer not started")
@@ -62,7 +52,7 @@ class Consumer(BaseModel):
         try:
             async for message in self.consumer:
                 event_data = message.value
-                event = EntityChangeEvent(**event_data)
+                event = EntityChangeEventData(**event_data)
                 logger.debug(f"Consumed event: {event}")
                 yield event
         except Exception as e:

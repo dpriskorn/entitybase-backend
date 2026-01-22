@@ -5,7 +5,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 
-from models.rest_api.entitybase.v1.response.qualifiers_references import (
+from models.rest_api.entitybase.v1.response.misc2 import (
     QualifierResponse,
 )
 

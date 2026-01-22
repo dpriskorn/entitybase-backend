@@ -5,9 +5,9 @@ from typing import List
 
 from models.common import OperationResult
 from models.config.settings import settings
+from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.infrastructure.s3.base_storage import BaseS3Storage
 from models.infrastructure.s3.exceptions import S3NotFoundError
-from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
 
 logger = logging.getLogger(__name__)
 

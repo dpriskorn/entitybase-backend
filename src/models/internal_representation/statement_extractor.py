@@ -1,6 +1,6 @@
 """Statement extraction utilities."""
 
-from models.infrastructure.s3.property_counts import PropertyCounts
+from models.data.infrastructure.s3.property_counts import PropertyCounts
 
 
 class StatementExtractor:

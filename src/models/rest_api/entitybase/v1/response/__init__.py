@@ -14,7 +14,6 @@ from .entity.entitybase import (
     EntityDeleteResponse,
 )
 from .entity.wikibase import LabelValue
-from models.infrastructure.s3.revision.entity_state import EntityState
 from .entity import (
     EntityMetadataResponse,
     EntityLabelsResponse,
@@ -31,7 +30,7 @@ from .statement import (
     StatementHashResult,
     StatementResponse,
 )
-from models.infrastructure.s3.property_counts import PropertyCounts
+from models.data.infrastructure.s3.property_counts import PropertyCounts
 from .health import HealthCheckResponse, HealthResponse, WorkerHealthCheckResponse
 from .misc import (
     CleanupOrphanedResponse,
@@ -39,14 +38,8 @@ from .misc import (
     RevisionMetadataResponse,
     TurtleResponse,
 )
-from .qualifiers_references import QualifierResponse, ReferenceResponse, SnakResponse
-from .rdf import (
-    DeduplicationStatsResponse,
-    FullRevisionResponse,
-    MetadataLoadResponse,
-    RedirectBatchResponse,
-    WikibasePredicatesResponse,
-)
+from .misc2 import QualifierResponse, ReferenceResponse, SnakResponse
+from .rdf import DeduplicationStatsResponse
 
 __all__ = [
     "BacklinkResponse",
@@ -65,12 +58,9 @@ __all__ = [
     "EntityResponse",
     "EntityRevisionResponse",
     "EntityRevertResponse",
-    "EntityState",
-    "FullRevisionResponse",
     "HealthCheckResponse",
     "HealthResponse",
     "LabelValue",
-    "MetadataLoadResponse",
     "MostUsedStatementsResponse",
     "PropertyCounts",
     "PropertyCountsResponse",
@@ -78,7 +68,6 @@ __all__ = [
     "PropertyListResponse",
     "ProtectionResponse",
     "QualifierResponse",
-    "RedirectBatchResponse",
     "ReferenceResponse",
     "SnakResponse",
     "RevisionMetadataResponse",
@@ -87,6 +76,5 @@ __all__ = [
     "StatementResponse",
     "TurtleResponse",
     "EntityJsonResponse",
-    "WikibasePredicatesResponse",
     "WorkerHealthCheckResponse",
 ]

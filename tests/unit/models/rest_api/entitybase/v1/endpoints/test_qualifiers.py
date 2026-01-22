@@ -1,12 +1,13 @@
 """Unit tests for qualifiers endpoint."""
 
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
 from fastapi import HTTPException
 
-from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
+from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.rest_api.entitybase.v1.endpoints.qualifiers import get_qualifiers
-from models.rest_api.entitybase.v1.response.qualifiers_references import QualifierResponse
+from models.rest_api.entitybase.v1.response.misc2 import QualifierResponse
 
 
 class TestQualifiersEndpoint:

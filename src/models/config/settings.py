@@ -6,11 +6,11 @@ from typing import TYPE_CHECKING
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from models.infrastructure.stream.config import StreamConfig
+from models.data.config.stream import StreamConfig
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.config import S3Config
-    from models.infrastructure.vitess.config import VitessConfig
+    from models.data.config.s3 import S3Config
+    from models.data.config.vitess import VitessConfig
 
 
 class Settings(BaseSettings):
@@ -71,7 +71,7 @@ class Settings(BaseSettings):
         Returns:
             S3Config object with the settings.
         """
-        from models.infrastructure.s3.config import S3Config
+        from models.data.config.s3 import S3Config
 
         return S3Config(
             endpoint_url=self.s3_endpoint,
@@ -87,7 +87,7 @@ class Settings(BaseSettings):
         Returns:
             VitessConfig object with the settings.
         """
-        from models.infrastructure.vitess.config import VitessConfig
+        from models.data.config.vitess import VitessConfig
 
         return VitessConfig(
             host=self.vitess_host,
@@ -99,7 +99,7 @@ class Settings(BaseSettings):
 
     def get_entity_change_stream_config(self) -> "StreamConfig":
         """Convert settings to Streaming configuration object."""
-        from models.infrastructure.stream.config import StreamConfig
+        from models.data.config.stream import StreamConfig
 
         return StreamConfig(
             bootstrap_servers=self.kafka_brokers,
@@ -108,7 +108,7 @@ class Settings(BaseSettings):
 
     def get_entity_diff_stream_config(self) -> "StreamConfig":
         """Convert settings to Streaming configuration object."""
-        from models.infrastructure.stream.config import StreamConfig
+        from models.data.config.stream import StreamConfig
 
         return StreamConfig(
             bootstrap_servers=self.kafka_brokers,

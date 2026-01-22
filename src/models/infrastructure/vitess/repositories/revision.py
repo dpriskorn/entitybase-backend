@@ -5,7 +5,7 @@ import logging
 from typing import Any
 
 from models.common import OperationResult
-from models.infrastructure.vitess.records.revision import RevisionRecord
+from models.data.infrastructure.vitess.records.revision import RevisionRecord
 from models.infrastructure.vitess.repository import Repository
 from models.rest_api.utils import raise_validation_error
 

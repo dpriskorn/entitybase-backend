@@ -3,8 +3,8 @@
 import logging
 from typing import Any
 
-from models.infrastructure.s3.enums import EntityType
-from models.infrastructure.stream.change_type import ChangeType
+from models.data.infrastructure.s3.enums import EntityType
+from models.data.infrastructure.stream.change_type import ChangeType
 from models.rest_api.entitybase.v1.request import EntityUpdateRequest
 from models.rest_api.entitybase.v1.response import EntityResponse
 from models.rest_api.utils import raise_validation_error

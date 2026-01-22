@@ -1,12 +1,13 @@
 """Unit tests for snaks endpoint."""
 
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
 from fastapi import HTTPException
 
-from models.infrastructure.s3.revision.s3_snak_data import S3SnakData
+from models.data.infrastructure.s3.snak_data import S3SnakData
 from models.rest_api.entitybase.v1.endpoints.snaks import get_snaks
-from models.rest_api.entitybase.v1.response.qualifiers_references import SnakResponse
+from models.rest_api.entitybase.v1.response.misc2 import SnakResponse
 
 
 class TestSnaksEndpoint:

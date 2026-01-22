@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0, "src")
 
 # noinspection PyPep8
-from models.infrastructure.stream.change_type import ChangeType
+from models.data.infrastructure.stream.change_type import ChangeType
 
 
 class TestChangeTypeEnum:

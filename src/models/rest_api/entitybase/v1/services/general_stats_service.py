@@ -3,10 +3,10 @@
 import logging
 
 from models.rest_api.entitybase.v1.response.misc import (
-    GeneralStatsData,
     TermsByType,
     TermsPerLanguage,
 )
+from models.rest_api.entitybase.v1.response.misc2 import GeneralStatsData
 from models.rest_api.entitybase.v1.service import Service
 
 logger = logging.getLogger(__name__)

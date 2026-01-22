@@ -1,12 +1,13 @@
 """Unit tests for references endpoint."""
 
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import AsyncMock, MagicMock
 from fastapi import HTTPException
 
-from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
+from models.data.infrastructure.s3.reference_data import S3ReferenceData
 from models.rest_api.entitybase.v1.endpoints.references import get_references
-from models.rest_api.entitybase.v1.response.qualifiers_references import ReferenceResponse
+from models.rest_api.entitybase.v1.response.misc2 import ReferenceResponse
 
 
 class TestReferencesEndpoint:

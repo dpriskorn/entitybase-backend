@@ -2,6 +2,9 @@ from typing import Any
 
 import pytest
 
+from models.data.infrastructure.s3.entity_state import EntityState
+from models.data.infrastructure.s3.enums import EditType
+
 from models.rest_api.entitybase.v1.request.entity import (
     EntityRedirectRequest,
     RedirectRevertRequest,
@@ -10,8 +13,6 @@ from models.rest_api.entitybase.v1.response.entity import (
     EntityRedirectResponse,
     EntityResponse,
 )
-from models.infrastructure.s3.enums import EditType
-from models.infrastructure.s3.revision.entity_state import EntityState
 from fastapi import HTTPException
 
 

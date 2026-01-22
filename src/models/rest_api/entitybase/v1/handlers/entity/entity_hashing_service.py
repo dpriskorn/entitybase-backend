@@ -4,10 +4,8 @@ import logging
 from typing import Any, Dict
 
 from models.common import raise_validation_error
-from models.infrastructure.s3.hashes.hash_maps import (
-    HashMaps,
-    SitelinksHashes,
-)
+from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
 
 from models.rest_api.entitybase.v1.response import StatementHashResult
 from models.rest_api.entitybase.v1.service import Service

@@ -7,7 +7,7 @@ from typing import Optional
 from pydantic import Field
 
 from models.infrastructure.client import Client
-from models.infrastructure.vitess.config import VitessConfig
+from models.data.config.vitess import VitessConfig
 from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.id_resolver import IdResolver
 

@@ -1,7 +1,6 @@
 """Entity redirect management handlers."""
 
 import logging
-from typing import TYPE_CHECKING
 
 from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.handlers.entity.revert import EntityRevertHandler
@@ -13,8 +12,6 @@ from models.rest_api.entitybase.v1.response import (
 )
 from models.rest_api.entitybase.v1.response.entity.revert import EntityRevertResponse
 
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 

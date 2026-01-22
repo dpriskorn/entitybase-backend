@@ -7,9 +7,9 @@ import boto3  # type: ignore[import-untyped]
 from botocore.config import Config  # type: ignore[import-untyped]
 from pydantic import Field
 
-from models.infrastructure.s3.adressing import S3Adressing
+from models.data.infrastructure.s3.adressing import S3Adressing
 from models.infrastructure.connection import ConnectionManager
-from models.infrastructure.s3.config import S3Config
+from models.data.config.s3 import S3Config
 
 logger = logging.getLogger(__name__)
 

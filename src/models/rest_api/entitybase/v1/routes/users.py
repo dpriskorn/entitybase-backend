@@ -12,7 +12,7 @@ from models.rest_api.entitybase.v1.response.user import (
     WatchlistToggleResponse,
     UserCreateResponse,
 )
-from models.rest_api.entitybase.v1.response.misc import UserStatsResponse
+from models.rest_api.entitybase.v1.response.user_stats import UserStatsResponse
 from models.rest_api.entitybase.v1.response.user import UserResponse
 from models.rest_api.utils import raise_validation_error
 

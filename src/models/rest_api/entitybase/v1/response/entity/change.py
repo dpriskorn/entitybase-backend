@@ -4,7 +4,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.infrastructure.stream.change_type import ChangeType
+from models.data.infrastructure.stream.change_type import ChangeType
 
 
 class EntityChange(BaseModel):

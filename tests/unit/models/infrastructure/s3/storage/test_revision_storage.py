@@ -3,8 +3,8 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
+from models.data.infrastructure.s3.revision_data import S3RevisionData
 from models.infrastructure.s3.exceptions import S3NotFoundError
-from models.infrastructure.s3.revision.s3_revision_data import S3RevisionData
 from models.infrastructure.s3.storage.revision_storage import RevisionStorage
 
 

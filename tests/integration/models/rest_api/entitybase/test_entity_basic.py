@@ -1,7 +1,6 @@
 import json
 import logging
 from pprint import pprint
-from typing import Any, Dict
 
 import pytest
 import requests

@@ -1,10 +1,9 @@
 """Unit tests for health routes."""
 
-import pytest
 from unittest.mock import MagicMock
 
-from models.rest_api.entitybase.v1.routes.health import health_check_endpoint
 from models.rest_api.entitybase.v1.response import HealthCheckResponse
+from models.rest_api.entitybase.v1.routes.health import health_check_endpoint
 
 
 class TestHealthRoutes:

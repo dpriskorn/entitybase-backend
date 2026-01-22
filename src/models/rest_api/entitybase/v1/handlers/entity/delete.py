@@ -6,22 +6,21 @@ from datetime import datetime, timezone
 from fastapi import HTTPException
 
 from models.config.settings import settings
-from models.infrastructure.s3.enums import DeleteType, EditType, EditData, EntityType
-from models.infrastructure.s3.hashes.hash_maps import (
-    AliasesHashes,
-    DescriptionsHashes,
-    LabelsHashes,
-    SitelinksHashes,
-    StatementsHashes,
-    HashMaps,
-)
+from models.data.infrastructure.s3.entity_state import EntityState
+from models.data.infrastructure.s3.enums import DeleteType, EditType, EditData, EntityType
+from models.data.infrastructure.s3.hashes.aliases_hashes import AliasesHashes
+from models.data.infrastructure.s3.hashes.descriptions_hashes import DescriptionsHashes
+from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+from models.data.infrastructure.s3.hashes.labels_hashes import LabelsHashes
+from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
+from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
+from models.data.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.request.entity import EntityDeleteRequest
 from models.rest_api.entitybase.v1.request.enums import UserActivityType
-from models.rest_api.entitybase.v1.response import EntityDeleteResponse, EntityState
+from models.rest_api.entitybase.v1.response import EntityDeleteResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

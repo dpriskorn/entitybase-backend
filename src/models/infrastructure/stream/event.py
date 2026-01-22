@@ -5,8 +5,8 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
-from models.infrastructure.stream.actions import EndorseAction
-from models.infrastructure.stream.change_type import ChangeType
+from models.data.infrastructure.stream.actions import EndorseAction
+from models.data.infrastructure.stream.change_type import ChangeType
 
 
 class EndorseChangeEvent(BaseModel):

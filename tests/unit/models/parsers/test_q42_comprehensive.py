@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 
-from models.infrastructure.s3.enums import EntityType
+from models.data.infrastructure.s3.enums import EntityType
 from models.internal_representation.ranks import Rank
 from models.json_parser import parse_entity
 from models.rest_api.entitybase.v1.response import (

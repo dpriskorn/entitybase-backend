@@ -1,7 +1,7 @@
 from unittest.mock import Mock, patch
 from typing import Union
 from models.infrastructure.vitess.client import VitessClient
-from models.infrastructure.vitess.config import VitessConfig
+from models.data.config.vitess import VitessConfig
 
 
 class TestVitessClientBacklinks:

@@ -1,13 +1,13 @@
 """Statement processing service."""
 
-import json
 import logging
 from datetime import datetime, timezone
 from typing import Any
 
 from models.common import OperationResult
-from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
-from models.infrastructure.s3.revision.stored_statement import StoredStatement
+from models.data.infrastructure.s3.qualifier_data import S3QualifierData
+from models.data.infrastructure.s3.reference_data import S3ReferenceData
+from models.data.infrastructure.s3.statement import S3Statement
 from models.internal_representation.qualifier_hasher import QualifierHasher
 from models.internal_representation.reference_hasher import ReferenceHasher
 from models.internal_representation.statement_extractor import StatementExtractor
@@ -122,7 +122,7 @@ class StatementService(Service):
                 f"Processing statement {idx + 1}/{len(hash_result.statements)} with hash {statement_hash}"
             )
             try:
-                statement_with_hash = StoredStatement(
+                statement_with_hash = S3Statement(
                     schema=schema_version,
                     hash=statement_hash,
                     statement=statement_data,
@@ -168,7 +168,7 @@ class StatementService(Service):
                                 "s3_key": s3_key,
                                 "write_duration_seconds": write_duration,
                                 "statement_data_size": len(
-                                    json.dumps(statement_with_hash.model_dump())
+                                    statement_with_hash.model_dump_json()
                                 ),
                             },
                         )
@@ -314,9 +314,6 @@ class StatementService(Service):
                 qual_hash = QualifierHasher.compute_hash(statement_data["qualifiers"])
                 # Store in S3 (idempotent)
                 try:
-                    from models.infrastructure.s3.revision.s3_qualifier_data import (
-                        S3QualifierData,
-                    )
                     import datetime
 
                     qual_data = S3QualifierData(

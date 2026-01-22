@@ -1,6 +1,6 @@
 """S3 configuration model."""
 
-from models.infrastructure.config import Config
+from models.data.config.config import Config
 
 
 class S3Config(Config):

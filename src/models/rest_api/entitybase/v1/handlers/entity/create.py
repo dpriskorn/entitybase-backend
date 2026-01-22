@@ -83,7 +83,7 @@ class EntityCreateHandler(EntityHandler):
             )
 
         # Common processing logic using new architecture
-        from models.infrastructure.s3.enums import EntityType
+        from models.data.infrastructure.s3.enums import EntityType
 
         response = await self.process_entity_revision_new(
             entity_id=entity_id,

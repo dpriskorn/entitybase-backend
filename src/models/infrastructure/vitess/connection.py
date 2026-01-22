@@ -4,7 +4,7 @@ import pymysql
 from pydantic import Field, BaseModel
 from pymysql.connections import Connection
 
-from models.infrastructure.vitess.config import VitessConfig
+from models.data.config.vitess import VitessConfig
 
 
 class VitessConnectionManager(BaseModel):

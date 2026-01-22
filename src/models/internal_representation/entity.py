@@ -1,10 +1,9 @@
 """Internal representation of Wikibase entities."""
-
-from typing import Optional, TYPE_CHECKING
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.infrastructure.s3.enums import EntityType
+from models.data.infrastructure.s3.enums import EntityType
 from models.internal_representation.statements import Statement
 from models.rest_api.entitybase.v1.response import (
     EntityLabelsResponse,
@@ -12,9 +11,6 @@ from models.rest_api.entitybase.v1.response import (
     EntityAliasesResponse,
 )
 from models.rest_api.entitybase.v1.response.entity import EntitySitelinksResponse
-
-if TYPE_CHECKING:
-    pass
 
 
 class Entity(BaseModel):
@@ -30,7 +26,3 @@ class Entity(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-
-# Import referenced classes and rebuild model to resolve forward references
-
-# Entity.model_rebuild()

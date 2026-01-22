@@ -1,8 +1,10 @@
-"""Qualifier and reference response models."""
+"""Qualifier, reference, and data response models."""
 
 from typing import Any, Dict
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
+
+from models.rest_api.entitybase.v1.response.misc import TermsByType, TermsPerLanguage
 
 
 class QualifierResponse(BaseModel):
@@ -50,4 +52,27 @@ class SnakResponse(BaseModel):
     )
     created_at: str = Field(
         description="Timestamp when snak was created. Example: '2023-01-01T12:00:00Z'."
+    )
+
+
+class GeneralStatsData(BaseModel):
+    """Container for computed general wiki statistics."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    total_statements: int = Field(description="Total number of statements.")
+    total_qualifiers: int = Field(description="Total number of qualifiers.")
+    total_references: int = Field(description="Total number of references.")
+    total_items: int = Field(description="Total number of items.")
+    total_lexemes: int = Field(description="Total number of lexemes.")
+    total_properties: int = Field(description="Total number of properties.")
+    total_sitelinks: int = Field(description="Total number of sitelinks.")
+    total_terms: int = Field(
+        description="Total number of terms (labels + descriptions + aliases)."
+    )
+    terms_per_language: TermsPerLanguage = Field(
+        description="Terms count per language."
+    )
+    terms_by_type: TermsByType = Field(
+        description="Terms count by type (labels, descriptions, aliases)."
     )

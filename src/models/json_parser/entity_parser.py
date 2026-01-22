@@ -3,7 +3,7 @@
 import logging
 from typing import Any
 
-from models.infrastructure.s3.enums import EntityType
+from models.data.infrastructure.s3.enums import EntityType
 from models.internal_representation.entity_data import EntityData
 from models.internal_representation.json_fields import JsonField
 from models.json_parser.statement_parser import parse_statement

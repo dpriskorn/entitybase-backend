@@ -5,7 +5,7 @@ import logging
 
 from models.common import OperationResult
 from models.rest_api.utils import raise_validation_error
-from models.infrastructure.vitess.backlink_entry import BacklinkRecord
+from models.data.infrastructure.vitess.records.backlink_entry import BacklinkRecord
 from models.infrastructure.vitess.repository import Repository
 
 

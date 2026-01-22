@@ -3,7 +3,7 @@
 import logging
 
 from models.common import OperationResult
-from models.infrastructure.vitess.records.thanks import ThankItem
+from models.data.infrastructure.vitess.records.thanks import ThankItem
 from models.infrastructure.vitess.repository import Repository
 
 logger = logging.getLogger(__name__)

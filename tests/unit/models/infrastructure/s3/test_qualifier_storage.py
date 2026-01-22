@@ -3,8 +3,8 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
+from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.infrastructure.s3.exceptions import S3NotFoundError
-from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
 from models.infrastructure.s3.storage.qualifier_storage import QualifierStorage
 
 

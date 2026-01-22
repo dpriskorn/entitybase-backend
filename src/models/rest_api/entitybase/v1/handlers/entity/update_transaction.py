@@ -4,7 +4,7 @@ import logging
 from typing import Any
 from datetime import datetime, timezone
 
-from models.infrastructure.s3.enums import EntityType
+from models.data.infrastructure.s3.enums import EntityType
 
 from models.rest_api.entitybase.v1.response import EntityResponse
 from models.rest_api.entitybase.v1.response import StatementHashResult
@@ -12,7 +12,7 @@ from models.rest_api.entitybase.v1.response import StatementHashResult
 from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import (
     EntityTransaction,
 )
-from models.infrastructure.stream.change_type import ChangeType
+from models.data.infrastructure.stream.change_type import ChangeType
 from models.rest_api.entitybase.v1.services.statement_service import StatementService
 
 logger = logging.getLogger(__name__)

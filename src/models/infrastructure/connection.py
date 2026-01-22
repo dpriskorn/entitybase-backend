@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.infrastructure.config import Config
+from models.data.config.config import Config
 
 
 class ConnectionManager(ABC, BaseModel):

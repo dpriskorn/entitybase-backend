@@ -5,7 +5,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.infrastructure.config import Config
+from models.data.config.config import Config
 from models.infrastructure.connection import ConnectionManager
 from models.rest_api.utils import raise_validation_error
 

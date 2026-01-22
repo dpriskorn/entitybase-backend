@@ -2,8 +2,9 @@
 
 from unittest.mock import MagicMock, patch
 
+from models.data.infrastructure.s3.revision_data import S3RevisionData
+from models.data.config.s3 import S3Config
 from models.infrastructure.s3.client import MyS3Client
-from models.infrastructure.s3.revision.s3_revision_data import S3RevisionData
 
 
 class TestS3ClientRevisions:
@@ -14,9 +15,10 @@ class TestS3ClientRevisions:
         # Create a mock S3 client
         mock_connection_manager = MagicMock()
         mock_connection_manager.boto_client = MagicMock()
+        config = S3Config()
 
         with patch("models.infrastructure.s3.client.S3ConnectionManager", return_value=mock_connection_manager):
-            client = MyS3Client()
+            client = MyS3Client(config=config)
 
             # Mock the revision storage
             mock_revision_storage = MagicMock()
@@ -42,9 +44,10 @@ class TestS3ClientRevisions:
         # Create a mock S3 client
         mock_connection_manager = MagicMock()
         mock_connection_manager.boto_client = MagicMock()
+        config = S3Config()
 
         with patch("models.infrastructure.s3.client.S3ConnectionManager", return_value=mock_connection_manager):
-            client = MyS3Client()
+            client = MyS3Client(config=config)
 
             # Mock the revision storage
             mock_revision_storage = MagicMock()
@@ -77,7 +80,8 @@ class TestS3ClientRevisions:
                 mock_storage_class.return_value = mock_storage
                 mock_storage.store_revision.return_value = MagicMock(success=True)
 
-                client = MyS3Client()
+                config = S3Config()
+                client = MyS3Client(config=config)
 
                 # Initially revisions should be None
                 assert client.revisions is None

@@ -5,10 +5,10 @@ from datetime import timezone, datetime
 from pydantic import BaseModel, Field
 
 from models.config.settings import settings
-from models.infrastructure.s3.revision.entity_state import EntityState
-from models.infrastructure.s3.hashes.hash_maps import HashMaps
-from models.infrastructure.s3.property_counts import PropertyCounts
-from models.infrastructure.s3.enums import EntityType, EditData
+from models.data.infrastructure.s3.entity_state import EntityState
+from models.data.infrastructure.s3.enums import EditData, EntityType
+from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+from models.data.infrastructure.s3.property_counts import PropertyCounts
 
 
 class RevisionData(BaseModel):
@@ -20,7 +20,6 @@ class RevisionData(BaseModel):
 
     revision_id: int
     entity_type: EntityType
-    entity: dict | None = Field(default=None, description="The actual Wikibase entity data")
     edit: EditData
     hashes: HashMaps
     schema_version: str = Field(

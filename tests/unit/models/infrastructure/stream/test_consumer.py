@@ -3,7 +3,8 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from models.infrastructure.stream.consumer import Consumer, EntityChangeEvent
+from models.infrastructure.stream.consumer import Consumer
+from models.data.infrastructure.stream.consumer import EntityChangeEventData
 
 pytestmark = pytest.mark.unit
 
@@ -13,7 +14,7 @@ class TestEntityChangeEvent:
 
     def test_entity_change_event_creation(self) -> None:
         """Test creating an EntityChangeEvent."""
-        event = EntityChangeEvent(
+        event = EntityChangeEventData(
             entity_id="Q123",
             revision_id=456,
             timestamp="2023-01-01T00:00:00Z",
@@ -97,5 +98,5 @@ class TestConsumer:
             break  # Only consume one for test
 
         assert len(events) == 1
-        assert isinstance(events[0], EntityChangeEvent)
+        assert isinstance(events[0], EntityChangeEventData)
         assert events[0].entity_id == "Q123"

@@ -13,9 +13,6 @@ os.environ["TEST_DATA_DIR"] = str(Path(__file__).parent.parent.parent / "test_da
 with (
     patch("boto3.client") as mock_boto_client,
     patch("pymysql.connect") as mock_db_connect,
-    patch(
-        "models.infrastructure.s3.connection.S3ConnectionManager.connect"
-    ) as mock_s3_connect,
 ):
     mock_client = MagicMock()
     mock_boto_client.return_value = mock_client
@@ -23,7 +20,6 @@ with (
     mock_client.create_bucket.return_value = None
     mock_conn = MagicMock()
     mock_db_connect.return_value = mock_conn
-    mock_s3_connect.return_value = None
     from models.rest_api.main import app
 
 

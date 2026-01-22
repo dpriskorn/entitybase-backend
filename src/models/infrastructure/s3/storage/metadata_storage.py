@@ -1,16 +1,13 @@
 """Metadata storage operations for terms and sitelinks."""
 
 import logging
-from typing import Any, TYPE_CHECKING, Union
+from typing import Any, Union
 
 from models.common import OperationResult
 from models.config.settings import settings
+from models.data.infrastructure.s3.enums import MetadataType
 from models.infrastructure.s3.base_storage import BaseS3Storage
-from models.infrastructure.s3.enums import MetadataType
 from models.rest_api.utils import raise_validation_error
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,8 @@ from typing import Dict, Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.infrastructure.s3.revision.entity_state import EntityState
+from models.data.infrastructure.s3.entity_state import EntityState
+from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.rest_api.entitybase.v1.response.entity.wikibase import (
     SitelinkValue,
     LabelValue,
@@ -10,7 +11,6 @@ from models.rest_api.entitybase.v1.response.entity.wikibase import (
     AliasValue,
 )
 from models.rest_api.utils import raise_validation_error
-from models.infrastructure.s3.revision.revision_data import RevisionData
 
 
 class EntityLabelsResponse(BaseModel):

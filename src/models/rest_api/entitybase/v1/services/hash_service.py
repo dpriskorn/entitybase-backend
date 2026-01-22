@@ -3,14 +3,13 @@
 import logging
 from typing import Any
 
-from models.infrastructure.s3.hashes.hash_maps import (
-    HashMaps,
-    AliasesHashes,
-    DescriptionsHashes,
-    LabelsHashes,
-    SitelinksHashes,
-    StatementsHashes,
-)
+from models.data.infrastructure.s3.hashes.aliases_hashes import AliasesHashes
+from models.data.infrastructure.s3.hashes.descriptions_hashes import DescriptionsHashes
+from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+from models.data.infrastructure.s3.hashes.labels_hashes import LabelsHashes
+from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
+from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
+
 from models.infrastructure.vitess.repositories.terms import TermsRepository
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.service import Service

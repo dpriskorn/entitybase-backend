@@ -5,9 +5,9 @@ from datetime import date, datetime, timezone
 
 from models.config.settings import settings
 from models.rest_api.entitybase.v1.services.user_stats_service import (
-    UserStatsData,
     UserStatsService,
 )
+from models.rest_api.entitybase.v1.response.user_stats import UserStatsData
 from models.workers.base_stats_worker import BaseStatsWorker
 
 logger = logging.getLogger(__name__)

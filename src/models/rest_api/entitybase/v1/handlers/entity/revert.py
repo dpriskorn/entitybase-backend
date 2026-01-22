@@ -3,11 +3,12 @@
 import logging
 from datetime import datetime, timezone
 
-from models.infrastructure.s3.enums import EditType, EditData
-from models.infrastructure.s3.hashes.hash_maps import HashMaps
-from models.infrastructure.s3.revision.entity_state import EntityState
+from models.data.infrastructure.s3.entity_state import EntityState
+from models.data.infrastructure.s3.enums import EditType, EditData
+from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+
+from models.data.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.request.entity import EntityRevertRequest

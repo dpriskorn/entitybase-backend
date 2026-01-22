@@ -1,6 +1,6 @@
 """Configuration for Vitess connections."""
 
-from models.infrastructure.config import Config
+from models.data.config.config import Config
 
 
 class VitessConfig(Config):

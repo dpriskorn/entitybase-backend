@@ -4,9 +4,8 @@ import logging
 from datetime import timezone
 from typing import TYPE_CHECKING
 
-from models.infrastructure.s3.enums import EditData
-from models.infrastructure.s3.hashes.hash_maps import HashMaps
-from models.infrastructure.s3.revision.entity_state import EntityState
+
+from models.data.infrastructure.s3 import EditData
 from models.rest_api.entitybase.v1.request.entity import EntityRedirectRequest
 from models.rest_api.entitybase.v1.response import (
     EntityRedirectResponse,
@@ -17,7 +16,7 @@ from models.rest_api.utils import raise_validation_error
 
 if TYPE_CHECKING:
     from models.infrastructure.stream.event import EntityChangeEvent
-    from models.infrastructure.stream.change_type import ChangeType
+    from models.data.infrastructure.stream.change_type import ChangeType
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +34,6 @@ class RedirectService(Service):
             request.redirect_from_id,
             request.redirect_to_id,
         )
-        from datetime import datetime
 
         if request.redirect_from_id == request.redirect_to_id:
             raise_validation_error("Cannot redirect to self", status_code=400)
@@ -62,9 +60,6 @@ class RedirectService(Service):
 
         from_head_revision_id = self.vitess.get_head(request.redirect_from_id)
         redirect_revision_id = from_head_revision_id + 1 if from_head_revision_id else 1
-
-        from models.infrastructure.s3.revision.revision_data import RevisionData
-        from models.infrastructure.s3.enums import EntityType, EditType
 
         redirect_revision_data = RevisionData(
             revision_id=redirect_revision_id,

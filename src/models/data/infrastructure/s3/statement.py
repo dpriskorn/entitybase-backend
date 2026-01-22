@@ -5,7 +5,7 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 
-class StoredStatement(BaseModel):
+class S3Statement(BaseModel):
     """Statement format for S3 storage.
 
     Compatible with StatementResponse for API responses.

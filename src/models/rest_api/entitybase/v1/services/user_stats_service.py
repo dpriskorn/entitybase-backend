@@ -2,7 +2,7 @@
 
 import logging
 
-from models.rest_api.entitybase.v1.response.misc import UserStatsData
+from models.rest_api.entitybase.v1.response.user_stats import UserStatsData
 from models.rest_api.entitybase.v1.service import Service
 
 logger = logging.getLogger(__name__)

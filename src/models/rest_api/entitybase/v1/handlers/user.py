@@ -9,8 +9,8 @@ from models.rest_api.entitybase.v1.response.misc import (
     GeneralStatsResponse,
     TermsByType,
     TermsPerLanguage,
-    UserStatsResponse,
 )
+from models.rest_api.entitybase.v1.response.user_stats import UserStatsResponse
 from models.rest_api.entitybase.v1.response.user import (
     WatchlistToggleResponse,
     UserCreateResponse,

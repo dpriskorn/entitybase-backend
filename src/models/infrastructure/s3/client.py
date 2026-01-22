@@ -1,34 +1,29 @@
 """S3 storage client for entity and statement data."""
 
 import logging
-from typing import Any, Dict, Optional, TYPE_CHECKING, Union
+from typing import Any, Dict, Optional, Union
 
 from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from pydantic import Field
 
 from models.common import OperationResult
+from models.data.infrastructure.s3.enums import MetadataType
+from models.data.infrastructure.s3.qualifier_data import S3QualifierData
+from models.data.infrastructure.s3.reference_data import S3ReferenceData
+from models.data.infrastructure.s3.snak_data import S3SnakData
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
-from models.infrastructure.s3.enums import MetadataType
 from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.s3.revision.revision_read_response import (
-    RevisionReadResponse,
-)
-from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
-from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
-from models.infrastructure.s3.revision.s3_snak_data import S3SnakData
 from models.infrastructure.s3.storage.metadata_storage import MetadataStorage
 from models.infrastructure.s3.storage.qualifier_storage import QualifierStorage
 from models.infrastructure.s3.storage.reference_storage import ReferenceStorage
-from models.infrastructure.s3.storage.snak_storage import SnakStorage
 from models.infrastructure.s3.storage.revision_storage import RevisionStorage
+from models.infrastructure.s3.storage.snak_storage import SnakStorage
 from models.infrastructure.s3.storage.statement_storage import StatementStorage
 from models.rest_api.entitybase.v1.response import StatementResponse
+from models.rest_api.entitybase.v1.response.entity.revision_read_response import RevisionReadResponse
 from models.rest_api.utils import raise_validation_error
-
-if TYPE_CHECKING:
-    pass
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +67,7 @@ class MyS3Client(Client):
         """Write entity revision data to S3."""
         return self.revisions.store_revision(entity_id, revision_id, data)
 
-    def read_revision(self, entity_id: str, revision_id: int) -> RevisionReadResponse:
+    def read_revision(self, entity_id: str, revision_id: int):
         """Read S3 object and return parsed JSON."""
         return self.revisions.load_revision(entity_id, revision_id)
 

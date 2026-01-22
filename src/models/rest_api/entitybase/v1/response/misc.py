@@ -51,16 +51,10 @@ class AliasesResponse(BaseModel):
     )
 
 
-class JsonSchema(BaseModel):
-    """Model for JSON schema data."""
-
-    data: dict[str, Any] = Field(..., description="The JSON schema dictionary")
-
-
-class Aliases(BaseModel):
-    """Model for extracted aliases dictionary."""
-
-    aliases: dict[str, list[str]] = Field(..., description="Aliases per language")
+# class Aliases(BaseModel):
+#     """Model for extracted aliases dictionary."""
+#
+#     aliases: dict[str, list[str]] = Field(..., description="Aliases per language")
 
 
 class LabelsResponse(BaseModel):
@@ -137,80 +131,6 @@ class TopEntityByBacklinks(BaseModel):
     backlink_count: int = Field(..., description="Number of backlinks to this entity")
 
 
-class BacklinkStatisticsData(BaseModel):
-    """Container for computed backlink statistics."""
-
-    model_config = ConfigDict(populate_by_name=True)
-
-    total_backlinks: int = Field(
-        alias="total",
-        description="Total number of backlink relationships. Example: 150.",
-    )
-    unique_entities_with_backlinks: int = Field(
-        alias="unique",
-        description="Number of entities with at least one backlink. Example: 75.",
-    )
-    top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
-        alias="top",
-        description="Top entities by backlink count. Example: [{'entity_id': 'Q1', 'backlink_count': 10}].",
-    )
-
-
-class BacklinkStatisticsResponse(BaseModel):
-    """API response for backlink statistics."""
-
-    model_config = ConfigDict()
-
-    date: str = Field(
-        description="Date of statistics computation. Example: '2023-01-01'."
-    )
-    total_backlinks: int = Field(
-        alias="total",
-        description="Total number of backlink relationships. Example: 150.",
-    )
-    unique_entities_with_backlinks: int = Field(
-        alias="unique",
-        description="Number of entities with at least one backlink. Example: 75.",
-    )
-    top_entities_by_backlinks: list[TopEntityByBacklinks] = Field(
-        alias="top",
-        description="Top entities by backlink count. Example: [{'entity_id': 'Q1', 'backlink_count': 10}].",
-    )
-
-
-class UserStatsData(BaseModel):
-    """Container for computed user statistics."""
-
-    model_config = ConfigDict(populate_by_name=True)
-
-    total_users: int = Field(
-        alias="total",
-        description="Total number of users. Example: 1000.",
-    )
-    active_users: int = Field(
-        alias="active",
-        description="Number of active users. Example: 500.",
-    )
-
-
-class UserStatsResponse(BaseModel):
-    """API response for user statistics."""
-
-    model_config = ConfigDict(populate_by_name=True)
-
-    date: str = Field(
-        description="Date of statistics computation. Example: '2023-01-01'."
-    )
-    total_users: int = Field(
-        alias="total",
-        description="Total number of users. Example: 1000.",
-    )
-    active_users: int = Field(
-        alias="active",
-        description="Number of active users. Example: 500.",
-    )
-
-
 class TermsPerLanguage(BaseModel):
     """Model for terms count per language."""
 
@@ -225,37 +145,6 @@ class TermsByType(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     counts: dict[str, int] = Field(description="Type to count mapping.")
-
-
-class GeneralStatsData(BaseModel):
-    """Container for computed general wiki statistics."""
-
-    model_config = ConfigDict(populate_by_name=True)
-
-    total_statements: int = Field(description="Total number of statements.")
-    total_qualifiers: int = Field(description="Total number of qualifiers.")
-    total_references: int = Field(description="Total number of references.")
-    total_items: int = Field(description="Total number of items.")
-    total_lexemes: int = Field(description="Total number of lexemes.")
-    total_properties: int = Field(description="Total number of properties.")
-    total_sitelinks: int = Field(description="Total number of sitelinks.")
-    total_terms: int = Field(
-        description="Total number of terms (labels + descriptions + aliases)."
-    )
-    terms_per_language: TermsPerLanguage = Field(
-        description="Terms count per language."
-    )
-    terms_by_type: TermsByType = Field(
-        description="Terms count by type (labels, descriptions, aliases)."
-    )
-
-
-class RawEntityData(BaseModel):
-    """Model for raw entity JSON data."""
-
-    model_config = ConfigDict(extra="allow")
-
-    data: dict[str, Any] = Field(description="Raw entity data.")
 
 
 class GeneralStatsResponse(BaseModel):
@@ -282,10 +171,10 @@ class GeneralStatsResponse(BaseModel):
     )
 
 
-class RawRevisionResponse(BaseModel):
-    """Response model for raw revision data."""
-
-    data: dict[str, Any] = Field(..., description="Raw revision data from storage")
+# class RawRevisionResponse(BaseModel):
+#     """Response model for raw revision data."""
+#
+#     data: dict[str, Any] = Field(..., description="Raw revision data from storage")
 
 
 class TurtleResponse(BaseModel):

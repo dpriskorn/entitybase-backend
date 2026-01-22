@@ -3,8 +3,8 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
+from models.data.infrastructure.s3.reference_data import S3ReferenceData
 from models.infrastructure.s3.exceptions import S3NotFoundError
-from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
 from models.infrastructure.s3.storage.reference_storage import ReferenceStorage
 
 

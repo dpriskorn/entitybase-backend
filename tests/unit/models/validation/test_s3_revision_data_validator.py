@@ -1,9 +1,6 @@
 """Unit tests for S3RevisionData validation."""
 
-import pytest
-
-from models.infrastructure.s3.revision.s3_revision_data import S3RevisionData
-from models.validation.json_schema_validator import JsonSchemaValidator
+from models.data.infrastructure.s3.revision_data import S3RevisionData
 
 
 class TestS3RevisionDataValidation:

@@ -163,7 +163,7 @@ class TestEntityChange:
     def test_entity_change_valid(self) -> None:
         """Test valid EntityChange creation."""
         from datetime import datetime
-        from models.infrastructure.stream.change_type import ChangeType
+        from models.data.infrastructure.stream.change_type import ChangeType
 
         change = EntityChange(
             entity_id="Q42",
@@ -184,7 +184,7 @@ class TestEntityChange:
         import jsonschema
         import yaml
         from datetime import datetime
-        from models.infrastructure.stream.change_type import ChangeType
+        from models.data.infrastructure.stream.change_type import ChangeType
 
         # Load the schema
         with open(

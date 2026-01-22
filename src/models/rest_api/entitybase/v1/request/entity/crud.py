@@ -2,8 +2,8 @@ from typing import Dict, Any
 
 from pydantic import BaseModel, Field
 
-from models.rest_api.entitybase.v1.response import EntityState
-from models.infrastructure.s3.enums import EditType, DeleteType
+from models.data.infrastructure.s3.entity_state import EntityState
+from models.data.infrastructure.s3.enums import EditType, DeleteType
 
 
 class EntityCreateRequest(BaseModel):

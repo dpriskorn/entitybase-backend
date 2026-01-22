@@ -7,11 +7,11 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from models.common import raise_validation_error
 from models.infrastructure.s3.client import MyS3Client
-from models.infrastructure.s3.config import S3Config
-from models.infrastructure.stream.config import StreamConfig
+from models.data.config.s3 import S3Config
+from models.data.config.stream import StreamConfig
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess.client import VitessClient
-from models.infrastructure.vitess.config import VitessConfig
+from models.data.config.vitess import VitessConfig
 from models.rdf_builder.property_registry.loader import load_property_registry
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rest_api.entitybase.v1.services.enumeration_service import (

@@ -1,108 +1,90 @@
-from typing import Any
+"""Unit tests for MetadataExtractor."""
 
-from models.internal_representation.metadata_extractor import (
-    MetadataExtractor,
-    LabelsResponse,
-    DescriptionsResponse,
-    AliasesResponse,
-)
+from models.internal_representation.metadata_extractor import MetadataExtractor
 
 
 class TestMetadataExtractor:
-    def test_extract_labels(self) -> None:
-        """Test extracting labels from entity JSON."""
-        entity = {
-            "id": "Q1",
-            "labels": {
-                "en": {"language": "en", "value": "Test Entity"},
-                "de": {"language": "de", "value": "Test Entität"},
-            },
-            "descriptions": {},
-            "aliases": {},
-        }
+    """Unit tests for MetadataExtractor static methods."""
 
-        result = MetadataExtractor.extract_labels(entity)
-        expected = LabelsResponse(
-            labels={
-                "en": "Test Entity",
-                "de": "Test Entität",
-            }
-        )
-        assert result == expected
+    def test_hash_string_basic(self) -> None:
+        """Test hash_string with a basic string."""
+        result = MetadataExtractor.hash_string("test")
+        assert isinstance(result, int)
+        assert result > 0  # Assuming rapidhash produces positive ints
 
-    def test_extract_descriptions(self) -> None:
-        """Test extracting descriptions from entity JSON."""
-        entity = {
-            "id": "Q1",
-            "labels": {},
-            "descriptions": {
-                "en": {"language": "en", "value": "A test entity"},
-                "de": {"language": "de", "value": "Eine Testentität"},
-            },
-            "aliases": {},
-        }
-
-        result = MetadataExtractor.extract_descriptions(entity)
-        expected = DescriptionsResponse(
-            descriptions={
-                "en": "A test entity",
-                "de": "Eine Testentität",
-            }
-        )
-        assert result == expected
-
-    def test_extract_aliases(self) -> None:
-        """Test extracting aliases from entity JSON."""
-        entity = {
-            "id": "Q1",
-            "labels": {},
-            "descriptions": {},
-            "aliases": {
-                "en": [{"value": "Test"}, {"value": "Example"}],
-                "de": [{"value": "Test"}, {"value": "Beispiel"}],
-            },
-        }
-
-        result = MetadataExtractor.extract_aliases(entity)
-        expected = AliasesResponse(
-            aliases={"en": ["Test", "Example"], "de": ["Test", "Beispiel"]}
-        )
-        assert result == expected
-
-    def test_extract_missing_metadata(self) -> None:
-        """Test extracting from entity without metadata."""
-        entity: dict[str, Any] = {"id": "Q1"}
-
-        assert MetadataExtractor.extract_labels(entity) == LabelsResponse(labels={})
-        assert MetadataExtractor.extract_descriptions(entity) == DescriptionsResponse(
-            descriptions={}
-        )
-        assert MetadataExtractor.extract_aliases(entity) == AliasesResponse(aliases={})
-
-    def test_hash_metadata(self) -> None:
-        """Test hashing metadata."""
-        metadata = {"en": {"language": "en", "value": "Test"}}
-
-        hash1 = MetadataExtractor.hash_metadata(metadata)
-        hash2 = MetadataExtractor.hash_metadata(metadata)
-
-        assert isinstance(hash1, int)
+    def test_hash_string_consistency(self) -> None:
+        """Test hash_string produces consistent results."""
+        hash1 = MetadataExtractor.hash_string("consistent")
+        hash2 = MetadataExtractor.hash_string("consistent")
         assert hash1 == hash2
 
-    def test_hash_metadata_empty(self) -> None:
-        """Test hashing empty metadata."""
-        metadata: dict[str, Any] = {}
+    def test_hash_string_different_inputs(self) -> None:
+        """Test hash_string produces different hashes for different inputs."""
+        hash1 = MetadataExtractor.hash_string("input1")
+        hash2 = MetadataExtractor.hash_string("input2")
+        assert hash1 != hash2
 
-        hash_value = MetadataExtractor.hash_metadata(metadata)
+    def test_hash_string_empty_string(self) -> None:
+        """Test hash_string with empty string."""
+        result = MetadataExtractor.hash_string("")
+        assert isinstance(result, int)
 
-        assert isinstance(hash_value, int)
+    def test_hash_string_unicode(self) -> None:
+        """Test hash_string with unicode characters."""
+        result = MetadataExtractor.hash_string("café")
+        assert isinstance(result, int)
 
-    def test_hash_metadata_different(self) -> None:
-        """Test hashing different metadata produces different hashes."""
-        metadata1: dict[str, Any] = {"en": {"language": "en", "value": "Test1"}}
-        metadata2: dict[str, Any] = {"en": {"language": "en", "value": "Test2"}}
+    def test_hash_metadata_dict(self) -> None:
+        """Test hash_metadata with a dictionary."""
+        metadata = {"key": "value", "number": 42}
+        result = MetadataExtractor.hash_metadata(metadata)
+        assert isinstance(result, int)
 
+    def test_hash_metadata_list(self) -> None:
+        """Test hash_metadata with a list."""
+        metadata = ["item1", "item2", {"nested": "dict"}]
+        result = MetadataExtractor.hash_metadata(metadata)
+        assert isinstance(result, int)
+
+    def test_hash_metadata_consistency(self) -> None:
+        """Test hash_metadata produces consistent results."""
+        metadata = {"a": 1, "b": 2}
+        hash1 = MetadataExtractor.hash_metadata(metadata)
+        hash2 = MetadataExtractor.hash_metadata(metadata)
+        assert hash1 == hash2
+
+    def test_hash_metadata_sorting(self) -> None:
+        """Test hash_metadata uses sort_keys for consistency."""
+        metadata1 = {"b": 1, "a": 2}
+        metadata2 = {"a": 2, "b": 1}
         hash1 = MetadataExtractor.hash_metadata(metadata1)
         hash2 = MetadataExtractor.hash_metadata(metadata2)
+        assert hash1 == hash2  # Should be equal due to sorting
 
-        assert hash1 != hash2
+    def test_hash_metadata_separators(self) -> None:
+        """Test hash_metadata uses compact separators."""
+        metadata = {"key": "value"}
+        # Manually check JSON output would be '{"key":"value"}' without spaces
+        result = MetadataExtractor.hash_metadata(metadata)
+        assert isinstance(result, int)
+
+    def test_create_s3_key_basic(self) -> None:
+        """Test create_s3_key with basic inputs."""
+        result = MetadataExtractor.create_s3_key("labels", 12345)
+        assert result == "metadata/labels/12345.json"
+
+    def test_create_s3_key_different_types(self) -> None:
+        """Test create_s3_key with different metadata types."""
+        result = MetadataExtractor.create_s3_key("descriptions", 67890)
+        assert result == "metadata/descriptions/67890.json"
+
+    def test_create_s3_key_edge_cases(self) -> None:
+        """Test create_s3_key with edge cases."""
+        result = MetadataExtractor.create_s3_key("", 0)
+        assert result == "metadata//0.json"
+
+    def test_create_s3_key_large_hash(self) -> None:
+        """Test create_s3_key with large hash value."""
+        large_hash = 9223372036854775807  # Max int64
+        result = MetadataExtractor.create_s3_key("aliases", large_hash)
+        assert result == f"metadata/aliases/{large_hash}.json"

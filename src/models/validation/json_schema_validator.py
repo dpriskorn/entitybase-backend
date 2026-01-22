@@ -9,7 +9,7 @@ from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
 from pydantic import BaseModel, Field
 
 from models.config.settings import settings
-from models.rest_api.entitybase.v1.response.misc import JsonSchema
+from models.data.json_schema import JsonSchema
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

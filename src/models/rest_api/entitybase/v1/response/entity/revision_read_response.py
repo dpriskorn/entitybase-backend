@@ -4,7 +4,6 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from .revision_data import RevisionData
 
 
 class RevisionReadResponse(BaseModel):

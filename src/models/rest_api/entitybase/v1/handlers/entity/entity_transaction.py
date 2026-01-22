@@ -67,7 +67,7 @@ class EntityTransaction(BaseModel, ABC):
     ) -> None:
         """Publish a change event."""
         from models.infrastructure.stream.event import EntityChangeEvent
-        from models.infrastructure.stream.change_type import ChangeType
+        from models.data.infrastructure.stream.change_type import ChangeType
 
         logger.info(
             f"[EntityTransaction] Publishing event for {entity_id} revision {revision_id}"

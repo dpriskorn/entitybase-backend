@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.infrastructure.s3.property_counts import PropertyCounts
+from models.data.infrastructure.s3.property_counts import PropertyCounts
 
 
 class StatementResponse(BaseModel):

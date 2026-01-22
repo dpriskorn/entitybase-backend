@@ -11,7 +11,6 @@ from models.rest_api.entitybase.v1.response import (
     EntityMetadataResponse,
     EntityMetadataBatchResponse,
 )
-from models.rest_api.entitybase.v1.response import MetadataLoadResponse
 from models.rest_api.entitybase.v1.response.entity.entitybase import (
     EntityAliasesResponse,
     EntityDescriptionsResponse,
@@ -21,6 +20,7 @@ from models.rest_api.entitybase.v1.response.entity.entitybase import (
     EntitySitelinksResponse,
     EntityStatementsResponse,
 )
+from models.rest_api.entitybase.v1.response.rdf import MetadataLoadResponse
 
 logger = logging.getLogger(__name__)
 

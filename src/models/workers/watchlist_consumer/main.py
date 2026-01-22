@@ -1,13 +1,14 @@
 """Watchlist consumer worker for processing entity change events and notifying users."""
 
 import asyncio
-import json
 import logging
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from models.config.settings import settings
-from models.infrastructure.stream.consumer import Consumer, EntityChangeEvent
+from models.data.workers.changed_properties import ChangedProperties
+from models.infrastructure.stream.consumer import Consumer
+from models.data.infrastructure.stream.consumer import EntityChangeEventData
 from models.workers.vitess_worker import VitessWorker
 
 logger = logging.getLogger(__name__)
@@ -65,7 +66,7 @@ class WatchlistConsumerWorker(VitessWorker):
             logger.error(f"Error in consumer loop: {e}")
             raise
 
-    async def process_message(self, message: EntityChangeEvent) -> None:
+    async def process_message(self, message: EntityChangeEventData) -> None:
         """Process a single entity change event message."""
         try:
             # Parse the event
@@ -102,7 +103,7 @@ class WatchlistConsumerWorker(VitessWorker):
                         entity_id=entity_id,
                         revision_id=revision_id,
                         change_type=change_type,
-                        changed_properties=[],  # TODO: add to event model
+                        changed_properties=ChangedProperties(),  # TODO: add to event model
                         event_timestamp=message.timestamp,
                     )
                     notifications_created += 1
@@ -116,7 +117,7 @@ class WatchlistConsumerWorker(VitessWorker):
 
     @staticmethod
     def _should_notify(
-            watched_properties: list[str] | None, changed_properties: list[str] | None
+            watched_properties: list[str] | None, changed_properties: ChangedProperties | None
     ) -> bool:
         """Determine if user should be notified based on watched vs changed properties."""
         if watched_properties is None:
@@ -128,7 +129,7 @@ class WatchlistConsumerWorker(VitessWorker):
             return True
 
         # Check if any changed property is watched
-        return any(prop in watched_properties for prop in changed_properties)
+        return any(prop in watched_properties for prop in changed_properties.properties)
 
     async def _create_notification(
         self,
@@ -136,7 +137,7 @@ class WatchlistConsumerWorker(VitessWorker):
         entity_id: str,
         revision_id: int,
         change_type: str,
-        changed_properties: list[str] | None,
+        changed_properties: ChangedProperties | None,
         event_timestamp: str = "",
     ) -> None:
         """Create a notification record in the database."""
@@ -155,7 +156,7 @@ class WatchlistConsumerWorker(VitessWorker):
                     entity_id,
                     revision_id,
                     change_type,
-                    json.dumps(changed_properties) if changed_properties else None,
+                    changed_properties.model_dump_json() if changed_properties else None,
                     event_timestamp,
                 ),
             )

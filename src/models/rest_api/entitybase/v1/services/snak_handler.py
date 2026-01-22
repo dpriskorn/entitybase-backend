@@ -4,8 +4,8 @@ import logging
 from datetime import datetime
 from typing import Any, Dict
 
+from models.data.infrastructure.s3.snak_data import S3SnakData
 from models.infrastructure.s3.client import MyS3Client
-from models.infrastructure.s3.revision.s3_snak_data import S3SnakData
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.utils import raise_validation_error
 
