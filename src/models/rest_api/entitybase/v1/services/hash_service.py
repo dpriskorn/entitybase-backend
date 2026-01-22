@@ -75,7 +75,7 @@ class HashService(Service):
         """Hash label values, store in S3 and Vitess."""
         hashes = {}
         if self.state.vitess_config:
-            terms_repo = TermsRepository(config=self.state.vitess_config)
+            terms_repo = TermsRepository(vitess_client=self.vitess_client)
             for lang, label_data in labels.items():
                 if "value" in label_data:
                     value = label_data["value"]
@@ -92,7 +92,7 @@ class HashService(Service):
         """Hash description values, store in S3 and Vitess."""
         hashes = {}
         if self.state.vitess_config:
-            terms_repo = TermsRepository(config=self.state.vitess_config)
+            terms_repo = TermsRepository(vitess_client=self.vitess_client)
             for lang, desc_data in descriptions.items():
                 if "value" in desc_data:
                     value = desc_data["value"]
@@ -109,7 +109,7 @@ class HashService(Service):
         """Hash alias values, store in S3 and Vitess."""
         hashes = {}
         if self.state.vitess_config:
-            terms_repo = TermsRepository(config=self.state.vitess_config)
+            terms_repo = TermsRepository(vitess_client=self.vitess_client)
             for lang, alias_list in aliases.items():
                 lang_hashes = []
                 for alias_data in alias_list:
