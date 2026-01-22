@@ -34,12 +34,12 @@ class MyS3Client(Client):
     connection_manager: Optional[S3ConnectionManager] = Field(
         default=None, exclude=True
     )  # type: ignore[override]
-    revisions: Optional[RevisionStorage] = Field(default=None, exclude=True)
-    statements: Optional[StatementStorage] = Field(default=None, exclude=True)
-    metadata: Optional[MetadataStorage] = Field(default=None, exclude=True)
-    references: Optional[ReferenceStorage] = Field(default=None, exclude=True)
-    qualifiers: Optional[QualifierStorage] = Field(default=None, exclude=True)
-    snaks: Optional[SnakStorage] = Field(default=None, exclude=True)
+    revisions: Any = Field(default=None, exclude=True)
+    statements: Any = Field(default=None, exclude=True)
+    metadata: Any = Field(default=None, exclude=True)
+    references: Any = Field(default=None, exclude=True)
+    qualifiers: Any = Field(default=None, exclude=True)
+    snaks: Any = Field(default=None, exclude=True)
 
     def model_post_init(self, context) -> None:
         # noinspection PyTypeChecker
@@ -65,7 +65,22 @@ class MyS3Client(Client):
         data: RevisionData,
     ) -> OperationResult[None]:
         """Write entity revision data to S3."""
-        return self.revisions.store_revision(entity_id, revision_id, data)
+        import json
+        from models.internal_representation.metadata_extractor import MetadataExtractor
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+
+        revision_dict = data.model_dump(mode="json")
+        revision_json = json.dumps(revision_dict, sort_keys=True)
+        content_hash = MetadataExtractor.hash_string(revision_json)
+
+        s3_revision_data = S3RevisionData(
+            schema=data.schema_version,
+            revision=revision_dict,
+            hash=content_hash,
+            created_at=data.created_at,
+        )
+
+        return self.revisions.store_revision(content_hash, s3_revision_data)
 
     def read_revision(self, entity_id: str, revision_id: int):
         """Read S3 object and return parsed JSON."""

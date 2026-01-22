@@ -22,48 +22,16 @@ class RevisionStorage(BaseS3Storage):
     bucket: str = settings.s3_revisions_bucket
 
     def store_revision(
-        self, entity_id: str, revision_id: int, revision_data: "RevisionData"
+        self, content_hash: int, revision_data: S3RevisionData
     ) -> OperationResult[None]:
-        """Store a revision by entity and revision ID."""
-        import json
-        from models.internal_representation.metadata_extractor import MetadataExtractor
-
-        revision_dict = revision_data.model_dump(mode="json")
-        revision_json = json.dumps(revision_dict, sort_keys=True)
-        content_hash = MetadataExtractor.hash_string(revision_json)
-
-        s3_revision_data = S3RevisionData(
-            schema=revision_data.schema_version,
-            revision=revision_dict,
-            hash=content_hash,
-            created_at=revision_data.created_at,
-        )
-
-        key = f"{entity_id}/{revision_id}"
+        """Store a revision by its content hash."""
+        key = str(content_hash)
         metadata = {"content_hash": str(content_hash)}
-        return self.store(key, s3_revision_data, metadata=metadata)
+        return self.store(key, revision_data, metadata=metadata)
 
-    def load_revision(self, entity_id: str, revision_id: int) -> "RevisionReadResponse":
-        """Load a revision by entity and revision ID."""
-        from models.rest_api.entitybase.v1.response.entity.revision_read_response import RevisionReadResponse
-
-        key = f"{entity_id}/{revision_id}"
-        loaded = self.load(key)
-        s3_data = loaded.data
-        assert isinstance(s3_data, S3RevisionData)
-
-        # Construct RevisionData from the revision dict
-        from models.infrastructure.s3.revision.revision_data import RevisionData
-        revision_data = RevisionData(**s3_data.revision)
-
-        return RevisionReadResponse(
-            entity_id=entity_id,
-            revision_id=revision_id,
-            data=revision_data,
-            content=s3_data.revision,
-            schema_version=s3_data.schema_version,
-            created_at=s3_data.created_at,
-            user_id=0,  # Not stored, default
-            edit_summary="",  # Not stored, default
-            redirects_to="",  # Not stored, default
-        )
+    def load_revision(self, content_hash: int) -> S3RevisionData:
+        """Load a revision by its content hash."""
+        key = str(content_hash)
+        data = self.load(key).data
+        assert isinstance(data, S3RevisionData)
+        return data
