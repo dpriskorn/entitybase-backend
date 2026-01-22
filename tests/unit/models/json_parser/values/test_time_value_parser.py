@@ -140,14 +140,8 @@ class TestTimeValueParser:
         """Test parsing when the value dict is missing."""
         datavalue = {}
 
-        result = parse_time_value(datavalue)
-
-        assert isinstance(result, TimeValue)
-        assert result.value == ""  # Empty string when time is missing
-        assert result.timezone == 0
-        assert result.before == 0
-        assert result.after == 0
-        assert result.precision == 11
+        with pytest.raises(ValueError, match="Time value must be in format"):
+            parse_time_value(datavalue)
         assert result.calendarmodel == "http://www.wikidata.org/entity/Q1985727"
 
     def test_parse_time_value_missing_time_field(self):
@@ -159,10 +153,8 @@ class TestTimeValueParser:
             }
         }
 
-        result = parse_time_value(datavalue)
-
-        assert result.value == ""  # Empty string default
-        assert result.timezone == 120
+        with pytest.raises(ValueError, match="Time value must be in format"):
+            parse_time_value(datavalue)
         assert result.precision == 9
 
     def test_parse_time_value_result_immutability(self):

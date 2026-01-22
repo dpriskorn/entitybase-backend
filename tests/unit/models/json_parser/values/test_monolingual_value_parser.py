@@ -144,17 +144,8 @@ class TestMonolingualValueParser:
             }
         }
 
-        # The validation happens during model creation, not parsing
-        # So this should succeed in parsing but fail in model validation
-        result = parse_monolingual_value(datavalue)
-        # The MonolingualValue constructor will validate and raise error
-        with pytest.raises(Exception):
-            # Force validation by accessing the model
-            MonolingualValue(
-                value="",
-                language=result.language,
-                text=result.text
-            )
+        with pytest.raises(ValueError, match="MonolingualText text must not contain"):
+            parse_monolingual_value(datavalue)
 
     def test_parse_monolingual_value_carriage_return_raises_error(self):
         """Test that text with carriage returns raises validation error."""
@@ -165,10 +156,5 @@ class TestMonolingualValueParser:
             }
         }
 
-        result = parse_monolingual_value(datavalue)
-        with pytest.raises(Exception):
-            MonolingualValue(
-                value="",
-                language=result.language,
-                text=result.text
-            )
+        with pytest.raises(ValueError, match="MonolingualText text must not contain"):
+            parse_monolingual_value(datavalue)
