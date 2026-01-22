@@ -1,8 +1,7 @@
 $schema: https://json-schema.org/draft/2020-12/schema
-$id: https://wikibase.org/schemas/s3-statement/3.0.0.json
+$id: https://wikibase.org/schemas/s3-statement/2.0.0.json
 title: S3 Statement Snapshot
-description: Immutable statement snapshot stored in S3. First-class citizen statements
-  with hash-based deduplication and full revision tracking.
+description: Immutable statement snapshot stored in S3. Statements are stored with hash-based deduplication for snaks, qualifiers, and references.
 type: object
 required:
 - schema_version
@@ -16,12 +15,9 @@ properties:
     description: Schema version (MAJOR.MINOR.PATCH)
   content_hash:
     type: integer
-    description: Rapidhash integer of statement JSON for deduplication and storage
-      key.
+    description: Rapidhash integer of statement JSON for deduplication and storage key.
     minimum: -922337203685477581
-    examples:
-    - 987654321012345678
-    - -918273876123456789
+    maximum: 9223372036854775807
   statement:
     type: object
     required:
@@ -52,15 +48,6 @@ properties:
         description: List of reference hashes.
         items:
           type: integer
-         description: Rapidhash of the qualifiers object. Full qualifiers stored separately.
-         minimum: -922337203685477581
-       references:
-         type: array
-         description: References providing sources for this statement. Array of rapidhash integers pointing to deduplicated reference JSON in S3.
-         items:
-           type: integer
-           description: Rapidhash of the reference content.
-           minimum: -922337203685477581
   created_at:
     type: string
     format: date-time

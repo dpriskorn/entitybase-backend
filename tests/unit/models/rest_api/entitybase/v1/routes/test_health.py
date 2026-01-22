@@ -22,7 +22,7 @@ class TestHealthRoutes:
             services={"database": "healthy", "s3": "healthy"}
         )
 
-        with pytest.mock.patch("models.rest_api.entitybase.v1.routes.health.health_check", return_value=mock_health_response):
+        with unittest.mock.patch("models.rest_api.entitybase.v1.routes.health.health_check", return_value=mock_health_response):
             # Call the endpoint
             result = health_check_endpoint(mock_response)
 
@@ -45,7 +45,7 @@ class TestHealthRoutes:
             services={"database": "unhealthy", "s3": "healthy"}
         )
 
-        with pytest.mock.patch("models.rest_api.entitybase.v1.routes.health.health_check", return_value=mock_health_response):
+        with unittest.mock.patch("models.rest_api.entitybase.v1.routes.health.health_check", return_value=mock_health_response):
             # Call the endpoint
             result = health_check_endpoint(mock_response)
 

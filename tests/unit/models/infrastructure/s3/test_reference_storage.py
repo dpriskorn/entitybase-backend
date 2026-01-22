@@ -19,7 +19,8 @@ class TestReferenceStorage:
             mock_base.return_value = mock_instance
             mock_instance.store.return_value = MagicMock(success=True)
 
-            storage = ReferenceStorage()
+            mock_connection_manager = MagicMock()
+            storage = ReferenceStorage(connection_manager=mock_connection_manager)
             reference_data = S3ReferenceData(
                 reference={
                     "snaks": {
@@ -57,7 +58,8 @@ class TestReferenceStorage:
             mock_base.return_value = mock_instance
             mock_instance.store.return_value = MagicMock(success=False)
 
-            storage = ReferenceStorage()
+            mock_connection_manager = MagicMock()
+            storage = ReferenceStorage(connection_manager=mock_connection_manager)
             reference_data = S3ReferenceData(
                 reference={"snaks": {}, "snaks-order": []},
                 content_hash=12345,
@@ -81,7 +83,8 @@ class TestReferenceStorage:
             mock_base.return_value = mock_instance
             mock_instance.load.return_value = MagicMock(data=mock_reference_data)
 
-            storage = ReferenceStorage()
+            mock_connection_manager = MagicMock()
+            storage = ReferenceStorage(connection_manager=mock_connection_manager)
             result = storage.load_reference(12345)
 
             assert result == mock_reference_data
@@ -94,7 +97,8 @@ class TestReferenceStorage:
             mock_base.return_value = mock_instance
             mock_instance.load.side_effect = S3NotFoundError("Reference not found")
 
-            storage = ReferenceStorage()
+            mock_connection_manager = MagicMock()
+            storage = ReferenceStorage(connection_manager=mock_connection_manager)
 
             with pytest.raises(S3NotFoundError):
                 storage.load_reference(12345)
@@ -127,7 +131,8 @@ class TestReferenceStorage:
 
             mock_instance.load.side_effect = mock_load
 
-            storage = ReferenceStorage()
+            mock_connection_manager = MagicMock()
+            storage = ReferenceStorage(connection_manager=mock_connection_manager)
             result = storage.load_references_batch([12345, 67890])
 
             assert len(result) == 2
@@ -155,7 +160,8 @@ class TestReferenceStorage:
 
             mock_instance.load.side_effect = mock_load
 
-            storage = ReferenceStorage()
+            mock_connection_manager = MagicMock()
+            storage = ReferenceStorage(connection_manager=mock_connection_manager)
             result = storage.load_references_batch([12345, 67890])
 
             assert len(result) == 2
@@ -169,7 +175,8 @@ class TestReferenceStorage:
             mock_base.return_value = mock_instance
             mock_instance.load.side_effect = S3NotFoundError("Not found")
 
-            storage = ReferenceStorage()
+            mock_connection_manager = MagicMock()
+            storage = ReferenceStorage(connection_manager=mock_connection_manager)
             result = storage.load_references_batch([12345, 67890])
 
             assert len(result) == 2
@@ -178,7 +185,8 @@ class TestReferenceStorage:
 
     def test_load_references_batch_empty_list(self) -> None:
         """Test batch loading with empty hash list."""
-        storage = ReferenceStorage()
+        mock_connection_manager = MagicMock()
+        storage = ReferenceStorage(connection_manager=mock_connection_manager)
         result = storage.load_references_batch([])
 
         assert result == []

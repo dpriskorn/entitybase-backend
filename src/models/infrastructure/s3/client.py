@@ -17,9 +17,11 @@ from models.infrastructure.s3.revision.revision_read_response import (
 )
 from models.infrastructure.s3.revision.s3_qualifier_data import S3QualifierData
 from models.infrastructure.s3.revision.s3_reference_data import S3ReferenceData
+from models.infrastructure.s3.revision.s3_snak_data import S3SnakData
 from models.infrastructure.s3.storage.metadata_storage import MetadataStorage
 from models.infrastructure.s3.storage.qualifier_storage import QualifierStorage
 from models.infrastructure.s3.storage.reference_storage import ReferenceStorage
+from models.infrastructure.s3.storage.snak_storage import SnakStorage
 from models.infrastructure.s3.storage.revision_storage import RevisionStorage
 from models.infrastructure.s3.storage.statement_storage import StatementStorage
 from models.rest_api.entitybase.v1.response import StatementResponse
@@ -42,6 +44,7 @@ class MyS3Client(Client):
     metadata: Optional[MetadataStorage] = Field(default=None, exclude=True)
     references: Optional[ReferenceStorage] = Field(default=None, exclude=True)
     qualifiers: Optional[QualifierStorage] = Field(default=None, exclude=True)
+    snaks: Optional[SnakStorage] = Field(default=None, exclude=True)
 
     def model_post_init(self, context) -> None:
         # noinspection PyTypeChecker
@@ -58,6 +61,7 @@ class MyS3Client(Client):
         self.metadata = MetadataStorage(connection_manager=self.connection_manager)
         self.references = ReferenceStorage(connection_manager=self.connection_manager)
         self.qualifiers = QualifierStorage(connection_manager=self.connection_manager)
+        self.snaks = SnakStorage(connection_manager=self.connection_manager)
 
     def write_revision(
         self,
@@ -181,6 +185,42 @@ class MyS3Client(Client):
     ) -> list[S3QualifierData | None]:
         """Load multiple qualifiers by their content hashes."""
         return self.qualifiers.load_qualifiers_batch(content_hashes)
+
+    def store_snak(
+        self, content_hash: int, snak_data: S3SnakData
+    ) -> None:
+        """Store a snak by its content hash."""
+        result = self.snaks.store_snak(content_hash, snak_data)
+        if not result.success:
+            raise_validation_error("S3 storage service unavailable", status_code=503)
+
+    def load_snak(self, content_hash: int) -> S3SnakData:
+        """Load a snak by its content hash."""
+        return self.snaks.load_snak(content_hash)
+
+    def load_snaks_batch(
+        self, content_hashes: list[int]
+    ) -> list[S3SnakData | None]:
+        """Load multiple snaks by their content hashes."""
+        return self.snaks.load_snaks_batch(content_hashes)
+
+    def store_revision(
+        self, content_hash: int, revision_data
+    ) -> None:
+        """Store a revision by its content hash."""
+        from models.infrastructure.s3.storage.revision_storage import RevisionStorage
+        if not hasattr(self, 'revisions') or self.revisions is None:
+            self.revisions = RevisionStorage(connection_manager=self.connection_manager)
+        result = self.revisions.store_revision(content_hash, revision_data)
+        if not result.success:
+            raise_validation_error("S3 storage service unavailable", status_code=503)
+
+    def load_revision(self, content_hash: int):
+        """Load a revision by its content hash."""
+        from models.infrastructure.s3.storage.revision_storage import RevisionStorage
+        if not hasattr(self, 'revisions') or self.revisions is None:
+            self.revisions = RevisionStorage(connection_manager=self.connection_manager)
+        return self.revisions.load_revision(content_hash)
 
 
 # MyS3Client.model_rebuild()

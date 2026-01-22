@@ -62,6 +62,8 @@ class MetadataType(str, Enum):
 
 
 class EditData(BaseModel):
+    model_config = {"by_alias": True}
+
     edit_type: EditType = Field(alias="type", description="Type of edit to be made.")
     user_id: int = Field(description="ID of the user responsible for the edit.")
     is_mass_edit: bool = Field(

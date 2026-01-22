@@ -57,6 +57,7 @@ def get_most_used_statements(  # type: ignore[no-any-return]
     return result  # type: ignore[no-any-return]
 
 
+# todo convert this into a worker instead
 @router.post("/statements/cleanup-orphaned", response_model=CleanupOrphanedResponse)
 def cleanup_orphaned_statements(  # type: ignore[no-any-return]
     request: CleanupOrphanedRequest, req: Request

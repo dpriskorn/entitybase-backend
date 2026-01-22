@@ -65,6 +65,13 @@ def mock_kafka_producer():
     return mock_producer
 
 
+@pytest.fixture
+def validator():
+    """Return a JsonSchemaValidator for testing."""
+    from models.validation.json_schema_validator import JsonSchemaValidator
+    return JsonSchemaValidator()
+
+
 @pytest.fixture(autouse=True)
 def mock_aiokafka():
     """Mock aiokafka to prevent real Kafka connections in tests."""

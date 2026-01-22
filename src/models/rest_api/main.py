@@ -63,7 +63,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         )
         logger.debug(f"Property registry path: {property_registry_path}")
 
-        app_.state.clients = StateHandler(
+        app_.state.state_handler = StateHandler(
             s3_config=s3_config,
             vitess_config=vitess_config,
             streaming_enabled=settings.streaming_enabled,
@@ -74,6 +74,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             entity_change_stream_config=settings.get_entity_change_stream_config(),
             entity_diff_stream_config=settings.get_entity_diff_stream_config(),
         )
+        app_.state.clients = app_.state.state_handler
 
         # Create database tables on startup (only if vitess is available)
         try:

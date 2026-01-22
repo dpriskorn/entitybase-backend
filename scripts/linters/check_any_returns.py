@@ -42,13 +42,15 @@ class AnyReturnChecker(ast.NodeVisitor):
                         )
                     )
 
-    def _get_annotation_string(self, node: ast.AST) -> str:
+    @staticmethod
+    def _get_annotation_string(node: ast.AST) -> str:
         """Convert AST annotation to string."""
         if isinstance(node, ast.Name):
             return node.id
         return ast.unparse(node) if hasattr(ast, "unparse") else str(node)
 
-    def _is_any_annotation(self, annotation: str) -> bool:
+    @staticmethod
+    def _is_any_annotation(annotation: str) -> bool:
         """Check if annotation is Any."""
         return annotation == "Any"
 

@@ -207,7 +207,7 @@ class EntityHandler(Handler):
             # Store in database
             ctx.vitess_client.create_revision(
                 entity_id=ctx.entity_id,
-                entity_data=revision_data.model_dump(),
+                entity_data=revision_data,
                 revision_id=new_revision_id,
             )
 
@@ -428,6 +428,7 @@ class EntityHandler(Handler):
             schema_version=settings.s3_schema_revision_version,
             revision_id=new_revision_id,
             entity_type=entity_type,
+            entity=request_data,
             properties=hash_result.properties,
             property_counts=hash_result.property_counts,
             hashes=HashMaps(
@@ -454,14 +455,34 @@ class EntityHandler(Handler):
             ),
         )
 
+        # Create S3 revision data for storage
+        import json
+        from models.internal_representation.metadata_extractor import MetadataExtractor
+        from models.infrastructure.s3.revision.s3_revision_data import S3RevisionData
+
+        revision_dict = revision_data.model_dump(mode="json")
+        revision_json = json.dumps(revision_dict, sort_keys=True)
+        content_hash = MetadataExtractor.hash_string(revision_json)
+
+        s3_revision_data = S3RevisionData(
+            schema=settings.s3_schema_revision_version,
+            revision=revision_dict,
+            hash=content_hash,
+            created_at=created_at,
+        )
+
         # Store revision in S3 and update head
         logger.info(f"Entity {entity_id}: Creating revision {new_revision_id}")
         try:
             self.state.vitess_client.create_revision(
                 entity_id=entity_id,
-                entity_data=revision_data.model_dump(),
+                entity_data=revision_data,
                 revision_id=new_revision_id,
             )
+
+            # Store in S3 using S3RevisionData
+            self.state.s3_client.store_revision(content_hash, s3_revision_data)
+
             logger.info(
                 f"Entity {entity_id}: Successfully created revision {new_revision_id}"
             )

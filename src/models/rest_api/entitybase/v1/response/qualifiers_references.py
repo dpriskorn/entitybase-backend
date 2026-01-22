@@ -35,3 +35,19 @@ class ReferenceResponse(BaseModel):
     created_at: str = Field(
         description="Timestamp when reference was created. Example: '2023-01-01T12:00:00Z'."
     )
+
+
+class SnakResponse(BaseModel):
+    """Response model for snak data."""
+
+    model_config = {"extra": "allow"}  # Allow extra fields from S3 data
+
+    snak: Dict[str, Any] = Field(
+        description="Full snak JSON object. Example: {'snaktype': 'value', 'property': 'P31', 'datatype': 'wikibase-item', 'datavalue': {...}}."
+    )
+    content_hash: int = Field(
+        alias="hash", description="Hash of the snak content. Example: 123456789."
+    )
+    created_at: str = Field(
+        description="Timestamp when snak was created. Example: '2023-01-01T12:00:00Z'."
+    )

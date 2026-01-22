@@ -15,6 +15,8 @@ logger = logging.getLogger(__name__)
 class RevisionRepository(Repository):
     """Repository for entity revision database operations."""
 
+
+
     def insert(
         self,
         entity_id: str,
@@ -280,6 +282,32 @@ class RevisionRepository(Repository):
 
         affected_rows = int(cursor.rowcount)
         return affected_rows > 0
+
+    def insert_revision(
+        self,
+        entity_id: str,
+        revision_id: int,
+        entity_data,
+        expected_revision_id=None,
+    ) -> None:
+        """Insert a revision from RevisionData model."""
+        flat_data = {
+            "is_mass_edit": entity_data.edit.is_mass_edit,
+            "edit_type": entity_data.edit.edit_type,
+            "statements": entity_data.hashes.statements.root,
+            "properties": entity_data.properties,
+            "property_counts": entity_data.property_counts,
+            "labels_hashes": entity_data.hashes.labels,
+            "descriptions_hashes": entity_data.hashes.descriptions,
+            "aliases_hashes": entity_data.hashes.aliases,
+            "sitelinks_hashes": entity_data.hashes.sitelinks,
+            "user_id": entity_data.edit.user_id,
+            "edit_summary": entity_data.edit.edit_summary,
+        }
+        if expected_revision_id is None:
+            self.insert(entity_id, revision_id, flat_data)
+        else:
+            self.create_with_cas(entity_id, revision_id, flat_data, expected_revision_id)
 
     def create(self, entity_id: str, revision_id: int, data: dict) -> None:
         """Create a new revision for an entity."""

@@ -28,12 +28,12 @@ class LoadResponse(BaseModel):
 class BaseS3Storage(ABC, BaseModel):
     """Base class for S3 storage operations with common patterns."""
 
-    connection_manager: S3ConnectionManager
+    connection_manager: Optional[S3ConnectionManager] = None
     bucket: str
 
     def _ensure_connection(self) -> None:
         """Ensure S3 connection is available."""
-        if not self.connection_manager or not self.connection_manager.boto_client:
+        if not self.connection_manager or not hasattr(self.connection_manager, 'boto_client') or not self.connection_manager.boto_client:
             raise S3ConnectionError("S3 service unavailable")
 
     def _handle_client_error(self, e: ClientError, operation: str, key: str) -> None:
@@ -76,6 +76,7 @@ class BaseS3Storage(ABC, BaseModel):
                     else str(data).encode("utf-8")
                 )
 
+            assert self.connection_manager is not None  # For type checker
             self.connection_manager.boto_client.put_object(
                 Bucket=self.bucket,
                 Key=key,
@@ -102,6 +103,7 @@ class BaseS3Storage(ABC, BaseModel):
         self._ensure_connection()
 
         try:
+            assert self.connection_manager is not None  # For type checker
             response = self.connection_manager.boto_client.get_object(
                 Bucket=self.bucket, Key=key
             )
@@ -130,6 +132,7 @@ class BaseS3Storage(ABC, BaseModel):
         self._ensure_connection()
 
         try:
+            assert self.connection_manager is not None  # For type checker
             self.connection_manager.boto_client.delete_object(
                 Bucket=self.bucket, Key=key
             )
@@ -151,6 +154,7 @@ class BaseS3Storage(ABC, BaseModel):
         self._ensure_connection()
 
         try:
+            assert self.connection_manager is not None  # For type checker
             self.connection_manager.boto_client.head_object(Bucket=self.bucket, Key=key)
             return True
         except ClientError as e:

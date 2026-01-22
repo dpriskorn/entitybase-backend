@@ -84,13 +84,14 @@ class LoggerInfoChecker(ast.NodeVisitor):
 
     def _is_logger_expr(self, node) -> bool:
         """Check if the expression refers to logger or log."""
-        if isinstance(node, ast.Name) and node.id in ["logger", "log"]:
-            return True
+        if isinstance(node, ast.Name):
+            return hasattr(node, 'id') and node.id in ["logger", "log"]
         if isinstance(node, ast.Attribute):
             return node.attr in ["logger", "log"] or self._is_logger_expr(node.value)
         return False
 
-    def _is_enum_class(self, node: ast.ClassDef) -> bool:
+    @staticmethod
+    def _is_enum_class(node: ast.ClassDef) -> bool:
         """Check if class inherits from Enum."""
         for base in node.bases:
             if isinstance(base, ast.Name) and base.id == "Enum":
@@ -99,7 +100,8 @@ class LoggerInfoChecker(ast.NodeVisitor):
                 return True
         return False
 
-    def _is_abstract_method(self, node) -> bool:
+    @staticmethod
+    def _is_abstract_method(node) -> bool:
         """Check if function is decorated with @abstractmethod."""
         if hasattr(node, "decorator_list"):
             for decorator in node.decorator_list:

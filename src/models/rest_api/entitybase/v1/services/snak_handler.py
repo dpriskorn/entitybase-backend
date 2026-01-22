@@ -1,12 +1,12 @@
 """Service for storing and retrieving snaks with deduplication."""
 
-import json
 import logging
+from datetime import datetime
 from typing import Any, Dict
 
-from models.config.settings import settings
 from models.infrastructure.s3.client import MyS3Client
-from models.internal_representation.metadata_extractor import hash_string
+from models.infrastructure.s3.revision.s3_snak_data import S3SnakData
+from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -15,38 +15,40 @@ logger = logging.getLogger(__name__)
 class SnakHandler:
     """Handles snak storage and retrieval with rapidhash deduplication."""
 
-    def __init__(self, s3_client: MyS3Client | None = None):
+    def __init__(self, s3_client: MyS3Client):
         """Initialize with S3 client."""
-        self.s3_client = s3_client or MyS3Client()
-        self.bucket = settings.s3_snaks_bucket
+        self.s3_client = s3_client
 
-    def store_snak(self, snak: Dict[str, Any]) -> str:
+    def store_snak(self, snak: Dict[str, Any]) -> int:
         """Store snak in S3 with rapidhash key, return hash."""
-        # Serialize snak to JSON for hashing and storage
+        # Compute rapidhash for the snak
+        import json
         snak_json = json.dumps(snak, sort_keys=True)
-        snak_hash = hash_string(snak_json)
+        content_hash = MetadataExtractor.hash_string(snak_json)
 
+        # Create S3SnakData object
+        snak_data = S3SnakData(
+            schema="1.0.0",
+            snak=snak,
+            hash=content_hash,
+            created_at=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        )
+
+        # Store using S3 client
         try:
-            self.s3_client.put_object(
-                bucket=self.bucket,
-                key=snak_hash,
-                body=snak_json,
-                content_type="application/json"
-            )
-            logger.debug(f"Stored snak with hash {snak_hash}")
+            self.s3_client.store_snak(content_hash, snak_data)
+            logger.debug(f"Stored snak with hash {content_hash}")
         except Exception as e:
-            logger.error(f"Failed to store snak {snak_hash}: {e}")
+            logger.error(f"Failed to store snak {content_hash}: {e}")
             raise_validation_error(f"Failed to store snak: {e}")
 
-        return snak_hash
+        return content_hash
 
-    def get_snak(self, snak_hash: str) -> Dict[str, Any] | None:
+    def get_snak(self, snak_hash: int) -> Dict[str, Any] | None:
         """Retrieve snak from S3 by hash."""
         try:
-            response = self.s3_client.get_object(bucket=self.bucket, key=snak_hash)
-            if response:
-                return json.loads(response)
+            snak_data = self.s3_client.load_snak(snak_hash)
+            return snak_data.snak if snak_data else None
         except Exception as e:
             logger.warning(f"Failed to retrieve snak {snak_hash}: {e}")
-
-        return None
+            return None

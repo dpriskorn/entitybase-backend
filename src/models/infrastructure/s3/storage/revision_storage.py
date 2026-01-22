@@ -1,67 +1,32 @@
 """Revision storage operations."""
 
 import logging
-from datetime import timezone, datetime
 
 from models.common import OperationResult
 from models.config.settings import settings
 from models.infrastructure.s3.base_storage import BaseS3Storage
-from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.s3.revision.revision_read_response import (
-    RevisionReadResponse,
-)
+from models.infrastructure.s3.exceptions import S3NotFoundError
+from models.infrastructure.s3.revision.s3_revision_data import S3RevisionData
 
 logger = logging.getLogger(__name__)
 
 
 class RevisionStorage(BaseS3Storage):
-    """Storage operations for entity revisions."""
+    """Storage operations for revisions."""
 
     bucket: str = settings.s3_revisions_bucket
 
     def store_revision(
-        self,
-        entity_id: str,
-        revision_id: int,
-        data: RevisionData,
+        self, content_hash: int, revision_data: S3RevisionData
     ) -> OperationResult[None]:
-        """Write entity revision data to S3."""
-        key = f"{entity_id}/{revision_id}"
-        metadata = {
-            "schema_version": data.schema_version,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-        }
-        return self.store(key, data, metadata=metadata)
+        """Store a revision by its content hash."""
+        key = str(content_hash)
+        metadata = {"content_hash": str(content_hash)}
+        return self.store(key, revision_data, metadata=metadata)
 
-    def load_revision(self, entity_id: str, revision_id: int) -> RevisionReadResponse:
-        """Read S3 object and return parsed revision."""
-        key = f"{entity_id}/{revision_id}"
-        # response = self.connection_manager.boto_client.get_object(
-        #     Bucket=self.bucket, Key=key
-        # )
-
-        parsed_data = self.load(key).data
-        assert isinstance(parsed_data, RevisionReadResponse)
-        return parsed_data
-        # return RevisionReadResponse(
-        #     entity_id=entity_id,
-        #     revision_id=revision_id,
-        #     data=revision_data,
-        #     content=parsed_data.get("entity", {}),  # type: ignore
-        #     schema_version=parsed_data.get("schema_version", ""),  # type: ignore
-        #     created_at=response["Metadata"].get("created_at", ""),
-        # )
-
-    def mark_published(
-        self, entity_id: str, revision_id: int, publication_state: str
-    ) -> None:
-        """Update the publication state of an entity revision."""
-        key = f"{entity_id}/{revision_id}"
-        # Copy object with new metadata
-        self.connection_manager.boto_client.copy_object(
-            Bucket=self.bucket,
-            CopySource={"Bucket": self.bucket, "Key": key},
-            Key=key,
-            Metadata={"publication_state": publication_state},
-            MetadataDirective="REPLACE",
-        )
+    def load_revision(self, content_hash: int) -> S3RevisionData:
+        """Load a revision by its content hash."""
+        key = str(content_hash)
+        data = self.load(key).data
+        assert isinstance(data, S3RevisionData)
+        return data

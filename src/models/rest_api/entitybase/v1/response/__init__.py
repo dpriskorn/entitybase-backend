@@ -39,7 +39,7 @@ from .misc import (
     RevisionMetadataResponse,
     TurtleResponse,
 )
-from .qualifiers_references import QualifierResponse, ReferenceResponse
+from .qualifiers_references import QualifierResponse, ReferenceResponse, SnakResponse
 from .rdf import (
     DeduplicationStatsResponse,
     FullRevisionResponse,
@@ -80,6 +80,7 @@ __all__ = [
     "QualifierResponse",
     "RedirectBatchResponse",
     "ReferenceResponse",
+    "SnakResponse",
     "RevisionMetadataResponse",
     "StatementBatchResponse",
     "StatementHashResult",

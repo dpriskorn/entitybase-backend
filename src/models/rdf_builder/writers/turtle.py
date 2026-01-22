@@ -32,5 +32,13 @@ class TurtleWriter(BaseModel):
             self.buffer_len = 0
             self.output.flush()
 
+    def flush(self) -> None:
+        """Flush remaining buffer content to output."""
+        if self.buffer:
+            self.output.write("".join(self.buffer))
+            self.buffer = []
+            self.buffer_len = 0
+        self.output.flush()
+
     def _write(self, text: str) -> None:
         self.output.write(text)

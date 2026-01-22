@@ -87,10 +87,10 @@ class RedirectService(Service):
         )
 
         self.vitess.create_revision(
-            request.redirect_from_id,
-            redirect_revision_id,
-            from_head_revision_id,
-            {},
+            entity_id=request.redirect_from_id,
+            revision_id=redirect_revision_id,
+            entity_data={},
+            expected_revision_id=from_head_revision_id,
         )
 
         self.vitess.create_redirect(

@@ -77,6 +77,10 @@ class VitessClient(Client):
         from models.infrastructure.vitess.repositories.thanks import ThanksRepository
         return ThanksRepository(vitess_client=self)
 
+    def create_revision(self, entity_id: str, entity_data, revision_id: int, expected_revision_id=None) -> None:
+        """Create a new revision."""
+        self.revision_repository.insert_revision(entity_id, revision_id, entity_data, expected_revision_id)
+
     def create_tables(self) -> None:
         from models.infrastructure.vitess.repositories.schema import SchemaRepository
 

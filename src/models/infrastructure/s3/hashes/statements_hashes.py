@@ -1,7 +1,9 @@
 """Statements hashes model."""
 
-from pydantic.root_model import RootModel
+from pydantic import BaseModel, Field
 
 
-class StatementsHashes(RootModel[list[int]]):
-    """Hash list for entity statements."""
+class StatementsHashes(BaseModel):
+    """Hash structure for entity statements."""
+
+    root: list[int] = Field(description="List of statement hashes.")

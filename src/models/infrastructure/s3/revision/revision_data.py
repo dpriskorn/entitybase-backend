@@ -20,6 +20,7 @@ class RevisionData(BaseModel):
 
     revision_id: int
     entity_type: EntityType
+    entity: dict | None = Field(default=None, description="The actual Wikibase entity data")
     edit: EditData
     hashes: HashMaps
     schema_version: str = Field(

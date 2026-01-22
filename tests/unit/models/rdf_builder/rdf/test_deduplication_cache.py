@@ -131,7 +131,8 @@ def test_hash_preservation() -> None:
     assert not dedupe.already_seen(full_hash, "wdv")
 
     # Bag should contain full hash, not just prefix
-    key = "wdv" + full_hash[:3]
+    # For "wdv" namespace, uses exact deduplication with full key
+    key = "wdv" + full_hash
     assert dedupe.bag[key] == full_hash
 
 

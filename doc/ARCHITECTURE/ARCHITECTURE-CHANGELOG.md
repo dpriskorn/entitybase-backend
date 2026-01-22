@@ -2,6 +2,30 @@
 
 This file tracks architectural changes, feature additions, and modifications to the entitybase-backend.
 
+## [2026-01-22] Snaks Deduplication and REST API Endpoint
+
+### Summary
+
+Extended deduplication to snaks in Wikibase statements using rapidhash. Snaks are now stored in a dedicated S3 bucket with hash-based keys, reducing storage for repetitive snak objects. Added new REST API endpoint for fetching deduplicated snaks by hash.
+
+### Changes
+
+#### Snak Deduplication Implementation
+- **S3 Storage**: Created `SnakStorage` class for storing/retrieving snaks with rapidhash keys in `s3_snaks_bucket`
+- **Data Model**: Added `S3SnakData` model for snak storage with schema version, snak content, hash, and timestamp
+- **Client Integration**: Extended `MyS3Client` with `load_snaks_batch` method for efficient batch retrieval
+
+#### REST API Endpoint
+- **New Endpoint**: `GET /snaks/{hashes}` - Fetch snaks by hash(es) with batch support (max 100 hashes)
+- **Response Model**: Added `SnakResponse` with snak data, content hash, and creation timestamp
+- **Error Handling**: Validates hash format, enforces batch limits, returns null for missing snaks
+- **OpenAPI Tags**: Grouped under "statements" tag for consistency with qualifiers/references
+
+#### Benefits
+- **Storage Efficiency**: Reduces storage for repetitive snak objects across statements, qualifiers, and references
+- **API Performance**: Enables frontend caching and batch retrieval of snak data
+- **Consistency**: Aligns snaks with existing qualifier/reference deduplication architecture
+
 ## [2026-01-19] Internal Data Models and RDF Builder Updates
 
 ### Summary

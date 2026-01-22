@@ -1,4 +1,5 @@
 """Unit tests for batch routes."""
+from unittest import TestCase
 
 import pytest
 from unittest.mock import AsyncMock, MagicMock
@@ -13,7 +14,7 @@ from models.rest_api.entitybase.v1.routes.batch import (
 )
 
 
-class TestBatchRoutes:
+class TestBatchRoutes(TestCase):
     """Unit tests for batch routes."""
 
     @pytest.mark.asyncio
@@ -171,7 +172,7 @@ class TestBatchRoutes:
         mock_handler.get_entity.return_value = mock_entity_response
 
         # Mock the EntityReadHandler import
-        with pytest.mock.patch("models.rest_api.entitybase.v1.routes.batch.EntityReadHandler", return_value=mock_handler):
+        with unittest.mock.patch("models.rest_api.entitybase.v1.routes.batch.EntityReadHandler", return_value=mock_handler):
             # Call the endpoint
             result = await get_batch_statements(mock_request, "Q5", "P31,P17")
 
@@ -204,7 +205,7 @@ class TestBatchRoutes:
         mock_handler.get_entity.return_value = mock_entity_response
 
         # Mock the EntityReadHandler import
-        with pytest.mock.patch("models.rest_api.entitybase.v1.routes.batch.EntityReadHandler", return_value=mock_handler):
+        with unittest.mock.patch("models.rest_api.entitybase.v1.routes.batch.EntityReadHandler", return_value=mock_handler):
             # Call the endpoint without property filter
             result = await get_batch_statements(mock_request, "Q5", "")
 
@@ -240,7 +241,7 @@ class TestBatchRoutes:
         mock_handler.get_entity.side_effect = Exception("Entity not found")
 
         # Mock the EntityReadHandler import
-        with pytest.mock.patch("models.rest_api.entitybase.v1.routes.batch.EntityReadHandler", return_value=mock_handler):
+        with unittest.mock.patch("models.rest_api.entitybase.v1.routes.batch.EntityReadHandler", return_value=mock_handler):
             # Call the endpoint
             result = await get_batch_statements(mock_request, "Q999", "")
 

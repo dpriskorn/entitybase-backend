@@ -19,7 +19,8 @@ class TestQualifierStorage:
             mock_base.return_value = mock_instance
             mock_instance.store.return_value = MagicMock(success=True)
 
-            storage = QualifierStorage()
+            mock_connection_manager = MagicMock()
+            storage = QualifierStorage(connection_manager=mock_connection_manager)
             qualifier_data = S3QualifierData(
                 qualifier={
                     "P580": [
@@ -61,7 +62,8 @@ class TestQualifierStorage:
             mock_base.return_value = mock_instance
             mock_instance.store.return_value = MagicMock(success=False)
 
-            storage = QualifierStorage()
+            mock_connection_manager = MagicMock()
+            storage = QualifierStorage(connection_manager=mock_connection_manager)
             qualifier_data = S3QualifierData(
                 qualifier={"P580": []},
                 content_hash=12345,
@@ -85,7 +87,8 @@ class TestQualifierStorage:
             mock_base.return_value = mock_instance
             mock_instance.load.return_value = MagicMock(data=mock_qualifier_data)
 
-            storage = QualifierStorage()
+            mock_connection_manager = MagicMock()
+            storage = QualifierStorage(connection_manager=mock_connection_manager)
             result = storage.load_qualifier(12345)
 
             assert result == mock_qualifier_data
@@ -98,7 +101,8 @@ class TestQualifierStorage:
             mock_base.return_value = mock_instance
             mock_instance.load.side_effect = S3NotFoundError("Qualifier not found")
 
-            storage = QualifierStorage()
+            mock_connection_manager = MagicMock()
+            storage = QualifierStorage(connection_manager=mock_connection_manager)
 
             with pytest.raises(S3NotFoundError):
                 storage.load_qualifier(12345)
@@ -131,7 +135,8 @@ class TestQualifierStorage:
 
             mock_instance.load.side_effect = mock_load
 
-            storage = QualifierStorage()
+            mock_connection_manager = MagicMock()
+            storage = QualifierStorage(connection_manager=mock_connection_manager)
             result = storage.load_qualifiers_batch([12345, 67890])
 
             assert len(result) == 2
@@ -159,7 +164,8 @@ class TestQualifierStorage:
 
             mock_instance.load.side_effect = mock_load
 
-            storage = QualifierStorage()
+            mock_connection_manager = MagicMock()
+            storage = QualifierStorage(connection_manager=mock_connection_manager)
             result = storage.load_qualifiers_batch([12345, 67890])
 
             assert len(result) == 2
@@ -173,7 +179,8 @@ class TestQualifierStorage:
             mock_base.return_value = mock_instance
             mock_instance.load.side_effect = S3NotFoundError("Not found")
 
-            storage = QualifierStorage()
+            mock_connection_manager = MagicMock()
+            storage = QualifierStorage(connection_manager=mock_connection_manager)
             result = storage.load_qualifiers_batch([12345, 67890])
 
             assert len(result) == 2
@@ -182,7 +189,8 @@ class TestQualifierStorage:
 
     def test_load_qualifiers_batch_empty_list(self) -> None:
         """Test batch loading with empty hash list."""
-        storage = QualifierStorage()
+        mock_connection_manager = MagicMock()
+        storage = QualifierStorage(connection_manager=mock_connection_manager)
         result = storage.load_qualifiers_batch([])
 
         assert result == []

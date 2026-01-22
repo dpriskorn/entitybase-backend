@@ -10,14 +10,14 @@ def health_check(response: Response) -> HealthCheckResponse:
     """Health check endpoint for monitoring system status."""
     from models.rest_api.main import app
 
-    state = getattr(app.state, "clients", None)
-    from models.rest_api.entitybase.v1.handlers.state import StateHandler
-    assert isinstance(state, StateHandler)
+    state = getattr(app.state, "state_handler", None)
     if state is None:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return HealthCheckResponse(
             status="starting", s3="disconnected", vitess="disconnected"
         )
+    from models.rest_api.entitybase.v1.handlers.state import StateHandler
+    assert isinstance(state, StateHandler)
     from models.infrastructure.s3.client import MyS3Client
     from models.infrastructure.vitess.client import VitessClient
 
