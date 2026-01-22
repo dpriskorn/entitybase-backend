@@ -218,7 +218,7 @@ class EntityRevisionResponse(BaseModel):
 
     entity_id: str = Field(description="Entity ID")
     revision_id: int = Field(description="Revision ID")
-    revision_data: RevisionData = Field(description="Revision data")
+    revision_data: dict = Field(description="Revision data")
 
 
 class ProtectionResponse(BaseModel):

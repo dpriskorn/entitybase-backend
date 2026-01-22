@@ -20,7 +20,7 @@ class Statement(BaseModel):
     references: list[Reference]
     statement_id: str
 
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
 
     def get_rdfstatement(self) -> RDFStatement:
         return RDFStatement(

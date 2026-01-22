@@ -86,7 +86,7 @@ class EntityReadHandler(Handler):
 
         try:
             revision = self.state.s3_client.read_revision(entity_id, revision_id)
-            revision_data = revision.data
+            revision_data = revision.revision
             return EntityRevisionResponse(
                 entity_id=entity_id,
                 revision_id=revision_id,

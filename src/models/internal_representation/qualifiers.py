@@ -11,4 +11,4 @@ class Qualifier(BaseModel):
     property: str
     value: Value
 
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)

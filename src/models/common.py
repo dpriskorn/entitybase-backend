@@ -2,7 +2,7 @@
 
 import logging
 import os
-from typing import Generic, NoReturn, Optional, TypeVar
+from typing import Generic, NoReturn, Optional, TypeVar, Union
 
 from pydantic import BaseModel, Field
 
@@ -12,7 +12,7 @@ T = TypeVar("T")
 def raise_validation_error(
     message: str,
     status_code: int = 400,
-    exception_class: type[Exception] = Field(default=None),
+    exception_class: type[Exception] | None = None,
 ) -> NoReturn:
     """Raise exception based on ENVIRONMENT and optional exception_class.
 

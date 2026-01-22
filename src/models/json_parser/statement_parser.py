@@ -13,7 +13,11 @@ from models.internal_representation.json_fields import JsonField
 def parse_statement(statement_json: dict[str, Any]) -> Statement:
     """Parse statement from Wikidata JSON format."""
     mainsnak = statement_json.get(JsonField.MAINSNAK.value, {})
-    rank = Rank(statement_json.get(JsonField.RANK.value, Rank.NORMAL.value))
+    rank_str = statement_json.get(JsonField.RANK.value, Rank.NORMAL.value)
+    try:
+        rank = Rank(rank_str)
+    except ValueError:
+        rank = Rank.NORMAL
     qualifiers_json = statement_json.get(JsonField.QUALIFIERS.value, {})
     references_json = statement_json.get(JsonField.REFERENCES.value, [])
     statement_id = statement_json.get(JsonField.STATEMENT_ID.value, "")

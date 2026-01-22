@@ -32,6 +32,10 @@ class RevisionStorage(BaseS3Storage):
     def load_revision(self, content_hash: int) -> S3RevisionData:
         """Load a revision by its content hash."""
         key = str(content_hash)
-        data = self.load(key).data
-        assert isinstance(data, S3RevisionData)
-        return data
+        load_response = self.load(key)
+        if load_response is None:
+            from models.infrastructure.s3.exceptions import S3NotFoundError
+            raise S3NotFoundError(f"Revision not found: {key}")
+        data = load_response.data
+        # data is dict from JSON, parse as S3RevisionData
+        return S3RevisionData(**data)

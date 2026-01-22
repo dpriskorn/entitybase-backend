@@ -11,7 +11,7 @@ class ReferenceValue(BaseModel):
     property: str
     value: Value
 
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
 
 
 class Reference(BaseModel):
@@ -20,4 +20,4 @@ class Reference(BaseModel):
     hash: str
     snaks: list[ReferenceValue] = Field(default_factory=list)
 
-    model_config = ConfigDict(frozen=True)
+    model_config = ConfigDict(frozen=True, arbitrary_types_allowed=True)
