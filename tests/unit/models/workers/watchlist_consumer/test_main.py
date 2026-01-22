@@ -7,7 +7,7 @@
 import pytest
 
 
-class TestMain:
+class TestWatchlistConsumerMain:
     """Placeholder test class for main."""
     
     def test_placeholder(self):

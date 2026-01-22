@@ -7,7 +7,7 @@
 import pytest
 
 
-class TestConnection:
+class TestVitessConnection:
     """Placeholder test class for connection."""
     
     def test_placeholder(self):

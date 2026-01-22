@@ -7,7 +7,7 @@
 import pytest
 
 
-class TestThanks:
+class TestVitessThanksRepository:
     """Placeholder test class for thanks."""
     
     def test_placeholder(self):

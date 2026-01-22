@@ -7,7 +7,7 @@
 import pytest
 
 
-class TestClient:
+class TestInfrastructureClient:
     """Placeholder test class for client."""
     
     def test_placeholder(self):

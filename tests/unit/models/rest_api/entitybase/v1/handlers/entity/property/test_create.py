@@ -7,7 +7,7 @@
 import pytest
 
 
-class TestCreate:
+class TestPropertyCreate:
     """Placeholder test class for create."""
     
     def test_placeholder(self):

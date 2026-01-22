@@ -7,7 +7,7 @@
 import pytest
 
 
-class TestThanks:
+class TestThanksRoutes:
     """Placeholder test class for thanks."""
     
     def test_placeholder(self):

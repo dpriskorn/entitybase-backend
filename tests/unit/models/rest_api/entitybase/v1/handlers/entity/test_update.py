@@ -7,7 +7,7 @@
 import pytest
 
 
-class TestUpdate:
+class TestEntityUpdate:
     """Placeholder test class for update."""
     
     def test_placeholder(self):

@@ -7,7 +7,7 @@
 import pytest
 
 
-class TestWatchlist:
+class TestWatchlistHandlers:
     """Placeholder test class for watchlist."""
     
     def test_placeholder(self):
