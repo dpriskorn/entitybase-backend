@@ -121,16 +121,11 @@ def test_valid_statement(validator: JsonSchemaValidator) -> None:
         "schema_version": "1.0.0",
         "content_hash": 123456789,
         "statement": {
-            "mainsnak": {
-                "snaktype": "value",
-                "property": "P31",
-                "datatype": "wikibase-item",
-                "hash": "123abc",
-            },
+            "mainsnak": 12345,
             "type": "statement",
             "rank": "normal",
-            "qualifiers": 12345,
-            "references": [],
+            "qualifiers": [12345],
+            "references": [12345],
         },
         "created_at": "2026-01-07T10:00:00Z",
     }
@@ -180,7 +175,7 @@ def test_valid_statement_with_hashes(validator: JsonSchemaValidator) -> None:
             "mainsnak": 12345,
             "type": "statement",
             "rank": "normal",
-            "qualifiers": 12345,
+            "qualifiers": [12345],
             "references": [12345],
         },
         "created_at": "2026-01-07T10:00:00Z",
