@@ -21,6 +21,7 @@ set -e
 ./run-init-lint.sh
 #./run-description-lint.sh
 ./run-backslash-lint.sh
+./run-json-lint.sh
 
 # == external linters ==
 ./run-ruff.sh
