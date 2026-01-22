@@ -28,7 +28,7 @@ class RDFChangeEvent(BaseModel):
 
     # Canonicalization metadata
     canonicalization_method: str = Field(
-        default="urdna2015", description="RDF canonicalization method used"
+        default="urdna2015", alias="method", description="RDF canonicalization method used"
     )
     triple_count_diff: int = Field(..., description="Net change in triple count")
 
