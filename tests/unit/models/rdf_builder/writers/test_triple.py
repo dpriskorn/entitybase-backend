@@ -3,12 +3,9 @@
 import io
 from unittest.mock import MagicMock, patch
 
-import pytest
-
-from models.rdf_builder.writers.triple import TripleWriters
 from models.rdf_builder.models.rdf_statement import RDFStatement
 from models.rdf_builder.property_registry.models import PropertyShape, PropertyPredicates
-from models.internal_representation.ranks import Rank
+from models.rdf_builder.writers.triple import TripleWriters
 
 
 class TestTripleWriters:

@@ -1,6 +1,5 @@
 """Unit tests for EntityRepository."""
 
-import pytest
 from unittest.mock import MagicMock
 
 from models.infrastructure.vitess.repositories.entity import EntityRepository
@@ -101,3 +100,42 @@ class TestEntityRepository:
         result = repo.is_locked("Q123")
 
         assert result is True
+
+    def test_get_head_entity_not_found(self):
+        """Test getting head for entity not found."""
+        mock_vitess_client = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = None
+        mock_vitess_client.id_resolver = mock_id_resolver
+
+        repo = EntityRepository(vitess_client=mock_vitess_client)
+
+        result = repo.get_head("Q999")
+
+        assert result == 0
+
+    def test_is_deleted_entity_not_found(self):
+        """Test is_deleted for entity not found."""
+        mock_vitess_client = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = None
+        mock_vitess_client.id_resolver = mock_id_resolver
+
+        repo = EntityRepository(vitess_client=mock_vitess_client)
+
+        result = repo.is_deleted("Q999")
+
+        assert result is False
+
+    def test_is_locked_entity_not_found(self):
+        """Test is_locked for entity not found."""
+        mock_vitess_client = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = None
+        mock_vitess_client.id_resolver = mock_id_resolver
+
+        repo = EntityRepository(vitess_client=mock_vitess_client)
+
+        result = repo.is_locked("Q999")
+
+        assert result is False

@@ -143,3 +143,50 @@ class TestRedirectRepository:
         result = repo.get_target("Q1")
 
         assert result == ""
+
+    def test_set_target_no_redirects_to(self):
+        """Test setting target with no redirects_to."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = 123
+        mock_cursor.rowcount = 1
+        mock_vitess_client.cursor = mock_cursor
+        mock_vitess_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(vitess_client=mock_vitess_client)
+
+        result = repo.set_target("Q1")  # no redirects_to
+
+        assert result.success is True
+
+    def test_create_success_with_created_by(self):
+        """Test redirect creation with custom created_by."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.side_effect = [123, 456]
+        mock_vitess_client.cursor = mock_cursor
+        mock_vitess_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(vitess_client=mock_vitess_client)
+
+        repo.create("Q1", "Q2", "test-user")
+
+        mock_cursor.execute.assert_called_once()
+
+    def test_get_incoming_redirects_multiple(self):
+        """Test getting multiple incoming redirects."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_id_resolver = MagicMock()
+        mock_id_resolver.resolve_id.return_value = 123
+        mock_cursor.fetchall.return_value = [("Q1",), ("Q2",), ("Q3",)]
+        mock_vitess_client.cursor = mock_cursor
+        mock_vitess_client.id_resolver = mock_id_resolver
+
+        repo = RedirectRepository(vitess_client=mock_vitess_client)
+
+        result = repo.get_incoming_redirects("Q4")
+
+        assert result == ["Q1", "Q2", "Q3"]

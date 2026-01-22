@@ -1,6 +1,5 @@
 """Unit tests for ListingRepository."""
 
-import pytest
 from unittest.mock import MagicMock
 
 from models.infrastructure.vitess.repositories.listing import ListingRepository
@@ -94,3 +93,68 @@ class TestListingRepository:
 
         assert len(result) == 1
         assert result[0].reason == "revert"
+
+    def test_list_locked_empty(self):
+        """Test listing locked entities when none exist."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchall.return_value = []
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = ListingRepository(vitess_client=mock_vitess_client)
+
+        result = repo.list_locked(10)
+
+        assert result == []
+
+    def test_list_semi_protected_empty(self):
+        """Test listing semi-protected entities when none exist."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchall.return_value = []
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = ListingRepository(vitess_client=mock_vitess_client)
+
+        result = repo.list_semi_protected(10)
+
+        assert result == []
+
+    def test_list_archived_empty(self):
+        """Test listing archived entities when none exist."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchall.return_value = []
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = ListingRepository(vitess_client=mock_vitess_client)
+
+        result = repo.list_archived(10)
+
+        assert result == []
+
+    def test_list_dangling_empty(self):
+        """Test listing dangling entities when none exist."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchall.return_value = []
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = ListingRepository(vitess_client=mock_vitess_client)
+
+        result = repo.list_dangling(10)
+
+        assert result == []
+
+    def test_list_entities_by_edit_type_empty(self):
+        """Test listing entities by edit type when none exist."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchall.return_value = []
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = ListingRepository(vitess_client=mock_vitess_client)
+
+        result = repo._list_entities_by_edit_type("mass_edit", 10)
+
+        assert result == []

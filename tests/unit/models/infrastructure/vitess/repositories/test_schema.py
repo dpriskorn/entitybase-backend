@@ -1,7 +1,8 @@
 """Unit tests for SchemaRepository."""
 
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import MagicMock, patch
 
 from models.infrastructure.vitess.repositories.schema import SchemaRepository
 
@@ -40,6 +41,18 @@ class TestSchemaRepository:
         mock_connection_manager.connection = None
 
         mock_vitess_client.connection_manager = mock_connection_manager
+
+        repo = SchemaRepository(vitess_client=mock_vitess_client)
+
+        with pytest.raises(Exception):
+            repo.create_tables()
+
+    def test_create_tables_database_error(self):
+        """Test create_tables with database error."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.execute.side_effect = Exception("DB error")
+        mock_vitess_client.cursor = mock_cursor
 
         repo = SchemaRepository(vitess_client=mock_vitess_client)
 

@@ -134,6 +134,25 @@ class TestEntity:
 
         assert result == "property"
 
+    def test_entity_with_statements(self):
+        """Test Entity with statements list."""
+        labels = EntityLabelsResponse(data={"en": {"language": "en", "value": "Test"}})
+        descriptions = EntityDescriptionsResponse(data={})
+        aliases = EntityAliasesResponse(data={})
+        statements = [MagicMock(), MagicMock()]
+
+        entity = Entity(
+            id="Q123",
+            type=EntityType.ITEM,
+            labels=labels,
+            descriptions=descriptions,
+            aliases=aliases,
+            statements=statements,
+        )
+
+        assert len(entity.statements) == 2
+        assert entity.id == "Q123"
+
     def test_entity_field_access(self):
         """Test accessing various fields."""
         labels = EntityLabelsResponse(data={"en": {"language": "en", "value": "Test"}})

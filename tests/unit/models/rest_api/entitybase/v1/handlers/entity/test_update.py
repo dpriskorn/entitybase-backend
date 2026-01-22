@@ -1,14 +1,14 @@
 """Unit tests for update."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
+from models.data.infrastructure.s3.enums import EntityType
+from models.data.infrastructure.stream.change_type import ChangeType
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.request import EntityUpdateRequest
 from models.rest_api.entitybase.v1.response import EntityResponse
-from models.data.infrastructure.s3.enums import EntityType
-from models.data.infrastructure.stream.change_type import ChangeType
-from models.rest_api.utils import raise_validation_error
 
 
 class TestEntityUpdateHandler:

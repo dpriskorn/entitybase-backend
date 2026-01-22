@@ -1,6 +1,5 @@
 """Unit tests for StatementRepository."""
 
-import pytest
 from unittest.mock import MagicMock
 
 from models.infrastructure.vitess.repositories.statement import StatementRepository
@@ -112,3 +111,59 @@ class TestStatementRepository:
         result = repo.get_most_used(10)
 
         assert result == [12345, 67890]
+
+    def test_insert_content_database_error(self):
+        """Test content insertion with database error."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = None
+        mock_cursor.execute.side_effect = Exception("DB error")
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = StatementRepository(vitess_client=mock_vitess_client)
+
+        result = repo.insert_content(12345)
+
+        assert result.success is False
+        assert "DB error" in result.error
+
+    def test_decrement_ref_count_success_zero(self):
+        """Test decrement resulting in zero."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = (0,)  # new count
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = StatementRepository(vitess_client=mock_vitess_client)
+
+        result = repo.decrement_ref_count(12345)
+
+        assert result.success is True
+        assert result.data == 0
+
+    def test_get_orphaned_empty(self):
+        """Test getting orphaned with no results."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchall.return_value = []
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = StatementRepository(vitess_client=mock_vitess_client)
+
+        result = repo.get_orphaned(30, 10)
+
+        assert result.success is True
+        assert result.data == []
+
+    def test_get_most_used_empty(self):
+        """Test getting most used with no results."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchall.return_value = []
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = StatementRepository(vitess_client=mock_vitess_client)
+
+        result = repo.get_most_used(10)
+
+        assert result == []

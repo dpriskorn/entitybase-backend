@@ -1,13 +1,13 @@
 """Unit tests for create."""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
+from models.data.infrastructure.s3.enums import EntityType
 from models.rest_api.entitybase.v1.handlers.entity.create import EntityCreateHandler
 from models.rest_api.entitybase.v1.request import EntityCreateRequest
 from models.rest_api.entitybase.v1.response import EntityResponse
-from models.data.infrastructure.s3.enums import EntityType
-from models.rest_api.utils import raise_validation_error
 
 
 class TestEntityCreateHandler:

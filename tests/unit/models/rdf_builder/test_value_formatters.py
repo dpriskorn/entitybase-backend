@@ -1,10 +1,9 @@
 """Unit tests for value_formatters."""
 
-import pytest
 from unittest.mock import MagicMock
 
-from models.rdf_builder.value_formatters import ValueFormatter
 from models.internal_representation.value_kinds import ValueKind
+from models.rdf_builder.value_formatters import ValueFormatter
 
 
 class TestValueFormatter:

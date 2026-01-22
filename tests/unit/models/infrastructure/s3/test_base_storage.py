@@ -1,13 +1,13 @@
 """Unit tests for base_storage."""
 
 import json
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import MagicMock, patch
 from botocore.exceptions import ClientError
 
 from models.infrastructure.s3.base_storage import BaseS3Storage, LoadResponse
 from models.infrastructure.s3.exceptions import S3ConnectionError, S3NotFoundError, S3StorageError
-from models.common import OperationResult
 
 
 class TestBaseStorage(BaseS3Storage):
@@ -250,3 +250,162 @@ class TestBaseStorageUnit:
 
         with pytest.raises(S3StorageError):
             storage.load("test-key")
+
+    def test_store_client_error(self) -> None:
+        """Test store operation with ClientError."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        # Simulate AccessDenied error
+        error_response = {"Error": {"Code": "AccessDenied", "Message": "Access denied."}}
+        mock_boto_client.put_object.side_effect = ClientError(error_response, "PutObject")
+
+        with pytest.raises(S3StorageError):
+            storage.store("test-key", {"data": "value"})
+
+    def test_store_general_exception(self) -> None:
+        """Test store operation with general exception."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        mock_boto_client.put_object.side_effect = Exception("Network error")
+
+        with pytest.raises(S3StorageError, match="Store failed: Network error"):
+            storage.store("test-key", {"data": "value"})
+
+    def test_load_general_exception(self) -> None:
+        """Test load operation with general exception."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        mock_boto_client.get_object.side_effect = Exception("Network error")
+
+        with pytest.raises(S3StorageError, match="Load failed: Network error"):
+            storage.load("test-key")
+
+    def test_delete_client_error(self) -> None:
+        """Test delete operation with ClientError."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        # Simulate AccessDenied error
+        error_response = {"Error": {"Code": "AccessDenied", "Message": "Access denied."}}
+        mock_boto_client.delete_object.side_effect = ClientError(error_response, "DeleteObject")
+
+        with pytest.raises(S3StorageError):
+            storage.delete("test-key")
+
+    def test_delete_general_exception(self) -> None:
+        """Test delete operation with general exception."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        mock_boto_client.delete_object.side_effect = Exception("Network error")
+
+        with pytest.raises(S3StorageError, match="Delete failed: Network error"):
+            storage.delete("test-key")
+
+    def test_exists_success(self) -> None:
+        """Test exists operation success."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        mock_boto_client.head_object.return_value = {}
+
+        result = storage.exists("test-key")
+
+        assert result is True
+        mock_boto_client.head_object.assert_called_once_with(Bucket="test-bucket", Key="test-key")
+
+    def test_exists_not_found(self) -> None:
+        """Test exists operation when key not found."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        # Simulate NoSuchKey error
+        error_response = {"Error": {"Code": "NoSuchKey", "Message": "The specified key does not exist."}}
+        mock_boto_client.head_object.side_effect = ClientError(error_response, "HeadObject")
+
+        result = storage.exists("test-key")
+
+        assert result is False
+
+    def test_exists_error(self) -> None:
+        """Test exists operation with other errors."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        # Simulate AccessDenied error
+        error_response = {"Error": {"Code": "AccessDenied", "Message": "Access denied."}}
+        mock_boto_client.head_object.side_effect = ClientError(error_response, "HeadObject")
+
+        with pytest.raises(S3StorageError):
+            storage.exists("test-key")
+
+    def test_store_with_pydantic_model(self) -> None:
+        """Test storing data with Pydantic model."""
+        from pydantic import BaseModel
+
+        class TestModel(BaseModel):
+            name: str
+            value: int
+
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        mock_boto_client.put_object.return_value = {}
+
+        test_model = TestModel(name="test", value=42)
+        result = storage.store("test-key", test_model)
+
+        assert result.success is True
+        call_args = mock_boto_client.put_object.call_args
+        assert json.loads(call_args[1]["Body"]) == {"name": "test", "value": 42}
+
+    def test_store_with_unknown_data_type(self) -> None:
+        """Test storing data with unknown type."""
+        storage = TestBaseStorage()
+        mock_connection_manager = MagicMock()
+        mock_boto_client = MagicMock()
+        mock_connection_manager.boto_client = mock_boto_client
+        storage.connection_manager = mock_connection_manager
+
+        mock_boto_client.put_object.return_value = {}
+
+        # Custom object without model_dump
+        class CustomObject:
+            def __str__(self):
+                return "custom string"
+
+        result = storage.store("test-key", CustomObject())
+
+        assert result.success is True
+        call_args = mock_boto_client.put_object.call_args
+        assert call_args[1]["Body"] == b"custom string"

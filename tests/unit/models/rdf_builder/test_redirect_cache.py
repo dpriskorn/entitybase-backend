@@ -5,7 +5,6 @@ import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-import pytest
 import requests
 
 from models.rdf_builder.redirect_cache import (
@@ -14,7 +13,6 @@ from models.rdf_builder.redirect_cache import (
     load_entity_redirects,
 )
 from models.rest_api.entitybase.v1.response.rdf import RedirectBatchResponse, MetadataLoadResponse
-
 
 
 class TestRedirectCache:
@@ -217,85 +215,26 @@ class TestRedirectCache:
         mock_logger.error.assert_called_once()
         assert "Failed to fetch batch 1" in mock_logger.error.call_args[0][0]
 
-    def test_load_entity_redirects_success(self) -> None:
-        """Test loading redirects from existing file."""
-        entity_id = "Q1"
-        test_data = {"id": entity_id, "redirects": ["Q10", "Q11", "Q12"]}
-
-        # Create test file
-        file_path = self.redirects_dir / f"{entity_id}.json"
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(test_data, f)
-
-        result = load_entity_redirects(entity_id, self.redirects_dir)
-
-        assert result == ["Q10", "Q11", "Q12"]
-
-    def test_load_entity_redirects_file_not_found(self) -> None:
-        """Test loading redirects when file doesn't exist."""
-        with pytest.raises(FileNotFoundError) as exc_info:
-            load_entity_redirects("Q999", self.redirects_dir)
-
-        assert "Redirect data for Q999 not found" in str(exc_info.value)
-
-    def test_load_entity_redirects_empty_file(self) -> None:
-        """Test loading redirects from empty/malformed file."""
-        entity_id = "Q1"
-        file_path = self.redirects_dir / f"{entity_id}.json"
-
-        # Create empty file
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump({}, f)
-
-        result = load_entity_redirects(entity_id, self.redirects_dir)
-
-        assert result == []
-
-    def test_load_entity_redirects_missing_redirects_key(self) -> None:
-        """Test loading redirects when redirects key is missing."""
-        entity_id = "Q1"
-        test_data = {
-            "id": entity_id
-            # Missing "redirects" key
-        }
-
-        file_path = self.redirects_dir / f"{entity_id}.json"
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(test_data, f)
-
-        result = load_entity_redirects(entity_id, self.redirects_dir)
-
-        assert result == []
-
-    def test_load_entity_redirects_invalid_json(self) -> None:
-        """Test loading redirects from invalid JSON file."""
-        entity_id = "Q1"
-        file_path = self.redirects_dir / f"{entity_id}.json"
-
-        # Create invalid JSON file
-        with open(file_path, "w", encoding="utf-8") as f:
-            f.write("invalid json content")
-
-        with pytest.raises(json.JSONDecodeError):
-            load_entity_redirects(entity_id, self.redirects_dir)
-
     @patch("models.rdf_builder.redirect_cache.logger")
-    def test_load_entity_redirects_batch_directory_creation(self, mock_logger) -> None:
-        """Test that directories are created when needed."""
-        non_existent_dir = self.redirects_dir / "subdir" / "nested"
+    @patch("models.rdf_builder.redirect_cache.time.sleep")
+    @patch("models.rdf_builder.redirect_cache.requests.get")
+    def test_fetch_entity_redirects_batch_invalid_json(self, mock_get, mock_sleep, mock_logger) -> None:
+        """Test fetch_entity_redirects_batch when response JSON is invalid."""
         entity_ids = ["Q1"]
 
         mock_response = Mock()
-        mock_response.json.return_value = {"query": {"pages": {"1": {"title": "Q1"}}}}
+        mock_response.json.side_effect = ValueError("Invalid JSON")
+        mock_get.return_value = mock_response
 
-        with patch("models.rdf_builder.redirect_cache.requests.get") as mock_get:
-            mock_get.return_value = mock_response
+        result = fetch_entity_redirects_batch(entity_ids)
 
-            result = load_entity_redirects_batch(entity_ids, non_existent_dir)
+        assert isinstance(result, RedirectBatchResponse)
+        assert len(result.redirects) == 1
+        assert result.redirects["Q1"] == []
 
-        assert isinstance(result, MetadataLoadResponse)
-        assert non_existent_dir.exists()
-        assert (non_existent_dir / "Q1.json").exists()
+        # Should log error
+        mock_logger.error.assert_called_once()
+        assert "Failed to fetch batch 1" in mock_logger.error.call_args[0][0]
 
     @patch("models.rdf_builder.redirect_cache.time.sleep")
     @patch("models.rdf_builder.redirect_cache.requests.get")

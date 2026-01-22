@@ -4,8 +4,6 @@
 # This file was auto-generated to highlight missing test coverage
 # Priority: HIGH - Core functionality requiring tests
 
-import pytest
-
 
 class TestMathValue:
     """Placeholder test class for math_value."""

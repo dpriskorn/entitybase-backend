@@ -198,3 +198,15 @@ class TestQualifierStorage:
         result = storage.load_qualifiers_batch([])
 
         assert result == []
+
+    def test_load_qualifier_not_found(self) -> None:
+        """Test loading qualifier when not found."""
+        mock_connection_manager = MagicMock()
+
+        with patch('models.infrastructure.s3.storage.qualifier_storage.settings') as mock_settings:
+            mock_settings.s3_qualifiers_bucket = "test-qualifiers"
+            storage = QualifierStorage(connection_manager=mock_connection_manager)
+
+        with patch.object(storage, 'load', return_value=None) as mock_load:
+            with pytest.raises(S3NotFoundError, match="Qualifier not found: 999"):
+                storage.load_qualifier(999)

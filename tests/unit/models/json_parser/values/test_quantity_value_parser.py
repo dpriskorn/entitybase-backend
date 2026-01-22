@@ -2,9 +2,8 @@
 
 import pytest
 
-from models.json_parser.values.quantity_value_parser import parse_quantity_value
 from models.internal_representation.values.quantity_value import QuantityValue
-from models.common import raise_validation_error
+from models.json_parser.values.quantity_value_parser import parse_quantity_value
 
 
 class TestQuantityValueParser:

@@ -1,13 +1,12 @@
 """Unit tests for read."""
 
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import MagicMock, patch
 
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.v1.response.entity.entitybase import EntityResponse
 from models.rest_api.entitybase.v1.response import EntityRevisionResponse
-from models.data.infrastructure.s3.entity_state import EntityState
-from models.rest_api.utils import raise_validation_error
+from models.rest_api.entitybase.v1.response.entity.entitybase import EntityResponse
 
 
 class TestEntityReadHandler:

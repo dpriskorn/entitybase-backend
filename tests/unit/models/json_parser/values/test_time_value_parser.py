@@ -2,9 +2,8 @@
 
 import pytest
 
-from models.json_parser.values.time_value_parser import parse_time_value
 from models.internal_representation.values.time_value import TimeValue
-from models.common import raise_validation_error
+from models.json_parser.values.time_value_parser import parse_time_value
 
 
 class TestTimeValueParser:

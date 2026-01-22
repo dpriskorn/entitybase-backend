@@ -3,10 +3,8 @@
 import io
 from unittest.mock import patch
 
-import pytest
-
-from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
 from models.rdf_builder.property_registry.models import PropertyShape, PropertyPredicates
+from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
 
 
 class TestPropertyOntologyWriter:

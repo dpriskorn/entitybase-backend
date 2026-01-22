@@ -6,8 +6,6 @@
 # This file was auto-generated as a placeholder but tests were implemented in the parsers/ subdirectory
 # to match the actual code structure.
 
-import pytest
-
 
 class TestQualifierParser:
     """Placeholder test class for qualifier_parser - see parsers/test_qualifier_parser.py for actual tests."""

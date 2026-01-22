@@ -301,3 +301,202 @@ class TestUserRepository:
 
         assert result.success is False
         assert "user_id must be positive" in result.error
+
+    def test_create_user_success_new(self):
+        """Test successful user creation for new user."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = None  # user doesn't exist
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        result = repo.create_user(123)
+
+        assert result.success is True
+
+    def test_create_user_already_exists_case(self):
+        """Test creating user that already exists."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = (1,)  # user exists
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        result = repo.create_user(123)
+
+        assert result.success is False
+        assert "already exists" in result.error
+
+    def test_get_user_not_found_case(self):
+        """Test getting non-existent user."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = None
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        result = repo.get_user(123)
+
+        assert result is None
+
+    def test_update_user_activity_database_error(self):
+        """Test user activity update with database error."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.execute.side_effect = Exception("DB error")
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        result = repo.update_user_activity(123)
+
+        assert result.success is False
+        assert "DB error" in result.error
+
+    def test_is_watchlist_enabled_user_not_found(self):
+        """Test watchlist check for non-existent user."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = None
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        result = repo.is_watchlist_enabled(123)
+
+        assert result is False
+
+    def test_set_watchlist_enabled_database_error(self):
+        """Test setting watchlist with database error."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.execute.side_effect = Exception("DB error")
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        result = repo.set_watchlist_enabled(123, True)
+
+        assert result.success is False
+        assert "DB error" in result.error
+
+    def test_get_user_preferences_user_not_found(self):
+        """Test getting preferences for non-existent user."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchone.return_value = None
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        result = repo.get_user_preferences(123)
+
+        assert result.success is False
+        assert "User preferences not found" in result.error
+
+    def test_update_user_preferences_database_error(self):
+        """Test updating preferences with database error."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.execute.side_effect = Exception("DB error")
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        result = repo.update_user_preferences(100, 48, 123)
+
+        assert result.success is False
+        assert "DB error" in result.error
+
+    def test_get_user_activities_no_activities(self):
+        """Test getting activities when user has none."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.fetchall.return_value = []  # no activities
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        result = repo.get_user_activities(123)
+
+        assert result.success is True
+        assert result.data == []
+
+    def test_user_exists_database_error(self):
+        """Test user exists with database error."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.execute.side_effect = Exception("DB error")
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        with pytest.raises(Exception):  # since it doesn't catch
+            repo.user_exists(123)
+
+    def test_get_user_database_error(self):
+        """Test get user with database error."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.execute.side_effect = Exception("DB error")
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        with pytest.raises(Exception):
+            repo.get_user(123)
+
+    def test_is_watchlist_enabled_database_error(self):
+        """Test watchlist check with database error."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.execute.side_effect = Exception("DB error")
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        with pytest.raises(Exception):
+            repo.is_watchlist_enabled(123)
+
+    def test_log_user_activity_success(self, caplog):
+        """Test logging user activity successfully."""
+        import logging
+        caplog.set_level(logging.DEBUG)
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        result = repo.log_user_activity(123, UserActivityType.EDIT, "Q1", 1)
+
+        assert result.success is True
+        assert "Logging user activity: user_id=123, activity_type=UserActivityType.EDIT, entity_id=Q1, revision_id=1" in caplog.text
+
+    def test_log_user_activity_invalid_params(self):
+        """Test logging activity with invalid params."""
+        mock_vitess_client = MagicMock()
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        result = repo.log_user_activity(0, UserActivityType.EDIT, "Q1")
+
+        assert result.success is False
+        assert "user_id must be positive" in result.error
+
+    def test_log_user_activity_database_error(self):
+        """Test logging activity with database error."""
+        mock_vitess_client = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.execute.side_effect = Exception("DB error")
+        mock_vitess_client.cursor = mock_cursor
+
+        repo = UserRepository(vitess_client=mock_vitess_client)
+
+        result = repo.log_user_activity(123, UserActivityType.EDIT, "Q1", 1)
+
+        assert result.success is False
+        assert "DB error" in result.error
