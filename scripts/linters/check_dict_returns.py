@@ -20,6 +20,7 @@ ALLOWED_DICT_RETURNS = [
     "data",
     "get_entity_json_revision",
     "get_openapi",
+    "get_snak",
 ]
 
 
