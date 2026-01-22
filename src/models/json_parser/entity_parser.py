@@ -6,6 +6,7 @@ from typing import Any
 from models.data.infrastructure.s3.enums import EntityType
 from models.internal_representation.entity_data import EntityData
 from models.internal_representation.json_fields import JsonField
+from models.internal_representation.lexeme import LexemeForm, LexemeSense
 from models.json_parser.statement_parser import parse_statement
 from models.rest_api.entitybase.v1.response import (
     EntityAliasesResponse,
@@ -98,6 +99,36 @@ def parse_entity_data(raw_entity_data: dict[str, Any]) -> EntityData:
         for stmt in prop_claims:
             statements.append(parse_statement(stmt))
 
+    # Lexeme-specific fields
+    lemmas = metadata_dict.get("lemmas")
+    lexical_category = metadata_dict.get("lexicalCategory") or ""
+    language = metadata_dict.get("language") or ""
+
+    # Parse forms and senses if they exist
+    forms = None
+    senses = None
+
+    if "forms" in metadata_dict:
+        forms = []
+        for form_data in metadata_dict["forms"]:
+            form = LexemeForm(
+                id=form_data["id"],
+                representations=form_data.get("representations", {}),
+                grammaticalFeatures=form_data.get("grammaticalFeatures", []),
+                claims=form_data.get("claims", {})
+            )
+            forms.append(form)
+
+    if "senses" in metadata_dict:
+        senses = []
+        for sense_data in metadata_dict["senses"]:
+            sense = LexemeSense(
+                id=sense_data["id"],
+                glosses=sense_data.get("glosses", {}),
+                claims=sense_data.get("claims", {})
+            )
+            senses.append(sense)
+
     return EntityData(
         id=metadata_dict.get(JsonField.ID.value, ""),
         type=entity_type,
@@ -106,4 +137,9 @@ def parse_entity_data(raw_entity_data: dict[str, Any]) -> EntityData:
         aliases=aliases_dict,
         statements=statements,
         sitelinks=sitelinks_json,
+        lemmas=lemmas,
+        lexicalCategory=lexical_category,
+        language=language,
+        forms=forms,
+        senses=senses,
     )

@@ -713,7 +713,7 @@ class EntityHandler(Handler):
         # Store the updated revision
         try:
             self.state.s3_client.write_revision(
-                entity_id, new_revision_id, revision_data.data
+                revision_data.data
             )
             self.state.vitess_client.update_head_revision(entity_id, new_revision_id)
         except Exception as e:

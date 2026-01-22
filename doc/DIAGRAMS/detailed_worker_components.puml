@@ -6,6 +6,7 @@ package "Workers" as Workers #LightYellow {
     "BacklinkStatistics" as BacklinkStatisticsWorker
     "BaseStats" as BaseStatsWorker
     "CanonicalizationMethod" as CanonicalizationMethod
+    "ChangedProperties" as ChangedProperties
     "CreateBuckets" as CreateBuckets
     "CreateTables" as CreateTables
     "EntityDiffRequest" as EntityDiffRequest

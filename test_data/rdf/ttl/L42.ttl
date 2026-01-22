@@ -1,0 +1,1921 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ontolex: <http://www.w3.org/ns/lemon/ontolex#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix wikibase: <http://wikiba.se/ontology#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema: <http://schema.org/> .
+@prefix cc: <http://creativecommons.org/ns#> .
+@prefix geo: <http://www.opengis.net/ont/geosparql#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix wd: <http://www.wikidata.org/entity/> .
+@prefix data: <https://www.wikidata.org/wiki/Special:EntityData/> .
+@prefix wds: <http://www.wikidata.org/entity/statement/> .
+@prefix wdref: <http://www.wikidata.org/reference/> .
+@prefix wdv: <http://www.wikidata.org/value/> .
+@prefix wdt: <http://www.wikidata.org/prop/direct/> .
+@prefix wdtn: <http://www.wikidata.org/prop/direct-normalized/> .
+@prefix p: <http://www.wikidata.org/prop/> .
+@prefix ps: <http://www.wikidata.org/prop/statement/> .
+@prefix psv: <http://www.wikidata.org/prop/statement/value/> .
+@prefix psn: <http://www.wikidata.org/prop/statement/value-normalized/> .
+@prefix pq: <http://www.wikidata.org/prop/qualifier/> .
+@prefix pqv: <http://www.wikidata.org/prop/qualifier/value/> .
+@prefix pqn: <http://www.wikidata.org/prop/qualifier/value-normalized/> .
+@prefix pr: <http://www.wikidata.org/prop/reference/> .
+@prefix prv: <http://www.wikidata.org/prop/reference/value/> .
+@prefix prn: <http://www.wikidata.org/prop/reference/value-normalized/> .
+@prefix wdno: <http://www.wikidata.org/prop/novalue/> .
+
+data:L42 a schema:Dataset ;
+	schema:about wd:L42 ;
+	cc:license <http://creativecommons.org/publicdomain/zero/1.0/> ;
+	schema:softwareVersion "1.0.0" ;
+	schema:version "2425773420"^^xsd:integer ;
+	schema:dateModified "2025-11-04T23:12:11Z"^^xsd:dateTime ;
+	wikibase:statements "33"^^xsd:integer .
+
+wd:L42 a wikibase:Lexeme ;
+	wdt:P5402 wd:L961 ;
+	wdt:P5275 "8145" ;
+	wdt:P12690 "1222029" ;
+	wdt:P12573 "935" ;
+	wdt:P12448 "ID_00001058" ;
+	wdt:P5912 "121493",
+		"151280" ;
+	wdt:P12510 "2145108242" ;
+	wdt:P12718 "0002243" ;
+	wdt:P12726 "0002569" ;
+	wdt:P12724 "0002101" ;
+	wdt:P12739 "0030330" ;
+	wdt:P12868 "55789_2" ;
+	wdt:P7575 "answer" ;
+	wdt:P11130 "answer#dictionary-entry1" ;
+	wdt:P12056 "answer#etymonline_v_13498" ;
+	wdt:P13258 "8044113" ;
+	wdt:P13163 "A5339700" ;
+	wdt:P11138 "900726" ;
+	wdt:P11263 "answer" ;
+	wdt:P13553 "answer" ;
+	p:P5402 wds:L42-06e1e5e0-42ee-f89d-6780-2131e657e121 .
+
+wds:L42-06e1e5e0-42ee-f89d-6780-2131e657e121 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P5402 wd:L961 .
+
+wd:L42 p:P5275 wds:L42-806F0D9D-F70E-4649-872D-951DBFE7AA08 .
+
+wds:L42-806F0D9D-F70E-4649-872D-951DBFE7AA08 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P5275 "8145" .
+
+wd:L42 p:P12690 wds:L42-E0F2E5A6-86C8-48A6-AB9B-2A5907842FF4 .
+
+wds:L42-E0F2E5A6-86C8-48A6-AB9B-2A5907842FF4 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P12690 "1222029" ;
+	pq:P9531 wd:L961 .
+
+wd:L42 p:P12573 wds:L42-5B78263C-4D30-4203-94EA-D1E062D5834A .
+
+wds:L42-5B78263C-4D30-4203-94EA-D1E062D5834A a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P12573 "935" .
+
+wd:L42 p:P12448 wds:L42-5361C21D-17CE-4BDA-B01E-4D71A134AD51 .
+
+wds:L42-5361C21D-17CE-4BDA-B01E-4D71A134AD51 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P12448 "ID_00001058" .
+
+wd:L42 p:P5912 wds:L42-8F0CD824-EDDE-4CA5-A682-CEA2E71B3E52 .
+
+wds:L42-8F0CD824-EDDE-4CA5-A682-CEA2E71B3E52 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P5912 "121493" ;
+	pq:P6072 wd:L42-S1 .
+
+wd:L42 p:P5912 wds:L42-9F65E2E1-7066-454F-90C6-63C6C9A5525B .
+
+wds:L42-9F65E2E1-7066-454F-90C6-63C6C9A5525B a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P5912 "151280" ;
+	pq:P6072 wd:L42-S3 .
+
+wd:L42 p:P12510 wds:L42-FAECFF7C-74A2-48BB-8C23-D90A90831114 .
+
+wds:L42-FAECFF7C-74A2-48BB-8C23-D90A90831114 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P12510 "2145108242" .
+
+wd:L42 p:P12718 wds:L42-6BAEB804-F244-4952-BB2B-AC3BF7249930 .
+
+wds:L42-6BAEB804-F244-4952-BB2B-AC3BF7249930 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P12718 "0002243" ;
+	pq:P9531 wd:L961 .
+
+wd:L42 p:P12726 wds:L42-02DB0DF2-D047-4699-89F9-B568A605F749 .
+
+wds:L42-02DB0DF2-D047-4699-89F9-B568A605F749 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P12726 "0002569" ;
+	pq:P9531 wd:L961 .
+
+wd:L42 p:P12724 wds:L42-F5EF220B-C9DA-49D5-80BE-5D9686DDFE1F .
+
+wds:L42-F5EF220B-C9DA-49D5-80BE-5D9686DDFE1F a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P12724 "0002101" ;
+	pq:P9531 wd:L961 .
+
+wd:L42 p:P12739 wds:L42-45F8B6FD-8927-475C-A10D-60BA1C3EE010 .
+
+wds:L42-45F8B6FD-8927-475C-A10D-60BA1C3EE010 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P12739 "0030330" ;
+	pq:P9531 wd:L961 .
+
+wd:L42 p:P12868 wds:L42-F104BF35-004B-4CD7-9D4C-59E8882546FA .
+
+wds:L42-F104BF35-004B-4CD7-9D4C-59E8882546FA a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P12868 "55789_2" .
+
+wd:L42 p:P7575 wds:L42-75d5b14c-468f-5ae6-7c24-76e9e10d694b .
+
+wds:L42-75d5b14c-468f-5ae6-7c24-76e9e10d694b a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P7575 "answer" .
+
+wd:L42 p:P11130 wds:L42-ba8026c0-4cc8-698c-173f-5fbea77955ac .
+
+wds:L42-ba8026c0-4cc8-698c-173f-5fbea77955ac a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P11130 "answer#dictionary-entry1" .
+
+wd:L42 p:P12056 wds:L42-1a05858b-44ca-e466-6b10-157b12bc1e67 .
+
+wds:L42-1a05858b-44ca-e466-6b10-157b12bc1e67 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P12056 "answer#etymonline_v_13498" .
+
+wd:L42 p:P13258 wds:L42-AF566C61-7EBF-475C-AD18-9FAE6F995821 .
+
+wds:L42-AF566C61-7EBF-475C-AD18-9FAE6F995821 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P13258 "8044113" .
+
+wd:L42 p:P13163 wds:L42-8B5659FD-9295-461C-8A9F-17850AF47C7A .
+
+wds:L42-8B5659FD-9295-461C-8A9F-17850AF47C7A a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P13163 "A5339700" .
+
+wd:L42 p:P11138 wds:L42-179FBEA5-E7F5-48E3-8790-69623DCF506C .
+
+wds:L42-179FBEA5-E7F5-48E3-8790-69623DCF506C a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P11138 "900726" .
+
+wd:L42 p:P11263 wds:L42-69F1191D-909A-498F-BB25-7415A588AC00 .
+
+wds:L42-69F1191D-909A-498F-BB25-7415A588AC00 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P11263 "answer" .
+
+wd:L42 p:P13553 wds:L42-c7b88b03-4f7f-c8ab-fa6c-cc66587b111a .
+
+wds:L42-c7b88b03-4f7f-c8ab-fa6c-cc66587b111a a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P13553 "answer" .
+
+wd:L42 a ontolex:LexicalEntry ;
+	rdfs:label "answer"@en ;
+	wikibase:lemma "answer"@en ;
+	dct:language wd:Q1860 ;
+	wikibase:lexicalCategory wd:Q1084 ;
+	ontolex:lexicalForm wd:L42-F1,
+		wd:L42-F2,
+		wd:L42-F4 ;
+	ontolex:sense wd:L42-S1,
+		wd:L42-S2,
+		wd:L42-S3 .
+
+wd:L42-F1 a wikibase:Form ;
+	wdt:P443 <http://commons.wikimedia.org/wiki/Special:FilePath/En-us-answer.ogg>,
+		<http://commons.wikimedia.org/wiki/Special:FilePath/En-uk-answer.ogg> ;
+	wdt:P7243 "ענ׳־סער"@yi ;
+	p:P443 wds:L42-F1-885f84f6-4d51-3331-5afb-a8edb72c24fc .
+
+wds:L42-F1-885f84f6-4d51-3331-5afb-a8edb72c24fc a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P443 <http://commons.wikimedia.org/wiki/Special:FilePath/En-us-answer.ogg> ;
+	pq:P5237 wd:Q7976 .
+
+wd:L42-F1 p:P443 wds:L42-F1-b59dca43-4165-e032-6ebe-d0e76cf41a99 .
+
+wds:L42-F1-b59dca43-4165-e032-6ebe-d0e76cf41a99 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P443 <http://commons.wikimedia.org/wiki/Special:FilePath/En-uk-answer.ogg> ;
+	pq:P5237 wd:Q7985 .
+
+wd:L42-F1 p:P7243 wds:L42-F1-93649f03-4b6c-d928-38b7-4622d9728c67 .
+
+wds:L42-F1-93649f03-4b6c-d928-38b7-4622d9728c67 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P7243 "ענ׳־סער"@yi ;
+	prov:wasDerivedFrom wdref:85bb5fb5a3c11f395dfaf7ba118218738320f9aa .
+
+wd:L42-F1 a ontolex:Form ;
+	rdfs:label "answer"@en ;
+	ontolex:representation "answer"@en ;
+	wikibase:grammaticalFeature wd:Q110786 .
+
+wd:L42-F2 a wikibase:Form ;
+	wdt:P443 <http://commons.wikimedia.org/wiki/Special:FilePath/LL-Q1860%20%28eng%29-Wodencafe-answers.wav> ;
+	p:P443 wds:L42-F2-a34a37ac-8ab1-45e0-8529-6529b02d4508 .
+
+wds:L42-F2-a34a37ac-8ab1-45e0-8529-6529b02d4508 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P443 <http://commons.wikimedia.org/wiki/Special:FilePath/LL-Q1860%20%28eng%29-Wodencafe-answers.wav> ;
+	prov:wasDerivedFrom wdref:d4a748b59b5dce4e596b7d1517014f318dd50bce .
+
+wd:L42-F2 a ontolex:Form ;
+	rdfs:label "answers"@en ;
+	ontolex:representation "answers"@en ;
+	wikibase:grammaticalFeature wd:Q146786 .
+
+wd:L42-F4 a wikibase:Form ;
+	wdt:P443 <http://commons.wikimedia.org/wiki/Special:FilePath/LL-Q1860%20%28eng%29-Wodencafe-answer%27s.wav> ;
+	p:P443 wds:L42-F4-19197095-601f-4ed5-8cb3-a467e0c6cf3a .
+
+wds:L42-F4-19197095-601f-4ed5-8cb3-a467e0c6cf3a a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P443 <http://commons.wikimedia.org/wiki/Special:FilePath/LL-Q1860%20%28eng%29-Wodencafe-answer%27s.wav> ;
+	prov:wasDerivedFrom wdref:66f68964ce41046848caad77ec499bea9d88135d .
+
+wd:L42-F4 a ontolex:Form ;
+	rdfs:label "answer's"@en ;
+	ontolex:representation "answer's"@en ;
+	wikibase:grammaticalFeature wd:Q146233 .
+
+wd:L42-S1 a wikibase:Sense ;
+	wdt:P5137 wd:Q1920566 ;
+	wdt:P11774 "660" ;
+	wdt:P2888 <http://premon.fbk.eu/resource/pb31-answer.01>,
+		<https://w3id.org/framester/data/propbank-3.4.0/RoleSet/answer-01> ;
+	p:P5137 wds:L42-S1-6d0f034a-455c-0b68-3020-208a5c969435 .
+
+wds:L42-S1-6d0f034a-455c-0b68-3020-208a5c969435 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P5137 wd:Q1920566 .
+
+wd:L42-S1 p:P11774 wds:L42-S1-4537d6d0-427d-195d-ebc0-3452543dee53 .
+
+wds:L42-S1-4537d6d0-427d-195d-ebc0-3452543dee53 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P11774 "660" .
+
+wd:L42-S1 p:P2888 wds:L42-S1-8835FABB-F92F-4BA9-84D8-7AFF9F61E436 .
+
+wds:L42-S1-8835FABB-F92F-4BA9-84D8-7AFF9F61E436 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2888 <http://premon.fbk.eu/resource/pb31-answer.01> .
+
+wd:L42-S1 p:P2888 wds:L42-S1-CC0DD2A1-E9EC-4328-8C27-D53E42080DEB .
+
+wds:L42-S1-CC0DD2A1-E9EC-4328-8C27-D53E42080DEB a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P2888 <https://w3id.org/framester/data/propbank-3.4.0/RoleSet/answer-01> .
+
+wd:L42-S1 a ontolex:LexicalSense ;
+	rdfs:label "реплика после вопроса"@ru ;
+	skos:definition "реплика после вопроса"@ru ;
+	rdfs:label "প্রশ্নের উত্তর"@bn ;
+	skos:definition "প্রশ্নের উত্তর"@bn ;
+	rdfs:label "reply; reaction to a question"@en ;
+	skos:definition "reply; reaction to a question"@en ;
+	rdfs:label "பதில்; பதில் என்ன"@ta ;
+	skos:definition "பதில்; பதில் என்ன"@ta ;
+	rdfs:label "సమాధానం"@te ;
+	skos:definition "సమాధానం"@te ;
+	rdfs:label "תשובה; מענה"@he ;
+	skos:definition "תשובה; מענה"@he ;
+	rdfs:label "jawapan"@ms ;
+	skos:definition "jawapan"@ms ;
+	rdfs:label "jawaban"@id ;
+	skos:definition "jawaban"@id ;
+	rdfs:label "válasz"@hu ;
+	skos:definition "válasz"@hu ;
+	rdfs:label "svar"@nb ;
+	skos:definition "svar"@nb ;
+	rdfs:label "Antwort"@de ;
+	skos:definition "Antwort"@de ;
+	rdfs:label "risposta"@it ;
+	skos:definition "risposta"@it ;
+	rdfs:label "odpověď"@cs ;
+	skos:definition "odpověď"@cs .
+
+wd:L42-S2 a wikibase:Sense ;
+	wdt:P5137 wd:Q21075690 ;
+	wdt:P11774 "17254" ;
+	p:P5137 wds:L42-S2-988b3788-4c04-64d0-a723-83e3684c3cd3 .
+
+wds:L42-S2-988b3788-4c04-64d0-a723-83e3684c3cd3 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P5137 wd:Q21075690 .
+
+wd:L42-S2 p:P11774 wds:L42-S2-c7cdf544-4b61-d101-524d-9febc753c834 .
+
+wds:L42-S2-c7cdf544-4b61-d101-524d-9febc753c834 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P11774 "17254" .
+
+wd:L42-S2 a ontolex:LexicalSense ;
+	rdfs:label "solution to a problem"@en ;
+	skos:definition "solution to a problem"@en ;
+	rdfs:label "solution"@fr ;
+	skos:definition "solution"@fr .
+
+wd:L42-S3 a wikibase:Sense ;
+	wdt:P5137 wd:Q17104930 ;
+	p:P5137 wds:L42-S3-bebe8169-406b-7443-ce42-6eec9e154146 .
+
+wds:L42-S3-bebe8169-406b-7443-ce42-6eec9e154146 a wikibase:Statement,
+		wikibase:BestRank ;
+	wikibase:rank wikibase:NormalRank ;
+	ps:P5137 wd:Q17104930 .
+
+wd:L42-S3 a ontolex:LexicalSense ;
+	rdfs:label "result, outcome"@en ;
+	skos:definition "result, outcome"@en .
+
+wd:L961 a wikibase:Lexeme,
+		ontolex:LexicalEntry ;
+	rdfs:label "answer"@en ;
+	wikibase:lemma "answer"@en .
+
+wd:P5402 a wikibase:Property ;
+	rdfs:label "homograph lexeme"@en ;
+	skos:prefLabel "homograph lexeme"@en ;
+	schema:name "homograph lexeme"@en ;
+	schema:description "lexeme in the same language with the same spelling as this one"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseLexeme> ;
+	wikibase:directClaim wdt:P5402 ;
+	wikibase:claim p:P5402 ;
+	wikibase:statementProperty ps:P5402 ;
+	wikibase:statementValue psv:P5402 ;
+	wikibase:qualifier pq:P5402 ;
+	wikibase:qualifierValue pqv:P5402 ;
+	wikibase:reference pr:P5402 ;
+	wikibase:referenceValue prv:P5402 ;
+	wikibase:novalue wdno:P5402 .
+
+p:P5402 a owl:ObjectProperty .
+
+psv:P5402 a owl:ObjectProperty .
+
+pqv:P5402 a owl:ObjectProperty .
+
+prv:P5402 a owl:ObjectProperty .
+
+wdt:P5402 a owl:DatatypeProperty .
+
+ps:P5402 a owl:DatatypeProperty .
+
+pq:P5402 a owl:DatatypeProperty .
+
+pr:P5402 a owl:DatatypeProperty .
+
+wdno:P5402 a owl:Class ;
+	owl:complementOf _:5c3d1108aafce06f69020e9ce1f1b7b9 .
+
+_:5c3d1108aafce06f69020e9ce1f1b7b9 a owl:Restriction ;
+	owl:onProperty wdt:P5402 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P5275 a wikibase:Property ;
+	rdfs:label "Oxford English Dictionary entry ID (pre-July 2023)"@en ;
+	skos:prefLabel "Oxford English Dictionary entry ID (pre-July 2023)"@en ;
+	schema:name "Oxford English Dictionary entry ID (pre-July 2023)"@en ;
+	schema:description "identifier for an entry in the online version of Oxford English Dictionary (issued prior to July 2023)"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P5275 ;
+	wikibase:claim p:P5275 ;
+	wikibase:statementProperty ps:P5275 ;
+	wikibase:statementValue psv:P5275 ;
+	wikibase:qualifier pq:P5275 ;
+	wikibase:qualifierValue pqv:P5275 ;
+	wikibase:reference pr:P5275 ;
+	wikibase:referenceValue prv:P5275 ;
+	wikibase:novalue wdno:P5275 ;
+	wikibase:directClaimNormalized wdtn:P5275 ;
+	wikibase:statementValueNormalized psn:P5275 ;
+	wikibase:qualifierValueNormalized pqn:P5275 ;
+	wikibase:referenceValueNormalized prn:P5275 .
+
+p:P5275 a owl:ObjectProperty .
+
+psv:P5275 a owl:ObjectProperty .
+
+pqv:P5275 a owl:ObjectProperty .
+
+prv:P5275 a owl:ObjectProperty .
+
+wdt:P5275 a owl:DatatypeProperty .
+
+ps:P5275 a owl:DatatypeProperty .
+
+pq:P5275 a owl:DatatypeProperty .
+
+pr:P5275 a owl:DatatypeProperty .
+
+psn:P5275 a owl:ObjectProperty .
+
+pqn:P5275 a owl:ObjectProperty .
+
+prn:P5275 a owl:ObjectProperty .
+
+wdtn:P5275 a owl:ObjectProperty .
+
+wdno:P5275 a owl:Class ;
+	owl:complementOf _:71df250420de2930fb660f38da2c7e88 .
+
+_:71df250420de2930fb660f38da2c7e88 a owl:Restriction ;
+	owl:onProperty wdt:P5275 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P12690 a wikibase:Property ;
+	rdfs:label "New Oxford American Dictionary ID"@en ;
+	skos:prefLabel "New Oxford American Dictionary ID"@en ;
+	schema:name "New Oxford American Dictionary ID"@en ;
+	schema:description "identifier for a subject page in the New Oxford American Dictionary"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P12690 ;
+	wikibase:claim p:P12690 ;
+	wikibase:statementProperty ps:P12690 ;
+	wikibase:statementValue psv:P12690 ;
+	wikibase:qualifier pq:P12690 ;
+	wikibase:qualifierValue pqv:P12690 ;
+	wikibase:reference pr:P12690 ;
+	wikibase:referenceValue prv:P12690 ;
+	wikibase:novalue wdno:P12690 ;
+	wikibase:directClaimNormalized wdtn:P12690 ;
+	wikibase:statementValueNormalized psn:P12690 ;
+	wikibase:qualifierValueNormalized pqn:P12690 ;
+	wikibase:referenceValueNormalized prn:P12690 .
+
+p:P12690 a owl:ObjectProperty .
+
+psv:P12690 a owl:ObjectProperty .
+
+pqv:P12690 a owl:ObjectProperty .
+
+prv:P12690 a owl:ObjectProperty .
+
+wdt:P12690 a owl:DatatypeProperty .
+
+ps:P12690 a owl:DatatypeProperty .
+
+pq:P12690 a owl:DatatypeProperty .
+
+pr:P12690 a owl:DatatypeProperty .
+
+psn:P12690 a owl:ObjectProperty .
+
+pqn:P12690 a owl:ObjectProperty .
+
+prn:P12690 a owl:ObjectProperty .
+
+wdtn:P12690 a owl:ObjectProperty .
+
+wdno:P12690 a owl:Class ;
+	owl:complementOf _:8df7db5823bc4a5c1297619f1d42b60b .
+
+_:8df7db5823bc4a5c1297619f1d42b60b a owl:Restriction ;
+	owl:onProperty wdt:P12690 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P12573 a wikibase:Property ;
+	rdfs:label "Lisaan Masry Egyptian Arabic Dictionary ID"@en ;
+	skos:prefLabel "Lisaan Masry Egyptian Arabic Dictionary ID"@en ;
+	schema:name "Lisaan Masry Egyptian Arabic Dictionary ID"@en ;
+	schema:description "entry for a lexeme in the online Lisaan Masry Egyptian Arabic Dictionary"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P12573 ;
+	wikibase:claim p:P12573 ;
+	wikibase:statementProperty ps:P12573 ;
+	wikibase:statementValue psv:P12573 ;
+	wikibase:qualifier pq:P12573 ;
+	wikibase:qualifierValue pqv:P12573 ;
+	wikibase:reference pr:P12573 ;
+	wikibase:referenceValue prv:P12573 ;
+	wikibase:novalue wdno:P12573 ;
+	wikibase:directClaimNormalized wdtn:P12573 ;
+	wikibase:statementValueNormalized psn:P12573 ;
+	wikibase:qualifierValueNormalized pqn:P12573 ;
+	wikibase:referenceValueNormalized prn:P12573 .
+
+p:P12573 a owl:ObjectProperty .
+
+psv:P12573 a owl:ObjectProperty .
+
+pqv:P12573 a owl:ObjectProperty .
+
+prv:P12573 a owl:ObjectProperty .
+
+wdt:P12573 a owl:DatatypeProperty .
+
+ps:P12573 a owl:DatatypeProperty .
+
+pq:P12573 a owl:DatatypeProperty .
+
+pr:P12573 a owl:DatatypeProperty .
+
+psn:P12573 a owl:ObjectProperty .
+
+pqn:P12573 a owl:ObjectProperty .
+
+prn:P12573 a owl:ObjectProperty .
+
+wdtn:P12573 a owl:ObjectProperty .
+
+wdno:P12573 a owl:Class ;
+	owl:complementOf _:e59f33ce932a75399f28482fc931a0e3 .
+
+_:e59f33ce932a75399f28482fc931a0e3 a owl:Restriction ;
+	owl:onProperty wdt:P12573 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P12448 a wikibase:Property ;
+	rdfs:label "Dictionary of American Regional English ID"@en ;
+	skos:prefLabel "Dictionary of American Regional English ID"@en ;
+	schema:name "Dictionary of American Regional English ID"@en ;
+	schema:description "identifier of an entry in the named record of American English as spoken in the United States"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P12448 ;
+	wikibase:claim p:P12448 ;
+	wikibase:statementProperty ps:P12448 ;
+	wikibase:statementValue psv:P12448 ;
+	wikibase:qualifier pq:P12448 ;
+	wikibase:qualifierValue pqv:P12448 ;
+	wikibase:reference pr:P12448 ;
+	wikibase:referenceValue prv:P12448 ;
+	wikibase:novalue wdno:P12448 ;
+	wikibase:directClaimNormalized wdtn:P12448 ;
+	wikibase:statementValueNormalized psn:P12448 ;
+	wikibase:qualifierValueNormalized pqn:P12448 ;
+	wikibase:referenceValueNormalized prn:P12448 .
+
+p:P12448 a owl:ObjectProperty .
+
+psv:P12448 a owl:ObjectProperty .
+
+pqv:P12448 a owl:ObjectProperty .
+
+prv:P12448 a owl:ObjectProperty .
+
+wdt:P12448 a owl:DatatypeProperty .
+
+ps:P12448 a owl:DatatypeProperty .
+
+pq:P12448 a owl:DatatypeProperty .
+
+pr:P12448 a owl:DatatypeProperty .
+
+psn:P12448 a owl:ObjectProperty .
+
+pqn:P12448 a owl:ObjectProperty .
+
+prn:P12448 a owl:ObjectProperty .
+
+wdtn:P12448 a owl:ObjectProperty .
+
+wdno:P12448 a owl:Class ;
+	owl:complementOf _:1bcbc4058d0e17e12eac091ac9d6a184 .
+
+_:1bcbc4058d0e17e12eac091ac9d6a184 a owl:Restriction ;
+	owl:onProperty wdt:P12448 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P5912 a wikibase:Property ;
+	rdfs:label "Oqaasileriffik online dictionary ID"@en ;
+	skos:prefLabel "Oqaasileriffik online dictionary ID"@en ;
+	schema:name "Oqaasileriffik online dictionary ID"@en ;
+	schema:description "ID in the online Greenlandic-Danish-English dictionary of Oqaasileriffik"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P5912 ;
+	wikibase:claim p:P5912 ;
+	wikibase:statementProperty ps:P5912 ;
+	wikibase:statementValue psv:P5912 ;
+	wikibase:qualifier pq:P5912 ;
+	wikibase:qualifierValue pqv:P5912 ;
+	wikibase:reference pr:P5912 ;
+	wikibase:referenceValue prv:P5912 ;
+	wikibase:novalue wdno:P5912 ;
+	wikibase:directClaimNormalized wdtn:P5912 ;
+	wikibase:statementValueNormalized psn:P5912 ;
+	wikibase:qualifierValueNormalized pqn:P5912 ;
+	wikibase:referenceValueNormalized prn:P5912 .
+
+p:P5912 a owl:ObjectProperty .
+
+psv:P5912 a owl:ObjectProperty .
+
+pqv:P5912 a owl:ObjectProperty .
+
+prv:P5912 a owl:ObjectProperty .
+
+wdt:P5912 a owl:DatatypeProperty .
+
+ps:P5912 a owl:DatatypeProperty .
+
+pq:P5912 a owl:DatatypeProperty .
+
+pr:P5912 a owl:DatatypeProperty .
+
+psn:P5912 a owl:ObjectProperty .
+
+pqn:P5912 a owl:ObjectProperty .
+
+prn:P5912 a owl:ObjectProperty .
+
+wdtn:P5912 a owl:ObjectProperty .
+
+wdno:P5912 a owl:Class ;
+	owl:complementOf _:cb89a661fa51bd11cc6adc547b31ad4f .
+
+_:cb89a661fa51bd11cc6adc547b31ad4f a owl:Restriction ;
+	owl:onProperty wdt:P5912 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P12510 a wikibase:Property ;
+	rdfs:label "Oxford English Dictionary object ID (post-July 2023)"@en ;
+	skos:prefLabel "Oxford English Dictionary object ID (post-July 2023)"@en ;
+	schema:name "Oxford English Dictionary object ID (post-July 2023)"@en ;
+	schema:description "identifier for an entry (or sub-entry) in the Oxford English Dictionary, as the suffix to a DOI issued by the OED"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P12510 ;
+	wikibase:claim p:P12510 ;
+	wikibase:statementProperty ps:P12510 ;
+	wikibase:statementValue psv:P12510 ;
+	wikibase:qualifier pq:P12510 ;
+	wikibase:qualifierValue pqv:P12510 ;
+	wikibase:reference pr:P12510 ;
+	wikibase:referenceValue prv:P12510 ;
+	wikibase:novalue wdno:P12510 ;
+	wikibase:directClaimNormalized wdtn:P12510 ;
+	wikibase:statementValueNormalized psn:P12510 ;
+	wikibase:qualifierValueNormalized pqn:P12510 ;
+	wikibase:referenceValueNormalized prn:P12510 .
+
+p:P12510 a owl:ObjectProperty .
+
+psv:P12510 a owl:ObjectProperty .
+
+pqv:P12510 a owl:ObjectProperty .
+
+prv:P12510 a owl:ObjectProperty .
+
+wdt:P12510 a owl:DatatypeProperty .
+
+ps:P12510 a owl:DatatypeProperty .
+
+pq:P12510 a owl:DatatypeProperty .
+
+pr:P12510 a owl:DatatypeProperty .
+
+psn:P12510 a owl:ObjectProperty .
+
+pqn:P12510 a owl:ObjectProperty .
+
+prn:P12510 a owl:ObjectProperty .
+
+wdtn:P12510 a owl:ObjectProperty .
+
+wdno:P12510 a owl:Class ;
+	owl:complementOf _:2f956e163fd904365d07d4f196d89c01 .
+
+_:2f956e163fd904365d07d4f196d89c01 a owl:Restriction ;
+	owl:onProperty wdt:P12510 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P12718 a wikibase:Property ;
+	rdfs:label "Australian Oxford Dictionary ID"@en ;
+	skos:prefLabel "Australian Oxford Dictionary ID"@en ;
+	schema:name "Australian Oxford Dictionary ID"@en ;
+	schema:description "identifier for a subject page in the Australian Oxford Dictionary"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P12718 ;
+	wikibase:claim p:P12718 ;
+	wikibase:statementProperty ps:P12718 ;
+	wikibase:statementValue psv:P12718 ;
+	wikibase:qualifier pq:P12718 ;
+	wikibase:qualifierValue pqv:P12718 ;
+	wikibase:reference pr:P12718 ;
+	wikibase:referenceValue prv:P12718 ;
+	wikibase:novalue wdno:P12718 ;
+	wikibase:directClaimNormalized wdtn:P12718 ;
+	wikibase:statementValueNormalized psn:P12718 ;
+	wikibase:qualifierValueNormalized pqn:P12718 ;
+	wikibase:referenceValueNormalized prn:P12718 .
+
+p:P12718 a owl:ObjectProperty .
+
+psv:P12718 a owl:ObjectProperty .
+
+pqv:P12718 a owl:ObjectProperty .
+
+prv:P12718 a owl:ObjectProperty .
+
+wdt:P12718 a owl:DatatypeProperty .
+
+ps:P12718 a owl:DatatypeProperty .
+
+pq:P12718 a owl:DatatypeProperty .
+
+pr:P12718 a owl:DatatypeProperty .
+
+psn:P12718 a owl:ObjectProperty .
+
+pqn:P12718 a owl:ObjectProperty .
+
+prn:P12718 a owl:ObjectProperty .
+
+wdtn:P12718 a owl:ObjectProperty .
+
+wdno:P12718 a owl:Class ;
+	owl:complementOf _:518d02c4cf392e5370e96472d0009aa6 .
+
+_:518d02c4cf392e5370e96472d0009aa6 a owl:Restriction ;
+	owl:onProperty wdt:P12718 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P12726 a wikibase:Property ;
+	rdfs:label "Canadian Oxford Dictionary ID"@en ;
+	skos:prefLabel "Canadian Oxford Dictionary ID"@en ;
+	schema:name "Canadian Oxford Dictionary ID"@en ;
+	schema:description "identifier for a subject page in the Canadian Oxford Dictionary"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P12726 ;
+	wikibase:claim p:P12726 ;
+	wikibase:statementProperty ps:P12726 ;
+	wikibase:statementValue psv:P12726 ;
+	wikibase:qualifier pq:P12726 ;
+	wikibase:qualifierValue pqv:P12726 ;
+	wikibase:reference pr:P12726 ;
+	wikibase:referenceValue prv:P12726 ;
+	wikibase:novalue wdno:P12726 ;
+	wikibase:directClaimNormalized wdtn:P12726 ;
+	wikibase:statementValueNormalized psn:P12726 ;
+	wikibase:qualifierValueNormalized pqn:P12726 ;
+	wikibase:referenceValueNormalized prn:P12726 .
+
+p:P12726 a owl:ObjectProperty .
+
+psv:P12726 a owl:ObjectProperty .
+
+pqv:P12726 a owl:ObjectProperty .
+
+prv:P12726 a owl:ObjectProperty .
+
+wdt:P12726 a owl:DatatypeProperty .
+
+ps:P12726 a owl:DatatypeProperty .
+
+pq:P12726 a owl:DatatypeProperty .
+
+pr:P12726 a owl:DatatypeProperty .
+
+psn:P12726 a owl:ObjectProperty .
+
+pqn:P12726 a owl:ObjectProperty .
+
+prn:P12726 a owl:ObjectProperty .
+
+wdtn:P12726 a owl:ObjectProperty .
+
+wdno:P12726 a owl:Class ;
+	owl:complementOf _:d8d563ad0355b525c66819e554f5dcdf .
+
+_:d8d563ad0355b525c66819e554f5dcdf a owl:Restriction ;
+	owl:onProperty wdt:P12726 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P12724 a wikibase:Property ;
+	rdfs:label "The New Zealand Oxford Dictionary ID"@en ;
+	skos:prefLabel "The New Zealand Oxford Dictionary ID"@en ;
+	schema:name "The New Zealand Oxford Dictionary ID"@en ;
+	schema:description "identifier for a subject page in The New Zealand Oxford Dictionary"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P12724 ;
+	wikibase:claim p:P12724 ;
+	wikibase:statementProperty ps:P12724 ;
+	wikibase:statementValue psv:P12724 ;
+	wikibase:qualifier pq:P12724 ;
+	wikibase:qualifierValue pqv:P12724 ;
+	wikibase:reference pr:P12724 ;
+	wikibase:referenceValue prv:P12724 ;
+	wikibase:novalue wdno:P12724 ;
+	wikibase:directClaimNormalized wdtn:P12724 ;
+	wikibase:statementValueNormalized psn:P12724 ;
+	wikibase:qualifierValueNormalized pqn:P12724 ;
+	wikibase:referenceValueNormalized prn:P12724 .
+
+p:P12724 a owl:ObjectProperty .
+
+psv:P12724 a owl:ObjectProperty .
+
+pqv:P12724 a owl:ObjectProperty .
+
+prv:P12724 a owl:ObjectProperty .
+
+wdt:P12724 a owl:DatatypeProperty .
+
+ps:P12724 a owl:DatatypeProperty .
+
+pq:P12724 a owl:DatatypeProperty .
+
+pr:P12724 a owl:DatatypeProperty .
+
+psn:P12724 a owl:ObjectProperty .
+
+pqn:P12724 a owl:ObjectProperty .
+
+prn:P12724 a owl:ObjectProperty .
+
+wdtn:P12724 a owl:ObjectProperty .
+
+wdno:P12724 a owl:Class ;
+	owl:complementOf _:d0c8f23b96d6c7d3ee84c1def8c82b29 .
+
+_:d0c8f23b96d6c7d3ee84c1def8c82b29 a owl:Restriction ;
+	owl:onProperty wdt:P12724 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P12739 a wikibase:Property ;
+	rdfs:label "Oxford Dictionary of English entry ID"@en ;
+	skos:prefLabel "Oxford Dictionary of English entry ID"@en ;
+	schema:name "Oxford Dictionary of English entry ID"@en ;
+	schema:description "identifier for a reference subject page in the Oxford Dictionary of English"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P12739 ;
+	wikibase:claim p:P12739 ;
+	wikibase:statementProperty ps:P12739 ;
+	wikibase:statementValue psv:P12739 ;
+	wikibase:qualifier pq:P12739 ;
+	wikibase:qualifierValue pqv:P12739 ;
+	wikibase:reference pr:P12739 ;
+	wikibase:referenceValue prv:P12739 ;
+	wikibase:novalue wdno:P12739 ;
+	wikibase:directClaimNormalized wdtn:P12739 ;
+	wikibase:statementValueNormalized psn:P12739 ;
+	wikibase:qualifierValueNormalized pqn:P12739 ;
+	wikibase:referenceValueNormalized prn:P12739 .
+
+p:P12739 a owl:ObjectProperty .
+
+psv:P12739 a owl:ObjectProperty .
+
+pqv:P12739 a owl:ObjectProperty .
+
+prv:P12739 a owl:ObjectProperty .
+
+wdt:P12739 a owl:DatatypeProperty .
+
+ps:P12739 a owl:DatatypeProperty .
+
+pq:P12739 a owl:DatatypeProperty .
+
+pr:P12739 a owl:DatatypeProperty .
+
+psn:P12739 a owl:ObjectProperty .
+
+pqn:P12739 a owl:ObjectProperty .
+
+prn:P12739 a owl:ObjectProperty .
+
+wdtn:P12739 a owl:ObjectProperty .
+
+wdno:P12739 a owl:Class ;
+	owl:complementOf _:b674ac6c07fd6af65256a45dc0e2e6cf .
+
+_:b674ac6c07fd6af65256a45dc0e2e6cf a owl:Restriction ;
+	owl:onProperty wdt:P12739 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P12868 a wikibase:Property ;
+	rdfs:label "Hebrew Academy term ID"@en ;
+	skos:prefLabel "Hebrew Academy term ID"@en ;
+	schema:name "Hebrew Academy term ID"@en ;
+	schema:description "identifier for a term in the online term database of the Academy of the Hebrew Language"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P12868 ;
+	wikibase:claim p:P12868 ;
+	wikibase:statementProperty ps:P12868 ;
+	wikibase:statementValue psv:P12868 ;
+	wikibase:qualifier pq:P12868 ;
+	wikibase:qualifierValue pqv:P12868 ;
+	wikibase:reference pr:P12868 ;
+	wikibase:referenceValue prv:P12868 ;
+	wikibase:novalue wdno:P12868 ;
+	wikibase:directClaimNormalized wdtn:P12868 ;
+	wikibase:statementValueNormalized psn:P12868 ;
+	wikibase:qualifierValueNormalized pqn:P12868 ;
+	wikibase:referenceValueNormalized prn:P12868 .
+
+p:P12868 a owl:ObjectProperty .
+
+psv:P12868 a owl:ObjectProperty .
+
+pqv:P12868 a owl:ObjectProperty .
+
+prv:P12868 a owl:ObjectProperty .
+
+wdt:P12868 a owl:DatatypeProperty .
+
+ps:P12868 a owl:DatatypeProperty .
+
+pq:P12868 a owl:DatatypeProperty .
+
+pr:P12868 a owl:DatatypeProperty .
+
+psn:P12868 a owl:ObjectProperty .
+
+pqn:P12868 a owl:ObjectProperty .
+
+prn:P12868 a owl:ObjectProperty .
+
+wdtn:P12868 a owl:ObjectProperty .
+
+wdno:P12868 a owl:Class ;
+	owl:complementOf _:8b808b9d4623fa339fbdd0d077b6446e .
+
+_:8b808b9d4623fa339fbdd0d077b6446e a owl:Restriction ;
+	owl:onProperty wdt:P12868 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P7575 a wikibase:Property ;
+	rdfs:label "Sri Granth word ID"@en ;
+	skos:prefLabel "Sri Granth word ID"@en ;
+	schema:name "Sri Granth word ID"@en ;
+	schema:description "property for Punjabi words in Gurmukhi script retrieved from Guru Granth Sahib maintained by Sri Granth, or English words with Gurmukhi glosses"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P7575 ;
+	wikibase:claim p:P7575 ;
+	wikibase:statementProperty ps:P7575 ;
+	wikibase:statementValue psv:P7575 ;
+	wikibase:qualifier pq:P7575 ;
+	wikibase:qualifierValue pqv:P7575 ;
+	wikibase:reference pr:P7575 ;
+	wikibase:referenceValue prv:P7575 ;
+	wikibase:novalue wdno:P7575 ;
+	wikibase:directClaimNormalized wdtn:P7575 ;
+	wikibase:statementValueNormalized psn:P7575 ;
+	wikibase:qualifierValueNormalized pqn:P7575 ;
+	wikibase:referenceValueNormalized prn:P7575 .
+
+p:P7575 a owl:ObjectProperty .
+
+psv:P7575 a owl:ObjectProperty .
+
+pqv:P7575 a owl:ObjectProperty .
+
+prv:P7575 a owl:ObjectProperty .
+
+wdt:P7575 a owl:DatatypeProperty .
+
+ps:P7575 a owl:DatatypeProperty .
+
+pq:P7575 a owl:DatatypeProperty .
+
+pr:P7575 a owl:DatatypeProperty .
+
+psn:P7575 a owl:ObjectProperty .
+
+pqn:P7575 a owl:ObjectProperty .
+
+prn:P7575 a owl:ObjectProperty .
+
+wdtn:P7575 a owl:ObjectProperty .
+
+wdno:P7575 a owl:Class ;
+	owl:complementOf _:891a9c598ad95419d40efda3f424e3f3 .
+
+_:891a9c598ad95419d40efda3f424e3f3 a owl:Restriction ;
+	owl:onProperty wdt:P7575 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P11130 a wikibase:Property ;
+	rdfs:label "Merriam-Webster online dictionary entry"@en ;
+	skos:prefLabel "Merriam-Webster online dictionary entry"@en ;
+	schema:name "Merriam-Webster online dictionary entry"@en ;
+	schema:description "identifier for an entry for a word in the Merriam-Webster online dictionary"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P11130 ;
+	wikibase:claim p:P11130 ;
+	wikibase:statementProperty ps:P11130 ;
+	wikibase:statementValue psv:P11130 ;
+	wikibase:qualifier pq:P11130 ;
+	wikibase:qualifierValue pqv:P11130 ;
+	wikibase:reference pr:P11130 ;
+	wikibase:referenceValue prv:P11130 ;
+	wikibase:novalue wdno:P11130 ;
+	wikibase:directClaimNormalized wdtn:P11130 ;
+	wikibase:statementValueNormalized psn:P11130 ;
+	wikibase:qualifierValueNormalized pqn:P11130 ;
+	wikibase:referenceValueNormalized prn:P11130 .
+
+p:P11130 a owl:ObjectProperty .
+
+psv:P11130 a owl:ObjectProperty .
+
+pqv:P11130 a owl:ObjectProperty .
+
+prv:P11130 a owl:ObjectProperty .
+
+wdt:P11130 a owl:DatatypeProperty .
+
+ps:P11130 a owl:DatatypeProperty .
+
+pq:P11130 a owl:DatatypeProperty .
+
+pr:P11130 a owl:DatatypeProperty .
+
+psn:P11130 a owl:ObjectProperty .
+
+pqn:P11130 a owl:ObjectProperty .
+
+prn:P11130 a owl:ObjectProperty .
+
+wdtn:P11130 a owl:ObjectProperty .
+
+wdno:P11130 a owl:Class ;
+	owl:complementOf _:24918dd5ceb46999bacbbcb2be779549 .
+
+_:24918dd5ceb46999bacbbcb2be779549 a owl:Restriction ;
+	owl:onProperty wdt:P11130 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P12056 a wikibase:Property ;
+	rdfs:label "Online Etymology Dictionary ID"@en ;
+	skos:prefLabel "Online Etymology Dictionary ID"@en ;
+	schema:name "Online Etymology Dictionary ID"@en ;
+	schema:description "ID of a entry in Online Etymology Dictionary (with URI fragment)"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P12056 ;
+	wikibase:claim p:P12056 ;
+	wikibase:statementProperty ps:P12056 ;
+	wikibase:statementValue psv:P12056 ;
+	wikibase:qualifier pq:P12056 ;
+	wikibase:qualifierValue pqv:P12056 ;
+	wikibase:reference pr:P12056 ;
+	wikibase:referenceValue prv:P12056 ;
+	wikibase:novalue wdno:P12056 ;
+	wikibase:directClaimNormalized wdtn:P12056 ;
+	wikibase:statementValueNormalized psn:P12056 ;
+	wikibase:qualifierValueNormalized pqn:P12056 ;
+	wikibase:referenceValueNormalized prn:P12056 .
+
+p:P12056 a owl:ObjectProperty .
+
+psv:P12056 a owl:ObjectProperty .
+
+pqv:P12056 a owl:ObjectProperty .
+
+prv:P12056 a owl:ObjectProperty .
+
+wdt:P12056 a owl:DatatypeProperty .
+
+ps:P12056 a owl:DatatypeProperty .
+
+pq:P12056 a owl:DatatypeProperty .
+
+pr:P12056 a owl:DatatypeProperty .
+
+psn:P12056 a owl:ObjectProperty .
+
+pqn:P12056 a owl:ObjectProperty .
+
+prn:P12056 a owl:ObjectProperty .
+
+wdtn:P12056 a owl:ObjectProperty .
+
+wdno:P12056 a owl:Class ;
+	owl:complementOf _:1ef34238b032cf0ab4dbc3ae317d5165 .
+
+_:1ef34238b032cf0ab4dbc3ae317d5165 a owl:Restriction ;
+	owl:onProperty wdt:P12056 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P13258 a wikibase:Property ;
+	rdfs:label "Presisov večjezični slovar ID"@en ;
+	skos:prefLabel "Presisov večjezični slovar ID"@en ;
+	schema:name "Presisov večjezični slovar ID"@en ;
+	schema:description "entry for a lexeme in the online edition of Presisov večjezični slovar"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P13258 ;
+	wikibase:claim p:P13258 ;
+	wikibase:statementProperty ps:P13258 ;
+	wikibase:statementValue psv:P13258 ;
+	wikibase:qualifier pq:P13258 ;
+	wikibase:qualifierValue pqv:P13258 ;
+	wikibase:reference pr:P13258 ;
+	wikibase:referenceValue prv:P13258 ;
+	wikibase:novalue wdno:P13258 ;
+	wikibase:directClaimNormalized wdtn:P13258 ;
+	wikibase:statementValueNormalized psn:P13258 ;
+	wikibase:qualifierValueNormalized pqn:P13258 ;
+	wikibase:referenceValueNormalized prn:P13258 .
+
+p:P13258 a owl:ObjectProperty .
+
+psv:P13258 a owl:ObjectProperty .
+
+pqv:P13258 a owl:ObjectProperty .
+
+prv:P13258 a owl:ObjectProperty .
+
+wdt:P13258 a owl:DatatypeProperty .
+
+ps:P13258 a owl:DatatypeProperty .
+
+pq:P13258 a owl:DatatypeProperty .
+
+pr:P13258 a owl:DatatypeProperty .
+
+psn:P13258 a owl:ObjectProperty .
+
+pqn:P13258 a owl:ObjectProperty .
+
+prn:P13258 a owl:ObjectProperty .
+
+wdtn:P13258 a owl:ObjectProperty .
+
+wdno:P13258 a owl:Class ;
+	owl:complementOf _:42f62fc33b67b2e10aba952b3962b40d .
+
+_:42f62fc33b67b2e10aba952b3962b40d a owl:Restriction ;
+	owl:onProperty wdt:P13258 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P13163 a wikibase:Property ;
+	rdfs:label "The American Heritage Dictionary of the English Language entry ID"@en ;
+	skos:prefLabel "The American Heritage Dictionary of the English Language entry ID"@en ;
+	schema:name "The American Heritage Dictionary of the English Language entry ID"@en ;
+	schema:description "identifier for an entry in The American Heritage Dictionary of the English Language"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P13163 ;
+	wikibase:claim p:P13163 ;
+	wikibase:statementProperty ps:P13163 ;
+	wikibase:statementValue psv:P13163 ;
+	wikibase:qualifier pq:P13163 ;
+	wikibase:qualifierValue pqv:P13163 ;
+	wikibase:reference pr:P13163 ;
+	wikibase:referenceValue prv:P13163 ;
+	wikibase:novalue wdno:P13163 ;
+	wikibase:directClaimNormalized wdtn:P13163 ;
+	wikibase:statementValueNormalized psn:P13163 ;
+	wikibase:qualifierValueNormalized pqn:P13163 ;
+	wikibase:referenceValueNormalized prn:P13163 .
+
+p:P13163 a owl:ObjectProperty .
+
+psv:P13163 a owl:ObjectProperty .
+
+pqv:P13163 a owl:ObjectProperty .
+
+prv:P13163 a owl:ObjectProperty .
+
+wdt:P13163 a owl:DatatypeProperty .
+
+ps:P13163 a owl:DatatypeProperty .
+
+pq:P13163 a owl:DatatypeProperty .
+
+pr:P13163 a owl:DatatypeProperty .
+
+psn:P13163 a owl:ObjectProperty .
+
+pqn:P13163 a owl:ObjectProperty .
+
+prn:P13163 a owl:ObjectProperty .
+
+wdtn:P13163 a owl:ObjectProperty .
+
+wdno:P13163 a owl:Class ;
+	owl:complementOf _:4db091684419043d9b332b719844f4fe .
+
+_:4db091684419043d9b332b719844f4fe a owl:Restriction ;
+	owl:onProperty wdt:P13163 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P11138 a wikibase:Property ;
+	rdfs:label "Sõnaveeb entry ID"@en ;
+	skos:prefLabel "Sõnaveeb entry ID"@en ;
+	schema:name "Sõnaveeb entry ID"@en ;
+	schema:description "identifier for an entry in the unified dictionary hosted by the Institute of the Estonian Language"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P11138 ;
+	wikibase:claim p:P11138 ;
+	wikibase:statementProperty ps:P11138 ;
+	wikibase:statementValue psv:P11138 ;
+	wikibase:qualifier pq:P11138 ;
+	wikibase:qualifierValue pqv:P11138 ;
+	wikibase:reference pr:P11138 ;
+	wikibase:referenceValue prv:P11138 ;
+	wikibase:novalue wdno:P11138 ;
+	wikibase:directClaimNormalized wdtn:P11138 ;
+	wikibase:statementValueNormalized psn:P11138 ;
+	wikibase:qualifierValueNormalized pqn:P11138 ;
+	wikibase:referenceValueNormalized prn:P11138 .
+
+p:P11138 a owl:ObjectProperty .
+
+psv:P11138 a owl:ObjectProperty .
+
+pqv:P11138 a owl:ObjectProperty .
+
+prv:P11138 a owl:ObjectProperty .
+
+wdt:P11138 a owl:DatatypeProperty .
+
+ps:P11138 a owl:DatatypeProperty .
+
+pq:P11138 a owl:DatatypeProperty .
+
+pr:P11138 a owl:DatatypeProperty .
+
+psn:P11138 a owl:ObjectProperty .
+
+pqn:P11138 a owl:ObjectProperty .
+
+prn:P11138 a owl:ObjectProperty .
+
+wdtn:P11138 a owl:ObjectProperty .
+
+wdno:P11138 a owl:Class ;
+	owl:complementOf _:b0d11137d532bdeff2ac204ec8b5c786 .
+
+_:b0d11137d532bdeff2ac204ec8b5c786 a owl:Restriction ;
+	owl:onProperty wdt:P11138 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P11263 a wikibase:Property ;
+	rdfs:label "The Britannica Dictionary entry"@en ;
+	skos:prefLabel "The Britannica Dictionary entry"@en ;
+	schema:name "The Britannica Dictionary entry"@en ;
+	schema:description "identifier for an entry in The Britannica Dictionary"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P11263 ;
+	wikibase:claim p:P11263 ;
+	wikibase:statementProperty ps:P11263 ;
+	wikibase:statementValue psv:P11263 ;
+	wikibase:qualifier pq:P11263 ;
+	wikibase:qualifierValue pqv:P11263 ;
+	wikibase:reference pr:P11263 ;
+	wikibase:referenceValue prv:P11263 ;
+	wikibase:novalue wdno:P11263 ;
+	wikibase:directClaimNormalized wdtn:P11263 ;
+	wikibase:statementValueNormalized psn:P11263 ;
+	wikibase:qualifierValueNormalized pqn:P11263 ;
+	wikibase:referenceValueNormalized prn:P11263 .
+
+p:P11263 a owl:ObjectProperty .
+
+psv:P11263 a owl:ObjectProperty .
+
+pqv:P11263 a owl:ObjectProperty .
+
+prv:P11263 a owl:ObjectProperty .
+
+wdt:P11263 a owl:DatatypeProperty .
+
+ps:P11263 a owl:DatatypeProperty .
+
+pq:P11263 a owl:DatatypeProperty .
+
+pr:P11263 a owl:DatatypeProperty .
+
+psn:P11263 a owl:ObjectProperty .
+
+pqn:P11263 a owl:ObjectProperty .
+
+prn:P11263 a owl:ObjectProperty .
+
+wdtn:P11263 a owl:ObjectProperty .
+
+wdno:P11263 a owl:Class ;
+	owl:complementOf _:edd013dcc343705f81338a1660246819 .
+
+_:edd013dcc343705f81338a1660246819 a owl:Restriction ;
+	owl:onProperty wdt:P11263 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P13553 a wikibase:Property ;
+	rdfs:label "Urban Dictionary ID"@en ;
+	skos:prefLabel "Urban Dictionary ID"@en ;
+	schema:name "Urban Dictionary ID"@en ;
+	schema:description "identifier for a word in the crowdsourced dictionary"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P13553 ;
+	wikibase:claim p:P13553 ;
+	wikibase:statementProperty ps:P13553 ;
+	wikibase:statementValue psv:P13553 ;
+	wikibase:qualifier pq:P13553 ;
+	wikibase:qualifierValue pqv:P13553 ;
+	wikibase:reference pr:P13553 ;
+	wikibase:referenceValue prv:P13553 ;
+	wikibase:novalue wdno:P13553 ;
+	wikibase:directClaimNormalized wdtn:P13553 ;
+	wikibase:statementValueNormalized psn:P13553 ;
+	wikibase:qualifierValueNormalized pqn:P13553 ;
+	wikibase:referenceValueNormalized prn:P13553 .
+
+p:P13553 a owl:ObjectProperty .
+
+psv:P13553 a owl:ObjectProperty .
+
+pqv:P13553 a owl:ObjectProperty .
+
+prv:P13553 a owl:ObjectProperty .
+
+wdt:P13553 a owl:DatatypeProperty .
+
+ps:P13553 a owl:DatatypeProperty .
+
+pq:P13553 a owl:DatatypeProperty .
+
+pr:P13553 a owl:DatatypeProperty .
+
+psn:P13553 a owl:ObjectProperty .
+
+pqn:P13553 a owl:ObjectProperty .
+
+prn:P13553 a owl:ObjectProperty .
+
+wdtn:P13553 a owl:ObjectProperty .
+
+wdno:P13553 a owl:Class ;
+	owl:complementOf _:f30d11fdd8b97ef04561951afe8d2a91 .
+
+_:f30d11fdd8b97ef04561951afe8d2a91 a owl:Restriction ;
+	owl:onProperty wdt:P13553 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P9531 a wikibase:Property ;
+	rdfs:label "identifier shared with lexeme"@en ;
+	skos:prefLabel "identifier shared with lexeme"@en ;
+	schema:name "identifier shared with lexeme"@en ;
+	schema:description "qualifier used to state which other lexemes are also matched to this identifier"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseLexeme> ;
+	wikibase:directClaim wdt:P9531 ;
+	wikibase:claim p:P9531 ;
+	wikibase:statementProperty ps:P9531 ;
+	wikibase:statementValue psv:P9531 ;
+	wikibase:qualifier pq:P9531 ;
+	wikibase:qualifierValue pqv:P9531 ;
+	wikibase:reference pr:P9531 ;
+	wikibase:referenceValue prv:P9531 ;
+	wikibase:novalue wdno:P9531 .
+
+p:P9531 a owl:ObjectProperty .
+
+psv:P9531 a owl:ObjectProperty .
+
+pqv:P9531 a owl:ObjectProperty .
+
+prv:P9531 a owl:ObjectProperty .
+
+wdt:P9531 a owl:DatatypeProperty .
+
+ps:P9531 a owl:DatatypeProperty .
+
+pq:P9531 a owl:DatatypeProperty .
+
+pr:P9531 a owl:DatatypeProperty .
+
+wdno:P9531 a owl:Class ;
+	owl:complementOf _:7f89f96f4d05ca27a23b7dc5378acea3 .
+
+_:7f89f96f4d05ca27a23b7dc5378acea3 a owl:Restriction ;
+	owl:onProperty wdt:P9531 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P6072 a wikibase:Property ;
+	rdfs:label "subject sense"@en ;
+	skos:prefLabel "subject sense"@en ;
+	schema:name "subject sense"@en ;
+	schema:description "(qualifier for lexemes) statement applies only to listed senses of statement's subject"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseSense> ;
+	wikibase:directClaim wdt:P6072 ;
+	wikibase:claim p:P6072 ;
+	wikibase:statementProperty ps:P6072 ;
+	wikibase:statementValue psv:P6072 ;
+	wikibase:qualifier pq:P6072 ;
+	wikibase:qualifierValue pqv:P6072 ;
+	wikibase:reference pr:P6072 ;
+	wikibase:referenceValue prv:P6072 ;
+	wikibase:novalue wdno:P6072 .
+
+p:P6072 a owl:ObjectProperty .
+
+psv:P6072 a owl:ObjectProperty .
+
+pqv:P6072 a owl:ObjectProperty .
+
+prv:P6072 a owl:ObjectProperty .
+
+wdt:P6072 a owl:DatatypeProperty .
+
+ps:P6072 a owl:DatatypeProperty .
+
+pq:P6072 a owl:DatatypeProperty .
+
+pr:P6072 a owl:DatatypeProperty .
+
+wdno:P6072 a owl:Class ;
+	owl:complementOf _:352d0633764448a356f86d1d105a3883 .
+
+_:352d0633764448a356f86d1d105a3883 a owl:Restriction ;
+	owl:onProperty wdt:P6072 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q1860 a wikibase:Item ;
+	rdfs:label "English"@en ;
+	skos:prefLabel "English"@en ;
+	schema:name "English"@en ;
+	schema:description "West Germanic language"@en .
+
+wd:Q1084 a wikibase:Item ;
+	rdfs:label "noun"@en ;
+	skos:prefLabel "noun"@en ;
+	schema:name "noun"@en ;
+	schema:description "word that functions as the name of a specific object or set of objects"@en .
+
+wd:P443 a wikibase:Property ;
+	rdfs:label "pronunciation audio"@en ;
+	skos:prefLabel "pronunciation audio"@en ;
+	schema:name "pronunciation audio"@en ;
+	schema:description "audio file with pronunciation"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#CommonsMedia> ;
+	wikibase:directClaim wdt:P443 ;
+	wikibase:claim p:P443 ;
+	wikibase:statementProperty ps:P443 ;
+	wikibase:statementValue psv:P443 ;
+	wikibase:qualifier pq:P443 ;
+	wikibase:qualifierValue pqv:P443 ;
+	wikibase:reference pr:P443 ;
+	wikibase:referenceValue prv:P443 ;
+	wikibase:novalue wdno:P443 .
+
+p:P443 a owl:ObjectProperty .
+
+psv:P443 a owl:ObjectProperty .
+
+pqv:P443 a owl:ObjectProperty .
+
+prv:P443 a owl:ObjectProperty .
+
+wdt:P443 a owl:ObjectProperty .
+
+ps:P443 a owl:ObjectProperty .
+
+pq:P443 a owl:ObjectProperty .
+
+pr:P443 a owl:ObjectProperty .
+
+wdno:P443 a owl:Class ;
+	owl:complementOf _:94e248b043a403a96bb38251ab94bf95 .
+
+_:94e248b043a403a96bb38251ab94bf95 a owl:Restriction ;
+	owl:onProperty wdt:P443 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P7243 a wikibase:Property ;
+	rdfs:label "pronunciation"@en ;
+	skos:prefLabel "pronunciation"@en ;
+	schema:name "pronunciation"@en ;
+	schema:description "lexeme form pronunciation in a system without its own dedicated property (pronunciation audio/IPA text may be attached as qualifiers, and duplicate values are OK if more than one pronunciation exists)"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Monolingualtext> ;
+	wikibase:directClaim wdt:P7243 ;
+	wikibase:claim p:P7243 ;
+	wikibase:statementProperty ps:P7243 ;
+	wikibase:statementValue psv:P7243 ;
+	wikibase:qualifier pq:P7243 ;
+	wikibase:qualifierValue pqv:P7243 ;
+	wikibase:reference pr:P7243 ;
+	wikibase:referenceValue prv:P7243 ;
+	wikibase:novalue wdno:P7243 .
+
+p:P7243 a owl:ObjectProperty .
+
+psv:P7243 a owl:ObjectProperty .
+
+pqv:P7243 a owl:ObjectProperty .
+
+prv:P7243 a owl:ObjectProperty .
+
+wdt:P7243 a owl:DatatypeProperty .
+
+ps:P7243 a owl:DatatypeProperty .
+
+pq:P7243 a owl:DatatypeProperty .
+
+pr:P7243 a owl:DatatypeProperty .
+
+wdno:P7243 a owl:Class ;
+	owl:complementOf _:cd5966a783dfc3659962b4cd730ef0d5 .
+
+_:cd5966a783dfc3659962b4cd730ef0d5 a owl:Restriction ;
+	owl:onProperty wdt:P7243 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q7976 a wikibase:Item ;
+	rdfs:label "American English"@en ;
+	skos:prefLabel "American English"@en ;
+	schema:name "American English"@en ;
+	rdfs:label "American English"@mul ;
+	skos:prefLabel "American English"@mul ;
+	schema:name "American English"@mul ;
+	schema:description "set of dialects of the English language spoken in the United States"@en .
+
+wd:P5237 a wikibase:Property ;
+	rdfs:label "pronunciation variety"@en ;
+	skos:prefLabel "pronunciation variety"@en ;
+	schema:name "pronunciation variety"@en ;
+	schema:description "qualifier for IPA transcription (P898), pronunciation audio (P443) or spoken text audio (P989) to indicate the associated spoken language variant"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P5237 ;
+	wikibase:claim p:P5237 ;
+	wikibase:statementProperty ps:P5237 ;
+	wikibase:statementValue psv:P5237 ;
+	wikibase:qualifier pq:P5237 ;
+	wikibase:qualifierValue pqv:P5237 ;
+	wikibase:reference pr:P5237 ;
+	wikibase:referenceValue prv:P5237 ;
+	wikibase:novalue wdno:P5237 .
+
+p:P5237 a owl:ObjectProperty .
+
+psv:P5237 a owl:ObjectProperty .
+
+pqv:P5237 a owl:ObjectProperty .
+
+prv:P5237 a owl:ObjectProperty .
+
+wdt:P5237 a owl:ObjectProperty .
+
+ps:P5237 a owl:ObjectProperty .
+
+pq:P5237 a owl:ObjectProperty .
+
+pr:P5237 a owl:ObjectProperty .
+
+wdno:P5237 a owl:Class ;
+	owl:complementOf _:ba25e7010a3d4266cfb53cd9d56bae85 .
+
+_:ba25e7010a3d4266cfb53cd9d56bae85 a owl:Restriction ;
+	owl:onProperty wdt:P5237 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q7985 a wikibase:Item ;
+	rdfs:label "received pronunciation"@en ;
+	skos:prefLabel "received pronunciation"@en ;
+	schema:name "received pronunciation"@en ;
+	schema:description "standard accent for British English"@en .
+
+wd:Q113799928 a wikibase:Item ;
+	rdfs:label "English-Yiddish Encyclopedic Dictionary"@en ;
+	skos:prefLabel "English-Yiddish Encyclopedic Dictionary"@en ;
+	schema:name "English-Yiddish Encyclopedic Dictionary"@en ;
+	schema:description "1915 dictionary edited by Paul Abelson"@en .
+
+wd:P248 a wikibase:Property ;
+	rdfs:label "stated in"@en ;
+	skos:prefLabel "stated in"@en ;
+	schema:name "stated in"@en ;
+	schema:description "to be used in the references field to refer to the information document or database in which a claim is made; for qualifiers use P805; for the type of document in which a claim is made use P3865"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P248 ;
+	wikibase:claim p:P248 ;
+	wikibase:statementProperty ps:P248 ;
+	wikibase:statementValue psv:P248 ;
+	wikibase:qualifier pq:P248 ;
+	wikibase:qualifierValue pqv:P248 ;
+	wikibase:reference pr:P248 ;
+	wikibase:referenceValue prv:P248 ;
+	wikibase:novalue wdno:P248 .
+
+p:P248 a owl:ObjectProperty .
+
+psv:P248 a owl:ObjectProperty .
+
+pqv:P248 a owl:ObjectProperty .
+
+prv:P248 a owl:ObjectProperty .
+
+wdt:P248 a owl:ObjectProperty .
+
+ps:P248 a owl:ObjectProperty .
+
+pq:P248 a owl:ObjectProperty .
+
+pr:P248 a owl:ObjectProperty .
+
+wdno:P248 a owl:Class ;
+	owl:complementOf _:a2b31078afaf5caae811f4ac846f5f35 .
+
+_:a2b31078afaf5caae811f4ac846f5f35 a owl:Restriction ;
+	owl:onProperty wdt:P248 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P304 a wikibase:Property ;
+	rdfs:label "page(s)"@en ;
+	skos:prefLabel "page(s)"@en ;
+	schema:name "page(s)"@en ;
+	schema:description "page number of source referenced for statement. Note \"column(s)\" (P3903) and \"folio(s)\" (P7416) for other numbering systems"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#String> ;
+	wikibase:directClaim wdt:P304 ;
+	wikibase:claim p:P304 ;
+	wikibase:statementProperty ps:P304 ;
+	wikibase:statementValue psv:P304 ;
+	wikibase:qualifier pq:P304 ;
+	wikibase:qualifierValue pqv:P304 ;
+	wikibase:reference pr:P304 ;
+	wikibase:referenceValue prv:P304 ;
+	wikibase:novalue wdno:P304 .
+
+p:P304 a owl:ObjectProperty .
+
+psv:P304 a owl:ObjectProperty .
+
+pqv:P304 a owl:ObjectProperty .
+
+prv:P304 a owl:ObjectProperty .
+
+wdt:P304 a owl:DatatypeProperty .
+
+ps:P304 a owl:DatatypeProperty .
+
+pq:P304 a owl:DatatypeProperty .
+
+pr:P304 a owl:DatatypeProperty .
+
+wdno:P304 a owl:Class ;
+	owl:complementOf _:49f6b1d5994a21499c8de6a108f33226 .
+
+_:49f6b1d5994a21499c8de6a108f33226 a owl:Restriction ;
+	owl:onProperty wdt:P304 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q110786 a wikibase:Item ;
+	rdfs:label "singular"@en ;
+	skos:prefLabel "singular"@en ;
+	schema:name "singular"@en ;
+	schema:description "grammatical number"@en .
+
+wd:P854 a wikibase:Property ;
+	rdfs:label "reference URL"@en ;
+	skos:prefLabel "reference URL"@en ;
+	schema:name "reference URL"@en ;
+	schema:description "should be used for Internet URLs as references. Use \"Wikimedia import URL\" (P4656) for imports from WMF sites"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Url> ;
+	wikibase:directClaim wdt:P854 ;
+	wikibase:claim p:P854 ;
+	wikibase:statementProperty ps:P854 ;
+	wikibase:statementValue psv:P854 ;
+	wikibase:qualifier pq:P854 ;
+	wikibase:qualifierValue pqv:P854 ;
+	wikibase:reference pr:P854 ;
+	wikibase:referenceValue prv:P854 ;
+	wikibase:novalue wdno:P854 .
+
+p:P854 a owl:ObjectProperty .
+
+psv:P854 a owl:ObjectProperty .
+
+pqv:P854 a owl:ObjectProperty .
+
+prv:P854 a owl:ObjectProperty .
+
+wdt:P854 a owl:ObjectProperty .
+
+ps:P854 a owl:ObjectProperty .
+
+pq:P854 a owl:ObjectProperty .
+
+pr:P854 a owl:ObjectProperty .
+
+wdno:P854 a owl:Class ;
+	owl:complementOf _:7317e7e5a3edc1980ecfe7616bb5fa1d .
+
+_:7317e7e5a3edc1980ecfe7616bb5fa1d a owl:Restriction ;
+	owl:onProperty wdt:P854 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q146786 a wikibase:Item ;
+	rdfs:label "plural"@en ;
+	skos:prefLabel "plural"@en ;
+	schema:name "plural"@en ;
+	schema:description "grammatical number"@en .
+
+wd:Q146233 a wikibase:Item ;
+	rdfs:label "genitive case"@en ;
+	skos:prefLabel "genitive case"@en ;
+	schema:name "genitive case"@en ;
+	schema:description "grammatical case that marks a word as modifying another word, indicating possession, composition, etc."@en .
+
+wd:Q1920566 a wikibase:Item ;
+	rdfs:label "reply"@en ;
+	skos:prefLabel "reply"@en ;
+	schema:name "reply"@en ;
+	schema:description "response to a question"@en .
+
+wd:P5137 a wikibase:Property ;
+	rdfs:label "item for this sense"@en ;
+	skos:prefLabel "item for this sense"@en ;
+	schema:name "item for this sense"@en ;
+	schema:description "concept corresponding to this sense of a lexeme. Use only on lexeme senses; do not use on items or properties"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;
+	wikibase:directClaim wdt:P5137 ;
+	wikibase:claim p:P5137 ;
+	wikibase:statementProperty ps:P5137 ;
+	wikibase:statementValue psv:P5137 ;
+	wikibase:qualifier pq:P5137 ;
+	wikibase:qualifierValue pqv:P5137 ;
+	wikibase:reference pr:P5137 ;
+	wikibase:referenceValue prv:P5137 ;
+	wikibase:novalue wdno:P5137 .
+
+p:P5137 a owl:ObjectProperty .
+
+psv:P5137 a owl:ObjectProperty .
+
+pqv:P5137 a owl:ObjectProperty .
+
+prv:P5137 a owl:ObjectProperty .
+
+wdt:P5137 a owl:ObjectProperty .
+
+ps:P5137 a owl:ObjectProperty .
+
+pq:P5137 a owl:ObjectProperty .
+
+pr:P5137 a owl:ObjectProperty .
+
+wdno:P5137 a owl:Class ;
+	owl:complementOf _:0acf829d00a4ee68663098be37316243 .
+
+_:0acf829d00a4ee68663098be37316243 a owl:Restriction ;
+	owl:onProperty wdt:P5137 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P11774 a wikibase:Property ;
+	rdfs:label "FrameNet Lexical Unit ID"@en ;
+	skos:prefLabel "FrameNet Lexical Unit ID"@en ;
+	schema:name "FrameNet Lexical Unit ID"@en ;
+	schema:description "identifier of a lexical sense in FrameNet"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#ExternalId> ;
+	wikibase:directClaim wdt:P11774 ;
+	wikibase:claim p:P11774 ;
+	wikibase:statementProperty ps:P11774 ;
+	wikibase:statementValue psv:P11774 ;
+	wikibase:qualifier pq:P11774 ;
+	wikibase:qualifierValue pqv:P11774 ;
+	wikibase:reference pr:P11774 ;
+	wikibase:referenceValue prv:P11774 ;
+	wikibase:novalue wdno:P11774 ;
+	wikibase:directClaimNormalized wdtn:P11774 ;
+	wikibase:statementValueNormalized psn:P11774 ;
+	wikibase:qualifierValueNormalized pqn:P11774 ;
+	wikibase:referenceValueNormalized prn:P11774 .
+
+p:P11774 a owl:ObjectProperty .
+
+psv:P11774 a owl:ObjectProperty .
+
+pqv:P11774 a owl:ObjectProperty .
+
+prv:P11774 a owl:ObjectProperty .
+
+wdt:P11774 a owl:DatatypeProperty .
+
+ps:P11774 a owl:DatatypeProperty .
+
+pq:P11774 a owl:DatatypeProperty .
+
+pr:P11774 a owl:DatatypeProperty .
+
+psn:P11774 a owl:ObjectProperty .
+
+pqn:P11774 a owl:ObjectProperty .
+
+prn:P11774 a owl:ObjectProperty .
+
+wdtn:P11774 a owl:ObjectProperty .
+
+wdno:P11774 a owl:Class ;
+	owl:complementOf _:5cd7652ab3ad568d40295b4a3014a83b .
+
+_:5cd7652ab3ad568d40295b4a3014a83b a owl:Restriction ;
+	owl:onProperty wdt:P11774 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:P2888 a wikibase:Property ;
+	rdfs:label "exact match"@en ;
+	skos:prefLabel "exact match"@en ;
+	schema:name "exact match"@en ;
+	schema:description "URL used to link two items or properties, indicating a high degree of confidence that the concepts can be used interchangeably"@en ;
+	wikibase:propertyType <http://wikiba.se/ontology#Url> ;
+	wikibase:directClaim wdt:P2888 ;
+	wikibase:claim p:P2888 ;
+	wikibase:statementProperty ps:P2888 ;
+	wikibase:statementValue psv:P2888 ;
+	wikibase:qualifier pq:P2888 ;
+	wikibase:qualifierValue pqv:P2888 ;
+	wikibase:reference pr:P2888 ;
+	wikibase:referenceValue prv:P2888 ;
+	wikibase:novalue wdno:P2888 .
+
+p:P2888 a owl:ObjectProperty .
+
+psv:P2888 a owl:ObjectProperty .
+
+pqv:P2888 a owl:ObjectProperty .
+
+prv:P2888 a owl:ObjectProperty .
+
+wdt:P2888 a owl:ObjectProperty .
+
+ps:P2888 a owl:ObjectProperty .
+
+pq:P2888 a owl:ObjectProperty .
+
+pr:P2888 a owl:ObjectProperty .
+
+wdno:P2888 a owl:Class ;
+	owl:complementOf _:a4dbe61111cb4e29590ce2c451f10e15 .
+
+_:a4dbe61111cb4e29590ce2c451f10e15 a owl:Restriction ;
+	owl:onProperty wdt:P2888 ;
+	owl:someValuesFrom owl:Thing .
+
+wd:Q21075690 a wikibase:Item ;
+	rdfs:label "solution"@en ;
+	skos:prefLabel "solution"@en ;
+	schema:name "solution"@en ;
+	schema:description "act, plan or other means, used or proposed, to solve a problem; answer to a problem"@en .
+
+wd:Q17104930 a wikibase:Item ;
+	rdfs:label "outcome"@en ;
+	skos:prefLabel "outcome"@en ;
+	schema:name "outcome"@en ;
+	schema:description "a possible result of an experiment or trial, with all of the possible results of an experiment forming the elements of a sample space"@en .
+
+wd:L40013 owl:sameAs wd:L42 .
+
+wdref:85bb5fb5a3c11f395dfaf7ba118218738320f9aa a wikibase:Reference ;
+	pr:P248 wd:Q113799928 ;
+	pr:P304 "54" .
+
+wdref:d4a748b59b5dce4e596b7d1517014f318dd50bce a wikibase:Reference ;
+	pr:P854 <https://lingualibre.org/wiki/Q1349379> .
+
+wdref:66f68964ce41046848caad77ec499bea9d88135d a wikibase:Reference ;
+	pr:P854 <https://lingualibre.org/wiki/Q1349381> .

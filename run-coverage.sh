@@ -10,6 +10,14 @@ export PYTHONPATH=src
 
 echo "Running unit tests with coverage..."
 
+# Cleanup first
+rm coverage_below_threshold.txt
+rm coverage.txt
+rm coverage.xml
+find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+find . -name "*.pyc" -delete 2>/dev/null || true
+
+# Test
 pytest \
   -m "unit" \
   -n "auto" \

@@ -10,6 +10,7 @@ package "Services" as Services #LightGreen {
     "IdRange" as IdRange
     "IdRangeManager" as IdRangeManager
     "Redirect" as RedirectService
+    "SnakHandler" as SnakHandler
     "Statement" as StatementService
     "UserStats" as UserStatsService
 }

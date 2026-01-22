@@ -51,9 +51,9 @@ class TestMyS3Client:
         with patch.object(self.client, 'write_revision') as mock_write:
             mock_write.return_value = MagicMock(success=True)
 
-            result = self.client.write_entity_revision("Q42", 123, mock_revision_data)
+            result = self.client.write_entity_revision(mock_revision_data)
 
-            mock_write.assert_called_once_with("Q42", 123, mock_revision_data)
+            mock_write.assert_called_once_with(mock_revision_data)
 
     def test_read_full_revision(self):
         """Test read_full_revision method."""

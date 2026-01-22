@@ -64,37 +64,49 @@ All settings can be overridden using environment variables with the same name.
 ### `s3_references_bucket`
 
 - **Type**: `str`
-- **Default**: `'testbucket-references'`
+- **Default**: `'references'`
 - **Description**: No description available
 
 ### `s3_qualifiers_bucket`
 
 - **Type**: `str`
-- **Default**: `'testbucket-qualifiers'`
+- **Default**: `'qualifiers'`
 - **Description**: No description available
 
 ### `s3_sitelinks_bucket`
 
 - **Type**: `str`
-- **Default**: `'testbucket-sitelinks'`
+- **Default**: `'sitelinks'`
+- **Description**: No description available
+
+### `s3_snaks_bucket`
+
+- **Type**: `str`
+- **Default**: `'snaks'`
 - **Description**: No description available
 
 ### `s3_statements_bucket`
 
 - **Type**: `str`
-- **Default**: `'testbucket-statements'`
+- **Default**: `'statements'`
 - **Description**: No description available
 
 ### `s3_terms_bucket`
 
 - **Type**: `str`
-- **Default**: `'testbucket-terms'`
+- **Default**: `'terms'`
 - **Description**: No description available
 
 ### `s3_revisions_bucket`
 
 - **Type**: `str`
-- **Default**: `'testbucket-revisions'`
+- **Default**: `'revisions'`
+- **Description**: No description available
+
+### `s3_snak_version`
+
+- **Type**: `str`
+- **Default**: `'1.0.0'`
 - **Description**: No description available
 
 ### `s3_schema_revision_version`
@@ -106,7 +118,7 @@ All settings can be overridden using environment variables with the same name.
 ### `s3_statement_version`
 
 - **Type**: `str`
-- **Default**: `'latest'`
+- **Default**: `'2.0.0'`
 - **Description**: No description available
 
 ## Workers Settings

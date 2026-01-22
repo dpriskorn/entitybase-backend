@@ -1,7 +1,6 @@
 """Revision storage operations."""
 
 import logging
-
 from typing import TYPE_CHECKING
 
 from models.common import OperationResult
@@ -10,8 +9,7 @@ from models.data.infrastructure.s3.revision_data import S3RevisionData
 from models.infrastructure.s3.base_storage import BaseS3Storage
 
 if TYPE_CHECKING:
-    from models.infrastructure.s3.revision.revision_data import RevisionData
-    from models.rest_api.entitybase.v1.response.entity.revision_read_response import RevisionReadResponse
+    pass
 
 logger = logging.getLogger(__name__)
 

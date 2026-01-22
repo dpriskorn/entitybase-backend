@@ -299,3 +299,20 @@ class SchemaRepository(Repository):
                 )
             """
             )
+
+        cursor.execute(
+                """
+                CREATE TABLE IF NOT EXISTS lexeme_terms (
+                    entity_id VARCHAR(20) NOT NULL,
+                    form_sense_id VARCHAR(20) NOT NULL,
+                    term_type ENUM('form', 'sense') NOT NULL,
+                    language VARCHAR(10) NOT NULL,
+                    term_hash BIGINT UNSIGNED NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (entity_id, form_sense_id, term_type, language),
+                    INDEX idx_entity (entity_id),
+                    INDEX idx_hash (term_hash),
+                    INDEX idx_language (language)
+                )
+            """
+            )

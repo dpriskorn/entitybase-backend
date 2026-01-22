@@ -2,7 +2,7 @@
 
 import logging
 import os
-from typing import Generic, NoReturn, Optional, TypeVar, Union
+from typing import Generic, NoReturn, Optional, TypeVar
 
 from pydantic import BaseModel, Field
 

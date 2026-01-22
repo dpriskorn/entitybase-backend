@@ -28,7 +28,7 @@ class WatchlistAutoDisableWorker:
         try:
             # Initialize client
             vitess_config = settings.to_vitess_config()
-            self.vitess_client = VitessClient(vitess_config)
+            self.vitess_client = VitessClient(config=vitess_config)
             self.logger.info("Watchlist auto-disable worker started")
             yield
         except Exception as e:

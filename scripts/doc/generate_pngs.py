@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """Generate PNG files from PlantUML diagram files (incremental generation)."""
 
-import hashlib
 import subprocess
 import sys
 from pathlib import Path

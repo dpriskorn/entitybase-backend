@@ -1,7 +1,7 @@
 """S3 storage client for entity and statement data."""
 
 import logging
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
@@ -22,7 +22,6 @@ from models.infrastructure.s3.storage.revision_storage import RevisionStorage
 from models.infrastructure.s3.storage.snak_storage import SnakStorage
 from models.infrastructure.s3.storage.statement_storage import StatementStorage
 from models.rest_api.entitybase.v1.response import StatementResponse
-from models.rest_api.entitybase.v1.response.entity.revision_read_response import RevisionReadResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -40,6 +39,7 @@ class MyS3Client(Client):
     references: Any = Field(default=None, exclude=True)
     qualifiers: Any = Field(default=None, exclude=True)
     snaks: Any = Field(default=None, exclude=True)
+    lexemes: Any = Field(default=None, exclude=True)
 
     def model_post_init(self, context) -> None:
         # noinspection PyTypeChecker
@@ -60,8 +60,6 @@ class MyS3Client(Client):
 
     def write_revision(
         self,
-        entity_id: str,
-        revision_id: int,
         data: RevisionData,
     ) -> OperationResult[None]:
         """Write entity revision data to S3."""
@@ -137,6 +135,8 @@ class MyS3Client(Client):
     def load_term_metadata(self, content_hash: int) -> str:
         """Load term metadata as plain UTF-8 text from S3."""
         result = self.metadata.load_metadata(MetadataType.LABELS, content_hash)
+        if result is None:
+            raise_validation_error(f"Term metadata not found for hash {content_hash}", status_code=404)
         assert isinstance(result, str)
         return result
 
@@ -151,6 +151,8 @@ class MyS3Client(Client):
     def load_sitelink_metadata(self, content_hash: int) -> str:
         """Load sitelink metadata as plain UTF-8 text from S3."""
         result = self.metadata.load_metadata(MetadataType.SITELINKS, content_hash)
+        if result is None:
+            raise_validation_error(f"Sitelink metadata not found for hash {content_hash}", status_code=404)
         assert isinstance(result, str)
         return result
 
@@ -232,5 +234,34 @@ class MyS3Client(Client):
             self.revisions = RevisionStorage(connection_manager=self.connection_manager)
         return self.revisions.load_revision(content_hash)
 
+    def store_form_representation(self, text: str, content_hash: int) -> None:
+        """Store form representation text in terms bucket."""
+        from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
+        if not hasattr(self, 'lexeme_storage') or self.lexemes is None:
+            self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
+        result = self.lexemes.store_form_representation(text, content_hash)
+        if not result.success:
+            raise_validation_error("S3 storage service unavailable", status_code=503)
 
-# MyS3Client.model_rebuild()
+    def store_sense_gloss(self, text: str, content_hash: int) -> None:
+        """Store sense gloss text in terms bucket."""
+        from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
+        if not hasattr(self, 'lexeme_storage') or self.lexemes is None:
+            self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
+        result = self.lexemes.store_sense_gloss(text, content_hash)
+        if not result.success:
+            raise_validation_error("S3 storage service unavailable", status_code=503)
+
+    def load_form_representations_batch(self, hashes: List[int]) -> List[str | None]:
+        """Load form representations by content hashes."""
+        from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
+        if not hasattr(self, 'lexeme_storage') or self.lexemes is None:
+            self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
+        return self.lexemes.load_form_representations_batch(hashes)
+
+    def load_sense_glosses_batch(self, hashes: List[int]) -> List[str | None]:
+        """Load sense glosses by content hashes."""
+        from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
+        if not hasattr(self, 'lexeme_storage') or self.lexemes is None:
+            self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
+        return self.lexemes.load_sense_glosses_batch(hashes)

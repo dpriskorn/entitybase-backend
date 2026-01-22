@@ -121,8 +121,6 @@ class EntityRevertHandler(Handler):
 
         # Write new revision to S3
         self.state.s3_client.write_revision(
-            entity_id=entity_id,
-            revision_id=new_revision_id,
             data=new_revision_data,
             # publication_state="pending",
         )

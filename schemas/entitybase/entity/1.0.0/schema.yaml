@@ -162,6 +162,91 @@ properties:
     - lexeme
     - entityschema
     type: string
+  lemmas:
+    patternProperties:
+      ^[a-z]{2,3}(-[a-z0-9]+)?$:
+        properties:
+          language:
+            type: string
+          value:
+            type: string
+        required:
+        - language
+        - value
+        type: object
+    type: object
+  lexicalCategory:
+    pattern: ^Q[0-9]+$
+    type: string
+  language:
+    pattern: ^Q[0-9]+$
+    type: string
+  forms:
+    items:
+      properties:
+        id:
+          pattern: ^L[0-9]+-F[0-9]+$
+          type: string
+        representations:
+          patternProperties:
+            ^[a-z]{2,3}(-[a-z0-9]+)?$:
+              properties:
+                language:
+                  type: string
+                value:
+                  type: string
+              required:
+              - language
+              - value
+              type: object
+          type: object
+        grammaticalFeatures:
+          items:
+            pattern: ^Q[0-9]+$
+            type: string
+          type: array
+        claims:
+          patternProperties:
+            ^P[0-9]+$:
+              items:
+                $ref: '#/$defs/statement'
+              type: array
+          type: object
+      required:
+      - id
+      - representations
+      type: object
+    type: array
+  senses:
+    items:
+      properties:
+        id:
+          pattern: ^L[0-9]+-S[0-9]+$
+          type: string
+        glosses:
+          patternProperties:
+            ^[a-z]{2,3}(-[a-z0-9]+)?$:
+              properties:
+                language:
+                  type: string
+                value:
+                  type: string
+              required:
+              - language
+              - value
+              type: object
+          type: object
+        claims:
+          patternProperties:
+            ^P[0-9]+$:
+              items:
+                $ref: '#/$defs/statement'
+              type: array
+          type: object
+      required:
+      - id
+      type: object
+    type: array
 required:
 - id
 - type

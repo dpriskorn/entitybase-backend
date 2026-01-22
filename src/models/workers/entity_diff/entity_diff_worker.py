@@ -116,7 +116,7 @@ class EntityDiffWorker(Worker):
             # RDF diff data
             added_triples=response.added_triples,
             removed_triples=response.removed_triples,
-            canonicalization_method=response.canonicalization_method,
+            method=response.canonicalization_method,
             triple_count_diff=len(response.added_triples)
             - len(response.removed_triples),
             # MediaWiki recentchange schema fields

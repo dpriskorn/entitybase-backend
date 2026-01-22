@@ -14,22 +14,23 @@ package "API Layer" as APILayer #LightBlue {
 package "Service Layer" as ServiceLayer #LightGreen {
     "Hash" as HashService
     "Enumeration" as EnumerationService
+    "Snak" as SnakHandler
     "BacklinkStatistics" as BacklinkStatisticsService
     "UserStats" as UserStatsService
-    "Redirect" as RedirectService
-    ... (9 total components)
+    ... (10 total components)
 }
 
 package "Worker Layer" as WorkerLayer #LightYellow {
     "BaseStatsWorker" as BaseStatsWorker
     "VitessWorker" as VitessWorker
     "Worker" as Worker
+    "ChangedProperties" as ChangedProperties
     "BacklinkStatisticsWorker" as BacklinkStatisticsWorker
-    "NotificationCleanupWorker" as NotificationCleanupWorker
-    ... (17 total components)
+    ... (18 total components)
 }
 
 package "Infrastructure Layer" as InfrastructureLayer #LightGray {
+    "Lexeme" as LexemeRepository
     "Vitess Client" as Vitess_Client
     "S3 Client" as S3_Client
 }

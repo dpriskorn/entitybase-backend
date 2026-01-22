@@ -36,11 +36,11 @@ class TestRedirectService:
         )
 
         # Mock vitess methods
-        self.service.vitess.get_redirect_target.return_value = None
-        self.service.vitess.is_entity_deleted.return_value = False
-        self.service.vitess.is_entity_locked.return_value = False
-        self.service.vitess.is_entity_archived.return_value = False
-        self.service.vitess.get_head.side_effect = [0, 1]  # from: 0, to: 1
+        self.service.vitess_client.get_redirect_target.return_value = None
+        self.service.vitess_client.is_entity_deleted.return_value = False
+        self.service.vitess_client.is_entity_locked.return_value = False
+        self.service.vitess_client.is_entity_archived.return_value = False
+        self.service.vitess_client.get_head.side_effect = [0, 1]  # from: 0, to: 1
 
         with patch('models.rest_api.entitybase.v1.services.redirects.RevisionData') as mock_revision_data, \
              patch('models.rest_api.entitybase.v1.services.redirects.EntityType'), \
@@ -59,12 +59,12 @@ class TestRedirectService:
             assert result.revision_id == 1
 
             # Verify vitess calls
-            self.service.vitess.create_redirect.assert_called_once_with(
+            self.service.vitess_client.create_redirect.assert_called_once_with(
                 redirect_from_entity_id="Q1",
                 redirect_to_entity_id="Q2",
                 created_by="test_user"
             )
-            self.service.vitess.set_redirect_target.assert_called_once_with(
+            self.service.vitess_client.set_redirect_target.assert_called_once_with(
                 entity_id="Q1",
                 redirects_to_entity_id="Q2"
             )
@@ -105,7 +105,7 @@ class TestRedirectService:
             created_by="test_user"
         )
 
-        self.service.vitess.get_redirect_target.return_value = "Q3"
+        self.service.vitess_client.get_redirect_target.return_value = "Q3"
 
         with pytest.raises(Exception) as exc_info:
             await self.service.create_redirect(request)
@@ -122,8 +122,8 @@ class TestRedirectService:
             created_by="test_user"
         )
 
-        self.service.vitess.get_redirect_target.return_value = None
-        self.service.vitess.is_entity_deleted.side_effect = [True, False]  # source deleted
+        self.service.vitess_client.get_redirect_target.return_value = None
+        self.service.vitess_client.is_entity_deleted.side_effect = [True, False]  # source deleted
 
         with pytest.raises(Exception) as exc_info:
             await self.service.create_redirect(request)
@@ -140,8 +140,8 @@ class TestRedirectService:
             created_by="test_user"
         )
 
-        self.service.vitess.get_redirect_target.return_value = None
-        self.service.vitess.is_entity_deleted.side_effect = [False, True]  # target deleted
+        self.service.vitess_client.get_redirect_target.return_value = None
+        self.service.vitess_client.is_entity_deleted.side_effect = [False, True]  # target deleted
 
         with pytest.raises(Exception) as exc_info:
             await self.service.create_redirect(request)
@@ -158,10 +158,10 @@ class TestRedirectService:
             created_by="test_user"
         )
 
-        self.service.vitess.get_redirect_target.return_value = None
-        self.service.vitess.is_entity_deleted.return_value = False
-        self.service.vitess.is_entity_locked.return_value = True
-        self.service.vitess.is_entity_archived.return_value = False
+        self.service.vitess_client.get_redirect_target.return_value = None
+        self.service.vitess_client.is_entity_deleted.return_value = False
+        self.service.vitess_client.is_entity_locked.return_value = True
+        self.service.vitess_client.is_entity_archived.return_value = False
 
         with pytest.raises(Exception) as exc_info:
             await self.service.create_redirect(request)
@@ -178,11 +178,11 @@ class TestRedirectService:
             created_by="test_user"
         )
 
-        self.service.vitess.get_redirect_target.return_value = None
-        self.service.vitess.is_entity_deleted.return_value = False
-        self.service.vitess.is_entity_locked.return_value = False
-        self.service.vitess.is_entity_archived.return_value = False
-        self.service.vitess.get_head.side_effect = [1, 0]  # target has no revisions
+        self.service.vitess_client.get_redirect_target.return_value = None
+        self.service.vitess_client.is_entity_deleted.return_value = False
+        self.service.vitess_client.is_entity_locked.return_value = False
+        self.service.vitess_client.is_entity_archived.return_value = False
+        self.service.vitess_client.get_head.side_effect = [1, 0]  # target has no revisions
 
         with pytest.raises(Exception) as exc_info:
             await self.service.create_redirect(request)
@@ -199,11 +199,11 @@ class TestRedirectService:
             created_by="test_user"
         )
 
-        self.service.vitess.get_redirect_target.return_value = None
-        self.service.vitess.is_entity_deleted.return_value = False
-        self.service.vitess.is_entity_locked.return_value = False
-        self.service.vitess.is_entity_archived.return_value = False
-        self.service.vitess.get_head.side_effect = [5, 1]  # source has rev 5, target has rev 1
+        self.service.vitess_client.get_redirect_target.return_value = None
+        self.service.vitess_client.is_entity_deleted.return_value = False
+        self.service.vitess_client.is_entity_locked.return_value = False
+        self.service.vitess_client.is_entity_archived.return_value = False
+        self.service.vitess_client.get_head.side_effect = [5, 1]  # source has rev 5, target has rev 1
 
         with patch('models.rest_api.entitybase.v1.services.redirects.RevisionData'), \
              patch('models.rest_api.entitybase.v1.services.redirects.EntityType'), \
@@ -218,7 +218,7 @@ class TestRedirectService:
 
             assert result.revision_id == 6  # 5 + 1
 
-            self.service.vitess.create_revision.assert_called_once_with(
+            self.service.vitess_client.create_revision.assert_called_once_with(
                 entity_id="Q1",
                 revision_id=6,
                 entity_data={},
@@ -237,11 +237,11 @@ class TestRedirectService:
             created_by="test_user"
         )
 
-        self.service.vitess.get_redirect_target.return_value = None
-        self.service.vitess.is_entity_deleted.return_value = False
-        self.service.vitess.is_entity_locked.return_value = False
-        self.service.vitess.is_entity_archived.return_value = False
-        self.service.vitess.get_head.side_effect = [0, 1]
+        self.service.vitess_client.get_redirect_target.return_value = None
+        self.service.vitess_client.is_entity_deleted.return_value = False
+        self.service.vitess_client.is_entity_locked.return_value = False
+        self.service.vitess_client.is_entity_archived.return_value = False
+        self.service.vitess_client.get_head.side_effect = [0, 1]
 
         with patch('models.rest_api.entitybase.v1.services.redirects.RevisionData'), \
              patch('models.rest_api.entitybase.v1.services.redirects.EntityType'), \
@@ -258,10 +258,10 @@ class TestRedirectService:
     @pytest.mark.asyncio
     async def test_revert_redirect_success(self):
         """Test successful redirect revert."""
-        self.service.vitess.get_redirect_target.return_value = "Q2"
-        self.service.vitess.is_entity_deleted.return_value = False
-        self.service.vitess.is_entity_locked.return_value = False
-        self.service.vitess.is_entity_archived.return_value = False
+        self.service.vitess_client.get_redirect_target.return_value = "Q2"
+        self.service.vitess_client.is_entity_deleted.return_value = False
+        self.service.vitess_client.is_entity_locked.return_value = False
+        self.service.vitess_client.is_entity_archived.return_value = False
 
         mock_revert_result = MagicMock(spec=EntityRevertResponse)
 
@@ -277,12 +277,12 @@ class TestRedirectService:
             assert result == mock_revert_result
 
             # Verify revert redirect called
-            self.service.vitess.revert_redirect.assert_called_once_with("Q1")
+            self.service.vitess_client.revert_redirect.assert_called_once_with("Q1")
 
     @pytest.mark.asyncio
     async def test_revert_redirect_not_a_redirect_error(self):
         """Test revert when entity is not a redirect."""
-        self.service.vitess.get_redirect_target.return_value = None
+        self.service.vitess_client.get_redirect_target.return_value = None
 
         with pytest.raises(Exception) as exc_info:
             await self.service.revert_redirect("Q1", 5, 123)
@@ -292,8 +292,8 @@ class TestRedirectService:
     @pytest.mark.asyncio
     async def test_revert_redirect_deleted_error(self):
         """Test revert when entity is deleted."""
-        self.service.vitess.get_redirect_target.return_value = "Q2"
-        self.service.vitess.is_entity_deleted.return_value = True
+        self.service.vitess_client.get_redirect_target.return_value = "Q2"
+        self.service.vitess_client.is_entity_deleted.return_value = True
 
         with pytest.raises(Exception) as exc_info:
             await self.service.revert_redirect("Q1", 5, 123)
@@ -303,9 +303,9 @@ class TestRedirectService:
     @pytest.mark.asyncio
     async def test_revert_redirect_locked_error(self):
         """Test revert when entity is locked."""
-        self.service.vitess.get_redirect_target.return_value = "Q2"
-        self.service.vitess.is_entity_deleted.return_value = False
-        self.service.vitess.is_entity_locked.return_value = True
+        self.service.vitess_client.get_redirect_target.return_value = "Q2"
+        self.service.vitess_client.is_entity_deleted.return_value = False
+        self.service.vitess_client.is_entity_locked.return_value = True
 
         with pytest.raises(Exception) as exc_info:
             await self.service.revert_redirect("Q1", 5, 123)

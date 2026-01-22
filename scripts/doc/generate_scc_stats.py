@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 """Generate SCC statistics for the codebase, with dynamic src/models subfolders."""
 
-import os
 import subprocess
-import sys
 from pathlib import Path
 
 

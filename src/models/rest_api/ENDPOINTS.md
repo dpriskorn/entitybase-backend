@@ -12,7 +12,6 @@
 | ✅ | GET | `/entities/items/{item_id}/labels/{language_code}` | Get item label for language. |
 | ✅ | PUT | `/entities/items/{item_id}/labels/{language_code}` | Update item label for language. |
 | ✅ | DELETE | `/entities/items/{item_id}/labels/{language_code}` | Delete item label for language. |
-| ✅ | POST | `/entities/lexemes` | Create a new lexeme entity. |
 | ✅ | POST | `/entities/properties` | Create a new property entity. |
 | ✅ | GET | `/entities/properties/{property_id}/aliases/{language_code}` | Get property aliases for language. |
 | ✅ | PUT | `/entities/properties/{property_id}/aliases/{language_code}` | Update property aliases for language. |
@@ -62,6 +61,10 @@
 | ✅ | GET | `/qualifiers/{hashes}` | Fetch qualifiers by hash(es). |
 | ✅ | POST | `/redirects` | Create a redirect for an entity. |
 | ✅ | GET | `/references/{hashes}` | Fetch references by hash(es). |
+| ✅ | POST | `/representations/entities/lexemes` | Create a new lexeme entity. |
+| ✅ | GET | `/representations/{hashes}` | Fetch form representations by hash(es). |
+| ✅ | GET | `/representations/{hashes}` | Fetch sense glosses by hash(es). |
+| ✅ | GET | `/snaks/{hashes}` | Fetch snaks by hash(es). |
 | ✅ | POST | `/statements/batch` | Retrieve multiple statements by their content hashes in a batch request. |
 | ✅ | POST | `/statements/cleanup-orphaned` | Clean up orphaned statements that are no longer referenced. |
 | ✅ | GET | `/statements/most_used` | Get the most used statements based on reference count. |
@@ -77,6 +80,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 72 |
+| Implemented | 75 |
 | Not Implemented | 0 |
-| Total | 72 |
+| Total | 75 |

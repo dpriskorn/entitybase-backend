@@ -1,0 +1,371 @@
+{
+  "entities": {
+    "L42353": {
+      "pageid": 61533628,
+      "ns": 146,
+      "title": "Lexeme:L42353",
+      "lastrevid": 2245785117,
+      "modified": "2024-09-09T11:33:26Z",
+      "type": "lexeme",
+      "id": "L42353",
+      "lemmas": {
+        "da": {
+          "language": "da",
+          "value": "melon"
+        }
+      },
+      "lexicalCategory": "Q1084",
+      "language": "Q9035",
+      "claims": {
+        "P5187": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P5187",
+              "hash": "af695b47bacb6ed483996d7d8566e39ef21a1f27",
+              "datavalue": {
+                "value": {
+                  "text": "melon",
+                  "language": "da"
+                },
+                "type": "monolingualtext"
+              },
+              "datatype": "monolingualtext"
+            },
+            "type": "statement",
+            "id": "L42353$a0f68fa1-4ce5-ea68-99e4-7e07d5e93c2c",
+            "rank": "normal"
+          }
+        ],
+        "P6140": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P6140",
+              "hash": "6cf4e42d26dc187c82a0fa14c4c2a5e1b282058d",
+              "datavalue": {
+                "value": "11033141",
+                "type": "string"
+              },
+              "datatype": "external-id"
+            },
+            "type": "statement",
+            "id": "L42353$c8de4f25-4366-bc72-f5c7-2ea830b188e1",
+            "rank": "normal"
+          }
+        ],
+        "P31": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P31",
+              "hash": "f3d5b9de668dd84a43947fa048d09823529a0335",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 1520033,
+                  "id": "Q1520033"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "L42353$eb7accb1-46cd-c242-83af-86907c81a45f",
+            "rank": "normal"
+          }
+        ],
+        "P5185": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P5185",
+              "hash": "0580d6d6285a6d14b5b232a4b68c84faba48eba7",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 1305037,
+                  "id": "Q1305037"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "L42353$2e6716a4-49e7-3b95-9dd0-55b29f4d4634",
+            "rank": "normal"
+          }
+        ],
+        "P5912": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P5912",
+              "hash": "c8a8ee32e17f349fb2313fca620dcabf4bcf64bc",
+              "datavalue": {
+                "value": "47075",
+                "type": "string"
+              },
+              "datatype": "external-id"
+            },
+            "type": "statement",
+            "id": "L42353$D791D4B5-6F8C-41BF-B2F7-EBC7D1FD9CAB",
+            "rank": "normal"
+          }
+        ],
+        "P12828": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P12828",
+              "hash": "ef06aa4c5272e8ac7c9b10cfc2e608fe99842c94",
+              "datavalue": {
+                "value": "19299",
+                "type": "string"
+              },
+              "datatype": "external-id"
+            },
+            "type": "statement",
+            "id": "L42353$35E60C90-E260-4D3E-A33B-CFCB145CDF08",
+            "rank": "normal"
+          }
+        ],
+        "P9529": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P9529",
+              "hash": "c220696bc3bbc50d6390715f275a73b4a6b78a8e",
+              "datavalue": {
+                "value": "11033141",
+                "type": "string"
+              },
+              "datatype": "external-id"
+            },
+            "type": "statement",
+            "id": "L42353$61939E64-002C-41DC-BB5A-6FC8CCB22199",
+            "rank": "normal"
+          }
+        ],
+        "P9962": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P9962",
+              "hash": "2e52dda586ff6220e57431e817329d975a7281bc",
+              "datavalue": {
+                "value": "60097499",
+                "type": "string"
+              },
+              "datatype": "external-id"
+            },
+            "type": "statement",
+            "id": "L42353$80268A36-CEFA-40D6-968F-756799C77D3D",
+            "rank": "normal"
+          }
+        ],
+        "P1343": [
+          {
+            "mainsnak": {
+              "snaktype": "value",
+              "property": "P1343",
+              "hash": "39b9e3d39fd1567aaf384bfe84314b5cad9b1c13",
+              "datavalue": {
+                "value": {
+                  "entity-type": "item",
+                  "numeric-id": 130265897,
+                  "id": "Q130265897"
+                },
+                "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+            },
+            "type": "statement",
+            "id": "L42353$f8a2bd96-4ffd-c84d-61d1-e28670b1e812",
+            "rank": "normal"
+          }
+        ]
+      },
+      "forms": [
+        {
+          "id": "L42353-F1",
+          "representations": {
+            "da": {
+              "language": "da",
+              "value": "melon"
+            }
+          },
+          "grammaticalFeatures": [
+            "Q110786",
+            "Q53997857",
+            "Q98946930"
+          ],
+          "claims": {
+            "P5279": [
+              {
+                "mainsnak": {
+                  "snaktype": "value",
+                  "property": "P5279",
+                  "hash": "bdbe9a9c1e4c85d250f2dae17ff508e327a26bea",
+                  "datavalue": {
+                    "value": "me\u2027lon",
+                    "type": "string"
+                  },
+                  "datatype": "string"
+                },
+                "type": "statement",
+                "id": "L42353-F1$3ce31e7e-4636-2960-86be-5f024b789a87",
+                "rank": "normal"
+              }
+            ]
+          }
+        },
+        {
+          "id": "L42353-F2",
+          "representations": {
+            "da": {
+              "language": "da",
+              "value": "melonen"
+            }
+          },
+          "grammaticalFeatures": [
+            "Q110786",
+            "Q53997851",
+            "Q98946930"
+          ],
+          "claims": {}
+        },
+        {
+          "id": "L42353-F3",
+          "representations": {
+            "da": {
+              "language": "da",
+              "value": "meloner"
+            }
+          },
+          "grammaticalFeatures": [
+            "Q146786",
+            "Q53997857",
+            "Q98946930"
+          ],
+          "claims": {}
+        },
+        {
+          "id": "L42353-F4",
+          "representations": {
+            "da": {
+              "language": "da",
+              "value": "melonerne"
+            }
+          },
+          "grammaticalFeatures": [
+            "Q146786",
+            "Q53997851",
+            "Q98946930"
+          ],
+          "claims": {}
+        }
+      ],
+      "senses": [
+        {
+          "id": "L42353-S1",
+          "glosses": {
+            "da": {
+              "language": "da",
+              "value": "kugleformet frugt fra klatreplanten Cucumis melo"
+            }
+          },
+          "claims": {
+            "P5137": [
+              {
+                "mainsnak": {
+                  "snaktype": "value",
+                  "property": "P5137",
+                  "hash": "fc7a077e2ad79192d4882506f5c136309157c5c3",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 5881191,
+                      "id": "Q5881191"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                "type": "statement",
+                "id": "L42353-S1$8fbfba6e-430e-1d51-fb9f-c24eb5e3391f",
+                "rank": "normal"
+              }
+            ],
+            "P18": [
+              {
+                "mainsnak": {
+                  "snaktype": "value",
+                  "property": "P18",
+                  "hash": "2550cb1645bc93a4fbe7dfbbe3d3a96726299fa9",
+                  "datavalue": {
+                    "value": "Cucumis melo 1 (Piotr Kuczynski).jpg",
+                    "type": "string"
+                  },
+                  "datatype": "commonsMedia"
+                },
+                "type": "statement",
+                "id": "L42353-S1$13ce29b6-491f-2d0f-7908-25fee402557e",
+                "rank": "normal"
+              }
+            ],
+            "P487": [
+              {
+                "mainsnak": {
+                  "snaktype": "value",
+                  "property": "P487",
+                  "hash": "72d0fd83a95bf6badb99ff64579220273e55e21a",
+                  "datavalue": {
+                    "value": "\ud83c\udf48",
+                    "type": "string"
+                  },
+                  "datatype": "string"
+                },
+                "type": "statement",
+                "id": "L42353-S1$644cd332-4c00-9e23-5b42-165994f98ef5",
+                "rank": "normal"
+              }
+            ]
+          }
+        },
+        {
+          "id": "L42353-S2",
+          "glosses": {
+            "da": {
+              "language": "da",
+              "value": "takson"
+            }
+          },
+          "claims": {
+            "P5137": [
+              {
+                "mainsnak": {
+                  "snaktype": "value",
+                  "property": "P5137",
+                  "hash": "c7840b696674922912f878bc5c7e9f85798137a9",
+                  "datavalue": {
+                    "value": {
+                      "entity-type": "item",
+                      "numeric-id": 81602,
+                      "id": "Q81602"
+                    },
+                    "type": "wikibase-entityid"
+                  },
+                  "datatype": "wikibase-item"
+                },
+                "type": "statement",
+                "id": "L42353-S2$E10330E3-B64C-4948-8FBE-5037038061E5",
+                "rank": "normal"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}

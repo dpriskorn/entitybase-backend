@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# ./update-docs.sh
+./update-docs.sh
 docker compose --file docker/docker-compose.yml down --remove-orphans -t 0 -v #>/dev/null 2>&1
 #docker volume prune -f #>/dev/null 2>&1
 #docker volume ls

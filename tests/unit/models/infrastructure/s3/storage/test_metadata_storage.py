@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 from models.data.infrastructure.s3.enums import MetadataType
 from models.infrastructure.s3.storage.metadata_storage import MetadataStorage
-from models.rest_api.utils import ValidationError
+
 
 
 class TestMetadataStorage:
@@ -32,7 +32,7 @@ class TestMetadataStorage:
 
     def test_get_bucket_for_type_unknown(self) -> None:
         """Test getting bucket for unknown type raises error."""
-        with pytest.raises(ValidationError):
+        with pytest.raises(ValueError):
             MetadataStorage._get_bucket_for_type("unknown")  # type: ignore
 
     def test_store_metadata_success(self) -> None:

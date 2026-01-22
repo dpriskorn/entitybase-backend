@@ -3,6 +3,7 @@
 title Wikibase Backend - Detailed Infrastructure Components
 
 package "Repositories" as Repositories #LightGray {
+    "Lexeme" as LexemeRepository
 }
 
 @enduml

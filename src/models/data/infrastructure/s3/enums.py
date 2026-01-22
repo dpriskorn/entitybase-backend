@@ -59,6 +59,8 @@ class MetadataType(str, Enum):
     DESCRIPTIONS = "descriptions"
     ALIASES = "aliases"
     SITELINKS = "sitelinks"
+    FORM_REPRESENTATIONS = "form_representations"
+    SENSE_GLOSSES = "sense_glosses"
 
 
 class EditData(BaseModel):

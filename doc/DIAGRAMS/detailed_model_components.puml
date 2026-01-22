@@ -4,7 +4,6 @@ title Wikibase Backend - Detailed Model Components
 
 package "Models" as Models #LightCyan {
     "AliasValue" as AliasValue
-    "Aliases" as Aliases
     "Aliases" as AliasesResponse
     "Backlink" as BacklinkResponse
     "BacklinkStatisticsData" as BacklinkStatisticsData
@@ -44,7 +43,6 @@ package "Models" as Models #LightCyan {
     "HealthCheck" as HealthCheckResponse
     "Health" as HealthResponse
     "Id" as IdResponse
-    "JsonSchema" as JsonSchema
     "Label" as LabelResponse
     "LabelValue" as LabelValue
     "Labels" as LabelsResponse
@@ -62,16 +60,16 @@ package "Models" as Models #LightCyan {
     "RDFChangeEvent" as RDFChangeEvent
     "RangeStatus" as RangeStatus
     "RangeStatuses" as RangeStatuses
-    "RawEntityData" as RawEntityData
-    "RawRevision" as RawRevisionResponse
     "RedirectBatch" as RedirectBatchResponse
     "Reference" as ReferenceResponse
     "RevisionIdResult" as RevisionIdResult
     "RevisionMetadata" as RevisionMetadataResponse
+    "RevisionRead" as RevisionReadResponse
     "RevisionResult" as RevisionResult
     "SingleEndorsementStats" as SingleEndorsementStatsResponse
     "SitelinkValue" as SitelinkValue
     "Sitelinks" as SitelinksResponse
+    "Snak" as SnakResponse
     "StatementBatch" as StatementBatchResponse
     "StatementEndorsement" as StatementEndorsementResponse
     "StatementEndorsementStats" as StatementEndorsementStats

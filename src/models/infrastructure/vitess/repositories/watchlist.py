@@ -203,4 +203,4 @@ class WatchlistRepository(Repository):
 
     def _get_conn(self) -> pymysql.Connection:
         """Get database connection."""
-        return self.connection_manager.connect()  # type: ignore[no-any-return]
+        return self.vitess_client.connection_manager.connect()  # type: ignore[no-any-return]

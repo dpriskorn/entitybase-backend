@@ -10,7 +10,7 @@ from models.infrastructure.s3.base_storage import BaseS3Storage, LoadResponse
 from models.infrastructure.s3.exceptions import S3ConnectionError, S3NotFoundError, S3StorageError
 
 
-class TestBaseStorage(BaseS3Storage):
+class ConcreteBaseS3Storage(BaseS3Storage):
     """Concrete test implementation of BaseS3Storage."""
 
     bucket: str = "test-bucket"
@@ -21,7 +21,7 @@ class TestBaseStorageUnit:
 
     def test_store_success(self) -> None:
         """Test successful data storage."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         # Mock the connection manager
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
@@ -43,7 +43,7 @@ class TestBaseStorageUnit:
 
     def test_store_string_data(self) -> None:
         """Test storing string data."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -61,7 +61,7 @@ class TestBaseStorageUnit:
 
     def test_store_no_connection(self) -> None:
         """Test store operation when connection is not available."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         storage.connection_manager = None  # No connection
 
         with pytest.raises(S3ConnectionError, match="S3 service unavailable"):
@@ -69,7 +69,7 @@ class TestBaseStorageUnit:
 
     def test_load_success_json(self) -> None:
         """Test successful JSON data loading."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -92,7 +92,7 @@ class TestBaseStorageUnit:
 
     def test_load_success_text(self) -> None:
         """Test successful text data loading."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -114,7 +114,7 @@ class TestBaseStorageUnit:
 
     def test_load_no_connection(self) -> None:
         """Test load operation when connection is not available."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         storage.connection_manager = None  # No connection
 
         with pytest.raises(S3ConnectionError, match="S3 service unavailable"):
@@ -122,7 +122,7 @@ class TestBaseStorageUnit:
 
     def test_load_not_found(self) -> None:
         """Test loading non-existent key."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -137,7 +137,7 @@ class TestBaseStorageUnit:
 
     def test_load_client_error_other(self) -> None:
         """Test load operation with other client errors."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -152,7 +152,7 @@ class TestBaseStorageUnit:
 
     def test_delete_success(self) -> None:
         """Test successful data deletion."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -167,7 +167,7 @@ class TestBaseStorageUnit:
 
     def test_delete_no_connection(self) -> None:
         """Test delete operation when connection is not available."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         storage.connection_manager = None  # No connection
 
         with pytest.raises(S3ConnectionError, match="S3 service unavailable"):
@@ -175,7 +175,7 @@ class TestBaseStorageUnit:
 
     def test_delete_not_found(self) -> None:
         """Test deleting non-existent key."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -190,7 +190,7 @@ class TestBaseStorageUnit:
 
     def test_ensure_connection_success(self) -> None:
         """Test successful connection validation."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_connection_manager.boto_client = MagicMock()
         storage.connection_manager = mock_connection_manager
@@ -200,7 +200,7 @@ class TestBaseStorageUnit:
 
     def test_ensure_connection_no_manager(self) -> None:
         """Test connection validation with no connection manager."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         storage.connection_manager = None
 
         with pytest.raises(S3ConnectionError, match="S3 service unavailable"):
@@ -208,7 +208,7 @@ class TestBaseStorageUnit:
 
     def test_ensure_connection_no_client(self) -> None:
         """Test connection validation with connection manager but no client."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_connection_manager.boto_client = None
         storage.connection_manager = mock_connection_manager
@@ -218,7 +218,7 @@ class TestBaseStorageUnit:
 
     def test_store_with_metadata(self) -> None:
         """Test storing data with metadata."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -235,7 +235,7 @@ class TestBaseStorageUnit:
 
     def test_load_with_json_parsing_error(self) -> None:
         """Test load operation when JSON parsing fails."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -253,7 +253,7 @@ class TestBaseStorageUnit:
 
     def test_store_client_error(self) -> None:
         """Test store operation with ClientError."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -268,7 +268,7 @@ class TestBaseStorageUnit:
 
     def test_store_general_exception(self) -> None:
         """Test store operation with general exception."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -281,7 +281,7 @@ class TestBaseStorageUnit:
 
     def test_load_general_exception(self) -> None:
         """Test load operation with general exception."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -294,7 +294,7 @@ class TestBaseStorageUnit:
 
     def test_delete_client_error(self) -> None:
         """Test delete operation with ClientError."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -309,7 +309,7 @@ class TestBaseStorageUnit:
 
     def test_delete_general_exception(self) -> None:
         """Test delete operation with general exception."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -322,7 +322,7 @@ class TestBaseStorageUnit:
 
     def test_exists_success(self) -> None:
         """Test exists operation success."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -337,7 +337,7 @@ class TestBaseStorageUnit:
 
     def test_exists_not_found(self) -> None:
         """Test exists operation when key not found."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -353,7 +353,7 @@ class TestBaseStorageUnit:
 
     def test_exists_error(self) -> None:
         """Test exists operation with other errors."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -374,7 +374,7 @@ class TestBaseStorageUnit:
             name: str
             value: int
 
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client
@@ -391,7 +391,7 @@ class TestBaseStorageUnit:
 
     def test_store_with_unknown_data_type(self) -> None:
         """Test storing data with unknown type."""
-        storage = TestBaseStorage()
+        storage = ConcreteBaseS3Storage()
         mock_connection_manager = MagicMock()
         mock_boto_client = MagicMock()
         mock_connection_manager.boto_client = mock_boto_client

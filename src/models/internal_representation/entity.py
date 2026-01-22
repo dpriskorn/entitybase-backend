@@ -26,3 +26,7 @@ class Entity(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
+    def get_entity_type(self) -> str:
+        """Get the entity type as string."""
+        return self.type.value
+

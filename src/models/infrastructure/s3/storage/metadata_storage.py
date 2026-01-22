@@ -24,6 +24,8 @@ class MetadataStorage(BaseS3Storage):
             MetadataType.LABELS,
             MetadataType.DESCRIPTIONS,
             MetadataType.ALIASES,
+            MetadataType.FORM_REPRESENTATIONS,
+            MetadataType.SENSE_GLOSSES,
         ):
             return settings.s3_terms_bucket
         elif metadata_type == MetadataType.SITELINKS:
@@ -52,7 +54,7 @@ class MetadataStorage(BaseS3Storage):
 
     def load_metadata(
         self, metadata_type: MetadataType, content_hash: int
-    ) -> Union[str, dict[str, Any]]:
+    ) -> Union[str, dict[str, Any], None]:
         """Load metadata value."""
         bucket = self._get_bucket_for_type(metadata_type)
         original_bucket = self.bucket
@@ -60,7 +62,10 @@ class MetadataStorage(BaseS3Storage):
 
         try:
             key = str(content_hash)
-            return self.load(key).data
+            load_result = self.load(key)
+            if load_result is None:
+                return None  # type: ignore
+            return load_result.data
         finally:
             self.bucket = original_bucket
 

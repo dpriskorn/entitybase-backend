@@ -152,8 +152,6 @@ class EntityDeleteHandler(Handler):
 
         # Write deletion revision to S3
         self.state.s3_client.write_revision(
-            entity_id=entity_id,
-            revision_id=new_revision_id,
             data=revision_data,
         )
 

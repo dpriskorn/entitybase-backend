@@ -1,8 +1,10 @@
-from pydantic import BaseModel
+from typing import Any
 
-from models.infrastructure.vitess.client import VitessClient
+from pydantic import BaseModel, ConfigDict
 
 
 class Repository(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     # This is needed for all repositories
-    vitess_client: VitessClient
+    vitess_client: Any

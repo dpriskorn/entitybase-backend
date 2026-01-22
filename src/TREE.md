@@ -1,14 +1,21 @@
 src/
 └── models
     ├── config
+    ├── data
+    │   ├── config
+    │   ├── infrastructure
+    │   │   ├── s3
+    │   │   │   └── hashes
+    │   │   ├── stream
+    │   │   └── vitess
+    │   │       └── records
+    │   └── workers
     ├── infrastructure
     │   ├── s3
-    │   │   ├── hashes
     │   │   ├── revision
     │   │   └── storage
     │   ├── stream
     │   └── vitess
-    │       ├── records
     │       └── repositories
     ├── internal_representation
     │   └── values
@@ -23,6 +30,7 @@ src/
     ├── rest_api
     │   └── entitybase
     │       └── v1
+    │           ├── data
     │           ├── endpoints
     │           ├── handlers
     │           │   └── entity
@@ -47,4 +55,4 @@ src/
         ├── user_stats
         └── watchlist_consumer
 
-48 directories
+56 directories
