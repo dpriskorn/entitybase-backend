@@ -42,7 +42,7 @@ class TestMetadataStorage:
         storage = MetadataStorage(connection_manager=mock_connection_manager)
         storage.bucket = "original-bucket"
 
-        with patch.object(storage, 'store', return_value=MagicMock(success=True)) as mock_store:
+        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.store', return_value=MagicMock(success=True)) as mock_store:
             with patch('models.infrastructure.s3.storage.metadata_storage.settings') as mock_settings:
                 mock_settings.s3_terms_bucket = "test-terms"
 
@@ -61,7 +61,7 @@ class TestMetadataStorage:
         storage = MetadataStorage(connection_manager=mock_connection_manager)
         storage.bucket = "original-bucket"
 
-        with patch.object(storage, 'load', return_value=mock_load_result) as mock_load:
+        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.load', return_value=mock_load_result) as mock_load:
             with patch('models.infrastructure.s3.storage.metadata_storage.settings') as mock_settings:
                 mock_settings.s3_sitelinks_bucket = "test-sitelinks"
 
@@ -77,7 +77,7 @@ class TestMetadataStorage:
 
         storage = MetadataStorage(connection_manager=mock_connection_manager)
 
-        with patch.object(storage, 'load', return_value=None) as mock_load:
+        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.load', return_value=None) as mock_load:
             with patch('models.infrastructure.s3.storage.metadata_storage.settings') as mock_settings:
                 mock_settings.s3_terms_bucket = "test-terms"
 
@@ -93,7 +93,7 @@ class TestMetadataStorage:
         storage = MetadataStorage(connection_manager=mock_connection_manager)
         storage.bucket = "original-bucket"
 
-        with patch.object(storage, 'delete', return_value=MagicMock(success=True)) as mock_delete:
+        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.delete', return_value=MagicMock(success=True)) as mock_delete:
             with patch('models.infrastructure.s3.storage.metadata_storage.settings') as mock_settings:
                 mock_settings.s3_terms_bucket = "test-terms"
 

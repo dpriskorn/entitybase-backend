@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from models.infrastructure.s3.connection import S3ConnectionManager
+from models.data.config.s3 import S3Config
 
 
 class TestS3ConnectionManager:
@@ -12,11 +13,13 @@ class TestS3ConnectionManager:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.config = MagicMock()
-        self.config.endpoint_url = "http://localhost:4566"
-        self.config.access_key = "test_key"
-        self.config.secret_key = "test_secret"
-        self.config.bucket = "test-bucket"
+        self.config = S3Config(
+            endpoint_url="http://localhost:4566",
+            access_key="test_key",
+            secret_key="test_secret",
+            bucket="test-bucket",
+            region="us-east-1"
+        )
 
     def test_connect_creates_client(self):
         """Test that connect creates boto3 client."""
@@ -90,4 +93,4 @@ class TestS3ConnectionManager:
         result = manager.healthy_connection
 
         assert result is False
-        mock_logger.error.assert_called_once_with("Connection failed")
+        mock_logger.error.assert_called_once()

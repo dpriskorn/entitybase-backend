@@ -1,6 +1,6 @@
 """Unit tests for HashService."""
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
 from models.data.infrastructure.s3.sitelink_data import S3SitelinkData
@@ -23,21 +23,20 @@ class TestHashService:
         }
 
         # Mock hash_string
-        service._HashService__extractor.hash_string.side_effect = lambda x: f"hash_{x}"
+        with patch('models.internal_representation.metadata_extractor.MetadataExtractor.hash_string', side_effect=lambda x: hash(x)):
+            result = service.hash_sitelinks(sitelinks)
 
-        result = service.hash_sitelinks(sitelinks)
+            assert isinstance(result, SitelinksHashes)
+            assert "enwiki" in result.root
+            assert isinstance(result.root["enwiki"], S3SitelinkData)
+            assert result.root["enwiki"].title_hash == hash("Test Page")
+            assert result.root["enwiki"].badges == ["featured"]
+            assert result.root["dewiki"].title_hash == hash("Test Seite")
+            assert result.root["dewiki"].badges == []
 
-        assert isinstance(result, SitelinksHashes)
-        assert "enwiki" in result.root
-        assert isinstance(result.root["enwiki"], S3SitelinkData)
-        assert result.root["enwiki"].title_hash == "hash_Test Page"
-        assert result.root["enwiki"].badges == ["featured"]
-        assert result.root["dewiki"].title_hash == "hash_Test Seite"
-        assert result.root["dewiki"].badges == []
-
-        # Verify S3 calls
-        s3_client.store_sitelink_metadata.assert_any_call("Test Page", "hash_Test Page")
-        s3_client.store_sitelink_metadata.assert_any_call("Test Seite", "hash_Test Seite")
+            # Verify S3 calls
+            s3_client.store_sitelink_metadata.assert_any_call("Test Page", hash("Test Page"))
+            s3_client.store_sitelink_metadata.assert_any_call("Test Seite", hash("Test Seite"))
 
     def test_hash_sitelinks_no_title(self):
         """Test hashing sitelinks skips entries without title."""

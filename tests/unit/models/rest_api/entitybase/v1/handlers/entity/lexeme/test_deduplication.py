@@ -10,6 +10,7 @@ from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.json_parser.entity_parser import parse_entity_data
 from models.rest_api.entitybase.v1.handlers.entity.lexeme.create import LexemeCreateHandler
 from models.rest_api.entitybase.v1.request.entity import EntityCreateRequest
+from models.rest_api.entitybase.v1.services.enumeration_service import EnumerationService
 
 
 @pytest.mark.asyncio
@@ -123,11 +124,13 @@ def test_lexeme_storage_error_handling():
     mock_state.s3_client = mock_s3_client
 
     # Create handler
-    handler = LexemeCreateHandler(state=mock_state)
+    enumeration_service = EnumerationService(worker_id="test", vitess_client=MagicMock())
+    handler = LexemeCreateHandler(state=mock_state, enumeration_service=enumeration_service)
 
     # Create request with forms/senses
     request = EntityCreateRequest(
         type="lexeme",
+        edit_summary="test edit",
         data={
             "forms": [{
                 "id": "L999-F1",

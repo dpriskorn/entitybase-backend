@@ -551,7 +551,7 @@ class TestEntityConverter:
 
         mock_entity = MagicMock()
 
-        with patch.object(converter, 'convert_to_turtle') as mock_convert:
+        with patch('models.rdf_builder.converter.EntityConverter.convert_to_turtle') as mock_convert:
             mock_convert.return_value = None  # convert_to_turtle writes to buffer
 
             result = converter.convert_to_string(mock_entity)
