@@ -105,28 +105,24 @@ class TestSnakStorage:
         )
         mock_snak_data2 = S3SnakData(
             schema_version="1.0.0",
-            snak={"snaktype": "somevalue", "property": "P32"},
+            snak={"snaktype": "value", "property": "P32"},
             content_hash=67890,
-            created_at="2023-01-02T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z"
         )
 
-        with patch("models.infrastructure.s3.storage.snak_storage.BaseS3Storage") as mock_base:
-            mock_instance = MagicMock()
-            mock_base.return_value = mock_instance
+        mock_connection_manager = MagicMock()
+        storage = SnakStorage(connection_manager=mock_connection_manager)
 
-            # Mock load method to return different data for different keys
-            def mock_load(key):
-                if key == "12345":
-                    return MagicMock(data=mock_snak_data1)
-                elif key == "67890":
-                    return MagicMock(data=mock_snak_data2)
-                else:
-                    raise S3NotFoundError("Not found")
+        # Mock load method to return different data for different keys
+        def mock_load(key):
+            if key == "12345":
+                return MagicMock(data=mock_snak_data1)
+            elif key == "67890":
+                return MagicMock(data=mock_snak_data2)
+            else:
+                raise S3NotFoundError("Not found")
 
-            mock_instance.load.side_effect = mock_load
-
-            mock_connection_manager = MagicMock()
-            storage = SnakStorage(connection_manager=mock_connection_manager)
+        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.load', side_effect=mock_load):
             result = storage.load_snaks_batch([12345, 67890])
 
             assert len(result) == 2

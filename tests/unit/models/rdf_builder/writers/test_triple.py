@@ -39,9 +39,9 @@ class TestTripleWriters:
         TripleWriters.write_dataset_triples(output, "Q42")
 
         result = output.getvalue()
-        assert "sdc:Q42 a schema:Dataset ." in result
-        assert "sdc:Q42 schema:about wd:Q42 ." in result
-        assert "sdc:Q42 cc:license <http://creativecommons.org/publicdomain/zero/1.0/> ." in result
+        assert "data:Q42 a schema:Dataset ." in result
+        assert "data:Q42 schema:about wd:Q42 ." in result
+        assert "data:Q42 cc:license <http://creativecommons.org/publicdomain/zero/1.0/> ." in result
 
     def test_write_label(self) -> None:
         """Test writing label triple."""
@@ -175,7 +175,7 @@ class TestTripleWriters:
         result = output.getvalue()
 
         # Should link to value node
-        assert "ps:P569 wdv:TIME123 ." in result
+        assert "psv:P569 wdv:TIME123 ." in result
         assert "a wikibase:Statement, wikibase:BestRank ." in result
         assert "wikibase:rank wikibase:NormalRank ." in result
 
@@ -309,12 +309,13 @@ class TestTripleWriters:
         # Mock property registry
         mock_registry = PropertyRegistry(properties={})
 
-        TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
+        with patch('models.rdf_builder.property_registry.registry.PropertyRegistry.shape', return_value=PropertyShape(pid="P1107", datatype="quantity", predicates=PropertyPredicates(direct="wdt:P1107", statement="ps:P1107", qualifier="pq:P1107", qualifier_value="pqv:P1107", reference="pr:P1107"))):
+            TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
 
         result = output.getvalue()
 
         # Should link qualifier to value node
-        assert "pqv:P31 wdv:QUANT123 ." in result
+        assert "pqv:P1107 wdv:QUANT123 ." in result
 
         # Should call value node writer for qualifier
         mock_write_node.assert_called_once_with(output, "QUANT123", mock_qualifier_value, None)
@@ -359,12 +360,13 @@ class TestTripleWriters:
         # Mock property registry
         mock_registry = PropertyRegistry(properties={})
 
-        TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
+        with patch('models.rdf_builder.property_registry.registry.PropertyRegistry.shape', return_value=PropertyShape(pid="P1476", datatype="string", predicates=PropertyPredicates(direct="wdt:P1476", statement="ps:P1476", qualifier="pq:P1476", reference="pr:P1476"))):
+            TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
 
         result = output.getvalue()
 
         # Should write simple qualifier
-        assert 'pq:P31 "Book Title"@en .' in result
+        assert 'pq:P1476 "Book Title"@en .' in result
 
     @patch('models.rdf_builder.writers.triple.ValueFormatter.format_value')
     def test_write_statement_with_references(self, mock_format_value) -> None:
@@ -515,7 +517,7 @@ class TestTripleWriters:
                 )
             )
 
-        with patch.object(mock_registry, 'shape', side_effect=mock_shape), \
+        with patch('models.rdf_builder.property_registry.registry.PropertyRegistry.shape', side_effect=mock_shape), \
              patch('models.rdf_builder.writers.triple.ValueFormatter.format_value', return_value="wd:Q5"):
             TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
 
