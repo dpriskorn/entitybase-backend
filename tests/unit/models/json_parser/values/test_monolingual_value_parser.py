@@ -2,9 +2,8 @@
 
 import pytest
 
-from models.json_parser.values.monolingual_value_parser import parse_monolingual_value
 from models.internal_representation.values.monolingual_value import MonolingualValue
-from models.common import raise_validation_error
+from models.json_parser.values.monolingual_value_parser import parse_monolingual_value
 
 
 class TestMonolingualValueParser:

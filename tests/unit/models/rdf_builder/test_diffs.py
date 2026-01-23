@@ -1,6 +1,6 @@
 """Tests for diff classes."""
 
-from models.rdf_builder.diffs import DiffResult, StatementDiff, TermsDiff, SitelinksDiff
+from models.rdf_builder.diffs import DiffResult, StatementDiff, TermsDiff, SitelinksDiff, EntityDiffs
 
 
 def test_diff_result_model():

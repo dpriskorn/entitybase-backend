@@ -159,7 +159,7 @@ def test_rdf_serializer():
     """Test the RDF serializer with Wikibase entity data."""
     print("\n=== Testing RDF Serializer ===\n")
 
-    from models.workers.entity_diff_worker.rdf_serializer import RDFSerializer
+    from models.workers.entity_diff.rdf_serializer import RDFSerializer
 
     # Sample Wikibase entity data
     entity_data = {

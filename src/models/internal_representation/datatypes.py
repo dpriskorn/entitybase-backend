@@ -1,5 +1,4 @@
 import logging
-import re
 
 """Enumeration of Wikibase datatype identifiers."""
 

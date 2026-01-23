@@ -9,6 +9,7 @@ from models.config.settings import settings
 from models.data.workers.changed_properties import ChangedProperties
 from models.infrastructure.stream.consumer import StreamConsumerClient
 from models.data.infrastructure.stream.consumer import EntityChangeEventData
+from models.data.config.stream_consumer import StreamConsumerConfig
 from models.workers.vitess_worker import VitessWorker
 
 logger = logging.getLogger(__name__)
@@ -33,10 +34,16 @@ class WatchlistConsumerWorker(VitessWorker):
             kafka_topic = settings.kafka_entitychange_json_topic
 
             if kafka_brokers and kafka_topic:
-                self.consumer = StreamConsumerClient(
+                consumer_config = StreamConsumerConfig(
                     brokers=kafka_brokers,
                     topic=kafka_topic,
-                    group_id="watchlist-consumer",
+                    group_id="watchlist-consumer"
+                )
+                self.consumer = StreamConsumerClient(
+                    config=consumer_config,
+                    brokers=kafka_brokers,
+                    topic=kafka_topic,
+                    group_id="watchlist-consumer"
                 )
                 assert self.consumer is not None
                 await self.consumer.start()

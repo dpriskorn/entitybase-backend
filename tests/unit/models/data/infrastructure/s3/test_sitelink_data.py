@@ -1,7 +1,5 @@
 """Unit tests for S3SitelinkData model."""
 
-import pytest
-
 from models.data.infrastructure.s3.sitelink_data import S3SitelinkData
 
 

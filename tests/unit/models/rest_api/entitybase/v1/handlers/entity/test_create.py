@@ -65,7 +65,7 @@ class TestEntityCreateHandler:
             mock_process.assert_called_once()
             call_args = mock_process.call_args
             assert call_args[1]["entity_id"] == "Q42"
-            assert call_args[1]["entity_type"] == EntityType.item
+            assert call_args[1]["entity_type"] == EntityType.ITEM
             assert call_args[1]["is_creation"] is True
 
             # Verify user activity logging

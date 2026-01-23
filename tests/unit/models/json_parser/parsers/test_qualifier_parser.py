@@ -1,3 +1,5 @@
+import pytest
+
 from models.json_parser import parse_qualifiers, parse_qualifier
 from models.internal_representation.qualifiers import Qualifier
 

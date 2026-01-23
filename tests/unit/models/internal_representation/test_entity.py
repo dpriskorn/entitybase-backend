@@ -105,6 +105,7 @@ class TestEntity:
         statements = []
 
         with pytest.raises(ValueError):  # Invalid enum value
+            # noinspection PyTypeChecker
             Entity(
                 id="Q123",
                 type="invalid",  # Not an EntityType

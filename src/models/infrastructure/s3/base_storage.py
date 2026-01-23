@@ -9,7 +9,6 @@ from botocore.exceptions import ClientError
 from pydantic import BaseModel, Field
 
 from models.common import OperationResult
-from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.exceptions import (
     S3StorageError,
     S3NotFoundError,

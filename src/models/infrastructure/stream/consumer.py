@@ -5,8 +5,9 @@ import logging
 from typing import AsyncGenerator
 
 from aiokafka import AIOKafkaConsumer  # type: ignore[import-untyped]
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 
+from models.data.config.stream_consumer import StreamConsumerConfig
 from models.data.infrastructure.stream.consumer import EntityChangeEventData
 from models.infrastructure.client import Client
 
@@ -18,6 +19,8 @@ class StreamConsumerClient(Client):
     You have to run start() after instantiation."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    config: StreamConsumerConfig
 
     brokers: list[str]
     topic: str = "wikibase-entity-changes"

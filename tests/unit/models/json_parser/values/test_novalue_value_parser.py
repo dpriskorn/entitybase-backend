@@ -36,6 +36,7 @@ class TestNovalueValueParser:
         assert isinstance(result, NoValue)
         # Should not be able to modify frozen model
         with pytest.raises(Exception):  # TypeError or ValidationError
+            # noinspection PyTypeChecker
             result.value = "modified"
 
     def test_parse_novalue_value_idempotent(self):
