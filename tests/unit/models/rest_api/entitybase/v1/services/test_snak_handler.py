@@ -5,6 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from models.rest_api.entitybase.v1.services.snak_handler import SnakHandler
+from models.rest_api.entitybase.v1.request.snak import SnakRequest
 from models.data.infrastructure.s3.snak_data import S3SnakData
 
 
@@ -23,7 +24,7 @@ class TestSnakHandler:
         mock_datetime.now.return_value.strftime.return_value = "2023-01-01T12:00:00Z"
         mock_extractor.hash_string.return_value = 12345
 
-        snak = {"property": "P31", "datavalue": {"type": "wikibase-entityid", "value": {"id": "Q5"}}}
+        snak = SnakRequest(property="P31", datavalue={"type": "wikibase-entityid", "value": {"id": "Q5"}})
 
         result = self.handler.store_snak(snak)
 
@@ -37,7 +38,7 @@ class TestSnakHandler:
         snak_data = call_args[0][1]
         assert isinstance(snak_data, S3SnakData)
         assert snak_data.schema_version == "1.0.0"
-        assert snak_data.snak == snak
+        assert snak_data.snak == snak.model_dump()
         assert snak_data.content_hash == 12345
         assert snak_data.created_at == "2023-01-01T12:00:00Z"
 
@@ -47,7 +48,7 @@ class TestSnakHandler:
         mock_extractor.hash_string.return_value = 12345
         self.s3_client.store_snak.side_effect = Exception("S3 storage failed")
 
-        snak = {"property": "P31", "datavalue": {"type": "wikibase-entityid", "value": {"id": "Q5"}}}
+        snak = SnakRequest(property="P31", datavalue={"type": "wikibase-entityid", "value": {"id": "Q5"}})
 
         with pytest.raises(Exception) as exc_info:
             self.handler.store_snak(snak)
@@ -84,18 +85,15 @@ class TestSnakHandler:
         self.s3_client.load_snak.assert_called_once_with(12345)
 
     @patch('models.rest_api.entitybase.v1.services.snak_handler.MetadataExtractor')
-    @patch('models.rest_api.entitybase.v1.services.snak_handler.json')
-    def test_store_snak_json_dumps(self, mock_json, mock_extractor):
+    def test_store_snak_json_dumps(self, mock_extractor):
         """Test that snak is JSON serialized with sorted keys."""
         mock_extractor.hash_string.return_value = 12345
-        mock_json.dumps.return_value = '{"property":"P31"}'
 
-        snak = {"datavalue": {"type": "wikibase-entityid", "value": {"id": "Q5"}}, "property": "P31"}
+        snak = SnakRequest(datavalue={"type": "wikibase-entityid", "value": {"id": "Q5"}}, property="P31")
 
         self.handler.store_snak(snak)
 
-        mock_json.dumps.assert_called_once_with(snak, sort_keys=True)
-        mock_extractor.hash_string.assert_called_once_with('{"property":"P31"}')
+        mock_extractor.hash_string.assert_called_once_with('{"datavalue":{"type":"wikibase-entityid","value":{"id":"Q5"}},"property":"P31"}')
 
     def test_get_snak_returns_none_on_exception(self):
         """Test that get_snak returns None on any exception."""

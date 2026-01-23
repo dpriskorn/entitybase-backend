@@ -142,21 +142,17 @@ class TestSnakStorage:
             created_at="2023-01-01T12:00:00Z"
         )
 
-        with patch("models.infrastructure.s3.storage.snak_storage.BaseS3Storage") as mock_base:
-            mock_instance = MagicMock()
-            mock_base.return_value = mock_instance
+        mock_connection_manager = MagicMock()
+        storage = SnakStorage(connection_manager=mock_connection_manager)
 
-            # Mock load method to return data for first key, raise exception for second
-            def mock_load(key):
-                if key == "12345":
-                    return MagicMock(data=mock_snak_data)
-                else:
-                    raise S3NotFoundError("Not found")
+        # Mock load method to return data for first key, raise exception for second
+        def mock_load(key):
+            if key == "12345":
+                return MagicMock(data=mock_snak_data)
+            else:
+                raise S3NotFoundError("Not found")
 
-            mock_instance.load.side_effect = mock_load
-
-            mock_connection_manager = MagicMock()
-            storage = SnakStorage(connection_manager=mock_connection_manager)
+        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.load', side_effect=mock_load):
             result = storage.load_snaks_batch([12345, 67890])
 
             assert len(result) == 2
@@ -165,13 +161,10 @@ class TestSnakStorage:
 
     def test_load_snaks_batch_all_missing(self) -> None:
         """Test batch loading when all snaks are missing."""
-        with patch("models.infrastructure.s3.storage.snak_storage.BaseS3Storage") as mock_base:
-            mock_instance = MagicMock()
-            mock_base.return_value = mock_instance
-            mock_instance.load.side_effect = S3NotFoundError("Not found")
+        mock_connection_manager = MagicMock()
+        storage = SnakStorage(connection_manager=mock_connection_manager)
 
-            mock_connection_manager = MagicMock()
-            storage = SnakStorage(connection_manager=mock_connection_manager)
+        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.load', side_effect=S3NotFoundError("Not found")):
             result = storage.load_snaks_batch([12345, 67890])
 
             assert len(result) == 2

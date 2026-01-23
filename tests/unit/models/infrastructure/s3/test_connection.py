@@ -27,7 +27,7 @@ class TestS3ConnectionManager:
             mock_boto_client = MagicMock()
             mock_client.return_value = mock_boto_client
 
-            manager = S3ConnectionManager(config=self.config)
+            manager = S3ConnectionManager(config=self.config.model_dump())
             manager.connect()
 
             assert manager.boto_client == mock_boto_client
@@ -36,7 +36,7 @@ class TestS3ConnectionManager:
                 endpoint_url="http://localhost:4566",
                 aws_access_key_id="test_key",
                 aws_secret_access_key="test_secret",
-                config=self.config.__class__().model_dump(),  # Mocked
+                config=self.config.model_dump()
                 region_name="us-east-1",
             )
 
@@ -71,7 +71,7 @@ class TestS3ConnectionManager:
         manager = S3ConnectionManager(config=self.config)
         manager.boto_client = None
 
-        with patch.object(manager, 'connect') as mock_connect:
+        with patch.object(type(manager), 'connect') as mock_connect:
             mock_boto_client = MagicMock()
             manager.boto_client = mock_boto_client
             mock_boto_client.head_bucket.return_value = {}

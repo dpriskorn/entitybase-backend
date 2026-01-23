@@ -7,6 +7,7 @@ from typing import Any, Dict
 from models.data.infrastructure.s3.snak_data import S3SnakData
 from models.infrastructure.s3.client import MyS3Client
 from models.internal_representation.metadata_extractor import MetadataExtractor
+from models.rest_api.entitybase.v1.request.snak import SnakRequest
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -19,17 +20,16 @@ class SnakHandler:
         """Initialize with S3 client."""
         self.s3_client = s3_client
 
-    def store_snak(self, snak: Dict[str, Any]) -> int:
+    def store_snak(self, snak: SnakRequest) -> int:
         """Store snak in S3 with rapidhash key, return hash."""
         # Compute rapidhash for the snak
-        import json
-        snak_json = json.dumps(snak, sort_keys=True)
+        snak_json = snak.model_dump_json()
         content_hash = MetadataExtractor.hash_string(snak_json)
 
         # Create S3SnakData object
         snak_data = S3SnakData(
             schema="1.0.0",
-            snak=snak,
+            snak=snak.model_dump(),
             hash=content_hash,
             created_at=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
         )

@@ -91,7 +91,7 @@ class TestLexemeStorage:
             mock_settings.s3_terms_bucket = "test-terms"
             storage = LexemeStorage(connection_manager=mock_connection_manager)
 
-        with patch.object(storage, 'load_metadata', side_effect=["gloss1", {"invalid": "data"}, "gloss3"]) as mock_load_metadata:
+        with patch('models.infrastructure.s3.storage.lexeme_storage.LexemeStorage.load_metadata', side_effect=["gloss1", {"invalid": "data"}, "gloss3"]) as mock_load_metadata:
             with patch('models.infrastructure.s3.storage.lexeme_storage.logger') as mock_logger:
                 result = storage.load_sense_glosses_batch([111, 222, 333])
 

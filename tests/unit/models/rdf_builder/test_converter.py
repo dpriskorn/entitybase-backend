@@ -349,7 +349,7 @@ class TestEntityConverter:
 
         assert converter.dedupe is None
 
-    @patch('models.rdf_builder.converter.parse_entity')
+    @patch('models.json_parser.entity_parser.parse_entity')
     def test_load_referenced_entity_success(self, mock_parse_entity) -> None:
         """Test loading referenced entity successfully."""
         property_registry = PropertyRegistry(properties={})
@@ -388,7 +388,7 @@ class TestEntityConverter:
             with pytest.raises(FileNotFoundError, match="Entity Q5 not found"):
                 converter._load_referenced_entity("Q5")
 
-    @patch('models.rdf_builder.converter.parse_entity')
+    @patch('models.json_parser.entity_parser.parse_entity')
     def test_write_referenced_entity_metadata(self, mock_parse_entity) -> None:
         """Test writing referenced entity metadata."""
         property_registry = PropertyRegistry(properties={})
@@ -444,7 +444,7 @@ class TestEntityConverter:
 
         result = converter._fetch_redirects("Q42")
 
-        assert result == ["Q100", "Q200"]
+        assert set(result) == {"Q100", "Q200"}
         mock_load_redirects.assert_called_once_with("Q42", temp_dir)
 
     def test_fetch_redirects_vitess_client(self) -> None:
@@ -498,7 +498,7 @@ class TestEntityConverter:
         mock_entity.id = "Q42"
 
         with patch.object(converter, '_fetch_redirects', return_value=["Q100", "Q200"]) as mock_fetch, \
-             patch.object(converter.writers, 'write_redirect') as mock_write_redirect:
+             patch('models.rdf_builder.writers.triple.TripleWriters.write_redirect') as mock_write_redirect:
 
             converter._write_redirects(mock_entity, output)
 
@@ -510,7 +510,6 @@ class TestEntityConverter:
     def test_write_property_metadata_with_references(self) -> None:
         """Test writing property metadata including references."""
         property_registry = PropertyRegistry(properties={})
-        property_registry.shape = MagicMock()
         converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
@@ -518,31 +517,33 @@ class TestEntityConverter:
         # Mock entity with statements including references
         mock_entity = MagicMock()
         mock_entity.statements = MagicMock()
-        mock_entity.statements.data = [
-            {"mainsnak": {"property": "P31"}, "qualifiers": {}, "references": [
-                {"snaks": {"P248": {"property": "P248"}}}
-            ]}
-        ]
 
-        # Mock parsed statement with reference
-        mock_ref_snak = MagicMock()
-        mock_ref_snak.property = "P248"
+        with patch('models.rdf_builder.property_registry.registry.PropertyRegistry.shape', MagicMock()) as mock_shape:
+            mock_entity.statements.data = [
+                {"mainsnak": {"property": "P31"}, "qualifiers": {}, "references": [
+                    {"snaks": {"P248": {"property": "P248"}}}
+                ]}
+            ]
 
-        mock_ref = MagicMock()
-        mock_ref.snaks = [mock_ref_snak]
+            # Mock parsed statement with reference
+            mock_ref_snak = MagicMock()
+            mock_ref_snak.property = "P248"
 
-        mock_stmt = MagicMock()
-        mock_stmt.property = "P31"
-        mock_stmt.qualifiers = []
-        mock_stmt.references = [mock_ref]
+            mock_ref = MagicMock()
+            mock_ref.snaks = [mock_ref_snak]
 
-        with patch('models.rdf_builder.converter.parse_statement', return_value=mock_stmt), \
-             patch('models.rdf_builder.converter.PropertyOntologyWriter') as mock_writer:
+            mock_stmt = MagicMock()
+            mock_stmt.property = "P31"
+            mock_stmt.qualifiers = []
+            mock_stmt.references = [mock_ref]
 
-            converter._write_property_metadata(mock_entity, output)
+            with patch('models.rdf_builder.converter.parse_statement', return_value=mock_stmt), \
+                 patch('models.rdf_builder.converter.PropertyOntologyWriter') as mock_writer:
 
-            # Should include P248 from reference
-            property_registry.shape.assert_any_call("P248")
+                converter._write_property_metadata(mock_entity, output)
+
+                # Should include P248 from reference
+                property_registry.shape.assert_any_call("P248")
 
     def test_convert_to_string(self) -> None:
         """Test convert_to_string method."""

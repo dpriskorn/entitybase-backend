@@ -106,7 +106,7 @@ class TestIdResolver:
     @patch('models.infrastructure.unique_id.UniqueIdGenerator')
     def test_register_entity_already_exists(self, mock_generator_class):
         """Test registering an entity that already exists."""
-        with patch.object(self.resolver, 'entity_exists', return_value=True):
+        with patch.object(type(self.resolver), 'entity_exists', return_value=True):
             self.resolver.register_entity("Q42")
 
             # Should not generate ID or insert

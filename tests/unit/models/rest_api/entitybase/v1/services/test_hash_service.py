@@ -50,10 +50,9 @@ class TestHashService:
             "dewiki": {"title": "Test Seite", "badges": []}
         }
 
-        service._HashService__extractor.hash_string.side_effect = lambda x: f"hash_{x}"
+        with patch('models.internal_representation.metadata_extractor.MetadataExtractor.hash_string', side_effect=lambda x: hash(x)):
+            result = service.hash_sitelinks(sitelinks)
 
-        result = service.hash_sitelinks(sitelinks)
-
-        assert "enwiki" not in result.root
-        assert "dewiki" in result.root
-        assert result.root["dewiki"].title_hash == "hash_Test Seite"
+            assert "enwiki" not in result.root
+            assert "dewiki" in result.root
+            assert result.root["dewiki"].title_hash == hash("Test Seite")

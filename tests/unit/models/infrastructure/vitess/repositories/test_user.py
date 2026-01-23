@@ -204,7 +204,7 @@ class TestUserRepository:
         repo = UserRepository(vitess_client=mock_vitess_client)
 
         from models.rest_api.entitybase.v1.request.enums import UserActivityType
-        result = repo.log_user_activity(123, UserActivityType.EDIT, "Q1", 1)
+        result = repo.log_user_activity(123, UserActivityType.ENTITY_EDIT, "Q1", 1)
 
         assert result.success is True
 
@@ -215,7 +215,7 @@ class TestUserRepository:
         repo = UserRepository(vitess_client=mock_vitess_client)
 
         from models.rest_api.entitybase.v1.request.enums import UserActivityType
-        result = repo.log_user_activity(0, UserActivityType.EDIT, "Q1", 1)
+        result = repo.log_user_activity(0, UserActivityType.ENTITY_EDIT, "Q1", 1)
 
         assert result.success is False
         assert "Invalid user ID or activity type" in result.error
@@ -285,7 +285,7 @@ class TestUserRepository:
         repo = UserRepository(vitess_client=mock_vitess_client)
 
         from models.rest_api.entitybase.v1.request.enums import UserActivityType
-        result = repo.get_user_activities(123, UserActivityType.EDIT)
+        result = repo.get_user_activities(123, UserActivityType.ENTITY_EDIT)
 
         assert result.success is True
         assert len(result.data["activities"]) == 1
@@ -471,10 +471,10 @@ class TestUserRepository:
 
         repo = UserRepository(vitess_client=mock_vitess_client)
 
-        result = repo.log_user_activity(123, UserActivityType.EDIT, "Q1", 1)
+        result = repo.log_user_activity(123, UserActivityType.ENTITY_EDIT, "Q1", 1)
 
         assert result.success is True
-        assert "Logging user activity: user_id=123, activity_type=UserActivityType.EDIT, entity_id=Q1, revision_id=1" in caplog.text
+        assert "Logging user activity: user_id=123, activity_type=UserActivityType.ENTITY_EDIT, entity_id=Q1, revision_id=1" in caplog.text
 
     def test_log_user_activity_invalid_params(self):
         """Test logging activity with invalid params."""
@@ -482,7 +482,7 @@ class TestUserRepository:
 
         repo = UserRepository(vitess_client=mock_vitess_client)
 
-        result = repo.log_user_activity(0, UserActivityType.EDIT, "Q1")
+        result = repo.log_user_activity(0, UserActivityType.ENTITY_EDIT, "Q1")
 
         assert result.success is False
         assert "user_id must be positive" in result.error
@@ -496,7 +496,7 @@ class TestUserRepository:
 
         repo = UserRepository(vitess_client=mock_vitess_client)
 
-        result = repo.log_user_activity(123, UserActivityType.EDIT, "Q1", 1)
+        result = repo.log_user_activity(123, UserActivityType.ENTITY_EDIT, "Q1", 1)
 
         assert result.success is False
         assert "DB error" in result.error
