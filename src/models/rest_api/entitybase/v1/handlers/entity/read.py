@@ -37,7 +37,32 @@ class EntityReadHandler(Handler):
 
         try:
             revision = self.state.s3_client.read_revision(entity_id, head_revision_id)
-            data = revision.content.get("entity", {}).copy()
+            data = revision.content
+
+            # Resolve terms
+            if "labels_hashes" in data:
+                resolved_labels = {}
+                for lang, hash_val in data["labels_hashes"].items():
+                    resolved_labels[lang] = self.state.s3_client.load_term_metadata(hash_val)
+                data["labels"] = resolved_labels
+            if "descriptions_hashes" in data:
+                resolved_descriptions = {}
+                for lang, hash_val in data["descriptions_hashes"].items():
+                    resolved_descriptions[lang] = self.state.s3_client.load_term_metadata(hash_val)
+                data["descriptions"] = resolved_descriptions
+            if "aliases_hashes" in data:
+                resolved_aliases = {}
+                for lang, hashes in data["aliases_hashes"].items():
+                    resolved_aliases[lang] = [self.state.s3_client.load_term_metadata(h) for h in hashes]
+                data["aliases"] = resolved_aliases
+
+            # Resolve sitelinks
+            if "sitelinks" in data:
+                resolved_sitelinks = {}
+                for wiki, sitelink in data["sitelinks"].items():
+                    title = self.state.s3_client.load_sitelink_metadata(sitelink["title_hash"])
+                    resolved_sitelinks[wiki] = {"site": wiki, "title": title, "badges": sitelink["badges"]}
+                data["sitelinks"] = resolved_sitelinks
 
             response = EntityResponse(
                 id=entity_id,

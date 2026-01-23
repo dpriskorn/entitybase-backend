@@ -3,8 +3,9 @@
 import io
 from unittest.mock import MagicMock, patch
 
-from models.rdf_builder.models.rdf_statement import RDFStatement
-from models.rdf_builder.property_registry.models import PropertyShape, PropertyPredicates
+import pytest
+
+from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.writers.triple import TripleWriters
 
 
@@ -165,7 +166,7 @@ class TestTripleWriters:
         mock_format_value.return_value = '"1952-03-11"^^xsd:dateTime'
 
         # Mock property registry
-        mock_registry = MagicMock()
+        mock_registry = PropertyRegistry(properties={})
 
         TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
 
@@ -216,7 +217,7 @@ class TestTripleWriters:
         mock_format_value.return_value = '"The Hitchhiker\'s Guide"@en'
 
         # Mock property registry
-        mock_registry = MagicMock()
+        mock_registry = PropertyRegistry(properties={})
 
         TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
 
@@ -254,7 +255,7 @@ class TestTripleWriters:
         )
 
         # Mock property registry
-        mock_registry = MagicMock()
+        mock_registry = PropertyRegistry(properties={})
 
         with patch('models.rdf_builder.writers.triple.ValueFormatter.format_value', return_value="wd:Q5"):
             TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
@@ -304,7 +305,7 @@ class TestTripleWriters:
         mock_format_value.return_value = "wd:Q5"
 
         # Mock property registry
-        mock_registry = MagicMock()
+        mock_registry = PropertyRegistry(properties={})
 
         TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
 
@@ -354,7 +355,7 @@ class TestTripleWriters:
         mock_format_value.side_effect = ["wd:Q5", '"Book Title"@en']
 
         # Mock property registry
-        mock_registry = MagicMock()
+        mock_registry = PropertyRegistry(properties={})
 
         TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
 
@@ -450,7 +451,7 @@ class TestTripleWriters:
         )
 
         # Mock property registry
-        mock_registry = MagicMock()
+        mock_registry = PropertyRegistry(properties={})
 
         with patch('models.rdf_builder.writers.triple.ValueFormatter.format_value', return_value="wd:Q5"):
             TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
@@ -498,7 +499,7 @@ class TestTripleWriters:
         )
 
         # Mock property registry
-        mock_registry = MagicMock()
+        mock_registry = PropertyRegistry(properties={})
 
         with patch('models.rdf_builder.writers.triple.ValueFormatter.format_value', return_value="wd:Q5"):
             TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)

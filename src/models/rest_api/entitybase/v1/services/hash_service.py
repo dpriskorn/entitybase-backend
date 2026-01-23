@@ -9,6 +9,7 @@ from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
 from models.data.infrastructure.s3.hashes.labels_hashes import LabelsHashes
 from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
+from models.data.infrastructure.s3.sitelink_data import S3SitelinkData
 
 from models.infrastructure.vitess.repositories.terms import TermsRepository
 from models.internal_representation.metadata_extractor import MetadataExtractor
@@ -63,7 +64,8 @@ class HashService(Service):
             if "title" in sitelink_data:
                 title = sitelink_data["title"]
                 hash_value = MetadataExtractor.hash_string(title)
-                hashes[wiki] = hash_value
+                badges = sitelink_data.get("badges", [])
+                hashes[wiki] = S3SitelinkData(title_hash=hash_value, badges=badges)
                 self.state.s3_client.store_sitelink_metadata(title, hash_value)
         return SitelinksHashes(root=hashes)
 

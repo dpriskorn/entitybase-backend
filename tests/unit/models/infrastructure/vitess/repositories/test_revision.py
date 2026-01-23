@@ -29,7 +29,7 @@ class TestRevisionRepository:
             "labels_hashes": {},
             "descriptions_hashes": {},
             "aliases_hashes": {},
-            "sitelinks_hashes": {},
+            "sitelinks": {},
             "user_id": 456,
             "edit_summary": "Test edit",
         }
@@ -188,7 +188,7 @@ class TestRevisionRepository:
             "labels_hashes": {"en": "hash1"},
             "descriptions_hashes": {"en": "hash2"},
             "aliases_hashes": {"en": "hash3"},
-            "sitelinks_hashes": {"enwiki": "hash4"},
+            "sitelinks": {"enwiki": {"title_hash": "hash4", "badges": []}},
             "user_id": 456,
             "edit_summary": "Mass edit summary",
         }
@@ -229,4 +229,4 @@ class TestRevisionRepository:
         assert result["labels_hashes"] == {}
         assert result["descriptions_hashes"] == {}
         assert result["aliases_hashes"] == {}
-        assert result["sitelinks_hashes"] == {}
+        assert result["sitelinks"] == {}

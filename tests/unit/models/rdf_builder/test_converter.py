@@ -189,6 +189,8 @@ class TestEntityConverter:
     def test_write_statement(self) -> None:
         """Test writing individual statement."""
         property_registry = PropertyRegistry(properties={})
+        mock_shape = MagicMock()
+        property_registry.shape = mock_shape
         converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
@@ -196,9 +198,6 @@ class TestEntityConverter:
         # Mock RDF statement
         mock_rdf_stmt = MagicMock()
         mock_rdf_stmt.property_id = "P31"
-
-        # Mock property shape
-        mock_shape = MagicMock()
 
         # Mock writers
         with patch.object(converter.writers, 'write_statement') as mock_write_statement:
@@ -215,6 +214,7 @@ class TestEntityConverter:
     def test_write_property_metadata(self) -> None:
         """Test writing property metadata."""
         property_registry = PropertyRegistry(properties={})
+        property_registry.shape = MagicMock()
         converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
@@ -510,6 +510,7 @@ class TestEntityConverter:
     def test_write_property_metadata_with_references(self) -> None:
         """Test writing property metadata including references."""
         property_registry = PropertyRegistry(properties={})
+        property_registry.shape = MagicMock()
         converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()

@@ -108,7 +108,7 @@ class EntityDeleteHandler(Handler):
                     root=current_revision.data.get("statements", [])
                 ),
                 sitelinks=SitelinksHashes(
-                    root=current_revision.data.get("sitelinks_hashes", {})
+                    root=current_revision.data.get("sitelinks", {})
                 ),
                 labels=LabelsHashes(
                     root=current_revision.data.get("labels_hashes", {})

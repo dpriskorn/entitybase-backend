@@ -8,7 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class S3SnakData(BaseModel):
     """Model for individual snak data stored in S3."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, extra='ignore')
 
     schema_version: str = Field(
         alias="schema", description="Schema version (MAJOR.MINOR.PATCH). Example: '1.0.0'."

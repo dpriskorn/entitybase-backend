@@ -230,3 +230,55 @@ class TestEntityReadHandler:
 
         with pytest.raises(Exception):  # Should raise validation error
             handler.get_entity_revision("Q42", 99999)
+
+    def test_get_entity_with_sitelinks_resolution(self) -> None:
+        """Integration test for sitelinks resolution with badges."""
+        # Mock state with clients
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.vitess_client = mock_vitess
+        mock_state.s3_client = mock_s3
+
+        # Mock Vitess responses
+        mock_vitess.entity_exists.return_value = True
+        mock_vitess.get_head.return_value = 12345
+
+        # Mock S3 revision response with sitelinks hashes
+        mock_revision = MagicMock()
+        mock_revision.content = {
+            "entity": {"id": "Q42", "type": "item"},
+            "sitelinks": {
+                "enwiki": {"title_hash": 111, "badges": ["featured"]},
+                "dewiki": {"title_hash": 222, "badges": []}
+            },
+            "is_semi_protected": False,
+            "is_locked": False,
+            "is_archived": False,
+            "is_dangling": False,
+            "is_mass_edit_protected": False,
+        }
+        mock_s3.read_revision.return_value = mock_revision
+
+        # Mock S3 load responses
+        mock_s3.load_sitelink_metadata.side_effect = lambda h: f"Title_{h}"
+
+        handler = EntityReadHandler(state=mock_state)
+        result = handler.get_entity("Q42")
+
+        assert isinstance(result, EntityResponse)
+        assert result.id == "Q42"
+        assert "sitelinks" in result.entity_data
+        assert result.entity_data["sitelinks"]["enwiki"] == {
+            "site": "enwiki",
+            "title": "Title_111",
+            "badges": ["featured"]
+        }
+        assert result.entity_data["sitelinks"]["dewiki"] == {
+            "site": "dewiki",
+            "title": "Title_222",
+            "badges": []
+        }
+
+        mock_s3.load_sitelink_metadata.assert_any_call(111)
+        mock_s3.load_sitelink_metadata.assert_any_call(222)

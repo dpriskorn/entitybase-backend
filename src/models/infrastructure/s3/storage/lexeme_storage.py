@@ -7,11 +7,12 @@ from models.common import OperationResult
 from models.config.settings import settings
 from models.data.infrastructure.s3.enums import MetadataType
 from models.infrastructure.s3.base_storage import BaseS3Storage
+from models.infrastructure.s3.storage.metadata_storage import MetadataStorage
 
 logger = logging.getLogger(__name__)
 
 
-class LexemeStorage(BaseS3Storage):
+class LexemeStorage(MetadataStorage):
     """Storage operations for lexeme-specific terms (forms and senses)."""
 
     bucket: str = settings.s3_terms_bucket  # Use terms bucket for deduplication

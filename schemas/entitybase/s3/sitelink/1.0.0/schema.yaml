@@ -1,0 +1,17 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://wikibase.org/schemas/s3-sitelink/1.0.0.json
+title: S3 Sitelink Data
+description: Structure for sitelink data in revisions (title hash + badges)
+type: object
+required:
+  - title_hash
+properties:
+  title_hash:
+    type: integer
+    description: Hash of the sitelink title
+  badges:
+    type: array
+    items:
+      type: string
+    default: []
+    description: List of badges (e.g., ["featured"])
