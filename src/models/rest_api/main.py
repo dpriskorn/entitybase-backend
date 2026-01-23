@@ -87,16 +87,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             logger.warning(f"Could not create database tables on startup: {e}")
             logger.info("Tables will be created when first accessed or in tests")
 
-        if (
-            settings.streaming_enabled
-            and app_.state.clients.entitychange_stream_producer
-        ):
-            await app_.state.clients.stream_producer.start()
-            logger.info("entitychange_stream_producer started")
-
-        if settings.streaming_enabled and app_.state.clients.entitydiff_stream_producer:
-            await app_.state.clients.rdf_stream_producer.start()
-            logger.info("RDF entitydiff_stream_producer started")
+        logger.info("Streaming clients initialized (lazy startup)")
 
         logger.debug(
             "Clients, validator, and enumeration service initialized successfully"

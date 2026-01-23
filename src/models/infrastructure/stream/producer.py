@@ -11,20 +11,25 @@ logger = logging.getLogger(__name__)
 
 
 class StreamProducerClient(Client):
-    """Kafka producer client for publishing events."""
+    """Kafka producer client for publishing events.
+    Producer starts lazily on first publish."""
 
+    bootstrap_servers: list[str]
+    topic: str
     producer: AIOKafkaProducer | None = None
     model_config = {"arbitrary_types_allowed": True}
 
-    def model_post_init(self, context) -> None:
-        self.start()
+    @property
+    def healthy_connection(self) -> bool:
+        """Check if the producer has a healthy connection."""
+        return self.producer is not None and not self.producer._closed
 
     async def start(self) -> None:
         """Start the Kafka producer."""
         if self.producer is not None:
             return
         self.producer = AIOKafkaProducer(
-            bootstrap_servers=self.config.bootstrap_servers,
+            bootstrap_servers=self.bootstrap_servers,
             value_serializer=lambda v: v.model_dump_json(by_alias=True).encode("utf-8"),
         )
         await self.producer.start()
@@ -40,8 +45,7 @@ class StreamProducerClient(Client):
     async def publish_change(self, event: Any) -> None:
         """Publish an event to Kafka."""
         if not self.producer:
-            logger.warning("Kafka producer not started, skipping event publish")
-            return
+            await self.start()
 
         try:
             key = getattr(event, "entity_id", getattr(event, "hash", None))
@@ -50,7 +54,7 @@ class StreamProducerClient(Client):
                 return
 
             await self.producer.send_and_wait(
-                topic=self.config.topic,
+                topic=self.topic,
                 key=str(key),
                 value=event,
             )

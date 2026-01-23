@@ -8,12 +8,14 @@ from aiokafka import AIOKafkaConsumer  # type: ignore[import-untyped]
 from pydantic import BaseModel, ConfigDict, Field
 
 from models.data.infrastructure.stream.consumer import EntityChangeEventData
+from models.infrastructure.client import Client
 
 logger = logging.getLogger(__name__)
 
 
-class Consumer(BaseModel):
-    """Kafka consumer for entity change events."""
+class StreamConsumerClient(Client):
+    """Kafka consumer for entity change events.
+    You have to run start() after instantiation."""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
@@ -22,6 +24,11 @@ class Consumer(BaseModel):
     group_id: str = "watchlist-consumer"
     consumer: AIOKafkaConsumer | None = Field(default=None)
     bootstrap_servers: str = Field(default="", init=False)
+
+    @property
+    def healthy_connection(self) -> bool:
+        """Check if the consumer has a healthy connection."""
+        return self.consumer is not None
 
     def model_post_init(self, context) -> None:
         self.bootstrap_servers = ",".join(self.brokers)

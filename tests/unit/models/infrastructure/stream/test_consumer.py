@@ -3,7 +3,7 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from models.infrastructure.stream.consumer import Consumer
+from models.infrastructure.stream.consumer import StreamConsumerClient
 from models.data.infrastructure.stream.consumer import EntityChangeEventData
 
 pytestmark = pytest.mark.unit
@@ -32,11 +32,11 @@ class TestConsumer:
     """Test Consumer class."""
 
     @pytest.fixture
-    def consumer(self) -> Consumer:
+    def consumer(self) -> StreamConsumerClient:
         """Create a consumer instance."""
-        return Consumer(brokers=["localhost:9092"])
+        return StreamConsumerClient(brokers=["localhost:9092"])
 
-    def test_consumer_init(self, consumer: Consumer) -> None:
+    def test_consumer_init(self, consumer: StreamConsumerClient) -> None:
         """Test consumer initialization."""
         assert consumer.bootstrap_servers == "localhost:9092"
         assert consumer.topic == "wikibase-entity-changes"
@@ -44,7 +44,7 @@ class TestConsumer:
         assert consumer.consumer is None
 
     @pytest.mark.asyncio
-    async def test_start_consumer(self, consumer: Consumer) -> None:
+    async def test_start_consumer(self, consumer: StreamConsumerClient) -> None:
         """Test starting the consumer."""
         mock_kafka_consumer = AsyncMock()
         with patch(
@@ -57,7 +57,7 @@ class TestConsumer:
         mock_kafka_consumer.start.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_stop_consumer(self, consumer: Consumer) -> None:
+    async def test_stop_consumer(self, consumer: StreamConsumerClient) -> None:
         """Test stopping the consumer."""
         mock_consumer = AsyncMock()
         consumer.consumer = mock_consumer
@@ -67,14 +67,14 @@ class TestConsumer:
         mock_consumer.stop.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_consume_events_without_start(self, consumer: Consumer) -> None:
+    async def test_consume_events_without_start(self, consumer: StreamConsumerClient) -> None:
         """Test consuming events without starting raises error."""
         with pytest.raises(RuntimeError, match="Consumer not started"):
             async for _ in consumer.consume_events():
                 pass
 
     @pytest.mark.asyncio
-    async def test_consume_events(self, consumer: Consumer) -> None:
+    async def test_consume_events(self, consumer: StreamConsumerClient) -> None:
         """Test consuming events."""
 
         # Create an async generator for messages

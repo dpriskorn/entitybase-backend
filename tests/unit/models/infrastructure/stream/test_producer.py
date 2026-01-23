@@ -15,9 +15,11 @@ class TestStreamProducerClient:
     def setup_method(self):
         """Set up test fixtures."""
         self.config = MagicMock()
-        self.config.bootstrap_servers = ["localhost:9092"]
-        self.config.topic = "test-topic"
-        self.client = StreamProducerClient(config=self.config)
+        self.client = StreamProducerClient(
+            config=self.config,
+            bootstrap_servers=["localhost:9092"],
+            topic="test-topic"
+        )
 
     @pytest.mark.asyncio
     async def test_start_producer(self):
@@ -106,15 +108,21 @@ class TestStreamProducerClient:
         )
 
     @pytest.mark.asyncio
-    async def test_publish_change_no_producer(self):
-        """Test publishing when producer is not started."""
+    @patch('models.infrastructure.stream.producer.AIOKafkaProducer')
+    async def test_publish_change_no_producer(self, mock_producer_class):
+        """Test publishing when producer is not started (lazy start)."""
         self.client.producer = None
+        mock_producer = AsyncMock()
+        mock_producer_class.return_value = mock_producer
 
         event = MagicMock()
 
         await self.client.publish_change(event)
 
-        # Should log warning and return without error
+        # Should start producer and publish
+        mock_producer_class.assert_called_once()
+        mock_producer.start.assert_called_once()
+        mock_producer.send_and_wait.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_publish_change_no_key(self):
@@ -149,12 +157,7 @@ class TestStreamProducerClient:
 
         # Should log error but not raise
 
-    def test_model_post_init_calls_start(self):
-        """Test that model_post_init calls start."""
-        with patch.object(self.client, 'start') as mock_start:
-            # Re-initialize to trigger post_init
-            self.client.model_post_init(None)
-            mock_start.assert_called_once()
+
 
     def test_value_serializer(self):
         """Test the value serializer function."""
