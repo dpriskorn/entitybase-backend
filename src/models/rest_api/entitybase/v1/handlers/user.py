@@ -5,22 +5,22 @@ import logging
 
 from models.rest_api.entitybase.v1.handler import Handler
 
-from models.rest_api.entitybase.v1.response.misc import (
+from models.data.rest_api.v1.response import (
     GeneralStatsResponse,
     TermsByType,
     TermsPerLanguage,
 )
-from models.rest_api.entitybase.v1.response.user_stats import UserStatsResponse
-from models.rest_api.entitybase.v1.response.user import (
+from models.data.rest_api.v1.response import UserStatsResponse
+from models.data.rest_api.v1.response import (
     WatchlistToggleResponse,
     UserCreateResponse,
 )
 from models.rest_api.utils import raise_validation_error
-from models.rest_api.entitybase.v1.request.user import (
+from models.data.rest_api.v1.request import (
     UserCreateRequest,
     WatchlistToggleRequest,
 )
-from models.rest_api.entitybase.v1.response.user import UserResponse
+from models.data.rest_api.v1.response import UserResponse
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Query, Request
 
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.admin import AdminHandler
-from models.rest_api.entitybase.v1.response.entity.entitybase import EntityListResponse
+from models.data.rest_api.v1.response import EntityListResponse
 from models.rest_api.utils import raise_validation_error
 
 

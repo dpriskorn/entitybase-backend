@@ -7,7 +7,7 @@ import logging
 
 from pydantic import BaseModel, Field
 
-from models.rest_api.entitybase.v1.response.statement import StatementHashResult
+from models.data.rest_api.v1.response import StatementHashResult
 
 logger = logging.getLogger(__name__)
 

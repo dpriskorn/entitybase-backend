@@ -7,7 +7,7 @@ from fastapi import HTTPException
 
 from models.data.infrastructure.s3.reference_data import S3ReferenceData
 from models.rest_api.entitybase.v1.endpoints.references import get_references
-from models.rest_api.entitybase.v1.response.misc2 import ReferenceResponse
+from models.data.rest_api.v1.response import ReferenceResponse
 
 
 class TestReferencesEndpoint:
@@ -41,7 +41,7 @@ class TestReferencesEndpoint:
                 },
                 "snaks-order": ["P854"]
             },
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
 
@@ -73,7 +73,7 @@ class TestReferencesEndpoint:
         # Mock reference data - first found, second missing
         mock_reference_data = S3ReferenceData(
             reference={"snaks": {"P854": []}, "snaks-order": []},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
 
@@ -189,7 +189,7 @@ class TestReferencesEndpoint:
         # Mock reference data
         mock_reference_data = S3ReferenceData(
             reference={"snaks": {"P854": []}, "snaks-order": []},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
 

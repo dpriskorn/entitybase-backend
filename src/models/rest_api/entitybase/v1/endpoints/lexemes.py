@@ -8,8 +8,8 @@ from models.rest_api.entitybase.v1.handlers.entity.lexeme.create import (
     LexemeCreateHandler,
 )
 
-from models.rest_api.entitybase.v1.request import EntityCreateRequest
-from models.rest_api.entitybase.v1.response import EntityResponse
+from models.data.rest_api.v1.request import EntityCreateRequest
+from models.data.rest_api.v1.response import EntityResponse
 
 logger = logging.getLogger(__name__)
 

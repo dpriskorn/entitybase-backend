@@ -8,8 +8,8 @@ import requests
 from pydantic import BaseModel
 
 from models.data.infrastructure.s3.enums import EditType
-from models.rest_api.entitybase.v1.data.raw_entity import RawEntityData
-from models.rest_api.entitybase.v1.request import EntityCreateRequest
+from models.data.raw_entity import RawEntityData
+from models.data.rest_api.v1.request import EntityCreateRequest
 
 logger = logging.getLogger(__name__)
 

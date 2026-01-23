@@ -4,7 +4,7 @@ import pytest
 from unittest.mock import MagicMock
 
 from models.infrastructure.vitess.repositories.user import UserRepository
-from models.rest_api.entitybase.v1.request.enums import UserActivityType
+from models.data.rest_api.v1.request.enums import UserActivityType
 
 
 class TestUserRepository:
@@ -203,7 +203,7 @@ class TestUserRepository:
 
         repo = UserRepository(vitess_client=mock_vitess_client)
 
-        from models.rest_api.entitybase.v1.request.enums import UserActivityType
+        from models.data.rest_api.v1.request.enums import UserActivityType
         result = repo.log_user_activity(123, UserActivityType.ENTITY_EDIT, "Q1", 1)
 
         assert result.success is True
@@ -214,7 +214,7 @@ class TestUserRepository:
 
         repo = UserRepository(vitess_client=mock_vitess_client)
 
-        from models.rest_api.entitybase.v1.request.enums import UserActivityType
+        from models.data.rest_api.v1.request.enums import UserActivityType
         result = repo.log_user_activity(0, UserActivityType.ENTITY_EDIT, "Q1", 1)
 
         assert result.success is False
@@ -284,7 +284,7 @@ class TestUserRepository:
 
         repo = UserRepository(vitess_client=mock_vitess_client)
 
-        from models.rest_api.entitybase.v1.request.enums import UserActivityType
+        from models.data.rest_api.v1.request.enums import UserActivityType
         result = repo.get_user_activities(123, UserActivityType.ENTITY_EDIT)
 
         assert result.success is True

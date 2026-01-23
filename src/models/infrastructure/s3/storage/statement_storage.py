@@ -8,7 +8,7 @@ from models.config.settings import settings
 from models.data.infrastructure.s3.statement import S3Statement
 from models.infrastructure.s3.base_storage import BaseS3Storage
 from models.infrastructure.s3.exceptions import S3NotFoundError
-from models.rest_api.entitybase.v1.response import StatementResponse
+from models.data.rest_api.v1.response import StatementResponse
 
 logger = logging.getLogger(__name__)
 

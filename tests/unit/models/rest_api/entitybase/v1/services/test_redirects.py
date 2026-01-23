@@ -5,9 +5,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from models.rest_api.entitybase.v1.request.entity import EntityRedirectRequest
-from models.rest_api.entitybase.v1.response import EntityRedirectResponse
-from models.rest_api.entitybase.v1.response.entity import EntityRevertResponse
+from models.data.rest_api.v1.request import EntityRedirectRequest
+from models.data.rest_api.v1.response import EntityRedirectResponse
+from models.data.rest_api.v1.response import EntityRevertResponse
 from models.rest_api.entitybase.v1.services.redirects import RedirectService
 
 

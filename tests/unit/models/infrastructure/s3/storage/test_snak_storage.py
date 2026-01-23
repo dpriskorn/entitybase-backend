@@ -28,7 +28,7 @@ class TestSnakStorage:
                     "datatype": "wikibase-item",
                     "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-entityid"}
                 },
-                content_hash=12345,
+                hash=12345,
                 created_at="2023-01-01T12:00:00Z"
             )
 
@@ -53,7 +53,7 @@ class TestSnakStorage:
             snak_data = S3SnakData(
                 schema_version="1.0.0",
                 snak={"snaktype": "value", "property": "P31"},
-                content_hash=12345,
+                hash=12345,
                 created_at="2023-01-01T12:00:00Z"
             )
 
@@ -66,7 +66,7 @@ class TestSnakStorage:
         mock_snak_data = S3SnakData(
             schema_version="1.0.0",
             snak={"snaktype": "value", "property": "P31"},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
 
@@ -100,13 +100,13 @@ class TestSnakStorage:
         mock_snak_data1 = S3SnakData(
             schema_version="1.0.0",
             snak={"snaktype": "value", "property": "P31"},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
         mock_snak_data2 = S3SnakData(
             schema_version="1.0.0",
             snak={"snaktype": "value", "property": "P32"},
-            content_hash=67890,
+            hash=67890,
             created_at="2023-01-01T12:00:00Z"
         )
 
@@ -134,7 +134,7 @@ class TestSnakStorage:
         mock_snak_data = S3SnakData(
             schema_version="1.0.0",
             snak={"snaktype": "value", "property": "P31"},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
 

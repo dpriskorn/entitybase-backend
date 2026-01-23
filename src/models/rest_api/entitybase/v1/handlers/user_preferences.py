@@ -1,10 +1,10 @@
 """Handler for user preference operations."""
 
 from models.rest_api.entitybase.v1.handler import Handler
-from models.rest_api.entitybase.v1.request.user_preferences import (
+from models.data.rest_api.v1.request.user_preferences import (
     UserPreferencesRequest,
 )
-from models.rest_api.entitybase.v1.response.user_preferences import (
+from models.data.rest_api.v1.response import (
     UserPreferencesResponse,
 )
 from models.rest_api.utils import raise_validation_error

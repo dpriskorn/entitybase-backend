@@ -1,6 +1,6 @@
 ---
-description: Run coverage and investigate test failures and suggest actions
+description: Run coverage 
 agent: general
 ---
 Run coverage with ./run-coverage.sh
-Report total coverage %.
+Report total coverage % and all files with coverage below 50%.

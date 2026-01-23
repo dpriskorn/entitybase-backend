@@ -6,7 +6,7 @@ from typing import Any
 
 from models.json_parser.entity_parser import parse_entity
 from models.rdf_builder.converter import EntityConverter
-from models.rest_api.entitybase.v1.response.entity import EntityStatementsResponse
+from models.data.rest_api.v1.response import EntityStatementsResponse
 
 TEST_DATA_DIR = Path(os.environ["TEST_DATA_DIR"])
 

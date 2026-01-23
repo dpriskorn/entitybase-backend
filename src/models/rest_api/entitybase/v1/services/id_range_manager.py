@@ -7,7 +7,7 @@ from typing import Dict, Any
 from pydantic import BaseModel, Field
 
 from models.common import OperationResult
-from models.rest_api.entitybase.v1.response.misc import RangeStatus, RangeStatuses
+from models.data.rest_api.v1.response import RangeStatus, RangeStatuses
 
 logger = logging.getLogger(__name__)
 

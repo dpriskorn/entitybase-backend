@@ -5,11 +5,11 @@ import pytest
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType
 
-from models.rest_api.entitybase.v1.request.entity import (
+from models.data.rest_api.v1.request import (
     EntityRedirectRequest,
     RedirectRevertRequest,
 )
-from models.rest_api.entitybase.v1.response.entity import (
+from models.data.rest_api.v1.response import (
     EntityRedirectResponse,
     EntityResponse,
 )

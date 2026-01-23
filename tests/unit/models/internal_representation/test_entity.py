@@ -5,12 +5,12 @@ from unittest.mock import MagicMock
 
 from models.data.infrastructure.s3.enums import EntityType
 from models.internal_representation.entity import Entity
-from models.rest_api.entitybase.v1.response import (
+from models.data.rest_api.v1.response import (
     EntityLabelsResponse,
     EntityDescriptionsResponse,
     EntityAliasesResponse,
 )
-from models.rest_api.entitybase.v1.response.entity import EntitySitelinksResponse
+from models.data.rest_api.v1.response import EntitySitelinksResponse
 from models.internal_representation.statements import Statement
 
 
@@ -23,7 +23,7 @@ class TestEntity:
         descriptions = EntityDescriptionsResponse(data={})
         aliases = EntityAliasesResponse(data={})
         statements = [MagicMock(spec=Statement)]
-        sitelinks = EntitySitelinksResponse(sitelinks={})
+        sitelinks = EntitySitelinksResponse(data={})
 
         entity = Entity(
             id="Q123",

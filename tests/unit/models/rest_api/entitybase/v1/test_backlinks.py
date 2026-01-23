@@ -4,7 +4,7 @@ import pytest
 from fastapi import HTTPException
 
 from models.rest_api.entitybase.v1.handlers.entity.backlinks import BacklinkHandler
-from models.rest_api.entitybase.v1.response.entity.backlinks import BacklinkResponse
+from models.data.rest_api.v1.response import BacklinkResponse
 
 pytestmark = pytest.mark.unit
 

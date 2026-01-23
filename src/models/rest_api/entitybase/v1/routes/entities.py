@@ -4,8 +4,8 @@ from fastapi import APIRouter, Header, Request
 
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.entity.revert import EntityRevertHandler
-from models.rest_api.entitybase.v1.request.entity import EntityRevertRequest
-from models.rest_api.entitybase.v1.response.entity import EntityRevertResponse
+from models.data.rest_api.v1.request import EntityRevertRequest
+from models.data.rest_api.v1.response import EntityRevertResponse
 from models.rest_api.utils import raise_validation_error
 
 

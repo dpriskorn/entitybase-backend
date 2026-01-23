@@ -1,5 +1,5 @@
 """Unit tests for producer."""
-
+from datetime import datetime, timezone
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
 import pytest
@@ -72,10 +72,10 @@ class TestStreamProducerClient:
         self.client.producer = mock_producer
 
         event = EntityChangeEvent(
-            entity_id="Q42",
-            revision_id=123,
-            change_type=ChangeType.EDIT,
-            changed_at=MagicMock(),
+            id="Q42",
+            rev=123,
+            type=ChangeType.EDIT,
+            at=datetime.now(timezone.utc),
         )
 
         await self.client.publish_change(event)
@@ -144,10 +144,10 @@ class TestStreamProducerClient:
         self.client.producer = mock_producer
 
         event = EntityChangeEvent(
-            entity_id="Q42",
-            revision_id=123,
-            change_type=ChangeType.EDIT,
-            changed_at=MagicMock(),
+            id="Q42",
+            rev=123,
+            type=ChangeType.EDIT,
+            at=datetime.now(timezone.utc),
         )
 
         await self.client.publish_change(event)

@@ -42,7 +42,7 @@ class TestQualifierStorage:
                         }
                     ]
                 },
-                content_hash=12345,
+                hash=12345,
                 created_at="2023-01-01T12:00:00Z"
             )
 
@@ -66,7 +66,7 @@ class TestQualifierStorage:
         with patch('models.infrastructure.s3.base_storage.BaseS3Storage.store', return_value=MagicMock(success=False)):
             qualifier_data = S3QualifierData(
                 qualifier={"P580": []},
-                content_hash=12345,
+                hash=12345,
                 created_at="2023-01-01T12:00:00Z"
             )
 
@@ -78,7 +78,7 @@ class TestQualifierStorage:
         """Test successful qualifier loading."""
         mock_qualifier_data = S3QualifierData(
             qualifier={"P580": []},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
         data_dict = mock_qualifier_data.model_dump()
@@ -99,13 +99,13 @@ class TestQualifierStorage:
         """Test batch loading when all qualifiers are found."""
         mock_qualifier_data1 = S3QualifierData(
             qualifier={"P580": []},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
         data_dict1 = mock_qualifier_data1.model_dump()
         mock_qualifier_data2 = S3QualifierData(
             qualifier={"P582": []},
-            content_hash=67890,
+            hash=67890,
             created_at="2023-01-02T12:00:00Z"
         )
         data_dict2 = mock_qualifier_data2.model_dump()
@@ -136,7 +136,7 @@ class TestQualifierStorage:
         """Test batch loading when some qualifiers are missing."""
         mock_qualifier_data = S3QualifierData(
             qualifier={"P580": []},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
         data_dict = mock_qualifier_data.model_dump()

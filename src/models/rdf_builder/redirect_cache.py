@@ -8,7 +8,7 @@ from typing import Any, List
 
 import requests
 
-from models.rest_api.entitybase.v1.response.rdf import RedirectBatchResponse, MetadataLoadResponse
+from models.data.rest_api.v1.response import RedirectBatchResponse, MetadataLoadResponse
 
 logger = logging.getLogger(__name__)
 

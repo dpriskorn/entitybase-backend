@@ -3,8 +3,8 @@
 import logging
 from typing import Any
 
-from models.rest_api.entitybase.v1.request.entity import EntityCreateRequest
-from models.rest_api.entitybase.v1.response import EntityResponse
+from models.data.rest_api.v1.request import EntityCreateRequest
+from models.data.rest_api.v1.response import EntityResponse
 from ..create import EntityCreateHandler
 
 logger = logging.getLogger(__name__)

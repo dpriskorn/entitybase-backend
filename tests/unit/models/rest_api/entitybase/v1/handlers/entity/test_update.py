@@ -7,8 +7,8 @@ import pytest
 from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
-from models.rest_api.entitybase.v1.request import EntityUpdateRequest
-from models.rest_api.entitybase.v1.response import EntityResponse
+from models.data.rest_api.v1.request import EntityUpdateRequest
+from models.data.rest_api.v1.response import EntityResponse
 
 
 class TestEntityUpdateHandler:

@@ -4,8 +4,8 @@ import logging
 import re
 from typing import Any
 
-from models.rest_api.entitybase.v1.request import EntityUpdateRequest
-from models.rest_api.entitybase.v1.response import EntityResponse
+from models.data.rest_api.v1.request import EntityUpdateRequest
+from models.data.rest_api.v1.response import EntityResponse
 from models.rest_api.utils import raise_validation_error
 from ..update import EntityUpdateHandler
 

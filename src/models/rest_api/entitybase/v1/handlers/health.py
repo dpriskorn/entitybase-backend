@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from fastapi import Response
 from starlette import status
 
-from models.rest_api.entitybase.v1.response import HealthCheckResponse
+from models.data.rest_api.v1.response import HealthCheckResponse
 
 
 def health_check(response: Response) -> HealthCheckResponse:

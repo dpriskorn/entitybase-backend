@@ -8,7 +8,7 @@ from typing import Protocol
 
 from pydantic import BaseModel, Field
 
-from models.rest_api.entitybase.v1.response import DeduplicationStatsResponse
+from models.data.rest_api.v1.response import DeduplicationStatsResponse
 from models.rest_api.utils import raise_validation_error
 
 

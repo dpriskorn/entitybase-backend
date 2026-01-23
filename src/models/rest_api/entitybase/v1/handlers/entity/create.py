@@ -5,14 +5,14 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
-from models.rest_api.entitybase.v1.request import EntityCreateRequest
-from models.rest_api.entitybase.v1.response import EntityResponse
+from models.data.rest_api.v1.request import EntityCreateRequest
+from models.data.rest_api.v1.response import EntityResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import (
     EnumerationService,
 )
 from models.rest_api.utils import raise_validation_error
 from .handler import EntityHandler
-from ...request.enums import UserActivityType
+from models.data.rest_api.v1.request.enums import UserActivityType
 
 logger = logging.getLogger(__name__)
 

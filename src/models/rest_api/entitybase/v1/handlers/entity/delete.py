@@ -18,9 +18,9 @@ from models.data.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.entitybase.v1.handler import Handler
-from models.rest_api.entitybase.v1.request.entity import EntityDeleteRequest
-from models.rest_api.entitybase.v1.request.enums import UserActivityType
-from models.rest_api.entitybase.v1.response import EntityDeleteResponse
+from models.data.rest_api.v1.request import EntityDeleteRequest
+from models.data.rest_api.v1.request.enums import UserActivityType
+from models.data.rest_api.v1.response import EntityDeleteResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

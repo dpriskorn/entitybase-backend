@@ -4,7 +4,7 @@ from fastapi import APIRouter, Request
 
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
-from models.rest_api.entitybase.v1.response import (
+from models.data.rest_api.v1.response import (
     PropertyHashesResponse,
 )
 from models.rest_api.utils import raise_validation_error

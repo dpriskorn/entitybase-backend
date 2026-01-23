@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.rest_api.entitybase.v1.response.misc import TermsByType, TermsPerLanguage
+from models.data.rest_api.v1.response.misc import TermsByType, TermsPerLanguage
 
 
 class QualifierResponse(BaseModel):

@@ -10,7 +10,7 @@ from pydantic import Field
 from pyld import jsonld  # type: ignore[import-untyped]
 
 from models.infrastructure.stream.producer import StreamProducerClient
-from models.rest_api.entitybase.v1.response.events import RDFChangeEvent
+from models.data.rest_api.v1.response import RDFChangeEvent
 from models.workers.entity_diff.entity_diff_request import EntityDiffRequest
 from models.workers.entity_diff.entity_diff_response import EntityDiffResponse
 from models.workers.entity_diff.enums import CanonicalizationMethod

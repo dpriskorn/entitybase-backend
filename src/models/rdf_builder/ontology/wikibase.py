@@ -1,5 +1,5 @@
 """RDF ontology Wikibase predicates."""
-from models.rest_api.entitybase.v1.response.rdf import WikibasePredicatesResponse
+from models.data.rest_api.v1.response import WikibasePredicatesResponse
 
 
 def wikibase_predicates(pid: str) -> WikibasePredicatesResponse:

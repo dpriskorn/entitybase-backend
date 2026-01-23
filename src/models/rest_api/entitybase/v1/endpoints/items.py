@@ -9,14 +9,14 @@ from models.rest_api.entitybase.v1.handlers.entity.item import ItemCreateHandler
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
-from models.rest_api.entitybase.v1.request.entity import (
+from models.data.rest_api.v1.request import (
     EntityCreateRequest,
     EntityUpdateRequest,
 )
-from models.rest_api.entitybase.v1.response import (
+from models.data.rest_api.v1.response import (
     EntityResponse,
 )
-from models.rest_api.entitybase.v1.response.misc import (
+from models.data.rest_api.v1.response import (
     DescriptionResponse,
     LabelResponse,
 )

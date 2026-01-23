@@ -6,8 +6,8 @@ from datetime import datetime, timezone
 from models.data.infrastructure.stream.actions import EndorseAction
 from models.infrastructure.stream.event import EndorseChangeEvent
 from models.rest_api.entitybase.v1.handler import Handler
-from models.rest_api.entitybase.v1.request.endorsements import EndorsementListRequest
-from models.rest_api.entitybase.v1.response.endorsements import (
+from models.data.rest_api.v1.request import EndorsementListRequest
+from models.data.rest_api.v1.response import (
     BatchEndorsementStatsResponse,
     EndorsementListResponse,
     EndorsementResponse,
@@ -194,7 +194,7 @@ class EndorsementHandler(Handler):
             }
         )
 
-        from models.rest_api.entitybase.v1.response.endorsements import (
+        from models.data.rest_api.v1.response import (
             StatementEndorsementStats,
         )
 

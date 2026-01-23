@@ -7,20 +7,20 @@ from pathlib import Path
 
 import requests
 
-from models.rest_api.entitybase.v1.response import (
+from models.data.rest_api.v1.response import (
     EntityMetadataResponse,
     EntityMetadataBatchResponse,
 )
-from models.rest_api.entitybase.v1.response.entity.entitybase import (
+from models.data.rest_api.v1.response import (
     EntityAliasesResponse,
     EntityDescriptionsResponse,
 )
-from models.rest_api.entitybase.v1.response.entity.entitybase import (
+from models.data.rest_api.v1.response import (
     EntityLabelsResponse,
     EntitySitelinksResponse,
     EntityStatementsResponse,
 )
-from models.rest_api.entitybase.v1.response.rdf import MetadataLoadResponse
+from models.data.rest_api.v1.response import MetadataLoadResponse
 
 logger = logging.getLogger(__name__)
 

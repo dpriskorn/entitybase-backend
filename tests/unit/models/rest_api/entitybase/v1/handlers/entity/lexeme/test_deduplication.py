@@ -9,7 +9,7 @@ import pytest
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.json_parser.entity_parser import parse_entity_data
 from models.rest_api.entitybase.v1.handlers.entity.lexeme.create import LexemeCreateHandler
-from models.rest_api.entitybase.v1.request.entity import EntityCreateRequest
+from models.data.rest_api.v1.request import EntityCreateRequest
 from models.rest_api.entitybase.v1.services.enumeration_service import EnumerationService
 
 

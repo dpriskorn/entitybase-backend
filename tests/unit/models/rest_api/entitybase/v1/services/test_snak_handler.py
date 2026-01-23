@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from models.rest_api.entitybase.v1.services.snak_handler import SnakHandler
-from models.rest_api.entitybase.v1.request.snak import SnakRequest
+from models.data.rest_api.v1.request import SnakRequest
 from models.data.infrastructure.s3.snak_data import S3SnakData
 
 

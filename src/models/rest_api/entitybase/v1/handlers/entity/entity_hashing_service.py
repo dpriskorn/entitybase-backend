@@ -7,7 +7,7 @@ from models.common import raise_validation_error
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
 from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
 
-from models.rest_api.entitybase.v1.response import StatementHashResult
+from models.data.rest_api.v1.response import StatementHashResult
 from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.entitybase.v1.services.hash_service import HashService
 

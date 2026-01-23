@@ -7,7 +7,7 @@ from fastapi import HTTPException
 
 from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.rest_api.entitybase.v1.endpoints.qualifiers import get_qualifiers
-from models.rest_api.entitybase.v1.response.misc2 import QualifierResponse
+from models.data.rest_api.v1.response import QualifierResponse
 
 
 class TestQualifiersEndpoint:
@@ -45,7 +45,7 @@ class TestQualifiersEndpoint:
                     }
                 ]
             },
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
 
@@ -77,7 +77,7 @@ class TestQualifiersEndpoint:
         # Mock qualifier data - first found, second missing
         mock_qualifier_data = S3QualifierData(
             qualifier={"P580": []},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
 
@@ -193,7 +193,7 @@ class TestQualifiersEndpoint:
         # Mock qualifier data
         mock_qualifier_data = S3QualifierData(
             qualifier={"P580": []},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
 

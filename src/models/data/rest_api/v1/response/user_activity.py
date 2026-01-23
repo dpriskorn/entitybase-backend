@@ -5,7 +5,7 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-from models.rest_api.entitybase.v1.request.enums import UserActivityType
+from models.data.rest_api.v1.request.enums import UserActivityType
 
 
 class UserActivityItemResponse(BaseModel):

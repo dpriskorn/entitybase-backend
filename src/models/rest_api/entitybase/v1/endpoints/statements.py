@@ -3,12 +3,12 @@
 from fastapi import APIRouter, HTTPException, Request
 
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
-from models.rest_api.entitybase.v1.request import (
+from models.data.rest_api.v1.request import (
     CleanupOrphanedRequest,
     MostUsedStatementsRequest,
     StatementBatchRequest,
 )
-from models.rest_api.entitybase.v1.response import (
+from models.data.rest_api.v1.response import (
     CleanupOrphanedResponse,
     MostUsedStatementsResponse,
     StatementBatchResponse,

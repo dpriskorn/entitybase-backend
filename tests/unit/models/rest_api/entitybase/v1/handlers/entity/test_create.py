@@ -6,8 +6,8 @@ import pytest
 
 from models.data.infrastructure.s3.enums import EntityType
 from models.rest_api.entitybase.v1.handlers.entity.create import EntityCreateHandler
-from models.rest_api.entitybase.v1.request import EntityCreateRequest
-from models.rest_api.entitybase.v1.response import EntityResponse
+from models.data.rest_api.v1.request import EntityCreateRequest
+from models.data.rest_api.v1.response import EntityResponse
 
 
 class TestEntityCreateHandler:
@@ -34,8 +34,8 @@ class TestEntityCreateHandler:
         # Mock the process_entity_revision_new method
         mock_response = EntityResponse(
             id="Q42",
-            revision_id=12345,
-            entity_data={"id": "Q42", "type": "item"},
+            rev_id=12345,
+            data={"id": "Q42", "type": "item"},
             state=MagicMock()
         )
 
@@ -96,8 +96,8 @@ class TestEntityCreateHandler:
         # Mock response
         mock_response = EntityResponse(
             id="Q100",
-            revision_id=12345,
-            entity_data={"id": "Q100", "type": "item"},
+            rev_id=12345,
+            data={"id": "Q100", "type": "item"},
             state=MagicMock()
         )
 

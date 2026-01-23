@@ -7,7 +7,7 @@ from typing import Any, Dict
 from models.data.infrastructure.s3.snak_data import S3SnakData
 from models.infrastructure.s3.client import MyS3Client
 from models.internal_representation.metadata_extractor import MetadataExtractor
-from models.rest_api.entitybase.v1.request.snak import SnakRequest
+from models.data.rest_api.v1.request import SnakRequest
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

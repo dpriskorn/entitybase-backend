@@ -1,7 +1,7 @@
 """Repository for entity listing operations."""
 
 from models.infrastructure.vitess.repository import Repository
-from models.rest_api.entitybase.v1.response.listings import EntityListing
+from models.data.rest_api.v1.response import EntityListing
 
 
 class ListingRepository(Repository):

@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Response
 
 from models.rest_api.entitybase.v1.handlers import health_check
-from models.rest_api.entitybase.v1.response import HealthCheckResponse
+from models.data.rest_api.v1.response import HealthCheckResponse
 
 health_router = APIRouter(tags=["health"])
 

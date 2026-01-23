@@ -5,7 +5,7 @@ import logging
 from pydantic import BaseModel
 
 from models.data.infrastructure.s3.entity_state import EntityState
-from models.rest_api.entitybase.v1.response import EntityResponse
+from models.data.rest_api.v1.response import EntityResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

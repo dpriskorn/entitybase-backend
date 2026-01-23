@@ -21,7 +21,7 @@ from models.infrastructure.s3.storage.reference_storage import ReferenceStorage
 from models.infrastructure.s3.storage.revision_storage import RevisionStorage
 from models.infrastructure.s3.storage.snak_storage import SnakStorage
 from models.infrastructure.s3.storage.statement_storage import StatementStorage
-from models.rest_api.entitybase.v1.response import StatementResponse
+from models.data.rest_api.v1.response import StatementResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

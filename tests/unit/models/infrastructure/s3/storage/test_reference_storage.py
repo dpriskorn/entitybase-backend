@@ -38,7 +38,7 @@ class TestReferenceStorage:
                     },
                     "snaks-order": ["P854"]
                 },
-                content_hash=12345,
+                hash=12345,
                 created_at="2023-01-01T12:00:00Z"
             )
 
@@ -62,7 +62,7 @@ class TestReferenceStorage:
             storage = ReferenceStorage(connection_manager=mock_connection_manager)
             reference_data = S3ReferenceData(
                 reference={"snaks": {}, "snaks-order": []},
-                content_hash=12345,
+                hash=12345,
                 created_at="2023-01-01T12:00:00Z"
             )
 
@@ -74,7 +74,7 @@ class TestReferenceStorage:
         """Test successful reference loading."""
         mock_reference_data = S3ReferenceData(
             reference={"snaks": {}, "snaks-order": []},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
 
@@ -107,12 +107,12 @@ class TestReferenceStorage:
         """Test batch loading when all references are found."""
         mock_reference_data1 = S3ReferenceData(
             reference={"snaks": {"P854": []}, "snaks-order": ["P854"]},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
         mock_reference_data2 = S3ReferenceData(
             reference={"snaks": {"P248": []}, "snaks-order": ["P248"]},
-            content_hash=67890,
+            hash=67890,
             created_at="2023-01-02T12:00:00Z"
         )
 
@@ -143,7 +143,7 @@ class TestReferenceStorage:
         """Test batch loading when some references are missing."""
         mock_reference_data = S3ReferenceData(
             reference={"snaks": {"P854": []}, "snaks-order": ["P854"]},
-            content_hash=12345,
+            hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
 

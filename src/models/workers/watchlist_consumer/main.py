@@ -41,9 +41,6 @@ class WatchlistConsumerWorker(VitessWorker):
                 )
                 self.consumer = StreamConsumerClient(
                     config=consumer_config,
-                    brokers=kafka_brokers,
-                    topic=kafka_topic,
-                    group_id="watchlist-consumer"
                 )
                 assert self.consumer is not None
                 await self.consumer.start()

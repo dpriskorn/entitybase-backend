@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 
 from models.infrastructure.vitess.repositories.terms import TermsRepository
-from models.rest_api.entitybase.v1.response.misc import TermsResponse
+from models.data.rest_api.v1.response import TermsResponse
 
 
 class TestTermsRepository:
