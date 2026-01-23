@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 from models.infrastructure.stream.consumer import StreamConsumerClient
 from models.data.infrastructure.stream.consumer import EntityChangeEventData
+from models.data.config.stream_consumer import StreamConsumerConfig
 
 pytestmark = pytest.mark.unit
 
@@ -34,7 +35,8 @@ class TestConsumer:
     @pytest.fixture
     def consumer(self) -> StreamConsumerClient:
         """Create a consumer instance."""
-        return StreamConsumerClient(brokers=["localhost:9092"])
+        config = StreamConsumerConfig(brokers=["localhost:9092"])
+        return StreamConsumerClient(config=config)
 
     def test_consumer_init(self, consumer: StreamConsumerClient) -> None:
         """Test consumer initialization."""

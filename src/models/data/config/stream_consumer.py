@@ -7,5 +7,5 @@ class StreamConsumerConfig(Config):
     """Configuration for Kafka stream consumer."""
 
     brokers: list[str]
-    topic: str
+    topic: str = "wikibase-entity-changes"
     group_id: str = "watchlist-consumer"

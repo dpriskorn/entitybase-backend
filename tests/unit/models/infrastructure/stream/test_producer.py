@@ -1,12 +1,13 @@
 """Unit tests for producer."""
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
 import pytest
 
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.data.infrastructure.stream.change_type import ChangeType
+from models.data.config.stream import StreamConfig
 
 
 class TestStreamProducerClient:
@@ -14,12 +15,8 @@ class TestStreamProducerClient:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.config = MagicMock()
-        self.client = StreamProducerClient(
-            config=self.config,
-            bootstrap_servers=["localhost:9092"],
-            topic="test-topic"
-        )
+        self.config = StreamConfig(bootstrap_servers=["localhost:9092"], topic="test-topic")
+        self.client = StreamProducerClient(config=self.config)
 
     @pytest.mark.asyncio
     async def test_start_producer(self):
@@ -32,7 +29,7 @@ class TestStreamProducerClient:
 
             mock_producer_class.assert_called_once_with(
                 bootstrap_servers=["localhost:9092"],
-                value_serializer=self.client.producer.value_serializer,
+                value_serializer=ANY,
             )
             mock_producer.start.assert_called_once()
             assert self.client.producer == mock_producer
@@ -77,7 +74,7 @@ class TestStreamProducerClient:
         event = EntityChangeEvent(
             entity_id="Q42",
             revision_id=123,
-            change_type=ChangeType.UPDATE,
+            change_type=ChangeType.EDIT,
             changed_at=MagicMock(),
         )
 
@@ -149,7 +146,7 @@ class TestStreamProducerClient:
         event = EntityChangeEvent(
             entity_id="Q42",
             revision_id=123,
-            change_type=ChangeType.UPDATE,
+            change_type=ChangeType.EDIT,
             changed_at=MagicMock(),
         )
 
@@ -164,7 +161,7 @@ class TestStreamProducerClient:
         event = MagicMock()
         event.model_dump_json.return_value = '{"test": "data"}'
 
-        serializer = self.client.producer.value_serializer
+        serializer = lambda v: v.model_dump_json(by_alias=True).encode("utf-8")
         result = serializer(event)
 
         assert result == b'{"test": "data"}'

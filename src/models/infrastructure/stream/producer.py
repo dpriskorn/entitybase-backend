@@ -5,6 +5,7 @@ from typing import Any
 
 from aiokafka import AIOKafkaProducer  # type: ignore[import-untyped]
 
+from models.data.config.stream import StreamConfig
 from models.infrastructure.client import Client
 
 logger = logging.getLogger(__name__)
@@ -14,8 +15,7 @@ class StreamProducerClient(Client):
     """Kafka producer client for publishing events.
     Producer starts lazily on first publish."""
 
-    bootstrap_servers: list[str]
-    topic: str
+    config: StreamConfig
     producer: AIOKafkaProducer | None = None
     model_config = {"arbitrary_types_allowed": True}
 
@@ -29,11 +29,11 @@ class StreamProducerClient(Client):
         if self.producer is not None:
             return
         self.producer = AIOKafkaProducer(
-            bootstrap_servers=self.bootstrap_servers,
+            bootstrap_servers=self.config.bootstrap_servers,
             value_serializer=lambda v: v.model_dump_json(by_alias=True).encode("utf-8"),
         )
         await self.producer.start()
-        logger.info(f"Started Kafka producer for topic {self.topic}")
+        logger.info(f"Started Kafka producer for topic {self.config.topic}")
 
     async def stop(self) -> None:
         """Stop the Kafka producer."""
@@ -48,13 +48,13 @@ class StreamProducerClient(Client):
             await self.start()
 
         try:
-            key = getattr(event, "entity_id", getattr(event, "hash", None))
+            key = getattr(event, "entity_id", None) or getattr(event, "hash", None)
             if key is None:
                 logger.error(f"Event {event} has no key field")
                 return
 
             await self.producer.send_and_wait(
-                topic=self.topic,
+                topic=self.config.topic,
                 key=str(key),
                 value=event,
             )

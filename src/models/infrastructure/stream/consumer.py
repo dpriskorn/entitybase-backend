@@ -22,9 +22,6 @@ class StreamConsumerClient(Client):
 
     config: StreamConsumerConfig
 
-    brokers: list[str]
-    topic: str = "wikibase-entity-changes"
-    group_id: str = "watchlist-consumer"
     consumer: AIOKafkaConsumer | None = Field(default=None)
     bootstrap_servers: str = Field(default="", init=False)
 
@@ -33,20 +30,35 @@ class StreamConsumerClient(Client):
         """Check if the consumer has a healthy connection."""
         return self.consumer is not None
 
+    @property
+    def brokers(self) -> list[str]:
+        """Get brokers."""
+        return self.config.brokers
+
+    @property
+    def topic(self) -> str:
+        """Get topic."""
+        return self.config.topic
+
+    @property
+    def group_id(self) -> str:
+        """Get group_id."""
+        return self.config.group_id
+
     def model_post_init(self, context) -> None:
-        self.bootstrap_servers = ",".join(self.brokers)
+        self.bootstrap_servers = ",".join(self.config.brokers)
 
     async def start(self) -> None:
         """Start the Kafka consumer."""
         self.consumer = AIOKafkaConsumer(
-            self.topic,
+            self.config.topic,
             bootstrap_servers=self.bootstrap_servers,
-            group_id=self.group_id,
+            group_id=self.config.group_id,
             value_deserializer=lambda v: json.loads(v.decode("utf-8")),
             auto_offset_reset="latest",
         )
         await self.consumer.start()
-        logger.info(f"Started Kafka consumer for topic {self.topic}")
+        logger.info(f"Started Kafka consumer for topic {self.config.topic}")
 
     async def stop(self) -> None:
         """Stop the Kafka consumer."""
