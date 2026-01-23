@@ -170,13 +170,14 @@ class TripleWriters:
 
         # Qualifiers
         for qual in rdf_statement.qualifiers:
+            q_shape = property_registry.shape(qual.property)
             qv = ValueFormatter.format_value(qual.value)
 
             if TripleWriters._needs_value_node(qual.value):
                 qualifier_node_id = generate_value_node_uri(qual.value)
 
                 output.write(
-                    f"{stmt_uri_prefixed} {shape.predicates.qualifier_value} wdv:{qualifier_node_id} .\n"
+                    f"{stmt_uri_prefixed} {q_shape.predicates.qualifier_value} wdv:{qualifier_node_id} .\n"
                 )
 
                 if qual.value.kind == "time":
@@ -193,7 +194,7 @@ class TripleWriters:
                     )
             else:
                 output.write(
-                    f"{stmt_uri_prefixed} {shape.predicates.qualifier} {qv} .\n"
+                    f"{stmt_uri_prefixed} {q_shape.predicates.qualifier} {qv} .\n"
                 )
 
         # References

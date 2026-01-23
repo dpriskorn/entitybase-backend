@@ -3,6 +3,7 @@
 from unittest.mock import MagicMock, patch
 
 from models.infrastructure.vitess.connection import VitessConnectionManager
+from models.data.config.vitess import VitessConfig
 
 
 class TestVitessConnectionManager:
@@ -10,12 +11,13 @@ class TestVitessConnectionManager:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.config = MagicMock()
-        self.config.host = "localhost"
-        self.config.port = 3306
-        self.config.user = "user"
-        self.config.password = "pass"
-        self.config.database = "test_db"
+        self.config = VitessConfig(
+            host="localhost",
+            port=3306,
+            user="user",
+            password="pass",
+            database="test_db"
+        )
 
     def test_initialization(self):
         """Test connection manager initialization."""

@@ -404,7 +404,7 @@ class TestTripleWriters:
             )
         )
 
-        mock_format_value.side_effect = ["wd:Q5", '"https://example.com"']
+        mock_format_value.side_effect = lambda v: "wd:Q5" if v == "wd:Q5" else '"https://example.com"'
 
         # Mock property registry and RDF reference
         mock_registry = MagicMock()
@@ -497,13 +497,26 @@ class TestTripleWriters:
                 statement="ps:P31",
                 qualifier="pq:P31",
                 reference="pr:P31"
-            )
-        )
+             )
+         )
 
         # Mock property registry
         mock_registry = PropertyRegistry(properties={})
 
-        with patch('models.rdf_builder.writers.triple.ValueFormatter.format_value', return_value="wd:Q5"):
+        def mock_shape(pid):
+            return PropertyShape(
+                pid=pid,
+                datatype="string",
+                predicates=PropertyPredicates(
+                    direct=f"wdt:{pid}",
+                    statement=f"ps:{pid}",
+                    qualifier=f"pq:{pid}",
+                    reference=f"pr:{pid}"
+                )
+            )
+
+        with patch.object(mock_registry, 'shape', side_effect=mock_shape), \
+             patch('models.rdf_builder.writers.triple.ValueFormatter.format_value', return_value="wd:Q5"):
             TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
 
         result = output.getvalue()
