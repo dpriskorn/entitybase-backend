@@ -1,10 +1,6 @@
 """Unit tests for entity_parser."""
 
-import json
-from pathlib import Path
-
 from models.internal_representation.entity_data import EntityData
-from models.internal_representation.lexeme import LexemeForm, LexemeSense
 from models.json_parser.entity_parser import parse_entity, parse_entity_data
 
 

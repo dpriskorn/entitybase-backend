@@ -218,8 +218,8 @@ class TestEntityCreateHandler:
 
         mock_response = EntityResponse(
             id="Q42",
-            revision_id=12345,
-            entity_data={"id": "Q42", "type": "item"},
+            rev_id=12345,
+            data={"id": "Q42", "type": "item"},
             state=MagicMock()
         )
 
@@ -256,8 +256,8 @@ class TestEntityCreateHandler:
 
         mock_response = EntityResponse(
             id="Q42",
-            revision_id=12345,
-            entity_data={"id": "Q42", "type": "item"},
+            rev_id=12345,
+            data={"id": "Q42", "type": "item"},
             state=MagicMock()
         )
 
@@ -295,8 +295,8 @@ class TestEntityCreateHandler:
         mock_validator = MagicMock()
         mock_response = EntityResponse(
             id="Q42",
-            revision_id=12345,
-            entity_data={"id": "Q42", "type": "item"},
+            rev_id=12345,
+            data={"id": "Q42", "type": "item"},
             state=MagicMock()
         )
 
@@ -334,8 +334,8 @@ class TestEntityCreateHandler:
 
         mock_response = EntityResponse(
             id="Q42",
-            revision_id=12345,
-            entity_data={"id": "Q42", "type": "item"},
+            rev_id=12345,
+            data={"id": "Q42", "type": "item"},
             state=MagicMock()
         )
 

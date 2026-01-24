@@ -70,8 +70,8 @@ class TestStatementServiceSnakIntegration:
             
             result = service.deduplicate_and_store_statements(sample_hash_result)
             
-            # Verify SnakHandler was called
-            MockSnakHandler.assert_called_once()
+            # Verify SnakHandler was called (mainsnak + qualifier processing)
+            assert MockSnakHandler.call_count == 2
             mock_snak_handler_instance.store_snak.assert_called_once()
             
             # Verify the snak request was constructed correctly

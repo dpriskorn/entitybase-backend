@@ -9,7 +9,7 @@ from models.internal_representation.metadata_extractor import MetadataExtractor
 
 def test_lexeme_l42_processing():
     """Test that L42 lexeme can be parsed and processed."""
-    test_data_path = Path(__file__).parent.parent.parent / "test_data" / "json" / "entities" / "L42.json"
+    test_data_path = Path(__file__).parent.parent.parent.parent / "test_data" / "json" / "entities" / "L42.json"
 
     with open(test_data_path, "r", encoding="utf-8") as f:
         raw_data = json.load(f)

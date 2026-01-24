@@ -1,6 +1,7 @@
 """Unit tests for reference and qualifier models."""
 
 import pytest
+from pydantic import ValidationError
 
 from models.internal_representation.reference_qualifier_models import ReferenceModel, QualifierModel
 
@@ -28,10 +29,11 @@ class TestReferenceModel:
         snaks = {"P123": []}
         snaks_order = []
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValidationError):
             ReferenceModel(
                 snaks=snaks,
                 snaks_order=snaks_order,
+                hash=None
             )
 
     def test_reference_model_empty_snaks(self):
@@ -63,6 +65,7 @@ class TestQualifierModel:
     def test_qualifier_model_missing_qualifiers(self):
         """Test QualifierModel creation without qualifiers."""
         with pytest.raises(ValueError):
+            # noinspection PyArgumentList
             QualifierModel()
 
     def test_qualifier_model_empty_qualifiers(self):

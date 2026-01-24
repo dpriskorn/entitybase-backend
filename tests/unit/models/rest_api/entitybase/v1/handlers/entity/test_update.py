@@ -58,7 +58,8 @@ class TestEntityUpdateHandler:
             request = EntityUpdateRequest(
                 type="item",
                 labels={"en": {"value": "Updated Entity"}},
-                edit_summary="Test update"
+                edit_summary="Test update",
+                id="Q12345",
             )
 
             result = await handler.update_entity("Q42", request, user_id=123)
@@ -114,7 +115,9 @@ class TestEntityUpdateHandler:
 
         request = EntityUpdateRequest(
             type="item",
-            labels={"en": {"value": "Updated Entity"}}
+            labels={"en": {"value": "Updated Entity"}},
+            edit_summary="Test update for non-existent entity",
+            id="Q999"
         )
 
         with pytest.raises(Exception):  # Should raise validation error

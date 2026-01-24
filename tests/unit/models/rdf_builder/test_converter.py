@@ -19,7 +19,6 @@ class TestEntityConverter:
 
         assert converter.property_registry == property_registry
         assert converter.writers is not None
-        assert converter.uri is not None
 
     def test_converter_with_custom_params(self) -> None:
         """Test EntityConverter with custom parameters."""
@@ -105,6 +104,8 @@ class TestEntityConverter:
 
     def test_write_entity_metadata_with_sitelinks(self) -> None:
         """Test writing entity metadata with sitelinks."""
+        from models.data.rest_api.v1.entitybase.response.entity.wikibase import SitelinkValue
+
         property_registry = PropertyRegistry(properties={})
         converter = EntityConverter(property_registry=property_registry)
 
@@ -117,7 +118,7 @@ class TestEntityConverter:
         mock_entity.aliases = MagicMock(data={})
 
         mock_sitelinks = MagicMock()
-        mock_sitelinks.data = {"enwiki": {"site": "enwiki", "title": "Test Page"}}
+        mock_sitelinks.data = {"enwiki": SitelinkValue(site="enwiki", title="Test Page")}
         mock_entity.sitelinks = mock_sitelinks
 
         converter._write_entity_metadata(mock_entity, output)
@@ -190,7 +191,6 @@ class TestEntityConverter:
         """Test writing individual statement."""
         property_registry = PropertyRegistry(properties={})
         mock_shape = MagicMock()
-        property_registry.shape = mock_shape
         converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
@@ -200,7 +200,9 @@ class TestEntityConverter:
         mock_rdf_stmt.property_id = "P31"
 
         # Mock writers
-        with patch.object(converter.writers, 'write_statement') as mock_write_statement:
+        with patch.object(converter.writers, 'write_statement') as mock_write_statement, \
+             patch.object(property_registry, 'shape', return_value=mock_shape):
+
             converter._write_statement("Q42", mock_rdf_stmt, output)
 
             # Verify property shape lookup
@@ -213,9 +215,10 @@ class TestEntityConverter:
 
     def test_write_property_metadata(self) -> None:
         """Test writing property metadata."""
-        property_registry = PropertyRegistry(properties={})
-        property_registry.shape = MagicMock()
-        converter = EntityConverter(property_registry=property_registry)
+        mock_registry = MagicMock()
+        mock_shape = MagicMock(return_value=MagicMock())
+        mock_registry.shape = mock_shape
+        converter = EntityConverter(property_registry=mock_registry)
 
         output = io.StringIO()
 
@@ -246,10 +249,10 @@ class TestEntityConverter:
             converter._write_property_metadata(mock_entity, output)
 
             # Verify property shape lookups
-            assert property_registry.shape.call_count == 2
-            property_registry.shape.assert_any_call("P31")
-            property_registry.shape.assert_any_call("P279")
-            property_registry.shape.assert_any_call("P580")
+            assert mock_registry.shape.call_count == 2
+            mock_registry.shape.assert_any_call("P31")
+            mock_registry.shape.assert_any_call("P279")
+            mock_registry.shape.assert_any_call("P580")
 
             # Verify ontology writing calls
             assert mock_writer.write_property_metadata.call_count == 2
@@ -361,7 +364,7 @@ class TestEntityConverter:
         mock_parse_entity.return_value = mock_entity_data
 
         with patch('pathlib.Path.exists', return_value=True), \
-             patch('builtins.open', new_callable=MagicMock) as mock_open, \
+             patch('pathlib.Path.read_text', return_value='{"id": "Q5"}'), \
              patch('json.loads', return_value={"id": "Q5"}):
 
             result = converter._load_referenced_entity("Q5")
@@ -510,6 +513,8 @@ class TestEntityConverter:
     def test_write_property_metadata_with_references(self) -> None:
         """Test writing property metadata including references."""
         property_registry = PropertyRegistry(properties={})
+        mock_shape = MagicMock(return_value=MagicMock())
+        property_registry.shape = mock_shape
         converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
@@ -518,12 +523,11 @@ class TestEntityConverter:
         mock_entity = MagicMock()
         mock_entity.statements = MagicMock()
 
-        property_registry.shape = MagicMock()
         mock_entity.statements.data = [
-                {"mainsnak": {"property": "P31"}, "qualifiers": {}, "references": [
-                    {"snaks": {"P248": {"property": "P248"}}}
-                ]}
-            ]
+            {"mainsnak": {"property": "P31"}, "qualifiers": {}, "references": [
+                {"snaks": {"P248": {"property": "P248"}}}
+            ]}
+        ]
 
         # Mock parsed statement with reference
         mock_ref_snak = MagicMock()

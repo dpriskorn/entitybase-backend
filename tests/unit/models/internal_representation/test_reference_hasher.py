@@ -4,7 +4,6 @@ import unittest
 from typing import Any
 
 from models.internal_representation.reference_hasher import ReferenceHasher
-from models.internal_representation.references import Reference
 
 
 class TestReferenceHasher(unittest.TestCase):
