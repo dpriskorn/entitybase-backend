@@ -1,20 +1,14 @@
 """Unit tests for statements."""
 
-# TODO: Implement comprehensive unit tests for statements.py
-# This file was auto-generated to highlight missing test coverage
-# Priority: HIGH - Core functionality requiring tests
+from models.data.rest_api.v1.entitybase.response import StatementsHashResponse
 
 
 class TestStatements:
     """Placeholder test class for statements."""
-    
-    def test_placeholder(self):
-        """Placeholder test - replace with actual tests.
-        
-        This module contains logic that should be thoroughly tested:
-        - Core functionality and edge cases
-        - Error handling and validation
-        - Integration with dependencies
-        """
-        # Remove this placeholder when implementing real tests
-        assert True
+
+    def test_statements_hash_response_serialization():
+        """Test that StatementsHashResponse serializes correctly."""
+        response = StatementsHashResponse(property_hashes=[123456789, 987654321])
+        json_data = response.model_dump()
+        assert "hashes" in json_data
+        assert json_data["hashes"] == [123456789, 987654321]
