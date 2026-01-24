@@ -21,7 +21,7 @@ class JsonSchemaValidator(BaseModel):
     s3_revision_version: str = Field(default_factory=lambda: settings.s3_schema_revision_version)
     s3_statement_version: str = Field(default_factory=lambda: settings.s3_statement_version)
     s3_snak_version: str = Field(default_factory=lambda: settings.s3_snak_version)
-    wmf_recentchange_version: str = Field(default_factory=lambda: settings.wmf_recentchange_version)
+    entity_change_version: str = Field(default_factory=lambda: settings.entity_change_version)
     entity_revision_schema: JsonSchema | None = Field(default=None)
     statement_schema: JsonSchema | None = Field(default=None)
     recentchange_schema: JsonSchema | None = Field(default=None)
@@ -55,7 +55,7 @@ class JsonSchemaValidator(BaseModel):
 
     def _get_entity_revision_schema(self) -> JsonSchema:
         if self.entity_revision_schema is None:
-            schema_path = Path(f"schemas/entitybase/entity/1.0.0/schema.yaml")
+            schema_path = Path(f"schemas/entitybase/s3/revision/{self.s3_revision_version}/schema.yaml")
             self.entity_revision_schema = self._load_schema(str(schema_path))
         return self.entity_revision_schema
 
@@ -67,7 +67,7 @@ class JsonSchemaValidator(BaseModel):
 
     def _get_recentchange_schema(self) -> JsonSchema:
         if self.recentchange_schema is None:
-            schema_path = Path(f"schemas/entitybase/events/recentchange/latest/latest.yaml")
+            schema_path = Path(f"schemas/entitybase/events/entity_change/{self.entity_change_version}/schema.yaml")
             self.recentchange_schema = self._load_schema(str(schema_path))
         return self.recentchange_schema
 
@@ -98,8 +98,7 @@ class JsonSchemaValidator(BaseModel):
     def validate_entity_revision(self, data: dict) -> None:
         """Validate entity revision data against schema."""
         validator = self._get_entity_validator()
-        entity_data = data.get("entity", data)
-        errors = list(validator.iter_errors(entity_data))
+        errors = list(validator.iter_errors(data))
         if errors:
             error_messages = [
                 {
