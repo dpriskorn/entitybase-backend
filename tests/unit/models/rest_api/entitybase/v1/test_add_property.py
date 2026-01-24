@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
-from models.data.rest_api.v1.request import AddPropertyRequest
+from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
 
 
 class TestAddProperty(unittest.IsolatedAsyncioTestCase):

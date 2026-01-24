@@ -181,6 +181,7 @@ class TestBacklinkRepository:
         repo = BacklinkRepository(vitess_client=mock_vitess_client)
 
         with pytest.raises(Exception):
+            # noinspection PyTypeChecker
             repo.insert_backlink_statistics("2023-01-01", 100, 50, "not a list")
 
     def test_delete_backlinks_for_entity_database_error(self):

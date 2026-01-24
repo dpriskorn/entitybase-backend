@@ -6,8 +6,8 @@ from typing import Any
 
 from models.data.infrastructure.s3.enums import EntityType
 
-from models.data.rest_api.v1.response import EntityResponse
-from models.data.rest_api.v1.response import StatementHashResult
+from models.data.rest_api.v1.entitybase.response import EntityResponse
+from models.data.rest_api.v1.entitybase.response import StatementHashResult
 
 from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import (
     EntityTransaction,

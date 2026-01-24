@@ -4,13 +4,13 @@ import logging
 
 from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.handlers.entity.revert import EntityRevertHandler
-from models.data.rest_api.v1.request import EntityRedirectRequest
-from models.data.rest_api.v1.request import EntityRevertRequest
-from models.data.rest_api.v1.request.entity import RedirectRevertRequest
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.request import EntityRedirectRequest
+from models.data.rest_api.v1.entitybase.request import EntityRevertRequest
+from models.data.rest_api.v1.entitybase.request import RedirectRevertRequest
+from models.data.rest_api.v1.entitybase.response import (
     EntityRedirectResponse,
 )
-from models.data.rest_api.v1.response import EntityRevertResponse
+from models.data.rest_api.v1.entitybase.response import EntityRevertResponse
 
 
 logger = logging.getLogger(__name__)

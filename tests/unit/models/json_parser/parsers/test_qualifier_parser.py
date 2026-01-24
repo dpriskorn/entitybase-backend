@@ -234,6 +234,7 @@ def test_parse_qualifiers_result_immutability() -> None:
 
     # Should not be able to modify the list
     with pytest.raises(AttributeError):
+        # noinspection PyTypeChecker
         qualifiers.append(Qualifier(property="P3", value=None))
 
     # Should not be able to modify individual qualifiers

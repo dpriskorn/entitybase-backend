@@ -12,7 +12,7 @@ from models.rdf_builder.redirect_cache import (
     load_entity_redirects_batch,
     load_entity_redirects,
 )
-from models.data.rest_api.v1.response import RedirectBatchResponse, MetadataLoadResponse
+from models.data.rest_api.v1.entitybase.response import RedirectBatchResponse, MetadataLoadResponse
 
 
 class TestRedirectCache:
@@ -21,7 +21,7 @@ class TestRedirectCache:
     def setup_method(self):
         """Set up test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
-        self.redirects_dir = Path(self.temp_dir)
+        self.redirects_dir: Path = Path(self.temp_dir)
 
     def test_load_entity_redirects_batch_success(self) -> None:
         """Test successful batch loading of entity redirects."""

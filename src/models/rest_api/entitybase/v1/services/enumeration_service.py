@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from models.data.rest_api.v1.response import RangeStatuses
+from models.data.rest_api.v1.entitybase.response import RangeStatuses
 from models.rest_api.utils import raise_validation_error
 from .id_range_manager import IdRangeManager
 

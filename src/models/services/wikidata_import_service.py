@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from models.data.infrastructure.s3.enums import EditType
 from models.data.raw_entity import RawEntityData
-from models.data.rest_api.v1.request import EntityCreateRequest
+from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 
 logger = logging.getLogger(__name__)
 

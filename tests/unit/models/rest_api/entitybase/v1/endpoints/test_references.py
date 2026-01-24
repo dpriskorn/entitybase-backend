@@ -7,7 +7,7 @@ from fastapi import HTTPException
 
 from models.data.infrastructure.s3.reference_data import S3ReferenceData
 from models.rest_api.entitybase.v1.endpoints.references import get_references
-from models.data.rest_api.v1.response import ReferenceResponse
+from models.data.rest_api.v1.entitybase.response import ReferenceResponse
 
 
 class TestReferencesEndpoint:

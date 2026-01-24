@@ -3,17 +3,17 @@
 from fastapi import APIRouter, HTTPException, Request, Query
 
 from models.rest_api.entitybase.v1.handlers.watchlist import WatchlistHandler
-from models.data.rest_api.v1.request import (
+from models.data.rest_api.v1.entitybase.request import (
     WatchlistAddRequest,
     WatchlistRemoveRequest,
     MarkCheckedRequest,
 )
-from models.data.rest_api.v1.response import WatchCounts
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.response import WatchCounts
+from models.data.rest_api.v1.entitybase.response import (
     MessageResponse,
     NotificationResponse,
 )
-from models.data.rest_api.v1.response import WatchlistResponse
+from models.data.rest_api.v1.entitybase.response import WatchlistResponse
 
 watchlist_router = APIRouter(tags=["watchlist"])
 

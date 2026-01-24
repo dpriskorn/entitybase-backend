@@ -7,8 +7,8 @@ from typing import Any
 
 from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
-from models.data.rest_api.v1.request import EntityCreateRequest
-from models.data.rest_api.v1.response import EntityResponse
+from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
+from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.utils import raise_validation_error
 from .create import EntityCreateHandler
 from .creation_transaction import CreationTransaction

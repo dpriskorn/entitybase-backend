@@ -5,12 +5,12 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from models.data.infrastructure.s3.enums import EntityType
 from models.internal_representation.statements import Statement
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.response import (
     EntityLabelsResponse,
     EntityDescriptionsResponse,
     EntityAliasesResponse,
 )
-from models.data.rest_api.v1.response import EntitySitelinksResponse
+from models.data.rest_api.v1.entitybase.response import EntitySitelinksResponse
 
 
 class Entity(BaseModel):

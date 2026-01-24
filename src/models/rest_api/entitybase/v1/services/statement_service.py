@@ -12,7 +12,7 @@ from models.internal_representation.qualifier_hasher import QualifierHasher
 from models.internal_representation.reference_hasher import ReferenceHasher
 from models.internal_representation.statement_extractor import StatementExtractor
 from models.internal_representation.statement_hasher import StatementHasher
-from models.data.rest_api.v1.response import StatementHashResult
+from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.v1.service import Service
 from models.validation.json_schema_validator import JsonSchemaValidator
 

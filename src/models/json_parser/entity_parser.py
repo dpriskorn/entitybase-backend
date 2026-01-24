@@ -8,13 +8,13 @@ from models.internal_representation.entity_data import EntityData
 from models.internal_representation.json_fields import JsonField
 from models.internal_representation.lexeme import LexemeForm, LexemeSense
 from models.json_parser.statement_parser import parse_statement
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.response import (
     EntityAliasesResponse,
     EntityDescriptionsResponse,
     EntityLabelsResponse,
     EntityMetadataResponse,
 )
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.response import (
     AliasValue,
     DescriptionValue,
     LabelValue,

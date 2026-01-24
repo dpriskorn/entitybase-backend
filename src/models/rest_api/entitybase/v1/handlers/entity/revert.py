@@ -11,8 +11,8 @@ from models.data.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.entitybase.v1.handler import Handler
-from models.data.rest_api.v1.request import EntityRevertRequest
-from models.data.rest_api.v1.response import EntityRevertResponse
+from models.data.rest_api.v1.entitybase.request import EntityRevertRequest
+from models.data.rest_api.v1.entitybase.response import EntityRevertResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

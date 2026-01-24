@@ -11,8 +11,8 @@ pytestmark = pytest.mark.unit
 from models.rest_api.entitybase.v1.handlers.entity.wikidata_import import (
     EntityJsonImportHandler,
 )
-from models.data.rest_api.v1.request import EntityJsonImportRequest
-from models.data.rest_api.v1.response import EntityJsonImportResponse
+from models.data.rest_api.v1.entitybase.request import EntityJsonImportRequest
+from models.data.rest_api.v1.entitybase.response import EntityJsonImportResponse
 from models.services.wikidata_import_service import WikidataImportService
 
 
@@ -145,7 +145,7 @@ class TestEntityJsonImportHandler:
 
         try:
             # Mock dependencies
-            from models.data.rest_api.v1.request import EntityCreateRequest
+            from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 
             mock_transform.return_value = EntityCreateRequest(
                 id="Q123",

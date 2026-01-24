@@ -518,32 +518,32 @@ class TestEntityConverter:
         mock_entity = MagicMock()
         mock_entity.statements = MagicMock()
 
-        with patch('models.rdf_builder.property_registry.registry.PropertyRegistry.shape', MagicMock()) as mock_shape:
-            mock_entity.statements.data = [
+        property_registry.shape = MagicMock()
+        mock_entity.statements.data = [
                 {"mainsnak": {"property": "P31"}, "qualifiers": {}, "references": [
                     {"snaks": {"P248": {"property": "P248"}}}
                 ]}
             ]
 
-            # Mock parsed statement with reference
-            mock_ref_snak = MagicMock()
-            mock_ref_snak.property = "P248"
+        # Mock parsed statement with reference
+        mock_ref_snak = MagicMock()
+        mock_ref_snak.property = "P248"
 
-            mock_ref = MagicMock()
-            mock_ref.snaks = [mock_ref_snak]
+        mock_ref = MagicMock()
+        mock_ref.snaks = [mock_ref_snak]
 
-            mock_stmt = MagicMock()
-            mock_stmt.property = "P31"
-            mock_stmt.qualifiers = []
-            mock_stmt.references = [mock_ref]
+        mock_stmt = MagicMock()
+        mock_stmt.property = "P31"
+        mock_stmt.qualifiers = []
+        mock_stmt.references = [mock_ref]
 
-            with patch('models.rdf_builder.converter.parse_statement', return_value=mock_stmt), \
-                 patch('models.rdf_builder.converter.PropertyOntologyWriter') as mock_writer:
+        with patch('models.rdf_builder.converter.parse_statement', return_value=mock_stmt), \
+             patch('models.rdf_builder.converter.PropertyOntologyWriter') as mock_writer:
 
-                converter._write_property_metadata(mock_entity, output)
+            converter._write_property_metadata(mock_entity, output)
 
-                # Should include P248 from reference
-                property_registry.shape.assert_any_call("P248")
+            # Should include P248 from reference
+            property_registry.shape.assert_any_call("P248")
 
     def test_convert_to_string(self) -> None:
         """Test convert_to_string method."""

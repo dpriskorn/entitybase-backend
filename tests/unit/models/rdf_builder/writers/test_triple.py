@@ -3,8 +3,6 @@
 import io
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from models.rdf_builder.models.rdf_statement import RDFStatement
 from models.rdf_builder.property_registry.models import PropertyShape, PropertyPredicates
 from models.rdf_builder.property_registry.registry import PropertyRegistry

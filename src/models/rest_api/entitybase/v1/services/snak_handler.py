@@ -7,18 +7,15 @@ from typing import Any, Dict
 from models.data.infrastructure.s3.snak_data import S3SnakData
 from models.infrastructure.s3.client import MyS3Client
 from models.internal_representation.metadata_extractor import MetadataExtractor
-from models.data.rest_api.v1.request import SnakRequest
+from models.data.rest_api.v1.entitybase.request import SnakRequest
+from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
 
-class SnakHandler:
+class SnakHandler(Handler):
     """Handles snak storage and retrieval with rapidhash deduplication."""
-
-    def __init__(self, s3_client: MyS3Client):
-        """Initialize with S3 client."""
-        self.s3_client = s3_client
 
     def store_snak(self, snak: SnakRequest) -> int:
         """Store snak in S3 with rapidhash key, return hash."""

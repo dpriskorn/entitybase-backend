@@ -5,8 +5,8 @@ from unittest.mock import MagicMock
 import pytest
 
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-from models.data.rest_api.v1.response import EntityRevisionResponse
-from models.data.rest_api.v1.response import EntityResponse
+from models.data.rest_api.v1.entitybase.response import EntityRevisionResponse
+from models.data.rest_api.v1.entitybase.response import EntityResponse
 
 
 class TestEntityReadHandler:

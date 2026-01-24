@@ -7,8 +7,8 @@ import pytest
 from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
-from models.data.rest_api.v1.request import EntityUpdateRequest
-from models.data.rest_api.v1.response import EntityResponse
+from models.data.rest_api.v1.entitybase.request import EntityUpdateRequest
+from models.data.rest_api.v1.entitybase.response import EntityResponse
 
 
 class TestEntityUpdateHandler:
@@ -43,8 +43,8 @@ class TestEntityUpdateHandler:
 
         mock_response = EntityResponse(
             id="Q42",
-            revision_id=12345,
-            entity_data={"id": "Q42", "type": "item"},
+            rev_id=12345,
+            data={"id": "Q42", "type": "item"},
             state=MagicMock()
         )
         mock_tx.create_revision = AsyncMock(return_value=mock_response)
@@ -57,7 +57,7 @@ class TestEntityUpdateHandler:
 
             request = EntityUpdateRequest(
                 type="item",
-                data={"labels": {"en": {"value": "Updated Entity"}}},
+                labels={"en": {"value": "Updated Entity"}},
                 edit_summary="Test update"
             )
 
@@ -84,7 +84,7 @@ class TestEntityUpdateHandler:
             assert create_call[1]["entity_id"] == "Q42"
             assert create_call[1]["new_revision_id"] == 12345
             assert create_call[1]["head_revision_id"] == 12344
-            assert create_call[1]["entity_type"] == EntityType.item
+            assert create_call[1]["entity_type"] == EntityType.ITEM
             assert create_call[1]["is_creation"] is False
 
             # Verify event publishing
@@ -114,7 +114,7 @@ class TestEntityUpdateHandler:
 
         request = EntityUpdateRequest(
             type="item",
-            data={"labels": {"en": {"value": "Updated Entity"}}}
+            labels={"en": {"value": "Updated Entity"}}
         )
 
         with pytest.raises(Exception):  # Should raise validation error
@@ -136,7 +136,7 @@ class TestEntityUpdateHandler:
 
         request = EntityUpdateRequest(
             type="item",
-            data={"labels": {"en": {"value": "Updated Entity"}}}
+            labels={"en": {"value": "Updated Entity"}}
         )
 
         with pytest.raises(Exception):  # Should raise validation error
@@ -159,7 +159,7 @@ class TestEntityUpdateHandler:
 
         request = EntityUpdateRequest(
             type="item",
-            data={"labels": {"en": {"value": "Updated Entity"}}}
+            labels={"en": {"value": "Updated Entity"}}
         )
 
         with pytest.raises(Exception):  # Should raise validation error
@@ -189,7 +189,7 @@ class TestEntityUpdateHandler:
 
             request = EntityUpdateRequest(
                 type="item",
-                data={"labels": {"en": {"value": "Updated Entity"}}}
+                labels={"en": {"value": "Updated Entity"}}
             )
 
             with pytest.raises(Exception):  # Should propagate transaction exception
@@ -231,7 +231,7 @@ class TestEntityUpdateHandler:
 
             request = EntityUpdateRequest(
                 type="item",
-                data={"labels": {"en": {"value": "Updated Entity"}}}
+                labels={"en": {"value": "Updated Entity"}}
             )
 
             # Should still succeed despite logging failure
@@ -273,7 +273,7 @@ class TestEntityUpdateHandler:
 
             request = EntityUpdateRequest(
                 type="item",
-                data={"labels": {"en": {"value": "Updated Entity"}}}
+                labels={"en": {"value": "Updated Entity"}}
             )
 
             result = await handler.update_entity("Q42", request)  # No user_id
@@ -316,7 +316,7 @@ class TestEntityUpdateHandler:
 
             request = EntityUpdateRequest(
                 type="item",
-                data={"labels": {"en": {"value": "Updated Entity"}}}
+                labels={"en": {"value": "Updated Entity"}}
             )
 
             result = await handler.update_entity("Q42", request, validator=mock_validator)
@@ -360,7 +360,7 @@ class TestEntityUpdateHandler:
 
             request = EntityUpdateRequest(
                 type="item",
-                data={"labels": {"en": {"value": "Updated Entity"}}},
+                labels={"en": {"value": "Updated Entity"}},
                 is_mass_edit=True,
                 edit_type="mass_edit",
                 edit_summary="Bulk update",

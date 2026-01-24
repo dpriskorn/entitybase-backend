@@ -79,7 +79,7 @@ class TestLexemeRepository:
             "forms": {"L42-F1": {"en": 123, "de": 456}},
             "senses": {"L42-S1": {"en": 789}}
         }
-        assert result == expected
+        assert result.model_dump() == expected
 
     def test_get_lexeme_terms_different_entity(self):
         """Test retrieving terms for different entity."""
@@ -95,8 +95,8 @@ class TestLexemeRepository:
         result1 = repo.get_lexeme_terms("L42")
         result2 = repo.get_lexeme_terms("L43")
 
-        assert result1 == result2
-        assert result1 == {"forms": {}, "senses": {}}
+        assert result1.model_dump() == result2.model_dump()
+        assert result1.model_dump() == {"forms": {}, "senses": {}}
 
         # Verify different entity IDs were queried
         calls = [call[0][1][0] for call in mock_cursor.execute.call_args_list]
@@ -128,7 +128,7 @@ class TestLexemeRepository:
         # Should work for any string currently
         result = repo.get_lexeme_terms("invalid")
 
-        assert result == {"forms": {}, "senses": {}}
+        assert result.model_dump() == {"forms": {}, "senses": {}}
 
     def test_store_lexeme_terms_none_values(self):
         """Test storing with None values."""
@@ -145,7 +145,7 @@ class TestLexemeRepository:
 
         result = repo.get_lexeme_terms("")
 
-        assert result == {"forms": {}, "senses": {}}
+        assert result.model_dump() == {"forms": {}, "senses": {}}
 
     def test_store_lexeme_terms_logging(self, caplog):
         """Test that storing lexeme terms logs debug message."""
@@ -168,4 +168,4 @@ class TestLexemeRepository:
         result = repo.get_lexeme_terms("L42")
 
         assert "Retrieving lexeme terms for L42" in caplog.text
-        assert result == {"forms": {}, "senses": {}}
+        assert result.model_dump() == {"forms": {}, "senses": {}}

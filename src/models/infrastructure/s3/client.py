@@ -21,7 +21,7 @@ from models.infrastructure.s3.storage.reference_storage import ReferenceStorage
 from models.infrastructure.s3.storage.revision_storage import RevisionStorage
 from models.infrastructure.s3.storage.snak_storage import SnakStorage
 from models.infrastructure.s3.storage.statement_storage import StatementStorage
-from models.data.rest_api.v1.response import StatementResponse
+from models.data.rest_api.v1.entitybase.response import StatementResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -252,14 +252,14 @@ class MyS3Client(Client):
         if not result.success:
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
-    def load_form_representations_batch(self, hashes: List[int]) -> List[str | None]:
+    def load_form_representations_batch(self, hashes: List[int]) -> List[Optional[str]]:
         """Load form representations by content hashes."""
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
         if not hasattr(self, 'lexeme_storage') or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
         return self.lexemes.load_form_representations_batch(hashes)
 
-    def load_sense_glosses_batch(self, hashes: List[int]) -> List[str | None]:
+    def load_sense_glosses_batch(self, hashes: List[int]) -> List[Optional[str]]:
         """Load sense glosses by content hashes."""
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
         if not hasattr(self, 'lexeme_storage') or self.lexemes is None:

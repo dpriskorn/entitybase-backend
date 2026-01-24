@@ -7,7 +7,7 @@ from fastapi import HTTPException
 
 from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.rest_api.entitybase.v1.endpoints.qualifiers import get_qualifiers
-from models.data.rest_api.v1.response import QualifierResponse
+from models.data.rest_api.v1.entitybase.response import QualifierResponse
 
 
 class TestQualifiersEndpoint:

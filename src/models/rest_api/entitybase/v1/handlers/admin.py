@@ -3,7 +3,7 @@
 import logging
 
 from models.rest_api.entitybase.v1.handler import Handler
-from models.data.rest_api.v1.response import EntityListResponse
+from models.data.rest_api.v1.entitybase.response import EntityListResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

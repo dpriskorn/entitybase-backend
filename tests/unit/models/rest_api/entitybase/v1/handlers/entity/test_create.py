@@ -4,10 +4,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from models.data.infrastructure.s3.enums import EntityType
+from models.data.infrastructure.s3.enums import EntityType, EditType
 from models.rest_api.entitybase.v1.handlers.entity.create import EntityCreateHandler
-from models.data.rest_api.v1.request import EntityCreateRequest
-from models.data.rest_api.v1.response import EntityResponse
+from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
+from models.data.rest_api.v1.entitybase.response import EntityResponse
 
 
 class TestEntityCreateHandler:
@@ -47,7 +47,7 @@ class TestEntityCreateHandler:
             request = EntityCreateRequest(
                 type="item",
                 id="Q42",
-                data={"labels": {"en": {"value": "Test Entity"}}},
+                labels={"en": {"value": "Test Entity"}},
                 edit_summary="Test creation"
             )
 
@@ -108,7 +108,8 @@ class TestEntityCreateHandler:
 
             request = EntityCreateRequest(
                 type="item",
-                data={"labels": {"en": {"value": "Test Entity"}}}
+                labels={"en": {"value": "Test Entity"}},
+                edit_summary="Test creation"
             )
 
             result = await handler.create_entity(request, auto_assign_id=True)
@@ -120,8 +121,8 @@ class TestEntityCreateHandler:
             mock_enum_service.get_next_entity_id.assert_called_once_with("item")
 
     @pytest.mark.asyncio
-    async def test_create_entity_already_exists(self) -> None:
-        """Test entity creation when entity already exists."""
+    async def test_create_entity_exists(self) -> None:
+        """Test creating an entity that already exists."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
@@ -133,7 +134,8 @@ class TestEntityCreateHandler:
         request = EntityCreateRequest(
             type="item",
             id="Q42",
-            data={"labels": {"en": {"value": "Test Entity"}}}
+            labels={"en": {"value": "Test Entity"}},
+            edit_summary="Test creation"
         )
 
         with pytest.raises(Exception):  # Should raise validation error
@@ -143,7 +145,7 @@ class TestEntityCreateHandler:
 
     @pytest.mark.asyncio
     async def test_create_entity_deleted(self) -> None:
-        """Test entity creation when entity has been deleted."""
+        """Test creating an entity that is deleted."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
@@ -156,7 +158,8 @@ class TestEntityCreateHandler:
         request = EntityCreateRequest(
             type="item",
             id="Q42",
-            data={"labels": {"en": {"value": "Test Entity"}}}
+            labels={"en": {"value": "Test Entity"}},
+            edit_summary="Test creation"
         )
 
         with pytest.raises(Exception):  # Should raise validation error
@@ -171,7 +174,8 @@ class TestEntityCreateHandler:
 
         request = EntityCreateRequest(
             type="item",
-            data={"labels": {"en": {"value": "Test Entity"}}}
+            labels={"en": {"value": "Test Entity"}},
+            edit_summary="Test creation"
         )
 
         with pytest.raises(Exception):  # Should raise validation error
@@ -186,7 +190,8 @@ class TestEntityCreateHandler:
 
         request = EntityCreateRequest(
             type="item",
-            data={"labels": {"en": {"value": "Test Entity"}}}
+            labels={"en": {"value": "Test Entity"}},
+            edit_summary="Test creation"
         )
 
         with pytest.raises(Exception):  # Should raise validation error
@@ -226,7 +231,8 @@ class TestEntityCreateHandler:
             request = EntityCreateRequest(
                 type="item",
                 id="Q42",
-                data={"labels": {"en": {"value": "Test Entity"}}}
+                labels={"en": {"value": "Test Entity"}},
+                edit_summary="Test creation"
             )
 
             # Should still succeed despite logging failure
@@ -263,7 +269,8 @@ class TestEntityCreateHandler:
             request = EntityCreateRequest(
                 type="item",
                 id="Q42",
-                data={"labels": {"en": {"value": "Test Entity"}}}
+                labels={"en": {"value": "Test Entity"}},
+                edit_summary="Test creation"
             )
 
             result = await handler.create_entity(request)  # No user_id
@@ -301,7 +308,8 @@ class TestEntityCreateHandler:
             request = EntityCreateRequest(
                 type="item",
                 id="Q42",
-                data={"labels": {"en": {"value": "Test Entity"}}}
+                labels={"en": {"value": "Test Entity"}},
+                edit_summary="Test creation"
             )
 
             result = await handler.create_entity(request, validator=mock_validator)
@@ -339,9 +347,10 @@ class TestEntityCreateHandler:
             request = EntityCreateRequest(
                 type="item",
                 id="Q42",
-                data={"labels": {"en": {"value": "Test Entity"}}},
+                labels={"en": {"value": "Test Entity"}},
+                edit_summary="Test creation",
                 is_mass_edit=True,
-                edit_type="mass_edit"
+                edit_type=EditType.MASS_EDIT
             )
 
             result = await handler.create_entity(request)

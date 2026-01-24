@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 
 from models.infrastructure.vitess.repositories.metadata import MetadataRepository
-from models.data.rest_api.v1.response import MetadataContent
+from models.data.rest_api.v1.entitybase.response import MetadataContent
 
 
 class TestMetadataRepository:

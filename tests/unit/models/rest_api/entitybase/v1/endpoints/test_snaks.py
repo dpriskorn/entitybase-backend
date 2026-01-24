@@ -7,7 +7,7 @@ from fastapi import HTTPException
 
 from models.data.infrastructure.s3.snak_data import S3SnakData
 from models.rest_api.entitybase.v1.endpoints.snaks import get_snaks
-from models.data.rest_api.v1.response import SnakResponse
+from models.data.rest_api.v1.entitybase.response import SnakResponse
 
 
 class TestSnaksEndpoint:
@@ -25,7 +25,7 @@ class TestSnaksEndpoint:
 
         # Mock snak data
         mock_snak_data = S3SnakData(
-            schema_version="1.0.0",
+            schema="1.0.0",
             snak={
                 "snaktype": "value",
                 "property": "P31",
@@ -63,7 +63,7 @@ class TestSnaksEndpoint:
 
         # Mock snak data - first found, second missing
         mock_snak_data = S3SnakData(
-            schema_version="1.0.0",
+            schema="1.0.0",
             snak={"snaktype": "value", "property": "P31"},
             hash=12345,
             created_at="2023-01-01T12:00:00Z"
@@ -180,7 +180,7 @@ class TestSnaksEndpoint:
 
         # Mock snak data
         mock_snak_data = S3SnakData(
-            schema_version="1.0.0",
+            schema="1.0.0",
             snak={"snaktype": "value", "property": "P31"},
             hash=12345,
             created_at="2023-01-01T12:00:00Z"

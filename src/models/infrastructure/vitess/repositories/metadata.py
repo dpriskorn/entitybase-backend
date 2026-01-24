@@ -4,7 +4,7 @@ import logging
 
 from models.common import OperationResult
 from models.infrastructure.vitess.repository import Repository
-from models.data.rest_api.v1.response import MetadataContent
+from models.data.rest_api.v1.entitybase.response import MetadataContent
 
 logger = logging.getLogger(__name__)
 

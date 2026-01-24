@@ -3,7 +3,7 @@
 from fastapi import APIRouter, Request
 
 from models.rest_api.entitybase.v1.handlers.user import UserHandler
-from models.data.rest_api.v1.response import GeneralStatsResponse
+from models.data.rest_api.v1.entitybase.response import GeneralStatsResponse
 
 stats_router = APIRouter(tags=["statistics"])
 

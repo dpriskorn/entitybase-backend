@@ -3,6 +3,12 @@ from .records.thanks import ThankItem
 from .records.history import HistoryRecord
 from .records.backlink_entry import BacklinkRecord
 from .records.revision import RevisionRecord
+from .records.lexeme_terms import (
+    FormTermHashes,
+    LexemeTerms,
+    SenseTermHashes,
+    TermHashes,
+)
 
 __all__ = [
     "EntityHeadListing",
@@ -11,4 +17,8 @@ __all__ = [
     "HistoryRecord",
     "BacklinkRecord",
     "RevisionRecord",
+    "FormTermHashes",
+    "LexemeTerms",
+    "SenseTermHashes",
+    "TermHashes",
 ]

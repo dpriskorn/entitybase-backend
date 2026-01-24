@@ -5,7 +5,7 @@ import logging
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.response import (
     SnakResponse,
 )
 

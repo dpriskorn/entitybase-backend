@@ -7,7 +7,7 @@ pytestmark = pytest.mark.unit
 
 sys.path.insert(0, "src")
 
-from models.data.rest_api.v1.request import EntityCreateRequest
+from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.rest_api.entitybase.v1.handlers.entity.item import ItemCreateHandler
 from models.rest_api.entitybase.v1.handlers.entity.property.create import (
     PropertyCreateHandler,

@@ -8,8 +8,8 @@ from typing import Any, Dict, Optional
 
 from fastapi import HTTPException
 
-from models.data.rest_api.v1.request import EntityJsonImportRequest
-from models.data.rest_api.v1.response import EntityJsonImportResponse
+from models.data.rest_api.v1.entitybase.request import EntityJsonImportRequest
+from models.data.rest_api.v1.entitybase.response import EntityJsonImportResponse
 from models.services.wikidata_import_service import WikidataImportService
 from .create import EntityCreateHandler
 from ...handler import Handler

@@ -6,9 +6,9 @@ from typing import Any, List
 
 from models.common import OperationResult
 from models.infrastructure.vitess.repository import Repository
-from models.data.rest_api.v1.request.enums import UserActivityType
-from models.data.rest_api.v1.response import UserResponse
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.request import UserActivityType
+from models.data.rest_api.v1.entitybase.response import UserResponse
+from models.data.rest_api.v1.entitybase.response import (
     UserActivityItemResponse,
 )
 from models.rest_api.utils import raise_validation_error

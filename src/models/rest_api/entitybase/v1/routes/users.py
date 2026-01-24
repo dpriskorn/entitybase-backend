@@ -4,16 +4,16 @@ from fastapi import APIRouter, HTTPException, Request
 
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.user import UserHandler
-from models.data.rest_api.v1.request import (
+from models.data.rest_api.v1.entitybase.request import (
     UserCreateRequest,
     WatchlistToggleRequest,
 )
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.response import (
     WatchlistToggleResponse,
     UserCreateResponse,
 )
-from models.data.rest_api.v1.response import UserStatsResponse
-from models.data.rest_api.v1.response import UserResponse
+from models.data.rest_api.v1.entitybase.response import UserStatsResponse
+from models.data.rest_api.v1.entitybase.response import UserResponse
 from models.rest_api.utils import raise_validation_error
 
 

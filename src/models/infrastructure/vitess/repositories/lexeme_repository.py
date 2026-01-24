@@ -3,6 +3,12 @@
 import logging
 from typing import Any, Dict, Optional
 
+from models.data.infrastructure.vitess.records.lexeme_terms import (
+    FormTermHashes,
+    LexemeTerms,
+    SenseTermHashes,
+    TermHashes,
+)
 from models.infrastructure.vitess.repository import Repository
 
 logger = logging.getLogger(__name__)
@@ -59,14 +65,14 @@ class LexemeRepository(Repository):
 
         logger.info(f"Stored lexeme terms for {entity_id}")
 
-    def get_lexeme_terms(self, entity_id: str) -> Dict[str, Any]:
+    def get_lexeme_terms(self, entity_id: str) -> LexemeTerms:
         """Retrieve lexeme term hash mappings for an entity.
 
         Args:
             entity_id: The lexeme entity ID (e.g., "L42")
 
         Returns:
-            Dictionary containing form and sense hash mappings
+            LexemeTerms object containing form and sense hash mappings
         """
         logger.debug(f"Retrieving lexeme terms for {entity_id}")
 
@@ -94,7 +100,17 @@ class LexemeRepository(Repository):
                         senses[form_sense_id] = {}
                     senses[form_sense_id][language] = term_hash
 
-        return {
-            "forms": forms,
-            "senses": senses
-        }
+        return LexemeTerms(
+            forms=FormTermHashes(
+                {
+                    form_id: TermHashes(representations)
+                    for form_id, representations in forms.items()
+                }
+            ),
+            senses=SenseTermHashes(
+                {
+                    sense_id: TermHashes(glosses)
+                    for sense_id, glosses in senses.items()
+                }
+            )
+        )

@@ -14,31 +14,31 @@ from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.handlers.export import ExportHandler
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
-from models.data.rest_api.v1.request import EntityDeleteRequest
-from models.data.rest_api.v1.request import EntityUpdateRequest
-from models.data.rest_api.v1.request import AddPropertyRequest
-from models.data.rest_api.v1.request import (
+from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
+from models.data.rest_api.v1.entitybase.request import EntityUpdateRequest
+from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
+from models.data.rest_api.v1.entitybase.request import (
     PatchStatementRequest,
 )
-from models.data.rest_api.v1.request import (
+from models.data.rest_api.v1.entitybase.request import (
     RemoveStatementRequest,
 )
-from models.data.rest_api.v1.request.entity.sitelink import SitelinkData
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.request.entity.sitelink import SitelinkData
+from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
     EntityRevisionResponse,
     EntityJsonResponse,
 )
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.response import (
     PropertyHashesResponse,
     PropertyListResponse,
 )
-from models.data.rest_api.v1.response import TurtleResponse
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.response import TurtleResponse
+from models.data.rest_api.v1.entitybase.response import (
     EntityDeleteResponse,
 )
-from models.data.rest_api.v1.response import EntityHistoryEntry
-from models.data.rest_api.v1.response import RevisionIdResult
+from models.data.rest_api.v1.entitybase.response import EntityHistoryEntry
+from models.data.rest_api.v1.entitybase.response import RevisionIdResult
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

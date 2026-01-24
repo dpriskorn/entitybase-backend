@@ -5,10 +5,10 @@ import logging
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 
 from models.rest_api.entitybase.v1.handler import Handler
-from models.data.rest_api.v1.request import CleanupOrphanedRequest
-from models.data.rest_api.v1.request import StatementBatchRequest
-from models.data.rest_api.v1.response import CleanupOrphanedResponse
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.request import CleanupOrphanedRequest
+from models.data.rest_api.v1.entitybase.request import StatementBatchRequest
+from models.data.rest_api.v1.entitybase.response import CleanupOrphanedResponse
+from models.data.rest_api.v1.entitybase.response import (
     MostUsedStatementsResponse,
     PropertyCountsResponse,
     PropertyHashesResponse,

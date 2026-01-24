@@ -4,12 +4,12 @@ from fastapi import APIRouter, Request
 
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.entity.redirect import RedirectHandler
-from models.data.rest_api.v1.request import (
+from models.data.rest_api.v1.entitybase.request import (
     EntityRedirectRequest,
     RedirectRevertRequest,
 )
-from models.data.rest_api.v1.response import EntityRevertResponse
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.response import EntityRevertResponse
+from models.data.rest_api.v1.entitybase.response import (
     EntityRedirectResponse,
 )
 from models.rest_api.utils import raise_validation_error

@@ -9,12 +9,12 @@ from models.rest_api.entitybase.v1.handlers.entity.property import PropertyCreat
 
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
-from models.data.rest_api.v1.request import (
+from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
     EntityUpdateRequest,
 )
-from models.data.rest_api.v1.response import EntityResponse
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.response import EntityResponse
+from models.data.rest_api.v1.entitybase.response import (
     AliasesResponse,
     DescriptionResponse,
     LabelResponse,

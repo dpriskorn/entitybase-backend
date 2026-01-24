@@ -19,15 +19,15 @@ from models.data.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-from models.data.rest_api.v1.request import AddPropertyRequest
-from models.data.rest_api.v1.request import (
+from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
+from models.data.rest_api.v1.entitybase.request import (
     PatchStatementRequest,
 )
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
 )
-from models.data.rest_api.v1.response import StatementHashResult
-from models.data.rest_api.v1.response import RevisionIdResult
+from models.data.rest_api.v1.entitybase.response import StatementHashResult
+from models.data.rest_api.v1.entitybase.response import RevisionIdResult
 from models.rest_api.entitybase.v1.services.hash_service import HashService
 from models.rest_api.utils import raise_validation_error
 from .entity_hashing_service import EntityHashingService
@@ -643,7 +643,7 @@ class EntityHandler(Handler):
                 entity_id, head_revision_id
             )
 
-            from models.data.rest_api.v1.response import RevisionReadResponse
+            from models.data.rest_api.v1.entitybase.response import RevisionReadResponse
             assert isinstance(revision_data, RevisionReadResponse)
         except Exception as e:
             return OperationResult(

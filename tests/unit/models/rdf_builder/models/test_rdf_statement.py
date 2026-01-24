@@ -1,7 +1,5 @@
 """Unit tests for rdf_statement."""
 
-import pytest
-
 from models.rdf_builder.models.rdf_statement import RDFStatement
 
 

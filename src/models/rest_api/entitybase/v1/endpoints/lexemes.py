@@ -1,6 +1,7 @@
 """Lexeme endpoints for Entitybase v1 API."""
 
 import logging
+from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Request
 
@@ -8,8 +9,8 @@ from models.rest_api.entitybase.v1.handlers.entity.lexeme.create import (
     LexemeCreateHandler,
 )
 
-from models.data.rest_api.v1.request import EntityCreateRequest
-from models.data.rest_api.v1.response import EntityResponse
+from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
+from models.data.rest_api.v1.entitybase.response import EntityResponse
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ async def create_lexeme(request: EntityCreateRequest, req: Request) -> EntityRes
 
 
 @representations_router.get("/{hashes}")
-async def get_representations(req: Request, hashes: str) -> list[str | None]:
+async def get_representations(req: Request, hashes: str) -> list[Optional[str]]:
     """Fetch form representations by hash(es).
 
     Supports single hash (e.g., /representations/123) or comma-separated batch
@@ -70,7 +71,7 @@ async def get_representations(req: Request, hashes: str) -> list[str | None]:
 
 
 @glosses_router.get("/{hashes}")
-async def get_glosses(req: Request, hashes: str) -> list[str | None]:
+async def get_glosses(req: Request, hashes: str) -> list[Optional[str]]:
     """Fetch sense glosses by hash(es).
 
     Supports single hash (e.g., /glosses/123) or comma-separated batch

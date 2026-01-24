@@ -3,8 +3,8 @@
 import logging
 
 from models.rest_api.entitybase.v1.handler import Handler
-from models.data.rest_api.v1.request.thanks import ThanksListRequest
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.request.thanks import ThanksListRequest
+from models.data.rest_api.v1.entitybase.response import (
     ThankResponse,
     ThanksListResponse,
 )

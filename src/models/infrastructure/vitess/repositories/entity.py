@@ -3,7 +3,7 @@
 import logging
 
 from models.infrastructure.vitess.repository import Repository
-from models.data.rest_api.v1.response import ProtectionResponse
+from models.data.rest_api.v1.entitybase.response import ProtectionResponse
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

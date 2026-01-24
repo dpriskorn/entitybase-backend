@@ -5,8 +5,8 @@ import re
 from typing import Any
 
 from models.internal_representation.metadata_extractor import MetadataExtractor
-from models.data.rest_api.v1.request import EntityUpdateRequest
-from models.data.rest_api.v1.response import EntityResponse
+from models.data.rest_api.v1.entitybase.request import EntityUpdateRequest
+from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.utils import raise_validation_error
 from ..update import EntityUpdateHandler
 

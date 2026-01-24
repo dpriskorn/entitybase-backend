@@ -3,7 +3,7 @@
 import logging
 
 from models.rest_api.entitybase.v1.handler import Handler
-from models.data.rest_api.v1.response import TurtleResponse
+from models.data.rest_api.v1.entitybase.response import TurtleResponse
 from models.rest_api.entitybase.v1.services.rdf_service import (
     serialize_entity_to_turtle,
 )

@@ -3,7 +3,7 @@ from typing import Dict, Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from models.data.infrastructure.s3.entity_state import EntityState
-from models.data.rest_api.v1.response.entity.wikibase import (
+from models.data.rest_api.v1.entitybase.response.entity.wikibase import (
     SitelinkValue,
     LabelValue,
     DescriptionValue,

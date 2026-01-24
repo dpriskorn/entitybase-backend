@@ -4,8 +4,8 @@ from fastapi import APIRouter, Header, Query, Request
 
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.endorsements import EndorsementHandler
-from models.data.rest_api.v1.request import EndorsementListRequest
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.request import EndorsementListRequest
+from models.data.rest_api.v1.entitybase.response import (
     BatchEndorsementStatsResponse,
     EndorsementListResponse,
     EndorsementResponse,

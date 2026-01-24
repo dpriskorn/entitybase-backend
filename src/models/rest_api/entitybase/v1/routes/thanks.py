@@ -4,8 +4,8 @@ from fastapi import APIRouter, Header, Query, Request
 
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.thanks import ThanksHandler
-from models.data.rest_api.v1.request.thanks import ThanksListRequest
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.request.thanks import ThanksListRequest
+from models.data.rest_api.v1.entitybase.response import (
     ThankResponse,
     ThanksListResponse,
 )

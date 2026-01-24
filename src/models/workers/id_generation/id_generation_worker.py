@@ -9,8 +9,8 @@ from typing import Any
 import uvicorn
 from fastapi import FastAPI
 
-from models.data.rest_api.v1.response import WorkerHealthCheckResponse
-from models.data.rest_api.v1.response import IdResponse
+from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
+from models.data.rest_api.v1.entitybase.response import IdResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import (
     EnumerationService,
 )

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Tuple
 import pytest
 from httpx import AsyncClient
 
-from models.data.rest_api.v1.request import EntityJsonImportRequest
+from models.data.rest_api.v1.entitybase.request import EntityJsonImportRequest
 
 
 class TestJsonImportIntegration:

@@ -8,7 +8,7 @@ pytestmark = pytest.mark.unit
 sys.path.insert(0, "src")
 
 from models.rest_api.entitybase.v1.handlers.user_activity import UserActivityHandler
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.response import (
     UserActivityResponse,
     UserActivityItemResponse,
 )
@@ -36,7 +36,7 @@ class TestUserActivityHandler:
     ) -> None:
         """Test getting user activities successfully"""
         from datetime import datetime
-        from models.data.rest_api.v1.request.enums import UserActivityType
+        from models.data.rest_api.v1.entitybase.request import UserActivityType
 
         mock_activity = UserActivityItemResponse(
             id=1,

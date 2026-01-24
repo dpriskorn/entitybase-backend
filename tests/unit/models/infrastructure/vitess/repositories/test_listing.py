@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 
 from models.infrastructure.vitess.repositories.listing import ListingRepository
-from models.data.rest_api.v1.response import EntityListing
+from models.data.rest_api.v1.entitybase.response import EntityListing
 
 
 class TestListingRepository:

@@ -9,6 +9,12 @@ src/
     │   │   ├── stream
     │   │   └── vitess
     │   │       └── records
+    │   ├── rest_api
+    │   │   └── v1
+    │   │       ├── request
+    │   │       │   └── entity
+    │   │       └── response
+    │   │           └── entity
     │   └── workers
     ├── infrastructure
     │   ├── s3
@@ -30,17 +36,12 @@ src/
     ├── rest_api
     │   └── entitybase
     │       └── v1
-    │           ├── data
     │           ├── endpoints
     │           ├── handlers
     │           │   └── entity
     │           │       ├── items
     │           │       ├── lexeme
     │           │       └── property
-    │           ├── request
-    │           │   └── entity
-    │           ├── response
-    │           │   └── entity
     │           ├── routes
     │           └── services
     ├── services
@@ -55,4 +56,4 @@ src/
         ├── user_stats
         └── watchlist_consumer
 
-56 directories
+57 directories

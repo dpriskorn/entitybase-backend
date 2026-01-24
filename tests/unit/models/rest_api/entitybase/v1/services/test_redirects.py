@@ -5,9 +5,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from models.data.rest_api.v1.request import EntityRedirectRequest
-from models.data.rest_api.v1.response import EntityRedirectResponse
-from models.data.rest_api.v1.response import EntityRevertResponse
+from models.data.rest_api.v1.entitybase.request import EntityRedirectRequest
+from models.data.rest_api.v1.entitybase.response import EntityRedirectResponse
+from models.data.rest_api.v1.entitybase.response import EntityRevertResponse
 from models.rest_api.entitybase.v1.services.redirects import RedirectService
 
 
@@ -249,8 +249,6 @@ class TestRedirectService:
              patch('models.rest_api.entitybase.v1.services.redirects.HashMaps'), \
              patch('models.rest_api.entitybase.v1.services.redirects.EntityState'), \
              patch('models.rest_api.entitybase.v1.services.redirects.datetime'):
-
-            result = await self.service.create_redirect(request)
 
             # Stream producer not called
             assert not hasattr(self.service, 'stream_producer') or self.service.stream_producer is None

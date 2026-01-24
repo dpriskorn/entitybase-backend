@@ -34,6 +34,7 @@ class EditType(Enum):
     SOFT = "soft-delete"
     HARD = "hard-delete"
     UNDELETE = "undelete"
+    MASS_EDIT = "mass-edit"
 
 
 class DeleteType(str, Enum):

@@ -5,8 +5,8 @@ import logging
 from fastapi import HTTPException
 
 from models.rest_api.entitybase.v1.handler import Handler
-from models.data.rest_api.v1.response import BacklinksResponse
-from models.data.rest_api.v1.response import BacklinkResponse
+from models.data.rest_api.v1.entitybase.response import BacklinksResponse
+from models.data.rest_api.v1.entitybase.response import BacklinkResponse
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
-from models.data.rest_api.v1.response import HealthCheckResponse
+from models.data.rest_api.v1.entitybase.response import HealthCheckResponse
 from models.rest_api.entitybase.v1.routes.health import health_check_endpoint
 
 

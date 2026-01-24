@@ -21,7 +21,7 @@ class TestSnakStorage:
 
             storage = SnakStorage()
             snak_data = S3SnakData(
-                schema_version="1.0.0",
+                schema="1.0.0",
                 snak={
                     "snaktype": "value",
                     "property": "P31",
@@ -51,7 +51,7 @@ class TestSnakStorage:
             mock_connection_manager = MagicMock()
             storage = SnakStorage(connection_manager=mock_connection_manager)
             snak_data = S3SnakData(
-                schema_version="1.0.0",
+                schema="1.0.0",
                 snak={"snaktype": "value", "property": "P31"},
                 hash=12345,
                 created_at="2023-01-01T12:00:00Z"
@@ -64,7 +64,7 @@ class TestSnakStorage:
     def test_load_snak_success(self) -> None:
         """Test successful snak loading."""
         mock_snak_data = S3SnakData(
-            schema_version="1.0.0",
+            schema="1.0.0",
             snak={"snaktype": "value", "property": "P31"},
             hash=12345,
             created_at="2023-01-01T12:00:00Z"
@@ -98,13 +98,13 @@ class TestSnakStorage:
     def test_load_snaks_batch_all_found(self) -> None:
         """Test batch loading when all snaks are found."""
         mock_snak_data1 = S3SnakData(
-            schema_version="1.0.0",
+            schema="1.0.0",
             snak={"snaktype": "value", "property": "P31"},
             hash=12345,
             created_at="2023-01-01T12:00:00Z"
         )
         mock_snak_data2 = S3SnakData(
-            schema_version="1.0.0",
+            schema="1.0.0",
             snak={"snaktype": "value", "property": "P32"},
             hash=67890,
             created_at="2023-01-01T12:00:00Z"
@@ -132,7 +132,7 @@ class TestSnakStorage:
     def test_load_snaks_batch_some_missing(self) -> None:
         """Test batch loading when some snaks are missing."""
         mock_snak_data = S3SnakData(
-            schema_version="1.0.0",
+            schema="1.0.0",
             snak={"snaktype": "value", "property": "P31"},
             hash=12345,
             created_at="2023-01-01T12:00:00Z"

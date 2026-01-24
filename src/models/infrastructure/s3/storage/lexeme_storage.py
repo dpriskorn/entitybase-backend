@@ -1,7 +1,7 @@
 """Lexeme storage operations for forms and senses."""
 
 import logging
-from typing import List
+from typing import List, Optional
 
 from models.common import OperationResult
 from models.config.settings import settings
@@ -26,17 +26,17 @@ class LexemeStorage(MetadataStorage):
         logger.debug(f"Storing sense gloss: hash={content_hash}, text='{text[:50]}...'")
         return self.store_metadata(MetadataType.SENSE_GLOSSES, content_hash, text)
 
-    def load_form_representations_batch(self, hashes: List[int]) -> List[str | None]:
+    def load_form_representations_batch(self, hashes: List[int]) -> List[Optional[str]]:
         """Load form representations by content hashes."""
         logger.debug(f"Loading {len(hashes)} form representations")
         return self._load_metadata_batch(MetadataType.FORM_REPRESENTATIONS, hashes)
 
-    def load_sense_glosses_batch(self, hashes: List[int]) -> List[str | None]:
+    def load_sense_glosses_batch(self, hashes: List[int]) -> List[Optional[str]]:
         """Load sense glosses by content hashes."""
         logger.debug(f"Loading {len(hashes)} sense glosses")
         return self._load_metadata_batch(MetadataType.SENSE_GLOSSES, hashes)
 
-    def _load_metadata_batch(self, metadata_type: MetadataType, hashes: List[int]) -> List[str | None]:
+    def _load_metadata_batch(self, metadata_type: MetadataType, hashes: List[int]) -> List[Optional[str]]:
         """Helper method to load metadata in batches."""
         results = []
         for hash_val in hashes:

@@ -9,7 +9,7 @@ import pytest
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.json_parser.entity_parser import parse_entity_data
 from models.rest_api.entitybase.v1.handlers.entity.lexeme.create import LexemeCreateHandler
-from models.data.rest_api.v1.request import EntityCreateRequest
+from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.rest_api.entitybase.v1.services.enumeration_service import EnumerationService
 
 
@@ -43,7 +43,8 @@ async def test_lexeme_deduplication_integration():
     request_data = raw_data["entities"]["L42"]
     request = EntityCreateRequest(
         type="lexeme",
-        data=request_data
+        data=request_data,
+        edit_summary="Test creation"
     )
 
     # Mock the parent create_entity method to return a response

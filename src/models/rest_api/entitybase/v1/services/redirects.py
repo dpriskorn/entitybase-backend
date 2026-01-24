@@ -8,11 +8,11 @@ from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditData, EntityType, EditType
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
 from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.data.rest_api.v1.request import EntityRedirectRequest
-from models.data.rest_api.v1.response import (
+from models.data.rest_api.v1.entitybase.request import EntityRedirectRequest
+from models.data.rest_api.v1.entitybase.response import (
     EntityRedirectResponse,
 )
-from models.data.rest_api.v1.response import EntityRevertResponse
+from models.data.rest_api.v1.entitybase.response import EntityRevertResponse
 from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.utils import raise_validation_error
 
@@ -152,7 +152,7 @@ class RedirectService(Service):
         from models.rest_api.entitybase.v1.handlers.entity.revert import (
             EntityRevertHandler,
         )
-        from models.data.rest_api.v1.request import EntityRevertRequest
+        from models.data.rest_api.v1.entitybase.request import EntityRevertRequest
 
         general_request = EntityRevertRequest(
             to_revision_id=revert_to_revision_id,
