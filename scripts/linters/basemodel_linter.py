@@ -15,14 +15,13 @@ def is_basemodel_subclass(node: ast.ClassDef) -> bool:
             # Skip enums, protocols, and other non-Pydantic classes
             if base.id in (
                 "Enum",
-                "ABC",
                 "object",
                 "Protocol",
-                "BaseSettings",
-                "Client",
-                "ConnectionManager",
-                "EntityTransaction",
-                "TripleWriters",
+                # "BaseSettings",
+                # "Client",
+                # "ConnectionManager",
+                # "EntityTransaction",
+                # "TripleWriters",
             ):
                 return True
         elif isinstance(base, ast.Attribute) and base.attr == "BaseModel":

@@ -60,7 +60,7 @@ def main():
         sys.exit(1)
 
     # Load allowlist
-    allowlist_path = Path("config/linters/allowlists/backslash.txt")
+    allowlist_path = Path("config/linters/allowlists/custom/backslash.txt")
     allowlist = load_allowlist(allowlist_path)
 
     violations = []
@@ -73,6 +73,7 @@ def main():
     if violations:
         for violation in violations:
             print(violation)
+        print(f"To allowlist violations, add 'file:line' entries to {allowlist_path.resolve()}")
         sys.exit(1)
     else:
         print("No backslash violations found.")

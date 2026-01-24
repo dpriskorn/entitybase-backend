@@ -5,6 +5,6 @@ set -e
 
 echo "Checking for response_model=dict in FastAPI endpoints..."
 
-python scripts/linters/check_response_model.py src
+python scripts/linters/check_response_model_in_api_endpoints.py src
 
 echo "Response model linting passed!"

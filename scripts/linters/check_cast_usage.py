@@ -72,6 +72,8 @@ def main() -> None:
         print("cast() violations:")
         for file_path, line_no, message in violations:
             print(f"{file_path}:{line_no}: {message}")
+        allowlist_path = Path("config/linters/allowlists/cast.txt")
+        print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
         sys.exit(1)
     else:
         print("No cast() violations found")

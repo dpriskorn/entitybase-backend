@@ -2,5 +2,5 @@
 set -e
 
 echo "Checking for long field names in API response models..."
-python scripts/linters/key_length_linter.py src/models/rest_api/entitybase/v1/response
+python scripts/linters/check_response_model_key_length.py src/models/data/rest_api/v1/entitybase/response
 echo "Field name length check passed!"

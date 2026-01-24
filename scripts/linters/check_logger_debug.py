@@ -165,6 +165,8 @@ def main() -> None:
         print("Logger check violations:")
         for func_name, line_no, message in violations:
             print(f"{message} at line {line_no}")
+        allowlist_path = Path("config/allowlists/logger_allowlist.txt")
+        print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
         sys.exit(1)
     else:
         print("All functions pass logger check")

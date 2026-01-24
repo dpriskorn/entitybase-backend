@@ -55,6 +55,8 @@ def main() -> None:
         print("tuple() violations:")
         for file_path, line_no, message in violations:
             print(f"{file_path}:{line_no}: {message}")
+        allowlist_path = Path("config/allowlists/tuple_allowlist.txt")
+        print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
         sys.exit(1)
 
 

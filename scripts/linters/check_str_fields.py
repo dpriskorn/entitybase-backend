@@ -7,7 +7,19 @@ import sys
 from pathlib import Path
 
 
-def check_file(file_path: Path) -> list[tuple[str, int, str]]:
+def load_allowlist() -> set[str]:
+    """Load the allowlist from config/linters/allowlists/custom/str.txt."""
+    allowlist_path = Path("config/linters/allowlists/custom/str.txt")
+    if not allowlist_path.exists():
+        return set()
+    try:
+        with open(allowlist_path, "r", encoding="utf-8") as f:
+            return set(line.strip() for line in f if line.strip())
+    except Exception:
+        return set()
+
+
+def check_file(file_path: Path, allowlist: set[str]) -> list[tuple[str, int, str]]:
     """Check a single Python file for various str/None patterns."""
     violations = []
     try:
@@ -17,6 +29,9 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                 stripped = line.strip()
                 # Skip comments and empty lines
                 if not stripped or stripped.startswith("#"):
+                    continue
+                # Check allowlist
+                if f"{file_path}:{line_no}" in allowlist:
                     continue
                 # Allowlist upper_bound and lower_bound for QuantityValue
                 if (
@@ -85,17 +100,20 @@ def main() -> None:
         print(f"Path {path} does not exist")
         sys.exit(1)
 
+    allowlist = load_allowlist()
     violations = []
 
     if path.is_file() and path.suffix == ".py":
-        violations.extend(check_file(path))
+        violations.extend(check_file(path, allowlist))
     elif path.is_dir():
         for py_file in path.rglob("*.py"):
-            violations.extend(check_file(py_file))
+            violations.extend(check_file(py_file, allowlist))
 
     if violations:
         for file_path, line_no, message in violations:
             print(f"{file_path}:{line_no}: {message}")
+        allowlist_path = Path("config/linters/allowlists/custom/str.txt")
+        print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
         sys.exit(1)
     else:
         print("No str | None violations found.")

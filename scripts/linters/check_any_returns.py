@@ -78,8 +78,8 @@ def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str, str
 
 
 def load_allowlist() -> set:
-    """Load the allowlist from config/linters/allowlists/any.txt."""
-    allowlist_path = Path("config/linters/allowlists/any.txt")
+    """Load the allowlist from config/linters/allowlists/custom/any.txt."""
+    allowlist_path = Path("config/linters/allowlists/custom/any.txt")
     allowlist = set()
     if allowlist_path.exists():
         with open(allowlist_path, "r", encoding="utf-8") as f:
@@ -122,6 +122,8 @@ def main() -> None:
         print("Any return violations:")
         for func_name, line_no, message, file_path in violations:
             print(f"{file_path}:{message} at line {line_no}")
+        allowlist_path = Path("config/linters/allowlists/custom/any.txt")
+        print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
         sys.exit(1)
     else:
         print("No Any return violations found")

@@ -88,6 +88,8 @@ def main() -> None:
     if violations:
         for file_path, line_no, message in violations:
             print(f"{file_path}:{line_no}: {message}")
+        allowlist_path = Path("config/allowlists/int_allowlist.txt")
+        print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
         sys.exit(1)
     else:
         print("No int | None violations found.")

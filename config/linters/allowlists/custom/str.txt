@@ -1,0 +1,7 @@
+src/models/rest_api/entitybase/v1/endpoints/lexemes.py:42
+src/models/rest_api/entitybase/v1/endpoints/lexemes.py:74
+src/models/infrastructure/s3/client.py:255
+src/models/infrastructure/s3/client.py:262
+src/models/infrastructure/s3/storage/lexeme_storage.py:29
+src/models/infrastructure/s3/storage/lexeme_storage.py:34
+src/models/infrastructure/s3/storage/lexeme_storage.py:39
