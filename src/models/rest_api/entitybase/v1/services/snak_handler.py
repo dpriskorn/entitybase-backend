@@ -5,9 +5,8 @@ from datetime import datetime
 from typing import Any, Dict
 
 from models.data.infrastructure.s3.snak_data import S3SnakData
-from models.infrastructure.s3.client import MyS3Client
-from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.data.rest_api.v1.entitybase.request import SnakRequest
+from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.utils import raise_validation_error
 
@@ -33,7 +32,7 @@ class SnakHandler(Handler):
 
         # Store using S3 client
         try:
-            self.s3_client.store_snak(content_hash, snak_data)
+            self.state.s3_client.store_snak(content_hash, snak_data)
             logger.debug(f"Stored snak with hash {content_hash}")
         except Exception as e:
             logger.error(f"Failed to store snak {content_hash}: {e}")
@@ -44,7 +43,7 @@ class SnakHandler(Handler):
     def get_snak(self, snak_hash: int) -> Dict[str, Any] | None:
         """Retrieve snak from S3 by hash."""
         try:
-            snak_data = self.s3_client.load_snak(snak_hash)
+            snak_data = self.state.s3_client.load_snak(snak_hash)
             return snak_data.snak if snak_data else None
         except Exception as e:
             logger.warning(f"Failed to retrieve snak {snak_hash}: {e}")
