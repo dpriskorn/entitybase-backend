@@ -37,6 +37,9 @@ package "Models" as Models #LightCyan {
     "EntityRevision" as EntityRevisionResponse
     "EntitySitelinks" as EntitySitelinksResponse
     "EntityStatements" as EntityStatementsResponse
+    "FormRepresentation" as FormRepresentationResponse
+    "Form" as FormResponse
+    "Forms" as FormsResponse
     "FullRevision" as FullRevisionResponse
     "GeneralStatsData" as GeneralStatsData
     "GeneralStats" as GeneralStatsResponse
@@ -62,10 +65,14 @@ package "Models" as Models #LightCyan {
     "RangeStatuses" as RangeStatuses
     "RedirectBatch" as RedirectBatchResponse
     "Reference" as ReferenceResponse
+    "RepresentationData" as RepresentationData
     "RevisionIdResult" as RevisionIdResult
     "RevisionMetadata" as RevisionMetadataResponse
     "RevisionRead" as RevisionReadResponse
     "RevisionResult" as RevisionResult
+    "SenseGloss" as SenseGlossResponse
+    "Sense" as SenseResponse
+    "Senses" as SensesResponse
     "SingleEndorsementStats" as SingleEndorsementStatsResponse
     "SitelinkValue" as SitelinkValue
     "Sitelinks" as SitelinksResponse
@@ -75,6 +82,7 @@ package "Models" as Models #LightCyan {
     "StatementEndorsementStats" as StatementEndorsementStats
     "StatementHashResult" as StatementHashResult
     "Statement" as StatementResponse
+    "StatementsHash" as StatementsHashResponse
     "Statements" as StatementsResponse
     "TermsByType" as TermsByType
     "TermsPerLanguage" as TermsPerLanguage

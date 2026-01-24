@@ -97,6 +97,15 @@ from .user_preferences import UserPreferencesResponse
 from .user_stats import UserStatsData, UserStatsResponse
 from .watchlist import WatchlistEntryResponse, WatchlistResponse
 
+from .lexemes import (
+    FormRepresentationResponse,
+    FormResponse,
+    FormsResponse,
+    SenseGlossResponse,
+    SenseResponse,
+    SensesResponse,
+)
+
 __all__ = [
     "AliasValue",
     "AliasesResponse",
@@ -190,6 +199,12 @@ __all__ = [
     "WatchCounts",
     "WatchlistEntryResponse",
     "WatchlistResponse",
+    "FormRepresentationResponse",
+    "FormResponse",
+    "FormsResponse",
+    "SenseGlossResponse",
+    "SenseResponse",
+    "SensesResponse",
     "WatchlistToggleResponse",
     "WikibasePredicatesResponse",
     "WorkerHealthCheckResponse",

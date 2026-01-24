@@ -62,6 +62,20 @@
 | ✅ | POST | `/redirects` | Create a redirect for an entity. |
 | ✅ | GET | `/references/{hashes}` | Fetch references by hash(es). |
 | ✅ | POST | `/representations/entities/lexemes` | Create a new lexeme entity. |
+| ✅ | GET | `/representations/entities/lexemes/forms/{form_id}` | Get single form by ID (accepts L42-F1 or F1 format). |
+| ✅ | DELETE | `/representations/entities/lexemes/forms/{form_id}` | Delete a form by ID. |
+| ✅ | GET | `/representations/entities/lexemes/forms/{form_id}/representation` | Get all representations for a form. |
+| ✅ | GET | `/representations/entities/lexemes/forms/{form_id}/representation/{langcode}` | Get representation for a form in specific language. |
+| ✅ | PUT | `/representations/entities/lexemes/forms/{form_id}/representation/{langcode}` | Update form representation for language. |
+| ✅ | DELETE | `/representations/entities/lexemes/forms/{form_id}/representation/{langcode}` | Delete form representation for language. |
+| ✅ | GET | `/representations/entities/lexemes/senses/{sense_id}` | Get single sense by ID (accepts L42-S1 or S1 format). |
+| ✅ | DELETE | `/representations/entities/lexemes/senses/{sense_id}` | Delete a sense by ID. |
+| ✅ | GET | `/representations/entities/lexemes/senses/{sense_id}/glosses` | Get all glosses for a sense. |
+| ✅ | GET | `/representations/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Get gloss for a sense in specific language. |
+| ✅ | PUT | `/representations/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Update sense gloss for language. |
+| ✅ | DELETE | `/representations/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Delete sense gloss for language. |
+| ✅ | GET | `/representations/entities/lexemes/{lexeme_id}/forms` | List all forms for a lexeme, sorted by numeric suffix. |
+| ✅ | GET | `/representations/entities/lexemes/{lexeme_id}/senses` | List all senses for a lexeme, sorted by numeric suffix. |
 | ✅ | GET | `/representations/{hashes}` | Fetch form representations by hash(es). |
 | ✅ | GET | `/representations/{hashes}` | Fetch sense glosses by hash(es). |
 | ✅ | GET | `/snaks/{hashes}` | Fetch snaks by hash(es). |
@@ -80,6 +94,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 75 |
+| Implemented | 89 |
 | Not Implemented | 0 |
-| Total | 75 |
+| Total | 89 |

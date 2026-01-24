@@ -197,7 +197,7 @@ class Settings(BaseModel):
         from models.data.config.stream import StreamConfig
 
         return StreamConfig(
-            bootstrap_servers=self.kafka_brokers if isinstance(self.kafka_brokers, str) else [self.kafka_brokers],
+            bootstrap_servers=self.kafka_brokers if isinstance(self.kafka_brokers, list) else [self.kafka_brokers],
             topic=self.kafka_entitychange_json_topic,
         )
 
@@ -206,7 +206,7 @@ class Settings(BaseModel):
         from models.data.config.stream import StreamConfig
 
         return StreamConfig(
-            bootstrap_servers=self.kafka_brokers if isinstance(self.kafka_brokers, str) else [self.kafka_brokers],
+            bootstrap_servers=self.kafka_brokers if isinstance(self.kafka_brokers, list) else [self.kafka_brokers],
             topic=self.kafka_entity_diff_topic,
         )
 

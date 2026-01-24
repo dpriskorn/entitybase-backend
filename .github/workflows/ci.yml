@@ -1,0 +1,108 @@
+name: CI Tests
+
+on:
+  push:
+    branches: ["master"]
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build docker images
+        run: |
+          docker-compose -f docker-compose.ci.yml build \
+            api idworker integration e2e create-buckets create-tables
+
+      - name: Start infrastructure services
+        timeout-minutes: 5
+        run: |
+          docker-compose -f docker-compose.ci.yml up -d mysql minio
+
+      - name: Wait for MySQL to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.ci.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+          echo "MySQL is ready"
+
+      - name: Wait for MinIO to be ready
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:9000/minio/health/live; do
+            echo "Waiting for MinIO..."
+            sleep 2
+          done
+          echo "MinIO is ready"
+
+      - name: Setup database tables
+        run: docker-compose -f docker-compose.ci.yml run --rm create-tables
+
+      - name: Setup S3 buckets
+        run: docker-compose -f docker-compose.ci.yml run --rm create-buckets
+
+      - name: Start idworker
+        run: docker-compose -f docker-compose.ci.yml up -d idworker
+
+      - name: Start API
+        run: docker-compose -f docker-compose.ci.yml up -d api
+        timeout-minutes: 2
+
+      - name: Wait for API to be healthy
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:8000/health; do
+            echo "Waiting for API..."
+            sleep 2
+          done
+          echo "API is ready"
+
+      - name: Run integration tests
+        run: docker-compose -f docker-compose.ci.yml run --rm integration
+        timeout-minutes: 15
+
+      - name: Run e2e tests
+        run: docker-compose -f docker-compose.ci.yml run --rm e2e
+        timeout-minutes: 10
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: |
+            pytest-report.html
+            pytest-report.json
+            .coverage
+            coverage.xml
+          if-no-files-found: ignore
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-logs
+          path: logs/
+          if-no-files-found: ignore
+
+      - name: Show container logs
+        if: failure()
+        run: |
+          docker-compose -f docker-compose.ci.yml logs --tail=100 mysql
+          docker-compose -f docker-compose.ci.yml logs --tail=100 api
+          docker-compose -f docker-compose.ci.yml logs --tail=100 integration
+          docker-compose -f docker-compose.ci.yml logs --tail=100 e2e
+
+      - name: Down containers
+        if: always()
+        run: docker-compose -f docker-compose.ci.yml down -v

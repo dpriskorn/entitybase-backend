@@ -89,7 +89,7 @@ class StateHandler(BaseModel):
             and self.kafka_brokers
             and self.kafka_entitychange_topic
         ):
-            return StreamProducerClient(config=self.stream_config)
+            return StreamProducerClient(config=self.entity_change_stream_config)
         else:
             raise_validation_error(message="No kafka broker and topic provided")
 
@@ -101,7 +101,7 @@ class StateHandler(BaseModel):
             and self.kafka_brokers
             and self.kafka_entitydiff_topic
         ):
-            return StreamProducerClient(config=self.stream_config)
+            return StreamProducerClient(config=self.entity_diff_stream_config)
         else:
             raise_validation_error(message="No kafka broker and rdf topic provided")
 

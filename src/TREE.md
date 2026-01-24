@@ -11,10 +11,11 @@ src/
     │   │       └── records
     │   ├── rest_api
     │   │   └── v1
-    │   │       ├── request
-    │   │       │   └── entity
-    │   │       └── response
-    │   │           └── entity
+    │   │       └── entitybase
+    │   │           ├── request
+    │   │           │   └── entity
+    │   │           └── response
+    │   │               └── entity
     │   └── workers
     ├── infrastructure
     │   ├── s3
@@ -56,4 +57,4 @@ src/
         ├── user_stats
         └── watchlist_consumer
 
-57 directories
+58 directories

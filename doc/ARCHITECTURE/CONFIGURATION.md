@@ -15,7 +15,7 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `'vitess'`
-- **Description**: No description available
+- **Description**: vitess
 
 ### `vitess_port`
 
@@ -47,7 +47,7 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `'http://minio:9000'`
-- **Description**: No description available
+- **Description**: s3
 
 ### `s3_access_key`
 
@@ -65,7 +65,7 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `'references'`
-- **Description**: No description available
+- **Description**: buckets
 
 ### `s3_qualifiers_bucket`
 
@@ -107,18 +107,36 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `'1.0.0'`
-- **Description**: No description available
+- **Description**: S3 versions
 
-### `s3_schema_revision_version`
+### `s3_sitelink_version`
 
 - **Type**: `str`
-- **Default**: `'latest'`
+- **Default**: `'1.0.0'`
+- **Description**: No description available
+
+### `s3_qualifier_version`
+
+- **Type**: `str`
+- **Default**: `'1.0.0'`
+- **Description**: No description available
+
+### `s3_reference_version`
+
+- **Type**: `str`
+- **Default**: `'1.0.0'`
 - **Description**: No description available
 
 ### `s3_statement_version`
 
 - **Type**: `str`
-- **Default**: `'2.0.0'`
+- **Default**: `'1.0.0'`
+- **Description**: No description available
+
+### `s3_schema_revision_version`
+
+- **Type**: `str`
+- **Default**: `'4.0.0'`
 - **Description**: No description available
 
 ## Workers Settings
@@ -127,7 +145,7 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `bool`
 - **Default**: `True`
-- **Description**: No description available
+- **Description**: workers
 
 ### `backlink_stats_schedule`
 
@@ -147,7 +165,7 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `'INFO'`
-- **Description**: No description available
+- **Description**: logging
 
 ### `test_log_level`
 
@@ -169,17 +187,11 @@ All settings can be overridden using environment variables with the same name.
 
 ## Other Settings
 
-### `wmf_recentchange_version`
-
-- **Type**: `str`
-- **Default**: `'latest'`
-- **Description**: No description available
-
 ### `wikibase_repository_name`
 
 - **Type**: `str`
 - **Default**: `'wikidata'`
-- **Description**: No description available
+- **Description**: rdf
 
 ### `property_registry_path`
 
@@ -191,7 +203,7 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `bool`
 - **Default**: `False`
-- **Description**: No description available
+- **Description**: streaming
 
 ### `kafka_brokers`
 
@@ -209,6 +221,48 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `'wikibase.entity_diff'`
+- **Description**: No description available
+
+### `streaming_entity_change_version`
+
+- **Type**: `str`
+- **Default**: `'1.0.0'`
+- **Description**: No description available
+
+### `streaming_endorsechange_version`
+
+- **Type**: `str`
+- **Default**: `'1.0.0'`
+- **Description**: No description available
+
+### `streaming_newthank_version`
+
+- **Type**: `str`
+- **Default**: `'1.0.0'`
+- **Description**: No description available
+
+### `streaming_entity_diff_version`
+
+- **Type**: `str`
+- **Default**: `'2.0.0'`
+- **Description**: No description available
+
+### `entity_version`
+
+- **Type**: `str`
+- **Default**: `'2.0.0'`
+- **Description**: entity version
+
+### `environment`
+
+- **Type**: `str`
+- **Default**: `'prod'`
+- **Description**: other
+
+### `user_agent`
+
+- **Type**: `str`
+- **Default**: `'Entitybase/1.0 User:So9q'`
 - **Description**: No description available
 
 ### `user_stats_enabled`
