@@ -205,10 +205,10 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'entitybase.entity_change'`
 - **Description**: No description available
 
-### `kafka_entitydiff_ttl_topic`
+### `kafka_entity_diff_topic`
 
 - **Type**: `str`
-- **Default**: `'entitybase.entity_diff_ttl'`
+- **Default**: `'wikibase.entity_diff'`
 - **Description**: No description available
 
 ### `user_stats_enabled`

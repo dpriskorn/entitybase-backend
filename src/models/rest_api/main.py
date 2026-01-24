@@ -69,7 +69,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             streaming_enabled=settings.streaming_enabled,
             kafka_brokers=settings.kafka_brokers,
             kafka_entitychange_topic=settings.kafka_entitychange_json_topic,
-            kafka_entitydiff_topic=settings.kafka_entitydiff_ttl_topic,
+            kafka_entitydiff_topic=settings.kafka_entity_diff_topic,
             property_registry_path=property_registry_path,
             entity_change_stream_config=settings.get_entity_change_stream_config(),
             entity_diff_stream_config=settings.get_entity_diff_stream_config(),
