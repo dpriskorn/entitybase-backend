@@ -65,6 +65,7 @@ class LexemeRepository(Repository):
 
         logger.info(f"Stored lexeme terms for {entity_id}")
 
+    # noinspection PyArgumentList
     def get_lexeme_terms(self, entity_id: str) -> LexemeTerms:
         """Retrieve lexeme term hash mappings for an entity.
 

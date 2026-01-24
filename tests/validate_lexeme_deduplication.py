@@ -9,7 +9,7 @@ def test_basic_lexeme_processing():
     print("Testing basic lexeme processing...")
 
     # Load L42 test data
-    test_data_path = Path(__file__).parent / "test_data" / "json" / "entities" / "L42.json"
+    test_data_path = Path(__file__).parent.parent / "test_data" / "json" / "entities" / "L42.json"
 
     try:
         with open(test_data_path, "r", encoding="utf-8") as f:
