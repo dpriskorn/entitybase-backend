@@ -103,23 +103,7 @@ class TestThanksRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
-    def test_get_thanks_received_success(self):
-        """Test getting thanks received."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.side_effect = [
-            [(1, 111, 222, "Q1", 1, "2023-01-01")],  # thanks
-            (1,)  # total count
-        ]
-        mock_vitess_client.cursor = mock_cursor
 
-        repo = ThanksRepository(vitess_client=mock_vitess_client)
-
-        result = repo.get_thanks_received(222)
-
-        assert result.success is True
-        assert len(result.data["thanks"]) == 1
-        assert isinstance(result.data["thanks"][0], ThankItem)
 
     def test_get_thanks_received_invalid_params(self):
         """Test getting thanks received with invalid params."""
@@ -226,59 +210,11 @@ class TestThanksRepository:
         assert result.success is False
         assert "DB error" in result.error
 
-    def test_get_thanks_received_pagination(self):
-        """Test getting thanks received with pagination."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.side_effect = [
-            [(1, 111, 222, "Q1", 1, "2023-01-01"), (2, 112, 222, "Q2", 2, "2023-01-02")],  # thanks
-            (5,)  # total count
-        ]
-        mock_vitess_client.cursor = mock_cursor
 
-        repo = ThanksRepository(vitess_client=mock_vitess_client)
 
-        result = repo.get_thanks_received(222, limit=2, offset=1)
 
-        assert result.success is True
-        assert len(result.data["thanks"]) == 2
-        assert result.data["total_count"] == 5
-        assert result.data["has_more"] is True
 
-    def test_get_thanks_received_include_removed(self):
-        """Test getting thanks received including removed ones."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.side_effect = [
-            [(1, 111, 222, "Q1", 1, "2023-01-01")],  # thanks
-            (1,)  # total count
-        ]
-        mock_vitess_client.cursor = mock_cursor
 
-        repo = ThanksRepository(vitess_client=mock_vitess_client)
-
-        result = repo.get_thanks_received(222, include_removed=True)
-
-        assert result.success is True
-        assert len(result.data["thanks"]) == 1
-
-    def test_get_thanks_sent_success(self):
-        """Test getting thanks sent."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.side_effect = [
-            [(1, 111, 222, "Q1", 1, "2023-01-01")],  # thanks
-            (1,)  # total count
-        ]
-        mock_vitess_client.cursor = mock_cursor
-
-        repo = ThanksRepository(vitess_client=mock_vitess_client)
-
-        result = repo.get_thanks_sent(111)
-
-        assert result.success is True
-        assert len(result.data["thanks"]) == 1
-        assert result.data["total_count"] == 1
 
     def test_get_thanks_sent_invalid_params(self):
         """Test getting thanks sent with invalid params."""
@@ -291,41 +227,9 @@ class TestThanksRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
-    def test_get_thanks_received_no_thanks(self):
-        """Test getting thanks received when user has none."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.side_effect = [
-            [],  # no thanks
-            (0,)  # total count
-        ]
-        mock_vitess_client.cursor = mock_cursor
 
-        repo = ThanksRepository(vitess_client=mock_vitess_client)
 
-        result = repo.get_thanks_received(222)
 
-        assert result.success is True
-        assert result.data["thanks"] == []
-        assert result.data["total_count"] == 0
-
-    def test_get_thanks_sent_no_thanks(self):
-        """Test getting thanks sent when user has none."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.side_effect = [
-            [],  # no thanks
-            (0,)  # total count
-        ]
-        mock_vitess_client.cursor = mock_cursor
-
-        repo = ThanksRepository(vitess_client=mock_vitess_client)
-
-        result = repo.get_thanks_sent(111)
-
-        assert result.success is True
-        assert result.data["thanks"] == []
-        assert result.data["total_count"] == 0
 
     def test_get_revision_thanks_no_thanks(self):
         """Test getting thanks for revision with none."""

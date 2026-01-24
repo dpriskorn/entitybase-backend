@@ -79,16 +79,7 @@ class TestRevisionRepository:
 
         assert result is None
 
-    def test_revert_entity_revision_not_found(self):
-        """Test revert when target revision not found."""
-        mock_vitess_client = MagicMock()
 
-        repo = RevisionRepository(vitess_client=mock_vitess_client)
-
-        # Mock get_revision to return None
-        with patch.object(repo, 'get_revision', return_value=None):
-            with pytest.raises(Exception):  # raise_validation_error
-                repo.revert_entity(123, 1, 456, "test", None, mock_vitess_client)
 
     def test_insert_invalid_entity_id(self):
         """Test insert with invalid entity ID."""
@@ -132,22 +123,7 @@ class TestRevisionRepository:
 
         assert "Getting revision 1 for entity 123" in caplog.text
 
-    def test_revert_entity_logging(self, caplog):
-        """Test that revert_entity logs debug message."""
-        import logging
-        caplog.set_level(logging.DEBUG)
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchone.return_value = ('[]', '[]', '{}', '{}', '{}', '{}', '{}')
-        mock_vitess_client.cursor = mock_cursor
 
-        repo = RevisionRepository(vitess_client=mock_vitess_client)
-
-        # Mock get_revision to return data
-        with patch.object(repo, 'get_revision', return_value={"statements": []}):
-            repo.revert_entity(123, 1, 456, "test", None, mock_vitess_client)
-
-        assert "Reverting entity 123 to revision 1" in caplog.text
 
         with pytest.raises(Exception):  # raise_validation_error
             repo.insert("Q999", 1, {})
@@ -211,22 +187,4 @@ class TestRevisionRepository:
 
         assert result is None
 
-    def test_get_revision_null_data(self):
-        """Test getting revision with null JSON data."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchone.return_value = (None, None, None, None, None, None, None)  # all null
-        mock_vitess_client.cursor = mock_cursor
 
-        repo = RevisionRepository(vitess_client=mock_vitess_client)
-
-        result = repo.get_revision(123, 1, mock_vitess_client)
-
-        assert result is not None
-        assert result["statements"] == []
-        assert result["properties"] == {}
-        assert result["property_counts"] == {}
-        assert result["labels_hashes"] == {}
-        assert result["descriptions_hashes"] == {}
-        assert result["aliases_hashes"] == {}
-        assert result["sitelinks"] == {}

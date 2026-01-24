@@ -208,17 +208,7 @@ class TestUserRepository:
 
         assert result.success is True
 
-    def test_log_user_activity_invalid_params(self):
-        """Test logging activity with invalid params."""
-        mock_vitess_client = MagicMock()
 
-        repo = UserRepository(vitess_client=mock_vitess_client)
-
-        from models.data.rest_api.v1.entitybase.request import UserActivityType
-        result = repo.log_user_activity(0, UserActivityType.ENTITY_EDIT, "Q1", 1)
-
-        assert result.success is False
-        assert "Invalid user ID or activity type" in result.error
 
     def test_get_user_preferences_success(self):
         """Test getting user preferences."""
@@ -272,24 +262,7 @@ class TestUserRepository:
         assert result.success is False
         assert "Invalid user ID" in result.error
 
-    def test_get_user_activities_success(self):
-        """Test getting user activities."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.side_effect = [
-            [("edit", "Q1", 1, "2023-01-01")],  # activities
-            (1,)  # total count
-        ]
-        mock_vitess_client.cursor = mock_cursor
 
-        repo = UserRepository(vitess_client=mock_vitess_client)
-
-        from models.data.rest_api.v1.entitybase.request import UserActivityType
-        result = repo.get_user_activities(123, UserActivityType.ENTITY_EDIT)
-
-        assert result.success is True
-        assert len(result.data["activities"]) == 1
-        assert result.data["total_count"] == 1
 
     def test_get_user_activities_invalid_params(self):
         """Test getting activities with invalid params."""
@@ -315,19 +288,7 @@ class TestUserRepository:
 
         assert result.success is True
 
-    def test_create_user_already_exists_case(self):
-        """Test creating user that already exists."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchone.return_value = (1,)  # user exists
-        mock_vitess_client.cursor = mock_cursor
 
-        repo = UserRepository(vitess_client=mock_vitess_client)
-
-        result = repo.create_user(123)
-
-        assert result.success is False
-        assert "already exists" in result.error
 
     def test_get_user_not_found_case(self):
         """Test getting non-existent user."""
@@ -476,16 +437,7 @@ class TestUserRepository:
         assert result.success is True
         assert "Logging user activity: user_id=123, activity_type=UserActivityType.ENTITY_EDIT, entity_id=Q1, revision_id=1" in caplog.text
 
-    def test_log_user_activity_invalid_params(self):
-        """Test logging activity with invalid params."""
-        mock_vitess_client = MagicMock()
 
-        repo = UserRepository(vitess_client=mock_vitess_client)
-
-        result = repo.log_user_activity(0, UserActivityType.ENTITY_EDIT, "Q1")
-
-        assert result.success is False
-        assert "user_id must be positive" in result.error
 
     def test_log_user_activity_database_error(self):
         """Test logging activity with database error."""

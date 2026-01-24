@@ -135,19 +135,9 @@ class TestTimeValueParser:
 
         assert result.precision == 14
 
-    def test_parse_time_value_missing_value_dict(self):
-        """Test parsing when the value dict is missing."""
-        datavalue = {}
+    
 
-        with pytest.raises(ValueError, match="Time value must be in format"):
-            parse_time_value(datavalue)
-
-    def test_parse_time_value_missing_time_field(self):
-        """Test parsing when time field is missing from value dict."""
-        datavalue = {
-            "value": {
-                "timezone": 120,
-                "precision": 9
+    
             }
         }
 

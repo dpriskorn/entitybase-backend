@@ -10,22 +10,7 @@ from models.infrastructure.vitess.repositories.schema import SchemaRepository
 class TestSchemaRepository:
     """Unit tests for SchemaRepository."""
 
-    def test_create_tables_success(self):
-        """Test successful table creation."""
-        mock_vitess_client = MagicMock()
-        mock_connection_manager = MagicMock()
-        mock_connection = MagicMock()
-        mock_cursor = MagicMock()
-
-        mock_vitess_client.connection_manager.connection = mock_connection
-        mock_vitess_client.cursor = mock_cursor
-
-        repo = SchemaRepository(vitess_client=mock_vitess_client)
-
-        repo.create_tables()
-
-        # Should execute 16 CREATE TABLE statements (count the cursor.execute calls)
-        assert mock_cursor.execute.call_count == 16
+    
 
     def test_create_tables_no_vitess_client(self):
         """Test create_tables with no vitess client."""

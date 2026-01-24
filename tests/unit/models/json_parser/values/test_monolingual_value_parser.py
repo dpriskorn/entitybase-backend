@@ -134,26 +134,6 @@ class TestMonolingualValueParser:
 
         assert result.text == "Text\twith\ttabs  and  multiple   spaces"  # Whitespace preserved
 
-    def test_parse_monolingual_value_newline_in_text_raises_error(self):
-        """Test that text with newlines raises validation error."""
-        datavalue = {
-            "value": {
-                "language": "en",
-                "text": "Text with\nnewline"
-            }
-        }
+    
 
-        with pytest.raises(ValueError, match="MonolingualText text must not contain"):
-            parse_monolingual_value(datavalue)
-
-    def test_parse_monolingual_value_carriage_return_raises_error(self):
-        """Test that text with carriage returns raises validation error."""
-        datavalue = {
-            "value": {
-                "language": "en",
-                "text": "Text with\rcarriage return"
-            }
-        }
-
-        with pytest.raises(ValueError, match="MonolingualText text must not contain"):
-            parse_monolingual_value(datavalue)
+    

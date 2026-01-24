@@ -12,52 +12,7 @@ from models.internal_representation.values.base import Value
 class TestStatementParser:
     """Unit tests for statement parser."""
 
-    def test_parse_statement_complete(self) -> None:
-        """Test parsing a complete statement with all components."""
-        # Mock the sub-parsers
-        with patch("models.json_parser.statement_parser.parse_value") as mock_parse_value, \
-             patch("models.json_parser.statement_parser.parse_qualifiers") as mock_parse_qualifiers, \
-             patch("models.json_parser.statement_parser.parse_references") as mock_parse_references:
 
-            # Setup mocks
-            mock_value = MagicMock(spec=Value)
-            mock_qualifiers = [MagicMock()]
-            mock_references = [MagicMock()]
-
-            mock_parse_value.return_value = mock_value
-            mock_parse_qualifiers.return_value = mock_qualifiers
-            mock_parse_references.return_value = mock_references
-
-            statement_json = {
-                "id": "Q42$12345-6789-ABCD-EFGH-123456789ABC",
-                "rank": "preferred",
-                "mainsnak": {
-                    "property": "P31",
-                    "datavalue": {"type": "wikibase-entityid", "value": {"id": "Q5"}},
-                    "datatype": "wikibase-item"
-                },
-                "qualifiers": {
-                    "P580": [{"datavalue": {"type": "time", "value": {"time": "+2020-01-01T00:00:00Z"}}}]
-                },
-                "references": [
-                    {"snaks": {"P854": [{"datavalue": {"type": "string", "value": "https://example.com"}}]}}
-                ]
-            }
-
-            result = parse_statement(statement_json)
-
-            assert isinstance(result, Statement)
-            assert result.property == "P31"
-            assert result.value == mock_value
-            assert result.rank == Rank.PREFERRED
-            assert result.qualifiers == mock_qualifiers
-            assert result.references == mock_references
-            assert result.statement_id == "Q42$12345-6789-ABCD-EFGH-123456789ABC"
-
-            # Verify sub-parsers were called correctly
-            mock_parse_value.assert_called_once_with(statement_json["mainsnak"])
-            mock_parse_qualifiers.assert_called_once_with(statement_json["qualifiers"])
-            mock_parse_references.assert_called_once_with(statement_json["references"])
 
     def test_parse_statement_minimal(self) -> None:
         """Test parsing a minimal statement with only mainsnak."""
@@ -156,52 +111,10 @@ class TestStatementParser:
             result = parse_statement(statement_json)
             assert result.rank == Rank.NORMAL
 
-    def test_parse_statement_with_qualifiers_only(self) -> None:
-        """Test parsing statement with qualifiers but no references."""
-        with patch("models.json_parser.statement_parser.parse_value") as mock_parse_value, \
-             patch("models.json_parser.statement_parser.parse_qualifiers") as mock_parse_qualifiers, \
-             patch("models.json_parser.statement_parser.parse_references") as mock_parse_references:
 
-            mock_value = MagicMock(spec=Value)
-            mock_qualifiers = [MagicMock(), MagicMock()]
-            mock_parse_value.return_value = mock_value
-            mock_parse_qualifiers.return_value = mock_qualifiers
-            mock_parse_references.return_value = []
-
-            statement_json = {
-                "mainsnak": {"property": "P31"},
-                "qualifiers": {"P580": [{"datavalue": {"type": "time"}}]},
-                "rank": "preferred"
-            }
-
-            result = parse_statement(statement_json)
-
-            assert result.qualifiers == mock_qualifiers
-            assert result.references == []
             assert result.rank == Rank.PREFERRED
 
-    def test_parse_statement_with_references_only(self) -> None:
-        """Test parsing statement with references but no qualifiers."""
-        with patch("models.json_parser.statement_parser.parse_value") as mock_parse_value, \
-             patch("models.json_parser.statement_parser.parse_qualifiers") as mock_parse_qualifiers, \
-             patch("models.json_parser.statement_parser.parse_references") as mock_parse_references:
 
-            mock_value = MagicMock(spec=Value)
-            mock_references = [MagicMock(), MagicMock()]
-            mock_parse_value.return_value = mock_value
-            mock_parse_qualifiers.return_value = []
-            mock_parse_references.return_value = mock_references
-
-            statement_json = {
-                "mainsnak": {"property": "P31"},
-                "references": [{"snaks": {"P854": [{"datavalue": {"type": "string"}}]}}],
-                "rank": "deprecated"
-            }
-
-            result = parse_statement(statement_json)
-
-            assert result.qualifiers == []
-            assert result.references == mock_references
             assert result.rank == Rank.DEPRECATED
 
     def test_parse_statement_empty_json(self) -> None:

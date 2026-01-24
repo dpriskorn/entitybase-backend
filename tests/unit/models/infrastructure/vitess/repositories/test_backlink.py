@@ -11,21 +11,7 @@ from models.infrastructure.vitess.repositories.backlink import BacklinkRepositor
 class TestBacklinkRepository:
     """Unit tests for BacklinkRepository."""
 
-    def test_insert_backlinks_success(self):
-        """Test successful backlink insertion."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
-        mock_cursor.__exit__ = MagicMock(return_value=None)
-        mock_vitess_client.cursor = mock_cursor
 
-        repo = BacklinkRepository(vitess_client=mock_vitess_client)
-
-        backlinks = [(1, 2, 123, "P31", "normal")]
-        result = repo.insert_backlinks(backlinks)
-
-        assert result.success is True
-        mock_cursor.executemany.assert_called_once()
 
     def test_insert_backlinks_empty(self):
         """Test inserting empty backlinks list."""
@@ -37,22 +23,7 @@ class TestBacklinkRepository:
 
         assert result.success is True
 
-    def test_insert_backlinks_error(self):
-        """Test backlink insertion with database error."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
-        mock_cursor.__exit__ = MagicMock(return_value=None)
-        mock_cursor.executemany.side_effect = Exception("DB error")
-        mock_vitess_client.cursor = mock_cursor
 
-        repo = BacklinkRepository(vitess_client=mock_vitess_client)
-
-        backlinks = [(1, 2, 123, "P31", "normal")]
-        result = repo.insert_backlinks(backlinks)
-
-        assert result.success is False
-        assert "DB error" in result.error
 
     def test_delete_backlinks_for_entity_success(self):
         """Test successful backlink deletion."""

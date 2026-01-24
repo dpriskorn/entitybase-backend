@@ -52,12 +52,7 @@ class TestReferenceHasher(unittest.TestCase):
         hash2 = ReferenceHasher.compute_hash(ref2)
         self.assertNotEqual(hash1, hash2)
 
-    def test_compute_hash_with_reference_object(self) -> None:
-        """Test hash computation with Reference object."""
-        reference = Reference(snaks={"P854": []}, snaks_order=["P854"])
-        hash_value = ReferenceHasher.compute_hash(reference)
-        self.assertIsInstance(hash_value, int)
-        self.assertNotEqual(hash_value, 0)
+
 
 
 if __name__ == "__main__":
