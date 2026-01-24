@@ -5,15 +5,18 @@ from datetime import datetime, timezone
 from typing import Any
 
 from models.common import OperationResult
+from models.config.settings import settings
 from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.data.infrastructure.s3.reference_data import S3ReferenceData
 from models.data.infrastructure.s3.statement import S3Statement
+from models.data.rest_api.v1.entitybase.request import SnakRequest
 from models.internal_representation.qualifier_hasher import QualifierHasher
 from models.internal_representation.reference_hasher import ReferenceHasher
 from models.internal_representation.statement_extractor import StatementExtractor
 from models.internal_representation.statement_hasher import StatementHasher
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.v1.service import Service
+from models.rest_api.entitybase.v1.services.snak_handler import SnakHandler
 from models.validation.json_schema_validator import JsonSchemaValidator
 
 logger = logging.getLogger(__name__)
@@ -94,7 +97,7 @@ class StatementService(Service):
         self,
         hash_result: StatementHashResult,
         validator: JsonSchemaValidator | None = None,
-        schema_version: str = "latest",
+        schema_version: str | None = None,
     ) -> OperationResult:
         """Deduplicate and store statements in Vitess and S3 (S3-first approach).
 
@@ -111,6 +114,8 @@ class StatementService(Service):
             validator: Optional JSON schema validator for statement validation
             schema_version: Version
         """
+        if schema_version is None:
+            schema_version = settings.s3_statement_version or "2.0.0"
         logger.debug(
             f"Deduplicating and storing {len(hash_result.statements)} statements (S3-first)"
         )
@@ -122,6 +127,21 @@ class StatementService(Service):
                 f"Processing statement {idx + 1}/{len(hash_result.statements)} with hash {statement_hash}"
             )
             try:
+                # Extract and store mainsnak via SnakHandler
+                mainsnak = statement_data.get("mainsnak")
+                snak_hash = None
+                if mainsnak:
+                    snak_request = SnakRequest(
+                        property=mainsnak.get("property"),
+                        datavalue=mainsnak.get("datavalue", {})
+                    )
+                    snak_handler = SnakHandler(state=self.state)
+                    snak_hash = snak_handler.store_snak(snak_request)
+                    # Replace mainsnak with hash reference
+                    statement_data = statement_data.copy()
+                    statement_data["mainsnak"] = {"hash": snak_hash}
+                    logger.debug(f"Stored mainsnak with hash {snak_hash} for statement {statement_hash}")
+                
                 statement_with_hash = S3Statement(
                     schema=schema_version,
                     hash=statement_hash,
@@ -182,8 +202,8 @@ class StatementService(Service):
                                 "error_type": type(write_error).__name__,
                                 "error_message": str(write_error),
                                 "statement_data": statement_data,
-                                "s3_bucket": self.s3_client.config.bucket,
-                                "s3_endpoint": self.s3_client.conn.meta.endpoint_url,
+                                "s3_bucket": self.state.s3_client.config.bucket,
+                                "s3_endpoint": self.state.s3_client.conn.meta.endpoint_url,
                                 "stack_trace": traceback.format_exc()
                                 if hasattr(write_error, "__traceback__")
                                 else None,
@@ -260,6 +280,8 @@ class StatementService(Service):
             f"Deduplicating references in {len(hash_result.full_statements)} statements"
         )
 
+        snak_handler = SnakHandler(state=self.state)
+        
         for idx, statement_data in enumerate(hash_result.full_statements):
             if "references" in statement_data and isinstance(
                 statement_data["references"], list
@@ -269,12 +291,42 @@ class StatementService(Service):
                     if isinstance(ref, S3ReferenceData):
                         # Compute rapidhash
                         ref_hash = ReferenceHasher.compute_hash(ref)
-                        # Store in S3 (idempotent)
-                        try:
-                            self.state.s3_client.store_reference(ref_hash, ref)
-                        except Exception as e:
-                            logger.warning(f"Failed to store reference {ref_hash}: {e}")
-                            # Continue, perhaps already exists
+                        # Store snaks in reference
+                        ref_dict = ref.model_dump()
+                        if "snaks" in ref_dict:
+                            new_snaks = []
+                            for snak_key, snak_value in ref_dict["snaks"].items():
+                                if isinstance(snak_value, list):
+                                    new_snak_values = []
+                                    for snak_item in snak_value:
+                                        if isinstance(snak_item, dict) and "property" in snak_item:
+                                            snak_request = SnakRequest(
+                                                property=snak_item["property"],
+                                                datavalue=snak_item.get("datavalue", {})
+                                            )
+                                            snak_hash = snak_handler.store_snak(snak_request)
+                                            new_snak_values.append(snak_hash)
+                                        else:
+                                            new_snak_values.append(snak_item)
+                                    new_snaks.append((snak_key, new_snak_values))
+                                elif isinstance(snak_value, dict) and "property" in snak_value:
+                                    snak_request = SnakRequest(
+                                        property=snak_value["property"],
+                                        datavalue=snak_value.get("datavalue", {})
+                                    )
+                                    snak_hash = snak_handler.store_snak(snak_request)
+                                    new_snaks.append((snak_key, snak_hash))
+                                else:
+                                    new_snaks.append((snak_key, snak_value))
+                            ref_dict["snaks"] = dict(new_snaks)
+                        
+                        # Store reference with hash-referenced snaks
+                        ref_data = S3ReferenceData(
+                            hash=ref_hash,
+                            reference=ref_dict,
+                            created_at=datetime.now(timezone.utc).isoformat() + "Z"
+                        )
+                        self.state.s3_client.store_reference(ref_hash, ref_data)
                         # Replace with hash
                         new_references.append(ref_hash)
                     else:
@@ -306,22 +358,48 @@ class StatementService(Service):
             f"Deduplicating qualifiers in {len(hash_result.full_statements)} statements"
         )
 
+        snak_handler = SnakHandler(state=self.state)
+        
         for idx, statement_data in enumerate(hash_result.full_statements):
             if "qualifiers" in statement_data and isinstance(
                 statement_data["qualifiers"], dict
             ):
+                qualifiers_dict = statement_data["qualifiers"]
+                new_qualifiers = {}
+                
+                # Process qualifiers and extract snaks
+                for prop_key, qual_values in qualifiers_dict.items():
+                    if isinstance(qual_values, list):
+                        new_qual_values = []
+                        for qual_item in qual_values:
+                            if isinstance(qual_item, dict) and "property" in qual_item:
+                                snak_request = SnakRequest(
+                                    property=qual_item["property"],
+                                    datavalue=qual_item.get("datavalue", {})
+                                )
+                                snak_hash = snak_handler.store_snak(snak_request)
+                                new_qual_values.append(snak_hash)
+                            else:
+                                new_qual_values.append(qual_item)
+                        new_qualifiers[prop_key] = new_qual_values
+                    elif isinstance(qual_values, dict) and "property" in qual_values:
+                        snak_request = SnakRequest(
+                            property=qual_values["property"],
+                            datavalue=qual_values.get("datavalue", {})
+                        )
+                        snak_hash = snak_handler.store_snak(snak_request)
+                        new_qualifiers[prop_key] = snak_hash
+                    else:
+                        new_qualifiers[prop_key] = qual_values
+                
                 # Compute rapidhash
-                qual_hash = QualifierHasher.compute_hash(statement_data["qualifiers"])
+                qual_hash = QualifierHasher.compute_hash(new_qualifiers)
                 # Store in S3 (idempotent)
                 try:
-                    import datetime
-
                     qual_data = S3QualifierData(
-                        qualifier=statement_data["qualifiers"],
+                        qualifier=new_qualifiers,
                         hash=qual_hash,
-                        created_at=datetime.datetime.now(
-                            datetime.timezone.utc
-                        ).isoformat(),
+                        created_at=datetime.now(timezone.utc).isoformat() + "Z",
                     )
                     self.state.s3_client.store_qualifier(qual_hash, qual_data)
                 except Exception as e:

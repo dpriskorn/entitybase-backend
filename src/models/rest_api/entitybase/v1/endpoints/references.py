@@ -8,6 +8,7 @@ from starlette.requests import Request
 from models.data.rest_api.v1.entitybase.response import (
     ReferenceResponse,
 )
+from models.rest_api.entitybase.v1.services.snak_handler import SnakHandler
 
 logger = logging.getLogger(__name__)
 
@@ -39,17 +40,50 @@ async def get_references(req: Request, hashes: str) -> list[ReferenceResponse | 
 
     try:
         result = state.s3_client.load_references_batch(rapidhashes)
-        # Convert S3ReferenceData to ReferenceResponse models
-        return [
-            ReferenceResponse(
-                reference=item.reference,
-                hash=item.content_hash,
-                created_at=item.created_at,
+        snak_handler = SnakHandler(state=state)
+        
+        references = []
+        for item in result:
+            if item is None:
+                references.append(None)
+                continue
+            
+            # Reconstruct snaks from hashes
+            reference_dict = item.reference.copy()
+            if "snaks" in reference_dict:
+                reconstructed_snaks = {}
+                for prop_key, snak_values in reference_dict["snaks"].items():
+                    if isinstance(snak_values, list):
+                        new_snak_values = []
+                        for snak_item in snak_values:
+                            if isinstance(snak_item, int) or (isinstance(snak_item, str) and snak_item.isdigit()):
+                                reconstructed_snak = snak_handler.get_snak(int(snak_item))
+                                if reconstructed_snak:
+                                    new_snak_values.append(reconstructed_snak)
+                                else:
+                                    logger.warning(f"Snak {snak_item} not found")
+                            else:
+                                new_snak_values.append(snak_item)
+                        reconstructed_snaks[prop_key] = new_snak_values
+                    elif isinstance(snak_values, int) or (isinstance(snak_values, str) and snak_values.isdigit()):
+                        reconstructed_snak = snak_handler.get_snak(int(snak_values))
+                        if reconstructed_snak:
+                            reconstructed_snaks[prop_key] = reconstructed_snak
+                        else:
+                            logger.warning(f"Snak {snak_values} not found")
+                    else:
+                        reconstructed_snaks[prop_key] = snak_values
+                reference_dict["snaks"] = reconstructed_snaks
+            
+            references.append(
+                ReferenceResponse(
+                    reference=reference_dict,
+                    hash=item.content_hash,
+                    created_at=item.created_at,
+                )
             )
-            if item is not None
-            else None
-            for item in result
-        ]
+        
+        return references
     except Exception as e:
         logger.error(f"Failed to load references {rapidhashes}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")

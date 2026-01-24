@@ -16,6 +16,7 @@ from models.data.rest_api.v1.entitybase.response import (
     StatementBatchResponse,
     StatementResponse,
 )
+from models.rest_api.entitybase.v1.services.snak_handler import SnakHandler
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -42,10 +43,22 @@ class StatementHandler(Handler):
         try:
             statement_data = self.state.s3_client.read_statement(content_hash)
             logger.debug(f"Successfully retrieved statement {content_hash} from S3")
+            
+            # Reconstruct mainsnak from hash
+            statement_dict = statement_data.statement.copy()
+            mainsnak_hash = statement_dict["mainsnak"]["hash"]
+            snak_handler = SnakHandler(state=self.state)
+            retrieved_snak = snak_handler.get_snak(mainsnak_hash)
+            if retrieved_snak:
+                statement_dict["mainsnak"] = retrieved_snak
+                logger.debug(f"Reconstructed mainsnak {mainsnak_hash} for statement {content_hash}")
+            else:
+                logger.warning(f"Snak {mainsnak_hash} not found for statement {content_hash}")
+            
             return StatementResponse(  # type: ignore[call-arg]
                 schema=statement_data.schema_version,
                 hash=content_hash,
-                statement=statement_data.statement,
+                statement=statement_dict,
                 created_at=statement_data.created_at,
             )
         except Exception as e:
@@ -78,14 +91,27 @@ class StatementHandler(Handler):
         statements = []
         not_found = []
 
+        # Initialize SnakHandler for batch processing
+        snak_handler = SnakHandler(state=self.state)
+        
         for content_hash in request.hashes:
             try:
                 statement_data = self.state.s3_client.read_statement(content_hash)
+                
+                # Reconstruct mainsnak from hash
+                statement_dict = statement_data.statement.copy()
+                mainsnak_hash = statement_dict["mainsnak"]["hash"]
+                retrieved_snak = snak_handler.get_snak(mainsnak_hash)
+                if retrieved_snak:
+                    statement_dict["mainsnak"] = retrieved_snak
+                else:
+                    logger.warning(f"Snak {mainsnak_hash} not found for statement {content_hash}")
+                
                 statements.append(
                     StatementResponse(  # type: ignore[call-arg]
                         schema=statement_data.schema_version,
                         hash=content_hash,
-                        statement=statement_data.statement,
+                        statement=statement_dict,
                         created_at=statement_data.created_at,
                     )
                 )
@@ -180,11 +206,21 @@ class StatementHandler(Handler):
 
         matching_hashes = []
 
+        # Initialize SnakHandler for batch processing
+        snak_handler = SnakHandler(state=self.state)
+        
         for statement_hash in statement_hashes:
             try:
                 statement_data = self.state.s3_client.read_statement(statement_hash)
-
-                property_id = statement_data.statement["mainsnak"]["property"]
+                
+                # Reconstruct from hash to get property ID
+                mainsnak_hash = statement_data.statement["mainsnak"]["hash"]
+                retrieved_snak = snak_handler.get_snak(mainsnak_hash)
+                if retrieved_snak:
+                    property_id = retrieved_snak["property"]
+                else:
+                    logger.warning(f"Snak {mainsnak_hash} not found for statement {statement_hash}")
+                    continue
 
                 if property_id in requested_property_ids:
                     matching_hashes.append(statement_hash)
