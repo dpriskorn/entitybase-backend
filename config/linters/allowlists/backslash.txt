@@ -1,5 +1,0 @@
-# Allowlist for backslash linter
-# Format: file_path:line_number
-
-src/models/rdf_builder/value_formatters.py:72
-src/models/rdf_builder/value_formatters.py:73
