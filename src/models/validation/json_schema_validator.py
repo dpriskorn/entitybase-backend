@@ -21,7 +21,7 @@ class JsonSchemaValidator(BaseModel):
     s3_revision_version: str = Field(default_factory=lambda: settings.s3_schema_revision_version)
     s3_statement_version: str = Field(default_factory=lambda: settings.s3_statement_version)
     s3_snak_version: str = Field(default_factory=lambda: settings.s3_snak_version)
-    entity_change_version: str = Field(default_factory=lambda: settings.entity_change_version)
+    entity_change_version: str = Field(default_factory=lambda: settings.streaming_entity_change_version)
     entity_revision_schema: JsonSchema | None = Field(default=None)
     statement_schema: JsonSchema | None = Field(default=None)
     recentchange_schema: JsonSchema | None = Field(default=None)

@@ -312,6 +312,7 @@ async def post_entity_sitelink(
     sitelink_data: SitelinkData,
     req: Request,
     x_user_id: int = Header(..., alias="X-User-ID"),
+    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
 ) -> OperationResult[RevisionIdResult]:
     """Add a new sitelink for an entity."""
     logger.debug(
@@ -344,7 +345,9 @@ async def post_entity_sitelink(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
+    update_request = EntityUpdateRequest(
+        type=entity_type, edit_summary=edit_summary, **current_entity.entity_data
+    )
 
     result = await update_handler.update_entity(
         entity_id,
@@ -368,6 +371,7 @@ async def put_entity_sitelink(
     sitelink_data: SitelinkData,
     req: Request,
     x_user_id: int = Header(..., alias="X-User-ID"),
+    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
 ) -> OperationResult[RevisionIdResult]:
     """Update an existing sitelink for an entity."""
     logger.debug(
@@ -397,7 +401,9 @@ async def put_entity_sitelink(
     # todo pass clients to the handler here
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
+    update_request = EntityUpdateRequest(
+        type=entity_type, edit_summary=edit_summary, **current_entity.entity_data
+    )
 
     result = await update_handler.update_entity(
         entity_id,
@@ -420,6 +426,7 @@ async def delete_entity_sitelink(
     site: str,
     req: Request,
     x_user_id: int = Header(..., alias="X-User-ID"),
+    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
 ) -> OperationResult[RevisionIdResult]:
     """Delete a sitelink from an entity."""
     logger.debug(
@@ -447,7 +454,9 @@ async def delete_entity_sitelink(
     # todo pass clients to the handler here
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
+    update_request = EntityUpdateRequest(
+        type=entity_type, edit_summary=edit_summary, **current_entity.entity_data
+    )
 
     result = await update_handler.update_entity(
         entity_id,

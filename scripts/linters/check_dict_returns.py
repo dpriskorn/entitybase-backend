@@ -67,7 +67,8 @@ class DictReturnChecker(ast.NodeVisitor):
                     return f"{base}[{self._get_annotation_string(node.slice)}]"
         return ast.unparse(node) if hasattr(ast, "unparse") else str(node)
 
-    def _is_dict_annotation(self, annotation: str) -> bool:
+    @staticmethod
+    def _is_dict_annotation(annotation: str) -> bool:
         """Check if annotation is a dict type."""
         return "dict" in annotation.lower()
 

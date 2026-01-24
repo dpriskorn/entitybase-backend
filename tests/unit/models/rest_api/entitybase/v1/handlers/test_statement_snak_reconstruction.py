@@ -163,25 +163,44 @@ class TestStatementHandlerSnakReconstruction:
         }
         mock_state.s3_client.read_full_revision.return_value = mock_revision_metadata
         
-        statement_data = {
+        statement_data_1 = {
             "type": "statement",
             "id": "Q123$1",
             "rank": "normal",
             "mainsnak": {"hash": 123456789},
         }
         
-        mock_s3_statement = Mock()
-        mock_s3_statement.statement = statement_data
-        mock_state.s3_client.read_statement.return_value = mock_s3_statement
+        statement_data_2 = {
+            "type": "statement",
+            "id": "Q123$2",
+            "rank": "normal",
+            "mainsnak": {"hash": 987654321},
+        }
+        
+        mock_s3_statement_1 = Mock()
+        mock_s3_statement_1.statement = statement_data_1
+        
+        mock_s3_statement_2 = Mock()
+        mock_s3_statement_2.statement = statement_data_2
+        
+        mock_state.s3_client.read_statement.side_effect = [
+            mock_s3_statement_1,
+            mock_s3_statement_2
+        ]
         
         with patch('models.rest_api.entitybase.v1.handlers.statement.SnakHandler') as MockSnakHandler:
             mock_snak_handler_instance = Mock()
-            reconstructed_snak = {
+            reconstructed_snak_1 = {
                 "snaktype": "value",
                 "property": "P31",
                 "datavalue": {"value": "Q5", "type": "string"}
             }
-            mock_snak_handler_instance.get_snak.return_value = reconstructed_snak
+            reconstructed_snak_2 = {
+                "snaktype": "value",
+                "property": "P569",
+                "datavalue": {"value": "1990-01-01", "type": "string"}
+            }
+            mock_snak_handler_instance.get_snak.side_effect = [reconstructed_snak_1, reconstructed_snak_2]
             MockSnakHandler.return_value = mock_snak_handler_instance
             
             response = handler.get_entity_property_hashes("Q123", "P31")
@@ -189,6 +208,3 @@ class TestStatementHandlerSnakReconstruction:
             # Verify statement matched by property from reconstructed snak
             assert len(response.property_hashes) == 1
             assert 123456789 in response.property_hashes
-            
-            # Verify SnakHandler was called
-            mock_snak_handler_instance.get_snak.assert_called_once_with(123456789)

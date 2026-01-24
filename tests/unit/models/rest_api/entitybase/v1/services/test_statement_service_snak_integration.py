@@ -222,7 +222,7 @@ class TestStatementServiceSnakIntegration:
         
         s3_written_statements = []
         
-        def capture_statement(hash, data, schema_version):
+        def capture_statement(hash_, data, schema_version):
             s3_written_statements.append(data)
         
         mock_state.s3_client.read_statement.side_effect = Exception("Not found")

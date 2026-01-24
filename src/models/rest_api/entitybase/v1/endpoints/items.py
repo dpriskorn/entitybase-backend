@@ -3,7 +3,7 @@
 import logging
 from typing import Dict, Any, List
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Header, HTTPException, Request
 
 from models.rest_api.entitybase.v1.handlers.entity.item import ItemCreateHandler
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
@@ -74,7 +74,11 @@ async def get_item_label(
     "/entities/items/{item_id}/labels/{language_code}", response_model=EntityResponse
 )
 async def update_item_label(
-    item_id: str, language_code: str, update_data: Dict[str, Any], req: Request
+    item_id: str,
+    language_code: str,
+    update_data: Dict[str, Any],
+    req: Request,
+    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
 ) -> EntityResponse:
     """Update item label for language."""
     state = req.app.state.state_handler
@@ -100,7 +104,9 @@ async def update_item_label(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
+    update_request = EntityUpdateRequest(
+        type=entity_type, edit_summary=edit_summary, **current_entity.entity_data
+    )
 
     return await update_handler.update_entity(
         item_id,
@@ -113,7 +119,10 @@ async def update_item_label(
     "/entities/items/{item_id}/labels/{language_code}", response_model=EntityResponse
 )
 async def delete_item_label(
-    item_id: str, language_code: str, req: Request
+    item_id: str,
+    language_code: str,
+    req: Request,
+    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
 ) -> EntityResponse:
     """Delete item label for language."""
     state = req.app.state.state_handler
@@ -135,7 +144,9 @@ async def delete_item_label(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
+    update_request = EntityUpdateRequest(
+        type=entity_type, edit_summary=edit_summary, **current_entity.entity_data
+    )
 
     return await update_handler.update_entity(
         item_id,
@@ -169,7 +180,11 @@ async def get_item_description(
     response_model=EntityResponse,
 )
 async def update_item_description(
-    item_id: str, language_code: str, update_data: Dict[str, Any], req: Request
+    item_id: str,
+    language_code: str,
+    update_data: Dict[str, Any],
+    req: Request,
+    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
 ) -> EntityResponse:
     """Update item description for language."""
     state = req.app.state.state_handler
@@ -195,7 +210,9 @@ async def update_item_description(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
+    update_request = EntityUpdateRequest(
+        type=entity_type, edit_summary=edit_summary, **current_entity.entity_data
+    )
 
     return await update_handler.update_entity(
         item_id,
@@ -209,7 +226,10 @@ async def update_item_description(
     response_model=EntityResponse,
 )
 async def delete_item_description(
-    item_id: str, language_code: str, req: Request
+    item_id: str,
+    language_code: str,
+    req: Request,
+    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
 ) -> EntityResponse:
     """Delete item description for language."""
     state = req.app.state.state_handler
@@ -231,7 +251,9 @@ async def delete_item_description(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
+    update_request = EntityUpdateRequest(
+        type=entity_type, edit_summary=edit_summary, **current_entity.entity_data
+    )
 
     return await update_handler.update_entity(
         item_id,
@@ -262,7 +284,11 @@ async def get_item_aliases_for_language(
     "/entities/items/{item_id}/aliases/{language_code}", response_model=EntityResponse
 )
 async def put_item_aliases_for_language(
-    item_id: str, language_code: str, aliases_data: List[str], req: Request
+    item_id: str,
+    language_code: str,
+    aliases_data: List[str],
+    req: Request,
+    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
 ) -> EntityResponse:
     """Update item aliases for language."""
     logger.debug(f"Updating aliases for item {item_id}, language {language_code}")
@@ -284,7 +310,9 @@ async def put_item_aliases_for_language(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
-    update_request = EntityUpdateRequest(type=entity_type, **current_entity.entity_data)
+    update_request = EntityUpdateRequest(
+        type=entity_type, edit_summary=edit_summary, **current_entity.entity_data
+    )
 
     return await update_handler.update_entity(
         item_id,

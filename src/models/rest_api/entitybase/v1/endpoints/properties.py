@@ -3,7 +3,7 @@
 import logging
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Header, HTTPException, Request
 
 from models.rest_api.entitybase.v1.handlers.entity.property import PropertyCreateHandler
 
@@ -103,7 +103,11 @@ async def get_property_aliases_for_language(
     response_model=EntityResponse,
 )
 async def put_property_aliases_for_language(
-    property_id: str, language_code: str, aliases_data: List[str], req: Request
+    property_id: str,
+    language_code: str,
+    aliases_data: List[str],
+    req: Request,
+    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
 ) -> EntityResponse:
     """Update property aliases for language."""
     logger.debug(
@@ -120,14 +124,16 @@ async def put_property_aliases_for_language(
     if "aliases" not in current_entity.data:
         current_entity.data["aliases"] = {}
     # Convert to the internal format: list of dicts with "value"
-    current_entity.data["aliases"][language_code] = [
+    current_entity.entity_data["aliases"][language_code] = [
         {"value": alias} for alias in aliases_data
     ]
 
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     update_request = EntityUpdateRequest(
-        type=current_entity.data.get("type"), **current_entity.data
+        type=current_entity.entity_data.get("type"),
+        edit_summary=edit_summary,
+        **current_entity.entity_data,
     )
 
     return await update_handler.update_entity(

@@ -353,7 +353,7 @@ class TestTripleWriters:
             )
         )
 
-        mock_format_value.side_effect = ["wd:Q5", '"Book Title"@en']
+        mock_format_value.side_effect = lambda v: "wd:Q5" if v == "wd:Q5" else '"Book Title"@en'
 
         # Mock property registry
         mock_registry = PropertyRegistry(properties={})

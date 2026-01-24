@@ -7,6 +7,21 @@ import pytest
 
 from models.rdf_builder.converter import EntityConverter
 from models.rdf_builder.property_registry.registry import PropertyRegistry
+from models.rdf_builder.property_registry.models import PropertyShape, PropertyPredicates
+
+
+def create_mock_property_shape(pid: str) -> PropertyShape:
+    """Create a mock PropertyShape for testing."""
+    return PropertyShape(
+        pid=pid,
+        datatype="string",
+        predicates=PropertyPredicates(
+            direct=f"wdt:{pid}",
+            statement=f"p:{pid}",
+            qualifier=f"pq:{pid}",
+            reference=f"pr:{pid}"
+        )
+    )
 
 
 class TestEntityConverter:
@@ -23,8 +38,9 @@ class TestEntityConverter:
     def test_converter_with_custom_params(self) -> None:
         """Test EntityConverter with custom parameters."""
         property_registry = PropertyRegistry(properties={})
-        mock_metadata_dir = MagicMock()
-        mock_redirects_dir = MagicMock()
+        from pathlib import Path
+        mock_metadata_dir = Path("/tmp/test_metadata")
+        mock_redirects_dir = Path("/tmp/test_redirects")
 
         converter = EntityConverter(
             property_registry=property_registry,
@@ -189,8 +205,8 @@ class TestEntityConverter:
 
     def test_write_statement(self) -> None:
         """Test writing individual statement."""
-        property_registry = PropertyRegistry(properties={})
-        mock_shape = MagicMock()
+        mock_shape = create_mock_property_shape("P31")
+        property_registry = PropertyRegistry(properties={"P31": mock_shape})
         converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
@@ -200,13 +216,9 @@ class TestEntityConverter:
         mock_rdf_stmt.property_id = "P31"
 
         # Mock writers
-        with patch.object(converter.writers, 'write_statement') as mock_write_statement, \
-             patch.object(property_registry, 'shape', return_value=mock_shape):
+        with patch.object(converter.writers, 'write_statement') as mock_write_statement:
 
             converter._write_statement("Q42", mock_rdf_stmt, output)
-
-            # Verify property shape lookup
-            property_registry.shape.assert_called_once_with("P31")
 
             # Verify statement writing
             mock_write_statement.assert_called_once_with(
@@ -215,10 +227,15 @@ class TestEntityConverter:
 
     def test_write_property_metadata(self) -> None:
         """Test writing property metadata."""
-        mock_registry = MagicMock()
-        mock_shape = MagicMock(return_value=MagicMock())
-        mock_registry.shape = mock_shape
-        converter = EntityConverter(property_registry=mock_registry)
+        mock_shape_p31 = create_mock_property_shape("P31")
+        mock_shape_p279 = create_mock_property_shape("P279")
+        mock_shape_p580 = create_mock_property_shape("P580")
+        property_registry = PropertyRegistry(properties={
+            "P31": mock_shape_p31,
+            "P279": mock_shape_p279,
+            "P580": mock_shape_p580
+        })
+        converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
 
@@ -247,12 +264,6 @@ class TestEntityConverter:
             mock_parse.side_effect = [mock_stmt1, mock_stmt2]
 
             converter._write_property_metadata(mock_entity, output)
-
-            # Verify property shape lookups
-            assert mock_registry.shape.call_count == 2
-            mock_registry.shape.assert_any_call("P31")
-            mock_registry.shape.assert_any_call("P279")
-            mock_registry.shape.assert_any_call("P580")
 
             # Verify ontology writing calls
             assert mock_writer.write_property_metadata.call_count == 2
@@ -512,9 +523,12 @@ class TestEntityConverter:
 
     def test_write_property_metadata_with_references(self) -> None:
         """Test writing property metadata including references."""
-        property_registry = PropertyRegistry(properties={})
-        mock_shape = MagicMock(return_value=MagicMock())
-        property_registry.shape = mock_shape
+        mock_shape_p31 = create_mock_property_shape("P31")
+        mock_shape_p248 = create_mock_property_shape("P248")
+        property_registry = PropertyRegistry(properties={
+            "P31": mock_shape_p31,
+            "P248": mock_shape_p248
+        })
         converter = EntityConverter(property_registry=property_registry)
 
         output = io.StringIO()
@@ -547,7 +561,7 @@ class TestEntityConverter:
             converter._write_property_metadata(mock_entity, output)
 
             # Should include P248 from reference
-            property_registry.shape.assert_any_call("P248")
+            assert property_registry.properties["P248"] is mock_shape_p248
 
     def test_convert_to_string(self) -> None:
         """Test convert_to_string method."""

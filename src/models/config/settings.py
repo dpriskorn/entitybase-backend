@@ -37,7 +37,7 @@ class Settings(BaseModel):
     s3_sitelink_version: str = "1.0.0"
     s3_qualifier_version: str = "1.0.0"
     s3_reference_version: str = "1.0.0"
-    s3_statement_version: str = "2.0.0"
+    s3_statement_version: str = "1.0.0"
     s3_schema_revision_version: str = "4.0.0"
 
     # vitess
