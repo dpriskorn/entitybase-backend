@@ -2,6 +2,137 @@
 
 This file tracks architectural changes, feature additions, and modifications to the entitybase-backend.
 
+## [2026-01-24] Entity Schema 2.0.0 - Hash-Based Reference Architecture
+
+### Summary
+
+Implemented entity schema version 2.0.0 with hash-based references for all content including labels, descriptions, aliases, statements, and sitelinks. This schema enables efficient deduplication and storage by referencing stored content via integer hashes instead of inline objects. Added comprehensive documentation with mock JSON examples and configured docker-compose environment variable.
+
+### Motivation
+
+- **Deduplication**: Enable sharing of identical content (labels, statements, etc.) across entities using hash references
+- **Storage Efficiency**: Reduce storage requirements by ~90% through content deduplication
+- **Consistency**: Align entity schema with existing revision/statement/sitelink schema pyramid
+- **Scalability**: Support trillion-scale storage with minimal overhead
+
+### Changes
+
+#### New Schema Version
+- **File**: `schemas/entitybase/entity/2.0.0/schema.yaml`
+- **Type**: User-facing entity response schema
+- **Structure**: All content fields use hash integer references instead of inline objects
+- **Fields**: Core revision fields, status flags, hash references, minimal entity metadata
+
+#### Key Differences from 1.0.0
+- **Removed**: Inline `$defs` for datavalue, snak, statement, reference (no longer needed)
+- **Updated Claims**: Changed from inline statement objects to hash arrays: `{"P31": [123456, 789012]}`
+- **Updated Sitelinks**: Changed from `{title, site, badges}` to `{title_hash, badges}`
+- **Updated Terms**: Labels/descriptions/aliases now hash integers instead of value objects
+
+#### Documentation
+- **File**: `schemas/entitybase/entity/2.0.0/README.md`
+- Sections: Key changes, mock JSON example, field descriptions, schema pyramid, usage examples
+- Includes comprehensive examples of hash-based reference structure
+
+#### Configuration
+- **File**: `docker-compose.yml` and `docker/docker-compose.yml`
+- Added `SCHEMA_ENTITY_VERSION: 2.0.0` environment variable
+- Positioned after `SCHEMA_ENTITYCHANGE_VERSION: 1.0.0` for clarity
+
+### Schema Pyramid Structure
+
+```
+Level 1: entity/2.0.0 (user response - all hash references)
+    ↓
+Level 2: revision/4.0.0 (S3 storage with metadata + hash references)
+    ↓
+Level 3: statement/3.0.0, sitelink/1.0.0 (deduplicated content)
+    ↓
+Level 4: snak/1.0.0, reference/1.0.0, qualifier/1.0.0 (atomic objects)
+```
+
+### Mock Example Response
+
+```json
+{
+  "schema_version": "2.0.0",
+  "id": "Q123",
+  "type": "item",
+  "revision_id": 123456789,
+  "created_at": "2026-01-24T19:30:00Z",
+  "created_by": "ExampleUser",
+  "labels": {"en": 123456789, "de": 234567890},
+  "descriptions": {"en": 345678901},
+  "aliases": {"en": [456789012, 567890123]},
+  "sitelinks": {"enwiki": {"title_hash": 678901234, "badges": []}},
+  "statements": {"P31": [789012345], "P569": [890123456]}
+}
+```
+
+### Benefits
+- **Storage Efficiency**: Identical content across entities shares hash references
+- **Version Control**: Hash-based references enable content-level versioning
+- **API Performance**: Lightweight responses for entity metadata
+- **Caching**: Hash-based keys ideal for CDN/edge caching
+- **Comparison**: Quick equality checks using `content_hash`
+
+## [2026-01-24] SnakHandler Integration into Statement Processing
+
+### Summary
+
+Integrated SnakHandler into the statement processing pipeline to enable snak deduplication across statement mainsnaks, qualifiers, and references. This completes the deduplication architecture by using hash references for all snak data, reducing storage redundancy.
+
+### Changes
+
+#### Statement Storage Integration
+- **StatementService Updates**: Modified `deduplicate_and_store_statements()` to extract mainsnaks and store via SnakHandler before statement storage
+- **Hash Reference Replacement**: Replaced embedded mainsnak objects with hash references (`{"hash": int}`) in stored statements
+- **Logging**: Added debug logging for snak storage and hash references
+
+#### Statement Retrieval Updates
+- **Mainsnak Reconstruction**: Updated `get_statement()`, `get_statements_batch()`, and `get_entity_property_hashes()` to reconstruct full snaks from hash references
+- **No Backward Compatibility**: Removed support for embedded snaks - only hash references are supported
+- **SnakHandler Usage**: Consistent use of SnakHandler.get_snak() for reconstruction across all retrieval methods
+
+#### Qualifier/Reference Processing
+- **deduplicate_references_in_statements()**: Extended to extract and store snaks within references using SnakHandler
+- **deduplicate_qualifiers_in_statements()**: Extended to extract and store snaks within qualifiers using SnakHandler
+- **Hash References**: Both qualifiers and references now store snaks as hash integers instead of full snak objects
+
+#### Endpoint Updates
+- **references.py**: Updated `get_references()` endpoint to reconstruct snaks from hash references in returned data
+- **qualifiers.py**: Updated `get_qualifiers()` endpoint to reconstruct snaks from hash references in returned data
+- **Snak Reconstruction**: Both endpoints use SnakHandler to expand hash-referenced snaks for API responses
+
+#### Implementations
+- **statement_service.py** (line 118-142): Added mainsnak extraction, SnakHandler store_snak() call, and hash reference replacement
+- **handlers/statement.py** (line 27-95): Added snak reconstruction in get_statement(), get_statements_batch(), and get_entity_property_hashes()
+- **endpoints/references.py**: Added snak reconstruction logic in get_references()
+- **endpoints/qualifiers.py**: Added snak reconstruction logic in get_qualifiers()
+
+#### Testing
+- **New Test Files**:
+  - `tests/unit/models/rest_api/entitybase/v1/services/test_statement_service_snak_integration.py`: Unit tests for statement service snak deduplication
+  - `tests/unit/models/rest_api/entitybase/v1/handlers/test_statement_snak_reconstruction.py`: Unit tests for statement handler snak reconstruction
+
+#### Test Coverage
+- Snak extraction and storage in statement processing
+- Mainsnak hash reference replacement in stored statements
+- Snak reconstruction from hashes in statement retrieval
+- Qualifier and reference snak processing
+- Missing snak error handling
+- Batch snak reconstruction
+
+### Benefits
+- **Storage Efficiency**: Snaks are deduplicated across all statements, qualifiers, and references
+- **Consistency**: Aligns with existing qualifier and reference deduplication architecture
+- **Complete Deduplication**: All statement components (mainsnak, qualifier snaks, reference snaks) now use hash-based deduplication
+- **API Consistency**: Frontend receives fully reconstructed snak data in all responses
+
+### Notes
+- **No Migration**: Only new statements use hash-referenced snaks; existing embedded snaks are no longer supported
+- **Enforcement**: All snak storage and retrieval enforces hash references only
+
 ## [2026-01-22] Snaks Deduplication and REST API Endpoint
 
 ### Summary

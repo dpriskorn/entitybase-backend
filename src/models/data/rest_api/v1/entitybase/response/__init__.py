@@ -80,6 +80,7 @@ from .statement import (
     StatementBatchResponse,
     StatementHashResult,
     StatementResponse,
+    StatementsHashResponse,
     StatementsResponse,
 )
 from models.data.infrastructure.s3.property_counts import PropertyCounts
@@ -169,6 +170,7 @@ __all__ = [
     "StatementEndorsementStats",
     "StatementHashResult",
     "StatementResponse",
+    "StatementsHashResponse",
     "StatementsResponse",
     "TermsByType",
     "TermsPerLanguage",

@@ -124,5 +124,5 @@ class StateHandler(BaseModel):
         return JsonSchemaValidator(
             s3_revision_version=settings.s3_schema_revision_version,
             s3_statement_version=settings.s3_statement_version,
-            wmf_recentchange_version=settings.wmf_recentchange_version,
+            entity_change_version=settings.wmf_recentchange_version,
         )

@@ -47,8 +47,8 @@ class LexemeCreateHandler(EntityCreateHandler):
         logger.debug(f"Processing lexeme terms for {entity_id}")
 
         # Extract forms and senses from request data
-        forms = request.data.get("forms", [])
-        senses = request.data.get("senses", [])
+        forms = request.forms
+        senses = request.senses
 
         if not forms and not senses:
             logger.debug("No forms or senses to process")

@@ -67,7 +67,6 @@ def get_entity_history(
 ) -> list[EntityHistoryEntry]:
     """Get the revision history for an entity."""
     state = req.app.state.state_handler
-    # todo pass clients to the handler here
     handler = EntityReadHandler(state=state)
     return handler.get_entity_history(  # type: ignore[no-any-return]
         entity_id, limit, offset

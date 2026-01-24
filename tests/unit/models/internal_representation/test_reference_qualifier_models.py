@@ -30,6 +30,7 @@ class TestReferenceModel:
         snaks_order = []
 
         with pytest.raises(ValidationError):
+            # noinspection PyTypeChecker
             ReferenceModel(
                 snaks=snaks,
                 snaks_order=snaks_order,

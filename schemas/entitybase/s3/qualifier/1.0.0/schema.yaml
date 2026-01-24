@@ -22,34 +22,13 @@ properties:
     - -918273876123456789
   qualifier:
     type: object
-    description: Qualifier object with property IDs as keys and arrays of snaks as values.
+    description: Hash references to qualifier snaks.
     patternProperties:
-      "^P\\d+$":
+      ^P[0-9]+$:
         type: array
         items:
-          type: object
-          description: Snak containing property, data type, and value.
-          required:
-            - snaktype
-            - property
-            - datatype
-          properties:
-            snaktype:
-              type: string
-              enum:
-                - value
-                - somevalue
-                - novalue
-              description: 'Type of snak: value, somevalue, or novalue.'
-            property:
-              type: string
-              description: Wikidata property identifier (e.g., P31, P569, P19).
-            datatype:
-              type: string
-              description: Data type of the property value (e.g., wikibase-item, time, quantity).
-            hash:
-              type: string
-              description: Hash of the datavalue for deduplication.
+          type: integer
+          description: Hash of the qualifier snak.
   created_at:
     type: string
     format: date-time

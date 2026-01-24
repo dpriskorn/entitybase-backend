@@ -34,8 +34,7 @@ properties:
     - 'null'
     - string
     pattern: ^[A-Z]\d+$
-    description: If this entity is a redirect, target entity ID it points to (e.g.,
-      'Q42')
+    description: 'If this entity is a redirect, target entity ID it points to (e.g., Q42)'
   content_hash:
     type: integer
     description: Rapidhash integer of entity data for deduplication

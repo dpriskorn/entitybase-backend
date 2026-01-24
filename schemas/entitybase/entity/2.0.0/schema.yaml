@@ -1,0 +1,174 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+$id: https://wikibase.org/schemas/entity/2.0.0.json
+title: Wikibase Entity (Hash-based Reference Schema)
+description: Entity schema using hash-based references for all content, aligned with revision 4.0.0
+version: "2.0.0"
+released: 2026-01-24
+type: object
+required:
+- id
+- type
+- revision_id
+- entity_type
+- created_at
+- created_by
+properties:
+  schema_version:
+    type: string
+    pattern: ^\d+\.\d+\.\d+$
+    description: Schema version (MAJOR.MINOR.PATCH)
+  id:
+    type: string
+    pattern: ^[A-Z]\d+$
+    description: Entity identifier
+  type:
+    type: string
+    enum:
+    - item
+    - property
+    - lexeme
+    - entityschema
+    description: Entity type
+  revision_id:
+    type: integer
+    minimum: 0
+    description: Revision ID
+  created_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of revision creation
+  created_by:
+    type: string
+    description: Creator of the revision
+  entity_type:
+    type: string
+    enum:
+    - item
+    - property
+    - lexeme
+    description: Entity type
+  redirects_to:
+    type:
+    - 'null'
+    - string
+    pattern: ^[A-Z]\d+$
+    description: Target entity ID if this entity is a redirect
+  content_hash:
+    type: integer
+    description: Rapidhash integer of entity data
+  edit_type:
+    type: string
+    description: Text classification of edit type
+  is_semi_protected:
+    type: boolean
+    default: false
+  is_locked:
+    type: boolean
+    default: false
+  is_archived:
+    type: boolean
+    default: false
+  is_dangling:
+    type: boolean
+    default: false
+  is_mass_edit_protected:
+    type: boolean
+    default: false
+  deleted:
+    type: boolean
+    default: false
+  deletion_reason:
+    type: string
+  deleted_at:
+    type: string
+    format: date-time
+  deleted_by:
+    type: string
+  labels:
+    type: object
+    description: Hash references to label strings
+    patternProperties:
+      ^[a-z]+$:
+        type: integer
+  descriptions:
+    type: object
+    description: Hash references to description strings
+    patternProperties:
+      ^[a-z]+$:
+        type: integer
+  aliases:
+    type: object
+    description: Hash references to alias strings (arrays per language)
+    patternProperties:
+      ^[a-z]+$:
+        type: array
+        items:
+          type: integer
+  sitelinks:
+    type: object
+    description: Hash references to sitelink data for each wiki
+    patternProperties:
+      ^[a-z]+$:
+        $ref: https://wikibase.org/schemas/s3-sitelink/1.0.0.json
+  statements:
+    type: object
+    required:
+    - hashes
+    properties:
+      hashes:
+        type: array
+        items:
+          type: integer
+        description: Flat list of all statement hashes (rapidhash of each statement)
+  lemmas:
+    type: object
+    description: Hash references to lemma strings (lexeme only)
+    patternProperties:
+      ^[a-z]+$:
+        type: integer
+  lexicalCategory:
+    type: string
+    pattern: ^Q\d+$
+    description: Lexical category entity ID (lexeme only)
+  language:
+    type: string
+    pattern: ^Q\d+$
+    description: Language entity ID (lexeme only)
+  forms:
+    type: array
+    description: Form data for lexemes
+    items:
+      type: object
+      required:
+      - id
+      - representations
+      properties:
+        id:
+          type: string
+          pattern: ^L\d+-F\d+$
+        representations:
+          type: object
+          patternProperties:
+            ^[a-z]+$:
+              type: integer
+        grammaticalFeatures:
+          type: array
+          items:
+            type: string
+            pattern: ^Q\d+$
+  senses:
+    type: array
+    description: Sense data for lexemes
+    items:
+      type: object
+      required:
+      - id
+      properties:
+        id:
+          type: string
+          pattern: ^L\d+-S\d+$
+        glosses:
+          type: object
+          patternProperties:
+            ^[a-z]+$:
+              type: integer

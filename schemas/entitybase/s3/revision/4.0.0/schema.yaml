@@ -85,10 +85,10 @@ properties:
         type: array
         items:
           type: integer
-   sitelinks:
-     type: object
-     description: Per-wiki sitelink data with title hash and badges
-     patternProperties:
+  sitelinks:
+    type: object
+    description: Per-wiki sitelink data with title hash and badges
+    patternProperties:
        ^[a-z-]+$:
          $ref: https://wikibase.org/schemas/s3-sitelink/1.0.0.json
   statements_hashes:

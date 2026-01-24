@@ -43,7 +43,6 @@ async def test_lexeme_deduplication_integration():
     request_data = raw_data["entities"]["L42"]
     request = EntityCreateRequest(
         type="lexeme",
-        data=request_data,
         edit_summary="Test creation"
     )
 
@@ -132,16 +131,14 @@ def test_lexeme_storage_error_handling():
     request = EntityCreateRequest(
         type="lexeme",
         edit_summary="test edit",
-        data={
-            "forms": [{
+        forms=[{
                 "id": "L999-F1",
                 "representations": {"en": {"value": "test"}}
             }],
-            "senses": [{
+        senses=[{
                 "id": "L999-S1",
                 "glosses": {"en": {"value": "test definition"}}
             }]
-        }
     )
 
     # Process terms - should not raise exceptions despite storage failures

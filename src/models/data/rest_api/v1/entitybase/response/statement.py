@@ -90,3 +90,14 @@ class StatementsResponse(BaseModel):
     """Response model for statements."""
 
     statements: dict[str, Any] = Field(..., description="Statements data")
+
+
+#todo plan a rewrite of the handlers as needed
+class StatementsHashResponse(BaseModel):
+    """Response model for entity statement hashes (schema 2.0.0)."""
+
+    property_hashes: list[int] = Field(
+        alias="hashes",
+        default_factory=list,
+        description="List of statement hashes (rapidhash of each statement). Example: [123456789, 987654321].",
+    )

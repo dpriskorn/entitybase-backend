@@ -52,15 +52,6 @@ properties:
         description: List of reference hashes.
         items:
           type: integer
-         description: Rapidhash of the qualifiers object. Full qualifiers stored separately.
-         minimum: -922337203685477581
-       references:
-         type: array
-         description: References providing sources for this statement. Array of rapidhash integers pointing to deduplicated reference JSON in S3.
-         items:
-           type: integer
-           description: Rapidhash of the reference content.
-           minimum: -922337203685477581
   created_at:
     type: string
     format: date-time

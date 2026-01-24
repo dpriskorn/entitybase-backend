@@ -31,40 +31,19 @@ properties:
         description: Hash of the reference for deduplication.
       snaks:
         type: object
-        description: Snaks providing the reference data.
+        description: Hash references to snaks providing the reference data.
         patternProperties:
-          "^P\\d+$":
+          ^P[0-9]+$:
             type: array
             items:
-              type: object
-              description: Snak containing property, data type, and value.
-              required:
-                - snaktype
-                - property
-                - datatype
-              properties:
-                snaktype:
-                  type: string
-                  enum:
-                    - value
-                    - somevalue
-                    - novalue
-                  description: 'Type of snak: value, somevalue, or novalue.'
-                property:
-                  type: string
-                  description: Wikidata property identifier (e.g., P31, P569, P19).
-                datatype:
-                  type: string
-                  description: Data type of the property value (e.g., wikibase-item, time, quantity).
-                hash:
-                  type: string
-                  description: Hash of the datavalue for deduplication.
+              type: integer
+              description: Hash of the snak.
       snaks-order:
         type: array
         description: Order of properties in the snaks object.
         items:
           type: string
-          pattern: ^P\d+$
+          pattern: ^P[0-9]+$
   created_at:
     type: string
     format: date-time

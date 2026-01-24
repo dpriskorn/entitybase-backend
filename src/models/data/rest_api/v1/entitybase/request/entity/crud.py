@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from pydantic import BaseModel, Field
 
@@ -16,9 +16,11 @@ class EntityCreateRequest(BaseModel):
     type: str = Field(default="item", description="Entity type")
     labels: Dict[str, Dict[str, str]] = {}
     descriptions: Dict[str, Dict[str, str]] = {}
-    claims: Dict[str, Any] = {}
+    claims: Dict[str, Any] = {} # this is Wikibase speak for statements
     aliases: Dict[str, Any] = {}
     sitelinks: Dict[str, Any] = {}
+    forms: List[Dict[str, Any]] = {}
+    senses: List[Dict[str, Any]] = {}
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     edit_type: EditType = Field(
         default=EditType.UNSPECIFIED,
