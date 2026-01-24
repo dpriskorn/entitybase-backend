@@ -3,6 +3,7 @@
 # Request models
 
 from .endorsements import EndorsementListRequest
+from .enums import UserActivityType
 from .entity import (
     EntityCreateRequest,
     EntityDeleteRequest,
