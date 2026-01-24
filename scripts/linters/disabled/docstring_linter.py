@@ -8,6 +8,7 @@ import sys
 from pathlib import Path
 
 
+# noinspection PyUnresolvedReferences
 def check_docstrings(models_dir: Path) -> list[str]:
     violations = []
     for file in sorted(models_dir.rglob("*.py")):

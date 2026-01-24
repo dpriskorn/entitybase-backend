@@ -63,6 +63,8 @@ def main() -> None:
     if errors:
         for error in errors:
             print(error)
+        allowlist_path = Path("config/allowlists/response_model_allowlist.txt")
+        print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
         sys.exit(1)
     else:
         print("No response_model=dict found")
