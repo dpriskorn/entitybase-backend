@@ -13,6 +13,7 @@ class TestSitelinksHashes:
             "enwiki": S3SitelinkData(title_hash=123, badges=["featured"]),
             "dewiki": S3SitelinkData(title_hash=456, badges=[])
         }
+        # noinspection PyArgumentList
         hashes = SitelinksHashes(root=data)
         assert hashes.root == data
         assert hashes.root["enwiki"].title_hash == 123
@@ -20,5 +21,6 @@ class TestSitelinksHashes:
 
     def test_sitelinks_hashes_empty(self):
         """Test SitelinksHashes with empty dict."""
+        # noinspection PyArgumentList
         hashes = SitelinksHashes(root={})
         assert hashes.root == {}

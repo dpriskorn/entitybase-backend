@@ -2,7 +2,6 @@
 
 from unittest.mock import MagicMock, patch
 
-from models.data.infrastructure.s3.enums import MetadataType
 from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
 
 

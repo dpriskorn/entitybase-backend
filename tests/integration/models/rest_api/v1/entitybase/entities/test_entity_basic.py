@@ -24,7 +24,7 @@ def test_health_check(api_client: requests.Session, base_url: str) -> None:
 
 
 @pytest.mark.integration
-def test_create_entity(api_client: requests.Session, base_url: str) -> None:
+def test_create_item(api_client: requests.Session, base_url: str) -> None:
     """Test creating a new entity"""
     logger = logging.getLogger(__name__)
     entity_data1 = EntityCreateRequest(
@@ -74,7 +74,7 @@ def test_create_entity(api_client: requests.Session, base_url: str) -> None:
 
 
 @pytest.mark.integration
-def test_get_entity(api_client: requests.Session, base_url: str) -> None:
+def test_get_item(api_client: requests.Session, base_url: str) -> None:
     """Test retrieving an entity"""
     logger = logging.getLogger(__name__)
 
@@ -111,69 +111,9 @@ def test_get_entity(api_client: requests.Session, base_url: str) -> None:
     logger.info("✓ Entity retrieval passed")
 
 
-# TODO update to use revision endpoint instead
-@pytest.mark.skip("raw endpoint has been removed")
-@pytest.mark.integration
-def test_update_entity(api_client: requests.Session, base_url: str) -> None:
-    """Test updating an entity (create new revision)"""
-    logger = logging.getLogger(__name__)
-
-    # Create initial entity
-    entity_data = {
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Entity for Update"}},
-    }
-    create_response = api_client.post(
-        f"{base_url}/entitybase/v1/entities/items", json=entity_data
-    )
-    entity_id = create_response.json()["id"]
-
-    # Update entity
-    updated_entity_data = {
-        "data": {
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Test Entity - Updated"}},
-            "descriptions": {"en": {"language": "en", "value": "Updated description"}},
-        }
-    }
-
-    response = api_client.put(
-        f"{base_url}/entitybase/v1/entities/items/{entity_id}", json=updated_entity_data
-    )
-    assert response.status_code == 200
-
-    result = response.json()
-    assert result["id"] == entity_id
-    assert result["revision_id"] == 2
-    assert result["data"]["labels"]["en"]["value"] == "Test Entity - Updated"
-
-    # Verify different content created new revision with different hash
-    # raw1 = api_client.get(f"{base_url}/entitybase/v1/raw/{entity_id}/1").json()
-    # raw2 = api_client.get(f"{base_url}/entitybase/v1/raw/{entity_id}/2").json()
-
-    # assert raw1["content_hash"] != raw2["content_hash"], (
-    #     "Different content should have different hashes"
-    # )
-
-    # Verify hash format and values
-    # if rapidhash is not None:
-    #     entity_json_1 = json.dumps(entity_data, sort_keys=True)
-    #     computed_hash_1 = rapidhash(entity_json_1.encode())
-    #     assert raw1["content_hash"] == computed_hash_1, (
-    #         f"First revision hash mismatch: expected {computed_hash_1}, got {raw1['content_hash']}"
-    #     )
-    #
-    #     entity_json_2 = json.dumps(updated_entity_data, sort_keys=True)
-    #     computed_hash_2 = rapidhash(entity_json_2.encode())
-    #     assert raw2["content_hash"] == computed_hash_2, (
-    #         f"Second revision hash mismatch: expected {computed_hash_2}, got {raw2['content_hash']}"
-    #     )
-
-    logger.info("✓ Entity update passed with hash verification")
-
 
 @pytest.mark.integration
-def test_create_entity_already_exists(
+def test_create_item_already_exists(
     api_client: requests.Session, base_url: str
 ) -> None:
     """Test that POST /entity fails with 409 when entity already exists"""
@@ -198,7 +138,7 @@ def test_create_entity_already_exists(
 
 
 @pytest.mark.integration
-def test_get_entity_history(api_client: requests.Session, base_url: str) -> None:
+def test_get_item_history(api_client: requests.Session, base_url: str) -> None:
     """Test retrieving entity history"""
     logger = logging.getLogger(__name__)
 
@@ -239,54 +179,6 @@ def test_entity_not_found(api_client: requests.Session, base_url: str) -> None:
     assert response.status_code == 404
     assert "not found" in response.json()["detail"].lower()
     logger.info("✓ 404 handling passed")
-
-
-@pytest.mark.integration
-def test_raw_endpoint_existing_revision(
-    api_client: requests.Session, base_url: str
-) -> None:
-    """Test that raw endpoint returns existing revision"""
-    logger = logging.getLogger(__name__)
-
-    # Create entity
-    entity_data = {
-        "id": "Q55555",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Raw Test Entity"}},
-    }
-
-    create_response = api_client.post(f"{base_url}/entity", json=entity_data)
-    assert create_response.status_code == 200
-
-    # Get raw revision
-    response = api_client.get(f"{base_url}/raw/Q55555/1")
-    assert response.status_code == 200
-    result = response.json()
-
-    # Check full revision schema
-    assert result["schema_version"] == "latest"
-    assert result["revision_id"] == 1
-    assert "created_at" in result
-    assert result["created_by"] == "rest-api"
-    assert result["entity_type"] == "item"
-    assert result["entity"]["id"] == "Q55555"
-    assert result["entity"]["type"] == "item"
-    assert "labels" in result["entity"]
-
-    # Verify content_hash field
-    assert "content_hash" in result, "content_hash field must be present"
-    assert isinstance(result["content_hash"], int), "content_hash must be integer"
-
-    # Log response body if enabled
-    import os
-
-    if os.getenv("TEST_LOG_HTTP_REQUESTS") == "true":
-        logger.debug("  ← ✓ 200 OK")
-        if response.text:
-            text_preview = response.text[:200]
-            logger.debug(f"    Body: {text_preview}...")
-
-    logger.info("✓ Raw endpoint returns full revision schema with content_hash")
 
 
 @pytest.mark.integration

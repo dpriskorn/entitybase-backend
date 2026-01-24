@@ -1,8 +1,6 @@
 """Unit tests for S3 client."""
 
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from models.data.config.s3 import S3Config
 from models.infrastructure.s3.client import MyS3Client

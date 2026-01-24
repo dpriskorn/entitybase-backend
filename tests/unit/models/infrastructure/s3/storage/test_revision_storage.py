@@ -11,16 +11,6 @@ from models.infrastructure.s3.storage.revision_storage import RevisionStorage
 class TestRevisionStorage:
     """Unit tests for RevisionStorage class."""
 
-    
-
-    
-                created_at="2023-01-01T12:00:00Z"
-            )
-
-            result = storage.store_revision(12345, revision_data)
-
-            assert result.success is False
-
     def test_load_revision_success(self) -> None:
         """Test successful revision loading."""
         # Mock S3RevisionData

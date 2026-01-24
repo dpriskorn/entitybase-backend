@@ -1,7 +1,5 @@
 """Unit tests for S3RevisionData model."""
 
-import pytest
-
 from models.data.infrastructure.s3.revision_data import S3RevisionData
 
 

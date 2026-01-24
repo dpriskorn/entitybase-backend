@@ -1,7 +1,8 @@
 """Unit tests for RevisionRepository."""
 
+from unittest.mock import MagicMock
+
 import pytest
-from unittest.mock import MagicMock, patch
 
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
 

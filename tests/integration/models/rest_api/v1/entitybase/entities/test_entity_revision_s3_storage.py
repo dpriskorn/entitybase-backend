@@ -58,7 +58,7 @@ class TestEntityRevisionS3Storage:
             assert hasattr(s3_revision_data, 'content_hash')
             assert hasattr(s3_revision_data, 'created_at')
 
-            assert s3_revision_data.schema_version == "latest"  # From settings
+            assert s3_revision_data.schema_version == "4.0.0"  # From settings
             assert isinstance(s3_revision_data.revision, dict)
             assert "entity" in s3_revision_data.revision
             assert "revision_id" in s3_revision_data.revision
