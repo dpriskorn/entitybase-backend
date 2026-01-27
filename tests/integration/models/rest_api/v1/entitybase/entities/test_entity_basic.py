@@ -8,12 +8,14 @@ from rapidhash import rapidhash
 
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 
+logger = logging.getLogger(__name__)
+
 
 @pytest.mark.integration
 def test_health_check(api_client: requests.Session, base_url: str) -> None:
     """Test that health check endpoint returns OK
     This does not test all buckets work"""
-    logger = logging.getLogger(__name__)
+
     response = api_client.get(f"{base_url}/health")
     assert response.status_code == 200
     data = response.json()
@@ -26,7 +28,6 @@ def test_health_check(api_client: requests.Session, base_url: str) -> None:
 @pytest.mark.integration
 def test_create_item(api_client: requests.Session, base_url: str) -> None:
     """Test creating a new entity"""
-    logger = logging.getLogger(__name__)
     entity_data1 = EntityCreateRequest(
         type="item", labels={"en": {"value": "Test Entity"}}, edit_summary="test"
     )
@@ -76,7 +77,7 @@ def test_create_item(api_client: requests.Session, base_url: str) -> None:
 @pytest.mark.integration
 def test_get_item(api_client: requests.Session, base_url: str) -> None:
     """Test retrieving an entity"""
-    logger = logging.getLogger(__name__)
+
 
     # First create an entity
     entity_data1 = EntityCreateRequest(
@@ -117,7 +118,7 @@ def test_create_item_already_exists(
     api_client: requests.Session, base_url: str
 ) -> None:
     """Test that POST /entity fails with 409 when entity already exists"""
-    logger = logging.getLogger(__name__)
+
 
     # Create initial entity
     entity_data = {
@@ -140,7 +141,7 @@ def test_create_item_already_exists(
 @pytest.mark.integration
 def test_get_item_history(api_client: requests.Session, base_url: str) -> None:
     """Test retrieving entity history"""
-    logger = logging.getLogger(__name__)
+
 
     # Create entity with two revisions
     entity_id = "Q99996"
@@ -174,7 +175,7 @@ def test_get_item_history(api_client: requests.Session, base_url: str) -> None:
 @pytest.mark.integration
 def test_entity_not_found(api_client: requests.Session, base_url: str) -> None:
     """Test that non-existent entities return 404"""
-    logger = logging.getLogger(__name__)
+
     response = api_client.get(f"{base_url}/entity/Q88888")
     assert response.status_code == 404
     assert "not found" in response.json()["detail"].lower()
@@ -186,7 +187,6 @@ def test_idempotent_duplicate_submission(
     api_client: requests.Session, base_url: str
 ) -> None:
     """Test that identical POST requests return same revision (idempotency)"""
-    logger = logging.getLogger(__name__)
 
     entity_data = {
         "id": "Q99996",
