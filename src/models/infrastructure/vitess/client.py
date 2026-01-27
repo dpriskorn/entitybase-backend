@@ -99,6 +99,18 @@ class VitessClient(Client):
     def get_entity_history(self, entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
         return self.revision_repository.get_history(entity_id, limit, offset)
 
+    def register_entity(self, entity_id: str) -> None:
+        self.id_resolver.register_entity(entity_id)
+
+    def insert_revision(
+        self,
+        entity_id: str,
+        revision_id: int,
+        entity_data: Any,  # type_: RevisionData
+        expected_revision_id=None,
+    ) -> None:
+        self.revision_repository.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=entity_data, expected_revision_id=expected_revision_id)
+
 
 # Import UserRepository for model_rebuild to resolve forward references
 VitessClient.model_rebuild()
