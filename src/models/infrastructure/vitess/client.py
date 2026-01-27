@@ -87,6 +87,18 @@ class VitessClient(Client):
         schema_repository: SchemaRepository = SchemaRepository(vitess_client=self)
         schema_repository.create_tables()
 
+    def entity_exists(self, entity_id: str) -> bool:
+        return self.id_resolver.entity_exists(entity_id)
+
+    def get_head(self, entity_id: str) -> int:
+        return self.entity_repository.get_head(entity_id)
+
+    def get_history(self, entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
+        return self.revision_repository.get_history(entity_id, limit, offset)
+
+    def get_entity_history(self, entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
+        return self.revision_repository.get_history(entity_id, limit, offset)
+
 
 # Import UserRepository for model_rebuild to resolve forward references
 VitessClient.model_rebuild()
