@@ -130,6 +130,16 @@ def create_tables(db_conn):
 
 
 @pytest.fixture(scope="session")
+def vitess_client():
+    """Create a real VitessClient connected to test database."""
+    from models.infrastructure.vitess.client import VitessClient
+
+    vitess_config = settings.to_vitess_config()
+    client = VitessClient(config=vitess_config)
+    yield client
+
+
+@pytest.fixture(scope="session")
 def api_client():
     """API client for E2E tests - connects to running application."""
     # base_url = "http://api:8000"  # Adjust for Docker container URL
