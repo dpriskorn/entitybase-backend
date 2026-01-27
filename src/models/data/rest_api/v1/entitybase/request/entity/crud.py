@@ -19,8 +19,8 @@ class EntityCreateRequest(BaseModel):
     claims: Dict[str, Any] = {} # this is Wikibase speak for statements
     aliases: Dict[str, Any] = {}
     sitelinks: Dict[str, Any] = {}
-    forms: List[Dict[str, Any]] = {}
-    senses: List[Dict[str, Any]] = {}
+    forms: List[Dict[str, Any]] = []
+    senses: List[Dict[str, Any]] = []
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     edit_type: EditType = Field(
         default=EditType.UNSPECIFIED,
