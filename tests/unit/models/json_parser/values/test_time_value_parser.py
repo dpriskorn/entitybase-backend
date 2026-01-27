@@ -132,17 +132,7 @@ class TestTimeValueParser:
         }
 
         result = parse_time_value(datavalue)
-
         assert result.precision == 14
-
-    
-
-    
-            }
-        }
-
-        with pytest.raises(ValueError, match="Time value must be in format"):
-            parse_time_value(datavalue)
 
     def test_parse_time_value_result_immutability(self):
         """Test that the parsed result is immutable (frozen model)."""
