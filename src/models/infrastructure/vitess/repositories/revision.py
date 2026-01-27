@@ -33,15 +33,11 @@ class RevisionRepository(Repository):
 
         is_mass_edit = entity_data.edit.is_mass_edit
         edit_type = entity_data.edit.edit_type
-        statements = entity_data.hashes.statements.model_dump(mode="json") if entity_data.hashes and entity_data.hashes.statements else []
-        properties = entity_data.properties.model_dump(mode="json") if entity_data.properties else {}
-        property_counts = entity_data.property_counts.model_dump(mode="json") if entity_data.property_counts else {}
-        labels_hashes = entity_data.hashes.labels.model_dump(mode="json") if entity_data.hashes and entity_data.hashes.labels else {}
-        descriptions_hashes = entity_data.hashes.descriptions.model_dump(mode="json") if entity_data.hashes and entity_data.hashes.descriptions else {}
-        aliases_hashes = entity_data.hashes.aliases.model_dump(mode="json") if entity_data.hashes and entity_data.hashes.aliases else {}
-        sitelinks_hashes = entity_data.hashes.sitelinks.model_dump(mode="json") if entity_data.hashes and entity_data.hashes.sitelinks else {}
+        property_counts = entity_data.property_counts.model_dump_json() if entity_data.property_counts else "{}"
         user_id = entity_data.edit.user_id
         edit_summary = entity_data.edit.edit_summary
+        statements = entity_data.hashes.statements.model_dump_json() if entity_data.hashes and entity_data.hashes.statements else []
+        properties = entity_data.properties or []
 
         cursor = self.vitess_client.cursor
         cursor.execute(
@@ -51,13 +47,13 @@ class RevisionRepository(Repository):
                     revision_id,
                     is_mass_edit,
                     edit_type,
-                    json.dumps(statements or []),
-                    json.dumps(properties or []),
+                    statements,
+                    properties,
                     property_counts,
-                    labels_hashes,
-                    descriptions_hashes,
-                    aliases_hashes,
-                    sitelinks_hashes,
+                    entity_data.hashes.labels.model_dump_json() if entity_data.hashes and entity_data.hashes.labels else "{}",
+                    entity_data.hashes.descriptions.model_dump_json() if entity_data.hashes and entity_data.hashes.descriptions else "{}",
+                    entity_data.hashes.aliases.model_dump_json() if entity_data.hashes and entity_data.hashes.aliases else "{}",
+                    entity_data.hashes.sitelinks.model_dump_json() if entity_data.hashes and entity_data.hashes.sitelinks else "{}",
                     user_id,
                     edit_summary,
                 ),
@@ -155,6 +151,8 @@ class RevisionRepository(Repository):
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
+        statements = entity_data.hashes.statements.model_dump_json() if entity_data.hashes and entity_data.hashes.statements else []
+        properties = entity_data.properties or []
 
         cursor = self.vitess_client.cursor
         cursor.execute(
@@ -166,21 +164,21 @@ class RevisionRepository(Repository):
                     revision_id,
                     entity_data.edit.is_mass_edit,
                     entity_data.edit.edit_type,
-                    json.dumps(entity_data.hashes.statements.root if entity_data.hashes else []),
-                    json.dumps(entity_data.properties),
-                    entity_data.property_counts.model_dump(mode="json") if entity_data.property_counts else {},
+                    statements,
+                    properties,
+                    entity_data.property_counts.model_dump_json() if entity_data.property_counts else "{}",
                 ),
             )
 
         cursor.execute(
-                """UPDATE entity_head
-                   SET head_revision_id = %s,
-                        is_semi_protected = %s,
-                        is_locked = %s,
-                        is_archived = %s,
-                        is_dangling = %s,
-                        is_mass_edit_protected = %s
-                    WHERE internal_id = %s AND head_revision_id = %s""",
+            """UPDATE entity_head
+               SET head_revision_id = %s,
+                    is_semi_protected = %s,
+                    is_locked = %s,
+                    is_archived = %s,
+                    is_dangling = %s,
+                    is_mass_edit_protected = %s
+                WHERE internal_id = %s AND head_revision_id = %s""",
             (
                 revision_id,
                 entity_data.state.is_semi_protected,
@@ -215,6 +213,8 @@ class RevisionRepository(Repository):
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
+        statements = entity_data.hashes.statements.model_dump_json() if entity_data.hashes and entity_data.hashes.statements else []
+        properties = entity_data.properties or []
 
         cursor = self.vitess_client.cursor
         cursor.execute(
@@ -226,9 +226,9 @@ class RevisionRepository(Repository):
                 revision_id,
                 entity_data.edit.is_mass_edit,
                 entity_data.edit.edit_type,
-                json.dumps(entity_data.hashes.statements.root if entity_data.hashes else []),
-                json.dumps(entity_data.properties),
-                entity_data.property_counts.model_dump(mode="json") if entity_data.property_counts else {},
+                statements,
+                properties,
+                entity_data.property_counts.model_dump_json() if entity_data.property_counts else "{}",
             ),
         )
 
