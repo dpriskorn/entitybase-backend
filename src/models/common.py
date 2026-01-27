@@ -6,6 +6,8 @@ from typing import Generic, NoReturn, Optional, TypeVar
 
 from pydantic import BaseModel, Field
 
+from models.config.settings import settings
+
 T = TypeVar("T")
 
 
@@ -23,7 +25,7 @@ def raise_validation_error(
     logger.info(f"Raising validation error: {message} with status {status_code}")
     from fastapi import HTTPException
 
-    is_prod = os.getenv("ENVIRONMENT", "dev").lower() == "prod"
+    is_prod = settings.environment.lower() == "prod"
 
     if exception_class is not None:
         if exception_class == HTTPException and is_prod:
