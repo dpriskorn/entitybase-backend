@@ -5,7 +5,7 @@ import logging
 from typing import Any
 
 from models.common import OperationResult
- from models.data.infrastructure.vitess.records.revision import (
+from models.data.infrastructure.vitess.records.revision import (
     HistoryRevisionItemRecord,
     RevisionRecord,
 )
@@ -33,8 +33,8 @@ class RevisionRepository(Repository):
 
         is_mass_edit = entity_data.edit.is_mass_edit
         edit_type = entity_data.edit.edit_type
-        statements = self._serialize_value(entity_data.hashes.statements.root if entity_data.hashes else [])
-        properties = self._serialize_value(entity_data.properties)
+        statements = entity_data.hashes.statements.model_dump(mode="json") if entity_data.hashes and entity_data.hashes.statements else []
+        properties = entity_data.properties.model_dump(mode="json") if entity_data.properties else {}
         property_counts = entity_data.property_counts.model_dump(mode="json") if entity_data.property_counts else {}
         labels_hashes = entity_data.hashes.labels.model_dump(mode="json") if entity_data.hashes and entity_data.hashes.labels else {}
         descriptions_hashes = entity_data.hashes.descriptions.model_dump(mode="json") if entity_data.hashes and entity_data.hashes.descriptions else {}
