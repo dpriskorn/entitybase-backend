@@ -4,6 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
+from models.data.infrastructure.vitess.records.revision import RevisionRecord
 from models.infrastructure.vitess.repositories.revision import RevisionRepository
 
 
@@ -64,8 +65,8 @@ class TestRevisionRepository:
         result = repo.get_revision(123, 1, mock_vitess_client)
 
         assert result is not None
-        assert "statements" in result
-        assert result["statements"] == []
+        assert isinstance(result, RevisionRecord)
+        assert result.statements == []
 
     def test_get_revision_not_found(self):
         """Test getting non-existent revision."""
@@ -142,8 +143,9 @@ class TestRevisionRepository:
         result = repo.get_revision(123, 1, mock_vitess_client)
 
         assert result is not None
-        assert result["statements"] == ["statement1"]
-        assert result["properties"] == {"prop1": "value1"}
+        assert isinstance(result, RevisionRecord)
+        assert result.statements == ["statement1"]
+        assert result.properties == {"prop1": "value1"}
 
     def test_insert_with_qualifiers_and_references(self):
         """Test insert with complex data including qualifiers and references."""

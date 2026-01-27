@@ -5,7 +5,11 @@ import logging
 from typing import Any
 
 from models.common import OperationResult
-from models.data.infrastructure.vitess.records.revision import RevisionRecord
+ from models.data.infrastructure.vitess.records.revision import (
+    HistoryRevisionItemRecord,
+    RevisionRecord,
+)
+from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.vitess.repository import Repository
 from models.rest_api.utils import raise_validation_error
 
@@ -15,13 +19,11 @@ logger = logging.getLogger(__name__)
 class RevisionRepository(Repository):
     """Repository for entity revision database operations."""
 
-
-
     def insert(
         self,
         entity_id: str,
         revision_id: int,
-        data: dict,
+        entity_data: RevisionData,
     ) -> None:
         """Insert a new revision for an entity."""
         logger.debug(f"Inserting revision {revision_id} for entity {entity_id}")
@@ -29,17 +31,17 @@ class RevisionRepository(Repository):
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
 
-        is_mass_edit = data.get("is_mass_edit", False)
-        edit_type = data.get("edit_type", "")
-        statements = data.get("statements", [])
-        properties = data.get("properties", [])
-        property_counts = data.get("property_counts", {})
-        labels_hashes = data.get("labels_hashes")
-        descriptions_hashes = data.get("descriptions_hashes")
-        aliases_hashes = data.get("aliases_hashes")
-        sitelinks_hashes = data.get("sitelinks_hashes")
-        user_id = data.get("user_id")
-        edit_summary = data.get("edit_summary", "")
+        is_mass_edit = entity_data.edit.is_mass_edit
+        edit_type = entity_data.edit.edit_type
+        statements = self._serialize_value(entity_data.hashes.statements.root if entity_data.hashes else [])
+        properties = self._serialize_value(entity_data.properties)
+        property_counts = entity_data.property_counts.model_dump(mode="json") if entity_data.property_counts else {}
+        labels_hashes = entity_data.hashes.labels.model_dump(mode="json") if entity_data.hashes and entity_data.hashes.labels else {}
+        descriptions_hashes = entity_data.hashes.descriptions.model_dump(mode="json") if entity_data.hashes and entity_data.hashes.descriptions else {}
+        aliases_hashes = entity_data.hashes.aliases.model_dump(mode="json") if entity_data.hashes and entity_data.hashes.aliases else {}
+        sitelinks_hashes = entity_data.hashes.sitelinks.model_dump(mode="json") if entity_data.hashes and entity_data.hashes.sitelinks else {}
+        user_id = entity_data.edit.user_id
+        edit_summary = entity_data.edit.edit_summary
 
         cursor = self.vitess_client.cursor
         cursor.execute(
@@ -51,11 +53,11 @@ class RevisionRepository(Repository):
                     edit_type,
                     json.dumps(statements or []),
                     json.dumps(properties or []),
-                    json.dumps(property_counts or {}),
-                    json.dumps(labels_hashes or {}),
-                    json.dumps(descriptions_hashes or {}),
-                    json.dumps(aliases_hashes or {}),
-                    json.dumps(sitelinks_hashes or {}),
+                    property_counts,
+                    labels_hashes,
+                    descriptions_hashes,
+                    aliases_hashes,
+                    sitelinks_hashes,
                     user_id,
                     edit_summary,
                 ),
@@ -63,7 +65,7 @@ class RevisionRepository(Repository):
 
     def get_revision(
         self, internal_entity_id: int, revision_id: int, vitess_client: Any
-    ) -> Any | None:
+    ) -> RevisionRecord | None:
         """Get a specific revision data."""
         logger.debug(f"Getting revision {revision_id} for entity {internal_entity_id}")
         with vitess_client.get_connection() as _:
@@ -74,107 +76,18 @@ class RevisionRepository(Repository):
             )
             row = cursor.fetchone()
             if row:
-                return {
-                    "statements": json.loads(row[0]) if row[0] else [],
-                    "properties": json.loads(row[1]) if row[1] else [],
-                    "property_counts": json.loads(row[2]) if row[2] else {},
-                    "labels_hashes": json.loads(row[3]) if row[3] else {},
-                    "descriptions_hashes": json.loads(row[4]) if row[4] else {},
-                    "aliases_hashes": json.loads(row[5]) if row[5] else {},
-                    "sitelinks_hashes": json.loads(row[6]) if row[6] else {},
-                }
+                return RevisionRecord.model_validate(
+                    {
+                        "statements": json.loads(row[0]) if row[0] else [],
+                        "properties": json.loads(row[1]) if row[1] else [],
+                        "property_counts": json.loads(row[2]) if row[2] else {},
+                        "labels_hashes": json.loads(row[3]) if row[3] else {},
+                        "descriptions_hashes": json.loads(row[4]) if row[4] else {},
+                        "aliases_hashes": json.loads(row[5]) if row[5] else {},
+                        "sitelinks_hashes": json.loads(row[6]) if row[6] else {},
+                    }
+                )
             return None
-
-    def revert_entity(
-        self,
-        internal_entity_id: int,
-        to_revision_id: int,
-        reverted_by_user_id: int,
-        reason: str,
-        watchlist_context: dict | None,
-        vitess_client: Any,
-    ) -> int:
-        """Revert entity to a previous revision and log the action."""
-        logger.debug(
-            f"Reverting entity {internal_entity_id} to revision {to_revision_id}"
-        )
-        # Get the target revision data
-        target_data = self.get_revision(
-            internal_entity_id, to_revision_id, vitess_client
-        )
-        if not target_data or target_data is None:
-            raise_validation_error(
-                f"Revision {to_revision_id} not found", status_code=404
-            )
-
-        # Get next revision ID
-        with vitess_client.get_connection() as conn:
-            cursor = self.vitess_client.cursor
-            cursor.execute(
-                "SELECT COALESCE(MAX(revision_id), 0) + 1 FROM entity_revisions WHERE internal_id = %s",
-                (internal_entity_id,),
-            )
-            new_revision_id = cursor.fetchone()[0]
-
-            # Insert the reverted revision
-            cursor.execute(
-                """INSERT INTO entity_revisions
-                        (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                (
-                    internal_entity_id,
-                    new_revision_id,
-                    False,  # is_mass_edit
-                    "revert",
-                    json.dumps(target_data["statements"]),  # type: ignore[index]
-                    json.dumps(target_data["properties"]),  # type: ignore[index]
-                    json.dumps(target_data["property_counts"]),  # type: ignore[index]
-                    json.dumps(target_data["labels_hashes"]),  # type: ignore[index]
-                    json.dumps(target_data["descriptions_hashes"]),  # type: ignore[index]
-                    json.dumps(target_data["aliases_hashes"]),  # type: ignore[index]
-                ),
-            )
-
-            # Update head
-            cursor.execute(
-                "UPDATE entity_head SET head_revision_id = %s WHERE internal_id = %s",
-                (new_revision_id, internal_entity_id),
-            )
-
-            # Log the revert
-            entity_id = self.state.vitess_client.id_resolver.resolve_entity_id(
-                conn, internal_entity_id
-            )
-            cursor.execute(
-                """INSERT INTO revert_log
-                        (entity_id, internal_entity_id, from_revision_id, to_revision_id, reverted_by_user_id, reason, watchlist_context)
-                        VALUES (%s, %s, (SELECT head_revision_id FROM entity_head WHERE internal_id = %s), %s, %s, %s, %s)""",
-                (
-                    entity_id,
-                    internal_entity_id,
-                    internal_entity_id,
-                    to_revision_id,
-                    reverted_by_user_id,
-                    reason,
-                    json.dumps(watchlist_context) if watchlist_context else None,
-                ),
-            )
-
-            # Log user activity
-            activity_result = (
-                self.state.vitess_client.user_repository.log_user_activity(
-                    user_id=reverted_by_user_id,
-                    activity_type="entity_revert",
-                    entity_id=entity_id,
-                    revision_id=new_revision_id,
-                )
-            )
-            if not activity_result.success:
-                logger.warning(
-                    f"Failed to log user activity: {activity_result.error}"
-                )
-
-        return int(new_revision_id)
 
     def get_history(
         self, entity_id: str, limit: int = 20, offset: int = 0
@@ -192,7 +105,7 @@ class RevisionRepository(Repository):
                 (internal_id, limit, offset),
             )
         result = [
-            RevisionRecord(
+            HistoryRevisionItemRecord(
                 revision_id=row[0],
                 created_at=row[1].isoformat() if row[1] else "",
                 user_id=row[2],
@@ -232,7 +145,7 @@ class RevisionRepository(Repository):
         self,
         entity_id: str,
         revision_id: int,
-        data: dict,
+        entity_data: RevisionData,
         expected_revision_id: int,
     ) -> bool:
         """Create a revision with compare-and-swap semantics."""
@@ -251,30 +164,30 @@ class RevisionRepository(Repository):
                 (
                     internal_id,
                     revision_id,
-                    data.get("is_mass_edit", False),
-                    data.get("edit_type", ""),
-                    json.dumps(data.get("hashes", [])),
-                    json.dumps(data.get("properties", [])),
-                    json.dumps(data.get("property_counts", {})),
+                    entity_data.edit.is_mass_edit,
+                    entity_data.edit.edit_type,
+                    json.dumps(entity_data.hashes.statements.root if entity_data.hashes else []),
+                    json.dumps(entity_data.properties),
+                    entity_data.property_counts.model_dump(mode="json") if entity_data.property_counts else {},
                 ),
             )
 
         cursor.execute(
                 """UPDATE entity_head
                    SET head_revision_id = %s,
-                       is_semi_protected = %s,
-                       is_locked = %s,
-                       is_archived = %s,
-                       is_dangling = %s,
-                       is_mass_edit_protected = %s
-                   WHERE internal_id = %s AND head_revision_id = %s""",
+                        is_semi_protected = %s,
+                        is_locked = %s,
+                        is_archived = %s,
+                        is_dangling = %s,
+                        is_mass_edit_protected = %s
+                    WHERE internal_id = %s AND head_revision_id = %s""",
             (
                 revision_id,
-                data.get("is_semi_protected", False),
-                data.get("is_locked", False),
-                data.get("is_archived", False),
-                data.get("is_dangling", False),
-                data.get("is_mass_edit_protected", False),
+                entity_data.state.is_semi_protected,
+                entity_data.state.is_locked,
+                entity_data.state.is_archived,
+                entity_data.state.is_dangling,
+                entity_data.state.is_mass_edit_protected,
                 internal_id,
                 expected_revision_id,
             ),
@@ -287,29 +200,16 @@ class RevisionRepository(Repository):
         self,
         entity_id: str,
         revision_id: int,
-        entity_data,
+        entity_data: RevisionData,
         expected_revision_id=None,
     ) -> None:
         """Insert a revision from RevisionData model."""
-        flat_data = {
-            "is_mass_edit": entity_data.edit.is_mass_edit,
-            "edit_type": entity_data.edit.edit_type,
-            "statements": entity_data.hashes.statements.root,
-            "properties": entity_data.properties,
-            "property_counts": entity_data.property_counts,
-            "labels_hashes": entity_data.hashes.labels,
-            "descriptions_hashes": entity_data.hashes.descriptions,
-            "aliases_hashes": entity_data.hashes.aliases,
-            "sitelinks_hashes": entity_data.hashes.sitelinks,
-            "user_id": entity_data.edit.user_id,
-            "edit_summary": entity_data.edit.edit_summary,
-        }
         if expected_revision_id is None:
-            self.insert(entity_id, revision_id, flat_data)
+            self.insert(entity_id, revision_id, entity_data)
         else:
-            self.create_with_cas(entity_id, revision_id, flat_data, expected_revision_id)
+            self.create_with_cas(entity_id, revision_id, entity_data, expected_revision_id)
 
-    def create(self, entity_id: str, revision_id: int, data: dict) -> None:
+    def create(self, entity_id: str, revision_id: int, entity_data: RevisionData) -> None:
         """Create a new revision for an entity."""
         logger.debug(f"Creating revision {revision_id} for entity {entity_id}")
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
@@ -324,11 +224,11 @@ class RevisionRepository(Repository):
             (
                 internal_id,
                 revision_id,
-                data.get("is_mass_edit", False),
-                data.get("edit_type", ""),
-                json.dumps(data.get("hashes", [])),
-                json.dumps(data.get("properties", [])),
-                json.dumps(data.get("property_counts", {})),
+                entity_data.edit.is_mass_edit,
+                entity_data.edit.edit_type,
+                json.dumps(entity_data.hashes.statements.root if entity_data.hashes else []),
+                json.dumps(entity_data.properties),
+                entity_data.property_counts.model_dump(mode="json") if entity_data.property_counts else {},
             ),
         )
 
@@ -339,10 +239,10 @@ class RevisionRepository(Repository):
             (
                 internal_id,
                 revision_id,
-                data.get("is_semi_protected", False),
-                data.get("is_locked", False),
-                data.get("is_archived", False),
-                data.get("is_dangling", False),
-                data.get("is_mass_edit_protected", False),
+                entity_data.state.is_semi_protected,
+                entity_data.state.is_locked,
+                entity_data.state.is_archived,
+                entity_data.state.is_dangling,
+                entity_data.state.is_mass_edit_protected,
             ),
         )
