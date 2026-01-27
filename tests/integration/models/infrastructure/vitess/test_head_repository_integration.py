@@ -3,6 +3,9 @@
 import pytest
 
 from models.infrastructure.vitess.repositories.head import HeadRepository
+from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.data.infrastructure.s3.enums import EntityType, EditType, EditData
+from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
 
 
 @pytest.fixture
@@ -17,6 +20,13 @@ def test_cas_update_with_status_success(repository, vitess_client):
     
     # Register entity and set initial head
     vitess_client.register_entity(entity_id)
+    revision_data = RevisionData(
+        revision_id=0,
+        entity_type=EntityType.ITEM,
+        edit=EditData(type=EditType.MANUAL_UPDATE, user_id=0, mass=False, summary="Initial", at="2025-01-01T00:00:00Z"),
+        hashes=HashMaps(),
+    )
+    vitess_client.insert_revision(entity_id=entity_id, revision_id=0, entity_data=revision_data)
     
     # Perform CAS update
     result = repository.cas_update_with_status(
@@ -42,7 +52,13 @@ def test_cas_update_with_status_failure(repository, vitess_client):
     
     # Register entity and set head to 10
     vitess_client.register_entity(entity_id)
-    vitess_client.insert_revision(entity_id=entity_id, revision_id=10, is_mass_edit=False, edit_type="test")
+    revision_data = RevisionData(
+        revision_id=10,
+        entity_type=EntityType.ITEM,
+        edit=EditData(type=EditType.MANUAL_UPDATE, user_id=0, mass=False, summary="Test", at="2025-01-01T00:00:00Z"),
+        hashes=HashMaps()
+    )
+    vitess_client.insert_revision(entity_id=entity_id, revision_id=10, entity_data=revision_data)
     
     # Try to CAS update with wrong expected head
     result = repository.cas_update_with_status(
@@ -70,7 +86,13 @@ def test_hard_delete(repository, vitess_client):
     
     # Register entity and set head
     vitess_client.register_entity(entity_id)
-    vitess_client.insert_revision(entity_id=entity_id, revision_id=head_revision_id, is_mass_edit=False, edit_type="test")
+    revision_data = RevisionData(
+        revision_id=head_revision_id,
+        entity_type=EntityType.ITEM,
+        edit=EditData(type=EditType.MANUAL_UPDATE, user_id=0, mass=False, summary="Test", at="2025-01-01T00:00:00Z"),
+        hashes=HashMaps(),
+    )
+    vitess_client.insert_revision(entity_id=entity_id, revision_id=head_revision_id, entity_data=revision_data)
     
     # Perform hard delete
     result = repository.hard_delete(entity_id, head_revision_id)
@@ -92,7 +114,12 @@ def test_soft_delete(repository, vitess_client):
     
     # Register entity and set head
     vitess_client.register_entity(entity_id)
-    vitess_client.insert_revision(entity_id=entity_id, revision_id=10, is_mass_edit=False, edit_type="test")
+    revision_data = RevisionData(
+        revision_id=10,
+        entity_type=EntityType.ITEM,
+        edit=EditData(type=EditType.MANUAL_UPDATE, user_id=0, mass=False, summary="Test", at="2025-01-01T00:00:00Z"),
+    )
+    vitess_client.insert_revision(entity_id=entity_id, revision_id=10, entity_data=revision_data)
     
     # Perform soft delete
     result = repository.soft_delete(entity_id)
@@ -115,7 +142,13 @@ def test_get_head_revision_exists(repository, vitess_client):
     
     # Register entity and insert revision
     vitess_client.register_entity(entity_id)
-    vitess_client.insert_revision(entity_id=entity_id, revision_id=revision_id, is_mass_edit=False, edit_type="test")
+    revision_data = RevisionData(
+        revision_id=revision_id,
+        entity_type=EntityType.ITEM,
+        edit=EditData(type=EditType.MANUAL_UPDATE, user_id=0, mass=False, summary="Test", at="2025-01-01T00:00:00Z"),
+        hashes=HashMaps(),
+    )
+    vitess_client.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=revision_data)
     
     # Get internal ID
     internal_id = vitess_client._resolve_id(entity_id)
