@@ -13,6 +13,6 @@ export VITESS_DATABASE=entitybase
 export VITESS_USER=root
 export VITESS_PASSWORD=""
 
-echo "Running single test"
+echo "Running single test using a single worker"
 
-pytest $1
+pytest -n 0 $1
