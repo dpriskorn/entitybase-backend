@@ -58,6 +58,7 @@ class RevisionRepository(Repository):
                     edit_summary,
                 ),
             )
+        logger.debug(f"Successfully inserted revision {revision_id} for entity {entity_id}")
 
     def get_revision(
         self, internal_entity_id: int, revision_id: int, vitess_client: Any
@@ -93,6 +94,7 @@ class RevisionRepository(Repository):
 
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
+            logger.debug(f"No internal ID found for entity {entity_id}")
             return []
 
         cursor = self.vitess_client.cursor
@@ -109,21 +111,26 @@ class RevisionRepository(Repository):
             )
             for row in cursor.fetchall()
         ]
+        logger.debug(f"Retrieved {len(result)} history items for entity {entity_id}")
         return result
 
     def delete(self, entity_id: str, revision_id: int) -> OperationResult:
         """Delete a revision (for rollback)."""
         logger.debug(f"Deleting revision {revision_id} for entity {entity_id}")
         if not self.connection_manager.connection:
+            logger.debug("Database connection not provided")
             return OperationResult(
                 success=False, error="Database connection not provided"
             )
         if not entity_id:
+            logger.debug("Entity ID is required")
             return OperationResult(success=False, error="Entity ID is required")
         if revision_id <= 0:
+            logger.debug(f"Invalid revision ID: {revision_id}")
             return OperationResult(success=False, error="Invalid revision ID")
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
+            logger.debug(f"Entity {entity_id} not found for deletion")
             return OperationResult(success=False, error="Entity not found")
         cursor = self.vitess_client.cursor
         cursor.execute(
@@ -135,6 +142,7 @@ class RevisionRepository(Repository):
             "UPDATE entity_head SET head_revision_id = head_revision_id - 1 WHERE internal_id = %s AND head_revision_id = %s",
             (internal_id, revision_id),
         )
+        logger.debug(f"Successfully deleted revision {revision_id} for entity {entity_id}")
         return OperationResult(success=True)
 
     def create_with_cas(
@@ -150,6 +158,7 @@ class RevisionRepository(Repository):
         )
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
+            logger.debug(f"Entity {entity_id} not found for CAS operation")
             return False
         statements = entity_data.hashes.statements.model_dump_json() if entity_data.hashes and entity_data.hashes.statements else "[]"
 
@@ -191,6 +200,7 @@ class RevisionRepository(Repository):
         )
 
         affected_rows = int(cursor.rowcount)
+        logger.debug(f"CAS operation: affected {affected_rows} rows for revision {revision_id}")
         return affected_rows > 0
 
     def insert_revision(
@@ -202,8 +212,10 @@ class RevisionRepository(Repository):
     ) -> None:
         """Insert a revision from RevisionData model."""
         if expected_revision_id is None:
+            logger.debug(f"insert_revision: calling insert for {entity_id}, revision {revision_id}")
             self.insert(entity_id, revision_id, entity_data)
         else:
+            logger.debug(f"insert_revision: calling create_with_cas for {entity_id}, revision {revision_id}, expected {expected_revision_id}")
             self.create_with_cas(entity_id, revision_id, entity_data, expected_revision_id)
 
     def create(self, entity_id: str, revision_id: int, entity_data: RevisionData) -> None:
@@ -244,3 +256,4 @@ class RevisionRepository(Repository):
                 entity_data.state.is_mass_edit_protected,
             ),
         )
+        logger.debug(f"Successfully created revision {revision_id} for entity {entity_id}")
