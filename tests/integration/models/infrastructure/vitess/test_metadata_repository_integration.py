@@ -1,121 +1,84 @@
-from unittest.mock import Mock
+"""Integration tests for MetadataRepository using real database."""
+import pytest
 from models.infrastructure.vitess.repositories.metadata import MetadataRepository
-from models.infrastructure.vitess.client import VitessClient
 
+@pytest.fixture
+def repository(vitess_client):
+    """Create MetadataRepository with real VitessClient."""
+    return MetadataRepository(vitess_client=vitess_client)
 
-class TestMetadataRepository:
-    def setup_method(self) -> None:
-        """Set up test fixtures."""
-        self.connection_manager = Mock()
-        self.vitess_client = Mock(spec=VitessClient)
-        self.repository = MetadataRepository(vitess_client=self.vitess_client)
+def test_insert_metadata_content_new(repository, vitess_client):
+    """Test inserting new metadata content."""
+    repository.insert_metadata_content(12345, "labels")
+    
+    cursor = vitess_client.cursor
+    cursor.execute(
+        "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
+        (12345, "labels"),
+    )
+    result = cursor.fetchone()
+    assert result[0] == 1
 
-    def test_insert_metadata_content_new(self) -> None:
-        """Test inserting new metadata content."""
-        conn = Mock()
-        cursor = Mock()
-        conn.cursor = Mock(return_value=cursor)
-        cursor.__exit__ = Mock(return_value=None)
+def test_get_metadata_content_exists(repository, vitess_client):
+    """Test getting existing metadata content."""
+    # Insert first
+    repository.insert_metadata_content(12345, "labels")
+    
+    # Get metadata
+    result = repository.get_metadata_content(12345, "labels")
+    
+    assert result.success is True
+    assert result.data.ref_count >= 1
 
-        self.repository.insert_metadata_content(12345, "labels")
+def test_get_metadata_content_not_exists(repository):
+    """Test getting non-existent metadata content."""
+    result = repository.get_metadata_content(99999, "labels")
+    
+    assert result.success is False
 
-        cursor.execute.assert_called_with(
-            """
-            INSERT INTO metadata_content (content_hash, content_type, ref_count)
-            VALUES (%s, %s, 1)
-            ON DUPLICATE KEY UPDATE ref_count = ref_count + 1
-            """,
-            (12345, "labels"),
-        )
+def test_decrement_ref_count_above_zero(repository, vitess_client):
+    """Test decrementing ref_count when it remains above 0."""
+    # Insert twice to get ref_count=2
+    repository.insert_metadata_content(12345, "labels")
+    repository.insert_metadata_content(12345, "labels")
+    
+    # Decrement once
+    repository.decrement_ref_count(12345, "labels")
+    
+    # Verify ref_count=1
+    cursor = vitess_client.cursor
+    cursor.execute(
+        "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
+        (12345, "labels"),
+    )
+    result = cursor.fetchone()
+    assert result[0] == 1
 
-    def test_get_metadata_content_exists(self) -> None:
-        """Test getting existing metadata content."""
-        conn = Mock()
-        cursor = Mock()
-        conn.cursor = Mock(return_value=cursor)
-        cursor.__exit__ = Mock(return_value=None)
-        cursor.fetchone.return_value = (5,)  # ref_count = 5
+def test_decrement_ref_count_reaches_zero(repository, vitess_client):
+    """Test decrementing ref_count when it reaches 0."""
+    # Insert once to get ref_count=1
+    repository.insert_metadata_content(12345, "labels")
+    
+    # Decrement once
+    result = repository.decrement_ref_count(12345, "labels")
+    
+    assert result.success is True
+    assert result.data is True  # ref_count <= 0
 
-        result = self.repository.get_metadata_content(12345, "labels")
-
-        cursor.execute.assert_called_with(
-            "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
-            (12345, "labels"),
-        )
-        assert result == {"ref_count": 5}
-
-    def test_get_metadata_content_not_exists(self) -> None:
-        """Test getting non-existent metadata content."""
-        conn = Mock()
-        cursor = Mock()
-        conn.cursor = Mock(return_value=cursor)
-        cursor.__exit__ = Mock(return_value=None)
-        cursor.fetchone.return_value = None
-
-        result = self.repository.get_metadata_content(12345, "labels")
-
-        assert result is None
-
-    def test_decrement_ref_count_above_zero(self) -> None:
-        """Test decrementing ref_count when it remains above 0."""
-        conn = Mock()
-        cursor = Mock()
-        conn.cursor = Mock(return_value=cursor)
-        cursor.__exit__ = Mock(return_value=None)
-        cursor.fetchone.return_value = (3,)  # ref_count = 3 after decrement
-
-        result = self.repository.decrement_ref_count(12345, "labels")
-
-        cursor.execute.assert_any_call(
-            """
-            UPDATE metadata_content
-            SET ref_count = ref_count - 1
-            WHERE content_hash = %s AND content_type = %s
-            """,
-            (12345, "labels"),
-        )
-        cursor.execute.assert_any_call(
-            "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
-            (12345, "labels"),
-        )
-        assert result is False
-
-    def test_decrement_ref_count_reaches_zero(self) -> None:
-        """Test decrementing ref_count when it reaches 0."""
-        conn = Mock()
-        cursor = Mock()
-        conn.cursor = Mock(return_value=cursor)
-        cursor.__exit__ = Mock(return_value=None)
-        cursor.fetchone.return_value = (0,)  # ref_count = 0 after decrement
-
-        result = self.repository.decrement_ref_count(12345, "labels")
-
-        assert result is True
-
-    def test_delete_metadata_content(self) -> None:
-        """Test deleting metadata content."""
-        conn = Mock()
-        cursor = Mock()
-        conn.cursor = Mock(return_value=cursor)
-        cursor.__exit__ = Mock(return_value=None)
-
-        self.repository.delete_metadata_content(12345, "labels")
-
-        cursor.execute.assert_called_with(
-            "DELETE FROM metadata_content WHERE content_hash = %s AND content_type = %s AND ref_count <= 0",
-            (12345, "labels"),
-        )
-
-    def test_connection_context_management(self) -> None:
-        """Test that database connections are properly managed."""
-        conn = Mock()
-        cursor = Mock()
-        conn.cursor = Mock(return_value=cursor)
-        cursor.__exit__ = Mock(return_value=None)
-        conn.cursor.return_value.__exit__.return_value = None
-
-        self.repository.insert_metadata_content(12345, "labels")
-
-        conn.cursor.assert_called_once()
-
-        conn.cursor.return_value.__exit__.assert_called_once()
+def test_delete_metadata_content(repository, vitess_client):
+    """Test deleting metadata content."""
+    # Insert and decrement to zero
+    repository.insert_metadata_content(12345, "labels")
+    repository.decrement_ref_count(12345, "labels")
+    
+    # Delete
+    repository.delete_metadata_content(12345, "labels")
+    
+    # Verify deletion
+    cursor = vitess_client.cursor
+    cursor.execute(
+        "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
+        (12345, "labels"),
+    )
+    result = cursor.fetchone()
+    assert result is None
