@@ -60,7 +60,7 @@ export KAFKA_ENTITY_CHANGE_TOPIC="wikibase.entity_change"
 export KAFKA_ENTITY_DIFF_TOPIC="wikibase.entity_diff"
 
 export LOG_LEVEL="DEBUG"
-export ENVIRONMENT="dev"
+export ENVIRONMENT="prod"
 export USER_AGENT="Entitybase/1.0 User:So9q"
 
 export PYTHONPATH=src

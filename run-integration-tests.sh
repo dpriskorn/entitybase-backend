@@ -22,7 +22,7 @@ echo "Running integration tests"
 
 # stop first failure
 #pytest -p no:xdist -m integration --exitfirst --capture=no --strict-markers
-pytest tests/integration --capture=no --strict-markers --exitfirst
+pytest tests/integration --capture=no --strict-markers #--exitfirst
 
 # verbose
 #pytest -m integration -v --strict-markers
