@@ -6,6 +6,17 @@ from typing import Dict, Any, Optional
 
 from fastapi import APIRouter, Header, HTTPException, Request
 
+from models.data.rest_api.v1.entitybase.request import (
+    EntityCreateRequest,
+    EntityUpdateRequest,
+)
+from models.data.rest_api.v1.entitybase.response import (
+    EntityResponse,
+    FormResponse,
+    FormsResponse,
+    SenseResponse,
+    SensesResponse,
+)
 from models.rest_api.entitybase.v1.handlers.entity.lexeme.create import (
     LexemeCreateHandler,
 )
@@ -13,20 +24,6 @@ from models.rest_api.entitybase.v1.handlers.entity.lexeme.update import (
     LexemeUpdateHandler,
 )
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-
-from models.data.rest_api.v1.entitybase.request import (
-    EntityCreateRequest,
-    EntityUpdateRequest,
-)
-from models.data.rest_api.v1.entitybase.response import (
-    EntityResponse,
-    FormRepresentationResponse,
-    FormResponse,
-    FormsResponse,
-    SenseGlossResponse,
-    SenseResponse,
-    SensesResponse,
-)
 
 logger = logging.getLogger(__name__)
 

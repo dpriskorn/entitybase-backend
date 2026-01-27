@@ -2,9 +2,9 @@
 
 import logging
 import os
-from typing import TYPE_CHECKING, Self, Any
+from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel
 
 from models.data.config.stream import StreamConfig
 
