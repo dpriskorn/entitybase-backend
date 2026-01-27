@@ -36,7 +36,7 @@ class RevisionRepository(Repository):
         property_counts = entity_data.property_counts.model_dump_json() if entity_data.property_counts else "{}"
         user_id = entity_data.edit.user_id
         edit_summary = entity_data.edit.edit_summary
-        statements = entity_data.hashes.statements.model_dump_json() if entity_data.hashes and entity_data.hashes.statements else []
+        statements = entity_data.hashes.statements.model_dump_json() if entity_data.hashes and entity_data.hashes.statements else "[]"
         properties = entity_data.properties or []
 
         cursor = self.vitess_client.cursor
@@ -48,7 +48,7 @@ class RevisionRepository(Repository):
                     is_mass_edit,
                     edit_type,
                     statements,
-                    properties,
+                    json.dumps(properties),
                     property_counts,
                     entity_data.hashes.labels.model_dump_json() if entity_data.hashes and entity_data.hashes.labels else "{}",
                     entity_data.hashes.descriptions.model_dump_json() if entity_data.hashes and entity_data.hashes.descriptions else "{}",
@@ -151,12 +151,11 @@ class RevisionRepository(Repository):
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return False
-        statements = entity_data.hashes.statements.model_dump_json() if entity_data.hashes and entity_data.hashes.statements else []
-        properties = entity_data.properties or []
+        statements = entity_data.hashes.statements.model_dump_json() if entity_data.hashes and entity_data.hashes.statements else "[]"
 
         cursor = self.vitess_client.cursor
         cursor.execute(
-                """INSERT INTO entity_revisions 
+                """INSERT INTO entity_revisions
                         (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
                         VALUES (%s, %s, %s, %s, %s, %s, %s)""",
                 (
@@ -165,7 +164,7 @@ class RevisionRepository(Repository):
                     entity_data.edit.is_mass_edit,
                     entity_data.edit.edit_type,
                     statements,
-                    properties,
+                    json.dumps(entity_data.properties or []),
                     entity_data.property_counts.model_dump_json() if entity_data.property_counts else "{}",
                 ),
             )
@@ -213,12 +212,11 @@ class RevisionRepository(Repository):
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
-        statements = entity_data.hashes.statements.model_dump_json() if entity_data.hashes and entity_data.hashes.statements else []
-        properties = entity_data.properties or []
+        statements = entity_data.hashes.statements.model_dump_json() if entity_data.hashes and entity_data.hashes.statements else "[]"
 
         cursor = self.vitess_client.cursor
         cursor.execute(
-            """INSERT INTO entity_revisions 
+            """INSERT INTO entity_revisions
                     (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
                     VALUES (%s, %s, %s, %s, %s, %s, %s)""",
             (
@@ -227,7 +225,7 @@ class RevisionRepository(Repository):
                 entity_data.edit.is_mass_edit,
                 entity_data.edit.edit_type,
                 statements,
-                properties,
+                json.dumps(entity_data.properties or []),
                 entity_data.property_counts.model_dump_json() if entity_data.property_counts else "{}",
             ),
         )
