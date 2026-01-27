@@ -132,7 +132,7 @@ class UpdateTransaction(EntityTransaction):
             changed_at = datetime.now(timezone.utc)
 
         logger.info(f"[UpdateTransaction] Starting event publishing for {entity_id}")
-        if self.state.stream_producer:
+        if self.state.entity_change_stream_producer:
             from models.infrastructure.stream.event import EntityChangeEvent
 
             event = EntityChangeEvent(
@@ -143,7 +143,7 @@ class UpdateTransaction(EntityTransaction):
                 at=changed_at,
                 summary=edit_summary,
             )
-            self.state.stream_producer.publish_change(event)
+            self.state.entity_change_stream_producer.publish_change(event)
         # Events are fire-and-forget, no rollback needed
 
     def _rollback_statement(self, hash_val: int) -> None:

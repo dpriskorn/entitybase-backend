@@ -82,7 +82,7 @@ class StateHandler(BaseModel):
         return MyS3Client(config=self.s3_config)
 
     @property
-    def entitychange_stream_producer(self) -> StreamProducerClient:
+    def entity_change_stream_producer(self) -> StreamProducerClient | None:
         """Get a fully ready client"""
         if (
             self.streaming_enabled
@@ -91,10 +91,13 @@ class StateHandler(BaseModel):
         ):
             return StreamProducerClient(config=self.entity_change_stream_config)
         else:
-            raise_validation_error(message="No kafka broker and topic provided")
+            message = "No kafka broker and rdf topic provided"
+            logger.info(message)
+            # raise_validation_error(message="No kafka broker and topic provided")
+            return None
 
     @property
-    def entitydiff_stream_producer(self) -> StreamProducerClient:
+    def entitydiff_stream_producer(self) -> StreamProducerClient | None:
         """Get a fully ready client"""
         if (
             self.streaming_enabled
@@ -103,7 +106,10 @@ class StateHandler(BaseModel):
         ):
             return StreamProducerClient(config=self.entity_diff_stream_config)
         else:
-            raise_validation_error(message="No kafka broker and rdf topic provided")
+            message = "No kafka broker and rdf topic provided"
+            logger.info(message)
+            # raise_validation_error()
+            return None
 
     @property
     def property_registry(self) -> PropertyRegistry | None:

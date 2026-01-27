@@ -164,14 +164,14 @@ class EntityDeleteHandler(Handler):
         )
 
         # Publish change event
-        if self.state.stream_producer:
+        if self.state.entity_change_stream_producer:
             try:
                 # change_type = (
                 #     ChangeType.SOFT_DELETE
                 #     if request.delete_type == DeleteType.SOFT
                 #     else ChangeType.HARD_DELETE
                 # )
-                await self.state.stream_producer.publish_change(
+                await self.state.entity_change_stream_producer.publish_change(
                     EntityChangeEvent(
                         id=entity_id,
                         rev=new_revision_id,
