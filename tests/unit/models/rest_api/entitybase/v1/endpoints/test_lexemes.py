@@ -196,7 +196,7 @@ class TestFormsAndSensesEndpoints:
             }
         }
 
-        with pytest.mock.patch(
+        with patch(
             "src.models.rest_api.entitybase.v1.endpoints.lexemes.get_form_by_id",
             new=AsyncMock(return_value=mock_form_response)
         ):
@@ -217,7 +217,7 @@ class TestFormsAndSensesEndpoints:
             "de": Mock(language="de", value="Antwort"),
         }
 
-        with pytest.mock.patch(
+        with patch(
             "src.models.rest_api.entitybase.v1.endpoints.lexemes.get_form_by_id",
             new=AsyncMock(return_value=mock_form_response)
         ):
@@ -233,7 +233,7 @@ class TestFormsAndSensesEndpoints:
         mock_form_response = Mock()
         mock_form_response.representations = {"en": Mock(language="en", value="answer")}
 
-        with pytest.mock.patch(
+        with patch(
             "src.models.rest_api.entitybase.v1.endpoints.lexemes.get_form_by_id",
             new=AsyncMock(return_value=mock_form_response)
         ):
@@ -256,7 +256,7 @@ class TestFormsAndSensesEndpoints:
             }
         }
 
-        with pytest.mock.patch(
+        with patch(
             "src.models.rest_api.entitybase.v1.endpoints.lexemes.get_sense_by_id",
             new=AsyncMock(return_value=mock_sense_response)
         ):
@@ -277,7 +277,7 @@ class TestFormsAndSensesEndpoints:
             "de": Mock(language="de", value="Antwort"),
         }
 
-        with pytest.mock.patch(
+        with patch(
             "src.models.rest_api.entitybase.v1.endpoints.lexemes.get_sense_by_id",
             new=AsyncMock(return_value=mock_sense_response)
         ):
@@ -293,7 +293,7 @@ class TestFormsAndSensesEndpoints:
         mock_sense_response = Mock()
         mock_sense_response.glosses = {"en": Mock(language="en", value="reply")}
 
-        with pytest.mock.patch(
+        with patch(
             "src.models.rest_api.entitybase.v1.endpoints.lexemes.get_sense_by_id",
             new=AsyncMock(return_value=mock_sense_response)
         ):
@@ -499,7 +499,7 @@ class TestFormsAndSensesEndpoints:
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
 
-        with pytest.mock.patch(
+        with patch(
             "src.models.rest_api.entitybase.v1.endpoints.lexemes.LexemeUpdateHandler",
             return_value=mock_update_handler
         ):
@@ -589,7 +589,7 @@ class TestFormsAndSensesEndpoints:
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
 
-        with pytest.mock.patch(
+        with patch(
             "src.models.rest_api.entitybase.v1.endpoints.lexemes.LexemeUpdateHandler",
             return_value=mock_update_handler
         ):
@@ -649,7 +649,7 @@ class TestFormsAndSensesEndpoints:
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
 
-        with pytest.mock.patch(
+        with patch(
             "src.models.rest_api.entitybase.v1.endpoints.lexemes.LexemeUpdateHandler",
             return_value=mock_update_handler
         ):
