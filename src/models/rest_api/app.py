@@ -18,7 +18,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         logger.debug("Initializing clients...")
         from pathlib import Path
 
-        clients = StateHandler(
+        state_handler = StateHandler(
             s3_config=settings.to_s3_config(),
             vitess_config=settings.to_vitess_config(),
             entity_change_stream_config=settings.get_entity_change_stream_config(),
@@ -27,8 +27,8 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
             if settings.property_registry_path
             else None,
         )
-        clients.start()
-        app_.state.state_handler = clients
+        state_handler.start()
+        app_.state.state_handler = state_handler
         yield
 
     except Exception as e:
