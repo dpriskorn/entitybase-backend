@@ -35,4 +35,4 @@ class StatementExtractor:
             for property_id, claim_list in claims.items()
             if claim_list
         }
-        return PropertyCounts(counts=counts)
+        return PropertyCounts(counts)

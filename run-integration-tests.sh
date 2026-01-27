@@ -7,6 +7,12 @@ else
   exit 1
 fi
 
+export VITESS_HOST=localhost
+export VITESS_PORT=3306
+export VITESS_DATABASE=entitybase
+export VITESS_USER=root
+export VITESS_PASSWORD=""
+
 echo "Running integration tests"
 #pytest -m integration
 

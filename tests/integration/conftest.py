@@ -152,5 +152,5 @@ def api_client():
 
 @pytest.fixture(scope="session")
 def base_url():
-    """Base URL for E2E API."""
-    return "http://api:8000"
+    """Base API URL for integration and e2e tests."""
+    return "http://localhost:8000"

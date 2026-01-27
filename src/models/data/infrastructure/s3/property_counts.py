@@ -1,12 +1,7 @@
 """Property counts model."""
 
-from pydantic import BaseModel, Field
+from pydantic.root_model import RootModel
 
 
-class PropertyCounts(BaseModel):
-    """Model for property statement counts."""
-
-    counts: dict[str, int] = Field(
-        default_factory=dict,
-        description="Dictionary mapping property ID to statement count",
-    )
+class PropertyCounts(RootModel[dict[str, int]]):
+    """Model for property statement counts (dictionary mapping property ID to statement count)."""

@@ -76,7 +76,7 @@ class StatementHashResult(BaseModel):
     )
     property_counts: PropertyCounts = Field(
         alias="counts",
-        default_factory=PropertyCounts,
+        default_factory=lambda: PropertyCounts({}),
         description="Dict mapping property ID to count of statements. Example: {'P31': 5}.",
     )
     full_statements: list[Dict[str, Any]] = Field(
