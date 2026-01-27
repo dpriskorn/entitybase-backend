@@ -58,7 +58,7 @@ dev = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "-n auto --tb=short"
+addopts = "--tb=short"
 markers = [
     "unit: marks tests as unit tests",
     "integration: marks tests as integration tests",
