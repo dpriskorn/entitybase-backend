@@ -1,106 +1,195 @@
 """Unit tests for StatementHasher."""
 
-from unittest.mock import MagicMock
-
 from models.internal_representation.statement_hasher import StatementHasher
 from models.internal_representation.statements import Statement
+from models.internal_representation.ranks import Rank
+from models.internal_representation.values.entity_value import EntityValue
+from models.internal_representation.qualifiers import Qualifier
+from models.internal_representation.references import Reference, ReferenceValue
 
 
-class TestStatementHasher:
-    """Unit tests for StatementHasher."""
+def test_statement_hash_consistency() -> None:
+    """Same statement produces same hash"""
+    statement = Statement(
+        property="P31",
+        value=EntityValue(value="Q5"),
+        rank=Rank.NORMAL,
+        qualifiers=[],
+        references=[],
+        statement_id="Q42$12345678-1234-1234-1234-123456789abc",
+    )
 
-    def test_compute_hash_dict_input(self):
-        """Test computing hash from dict input."""
-        statement_dict = {
-            "property": "P31",
-            "value": {"kind": "entity", "value": "Q5", "datatype_uri": "http://www.wikidata.org/entity/"},
-            "rank": "normal",
-            "qualifiers": [],
-            "references": [],
-            "statement_id": "Q5$12345678-1234-1234-1234-123456789012",
-        }
+    hash1 = StatementHasher.compute_hash(statement)
+    hash2 = StatementHasher.compute_hash(statement)
 
-        hash_value = StatementHasher.compute_hash(statement_dict)
+    assert hash1 == hash2, "Same statement should produce same hash"
+    assert isinstance(hash1, int), "Hash should be an integer"
 
-        assert isinstance(hash_value, int)
-        assert hash_value > 0
 
-    def test_compute_hash_statement_object(self):
-        """Test computing hash from Statement object."""
-        # Mock Statement since it's complex
-        mock_statement = MagicMock(spec=Statement)
-        mock_statement.model_dump.return_value = {
-            "property": "P31",
-            "value": {"kind": "entity", "value": "Q5", "datatype_uri": "http://www.wikidata.org/entity/"},
-            "rank": "normal",
-            "qualifiers": [],
-            "references": [],
-            "statement_id": "Q5$12345678-1234-1234-1234-123456789012",
-        }
+def test_statement_hash_different_statements() -> None:
+    """Different statements produce different hashes"""
+    statement1 = Statement(
+        property="P31",
+        value=EntityValue(value="Q5"),
+        rank=Rank.NORMAL,
+        qualifiers=[],
+        references=[],
+        statement_id="Q42$12345678-1234-1234-1234-123456789abc",
+    )
 
-        hash_value = StatementHasher.compute_hash(mock_statement)
+    statement2 = Statement(
+        property="P31",
+        value=EntityValue(value="Q515"),
+        rank=Rank.NORMAL,
+        qualifiers=[],
+        references=[],
+        statement_id="Q42$87654321-4321-4321-4321-cba987654321",
+    )
 
-        assert isinstance(hash_value, int)
-        assert hash_value > 0
-        mock_statement.model_dump.assert_called_once()
+    hash1 = StatementHasher.compute_hash(statement1)
+    hash2 = StatementHasher.compute_hash(statement2)
 
-    def test_compute_hash_excludes_statement_id(self):
-        """Test that statement_id is excluded from hash."""
-        statement_dict1 = {
-            "property": "P31",
-            "value": {"kind": "string", "value": "test", "datatype_uri": "http://www.w3.org/2001/XMLSchema#string"},
-            "rank": "normal",
-            "qualifiers": [],
-            "references": [],
-            "statement_id": "Q5$11111111-1111-1111-1111-111111111111",
-        }
-        statement_dict2 = {
-            "property": "P31",
-            "value": {"kind": "string", "value": "test", "datatype_uri": "http://www.w3.org/2001/XMLSchema#string"},
-            "rank": "normal",
-            "qualifiers": [],
-            "references": [],
-            "statement_id": "Q5$22222222-2222-2222-2222-222222222222",
-        }
+    assert hash1 != hash2, "Different statements should produce different hashes"
 
-        hash1 = StatementHasher.compute_hash(statement_dict1)
-        hash2 = StatementHasher.compute_hash(statement_dict2)
 
-        # Hashes should be identical since only statement_id differs
-        assert hash1 == hash2
+def test_statement_hash_excludes_statement_id() -> None:
+    """Hash excludes statement_id (GUID)"""
+    statement1 = Statement(
+        property="P31",
+        value=EntityValue(value="Q5"),
+        rank=Rank.NORMAL,
+        qualifiers=[],
+        references=[],
+        statement_id="Q42$11111111-1111-1111-1111-111111111111",
+    )
 
-    def test_compute_hash_with_qualifiers_and_references(self):
-        """Test hash computation with qualifiers and references."""
-        statement_dict = {
-            "property": "P31",
-            "value": {"kind": "entity", "value": "Q5", "datatype_uri": "http://www.wikidata.org/entity/"},
-            "rank": "preferred",
-            "qualifiers": [
-                {"property": "P580", "value": {"kind": "time", "value": "2023-01-01", "datatype_uri": "http://www.w3.org/2001/XMLSchema#dateTime"}, "hash": 123}
-            ],
-            "references": [
-                {"hash": "abc123", "snaks": {"P248": [{"property": "P248", "value": {"kind": "entity", "value": "Q123", "datatype_uri": "http://www.wikidata.org/entity/"}}]}}
-            ],
-            "statement_id": "Q5$12345678-1234-1234-1234-123456789012",
-        }
+    statement2 = Statement(
+        property="P31",
+        value=EntityValue(value="Q5"),
+        rank=Rank.NORMAL,
+        qualifiers=[],
+        references=[],
+        statement_id="Q42$22222222-2222-2222-2222-222222222222",
+    )
 
-        hash_value = StatementHasher.compute_hash(statement_dict)
+    hash1 = StatementHasher.compute_hash(statement1)
+    hash2 = StatementHasher.compute_hash(statement2)
 
-        assert isinstance(hash_value, int)
-        assert hash_value > 0
+    assert hash1 == hash2, "Hash should be independent of statement_id"
 
-    def test_compute_hash_consistency(self):
-        """Test that same input produces same hash."""
-        statement_dict = {
-            "property": "P31",
-            "value": {"kind": "string", "value": "test", "datatype_uri": "http://www.w3.org/2001/XMLSchema#string"},
-            "rank": "normal",
-            "qualifiers": [],
-            "references": [],
-            "statement_id": "Q5$12345678-1234-1234-1234-123456789012",
-        }
 
-        hash1 = StatementHasher.compute_hash(statement_dict)
-        hash2 = StatementHasher.compute_hash(statement_dict)
+def test_statement_hash_dict_input() -> None:
+    """Test computing hash from dict input."""
+    statement_dict = {
+        "property": "P31",
+        "value": {"kind": "entity", "value": "Q5", "datatype_uri": "http://www.wikidata.org/entity/"},
+        "rank": "normal",
+        "qualifiers": [],
+        "references": [],
+        "statement_id": "Q5$12345678-1234-1234-1234-123456789012",
+    }
 
-        assert hash1 == hash2
+    hash_value = StatementHasher.compute_hash(statement_dict)
+
+    assert isinstance(hash_value, int)
+    assert hash_value > 0
+
+
+def test_statement_hash_includes_all_components() -> None:
+    """Hash includes property, value, rank, qualifiers, references"""
+    base_statement = Statement(
+        property="P31",
+        value=EntityValue(value="Q5"),
+        rank=Rank.NORMAL,
+        qualifiers=[],
+        references=[],
+        statement_id="test-id",
+    )
+
+    base_hash = StatementHasher.compute_hash(base_statement)
+
+    # Different property
+    different_property = Statement(
+        property="P279",
+        value=EntityValue(value="Q5"),
+        rank=Rank.NORMAL,
+        qualifiers=[],
+        references=[],
+        statement_id="test-id",
+    )
+    hash_property = StatementHasher.compute_hash(different_property)
+    assert base_hash != hash_property, "Hash should include property"
+
+    # Different value
+    different_value = Statement(
+        property="P31",
+        value=EntityValue(value="Q515"),
+        rank=Rank.NORMAL,
+        qualifiers=[],
+        references=[],
+        statement_id="test-id",
+    )
+    hash_value = StatementHasher.compute_hash(different_value)
+    assert base_hash != hash_value, "Hash should include value"
+
+    # Different rank
+    different_rank = Statement(
+        property="P31",
+        value=EntityValue(value="Q5"),
+        rank=Rank.PREFERRED,
+        qualifiers=[],
+        references=[],
+        statement_id="test-id",
+    )
+    hash_rank = StatementHasher.compute_hash(different_rank)
+    assert base_hash != hash_rank, "Hash should include rank"
+
+    # With qualifiers
+    with_qualifiers = Statement(
+        property="P31",
+        value=EntityValue(value="Q5"),
+        rank=Rank.NORMAL,
+        qualifiers=[
+            Qualifier(property="P585", value=EntityValue(value="+1952-03-03T00:00:00Z"))
+        ],
+        references=[],
+        statement_id="test-id",
+    )
+    hash_qualifiers = StatementHasher.compute_hash(with_qualifiers)
+    assert base_hash != hash_qualifiers, "Hash should include qualifiers"
+
+    # With references
+    with_references = Statement(
+        property="P31",
+        value=EntityValue(value="Q5"),
+        rank=Rank.NORMAL,
+        qualifiers=[],
+        references=[
+            Reference(
+                hash="ref1",
+                snaks=[
+                    ReferenceValue(property="P248", value=EntityValue(value="Q539"))
+                ],
+            )
+        ],
+        statement_id="test-id",
+    )
+    hash_references = StatementHasher.compute_hash(with_references)
+    assert base_hash != hash_references, "Hash should include references"
+
+
+def test_statement_hash_ordering() -> None:
+    """Hash is deterministic (order of qualifiers/references doesn't matter after JSON sorting)"""
+    statement = Statement(
+        property="P31",
+        value=EntityValue(value="Q5"),
+        rank=Rank.NORMAL,
+        qualifiers=[],
+        references=[],
+        statement_id="test-id",
+    )
+
+    hash1 = StatementHasher.compute_hash(statement)
+    hash2 = StatementHasher.compute_hash(statement)
+
+    assert hash1 == hash2, "Hash should be deterministic"
