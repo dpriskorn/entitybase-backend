@@ -3,9 +3,8 @@ set -e
 if [ "$(docker ps -q | wc -l)" -gt 0 ]; then
   echo "Containers are running"
 else
-  echo "No containers are running"
-  ./run-api-local.sh
-  # exit 1
+  echo "No containers are running, run ./run-api-local.sh before this"
+  exit 1
 fi
 
 echo "Running integration tests"
