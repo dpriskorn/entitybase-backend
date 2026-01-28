@@ -16,7 +16,7 @@ thanks_router = APIRouter(tags=["interactions"])
 
 
 @thanks_router.post(
-    "/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thank",
+    "/entities/{entity_id}/revisions/{revision_id}/thank",
     response_model=ThankResponse,
 )
 def send_thank_endpoint(
@@ -38,7 +38,7 @@ def send_thank_endpoint(
 
 
 @thanks_router.get(
-    "/entitybase/v1/users/{user_id}/thanks/received", response_model=ThanksListResponse
+    "/users/{user_id}/thanks/received", response_model=ThanksListResponse
 )
 def get_thanks_received_endpoint(
     req: Request,
@@ -63,7 +63,7 @@ def get_thanks_received_endpoint(
 
 
 @thanks_router.get(
-    "/entitybase/v1/users/{user_id}/thanks/sent", response_model=ThanksListResponse
+    "/users/{user_id}/thanks/sent", response_model=ThanksListResponse
 )
 def get_thanks_sent_endpoint(
     req: Request,
@@ -88,7 +88,7 @@ def get_thanks_sent_endpoint(
 
 
 @thanks_router.get(
-    "/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks",
+    "/entities/{entity_id}/revisions/{revision_id}/thanks",
     response_model=ThanksListResponse,
 )
 def get_revision_thanks_endpoint(

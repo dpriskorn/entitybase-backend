@@ -156,7 +156,7 @@ async def global_exception_handler(request: Request, exc: Exception) -> JSONResp
 
 include_routes(app)
 
-app.include_router(v1_router, prefix="/entitybase/v1")
+app.include_router(v1_router, prefix=settings.api_prefix)
 # app.include_router(wikibase_v1_router, prefix="/wikibase/v1")
 
 

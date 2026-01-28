@@ -15,7 +15,7 @@ async def test_create_user_new() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post("/entitybase/v1/users", json={"user_id": 12345})
+        response = await client.post("/users", json={"user_id": 12345})
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -204,7 +204,7 @@ async def test_get_user_activity_invalid_type() -> None:
 
         response = await client.get("/entitybase/v1/users/12345/activity?type=invalid")
         assert response.status_code == 400
-        assert "Invalid activity type" in response.json()["detail"]
+        assert "Invalid activity type" in response.json()["message"]
 
 
 @pytest.mark.asyncio
@@ -221,7 +221,7 @@ async def test_get_user_activity_invalid_limit() -> None:
 
         response = await client.get("/entitybase/v1/users/12345/activity?limit=1000")
         assert response.status_code == 400
-        assert "Limit must be one of" in response.json()["detail"]
+        assert "Limit must be one of" in response.json()["message"]
 
 
 @pytest.mark.asyncio

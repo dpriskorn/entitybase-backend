@@ -15,9 +15,6 @@ logger = logging.getLogger(__name__)
 src_path = os.path.join(os.path.dirname(__file__), "..", "..")
 sys.path.insert(0, src_path)
 
-# noinspection PyPep8
-from models.config.settings import settings
-
 
 class CreateBuckets(BaseModel):
     """Development worker for MinIO bucket management and setup tasks."""
@@ -26,15 +23,19 @@ class CreateBuckets(BaseModel):
     minio_access_key: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
     minio_secret_key: str = os.getenv("MINIO_SECRET_KEY", "minioadmin")
     required_buckets: List[str] = [
-        settings.s3_terms_bucket,
-        settings.s3_statements_bucket,
-        settings.s3_references_bucket,
-        settings.s3_qualifiers_bucket,
-        settings.s3_revisions_bucket,
-        settings.s3_sitelinks_bucket,
     ]
 
-
+    def model_post_init(self, context: Any) -> None:
+        # noinspection PyPep8
+        from models.config.settings import settings
+        self.required_buckets: List[str] = [
+            settings.s3_terms_bucket,
+            settings.s3_statements_bucket,
+            settings.s3_references_bucket,
+            settings.s3_qualifiers_bucket,
+            settings.s3_revisions_bucket,
+            settings.s3_sitelinks_bucket,
+        ]
 
     @property
     def s3_client(self) -> Any:

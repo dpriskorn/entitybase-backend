@@ -26,7 +26,7 @@ def test_health_check(api_client: requests.Session, base_url: str) -> None:
 
 
 @pytest.mark.integration
-def test_create_item(api_client: requests.Session, base_url: str) -> None:
+def test_create_item(api_client: requests.Session, api_url: str) -> None:
     """Test creating a new entity"""
     entity_data1 = EntityCreateRequest(
         type="item", labels={"en": {"value": "Test Entity"}}, edit_summary="test"
@@ -40,7 +40,7 @@ def test_create_item(api_client: requests.Session, base_url: str) -> None:
     # }
 
     response = api_client.post(
-        f"{base_url}/entitybase/v1/entities/items",
+        f"{api_url}/entities/items",
         json=entity_data1.model_dump(mode="json"),
     )
 
@@ -75,7 +75,7 @@ def test_create_item(api_client: requests.Session, base_url: str) -> None:
 
 
 @pytest.mark.integration
-def test_get_item(api_client: requests.Session, base_url: str) -> None:
+def test_get_item(api_client: requests.Session, api_url: str) -> None:
     """Test retrieving an entity"""
 
 
@@ -92,7 +92,7 @@ def test_get_item(api_client: requests.Session, base_url: str) -> None:
     #     "labels": {"en": {"language": "en", "value": "Test Entity for Get"}},
     # }
     response = api_client.post(
-        f"{base_url}/entitybase/v1/entities/items",
+        f"{api_url}/entities/items",
         json=entity_data1.model_dump(mode="json"),
     )
     logger.debug("Response")
@@ -100,7 +100,7 @@ def test_get_item(api_client: requests.Session, base_url: str) -> None:
     assert response.status_code == 200
 
     # Then retrieve it
-    response2 = api_client.get(f"{base_url}/entitybase/v1/entities/Q99998")
+    response2 = api_client.get(f"{api_url}/entities/Q99998")
     logger.debug("Response2")
     pprint(response2.json())
     assert response2.status_code == 200
@@ -115,7 +115,7 @@ def test_get_item(api_client: requests.Session, base_url: str) -> None:
 
 @pytest.mark.integration
 def test_create_item_already_exists(
-    api_client: requests.Session, base_url: str
+    api_client: requests.Session, api_url: str
 ) -> None:
     """Test that POST /entity fails with 409 when entity already exists"""
 
@@ -125,21 +125,22 @@ def test_create_item_already_exists(
         "id": "Q99998",
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
+        "edit_summary": "Test creation",
     }
-    api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
+    api_client.post(f"{api_url}/entities/items", json=entity_data)
 
     # Try to create the same entity again - should fail
     response = api_client.post(
-        f"{base_url}/entitybase/v1/entities/items", json=entity_data
+        f"{api_url}/entities/items", json=entity_data
     )
     assert response.status_code == 409
-    assert "already exists" in response.json().get("detail", "")
+    assert "already exists" in response.json().get("message", "")
 
     logger.info("✓ POST with existing entity correctly returns 409")
 
 
 @pytest.mark.integration
-def test_get_item_history(api_client: requests.Session, base_url: str) -> None:
+def test_get_item_history(api_client: requests.Session, api_url: str) -> None:
     """Test retrieving entity history"""
 
 
@@ -151,16 +152,16 @@ def test_get_item_history(api_client: requests.Session, base_url: str) -> None:
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
     }
 
-    api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
+    api_client.post(f"{api_url}/entities/items", json=entity_data)
     # Update entity for second revision
     update_data = {
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Updated Test Entity"}},
     }
-    api_client.post(f"{base_url}/entitybase/v1/entities/items", json=update_data)
+    api_client.post(f"{api_url}/entities/items", json=update_data)
 
     # Get history (ordered by created_at DESC)
-    response = api_client.get(f"{base_url}/entitybase/v1/entities/{entity_id}/history")
+    response = api_client.get(f"{api_url}/entities/{entity_id}/history")
     assert response.status_code == 200
 
     history = response.json()
@@ -173,10 +174,10 @@ def test_get_item_history(api_client: requests.Session, base_url: str) -> None:
 
 
 @pytest.mark.integration
-def test_entity_not_found(api_client: requests.Session, base_url: str) -> None:
+def test_entity_not_found(api_client: requests.Session, api_url: str) -> None:
     """Test that non-existent entities return 404"""
 
-    response = api_client.get(f"{base_url}/entity/Q88888")
+    response = api_client.get(f"{api_url}/entities/Q88888")
     assert response.status_code == 404
-    assert "not found" in response.json()["detail"].lower()
+    assert "not found" in response.json()["message"].lower()
     logger.info("✓ 404 handling passed")

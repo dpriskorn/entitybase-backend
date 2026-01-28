@@ -19,7 +19,7 @@ endorsements_router = APIRouter(tags=["interactions"])
 
 
 @endorsements_router.post(
-    "/entitybase/v1/statements/{statement_hash}/endorse",
+    "/statements/{statement_hash}/endorse",
     response_model=EndorsementResponse,
 )
 def endorse_statement_endpoint(
@@ -38,7 +38,7 @@ def endorse_statement_endpoint(
 
 
 @endorsements_router.delete(
-    "/entitybase/v1/statements/{statement_hash}/endorse",
+    "/statements/{statement_hash}/endorse",
     response_model=EndorsementResponse,
 )
 def withdraw_endorsement_endpoint(
@@ -57,7 +57,7 @@ def withdraw_endorsement_endpoint(
 
 
 @endorsements_router.get(
-    "/entitybase/v1/statements/{statement_hash}/endorsements",
+    "/statements/{statement_hash}/endorsements",
     response_model=EndorsementListResponse,
 )
 def get_statement_endorsements_endpoint(
@@ -85,7 +85,7 @@ def get_statement_endorsements_endpoint(
 
 
 @endorsements_router.get(
-    "/entitybase/v1/users/{user_id}/endorsements",
+    "/users/{user_id}/endorsements",
     response_model=EndorsementListResponse,
 )
 def get_user_endorsements_endpoint(
@@ -113,7 +113,7 @@ def get_user_endorsements_endpoint(
 
 
 @endorsements_router.get(
-    "/entitybase/v1/users/{user_id}/endorsements/stats",
+    "/users/{user_id}/endorsements/stats",
     response_model=EndorsementStatsResponse,
 )
 def get_user_endorsement_stats_endpoint(
@@ -132,7 +132,7 @@ def get_user_endorsement_stats_endpoint(
 
 
 @endorsements_router.get(
-    "/entitybase/v1/statements/{statement_hash}/endorsements/stats",
+    "/statements/{statement_hash}/endorsements/stats",
     response_model=SingleEndorsementStatsResponse,
 )
 def get_statement_endorsement_stats(

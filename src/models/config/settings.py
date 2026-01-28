@@ -72,6 +72,9 @@ class Settings(BaseModel):
     # entity version
     entity_version: str = "2.0.0"
 
+    # API configuration
+    api_prefix: str = "/v1/entitybase"
+
     # other
     environment: str = "prod"
     user_agent: str = "Entitybase/1.0 User:So9q"
@@ -125,6 +128,9 @@ class Settings(BaseModel):
 
         # Entity Version
         self.entity_version = os.getenv("ENTITY_VERSION", self.entity_version)
+
+        # API Configuration
+        self.api_prefix = os.getenv("API_PREFIX", self.api_prefix)
 
         # Streaming Versions
         self.streaming_entity_change_version = os.getenv("STREAMING_ENTITY_CHANGE_VERSION", self.streaming_entity_change_version)

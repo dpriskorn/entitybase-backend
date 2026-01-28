@@ -17,10 +17,10 @@ from models.data.rest_api.v1.entitybase.response import UserResponse
 from models.rest_api.utils import raise_validation_error
 
 
-users_router = APIRouter(prefix="/entitybase", tags=["users"])
+users_router = APIRouter(tags=["users"])
 
 
-@users_router.post("/entitybase/v1/users", response_model=UserCreateResponse)
+@users_router.post("/users", response_model=UserCreateResponse)
 def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
     """Create a new user."""
     state = req.app.state.state_handler
@@ -34,7 +34,7 @@ def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
     return result
 
 
-@users_router.get("/entitybase/v1/users/{user_id}", response_model=UserResponse)
+@users_router.get("/users/{user_id}", response_model=UserResponse)
 def get_user(user_id: int, req: Request) -> UserResponse:
     """Get user information by MediaWiki user ID."""
     state = req.app.state.state_handler
@@ -46,7 +46,7 @@ def get_user(user_id: int, req: Request) -> UserResponse:
 
 
 @users_router.put(
-    "/v1/users/{user_id}/watchlist/toggle", response_model=WatchlistToggleResponse
+    "/users/{user_id}/watchlist/toggle", response_model=WatchlistToggleResponse
 )
 def toggle_watchlist(
     user_id: int, request: WatchlistToggleRequest, req: Request
@@ -64,7 +64,7 @@ def toggle_watchlist(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@users_router.get("/entitybase/v1/users/stat", response_model=UserStatsResponse)
+@users_router.get("/users/stat", response_model=UserStatsResponse)
 def get_user_stats(req: Request) -> UserStatsResponse:
     """Get user statistics."""
     state = req.app.state.state_handler

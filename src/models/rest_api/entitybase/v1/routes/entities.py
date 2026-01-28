@@ -13,7 +13,7 @@ entities_router = APIRouter()
 
 
 @entities_router.post(
-    "/entitybase/v1/entities/{entity_id}/revert",
+    "/entities/{entity_id}/revert",
     response_model=EntityRevertResponse,
     tags=["entities"],
 )

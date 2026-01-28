@@ -32,7 +32,7 @@ def test_semi_protection_blocks_not_autoconfirmed_users(
         },
     )
     assert response.status_code == 403
-    assert "unconfirmed" in response.json()["detail"].lower()
+    assert "unconfirmed" in response.json()["message"].lower()
 
     # Autoconfirmed user should be able to edit
     response = api_client.post(
@@ -102,7 +102,7 @@ def test_locked_items_block_all_edits(
         json={**entity_data, "labels": {"en": {"language": "en", "value": "Updated"}}},
     )
     assert response.status_code == 403
-    assert "locked" in response.json()["detail"].lower()
+    assert "locked" in response.json()["message"].lower()
 
     logger.info("✓ Locked items block all edits")
 
@@ -129,7 +129,7 @@ def test_archived_items_block_all_edits(
         json={**entity_data, "labels": {"en": {"language": "en", "value": "Updated"}}},
     )
     assert response.status_code == 403
-    assert "archived" in response.json()["detail"].lower()
+    assert "archived" in response.json()["message"].lower()
 
     logger.info("✓ Archived items block all edits")
 
@@ -162,7 +162,7 @@ def test_mass_edit_protection_blocks_mass_edits(
         },
     )
     assert response.status_code == 403
-    assert "mass edits blocked" in response.json()["detail"].lower()
+    assert "mass edits blocked" in response.json()["message"].lower()
 
     # Manual edit should work
     response = api_client.post(

@@ -168,3 +168,10 @@ def api_client():
 def base_url():
     """Base API URL for integration and e2e tests."""
     return "http://localhost:8000"
+
+
+@pytest.fixture(scope="session")
+def api_url():
+    """Full API URL including configurable prefix for integration tests."""
+    from models.config.settings import settings
+    return f"http://localhost:8000{settings.api_prefix}"

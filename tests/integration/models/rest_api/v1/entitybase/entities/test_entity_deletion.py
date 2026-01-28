@@ -33,7 +33,7 @@ def test_hard_delete_entity(api_client: requests.Session, base_url: str) -> None
     # Verify entity no longer accessible (hard delete hides)
     get_response = api_client.get(f"{base_url}/entity/Q99002")
     assert get_response.status_code == 410  # Gone
-    assert "deleted" in get_response.json()["detail"].lower()
+    assert "deleted" in get_response.json()["message"].lower()
 
     logger.info("✓ Hard delete hides entity correctly")
 

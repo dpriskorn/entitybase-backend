@@ -7,6 +7,7 @@ from models.common import OperationResult
 from models.config.settings import settings
 from models.data.infrastructure.s3.enums import MetadataType
 from models.infrastructure.s3.base_storage import BaseS3Storage
+from models.infrastructure.s3.exceptions import S3StorageError
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -49,6 +50,8 @@ class MetadataStorage(BaseS3Storage):
             # Terms are stored as plain text, sitelinks too
             result = self.store(key, value, content_type="text/plain")
             return result
+        except S3StorageError as e:
+            raise_validation_error(message=f"{e}, {bucket}", status_code=500)
         finally:
             self.bucket = original_bucket
 
