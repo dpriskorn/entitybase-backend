@@ -5,6 +5,26 @@ import pytest
 
 sys.path.insert(0, "src")
 
+from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.data.infrastructure.s3.enums import EntityType, EditType, EditData
+from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+
+
+def create_minimal_revision_data(revision_id: int) -> RevisionData:
+    """Create a minimal valid RevisionData for testing."""
+    return RevisionData(
+        revision_id=revision_id,
+        entity_type=EntityType.ITEM,
+        edit=EditData(
+            type=EditType.MANUAL_UPDATE,
+            user_id=0,
+            mass=False,
+            summary="Test revision",
+            at="2025-01-01T00:00:00Z",
+        ),
+        hashes=HashMaps(),
+    )
+
 
 def test_insert_revision_idempotent(vitess_client) -> None:
     """Test that insert_revision is idempotent - calling twice with same params doesn't error"""
@@ -13,16 +33,18 @@ def test_insert_revision_idempotent(vitess_client) -> None:
 
     vitess_client.register_entity(entity_id)
 
+    entity_data = create_minimal_revision_data(revision_id)
+
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=revision_id,
-        entity_data={}
+        entity_data=entity_data
     )
 
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=revision_id,
-        entity_data={}
+        entity_data=entity_data
     )
 
     internal_id = vitess_client.resolve_id(entity_id)
@@ -46,16 +68,19 @@ def test_insert_revision_different_params(vitess_client) -> None:
 
     vitess_client.register_entity(entity_id)
 
+    entity_data_1 = create_minimal_revision_data(1)
+    entity_data_2 = create_minimal_revision_data(2)
+
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=1,
-        entity_data={}
+        entity_data=entity_data_1
     )
 
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=2,
-        entity_data={}
+        entity_data=entity_data_2
     )
 
     internal_id = vitess_client.resolve_id(entity_id)
