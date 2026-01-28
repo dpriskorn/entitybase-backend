@@ -37,8 +37,6 @@ class RevisionRepository(Repository):
             logger.debug(f"insert_revision: calling create_with_cas for {entity_id}, revision {revision_id}, expected {expected_revision_id}")
             self.create_with_cas(entity_id, revision_id, entity_data, expected_revision_id)
 
-    
-
     @validate_call
     def get_revision(
         self, internal_entity_id: int = Field(gt=0, min_length=1), revision_id: int = Field(..., min_length=1, gt=0)

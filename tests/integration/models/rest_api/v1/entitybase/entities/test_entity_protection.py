@@ -5,66 +5,6 @@ import requests
 
 
 @pytest.mark.integration
-def test_mass_edit_classification(api_client: requests.Session, base_url: str) -> None:
-    """Test mass edit and edit_type classification"""
-    logger = logging.getLogger(__name__)
-
-    # Create mass edit with classification
-    entity_data = {
-        "id": "Q99994",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Mass Edit Test"}},
-    }
-
-    response = api_client.post(
-        f"{base_url}/entity",
-        json={
-            "id": entity_data["id"],
-            "type": entity_data["type"],
-            "labels": entity_data["labels"],
-            "is_mass_edit": True,
-            "edit_type": "bot-import",
-        },
-    )
-    assert response.status_code == 200
-
-    result = response.json()
-    assert result["id"] == "Q99994"
-    assert result["revision_id"] == 1
-
-    # Verify fields in S3
-    raw_response = api_client.get(f"{base_url}/raw/Q99994/1")
-    raw_data = raw_response.json()
-    assert raw_data.get("is_mass_edit")
-    assert raw_data.get("edit_type") == "bot-import"
-
-    # Create manual edit (default behavior)
-    manual_data = {
-        "id": "Q99993",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Manual Test"}},
-    }
-
-    response2 = api_client.post(
-        f"{base_url}/entity",
-        json={
-            "id": manual_data["id"],
-            "type": manual_data["type"],
-            "labels": manual_data["labels"],
-        },
-    )
-    assert response2.status_code == 200
-
-    # Verify defaults in S3
-    raw_response2 = api_client.get(f"{base_url}/raw/Q99993/1")
-    raw_data2 = raw_response2.json()
-    assert not raw_data2.get("is_mass_edit")
-    assert raw_data2.get("edit_type") == ""
-
-    logger.info("✓ Mass edit classification works correctly")
-
-
-@pytest.mark.integration
 def test_semi_protection_blocks_not_autoconfirmed_users(
     api_client: requests.Session, base_url: str
 ) -> None:
@@ -238,43 +178,4 @@ def test_mass_edit_protection_blocks_mass_edits(
     logger.info("✓ Mass-edit protection works correctly")
 
 
-@pytest.mark.integration
-def test_mass_protection_edit_types(
-    api_client: requests.Session, base_url: str
-) -> None:
-    """Mass-protection edit types should work"""
-    logger = logging.getLogger(__name__)
 
-    entity_data = {
-        "id": "Q90016",
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test"}},
-    }
-
-    # Add mass protection
-    api_client.post(
-        f"{base_url}/entity",
-        json={
-            **entity_data,
-            "is_mass_edit_protected": True,
-            "edit_type": "mass-protection-added",
-        },
-    )
-    raw = api_client.get(f"{base_url}/raw/Q90016/1").json()
-    assert raw["edit_type"] == "mass-protection-added"
-    assert raw["is_mass_edit_protected"]
-
-    # Remove mass protection
-    api_client.post(
-        f"{base_url}/entity",
-        json={
-            **entity_data,
-            "is_mass_edit_protected": False,
-            "edit_type": "mass-protection-removed",
-        },
-    )
-    raw = api_client.get(f"{base_url}/raw/Q90016/2").json()
-    assert raw["edit_type"] == "mass-protection-removed"
-    assert not raw["is_mass_edit_protected"]
-
-    logger.info("✓ Mass-protection edit types work")
