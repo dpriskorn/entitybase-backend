@@ -22,17 +22,17 @@ def test_cas_update_with_status_success(repository, vitess_client):
     vitess_client.register_entity(entity_id)
     vitess_client.entity_repository.create_entity(entity_id)
     revision_data = RevisionData(
-        revision_id=0,
+        revision_id=1,
         entity_type=EntityType.ITEM,
         edit=EditData(type=EditType.MANUAL_UPDATE, user_id=0, mass=False, summary="Initial", at="2025-01-01T00:00:00Z"),
         hashes=HashMaps(),
     )
-    vitess_client.insert_revision(entity_id=entity_id, revision_id=0, entity_data=revision_data)
+    vitess_client.insert_revision(entity_id=entity_id, revision_id=1, entity_data=revision_data)
     
     # Perform CAS update
     result = repository.cas_update_with_status(
         entity_id=entity_id,
-        expected_head=0,
+        expected_head=1,
         new_head=10,
         is_semi_protected=True,
         is_locked=False,
