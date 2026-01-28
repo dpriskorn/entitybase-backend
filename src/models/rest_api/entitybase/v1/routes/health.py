@@ -5,7 +5,6 @@ from fastapi import APIRouter, Response
 from starlette import status
 from starlette.requests import Request
 
-from models.rest_api.entitybase.v1.handlers import health_check
 from models.data.rest_api.v1.entitybase.response import HealthCheckResponse
 
 health_router = APIRouter(tags=["health"])
