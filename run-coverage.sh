@@ -1,14 +1,25 @@
 #!/bin/bash
 # set -euo pipefail
 
-THRESHOLD=50
+THRESHOLD=30
+
+if [ "$(docker ps -q | wc -l)" -gt 0 ]; then
+  echo "Containers are running"
+else
+  echo "No containers are running, run ./run-api-local.sh before this"
+  exit 1
+fi
+
+export VITESS_HOST=localhost
+export VITESS_PORT=3306
+export VITESS_DATABASE=entitybase
+export VITESS_USER=root
+export VITESS_PASSWORD=""
+export PYTHONPATH=src
 
 source .venv/bin/activate
 
-cd /home/dpriskorn/src/python/wikibase-backend
-export PYTHONPATH=src
-
-echo "Running unit tests with coverage..."
+echo "Cleaning up..."
 
 # Cleanup first
 rm coverage_below_threshold.txt
@@ -17,9 +28,9 @@ rm coverage.xml
 find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 find . -name "*.pyc" -delete 2>/dev/null || true
 
+echo "Running all tests with coverage..."
 # Test
 pytest \
-  -m "unit" \
   -n "auto" \
   --cov=src \
   --cov-report=term-missing \
