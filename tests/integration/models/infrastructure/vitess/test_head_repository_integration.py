@@ -32,7 +32,7 @@ def test_cas_update_with_status_success(repository, vitess_client):
     # Perform CAS update
     result = repository.cas_update_with_status(
         entity_id=entity_id,
-        expected_head=1,
+        expected_head=0,
         new_head=10,
         is_semi_protected=True,
         is_locked=False,
