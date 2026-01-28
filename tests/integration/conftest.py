@@ -45,14 +45,27 @@ def db_conn():
 def db_cleanup(db_conn):
     yield
     # Truncate relevant tables after each test (only if they exist)
+    # Note: id_ranges is NOT truncated because it's required for ID generation across test runs
+    # user_daily_stats, general_daily_stats are historical stats that shouldn't be reset
     tables = [
+        "entity_id_mapping",
         "entity_revisions",
         "entity_head",
         "metadata_content",
         "entity_backlinks",
         "backlink_statistics",
+        "statement_content",
+        "entity_terms",
+        "user_activity",
+        "user_notifications",
+        "user_thanks",
+        "user_statement_endorsements",
+        "watchlist",
+        "entity_redirects",
+        "users",
     ]
     with db_conn.cursor() as cursor:
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
         for table in tables:
             try:
                 cursor.execute(f"TRUNCATE TABLE {table}")
@@ -62,6 +75,7 @@ def db_cleanup(db_conn):
                     continue
                 else:
                     raise
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
     db_conn.commit()
 
 

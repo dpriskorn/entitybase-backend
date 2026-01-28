@@ -143,27 +143,24 @@ def test_create_item_already_exists(
 def test_get_item_history(api_client: requests.Session, api_url: str) -> None:
     """Test retrieving entity history"""
 
-
-    # Create entity with two revisions
     entity_id = "Q99996"
-    entity_data = {
-        "id": entity_id,
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Entity"}},
-        "edit_summary": "create entity",
-    }
 
-    api_client.post(f"{api_url}/entities/items", json=entity_data)
-    # Update entity for second revision
-    update_data = {
-        "id": entity_id,
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Updated Test Entity"}},
-        "edit_summary": "update entity",
-    }
-    api_client.post(f"{api_url}/entities/items", json=update_data)
+    api_client.post(
+        f"{api_url}/entities/items",
+        json={
+            "id": entity_id,
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Test Entity"}},
+            "edit_summary": "create entity",
+        },
+    )
 
-    # Get history (ordered by created_at DESC)
+    api_client.put(
+        f"{api_url}/entities/items/{entity_id}/labels/en",
+        json={"value": "Updated Test Entity"},
+        headers={"X-Edit-Summary": "update entity"},
+    )
+
     response = api_client.get(f"{api_url}/entities/{entity_id}/history")
     assert response.status_code == 200
 

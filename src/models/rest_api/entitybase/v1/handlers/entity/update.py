@@ -101,6 +101,8 @@ class EntityUpdateHandler(EntityHandler):
             tx.commit()
             return response  # type: ignore[no-any-return]
         except Exception as e:
-            logger.error(f"Entity update failed for {entity_id}: {e}")
+            logger.error(f"Entity update failed for {entity_id}: {e}", exc_info=True)
+            logger.error(f"Entity update failed - full details: {type(e).__name__}: {str(e)}")
+            logger.error(f"Entity update failed - traceback:", exc_info=True)
             tx.rollback()
-            raise_validation_error("Update failed", status_code=500)
+            raise_validation_error(f"Update failed: {type(e).__name__}: {str(e)}", status_code=500)

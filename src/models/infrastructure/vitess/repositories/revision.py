@@ -147,8 +147,8 @@ class RevisionRepository(Repository):
         cursor = self.vitess_client.cursor
         cursor.execute(
                 """INSERT INTO entity_revisions
-                        (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                        (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, created_at, user_id, edit_summary)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                 (
                     internal_id,
                     revision_id,
@@ -157,6 +157,9 @@ class RevisionRepository(Repository):
                     statements,
                     json.dumps(entity_data.properties or []),
                     entity_data.property_counts.model_dump_json() if entity_data.property_counts else "{}",
+                    entity_data.edit.at,
+                    entity_data.edit.user_id,
+                    entity_data.edit.edit_summary,
                 ),
             )
 
@@ -206,8 +209,8 @@ class RevisionRepository(Repository):
 
         cursor.execute(
             """INSERT INTO entity_revisions
-                    (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                    (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, created_at, user_id, edit_summary)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
             (
                 internal_id,
                 revision_id,
@@ -216,6 +219,9 @@ class RevisionRepository(Repository):
                 statements,
                 json.dumps(entity_data.properties or []),
                 entity_data.property_counts.model_dump_json() if entity_data.property_counts else "{}",
+                entity_data.edit.at,
+                entity_data.edit.user_id,
+                entity_data.edit.edit_summary,
             ),
         )
 

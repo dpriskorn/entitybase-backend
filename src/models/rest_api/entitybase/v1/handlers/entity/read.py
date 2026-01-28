@@ -37,7 +37,7 @@ class EntityReadHandler(Handler):
 
         try:
             revision = self.state.s3_client.read_revision(entity_id, head_revision_id)
-            data = revision.content
+            data = revision.revision
 
             # Resolve terms
             if "labels_hashes" in data:
@@ -69,11 +69,11 @@ class EntityReadHandler(Handler):
                 rev_id=head_revision_id,
                 data=data,
                 state=EntityState(
-                    sp=revision.content.get("is_semi_protected", False),
-                    locked=revision.content.get("is_locked", False),
-                    archived=revision.content.get("is_archived", False),
-                    dangling=revision.content.get("is_dangling", False),
-                    mep=revision.content.get("is_mass_edit_protected", False),
+                    sp=data.get("is_semi_protected", False),
+                    locked=data.get("is_locked", False),
+                    archived=data.get("is_archived", False),
+                    dangling=data.get("is_dangling", False),
+                    mep=data.get("is_mass_edit_protected", False),
                 ),
             )
             return response
