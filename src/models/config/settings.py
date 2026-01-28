@@ -101,8 +101,8 @@ class Settings(BaseModel):
 
         # Vitess
         self.vitess_host = os.getenv("VITESS_HOST", self.vitess_host)
-        if not self.vitess_host:
-            raise_validation_error("No VITESS_HOST enviroment variable found")
+        # if not self.vitess_host:
+        #     raise_validation_error("No VITESS_HOST enviroment variable found")
         logger.debug(f"self.vitess_host: {self.vitess_host}")
         self.vitess_port = int(os.getenv("VITESS_PORT", str(self.vitess_port)))
         self.vitess_database = os.getenv("VITESS_DATABASE", self.vitess_database)
