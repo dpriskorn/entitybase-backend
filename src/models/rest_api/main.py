@@ -1,11 +1,12 @@
 """Main REST API application module."""
 
 import logging
+import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from jsonschema import ValidationError  # type: ignore[import-untyped]
 
@@ -13,14 +14,6 @@ from models.config.settings import settings
 from models.rest_api.entitybase.v1.endpoints import v1_router
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.routes import include_routes
-
-log_level = settings.get_log_level()
-
-logging.basicConfig(
-    level=log_level,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
-)
 
 aws_loggers = [
     "botocore",
@@ -135,6 +128,58 @@ async def validation_error_handler(exc: ValidationError) -> JSONResponse:
                 }
             ],
         },
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    """Handle HTTPException with proper JSON formatting."""
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "error": "http_error",
+            "message": exc.detail,
+        },
+    )
+
+
+@app.exception_handler(ValueError)
+async def value_error_handler(request: Request, exc: ValueError) -> JSONResponse:
+    """Handle ValueError from validation errors in dev mode."""
+    return JSONResponse(
+        status_code=400,
+        content={
+            "error": "validation_error",
+            "message": str(exc),
+        },
+    )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    """Handle all exceptions and return formatted JSON response."""
+    is_prod = os.getenv("ENVIRONMENT", "dev").lower() == "prod"
+    
+    logger.error(f"Unhandled exception: {type(exc).__name__}: {exc}", exc_info=True)
+    
+    if is_prod:
+        message = "An internal error occurred"
+        detail = None
+    else:
+        message = str(exc)
+        detail = f"{type(exc).__name__}: {exc}"
+    
+    content = {
+        "error": "internal_error",
+        "message": message,
+    }
+    
+    if detail:
+        content["detail"] = detail
+    
+    return JSONResponse(
+        status_code=500,
+        content=content,
     )
 
 

@@ -16,4 +16,4 @@ export PYTHONPATH=src
 
 echo "Running single test using a single worker"
 
-pytest -n 0 $1
+pytest --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" $1

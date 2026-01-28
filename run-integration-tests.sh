@@ -22,7 +22,7 @@ echo "Running integration tests"
 
 # stop first failure
 #pytest -p no:xdist -m integration --exitfirst --capture=no --strict-markers
-pytest tests/integration --capture=no --strict-markers #--exitfirst
+pytest tests/integration --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
 # verbose
 #pytest -m integration -v --strict-markers

@@ -20,6 +20,7 @@ def test_cas_update_with_status_success(repository, vitess_client):
     
     # Register entity and set initial head
     vitess_client.register_entity(entity_id)
+    vitess_client.entity_repository.create_entity(entity_id)
     revision_data = RevisionData(
         revision_id=0,
         entity_type=EntityType.ITEM,
@@ -52,6 +53,7 @@ def test_cas_update_with_status_failure(repository, vitess_client):
     
     # Register entity and set head to 10
     vitess_client.register_entity(entity_id)
+    vitess_client.entity_repository.create_entity(entity_id)
     revision_data = RevisionData(
         revision_id=10,
         entity_type=EntityType.ITEM,
@@ -86,6 +88,7 @@ def test_hard_delete(repository, vitess_client):
     
     # Register entity and set head
     vitess_client.register_entity(entity_id)
+    vitess_client.entity_repository.create_entity(entity_id)
     revision_data = RevisionData(
         revision_id=head_revision_id,
         entity_type=EntityType.ITEM,
@@ -114,6 +117,7 @@ def test_soft_delete(repository, vitess_client):
     
     # Register entity and set head
     vitess_client.register_entity(entity_id)
+    vitess_client.entity_repository.create_entity(entity_id)
     revision_data = RevisionData(
         revision_id=10,
         entity_type=EntityType.ITEM,
@@ -142,6 +146,7 @@ def test_get_head_revision_exists(repository, vitess_client):
     
     # Register entity and insert revision
     vitess_client.register_entity(entity_id)
+    vitess_client.entity_repository.create_entity(entity_id)
     revision_data = RevisionData(
         revision_id=revision_id,
         entity_type=EntityType.ITEM,

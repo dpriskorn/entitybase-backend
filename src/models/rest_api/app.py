@@ -9,7 +9,15 @@ from fastapi import FastAPI
 from models.config.settings import settings
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 
+log_level = settings.get_log_level()
+
+logging.basicConfig(
+    level=log_level,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 logger = logging.getLogger(__name__)
+logger.info("Setting loglevel: {}".format(log_level))
 
 
 @asynccontextmanager
