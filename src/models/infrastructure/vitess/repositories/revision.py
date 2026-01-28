@@ -197,7 +197,16 @@ class RevisionRepository(Repository):
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
         statements = entity_data.hashes.statements.model_dump_json() if entity_data.hashes and entity_data.hashes.statements else "[]"
 
+        # Check if revision already exists to make insert idempotent
         cursor = self.vitess_client.cursor
+        cursor.execute(
+            "SELECT COUNT(*) FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+            (internal_id, revision_id)
+        )
+        if cursor.fetchone()[0] > 0:
+            logger.debug(f"Revision {revision_id} for entity {entity_id} already exists, skipping")
+            return
+
         cursor.execute(
             """INSERT INTO entity_revisions
                     (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts)
