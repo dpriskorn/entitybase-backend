@@ -4,11 +4,11 @@ import logging
 import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from jsonschema import ValidationError  # type: ignore[import-untyped]
+#from starlette.exceptions import StarletteHTTPException
 
 from models.config.settings import settings
 from models.rest_api.entitybase.v1.endpoints import v1_router
@@ -103,13 +103,13 @@ async def validation_error_handler(exc: ValidationError) -> JSONResponse:
 
 
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
-    """Handle HTTPException with proper JSON formatting."""
+async def starlette_http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    """Handle StarletteHTTPException with proper JSON formatting."""
     return JSONResponse(
         status_code=exc.status_code,
         content={
             "error": "http_error",
-            "message": exc.detail,
+            "message": exc.detail if exc.detail else "Not Found"
         },
     )
 

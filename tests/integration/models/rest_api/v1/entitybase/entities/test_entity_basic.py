@@ -150,13 +150,16 @@ def test_get_item_history(api_client: requests.Session, api_url: str) -> None:
         "id": entity_id,
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
+        "edit_summary": "create entity",
     }
 
     api_client.post(f"{api_url}/entities/items", json=entity_data)
     # Update entity for second revision
     update_data = {
+        "id": entity_id,
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Updated Test Entity"}},
+        "edit_summary": "update entity",
     }
     api_client.post(f"{api_url}/entities/items", json=update_data)
 
