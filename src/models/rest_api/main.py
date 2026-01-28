@@ -38,53 +38,25 @@ logger = logging.getLogger(__name__)
 async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager for startup and shutdown tasks."""
     try:
-        logger.debug("Initializing clients...")
-        s3_config = settings.to_s3_config()
-        vitess_config = settings.to_vitess_config()
-        kafka_brokers = settings.kafka_brokers
-        kafka_entity_change_topic = settings.kafka_entitychange_json_topic
-        logger.debug(f"S3 config: {s3_config}")
-        logger.debug(f"Vitess config: {vitess_config}")
-        logger.debug(
-            f"Kafka config: brokers={kafka_brokers}, topic={kafka_entity_change_topic}"
+        state_handler = StateHandler(
+            settings=settings
         )
-
-        property_registry_path = (
-            Path("test_data/properties")
-            if Path("test_data/properties").exists()
-            else None
-        )
-        logger.debug(f"Property registry path: {property_registry_path}")
-
-        app_.state.state_handler = StateHandler(
-            s3_config=s3_config,
-            vitess_config=vitess_config,
-            streaming_enabled=settings.streaming_enabled,
-            kafka_brokers=settings.kafka_brokers,
-            kafka_entitychange_topic=settings.kafka_entitychange_json_topic,
-            kafka_entitydiff_topic=settings.kafka_entity_diff_topic,
-            property_registry_path=property_registry_path,
-            entity_change_stream_config=settings.get_entity_change_stream_config(),
-            entity_diff_stream_config=settings.get_entity_diff_stream_config(),
-        )
-        app_.state.clients = app_.state.state_handler
-
         # Create database tables on startup (only if vitess is available)
-        try:
-            logger.debug("Creating database tables...")
-            from models.infrastructure.vitess.repositories.schema import SchemaRepository
-            schema_repository = SchemaRepository(vitess_client=app_.state.clients.vitess_client)
-            schema_repository.create_tables()
-            logger.info("Database tables created/verified")
-        except Exception as e:
-            logger.warning(f"Could not create database tables on startup: {e}")
-            logger.info("Tables will be created when first accessed or in tests")
+        # try:
+        #     logger.debug("Creating database tables...")
+        #     from models.infrastructure.vitess.repositories.schema import SchemaRepository
+        #     schema_repository = SchemaRepository(vitess_client=state_handler.vitess_client)
+        #     schema_repository.create_tables()
+        #     logger.info("Database tables created/verified")
+        # except Exception as e:
+        #     logger.warning(f"Could not create database tables on startup: {e}")
+        #     logger.info("Tables will be created when first accessed or in tests")
 
-        logger.info("Streaming clients initialized (lazy startup)")
-
-        logger.debug(
+        logger.info(
             "Clients, validator, and enumeration service initialized successfully"
         )
+        # Add state_handler to starlette
+        app_.state.state_handler = state_handler
         yield
     except Exception as e:
         logger.error(
@@ -92,16 +64,15 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         )
         raise
     finally:
-        # assert isinstance(app_.state.clients, State)
         if (
             settings.streaming_enabled
-            and app_.state.clients.entity_change_stream_producer
+            and app_.state.state_handler.entity_change_stream_producer
         ):
-            await app_.state.clients.entity_change_stream_producer.stop()
+            await app_.state.state_handler.entity_change_stream_producer.stop()
             logger.info("entitychange_stream_producer stopped")
 
-        if settings.streaming_enabled and app_.state.clients.entitydiff_stream_producer:
-            await app_.state.clients.entitydiff_stream_producer.stop()
+        if settings.streaming_enabled and app_.state.state_handler.entitydiff_stream_producer:
+            await app_.state.state_handler.entitydiff_stream_producer.stop()
             logger.info("entitydiff_stream_producer stopped")
 
 

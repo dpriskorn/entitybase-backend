@@ -27,13 +27,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         from pathlib import Path
 
         state_handler = StateHandler(
-            s3_config=settings.to_s3_config(),
-            vitess_config=settings.to_vitess_config(),
-            entity_change_stream_config=settings.get_entity_change_stream_config(),
-            entity_diff_stream_config=settings.get_entity_diff_stream_config(),
-            property_registry_path=Path(settings.property_registry_path)
-            if settings.property_registry_path
-            else None,
+            settings=settings,
         )
         state_handler.start()
         app_.state.state_handler = state_handler

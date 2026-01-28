@@ -1,3 +1,4 @@
+import logging
 import sys
 import time
 
@@ -8,6 +9,8 @@ import requests
 sys.path.insert(0, "src")
 # noinspection PyPep8
 from models.config.settings import settings
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope="session")
@@ -71,7 +74,7 @@ def create_tables(db_conn):
         from models.config.settings import settings
 
         # Create Vitess config and schema repository
-        vitess_config = settings.to_vitess_config()
+        vitess_config = settings.get_vitess_config
         vitess_client = VitessClient(config=vitess_config)
         schema_repository = SchemaRepository(vitess_client=vitess_client)
         schema_repository.create_tables()
@@ -132,9 +135,10 @@ def create_tables(db_conn):
 @pytest.fixture(scope="session")
 def vitess_client():
     """Create a real VitessClient connected to test database."""
+    logger.debug("pytest:vitess_client: Running")
     from models.infrastructure.vitess.client import VitessClient
 
-    vitess_config = settings.to_vitess_config()
+    vitess_config = settings.get_vitess_config
     client = VitessClient(config=vitess_config)
     yield client
 

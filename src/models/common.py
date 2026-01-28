@@ -1,13 +1,11 @@
 """Shared common models."""
 
 import logging
-import os
 from typing import Generic, NoReturn, Optional, TypeVar
 
 from pydantic import BaseModel, Field
 
-from models.config.settings import settings
-
+logger = logging.getLogger(__name__)
 T = TypeVar("T")
 
 
@@ -21,7 +19,7 @@ def raise_validation_error(
     HTTPException is only raised in production when explicitly requested.
     In development, HTTPException requests fall back to ValueError.
     """
-    logger = logging.getLogger(__name__)
+    from models.config.settings import settings
     logger.info(f"Raising validation error: {message} with status {status_code}")
     from fastapi import HTTPException
 

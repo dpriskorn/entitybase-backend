@@ -2,10 +2,12 @@
 
 import logging
 import os
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
+from models.common import raise_validation_error
 from models.data.config.stream import StreamConfig
 
 if TYPE_CHECKING:
@@ -41,15 +43,15 @@ class Settings(BaseModel):
     s3_schema_revision_version: str = "4.0.0"
 
     # vitess
-    vitess_host: str = "vitess"
-    vitess_port: int = 15309
-    vitess_database: str = "entitybase"
-    vitess_user: str = "root"
+    vitess_host: str = ""
+    vitess_port: int = 0
+    vitess_database: str = ""
+    vitess_user: str = ""
     vitess_password: str = ""
 
     # rdf
     wikibase_repository_name: str = "wikidata"
-    property_registry_path: str = "properties"
+    property_registry_path: Path = Path("properties")
 
     # logging
     log_level: str = "INFO"
@@ -96,6 +98,9 @@ class Settings(BaseModel):
 
         # Vitess
         self.vitess_host = os.getenv("VITESS_HOST", self.vitess_host)
+        if not self.vitess_host:
+            raise_validation_error("No VITESS_HOST enviroment variable found")
+        logger.debug(f"self.vitess_host: {self.vitess_host}")
         self.vitess_port = int(os.getenv("VITESS_PORT", str(self.vitess_port)))
         self.vitess_database = os.getenv("VITESS_DATABASE", self.vitess_database)
         self.vitess_user = os.getenv("VITESS_USER", self.vitess_user)
@@ -140,7 +145,7 @@ class Settings(BaseModel):
 
         # RDF
         self.wikibase_repository_name = os.getenv("WIKIBASE_REPOSITORY_NAME", self.wikibase_repository_name)
-        self.property_registry_path = os.getenv("PROPERTY_REGISTRY_PATH", self.property_registry_path)
+        self.property_registry_path = Path(os.getenv("PROPERTY_REGISTRY_PATH", self.property_registry_path))
 
         # Workers
         self.backlink_stats_enabled = os.getenv("BACKLINK_STATS_ENABLED", str(self.backlink_stats_enabled)).lower() == "true"
@@ -160,7 +165,8 @@ class Settings(BaseModel):
             logger.info("No LOG_LEVEL set or it could not be parsed, defaulting to ERROR")
             return logging.ERROR
 
-    def to_s3_config(self) -> "S3Config":
+    @property
+    def get_s3_config(self) -> "S3Config":
         """Convert settings to S3 configuration object.
 
         Returns:
@@ -176,7 +182,8 @@ class Settings(BaseModel):
             region="us-east-1",
         )
 
-    def to_vitess_config(self) -> "VitessConfig":
+    @property
+    def get_vitess_config(self) -> "VitessConfig":
         """Convert settings to Vitess configuration object.
 
         Returns:
@@ -192,6 +199,7 @@ class Settings(BaseModel):
             password=self.vitess_password,
         )
 
+    @property
     def get_entity_change_stream_config(self) -> "StreamConfig":
         """Convert settings to Streaming configuration object."""
         from models.data.config.stream import StreamConfig
@@ -201,6 +209,7 @@ class Settings(BaseModel):
             topic=self.kafka_entitychange_json_topic,
         )
 
+    @property
     def get_entity_diff_stream_config(self) -> "StreamConfig":
         """Convert settings to Streaming configuration object."""
         from models.data.config.stream import StreamConfig

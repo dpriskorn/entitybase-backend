@@ -36,7 +36,7 @@ class TestRevisionRepository:
             "edit_summary": "Test edit",
         }
 
-        repo.insert_new_internal_id_mapping("Q123", 1, data)
+        repo.insert_revision("Q123", 1, data)
 
         mock_cursor.execute.assert_called_once()
         # Verify the INSERT statement was called with correct params
@@ -51,7 +51,7 @@ class TestRevisionRepository:
         repo = RevisionRepository(vitess_client=mock_vitess_client)
 
         with pytest.raises(Exception):  # raise_validation_error raises ValueError
-            repo.insert_new_internal_id_mapping("Q999", 1, {})
+            repo.insert_revision("Q999", 1, {})
 
     def test_get_revision_found(self):
         """Test getting existing revision."""
@@ -106,7 +106,7 @@ class TestRevisionRepository:
         repo = RevisionRepository(vitess_client=mock_vitess_client)
 
         data = {"user_id": 456}
-        repo.insert_new_internal_id_mapping("Q123", 1, data)
+        repo.insert_revision("Q123", 1, data)
 
         assert "Inserting revision 1 for entity Q123" in caplog.text
 
@@ -128,7 +128,7 @@ class TestRevisionRepository:
 
 
         with pytest.raises(Exception):  # raise_validation_error
-            repo.insert_new_internal_id_mapping("Q999", 1, {})
+            repo.insert_revision("Q999", 1, {})
 
     def test_get_revision_with_data(self):
         """Test getting revision with JSON data."""
@@ -172,7 +172,7 @@ class TestRevisionRepository:
             "edit_summary": "Mass edit summary",
         }
 
-        repo.insert_new_internal_id_mapping("Q1", 2, data)
+        repo.insert_revision("Q1", 2, data)
 
         mock_cursor.execute.assert_called_once()
         # Verify the call includes all fields

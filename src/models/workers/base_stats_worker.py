@@ -41,7 +41,7 @@ class BaseStatsWorker(Worker, ABC):
         logger.info(f"Starting {self.__class__.__name__} {self.worker_id}")
 
         # Initialize Vitess client
-        vitess_config = settings.to_vitess_config()
+        vitess_config = settings.get_vitess_config
         self.vitess_client = VitessClient(config=vitess_config)
 
         self.running = True

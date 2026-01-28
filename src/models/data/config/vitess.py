@@ -9,5 +9,5 @@ class VitessConfig(Config):
     host: str
     port: int
     database: str
-    user: str = "root"
-    password: str = ""
+    user: str
+    password: str

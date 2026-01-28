@@ -4,6 +4,8 @@ import json
 import logging
 from typing import Any
 
+from pydantic import Field, validate_call
+
 from models.common import OperationResult
 from models.data.infrastructure.vitess.records.revision import (
     HistoryRevisionItemRecord,
@@ -19,53 +21,31 @@ logger = logging.getLogger(__name__)
 class RevisionRepository(Repository):
     """Repository for entity revision database operations."""
 
-    def insert_new_internal_id_mapping(
+    @validate_call
+    def insert_revision(
         self,
-        entity_id: str,
-        revision_id: int,
-        entity_data: RevisionData,
+        entity_id: str = Field(..., min_length=2, description="Entity ID e.g. Q1 or L1"),
+        revision_id: int = Field(gt=0),
+        entity_data: RevisionData = Field(...),
+        expected_revision_id: int | None = None,
     ) -> None:
-        """Insert a new revision for an entity."""
-        logger.debug(f"Inserting revision {revision_id} for entity {entity_id}")
-        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
-        if not internal_id:
-            raise_validation_error(f"Entity {entity_id} not found", status_code=404)
+        """Insert a revision from RevisionData model."""
+        if expected_revision_id is None:
+            logger.debug(f"insert_revision: calling create for {entity_id}, revision {revision_id}")
+            self.create(entity_id, revision_id, entity_data)
+        else:
+            logger.debug(f"insert_revision: calling create_with_cas for {entity_id}, revision {revision_id}, expected {expected_revision_id}")
+            self.create_with_cas(entity_id, revision_id, entity_data, expected_revision_id)
 
-        is_mass_edit = entity_data.edit.is_mass_edit
-        edit_type = entity_data.edit.edit_type
-        property_counts = entity_data.property_counts.model_dump_json() if entity_data.property_counts else "{}"
-        user_id = entity_data.edit.user_id
-        edit_summary = entity_data.edit.edit_summary
-        statements = entity_data.hashes.statements.model_dump_json() if entity_data.hashes and entity_data.hashes.statements else "[]"
-        properties = entity_data.properties or []
+    
 
-        cursor = self.vitess_client.cursor
-        cursor.execute(
-                "INSERT INTO entity_revisions (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes, user_id, edit_summary) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                (
-                    internal_id,
-                    revision_id,
-                    is_mass_edit,
-                    edit_type,
-                    statements,
-                    json.dumps(properties),
-                    property_counts,
-                    entity_data.hashes.labels.model_dump_json() if entity_data.hashes and entity_data.hashes.labels else "{}",
-                    entity_data.hashes.descriptions.model_dump_json() if entity_data.hashes and entity_data.hashes.descriptions else "{}",
-                    entity_data.hashes.aliases.model_dump_json() if entity_data.hashes and entity_data.hashes.aliases else "{}",
-                    entity_data.hashes.sitelinks.model_dump_json() if entity_data.hashes and entity_data.hashes.sitelinks else "{}",
-                    user_id,
-                    edit_summary,
-                ),
-            )
-        logger.debug(f"Successfully inserted revision {revision_id} for entity {entity_id}")
-
+    @validate_call
     def get_revision(
-        self, internal_entity_id: int, revision_id: int, vitess_client: Any
+        self, internal_entity_id: int = Field(gt=0, min_length=1), revision_id: int = Field(..., min_length=1, gt=0)
     ) -> RevisionRecord | None:
         """Get a specific revision data."""
         logger.debug(f"Getting revision {revision_id} for entity {internal_entity_id}")
-        with vitess_client.get_connection() as _:
+        with self.vitess_client.get_connection() as _:
             cursor = self.vitess_client.cursor
             cursor.execute(
                 "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
@@ -86,8 +66,9 @@ class RevisionRepository(Repository):
                 )
             return None
 
+    @validate_call
     def get_history(
-        self, entity_id: str, limit: int = 20, offset: int = 0
+        self, entity_id: str = Field(..., min_length=2, description="Entity ID e.g. Q1 or L1"), limit: int = Field(default=20, description="Limit number of history items"), offset: int = Field(default=0, description="Number of items to skip")
     ) -> list[Any]:
         """Get revision history for an entity."""
         logger.debug(f"Getting history for entity {entity_id}, limit {limit}")
@@ -114,7 +95,10 @@ class RevisionRepository(Repository):
         logger.debug(f"Retrieved {len(result)} history items for entity {entity_id}")
         return result
 
-    def delete(self, entity_id: str, revision_id: int) -> OperationResult:
+    @validate_call
+    def delete(self,     entity_id: str = Field(..., min_length=2, description="Entity ID e.g. Q1 or L1"),
+    revision_id: int = Field(gt=0),
+) -> OperationResult:
         """Delete a revision (for rollback)."""
         logger.debug(f"Deleting revision {revision_id} for entity {entity_id}")
         if not self.connection_manager.connection:
@@ -145,12 +129,13 @@ class RevisionRepository(Repository):
         logger.debug(f"Successfully deleted revision {revision_id} for entity {entity_id}")
         return OperationResult(success=True)
 
+    @validate_call
     def create_with_cas(
         self,
-        entity_id: str,
-        revision_id: int,
-        entity_data: RevisionData,
-        expected_revision_id: int,
+        entity_id: str = Field(..., min_length=2, description="Entity ID e.g. Q1 or L1"),
+        revision_id: int = Field(gt=0),
+        entity_data: RevisionData = Field(...),
+        expected_revision_id: int | None = None,
     ) -> bool:
         """Create a revision with compare-and-swap semantics."""
         logger.debug(
@@ -203,22 +188,8 @@ class RevisionRepository(Repository):
         logger.debug(f"CAS operation: affected {affected_rows} rows for revision {revision_id}")
         return affected_rows > 0
 
-    def insert_revision(
-        self,
-        entity_id: str,
-        revision_id: int,
-        entity_data: RevisionData,
-        expected_revision_id=None,
-    ) -> None:
-        """Insert a revision from RevisionData model."""
-        if expected_revision_id is None:
-            logger.debug(f"insert_revision: calling create for {entity_id}, revision {revision_id}")
-            self.create(entity_id, revision_id, entity_data)
-        else:
-            logger.debug(f"insert_revision: calling create_with_cas for {entity_id}, revision {revision_id}, expected {expected_revision_id}")
-            self.create_with_cas(entity_id, revision_id, entity_data, expected_revision_id)
-
-    def create(self, entity_id: str, revision_id: int, entity_data: RevisionData) -> None:
+    def create(self, entity_id: str = Field(..., alias="entity_id", min_length=2),
+               revision_id: int = Field(gt=0), entity_data: RevisionData = Field(...)) -> None:
         """Create a new revision for an entity."""
         logger.debug(f"Creating revision {revision_id} for entity {entity_id}")
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)

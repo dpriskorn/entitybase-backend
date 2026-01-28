@@ -349,8 +349,7 @@ class TestEntityCreateHandler:
                 id="Q42",
                 labels={"en": {"value": "Test Entity"}},
                 edit_summary="Test creation",
-                is_mass_edit=True,
-                edit_type=EditType.MASS_EDIT
+                        edit_type=EditType.MASS_EDIT
             )
 
             result = await handler.create_entity(request)

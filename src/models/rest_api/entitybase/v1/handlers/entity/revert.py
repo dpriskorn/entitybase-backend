@@ -129,8 +129,7 @@ class EntityRevertHandler(Handler):
         self.state.vitess_client.insert_revision(
             entity_id,
             new_revision_id,
-            is_mass_edit=False,
-            edit_type="revert",
+                edit_type="revert",
             statements=target_revision_data.data["entity"]["statements"],
             properties=target_revision_data.data["entity"]["properties"],
             property_counts=target_revision_data.data["entity"]["property_counts"],

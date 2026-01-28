@@ -364,8 +364,7 @@ class TestEntityUpdateHandler:
             request = EntityUpdateRequest(
                 type="item",
                 labels={"en": {"value": "Updated Entity"}},
-                is_mass_edit=True,
-                edit_type="mass_edit",
+                        edit_type="mass_edit",
                 edit_summary="Bulk update",
                 is_semi_protected=True,
                 is_locked=False,

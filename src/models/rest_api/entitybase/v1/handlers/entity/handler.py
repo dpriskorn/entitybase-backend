@@ -773,8 +773,7 @@ class EntityHandler(Handler):
             request_data=current_data,
             entity_type=entity_response.entity_data.get("type", "item"),
             hash_result=self.process_statements(entity_id, current_data, validator),
-            is_mass_edit=False,
-            edit_type=EditType.UNSPECIFIED,
+                edit_type=EditType.UNSPECIFIED,
             is_semi_protected=entity_response.state.sp
             if entity_response.state
             else False,

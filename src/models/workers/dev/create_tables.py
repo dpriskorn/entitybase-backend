@@ -49,7 +49,7 @@ class CreateTables(BaseModel):
     @property
     def vitess_config(self) -> Any:
         """Get Vitess configuration."""
-        return settings.to_vitess_config()
+        return settings.get_vitess_config()
 
     async def ensure_tables_exist(self) -> Dict[str, str]:
         """Ensure all required tables exist using SchemaRepository."""

@@ -6,6 +6,7 @@ from pathlib import Path
 from pydantic import BaseModel, ConfigDict, Field
 
 from models.common import raise_validation_error
+from models.config.settings import Settings
 from models.infrastructure.s3.client import MyS3Client
 from models.data.config.s3 import S3Config
 from models.data.config.stream import StreamConfig
@@ -26,18 +27,15 @@ class StateHandler(BaseModel):
     """State model that helps instantiate clients as needed"""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    vitess_config: VitessConfig
-    s3_config: S3Config
-    entity_change_stream_config: StreamConfig
-    entity_diff_stream_config: StreamConfig
-
-    kafka_brokers: str = Field(default_factory=str)
-    kafka_entitychange_topic: str = Field(default_factory=str)
-    kafka_entitydiff_topic: str = Field(default_factory=str)
-    property_registry_path: Path | None = Field(default=None)
-    streaming_enabled: bool = False
+    settings: Settings
 
     def start(self):
+        logger.info("Initializing clients...")
+        logger.debug(f"S3 config: {self.settings.get_s3_config}")
+        logger.debug(f"Vitess config: {self.settings.get_vitess_config}")
+        logger.debug(
+            f"Kafka config: brokers={self.settings.kafka_brokers}, topic={self.settings.kafka_entity_change_topic}"
+        )
         if not self.streaming_enabled:
             logger.info("Streaming is disabled")
         self.health_check()
@@ -65,8 +63,25 @@ class StateHandler(BaseModel):
         logger.debug("Clients initialized successfully")
 
     @property
+    def entity_diff_stream_config(self) -> StreamConfig:
+        return self.settings.get_entity_diff_stream_config
+
+    @property
+    def entity_change_stream_config(self) -> StreamConfig:
+        return self.settings.get_entity_change_stream_config
+
+    @property
+    def s3_config(self) -> S3Config:
+        return self.settings.get_s3_config
+
+    @property
+    def vitess_config(self) -> VitessConfig:
+        return self.settings.get_vitess_config
+
+    @property
     def vitess_client(self) -> "VitessClient":
         """Get a fully ready client"""
+        logger.debug("vitess_client: Running")
         from models.infrastructure.vitess.client import VitessClient
 
         if self.vitess_config is None:
@@ -78,16 +93,15 @@ class StateHandler(BaseModel):
         """Get a fully ready client"""
         from models.infrastructure.s3.client import MyS3Client
 
-        assert isinstance(self.s3_config, S3Config)
         return MyS3Client(config=self.s3_config)
 
     @property
     def entity_change_stream_producer(self) -> StreamProducerClient | None:
         """Get a fully ready client"""
         if (
-            self.streaming_enabled
-            and self.kafka_brokers
-            and self.kafka_entitychange_topic
+            self.settings.streaming_enabled
+            and self.settings.kafka_brokers
+            and self.settings.kafka_entitychange_topic
         ):
             return StreamProducerClient(config=self.entity_change_stream_config)
         else:
@@ -114,7 +128,7 @@ class StateHandler(BaseModel):
     @property
     def property_registry(self) -> PropertyRegistry | None:
         if self.property_registry_path is not None:
-            return load_property_registry(self.property_registry_path)
+            return load_property_registry(self.settings.property_registry_path)
         else:
             raise_validation_error(message="No property registry path provided")
 
@@ -126,9 +140,18 @@ class StateHandler(BaseModel):
 
     @property
     def validator(self):
-        from models.config.settings import settings
         return JsonSchemaValidator(
-            s3_revision_version=settings.s3_schema_revision_version,
-            s3_statement_version=settings.s3_statement_version,
-            entity_change_version=settings.streaming_entity_change_version,
+            s3_revision_version=self.settings.s3_schema_revision_version,
+            s3_statement_version=self.settings.s3_statement_version,
+            entity_change_version=self.settings.streaming_entity_change_version,
         )
+
+    @property
+    def property_registry_path(self) -> Path | None:
+        path_ = (
+            Path("test_data/properties")
+            if Path("test_data/properties").exists()
+            else None
+        )
+        logger.debug(f"Property registry path: {path_}")
+        return path_

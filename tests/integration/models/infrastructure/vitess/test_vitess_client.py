@@ -5,25 +5,8 @@ import pytest
 
 sys.path.insert(0, "src")
 
-from models.infrastructure.vitess.client import VitessClient
-from models.data.config.vitess import VitessConfig
 
-
-@pytest.fixture
-def vitess_client() -> Generator[VitessClient, None, None]:
-    """Create a real VitessClient connected to test database"""
-    config = VitessConfig(
-        host="vitess",
-        port=15309,
-        database="page",
-        user="root",
-        password="",
-    )
-    client = VitessClient(config=config)
-    yield client
-
-
-def test_insert_revision_idempotent(vitess_client: VitessClient) -> None:
+def test_insert_revision_idempotent(vitess_client) -> None:
     """Test that insert_revision is idempotent - calling twice with same params doesn't error"""
     entity_id = "Q123456789"
     revision_id = 1
@@ -33,15 +16,13 @@ def test_insert_revision_idempotent(vitess_client: VitessClient) -> None:
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=revision_id,
-        is_mass_edit=False,
-        edit_type="test-edit",
+        entity_data={}
     )
 
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=revision_id,
-        is_mass_edit=False,
-        edit_type="test-edit",
+        entity_data={}
     )
 
     internal_id = vitess_client.resolve_id(entity_id)
@@ -59,7 +40,7 @@ def test_insert_revision_idempotent(vitess_client: VitessClient) -> None:
         )
 
 
-def test_insert_revision_different_params(vitess_client: VitessClient) -> None:
+def test_insert_revision_different_params(vitess_client) -> None:
     """Test that insert_revision creates separate records for different revisions"""
     entity_id = "Q987654321"
 
@@ -68,15 +49,13 @@ def test_insert_revision_different_params(vitess_client: VitessClient) -> None:
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=1,
-        is_mass_edit=False,
-        edit_type="first-edit",
+        entity_data={}
     )
 
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=2,
-        is_mass_edit=True,
-        edit_type="second-edit",
+        entity_data={}
     )
 
     internal_id = vitess_client.resolve_id(entity_id)

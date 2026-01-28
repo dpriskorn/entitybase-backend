@@ -43,7 +43,7 @@ class NotificationCleanupWorker(VitessWorker):
         """Lifespan context manager for startup/shutdown."""
         try:
             # Initialize client
-            vitess_config = settings.to_vitess_config()
+            vitess_config = settings.get_vitess_config
             self.vitess_client = VitessClient(config=vitess_config)
             logger.info("Notification cleanup worker started")
             yield

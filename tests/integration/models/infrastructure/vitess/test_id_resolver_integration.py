@@ -1,15 +1,10 @@
 import pytest
 
-from models.config.settings import settings
-from models.infrastructure.vitess.client import VitessClient
-
 
 @pytest.mark.integration
-def test_id_resolver_resolve_id(db_conn):
+def test_id_resolver_resolve_id(db_conn, vitess_client):
     """Test IdResolver.resolve_id with real database."""
     # Create a VitessClient to get proper IdResolver
-    vitess_config = settings.to_vitess_config()
-    vitess_client = VitessClient(config=vitess_config)
     resolver = vitess_client.id_resolver
 
     # Insert a test entity_id_mapping
