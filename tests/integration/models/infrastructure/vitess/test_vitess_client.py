@@ -44,7 +44,7 @@ def test_insert_revision_idempotent(vitess_client: VitessClient) -> None:
         edit_type="test-edit",
     )
 
-    internal_id = vitess_client._resolve_id(entity_id)
+    internal_id = vitess_client.resolve_id(entity_id)
     with vitess_client.get_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(
@@ -79,7 +79,7 @@ def test_insert_revision_different_params(vitess_client: VitessClient) -> None:
         edit_type="second-edit",
     )
 
-    internal_id = vitess_client._resolve_id(entity_id)
+    internal_id = vitess_client.resolve_id(entity_id)
     with vitess_client.get_connection() as conn:
         cursor = conn.cursor()
         cursor.execute(

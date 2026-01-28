@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class RevisionRepository(Repository):
     """Repository for entity revision database operations."""
 
-    def insert(
+    def insert_new_internal_id_mapping(
         self,
         entity_id: str,
         revision_id: int,
@@ -212,8 +212,8 @@ class RevisionRepository(Repository):
     ) -> None:
         """Insert a revision from RevisionData model."""
         if expected_revision_id is None:
-            logger.debug(f"insert_revision: calling insert for {entity_id}, revision {revision_id}")
-            self.insert(entity_id, revision_id, entity_data)
+            logger.debug(f"insert_revision: calling create for {entity_id}, revision {revision_id}")
+            self.create(entity_id, revision_id, entity_data)
         else:
             logger.debug(f"insert_revision: calling create_with_cas for {entity_id}, revision {revision_id}, expected {expected_revision_id}")
             self.create_with_cas(entity_id, revision_id, entity_data, expected_revision_id)
@@ -244,8 +244,17 @@ class RevisionRepository(Repository):
 
         cursor.execute(
             """INSERT INTO entity_head
-                   (internal_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected)
-                   VALUES (%s, %s, %s, %s, %s, %s, %s)""",
+                   (internal_id, head_revision_id, is_semi_protected, is_locked, is_archived, is_dangling, is_mass_edit_protected, is_deleted, is_redirect)
+                   VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                   ON DUPLICATE KEY UPDATE
+                      head_revision_id = VALUES(head_revision_id),
+                      is_semi_protected = VALUES(is_semi_protected),
+                      is_locked = VALUES(is_locked),
+                      is_archived = VALUES(is_archived),
+                      is_dangling = VALUES(is_dangling),
+                      is_mass_edit_protected = VALUES(is_mass_edit_protected),
+                      is_deleted = VALUES(is_deleted),
+                      is_redirect = VALUES(is_redirect)""",
             (
                 internal_id,
                 revision_id,
@@ -254,6 +263,8 @@ class RevisionRepository(Repository):
                 entity_data.state.is_archived,
                 entity_data.state.is_dangling,
                 entity_data.state.is_mass_edit_protected,
+                False,
+                False,
             ),
         )
         logger.debug(f"Successfully created revision {revision_id} for entity {entity_id}")

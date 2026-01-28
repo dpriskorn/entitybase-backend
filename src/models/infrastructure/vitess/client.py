@@ -90,6 +90,9 @@ class VitessClient(Client):
     def entity_exists(self, entity_id: str) -> bool:
         return self.id_resolver.entity_exists(entity_id)
 
+    def resolve_id(self, entity_id: str) -> int:
+        return self.id_resolver.resolve_id(entity_id)
+
     def get_head(self, entity_id: str) -> int:
         return self.entity_repository.get_head(entity_id)
 

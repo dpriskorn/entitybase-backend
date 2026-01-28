@@ -44,7 +44,7 @@ def test_cas_update_with_status_success(repository, vitess_client):
     )
     
     assert result.success is True
-    assert result.error is None
+    assert result.error is ""
 
 
 def test_cas_update_with_status_failure(repository, vitess_client):
@@ -122,6 +122,7 @@ def test_soft_delete(repository, vitess_client):
         revision_id=10,
         entity_type=EntityType.ITEM,
         edit=EditData(type=EditType.MANUAL_UPDATE, user_id=0, mass=False, summary="Test", at="2025-01-01T00:00:00Z"),
+        hashes=HashMaps(),
     )
     vitess_client.insert_revision(entity_id=entity_id, revision_id=10, entity_data=revision_data)
     
@@ -156,7 +157,7 @@ def test_get_head_revision_exists(repository, vitess_client):
     vitess_client.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=revision_data)
     
     # Get internal ID
-    internal_id = vitess_client._resolve_id(entity_id)
+    internal_id = vitess_client.resolve_id(entity_id)
     
     # Get head revision
     result = repository.get_head_revision(internal_id)
