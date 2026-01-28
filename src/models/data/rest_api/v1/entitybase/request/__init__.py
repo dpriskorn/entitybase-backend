@@ -14,6 +14,7 @@ from .entity import (
     EntityUpdateRequest,
     RedirectRevertRequest,
 )
+from .entity.term_update import DescriptionUpdateRequest, LabelUpdateRequest, TermUpdateRequest
 from .entity.add_property import AddPropertyRequest
 from .entity.patch import (
     AliasPatchRequest,
@@ -50,6 +51,7 @@ __all__ = [
     "ClaimPatchRequest",
     "CleanupOrphanedRequest",
     "DescriptionPatchRequest",
+    "DescriptionUpdateRequest",
     "EndorsementListRequest",
     "EntityCreateRequest",
     "EntityDeleteRequest",
@@ -59,6 +61,7 @@ __all__ = [
     "EntityRevertRequest",
     "EntityUpdateRequest",
     "LabelPatchRequest",
+    "LabelUpdateRequest",
     "MarkCheckedRequest",
     "MostUsedStatementsRequest",
     "PatchStatementRequest",
@@ -68,6 +71,7 @@ __all__ = [
     "SnakRequest",
     "StatePatchRequest",
     "StatementBatchRequest",
+    "TermUpdateRequest",
     "ThanksListRequest",
     "UserActivityRequest",
     "UserCreateRequest",

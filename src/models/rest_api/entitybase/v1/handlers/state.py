@@ -3,16 +3,16 @@
 import logging
 from pathlib import Path
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 
 from models.common import raise_validation_error
 from models.config.settings import Settings
-from models.infrastructure.s3.client import MyS3Client
 from models.data.config.s3 import S3Config
 from models.data.config.stream import StreamConfig
+from models.data.config.vitess import VitessConfig
+from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess.client import VitessClient
-from models.data.config.vitess import VitessConfig
 from models.rdf_builder.property_registry.loader import load_property_registry
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rest_api.entitybase.v1.services.enumeration_service import (
@@ -92,8 +92,7 @@ class StateHandler(BaseModel):
     def s3_client(self) -> "MyS3Client":
         """Get a fully ready client"""
         from models.infrastructure.s3.client import MyS3Client
-
-        return MyS3Client(config=self.s3_config)
+        return MyS3Client(config=self.s3_config, vitess_client=self.vitess_client)
 
     @property
     def entity_change_stream_producer(self) -> StreamProducerClient | None:
@@ -137,6 +136,11 @@ class StateHandler(BaseModel):
         return EnumerationService(
             worker_id="rest-api", vitess_client=self.vitess_client
         )
+
+    @property
+    def redirect_service(self):
+        from models.rest_api.entitybase.v1.services.redirects import RedirectService
+        return RedirectService(state=self)
 
     @property
     def validator(self):

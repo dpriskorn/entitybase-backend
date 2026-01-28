@@ -6,7 +6,7 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, Field, ConfigDict
 
-from models.common import OperationResult
+from models.common import EditHeaders, OperationResult
 from models.config.settings import settings
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType, EditData, EntityType
@@ -28,6 +28,7 @@ from models.data.rest_api.v1.entitybase.response import (
 )
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.data.rest_api.v1.entitybase.response import RevisionIdResult
+from models.data.rest_api.v1.entitybase.request.entity.revision import CreateRevisionRequest
 from models.rest_api.entitybase.v1.services.hash_service import HashService
 from models.rest_api.utils import raise_validation_error
 from .entity_hashing_service import EntityHashingService
@@ -97,7 +98,7 @@ class EntityHandler(Handler):
         request_data: Dict[str, Any],
         entity_type: EntityType,
         edit_type: EditType | None,
-        edit_summary: str,
+        edit_headers: EditHeaders,
         is_creation: bool,
         validator: Any | None,
     ) -> EntityResponse:
@@ -109,7 +110,7 @@ class EntityHandler(Handler):
             request_data=request_data,
             entity_type=entity_type,
             edit_type=edit_type,
-            edit_summary=edit_summary,
+            edit_summary=edit_headers.x_edit_summary,
             is_creation=is_creation,
             validator=validator,
         )
@@ -209,6 +210,7 @@ class EntityHandler(Handler):
                 entity_id=ctx.entity_id,
                 entity_data=revision_data,
                 revision_id=new_revision_id,
+                content_hash=content_hash,
             )
 
             # Store in S3
@@ -272,12 +274,27 @@ class EntityHandler(Handler):
             schema_version=settings.s3_schema_revision_version,
         )
 
+    @staticmethod
     async def _store_revision_s3_new(
-        self, ctx: RevisionContext, revision_data: RevisionData
+            ctx: RevisionContext, revision_data: RevisionData
     ) -> None:
         """Store revision data in S3."""
-        # Placeholder - would implement S3 storage logic
-        pass
+        import json
+        from models.internal_representation.metadata_extractor import MetadataExtractor
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+
+        revision_dict = revision_data.model_dump(mode="json")
+        revision_json = json.dumps(revision_dict, sort_keys=True)
+        content_hash = MetadataExtractor.hash_string(revision_json)
+
+        s3_revision_data = S3RevisionData(
+            schema=settings.s3_schema_revision_version,
+            revision=revision_dict,
+            hash=content_hash,
+            created_at=datetime.now(timezone.utc).isoformat(),
+        )
+
+        ctx.s3_client.store_revision(content_hash, s3_revision_data)
 
     @staticmethod
     async def _publish_events_new(
@@ -388,49 +405,34 @@ class EntityHandler(Handler):
 
     async def create_and_store_revision(
         self,
-        entity_id: str,
-        new_revision_id: int,
-        head_revision_id: int,
-        request_data: Dict[str, Any],
-        entity_type: EntityType,
-        hash_result: StatementHashResult,
-        is_mass_edit: bool | None,
-        edit_type: EditType,
-        is_semi_protected: bool | None,
-        is_locked: bool | None,
-        is_archived: bool | None,
-        is_dangling: bool | None,
-        is_mass_edit_protected: bool | None,
-        is_creation: bool,
-        edit_summary: str,
-        user_id: int,
+        request: "CreateRevisionRequest",
     ) -> OperationResult:
         """Create revision data, store it, and publish events."""
         # Process sitelinks: hash titles and store metadata
         hs = HashService(state=self.state)
-        sitelinks_hashes = hs.hash_sitelinks(request_data.get("sitelinks", {}))
+        sitelinks_hashes = hs.hash_sitelinks(request.request_data.get("sitelinks", {}))
         # Replace sitelinks with hashes in entity data
-        request_data["sitelinks"] = sitelinks_hashes.root
+        request.request_data["sitelinks"] = sitelinks_hashes.root
 
         # Process terms: hash labels, descriptions, aliases and store metadata
-        labels_hashes = hs.hash_labels(request_data.get("labels", {}))
-        descriptions_hashes = hs.hash_descriptions(request_data.get("descriptions", {}))
-        aliases_hashes = hs.hash_aliases(request_data.get("aliases", {}))
+        labels_hashes = hs.hash_labels(request.request_data.get("labels", {}))
+        descriptions_hashes = hs.hash_descriptions(request.request_data.get("descriptions", {}))
+        aliases_hashes = hs.hash_aliases(request.request_data.get("aliases", {}))
 
         # Create revision data
         created_at = datetime.now(timezone.utc).isoformat()
-        revision_is_mass_edit = is_mass_edit if is_mass_edit is not None else False
-        revision_edit_type = edit_type if edit_type else EditType.UNSPECIFIED
+        revision_is_mass_edit = request.is_mass_edit if request.is_mass_edit is not None else False
+        revision_edit_type = request.edit_type if request.edit_type else EditType.UNSPECIFIED
 
         revision_data = RevisionData(
             schema_version=settings.s3_schema_revision_version,
-            revision_id=new_revision_id,
-            entity_type=entity_type,
-            entity=request_data,
-            properties=hash_result.properties,
-            property_counts=hash_result.property_counts,
+            revision_id=request.new_revision_id,
+            entity_type=request.entity_type,
+            entity=request.request_data,
+            properties=request.hash_result.properties,
+            property_counts=request.hash_result.property_counts,
             hashes=HashMaps(
-                statements=StatementsHashes(root=hash_result.statements),
+                statements=StatementsHashes(root=request.hash_result.statements),
                 sitelinks=sitelinks_hashes,
                 labels=labels_hashes,
                 descriptions=descriptions_hashes,
@@ -439,16 +441,16 @@ class EntityHandler(Handler):
             edit=EditData(
                 mass=revision_is_mass_edit,
                 type=revision_edit_type,
-                user_id=user_id,
-                summary=edit_summary,
+                user_id=request.user_id,
+                summary=request.edit_summary,
                 at=created_at,
             ),
             state=EntityState(
-                sp=is_semi_protected,
-                locked=is_locked,
-                archived=is_archived,
-                dangling=is_dangling,
-                mep=is_mass_edit_protected,
+                sp=request.is_semi_protected,
+                locked=request.is_locked,
+                archived=request.is_archived,
+                dangling=request.is_dangling,
+                mep=request.is_mass_edit_protected,
                 deleted=False,
             ),
         )
@@ -469,26 +471,27 @@ class EntityHandler(Handler):
         )
 
         # Store revision in S3 and update head
-        logger.info(f"Entity {entity_id}: Creating revision {new_revision_id}")
+        logger.info(f"Entity {request.entity_id}: Creating revision {request.new_revision_id}")
         try:
             self.state.vitess_client.create_revision(
-                entity_id=entity_id,
+                entity_id=request.entity_id,
                 entity_data=revision_data,
-                revision_id=new_revision_id,
+                revision_id=request.new_revision_id,
+                content_hash=content_hash,
             )
 
             # Store in S3 using S3RevisionData
             self.state.s3_client.store_revision(content_hash, s3_revision_data)
 
             logger.info(
-                f"Entity {entity_id}: Successfully created revision {new_revision_id}"
+                f"Entity {request.entity_id}: Successfully created revision {request.new_revision_id}"
             )
         except Exception as e:
             logger.error(
-                f"Entity {entity_id}: Failed to create revision {new_revision_id}",
+                f"Entity {request.entity_id}: Failed to create revision {request.new_revision_id}",
                 extra={
-                    "entity_id": entity_id,
-                    "revision_id": new_revision_id,
+                    "entity_id": request.entity_id,
+                    "revision_id": request.new_revision_id,
                     "error": str(e),
                     "operation": "revision_creation_failed",
                 },
@@ -507,28 +510,28 @@ class EntityHandler(Handler):
             try:
                 change_type = (
                     ChangeType.CREATION
-                    if is_creation
+                    if request.is_creation
                     else edit_type_to_change_type(revision_edit_type)
                 )
                 await self.state.entity_change_stream_producer.publish_change(
                     EntityChangeEvent(
-                        id=entity_id,
-                        rev=new_revision_id,
+                        id=request.entity_id,
+                        rev=request.new_revision_id,
                         type=change_type,
-                        from_rev=head_revision_id if head_revision_id != 0 else None,
+                        from_rev=request.head_revision_id if request.head_revision_id != 0 else None,
                         at=datetime.now(timezone.utc),
-                        summary=edit_summary,
+                        summary=request.edit_summary,
                     )
                 )
                 logger.debug(
-                    f"Entity {entity_id}: Published change event for revision {new_revision_id}"
+                    f"Entity {request.entity_id}: Published change event for revision {request.new_revision_id}"
                 )
             except Exception as e:
                 logger.warning(
-                    f"Entity {entity_id}: Failed to publish change event: {e}",
+                    f"Entity {request.entity_id}: Failed to publish change event: {e}",
                     extra={
-                        "entity_id": entity_id,
-                        "revision_id": new_revision_id,
+                        "entity_id": request.entity_id,
+                        "revision_id": request.new_revision_id,
                         "error": str(e),
                         "operation": "change_event_publish_failed",
                     },
@@ -536,14 +539,14 @@ class EntityHandler(Handler):
 
         # Type guards for boolean fields
         is_semi_protected = (
-            is_semi_protected if isinstance(is_semi_protected, bool) else False
+            request.is_semi_protected if isinstance(request.is_semi_protected, bool) else False
         )
-        is_locked = is_locked if isinstance(is_locked, bool) else False
-        is_archived = is_archived if isinstance(is_archived, bool) else False
-        is_dangling = is_dangling if isinstance(is_dangling, bool) else False
+        is_locked = request.is_locked if isinstance(request.is_locked, bool) else False
+        is_archived = request.is_archived if isinstance(request.is_archived, bool) else False
+        is_dangling = request.is_dangling if isinstance(request.is_dangling, bool) else False
         is_mass_edit_protected = (
-            is_mass_edit_protected
-            if isinstance(is_mass_edit_protected, bool)
+            request.is_mass_edit_protected
+            if isinstance(request.is_mass_edit_protected, bool)
             else False
         )
 
@@ -551,15 +554,15 @@ class EntityHandler(Handler):
         return OperationResult(
             success=True,
             data=EntityResponse(
-                id=entity_id,
-                rev_id=new_revision_id,
-                data=request_data,
+                id=request.entity_id,
+                rev_id=request.new_revision_id,
+                data=request.request_data,
                 state=EntityState(
-                    sp=is_semi_protected or False,
-                    locked=is_locked or False,
-                    archived=is_archived or False,
-                    dangling=is_dangling or False,
-                    mep=is_mass_edit_protected or False,
+                    sp=request.is_semi_protected or False,
+                    locked=request.is_locked or False,
+                    archived=request.is_archived or False,
+                    dangling=request.is_dangling or False,
+                    mep=request.is_mass_edit_protected or False,
                 ),
             ),
         )
@@ -569,8 +572,8 @@ class EntityHandler(Handler):
         entity_id: str,
         property_id: str,
         request: AddPropertyRequest,
+        edit_headers: EditHeaders,
         validator: Any | None = None,
-        # user_id: int = 0,
     ) -> OperationResult[RevisionIdResult]:
         """Add claims for a single property to an existing entity."""
         logger.info(
@@ -612,7 +615,7 @@ class EntityHandler(Handler):
                 request_data=current_data,
                 entity_type=entity_response.entity_type,
                 edit_type=EditType.UNSPECIFIED,
-                edit_summary=request.edit_summary,
+                edit_headers=edit_headers,
                 is_creation=False,
                 stream_producer=None,  # TODO: add if needed
                 validator=validator,
@@ -629,9 +632,8 @@ class EntityHandler(Handler):
         self,
         entity_id: str,
         statement_hash: str,
-        edit_summary: str,
+        edit_headers: EditHeaders,
         # validator: Any | None = None,
-        user_id: int = 0,
     ) -> OperationResult[RevisionIdResult]:
         """Remove a statement by hash from an entity."""
         logger.info(f"Entity {entity_id}: Removing statement {statement_hash}")
@@ -706,9 +708,9 @@ class EntityHandler(Handler):
         # Update the revision with modified hashes
         new_revision_id = revision_data.revision_id + 1
         revision_data.revision_id = new_revision_id
-        revision_data.edit.summary = edit_summary
+        revision_data.edit.summary = edit_headers.x_edit_summary
         revision_data.edit.at = datetime.now(timezone.utc).isoformat()
-        revision_data.edit.user_id = user_id
+        revision_data.edit.user_id = edit_headers.x_user_id
 
         # Store the updated revision
         try:
@@ -730,8 +732,8 @@ class EntityHandler(Handler):
         entity_id: str,
         statement_hash: str,
         request: PatchStatementRequest,
+        edit_headers: EditHeaders,
         validator: Any | None = None,
-        user_id: int = 0,
     ) -> OperationResult[RevisionIdResult]:
         """Replace a statement by hash with new claim data."""
         logger.info(f"Entity {entity_id}: Patching statement {statement_hash}")
@@ -766,14 +768,15 @@ class EntityHandler(Handler):
             return OperationResult(success=False, error="Statement not found in entity")
 
         # Process as update using old method for now (new method is async)
-        revision_result = await self.create_and_store_revision(
+        from models.data.rest_api.v1.entitybase.request.entity.revision import CreateRevisionRequest
+        revision_request = CreateRevisionRequest(
             entity_id=entity_id,
             new_revision_id=entity_response.revision_id + 1,
             head_revision_id=entity_response.revision_id,
             request_data=current_data,
             entity_type=entity_response.entity_data.get("type", "item"),
             hash_result=self.process_statements(entity_id, current_data, validator),
-                edit_type=EditType.UNSPECIFIED,
+            edit_type=EditType.UNSPECIFIED,
             is_semi_protected=entity_response.state.sp
             if entity_response.state
             else False,
@@ -790,9 +793,10 @@ class EntityHandler(Handler):
             if entity_response.state
             else False,
             is_creation=False,
-            edit_summary=request.edit_summary,
-            user_id=user_id,
+            edit_summary=edit_headers.x_edit_summary,
+            user_id=edit_headers.x_user_id,
         )
+        revision_result = await self.create_and_store_revision(revision_request)
         assert isinstance(revision_result, OperationResult)
         if not revision_result.success:
             return revision_result

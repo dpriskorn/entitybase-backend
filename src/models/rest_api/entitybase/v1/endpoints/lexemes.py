@@ -4,11 +4,13 @@ import logging
 import re
 from typing import Dict, Any, Optional
 
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 
+from models.common import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
     EntityUpdateRequest,
+    TermUpdateRequest,
 )
 from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
@@ -216,12 +218,18 @@ async def get_sense_gloss(sense_id: str, langcode: str, req: Request) -> Dict[st
 async def update_form_representation(
     form_id: str,
     langcode: str,
-    update_data: Dict[str, Any],
+    request: TermUpdateRequest,
     req: Request,
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> EntityResponse:
     """Update form representation for language."""
     lexeme_id, form_suffix = _parse_form_id(form_id)
+
+    if request.language != langcode:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Language in request body ({request.language}) does not match path parameter ({langcode})"
+        )
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
@@ -243,17 +251,10 @@ async def update_form_representation(
                     detail=f"Representation not found for language {langcode}"
                 )
 
-            new_value = update_data.get("value")
-            if new_value is None:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Missing 'value' field"
-                )
-
             # Update the representation value
             form["representations"][langcode] = {
                 "language": langcode,
-                "value": new_value
+                "value": request.value
             }
             break
 
@@ -264,7 +265,7 @@ async def update_form_representation(
     update_handler = LexemeUpdateHandler(state=state)
     update_request = EntityUpdateRequest(
         type="lexeme",
-        edit_summary=edit_summary,
+        edit_headers=headers,
         **current_entity.data
     )
 
@@ -279,12 +280,18 @@ async def update_form_representation(
 async def update_sense_gloss(
     sense_id: str,
     langcode: str,
-    update_data: Dict[str, Any],
+    request: TermUpdateRequest,
     req: Request,
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> EntityResponse:
     """Update sense gloss for language."""
     lexeme_id, sense_suffix = _parse_sense_id(sense_id)
+
+    if request.language != langcode:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Language in request body ({request.language}) does not match path parameter ({langcode})"
+        )
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
@@ -306,17 +313,10 @@ async def update_sense_gloss(
                     detail=f"Gloss not found for language {langcode}"
                 )
 
-            new_value = update_data.get("value")
-            if new_value is None:
-                raise HTTPException(
-                    status_code=400,
-                    detail="Missing 'value' field"
-                )
-
             # Update the gloss value
             sense["glosses"][langcode] = {
                 "language": langcode,
-                "value": new_value
+                "value": request.value
             }
             break
 
@@ -327,7 +327,7 @@ async def update_sense_gloss(
     update_handler = LexemeUpdateHandler(state=state)
     update_request = EntityUpdateRequest(
         type="lexeme",
-        edit_summary=edit_summary,
+        edit_headers=headers,
         **current_entity.data
     )
 
@@ -343,7 +343,7 @@ async def delete_form_representation(
     form_id: str,
     langcode: str,
     req: Request,
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> EntityResponse:
     """Delete form representation for language."""
     lexeme_id, form_suffix = _parse_form_id(form_id)
@@ -358,7 +358,6 @@ async def delete_form_representation(
     # Find the form in the entity data
     forms_data = current_entity.entity_data.get("forms", [])
     form_found = False
-    representation_found = False
     for form in forms_data:
         if form["id"] == form_id:
             form_found = True
@@ -369,7 +368,6 @@ async def delete_form_representation(
                     detail=f"Representation not found for language {langcode}"
                 )
 
-            representation_found = True
             # Remove the representation
             del form["representations"][langcode]
             break
@@ -381,7 +379,7 @@ async def delete_form_representation(
     update_handler = LexemeUpdateHandler(state=state)
     update_request = EntityUpdateRequest(
         type="lexeme",
-        edit_summary=edit_summary,
+        edit_headers=headers,
         **current_entity.entity_data
     )
 
@@ -397,7 +395,7 @@ async def delete_sense_gloss(
     sense_id: str,
     langcode: str,
     req: Request,
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> EntityResponse:
     """Delete sense gloss for language."""
     lexeme_id, sense_suffix = _parse_sense_id(sense_id)
@@ -422,7 +420,7 @@ async def delete_sense_gloss(
                     detail=f"Gloss not found for language {langcode}"
                 )
 
-            # Remove the gloss
+# Remove the gloss
             del sense["glosses"][langcode]
             break
 
@@ -433,8 +431,8 @@ async def delete_sense_gloss(
     update_handler = LexemeUpdateHandler(state=state)
     update_request = EntityUpdateRequest(
         type="lexeme",
-        edit_summary=edit_summary,
-        **current_entity.entity_data
+        edit_headers=headers,
+        **current_entity.data
     )
 
     return await update_handler.update_entity(
@@ -448,7 +446,7 @@ async def delete_sense_gloss(
 async def delete_form(
     form_id: str,
     req: Request,
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> EntityResponse:
     """Delete a form by ID."""
     lexeme_id, form_suffix = _parse_form_id(form_id)
@@ -478,7 +476,7 @@ async def delete_form(
     update_handler = LexemeUpdateHandler(state=state)
     update_request = EntityUpdateRequest(
         type="lexeme",
-        edit_summary=edit_summary,
+        edit_headers=headers,
         **current_entity.data
     )
 
@@ -493,7 +491,7 @@ async def delete_form(
 async def delete_sense(
     sense_id: str,
     req: Request,
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> EntityResponse:
     """Delete a sense by ID."""
     lexeme_id, sense_suffix = _parse_sense_id(sense_id)
@@ -523,7 +521,7 @@ async def delete_sense(
     update_handler = LexemeUpdateHandler(state=state)
     update_request = EntityUpdateRequest(
         type="lexeme",
-        edit_summary=edit_summary,
+        edit_headers=headers,
         **current_entity.data
     )
 
@@ -535,15 +533,20 @@ async def delete_sense(
 
 
 @router.post("/entities/lexemes", response_model=EntityResponse)
-async def create_lexeme(request: EntityCreateRequest, req: Request) -> EntityResponse:
+async def create_lexeme(
+    request: EntityCreateRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
     """Create a new lexeme entity."""
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
     enumeration_service = req.app.state.state_handler.enumeration_service
     handler = LexemeCreateHandler(enumeration_service=enumeration_service, state=state)
     return await handler.create_entity(  # type: ignore[no-any-return]
-        request,
-        validator,
+        request=request,
+        edit_headers=headers,
+        validator=validator,
     )
 
 

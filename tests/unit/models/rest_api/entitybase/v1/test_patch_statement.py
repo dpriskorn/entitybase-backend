@@ -9,6 +9,7 @@ from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.data.rest_api.v1.entitybase.request import (
     PatchStatementRequest,
 )
+from models.common import EditHeaders
 
 
 @pytest.mark.asyncio
@@ -27,8 +28,9 @@ class TestPatchStatement:
 
     async def test_statement_hash_not_found(self) -> None:
         """Test statement hash not found."""
+        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Patch")
         request = PatchStatementRequest(
-            claim={"mainsnak": {"property": "P1"}}, edit_summary="Patch"
+            claim={"mainsnak": {"property": "P1"}}
         )
 
         with patch(
@@ -43,7 +45,7 @@ class TestPatchStatement:
             mock_read_handler.get_entity.return_value = mock_entity_response
 
             result = await self.handler.patch_statement(
-                "Q1", "999", request, self.mock_validator
+                "Q1", "999", request, edit_headers, self.mock_validator
             )
             assert not result.success
             assert "Statement not found" in result.error

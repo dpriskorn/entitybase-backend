@@ -1,10 +1,6 @@
 """Integration tests for entity retrieval workflows."""
 
 import sys
-from typing import Generator
-from unittest.mock import MagicMock, patch
-
-import pytest
 
 sys.path.insert(0, "src")
 

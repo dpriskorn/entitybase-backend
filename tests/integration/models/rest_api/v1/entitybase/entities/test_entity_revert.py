@@ -27,7 +27,7 @@ async def test_revert_entity() -> None:
         # For now, just test that the endpoint accepts requests (will fail without data)
         response = await client.post(
             "/entitybase/v1/entities/Q42/revert",
-            headers={"X-User-ID": "456"},
+            headers={"X-Edit-Summary": "test revert", "X-User-ID": "456"},
             json={
                 "to_revision_id": 123,
                 "reason": "Test revert",
@@ -76,7 +76,7 @@ async def test_revert_entity_invalid_user_header() -> None:
     ) as client:
         response = await client.post(
             "/entitybase/v1/entities/Q42/revert",
-            headers={"X-User-ID": "0"},
+            headers={"X-Edit-Summary": "invalid user test", "X-User-ID": "0"},
             json={"to_revision_id": 123, "reason": "Test revert"},
         )
         assert response.status_code == 400  # Invalid user ID
@@ -98,7 +98,7 @@ async def test_revert_entity_invalid_request() -> None:
         # Missing required field
         response = await client.post(
             "/entitybase/v1/entities/Q42/revert",
-            headers={"X-User-ID": "456"},
+            headers={"X-Edit-Summary": "invalid request test", "X-User-ID": "456"},
             json={"reason": "Test revert"},
         )
         assert response.status_code == 422  # Validation error

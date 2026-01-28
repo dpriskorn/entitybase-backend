@@ -17,7 +17,7 @@ def test_query_locked_entities(api_client: requests.Session, base_url: str) -> N
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Locked"}},
     }
-    api_client.post(f"{base_url}/entity", json={**entity_data, "is_locked": True})
+    api_client.post(f"{base_url}/entity", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
     response = api_client.get(f"{base_url}/entities?status=locked")
     assert response.status_code == 200
@@ -43,7 +43,7 @@ def test_query_semi_protected_entities(
         "labels": {"en": {"language": "en", "value": "Protected"}},
     }
     api_client.post(
-        f"{base_url}/entity", json={**entity_data, "is_semi_protected": True}
+        f"{base_url}/entity", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
     )
 
     response = api_client.get(f"{base_url}/entities?status=semi_protected")
@@ -67,7 +67,7 @@ def test_query_archived_entities(api_client: requests.Session, base_url: str) ->
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Archived"}},
     }
-    api_client.post(f"{base_url}/entity", json={**entity_data, "is_archived": True})
+    api_client.post(f"{base_url}/entity", json={**entity_data, "is_archived": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
     response = api_client.get(f"{base_url}/entities?status=archived")
     assert response.status_code == 200
@@ -90,7 +90,7 @@ def test_query_dangling_entities(api_client: requests.Session, base_url: str) ->
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Dangling"}},
     }
-    api_client.post(f"{base_url}/entity", json={**entity_data, "is_dangling": True})
+    api_client.post(f"{base_url}/entity", json={**entity_data, "is_dangling": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
     response = api_client.get(f"{base_url}/entities?status=dangling")
     assert response.status_code == 200
@@ -112,6 +112,7 @@ def test_list_entities_by_type(api_client: requests.Session, base_url: str) -> N
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Test Item"}},
         },
+        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
     api_client.post(
         f"{base_url}/entitybase/v1/entities/lexemes",
@@ -121,6 +122,7 @@ def test_list_entities_by_type(api_client: requests.Session, base_url: str) -> N
             "lexicalCategory": "Q1084",
             "language": "Q1860",
         },
+        headers={"X-Edit-Summary": "create lexeme", "X-User-ID": "0"},
     )
 
     # List items
@@ -163,6 +165,7 @@ def test_query_by_edit_type(api_client: requests.Session, base_url: str) -> None
     api_client.post(
         f"{base_url}/entity",
         json={**entity_data, "is_locked": True, "edit_type": "lock-added"},
+        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
 
     response = api_client.get(f"{base_url}/entities?edit_type=lock-added")

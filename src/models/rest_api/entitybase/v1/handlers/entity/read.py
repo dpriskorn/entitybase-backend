@@ -43,17 +43,19 @@ class EntityReadHandler(Handler):
             if "labels_hashes" in data:
                 resolved_labels = {}
                 for lang, hash_val in data["labels_hashes"].items():
-                    resolved_labels[lang] = self.state.s3_client.load_term_metadata(hash_val)
+                    text = self.state.s3_client.load_term_metadata(hash_val)
+                    resolved_labels[lang] = {"language": lang, "value": text}
                 data["labels"] = resolved_labels
             if "descriptions_hashes" in data:
                 resolved_descriptions = {}
                 for lang, hash_val in data["descriptions_hashes"].items():
-                    resolved_descriptions[lang] = self.state.s3_client.load_term_metadata(hash_val)
+                    text = self.state.s3_client.load_term_metadata(hash_val)
+                    resolved_descriptions[lang] = {"language": lang, "value": text}
                 data["descriptions"] = resolved_descriptions
             if "aliases_hashes" in data:
                 resolved_aliases = {}
                 for lang, hashes in data["aliases_hashes"].items():
-                    resolved_aliases[lang] = [self.state.s3_client.load_term_metadata(h) for h in hashes]
+                    resolved_aliases[lang] = [{"language": lang, "value": self.state.s3_client.load_term_metadata(h)} for h in hashes]
                 data["aliases"] = resolved_aliases
 
             # Resolve sitelinks
@@ -79,7 +81,7 @@ class EntityReadHandler(Handler):
             return response
         except Exception as e:
             logger.error(f"Failed to read entity {entity_id}: {e}")
-            raise_validation_error("Failed to read entity", status_code=500)
+            raise_validation_error(f"Failed to read entity {entity_id}: {type(e).__name__}: {str(e)}", status_code=500)
 
     def get_entity_history(
         self,  # type: ignore[return,func-returns-value]
@@ -98,7 +100,7 @@ class EntityReadHandler(Handler):
             return self.state.vitess_client.get_entity_history(entity_id, limit, offset)  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"Failed to get entity history for {entity_id}: {e}")
-            raise_validation_error("Failed to get entity history", status_code=500)
+            raise_validation_error(f"Failed to get entity history: {type(e).__name__}: {str(e)}", status_code=500)
 
     def get_entity_revision(
         self,  # type: ignore[return]
@@ -121,4 +123,4 @@ class EntityReadHandler(Handler):
             logger.error(
                 f"Failed to read revision {revision_id} for entity {entity_id}: {e}"
             )
-            raise_validation_error("Revision not found", status_code=404)
+            raise_validation_error(f"Failed to read revision: {type(e).__name__}: {str(e)}", status_code=404)

@@ -21,7 +21,6 @@ class LexemeUpdateHandler(EntityUpdateHandler):
         entity_id: str,
         request: EntityUpdateRequest,
         validator: Any | None = None,
-        user_id: int = 0,
     ) -> EntityResponse:
         """Update an existing lexeme with validation that entity_id starts with L."""
         logger.debug(f"Updating lexeme {entity_id}")
@@ -40,7 +39,6 @@ class LexemeUpdateHandler(EntityUpdateHandler):
             entity_id,
             request,
             validator,
-            user_id,
         )
 
     async def _process_lexeme_terms(self, request: EntityUpdateRequest, entity_id: str) -> None:

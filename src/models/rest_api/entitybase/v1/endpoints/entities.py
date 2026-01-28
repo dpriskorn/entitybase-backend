@@ -3,20 +3,12 @@
 import logging
 from typing import Any, Dict
 
-from fastapi import APIRouter, Header, Query, Request, Response
+from fastapi import APIRouter, Query, Request, Response
 
-from models.common import OperationResult
-
-from models.rest_api.entitybase.v1.handlers.state import StateHandler
-from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
-from models.rest_api.entitybase.v1.handlers.entity.delete import EntityDeleteHandler
-from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
-from models.rest_api.entitybase.v1.handlers.export import ExportHandler
-from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
+from models.common import EditHeadersType, OperationResult
+from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
 from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
 from models.data.rest_api.v1.entitybase.request import EntityUpdateRequest
-from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
 from models.data.rest_api.v1.entitybase.request import (
     PatchStatementRequest,
 )
@@ -24,6 +16,10 @@ from models.data.rest_api.v1.entitybase.request import (
     RemoveStatementRequest,
 )
 from models.data.rest_api.v1.entitybase.request.entity.sitelink import SitelinkData
+from models.data.rest_api.v1.entitybase.response import (
+    EntityDeleteResponse,
+)
+from models.data.rest_api.v1.entitybase.response import EntityHistoryEntry
 from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
     EntityRevisionResponse,
@@ -33,12 +29,15 @@ from models.data.rest_api.v1.entitybase.response import (
     PropertyHashesResponse,
     PropertyListResponse,
 )
-from models.data.rest_api.v1.entitybase.response import TurtleResponse
-from models.data.rest_api.v1.entitybase.response import (
-    EntityDeleteResponse,
-)
-from models.data.rest_api.v1.entitybase.response import EntityHistoryEntry
 from models.data.rest_api.v1.entitybase.response import RevisionIdResult
+from models.data.rest_api.v1.entitybase.response import TurtleResponse
+from models.rest_api.entitybase.v1.handlers.entity.delete import EntityDeleteHandler
+from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
+from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
+from models.rest_api.entitybase.v1.handlers.export import ExportHandler
+from models.rest_api.entitybase.v1.handlers.state import StateHandler
+from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -152,7 +151,10 @@ async def get_entity_data_json(entity_id: str, req: Request) -> EntityJsonRespon
 
 @router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)
 async def delete_entity(  # type: ignore[no-any-return]
-    entity_id: str, request: EntityDeleteRequest, req: Request
+    entity_id: str,
+    request: EntityDeleteRequest,
+    req: Request,
+    headers: EditHeadersType,
 ) -> EntityDeleteResponse:
     """Delete an entity."""
     state = req.app.state.state_handler
@@ -160,7 +162,7 @@ async def delete_entity(  # type: ignore[no-any-return]
         raise_validation_error("Invalid clients type", status_code=500)
     # todo pass clients to the handler here
     handler = EntityDeleteHandler(state=state)
-    result = await handler.delete_entity(entity_id, request)
+    result = await handler.delete_entity(entity_id, request, edit_headers=headers)
     if not isinstance(result, EntityDeleteResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -221,7 +223,11 @@ async def get_entity_property_hashes(
     response_model=OperationResult[RevisionIdResult],
 )
 async def add_entity_property(
-    entity_id: str, property_id: str, request: AddPropertyRequest, req: Request
+    entity_id: str,
+    property_id: str,
+    request: AddPropertyRequest,
+    req: Request,
+    headers: EditHeadersType,
 ) -> OperationResult[RevisionIdResult]:
     """Add claims for a single property to an entity."""
     state = req.app.state.state_handler
@@ -230,7 +236,7 @@ async def add_entity_property(
     # todo pass clients to the handler here
     handler = EntityHandler(state=state)
     result = await handler.add_property(
-        entity_id, property_id, request, state.validator
+        entity_id, property_id, request, edit_headers=headers
     )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)
@@ -242,7 +248,11 @@ async def add_entity_property(
     response_model=OperationResult[RevisionIdResult],
 )
 async def remove_entity_statement(
-    entity_id: str, statement_hash: str, request: RemoveStatementRequest, req: Request
+    entity_id: str,
+    statement_hash: str,
+    request: RemoveStatementRequest,
+    req: Request,
+    headers: EditHeadersType,
 ) -> OperationResult[RevisionIdResult]:
     """Remove a statement by hash from an entity."""
     state = req.app.state.state_handler
@@ -253,7 +263,7 @@ async def remove_entity_statement(
     result = handler.remove_statement(
         entity_id,
         statement_hash,
-        request.edit_summary,
+        headers,
     )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)
@@ -265,7 +275,11 @@ async def remove_entity_statement(
     response_model=OperationResult[RevisionIdResult],
 )
 async def patch_entity_statement(
-    entity_id: str, statement_hash: str, request: PatchStatementRequest, req: Request
+    entity_id: str,
+    statement_hash: str,
+    request: PatchStatementRequest,
+    req: Request,
+    headers: EditHeadersType,
 ) -> OperationResult[RevisionIdResult]:
     """Replace a statement by hash with new claim data."""
     state = req.app.state.state_handler
@@ -276,6 +290,7 @@ async def patch_entity_statement(
         entity_id,
         statement_hash,
         request,
+        headers,
     )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)
@@ -311,8 +326,7 @@ async def post_entity_sitelink(
     site: str,
     sitelink_data: SitelinkData,
     req: Request,
-    x_user_id: int = Header(..., alias="X-User-ID"),
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> OperationResult[RevisionIdResult]:
     """Add a new sitelink for an entity."""
     logger.debug(
@@ -346,14 +360,13 @@ async def post_entity_sitelink(
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
     update_request = EntityUpdateRequest(
-        type=entity_type, edit_summary=edit_summary, **current_entity.entity_data
+        type=entity_type, edit_headers=headers, **current_entity.entity_data
     )
 
     result = await update_handler.update_entity(
         entity_id,
         update_request,
         state.validator,
-        user_id=x_user_id,
     )
 
     return OperationResult(
@@ -370,8 +383,7 @@ async def put_entity_sitelink(
     site: str,
     sitelink_data: SitelinkData,
     req: Request,
-    x_user_id: int = Header(..., alias="X-User-ID"),
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> OperationResult[RevisionIdResult]:
     """Update an existing sitelink for an entity."""
     logger.debug(
@@ -402,14 +414,13 @@ async def put_entity_sitelink(
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
     update_request = EntityUpdateRequest(
-        type=entity_type, edit_summary=edit_summary, **current_entity.entity_data
+        type=entity_type, edit_headers=headers, **current_entity.entity_data
     )
 
     result = await update_handler.update_entity(
         entity_id,
         update_request,
         state.validator,
-        user_id=x_user_id,
     )
 
     return OperationResult(
@@ -425,8 +436,7 @@ async def delete_entity_sitelink(
     entity_id: str,
     site: str,
     req: Request,
-    x_user_id: int = Header(..., alias="X-User-ID"),
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> OperationResult[RevisionIdResult]:
     """Delete a sitelink from an entity."""
     logger.debug(
@@ -455,14 +465,13 @@ async def delete_entity_sitelink(
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
     update_request = EntityUpdateRequest(
-        type=entity_type, edit_summary=edit_summary, **current_entity.entity_data
+        type=entity_type, edit_headers=headers, **current_entity.entity_data
     )
 
     result = await update_handler.update_entity(
         entity_id,
         update_request,
         state.validator,
-        user_id=x_user_id,
     )
 
     return OperationResult(

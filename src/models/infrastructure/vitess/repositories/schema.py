@@ -162,6 +162,7 @@ class SchemaRepository(Repository):
                     sitelinks_hashes JSON,
                     user_id BIGINT UNSIGNED,
                     edit_summary TEXT,
+                    content_hash BIGINT UNSIGNED NOT NULL,
                     PRIMARY KEY (internal_id, revision_id)
                 )
             """

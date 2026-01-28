@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
-from models.common import raise_validation_error
 from models.data.config.stream import StreamConfig
 
 if TYPE_CHECKING:

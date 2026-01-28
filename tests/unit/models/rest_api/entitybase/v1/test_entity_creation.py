@@ -9,6 +9,7 @@ sys.path.insert(0, "src")
 
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.rest_api.entitybase.v1.handlers.entity.item import ItemCreateHandler
+from models.common import EditHeaders
 from models.rest_api.entitybase.v1.handlers.entity.property.create import (
     PropertyCreateHandler,
 )
@@ -85,7 +86,10 @@ class TestItemCreateHandler:
             is_deleted=False, is_archived=False
         )
 
-        result = await handler.create_entity(request=request)
+        result = await handler.create_entity(
+            request=request,
+            edit_headers=EditHeaders(x_user_id=1, x_edit_summary="Test creation"),
+        )
 
         # Verify vitess interactions
         mock_vitess_client.id_resolver.entity_exists.assert_called_once_with("Q99999")
@@ -113,7 +117,9 @@ class TestItemCreateHandler:
         request = EntityCreateRequest(id="Q123", edit_summary="test")
 
         with pytest.raises(Exception) as exc_info:
-            await handler.create_entity(request=request)
+            await handler.create_entity(
+                request=request, edit_headers=EditHeaders(x_user_id=1, x_edit_summary="test")
+            )
 
         assert "already exists" in str(exc_info.value)
 

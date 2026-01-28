@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from typing import Any, Callable, List
 import logging
 
+from models.common import EditHeaders
 from pydantic import BaseModel, Field
 
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
@@ -60,10 +61,9 @@ class EntityTransaction(BaseModel, ABC):
         entity_id: str,
         revision_id: int,
         change_type: str,
-        user_id: int = 0,
+        edit_headers: EditHeaders,
         changed_at: datetime | None = None,
         from_revision_id: int = 0,
-        edit_summary: str = "",
     ) -> None:
         """Publish a change event."""
         from models.infrastructure.stream.event import EntityChangeEvent
@@ -74,13 +74,13 @@ class EntityTransaction(BaseModel, ABC):
         )
         if changed_at is None:
             changed_at = datetime.now(timezone.utc)
-        event = EntityChangeEvent(
-            id=entity_id,
-            rev=revision_id,
-            type=ChangeType(change_type),
-            from_rev=from_revision_id,
-            at=changed_at,
-            summary=edit_summary,
-        )
-        # TODO: Publish to stream
-        logger.debug(f"Event: {event}")
+            event = EntityChangeEvent(
+                id=entity_id,
+                rev=revision_id,
+                type=ChangeType(change_type),
+                from_rev=from_revision_id,
+                at=changed_at,
+                summary=edit_headers.x_edit_summary,
+            )
+            # TODO: Publish to stream
+            logger.debug(f"Event: {event}")

@@ -7,6 +7,7 @@ import pytest
 
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
+from models.common import EditHeaders
 
 
 class TestAddProperty(unittest.IsolatedAsyncioTestCase):
@@ -24,9 +25,10 @@ class TestAddProperty(unittest.IsolatedAsyncioTestCase):
 
     async def test_invalid_property_id_format(self) -> None:
         """Test invalid property ID format."""
-        request = AddPropertyRequest(claims=[], edit_summary="test")
+        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        request = AddPropertyRequest(claims=[])
         result = await self.handler.add_property(
-            "Q1", "invalid", request, self.mock_validator
+            "Q1", "invalid", request, edit_headers, self.mock_validator
         )
         self.assertFalse(result.success)
         self.assertIn("Invalid property ID format", result.error)
@@ -39,9 +41,10 @@ class TestAddProperty(unittest.IsolatedAsyncioTestCase):
         mock_read_handler_class.return_value = mock_read_handler
         mock_read_handler.get_entity.side_effect = Exception("Not found")
 
-        request = AddPropertyRequest(claims=[], edit_summary="test")
+        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        request = AddPropertyRequest(claims=[])
         result = await self.handler.add_property(
-            "Q1", "P1", request, self.mock_validator
+            "Q1", "P1", request, edit_headers, self.mock_validator
         )
         self.assertFalse(result.success)
         self.assertIn("Property does not exist", result.error)
@@ -59,9 +62,10 @@ class TestAddProperty(unittest.IsolatedAsyncioTestCase):
             Exception("Entity not found"),
         ]
 
-        request = AddPropertyRequest(claims=[], edit_summary="test")
+        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
+        request = AddPropertyRequest(claims=[])
         result = await self.handler.add_property(
-            "Q1", "P1", request, self.mock_validator
+            "Q1", "P1", request, edit_headers, self.mock_validator
         )
         self.assertFalse(result.success)
         self.assertIn("Entity is not a property", result.error)

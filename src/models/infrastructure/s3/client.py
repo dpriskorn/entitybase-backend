@@ -1,11 +1,14 @@
 """S3 storage client for entity and statement data."""
 
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
 
 from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from pydantic import Field
+
+if TYPE_CHECKING:
+    pass
 
 from models.common import OperationResult
 from models.data.infrastructure.s3.enums import MetadataType
@@ -21,6 +24,7 @@ from models.infrastructure.s3.storage.reference_storage import ReferenceStorage
 from models.infrastructure.s3.storage.revision_storage import RevisionStorage
 from models.infrastructure.s3.storage.snak_storage import SnakStorage
 from models.infrastructure.s3.storage.statement_storage import StatementStorage
+from models.infrastructure.vitess.repositories.revision import RevisionRepository
 from models.data.rest_api.v1.entitybase.response import StatementResponse
 from models.rest_api.utils import raise_validation_error
 
@@ -30,6 +34,7 @@ logger = logging.getLogger(__name__)
 class MyS3Client(Client):
     """Client for S3 storage operations."""
 
+    vitess_client: Optional[Any] = Field(default=None, exclude=True)
     connection_manager: Optional[S3ConnectionManager] = Field(
         default=None, exclude=True
     )  # type: ignore[override]
@@ -82,7 +87,18 @@ class MyS3Client(Client):
 
     def read_revision(self, entity_id: str, revision_id: int):
         """Read S3 object and return parsed JSON."""
-        return self.revisions.load_revision(entity_id, revision_id)
+        if self.vitess_client is None:
+            raise_validation_error("Vitess client not configured", status_code=503)
+        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
+        if not internal_id:
+            raise_validation_error("Entity not found", status_code=404)
+
+        revision_repo = RevisionRepository(vitess_client=self.vitess_client)
+        content_hash = revision_repo.get_content_hash(internal_id, revision_id)
+        if content_hash is None:
+            raise_validation_error("Revision not found", status_code=404)
+
+        return self.revisions.load_revision(content_hash)
 
     read_full_revision = read_revision
     write_entity_revision = write_revision

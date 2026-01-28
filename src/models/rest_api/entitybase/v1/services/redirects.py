@@ -26,9 +26,10 @@ logger = logging.getLogger(__name__)
 class RedirectService(Service):
     """Service for managing entity redirects"""
 
-    async def create_redirect(
+async def create_redirect(
         self,
         request: EntityRedirectRequest,
+        edit_headers,
     ) -> EntityRedirectResponse:
         """Mark an entity as redirect to another entity"""
         logger.debug(
@@ -69,23 +70,38 @@ class RedirectService(Service):
             edit=EditData(
                 type=EditType.REDIRECT_CREATE,
                 at="",
-                summary="Create redirect",  # todo improve
-                user_id=request.user_id,
+                summary=edit_headers.x_edit_summary,
+                user_id=edit_headers.x_user_id,
             ),
             hashes=HashMaps(),
             redirects_to=request.redirect_to_id,
-            state=EntityState(),  # Empty state for redirect
+            state=EntityState(),
         )
 
-        self.s3.write_revision(
-            data=redirect_revision_data,
+        import json
+        from models.internal_representation.metadata_extractor import MetadataExtractor
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+        from models.config.settings import settings
+
+        revision_dict = redirect_revision_data.model_dump(mode="json")
+        revision_json = json.dumps(revision_dict, sort_keys=True)
+        content_hash = MetadataExtractor.hash_string(revision_json)
+
+        s3_revision_data = S3RevisionData(
+            schema=settings.s3_schema_revision_version,
+            revision=revision_dict,
+            hash=content_hash,
+            created_at=datetime.now(timezone.utc),
         )
+
+        self.state.s3_client.store_revision(content_hash, s3_revision_data)
 
         self.vitess_client.create_revision(
             entity_id=request.redirect_from_id,
             revision_id=redirect_revision_id,
-            entity_data={},
+            entity_data=redirect_revision_data,
             expected_revision_id=from_head_revision_id,
+            content_hash=content_hash,
         )
 
         self.vitess_client.create_redirect(
@@ -99,22 +115,22 @@ class RedirectService(Service):
             redirects_to_entity_id=request.redirect_to_id,
         )
 
-        self.s3.mark_published(
+        self.state.s3_client.mark_published(
             entity_id=request.redirect_from_id,
             revision_id=redirect_revision_id,
             publication_state="published",
         )
 
-        if self.stream_producer:
+        if self.state.entity_change_stream_producer:
             event = EntityChangeEvent(
                 id=request.redirect_from_id,
                 rev=redirect_revision_id,
                 type=ChangeType.REDIRECT,
                 from_rev=from_head_revision_id if from_head_revision_id else None,
                 at=datetime.now(timezone.utc),
-                summary=request.revert_reason,
+                summary=edit_headers.x_edit_summary,
             )
-            await self.stream_producer.publish_change(event)
+            await self.state.entity_change_stream_producer.publish_event(event)
 
         return EntityRedirectResponse(
             redirect_from_id=request.redirect_from_id,
@@ -127,7 +143,7 @@ class RedirectService(Service):
         self,
         entity_id: str,
         revert_to_revision_id: int,
-        user_id: int,
+        edit_headers,
     ) -> EntityRevertResponse:
         """Revert a redirect entity back to normal using the general revert."""
         logger.debug(
@@ -156,14 +172,14 @@ class RedirectService(Service):
 
         general_request = EntityRevertRequest(
             to_revision_id=revert_to_revision_id,
-            reason="Reverted redirect",
+            edit_summary=edit_headers.x_edit_summary,
             watchlist_context=None,
         )
         general_handler = EntityRevertHandler(state=self.state)
         revert_result = await general_handler.revert_entity(
             entity_id,
             general_request,
-            user_id,
+            edit_headers=edit_headers
         )
 
         # Clear the redirect target

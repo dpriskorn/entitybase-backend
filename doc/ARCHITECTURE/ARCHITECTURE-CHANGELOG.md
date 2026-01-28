@@ -2,6 +2,173 @@
 
 This file tracks architectural changes, feature additions, and modifications to the entitybase-backend.
 
+## [2026-01-28] Consolidate Edit Headers in Handlers
+
+### Summary
+
+Replaced separate `edit_summary: str` and `user_id: int` parameters across all handler methods with a single `edit_headers: EditHeaders` parameter for consistency and improved type safety.
+
+### Motivation
+
+- **Consistency**: Standardize how edit metadata (user ID and summary) is passed between layers
+- **Type Safety**: Use the existing `EditHeaders` BaseModel instead of loose parameters
+- **Maintainability**: Single parameter instead of two independent parameters
+
+### Changes
+
+#### Handler Layer (9 files)
+
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/handler.py`
+- Updated `process_entity_revision_new()` signature: replaced `edit_summary: str` with `edit_headers: EditHeaders`
+- Updated `add_property()` signature: replaced `edit_summary: str, user_id: int` with `edit_headers: EditHeaders`
+- Updated `remove_statement()` signature: replaced `edit_summary: str, user_id: int` with `edit_headers: EditHeaders`
+- Updated `patch_statement()` signature: replaced `edit_summary: str, user_id: int` with `edit_headers: EditHeaders`
+- Updated internal usage to access `edit_headers.x_edit_summary` and `edit_headers.x_user_id`
+
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/create.py`
+- Updated `create_entity()` signature: replaced `edit_summary: str, user_id: int` with `edit_headers: EditHeaders`
+- Updated internal usage to access `edit_headers.x_user_id` for logging
+
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/property/create.py`
+- Updated `create_entity()` signature to match parent class
+- Updated method call to pass `edit_headers` instead of separate parameters
+
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/lexeme/create.py`
+- Updated `create_entity()` signature to match parent class
+- Updated method call to pass `edit_headers` instead of separate parameters
+
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/delete.py`
+- Updated `delete_entity()` signature: replaced `user_id: int = 0` with `edit_headers: EditHeaders`
+- Updated internal usage to access `edit_headers.x_user_id` and `edit_headers.x_edit_summary`
+
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/redirect.py`
+- Updated `create_entity_redirect()` signature: replaced `edit_summary: str, user_id: int` with `edit_headers: EditHeaders`
+- Updated `revert_entity_redirect()` signature: replaced `edit_summary: str, user_id: int` with `edit_headers: EditHeaders`
+- Updated internal usage to access `edit_headers.x_edit_summary` and `edit_headers.x_user_id`
+
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/revert.py`
+- Updated `revert_entity()` signature: replaced `user_id: int, edit_summary: str` with `edit_headers: EditHeaders`
+- Updated internal usage to access `edit_headers.x_user_id` and `edit_headers.x_edit_summary`
+
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/update.py`
+- Updated `update_entity()` signature: removed `user_id: int = 0` parameter (user ID accessed from `request.edit_headers.x_user_id`)
+- Updated `create_revision()` and `publish_event()` calls to pass `edit_headers: request.edit_headers`
+- Updated logging to use `request.edit_headers.x_user_id`
+
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/creation_transaction.py`
+- Updated `create_revision()` signature: replaced `edit_summary: str, user_id: int` with `edit_headers: EditHeaders`
+- Updated `publish_event()` signature: replaced `user_id: int = 0, edit_summary: str = ""` with `edit_headers: EditHeaders`
+- Updated internal usage to access `edit_headers.x_edit_summary` and `edit_headers.x_user_id`
+
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/update_transaction.py`
+- Updated `create_revision()` signature: replaced `edit_summary: str, user_id: int` with `edit_headers: EditHeaders`
+- Updated `publish_event()` signature: replaced `user_id: int = 0, edit_summary: str = ""` with `edit_headers: EditHeaders`
+- Updated internal usage to access `edit_headers.x_edit_summary`
+
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/entity_transaction.py`
+- Added `EditHeaders` import
+- Updated base class `publish_event()` signature to use `EditHeaders` parameter
+
+#### Endpoint Layer (3 files)
+
+**File**: `src/models/rest_api/entitybase/v1/endpoints/entities.py`
+- Updated `delete_entity()` handler call: pass `edit_headers=headers` instead of `user_id=headers.x_user_id, edit_summary=headers.x_edit_summary`
+- Updated `add_property()` handler call: pass `edit_headers=headers`
+- Updated `remove_statement()` handler call: pass `headers` as `edit_headers`
+- Updated `patch_statement()` handler call: pass `headers` as `edit_headers`
+- Removed `user_id=headers.x_user_id` parameter from `update_entity()` calls (3 occurrences)
+
+**File**: `src/models/rest_api/entitybase/v1/endpoints/redirects.py`
+- Updated `create_entity_redirect()` handler call: pass `edit_headers=headers`
+- Updated `revert_entity_redirect()` handler call: pass `edit_headers=headers`
+
+**File**: `src/models/rest_api/entitybase/v1/endpoints/properties.py`
+- Updated `create_entity()` handler call: pass `edit_headers=headers` with keyword arguments
+- Updated `update_entity()` handler call: removed `user_id=headers.x_user_id` parameter
+
+**File**: `src/models/rest_api/entitybase/v1/endpoints/lexemes.py`
+- Updated `create_entity()` handler call: pass `edit_headers=headers` with keyword arguments
+
+### Impact
+
+- **Breaking Change**: All handler method signatures changed from accepting separate `edit_summary` and `user_id` parameters to a single `edit_headers: EditHeaders` parameter
+- **Benefits**:
+  - Reduced parameter count across all handlers
+  - Single source of truth for edit metadata
+  - Type safety through Pydantic `EditHeaders` model
+  - Consistent API across all entity operations (create, update, delete, revert, etc.)
+
+## [2026-01-28] S3 Revision Read Issue Fix
+
+### Summary
+
+Fixed S3 revision read issue by adding `content_hash` column to `entity_revisions` table and updating the read path to query this hash before loading from S3. This ensures revision data is retrievable by the hash used as the S3 key.
+
+### Motivation
+
+- **Fix Retrieval**: Original revision read path incorrectly used entity_id/revision_id as S3 key, causing 404 errors
+- **Consistency**: Align S3 storage and retrieval to use the same hash-based key
+- **Data Integrity**: Ensure revision data is always retrievable via stored content_hash
+
+### Changes
+
+#### Database Schema
+- **File**: `src/models/infrastructure/vitess/repositories/schema.py`
+- **Change**: Added `content_hash BIGINT UNSIGNED NOT NULL` column to `entity_revisions` table (line 165)
+
+#### Repository Layer
+- **File**: `src/models/infrastructure/vitess/repositories/revision.py`
+- **Changes**:
+  - Updated `create()` method to accept and store `content_hash` parameter (line 191, 210-226)
+  - Updated `create_with_cas()` method to accept and store `content_hash` parameter (line 130, 148-164)
+  - Updated `insert_revision()` to pass `content_hash` through to create methods (line 31)
+  - Added new `get_content_hash()` method to retrieve content_hash for a specific revision (line 128)
+
+#### S3 Client Layer
+- **File**: `src/models/infrastructure/s3/client.py`
+- **Change**: Updated `read_revision()` to:
+  1. Resolve entity_id to internal_id
+  2. Query content_hash from database via RevisionRepository
+  3. Load revision from S3 using content_hash (line 83-92)
+
+#### Handler Layer
+- **File**: `src/models/rest_api/entitybase/v1/handlers/entity/handler.py`
+- **Changes**:
+  - Updated `create_and_store_revision()` to pass `content_hash` to `create_revision()` (line 475)
+  - Updated `_create_revision_new()` to pass `content_hash` to `create_revision()` (line 208)
+  - Implemented `_store_revision_s3_new()` to store revision data with content_hash (line 276)
+
+#### Additional Updates
+- **File**: `src/models/infrastructure/vitess/client.py`
+  - Updated `create_revision()` to accept and pass `content_hash` parameter (line 80)
+  - Updated `insert_revision()` to accept and pass `content_hash` parameter (line 108)
+
+- **File**: `src/models/rest_api/entitybase/v1/handlers/entity/delete.py`
+  - Updated to calculate content_hash and pass to both store_revision and create_revision (line 151-164)
+
+- **File**: `src/models/rest_api/entitybase/v1/handlers/entity/revert.py`
+  - Updated to calculate content_hash and use correct RevisionData parameter (line 122-136)
+
+- **File**: `src/models/rest_api/entitybase/v1/services/redirects.py`
+  - Updated to calculate content_hash and pass to store_revision and create_revision (line 80-89)
+
+### Implementation Details
+
+The content_hash is now computed once during revision creation using `MetadataExtractor.hash_string()` and passed to both:
+1. **Vitess**: Stored in `entity_revisions.content_hash` column for retrieval
+2. **S3**: Used as the key for storing/reading revision data
+
+When reading a revision:
+1. Resolve entity_id to internal_id
+2. Query `entity_revisions` table for `content_hash`
+3. Load revision from S3 using `content_hash` as the key
+
+### Benefits
+
+- **Correct Behavior**: Revisions now load from S3 using the hash-based key, matching storage behavior
+- **Consistency**: Storage and retrieval use identical key patterns
+- **Minimal Breaking**: NULL default for content_hash handles existing rows
+
 ## [2026-01-24] Entity Schema 2.0.0 - Hash-Based Reference Architecture
 
 ### Summary

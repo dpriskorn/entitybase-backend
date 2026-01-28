@@ -2,6 +2,7 @@ from typing import Dict, Any, List
 
 from pydantic import BaseModel, Field
 
+from models.common import EditHeaders
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType, DeleteType
 
@@ -30,9 +31,6 @@ class EntityCreateRequest(BaseModel):
     is_autoconfirmed_user: bool = Field(
         default=False,
         description="User is autoconfirmed (not a new/unconfirmed account)",
-    )
-    edit_summary: str = Field(
-        min_length=1, max_length=200, description="Edit summary for this change"
     )
     user_id: int = Field(default=0, description="User who made this change")
     is_semi_protected: bool = Field(
@@ -76,8 +74,20 @@ class EntityUpdateRequest(BaseModel):
     is_not_autoconfirmed_user: bool = Field(
         default=False, description="User is not autoconfirmed (new/unconfirmed account)"
     )
-    edit_summary: str = Field(min_length=1, description="Edit summary for this change")
-    user_id: int = Field(default=0, description="User who made this change")
+    edit_headers: EditHeaders = Field(..., description="Edit headers containing user info and summary")
+    is_semi_protected: bool = Field(
+        default=False, description="Whether the entity is semi-protected"
+    )
+    is_locked: bool = Field(default=False, description="Whether the entity is locked")
+    is_archived: bool = Field(
+        default=False, description="Whether the entity is archived"
+    )
+    is_dangling: bool = Field(
+        default=False, description="Whether the entity is dangling"
+    )
+    is_mass_edit_protected: bool = Field(
+        default=False, description="Whether the entity has mass edit protection"
+    )
 
     @property
     def data(self) -> Dict[str, Any]:
@@ -89,7 +99,6 @@ class EntityDeleteRequest(BaseModel):
 
     delete_type: DeleteType = Field(description="Type of deletion")
     entity_id: str = Field(min_length=1, description="ID of the entity to delete")
-    edit_summary: str = Field(min_length=1, description="Edit summary for this change")
     user_id: int = Field(default=0, description="User who made this change")
 
     @property

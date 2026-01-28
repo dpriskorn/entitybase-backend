@@ -77,9 +77,9 @@ class VitessClient(Client):
         from models.infrastructure.vitess.repositories.thanks import ThanksRepository
         return ThanksRepository(vitess_client=self)
 
-    def create_revision(self, entity_id: str, entity_data, revision_id: int, expected_revision_id=None) -> None:
+    def create_revision(self, entity_id: str, entity_data, revision_id: int, expected_revision_id=None, content_hash: int | None = None) -> None:
         """Create a new revision."""
-        self.revision_repository.insert_revision(entity_id, revision_id, entity_data, expected_revision_id)
+        self.revision_repository.insert_revision(entity_id, revision_id, entity_data, expected_revision_id, content_hash)
 
     def create_tables(self) -> None:
         from models.infrastructure.vitess.repositories.schema import SchemaRepository
@@ -111,9 +111,15 @@ class VitessClient(Client):
         revision_id: int,
         entity_data: Any,  # type_: RevisionData
         expected_revision_id=None,
+        content_hash: int | None = None,
     ) -> None:
-        self.revision_repository.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=entity_data, expected_revision_id=expected_revision_id)
+        self.revision_repository.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=entity_data, expected_revision_id=expected_revision_id, content_hash=content_hash)
 
+    def is_entity_deleted(self, entity_id: str) -> bool:
+        return self.entity_repository.is_deleted(entity_id)
 
-# Import UserRepository for model_rebuild to resolve forward references
-VitessClient.model_rebuild()
+    def is_entity_locked(self, entity_id: str) -> bool:
+        return self.entity_repository.is_locked(entity_id)
+
+    def is_entity_archived(self, entity_id: str) -> bool:
+        return self.entity_repository.is_archived(entity_id)

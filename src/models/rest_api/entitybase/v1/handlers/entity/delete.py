@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 from fastapi import HTTPException
 
-from models.config.settings import settings
+from models.common import EditHeaders
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import DeleteType, EditType, EditData, EntityType
 from models.data.infrastructure.s3.hashes.aliases_hashes import AliasesHashes
@@ -15,12 +15,12 @@ from models.data.infrastructure.s3.hashes.labels_hashes import LabelsHashes
 from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.data.infrastructure.stream.change_type import ChangeType
-from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.stream.event import EntityChangeEvent
-from models.rest_api.entitybase.v1.handler import Handler
 from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
 from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.data.rest_api.v1.entitybase.response import EntityDeleteResponse
+from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.stream.event import EntityChangeEvent
+from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ class EntityDeleteHandler(Handler):
         self,
         entity_id: str,
         request: EntityDeleteRequest,
-        user_id: int = 0,
+        edit_headers: EditHeaders,
     ) -> EntityDeleteResponse:
         """Delete entity (soft or hard delete)."""
         if self.state.vitess_client is None:
@@ -48,7 +48,7 @@ class EntityDeleteHandler(Handler):
             extra={
                 "entity_id": entity_id,
                 "delete_type": request.delete_type.value,
-                "edit_summary": request.edit_summary,
+                "edit_summary": edit_headers.x_edit_summary,
                 "operation": "delete_entity_start",
             },
         )
@@ -97,6 +97,7 @@ class EntityDeleteHandler(Handler):
         )
 
         # Prepare deletion revision data
+        from models.config.settings import settings
         revision_data = RevisionData(
             schema_version=settings.s3_schema_revision_version,
             revision_id=new_revision_id,
@@ -125,8 +126,8 @@ class EntityDeleteHandler(Handler):
                 type=EditType.SOFT_DELETE
                 if request.delete_type == DeleteType.SOFT
                 else EditType.HARD_DELETE,
-                user_id=user_id,
-                summary=request.edit_summary,
+                user_id=edit_headers.x_user_id,
+                summary=edit_headers.x_edit_summary,
                 at=datetime.now(timezone.utc).isoformat(),
             ),
             state=EntityState(
@@ -151,9 +152,23 @@ class EntityDeleteHandler(Handler):
                     )
 
         # Write deletion revision to S3
-        self.state.s3_client.write_revision(
-            data=revision_data,
+        import json
+        from models.internal_representation.metadata_extractor import MetadataExtractor
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+        from models.config.settings import settings
+
+        revision_dict = revision_data.model_dump(mode="json")
+        revision_json = json.dumps(revision_dict, sort_keys=True)
+        content_hash = MetadataExtractor.hash_string(revision_json)
+
+        s3_revision_data = S3RevisionData(
+            schema=settings.s3_schema_revision_version,
+            revision=revision_dict,
+            hash=content_hash,
+            created_at=datetime.now(timezone.utc).isoformat(),
         )
+
+        self.state.s3_client.store_revision(content_hash, s3_revision_data)
 
         # Update head pointer
         self.state.vitess_client.create_revision(
@@ -161,6 +176,7 @@ class EntityDeleteHandler(Handler):
             revision_id=new_revision_id,
             entity_data=revision_data,
             expected_revision_id=head_revision_id,
+            content_hash=content_hash,
         )
 
         # Publish change event
@@ -178,7 +194,7 @@ class EntityDeleteHandler(Handler):
                         type=ChangeType.SOFT_DELETE,
                         from_rev=head_revision_id,
                         at=datetime.now(timezone.utc),
-                        summary=request.edit_summary,
+                        summary=edit_headers.x_edit_summary,
                     )
                 )
                 logger.debug(
@@ -190,10 +206,10 @@ class EntityDeleteHandler(Handler):
                 )
 
         # Log activity
-        if user_id > 0:
+        if edit_headers.x_user_id > 0:
             activity_result = (
                 self.state.vitess_client.user_repository.log_user_activity(
-                    user_id=user_id,
+                    user_id=edit_headers.x_user_id,
                     activity_type=UserActivityType.ENTITY_DELETE,
                     entity_id=entity_id,
                     revision_id=new_revision_id,

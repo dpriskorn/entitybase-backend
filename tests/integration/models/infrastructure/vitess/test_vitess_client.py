@@ -1,7 +1,4 @@
 import sys
-from typing import Generator
-
-import pytest
 
 sys.path.insert(0, "src")
 

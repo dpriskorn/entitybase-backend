@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class MetadataStorage(BaseS3Storage):
     """Storage operations for metadata (terms and sitelinks)."""
 
-    bucket: str = ""  # we use a method to get the right bucket
+    bucket: str = ""  # Required by BaseS3Storage, but always overridden via parameter
 
     @staticmethod
     def _get_bucket_for_type(metadata_type: MetadataType) -> str:
@@ -36,52 +36,36 @@ class MetadataStorage(BaseS3Storage):
                 f"Unknown metadata type: {metadata_type}", status_code=400
             )
 
+    # noinspection PyTypeChecker
     def store_metadata(
         self, metadata_type: MetadataType, content_hash: int, value: str
     ) -> OperationResult[None]:
         """Store metadata value (term or sitelink title)."""
         bucket = self._get_bucket_for_type(metadata_type)
-        # Temporarily change bucket for this operation
-        original_bucket = self.bucket
-        self.bucket = bucket
+        key = str(content_hash)
 
         try:
-            key = str(content_hash)
-            # Terms are stored as plain text, sitelinks too
-            result = self.store(key, value, content_type="text/plain")
+            result = self.store(key, value, content_type="text/plain", bucket=bucket)
+            assert isinstance(result, OperationResult)
             return result
         except S3StorageError as e:
             raise_validation_error(message=f"{e}, {bucket}", status_code=500)
-        finally:
-            self.bucket = original_bucket
 
     def load_metadata(
         self, metadata_type: MetadataType, content_hash: int
     ) -> Union[str, dict[str, Any], None]:
         """Load metadata value."""
         bucket = self._get_bucket_for_type(metadata_type)
-        original_bucket = self.bucket
-        self.bucket = bucket
-
-        try:
-            key = str(content_hash)
-            load_result = self.load(key)
-            if load_result is None:
-                return None  # type: ignore
-            return load_result.data
-        finally:
-            self.bucket = original_bucket
+        key = str(content_hash)
+        load_result = self.load(key, bucket=bucket)
+        if load_result is None:
+            return None  # type: ignore
+        return load_result.data
 
     def delete_metadata(
         self, metadata_type: MetadataType, content_hash: int
     ) -> OperationResult[None]:
         """Delete metadata."""
         bucket = self._get_bucket_for_type(metadata_type)
-        original_bucket = self.bucket
-        self.bucket = bucket
-
-        try:
-            key = str(content_hash)
-            return self.delete(key)
-        finally:
-            self.bucket = original_bucket
+        key = str(content_hash)
+        return self.delete(key, bucket=bucket)

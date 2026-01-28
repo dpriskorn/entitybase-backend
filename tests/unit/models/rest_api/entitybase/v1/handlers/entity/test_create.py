@@ -8,6 +8,7 @@ from models.data.infrastructure.s3.enums import EntityType, EditType
 from models.rest_api.entitybase.v1.handlers.entity.create import EntityCreateHandler
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
+from models.common import EditHeaders
 
 
 class TestEntityCreateHandler:
@@ -47,11 +48,11 @@ class TestEntityCreateHandler:
             request = EntityCreateRequest(
                 type="item",
                 id="Q42",
-                labels={"en": {"value": "Test Entity"}},
-                edit_summary="Test creation"
+                labels={"en": {"value": "Test Entity"}}
             )
 
-            result = await handler.create_entity(request, user_id=123)
+            edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
+            result = await handler.create_entity(request, edit_headers=edit_headers)
 
             assert isinstance(result, EntityResponse)
             assert result.id == "Q42"
@@ -108,11 +109,11 @@ class TestEntityCreateHandler:
 
             request = EntityCreateRequest(
                 type="item",
-                labels={"en": {"value": "Test Entity"}},
-                edit_summary="Test creation"
+                labels={"en": {"value": "Test Entity"}}
             )
 
-            result = await handler.create_entity(request, auto_assign_id=True)
+            edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
+            result = await handler.create_entity(request, edit_headers=edit_headers, auto_assign_id=True)
 
             assert result.id == "Q100"
             # Verify ID was assigned to request
@@ -134,12 +135,12 @@ class TestEntityCreateHandler:
         request = EntityCreateRequest(
             type="item",
             id="Q42",
-            labels={"en": {"value": "Test Entity"}},
-            edit_summary="Test creation"
+            labels={"en": {"value": "Test Entity"}}
         )
 
+        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
         with pytest.raises(Exception):  # Should raise validation error
-            await handler.create_entity(request)
+            await handler.create_entity(request, edit_headers=edit_headers)
 
         mock_vitess.entity_exists.assert_called_once_with("Q42")
 
@@ -158,12 +159,12 @@ class TestEntityCreateHandler:
         request = EntityCreateRequest(
             type="item",
             id="Q42",
-            labels={"en": {"value": "Test Entity"}},
-            edit_summary="Test creation"
+            labels={"en": {"value": "Test Entity"}}
         )
 
+        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
         with pytest.raises(Exception):  # Should raise validation error
-            await handler.create_entity(request)
+            await handler.create_entity(request, edit_headers=edit_headers)
 
     @pytest.mark.asyncio
     async def test_create_entity_missing_id_no_auto_assign(self) -> None:
@@ -174,12 +175,12 @@ class TestEntityCreateHandler:
 
         request = EntityCreateRequest(
             type="item",
-            labels={"en": {"value": "Test Entity"}},
-            edit_summary="Test creation"
+            labels={"en": {"value": "Test Entity"}}
         )
 
+        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
         with pytest.raises(Exception):  # Should raise validation error
-            await handler.create_entity(request)
+            await handler.create_entity(request, edit_headers=edit_headers)
 
     @pytest.mark.asyncio
     async def test_create_entity_auto_assign_no_enumeration_service(self) -> None:
@@ -190,12 +191,12 @@ class TestEntityCreateHandler:
 
         request = EntityCreateRequest(
             type="item",
-            labels={"en": {"value": "Test Entity"}},
-            edit_summary="Test creation"
+            labels={"en": {"value": "Test Entity"}}
         )
 
+        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
         with pytest.raises(Exception):  # Should raise validation error
-            await handler.create_entity(request, auto_assign_id=True)
+            await handler.create_entity(request, edit_headers=edit_headers, auto_assign_id=True)
 
     @pytest.mark.asyncio
     async def test_create_entity_user_activity_logging_failure(self) -> None:
@@ -231,12 +232,12 @@ class TestEntityCreateHandler:
             request = EntityCreateRequest(
                 type="item",
                 id="Q42",
-                labels={"en": {"value": "Test Entity"}},
-                edit_summary="Test creation"
+                labels={"en": {"value": "Test Entity"}}
             )
 
+            edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
             # Should still succeed despite logging failure
-            result = await handler.create_entity(request, user_id=123)
+            result = await handler.create_entity(request, edit_headers=edit_headers)
 
             assert result.id == "Q42"
             mock_user_repo.log_user_activity.assert_called_once()
@@ -269,11 +270,11 @@ class TestEntityCreateHandler:
             request = EntityCreateRequest(
                 type="item",
                 id="Q42",
-                labels={"en": {"value": "Test Entity"}},
-                edit_summary="Test creation"
+                labels={"en": {"value": "Test Entity"}}
             )
 
-            result = await handler.create_entity(request)  # No user_id
+            edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
+            result = await handler.create_entity(request, edit_headers=edit_headers)
 
             assert result.id == "Q42"
             # Should not attempt user activity logging
@@ -308,11 +309,11 @@ class TestEntityCreateHandler:
             request = EntityCreateRequest(
                 type="item",
                 id="Q42",
-                labels={"en": {"value": "Test Entity"}},
-                edit_summary="Test creation"
+                labels={"en": {"value": "Test Entity"}}
             )
 
-            result = await handler.create_entity(request, validator=mock_validator)
+            edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
+            result = await handler.create_entity(request, edit_headers=edit_headers, validator=mock_validator)
 
             assert result.id == "Q42"
             # Verify validator was passed to process method
@@ -348,11 +349,11 @@ class TestEntityCreateHandler:
                 type="item",
                 id="Q42",
                 labels={"en": {"value": "Test Entity"}},
-                edit_summary="Test creation",
                         edit_type=EditType.MASS_EDIT
             )
 
-            result = await handler.create_entity(request)
+            edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
+            result = await handler.create_entity(request, edit_headers=edit_headers)
 
             assert result.id == "Q42"
             # Verify mass edit parameters are passed through

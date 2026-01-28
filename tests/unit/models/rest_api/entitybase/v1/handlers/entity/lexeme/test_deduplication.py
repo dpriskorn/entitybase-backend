@@ -43,7 +43,6 @@ async def test_lexeme_deduplication_integration():
     request_data = raw_data["entities"]["L42"]
     request = EntityCreateRequest(
         type="lexeme",
-        edit_summary="Test creation"
     )
 
     # Mock the parent create_entity method to return a response
@@ -130,7 +129,6 @@ def test_lexeme_storage_error_handling():
     # Create request with forms/senses
     request = EntityCreateRequest(
         type="lexeme",
-        edit_summary="test edit",
         forms=[{
                 "id": "L999-F1",
                 "representations": {"en": {"value": "test"}}

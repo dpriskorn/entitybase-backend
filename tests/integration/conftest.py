@@ -189,3 +189,31 @@ def api_url():
     """Full API URL including configurable prefix for integration tests."""
     from models.config.settings import settings
     return f"http://localhost:8000{settings.api_prefix}"
+
+
+@pytest.fixture(scope="session")
+def s3_config():
+    """Create real S3Config from settings."""
+    from models.config.settings import settings
+    return settings.get_s3_config
+
+
+@pytest.fixture(scope="session")
+def s3_client(s3_config):
+    """Create real MyS3Client connected to Minio."""
+    import time
+    from models.infrastructure.s3.client import MyS3Client
+
+    logger.debug("pytest:s3_client: Running")
+    max_retries = 30
+    for attempt in range(max_retries):
+        try:
+            client = MyS3Client(config=s3_config)
+            logger.debug(f"pytest:s3_client: Connected to S3 at attempt {attempt + 1}")
+            yield client
+            return
+        except Exception as e:
+            if attempt == max_retries - 1:
+                raise
+            logger.debug(f"pytest:s3_client: Retry {attempt + 1}/{max_retries} - {e}")
+            time.sleep(2)

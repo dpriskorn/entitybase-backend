@@ -42,6 +42,7 @@ def test_create_item(api_client: requests.Session, api_url: str) -> None:
     response = api_client.post(
         f"{api_url}/entities/items",
         json=entity_data1.model_dump(mode="json"),
+        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
 
     # Debug output for 500 error investigation
@@ -94,6 +95,7 @@ def test_get_item(api_client: requests.Session, api_url: str) -> None:
     response = api_client.post(
         f"{api_url}/entities/items",
         json=entity_data1.model_dump(mode="json"),
+        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
     logger.debug("Response")
     pprint(response.json())
@@ -127,11 +129,11 @@ def test_create_item_already_exists(
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
         "edit_summary": "Test creation",
     }
-    api_client.post(f"{api_url}/entities/items", json=entity_data)
+    api_client.post(f"{api_url}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
     # Try to create the same entity again - should fail
     response = api_client.post(
-        f"{api_url}/entities/items", json=entity_data
+        f"{api_url}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
     )
     assert response.status_code == 409
     assert "already exists" in response.json().get("message", "")
@@ -145,7 +147,7 @@ def test_get_item_history(api_client: requests.Session, api_url: str) -> None:
 
     entity_id = "Q99996"
 
-    api_client.post(
+    create_response = api_client.post(
         f"{api_url}/entities/items",
         json={
             "id": entity_id,
@@ -153,12 +155,15 @@ def test_get_item_history(api_client: requests.Session, api_url: str) -> None:
             "labels": {"en": {"language": "en", "value": "Test Entity"}},
             "edit_summary": "create entity",
         },
+        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
+    assert create_response.status_code == 200
+    create_response.json()
 
     api_client.put(
         f"{api_url}/entities/items/{entity_id}/labels/en",
-        json={"value": "Updated Test Entity"},
-        headers={"X-Edit-Summary": "update entity"},
+        json={"language": "en", "value": "Updated Test Entity"},
+        headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
     )
 
     response = api_client.get(f"{api_url}/entities/{entity_id}/history")

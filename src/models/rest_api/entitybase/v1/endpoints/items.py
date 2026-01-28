@@ -1,25 +1,27 @@
 """Item creation endpoints for Entitybase v1 API."""
 
 import logging
-from typing import Dict, Any, List
+from typing import List
 
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 
-from models.rest_api.entitybase.v1.handlers.entity.item import ItemCreateHandler
-from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
-from models.rest_api.entitybase.v1.handlers.state import StateHandler
+from models.common import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
     EntityUpdateRequest,
-)
-from models.data.rest_api.v1.entitybase.response import (
-    EntityResponse,
+    TermUpdateRequest,
 )
 from models.data.rest_api.v1.entitybase.response import (
     DescriptionResponse,
     LabelResponse,
 )
+from models.data.rest_api.v1.entitybase.response import (
+    EntityResponse,
+)
+from models.rest_api.entitybase.v1.handlers.entity.item import ItemCreateHandler
+from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
+from models.rest_api.entitybase.v1.handlers.state import StateHandler
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +29,11 @@ router = APIRouter()
 
 
 @router.post("/entities/items", response_model=EntityResponse)
-async def create_item(request: EntityCreateRequest, req: Request) -> EntityResponse:
+async def create_item(
+    request: EntityCreateRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
     """Create a new item entity."""
     logger.info(f"🔍 ENDPOINT: Received create request for {request.id or 'auto-assign'}")
     logger.debug(f"🔍 ENDPOINT: Request data: {request.model_dump()}")
@@ -43,7 +49,7 @@ async def create_item(request: EntityCreateRequest, req: Request) -> EntityRespo
         handler = ItemCreateHandler(state=state, enumeration_service=enumeration_service)
         logger.info("🔍 ENDPOINT: Handler created, calling create_entity")
 
-        result = await handler.create_entity(request, validator)
+        result = await handler.create_entity(request, edit_headers=headers, validator=validator)
         logger.info(f"🔍 ENDPOINT: Entity creation successful: {result.id}")
         return result
 
@@ -76,9 +82,9 @@ async def get_item_label(
 async def update_item_label(
     item_id: str,
     language_code: str,
-    update_data: Dict[str, Any],
+    request: TermUpdateRequest,
     req: Request,
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> EntityResponse:
     """Update item label for language."""
     logger.info(f"📝 LABEL UPDATE: Starting label update for item={item_id}, language={language_code}")
@@ -86,15 +92,16 @@ async def update_item_label(
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 
-    # Extract label from request
-    label_value = update_data.get("value")
-    if label_value is None:
-        logger.warning(f"📝 LABEL UPDATE: Missing 'value' field for item={item_id}")
-        raise HTTPException(status_code=400, detail="Missing 'value' field")
+    if request.language != language_code:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Language in request body ({request.language}) does not match path parameter ({language_code})"
+        )
 
     # Get current entity
     handler = EntityReadHandler(state=state)
     current_entity = handler.get_entity(item_id)
+    assert isinstance(current_entity, EntityResponse)
     logger.debug(f"📝 LABEL UPDATE: Retrieved current entity with {len(current_entity.entity_data)} fields")
 
     # Update label
@@ -102,7 +109,7 @@ async def update_item_label(
         current_entity.entity_data["labels"] = {}
     current_entity.entity_data["labels"][language_code] = {
         "language": language_code,
-        "value": label_value,
+        "value": request.value,
     }
     logger.debug(f"📝 LABEL UPDATE: Updated label for {language_code}")
 
@@ -110,9 +117,9 @@ async def update_item_label(
     valid_fields = {
         "id", "type", "labels", "descriptions", "claims", "aliases", "sitelinks",
         "is_mass_edit", "state", "edit_type", "is_not_autoconfirmed_user",
-        "edit_summary", "user_id"
     }
     filtered_data = {k: v for k, v in current_entity.entity_data.items() if k in valid_fields}
+    filtered_data["id"] = item_id
     logger.info(f"📝 LABEL UPDATE: Filtered entity data from {len(current_entity.entity_data)} fields to {len(filtered_data)} valid fields")
     logger.debug(f"📝 LABEL UPDATE: Valid fields: {sorted(filtered_data.keys())}")
 
@@ -121,7 +128,7 @@ async def update_item_label(
     entity_type = current_entity.entity_data.get("type") or "item"
     try:
         update_request = EntityUpdateRequest(
-            type=entity_type, edit_summary=edit_summary, id=item_id, **filtered_data
+            type=entity_type, edit_headers=headers, **filtered_data
         )
         logger.debug(f"📝 LABEL UPDATE: Created EntityUpdateRequest successfully")
     except Exception as e:
@@ -142,7 +149,7 @@ async def delete_item_label(
     item_id: str,
     language_code: str,
     req: Request,
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> EntityResponse:
     """Delete item label for language."""
     logger.info(f"🗑️ LABEL DELETE: Starting label deletion for item={item_id}, language={language_code}")
@@ -169,7 +176,6 @@ async def delete_item_label(
     valid_fields = {
         "id", "type", "labels", "descriptions", "claims", "aliases", "sitelinks",
         "is_mass_edit", "state", "edit_type", "is_not_autoconfirmed_user",
-        "edit_summary", "user_id"
     }
     filtered_data = {k: v for k, v in current_entity.entity_data.items() if k in valid_fields}
     logger.info(f"🗑️ LABEL DELETE: Filtered entity data from {len(current_entity.entity_data)} fields to {len(filtered_data)} valid fields")
@@ -180,7 +186,7 @@ async def delete_item_label(
     entity_type = current_entity.entity_data.get("type") or "item"
     try:
         update_request = EntityUpdateRequest(
-            type=entity_type, edit_summary=edit_summary, id=item_id, **filtered_data
+            type=entity_type, edit_headers=headers, **filtered_data
         )
         logger.debug(f"🗑️ LABEL DELETE: Created EntityUpdateRequest successfully")
     except Exception as e:
@@ -221,9 +227,9 @@ async def get_item_description(
 async def update_item_description(
     item_id: str,
     language_code: str,
-    update_data: Dict[str, Any],
+    request: TermUpdateRequest,
     req: Request,
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> EntityResponse:
     """Update item description for language."""
     logger.info(f"📝 DESCRIPTION UPDATE: Starting description update for item={item_id}, language={language_code}")
@@ -231,11 +237,11 @@ async def update_item_description(
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 
-    # Extract description from Wikibase format
-    description_value = update_data.get("description")
-    if description_value is None:
-        logger.warning(f"📝 DESCRIPTION UPDATE: Missing 'description' field for item={item_id}")
-        raise HTTPException(status_code=400, detail="Missing 'description' field")
+    if request.language != language_code:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Language in request body ({request.language}) does not match path parameter ({language_code})"
+        )
 
     # Get current entity
     handler = EntityReadHandler(state=state)
@@ -247,7 +253,7 @@ async def update_item_description(
         current_entity.entity_data["descriptions"] = {}
     current_entity.entity_data["descriptions"][language_code] = {
         "language": language_code,
-        "value": description_value,
+        "value": request.value,
     }
     logger.debug(f"📝 DESCRIPTION UPDATE: Updated description for {language_code}")
 
@@ -255,7 +261,6 @@ async def update_item_description(
     valid_fields = {
         "id", "type", "labels", "descriptions", "claims", "aliases", "sitelinks",
         "is_mass_edit", "state", "edit_type", "is_not_autoconfirmed_user",
-        "edit_summary", "user_id"
     }
     filtered_data = {k: v for k, v in current_entity.entity_data.items() if k in valid_fields}
     logger.info(f"📝 DESCRIPTION UPDATE: Filtered entity data from {len(current_entity.entity_data)} fields to {len(filtered_data)} valid fields")
@@ -266,7 +271,7 @@ async def update_item_description(
     entity_type = current_entity.entity_data.get("type") or "item"
     try:
         update_request = EntityUpdateRequest(
-            type=entity_type, edit_summary=edit_summary, id=item_id, **filtered_data
+            type=entity_type, edit_headers=headers, **filtered_data
         )
         logger.debug(f"📝 DESCRIPTION UPDATE: Created EntityUpdateRequest successfully")
     except Exception as e:
@@ -288,7 +293,7 @@ async def delete_item_description(
     item_id: str,
     language_code: str,
     req: Request,
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> EntityResponse:
     """Delete item description for language."""
     logger.info(f"🗑️ DESCRIPTION DELETE: Starting description deletion for item={item_id}, language={language_code}")
@@ -315,7 +320,6 @@ async def delete_item_description(
     valid_fields = {
         "id", "type", "labels", "descriptions", "claims", "aliases", "sitelinks",
         "is_mass_edit", "state", "edit_type", "is_not_autoconfirmed_user",
-        "edit_summary", "user_id"
     }
     filtered_data = {k: v for k, v in current_entity.entity_data.items() if k in valid_fields}
     logger.info(f"🗑️ DESCRIPTION DELETE: Filtered entity data from {len(current_entity.entity_data)} fields to {len(filtered_data)} valid fields")
@@ -326,7 +330,7 @@ async def delete_item_description(
     entity_type = current_entity.entity_data.get("type") or "item"
     try:
         update_request = EntityUpdateRequest(
-            type=entity_type, edit_summary=edit_summary, id=item_id, **filtered_data
+            type=entity_type, edit_headers=headers, **filtered_data
         )
         logger.debug(f"🗑️ DESCRIPTION DELETE: Created EntityUpdateRequest successfully")
     except Exception as e:
@@ -366,7 +370,7 @@ async def put_item_aliases_for_language(
     language_code: str,
     aliases_data: List[str],
     req: Request,
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> EntityResponse:
     """Update item aliases for language."""
     logger.info(f"📝 ALIASES UPDATE: Starting aliases update for item={item_id}, language={language_code}")
@@ -393,7 +397,6 @@ async def put_item_aliases_for_language(
     valid_fields = {
         "id", "type", "labels", "descriptions", "claims", "aliases", "sitelinks",
         "is_mass_edit", "state", "edit_type", "is_not_autoconfirmed_user",
-        "edit_summary", "user_id"
     }
     filtered_data = {k: v for k, v in current_entity.entity_data.items() if k in valid_fields}
     logger.info(f"📝 ALIASES UPDATE: Filtered entity data from {len(current_entity.entity_data)} fields to {len(filtered_data)} valid fields")
@@ -404,7 +407,7 @@ async def put_item_aliases_for_language(
     entity_type = current_entity.entity_data.get("type") or "item"
     try:
         update_request = EntityUpdateRequest(
-            type=entity_type, edit_summary=edit_summary, id=item_id, **filtered_data
+            type=entity_type, edit_headers=headers, **filtered_data
         )
         logger.debug(f"📝 ALIASES UPDATE: Created EntityUpdateRequest successfully")
     except Exception as e:

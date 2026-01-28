@@ -20,7 +20,6 @@ class ItemUpdateHandler(EntityUpdateHandler):
         entity_id: str,
         request: EntityUpdateRequest,
         validator: Any | None = None,
-        user_id: int = 0,
     ) -> EntityResponse:
         """Update an existing item with validation that entity_id starts with Q."""
         logger.debug(f"Updating item {entity_id}")

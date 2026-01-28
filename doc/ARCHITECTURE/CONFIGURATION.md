@@ -14,25 +14,25 @@ All settings can be overridden using environment variables with the same name.
 ### `vitess_host`
 
 - **Type**: `str`
-- **Default**: `'vitess'`
+- **Default**: `''`
 - **Description**: vitess
 
 ### `vitess_port`
 
 - **Type**: `int`
-- **Default**: `15309`
+- **Default**: `0`
 - **Description**: No description available
 
 ### `vitess_database`
 
 - **Type**: `str`
-- **Default**: `'entitybase'`
+- **Default**: `''`
 - **Description**: No description available
 
 ### `vitess_user`
 
 - **Type**: `str`
-- **Default**: `'root'`
+- **Default**: `''`
 - **Description**: No description available
 
 ### `vitess_password`
@@ -139,6 +139,14 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'4.0.0'`
 - **Description**: No description available
 
+## API Settings
+
+### `api_prefix`
+
+- **Type**: `str`
+- **Default**: `'/v1/entitybase'`
+- **Description**: API configuration
+
 ## Workers Settings
 
 ### `backlink_stats_enabled`
@@ -189,8 +197,8 @@ All settings can be overridden using environment variables with the same name.
 
 ### `property_registry_path`
 
-- **Type**: `str`
-- **Default**: `'properties'`
+- **Type**: `Path`
+- **Default**: `Path('properties')`
 - **Description**: No description available
 
 ### `streaming_enabled`

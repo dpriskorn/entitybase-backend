@@ -8,7 +8,9 @@ from typing import Any
 from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
+from models.data.rest_api.v1.entitybase.request.entity.revision import CreateRevisionRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
+from models.common import EditHeaders
 from models.rest_api.utils import raise_validation_error
 from .create import EntityCreateHandler
 from .creation_transaction import CreationTransaction
@@ -22,9 +24,9 @@ class ItemCreateHandler(EntityCreateHandler):
     async def create_entity(
         self,
         request: EntityCreateRequest,
+        edit_headers: EditHeaders,
         validator: Any | None = None,
         auto_assign_id: bool = False,
-        user_id: int = 0,
     ) -> EntityResponse:
         """Create a new item with auto-assigned Q ID using EntityTransaction."""
         logger.info(f"🔍 HANDLER: Starting item creation for {request.id or 'auto-assign'}")
@@ -77,7 +79,7 @@ class ItemCreateHandler(EntityCreateHandler):
 
             # Create revision
             logger.info("🔍 HANDLER: Creating revision")
-            response = await tx.create_revision(
+            revision_request = CreateRevisionRequest(
                 entity_id=entity_id,
                 new_revision_id=1,
                 head_revision_id=0,
@@ -86,7 +88,7 @@ class ItemCreateHandler(EntityCreateHandler):
                 hash_result=hash_result,
                 is_mass_edit=request.is_mass_edit,
                 edit_type=request.edit_type,
-                edit_summary=request.edit_summary,
+edit_summary=edit_headers.x_edit_summary,
                 is_semi_protected=request.state.is_semi_protected,
                 is_locked=request.state.is_locked,
                 is_archived=request.state.is_archived,
@@ -95,6 +97,7 @@ class ItemCreateHandler(EntityCreateHandler):
                 is_creation=True,
                 user_id=request.user_id,
             )
+            response = await tx.create_revision(revision_request)
             logger.debug(f"🔍 HANDLER: Revision created: {response}")
 
             # Publish event
@@ -103,10 +106,8 @@ class ItemCreateHandler(EntityCreateHandler):
                 entity_id=entity_id,
                 revision_id=1,
                 change_type=ChangeType.CREATION,
+                edit_headers=edit_headers,
                 changed_at=datetime.now(),
-                # stream_producer=stream_producer,
-                # from_revision_id=0,
-                # edit_summary=request.edit_summary,
             )
             logger.debug("🔍 HANDLER: Event published successfully")
 

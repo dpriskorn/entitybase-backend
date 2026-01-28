@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from models.common import EditHeaders
 from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
@@ -55,10 +56,14 @@ class TestEntityUpdateHandler:
         with patch("models.rest_api.entitybase.v1.handlers.entity.update.UpdateTransaction") as mock_tx_class:
             mock_tx_class.return_value = mock_tx
 
+            edit_headers = EditHeaders(
+                X_User_ID=123,
+                X_Edit_Summary="Test update"
+            )
             request = EntityUpdateRequest(
                 type="item",
                 labels={"en": {"value": "Updated Entity"}},
-                edit_summary="Test update",
+                edit_headers=edit_headers,
                 id="Q12345",
             )
 
@@ -76,7 +81,7 @@ class TestEntityUpdateHandler:
             # Verify transaction usage
             mock_tx_class.assert_called_once_with(state=mock_state)
             assert mock_tx.entity_id == "Q42"
-            mock_tx.get_head.assert_called_once()
+            mock_vitess.get_head.assert_called_once_with("Q42")
             mock_tx.process_statements.assert_called_once_with("Q42", {"id": "Q42", "labels": {"en": {"value": "Updated Entity"}}}, None)
 
             # Verify revision creation
@@ -102,6 +107,9 @@ class TestEntityUpdateHandler:
             assert activity_call[1]["entity_id"] == "Q42"
             assert activity_call[1]["revision_id"] == 12345
 
+            # Verify transaction commit
+            mock_tx.commit.assert_called_once()
+
     @pytest.mark.asyncio
     async def test_update_entity_not_found(self) -> None:
         """Test entity update when entity doesn't exist."""
@@ -113,10 +121,14 @@ class TestEntityUpdateHandler:
 
         handler = EntityUpdateHandler(state=mock_state)
 
+        edit_headers = EditHeaders(
+            X_User_ID=123,
+            X_Edit_Summary="Test update for non-existent entity"
+        )
         request = EntityUpdateRequest(
             type="item",
             labels={"en": {"value": "Updated Entity"}},
-            edit_summary="Test update for non-existent entity",
+            edit_headers=edit_headers,
             id="Q999"
         )
 
@@ -180,10 +192,9 @@ class TestEntityUpdateHandler:
         mock_vitess.entity_exists.return_value = True
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.is_entity_locked.return_value = False
+        mock_vitess.get_head.side_effect = Exception("Transaction failed")
 
-        # Mock transaction that raises exception
         mock_tx = MagicMock()
-        mock_tx.get_head.side_effect = Exception("Transaction failed")
 
         handler = EntityUpdateHandler(state=mock_state)
 
@@ -361,17 +372,20 @@ class TestEntityUpdateHandler:
         with patch("models.rest_api.entitybase.v1.handlers.entity.update.UpdateTransaction") as mock_tx_class:
             mock_tx_class.return_value = mock_tx
 
+            edit_headers = EditHeaders(
+                X_User_ID=456,
+                X_Edit_Summary="Bulk update"
+            )
             request = EntityUpdateRequest(
                 type="item",
                 labels={"en": {"value": "Updated Entity"}},
-                        edit_type="mass_edit",
-                edit_summary="Bulk update",
+                edit_type="mass_edit",
+                edit_headers=edit_headers,
                 is_semi_protected=True,
                 is_locked=False,
                 is_archived=False,
                 is_dangling=False,
                 is_mass_edit_protected=False,
-                user_id=456
             )
 
             result = await handler.update_entity("Q42", request)
@@ -384,4 +398,169 @@ class TestEntityUpdateHandler:
             assert create_call["edit_type"] == "mass_edit"
             assert create_call["edit_summary"] == "Bulk update"
             assert create_call["is_semi_protected"] is True
+            assert create_call["is_locked"] is False
+            assert create_call["is_archived"] is False
+            assert create_call["is_dangling"] is False
+            assert create_call["is_mass_edit_protected"] is False
             assert create_call["user_id"] == 456
+
+    @pytest.mark.asyncio
+    async def test_update_entity_with_all_protection_fields(self) -> None:
+        """Test entity update with all protection fields explicitly set."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_s3 = MagicMock()
+        mock_user_repo = MagicMock()
+        mock_state.vitess_client = mock_vitess
+        mock_state.s3_client = mock_s3
+        mock_vitess.user_repository = mock_user_repo
+
+        mock_vitess.entity_exists.return_value = True
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
+        mock_user_repo.log_user_activity.return_value = MagicMock(success=True)
+
+        mock_tx = MagicMock()
+        mock_tx.head_revision_id = 12344
+        mock_hash_result = MagicMock()
+        mock_tx.process_statements.return_value = mock_hash_result
+
+        mock_response = EntityResponse(
+            id="Q42",
+            rev_id=12345,
+            data={"id": "Q42", "type": "item"},
+            state=MagicMock()
+        )
+        mock_tx.create_revision = AsyncMock(return_value=mock_response)
+        mock_tx.publish_event.return_value = None
+
+        handler = EntityUpdateHandler(state=mock_state)
+
+        with patch("models.rest_api.entitybase.v1.handlers.entity.update.UpdateTransaction") as mock_tx_class:
+            mock_tx_class.return_value = mock_tx
+
+            edit_headers = EditHeaders(
+                X_User_ID=123,
+                X_Edit_Summary="Add protection"
+            )
+            request = EntityUpdateRequest(
+                type="item",
+                labels={"en": {"value": "Protected Entity"}},
+                edit_headers=edit_headers,
+                id="Q42",
+                is_semi_protected=True,
+                is_locked=False,
+                is_archived=False,
+                is_dangling=False,
+                is_mass_edit_protected=True,
+            )
+
+            result = await handler.update_entity("Q42", request, user_id=123)
+
+            assert isinstance(result, EntityResponse)
+            assert result.id == "Q42"
+
+            mock_tx.create_revision.assert_called_once()
+            create_call = mock_tx.create_revision.call_args[1]
+            assert create_call["is_semi_protected"] is True
+            assert create_call["is_locked"] is False
+            assert create_call["is_archived"] is False
+            assert create_call["is_dangling"] is False
+            assert create_call["is_mass_edit_protected"] is True
+
+    @pytest.mark.asyncio
+    async def test_update_entity_default_protection_fields(self) -> None:
+        """Test that protection fields default to False when not specified."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.vitess_client = mock_vitess
+        mock_state.s3_client = mock_s3
+
+        mock_vitess.entity_exists.return_value = True
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
+
+        mock_tx = MagicMock()
+        mock_tx.head_revision_id = 12344
+        mock_tx.process_statements.return_value = MagicMock()
+
+        mock_response = EntityResponse(
+            id="Q42",
+            revision_id=12345,
+            entity_data={"id": "Q42", "type": "item"},
+            state=MagicMock()
+        )
+        mock_tx.create_revision = AsyncMock(return_value=mock_response)
+        mock_tx.publish_event.return_value = None
+
+        handler = EntityUpdateHandler(state=mock_state)
+
+        with patch("models.rest_api.entitybase.v1.handlers.entity.update.UpdateTransaction") as mock_tx_class:
+            mock_tx_class.return_value = mock_tx
+
+            edit_headers = EditHeaders(
+                X_User_ID=123,
+                X_Edit_Summary="Test defaults"
+            )
+            request = EntityUpdateRequest(
+                type="item",
+                labels={"en": {"value": "Default Protection"}},
+                edit_headers=edit_headers,
+                id="Q42"
+            )
+
+            result = await handler.update_entity("Q42", request)
+
+            assert result.id == "Q42"
+            create_call = mock_tx.create_revision.call_args[1]
+            assert create_call["is_semi_protected"] is False
+            assert create_call["is_locked"] is False
+            assert create_call["is_archived"] is False
+            assert create_call["is_dangling"] is False
+            assert create_call["is_mass_edit_protected"] is False
+
+    @pytest.mark.asyncio
+    async def test_update_entity_rollback_on_exception(self) -> None:
+        """Test entity update calls rollback when an exception occurs."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.vitess_client = mock_vitess
+        mock_state.s3_client = mock_s3
+
+        mock_vitess.entity_exists.return_value = True
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
+        mock_vitess.get_head.return_value = 12344
+
+        mock_hash_result = MagicMock()
+        mock_tx = MagicMock()
+        mock_tx.process_statements.return_value = mock_hash_result
+        mock_tx.create_revision.side_effect = Exception("Revision creation failed")
+        mock_tx.publish_event.return_value = None
+        mock_tx.rollback.return_value = None
+
+        handler = EntityUpdateHandler(state=mock_state)
+
+        with patch("models.rest_api.entitybase.v1.handlers.entity.update.UpdateTransaction") as mock_tx_class:
+            mock_tx_class.return_value = mock_tx
+
+            edit_headers = EditHeaders(
+                X_User_ID=123,
+                X_Edit_Summary="Test update"
+            )
+            request = EntityUpdateRequest(
+                type="item",
+                labels={"en": {"value": "Updated Entity"}},
+                edit_headers=edit_headers,
+                id="Q42",
+            )
+
+            with pytest.raises(Exception):
+                await handler.update_entity("Q42", request)
+
+            # Verify rollback was called
+            mock_tx.rollback.assert_called_once()
+            # Verify commit was NOT called
+            mock_tx.commit.assert_not_called()

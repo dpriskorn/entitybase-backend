@@ -326,13 +326,45 @@ class TestFormsAndSensesEndpoints:
         with pytest.raises(HTTPException) as exc:
             await update_form_representation(
                 "L42-F1",
-                "fr",
-                {"value": "réponse"},
+                "en",
+                {"language": "fr", "value": "réponse"},
                 mock_req,
                 edit_summary="test edit"
             )
 
-        assert exc.value.status_code == 404
+        assert exc.value.status_code == 400
+        assert "does not match" in exc.value.detail
+
+    @pytest.mark.asyncio
+    async def test_update_form_representation_language_mismatch(self):
+        from src.models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
+
+        mock_state = Mock()
+        mock_handler = Mock()
+        mock_entity = Mock()
+        mock_entity.data = {
+            "forms": [
+                {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+            ],
+            "senses": [],
+        }
+        mock_handler.get_entity.return_value = mock_entity
+        mock_state.state_handler = mock_state
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        with pytest.raises(HTTPException) as exc:
+            await update_form_representation(
+                "L42-F1",
+                "en",
+                {"language": "fr", "value": "réponse"},
+                mock_req,
+                edit_summary="test edit"
+            )
+
+        assert exc.value.status_code == 400
+        assert "does not match" in exc.value.detail
 
     @pytest.mark.asyncio
     async def test_update_form_representation_invalid_data(self):
@@ -357,7 +389,7 @@ class TestFormsAndSensesEndpoints:
             await update_form_representation(
                 "L42-F1",
                 "en",
-                {},  # Missing 'value' field
+                {"value": ""},  # Empty value (violates min_length=1)
                 mock_req,
                 edit_summary="test edit"
             )

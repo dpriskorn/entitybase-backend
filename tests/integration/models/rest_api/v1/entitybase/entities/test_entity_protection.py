@@ -19,7 +19,7 @@ def test_semi_protection_blocks_not_autoconfirmed_users(
 
     # Create semi-protected item
     api_client.post(
-        f"{base_url}/entity", json={**entity_data, "is_semi_protected": True}
+        f"{base_url}/entity", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
     )
 
     # Attempt edit by not-autoconfirmed user (should fail)
@@ -30,6 +30,7 @@ def test_semi_protection_blocks_not_autoconfirmed_users(
             "labels": {"en": {"language": "en", "value": "Updated"}},
             "is_not_autoconfirmed_user": True,
         },
+        headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
     )
     assert response.status_code == 403
     assert "unconfirmed" in response.json()["message"].lower()
@@ -42,6 +43,7 @@ def test_semi_protection_blocks_not_autoconfirmed_users(
             "labels": {"en": {"language": "en", "value": "Updated"}},
             "is_not_autoconfirmed_user": False,
         },
+        headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
@@ -63,7 +65,7 @@ def test_semi_protection_allows_autoconfirmed_users(
 
     # Create semi-protected item
     api_client.post(
-        f"{base_url}/entity", json={**entity_data, "is_semi_protected": True}
+        f"{base_url}/entity", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
     )
 
     # Autoconfirmed user edit should succeed
@@ -74,6 +76,7 @@ def test_semi_protection_allows_autoconfirmed_users(
             "labels": {"en": {"language": "en", "value": "Updated"}},
             "is_not_autoconfirmed_user": False,
         },
+        headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
@@ -94,12 +97,13 @@ def test_locked_items_block_all_edits(
     }
 
     # Create locked item
-    api_client.post(f"{base_url}/entity", json={**entity_data, "is_locked": True})
+    api_client.post(f"{base_url}/entity", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
     # Attempt manual edit (should fail)
     response = api_client.post(
         f"{base_url}/entity",
         json={**entity_data, "labels": {"en": {"language": "en", "value": "Updated"}}},
+        headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
     )
     assert response.status_code == 403
     assert "locked" in response.json()["message"].lower()
@@ -121,12 +125,13 @@ def test_archived_items_block_all_edits(
     }
 
     # Create archived item
-    api_client.post(f"{base_url}/entity", json={**entity_data, "is_archived": True})
+    api_client.post(f"{base_url}/entity", json={**entity_data, "is_archived": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
     # Attempt edit (should fail)
     response = api_client.post(
         f"{base_url}/entity",
         json={**entity_data, "labels": {"en": {"language": "en", "value": "Updated"}}},
+        headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
     )
     assert response.status_code == 403
     assert "archived" in response.json()["message"].lower()
@@ -149,7 +154,7 @@ def test_mass_edit_protection_blocks_mass_edits(
 
     # Create mass-edit protected item
     api_client.post(
-        f"{base_url}/entity", json={**entity_data, "is_mass_edit_protected": True}
+        f"{base_url}/entity", json={**entity_data, "is_mass_edit_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
     )
 
     # Attempt mass edit (should fail)
@@ -160,6 +165,7 @@ def test_mass_edit_protection_blocks_mass_edits(
             "is_mass_edit": True,
             "labels": {"en": {"language": "en", "value": "Updated"}},
         },
+        headers={"X-Edit-Summary": "mass update entity", "X-User-ID": "0"},
     )
     assert response.status_code == 403
     assert "mass edits blocked" in response.json()["message"].lower()
@@ -172,6 +178,7 @@ def test_mass_edit_protection_blocks_mass_edits(
             "is_mass_edit": False,
             "labels": {"en": {"language": "en", "value": "Updated manually"}},
         },
+        headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 

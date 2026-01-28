@@ -28,18 +28,19 @@ class RevisionRepository(Repository):
         revision_id: int = Field(gt=0),
         entity_data: RevisionData = Field(...),
         expected_revision_id: int | None = None,
+        content_hash: int = Field(default=None),
     ) -> None:
         """Insert a revision from RevisionData model."""
         if expected_revision_id is None:
             logger.debug(f"insert_revision: calling create for {entity_id}, revision {revision_id}")
-            self.create(entity_id, revision_id, entity_data)
+            self.create(entity_id, revision_id, entity_data, content_hash)
         else:
             logger.debug(f"insert_revision: calling create_with_cas for {entity_id}, revision {revision_id}, expected {expected_revision_id}")
-            self.create_with_cas(entity_id, revision_id, entity_data, expected_revision_id)
+            self.create_with_cas(entity_id, revision_id, entity_data, expected_revision_id, content_hash)
 
     @validate_call
     def get_revision(
-        self, internal_entity_id: int = Field(gt=0, min_length=1), revision_id: int = Field(..., min_length=1, gt=0)
+        self, internal_entity_id: int = Field(gt=0), revision_id: int = Field(..., gt=0)
     ) -> RevisionRecord | None:
         """Get a specific revision data."""
         logger.debug(f"Getting revision {revision_id} for entity {internal_entity_id}")
@@ -127,12 +128,26 @@ class RevisionRepository(Repository):
         return OperationResult(success=True)
 
     @validate_call
+    def get_content_hash(self, internal_entity_id: int = Field(gt=0), revision_id: int = Field(..., gt=0)) -> int | None:
+        """Get the content_hash for a specific revision."""
+        cursor = self.vitess_client.cursor
+        cursor.execute(
+            "SELECT content_hash FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+            (internal_entity_id, revision_id),
+        )
+        row = cursor.fetchone()
+        if row and row[0] is not None:
+            return row[0]
+        return None
+
+    @validate_call
     def create_with_cas(
         self,
         entity_id: str = Field(..., min_length=2, description="Entity ID e.g. Q1 or L1"),
         revision_id: int = Field(gt=0),
         entity_data: RevisionData = Field(...),
         expected_revision_id: int | None = None,
+        content_hash: int = Field(default=None),
     ) -> bool:
         """Create a revision with compare-and-swap semantics."""
         logger.debug(
@@ -147,8 +162,8 @@ class RevisionRepository(Repository):
         cursor = self.vitess_client.cursor
         cursor.execute(
                 """INSERT INTO entity_revisions
-                        (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, created_at, user_id, edit_summary)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                        (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, created_at, user_id, edit_summary, content_hash)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                 (
                     internal_id,
                     revision_id,
@@ -160,6 +175,7 @@ class RevisionRepository(Repository):
                     entity_data.edit.at,
                     entity_data.edit.user_id,
                     entity_data.edit.edit_summary,
+                    content_hash,
                 ),
             )
 
@@ -189,7 +205,7 @@ class RevisionRepository(Repository):
         return affected_rows > 0
 
     def create(self, entity_id: str = Field(..., alias="entity_id", min_length=2),
-               revision_id: int = Field(gt=0), entity_data: RevisionData = Field(...)) -> None:
+               revision_id: int = Field(gt=0), entity_data: RevisionData = Field(...), content_hash: int = Field(default=None)) -> None:
         """Create a new revision for an entity."""
         logger.debug(f"Creating revision {revision_id} for entity {entity_id}")
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
@@ -209,8 +225,8 @@ class RevisionRepository(Repository):
 
         cursor.execute(
             """INSERT INTO entity_revisions
-                    (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, created_at, user_id, edit_summary)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                    (internal_id, revision_id, is_mass_edit, edit_type, statements, properties, property_counts, created_at, user_id, edit_summary, content_hash)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
             (
                 internal_id,
                 revision_id,
@@ -222,6 +238,7 @@ class RevisionRepository(Repository):
                 entity_data.edit.at,
                 entity_data.edit.user_id,
                 entity_data.edit.edit_summary,
+                content_hash,
             ),
         )
 

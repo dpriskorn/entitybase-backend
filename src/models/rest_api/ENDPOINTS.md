@@ -25,10 +25,13 @@
 | ✅ | GET | `/entities/{entity_id}/properties` | Get list of unique property IDs for an entity's head revision. |
 | ✅ | POST | `/entities/{entity_id}/properties/{property_id}` | Add claims for a single property to an entity. |
 | ✅ | GET | `/entities/{entity_id}/properties/{property_list}` | Get entity property hashes for specified properties. |
+| ✅ | POST | `/entities/{entity_id}/revert` | Revert entity to a previous revision. |
 | ✅ | POST | `/entities/{entity_id}/revert-redirect` | No description |
 | ✅ | GET | `/entities/{entity_id}/revision/{revision_id}` | Get a specific revision of an entity. |
 | ✅ | GET | `/entities/{entity_id}/revision/{revision_id}/json` | Get JSON representation of a specific entity revision. |
 | ✅ | GET | `/entities/{entity_id}/revision/{revision_id}/ttl` | Get Turtle (TTL) representation of a specific entity revision. |
+| ✅ | POST | `/entities/{entity_id}/revisions/{revision_id}/thank` | Send a thank for a specific revision. |
+| ✅ | GET | `/entities/{entity_id}/revisions/{revision_id}/thanks` | Get all thanks for a specific revision. |
 | ✅ | GET | `/entities/{entity_id}/sitelinks/{site}` | Get a single sitelink for an entity. |
 | ✅ | POST | `/entities/{entity_id}/sitelinks/{site}` | Add a new sitelink for an entity. |
 | ✅ | PUT | `/entities/{entity_id}/sitelinks/{site}` | Update an existing sitelink for an entity. |
@@ -36,26 +39,11 @@
 | ✅ | DELETE | `/entities/{entity_id}/statements/{statement_hash}` | Remove a statement by hash from an entity. |
 | ✅ | PATCH | `/entities/{entity_id}/statements/{statement_hash}` | Replace a statement by hash with new claim data. |
 | ✅ | GET | `/entity/{entity_id}/properties/{property_list}` | Get statement hashes for specified properties in an entity. |
-| ✅ | POST | `/entitybase/entitybase/v1/users` | Create a new user. |
-| ✅ | GET | `/entitybase/entitybase/v1/users/stat` | Get user statistics. |
-| ✅ | GET | `/entitybase/entitybase/v1/users/{user_id}` | Get user information by MediaWiki user ID. |
 | ✅ | GET | `/entitybase/v1/entities/aliases/{hashes}` | Get batch aliases by hashes. |
 | ✅ | GET | `/entitybase/v1/entities/descriptions/{hashes}` | Get batch descriptions by hashes. |
 | ✅ | GET | `/entitybase/v1/entities/labels/{hashes}` | Get batch labels by hashes. |
 | ✅ | GET | `/entitybase/v1/entities/sitelinks/{hashes}` | Get batch sitelink titles by hashes. |
-| ✅ | POST | `/entitybase/v1/entities/{entity_id}/revert` | Revert entity to a previous revision. |
-| ✅ | POST | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thank` | Send a thank for a specific revision. |
-| ✅ | GET | `/entitybase/v1/entities/{entity_id}/revisions/{revision_id}/thanks` | Get all thanks for a specific revision. |
 | ✅ | GET | `/entitybase/v1/statements/batch` | Get batch statements for entities and properties. |
-| ✅ | POST | `/entitybase/v1/statements/{statement_hash}/endorse` | Endorse a statement to signal trust. |
-| ✅ | DELETE | `/entitybase/v1/statements/{statement_hash}/endorse` | Withdraw endorsement from a statement. |
-| ✅ | GET | `/entitybase/v1/statements/{statement_hash}/endorsements` | Get endorsements for a statement. |
-| ✅ | GET | `/entitybase/v1/statements/{statement_hash}/endorsements/stats` | Get endorsement statistics for a statement. |
-| ✅ | GET | `/entitybase/v1/users/{user_id}/endorsements` | Get endorsements given by a user. |
-| ✅ | GET | `/entitybase/v1/users/{user_id}/endorsements/stats` | Get endorsement statistics for a user. |
-| ✅ | GET | `/entitybase/v1/users/{user_id}/thanks/received` | Get thanks received by user. |
-| ✅ | GET | `/entitybase/v1/users/{user_id}/thanks/sent` | Get thanks sent by user. |
-| ✅ | PUT | `/entitybase/v1/users/{user_id}/watchlist/toggle` | Enable or disable watchlist for user. |
 | ✅ | GET | `/health` | Health check endpoint for monitoring service status. |
 | ✅ | POST | `/json-import` | Import entities from Wikidata JSONL dump file. |
 | ✅ | GET | `/qualifiers/{hashes}` | Fetch qualifiers by hash(es). |
@@ -83,13 +71,25 @@
 | ✅ | POST | `/statements/cleanup-orphaned` | Clean up orphaned statements that are no longer referenced. |
 | ✅ | GET | `/statements/most_used` | Get the most used statements based on reference count. |
 | ✅ | GET | `/statements/{content_hash}` | Retrieve a single statement by its content hash. |
+| ✅ | POST | `/statements/{statement_hash}/endorse` | Endorse a statement to signal trust. |
+| ✅ | DELETE | `/statements/{statement_hash}/endorse` | Withdraw endorsement from a statement. |
+| ✅ | GET | `/statements/{statement_hash}/endorsements` | Get endorsements for a statement. |
+| ✅ | GET | `/statements/{statement_hash}/endorsements/stats` | Get endorsement statistics for a statement. |
 | ✅ | GET | `/stats` | Get general wiki statistics. |
+| ✅ | POST | `/users` | Create a new user. |
+| ✅ | GET | `/users/stat` | Get user statistics. |
+| ✅ | GET | `/users/{user_id}` | Get user information by MediaWiki user ID. |
+| ✅ | GET | `/users/{user_id}/endorsements` | Get endorsements given by a user. |
+| ✅ | GET | `/users/{user_id}/endorsements/stats` | Get endorsement statistics for a user. |
+| ✅ | GET | `/users/{user_id}/thanks/received` | Get thanks received by user. |
+| ✅ | GET | `/users/{user_id}/thanks/sent` | Get thanks sent by user. |
 | ✅ | POST | `/users/{user_id}/watchlist` | Add a watchlist entry for user. |
 | ✅ | GET | `/users/{user_id}/watchlist` | Get user's watchlist. |
 | ✅ | GET | `/users/{user_id}/watchlist/notifications` | Get user's recent watchlist notifications. |
 | ✅ | PUT | `/users/{user_id}/watchlist/notifications/{notification_id}/check` | Mark a notification as checked. |
 | ✅ | POST | `/users/{user_id}/watchlist/remove` | Remove a watchlist entry for user. |
 | ✅ | GET | `/users/{user_id}/watchlist/stats` | Get user's watchlist statistics. |
+| ✅ | PUT | `/users/{user_id}/watchlist/toggle` | Enable or disable watchlist for user. |
 | ✅ | DELETE | `/users/{user_id}/watchlist/{watch_id}` | Remove a watchlist entry by ID. |
 
 | Status | Count |

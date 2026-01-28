@@ -53,6 +53,7 @@ class TestEntitySchemaValidation:
         response = api_client.post(
             f"{base_url}/entitybase/v1/entities/items",
             json=item_data,
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         create_result = response.json()
@@ -90,6 +91,7 @@ class TestEntitySchemaValidation:
         response = api_client.post(
             f"{base_url}/entitybase/v1/entities/items",
             json=item_data,
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         entity_id = response.json()["id"]
 
@@ -120,6 +122,7 @@ class TestEntitySchemaValidation:
         response = api_client.post(
             f"{base_url}/entitybase/v1/entities/items",
             json=item_data,
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         entity_id = response.json()["id"]
 
@@ -165,6 +168,7 @@ class TestEntitySchemaValidation:
         response = api_client.post(
             f"{base_url}/entitybase/v1/entities/items",
             json=item_data,
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         entity_id = response.json()["id"]
 

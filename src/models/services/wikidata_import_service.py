@@ -127,7 +127,6 @@ class WikidataImportService(BaseModel):
             claims=claims,
             sitelinks=sitelinks,
             edit_type=EditType.BOT_IMPORT,
-            edit_summary="Imported from Wikidata",
         )
 
     @classmethod

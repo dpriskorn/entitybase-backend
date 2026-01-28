@@ -27,6 +27,7 @@ def test_status_flags_returned_in_response(
             "is_dangling": False,
             "is_mass_edit_protected": True,
         },
+        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
 
     response = api_client.get(f"{base_url}/entity/Q90005")

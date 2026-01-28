@@ -40,7 +40,6 @@ class TestMetadataStorage:
         mock_connection_manager = MagicMock()
 
         storage = MetadataStorage(connection_manager=mock_connection_manager)
-        storage.bucket = "original-bucket"
 
         with patch('models.infrastructure.s3.base_storage.BaseS3Storage.store', return_value=MagicMock(success=True)) as mock_store:
             with patch('models.infrastructure.s3.storage.metadata_storage.settings') as mock_settings:
@@ -49,8 +48,7 @@ class TestMetadataStorage:
                 result = storage.store_metadata(MetadataType.LABELS, 12345, "test label")
 
                 assert result.success is True
-                mock_store.assert_called_once_with("12345", "test label", content_type="text/plain")
-                assert storage.bucket == "original-bucket"  # restored
+                mock_store.assert_called_once_with("12345", "test label", content_type="text/plain", bucket="test-terms")
 
     def test_load_metadata_success(self) -> None:
         """Test successful metadata loading."""
@@ -59,7 +57,6 @@ class TestMetadataStorage:
         mock_load_result.data = "loaded data"
 
         storage = MetadataStorage(connection_manager=mock_connection_manager)
-        storage.bucket = "original-bucket"
 
         with patch('models.infrastructure.s3.base_storage.BaseS3Storage.load', return_value=mock_load_result) as mock_load:
             with patch('models.infrastructure.s3.storage.metadata_storage.settings') as mock_settings:
@@ -68,8 +65,7 @@ class TestMetadataStorage:
                 result = storage.load_metadata(MetadataType.SITELINKS, 67890)
 
                 assert result == "loaded data"
-                mock_load.assert_called_once_with("67890")
-                assert storage.bucket == "original-bucket"  # restored
+                mock_load.assert_called_once_with("67890", bucket="test-sitelinks")
 
     def test_load_metadata_not_found(self) -> None:
         """Test loading metadata when not found."""
@@ -84,14 +80,13 @@ class TestMetadataStorage:
                 result = storage.load_metadata(MetadataType.LABELS, 11111)
 
                 assert result is None
-                mock_load.assert_called_once_with("11111")
+                mock_load.assert_called_once_with("11111", bucket="test-terms")
 
     def test_delete_metadata_success(self) -> None:
         """Test successful metadata deletion."""
         mock_connection_manager = MagicMock()
 
         storage = MetadataStorage(connection_manager=mock_connection_manager)
-        storage.bucket = "original-bucket"
 
         with patch('models.infrastructure.s3.base_storage.BaseS3Storage.delete', return_value=MagicMock(success=True)) as mock_delete:
             with patch('models.infrastructure.s3.storage.metadata_storage.settings') as mock_settings:
@@ -100,5 +95,4 @@ class TestMetadataStorage:
                 result = storage.delete_metadata(MetadataType.ALIASES, 22222)
 
                 assert result.success is True
-                mock_delete.assert_called_once_with("22222")
-                assert storage.bucket == "original-bucket"  # restored
+                mock_delete.assert_called_once_with("22222", bucket="test-terms")

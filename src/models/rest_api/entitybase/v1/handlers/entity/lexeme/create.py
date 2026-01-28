@@ -3,6 +3,7 @@
 import logging
 from typing import Any
 
+from models.common import EditHeaders
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
@@ -22,14 +23,15 @@ class LexemeCreateHandler(EntityCreateHandler):
     async def create_entity(
         self,
         request: EntityCreateRequest,
+        edit_headers: EditHeaders,
         validator: Any | None = None,
         auto_assign_id: bool = False,
-        user_id: int = 0,
     ) -> EntityResponse:
         """Create a new lexeme with auto-assigned L ID."""
         logger.debug("Creating new lexeme")
         response = await super().create_entity(
             request,
+            edit_headers,
             validator,
             auto_assign_id=True,
         )

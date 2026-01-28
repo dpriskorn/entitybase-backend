@@ -3,6 +3,7 @@
 import logging
 from datetime import datetime, timezone
 
+from models.common import EditHeaders
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType, EditData
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
@@ -25,7 +26,7 @@ class EntityRevertHandler(Handler):
         self,
         entity_id: str,
         request: EntityRevertRequest,
-        user_id: int,
+        edit_headers: EditHeaders,
     ) -> EntityRevertResponse:
         """Revert an entity to a specified revision."""
         logger.debug(
@@ -108,7 +109,7 @@ class EntityRevertHandler(Handler):
             entity_type=target_data.get("entity_type", "item"),
             edit=EditData(
                 type=EditType.MANUAL_UPDATE,
-                user_id=user_id,
+                user_id=edit_headers.x_user_id,
                 summary=f"Revert to revision {request.to_revision_id}",
                 at=datetime.now(timezone.utc).isoformat(),
             ),
@@ -120,19 +121,29 @@ class EntityRevertHandler(Handler):
         )
 
         # Write new revision to S3
-        self.state.s3_client.write_revision(
-            data=new_revision_data,
-            # publication_state="pending",
+        import json
+        from models.internal_representation.metadata_extractor import MetadataExtractor
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+        from models.config.settings import settings
+
+        revision_dict = new_revision_data.model_dump(mode="json")
+        revision_json = json.dumps(revision_dict, sort_keys=True)
+        content_hash = MetadataExtractor.hash_string(revision_json)
+
+        s3_revision_data = S3RevisionData(
+            schema=settings.s3_schema_revision_version,
+            revision=revision_dict,
+            hash=content_hash,
+            created_at=datetime.now(timezone.utc).isoformat(),
         )
+
+        self.state.s3_client.store_revision(content_hash, s3_revision_data)
 
         # Insert revision in DB
         self.state.vitess_client.insert_revision(
             entity_id,
             new_revision_id,
-                edit_type="revert",
-            statements=target_revision_data.data["entity"]["statements"],
-            properties=target_revision_data.data["entity"]["properties"],
-            property_counts=target_revision_data.data["entity"]["property_counts"],
+            new_revision_data,
         )
 
         # Mark as published
@@ -150,7 +161,7 @@ class EntityRevertHandler(Handler):
                 type=ChangeType.REVERT,
                 from_rev=head_revision,
                 at=datetime.now(timezone.utc),
-                summary=request.reason,
+                summary=edit_headers.x_edit_summary,
             )
             await self.state.entity_change_stream_producer.publish_event(event)
 

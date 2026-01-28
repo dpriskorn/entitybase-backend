@@ -5,6 +5,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
+from models.common import EditHeaders
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import (
@@ -27,9 +28,9 @@ class EntityCreateHandler(EntityHandler):
     async def create_entity(
         self,
         request: EntityCreateRequest,
+        edit_headers: EditHeaders,
         validator: Any | None = None,
         auto_assign_id: bool = False,
-        user_id: int = 0,
     ) -> EntityResponse:
         """Create a new entity. Fails if entity already exists."""
         # Auto-assign ID if requested (for type-specific endpoints)
@@ -90,16 +91,16 @@ class EntityCreateHandler(EntityHandler):
             request_data=request_data,
             entity_type=EntityType(request.type),
             edit_type=request.edit_type,
-            edit_summary=request.edit_summary,
+            edit_headers=edit_headers,
             is_creation=True,
             validator=validator,
         )
 
         # Log activity
-        if user_id > 0:
+        if edit_headers.x_user_id > 0:
             activity_result = (
                 self.state.vitess_client.user_repository.log_user_activity(
-                    user_id=user_id,
+                    user_id=edit_headers.x_user_id,
                     activity_type=UserActivityType.ENTITY_CREATE,
                     entity_id=entity_id,
                     revision_id=response.revision_id,

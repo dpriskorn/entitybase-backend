@@ -3,22 +3,22 @@
 import logging
 from typing import List
 
-from fastapi import APIRouter, Header, HTTPException, Request
+from fastapi import APIRouter, HTTPException, Request
 
-from models.rest_api.entitybase.v1.handlers.entity.property import PropertyCreateHandler
-
-from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
+from models.common import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
     EntityUpdateRequest,
 )
-from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import (
     AliasesResponse,
     DescriptionResponse,
     LabelResponse,
 )
+from models.data.rest_api.v1.entitybase.response import EntityResponse
+from models.rest_api.entitybase.v1.handlers.entity.property import PropertyCreateHandler
+from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,11 @@ router = APIRouter()
 
 
 @router.post("/entities/properties", response_model=EntityResponse)
-async def create_property(request: EntityCreateRequest, req: Request) -> EntityResponse:
+async def create_property(
+    request: EntityCreateRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
     """Create a new property entity."""
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
@@ -35,8 +39,9 @@ async def create_property(request: EntityCreateRequest, req: Request) -> EntityR
         state=state, enumeration_service=enumeration_service
     )
     return await handler.create_entity(  # type: ignore[no-any-return]
-        request,
-        validator,
+        request=request,
+        edit_headers=headers,
+        validator=validator,
     )
 
 
@@ -107,7 +112,7 @@ async def put_property_aliases_for_language(
     language_code: str,
     aliases_data: List[str],
     req: Request,
-    edit_summary: str = Header(..., alias="X-Edit-Summary", min_length=1, max_length=200),
+    headers: EditHeadersType,
 ) -> EntityResponse:
     """Update property aliases for language."""
     logger.debug(
@@ -121,19 +126,25 @@ async def put_property_aliases_for_language(
     current_entity = handler.get_entity(property_id)
 
     # Update aliases: expect list of strings
-    if "aliases" not in current_entity.data:
-        current_entity.data["aliases"] = {}
+    if "aliases" not in current_entity.entity_data:
+        current_entity.entity_data["aliases"] = {}
     # Convert to the internal format: list of dicts with "value"
     current_entity.entity_data["aliases"][language_code] = [
         {"value": alias} for alias in aliases_data
     ]
 
+    # Filter to only valid EntityUpdateRequest fields
+    valid_fields = {
+        "id", "type", "labels", "descriptions", "claims", "aliases", "sitelinks",
+        "is_mass_edit", "state", "edit_type", "is_not_autoconfirmed_user",
+    }
+    filtered_data = {k: v for k, v in current_entity.entity_data.items() if k in valid_fields}
+
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
+    entity_type = current_entity.entity_data.get("type") or "property"
     update_request = EntityUpdateRequest(
-        type=current_entity.entity_data.get("type"),
-        edit_summary=edit_summary,
-        **current_entity.entity_data,
+        type=entity_type, edit_headers=headers, **filtered_data
     )
 
     return await update_handler.update_entity(
