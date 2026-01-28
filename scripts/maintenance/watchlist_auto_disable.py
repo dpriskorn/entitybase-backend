@@ -71,18 +71,17 @@ class WatchlistAutoDisableWorker:
         )
         inactive_users = []
 
-        with self.vitess_client.get_connection() as conn:
-            with conn.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT user_id FROM users
-                    WHERE last_activity < %s AND watchlist_enabled = TRUE
-                    """,
-                    (cutoff_date,),
-                )
-                rows = cursor.fetchall()
-                for row in rows:
-                    inactive_users.append(row[0])
+        cursor = self.vitess_client.cursor
+        cursor.execute(
+            """
+            SELECT user_id FROM users
+            WHERE last_activity < %s AND watchlist_enabled = TRUE
+            """,
+            (cutoff_date,),
+        )
+        rows = cursor.fetchall()
+        for row in rows:
+            inactive_users.append(row[0])
 
         return inactive_users
 

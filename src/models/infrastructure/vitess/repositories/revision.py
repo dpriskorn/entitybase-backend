@@ -45,26 +45,25 @@ class RevisionRepository(Repository):
     ) -> RevisionRecord | None:
         """Get a specific revision data."""
         logger.debug(f"Getting revision {revision_id} for entity {internal_entity_id}")
-        with self.vitess_client.get_connection() as _:
-            cursor = self.vitess_client.cursor
-            cursor.execute(
-                "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
-                (internal_entity_id, revision_id),
+        cursor = self.vitess_client.cursor
+        cursor.execute(
+            "SELECT statements, properties, property_counts, labels_hashes, descriptions_hashes, aliases_hashes, sitelinks_hashes FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+            (internal_entity_id, revision_id),
+        )
+        row = cursor.fetchone()
+        if row:
+            return RevisionRecord.model_validate(
+                {
+                    "statements": json.loads(row[0]) if row[0] else [],
+                    "properties": json.loads(row[1]) if row[1] else [],
+                    "property_counts": json.loads(row[2]) if row[2] else {},
+                    "labels_hashes": json.loads(row[3]) if row[3] else {},
+                    "descriptions_hashes": json.loads(row[4]) if row[4] else [],
+                    "aliases_hashes": json.loads(row[5]) if row[5] else [],
+                    "sitelinks_hashes": json.loads(row[6]) if row[6] else {},
+                }
             )
-            row = cursor.fetchone()
-            if row:
-                return RevisionRecord.model_validate(
-                    {
-                        "statements": json.loads(row[0]) if row[0] else [],
-                        "properties": json.loads(row[1]) if row[1] else [],
-                        "property_counts": json.loads(row[2]) if row[2] else {},
-                        "labels_hashes": json.loads(row[3]) if row[3] else {},
-                        "descriptions_hashes": json.loads(row[4]) if row[4] else {},
-                        "aliases_hashes": json.loads(row[5]) if row[5] else {},
-                        "sitelinks_hashes": json.loads(row[6]) if row[6] else {},
-                    }
-                )
-            return None
+        return None
 
     @validate_call
     def get_history(

@@ -55,18 +55,16 @@ class GeneralStatsWorker(BaseStatsWorker):
 
         today = date.today().isoformat()
 
-        with self.vitess_client.connection_manager.get_connection() as conn:
-            self.vitess_client.user_repository.insert_general_statistics(
-                date=today,
-                total_statements=stats.total_statements,
-                total_qualifiers=stats.total_qualifiers,
-                total_references=stats.total_references,
-                total_items=stats.total_items,
-                total_lexemes=stats.total_lexemes,
-                total_properties=stats.total_properties,
-                total_sitelinks=stats.total_sitelinks,
-                total_terms=stats.total_terms,
-                terms_per_language=stats.terms_per_language.model_dump(mode="json"),
-                terms_by_type=stats.terms_by_type.model_dump(mode="json"),
-            )
-            conn.commit()
+        self.vitess_client.user_repository.insert_general_statistics(
+            date=today,
+            total_statements=stats.total_statements,
+            total_qualifiers=stats.total_qualifiers,
+            total_references=stats.total_references,
+            total_items=stats.total_items,
+            total_lexemes=stats.total_lexemes,
+            total_properties=stats.total_properties,
+            total_sitelinks=stats.total_sitelinks,
+            total_terms=stats.total_terms,
+            terms_per_language=stats.terms_per_language.model_dump(mode="json"),
+            terms_by_type=stats.terms_by_type.model_dump(mode="json"),
+        )

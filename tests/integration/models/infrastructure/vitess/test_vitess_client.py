@@ -48,18 +48,16 @@ def test_insert_revision_idempotent(vitess_client) -> None:
     )
 
     internal_id = vitess_client.resolve_id(entity_id)
-    with vitess_client.get_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT COUNT(*) FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
-            (internal_id, revision_id),
-        )
-        count = cursor.fetchone()[0]
-        cursor.close()
+    cursor = vitess_client.cursor
+    cursor.execute(
+        "SELECT COUNT(*) FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+        (internal_id, revision_id),
+    )
+    count = cursor.fetchone()[0]
 
-        assert count == 1, (
-            "Should only have one record, duplicate inserts should be skipped"
-        )
+    assert count == 1, (
+        "Should only have one record, duplicate inserts should be skipped"
+    )
 
 
 def test_insert_revision_different_params(vitess_client) -> None:
@@ -84,14 +82,12 @@ def test_insert_revision_different_params(vitess_client) -> None:
     )
 
     internal_id = vitess_client.resolve_id(entity_id)
-    with vitess_client.get_connection() as conn:
-        cursor = conn.cursor()
-        cursor.execute(
-            "SELECT COUNT(*) FROM entity_revisions WHERE internal_id = %s",
-            (internal_id,),
-        )
-        count = cursor.fetchone()[0]
-        cursor.close()
+    cursor = vitess_client.cursor
+    cursor.execute(
+        "SELECT COUNT(*) FROM entity_revisions WHERE internal_id = %s",
+        (internal_id,),
+    )
+    count = cursor.fetchone()[0]
 
-        assert count == 2, "Should have two separate records for different revisions"
+    assert count == 2, "Should have two separate records for different revisions"
 

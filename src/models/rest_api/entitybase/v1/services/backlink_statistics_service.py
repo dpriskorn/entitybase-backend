@@ -28,57 +28,54 @@ class BacklinkStatisticsService(BaseModel):
 
     def get_total_backlinks(self) -> int:
         """Count total backlink relationships."""
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute("SELECT COUNT(*) FROM entity_backlinks")
-                result = cursor.fetchone()
-                return result[0] if result else 0
+        cursor = self.state.vitess_client.cursor
+        cursor.execute("SELECT COUNT(*) FROM entity_backlinks")
+        result = cursor.fetchone()
+        return result[0] if result else 0
 
     def get_entities_with_backlinks(self) -> int:
         """Count entities that have incoming backlinks."""
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute(
-                    "SELECT COUNT(DISTINCT referenced_internal_id) FROM entity_backlinks"
-                )
-                result = cursor.fetchone()
-                return result[0] if result else 0
+        cursor = self.state.vitess_client.cursor
+        cursor.execute(
+            "SELECT COUNT(DISTINCT referenced_internal_id) FROM entity_backlinks"
+        )
+        result = cursor.fetchone()
+        return result[0] if result else 0
 
     def get_top_entities_by_backlinks(
         self, limit: int = 100
     ) -> list[TopEntityByBacklinks]:
         """Get top entities ranked by backlink count."""
         logger.debug("Getting top %d entities by backlinks", limit)
-        with self.state.vitess_client.connection_manager.get_connection() as _:
-            with self.connection_manager.connection.cursor() as cursor:
-                cursor.execute(
-                    """
-                    SELECT
-                        referenced_internal_id,
-                        COUNT(*) as backlink_count
-                    FROM entity_backlinks
-                    GROUP BY referenced_internal_id
-                    ORDER BY backlink_count DESC
-                    LIMIT %s
-                    """,
-                    (limit,),
+        cursor = self.state.vitess_client.cursor
+        cursor.execute(
+            """
+            SELECT
+                referenced_internal_id,
+                COUNT(*) as backlink_count
+            FROM entity_backlinks
+            GROUP BY referenced_internal_id
+            ORDER BY backlink_count DESC
+            LIMIT %s
+            """,
+            (limit,),
+        )
+
+        results = []
+        for row in cursor.fetchall():
+            internal_id = row[0]
+            backlink_count = row[1]
+
+            # Resolve entity ID
+            entity_id = self.state.vitess_client.id_resolver.resolve_entity_id(
+                internal_id
+            )
+            if entity_id:
+                results.append(
+                    TopEntityByBacklinks(
+                        entity_id=entity_id,
+                        backlink_count=backlink_count,
+                    )
                 )
 
-                results = []
-                for row in cursor.fetchall():
-                    internal_id = row[0]
-                    backlink_count = row[1]
-
-                    # Resolve entity ID
-                    entity_id = self.state.vitess_client.id_resolver.resolve_entity_id(
-                        internal_id
-                    )
-                    if entity_id:
-                        results.append(
-                            TopEntityByBacklinks(
-                                entity_id=entity_id,
-                                backlink_count=backlink_count,
-                            )
-                        )
-
-                return results
+        return results

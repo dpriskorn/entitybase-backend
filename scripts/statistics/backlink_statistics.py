@@ -110,10 +110,9 @@ async def compute_backlinks(vitess_client: Any, s3_client: Any) -> None:
     logger.info("Starting backlink computation")
 
     # Get all statement hashes from statement_content table
-    with vitess_client.get_connection() as conn:
-        statement_hashes = vitess_client.statement_repository.get_all_statement_hashes(
-            conn
-        )
+    statement_hashes = vitess_client.statement_repository.get_all_statement_hashes(
+        vitess_client.connection
+    )
 
     logger.info(f"Found {len(statement_hashes)} statements to process")
 
@@ -157,14 +156,13 @@ async def compute_backlinks(vitess_client: Any, s3_client: Any) -> None:
 
     # Store results in backlink_statistics table
     today = datetime.now(timezone.utc).date().isoformat()
-    with vitess_client.get_connection() as conn:
-        vitess_client.backlink_repository.insert_backlink_statistics(
-            conn,
-            today,
-            total_backlinks,
-            unique_entities_with_backlinks,
-            top_entities_by_backlinks,
-        )
+    vitess_client.backlink_repository.insert_backlink_statistics(
+        vitess_client.connection,
+        today,
+        total_backlinks,
+        unique_entities_with_backlinks,
+        top_entities_by_backlinks,
+    )
 
     logger.info("Backlink computation completed")
 

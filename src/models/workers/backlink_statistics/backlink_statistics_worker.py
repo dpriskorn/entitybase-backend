@@ -57,12 +57,10 @@ class BacklinkStatisticsWorker(BaseStatsWorker):
 
         today = date.today().isoformat()
 
-        with self.vitess_client.connection_manager.get_connection() as conn:
-            self.vitess_client.backlink_repository.insert_backlink_statistics(
-                conn=conn,
-                date=today,
-                total_backlinks=stats.total_backlinks,
-                unique_entities_with_backlinks=stats.unique_entities_with_backlinks,
-                top_entities_by_backlinks=stats.top_entities_by_backlinks,
-            )
-            conn.commit()
+        self.vitess_client.backlink_repository.insert_backlink_statistics(
+            conn=self.vitess_client.connection,
+            date=today,
+            total_backlinks=stats.total_backlinks,
+            unique_entities_with_backlinks=stats.unique_entities_with_backlinks,
+            top_entities_by_backlinks=stats.top_entities_by_backlinks,
+        )
