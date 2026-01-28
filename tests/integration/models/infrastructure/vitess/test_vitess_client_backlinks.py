@@ -21,7 +21,7 @@ class TestVitessClientBacklinks:
             patch("models.infrastructure.vitess_client.StatementRepository"),
             patch("models.infrastructure.vitess_client.BacklinkRepository"),
         ):
-            self.vitess_client = VitessClient(self.config)
+            self.vitess_client = VitessClient(config=self.config)
 
     def test_insert_backlinks(self) -> None:
         """Test insert_backlinks delegates to repository."""
@@ -122,7 +122,7 @@ class TestVitessClientBacklinks:
     def test_repository_initialization(self) -> None:
         """Test that BacklinkRepository is properly initialized."""
         with patch("models.infrastructure.vitess_client.VitessConnectionManager"):
-            client = VitessClient(self.config)
+            client = VitessClient(config=self.config)
             assert client.backlink_repository is not None
             # Verify it was created with the connection manager
             assert isinstance(client.backlink_repository.connection_manager, Mock)

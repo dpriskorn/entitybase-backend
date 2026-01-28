@@ -24,7 +24,7 @@ def vitess_client() -> Generator[VitessClient, None, None]:
         user="root",
         password="",
     )
-    client = VitessClient(config)
+    client = VitessClient(config=config)
     yield client
 
 
