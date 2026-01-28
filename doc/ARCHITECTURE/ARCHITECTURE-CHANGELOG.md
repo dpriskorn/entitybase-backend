@@ -2153,40 +2153,40 @@ class Clients(BaseModel):
 ```python
 @asynccontextmanager
 async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
-    try:
-        logger.debug("Initializing clients...")
-        s3_config = settings.to_s3_config()
-        vitess_config = settings.to_vitess_config()
-        kafka_brokers = settings.kafka_brokers
-        kafka_topic = settings.kafka_entitychange_json_topic
+  try:
+    logger.debug("Initializing clients...")
+    s3_config = settings.get_s3_config()
+    vitess_config = settings.get_vitess_config()
+    kafka_brokers = settings.kafka_brokers
+    kafka_topic = settings.kafka_entitychange_json_topic
 
-        logger.debug(f"Kafka config: brokers={kafka_brokers}, topic={kafka_topic}")
+    logger.debug(f"Kafka config: brokers={kafka_brokers}, topic={kafka_topic}")
 
-        app_.state.state_handler = Clients(
-            s3=s3_config,
-            vitess=vitess_config,
-            kafka_brokers=kafka_brokers,
-            kafka_topic=kafka_topic,
-            property_registry_path=property_registry_path,
-        )
+    app_.state.state_handler = Clients(
+      s3=s3_config,
+      vitess=vitess_config,
+      kafka_brokers=kafka_brokers,
+      kafka_topic=kafka_topic,
+      property_registry_path=property_registry_path,
+    )
 
-        # Start Kafka producer
-        if app_.state.state_handler.kafka_producer:
-            await app_.state.state_handler.kafka_producer.start()
-            logger.info("Kafka producer started")
+    # Start Kafka producer
+    if app_.state.state_handler.kafka_producer:
+      await app_.state.state_handler.kafka_producer.start()
+      logger.info("Kafka producer started")
 
-        yield
+    yield
 
-        # Stop Kafka producer
-        if app_.state.state_handler.kafka_producer:
-            await app_.state.state_handler.kafka_producer.stop()
-            logger.info("Kafka producer stopped")
+    # Stop Kafka producer
+    if app_.state.state_handler.kafka_producer:
+      await app_.state.state_handler.kafka_producer.stop()
+      logger.info("Kafka producer stopped")
 
-    except Exception as e:
-        logger.error(
-            f"Failed to initialize clients: {type(e).__name__}: {e}", exc_info=True
-        )
-        raise
+  except Exception as e:
+    logger.error(
+      f"Failed to initialize clients: {type(e).__name__}: {e}", exc_info=True
+    )
+    raise
 ```
 
 **Rationale**:

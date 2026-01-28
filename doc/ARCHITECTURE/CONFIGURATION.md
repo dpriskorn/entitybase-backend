@@ -167,17 +167,11 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'INFO'`
 - **Description**: logging
 
-### `test_log_level`
-
-- **Type**: `str`
-- **Default**: `'INFO'`
-- **Description**: No description available
-
 ### `test_log_http_requests`
 
 - **Type**: `bool`
 - **Default**: `False`
-- **Description**: No description available
+- **Description**: test_log_level: str = "INFO"
 
 ### `test_show_progress`
 
