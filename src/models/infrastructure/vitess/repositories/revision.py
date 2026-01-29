@@ -24,14 +24,14 @@ class RevisionRepository(Repository):
     @validate_call
     def insert_revision(
         self,
-        entity_id: str = Field(..., min_length=2, description="Entity ID e.g. Q1 or L1"),
-        revision_id: int = Field(gt=0),
-        entity_data: RevisionData = Field(...),
-        expected_revision_id: int | None = None,
-        content_hash: int = Field(default=None),
+        entity_id: str,
+        revision_id: int,
+        entity_data: RevisionData,
+        content_hash: int,
+        expected_revision_id: int = 0,
     ) -> None:
         """Insert a revision from RevisionData model."""
-        if expected_revision_id is None:
+        if not expected_revision_id:
             logger.debug(f"insert_revision: calling create for {entity_id}, revision {revision_id}")
             self.create(entity_id, revision_id, entity_data, content_hash)
         else:
@@ -128,7 +128,7 @@ class RevisionRepository(Repository):
         return OperationResult(success=True)
 
     @validate_call
-    def get_content_hash(self, internal_entity_id: int = Field(gt=0), revision_id: int = Field(..., gt=0)) -> int | None:
+    def get_content_hash(self, internal_entity_id: int = Field(gt=0), revision_id: int = Field(..., gt=0)) -> int:
         """Get the content_hash for a specific revision."""
         cursor = self.vitess_client.cursor
         cursor.execute(
@@ -138,16 +138,16 @@ class RevisionRepository(Repository):
         row = cursor.fetchone()
         if row and row[0] is not None:
             return row[0]
-        return None
+        raise_validation_error(f"No content_hash found for entity {internal_entity_id} revision {revision_id}", status_code=404)
 
     @validate_call
     def create_with_cas(
         self,
-        entity_id: str = Field(..., min_length=2, description="Entity ID e.g. Q1 or L1"),
-        revision_id: int = Field(gt=0),
-        entity_data: RevisionData = Field(...),
-        expected_revision_id: int | None = None,
-        content_hash: int = Field(default=None),
+        entity_id: str,
+        revision_id: int,
+        entity_data: RevisionData,
+        content_hash: int,
+        expected_revision_id: int = 0,
     ) -> bool:
         """Create a revision with compare-and-swap semantics."""
         logger.debug(
@@ -204,8 +204,7 @@ class RevisionRepository(Repository):
         logger.debug(f"CAS operation: affected {affected_rows} rows for revision {revision_id}")
         return affected_rows > 0
 
-    def create(self, entity_id: str = Field(..., alias="entity_id", min_length=2),
-               revision_id: int = Field(gt=0), entity_data: RevisionData = Field(...), content_hash: int = Field(default=None)) -> None:
+    def create(self, entity_id: str, revision_id: int, entity_data: RevisionData, content_hash: int) -> None:
         """Create a new revision for an entity."""
         logger.debug(f"Creating revision {revision_id} for entity {entity_id}")
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
