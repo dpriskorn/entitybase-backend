@@ -4,6 +4,7 @@ import logging
 import re
 from typing import Any
 
+from models.common import EditHeaders
 from models.data.rest_api.v1.entitybase.request import EntityUpdateRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.utils import raise_validation_error
@@ -19,6 +20,7 @@ class ItemUpdateHandler(EntityUpdateHandler):
         self,
         entity_id: str,
         request: EntityUpdateRequest,
+        edit_headers: EditHeaders,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Update an existing item with validation that entity_id starts with Q."""
@@ -34,5 +36,6 @@ class ItemUpdateHandler(EntityUpdateHandler):
         return await super().update_entity(
             entity_id,
             request,
+            edit_headers,
             validator,
         )

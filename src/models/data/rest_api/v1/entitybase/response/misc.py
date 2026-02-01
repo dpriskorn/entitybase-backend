@@ -124,6 +124,14 @@ class MetadataContent(BaseModel):
     ref_count: int = Field(..., description="Reference count")
 
 
+class MetadataData(BaseModel):
+    """Model for metadata data content."""
+
+    model_config = {"extra": "allow"}
+
+    data: str | dict[str, Any] = Field(..., description="Metadata content as text or structured data")
+
+
 class TopEntityByBacklinks(BaseModel):
     """Model for entity backlink ranking."""
 

@@ -138,7 +138,10 @@ class EntityResponse(BaseModel):
         alias="data",
         description="Full entity JSON data. Example: {'id': 'Q42', 'type': 'item'}.",
     )
-    state: EntityState = Field(description="Entity state information.")
+    state: EntityState | None = Field(
+        default=None,
+        description="Entity state information (optional, may be None for revisions).",
+    )
 
 
 class EntityDeleteResponse(BaseModel):
@@ -210,14 +213,6 @@ class EntityMetadataBatchResponse(BaseModel):
     metadata: dict[str, EntityMetadataResponse | None] = Field(
         description="Dictionary mapping entity_id to metadata or None"
     )
-
-
-class EntityRevisionResponse(BaseModel):
-    """Model for entity revision response."""
-
-    entity_id: str = Field(description="Entity ID")
-    revision_id: int = Field(description="Revision ID")
-    revision_data: dict = Field(description="Revision data")
 
 
 class ProtectionResponse(BaseModel):

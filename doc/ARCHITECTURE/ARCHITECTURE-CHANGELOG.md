@@ -2,6 +2,40 @@
 
 This file tracks architectural changes, feature additions, and modifications to the entitybase-backend.
 
+## [2026-01-28] Fix entity_type query issue by using pattern matching
+
+### Summary
+
+Fixed `AttributeError: 'VitessClient' object has no attribute 'list_entities_by_type'` by implementing missing method and updating entity type queries to use pattern matching on entity_id instead of querying a non-existent `entity_type` column.
+
+### Motivation
+
+- **Bug Fix**: Admin handler was calling non-existent method
+- **Correctness**: The `entity_type` column doesn't exist in `entity_revisions` table
+- **Performance**: Use pattern matching on entity_id instead of joins to derived fields
+
+### Changes
+
+#### VitessClient (`src/models/infrastructure/vitess/client.py:127-140`)
+
+- Added `list_entities_by_type(entity_type, limit, offset)` method
+- Uses SQL LIKE pattern matching on entity_id:
+  - `item` → Q%
+  - `lexeme` → L%
+  - `property` → P%
+
+#### ListingRepository (`src/models/infrastructure/vitess/repositories/listing.py`)
+
+- Added `_get_entity_type_from_id(entity_id)` helper method to derive type from ID pattern
+- Removed entity_revisions joins in `list_locked()`, `list_semi_protected()`, `list_archived()`, `list_dangling()`, and `_list_entities_by_edit_type()`
+- Fixed queries to derive entity_type from entity_id after retrieval
+
+#### GeneralStatsService (`src/models/rest_api/entitybase/v1/services/general_stats_service.py`)
+
+- Fixed `get_total_items()` to count entity_id LIKE 'Q%'
+- Fixed `get_total_lexemes()` to count entity_id LIKE 'L%'
+- Fixed `get_total_properties()` to count entity_id LIKE 'P%'
+
 ## [2026-01-28] Consolidate Edit Headers in Handlers
 
 ### Summary

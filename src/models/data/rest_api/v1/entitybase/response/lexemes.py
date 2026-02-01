@@ -39,6 +39,16 @@ class FormRepresentationResponse(BaseModel):
     value: str
 
 
+class FormRepresentationsResponse(BaseModel):
+    representations: Dict[str, RepresentationData]
+    model_config = ConfigDict(extra="forbid")
+
+
+class SenseGlossesResponse(BaseModel):
+    glosses: Dict[str, RepresentationData]
+    model_config = ConfigDict(extra="forbid")
+
+
 class SenseGlossResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     value: str

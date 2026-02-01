@@ -110,10 +110,10 @@ def main() -> None:
             violations.extend(check_file(py_file, allowlist))
 
     if violations:
+        allowlist_path = Path("config/linters/allowlists/custom/str.txt")
         for file_path, line_no, message in violations:
             print(f"{file_path}:{line_no}: {message}")
-        allowlist_path = Path("config/linters/allowlists/custom/str.txt")
-        print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
+            print(f"  Allowlist: {file_path}:{line_no}")
         sys.exit(1)
     else:
         print("No str | None violations found.")

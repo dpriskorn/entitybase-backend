@@ -11,6 +11,3 @@ class AddPropertyRequest(BaseModel):
     claims: List[Dict[str, Any]] = Field(
         description="List of claim statements for the property. Each claim should be a valid Wikibase statement JSON."
     )
-    edit_summary: str = Field(
-        description="Summary of the edit for audit trail."
-    )

@@ -2,7 +2,6 @@ from typing import Dict, Any, List
 
 from pydantic import BaseModel, Field
 
-from models.common import EditHeaders
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType, DeleteType
 
@@ -32,7 +31,6 @@ class EntityCreateRequest(BaseModel):
         default=False,
         description="User is autoconfirmed (not a new/unconfirmed account)",
     )
-    user_id: int = Field(default=0, description="User who made this change")
     is_semi_protected: bool = Field(
         default=False, description="Whether the entity is semi-protected"
     )
@@ -74,7 +72,6 @@ class EntityUpdateRequest(BaseModel):
     is_not_autoconfirmed_user: bool = Field(
         default=False, description="User is not autoconfirmed (new/unconfirmed account)"
     )
-    edit_headers: EditHeaders = Field(..., description="Edit headers containing user info and summary")
     is_semi_protected: bool = Field(
         default=False, description="Whether the entity is semi-protected"
     )
@@ -98,8 +95,6 @@ class EntityDeleteRequest(BaseModel):
     """Request to delete an entity."""
 
     delete_type: DeleteType = Field(description="Type of deletion")
-    entity_id: str = Field(min_length=1, description="ID of the entity to delete")
-    user_id: int = Field(default=0, description="User who made this change")
 
     @property
     def data(self) -> Dict[str, Any]:
@@ -114,3 +109,43 @@ class EntityInsertDataRequest(BaseModel):
     statements: list[int] | None
     properties: list[str] | None
     property_counts: dict[str, int] | None
+
+
+class PreparedRequestData(BaseModel):
+    """Prepared request data with entity ID for entity creation."""
+
+    id: str = Field(..., description="Entity ID (e.g., Q42)")
+    type: str = Field(default="item", description="Entity type")
+    labels: Dict[str, Dict[str, str]] = Field(default_factory=dict)
+    descriptions: Dict[str, Dict[str, str]] = Field(default_factory=dict)
+    claims: Dict[str, Any] = Field(default_factory=dict)
+    aliases: Dict[str, Any] = Field(default_factory=dict)
+    sitelinks: Dict[str, Any] = Field(default_factory=dict)
+    forms: List[Dict[str, Any]] = Field(default_factory=list)
+    senses: List[Dict[str, Any]] = Field(default_factory=list)
+    is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
+    edit_type: EditType = Field(
+        default=EditType.UNSPECIFIED,
+        description="Classification of edit type",
+    )
+    state: EntityState = Field(
+        default_factory=EntityState,
+        description="Entity state"
+    )
+    is_autoconfirmed_user: bool = Field(
+        default=False,
+        description="User is autoconfirmed (not a new/unconfirmed account)",
+    )
+    is_semi_protected: bool = Field(
+        default=False, description="Whether the entity is semi-protected"
+    )
+    is_locked: bool = Field(default=False, description="Whether the entity is locked")
+    is_archived: bool = Field(
+        default=False, description="Whether the entity is archived"
+    )
+    is_dangling: bool = Field(
+        default=False, description="Whether the entity is dangling"
+    )
+    is_mass_edit_protected: bool = Field(
+        default=False, description="Whether the entity is mass edit protected"
+    )

@@ -107,15 +107,9 @@ class MockS3Client:
     # noinspection PyUnusedLocal
     def write_entity_revision(
         self,
-        internal_id: int,
-        entity_id: str,
-        revision_id: int,
-        entity_type: str,
         data: dict[str, Any],
-        edit_type: str = "",
-        created_by: str = "rest-api",
     ) -> int:
-        data["revision_id"] = revision_id
+        revision_id = data["revision_id"]
         self.written_revisions[revision_id] = data
         return revision_id
 
@@ -216,15 +210,8 @@ class RedirectService:
             },
         }
 
-        redirect_revision_id = s3.write_entity_revision(
-            internal_id=from_internal_id,
-            entity_id=request.redirect_from_id,
-            revision_id=1,
-            entity_type="item",
-            data=redirect_revision_data,
-            edit_type=EditType.REDIRECT_CREATE.value,
-            created_by=request.created_by,
-        )
+        redirect_revision_data["revision_id"] = 1
+        redirect_revision_id = s3.write_entity_revision(data=redirect_revision_data)
 
         vitess.create_redirect(
             redirect_from_entity_id=request.redirect_from_id,
@@ -276,15 +263,8 @@ class RedirectService:
             "entity": target_data.get("data", target_data),
         }
 
-        new_revision_id = s3.write_entity_revision(
-            internal_id=internal_id,
-            entity_id=entity_id,
-            revision_id=2,
-            entity_type="item",
-            data=new_revision_data,
-            edit_type=EditType.REDIRECT_REVERT.value,
-            created_by="rest-api",
-        )
+        new_revision_data["revision_id"] = 2
+        new_revision_id = s3.write_entity_revision(data=new_revision_data)
 
         vitess.set_redirect_target(
             entity_id=entity_id,

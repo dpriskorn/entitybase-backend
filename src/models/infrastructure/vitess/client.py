@@ -77,9 +77,9 @@ class VitessClient(Client):
         from models.infrastructure.vitess.repositories.thanks import ThanksRepository
         return ThanksRepository(vitess_client=self)
 
-    def create_revision(self, entity_id: str, entity_data, revision_id: int, expected_revision_id=None, content_hash: int | None = None) -> None:
+    def create_revision(self, entity_id: str, entity_data, revision_id: int, content_hash: int, expected_revision_id: int = 0) -> None:
         """Create a new revision."""
-        self.revision_repository.insert_revision(entity_id, revision_id, entity_data, expected_revision_id, content_hash)
+        self.revision_repository.insert_revision(entity_id, revision_id, entity_data, content_hash, expected_revision_id)
 
     def create_tables(self) -> None:
         from models.infrastructure.vitess.repositories.schema import SchemaRepository
@@ -110,10 +110,10 @@ class VitessClient(Client):
         entity_id: str,
         revision_id: int,
         entity_data: Any,  # type_: RevisionData
-        expected_revision_id=None,
-        content_hash: int | None = None,
+        content_hash: int,
+        expected_revision_id: int = 0,
     ) -> None:
-        self.revision_repository.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=entity_data, expected_revision_id=expected_revision_id, content_hash=content_hash)
+        self.revision_repository.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=entity_data, content_hash=content_hash, expected_revision_id=expected_revision_id)
 
     def is_entity_deleted(self, entity_id: str) -> bool:
         return self.entity_repository.is_deleted(entity_id)
@@ -123,3 +123,22 @@ class VitessClient(Client):
 
     def is_entity_archived(self, entity_id: str) -> bool:
         return self.entity_repository.is_archived(entity_id)
+
+    def list_entities_by_type(self, entity_type: str, limit: int = 100, offset: int = 0) -> list[str]:
+        """List entity IDs by type using pattern matching on entity_id."""
+        cursor = self.cursor
+        pattern_map = {
+            "item": "Q%",
+            "lexeme": "L%",
+            "property": "P%",
+        }
+        pattern = pattern_map.get(entity_type)
+        if not pattern:
+            return []
+        cursor.execute(
+            """SELECT entity_id FROM entity_id_mapping
+               WHERE entity_id LIKE %s
+               LIMIT %s OFFSET %s""",
+            (pattern, limit, offset),
+        )
+        return [row[0] for row in cursor.fetchall()]

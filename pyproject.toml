@@ -23,7 +23,6 @@ dependencies = [
     "pyld (>=2.0.0,<3.0.0)",
     "pyyaml (>=6.0.3,<7.0.0)",
     "mypy-boto3-s3 (>=1.42.21,<2.0.0)",
-    "tenacity (>=9.1.2,<10.0.0)",
 ]
 
 
@@ -48,7 +47,6 @@ dev = [
     "ruff (>=0.14.10,<0.15.0)",
     "radon (>=6.0.1,<7.0.0)",
     "types-pyyaml (>=6.0.12.20250915,<7.0.0.0)",
-    "tenacity (>=9.1.2,<10.0.0)",
     "types-requests (>=2.32.4.20260107,<3.0.0.0)",
     "types-boto3 (>=1.0.0,<2.0.0)",
     "types-jsonschema (>=4.26.0.20260109,<5.0.0.0)",
@@ -102,7 +100,7 @@ exclude = ["tests/", "scripts/"]
 select = ["PL"]
 
 # Optional: ignore private functions/methods
-ignore = ["D105", "D106", "D107"]
+ignore = ["D105", "D106", "D107", "PLC0415", "PLR2004"]
 
 [tool.ruff.lint.pydocstyle]
 # Use Google style
@@ -111,3 +109,5 @@ ignore = ["D105", "D106", "D107"]
 [tool.ruff.lint.per-file-ignores]
 # Skip docstring requirements for frozen models (data classes) and enums
 # "src/models/**/*.py" = ["D101"]
+# Ignore PLR0915 (too many statements) for test files
+"tests/**/*.py" = ["PLR0915"]

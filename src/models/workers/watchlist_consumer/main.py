@@ -7,6 +7,7 @@ from typing import AsyncGenerator
 
 from models.config.settings import settings
 from models.data.workers.changed_properties import ChangedProperties
+from models.data.workers.notification import NotificationData
 from models.infrastructure.stream.consumer import StreamConsumerClient
 from models.data.infrastructure.stream.consumer import EntityChangeEventData
 from models.data.config.stream_consumer import StreamConsumerConfig
@@ -102,13 +103,16 @@ class WatchlistConsumerWorker(VitessWorker):
 
                 if should_notify:
                     # Create notification (cleanup worker handles limits)
-                    await self._create_notification(
-                        user_id=user_id,
+                    notification_data = NotificationData(
                         entity_id=entity_id,
                         revision_id=revision_id,
                         change_type=change_type,
                         changed_properties=ChangedProperties(),  # TODO: add to event model
                         event_timestamp=message.timestamp,
+                    )
+                    await self._create_notification(
+                        user_id=user_id,
+                        notification_data=notification_data,
                     )
                     notifications_created += 1
 
@@ -135,15 +139,7 @@ class WatchlistConsumerWorker(VitessWorker):
         # Check if any changed property is watched
         return any(prop in watched_properties for prop in changed_properties.properties)
 
-    async def _create_notification(
-        self,
-        user_id: int,
-        entity_id: str,
-        revision_id: int,
-        change_type: str,
-        changed_properties: ChangedProperties | None,
-        event_timestamp: str = "",
-    ) -> None:
+    async def _create_notification(self, user_id: int, notification_data: NotificationData) -> None:
         """Create a notification record in the database."""
         # For now, insert into user_notifications table
         # In a real system, this might trigger email/webhook
@@ -157,14 +153,14 @@ class WatchlistConsumerWorker(VitessWorker):
                 """,
                 (
                     user_id,
-                    entity_id,
-                    revision_id,
-                    change_type,
-                    changed_properties.model_dump_json() if changed_properties else None,
-                    event_timestamp,
+                    notification_data.entity_id,
+                    notification_data.revision_id,
+                    notification_data.change_type,
+                    notification_data.changed_properties.model_dump_json() if notification_data.changed_properties else None,
+                    notification_data.event_timestamp,
                 ),
             )
-            logger.debug(f"Created notification for user {user_id} on {entity_id}")
+            logger.debug(f"Created notification for user {user_id} on {notification_data.entity_id}")
 
 
 async def main() -> None:

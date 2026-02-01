@@ -144,11 +144,12 @@ async def put_property_aliases_for_language(
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "property"
     update_request = EntityUpdateRequest(
-        type=entity_type, edit_headers=headers, **filtered_data
+        type=entity_type, **filtered_data
     )
 
     return await update_handler.update_entity(
         property_id,
         update_request,
-        validator,
+        edit_headers=headers,
+        validator=validator,
     )

@@ -225,7 +225,7 @@ class TestRevisionRepository:
             ),
             hashes=HashMaps(statements=StatementsHashes(root=[])),
             properties=[],
-            property_counts={},
+            property_counts=PropertyCounts({}),
             state=EntityState(),
         )
 
@@ -260,7 +260,7 @@ class TestRevisionRepository:
             ),
             hashes=HashMaps(statements=StatementsHashes(root=[])),
             properties=[],
-            property_counts={},
+            property_counts=PropertyCounts({}),
             state=EntityState(),
         )
 

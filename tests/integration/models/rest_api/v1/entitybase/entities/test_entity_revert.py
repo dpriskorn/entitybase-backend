@@ -30,7 +30,7 @@ async def test_revert_entity() -> None:
             headers={"X-Edit-Summary": "test revert", "X-User-ID": "456"},
             json={
                 "to_revision_id": 123,
-                "reason": "Test revert",
+                "edit_summary": "Test revert",
                 "watchlist_context": {"notification_id": 789},
             },
         )
@@ -56,7 +56,7 @@ async def test_revert_entity_missing_user_header() -> None:
     ) as client:
         response = await client.post(
             "/entitybase/v1/entities/Q42/revert",
-            json={"to_revision_id": 123, "reason": "Test revert"},
+            json={"to_revision_id": 123, "edit_summary": "Test revert"},
         )
         assert response.status_code == 422  # Missing required header
 
@@ -77,7 +77,7 @@ async def test_revert_entity_invalid_user_header() -> None:
         response = await client.post(
             "/entitybase/v1/entities/Q42/revert",
             headers={"X-Edit-Summary": "invalid user test", "X-User-ID": "0"},
-            json={"to_revision_id": 123, "reason": "Test revert"},
+            json={"to_revision_id": 123, "edit_summary": "Test revert"},
         )
         assert response.status_code == 400  # Invalid user ID
 
@@ -99,6 +99,6 @@ async def test_revert_entity_invalid_request() -> None:
         response = await client.post(
             "/entitybase/v1/entities/Q42/revert",
             headers={"X-Edit-Summary": "invalid request test", "X-User-ID": "456"},
-            json={"reason": "Test revert"},
+            json={"edit_summary": "Test revert"},
         )
         assert response.status_code == 422  # Validation error

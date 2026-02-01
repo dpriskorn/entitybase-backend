@@ -16,6 +16,7 @@ from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHas
 from models.data.infrastructure.s3.revision_data import S3RevisionData
 
 from models.data.infrastructure.stream.change_type import ChangeType
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
@@ -348,7 +349,7 @@ class EntityHandler(Handler):
     def process_statements(
         self,
         entity_id: str,
-        request_data: Dict[str, Any],
+        request_data: PreparedRequestData,
         validator: Any | None,
     ) -> StatementHashResult:
         """Process and store statements for the entity."""

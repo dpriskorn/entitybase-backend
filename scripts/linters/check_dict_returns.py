@@ -8,28 +8,15 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
-# List of functions allowed to return dict types
-ALLOWED_DICT_RETURNS = [
-    "get_batch_sitelinks",
-    "get_batch_labels",
-    "get_batch_descriptions",
-    "get_batch_aliases",
-    "get_batch_statements",
-    "load_metadata",
-    "batch_get_statements",
-    "data",
-    "get_entity_json_revision",
-    "get_openapi",
-    "get_snak",
-]
-
 
 class DictReturnChecker(ast.NodeVisitor):
     """AST visitor to check for -> dict return annotations."""
 
-    def __init__(self, source_lines: List[str]):
+    def __init__(self, source_lines: List[str], file_path: str, allowlist: set):
         self.source_lines = source_lines
-        self.violations: List[Tuple[str, int, str]] = []
+        self.file_path = file_path
+        self.allowlist = allowlist
+        self.violations: List[Tuple[str, int, str, str]] = []
 
     def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
         self._check_function(node)
@@ -43,13 +30,15 @@ class DictReturnChecker(ast.NodeVisitor):
         if node.returns:
             return_annotation = self._get_annotation_string(node.returns)
             if self._is_dict_annotation(return_annotation):
-                func_name = node.name
-                if func_name not in ALLOWED_DICT_RETURNS:
+                key = f"{self.file_path}:{node.lineno}"
+                if key not in self.allowlist:
+                    func_name = node.name
                     self.violations.append(
                         (
                             func_name,
                             node.lineno,
                             f"Function '{func_name}' returns -> {return_annotation}, consider using a proper Pydantic model",
+                            str(self.file_path),
                         )
                     )
 
@@ -61,10 +50,11 @@ class DictReturnChecker(ast.NodeVisitor):
         elif isinstance(node, ast.Subscript):
             if isinstance(node.value, ast.Name):
                 base = node.value.id
-                if isinstance(node.slice, ast.Index):  # Python < 3.9
-                    return f"{base}[{self._get_annotation_string(node.slice.value)}]"
-                else:
-                    return f"{base}[{self._get_annotation_string(node.slice)}]"
+                try:
+                    slice_str = self._get_annotation_string(node.slice)
+                    return f"{base}[{slice_str}]"
+                except (AttributeError, TypeError):
+                    pass
         return ast.unparse(node) if hasattr(ast, "unparse") else str(node)
 
     @staticmethod
@@ -73,7 +63,7 @@ class DictReturnChecker(ast.NodeVisitor):
         return "dict" in annotation.lower()
 
 
-def check_file(file_path: Path) -> List[Tuple[str, int, str]]:
+def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str, str]]:
     """Check a single Python file."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -82,15 +72,28 @@ def check_file(file_path: Path) -> List[Tuple[str, int, str]]:
         source_lines = source.splitlines()
         tree = ast.parse(source, filename=str(file_path))
 
-        checker = DictReturnChecker(source_lines)
+        checker = DictReturnChecker(source_lines, str(file_path), allowlist)
         checker.visit(tree)
 
         return checker.violations
 
     except SyntaxError:
-        return [(str(file_path), 0, f"Syntax error in {file_path}")]
+        return [(str(file_path), 0, f"Syntax error in {file_path}", str(file_path))]
     except Exception as e:
-        return [(str(file_path), 0, f"Error processing {file_path}: {e}")]
+        return [(str(file_path), 0, f"Error processing {file_path}: {e}", str(file_path))]
+
+
+def load_allowlist() -> set:
+    """Load the allowlist from config/linters/allowlists/custom/dict.txt."""
+    allowlist_path = Path("config/linters/allowlists/custom/dict.txt")
+    allowlist = set()
+    if allowlist_path.exists():
+        with open(allowlist_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    allowlist.add(line)
+    return allowlist
 
 
 def main() -> None:
@@ -104,10 +107,12 @@ def main() -> None:
         print(f"Path {path} does not exist")
         sys.exit(1)
 
+    allowlist = load_allowlist()
+
     violations = []
 
     if path.is_file() and path.suffix == ".py":
-        violations.extend(check_file(path))
+        violations.extend(check_file(path, allowlist))
     elif path.is_dir():
         for py_file in path.rglob("*.py"):
             # Skip test files and certain directories
@@ -117,12 +122,18 @@ def main() -> None:
                 continue
             if "workers" in py_file.parts or "scripts" in py_file.parts:
                 continue
-            violations.extend(check_file(py_file))
+            violations.extend(check_file(py_file, allowlist))
 
     if violations:
         print("Dict return violations:")
-        for func_name, line_no, message in violations:
-            print(f"{message} at line {line_no}")
+        allowlist_entries = []
+        for func_name, line_no, message, file_path in violations:
+            print(f"{file_path}:{line_no}: {message}")
+            allowlist_entries.append(f"{file_path}:{line_no}")
+        allowlist_path = Path("config/linters/allowlists/custom/dict.txt")
+        print(f"\nTo allowlist violations, add these entries to {allowlist_path}:")
+        for entry in allowlist_entries:
+            print(entry)
         sys.exit(1)
     else:
         print("No dict return violations found")

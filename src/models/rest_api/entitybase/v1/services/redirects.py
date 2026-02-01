@@ -26,10 +26,10 @@ logger = logging.getLogger(__name__)
 class RedirectService(Service):
     """Service for managing entity redirects"""
 
-async def create_redirect(
-        self,
-        request: EntityRedirectRequest,
-        edit_headers,
+    async def create_redirect(
+            self,
+            request: EntityRedirectRequest,
+            edit_headers,
     ) -> EntityRedirectResponse:
         """Mark an entity as redirect to another entity"""
         logger.debug(
@@ -91,7 +91,7 @@ async def create_redirect(
             schema=settings.s3_schema_revision_version,
             revision=revision_dict,
             hash=content_hash,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(timezone.utc).isoformat(),
         )
 
         self.state.s3_client.store_revision(content_hash, s3_revision_data)
@@ -172,7 +172,6 @@ async def create_redirect(
 
         general_request = EntityRevertRequest(
             to_revision_id=revert_to_revision_id,
-            edit_summary=edit_headers.x_edit_summary,
             watchlist_context=None,
         )
         general_handler = EntityRevertHandler(state=self.state)

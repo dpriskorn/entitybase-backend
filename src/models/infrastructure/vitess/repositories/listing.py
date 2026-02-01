@@ -7,7 +7,8 @@ from models.data.rest_api.v1.entitybase.response import EntityListing
 class ListingRepository(Repository):
     """Repository for entity listing operations."""
 
-    def _get_entity_type_from_id(self, entity_id: str) -> str:
+    @staticmethod
+    def _get_entity_type_from_id(entity_id: str) -> str:
         """Derive entity type from entity_id pattern."""
         if entity_id.startswith("Q"):
             return "item"

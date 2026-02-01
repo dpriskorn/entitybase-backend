@@ -1,0 +1,24 @@
+# Allowlist for dict return type violations
+# Format: file_path:line_number
+# These functions are allowed to return dict types
+
+src/models/rest_api/main.py:164
+src/models/data/rest_api/v1/entitybase/request/entity/crud.py:49
+src/models/data/rest_api/v1/entitybase/request/entity/crud.py:90
+src/models/data/rest_api/v1/entitybase/request/entity/crud.py:100
+src/models/rest_api/entitybase/v1/services/snak_handler.py:43
+src/models/rest_api/entitybase/v1/services/statement_service.py:290
+src/models/rest_api/entitybase/v1/services/statement_service.py:317
+src/models/rest_api/entitybase/v1/endpoints/entities.py:118
+src/models/rest_api/entitybase/v1/routes/batch.py:14
+src/models/rest_api/entitybase/v1/routes/batch.py:35
+src/models/rest_api/entitybase/v1/routes/batch.py:58
+src/models/rest_api/entitybase/v1/routes/batch.py:81
+src/models/rest_api/entitybase/v1/routes/batch.py:104
+src/models/infrastructure/s3/client.py:175
+src/models/infrastructure/s3/storage/metadata_storage.py:54
+src/models/rest_api/entitybase/v1/services/statement_service.py:264
+src/models/rest_api/entitybase/v1/services/statement_service.py:291
+src/models/rest_api/entitybase/v1/services/statement_service.py:293
+src/models/rest_api/entitybase/v1/services/statement_service.py:319
+src/models/infrastructure/s3/client.py:178

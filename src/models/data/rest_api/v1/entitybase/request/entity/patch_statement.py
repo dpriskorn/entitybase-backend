@@ -11,6 +11,3 @@ class PatchStatementRequest(BaseModel):
     claim: Dict[str, Any] = Field(
         description="The new claim data to replace the existing statement. Must be a valid Wikibase claim JSON."
     )
-    edit_summary: str = Field(
-        description="Summary of the edit for audit trail."
-    )

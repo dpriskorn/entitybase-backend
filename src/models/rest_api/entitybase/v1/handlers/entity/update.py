@@ -3,10 +3,12 @@
 import logging
 from typing import Any
 
+from models.common import EditHeaders
 from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import EntityUpdateRequest
 from models.data.rest_api.v1.entitybase.request import UserActivityType
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.entity.revision import CreateRevisionRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.utils import raise_validation_error
@@ -23,6 +25,7 @@ class EntityUpdateHandler(EntityHandler):
         self,
         entity_id: str,
         request: EntityUpdateRequest,
+        edit_headers: EditHeaders,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Update an existing entity with transaction rollback."""
@@ -48,7 +51,7 @@ class EntityUpdateHandler(EntityHandler):
             # Get head revision
             head_revision_id = tx.state.vitess_client.get_head(entity_id)
             # Prepare data
-            request_data = request.data.copy()
+            request_data = PreparedRequestData(**request.data.copy())
             request_data["id"] = entity_id
             # Process statements
             hash_result = tx.process_statements(entity_id, request_data, validator)
@@ -62,14 +65,14 @@ class EntityUpdateHandler(EntityHandler):
                 hash_result=hash_result,
                 is_mass_edit=request.is_mass_edit,
                 edit_type=request.edit_type,
-                edit_summary=request.edit_headers.x_edit_summary,
+                edit_summary=edit_headers.x_edit_summary,
                 is_semi_protected=request.is_semi_protected,
                 is_locked=request.is_locked,
                 is_archived=request.is_archived,
                 is_dangling=request.is_dangling,
                 is_mass_edit_protected=request.is_mass_edit_protected,
                 is_creation=False,
-                user_id=request.edit_headers.x_user_id,
+                user_id=edit_headers.x_user_id,
             )
             response = await tx.create_revision(revision_request)
             # Publish event
@@ -77,15 +80,15 @@ class EntityUpdateHandler(EntityHandler):
                 entity_id=entity_id,
                 revision_id=response.revision_id,
                 change_type=ChangeType.EDIT,
-                edit_headers=request.edit_headers,
+                edit_headers=edit_headers,
                 from_revision_id=head_revision_id,
                 changed_at=None,  # TODO
             )
             # Log activity
-            if request.edit_headers.x_user_id:
+            if edit_headers.x_user_id:
                 activity_result = (
                     self.state.vitess_client.user_repository.log_user_activity(
-                        user_id=request.edit_headers.x_user_id,
+                        user_id=edit_headers.x_user_id,
                         activity_type=UserActivityType.ENTITY_EDIT,
                         entity_id=entity_id,
                         revision_id=response.revision_id,

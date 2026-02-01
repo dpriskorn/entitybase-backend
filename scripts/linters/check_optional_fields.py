@@ -21,6 +21,9 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                 # Skip comments and empty lines
                 if not stripped or stripped.startswith("#"):
                     continue
+                # Skip function/method signatures
+                if stripped.startswith("def "):
+                    continue
                 # Skip method-level lines (indented with 8+ spaces)
                 if line.startswith("        "):
                     continue

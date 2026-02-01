@@ -8,6 +8,7 @@ from typing import Any
 
 from models.common import EditHeaders
 from models.data.infrastructure.stream.change_type import ChangeType
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.entity.revision import CreateRevisionRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
@@ -25,7 +26,7 @@ class UpdateTransaction(EntityTransaction):
     def process_statements(
         self,
         entity_id: str,
-        request_data: dict,
+        request_data: PreparedRequestData,
         validator: Any,
     ) -> StatementHashResult:
         """Process statements for the entity transaction."""

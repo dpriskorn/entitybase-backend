@@ -5,7 +5,6 @@ from unittest.mock import MagicMock
 import pytest
 
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-from models.data.rest_api.v1.entitybase.response import EntityRevisionResponse
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 
 
@@ -188,10 +187,11 @@ class TestEntityReadHandler:
         handler = EntityReadHandler(state=mock_state)
         result = handler.get_entity_revision("Q42", 12345)
 
-        assert isinstance(result, EntityRevisionResponse)
-        assert result.entity_id == "Q42"
+        assert isinstance(result, EntityResponse)
+        assert result.id == "Q42"
         assert result.revision_id == 12345
-        assert result.revision_data == mock_revision.revision
+        assert result.entity_data == mock_revision.revision
+        assert result.state is None
 
         mock_s3.read_revision.assert_called_once_with("Q42", 12345)
 

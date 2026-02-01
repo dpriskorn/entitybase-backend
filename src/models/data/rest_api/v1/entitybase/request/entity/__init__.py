@@ -5,6 +5,7 @@ from .crud import (
     EntityDeleteRequest,
     EntityUpdateRequest,
     EntityInsertDataRequest,
+    PreparedRequestData,
 )
 from .misc import EntityJsonImportRequest, EntityRedirectRequest
 from .revert import EntityRevertRequest, RedirectRevertRequest

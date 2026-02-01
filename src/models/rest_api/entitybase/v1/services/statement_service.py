@@ -1,6 +1,8 @@
 """Statement processing service."""
 
 import logging
+import time
+import traceback
 from datetime import datetime, timezone
 from typing import Any
 
@@ -10,6 +12,7 @@ from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.data.infrastructure.s3.reference_data import S3ReferenceData
 from models.data.infrastructure.s3.statement import S3Statement
 from models.data.rest_api.v1.entitybase.request import SnakRequest
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.internal_representation.qualifier_hasher import QualifierHasher
 from models.internal_representation.reference_hasher import ReferenceHasher
 from models.internal_representation.statement_extractor import StatementExtractor
@@ -25,7 +28,7 @@ logger = logging.getLogger(__name__)
 class StatementService(Service):
     @staticmethod
     def hash_entity_statements(
-            entity_data: dict[str, Any],
+            entity_data: PreparedRequestData,
     ) -> OperationResult:
         """Extract and hash statements from entity data.
 
@@ -36,7 +39,7 @@ class StatementService(Service):
             statements = []
             full_statements = []
 
-            claims = entity_data.get("claims", {})
+            claims = entity_data.claims
             logger.debug(f"Entity claims: {claims}")
 
             if not claims:
@@ -93,6 +96,126 @@ class StatementService(Service):
             logger.error(f"Failed to hash entity statements: {e}", exc_info=True)
             return OperationResult(success=False, error=str(e))
 
+    def _process_single_statement(
+        self,
+        statement_hash: int,
+        statement_data: dict[str, Any],
+        validator: JsonSchemaValidator | None,
+        schema_version: str,
+        idx: int,
+        total_statements: int,
+    ) -> OperationResult:
+        """Process a single statement: extract mainsnak, check S3, write, insert DB.
+
+        Args:
+            statement_hash: Hash of the statement
+            statement_data: Full statement data
+            validator: Optional JSON schema validator
+            schema_version: Schema version for S3 storage
+            idx: Current statement index (0-based)
+            total_statements: Total number of statements
+
+        Returns:
+            OperationResult indicating success/failure
+        """
+        logger.debug(
+            f"Processing statement {idx + 1}/{total_statements} with hash {statement_hash}"
+        )
+
+        # Extract and store mainsnak via SnakHandler
+        mainsnak = statement_data.get("mainsnak")
+        snak_hash = None
+        if mainsnak:
+            snak_request = SnakRequest(
+                property=mainsnak.get("property"),
+                datavalue=mainsnak.get("datavalue", {})
+            )
+            snak_handler = SnakHandler(state=self.state)
+            snak_hash = snak_handler.store_snak(snak_request)
+            statement_data = statement_data.copy()
+            statement_data["mainsnak"] = {"hash": snak_hash}
+            logger.debug(f"Stored mainsnak with hash {snak_hash} for statement {statement_hash}")
+
+        statement_with_hash = S3Statement(
+            schema=schema_version,
+            hash=statement_hash,
+            statement=statement_data,
+            created_at=datetime.now(timezone.utc).isoformat() + "Z",
+        )
+        s3_key = f"statements/{statement_hash}.json"
+
+        # Step 1: Check if S3 object exists
+        s3_exists = False
+        try:
+            self.state.s3_client.read_statement(statement_hash)
+            s3_exists = True
+            logger.debug(f"Statement {statement_hash} already exists in S3")
+        except Exception:
+            logger.debug(
+                f"Statement {statement_hash} not found in S3, will write new object"
+            )
+            s3_exists = False
+
+        # Step 2: Validate statement before storing
+        if validator is not None:
+            validator.validate_statement(statement_with_hash.model_dump())
+
+        # Step 3: Write to S3 if not exists
+        if not s3_exists:
+            try:
+                write_start_time = time.time()
+                self.state.s3_client.write_statement(
+                    statement_hash,
+                    statement_with_hash.model_dump(),
+                    schema_version=schema_version,
+                )
+                write_duration = time.time() - write_start_time
+
+                logger.info(
+                    f"Successfully wrote statement {statement_hash} to S3 at key: {s3_key}",
+                    extra={
+                        "statement_hash": statement_hash,
+                        "s3_key": s3_key,
+                        "write_duration_seconds": write_duration,
+                        "statement_data_size": len(
+                            statement_with_hash.model_dump_json()
+                        ),
+                    },
+                )
+            except Exception as write_error:
+                logger.error(
+                    f"Failed to write statement {statement_hash} to S3",
+                    extra={
+                        "statement_hash": statement_hash,
+                        "s3_key": s3_key,
+                        "error_type": type(write_error).__name__,
+                        "error_message": str(write_error),
+                        "statement_data": statement_data,
+                        "s3_bucket": self.state.s3_client.config.bucket,
+                        "s3_endpoint": self.state.s3_client.conn.meta.endpoint_url,
+                        "stack_trace": traceback.format_exc()
+                        if hasattr(write_error, "__traceback__")
+                        else None,
+                    },
+                )
+                raise
+
+        # Step 4: Insert into DB or increment ref_count
+        inserted = self.state.vitess_client.insert_statement_content(
+            statement_hash
+        )
+        if inserted:
+            logger.debug(
+                f"Inserted new statement {statement_hash} into statement_content"
+            )
+        else:
+            logger.debug(
+                f"Statement {statement_hash} already in DB, incrementing ref_count"
+            )
+            self.state.vitess_client.increment_ref_count(statement_hash)
+
+        return OperationResult(success=True)
+
     def deduplicate_and_store_statements(
         self,
         hash_result: StatementHashResult,
@@ -123,112 +246,17 @@ class StatementService(Service):
         for idx, (statement_hash, statement_data) in enumerate(
             zip(hash_result.statements, hash_result.full_statements)
         ):
-            logger.debug(
-                f"Processing statement {idx + 1}/{len(hash_result.statements)} with hash {statement_hash}"
-            )
             try:
-                # Extract and store mainsnak via SnakHandler
-                mainsnak = statement_data.get("mainsnak")
-                snak_hash = None
-                if mainsnak:
-                    snak_request = SnakRequest(
-                        property=mainsnak.get("property"),
-                        datavalue=mainsnak.get("datavalue", {})
-                    )
-                    snak_handler = SnakHandler(state=self.state)
-                    snak_hash = snak_handler.store_snak(snak_request)
-                    # Replace mainsnak with hash reference
-                    statement_data = statement_data.copy()
-                    statement_data["mainsnak"] = {"hash": snak_hash}
-                    logger.debug(f"Stored mainsnak with hash {snak_hash} for statement {statement_hash}")
-                
-                statement_with_hash = S3Statement(
-                    schema=schema_version,
-                    hash=statement_hash,
-                    statement=statement_data,
-                    created_at=datetime.now(timezone.utc).isoformat() + "Z",
+                result = self._process_single_statement(
+                    statement_hash=statement_hash,
+                    statement_data=statement_data,
+                    validator=validator,
+                    schema_version=schema_version,
+                    idx=idx,
+                    total_statements=len(hash_result.statements),
                 )
-                s3_key = f"statements/{statement_hash}.json"
-
-                import time
-                import traceback
-
-                # Step 1: Check if S3 object exists
-                # noinspection PyUnusedLocal
-                s3_exists = False
-                try:
-                    self.state.s3_client.read_statement(statement_hash)
-                    s3_exists = True
-                    logger.debug(f"Statement {statement_hash} already exists in S3")
-                except Exception:
-                    logger.debug(
-                        f"Statement {statement_hash} not found in S3, will write new object"
-                    )
-                    s3_exists = False
-
-                # Step 2: Validate statement before storing
-                if validator is not None:
-                    validator.validate_statement(statement_with_hash.model_dump())
-
-                # Step 3: Write to S3 if not exists
-                if not s3_exists:
-                    try:
-                        write_start_time = time.time()
-                        self.state.s3_client.write_statement(
-                            statement_hash,
-                            statement_with_hash.model_dump(),
-                            schema_version=schema_version,
-                        )
-                        write_duration = time.time() - write_start_time
-
-                        logger.info(
-                            f"Successfully wrote statement {statement_hash} to S3 at key: {s3_key}",
-                            extra={
-                                "statement_hash": statement_hash,
-                                "s3_key": s3_key,
-                                "write_duration_seconds": write_duration,
-                                "statement_data_size": len(
-                                    statement_with_hash.model_dump_json()
-                                ),
-                            },
-                        )
-                    except Exception as write_error:
-                        # noinspection PyProtectedMember
-                        logger.error(
-                            f"Failed to write statement {statement_hash} to S3",
-                            extra={
-                                "statement_hash": statement_hash,
-                                "s3_key": s3_key,
-                                "error_type": type(write_error).__name__,
-                                "error_message": str(write_error),
-                                "statement_data": statement_data,
-                                "s3_bucket": self.state.s3_client.config.bucket,
-                                "s3_endpoint": self.state.s3_client.conn.meta.endpoint_url,
-                                "stack_trace": traceback.format_exc()
-                                if hasattr(write_error, "__traceback__")
-                                else None,
-                            },
-                        )
-                        raise
-
-                # Step 4: Insert into DB or increment ref_count
-                # Note: We skip the DB existence check and insert directly to be more efficient
-                # The insert is idempotent, so it handles concurrent inserts gracefully
-                inserted = self.state.vitess_client.insert_statement_content(
-                    statement_hash
-                )
-                if inserted:
-                    logger.debug(
-                        f"Inserted new statement {statement_hash} into statement_content"
-                    )
-                else:
-                    logger.debug(
-                        f"Statement {statement_hash} already in DB, incrementing ref_count"
-                    )
-                    self.state.vitess_client.increment_ref_count(statement_hash)
-
-                # Step 5: Next statement
-
+                if not result.success:
+                    return result
             except Exception as e:
                 logger.error(
                     f"Statement storage failed for hash {statement_hash}: {type(e).__name__}: {e}",
@@ -261,6 +289,108 @@ class StatementService(Service):
         logger.info(f"Final statement hashes: {hash_result.statements}")
         return OperationResult(success=True)
 
+    @staticmethod
+    def _process_snak_item(item: Any, snak_handler: SnakHandler) -> int | str | dict[str, Any] | list | float | None:
+        """Process a single snak item.
+
+        Returns snak hash if item is a dict with "property", otherwise original item.
+        """
+        if isinstance(item, dict) and "property" in item:
+            snak_request = SnakRequest(
+                property=item["property"],
+                datavalue=item.get("datavalue", {})
+            )
+            return snak_handler.store_snak(snak_request)
+        return item
+
+    def _process_snak_list_value(
+        self,
+        snak_key: str,
+        snak_list: list,
+        snak_handler: SnakHandler
+    ) -> tuple[str, list]:
+        """Process snaks when value is a list."""
+        new_snak_values = []
+        for snak_item in snak_list:
+            processed = self._process_snak_item(snak_item, snak_handler)
+            new_snak_values.append(processed)
+        return (snak_key, new_snak_values)
+
+    def _process_reference_snaks(
+        self,
+        ref: S3ReferenceData,
+        snak_handler: SnakHandler
+    ) -> dict[str, Any]:
+        """Process all snaks within a reference.
+
+        Returns:
+            dict[str, Any]: Modified reference data with hash-referenced snaks,
+            ready to be used with S3ReferenceData.
+        """
+        ref_dict = ref.model_dump()
+        if "snaks" in ref_dict:
+            new_snaks = []
+            for snak_key, snak_value in ref_dict["snaks"].items():
+                if isinstance(snak_value, list):
+                    new_snaks.append(
+                        self._process_snak_list_value(snak_key, snak_value, snak_handler)
+                    )
+                elif isinstance(snak_value, dict) and "property" in snak_value:
+                    snak_request = SnakRequest(
+                        property=snak_value["property"],
+                        datavalue=snak_value.get("datavalue", {})
+                    )
+                    snak_hash = snak_handler.store_snak(snak_request)
+                    new_snaks.append((snak_key, snak_hash))
+                else:
+                    new_snaks.append((snak_key, snak_value))
+            ref_dict["snaks"] = dict(new_snaks)
+        return ref_dict
+
+    def _process_single_reference(
+        self,
+        ref: S3ReferenceData | int,
+        snak_handler: SnakHandler
+    ) -> int:
+        """Process one reference (S3ReferenceData or hash).
+
+        Args:
+            ref: S3ReferenceData instance or hash integer
+            snak_handler: SnakHandler for processing snaks within reference
+
+        Returns:
+            Reference hash as integer
+        """
+        if isinstance(ref, S3ReferenceData):
+            ref_hash = ReferenceHasher.compute_hash(ref)
+            ref_dict = self._process_reference_snaks(ref, snak_handler)
+            ref_data = S3ReferenceData(
+                hash=ref_hash,
+                reference=ref_dict,
+                created_at=datetime.now(timezone.utc).isoformat() + "Z"
+            )
+            self.state.s3_client.store_reference(ref_hash, ref_data)
+            return ref_hash
+        return ref
+
+    def _process_statement_references(
+        self,
+        statement_data: dict,
+        snak_handler: SnakHandler
+    ) -> None:
+        """Process all references in a statement.
+
+        Mutates statement_data's references in-place.
+        """
+        if "references" in statement_data and isinstance(
+            statement_data["references"], list
+        ):
+            new_references = []
+            for ref in statement_data["references"]:
+                processed_ref = self._process_single_reference(ref, snak_handler)
+                new_references.append(processed_ref)
+            statement_data["references"] = new_references
+
     def deduplicate_references_in_statements(
         self,
         hash_result: StatementHashResult,
@@ -281,58 +411,9 @@ class StatementService(Service):
         )
 
         snak_handler = SnakHandler(state=self.state)
-        
-        for idx, statement_data in enumerate(hash_result.full_statements):
-            if "references" in statement_data and isinstance(
-                statement_data["references"], list
-            ):
-                new_references = []
-                for ref in statement_data["references"]:
-                    if isinstance(ref, S3ReferenceData):
-                        # Compute rapidhash
-                        ref_hash = ReferenceHasher.compute_hash(ref)
-                        # Store snaks in reference
-                        ref_dict = ref.model_dump()
-                        if "snaks" in ref_dict:
-                            new_snaks = []
-                            for snak_key, snak_value in ref_dict["snaks"].items():
-                                if isinstance(snak_value, list):
-                                    new_snak_values = []
-                                    for snak_item in snak_value:
-                                        if isinstance(snak_item, dict) and "property" in snak_item:
-                                            snak_request = SnakRequest(
-                                                property=snak_item["property"],
-                                                datavalue=snak_item.get("datavalue", {})
-                                            )
-                                            snak_hash = snak_handler.store_snak(snak_request)
-                                            new_snak_values.append(snak_hash)
-                                        else:
-                                            new_snak_values.append(snak_item)
-                                    new_snaks.append((snak_key, new_snak_values))
-                                elif isinstance(snak_value, dict) and "property" in snak_value:
-                                    snak_request = SnakRequest(
-                                        property=snak_value["property"],
-                                        datavalue=snak_value.get("datavalue", {})
-                                    )
-                                    snak_hash = snak_handler.store_snak(snak_request)
-                                    new_snaks.append((snak_key, snak_hash))
-                                else:
-                                    new_snaks.append((snak_key, snak_value))
-                            ref_dict["snaks"] = dict(new_snaks)
-                        
-                        # Store reference with hash-referenced snaks
-                        ref_data = S3ReferenceData(
-                            hash=ref_hash,
-                            reference=ref_dict,
-                            created_at=datetime.now(timezone.utc).isoformat() + "Z"
-                        )
-                        self.state.s3_client.store_reference(ref_hash, ref_data)
-                        # Replace with hash
-                        new_references.append(ref_hash)
-                    else:
-                        # Already a hash
-                        new_references.append(ref)
-                statement_data["references"] = new_references
+
+        for statement_data in hash_result.full_statements:
+            self._process_statement_references(statement_data, snak_handler)
 
         logger.info(
             f"Reference deduplication completed for {len(hash_result.full_statements)} statements"

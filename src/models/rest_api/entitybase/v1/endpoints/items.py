@@ -128,7 +128,7 @@ async def update_item_label(
     entity_type = current_entity.entity_data.get("type") or "item"
     try:
         update_request = EntityUpdateRequest(
-            type=entity_type, edit_headers=headers, **filtered_data
+            type=entity_type, **filtered_data
         )
         logger.debug(f"📝 LABEL UPDATE: Created EntityUpdateRequest successfully")
     except Exception as e:
@@ -138,7 +138,8 @@ async def update_item_label(
     return await update_handler.update_entity(
         item_id,
         update_request,
-        validator,
+        edit_headers=headers,
+        validator=validator,
     )
 
 
@@ -186,7 +187,7 @@ async def delete_item_label(
     entity_type = current_entity.entity_data.get("type") or "item"
     try:
         update_request = EntityUpdateRequest(
-            type=entity_type, edit_headers=headers, **filtered_data
+            type=entity_type, **filtered_data
         )
         logger.debug(f"🗑️ LABEL DELETE: Created EntityUpdateRequest successfully")
     except Exception as e:
@@ -196,7 +197,8 @@ async def delete_item_label(
     return await update_handler.update_entity(
         item_id,
         update_request,
-        validator,
+        edit_headers=headers,
+        validator=validator,
     )
 
 
@@ -271,7 +273,7 @@ async def update_item_description(
     entity_type = current_entity.entity_data.get("type") or "item"
     try:
         update_request = EntityUpdateRequest(
-            type=entity_type, edit_headers=headers, **filtered_data
+            type=entity_type, **filtered_data
         )
         logger.debug(f"📝 DESCRIPTION UPDATE: Created EntityUpdateRequest successfully")
     except Exception as e:
@@ -281,7 +283,8 @@ async def update_item_description(
     return await update_handler.update_entity(
         item_id,
         update_request,
-        validator,
+        edit_headers=headers,
+        validator=validator,
     )
 
 
@@ -330,7 +333,7 @@ async def delete_item_description(
     entity_type = current_entity.entity_data.get("type") or "item"
     try:
         update_request = EntityUpdateRequest(
-            type=entity_type, edit_headers=headers, **filtered_data
+            type=entity_type, **filtered_data
         )
         logger.debug(f"🗑️ DESCRIPTION DELETE: Created EntityUpdateRequest successfully")
     except Exception as e:
@@ -340,7 +343,8 @@ async def delete_item_description(
     return await update_handler.update_entity(
         item_id,
         update_request,
-        validator,
+        edit_headers=headers,
+        validator=validator,
     )
 
 
@@ -407,15 +411,16 @@ async def put_item_aliases_for_language(
     entity_type = current_entity.entity_data.get("type") or "item"
     try:
         update_request = EntityUpdateRequest(
-            type=entity_type, edit_headers=headers, **filtered_data
+            type=entity_type, **filtered_data
+        )
+        result = await update_handler.update_entity(
+            item_id,
+            update_request,
+            edit_headers=headers,
+            validator=validator,
         )
         logger.debug(f"📝 ALIASES UPDATE: Created EntityUpdateRequest successfully")
+        return result
     except Exception as e:
         logger.error(f"📝 ALIASES UPDATE: Failed to create EntityUpdateRequest: {e}", exc_info=True)
         raise
-
-    return await update_handler.update_entity(
-        item_id,
-        update_request,
-        validator,
-    )

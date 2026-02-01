@@ -2,6 +2,7 @@
 
 from unittest.mock import MagicMock
 
+from models.common import EditHeaders
 from models.data.rest_api.v1.entitybase.request import EntityRevertRequest
 from models.rest_api.entitybase.v1.handlers.entity.revert import EntityRevertHandler
 
@@ -33,7 +34,6 @@ class TestEntityRevertHandlerContentHash:
 
         request = EntityRevertRequest(
             to_revision_id=1,
-            reason="Test revert",
             watchlist_context=None,
         )
 
@@ -47,7 +47,8 @@ class TestEntityRevertHandlerContentHash:
 
         # Execute revert
         import asyncio
-        result = asyncio.run(handler.revert_entity("Q42", request, user_id=1))
+        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="Test revert")
+        result = asyncio.run(handler.revert_entity("Q42", request, edit_headers))
 
         # Verify store_revision was called
         assert handler.state.s3_client.store_revision.called or handler.state.s3_client.write_revision.called
@@ -75,13 +76,13 @@ class TestEntityRevertHandlerContentHash:
 
         request = EntityRevertRequest(
             to_revision_id=1,
-            reason="Test revert",
             watchlist_context=None,
         )
 
         # Execute
         import asyncio
-        result = asyncio.run(handler.revert_entity("Q42", request, user_id=1))
+        edit_headers = EditHeaders(x_user_id=1, x_edit_summary="Test revert")
+        result = asyncio.run(handler.revert_entity("Q42", request, edit_headers))
 
         # Verify insert_revision was called
         handler.state.vitess_client.insert_revision.assert_called_once()

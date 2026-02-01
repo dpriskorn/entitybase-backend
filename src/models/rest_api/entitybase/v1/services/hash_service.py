@@ -10,6 +10,7 @@ from models.data.infrastructure.s3.hashes.labels_hashes import LabelsHashes
 from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.data.infrastructure.s3.sitelink_data import S3SitelinkData
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 
 from models.infrastructure.vitess.repositories.terms import TermsRepository
 from models.internal_representation.metadata_extractor import MetadataExtractor
@@ -26,7 +27,7 @@ class HashService(Service):
 
     def hash_statements(
         self,
-        entity_data: dict[str, Any],
+        entity_data: PreparedRequestData,
         validator: JsonSchemaValidator | None = None,
     ) -> StatementsHashes:
         """Hash statements from entity data."""
@@ -125,7 +126,7 @@ class HashService(Service):
 
     def hash_entity_metadata(
         self,
-        entity_data: dict[str, Any],
+        entity_data: PreparedRequestData,
         validator: JsonSchemaValidator | None = None,
     ) -> HashMaps:
         """Hash all entity metadata and return HashMaps."""

@@ -4,7 +4,6 @@ import logging
 import pymysql
 from pydantic import Field, BaseModel
 from pymysql.connections import Connection
-from tenacity import retry, stop_after_attempt, wait_exponential, before_sleep_log
 
 from models.data.config.vitess import VitessConfig
 
@@ -26,7 +25,6 @@ class VitessConnectionManager(BaseModel):
         """Create a new database connection."""
         self.connect()
 
-    @retry(stop=stop_after_attempt(30), wait=wait_exponential(multiplier=1, min=1, max=10), before_sleep=before_sleep_log(logger, logging.INFO))
     def connect(self) -> None:
         if self.connection is None:
             self.connection = pymysql.connect(

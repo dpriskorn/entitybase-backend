@@ -1,11 +1,13 @@
 """S3 storage client for entity and statement data."""
 
 import logging
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from pydantic import Field
+
+from models.data.infrastructure.s3 import S3RevisionData
 
 if TYPE_CHECKING:
     pass
@@ -15,6 +17,7 @@ from models.data.infrastructure.s3.enums import MetadataType
 from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.data.infrastructure.s3.reference_data import S3ReferenceData
 from models.data.infrastructure.s3.snak_data import S3SnakData
+from models.data.rest_api.v1.entitybase.response import MetadataData
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.revision.revision_data import RevisionData
@@ -85,7 +88,7 @@ class MyS3Client(Client):
 
         return self.revisions.store_revision(content_hash, s3_revision_data)
 
-    def read_revision(self, entity_id: str, revision_id: int):
+    def read_revision(self, entity_id: str, revision_id: int) -> S3RevisionData:
         """Read S3 object and return parsed JSON."""
         if self.vitess_client is None:
             raise_validation_error("Vitess client not configured", status_code=503)
@@ -118,7 +121,7 @@ class MyS3Client(Client):
     def write_statement(
         self,
         content_hash: int,
-        statement_data: Dict[str, Any],
+        statement_data: dict[str, Any],
         schema_version: str,
     ) -> None:
         """Write statement snapshot to S3."""
@@ -174,7 +177,7 @@ class MyS3Client(Client):
 
     def load_metadata(
         self, metadata_type: MetadataType, content_hash: int
-    ) -> Union[str, Dict[str, Any]]:
+    ) -> str | dict[str, Any] | None:
         """Load metadata by type."""
         return self.metadata.load_metadata(metadata_type, content_hash)
 
@@ -243,7 +246,7 @@ class MyS3Client(Client):
         if not result.success:
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
-    def load_revision(self, content_hash: int):
+    def load_revision(self, content_hash: int) -> S3RevisionData:
         """Load a revision by its content hash."""
         from models.infrastructure.s3.storage.revision_storage import RevisionStorage
         if not hasattr(self, 'revisions') or self.revisions is None:

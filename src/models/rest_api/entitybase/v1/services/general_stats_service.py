@@ -65,21 +65,33 @@ class GeneralStatsService(Service):
     def get_total_items(self) -> int:
         """Count total items."""
         cursor = self.state.vitess_client.cursor
-        cursor.execute("SELECT COUNT(*) FROM entity_revisions WHERE entity_type = 'item'")
+        cursor.execute(
+            """SELECT COUNT(*) FROM entity_revisions r
+               JOIN entity_id_mapping m ON r.internal_id = m.internal_id
+               WHERE m.entity_id LIKE 'Q%'"""
+        )
         result = cursor.fetchone()
         return result[0] if result else 0
 
     def get_total_lexemes(self) -> int:
         """Count total lexemes."""
         cursor = self.state.vitess_client.cursor
-        cursor.execute("SELECT COUNT(*) FROM entity_revisions WHERE entity_type = 'lexeme'")
+        cursor.execute(
+            """SELECT COUNT(*) FROM entity_revisions r
+               JOIN entity_id_mapping m ON r.internal_id = m.internal_id
+               WHERE m.entity_id LIKE 'L%'"""
+        )
         result = cursor.fetchone()
         return result[0] if result else 0
 
     def get_total_properties(self) -> int:
         """Count total properties."""
         cursor = self.state.vitess_client.cursor
-        cursor.execute("SELECT COUNT(*) FROM entity_revisions WHERE entity_type = 'property'")
+        cursor.execute(
+            """SELECT COUNT(*) FROM entity_revisions r
+               JOIN entity_id_mapping m ON r.internal_id = m.internal_id
+               WHERE m.entity_id LIKE 'P%'"""
+        )
         result = cursor.fetchone()
         return result[0] if result else 0
 

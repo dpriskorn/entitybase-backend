@@ -7,7 +7,6 @@ class EntityRevertRequest(BaseModel):
     """Request to revert an entity to a previous revision."""
 
     to_revision_id: int = Field(..., gt=0, description="Revision ID to revert to")
-    edit_summary: str = Field(..., description="Reason for reversion")
     watchlist_context: dict | None = Field(
         None, description="Optional watchlist context"
     )
@@ -17,5 +16,4 @@ class RedirectRevertRequest(BaseModel):
     revert_to_revision_id: int = Field(
         ..., description="Revision ID to revert to (e.g., 12340)."
     )
-    edit_summary: str = Field(..., description="Reason for reverting redirect")
     created_by: str = Field(default="rest-api")

@@ -63,11 +63,10 @@ class TestEntityUpdateHandler:
             request = EntityUpdateRequest(
                 type="item",
                 labels={"en": {"value": "Updated Entity"}},
-                edit_headers=edit_headers,
                 id="Q12345",
             )
 
-            result = await handler.update_entity("Q42", request, user_id=123)
+            result = await handler.update_entity("Q42", request, edit_headers=edit_headers)
 
             assert isinstance(result, EntityResponse)
             assert result.id == "Q42"
@@ -128,12 +127,11 @@ class TestEntityUpdateHandler:
         request = EntityUpdateRequest(
             type="item",
             labels={"en": {"value": "Updated Entity"}},
-            edit_headers=edit_headers,
             id="Q999"
         )
 
         with pytest.raises(Exception):  # Should raise validation error
-            await handler.update_entity("Q999", request)
+            await handler.update_entity("Q999", request, edit_headers=edit_headers)
 
         mock_vitess.entity_exists.assert_called_once_with("Q999")
 
@@ -149,13 +147,17 @@ class TestEntityUpdateHandler:
 
         handler = EntityUpdateHandler(state=mock_state)
 
+        edit_headers = EditHeaders(
+            X_User_ID=123,
+            X_Edit_Summary="Test update"
+        )
         request = EntityUpdateRequest(
             type="item",
             labels={"en": {"value": "Updated Entity"}}
         )
 
         with pytest.raises(Exception):  # Should raise validation error
-            await handler.update_entity("Q42", request)
+            await handler.update_entity("Q42", request, edit_headers=edit_headers)
 
         mock_vitess.is_entity_deleted.assert_called_once_with("Q42")
 
@@ -172,13 +174,17 @@ class TestEntityUpdateHandler:
 
         handler = EntityUpdateHandler(state=mock_state)
 
+        edit_headers = EditHeaders(
+            X_User_ID=123,
+            X_Edit_Summary="Test update"
+        )
         request = EntityUpdateRequest(
             type="item",
             labels={"en": {"value": "Updated Entity"}}
         )
 
         with pytest.raises(Exception):  # Should raise validation error
-            await handler.update_entity("Q42", request)
+            await handler.update_entity("Q42", request, edit_headers=edit_headers)
 
         mock_vitess.is_entity_locked.assert_called_once_with("Q42")
 
@@ -195,6 +201,10 @@ class TestEntityUpdateHandler:
         mock_vitess.get_head.side_effect = Exception("Transaction failed")
 
         mock_tx = MagicMock()
+        edit_headers = EditHeaders(
+            X_User_ID=123,
+            X_Edit_Summary="Test update"
+        )
 
         handler = EntityUpdateHandler(state=mock_state)
 
@@ -207,7 +217,7 @@ class TestEntityUpdateHandler:
             )
 
             with pytest.raises(Exception):  # Should propagate transaction exception
-                await handler.update_entity("Q42", request)
+                await handler.update_entity("Q42", request, edit_headers=edit_headers)
 
     @pytest.mark.asyncio
     async def test_update_entity_user_activity_logging_failure(self) -> None:
@@ -239,6 +249,10 @@ class TestEntityUpdateHandler:
         mock_tx.publish_event.return_value = None
 
         handler = EntityUpdateHandler(state=mock_state)
+        edit_headers = EditHeaders(
+            X_User_ID=123,
+            X_Edit_Summary="Test update"
+        )
 
         with patch("models.rest_api.entitybase.v1.handlers.entity.update.UpdateTransaction") as mock_tx_class:
             mock_tx_class.return_value = mock_tx
@@ -249,7 +263,7 @@ class TestEntityUpdateHandler:
             )
 
             # Should still succeed despite logging failure
-            result = await handler.update_entity("Q42", request, user_id=123)
+            result = await handler.update_entity("Q42", request, edit_headers=edit_headers)
 
             assert result.id == "Q42"
             mock_user_repo.log_user_activity.assert_called_once()
@@ -281,6 +295,10 @@ class TestEntityUpdateHandler:
         mock_tx.publish_event.return_value = None
 
         handler = EntityUpdateHandler(state=mock_state)
+        edit_headers = EditHeaders(
+            X_User_ID=0,
+            X_Edit_Summary="Test update"
+        )
 
         with patch("models.rest_api.entitybase.v1.handlers.entity.update.UpdateTransaction") as mock_tx_class:
             mock_tx_class.return_value = mock_tx
@@ -290,7 +308,7 @@ class TestEntityUpdateHandler:
                 labels={"en": {"value": "Updated Entity"}}
             )
 
-            result = await handler.update_entity("Q42", request)  # No user_id
+            result = await handler.update_entity("Q42", request, edit_headers=edit_headers)
 
             assert result.id == "Q42"
             # Should not attempt user activity logging
@@ -324,6 +342,10 @@ class TestEntityUpdateHandler:
         mock_tx.publish_event.return_value = None
 
         handler = EntityUpdateHandler(state=mock_state)
+        edit_headers = EditHeaders(
+            X_User_ID=123,
+            X_Edit_Summary="Test update"
+        )
 
         with patch("models.rest_api.entitybase.v1.handlers.entity.update.UpdateTransaction") as mock_tx_class:
             mock_tx_class.return_value = mock_tx
@@ -333,7 +355,7 @@ class TestEntityUpdateHandler:
                 labels={"en": {"value": "Updated Entity"}}
             )
 
-            result = await handler.update_entity("Q42", request, validator=mock_validator)
+            result = await handler.update_entity("Q42", request, edit_headers=edit_headers, validator=mock_validator)
 
             assert result.id == "Q42"
             # Verify validator was passed to process_statements
@@ -380,7 +402,6 @@ class TestEntityUpdateHandler:
                 type="item",
                 labels={"en": {"value": "Updated Entity"}},
                 edit_type="mass_edit",
-                edit_headers=edit_headers,
                 is_semi_protected=True,
                 is_locked=False,
                 is_archived=False,
@@ -388,7 +409,7 @@ class TestEntityUpdateHandler:
                 is_mass_edit_protected=False,
             )
 
-            result = await handler.update_entity("Q42", request)
+            result = await handler.update_entity("Q42", request, edit_headers=edit_headers)
 
             assert result.id == "Q42"
             # Verify mass edit parameters are passed to create_revision
@@ -446,7 +467,6 @@ class TestEntityUpdateHandler:
             request = EntityUpdateRequest(
                 type="item",
                 labels={"en": {"value": "Protected Entity"}},
-                edit_headers=edit_headers,
                 id="Q42",
                 is_semi_protected=True,
                 is_locked=False,
@@ -455,7 +475,7 @@ class TestEntityUpdateHandler:
                 is_mass_edit_protected=True,
             )
 
-            result = await handler.update_entity("Q42", request, user_id=123)
+            result = await handler.update_entity("Q42", request, edit_headers=edit_headers)
 
             assert isinstance(result, EntityResponse)
             assert result.id == "Q42"
@@ -506,11 +526,10 @@ class TestEntityUpdateHandler:
             request = EntityUpdateRequest(
                 type="item",
                 labels={"en": {"value": "Default Protection"}},
-                edit_headers=edit_headers,
                 id="Q42"
             )
 
-            result = await handler.update_entity("Q42", request)
+            result = await handler.update_entity("Q42", request, edit_headers=edit_headers)
 
             assert result.id == "Q42"
             create_call = mock_tx.create_revision.call_args[1]
@@ -553,12 +572,11 @@ class TestEntityUpdateHandler:
             request = EntityUpdateRequest(
                 type="item",
                 labels={"en": {"value": "Updated Entity"}},
-                edit_headers=edit_headers,
                 id="Q42",
             )
 
             with pytest.raises(Exception):
-                await handler.update_entity("Q42", request)
+                await handler.update_entity("Q42", request, edit_headers=edit_headers)
 
             # Verify rollback was called
             mock_tx.rollback.assert_called_once()

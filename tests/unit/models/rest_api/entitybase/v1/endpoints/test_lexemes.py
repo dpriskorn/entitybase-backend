@@ -188,12 +188,13 @@ class TestFormsAndSensesEndpoints:
     async def test_get_form_representations(self):
         from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_form_representations
 
+        mock_representation_en = Mock(language="en", value="answer")
+        mock_representation_de = Mock(language="de", value="Antwort")
+
         mock_form_response = Mock()
-        mock_form_response.model_dump.return_value = {
-            "representations": {
-                "en": {"language": "en", "value": "answer"},
-                "de": {"language": "de", "value": "Antwort"},
-            }
+        mock_form_response.representations = {
+            "en": mock_representation_en,
+            "de": mock_representation_de,
         }
 
         with patch(
@@ -203,18 +204,21 @@ class TestFormsAndSensesEndpoints:
             mock_req = Mock()
             result = await get_form_representations("L42-F1", mock_req)
 
-            assert "en" in result
-            assert result["en"]["value"] == "answer"
-            assert "de" in result
+            assert "en" in result.representations
+            assert result.representations["en"].value == "answer"
+            assert "de" in result.representations
 
     @pytest.mark.asyncio
     async def test_get_form_representation_specific_language(self):
         from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_form_representation
 
+        mock_representation_en = Mock(language="en", value="answer")
+        mock_representation_de = Mock(language="de", value="Antwort")
+
         mock_form_response = Mock()
         mock_form_response.representations = {
-            "en": Mock(language="en", value="answer"),
-            "de": Mock(language="de", value="Antwort"),
+            "en": mock_representation_en,
+            "de": mock_representation_de,
         }
 
         with patch(
@@ -224,7 +228,7 @@ class TestFormsAndSensesEndpoints:
             mock_req = Mock()
             result = await get_form_representation("L42-F1", "en", mock_req)
 
-            assert result["value"] == "answer"
+            assert result.value == "answer"
 
     @pytest.mark.asyncio
     async def test_get_form_representation_language_not_found(self):
@@ -248,12 +252,13 @@ class TestFormsAndSensesEndpoints:
     async def test_get_sense_glosses(self):
         from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_glosses
 
+        mock_gloss_en = Mock(language="en", value="reply; reaction")
+        mock_gloss_de = Mock(language="de", value="Antwort")
+
         mock_sense_response = Mock()
-        mock_sense_response.model_dump.return_value = {
-            "glosses": {
-                "en": {"language": "en", "value": "reply; reaction"},
-                "de": {"language": "de", "value": "Antwort"},
-            }
+        mock_sense_response.glosses = {
+            "en": mock_gloss_en,
+            "de": mock_gloss_de,
         }
 
         with patch(
@@ -263,18 +268,21 @@ class TestFormsAndSensesEndpoints:
             mock_req = Mock()
             result = await get_sense_glosses("L42-S1", mock_req)
 
-            assert "en" in result
-            assert result["en"]["value"] == "reply; reaction"
-            assert "de" in result
+            assert "en" in result.glosses
+            assert result.glosses["en"].value == "reply; reaction"
+            assert "de" in result.glosses
 
     @pytest.mark.asyncio
     async def test_get_sense_gloss_specific_language(self):
         from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_gloss
 
+        mock_gloss_en = Mock(language="en", value="reply; reaction")
+        mock_gloss_de = Mock(language="de", value="Antwort")
+
         mock_sense_response = Mock()
         mock_sense_response.glosses = {
-            "en": Mock(language="en", value="reply; reaction"),
-            "de": Mock(language="de", value="Antwort"),
+            "en": mock_gloss_en,
+            "de": mock_gloss_de,
         }
 
         with patch(
@@ -284,7 +292,7 @@ class TestFormsAndSensesEndpoints:
             mock_req = Mock()
             result = await get_sense_gloss("L42-S1", "en", mock_req)
 
-            assert result["value"] == "reply; reaction"
+            assert result.value == "reply; reaction"
 
     @pytest.mark.asyncio
     async def test_get_sense_gloss_language_not_found(self):

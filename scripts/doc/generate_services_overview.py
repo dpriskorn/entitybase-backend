@@ -49,6 +49,7 @@ def extract_service_info(service_file: Path) -> Dict[str, Any]:
                         # Get method docstring
                     if item.body and isinstance(item.body[0], ast.Expr):
                         expr = item.body[0]
+                        method_info = ""
                         if isinstance(expr.value, ast.Constant) and isinstance(
                             expr.value.value, str
                         ):

@@ -22,7 +22,6 @@ from models.data.rest_api.v1.entitybase.response import (
 from models.data.rest_api.v1.entitybase.response import EntityHistoryEntry
 from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
-    EntityRevisionResponse,
     EntityJsonResponse,
 )
 from models.data.rest_api.v1.entitybase.response import (
@@ -74,11 +73,11 @@ def get_entity_history(
 
 @router.get(
     "/entities/{entity_id}/revision/{revision_id}",
-    response_model=EntityRevisionResponse,
+    response_model=EntityResponse,
 )
 def get_entity_revision(
     entity_id: str, revision_id: int, req: Request
-) -> EntityRevisionResponse:
+) -> EntityResponse:
     """Get a specific revision of an entity."""
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
@@ -113,18 +112,18 @@ async def get_entity_ttl_revision(
 
 
 @router.get(
-    "/entities/{entity_id}/revision/{revision_id}/json", response_model=Dict[str, Any]
+    "/entities/{entity_id}/revision/{revision_id}/json", response_model=EntityJsonResponse
 )
-async def get_entity_json_revision(  # type: ignore[return]
+async def get_entity_json_revision(
     entity_id: str,
     revision_id: int,
     req: Request,
-) -> dict:
+) -> EntityJsonResponse:
     """Get JSON representation of a specific entity revision."""
     state = req.app.state.state_handler
     revision_data = state.s3_client.read_revision(entity_id, revision_id)
 
-    return revision_data.data  # type: ignore[no-any-return]
+    return EntityJsonResponse(data=revision_data.data)
 
 
 @router.get("/entities/{entity_id}.ttl")
@@ -348,7 +347,7 @@ async def post_entity_sitelink(
             f"Sitelink for site {site} already exists", status_code=409
         )
 
-    # Add sitelink
+# Add sitelink
     if "sitelinks" not in current_entity.entity_data:
         current_entity.entity_data["sitelinks"] = {}
     current_entity.entity_data["sitelinks"][site] = {
@@ -360,13 +359,14 @@ async def post_entity_sitelink(
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
     update_request = EntityUpdateRequest(
-        type=entity_type, edit_headers=headers, **current_entity.entity_data
+        type=entity_type, **current_entity.entity_data
     )
 
     result = await update_handler.update_entity(
         entity_id,
         update_request,
-        state.validator,
+        edit_headers=headers,
+        validator=state.validator,
     )
 
     return OperationResult(
@@ -414,13 +414,14 @@ async def put_entity_sitelink(
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
     update_request = EntityUpdateRequest(
-        type=entity_type, edit_headers=headers, **current_entity.entity_data
+        type=entity_type, **current_entity.entity_data
     )
 
     result = await update_handler.update_entity(
         entity_id,
         update_request,
-        state.validator,
+        edit_headers=headers,
+        validator=state.validator,
     )
 
     return OperationResult(
@@ -465,13 +466,14 @@ async def delete_entity_sitelink(
     update_handler = EntityUpdateHandler(state=state)
     entity_type = current_entity.entity_data.get("type") or "item"
     update_request = EntityUpdateRequest(
-        type=entity_type, edit_headers=headers, **current_entity.entity_data
+        type=entity_type, **current_entity.entity_data
     )
 
     result = await update_handler.update_entity(
         entity_id,
         update_request,
-        state.validator,
+        edit_headers=headers,
+        validator=state.validator,
     )
 
     return OperationResult(
