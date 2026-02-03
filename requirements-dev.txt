@@ -44,7 +44,7 @@ mypy-boto3-s3==1.42.21
 mypy-extensions==1.1.0
 packaging==25.0
 pathspec==1.0.3
-pip==25.3
+pip==26.0
 pluggy==1.6.0
 py-partiql-parser==0.6.3
 pycparser==2.23
