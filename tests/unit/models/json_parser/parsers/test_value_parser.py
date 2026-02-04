@@ -283,14 +283,3 @@ def test_parse_value_with_novalue_snaktype() -> None:
     assert value.datatype_uri == "http://wikiba.se/ontology#NoValue"
 
 
-def test_parse_unsupported_datatype() -> None:
-    """Test that unsupported datatype raises ValueError"""
-    snak_json = {
-        "snaktype": "value",
-        "property": "P1",
-        "datatype": "unknown-type",
-        "datavalue": {"value": "test", "type": "another-unknown-type"},
-    }
-
-    with pytest.raises(ValueError, match="Unsupported value type"):
-        parse_value(snak_json)

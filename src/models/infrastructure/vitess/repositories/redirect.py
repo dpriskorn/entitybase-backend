@@ -2,7 +2,7 @@
 
 import logging
 
-from models.common import OperationResult
+from models.data.common import OperationResult
 from models.infrastructure.vitess.repository import Repository
 from models.rest_api.utils import raise_validation_error
 

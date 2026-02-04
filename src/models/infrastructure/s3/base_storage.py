@@ -8,7 +8,7 @@ from typing import Any, Dict, Optional
 from botocore.exceptions import ClientError
 from pydantic import BaseModel, Field
 
-from models.common import OperationResult
+from models.data.common import OperationResult
 from models.data.infrastructure.s3 import DictLoadResponse, LoadResponse, StringLoadResponse
 from models.infrastructure.s3.exceptions import (
     S3StorageError,

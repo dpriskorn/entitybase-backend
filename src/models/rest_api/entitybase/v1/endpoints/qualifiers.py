@@ -9,12 +9,21 @@ from starlette.requests import Request
 from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.data.rest_api.v1.entitybase.response import (
     QualifierResponse,
+    ReconstructedSnakValue,
+)
+from models.data.rest_api.v1.entitybase.response.misc2 import (
+    SerializableQualifierValue,
 )
 from models.rest_api.entitybase.v1.services.snak_handler import SnakHandler
 
 logger = logging.getLogger(__name__)
 
-ProcessedQualifierValue = dict[str, Any] | int | str | list[dict[str, Any] | int | str]
+ProcessedQualifierValue = (
+    ReconstructedSnakValue
+    | int
+    | str
+    | list[ReconstructedSnakValue | int | str]
+)
 
 qualifiers_router = APIRouter(prefix="/qualifiers", tags=["statements"])
 
@@ -32,12 +41,12 @@ def _validate_and_parse_hashes(hashes: str) -> list[int]:
         raise HTTPException(status_code=400, detail="Invalid hash format")
 
 
-def _reconstruct_snak_value(value: int | str, snak_handler: SnakHandler) -> dict[str, Any] | int | str | None:
+def _reconstruct_snak_value(value: int | str, snak_handler: SnakHandler) -> ReconstructedSnakValue | int | str:
     """Reconstruct snak from hash if value is a hash, otherwise return as-is."""
     if isinstance(value, int) or (isinstance(value, str) and value.isdigit()):
         reconstructed_snak = snak_handler.get_snak(int(value))
         if reconstructed_snak:
-            return reconstructed_snak
+            return ReconstructedSnakValue(**reconstructed_snak)
         logger.warning(f"Snak {value} not found")
         return value
     return value
@@ -54,12 +63,28 @@ def _build_qualifier_response(item: S3QualifierData, snak_handler: SnakHandler) 
     """Build qualifier response with reconstructed snaks."""
     qualifier_dict = {}
     for prop_key, qual_values in item.qualifier.items():
-        qualifier_dict[prop_key] = _process_qualifier_value(qual_values, snak_handler)
+        processed = _process_qualifier_value(qual_values, snak_handler)
+        qualifier_dict[prop_key] = _convert_to_serializable(processed).value
     return QualifierResponse(
         qualifier=qualifier_dict,
         hash=item.content_hash,
         created_at=item.created_at,
     )
+
+
+def _convert_to_serializable(value: ProcessedQualifierValue) -> SerializableQualifierValue:
+    """Convert ReconstructedSnakValue objects back to dicts for JSON serialization."""
+    if isinstance(value, ReconstructedSnakValue):
+        return SerializableQualifierValue(value=value.model_dump())
+    if isinstance(value, list):
+        converted_list = []
+        for item in value:
+            if isinstance(item, ReconstructedSnakValue):
+                converted_list.append(item.model_dump())
+            else:
+                converted_list.append(item)
+        return SerializableQualifierValue(value=converted_list)
+    return SerializableQualifierValue(value=value)
 
 
 @qualifiers_router.get("/{hashes}")

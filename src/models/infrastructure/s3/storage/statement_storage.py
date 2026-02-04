@@ -3,7 +3,7 @@
 import logging
 from datetime import timezone, datetime
 
-from models.common import OperationResult
+from models.data.common import OperationResult
 from models.config.settings import settings
 from models.data.infrastructure.s3.statement import S3Statement
 from models.infrastructure.s3.base_storage import BaseS3Storage

@@ -3,11 +3,25 @@
 import logging
 import os
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, TypedDict
 
 import boto3 as _boto3  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from pydantic import BaseModel
+
+
+class BucketHealthCheckResult(TypedDict):
+    """Result of bucket health check."""
+    overall_status: str
+    buckets: Dict[str, Any]
+    issues: List[str]
+
+
+class BucketSetupResult(TypedDict):
+    """Result of bucket setup operation."""
+    buckets_created: Dict[str, str]
+    health_check: BucketHealthCheckResult
+    setup_status: str
 
 logger = logging.getLogger(__name__)
 
@@ -110,9 +124,9 @@ class CreateBuckets(BaseModel):
 
         return results
 
-    async def bucket_health_check(self) -> Dict[str, Any]:
+    async def bucket_health_check(self) -> BucketHealthCheckResult:
         """Perform health check on all required buckets."""
-        health_status: Dict[str, Any] = {
+        health_status: BucketHealthCheckResult = {
             "overall_status": "healthy",
             "buckets": {},
             "issues": [],
@@ -137,7 +151,7 @@ class CreateBuckets(BaseModel):
 
         return health_status
 
-    async def run_setup(self) -> Dict[str, Any]:
+    async def run_setup(self) -> BucketSetupResult:
         """Run complete setup process for development environment."""
         logger.info("Starting development environment setup")
 
@@ -147,7 +161,7 @@ class CreateBuckets(BaseModel):
         # Perform health check
         health_status = await self.bucket_health_check()
 
-        setup_results = {
+        setup_results: BucketSetupResult = {
             "buckets_created": bucket_results,
             "health_check": health_status,
             "setup_status": "completed"

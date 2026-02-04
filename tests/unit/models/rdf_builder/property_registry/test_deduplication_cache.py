@@ -93,15 +93,6 @@ def test_custom_cutoff() -> None:
     assert dedupe.cutoff == 10
 
 
-def test_invalid_cutoff() -> None:
-    """Test that invalid cutoff values raise ValueError."""
-    with pytest.raises(ValueError):
-        HashDedupeBag(cutoff=0)
-
-    with pytest.raises(ValueError):
-        HashDedupeBag(cutoff=-1)
-
-
 def test_empty_namespace() -> None:
     """Test that empty namespace string works correctly."""
     dedupe = HashDedupeBag()

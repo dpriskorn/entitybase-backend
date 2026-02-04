@@ -5,7 +5,8 @@ from datetime import datetime, timezone
 from typing import Any, Callable, List
 import logging
 
-from models.common import EditHeaders
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from pydantic import BaseModel, Field
 
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
@@ -25,7 +26,7 @@ class EntityTransaction(BaseModel, ABC):
     def process_statements(
         self,
         entity_id: str,
-        request_data: dict,
+        request_data: PreparedRequestData,
         validator: Any,
     ) -> StatementHashResult:
         """Process statements for the transaction."""

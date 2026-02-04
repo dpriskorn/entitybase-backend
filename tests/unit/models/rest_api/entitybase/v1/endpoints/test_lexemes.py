@@ -5,10 +5,12 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from fastapi import HTTPException
 
-from src.models.rest_api.entitybase.v1.endpoints.lexemes import (
+from models.rest_api.entitybase.v1.endpoints.lexemes import (
     _extract_numeric_suffix,
     _parse_form_id,
     _parse_sense_id,
+    delete_form_representation,
+    delete_sense_gloss,
 )
 
 
@@ -53,7 +55,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_lexeme_forms_returns_sorted_forms(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_forms
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_forms
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -79,7 +81,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_lexeme_senses_returns_sorted_senses(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_senses
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_senses
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -104,7 +106,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_form_by_id_full_format(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_form_by_id
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_form_by_id
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -127,7 +129,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_form_by_id_not_found(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_form_by_id
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_form_by_id
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -145,7 +147,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_sense_by_id_full_format(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_by_id
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_by_id
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -168,7 +170,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_sense_by_id_not_found(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_by_id
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_by_id
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -186,7 +188,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_form_representations(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_form_representations
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_form_representations
 
         mock_representation_en = Mock(language="en", value="answer")
         mock_representation_de = Mock(language="de", value="Antwort")
@@ -198,7 +200,7 @@ class TestFormsAndSensesEndpoints:
         }
 
         with patch(
-            "src.models.rest_api.entitybase.v1.endpoints.lexemes.get_form_by_id",
+            "models.rest_api.entitybase.v1.endpoints.lexemes.get_form_by_id",
             new=AsyncMock(return_value=mock_form_response)
         ):
             mock_req = Mock()
@@ -210,7 +212,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_form_representation_specific_language(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_form_representation
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_form_representation
 
         mock_representation_en = Mock(language="en", value="answer")
         mock_representation_de = Mock(language="de", value="Antwort")
@@ -222,7 +224,7 @@ class TestFormsAndSensesEndpoints:
         }
 
         with patch(
-            "src.models.rest_api.entitybase.v1.endpoints.lexemes.get_form_by_id",
+            "models.rest_api.entitybase.v1.endpoints.lexemes.get_form_by_id",
             new=AsyncMock(return_value=mock_form_response)
         ):
             mock_req = Mock()
@@ -232,13 +234,13 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_form_representation_language_not_found(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_form_representation
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_form_representation
 
         mock_form_response = Mock()
         mock_form_response.representations = {"en": Mock(language="en", value="answer")}
 
         with patch(
-            "src.models.rest_api.entitybase.v1.endpoints.lexemes.get_form_by_id",
+            "models.rest_api.entitybase.v1.endpoints.lexemes.get_form_by_id",
             new=AsyncMock(return_value=mock_form_response)
         ):
             mock_req = Mock()
@@ -250,7 +252,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_sense_glosses(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_glosses
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_glosses
 
         mock_gloss_en = Mock(language="en", value="reply; reaction")
         mock_gloss_de = Mock(language="de", value="Antwort")
@@ -262,7 +264,7 @@ class TestFormsAndSensesEndpoints:
         }
 
         with patch(
-            "src.models.rest_api.entitybase.v1.endpoints.lexemes.get_sense_by_id",
+            "models.rest_api.entitybase.v1.endpoints.lexemes.get_sense_by_id",
             new=AsyncMock(return_value=mock_sense_response)
         ):
             mock_req = Mock()
@@ -274,7 +276,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_sense_gloss_specific_language(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_gloss
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_gloss
 
         mock_gloss_en = Mock(language="en", value="reply; reaction")
         mock_gloss_de = Mock(language="de", value="Antwort")
@@ -286,7 +288,7 @@ class TestFormsAndSensesEndpoints:
         }
 
         with patch(
-            "src.models.rest_api.entitybase.v1.endpoints.lexemes.get_sense_by_id",
+            "models.rest_api.entitybase.v1.endpoints.lexemes.get_sense_by_id",
             new=AsyncMock(return_value=mock_sense_response)
         ):
             mock_req = Mock()
@@ -296,13 +298,13 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_sense_gloss_language_not_found(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_gloss
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_gloss
 
         mock_sense_response = Mock()
         mock_sense_response.glosses = {"en": Mock(language="en", value="reply")}
 
         with patch(
-            "src.models.rest_api.entitybase.v1.endpoints.lexemes.get_sense_by_id",
+            "models.rest_api.entitybase.v1.endpoints.lexemes.get_sense_by_id",
             new=AsyncMock(return_value=mock_sense_response)
         ):
             mock_req = Mock()
@@ -314,7 +316,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_update_form_representation_missing_language(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
+        from models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -345,7 +347,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_update_form_representation_language_mismatch(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
+        from models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -376,7 +378,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_update_form_representation_invalid_data(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
+        from models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -406,7 +408,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_form_id_short_format_not_implemented(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_form_by_id
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_form_by_id
 
         mock_req = Mock()
 
@@ -418,7 +420,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_sense_id_short_format_not_implemented(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_by_id
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_by_id
 
         mock_req = Mock()
 
@@ -430,7 +432,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_update_form_representation(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
+        from models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -451,7 +453,7 @@ class TestFormsAndSensesEndpoints:
         mock_req.app.state.state_handler = mock_state
 
         with patch(
-            "src.models.rest_api.entitybase.v1.endpoints.lexemes.EntityUpdateHandler",
+            "models.rest_api.entitybase.v1.endpoints.lexemes.EntityUpdateHandler",
             return_value=mock_update_handler
         ):
             result = await update_form_representation(
@@ -467,12 +469,10 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_delete_form_representation_language_not_found(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import delete_form_representation
-
         mock_state = Mock()
         mock_handler = Mock()
         mock_entity = Mock()
-        mock_entity.entity_data = {
+        mock_entity.data = {
             "forms": [
                 {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
             ],
@@ -480,6 +480,7 @@ class TestFormsAndSensesEndpoints:
         }
         mock_handler.get_entity.return_value = mock_entity
         mock_state.state_handler = mock_state
+        mock_state.validator = Mock()
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -489,21 +490,20 @@ class TestFormsAndSensesEndpoints:
                 "L42-F1",
                 "fr",
                 mock_req,
-                edit_summary="remove representation"
+                headers=Mock(x_user_id=123, x_edit_summary="remove representation")
             )
 
         assert exc.value.status_code == 404
 
     @pytest.mark.asyncio
     async def test_delete_form_representation_form_not_found(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import delete_form_representation
-
         mock_state = Mock()
         mock_handler = Mock()
         mock_entity = Mock()
         mock_entity.data = {"forms": [], "senses": []}
         mock_handler.get_entity.return_value = mock_entity
         mock_state.state_handler = mock_state
+        mock_state.validator = Mock()
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -513,14 +513,13 @@ class TestFormsAndSensesEndpoints:
                 "L42-F99",
                 "en",
                 mock_req,
-                edit_summary="remove representation"
+                headers=Mock(x_user_id=123, x_edit_summary="remove representation")
             )
 
         assert exc.value.status_code == 404
 
     @pytest.mark.asyncio
     async def test_delete_sense_gloss(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import delete_sense_gloss
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -535,20 +534,20 @@ class TestFormsAndSensesEndpoints:
         mock_handler.get_entity.return_value = mock_entity
         mock_state.state_handler = mock_state
         mock_state.validator = Mock()
-        mock_update_handler.update_entity = AsyncMock(return_value=mock_entity)
+        mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
 
         with patch(
-            "src.models.rest_api.entitybase.v1.endpoints.lexemes.LexemeUpdateHandler",
+            "models.rest_api.entitybase.v1.endpoints.lexemes.EntityUpdateHandler",
             return_value=mock_update_handler
         ):
             await delete_sense_gloss(
                 "L42-S1",
                 "en",
                 mock_req,
-                edit_summary="remove gloss"
+                headers=Mock(x_user_id=123, x_edit_summary="remove gloss")
             )
 
             # Check gloss was removed
@@ -556,11 +555,10 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_delete_sense_gloss_not_found_idempotent(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import delete_sense_gloss
-
         mock_state = Mock()
         mock_handler = Mock()
         mock_entity = Mock()
+        mock_entity.id = "L42"
         mock_entity.data = {
             "senses": [
                 {"id": "L42-S1", "glosses": {"en": {"language": "en", "value": "reply"}}}
@@ -577,7 +575,7 @@ class TestFormsAndSensesEndpoints:
             "L42-S1",
             "fr",
             mock_req,
-            edit_summary="remove gloss"
+            headers=Mock(x_user_id=123, x_edit_summary="remove gloss")
         )
 
         # Should return current entity idempotently
@@ -585,14 +583,13 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_delete_sense_gloss_sense_not_found(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import delete_sense_gloss
-
         mock_state = Mock()
         mock_handler = Mock()
         mock_entity = Mock()
         mock_entity.data = {"senses": [], "forms": []}
         mock_handler.get_entity.return_value = mock_entity
         mock_state.state_handler = mock_state
+        mock_state.validator = Mock()
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -602,14 +599,14 @@ class TestFormsAndSensesEndpoints:
                 "L42-S99",
                 "en",
                 mock_req,
-                edit_summary="remove gloss"
+                headers=Mock(x_user_id=123, x_edit_summary="remove gloss")
             )
 
         assert exc.value.status_code == 404
 
     @pytest.mark.asyncio
     async def test_delete_form(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import delete_form
+        from models.rest_api.entitybase.v1.endpoints.lexemes import delete_form
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -625,19 +622,19 @@ class TestFormsAndSensesEndpoints:
         mock_handler.get_entity.return_value = mock_entity
         mock_state.state_handler = mock_state
         mock_state.validator = Mock()
-        mock_update_handler.update_entity = AsyncMock(return_value=mock_entity)
+        mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
 
         with patch(
-            "src.models.rest_api.entitybase.v1.endpoints.lexemes.LexemeUpdateHandler",
+            "models.rest_api.entitybase.v1.endpoints.lexemes.EntityUpdateHandler",
             return_value=mock_update_handler
         ):
             await delete_form(
                 "L42-F1",
                 mock_req,
-                edit_summary="remove form"
+                headers=Mock(x_user_id=123, x_edit_summary="remove form")
             )
 
             # Check form was removed
@@ -646,7 +643,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_delete_form_not_found(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import delete_form
+        from models.rest_api.entitybase.v1.endpoints.lexemes import delete_form
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -654,6 +651,7 @@ class TestFormsAndSensesEndpoints:
         mock_entity.data = {"forms": [], "senses": []}
         mock_handler.get_entity.return_value = mock_entity
         mock_state.state_handler = mock_state
+        mock_state.validator = Mock()
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -662,14 +660,14 @@ class TestFormsAndSensesEndpoints:
             await delete_form(
                 "L42-F99",
                 mock_req,
-                edit_summary="remove form"
+                headers=Mock(x_user_id=123, x_edit_summary="remove form")
             )
 
         assert exc.value.status_code == 404
 
     @pytest.mark.asyncio
     async def test_delete_sense(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import delete_sense
+        from models.rest_api.entitybase.v1.endpoints.lexemes import delete_sense
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -685,19 +683,19 @@ class TestFormsAndSensesEndpoints:
         mock_handler.get_entity.return_value = mock_entity
         mock_state.state_handler = mock_state
         mock_state.validator = Mock()
-        mock_update_handler.update_entity = AsyncMock(return_value=mock_entity)
+        mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
 
         with patch(
-            "src.models.rest_api.entitybase.v1.endpoints.lexemes.LexemeUpdateHandler",
+            "models.rest_api.entitybase.v1.endpoints.lexemes.EntityUpdateHandler",
             return_value=mock_update_handler
         ):
             await delete_sense(
                 "L42-S1",
                 mock_req,
-                edit_summary="remove sense"
+                headers=Mock(x_user_id=123, x_edit_summary="remove sense")
             )
 
             # Check sense was removed
@@ -706,7 +704,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_delete_sense_not_found(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import delete_sense
+        from models.rest_api.entitybase.v1.endpoints.lexemes import delete_sense
 
         mock_state = Mock()
         mock_handler = Mock()
@@ -714,6 +712,7 @@ class TestFormsAndSensesEndpoints:
         mock_entity.data = {"senses": [], "forms": []}
         mock_handler.get_entity.return_value = mock_entity
         mock_state.state_handler = mock_state
+        mock_state.validator = Mock()
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -722,7 +721,7 @@ class TestFormsAndSensesEndpoints:
             await delete_sense(
                 "L42-S99",
                 mock_req,
-                edit_summary="remove sense"
+                headers=Mock(x_user_id=123, x_edit_summary="remove sense")
             )
 
         assert exc.value.status_code == 404

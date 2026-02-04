@@ -11,11 +11,10 @@ from fastapi import FastAPI
 from pydantic import FieldValidationInfo
 
 from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
-from models.data.rest_api.v1.entitybase.response import IdResponse
+from models.data.rest_api.v1.entitybase.response.id_response import IdResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import (
     EnumerationService,
 )
-from models.rest_api.utils import raise_validation_error
 from models.workers.notification_cleanup.main import VitessWorker
 
 logger = logging.getLogger(__name__)
@@ -151,26 +150,26 @@ class IdGeneratorWorker(VitessWorker):
         )
 
     def get_next_id(self, entity_type: str) -> IdResponse:
-        """Get the next available ID for a given entity type.
-
-        Synchronous wrapper around EnumerationService.get_next_entity_id().
-        Allocates IDs from pre-reserved ranges to ensure efficient generation.
+        """Generate the next available entity ID for the given type.
 
         Args:
-            entity_type: Type of entity ("item", "property", "lexeme").
+            entity_type: Type of entity ("item", "property", "lexeme", or "entityschema")
 
         Returns:
-            IdResponse: Response containing the next available ID for the entity type.
+            IdResponse: Response containing the generated entity ID
 
         Raises:
-            ValidationError: If the worker is not properly initialized.
+            ValidationError: If enumeration_service is not initialized or entity_type is invalid
         """
-        if not self.enumeration_service:
-            raise_validation_error("Worker not initialized", status_code=500)
+        if self.enumeration_service is None:
+            from models.rest_api.utils import raise_validation_error
 
-        assert self.enumeration_service is not None
+            raise_validation_error("Enumeration service not initialized")
+
         entity_id = self.enumeration_service.get_next_entity_id(entity_type)
         return IdResponse(id=entity_id)
+
+
 
 
 async def run_worker(worker: IdGeneratorWorker) -> None:

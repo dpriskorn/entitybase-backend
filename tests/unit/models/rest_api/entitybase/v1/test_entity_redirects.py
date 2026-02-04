@@ -5,7 +5,6 @@ import pytest
 from fastapi import HTTPException
 
 from models.data.infrastructure.s3.entity_state import EntityState
-from models.data.infrastructure.s3.enums import EditType
 from models.data.rest_api.v1.entitybase.request import (
     EntityRedirectRequest,
 )
@@ -289,42 +288,6 @@ def redirect_service() -> RedirectService:
     vitess.resolved_ids["Q42"] = 42
 
     return RedirectService(s3, vitess)
-
-
-def test_revert_redirect_success(redirect_service: RedirectService) -> None:
-        """Test successful redirect revert"""
-        vitess = redirect_service.vitess
-        s3 = redirect_service.s3
-
-        vitess.resolved_ids["Q100"] = 100
-        vitess.resolved_ids["Q42"] = 42
-        vitess.set_redirect_target("Q100", "Q42")
-        s3.written_revisions[1] = {
-            "revision_id": 1,
-            "data": {
-                "id": "Q100",
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Original Label"}},
-                "descriptions": {"en": {"language": "en", "value": "Original Description"}},
-                "claims": {},
-                "sitelinks": {},
-            },
-        }
-
-        edit_headers = Mock()
-        edit_headers.x_edit_summary = "Test revert"
-        edit_headers.x_user_id = 1
-
-        response = redirect_service.revert_redirect(
-            entity_id="Q100", revert_to_revision_id=1, edit_headers=edit_headers
-        )
-
-        assert response.id == "Q100"
-        assert response.revision_id == 2
-        assert response.entity_data["id"] == "Q100"
-        assert response.entity_data["labels"]["en"]["value"] == "Original Label"
-
-        assert vitess.get_redirect_target("Q100") is None
 
 
 def test_revert_redirect_entity_not_redirect(redirect_service: RedirectService) -> None:

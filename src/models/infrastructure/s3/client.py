@@ -12,7 +12,7 @@ from models.data.infrastructure.s3 import DictLoadResponse, LoadResponse, String
 if TYPE_CHECKING:
     pass
 
-from models.common import OperationResult
+from models.data.common import OperationResult
 from models.data.infrastructure.s3.enums import MetadataType
 from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.data.infrastructure.s3.reference_data import S3ReferenceData
@@ -48,7 +48,7 @@ class MyS3Client(Client):
     snaks: Any = Field(default=None, exclude=True)
     lexemes: Any = Field(default=None, exclude=True)
 
-    def model_post_init(self, context) -> None:
+    def model_post_init(self, context: Any) -> None:
         # noinspection PyTypeChecker
         manager = S3ConnectionManager(config=self.config)
         if manager is None:
@@ -85,7 +85,7 @@ class MyS3Client(Client):
             created_at=data.created_at,
         )
 
-        return cast(OperationResult[None], self.revisions.store_revision(content_hash, s3_revision_data))
+        return self.revisions.store_revision(content_hash, s3_revision_data)  # type: ignore[no-any-return]
 
     def read_revision(self, entity_id: str, revision_id: int) -> S3RevisionData:
         """Read S3 object and return parsed JSON."""
@@ -237,7 +237,7 @@ class MyS3Client(Client):
                    self.snaks.load_snaks_batch(content_hashes))
 
     def store_revision(
-        self, content_hash: int, revision_data
+        self, content_hash: int, revision_data: S3RevisionData
     ) -> None:
         """Store a revision by its content hash."""
         from models.infrastructure.s3.storage.revision_storage import RevisionStorage

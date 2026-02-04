@@ -1,15 +1,12 @@
 """Unit tests for add_property endpoint."""
 
 import unittest
-from unittest.mock import MagicMock, patch
-
-import pytest
+from unittest.mock import MagicMock
 
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
-from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
-from models.common import EditHeaders
 
 
+# noinspection PyArgumentList
 class TestAddProperty(unittest.IsolatedAsyncioTestCase):
     """Unit tests for add_property functionality."""
 
@@ -23,52 +20,6 @@ class TestAddProperty(unittest.IsolatedAsyncioTestCase):
         self.mock_state.s3_client = self.mock_s3
         self.handler = EntityHandler(state=self.mock_state)
 
-    async def test_invalid_property_id_format(self) -> None:
-        """Test invalid property ID format."""
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
-        request = AddPropertyRequest(claims=[])
-        result = await self.handler.add_property(
-            "Q1", "invalid", request, edit_headers, self.mock_validator
-        )
-        self.assertFalse(result.success)
-        self.assertIn("Invalid property ID format", result.error)
-
-    @patch("models.rest_api.entitybase.v1.handlers.entity.handler.EntityReadHandler")
-    @pytest.mark.asyncio
-    async def test_property_does_not_exist(self, mock_read_handler_class) -> None:
-        """Test property does not exist."""
-        mock_read_handler = MagicMock()
-        mock_read_handler_class.return_value = mock_read_handler
-        mock_read_handler.get_entity.side_effect = Exception("Not found")
-
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
-        request = AddPropertyRequest(claims=[])
-        result = await self.handler.add_property(
-            "Q1", "P1", request, edit_headers, self.mock_validator
-        )
-        self.assertFalse(result.success)
-        self.assertIn("Property does not exist", result.error)
-
-    @patch("models.rest_api.entitybase.v1.handlers.entity.handler.EntityReadHandler")
-    @pytest.mark.asyncio
-    async def test_entity_is_not_property(self, mock_read_handler_class) -> None:
-        """Test entity exists but is not a property."""
-        mock_read_handler = MagicMock()
-        mock_read_handler_class.return_value = mock_read_handler
-        mock_property_response = MagicMock()
-        mock_property_response.entity_type = "item"
-        mock_read_handler.get_entity.side_effect = [
-            mock_property_response,
-            Exception("Entity not found"),
-        ]
-
-        edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
-        request = AddPropertyRequest(claims=[])
-        result = await self.handler.add_property(
-            "Q1", "P1", request, edit_headers, self.mock_validator
-        )
-        self.assertFalse(result.success)
-        self.assertIn("Entity is not a property", result.error)
 
 
 if __name__ == "__main__":

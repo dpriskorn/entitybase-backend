@@ -6,6 +6,11 @@ Linter to check for data: attributes in Python files.
 import sys
 from pathlib import Path
 
+sys.path.append(str(Path(__file__).parent.resolve()))
+
+# noinspection PyUnresolvedReferences
+from allowlist_utils import is_line_allowed
+
 
 def load_allowlist() -> set:
     """Load the data allowlist from config/linters/allowlists/data.txt."""
@@ -34,15 +39,15 @@ def check_file(file_path: Path, allowlist: set) -> list[tuple[str, int, str]]:
                 if "data:" in line and not (
                     '"' in line or "'" in line or 'f"' in line or "f'" in line
                 ):
-                    key = f"{file_path}:{line_no}"
-                    if key not in allowlist:
-                        violations.append(
-                            (
-                                str(file_path),
-                                line_no,
-                                f"Found 'data:' attribute: {line.strip()}, consider using a more specific attribute name",
-                            )
+                    if is_line_allowed(file_path, line_no, allowlist):
+                        continue
+                    violations.append(
+                        (
+                            str(file_path),
+                            line_no,
+                            f"Found 'data:' attribute: {line.strip()}, consider using a more specific attribute name",
                         )
+                    )
     except Exception as e:
         violations.append((str(file_path), 0, f"Error reading file: {e}"))
 

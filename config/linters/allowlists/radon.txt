@@ -13,9 +13,10 @@ __exit__
 __call__
 __iter__
 __next__
+main
+model_post_init
 setUp
 tearDown
-main
 # Radon allowlist for acceptable duplicate methods
 # These methods are intentionally duplicated due to shared logic or different contexts
 
@@ -30,10 +31,13 @@ already_seen
 cleanup_orphaned_statements
 compute_hash
 commit
+compute
 connect
 create
+create_tables
 data
 decrement_ref_count
+delete_metadata
 edit_type_to_change_type
 entity_exists
 get_connection
@@ -58,6 +62,17 @@ health_redirect
 healthy_connection
 increment_ref_count
 list_entities
+load_form_representations_batch
+load_metadata
+load_qualifier
+load_qualifiers_batch
+load_reference
+load_references_batch
+load_revision
+load_sense_glosses_batch
+load_snak
+load_snaks_batch
+process_lexeme_terms
 process_statements
 publish_event
 read_full_revision
@@ -67,11 +82,13 @@ write_entity_revision
 write_header
 write_property
 write_statement
+delete
 delete_backlinks_for_entity
 delete_statement
 get_backlinks
 health_check
 insert_backlinks
+insert_revision
 add_watch
 create_user
 get_notifications
@@ -93,7 +110,16 @@ get_thanks_sent
 get_user_endorsement_stats
 get_user_endorsements
 send_thank
+remove_watch_by_id
+resolve_id
 serialize_timestamp
+s3_client
+store_form_representation
+store_qualifier
+store_reference
+store_revision
+store_sense_gloss
+store_snak
 withdraw_endorsement
 compute_daily_stats
 get_enabled_setting
@@ -102,3 +128,5 @@ get_schedule_setting
 get_user_stats
 get_watches
 mark_checked
+vitess_client
+vitess_config

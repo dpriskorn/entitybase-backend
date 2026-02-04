@@ -5,7 +5,7 @@ from typing import List, Any
 
 import pymysql
 
-from models.common import OperationResult
+from models.data.common import OperationResult
 from models.infrastructure.vitess.repository import Repository
 
 logger = logging.getLogger(__name__)

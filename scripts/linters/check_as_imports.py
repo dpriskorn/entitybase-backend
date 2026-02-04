@@ -7,6 +7,10 @@ import sys
 from pathlib import Path
 from typing import List, Tuple, Dict
 
+sys.path.append(str(Path(__file__).parent.resolve()))
+
+from allowlist_utils import is_line_allowed
+
 
 def load_allowlist() -> Dict[str, List[int]]:
     """Load the allowlist from config/linters/allowlists/custom/as-imports.txt.
@@ -57,13 +61,7 @@ class AsImportChecker(ast.NodeVisitor):
 
     def is_allowed(self, line_no: int) -> bool:
         """Check if this line number is allowed for the current file."""
-        if self.file_path in self.allowlist:
-            allowed_lines = self.allowlist[self.file_path]
-            if not allowed_lines:
-                return True
-            if line_no in allowed_lines:
-                return True
-        return False
+        return is_line_allowed(self.file_path, line_no, self.allowlist)
 
     def visit_Import(self, node: ast.Import) -> None:
         for alias in node.names:

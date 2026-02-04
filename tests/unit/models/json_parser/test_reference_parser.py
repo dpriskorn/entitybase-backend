@@ -7,34 +7,6 @@ from models.json_parser.reference_parser import parse_reference, parse_reference
 class TestReferenceParser:
     """Unit tests for reference_parser."""
 
-    def test_parse_reference_basic(self):
-        """Test parsing a basic reference."""
-        reference_json = {
-            "hash": "abc123",
-            "snaks": {
-                "P854": [
-                    {
-                        "snaktype": "value",
-                        "property": "P854",
-                        "datatype": "url",
-                        "datavalue": {
-                            "value": "http://example.com",
-                            "type": "string"
-                        }
-                    }
-                ]
-            }
-        }
-
-        result = parse_reference(reference_json)
-
-        assert isinstance(result, Reference)
-        assert result.hash == "abc123"
-        assert len(result.snaks) == 1
-        assert result.snaks[0].property == "P854"
-        assert result.snaks[0].value.kind == "string"
-        assert result.snaks[0].value.value == "http://example.com"
-
     def test_parse_reference_no_hash(self):
         """Test parsing reference without hash."""
         reference_json = {

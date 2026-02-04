@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 
 from fastapi import HTTPException
 
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.request import EntityJsonImportRequest
 from models.data.rest_api.v1.entitybase.response import EntityJsonImportResponse
 from models.infrastructure.s3.client import MyS3Client
@@ -95,6 +96,7 @@ class EntityJsonImportHandler(Handler):
                         # Create the entity using the existing handler
                         await create_handler.create_entity(
                             create_request,
+                            EditHeaders(x_user_id=0, x_edit_summary="Wikidata import"),
                             validator,
                             auto_assign_id=False,  # Use the Wikidata ID
                         )

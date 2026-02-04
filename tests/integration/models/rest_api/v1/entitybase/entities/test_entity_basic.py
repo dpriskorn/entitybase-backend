@@ -1,10 +1,8 @@
-import json
 import logging
 from pprint import pprint
 
 import pytest
 import requests
-from rapidhash import rapidhash
 
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 

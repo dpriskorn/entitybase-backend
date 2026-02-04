@@ -1,10 +1,10 @@
 """Entity statement modification service."""
 import logging
 from datetime import datetime, timezone
-from typing import Any, cast
+from typing import Any
 
-from models.common import EditHeaders
-from models.common import OperationResult
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+from models.data.common import OperationResult
 from models.data.infrastructure.s3.enums import EditType
 from models.data.raw_entity import RawEntityData
 from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
@@ -184,7 +184,7 @@ class EntityStatementService(Service):
             from models.data.infrastructure.s3.revision_data import S3RevisionData
             if not isinstance(s3_revision_data, S3RevisionData):
                 raise_validation_error("Invalid revision data type", status_code=500)
-            return cast(RevisionData, RevisionData.model_validate(s3_revision_data.revision))
+            return RevisionData.model_validate(s3_revision_data.revision)
         except Exception as e:
             raise_validation_error(f"Failed to fetch revision: {e}", status_code=400)
     
@@ -198,9 +198,9 @@ class EntityStatementService(Service):
             current_data["claims"][property_id] = []
         current_data["claims"][property_id].extend(claims)
     
+    @staticmethod
     def _remove_statement_from_revision(
-        self,
-        revision_data: RevisionData,
+            revision_data: RevisionData,
         statement_hash: str
     ) -> OperationResult:
         """Remove statement hash from revision data and recalculate property counts."""

@@ -8,12 +8,32 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
+sys.path.append(str(Path(__file__).parent.resolve()))
+
+# noinspection PyUnresolvedReferences
+from allowlist_utils import is_line_allowed
+
+
+def load_allowlist() -> set:
+    """Load the logger allowlist from config/linters/allowlists/logger.txt."""
+    allowlist_path = Path("config/linters/allowlists/logger.txt")
+    allowlist = set()
+    if allowlist_path.exists():
+        with open(allowlist_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    allowlist.add(line)
+    return allowlist
+
 
 class LoggerInfoChecker(ast.NodeVisitor):
     """AST visitor to check logger.info() calls in functions."""
 
-    def __init__(self, source_lines: List[str]):
+    def __init__(self, source_lines: List[str], file_path: str, allowlist: set):
         self.source_lines = source_lines
+        self.file_path = file_path
+        self.allowlist = allowlist
         self.violations: List[Tuple[str, int, str]] = []
         self.current_class = None
 
@@ -66,6 +86,8 @@ class LoggerInfoChecker(ast.NodeVisitor):
 
         if not has_logger_call:
             func_name = node.name
+            if is_line_allowed(self.file_path, node.lineno, self.allowlist):
+                return
             self.violations.append(
                 (
                     func_name,
@@ -115,7 +137,7 @@ class LoggerInfoChecker(ast.NodeVisitor):
         return False
 
 
-def check_file(file_path: Path) -> List[Tuple[str, int, str]]:
+def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str]]:
     """Check a single Python file."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -124,7 +146,7 @@ def check_file(file_path: Path) -> List[Tuple[str, int, str]]:
         source_lines = source.splitlines()
         tree = ast.parse(source, filename=str(file_path))
 
-        checker = LoggerInfoChecker(source_lines)
+        checker = LoggerInfoChecker(source_lines, str(file_path), allowlist)
         checker.visit(tree)
 
         return checker.violations
@@ -146,10 +168,11 @@ def main() -> None:
         print(f"Path {path} does not exist")
         sys.exit(1)
 
+    allowlist = load_allowlist()
     violations = []
 
     if path.is_file() and path.suffix == ".py":
-        violations.extend(check_file(path))
+        violations.extend(check_file(path, allowlist))
     elif path.is_dir():
         for py_file in path.rglob("*.py"):
             # Skip test files and certain directories
@@ -159,13 +182,13 @@ def main() -> None:
                 continue
             if "workers" in py_file.parts or "scripts" in py_file.parts:
                 continue
-            violations.extend(check_file(py_file))
+            violations.extend(check_file(py_file, allowlist))
 
     if violations:
         print("Logger check violations:")
         for func_name, line_no, message in violations:
             print(f"{message} at line {line_no}")
-        allowlist_path = Path("config/allowlists/logger_allowlist.txt")
+        allowlist_path = Path("config/linters/allowlists/logger.txt")
         print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
         sys.exit(1)
     else:

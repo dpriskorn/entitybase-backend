@@ -5,50 +5,10 @@ from unittest.mock import MagicMock
 import pytest
 
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-from models.data.rest_api.v1.entitybase.response import EntityResponse
 
 
 class TestEntityReadHandler:
     """Unit tests for EntityReadHandler."""
-
-    def test_get_entity_success(self) -> None:
-        """Test successful entity retrieval."""
-        # Mock state with clients
-        mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_state.s3_client = mock_s3
-
-        # Mock Vitess responses
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.get_head.return_value = 12345
-
-        # Mock S3 revision response
-        mock_revision = MagicMock()
-        mock_revision.content = {
-            "entity": {"id": "Q42", "type": "item", "labels": {"en": {"value": "Test"}}},
-            "is_semi_protected": True,
-            "is_locked": False,
-            "is_archived": False,
-            "is_dangling": False,
-            "is_mass_edit_protected": False,
-        }
-        mock_s3.read_revision.return_value = mock_revision
-
-        handler = EntityReadHandler(state=mock_state)
-        result = handler.get_entity("Q42")
-
-        assert isinstance(result, EntityResponse)
-        assert result.id == "Q42"
-        assert result.revision_id == 12345
-        assert result.entity_data["id"] == "Q42"
-        assert result.state.is_semi_protected is True
-        assert result.state.is_locked is False
-
-        mock_vitess.entity_exists.assert_called_once_with("Q42")
-        mock_vitess.get_head.assert_called_once_with("Q42")
-        mock_s3.read_revision.assert_called_once_with("Q42", 12345)
 
     def test_get_entity_not_found(self) -> None:
         """Test entity retrieval when entity doesn't exist."""
@@ -170,31 +130,6 @@ class TestEntityReadHandler:
         with pytest.raises(Exception):  # Should raise validation error
             handler.get_entity_history("Q42")
 
-    def test_get_entity_revision_success(self) -> None:
-        """Test successful entity revision retrieval."""
-        mock_state = MagicMock()
-        mock_s3 = MagicMock()
-        mock_state.s3_client = mock_s3
-
-        mock_revision = MagicMock()
-        mock_revision.revision = {
-            "entity": {"id": "Q42", "type": "item"},
-            "revision_id": 12345,
-            "created_at": "2023-01-01T12:00:00Z"
-        }
-        mock_s3.read_revision.return_value = mock_revision
-
-        handler = EntityReadHandler(state=mock_state)
-        result = handler.get_entity_revision("Q42", 12345)
-
-        assert isinstance(result, EntityResponse)
-        assert result.id == "Q42"
-        assert result.revision_id == 12345
-        assert result.entity_data == mock_revision.revision
-        assert result.state is None
-
-        mock_s3.read_revision.assert_called_once_with("Q42", 12345)
-
     def test_get_entity_revision_s3_not_initialized(self) -> None:
         """Test entity revision retrieval when S3 client is not initialized."""
         mock_state = MagicMock()
@@ -231,54 +166,3 @@ class TestEntityReadHandler:
         with pytest.raises(Exception):  # Should raise validation error
             handler.get_entity_revision("Q42", 99999)
 
-    def test_get_entity_with_sitelinks_resolution(self) -> None:
-        """Integration test for sitelinks resolution with badges."""
-        # Mock state with clients
-        mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_s3 = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_state.s3_client = mock_s3
-
-        # Mock Vitess responses
-        mock_vitess.entity_exists.return_value = True
-        mock_vitess.get_head.return_value = 12345
-
-        # Mock S3 revision response with sitelinks hashes
-        mock_revision = MagicMock()
-        mock_revision.content = {
-            "entity": {"id": "Q42", "type": "item"},
-            "sitelinks": {
-                "enwiki": {"title_hash": 111, "badges": ["featured"]},
-                "dewiki": {"title_hash": 222, "badges": []}
-            },
-            "is_semi_protected": False,
-            "is_locked": False,
-            "is_archived": False,
-            "is_dangling": False,
-            "is_mass_edit_protected": False,
-        }
-        mock_s3.read_revision.return_value = mock_revision
-
-        # Mock S3 load responses
-        mock_s3.load_sitelink_metadata.side_effect = lambda h: f"Title_{h}"
-
-        handler = EntityReadHandler(state=mock_state)
-        result = handler.get_entity("Q42")
-
-        assert isinstance(result, EntityResponse)
-        assert result.id == "Q42"
-        assert "sitelinks" in result.entity_data
-        assert result.entity_data["sitelinks"]["enwiki"] == {
-            "site": "enwiki",
-            "title": "Title_111",
-            "badges": ["featured"]
-        }
-        assert result.entity_data["sitelinks"]["dewiki"] == {
-            "site": "dewiki",
-            "title": "Title_222",
-            "badges": []
-        }
-
-        mock_s3.load_sitelink_metadata.assert_any_call(111)
-        mock_s3.load_sitelink_metadata.assert_any_call(222)

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, cast
 
-from models.common import OperationResult
+from models.data.common import OperationResult
 from models.config.settings import settings
 from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.data.infrastructure.s3.reference_data import S3ReferenceData
@@ -304,8 +304,7 @@ class StatementService(Service):
                 property=item["property"],
                 datavalue=item.get("datavalue", {})
             )
-            return cast(int | str | dict[str, Any] | list[Any] | float | None,
-                       snak_handler.store_snak(snak_request))
+            return snak_handler.store_snak(snak_request)
         return item
 
     def _process_snak_list_value(

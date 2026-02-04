@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Any, cast
+from typing import Any
 
-from models.common import EditHeaders
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import (
@@ -40,7 +40,7 @@ class CreationTransaction(EntityTransaction):
             self.operations.append(
                 lambda h=hash_val: self._rollback_statement(h)  # type: ignore[misc]
             )
-        return cast(StatementHashResult, hash_result)
+        return hash_result
 
     async def create_revision(
         self,
@@ -75,7 +75,8 @@ class CreationTransaction(EntityTransaction):
         aliases_hashes = hs.hash_aliases(request_data.get("aliases", {}))
         
         created_at = datetime.now().isoformat()
-        
+
+        # noinspection PyArgumentList
         revision_data = RevisionData(
             revision_id=1,
             entity_type=entity_type,

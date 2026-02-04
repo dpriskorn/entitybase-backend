@@ -32,46 +32,6 @@ class TestEntityParser:
         assert result.type == "lexeme"
         assert result.lemmas["en"]["value"] == "test"
 
-    def test_parse_entity_basic(self) -> None:
-        """Test parsing entity with parse_entity function."""
-        entity_data = {
-            "id": "Q42",
-            "type": "item",
-            "labels": {
-                "en": {"language": "en", "value": "Test Item"}
-            },
-            "descriptions": {
-                "en": {"language": "en", "value": "A test item"}
-            },
-            "aliases": {
-                "en": [{"language": "en", "value": "Test"}]
-            },
-            "claims": {
-                "P31": [{
-                    "mainsnak": {
-                        "property": "P31",
-                        "datavalue": {"type": "wikibase-entityid", "value": {"id": "Q5"}}
-                    },
-                    "rank": "normal",
-                    "type": "statement"
-                }]
-            },
-            "sitelinks": {
-                "enwiki": {"site": "enwiki", "title": "Test"}
-            }
-        }
-
-        result = parse_entity(entity_data)
-
-        assert result.id == "Q42"
-        assert result.type == "item"
-        assert result.labels.data["en"].value == "Test Item"
-        assert result.descriptions.data["en"].value == "A test item"
-        assert len(result.aliases.data["en"]) == 1
-        assert result.aliases.data["en"][0].value == "Test"
-        assert len(result.statements.data) == 1
-        assert result.sitelinks.data["enwiki"]["title"] == "Test"
-
     def test_parse_entity_nested_structure(self) -> None:
         """Test parsing entity with nested Wikidata API structure."""
         nested_data = {

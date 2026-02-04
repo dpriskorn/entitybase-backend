@@ -6,6 +6,10 @@ Linter to check for cast() usage in Python files.
 import sys
 from pathlib import Path
 
+sys.path.append(str(Path(__file__).parent.resolve()))
+
+from allowlist_utils import is_line_allowed
+
 
 def load_allowlist() -> set:
     """Load the cast allowlist from config/linters/allowlists/cast.txt."""
@@ -32,15 +36,15 @@ def check_file(file_path: Path, allowlist: set) -> list[tuple[str, int, str]]:
                     continue
                 # Look for cast(
                 if "cast(" in line:
-                    key = f"{file_path}:{line_no}"
-                    if key not in allowlist:
-                        violations.append(
-                            (
-                                str(file_path),
-                                line_no,
-                                f"Found 'cast()' usage: {line.strip()}, consider using a pydantic model at the origin instead",
-                            )
+                    if is_line_allowed(file_path, line_no, allowlist):
+                        continue
+                    violations.append(
+                        (
+                            str(file_path),
+                            line_no,
+                            f"Found 'cast()' usage: {line.strip()}, consider using a pydantic model at the origin instead",
                         )
+                    )
     except Exception as e:
         violations.append((str(file_path), 0, f"Error reading file: {e}"))
 

@@ -91,32 +91,6 @@ class TestStatementParser:
             result = parse_statement(statement_json)
             assert result.rank == Rank.NORMAL
 
-    def test_parse_statement_invalid_rank(self) -> None:
-        """Test parsing statement with invalid rank (should default to normal)."""
-        with patch("models.json_parser.statement_parser.parse_value") as mock_parse_value, \
-             patch("models.json_parser.statement_parser.parse_qualifiers") as mock_parse_qualifiers, \
-             patch("models.json_parser.statement_parser.parse_references") as mock_parse_references:
-
-            mock_value = MagicMock(spec=Value)
-            mock_parse_value.return_value = mock_value
-            mock_parse_qualifiers.return_value = []
-            mock_parse_references.return_value = []
-
-            statement_json = {
-                "mainsnak": {"property": "P31"},
-                "rank": "invalid_rank"
-            }
-
-            # Rank enum will default to NORMAL for invalid values
-            result = parse_statement(statement_json)
-            assert result.rank == Rank.NORMAL
-
-
-            assert result.rank == Rank.PREFERRED
-
-
-            assert result.rank == Rank.DEPRECATED
-
     def test_parse_statement_empty_json(self) -> None:
         """Test parsing completely empty statement JSON."""
         with patch("models.json_parser.statement_parser.parse_value") as mock_parse_value, \

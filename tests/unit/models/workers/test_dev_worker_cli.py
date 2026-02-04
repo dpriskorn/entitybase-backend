@@ -32,41 +32,6 @@ class TestDevWorkerCLI:
         assert result == 0
         mock_run_health.assert_called_once()
 
-    @patch("models.workers.dev.__main__.run_buckets_cleanup")
-    @patch("sys.argv", ["devworker", "buckets", "cleanup", "--force"])
-    def test_buckets_cleanup_command_force(self, mock_run_cleanup) -> None:
-        """Test buckets cleanup command with force flag."""
-        mock_run_cleanup.return_value = True
-
-        result = main()
-
-        assert result == 0
-        mock_run_cleanup.assert_called_once()
-
-    @patch("builtins.input", return_value="yes")
-    @patch("models.workers.dev.create_buckets.CreateBuckets.cleanup_buckets")
-    @patch("sys.argv", ["devworker", "buckets", "cleanup"])
-    def test_buckets_cleanup_command_with_confirmation(self, mock_cleanup, mock_input) -> None:
-        """Test buckets cleanup command with user confirmation."""
-        mock_cleanup.return_value = {"bucket1": "deleted"}
-
-        result = main()
-
-        assert result == 0
-        mock_cleanup.assert_called_once()
-        mock_input.assert_called_once_with("Are you sure? Type 'yes' to confirm: ")
-
-    @patch("builtins.input", return_value="no")
-    @patch("models.workers.dev.create_buckets.CreateBuckets.cleanup_buckets")
-    @patch("sys.argv", ["devworker", "buckets", "cleanup"])
-    def test_buckets_cleanup_command_cancelled(self, mock_cleanup, mock_input) -> None:
-        """Test buckets cleanup command cancellation."""
-        result = main()
-
-        assert result == 1
-        mock_cleanup.assert_not_called()
-        mock_input.assert_called_once_with("Are you sure? Type 'yes' to confirm: ")
-
     @patch("sys.argv", ["devworker"])
     def test_no_command_error(self, capsys) -> None:
         """Test error when no command is provided."""

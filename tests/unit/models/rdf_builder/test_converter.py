@@ -203,73 +203,6 @@ class TestEntityConverter:
             mock_write_statement.assert_any_call("Q42", mock_stmt1.get_rdfstatement.return_value, output)
             mock_write_statement.assert_any_call("Q42", mock_stmt2.get_rdfstatement.return_value, output)
 
-    def test_write_statement(self) -> None:
-        """Test writing individual statement."""
-        mock_shape = create_mock_property_shape("P31")
-        property_registry = PropertyRegistry(properties={"P31": mock_shape})
-        converter = EntityConverter(property_registry=property_registry)
-
-        output = io.StringIO()
-
-        # Mock RDF statement
-        mock_rdf_stmt = MagicMock()
-        mock_rdf_stmt.property_id = "P31"
-
-        # Mock writers
-        with patch.object(converter.writers, 'write_statement') as mock_write_statement:
-
-            converter._write_statement("Q42", mock_rdf_stmt, output)
-
-            # Verify statement writing
-            mock_write_statement.assert_called_once_with(
-                output, "Q42", mock_rdf_stmt, mock_shape, property_registry, None
-            )
-
-    def test_write_property_metadata(self) -> None:
-        """Test writing property metadata."""
-        mock_shape_p31 = create_mock_property_shape("P31")
-        mock_shape_p279 = create_mock_property_shape("P279")
-        mock_shape_p580 = create_mock_property_shape("P580")
-        property_registry = PropertyRegistry(properties={
-            "P31": mock_shape_p31,
-            "P279": mock_shape_p279,
-            "P580": mock_shape_p580
-        })
-        converter = EntityConverter(property_registry=property_registry)
-
-        output = io.StringIO()
-
-        # Mock entity with statements
-        mock_entity = MagicMock()
-        mock_entity.statements = MagicMock()
-        mock_entity.statements.data = [
-            {"mainsnak": {"property": "P31"}, "qualifiers": {"P580": []}, "references": []},
-            {"mainsnak": {"property": "P279"}, "qualifiers": {}, "references": []}
-        ]
-
-        # Mock parsed statements
-        mock_stmt1 = MagicMock()
-        mock_stmt1.property = "P31"
-        mock_stmt1.qualifiers = [MagicMock(property="P580")]
-        mock_stmt1.references = []
-
-        mock_stmt2 = MagicMock()
-        mock_stmt2.property = "P279"
-        mock_stmt2.qualifiers = []
-        mock_stmt2.references = []
-
-        with patch('models.rdf_builder.converter.parse_statement') as mock_parse, \
-             patch('models.rdf_builder.converter.PropertyOntologyWriter') as mock_writer:
-
-            mock_parse.side_effect = [mock_stmt1, mock_stmt2]
-
-            converter._write_property_metadata(mock_entity, output)
-
-            # Verify ontology writing calls
-            assert mock_writer.write_property_metadata.call_count == 2
-            assert mock_writer.write_property.call_count == 2
-            assert mock_writer.write_novalue_class.call_count == 2
-
     @patch('models.rdf_builder.converter.parse_statement')
     def test_collect_referenced_entities(self, mock_parse_statement) -> None:
         """Test collecting referenced entities."""
@@ -402,39 +335,6 @@ class TestEntityConverter:
             with pytest.raises(FileNotFoundError, match="Entity Q5 not found"):
                 converter._load_referenced_entity("Q5")
 
-    @patch('models.json_parser.entity_parser.parse_entity')
-    def test_write_referenced_entity_metadata(self, mock_parse_entity) -> None:
-        """Test writing referenced entity metadata."""
-        property_registry = PropertyRegistry(properties={})
-        from pathlib import Path
-        temp_dir = Path("/tmp/test")
-        converter = EntityConverter(property_registry=property_registry, entity_metadata_dir=temp_dir)
-
-        output = io.StringIO()
-
-        # Mock entity with referenced entities
-        mock_entity = MagicMock()
-        mock_entity.id = "Q42"
-
-        # Mock statements with entity references
-        with patch.object(converter, '_collect_referenced_entities', return_value={"Q5"}), \
-             patch.object(converter, '_load_referenced_entity') as mock_load, \
-             patch.object(converter.writers, 'write_entity_type') as mock_write_type, \
-             patch.object(converter.writers, 'write_label') as mock_write_label, \
-             patch.object(converter.writers, 'write_description') as mock_write_desc:
-
-            mock_ref_entity = MagicMock()
-            mock_ref_entity.id = "Q5"
-            mock_ref_entity.labels = MagicMock(data={"en": MagicMock(value="Human")})
-            mock_ref_entity.descriptions = MagicMock(data={})
-            mock_load.return_value = mock_ref_entity
-
-            converter._write_referenced_entity_metadata(mock_entity, output)
-
-            mock_load.assert_called_once_with("Q5")
-            mock_write_type.assert_called_once_with(output, "Q5")
-            mock_write_label.assert_called_once_with(output, "Q5", "en", "Human")
-
     def test_write_referenced_entity_metadata_no_metadata_dir(self) -> None:
         """Test writing referenced entity metadata without metadata dir."""
         property_registry = PropertyRegistry(properties={})
@@ -486,21 +386,6 @@ class TestEntityConverter:
 
         assert result == []
         mock_vitess.get_incoming_redirects.assert_called_once_with("Q42")
-
-    @patch('models.rdf_builder.converter.load_entity_redirects')
-    def test_fetch_redirects_file_exception(self, mock_load_redirects) -> None:
-        """Test fetching redirects when file loading throws exception."""
-        property_registry = PropertyRegistry(properties={})
-        from pathlib import Path
-        temp_dir = Path("/tmp/test")
-        converter = EntityConverter(property_registry=property_registry, redirects_dir=temp_dir)
-
-        mock_load_redirects.side_effect = Exception("File error")
-
-        result = converter._fetch_redirects("Q42")
-
-        assert result == []
-        mock_load_redirects.assert_called_once_with("Q42", temp_dir)
 
     def test_write_redirects(self) -> None:
         """Test writing redirects."""

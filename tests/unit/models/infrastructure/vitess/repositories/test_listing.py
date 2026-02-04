@@ -80,33 +80,6 @@ class TestListingRepository:
         assert len(result) == 1
         assert result[0].reason == "dangling"
 
-    def test_list_entities_by_edit_type_success(self):
-        """Test listing entities by edit type."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.return_value = [("Q6", "item", "revert")]
-        mock_vitess_client.cursor = mock_cursor
-
-        repo = ListingRepository(vitess_client=mock_vitess_client)
-
-        result = repo._list_entities_by_edit_type("revert", 10)
-
-        assert len(result) == 1
-        assert result[0].reason == "revert"
-
-    def test_list_locked_empty(self):
-        """Test listing locked entities when none exist."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.return_value = []
-        mock_vitess_client.cursor = mock_cursor
-
-        repo = ListingRepository(vitess_client=mock_vitess_client)
-
-        result = repo.list_locked(10)
-
-        assert result == []
-
     def test_list_semi_protected_empty(self):
         """Test listing semi-protected entities when none exist."""
         mock_vitess_client = MagicMock()

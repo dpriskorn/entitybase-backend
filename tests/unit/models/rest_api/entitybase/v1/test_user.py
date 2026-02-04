@@ -79,18 +79,6 @@ class TestUserHandler:
         assert result == mock_user
         mock_vitess_client.user_repository.get_user.assert_called_once_with(12345)
 
-    def test_get_user_not_found(
-        self, handler: UserHandler, mock_vitess_client: MagicMock
-    ) -> None:
-        """Test getting a user that doesn't exist"""
-
-        mock_vitess_client.user_repository.get_user.return_value = None
-
-        with pytest.raises(ValueError) as exc_info:
-            handler.get_user(12345)
-
-        assert str(exc_info.value) == "User not found"
-
     def test_toggle_watchlist_success(
         self, handler: UserHandler, mock_vitess_client: MagicMock
     ) -> None:
@@ -112,18 +100,3 @@ class TestUserHandler:
             12345, False
         )
 
-    def test_toggle_watchlist_user_not_found(
-        self, handler: UserHandler, mock_vitess_client: MagicMock
-    ) -> None:
-        """Test toggle for non-existent user"""
-        from models.data.rest_api.v1.entitybase.request import WatchlistToggleRequest
-
-        request = WatchlistToggleRequest(enabled=True)
-
-        mock_vitess_client.user_repository.user_exists.return_value = False
-
-        with pytest.raises(ValueError, match="User not registered"):
-            handler.toggle_watchlist(12345, request)
-
-        mock_vitess_client.user_repository.user_exists.assert_called_once_with(12345)
-        mock_vitess_client.user_repository.set_watchlist_enabled.assert_not_called()

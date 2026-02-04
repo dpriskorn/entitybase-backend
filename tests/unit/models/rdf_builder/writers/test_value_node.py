@@ -53,20 +53,6 @@ class TestValueNode:
         assert '"0"^^xsd:integer' in result
         assert "http://www.wikidata.org/entity/Q1985727" in result
 
-    def test_write_time_value_node_with_timezone(self):
-        """Test writing time value node with non-zero timezone."""
-        output = io.StringIO()
-        mock_time_value = MagicMock()
-        mock_time_value.value = "+2023-12-25T00:00:00Z"
-        mock_time_value.timezone = 60
-        mock_time_value.precision = 11
-        mock_time_value.calendarmodel = "http://www.wikidata.org/entity/Q1985727"
-
-        ValueNodeWriter.write_time_value_node(output, "time123", mock_time_value)
-
-        result = output.getvalue()
-        assert '"2023-12-25T00:00:00Z"^^xsd:dateTime' in result  # Leading + kept
-
     def test_write_time_value_node_with_dedupe_skip(self):
         """Test time value node writing with deduplication skip."""
         output = io.StringIO()

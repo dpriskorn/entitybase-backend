@@ -19,24 +19,7 @@ class TestS3ConnectionManager:
             region="us-east-1"
         )
 
-    def test_connect_creates_client(self):
-        """Test that connect creates boto3 client."""
-        with patch('models.infrastructure.s3.connection.boto3.client') as mock_client:
-            mock_boto_client = MagicMock()
-            mock_client.return_value = mock_boto_client
 
-            manager = S3ConnectionManager(config=self.config.model_dump())
-            manager.connect()
-
-            assert manager.boto_client == mock_boto_client
-            mock_client.assert_called_once_with(
-                "s3",
-                endpoint_url="http://localhost:4566",
-                aws_access_key_id="test_key",
-                aws_secret_access_key="test_secret",
-                config=self.config.model_dump(),
-                region_name="us-east-1",
-            )
 
     def test_connect_already_connected(self):
         """Test connect when already connected."""

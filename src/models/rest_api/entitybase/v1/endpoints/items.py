@@ -5,7 +5,7 @@ from typing import List
 
 from fastapi import APIRouter, HTTPException, Request
 
-from models.common import EditHeadersType
+from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
     TermUpdateRequest,

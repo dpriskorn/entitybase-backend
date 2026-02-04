@@ -1,10 +1,9 @@
 import asyncio
 import logging
-from typing import Any, cast
+from typing import Any
 
 import pytest
 from aiokafka import AIOKafkaConsumer  # type: ignore[import-untyped]
-
 
 logger = logging.getLogger(__name__)
 
@@ -16,8 +15,9 @@ TEST_ENTITY_BASE = "Q888888"
 class TestStreamIntegration:
     """Integration tests for stream producer with real Redpanda"""
 
+    @staticmethod
     async def _consume_event(
-        self, clean_consumer: AIOKafkaConsumer, expected_entity: str, expected_type: str, timeout: float = 30.0
+            clean_consumer: AIOKafkaConsumer, expected_entity: str, expected_type: str, timeout: float = 30.0
     ) -> dict[str, Any]:
         """Consume messages until finding the expected event type for an entity."""
         start_time = asyncio.get_event_loop().time()
@@ -30,7 +30,7 @@ class TestStreamIntegration:
                     msg.value["entity_id"] == expected_entity
                     and msg.value.get("change_type") == expected_type
                 ):
-                    return cast(dict[str, Any], msg.value)
+                    return msg.value
             except asyncio.TimeoutError:
                 continue
         raise TimeoutError(

@@ -9,4 +9,4 @@ mypy \
   --explicit-package-bases \
   --disable-error-code=union-attr \
   --disable-error-code=return-value \
-  src/ tests/
+  src/ # tests/

@@ -7,8 +7,14 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.append(str(Path(__file__).parent.resolve()))
 
-def load_allowlist(allowlist_path: Path) -> set[str]:
+from allowlist_utils import is_line_allowed
+
+
+def load_allowlist() -> set:
+    """Load the backslash allowlist from config/linters/allowlists/custom/backslash.txt."""
+    allowlist_path = Path("config/linters/allowlists/custom/backslash.txt")
     allowlist = set()
     if allowlist_path.exists():
         with open(allowlist_path, "r", encoding="utf-8") as f:
@@ -19,7 +25,7 @@ def load_allowlist(allowlist_path: Path) -> set[str]:
     return allowlist
 
 
-def check_backslashes(file_path: Path, allowlist: set[str]) -> list[str]:
+def check_backslashes(file_path: Path, allowlist: set) -> list[str]:
     violations = []
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -30,8 +36,7 @@ def check_backslashes(file_path: Path, allowlist: set[str]) -> list[str]:
                 if not stripped or stripped.startswith("#"):
                     continue
                 # Check allowlist
-                key = f"{file_path}:{line_no}"
-                if key in allowlist:
+                if is_line_allowed(file_path, line_no, allowlist):
                     continue
                 # Check for \\"\\"\\" or similar escaped quotes
                 if re.search(r"\\\"\\\"\\\"", line):
@@ -60,8 +65,7 @@ def main():
         sys.exit(1)
 
     # Load allowlist
-    allowlist_path = Path("config/linters/allowlists/custom/backslash.txt")
-    allowlist = load_allowlist(allowlist_path)
+    allowlist = load_allowlist()
 
     violations = []
     if path.is_file() and path.suffix == ".py":
@@ -73,6 +77,7 @@ def main():
     if violations:
         for violation in violations:
             print(violation)
+        allowlist_path = Path("config/linters/allowlists/custom/backslash.txt")
         print(f"To allowlist violations, add 'file:line' entries to {allowlist_path.resolve()}")
         sys.exit(1)
     else:

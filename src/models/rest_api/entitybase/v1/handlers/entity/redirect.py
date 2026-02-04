@@ -3,7 +3,7 @@
 import logging
 from typing import cast
 
-from models.common import EditHeaders
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.rest_api.entitybase.v1.handler import Handler
 from models.data.rest_api.v1.entitybase.request import EntityRedirectRequest
 from models.data.rest_api.v1.entitybase.request import RedirectRevertRequest

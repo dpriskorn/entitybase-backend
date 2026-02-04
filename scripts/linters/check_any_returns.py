@@ -8,6 +8,10 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
+sys.path.append(str(Path(__file__).parent.resolve()))
+
+from allowlist_utils import is_line_allowed
+
 
 class AnyReturnChecker(ast.NodeVisitor):
     """AST visitor to check for -> Any return annotations."""
@@ -30,17 +34,17 @@ class AnyReturnChecker(ast.NodeVisitor):
         if node.returns:
             return_annotation = self._get_annotation_string(node.returns)
             if self._is_any_annotation(return_annotation):
-                key = f"{self.file_path}:{node.lineno}"
-                if key not in self.allowlist:
-                    func_name = node.name
-                    self.violations.append(
-                        (
-                            func_name,
-                            node.lineno,
-                            f"Function '{func_name}' returns -> {return_annotation}, consider using a Pydantic model instead",
-                            str(self.file_path),
-                        )
+                if is_line_allowed(self.file_path, node.lineno, self.allowlist):
+                    return
+                func_name = node.name
+                self.violations.append(
+                    (
+                        func_name,
+                        node.lineno,
+                        f"Function '{func_name}' returns -> {return_annotation}, consider using a Pydantic model instead",
+                        str(self.file_path),
                     )
+                )
 
     @staticmethod
     def _get_annotation_string(node: ast.AST) -> str:

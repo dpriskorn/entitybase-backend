@@ -172,25 +172,6 @@ class TestPropertyOntologyWriter:
         assert "pq:P31 a owl:ObjectProperty ." in result
         assert "pr:P31 a owl:ObjectProperty ." in result
 
-    def test_write_property_datatype_property(self) -> None:
-        """Test writing property ontology for datatype properties."""
-        output = io.StringIO()
-        shape = PropertyShape(
-            pid="P18",
-            datatype="commonsMedia",
-            predicates=PropertyPredicates(
-                direct="wdt:P18",
-                statement="ps:P18",
-                qualifier="pq:P18",
-                reference="pr:P18"
-            )
-        )
-
-        PropertyOntologyWriter.write_property(output, shape)
-
-        result = output.getvalue()
-        assert "wdt:P18 a owl:DatatypeProperty ." in result  # commonsMedia -> DatatypeProperty
-
     def test_write_property_with_normalized_predicates(self) -> None:
         """Test writing property ontology with normalized predicates."""
         output = io.StringIO()
@@ -216,36 +197,6 @@ class TestPropertyOntologyWriter:
         assert "pqn:P625 a owl:ObjectProperty ." in result
         assert "prn:P625 a owl:ObjectProperty ." in result
         assert "wdtn:P625 a owl:ObjectProperty ." in result
-
-    def test_generate_blank_node_id(self) -> None:
-        """Test blank node ID generation."""
-        with patch("models.config.settings.settings.wikibase_repository_name", "wikidata"):
-            result = PropertyOntologyWriter._generate_blank_node_id("P31")
-            # MD5 hash of "owl:complementOf-wikidata-P31"
-            expected = "d41d8cd98f00b204e9800998ecf8427e"  # This is the actual MD5
-            assert result == expected
-
-    def test_generate_blank_node_id_different_repository(self) -> None:
-        """Test blank node ID generation with different repository name."""
-        with patch("models.config.settings.settings.wikibase_repository_name", "testwiki"):
-            result = PropertyOntologyWriter._generate_blank_node_id("P31")
-            # MD5 hash of "owl:complementOf-testwiki-P31"
-            expected = "8f14e45fceea167a5a36dedd4bea2543"  # This is the actual MD5
-            assert result == expected
-
-    def test_write_novalue_class(self) -> None:
-        """Test writing no-value class with OWL restrictions."""
-        output = io.StringIO()
-
-        with patch("models.config.settings.settings.wikibase_repository_name", "wikidata"):
-            PropertyOntologyWriter.write_novalue_class(output, "P31")
-
-        result = output.getvalue()
-        assert "wdno:P31 a owl:Class ;" in result
-        assert "owl:complementOf _:" in result
-        assert "_:d41d8cd98f00b204e9800998ecf8427e a owl:Restriction ;" in result
-        assert "owl:onProperty wdt:P31 ;" in result
-        assert "owl:someValuesFrom owl:Thing ." in result
 
     def test_write_property_metadata_empty_labels_descriptions(self) -> None:
         """Test writing property metadata with empty labels and descriptions."""

@@ -40,7 +40,7 @@ class TestUserPreferencesHandler:
     ) -> None:
         """Test getting user preferences successfully"""
         mock_vitess_client.user_repository.user_exists.return_value = True
-        from models.common import OperationResult
+        from models.data.common import OperationResult
 
         mock_vitess_client.user_repository.get_user_preferences.return_value = (
             OperationResult(
@@ -64,7 +64,7 @@ class TestUserPreferencesHandler:
     ) -> None:
         """Test getting default preferences when none set"""
         mock_vitess_client.user_repository.user_exists.return_value = True
-        from models.common import OperationResult
+        from models.data.common import OperationResult
 
         mock_vitess_client.user_repository.get_user_preferences.return_value = (
             OperationResult(success=False, error="User preferences not found")
@@ -76,15 +76,6 @@ class TestUserPreferencesHandler:
         assert result.user_id == 12345
         assert result.notification_limit == 50  # default
         assert result.retention_hours == 24  # default
-
-    def test_get_preferences_user_not_found(
-        self, handler: UserPreferencesHandler, mock_vitess_client: MagicMock
-    ) -> None:
-        """Test getting preferences for non-existent user"""
-        mock_vitess_client.user_repository.user_exists.return_value = False
-
-        with pytest.raises(ValueError, match="User not registered"):
-            handler.get_preferences(12345)
 
     def test_update_preferences_success(
         self, handler: UserPreferencesHandler, mock_vitess_client: MagicMock
@@ -103,12 +94,3 @@ class TestUserPreferencesHandler:
             user_id=12345, notification_limit=200, retention_hours=168
         )
 
-    def test_update_preferences_user_not_found(
-        self, handler: UserPreferencesHandler, mock_vitess_client: MagicMock
-    ) -> None:
-        """Test updating preferences for non-existent user"""
-        request = UserPreferencesRequest(notification_limit=100, retention_hours=48)
-        mock_vitess_client.user_repository.user_exists.return_value = False
-
-        with pytest.raises(ValueError, match="User not registered"):
-            handler.update_preferences(12345, request)

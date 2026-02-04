@@ -2,7 +2,7 @@
 
 import logging
 
-from models.common import OperationResult
+from models.data.common import OperationResult
 from models.data.infrastructure.vitess.records.thanks import ThankItem
 from models.infrastructure.vitess.repository import Repository
 

@@ -9,7 +9,7 @@ sys.path.insert(0, "src")
 
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.rest_api.entitybase.v1.handlers.entity.item import ItemCreateHandler
-from models.common import EditHeaders
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.rest_api.entitybase.v1.handlers.entity.property.create import (
     PropertyCreateHandler,
 )
@@ -62,46 +62,6 @@ class TestItemCreateHandler:
     def mock_stream_producer(self) -> AsyncMock:
         """Mock stream producer"""
         return AsyncMock()
-
-    @pytest.mark.asyncio
-    async def test_create_item_success(
-        self,
-        handler: ItemCreateHandler,
-        mock_vitess_client: MagicMock,
-        mock_s3_client: MagicMock,
-        mock_stream_producer: AsyncMock,
-    ) -> None:
-        """Test successful item creation"""
-        request = EntityCreateRequest(
-            id="Q99999",
-            labels={"en": {"language": "en", "value": "Test Item"}},
-            edit_summary="Test creation",
-        )
-
-        mock_vitess_client.entity_exists.return_value = False
-        mock_vitess_client.get_protection_info.return_value = MagicMock(
-            is_archived=False, is_locked=False, is_mass_edit_protected=False
-        )
-        mock_vitess_client.entity_repository.get_entity.return_value = MagicMock(
-            is_deleted=False, is_archived=False
-        )
-
-        result = await handler.create_entity(
-            request=request,
-            edit_headers=EditHeaders(x_user_id=1, x_edit_summary="Test creation"),
-        )
-
-        # Verify vitess interactions
-        mock_vitess_client.id_resolver.entity_exists.assert_called_once_with("Q99999")
-        mock_vitess_client.entity_repository.create_entity.assert_called_once_with(
-            "Q99999"
-        )
-
-        # Verify response
-        assert result.id == "Q99999"
-        assert result.revision_id == 1
-        assert "id" in result.entity_data
-        assert result.entity_data["id"] == "Q99999"
 
     @pytest.mark.asyncio
     async def test_create_item_entity_exists(

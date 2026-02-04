@@ -6,7 +6,7 @@ from typing import Any, cast
 
 from pydantic import Field, validate_call
 
-from models.common import OperationResult
+from models.data.common import OperationResult
 from models.data.infrastructure.vitess.records.revision import (
     HistoryRevisionItemRecord,
     RevisionRecord,
@@ -51,7 +51,7 @@ class RevisionRepository(Repository):
         )
         row = cursor.fetchone()
         if row:
-            return cast(RevisionRecord, RevisionRecord.model_validate(
+            return RevisionRecord.model_validate(
                 {
                     "statements": json.loads(row[0]) if row[0] else [],
                     "properties": json.loads(row[1]) if row[1] else [],
@@ -61,7 +61,7 @@ class RevisionRepository(Repository):
                     "aliases_hashes": json.loads(row[5]) if row[5] else [],
                     "sitelinks_hashes": json.loads(row[6]) if row[6] else {},
                 }
-            ))
+            )
         return None
 
     @validate_call

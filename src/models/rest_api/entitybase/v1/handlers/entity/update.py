@@ -4,170 +4,22 @@ import logging
 import re
 from typing import Any
 
-from models.common import EditHeaders
-from models.data.infrastructure.s3.enums import EditType, EntityType
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
-from models.data.rest_api.v1.entitybase.request import UserActivityType
+from models.data.rest_api.v1.entitybase.request import LexemeUpdateRequest, UserActivityType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.utils import raise_validation_error
 from .handler import EntityHandler
 from .update_transaction import UpdateTransaction
-# Import internal-only EntityUpdateRequest for lexeme compatibility
-from models.data.rest_api.v1.entitybase.request.entity.crud import EntityUpdateRequest as InternalEntityUpdateRequest
 
 logger = logging.getLogger(__name__)
 
 
 class EntityUpdateHandler(EntityHandler):
     """Handler for entity update operations"""
-
-    async def update_entity(
-        self,
-        entity_id: str,
-        request: InternalEntityUpdateRequest,
-        edit_headers: EditHeaders,
-        validator: Any | None = None,
-    ) -> EntityResponse:
-        """Update an existing entity with transaction rollback (deprecated - use specialized methods)."""
-        # Check entity exists (404 if not)
-        if not self.state.vitess_client.entity_exists(entity_id):
-            raise_validation_error("Entity not found", status_code=404)
-
-        # Check deletion status (410 if deleted)
-        if self.state.vitess_client.is_entity_deleted(entity_id):
-            raise_validation_error("Entity deleted", status_code=410)
-
-        # Check lock status (423 if locked)
-        if self.state.vitess_client.is_entity_locked(entity_id):
-            raise_validation_error("Entity locked", status_code=423)
-
-        # Create transaction
-        tx = UpdateTransaction(state=self.state)
-        tx.entity_id = entity_id
-        try:
-            # Get head revision
-            head_revision_id = tx.state.vitess_client.get_head(entity_id)
-            # Prepare data
-            request_data = PreparedRequestData(**request.data.copy())
-            request_data["id"] = entity_id
-            # Process statements
-            hash_result = tx.process_statements(entity_id, request_data, validator)
-            # Create revision
-            response = await tx.create_revision(
-                entity_id=entity_id,
-                request_data=request_data,
-                entity_type=EntityType(request.type),
-                edit_headers=edit_headers,
-                hash_result=hash_result,
-            )
-            # Publish event
-            tx.publish_event(
-                entity_id=entity_id,
-                revision_id=response.revision_id,
-                change_type=ChangeType.EDIT,
-                edit_headers=edit_headers,
-                from_revision_id=head_revision_id,
-                changed_at=None,
-            )
-            # Log activity
-            if edit_headers.x_user_id:
-                activity_result = (
-                    self.state.vitess_client.user_repository.log_user_activity(
-                        user_id=edit_headers.x_user_id,
-                        activity_type=UserActivityType.ENTITY_EDIT,
-                        entity_id=entity_id,
-                        revision_id=response.revision_id,
-                    )
-                )
-                if not activity_result.success:
-                    logger.warning(
-                        f"Failed to log user activity: {activity_result.error}"
-                    )
-
-            # Commit
-            tx.commit()
-            return response
-        except Exception as e:
-            logger.error(f"Entity update failed for {entity_id}: {e}", exc_info=True)
-            logger.error(f"Entity update failed - full details: {type(e).__name__}: {str(e)}")
-            logger.error(f"Entity update failed - traceback:", exc_info=True)
-            tx.rollback()
-            raise_validation_error(f"Update failed: {type(e).__name__}: {str(e)}", status_code=500)
-
-    async def update_entity(
-        self,
-        entity_id: str,
-        request: InternalEntityUpdateRequest,
-        edit_headers: EditHeaders,
-        validator: Any | None = None,
-    ) -> EntityResponse:
-        """Update an existing entity with transaction rollback (deprecated - use specialized methods)."""
-        # Check entity exists (404 if not)
-        if not self.state.vitess_client.entity_exists(entity_id):
-            raise_validation_error("Entity not found", status_code=404)
-
-        # Check deletion status (410 if deleted)
-        if self.state.vitess_client.is_entity_deleted(entity_id):
-            raise_validation_error("Entity deleted", status_code=410)
-
-        # Check lock status (423 if locked)
-        if self.state.vitess_client.is_entity_locked(entity_id):
-            raise_validation_error("Entity locked", status_code=423)
-
-        # Create transaction
-        tx = UpdateTransaction(state=self.state)
-        tx.entity_id = entity_id
-        try:
-            # Get head revision
-            head_revision_id = tx.state.vitess_client.get_head(entity_id)
-            # Prepare data
-            request_data = PreparedRequestData(**request.data.copy())
-            request_data["id"] = entity_id
-            # Process statements
-            hash_result = tx.process_statements(entity_id, request_data, validator)
-            # Create revision
-            response = await tx.create_revision(
-                entity_id=entity_id,
-                request_data=request_data,
-                entity_type=EntityType(request.type),
-                edit_headers=edit_headers,
-                hash_result=hash_result,
-            )
-            # Publish event
-            tx.publish_event(
-                entity_id=entity_id,
-                revision_id=response.revision_id,
-                change_type=ChangeType.EDIT,
-                edit_headers=edit_headers,
-                from_revision_id=head_revision_id,
-                changed_at=None,
-            )
-            # Log activity
-            if edit_headers.x_user_id:
-                activity_result = (
-                    self.state.vitess_client.user_repository.log_user_activity(
-                        user_id=edit_headers.x_user_id,
-                        activity_type=UserActivityType.ENTITY_EDIT,
-                        entity_id=entity_id,
-                        revision_id=response.revision_id,
-                    )
-                )
-                if not activity_result.success:
-                    logger.warning(
-                        f"Failed to log user activity: {activity_result.error}"
-                    )
-
-            # Commit
-            tx.commit()
-            return response
-        except Exception as e:
-            logger.error(f"Entity update failed for {entity_id}: {e}", exc_info=True)
-            logger.error(f"Entity update failed - full details: {type(e).__name__}: {str(e)}")
-            logger.error(f"Entity update failed - traceback:", exc_info=True)
-            tx.rollback()
-            raise_validation_error(f"Update failed: {type(e).__name__}: {str(e)}", status_code=500)
 
     async def _update_with_transaction(
         self,
@@ -208,8 +60,8 @@ class EntityUpdateHandler(EntityHandler):
             head_revision_id = tx.state.vitess_client.get_head(entity_id)
 
             # Prepare data from modified entity data
-            request_data = PreparedRequestData(**modified_data.copy())
-            request_data["id"] = entity_id
+            modified_data["id"] = entity_id
+            request_data = PreparedRequestData(**modified_data)
 
             # Process statements
             hash_result = tx.process_statements(entity_id, request_data, validator)
@@ -281,10 +133,13 @@ class EntityUpdateHandler(EntityHandler):
         read_handler = EntityReadHandler(state=self.state)
         current_entity = read_handler.get_entity(entity_id)
 
+        # Get the revision data dictionary
+        entity_dict = current_entity.entity_data.revision
+
         # Update label
-        if "labels" not in current_entity.entity_data:
-            current_entity.entity_data["labels"] = {}
-        current_entity.entity_data["labels"][language_code] = {
+        if "labels" not in entity_dict:
+            entity_dict["labels"] = {}
+        entity_dict["labels"][language_code] = {
             "language": language_code,
             "value": value,
         }
@@ -292,7 +147,7 @@ class EntityUpdateHandler(EntityHandler):
         # Update with transaction
         return await self._update_with_transaction(
             entity_id,
-            current_entity.entity_data,
+            entity_dict,
             entity_type,
             edit_headers,
             validator,
@@ -315,19 +170,22 @@ class EntityUpdateHandler(EntityHandler):
         read_handler = EntityReadHandler(state=self.state)
         current_entity = read_handler.get_entity(entity_id)
 
+        # Get the revision data dictionary
+        entity_dict = current_entity.entity_data.revision
+
         # Check if label exists
-        labels = current_entity.entity_data.get("labels", {})
+        labels = entity_dict.get("labels", {})
         if language_code not in labels:
             # Idempotent - return current entity if label doesn't exist
             return current_entity
 
         # Remove label
-        del current_entity.entity_data["labels"][language_code]
+        del entity_dict["labels"][language_code]
 
         # Update with transaction
         return await self._update_with_transaction(
             entity_id,
-            current_entity.entity_data,
+            entity_dict,
             entity_type,
             edit_headers,
             validator,
@@ -360,10 +218,13 @@ class EntityUpdateHandler(EntityHandler):
         read_handler = EntityReadHandler(state=self.state)
         current_entity = read_handler.get_entity(entity_id)
 
+        # Get the revision data dictionary
+        entity_dict = current_entity.entity_data.revision
+
         # Update description
-        if "descriptions" not in current_entity.entity_data:
-            current_entity.entity_data["descriptions"] = {}
-        current_entity.entity_data["descriptions"][language_code] = {
+        if "descriptions" not in entity_dict:
+            entity_dict["descriptions"] = {}
+        entity_dict["descriptions"][language_code] = {
             "language": language_code,
             "value": description,
         }
@@ -371,7 +232,7 @@ class EntityUpdateHandler(EntityHandler):
         # Update with transaction
         return await self._update_with_transaction(
             entity_id,
-            current_entity.entity_data,
+            entity_dict,
             entity_type,
             edit_headers,
             validator,
@@ -394,19 +255,22 @@ class EntityUpdateHandler(EntityHandler):
         read_handler = EntityReadHandler(state=self.state)
         current_entity = read_handler.get_entity(entity_id)
 
+        # Get the revision data dictionary
+        entity_dict = current_entity.entity_data.revision
+
         # Check if description exists
-        descriptions = current_entity.entity_data.get("descriptions", {})
+        descriptions = entity_dict.get("descriptions", {})
         if language_code not in descriptions:
             # Idempotent - return current entity if description doesn't exist
             return current_entity
 
         # Remove description
-        del current_entity.entity_data["descriptions"][language_code]
+        del entity_dict["descriptions"][language_code]
 
         # Update with transaction
         return await self._update_with_transaction(
             entity_id,
-            current_entity.entity_data,
+            entity_dict,
             entity_type,
             edit_headers,
             validator,
@@ -430,17 +294,20 @@ class EntityUpdateHandler(EntityHandler):
         read_handler = EntityReadHandler(state=self.state)
         current_entity = read_handler.get_entity(entity_id)
 
+        # Get the revision data dictionary
+        entity_dict = current_entity.entity_data.revision
+
         # Update aliases: convert list of strings to internal format
-        if "aliases" not in current_entity.entity_data:
-            current_entity.entity_data["aliases"] = {}
-        current_entity.entity_data["aliases"][language_code] = [
+        if "aliases" not in entity_dict:
+            entity_dict["aliases"] = {}
+        entity_dict["aliases"][language_code] = [
             {"value": alias} for alias in aliases
         ]
 
         # Update with transaction
         return await self._update_with_transaction(
             entity_id,
-            current_entity.entity_data,
+            entity_dict,
             entity_type,
             edit_headers,
             validator,
@@ -469,16 +336,19 @@ class EntityUpdateHandler(EntityHandler):
         read_handler = EntityReadHandler(state=self.state)
         current_entity = read_handler.get_entity(entity_id)
 
+        # Get the revision data dictionary
+        entity_dict = current_entity.entity_data.revision
+
         # Check if sitelink already exists
-        sitelinks = current_entity.entity_data.get("sitelinks", {})
+        sitelinks = entity_dict.get("sitelinks", {})
         if site in sitelinks:
             # PUT operation: allow updating existing
             pass
 
         # Update sitelink
-        if "sitelinks" not in current_entity.entity_data:
-            current_entity.entity_data["sitelinks"] = {}
-        current_entity.entity_data["sitelinks"][site] = {
+        if "sitelinks" not in entity_dict:
+            entity_dict["sitelinks"] = {}
+        entity_dict["sitelinks"][site] = {
             "title": title,
             "badges": badges,
         }
@@ -486,7 +356,7 @@ class EntityUpdateHandler(EntityHandler):
         # Update with transaction
         return await self._update_with_transaction(
             entity_id,
-            current_entity.entity_data,
+            entity_dict,
             entity_type,
             edit_headers,
             validator,
@@ -512,19 +382,22 @@ class EntityUpdateHandler(EntityHandler):
         read_handler = EntityReadHandler(state=self.state)
         current_entity = read_handler.get_entity(entity_id)
 
+        # Get the revision data dictionary
+        entity_dict = current_entity.entity_data.revision
+
         # Check if sitelink exists
-        sitelinks = current_entity.entity_data.get("sitelinks", {})
+        sitelinks = entity_dict.get("sitelinks", {})
         if site not in sitelinks:
             # Idempotent - return current entity if sitelink doesn't exist
             return current_entity
 
         # Remove sitelink
-        del current_entity.entity_data["sitelinks"][site]
+        del entity_dict["sitelinks"][site]
 
         # Update with transaction
         return await self._update_with_transaction(
             entity_id,
-            current_entity.entity_data,
+            entity_dict,
             entity_type,
             edit_headers,
             validator,
@@ -551,7 +424,7 @@ class EntityUpdateHandler(EntityHandler):
     async def update_lexeme(
         self,
         entity_id: str,
-        request: InternalEntityUpdateRequest,
+        request: LexemeUpdateRequest,
         edit_headers: EditHeaders,
         validator: Any | None = None,
     ) -> EntityResponse:
@@ -599,17 +472,18 @@ class EntityUpdateHandler(EntityHandler):
             head_revision_id = tx.state.vitess_client.get_head(entity_id)
 
             # Prepare data from request
-            request_data = PreparedRequestData(**request.data.copy())
-            request_data["id"] = entity_id
+            data = request.data.copy()
+            data["id"] = entity_id
 
             # Process lexeme terms within transaction (S3 operations)
-            forms = request.data.get("forms", [])
-            senses = request.data.get("senses", [])
+            forms = data.get("forms", [])
+            senses = data.get("senses", [])
             tx.process_lexeme_terms(forms, senses)
 
-            # Update request_data with hashes from S3 storage
-            request_data["forms"] = forms
-            request_data["senses"] = senses
+            # Update data with hashes from S3 storage
+            data["forms"] = forms
+            data["senses"] = senses
+            request_data = PreparedRequestData(**data)
 
             # Process statements
             hash_result = tx.process_statements(entity_id, request_data, validator)

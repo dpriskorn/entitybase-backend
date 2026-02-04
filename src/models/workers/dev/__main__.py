@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """CLI interface for the development worker."""
 
-import asyncio
 import argparse
+import asyncio
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import Any, cast
 
 # Add src to path for imports
 src_path = Path(__file__).parent.parent.parent / "src"
@@ -25,178 +24,6 @@ def setup_logging() -> None:
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-
-
-async def run_buckets_setup(args: Any) -> bool:
-    """Run bucket setup."""
-    worker = CreateBuckets(
-        minio_endpoint=args.endpoint,
-        minio_access_key=args.access_key,
-        minio_secret_key=args.secret_key,
-    )
-
-    print("Running bucket setup...")
-    results = await worker.run_setup()
-
-    print(f"Setup status: {results['setup_status']}")
-
-    print("\nBucket results:")
-    for bucket, status in results["buckets_created"].items():
-        print(f"  {bucket}: {status}")
-
-    healthy = results['health_check']['overall_status'] == 'healthy'
-    if healthy:
-        print("\nHealth check: healthy")
-    else:
-        print("\nHealth check: unhealthy")
-        print("Bucket issues:")
-        for issue in results["health_check"]["issues"]:
-            print(f"  - {issue}")
-
-    return cast(bool, results["setup_status"] == "completed")
-
-
-async def run_buckets_health(args: Any) -> bool:
-    """Run bucket health check."""
-    worker = CreateBuckets(
-        minio_endpoint=args.endpoint,
-        minio_access_key=args.access_key,
-        minio_secret_key=args.secret_key,
-    )
-
-    print("Running bucket health check...")
-    health = await worker.bucket_health_check()
-
-    print(f"Overall status: {health['overall_status']}")
-    print("\nBucket status:")
-    for bucket, status in health["buckets"].items():
-        print(f"  {bucket}: {status['status']}")
-
-    if health["issues"]:
-        print("\nIssues:")
-        for issue in health["issues"]:
-            print(f"  - {issue}")
-
-    return health["overall_status"] == "healthy"
-
-
-async def run_buckets_cleanup(args: Any) -> bool:
-    """Run bucket cleanup."""
-    if not args.force:
-        print("WARNING: This will delete all buckets and their contents!")
-        response = input("Are you sure? Type 'yes' to confirm: ")
-        if response != "yes":
-            print("Cleanup cancelled.")
-            return False
-
-    worker = CreateBuckets(
-        minio_endpoint=args.endpoint,
-        minio_access_key=args.access_key,
-        minio_secret_key=args.secret_key,
-    )
-
-    print("Running bucket cleanup...")
-    results = await worker.cleanup_buckets()
-
-    print("Cleanup results:")
-    for bucket, status in results.items():
-        print(f"  {bucket}: {status}")
-
-    return True
-
-
-# noinspection PyUnusedLocal
-async def run_tables_setup(args: Any) -> bool:
-    """Run table setup."""
-    worker = CreateTables()
-
-    print("Running database table setup...")
-    results = await worker.run_setup()
-
-    print(f"Setup status: {results['setup_status']}")
-
-    print("\nTable results:")
-    for table, status in results["tables_created"].items():
-        print(f"  {table}: {status}")
-
-    healthy = results['health_check']['overall_status'] == 'healthy'
-    if healthy:
-        print("\nHealth check: healthy")
-    else:
-        print("\nHealth check: unhealthy")
-        print("Table issues:")
-        for issue in results["health_check"]["issues"]:
-            print(f"  - {issue}")
-
-    return cast(bool, results["setup_status"] == "completed")
-
-
-# noinspection PyUnusedLocal
-async def run_tables_health(args: Any) -> bool:
-    """Run table health check."""
-    worker = CreateTables()
-
-    print("Running table health check...")
-    health = await worker.table_health_check()
-
-    print(f"Overall status: {health['overall_status']}")
-    print(f"Healthy tables: {health['healthy_tables']}/{health['total_tables']}")
-
-    if health["issues"]:
-        print("\nIssues:")
-        for issue in health["issues"]:
-            print(f"  - {issue}")
-
-    return health["overall_status"] == "healthy"
-
-
-async def run_health_check(args: Any) -> Any:
-    """Run the health check command."""
-    worker = CreateBuckets(
-        minio_endpoint=args.endpoint,
-        minio_access_key=args.access_key,
-        minio_secret_key=args.secret_key,
-    )
-
-    print("Running bucket health check...")
-    health = await worker.bucket_health_check()
-
-    print(f"Overall status: {health['overall_status']}")
-    print("\nBucket status:")
-    for bucket, status in health["buckets"].items():
-        print(f"  {bucket}: {status['status']}")
-
-    if health["issues"]:
-        print("\nIssues:")
-        for issue in health["issues"]:
-            print(f"  - {issue}")
-
-    return health["overall_status"] == "healthy"
-
-
-async def run_cleanup(args: Any) -> bool:
-    """Run the cleanup command."""
-    if not args.force:
-        print("WARNING: This will delete all buckets and their contents!")
-        response = input("Are you sure? Type 'yes' to confirm: ")
-        if response != "yes":
-            print("Cleanup cancelled.")
-            return False
-
-    worker = CreateBuckets(
-        minio_endpoint=args.endpoint,
-        minio_access_key=args.access_key,
-        minio_secret_key=args.secret_key,
-    )
-
-    print("Running bucket cleanup...")
-    results = await worker.cleanup_buckets()
-
-    print("Cleanup results:")
-    for bucket, status in results.items():
-        print(f"  {bucket}: {status}")
-
-    return True
 
 
 def main() -> int:
@@ -233,11 +60,7 @@ def main() -> int:
     buckets_health_parser = buckets_subparsers.add_parser("health", help="Check bucket health")
     buckets_health_parser.set_defaults(func=run_buckets_health)
 
-    buckets_cleanup_parser = buckets_subparsers.add_parser("cleanup", help="Clean up buckets (dangerous)")
-    buckets_cleanup_parser.add_argument(
-        "--force", action="store_true", help="Skip confirmation prompt"
-    )
-    buckets_cleanup_parser.set_defaults(func=run_buckets_cleanup)
+
 
     # Tables component
     tables_parser = subparsers.add_parser("tables", help="Manage database tables")
@@ -268,6 +91,50 @@ def main() -> int:
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
+
+
+async def run_buckets_setup(args: argparse.Namespace) -> bool:
+    """Run bucket setup operation."""
+    create_buckets = CreateBuckets(
+        minio_endpoint=args.endpoint,
+        minio_access_key=args.access_key,
+        minio_secret_key=args.secret_key,
+    )
+    results = await create_buckets.run_setup()
+    print(f"Buckets setup completed: {results['setup_status']}")
+    return results['setup_status'] == 'completed'
+
+
+async def run_buckets_health(args: argparse.Namespace) -> bool:
+    """Run bucket health check operation."""
+    create_buckets = CreateBuckets(
+        minio_endpoint=args.endpoint,
+        minio_access_key=args.access_key,
+        minio_secret_key=args.secret_key,
+    )
+    health_status = await create_buckets.bucket_health_check()
+    print(f"Bucket health status: {health_status['overall_status']}")
+    return health_status['overall_status'] == 'healthy'
+
+
+
+
+
+async def run_tables_setup(args: argparse.Namespace) -> bool:
+    """Run table setup operation."""
+    create_tables = CreateTables()
+    results = await create_tables.run_setup()
+    print(f"Tables setup completed: {results['setup_status']}")
+    return results['setup_status'] == 'completed'
+
+
+async def run_tables_health(args: argparse.Namespace) -> bool:
+    """Run table health check operation."""
+    create_tables = CreateTables()
+    health_status = await create_tables.table_health_check()
+    print(f"Table health status: {health_status['overall_status']}")
+    print(f"Healthy tables: {health_status['healthy_tables']}/{health_status['total_tables']}")
+    return health_status['overall_status'] == 'healthy'
 
 
 if __name__ == "__main__":

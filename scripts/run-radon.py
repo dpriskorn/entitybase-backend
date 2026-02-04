@@ -103,6 +103,7 @@ def find_duplicate_methods(directory, allowlist_file, exclude_dirs):
             for filepath, lineno in locations:
                 rel_path = os.path.relpath(filepath)
                 print(f"   {rel_path}:{lineno}")
+            print(f"Allowlist path: {allowlist_file}")
 
     return duplicates_found
 

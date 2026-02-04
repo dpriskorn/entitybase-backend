@@ -1,7 +1,6 @@
 """Validation utilities for REST API."""
 
 import logging
-import os
 
 from typing import NoReturn, Optional
 
@@ -21,10 +20,11 @@ def raise_validation_error(
     NOTE: Always use this function instead of raising ValidationError directly
     to ensure proper HTTP error handling for user responses.
     """
+    from models.config.settings import settings
     logger.info(f"Raising validation error: {message} with status {status_code}")
     from fastapi import HTTPException
 
-    is_prod = os.getenv("ENVIRONMENT", "dev").lower() == "prod"
+    is_prod = settings.environment.lower() == "prod"
 
     if exception_class is not None:
         if exception_class == HTTPException and is_prod:

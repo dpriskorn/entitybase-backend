@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Request
 
-from models.common import EditHeadersType
+from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import EntityRevertRequest
 from models.data.rest_api.v1.entitybase.response import EntityRevertResponse
 from models.rest_api.entitybase.v1.handlers.entity.revert import EntityRevertHandler

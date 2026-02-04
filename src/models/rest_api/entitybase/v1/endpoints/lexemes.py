@@ -2,18 +2,15 @@
 
 import logging
 import re
-from typing import Optional
+from typing import Optional, cast
 
 from fastapi import APIRouter, HTTPException, Request
 
-from models.common import EditHeadersType
+from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
     LexemeUpdateRequest,
     TermUpdateRequest,
-)
-from models.data.rest_api.v1.entitybase.request.entity.crud import (
-    EntityUpdateRequest as InternalEntityUpdateRequest,
 )
 from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
@@ -29,10 +26,10 @@ from models.data.rest_api.v1.entitybase.response import (
 from models.rest_api.entitybase.v1.handlers.entity.lexeme.create import (
     LexemeCreateHandler,
 )
+from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import (
     EntityUpdateHandler,
 )
-from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 
 logger = logging.getLogger(__name__)
 
@@ -272,7 +269,7 @@ async def update_form_representation(
 
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
-    update_request = InternalEntityUpdateRequest(
+    update_request = LexemeUpdateRequest(
         type="lexeme",
         **current_entity.data
     )
@@ -336,7 +333,7 @@ async def update_sense_gloss(
 
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
-    update_request = InternalEntityUpdateRequest(
+    update_request = LexemeUpdateRequest(
         type="lexeme",
         **current_entity.data
     )
@@ -383,7 +380,7 @@ async def delete_form(
 
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
-    update_request = InternalEntityUpdateRequest(
+    update_request = LexemeUpdateRequest(
         type="lexeme",
         **current_entity.data
     )
@@ -430,7 +427,7 @@ async def delete_sense(
 
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
-    update_request = InternalEntityUpdateRequest(
+    update_request = LexemeUpdateRequest(
         type="lexeme",
         **current_entity.data
     )
@@ -523,3 +520,109 @@ async def get_glosses(req: Request, hashes: str) -> list[Optional[str]]:
     except Exception as e:
         logger.error(f"Failed to load glosses: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@router.delete("/entities/lexemes/forms/{form_id}/representation/{langcode}", response_model=EntityResponse)
+async def delete_form_representation(
+    form_id: str,
+    langcode: str,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
+    """Delete form representation for language."""
+    logger.debug(f"Deleting representation for form {form_id}, language {langcode}")
+    lexeme_id, form_suffix = _parse_form_id(form_id)
+
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+
+    # Get current lexeme entity
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(lexeme_id)
+
+    # Find the form in the entity data
+    forms_data = current_entity.data.get("forms", [])
+    form_found = False
+    for form in forms_data:
+        if form["id"] == form_id:
+            form_found = True
+            representations = form.get("representations", {})
+            if langcode not in representations:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Representation not found for language {langcode}"
+                )
+
+            # Delete the representation
+            del form["representations"][langcode]
+            logger.debug(f"Deleted representation for form {form_id} in language {langcode}")
+            break
+
+    if not form_found:
+        raise HTTPException(status_code=404, detail=f"Form {form_id} not found")
+
+    # Create new revision
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = LexemeUpdateRequest(
+        type="lexeme",
+        **current_entity.data
+    )
+
+    return await update_handler.update_lexeme(
+            lexeme_id,
+            update_request,
+            edit_headers=headers,
+            validator=validator,
+        )
+
+
+@router.delete("/entities/lexemes/senses/{sense_id}/glosses/{langcode}", response_model=EntityResponse)
+async def delete_sense_gloss(
+    sense_id: str,
+    langcode: str,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
+    """Delete sense gloss for language."""
+    logger.debug(f"Deleting gloss for sense {sense_id}, language {langcode}")
+    lexeme_id, sense_suffix = _parse_sense_id(sense_id)
+
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+
+    # Get current lexeme entity
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(lexeme_id)
+
+    # Find the sense in the entity data
+    senses_data = current_entity.data.get("senses", [])
+    sense_found = False
+    for sense in senses_data:
+        if sense["id"] == sense_id:
+            sense_found = True
+            glosses = sense.get("glosses", {})
+            if langcode not in glosses:
+                # Idempotent: return current entity if gloss doesn't exist
+                return EntityResponse(**current_entity.data)
+
+            # Delete the gloss
+            del sense["glosses"][langcode]
+            logger.debug(f"Deleted gloss for sense {sense_id} in language {langcode}")
+            break
+
+    if not sense_found:
+        raise HTTPException(status_code=404, detail=f"Sense {sense_id} not found")
+
+    # Create new revision
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = LexemeUpdateRequest(
+        type="lexeme",
+        **current_entity.data
+    )
+
+    return await update_handler.update_lexeme(
+            lexeme_id,
+            update_request,
+            edit_headers=headers,
+            validator=validator,
+        )

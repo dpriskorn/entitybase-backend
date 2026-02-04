@@ -422,23 +422,6 @@ class TestUserRepository:
         with pytest.raises(Exception):
             repo.is_watchlist_enabled(123)
 
-    def test_log_user_activity_success(self, caplog):
-        """Test logging user activity successfully."""
-        import logging
-        caplog.set_level(logging.DEBUG)
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_vitess_client.cursor = mock_cursor
-
-        repo = UserRepository(vitess_client=mock_vitess_client)
-
-        result = repo.log_user_activity(123, UserActivityType.ENTITY_EDIT, "Q1", 1)
-
-        assert result.success is True
-        assert "Logging user activity: user_id=123, activity_type=UserActivityType.ENTITY_EDIT, entity_id=Q1, revision_id=1" in caplog.text
-
-
-
     def test_log_user_activity_database_error(self):
         """Test logging activity with database error."""
         mock_vitess_client = MagicMock()

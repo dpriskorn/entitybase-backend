@@ -27,14 +27,14 @@ src/models/infrastructure/vitess/repositories/user.py:346
 src/models/infrastructure/vitess/repositories/backlink.py:135
 
 # handler.py - Uses revision_dict from model_dump(mode='json') or plain dict, sorted for canonicalization
-src/models/rest_api/entitybase/v1/handlers/entity/handler.py:183
-src/models/rest_api/entitybase/v1/handlers/entity/handler.py:282
+src/models/rest_api/entitybase/v1/handlers/entity/handler.py:178
+src/models/rest_api/entitybase/v1/handlers/entity/handler.py:274
 
 # update_transaction.py - Uses revision_dict from model_dump(mode='json'), sorted for canonicalization
-src/models/rest_api/entitybase/v1/handlers/entity/update_transaction.py:164
+src/models/rest_api/entitybase/v1/handlers/entity/update_transaction.py:165
 
 # creation_transaction.py - Uses revision_dict from model_dump(mode='json'), sorted for canonicalization
-src/models/rest_api/entitybase/v1/handlers/entity/creation_transaction.py:110
+src/models/rest_api/entitybase/v1/handlers/entity/creation_transaction.py:111
 
 # delete.py - Uses revision_dict from model_dump(mode='json'), sorted for canonicalization
 src/models/rest_api/entitybase/v1/handlers/entity/delete.py:161
@@ -43,7 +43,7 @@ src/models/rest_api/entitybase/v1/handlers/entity/delete.py:161
 src/models/rest_api/entitybase/v1/handlers/entity/revert.py:130
 
 # redirects.py - Uses revision_dict from model_dump(mode='json'), sorted for canonicalization
-src/models/rest_api/entitybase/v1/services/redirects.py:87
+src/models/rest_api/entitybase/v1/services/redirects.py:88
 
 # delete_service.py - Uses revision_dict from model_dump(mode='json'), sorted for canonicalization
 src/models/rest_api/entitybase/v1/services/delete_service.py:194

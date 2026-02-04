@@ -3,7 +3,7 @@
 import logging
 from typing import List, Optional
 
-from models.common import OperationResult
+from models.data.common import OperationResult
 from models.config.settings import settings
 from models.data.infrastructure.s3.enums import MetadataType
 from models.infrastructure.s3.storage.metadata_storage import MetadataStorage

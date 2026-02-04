@@ -3,7 +3,7 @@
 import logging
 from typing import List
 
-from models.common import OperationResult
+from models.data.common import OperationResult
 from models.infrastructure.vitess.repository import Repository
 from models.data.rest_api.v1.entitybase.response import StatementEndorsementResponse
 

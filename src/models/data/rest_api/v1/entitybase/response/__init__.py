@@ -63,7 +63,13 @@ from .misc import (
     TurtleResponse,
     WatchCounts,
 )
-from .misc2 import GeneralStatsData, QualifierResponse, ReferenceResponse, SnakResponse
+from .misc2 import (
+    GeneralStatsData,
+    QualifierResponse,
+    ReconstructedSnakValue,
+    ReferenceResponse,
+    SnakResponse,
+)
 from .rdf import (
     DeduplicationStatsResponse,
     FullRevisionResponse,
@@ -166,6 +172,7 @@ __all__ = [
     "ProtectionResponse",
     "QualifierResponse",
     "RDFChangeEvent",
+    "ReconstructedSnakValue",
     "RangeStatus",
     "RangeStatuses",
     "RedirectBatchResponse",

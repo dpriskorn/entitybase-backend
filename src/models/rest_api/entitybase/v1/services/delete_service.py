@@ -62,7 +62,7 @@ class DeleteService(Service):
             raise_validation_error("Entity not found", status_code=404)
 
         logger.debug(f"Current head revision for {entity_id}: {head_revision_id}")
-        return cast(int, head_revision_id)
+        return int(head_revision_id)
 
     def validate_protection_status(self, entity_id: str) -> None:
         """Check if entity is protected from edits.
@@ -239,13 +239,13 @@ class DeleteService(Service):
                     f"Entity {entity_id}: Failed to publish delete event: {e}"
                 )
 
-    def log_user_activity(
+    def log_delete_activity(
         self,
         user_id: int,
         entity_id: str,
         new_revision_id: int,
     ) -> None:
-        """Log user activity for the deletion operation.
+        """Log delete activity for the deletion operation.
 
         Args:
             user_id: User performing the deletion

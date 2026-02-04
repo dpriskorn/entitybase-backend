@@ -1,10 +1,12 @@
 import re
 
+from ...rest_api.utils import raise_validation_error
+
 """Time value type."""
 
 from pydantic import ConfigDict, Field, field_validator
 from typing_extensions import Literal
-from models.common import raise_validation_error
+
 from .base import Value
 
 

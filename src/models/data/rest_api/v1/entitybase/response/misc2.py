@@ -13,7 +13,7 @@ class QualifierResponse(BaseModel):
     model_config = {"extra": "allow"}  # Allow extra fields from S3 data
 
     qualifier: Dict[str, Any] = Field(
-        description="Full qualifier JSON object. Example: {'property': 'P580', 'value': '2023-01-01'}."
+        description="Full qualifier JSON object with reconstructed snaks. Values may be int, str, dict, or list containing reconstructed snaks."
     )
     content_hash: int = Field(
         alias="hash", description="Hash of the qualifier content. Example: 123456789."
@@ -52,6 +52,35 @@ class SnakResponse(BaseModel):
     )
     created_at: str = Field(
         description="Timestamp when snak was created. Example: '2023-01-01T12:00:00Z'."
+    )
+
+
+class ReconstructedSnakValue(BaseModel):
+    """Response model for reconstructed snak value from hash."""
+
+    model_config = {"extra": "allow"}
+
+    snaktype: str = Field(
+        description="Type of snak. Example: 'value', 'novalue', 'somevalue'."
+    )
+    property: str = Field(description="Property ID. Example: 'P31'.")
+    datatype: str | None = Field(
+        default=None, description="Datatype of the snak. Example: 'wikibase-item'."
+    )
+    datavalue: Dict[str, Any] | None = Field(
+        default=None,
+        description="Data value of the snak. Example: {'value': 'Q1', 'type': 'wikibase-entityid'}."
+    )
+
+
+class SerializableQualifierValue(BaseModel):
+    """Serializable form of qualifier values for JSON serialization."""
+
+    model_config = {"extra": "allow"}
+
+    value: Dict[str, Any] | int | str | list["SerializableQualifierValue"] | None = Field(
+        default=None,
+        description="Serializable qualifier value (dict, int, str, or list of SerializableQualifierValue)."
     )
 
 

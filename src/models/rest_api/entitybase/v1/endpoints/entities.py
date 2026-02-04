@@ -4,7 +4,7 @@ import logging
 
 from fastapi import APIRouter, Query, Request, Response
 
-from models.common import EditHeadersType, OperationResult
+from models.data.common import OperationResult
 from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
 from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
 from models.data.rest_api.v1.entitybase.request import (
@@ -14,6 +14,7 @@ from models.data.rest_api.v1.entitybase.request import (
     RemoveStatementRequest,
 )
 from models.data.rest_api.v1.entitybase.request.entity.sitelink import SitelinkData
+from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.response import (
     EntityDeleteResponse,
 )
@@ -29,13 +30,12 @@ from models.data.rest_api.v1.entitybase.response import (
 from models.data.rest_api.v1.entitybase.response import RevisionIdResult
 from models.data.rest_api.v1.entitybase.response import TurtleResponse
 from models.rest_api.entitybase.v1.handlers.entity.delete import EntityDeleteHandler
-from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.v1.services.entity_statement_service import EntityStatementService
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.handlers.export import ExportHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
+from models.rest_api.entitybase.v1.services.entity_statement_service import EntityStatementService
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)

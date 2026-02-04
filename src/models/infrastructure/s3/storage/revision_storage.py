@@ -3,7 +3,7 @@
 import logging
 from typing import TYPE_CHECKING
 
-from models.common import OperationResult
+from models.data.common import OperationResult
 from models.config.settings import settings
 from models.data.infrastructure.s3.revision_data import S3RevisionData
 from models.infrastructure.s3.base_storage import BaseS3Storage

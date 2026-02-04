@@ -1,10 +1,10 @@
 from pathlib import Path
+from typing import Any, cast
 
 import pytest
+import requests
 import yaml
-from pathlib import Path
 from jsonschema import Draft202012Validator
-from typing import Any, cast
 
 
 @pytest.mark.integration

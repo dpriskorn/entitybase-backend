@@ -5,7 +5,7 @@ from typing import Any
 
 from pydantic import ConfigDict, Field
 
-from models.common import EditHeaders
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import (

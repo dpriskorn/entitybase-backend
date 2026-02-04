@@ -4,7 +4,7 @@ import logging
 from datetime import timezone, datetime
 from typing import TYPE_CHECKING
 
-from models.common import EditHeaders
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditData, EntityType, EditType
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps

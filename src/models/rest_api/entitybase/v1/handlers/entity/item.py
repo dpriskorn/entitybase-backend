@@ -10,7 +10,7 @@ from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.response import EntityResponse
-from models.common import EditHeaders
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.rest_api.utils import raise_validation_error
 from .create import EntityCreateHandler
 from .creation_transaction import CreationTransaction
@@ -51,9 +51,9 @@ class ItemCreateHandler(EntityCreateHandler):
         logger.debug(f"🔍 HANDLER: Prepared request data: {request_data_dict}")
         return PreparedRequestData(**request_data_dict)
 
+    @staticmethod
     async def _execute_creation_transaction(
-        self,
-        tx: CreationTransaction,
+            tx: CreationTransaction,
         entity_id: str,
         request_data: PreparedRequestData,
         request: EntityCreateRequest,

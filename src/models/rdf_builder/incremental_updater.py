@@ -3,7 +3,7 @@
 from pydantic import BaseModel
 
 from models.internal_representation.entity_data import EntityData
-from models.rdf_builder.diffs import (
+from models.rdf_builder import (
     DiffResult,
     StatementDiff,
     TermsDiff,

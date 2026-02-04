@@ -6,7 +6,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
-from models.common import raise_validation_error
+from models.rest_api.utils import raise_validation_error
 from models.config.settings import Settings
 from models.data.config.s3 import S3Config
 from models.data.config.stream import StreamConfig

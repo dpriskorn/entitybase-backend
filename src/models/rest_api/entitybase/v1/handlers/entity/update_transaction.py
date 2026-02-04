@@ -6,10 +6,10 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Callable
 
-from models.common import EditHeaders
-from models.data.infrastructure.stream.change_type import ChangeType
+from models.data.infrastructure.s3 import EntityState
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import MetadataType
-from models.data.infrastructure.s3.entity_state import EntityState
+from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
@@ -48,10 +48,10 @@ class UpdateTransaction(EntityTransaction):
             senses=senses,
             s3_client=self.state.s3_client,
             on_form_stored=lambda h: self.lexeme_term_operations.append(
-                lambda hash=h: self._rollback_form_representation(hash)
+                lambda: self._rollback_form_representation(h)
             ),
             on_gloss_stored=lambda h: self.lexeme_term_operations.append(
-                lambda hash=h: self._rollback_sense_gloss(hash)
+                lambda: self._rollback_sense_gloss(h)
             ),
         )
 
@@ -106,7 +106,7 @@ class UpdateTransaction(EntityTransaction):
         logger.debug(f"[UpdateTransaction] Starting revision creation for {entity_id}")
         
         from models.rest_api.entitybase.v1.services.hash_service import HashService
-        from models.data.infrastructure.s3.enums import EditType, EditData, EntityState
+        from models.data.infrastructure.s3.enums import EditType, EditData
         import json
         from rapidhash import rapidhash
         from models.internal_representation.metadata_extractor import MetadataExtractor
@@ -129,7 +129,8 @@ class UpdateTransaction(EntityTransaction):
         aliases_hashes = hs.hash_aliases(request_data.get("aliases", {}))
         
         created_at = datetime.now(timezone.utc).isoformat()
-        
+
+        # noinspection PyArgumentList
         revision_data = RevisionData(
             revision_id=new_revision_id,
             entity_type=entity_type,

@@ -6,8 +6,25 @@ Linter to check for tuple() usage in Python files.
 import sys
 from pathlib import Path
 
+sys.path.append(str(Path(__file__).parent.resolve()))
 
-def check_file(file_path: Path) -> list[tuple[str, int, str]]:
+from allowlist_utils import is_line_allowed
+
+
+def load_allowlist() -> set:
+    """Load the tuple allowlist from config/linters/allowlists/tuple.txt."""
+    allowlist_path = Path("config/linters/allowlists/tuple.txt")
+    allowlist = set()
+    if allowlist_path.exists():
+        with open(allowlist_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    allowlist.add(line)
+    return allowlist
+
+
+def check_file(file_path: Path, allowlist: set) -> list[tuple[str, int, str]]:
     """Check a single Python file for tuple() usage."""
     violations = []
     try:
@@ -19,6 +36,8 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                     continue
                 # Look for tuple(
                 if "tuple(" in line:
+                    if is_line_allowed(file_path, line_no, allowlist):
+                        continue
                     violations.append(
                         (
                             str(file_path),
@@ -43,21 +62,25 @@ def main() -> None:
         print(f"Path {path} does not exist")
         sys.exit(1)
 
+    allowlist = load_allowlist()
+
     violations = []
 
     if path.is_file() and path.suffix == ".py":
-        violations.extend(check_file(path))
+        violations.extend(check_file(path, allowlist))
     elif path.is_dir():
         for py_file in path.rglob("*.py"):
-            violations.extend(check_file(py_file))
+            violations.extend(check_file(py_file, allowlist))
 
     if violations:
         print("tuple() violations:")
         for file_path, line_no, message in violations:
             print(f"{file_path}:{line_no}: {message}")
-        allowlist_path = Path("config/allowlists/tuple_allowlist.txt")
+        allowlist_path = Path("config/linters/allowlists/tuple.txt")
         print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
         sys.exit(1)
+    else:
+        print("No tuple() violations found")
 
 
 if __name__ == "__main__":

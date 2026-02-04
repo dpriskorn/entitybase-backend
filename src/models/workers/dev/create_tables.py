@@ -4,10 +4,25 @@
 import logging
 import os
 import sys
-from typing import Any, Dict, List
+from typing import Any, Dict, List, TypedDict
 
 import pymysql
 from pydantic import BaseModel
+
+
+class TableHealthCheckResult(TypedDict):
+    """Result of table health check."""
+    overall_status: str
+    healthy_tables: int
+    total_tables: int
+    issues: List[str]
+
+
+class TableSetupResult(TypedDict):
+    """Result of table setup operation."""
+    tables_created: Dict[str, str]
+    health_check: TableHealthCheckResult
+    setup_status: str
 
 logger = logging.getLogger(__name__)
 
@@ -75,9 +90,9 @@ class CreateTables(BaseModel):
             logger.warning(f"SchemaRepository approach failed: {e}")
             raise ConnectionError()
 
-    async def table_health_check(self) -> Dict[str, Any]:
+    async def table_health_check(self) -> TableHealthCheckResult:
         """Check if all required tables exist and are accessible."""
-        issues = []
+        issues: List[str] = []
         healthy_tables = 0
 
         try:
@@ -108,14 +123,14 @@ class CreateTables(BaseModel):
 
         overall_status = "healthy" if len(issues) == 0 else "unhealthy"
 
-        return {
-            "overall_status": overall_status,
-            "healthy_tables": healthy_tables,
-            "total_tables": len(self.required_tables),
-            "issues": issues,
-        }
+        return TableHealthCheckResult(
+            overall_status=overall_status,
+            healthy_tables=healthy_tables,
+            total_tables=len(self.required_tables),
+            issues=issues,
+        )
 
-    async def run_setup(self) -> Dict[str, Any]:
+    async def run_setup(self) -> TableSetupResult:
         """Run complete table setup process for development environment."""
         logger.info("Starting database table setup")
 
@@ -125,7 +140,7 @@ class CreateTables(BaseModel):
         # Perform health check
         health_status = await self.table_health_check()
 
-        setup_results = {
+        setup_results: TableSetupResult = {
             "tables_created": table_results,
             "health_check": health_status,
             "setup_status": "completed"

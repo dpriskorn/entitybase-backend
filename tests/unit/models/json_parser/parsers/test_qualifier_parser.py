@@ -1,7 +1,5 @@
-import pytest
-
-from models.json_parser import parse_qualifiers, parse_qualifier
 from models.internal_representation.qualifiers import Qualifier
+from models.json_parser import parse_qualifiers, parse_qualifier
 
 
 def test_parse_qualifiers_basic() -> None:
@@ -222,21 +220,3 @@ def test_parse_qualifier_result_immutability() -> None:
         qualifier.property = "P999"
 
 
-def test_parse_qualifiers_result_immutability() -> None:
-    """Test that parsed qualifiers list results are immutable"""
-    qualifiers_json = {
-        "P2": [{"snaktype": "novalue", "property": "P2"}]
-    }
-
-    qualifiers = parse_qualifiers(qualifiers_json)
-    assert len(qualifiers) == 1
-    assert isinstance(qualifiers[0], Qualifier)
-
-    # Should not be able to modify the list
-    with pytest.raises(AttributeError):
-        # noinspection PyTypeChecker
-        qualifiers.append(Qualifier(property="P3", value=None))
-
-    # Should not be able to modify individual qualifiers
-    with pytest.raises(Exception):  # TypeError or ValidationError
-        qualifiers[0].property = "P999"

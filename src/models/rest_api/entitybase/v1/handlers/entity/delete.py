@@ -2,7 +2,7 @@
 
 import logging
 
-from models.common import EditHeaders
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import DeleteType
 from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
 from models.data.rest_api.v1.entitybase.response import EntityDeleteResponse
@@ -77,7 +77,7 @@ class EntityDeleteHandler(Handler):
             edit_summary=edit_headers.x_edit_summary,
         )
 
-        delete_service.log_user_activity(
+        delete_service.log_delete_activity(
             user_id=edit_headers.x_user_id,
             entity_id=entity_id,
             new_revision_id=new_revision_id,

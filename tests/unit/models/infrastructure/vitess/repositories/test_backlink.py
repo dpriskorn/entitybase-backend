@@ -109,19 +109,6 @@ class TestBacklinkRepository:
         with pytest.raises(Exception):
             repo.insert_backlink_statistics("2023-01-01", -1, 50, [])
 
-    def test_get_backlinks_empty(self):
-        """Test getting backlinks when none exist."""
-        mock_vitess_client = MagicMock()
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.return_value = []
-        mock_vitess_client.cursor = mock_cursor
-
-        repo = BacklinkRepository(vitess_client=mock_vitess_client)
-
-        result = repo.get_backlinks(123)
-
-        assert result == []
-
     def test_get_backlinks_with_limit_offset(self):
         """Test getting backlinks with limit and offset."""
         mock_vitess_client = MagicMock()

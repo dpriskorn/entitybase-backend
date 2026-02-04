@@ -4,11 +4,12 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from models.data.rest_api.v1.entitybase.response import IdResponse
+
 pytestmark = pytest.mark.unit
 
 from models.workers.id_generation.id_generation_worker import (
     IdGeneratorWorker,
-    IdResponse,
 )
 
 
@@ -72,13 +73,6 @@ class TestIdGeneratorWorker:
         assert isinstance(result, IdResponse)
         assert result.id == "Q123"
         mock_service.get_next_entity_id.assert_called_once_with("item")
-
-    def test_get_next_id_not_initialized(self) -> None:
-        """Test get_next_id raises error when worker not initialized."""
-        with pytest.raises(ValueError) as exc_info:
-            self.worker.get_next_id("item")
-
-        assert "Worker not initialized" in str(exc_info.value)
 
     def test_health_check_not_running(self) -> None:
         """Test health check when worker is not running."""

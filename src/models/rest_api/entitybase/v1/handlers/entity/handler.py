@@ -6,24 +6,21 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, Field, ConfigDict
 
-from models.common import EditHeaders, OperationResult
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.config.settings import settings
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType, EditData, EntityType
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
 from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
-from models.data.infrastructure.s3.revision_data import S3RevisionData
 from models.data.infrastructure.stream.change_type import ChangeType
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
 )
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.stream.event import EntityChangeEvent
-from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
-from models.rest_api.entitybase.v1.services.hash_service import HashService
 from models.rest_api.utils import raise_validation_error
 from .entity_hashing_service import EntityHashingService
 from .entity_validation_service import EntityValidationService
@@ -157,8 +154,6 @@ class EntityHandler(Handler):
             ctx.entity_id,
             ctx.vitess_client.get_head(ctx.entity_id),
             0,  # content_hash - need to calculate
-            ctx.request_data,
-            ctx.s3_client,
         )
 
     async def _process_entity_data_new(
@@ -196,7 +191,6 @@ class EntityHandler(Handler):
                 hash_result,
                 term_hashes,
                 sitelink_hashes,
-                content_hash,
                 new_revision_id,
             )
 
@@ -220,14 +214,12 @@ class EntityHandler(Handler):
     async def _hash_terms_new(self, ctx: RevisionContext) -> HashMaps:
         """Hash entity terms (labels, descriptions, aliases)."""
         hashing_service = EntityHashingService(state=self.state)
-        return await hashing_service.hash_terms(
-            ctx.request_data, ctx.s3_client, ctx.vitess_client
-        )
+        return await hashing_service.hash_terms(ctx.request_data)
 
     async def _hash_sitelinks_new(self, ctx: RevisionContext) -> SitelinksHashes:
         """Hash entity sitelinks."""
         hashing_service = EntityHashingService(state=self.state)
-        return await hashing_service.hash_sitelinks(ctx.request_data, ctx.s3_client)
+        return await hashing_service.hash_sitelinks(ctx.request_data)
 
     @staticmethod
     def _build_revision_data_new(
