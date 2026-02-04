@@ -5,10 +5,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from models.data.infrastructure.s3.enums import EntityType, EditType
+from models.data.infrastructure.s3.revision_data import S3RevisionData
 from models.rest_api.entitybase.v1.handlers.entity.create import EntityCreateHandler
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
-from models.common import EditHeaders
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 
 
 class TestEntityCreateHandler:
@@ -32,12 +33,17 @@ class TestEntityCreateHandler:
         mock_vitess.register_entity.return_value = None
         mock_user_repo.log_user_activity.return_value = MagicMock(success=True)
 
-        # Mock the process_entity_revision_new method
+        # Mock process_entity_revision_new method
+        s3_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={"id": "Q42", "type": "item"},
+            hash=123456789,
+            created_at="2023-01-01T12:00:00Z"
+        )
         mock_response = EntityResponse(
             id="Q42",
             rev_id=12345,
-            data={"id": "Q42", "type": "item"},
-            state=MagicMock()
+            data=s3_revision_data
         )
 
         handler = EntityCreateHandler(state=mock_state)
@@ -95,11 +101,16 @@ class TestEntityCreateHandler:
         mock_vitess.register_entity.return_value = None
 
         # Mock response
+        s3_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={"id": "Q100", "type": "item"},
+            hash=123456789,
+            created_at="2023-01-01T12:00:00Z"
+        )
         mock_response = EntityResponse(
-            id="Q100",
+            id="Q42",
             rev_id=12345,
-            data={"id": "Q100", "type": "item"},
-            state=MagicMock()
+            data=s3_revision_data
         )
 
         handler = EntityCreateHandler(state=mock_state, enumeration_service=mock_enum_service)
@@ -217,11 +228,16 @@ class TestEntityCreateHandler:
         # Mock failed user activity logging
         mock_user_repo.log_user_activity.return_value = MagicMock(success=False, error="DB error")
 
+        s3_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={"id": "Q42", "type": "item"},
+            hash=123456789,
+            created_at="2023-01-01T12:00:00Z"
+        )
         mock_response = EntityResponse(
             id="Q42",
             rev_id=12345,
-            data={"id": "Q42", "type": "item"},
-            state=MagicMock()
+            data=s3_revision_data
         )
 
         handler = EntityCreateHandler(state=mock_state)
@@ -255,11 +271,16 @@ class TestEntityCreateHandler:
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.register_entity.return_value = None
 
+        s3_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={"id": "Q42", "type": "item"},
+            hash=123456789,
+            created_at="2023-01-01T12:00:00Z"
+        )
         mock_response = EntityResponse(
             id="Q42",
             rev_id=12345,
-            data={"id": "Q42", "type": "item"},
-            state=MagicMock()
+            data=s3_revision_data
         )
 
         handler = EntityCreateHandler(state=mock_state)
@@ -294,11 +315,16 @@ class TestEntityCreateHandler:
         mock_vitess.register_entity.return_value = None
 
         mock_validator = MagicMock()
+        s3_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={"id": "Q42", "type": "item"},
+            hash=123456789,
+            created_at="2023-01-01T12:00:00Z"
+        )
         mock_response = EntityResponse(
             id="Q42",
             rev_id=12345,
-            data={"id": "Q42", "type": "item"},
-            state=MagicMock()
+            data=s3_revision_data
         )
 
         handler = EntityCreateHandler(state=mock_state)
@@ -333,11 +359,16 @@ class TestEntityCreateHandler:
         mock_vitess.is_entity_deleted.return_value = False
         mock_vitess.register_entity.return_value = None
 
+        s3_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={"id": "Q42", "type": "item"},
+            hash=123456789,
+            created_at="2023-01-01T12:00:00Z"
+        )
         mock_response = EntityResponse(
             id="Q42",
             rev_id=12345,
-            data={"id": "Q42", "type": "item"},
-            state=MagicMock()
+            data=s3_revision_data
         )
 
         handler = EntityCreateHandler(state=mock_state)

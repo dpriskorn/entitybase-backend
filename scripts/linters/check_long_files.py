@@ -30,7 +30,7 @@ def check_file(file_path: Path, line_limit: int, allowlist: set[str]) -> tuple[i
             line_count = sum(1 for _ in f)
 
         if line_count > line_limit:
-            return (line_count, str(file_path))
+            return line_count, str(file_path)
     except Exception as e:
         print(f"Error reading {file_path}: {e}", file=sys.stderr)
         return None
