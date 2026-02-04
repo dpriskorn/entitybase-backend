@@ -6,6 +6,7 @@ from pydantic import ValidationError
 
 # Test the exact case from the question
 try:
+    # noinspection PyArgumentList
     edit_headers = EditHeaders(x_user_id=123, x_edit_summary="test")
     print("✓ Basic instantiation works: EditHeaders(x_user_id=123, x_edit_summary='test')")
     print(f"  - x_user_id: {edit_headers.x_user_id}")
@@ -18,6 +19,7 @@ print("\n--- Testing edge cases ---")
 
 # Test minimum user_id (0)
 try:
+    # noinspection PyArgumentList
     edit_headers = EditHeaders(x_user_id=0, x_edit_summary="System")
     print("✓ Minimum user_id (0) works")
 except Exception as e:
@@ -25,6 +27,7 @@ except Exception as e:
 
 # Test negative user_id (should fail)
 try:
+    # noinspection PyArgumentList
     edit_headers = EditHeaders(x_user_id=-1, x_edit_summary="test")
     print("✗ Negative user_id should have failed validation")
 except ValidationError:
@@ -32,6 +35,7 @@ except ValidationError:
 
 # Test empty summary (should fail)
 try:
+    # noinspection PyArgumentList
     edit_headers = EditHeaders(x_user_id=123, x_edit_summary="")
     print("✗ Empty summary should have failed validation")
 except ValidationError:

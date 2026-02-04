@@ -94,6 +94,7 @@ class EntityJsonImportHandler(Handler):
                             continue
 
                         # Create the entity using the existing handler
+                        # noinspection PyArgumentList
                         await create_handler.create_entity(
                             create_request,
                             EditHeaders(x_user_id=0, x_edit_summary="Wikidata import"),

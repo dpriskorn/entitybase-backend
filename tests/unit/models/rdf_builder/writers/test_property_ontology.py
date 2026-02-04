@@ -1,7 +1,6 @@
 """Unit tests for property_ontology."""
 
 import io
-from unittest.mock import patch
 
 from models.rdf_builder.property_registry.models import PropertyShape, PropertyPredicates
 from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter

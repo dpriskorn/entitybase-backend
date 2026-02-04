@@ -1,12 +1,11 @@
 """Tests for new EntityUpdateHandler specialized methods."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
-from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import EntityType
-from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 
 

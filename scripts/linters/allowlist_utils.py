@@ -4,7 +4,7 @@ Shared utility functions for linters that work with allowlists.
 """
 
 from pathlib import Path
-from typing import Dict, List, Set, Union
+from typing import Dict, List, Set
 
 
 def is_line_allowed(

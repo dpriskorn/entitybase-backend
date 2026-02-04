@@ -1,11 +1,11 @@
 """Unit tests for Client base class."""
 
-import pytest
 from unittest.mock import MagicMock
 
-from models.infrastructure.client import Client
+import pytest
+
 from models.data.config.config import Config
-from models.rest_api.utils import raise_validation_error
+from models.infrastructure.client import Client
 
 
 class TestClient:

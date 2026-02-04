@@ -1,6 +1,5 @@
 """Tests for models.internal_representation.datatypes module."""
 
-import pytest
 from models.internal_representation.datatypes import Datatype
 
 

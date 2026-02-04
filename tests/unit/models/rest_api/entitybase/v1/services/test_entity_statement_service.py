@@ -1,15 +1,15 @@
 """Unit tests for EntityStatementService."""
 
-import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
+import pytest
+
+from models.data.common import OperationResult
+from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.rest_api.entitybase.v1.services.entity_statement_service import (
     EntityStatementService,
     _PropertyCountHelper,
 )
-from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
-from models.data.rest_api.v1.entitybase.response import RevisionIdResult
-from models.data.common import OperationResult
 
 
 class TestEntityStatementService:

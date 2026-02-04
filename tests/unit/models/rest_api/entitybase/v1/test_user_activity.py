@@ -8,10 +8,6 @@ pytestmark = pytest.mark.unit
 sys.path.insert(0, "src")
 
 from models.rest_api.entitybase.v1.handlers.user_activity import UserActivityHandler
-from models.data.rest_api.v1.entitybase.response import (
-    UserActivityResponse,
-    UserActivityItemResponse,
-)
 
 
 class TestUserActivityHandler:

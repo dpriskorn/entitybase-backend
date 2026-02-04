@@ -54,21 +54,25 @@ class TestFormsAndSensesEndpoints:
     """Test form and sense endpoints."""
 
     @pytest.mark.asyncio
-    async def test_get_lexeme_forms_returns_sorted_forms(self):
+    async def test_get_lexeme_forms_returns_sorted_forms(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_forms
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {
-            "forms": [
-                {"id": "L42-F2", "representations": {"en": {"language": "en", "value": "form2"}}},
-                {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "form1"}}},
-            ],
-            "senses": [],
-        }
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "forms": [
+                    {"id": "L42-F2", "representations": {"en": {"language": "en", "value": "form2"}}},
+                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "form1"}}},
+                ],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -80,20 +84,25 @@ class TestFormsAndSensesEndpoints:
         assert result.forms[1].id == "L42-F2"
 
     @pytest.mark.asyncio
-    async def test_get_lexeme_senses_returns_sorted_senses(self):
+    async def test_get_lexeme_senses_returns_sorted_senses(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_senses
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {
-            "senses": [
-                {"id": "L42-S2", "glosses": {"en": {"language": "en", "value": "gloss2"}}},
-                {"id": "L42-S1", "glosses": {"en": {"language": "en", "value": "gloss1"}}},
-            ],
-            "forms": [],
-        }
-        mock_handler.get_entity.return_value = mock_entity
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "senses": [
+                    {"id": "L42-S2", "glosses": {"en": {"language": "en", "value": "gloss2"}}},
+                    {"id": "L42-S1", "glosses": {"en": {"language": "en", "value": "gloss1"}}},
+                ],
+                "forms": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -105,19 +114,24 @@ class TestFormsAndSensesEndpoints:
         assert result.senses[1].id == "L42-S2"
 
     @pytest.mark.asyncio
-    async def test_get_form_by_id_full_format(self):
+    async def test_get_form_by_id_full_format(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import get_form_by_id
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {
-            "forms": [
-                {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
-            ],
-            "senses": [],
-        }
-        mock_handler.get_entity.return_value = mock_entity
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "forms": [
+                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                ],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -128,14 +142,19 @@ class TestFormsAndSensesEndpoints:
         assert "answer" in result.representations["en"].value
 
     @pytest.mark.asyncio
-    async def test_get_form_by_id_not_found(self):
+    async def test_get_form_by_id_not_found(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import get_form_by_id
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {"forms": [], "senses": []}
-        mock_handler.get_entity.return_value = mock_entity
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={"forms": [], "senses": []},
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -146,19 +165,24 @@ class TestFormsAndSensesEndpoints:
         assert exc.value.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_get_sense_by_id_full_format(self):
+    async def test_get_sense_by_id_full_format(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_by_id
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {
-            "senses": [
-                {"id": "L42-S1", "glosses": {"en": {"language": "en", "value": "reply"}}}
-            ],
-            "forms": [],
-        }
-        mock_handler.get_entity.return_value = mock_entity
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "senses": [
+                    {"id": "L42-S1", "glosses": {"en": {"language": "en", "value": "reply"}}}
+                ],
+                "forms": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -169,14 +193,19 @@ class TestFormsAndSensesEndpoints:
         assert "reply" in result.glosses["en"].value
 
     @pytest.mark.asyncio
-    async def test_get_sense_by_id_not_found(self):
+    async def test_get_sense_by_id_not_found(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_by_id
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {"forms": [], "senses": []}
-        mock_handler.get_entity.return_value = mock_entity
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={"forms": [], "senses": []},
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -315,20 +344,24 @@ class TestFormsAndSensesEndpoints:
             assert exc.value.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_update_form_representation_missing_language(self):
+    async def test_update_form_representation_missing_language(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {
-            "forms": [
-                {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
-            ],
-            "senses": [],
-        }
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "forms": [
+                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                ],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -346,20 +379,24 @@ class TestFormsAndSensesEndpoints:
         assert "does not match" in exc.value.detail
 
     @pytest.mark.asyncio
-    async def test_update_form_representation_language_mismatch(self):
+    async def test_update_form_representation_language_mismatch(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {
-            "forms": [
-                {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
-            ],
-            "senses": [],
-        }
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "forms": [
+                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                ],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -377,20 +414,24 @@ class TestFormsAndSensesEndpoints:
         assert "does not match" in exc.value.detail
 
     @pytest.mark.asyncio
-    async def test_update_form_representation_invalid_data(self):
+    async def test_update_form_representation_invalid_data(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {
-            "forms": [
-                {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
-            ],
-            "senses": [],
-        }
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "forms": [
+                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                ],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -431,11 +472,11 @@ class TestFormsAndSensesEndpoints:
         assert "short format" in str(exc.value.detail).lower()
 
     @pytest.mark.asyncio
-    async def test_update_form_representation(self):
+    async def test_update_form_representation(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
         mock_update_handler = AsyncMock()
         mock_entity = Mock()
         mock_entity.data = {
@@ -444,8 +485,20 @@ class TestFormsAndSensesEndpoints:
             ],
             "senses": [],
         }
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "forms": [
+                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                ],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
         mock_state.validator = Mock()
         mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
 
@@ -468,9 +521,10 @@ class TestFormsAndSensesEndpoints:
             assert mock_update_handler.update_lexeme.called
 
     @pytest.mark.asyncio
-    async def test_delete_form_representation_language_not_found(self):
-        mock_state = Mock()
-        mock_handler = Mock()
+    async def test_delete_form_representation_language_not_found(self, mock_entity_read_state):
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
         mock_entity = Mock()
         mock_entity.data = {
             "forms": [
@@ -478,8 +532,20 @@ class TestFormsAndSensesEndpoints:
             ],
             "senses": [],
         }
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "forms": [
+                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                ],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
         mock_state.validator = Mock()
 
         mock_req = Mock()
@@ -496,13 +562,19 @@ class TestFormsAndSensesEndpoints:
         assert exc.value.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_delete_form_representation_form_not_found(self):
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {"forms": [], "senses": []}
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+    async def test_delete_form_representation_form_not_found(self, mock_entity_read_state):
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={"forms": [], "senses": []},
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
         mock_state.validator = Mock()
 
         mock_req = Mock()
@@ -519,10 +591,10 @@ class TestFormsAndSensesEndpoints:
         assert exc.value.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_delete_sense_gloss(self):
+    async def test_delete_sense_gloss(self, mock_entity_read_state):
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
         mock_update_handler = AsyncMock()
         mock_entity = Mock()
         mock_entity.data = {
@@ -531,8 +603,20 @@ class TestFormsAndSensesEndpoints:
             ],
             "forms": [],
         }
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "senses": [
+                    {"id": "L42-S1", "glosses": {"en": {"language": "en", "value": "reply"}}}
+                ],
+                "forms": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
         mock_state.validator = Mock()
         mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
 
@@ -554,9 +638,10 @@ class TestFormsAndSensesEndpoints:
             assert "en" not in mock_entity.data["senses"][0]["glosses"]
 
     @pytest.mark.asyncio
-    async def test_delete_sense_gloss_not_found_idempotent(self):
-        mock_state = Mock()
-        mock_handler = Mock()
+    async def test_delete_sense_gloss_not_found_idempotent(self, mock_entity_read_state):
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
         mock_entity = Mock()
         mock_entity.id = "L42"
         mock_entity.data = {
@@ -565,8 +650,19 @@ class TestFormsAndSensesEndpoints:
             ],
             "forms": [],
         }
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "senses": [
+                    {"id": "L42-S1", "glosses": {"en": {"language": "en", "value": "reply"}}}
+                ],
+                "forms": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
@@ -582,13 +678,19 @@ class TestFormsAndSensesEndpoints:
         assert result.id == mock_entity.id
 
     @pytest.mark.asyncio
-    async def test_delete_sense_gloss_sense_not_found(self):
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {"senses": [], "forms": []}
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+    async def test_delete_sense_gloss_sense_not_found(self, mock_entity_read_state):
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={"senses": [], "forms": []},
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
         mock_state.validator = Mock()
 
         mock_req = Mock()
@@ -605,11 +707,11 @@ class TestFormsAndSensesEndpoints:
         assert exc.value.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_delete_form(self):
+    async def test_delete_form(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import delete_form
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
         mock_update_handler = AsyncMock()
         mock_entity = Mock()
         mock_entity.data = {
@@ -619,8 +721,21 @@ class TestFormsAndSensesEndpoints:
             ],
             "senses": [],
         }
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "forms": [
+                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}},
+                    {"id": "L42-F2", "representations": {"en": {"language": "en", "value": "form2"}}},
+                ],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
         mock_state.validator = Mock()
         mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
 
@@ -642,15 +757,20 @@ class TestFormsAndSensesEndpoints:
             assert mock_entity.data["forms"][0]["id"] == "L42-F2"
 
     @pytest.mark.asyncio
-    async def test_delete_form_not_found(self):
+    async def test_delete_form_not_found(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import delete_form
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {"forms": [], "senses": []}
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={"forms": [], "senses": []},
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
         mock_state.validator = Mock()
 
         mock_req = Mock()
@@ -666,11 +786,11 @@ class TestFormsAndSensesEndpoints:
         assert exc.value.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_delete_sense(self):
+    async def test_delete_sense(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import delete_sense
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
         mock_update_handler = AsyncMock()
         mock_entity = Mock()
         mock_entity.data = {
@@ -680,8 +800,21 @@ class TestFormsAndSensesEndpoints:
             ],
             "forms": [],
         }
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "senses": [
+                    {"id": "L42-S1", "glosses": {"en": {"language": "en", "value": "reply"}}},
+                    {"id": "L42-S2", "glosses": {"en": {"language": "en", "value": "meaning2"}}},
+                ],
+                "forms": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
         mock_state.validator = Mock()
         mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
 
@@ -703,15 +836,20 @@ class TestFormsAndSensesEndpoints:
             assert mock_entity.data["senses"][0]["id"] == "L42-S2"
 
     @pytest.mark.asyncio
-    async def test_delete_sense_not_found(self):
+    async def test_delete_sense_not_found(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import delete_sense
+        from models.data.infrastructure.s3 import S3RevisionData
 
-        mock_state = Mock()
-        mock_handler = Mock()
-        mock_entity = Mock()
-        mock_entity.data = {"senses": [], "forms": []}
-        mock_handler.get_entity.return_value = mock_entity
-        mock_state.state_handler = mock_state
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={"senses": [], "forms": []},
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z"
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
         mock_state.validator = Mock()
 
         mock_req = Mock()

@@ -1,7 +1,6 @@
 """Tests for models.rdf_builder.hashing.deduplication_cache module."""
 
-import pytest
-from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag, DedupeBag
+from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 
 
 class TestHashDedupeBag:

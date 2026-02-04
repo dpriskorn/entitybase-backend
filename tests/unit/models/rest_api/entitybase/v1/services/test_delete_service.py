@@ -1,11 +1,12 @@
 """Unit tests for DeleteService."""
 
-import pytest
-from unittest.mock import MagicMock, AsyncMock, patch
+from unittest.mock import MagicMock, AsyncMock
 
-from models.rest_api.entitybase.v1.services.delete_service import DeleteService
-from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
+import pytest
+
 from models.data.infrastructure.s3.enums import DeleteType
+from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
+from models.rest_api.entitybase.v1.services.delete_service import DeleteService
 
 
 class TestDeleteService:

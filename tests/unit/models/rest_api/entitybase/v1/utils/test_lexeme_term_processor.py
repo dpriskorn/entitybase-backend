@@ -1,6 +1,5 @@
 """Unit tests for lexeme term processor."""
 
-import pytest
 from unittest.mock import MagicMock
 
 from models.rest_api.entitybase.v1.utils.lexeme_term_processor import (
@@ -85,7 +84,7 @@ class TestProcessLexemeTerms:
         """Test that S3 storage errors are logged but don't halt processing."""
         mock_s3 = MagicMock()
         mock_s3.store_form_representation.side_effect = Exception("S3 error")
-        mock_s3.store_sense_gloss.side_effect = Exception("S3 error"))
+        mock_s3.store_sense_gloss.side_effect = Exception("S3 error")
 
         forms = [
             {"id": "L123-F1", "representations": {"en": {"value": "cats"}}}

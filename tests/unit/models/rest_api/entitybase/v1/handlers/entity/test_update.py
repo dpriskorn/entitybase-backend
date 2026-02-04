@@ -1,12 +1,12 @@
 """Unit tests for EntityUpdateHandler."""
 
-import pytest
 from unittest.mock import MagicMock, AsyncMock, patch
 
-from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
+import pytest
+
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.response import EntityResponse
-from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
+from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 
 
 class TestEntityUpdateHandler:

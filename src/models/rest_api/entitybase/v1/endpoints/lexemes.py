@@ -105,7 +105,7 @@ async def get_lexeme_forms(lexeme_id: str, req: Request) -> FormsResponse:
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     entity = handler.get_entity(lexeme_id)
-    forms_data = entity.entity_data.get("forms", [])
+    forms_data = entity.entity_data.revision.get("forms", [])
 
     forms = []
     for form in forms_data:
@@ -121,7 +121,7 @@ async def get_lexeme_senses(lexeme_id: str, req: Request) -> SensesResponse:
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     entity = handler.get_entity(lexeme_id)
-    senses_data = entity.data.get("senses", [])
+    senses_data = entity.entity_data.revision.get("senses", [])
 
     senses = []
     for sense in senses_data:
@@ -150,7 +150,7 @@ async def get_form_by_id(form_id: str, req: Request) -> FormResponse:
             detail="Short format F1 not yet supported - use full L42-F1 format"
         )
 
-    forms_data = entity.data.get("forms", [])
+    forms_data = entity.entity_data.revision.get("forms", [])
     for form in forms_data:
         if form["id"] == full_form_id:
             return FormResponse(**form)
@@ -176,7 +176,7 @@ async def get_sense_by_id(sense_id: str, req: Request) -> SenseResponse:
             detail="Short format S1 not yet supported - use full L42-S1 format"
         )
 
-    senses_data = entity.data.get("senses", [])
+    senses_data = entity.entity_data.revision.get("senses", [])
     for sense in senses_data:
         if sense["id"] == full_sense_id:
             return SenseResponse(**sense)
@@ -237,6 +237,13 @@ async def update_form_representation(
         )
 
     state = req.app.state.state_handler
+    validator = state.validator
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(lexeme_id)
+
+    forms_data = current_entity.entity_data.revision.get("forms", [])
+
+    state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 
     # Get current lexeme entity
@@ -244,7 +251,7 @@ async def update_form_representation(
     current_entity = handler.get_entity(lexeme_id)
 
     # Find the form in the entity data
-    forms_data = current_entity.data.get("forms", [])
+    forms_data = current_entity.entity_data.revision.get("forms", [])
     form_found = False
     for form in forms_data:
         if form["id"] == form_id:
@@ -271,7 +278,7 @@ async def update_form_representation(
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
         type="lexeme",
-        **current_entity.data
+        **current_entity.entity_data.revision
     )
 
     return await update_handler.update_lexeme(
@@ -308,7 +315,7 @@ async def update_sense_gloss(
     current_entity = handler.get_entity(lexeme_id)
 
     # Find the sense in the entity data
-    senses_data = current_entity.data.get("senses", [])
+    senses_data = current_entity.entity_data.revision.get("senses", [])
     sense_found = False
     for sense in senses_data:
         if sense["id"] == sense_id:
@@ -335,7 +342,7 @@ async def update_sense_gloss(
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
         type="lexeme",
-        **current_entity.data
+        **current_entity.entity_data.revision
     )
 
     return await update_handler.update_lexeme(
@@ -364,7 +371,7 @@ async def delete_form(
     current_entity = handler.get_entity(lexeme_id)
 
     # Find and remove the form from entity data
-    forms_data = current_entity.data.get("forms", [])
+    forms_data = current_entity.entity_data.revision.get("forms", [])
     form_index = -1
     for i, form in enumerate(forms_data):
         if form["id"] == form_id:
@@ -382,7 +389,7 @@ async def delete_form(
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
         type="lexeme",
-        **current_entity.data
+        **current_entity.entity_data.revision
     )
 
     return await update_handler.update_lexeme(
@@ -411,7 +418,7 @@ async def delete_sense(
     current_entity = handler.get_entity(lexeme_id)
 
     # Find and remove the sense from entity data
-    senses_data = current_entity.data.get("senses", [])
+    senses_data = current_entity.entity_data.revision.get("senses", [])
     sense_index = -1
     for i, sense in enumerate(senses_data):
         if sense["id"] == sense_id:
@@ -429,7 +436,7 @@ async def delete_sense(
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
         type="lexeme",
-        **current_entity.data
+        **current_entity.entity_data.revision
     )
 
     return await update_handler.update_lexeme(
@@ -541,7 +548,7 @@ async def delete_form_representation(
     current_entity = handler.get_entity(lexeme_id)
 
     # Find the form in the entity data
-    forms_data = current_entity.data.get("forms", [])
+    forms_data = current_entity.entity_data.revision.get("forms", [])
     form_found = False
     for form in forms_data:
         if form["id"] == form_id:
@@ -565,7 +572,7 @@ async def delete_form_representation(
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
         type="lexeme",
-        **current_entity.data
+        **current_entity.entity_data.revision
     )
 
     return await update_handler.update_lexeme(
@@ -595,7 +602,7 @@ async def delete_sense_gloss(
     current_entity = handler.get_entity(lexeme_id)
 
     # Find the sense in the entity data
-    senses_data = current_entity.data.get("senses", [])
+    senses_data = current_entity.entity_data.revision.get("senses", [])
     sense_found = False
     for sense in senses_data:
         if sense["id"] == sense_id:
@@ -603,7 +610,7 @@ async def delete_sense_gloss(
             glosses = sense.get("glosses", {})
             if langcode not in glosses:
                 # Idempotent: return current entity if gloss doesn't exist
-                return EntityResponse(**current_entity.data)
+                return current_entity
 
             # Delete the gloss
             del sense["glosses"][langcode]
@@ -617,7 +624,7 @@ async def delete_sense_gloss(
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
         type="lexeme",
-        **current_entity.data
+        **current_entity.entity_data.revision
     )
 
     return await update_handler.update_lexeme(
