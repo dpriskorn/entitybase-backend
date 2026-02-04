@@ -1,13 +1,14 @@
 """Vitess client for database operations."""
 
 import logging
-from typing import Any
+from typing import Any, cast
 from typing import Optional
 
-from pydantic import Field
+from pydantic import Field, FieldValidationInfo
 
 from models.infrastructure.client import Client
 from models.data.config.vitess import VitessConfig
+from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.id_resolver import IdResolver
 
@@ -23,7 +24,7 @@ class VitessClient(Client):
     id_resolver: Optional[IdResolver] = Field(default=None, init=False, exclude=True)
     config: VitessConfig
 
-    def model_post_init(self, context) -> None:
+    def model_post_init(self, context: FieldValidationInfo) -> None:
         logger.debug(f"Initializing VitessClient with host {self.config.host}")
         self.connection_manager = VitessConnectionManager(config=self.config)
         self.id_resolver = IdResolver(vitess_client=self)
@@ -77,7 +78,7 @@ class VitessClient(Client):
         from models.infrastructure.vitess.repositories.thanks import ThanksRepository
         return ThanksRepository(vitess_client=self)
 
-    def create_revision(self, entity_id: str, entity_data, revision_id: int, content_hash: int, expected_revision_id: int = 0) -> None:
+    def create_revision(self, entity_id: str, entity_data: RevisionData, revision_id: int, content_hash: int, expected_revision_id: int = 0) -> None:
         """Create a new revision."""
         self.revision_repository.insert_revision(entity_id, revision_id, entity_data, content_hash, expected_revision_id)
 
@@ -94,13 +95,13 @@ class VitessClient(Client):
         return self.id_resolver.resolve_id(entity_id)
 
     def get_head(self, entity_id: str) -> int:
-        return self.entity_repository.get_head(entity_id)
+        return cast(int, self.entity_repository.get_head(entity_id))
 
     def get_history(self, entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
-        return self.revision_repository.get_history(entity_id, limit, offset)
+        return cast(list[Any], self.revision_repository.get_history(entity_id, limit, offset))
 
     def get_entity_history(self, entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
-        return self.revision_repository.get_history(entity_id, limit, offset)
+        return cast(list[Any], self.revision_repository.get_history(entity_id, limit, offset))
 
     def register_entity(self, entity_id: str) -> None:
         self.id_resolver.register_entity(entity_id)
@@ -116,13 +117,13 @@ class VitessClient(Client):
         self.revision_repository.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=entity_data, content_hash=content_hash, expected_revision_id=expected_revision_id)
 
     def is_entity_deleted(self, entity_id: str) -> bool:
-        return self.entity_repository.is_deleted(entity_id)
+        return cast(bool, self.entity_repository.is_deleted(entity_id))
 
     def is_entity_locked(self, entity_id: str) -> bool:
-        return self.entity_repository.is_locked(entity_id)
+        return cast(bool, self.entity_repository.is_locked(entity_id))
 
     def is_entity_archived(self, entity_id: str) -> bool:
-        return self.entity_repository.is_archived(entity_id)
+        return cast(bool, self.entity_repository.is_archived(entity_id))
 
     def list_entities_by_type(self, entity_type: str, limit: int = 100, offset: int = 0) -> list[str]:
         """List entity IDs by type using pattern matching on entity_id."""

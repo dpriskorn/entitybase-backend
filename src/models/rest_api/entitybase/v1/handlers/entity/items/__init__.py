@@ -1,5 +1,5 @@
 """Item entity handlers."""
 
-from .update import ItemUpdateHandler
+from .create import ItemCreateHandler
 
-__all__ = ["ItemUpdateHandler"]
+__all__ = ["ItemCreateHandler"]

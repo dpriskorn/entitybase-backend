@@ -11,7 +11,7 @@ from .entity import (
     EntityJsonImportRequest,
     EntityRedirectRequest,
     EntityRevertRequest,
-    EntityUpdateRequest,
+    LexemeUpdateRequest,
     RedirectRevertRequest,
 )
 from .entity.term_update import DescriptionUpdateRequest, LabelUpdateRequest, TermUpdateRequest
@@ -59,9 +59,9 @@ __all__ = [
     "EntityJsonImportRequest",
     "EntityRedirectRequest",
     "EntityRevertRequest",
-    "EntityUpdateRequest",
     "LabelPatchRequest",
     "LabelUpdateRequest",
+    "LexemeUpdateRequest",
     "MarkCheckedRequest",
     "MostUsedStatementsRequest",
     "PatchStatementRequest",

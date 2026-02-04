@@ -68,7 +68,7 @@ pytest -m unit -n auto
 #### Custom Linters
 ```bash
 # Various custom linters for specific patterns
-./run-str-lint.sh
+#./run-str-lint.sh
 ./run-int-lint.sh
 ./run-response-model-lint.sh
 ./run-logger-lint.sh

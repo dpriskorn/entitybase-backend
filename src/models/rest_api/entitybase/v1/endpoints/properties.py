@@ -8,7 +8,6 @@ from fastapi import APIRouter, HTTPException, Request
 from models.common import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
-    EntityUpdateRequest,
 )
 from models.data.rest_api.v1.entitybase.response import (
     AliasesResponse,
@@ -121,35 +120,12 @@ async def put_property_aliases_for_language(
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 
-    # Get current entity
-    handler = EntityReadHandler(state=state)
-    current_entity = handler.get_entity(property_id)
-
-    # Update aliases: expect list of strings
-    if "aliases" not in current_entity.entity_data:
-        current_entity.entity_data["aliases"] = {}
-    # Convert to the internal format: list of dicts with "value"
-    current_entity.entity_data["aliases"][language_code] = [
-        {"value": alias} for alias in aliases_data
-    ]
-
-    # Filter to only valid EntityUpdateRequest fields
-    valid_fields = {
-        "id", "type", "labels", "descriptions", "claims", "aliases", "sitelinks",
-        "is_mass_edit", "state", "edit_type", "is_not_autoconfirmed_user",
-    }
-    filtered_data = {k: v for k, v in current_entity.entity_data.items() if k in valid_fields}
-
-    # Create new revision
+    # Update aliases using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
-    entity_type = current_entity.entity_data.get("type") or "property"
-    update_request = EntityUpdateRequest(
-        type=entity_type, **filtered_data
-    )
-
-    return await update_handler.update_entity(
+    return await update_handler.update_aliases(
         property_id,
-        update_request,
-        edit_headers=headers,
-        validator=validator,
+        language_code,
+        aliases_data,
+        headers,
+        validator,
     )

@@ -1,10 +1,12 @@
 """Qualifiers routes for fetching deduplicated qualifiers."""
 
 import logging
+from typing import Any
 
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 
+from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.data.rest_api.v1.entitybase.response import (
     QualifierResponse,
 )
@@ -12,7 +14,52 @@ from models.rest_api.entitybase.v1.services.snak_handler import SnakHandler
 
 logger = logging.getLogger(__name__)
 
+ProcessedQualifierValue = dict[str, Any] | int | str | list[dict[str, Any] | int | str]
+
 qualifiers_router = APIRouter(prefix="/qualifiers", tags=["statements"])
+
+
+def _validate_and_parse_hashes(hashes: str) -> list[int]:
+    """Validate and parse hash strings into integers."""
+    hash_list = [h.strip() for h in hashes.split(",") if h.strip()]
+    if not hash_list:
+        raise HTTPException(status_code=400, detail="No hashes provided")
+    if len(hash_list) > 100:
+        raise HTTPException(status_code=400, detail="Too many hashes (max 100)")
+    try:
+        return [int(h) for h in hash_list]
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid hash format")
+
+
+def _reconstruct_snak_value(value: int | str, snak_handler: SnakHandler) -> dict[str, Any] | int | str | None:
+    """Reconstruct snak from hash if value is a hash, otherwise return as-is."""
+    if isinstance(value, int) or (isinstance(value, str) and value.isdigit()):
+        reconstructed_snak = snak_handler.get_snak(int(value))
+        if reconstructed_snak:
+            return reconstructed_snak
+        logger.warning(f"Snak {value} not found")
+        return value
+    return value
+
+
+def _process_qualifier_value(qual_value: Any, snak_handler: SnakHandler) -> ProcessedQualifierValue:
+    """Process qualifier value, handling both single values and lists."""
+    if isinstance(qual_value, list):
+        return [_reconstruct_snak_value(item, snak_handler) for item in qual_value]
+    return _reconstruct_snak_value(qual_value, snak_handler)
+
+
+def _build_qualifier_response(item: S3QualifierData, snak_handler: SnakHandler) -> QualifierResponse:
+    """Build qualifier response with reconstructed snaks."""
+    qualifier_dict = {}
+    for prop_key, qual_values in item.qualifier.items():
+        qualifier_dict[prop_key] = _process_qualifier_value(qual_values, snak_handler)
+    return QualifierResponse(
+        qualifier=qualifier_dict,
+        hash=item.content_hash,
+        created_at=item.created_at,
+    )
 
 
 @qualifiers_router.get("/{hashes}")
@@ -25,18 +72,7 @@ async def get_qualifiers(req: Request, hashes: str) -> list[QualifierResponse | 
     Max 100 hashes per request.
     """
     state = req.app.state.state_handler
-    hash_list = [h.strip() for h in hashes.split(",") if h.strip()]
-    if not hash_list:
-        raise HTTPException(status_code=400, detail="No hashes provided")
-
-    if len(hash_list) > 100:
-        raise HTTPException(status_code=400, detail="Too many hashes (max 100)")
-
-    try:
-        # Convert to int
-        rapidhashes = [int(h) for h in hash_list]
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid hash format")
+    rapidhashes = _validate_and_parse_hashes(hashes)
 
     try:
         result = state.s3_client.load_qualifiers_batch(rapidhashes)
@@ -46,39 +82,8 @@ async def get_qualifiers(req: Request, hashes: str) -> list[QualifierResponse | 
         for item in result:
             if item is None:
                 qualifiers.append(None)
-                continue
-            
-            # Reconstruct snaks from hashes
-            qualifier_dict = {}
-            for prop_key, qual_values in item.qualifier.items():
-                if isinstance(qual_values, list):
-                    new_qual_values = []
-                    for qual_item in qual_values:
-                        if isinstance(qual_item, int) or (isinstance(qual_item, str) and qual_item.isdigit()):
-                            reconstructed_snak = snak_handler.get_snak(int(qual_item))
-                            if reconstructed_snak:
-                                new_qual_values.append(reconstructed_snak)
-                            else:
-                                logger.warning(f"Snak {qual_item} not found")
-                        else:
-                            new_qual_values.append(qual_item)
-                    qualifier_dict[prop_key] = new_qual_values
-                elif isinstance(qual_values, int) or (isinstance(qual_values, str) and qual_values.isdigit()):
-                    reconstructed_snak = snak_handler.get_snak(int(qual_values))
-                    if reconstructed_snak:
-                        qualifier_dict[prop_key] = reconstructed_snak
-                    else:
-                        logger.warning(f"Snak {qual_values} not found")
-                else:
-                    qualifier_dict[prop_key] = qual_values
-            
-            qualifiers.append(
-                QualifierResponse(
-                    qualifier=qualifier_dict,
-                    hash=item.content_hash,
-                    created_at=item.created_at,
-                )
-            )
+            else:
+                qualifiers.append(_build_qualifier_response(item, snak_handler))
         
         return qualifiers
     except Exception as e:

@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Callable
 
 from models.common import EditHeaders
 from models.data.infrastructure.stream.change_type import ChangeType
+from models.data.infrastructure.s3.enums import MetadataType
+from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
-from models.data.rest_api.v1.entitybase.request.entity.revision import CreateRevisionRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import (
@@ -22,6 +23,39 @@ logger = logging.getLogger(__name__)
 
 class UpdateTransaction(EntityTransaction):
     """Transaction for updating entities."""
+
+    lexeme_term_operations: list[Callable[[], None]] = []
+
+    def process_lexeme_terms(
+        self,
+        forms: list[dict[str, Any]],
+        senses: list[dict[str, Any]],
+    ) -> None:
+        """Process lexeme terms (forms and senses) for S3 storage.
+
+        Args:
+            forms: List of form data with representations
+            senses: List of sense data with glosses
+        """
+        logger.info("[UpdateTransaction] Starting lexeme term processing")
+
+        from models.rest_api.entitybase.v1.utils.lexeme_term_processor import (
+            process_lexeme_terms,
+        )
+
+        process_lexeme_terms(
+            forms=forms,
+            senses=senses,
+            s3_client=self.state.s3_client,
+            on_form_stored=lambda h: self.lexeme_term_operations.append(
+                lambda hash=h: self._rollback_form_representation(hash)
+            ),
+            on_gloss_stored=lambda h: self.lexeme_term_operations.append(
+                lambda hash=h: self._rollback_sense_gloss(hash)
+            ),
+        )
+
+        logger.info("[UpdateTransaction] Completed lexeme term processing")
 
     def process_statements(
         self,
@@ -60,21 +94,95 @@ class UpdateTransaction(EntityTransaction):
 
         return hash_data
 
-    async def create_revision(self, request: CreateRevisionRequest) -> EntityResponse:
-        logger.debug(f"[UpdateTransaction] Starting revision creation for {request.entity_id}")
-        from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
-
-        handler = EntityHandler(state=self.state)
-        response = await handler.create_and_store_revision(request)
-        self.operations.append(
-            lambda: self._rollback_revision(request.entity_id, request.new_revision_id)
+    async def create_revision(
+        self,
+        entity_id: str,
+        request_data: PreparedRequestData,
+        entity_type: Any,
+        edit_headers: EditHeaders,
+        hash_result: StatementHashResult,
+    ) -> EntityResponse:
+        """Create revision using new architecture components."""
+        logger.debug(f"[UpdateTransaction] Starting revision creation for {entity_id}")
+        
+        from models.rest_api.entitybase.v1.services.hash_service import HashService
+        from models.data.infrastructure.s3.enums import EditType, EditData, EntityState
+        import json
+        from rapidhash import rapidhash
+        from models.internal_representation.metadata_extractor import MetadataExtractor
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+        from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+        from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+        from models.config.settings import settings
+        
+        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        new_revision_id = head_revision_id + 1 if head_revision_id else 1
+        
+        entity_json = json.dumps(request_data.model_dump(mode="json"), sort_keys=True)
+        content_hash = rapidhash(entity_json.encode())
+        
+        hs = HashService(state=self.state)
+        sitelink_hashes = hs.hash_sitelinks(request_data.get("sitelinks", {}))
+        labels_hashes = hs.hash_labels(request_data.get("labels", {}))
+        descriptions_hashes = hs.hash_descriptions(request_data.get("descriptions", {}))
+        aliases_hashes = hs.hash_aliases(request_data.get("aliases", {}))
+        
+        created_at = datetime.now(timezone.utc).isoformat()
+        
+        revision_data = RevisionData(
+            revision_id=new_revision_id,
+            entity_type=entity_type,
+            properties=hash_result.properties,
+            property_counts=hash_result.property_counts,
+            hashes=HashMaps(
+                statements=StatementsHashes(root=hash_result.statements),
+                sitelinks=sitelink_hashes,
+                labels=labels_hashes,
+                descriptions=descriptions_hashes,
+                aliases=aliases_hashes,
+            ),
+            edit=EditData(
+                mass=False,
+                type=EditType.UNSPECIFIED,
+                user_id=edit_headers.x_user_id,
+                summary=edit_headers.x_edit_summary,
+                at=created_at,
+            ),
+            state=EntityState(),
+            schema_version=settings.s3_schema_revision_version,
         )
-        if not response.success:
-            from models.rest_api.utils import raise_validation_error
-
-            raise_validation_error(response.error or "Failed to create revision")
-        assert isinstance(response.data, EntityResponse)
-        return response.data
+        
+        self.state.vitess_client.create_revision(
+            entity_id=entity_id,
+            entity_data=revision_data,
+            revision_id=new_revision_id,
+            content_hash=content_hash,
+        )
+        
+        revision_dict = revision_data.model_dump(mode="json")
+        revision_json = json.dumps(revision_dict, sort_keys=True)
+        content_hash = MetadataExtractor.hash_string(revision_json)
+        
+        s3_revision_data = S3RevisionData(
+            schema=settings.s3_schema_revision_version,
+            revision=revision_dict,
+            hash=content_hash,
+            created_at=created_at,
+        )
+        
+        self.state.s3_client.store_revision(content_hash, s3_revision_data)
+        
+        self.operations.append(
+            lambda: self._rollback_revision(entity_id, new_revision_id)
+        )
+        
+        return EntityResponse(
+            id=entity_id,
+            rev_id=new_revision_id,
+            data=revision_dict,
+            state=EntityState(),
+        )
 
     def publish_event(
         self,
@@ -124,16 +232,41 @@ class UpdateTransaction(EntityTransaction):
         """Commit the update transaction."""
         logger.info(f"[UpdateTransaction] Committing update for {self.entity_id}")
         self.operations.clear()
+        self.lexeme_term_operations.clear()
 
     def rollback(self) -> None:
         """Rollback the update transaction."""
         logger.info(f"[UpdateTransaction] Rolling back update for {self.entity_id}")
+        # Rollback lexeme terms first (S3 operations)
+        for op in reversed(self.lexeme_term_operations):
+            try:
+                op()
+            except Exception as e:
+                logger.warning(f"[UpdateTransaction] Lexeme term rollback failed: {e}")
+        # Rollback other operations (statements, revisions)
         for op in reversed(self.operations):
             try:
                 op()
             except Exception as e:
                 logger.warning(f"[UpdateTransaction] Rollback operation failed: {e}")
+        self.lexeme_term_operations.clear()
         self.operations.clear()
+
+    def _rollback_form_representation(self, hash_val: int) -> None:
+        """Rollback form representation by deleting from S3."""
+        logger.info(f"[UpdateTransaction] Rolling back form representation {hash_val}")
+        try:
+            self.state.s3_client._delete_metadata(MetadataType.FORM_REPRESENTATIONS, hash_val)
+        except Exception as e:
+            logger.warning(f"[UpdateTransaction] Failed to rollback form representation {hash_val}: {e}")
+
+    def _rollback_sense_gloss(self, hash_val: int) -> None:
+        """Rollback sense gloss by deleting from S3."""
+        logger.info(f"[UpdateTransaction] Rolling back sense gloss {hash_val}")
+        try:
+            self.state.s3_client._delete_metadata(MetadataType.SENSE_GLOSSES, hash_val)
+        except Exception as e:
+            logger.warning(f"[UpdateTransaction] Failed to rollback sense gloss {hash_val}: {e}")
 
     def _rollback_revision(self, entity_id: str, revision_id: int) -> None:
         logger.info(

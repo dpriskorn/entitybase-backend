@@ -2,18 +2,18 @@
 
 ## Entity
 
-An entity is a logical identifier only.
+An entity is a logical identifier representing a Wikibase item, property, lexeme, or entity schema.
 
-- `entity_id` (e.g. Q123)
-- `entity_type` (item, property, lexeme, …)
+- `entity_id` (e.g. Q123, P42, L999, E100)
+- `entity_type` (item, property, lexeme, entityschema)
 
-Entities have no intrinsic state outside revisions.
+Entities have no intrinsic state outside of revisions.
 
 ## External Entity Identifier
 
-The **external entity ID** (e.g., `Q123`, `P42`, `L999`) is the permanent public-facing identifier used throughout the ecosystem:
+The **external entity ID** (e.g., `Q123`, `P42`, `L999`, `E100`) is the permanent public-facing identifier used throughout the ecosystem:
 
-- **API endpoints**: `/entity/Q123`, `/entity/Q123/revision/42`
+- **API endpoints**: `/entities/Q123`, `/entities/items`, `/entities/properties`
 - **SPARQL queries**: `SELECT ?item WHERE { ?item wdt:P31 wd:Q123 }`
 - **RDF/JSON data**: Cross-entity references in claims use Q123
 - **RDF triples**: `<http://www.wikidata.org/entity/Q42> a wikibase:Item`
@@ -25,85 +25,112 @@ The **external entity ID** (e.g., `Q123`, `P42`, `L999`) is the permanent public
 - **Human-readable**: Easy to communicate and debug
 - **Stable**: Never changes, permanent contract with external ecosystem
 - **Compatible**: Works with all Wikidata tools, SPARQL queries, existing datasets
-- **Semantic**: Prefix indicates entity type (Q=item, P=property, L=lexeme)
+- **Semantic**: Prefix indicates entity type (Q=item, P=property, L=lexeme, E=entityschema)
 
-## Internal Entity Identifier
+## Range-Based ID Generation
 
-The **internal entity ID** is a 64-bit identifier used for database sharding and internal operations:
+Entity IDs are generated using a **range-based allocation system** for efficient, high-throughput ID generation.
 
-- **Format**: ulid-flake (64-bit ULID variant)
-- **Purpose**: Efficient Vitess sharding and storage
-- **Not exposed**: Never used in public APIs or user-facing systems
+### ID Ranges Table
 
-### ulid-flake Specification
+The `id_ranges` table manages ID allocation:
 
-**Binary layout:**
-
+```sql
+CREATE TABLE id_ranges (
+    entity_type VARCHAR(50) PRIMARY KEY,
+    current_range_start BIGINT UNSIGNED NOT NULL,
+    current_range_end BIGINT UNSIGNED NOT NULL,
+    next_id BIGINT UNSIGNED NOT NULL,
+    range_size BIGINT UNSIGNED NOT NULL DEFAULT 1000,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 ```
-Bit 0:         1 bit   - Sign bit (always 0 for positive values)
-Bits 1-42:      42 bits - Timestamp (milliseconds since Unix epoch)
-Bits 43-63:     21 bits - Randomness (can embed shard identifier)
+
+- `entity_type`: Entity type (item, property, lexeme, entityschema)
+- `current_range_start`: Start of the current reserved range
+- `current_range_end`: End of the current reserved range
+- `next_id`: Next ID to allocate
+- `range_size`: Number of IDs in each reserved range
+
+### ID Generation Process
+
+**Initialization (via Dev Worker):**
+```sql
+INSERT INTO id_ranges (entity_type, current_range_start, current_range_end, next_id, range_size)
+VALUES
+    ('item', 1, 1000, 1, 1000),
+    ('property', 1, 1000, 1, 1000),
+    ('lexeme', 1, 1000, 1, 1000),
+    ('entityschema', 1, 1000, 1, 1000);
 ```
 
-**Characteristics:**
+**ID Allocation (via IdGenerationWorker):**
+1. Worker polls `id_ranges` table
+2. If `next_id >= current_range_end`, reserve new range: `UPDATE id_ranges SET current_range_start = current_range_end + 1, current_range_end = current_range_end + range_size, next_id = current_range_start WHERE entity_type = ?`
+3. Atomically increment and claim ID: `UPDATE id_ranges SET next_id = next_id + 1 WHERE entity_type = ? AND next_id = ?`
+4. Format ID with prefix (Q/P/L/E)
+5. Cache in memory for fast allocation
 
-| Feature | Value | Description |
-|----------|---------|-------------|
-| **Total size** | 64 bits | Perfect for Vitess BIGINT primary key |
-| **Capacity** | ~2M IDs/ms | 2,097,152 possible values per timestamp |
-| **Lifespan** | ~140 years | From Unix epoch (1970) until ~2110 |
-| **Sortability** | ✓ Approximately time-ordered | Chronologically sortable within same millisecond |
-| **Clock dependency** | None | Uses system timestamp directly |
-| **Generation** | Distributed, no coordination | Each instance generates independently |
-| **Collision resistance** | 21 bits of randomness | Negligible collision probability |
+**Atomic ID Claim (during entity creation):**
+1. Check cached ID availability
+2. If available, claim and use
+3. If exhausted, request new range from worker
+4. Confirm ID usage after successful entity creation
 
-**Why ulid-flake over Snowflake:**
+### EnumerationService
 
-| Feature | Snowflake | ulid-flake | Winner |
-|----------|-----------|--------------|---------|
-| **64-bit size** | ✓ (8 bytes) | ✓ (8 bytes) | Tie |
-| **Vitess compatibility** | ✓ (BIGINT) | ✓ (BIGINT) | Tie |
-| **Library support** | ✓✓ Excellent | ✓ Good | Snowflake |
-| **Throughput capacity** | 4K IDs/worker/ms | 2M IDs/ms | ulid-flake |
-| **Clock dependency** | ✗ Problem (sequence counter) | ✓ No sequence counter | ulid-flake |
-| **ID lifespan** | 69 years (custom epoch) | 140 years (Unix epoch) | ulid-flake |
-| **Shard capacity** | 1024 workers | 2M values | ulid-flake |
-| **Implementation complexity** | Medium (sequence management) | Simple (timestamp + randomness) | ulid-flake |
+The `EnumerationService` provides thread-safe ID allocation:
 
-### Internal vs External ID Relationship
-
+```python
+class EnumerationService:
+    def allocate_id(self, entity_type: EntityType) -> str:
+        """Allocate the next available ID for an entity type."""
+        # Returns formatted ID (e.g., "Q123")
 ```
-┌─────────────────────────────────────────────────────────┐
-│              Internal Layer (Vitess)               │
-│  ┌──────────────────────────────────────────────┐   │
-│  │ entity_id_mapping                         │   │
-│  │  ├─ internal_id (BIGINT PRIMARY KEY) │   │
-│  │  ├─ external_id (Q123, UNIQUE)      │   │
-│  │  └─ entity_type (item/property/lexeme) │   │
-│  └──────────────────────────────────────────────┘   │
-│                                                │
-│  All other tables reference internal_id            │
-│  (entity_head, entity_revisions, ...)            │
-└─────────────────────────────────────────────────────────┘
 
-┌─────────────────────────────────────────────────────────┐
-│           External Layer (API, SPARQL, RDF)      │
-│                                                │
-│  Q123 used everywhere, never changes              │
-│  - API: /entity/Q123                           │
-│  - RDF: <http://www.wikidata.org/entity/Q123>   │
-│  - SPARQL: SELECT ?item WHERE {?item wdt:P31 wd:Q123} │
-│  - Events: entity_id: "Q123"                  │
-└─────────────────────────────────────────────────────────┘
+**Features:**
+- Thread-safe ID allocation
+- In-memory caching for low-latency allocation
+- Automatic range reservation when cache exhausted
+- Confirmation mechanism to reclaim unused IDs on failure
 
-┌─────────────────────────────────────────────────────────┐
-│                  Translation Layer                │
-│                                                │
-│  entity_id_mapping provides:                   │
-│  internal_id ↔ external_id lookup              │
-│  Cached for performance (Redis/memcached)      │
-└─────────────────────────────────────────────────────────┘
+## Entity ID vs Internal ID
+
+The current architecture uses **entity_id strings** throughout the system:
+
+### Vitess Tables
+
+All tables use `entity_id` as the primary key or foreign key:
+
+```sql
+entity_head
+- entity_id VARCHAR(50) PRIMARY KEY
+- head_revision_id BIGINT UNSIGNED NOT NULL
+- updated_at TIMESTAMP NOT NULL
+
+entity_revisions
+- entity_id VARCHAR(50) NOT NULL
+- revision_id BIGINT UNSIGNED NOT NULL
+- content_hash BIGINT UNSIGNED NOT NULL
+- PRIMARY KEY (entity_id, revision_id)
+
+entity_redirects
+- entity_id VARCHAR(50) PRIMARY KEY
+- redirects_to VARCHAR(50) NOT NULL
+
+statement_content
+- content_hash BIGINT UNSIGNED PRIMARY KEY
+- ref_count BIGINT UNSIGNED NOT NULL DEFAULT 1
 ```
+
+**No `entity_id_mapping` table exists.** Entity IDs are used directly.
+
+### Advantages of Current Design
+
+- **Simplicity**: No translation layer needed
+- **Human-readable**: All database queries use familiar Q123/P42 IDs
+- **Debugging**: Easier to inspect database state
+- **Compatibility**: Direct mapping to Wikidata IDs
 
 ## Usage Examples
 
@@ -111,29 +138,27 @@ Bits 43-63:     21 bits - Randomness (can embed shard identifier)
 
 ```
 Client Request
-POST /entities
+POST /entities/items
 {
-  "external_id": "Q123",
-  "entity_type": "item",
+  "type": "item",
   "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
   "claims": {...}
 }
 ↓
-API Layer
+API Layer (EntityCreateHandler)
 1. Validate JSON schema (Pydantic)
 2. Create CreationTransaction
-3. Allocate unique ID via EnumerationService (Q123)
-4. Register entity in Vitess (entity_id_mapping)
+3. Allocate next ID via EnumerationService (returns "Q123")
+4. Register entity in Vitess (entity_head)
 5. Process statements: hash, deduplicate, store in S3/Vitess (increment ref_counts)
-6. Create revision: store in S3/Vitess (entity_head, entity_revisions)
+6. Create revision: store in S3/Vitess (entity_revisions)
 7. Publish change event (optional)
 8. Commit transaction (confirm ID usage to worker)
 9. On failure: Rollback all operations (delete from Vitess/S3, decrement ref_counts)
 ↓
 Client Response
 {
-  "external_id": "Q123",
-  "internal_id": 1424675744195114,
+  "id": "Q123",
   "revision_id": 1,
   "created_at": "2025-01-15T10:30:00Z"
 }
@@ -143,74 +168,106 @@ Client Response
 
 ```
 Client Request
-GET /entity/Q123
+GET /entities/Q123
 ↓
 API Layer
-1. Query entity_id_mapping: 
-   SELECT internal_id FROM entity_id_mapping WHERE external_id = "Q123"
-2. Query entity_head: 
-   SELECT head_revision_id, updated_at FROM entity_head WHERE internal_id = 1424675744195114
+1. Query entity_head:
+   SELECT head_revision_id, updated_at FROM entity_head WHERE entity_id = "Q123"
+2. Query entity_revisions for content_hash:
+   SELECT content_hash FROM entity_revisions WHERE entity_id = "Q123" AND revision_id = ?
 3. Fetch S3 snapshot:
-   GET s3://wikibase-revisions/Q123/42.json
-4. Attach external_id to response
+   GET s3://wikibase-revisions/123456789
+4. Reconstruct entity from S3 data + hash references
 ↓
 Client Response
 {
-  "external_id": "Q123",
-  "internal_id": 1424675744195114,
+  "id": "Q123",
+  "revision_id": 42,
   "entity": {...entity content...}
 }
 ```
 
-### RDF Generation
+### Property Creation
 
 ```
-Change Detection Service
-1. Poll entity_head: 
-   SELECT internal_id, head_revision_id FROM entity_head WHERE updated_at >= %s
-2. Query entity_id_mapping: 
-   SELECT external_id FROM entity_id_mapping WHERE internal_id = 1424675744195114
-3. Fetch S3 snapshot: GET s3://wikibase-revisions/Q123/42.json
-4. Generate RDF: 
-   <http://www.wikidata.org/entity/Q123> a wikibase:Item .
-   <http://www.wikidata.org/entity/Q123> rdfs:label "Douglas Adams"@en .
-   <http://www.wikidata.org/entity/Q123> p:P31 <http://www.wikidata.org/entity/Q5> .
-5. Emit event: 
-   {
-     "entity_id": "Q123",
-     "operation": "diff",
-     "rdf_added_data": {...Turtle format...}
-   }
+Client Request
+POST /entities/properties
+{
+  "type": "property",
+  "datatype": "string",
+  "labels": {"en": {"language": "en", "value": "name"}}
+}
+↓
+API Layer (PropertyCreateHandler)
+1. Validate request
+2. Allocate property ID via EnumerationService (returns "P42")
+3. Register property in Vitess
+4. Process statements (no claims for properties)
+5. Create revision
+6. Commit transaction
+↓
+Client Response
+{
+  "id": "P42",
+  "revision_id": 1,
+  "created_at": "2025-01-15T11:00:00Z"
+}
 ```
-
-## Key Principles
-
-1. **External ID stability**: Q123 never changes, maintains 100% ecosystem compatibility
-2. **Internal ID efficiency**: ulid-flake provides uniform sharding distribution
-3. **Mapping layer**: Single source of truth for internal ↔ external translation
-4. **Zero disruption**: All SPARQL queries, RDF tools, public APIs continue working
-5. **Separation of concerns**: External IDs for ecosystem, internal IDs for system efficiency
 
 ## Storage Example
 
 ```text
-S3 Object Path:
-  s3://wikibase-revisions/Q123/42.json
+S3 Object Path (content_hash-based):
+  s3://wikibase-revisions/123456789
 
 Vitess Tables:
-  entity_id_mapping:
-    internal_id: 1424675744195114 (PRIMARY KEY)
-    external_id: "Q123" (UNIQUE)
-    entity_type: "item"
-  
   entity_head:
-    internal_id: 1424675744195114 (PRIMARY KEY)
+    entity_id: "Q123" (PRIMARY KEY)
     head_revision_id: 42
     updated_at: "2025-01-15T10:30:00Z"
+
+  entity_revisions:
+    entity_id: "Q123"
+    revision_id: 42
+    content_hash: 123456789
+    created_at: "2025-01-15T10:30:00Z"
+
+  id_ranges:
+    entity_type: "item"
+    current_range_start: 1
+    current_range_end: 1000
+    next_id: 124
 ```
+
+## Key Principles
+
+1. **ID Stability**: Q123 never changes, maintains 100% ecosystem compatibility
+2. **Range-Based Allocation**: Efficient ID generation with minimal database contention
+3. **Worker-Assisted**: IdGenerationWorker pre-allocates ranges for low-latency allocation
+4. **Direct Usage**: Entity IDs used directly in all tables (no mapping layer)
+5. **Prefix Semantics**: Q/P/L/E prefixes indicate entity type throughout system
+
+## ID Generation Worker
+
+**File**: `src/models/workers/id_generation/id_generation_worker.py`
+
+**Purpose**: Background worker that reserves ID ranges to ensure high-throughput entity creation.
+
+**Process**:
+1. Monitors `id_ranges` table
+2. When `next_id` approaches `current_range_end`, reserves new range
+3. Continuously polls to ensure ranges are always available
+4. Provides health checks for monitoring
+
+**Configuration**:
+- `WORKER_ID`: Unique worker identifier (default: auto-generated)
+
+## Historical Note
+
+Previous documentation described a hybrid ID strategy with `ulid-flake` internal IDs and an `entity_id_mapping` table. This was never implemented. The current architecture uses entity_id strings directly with range-based allocation, which is simpler and more maintainable.
 
 ## References
 
-- [IDENTIFIER-STRATEGY.md](./IDENTIFIER-STRATEGY.md) - Complete hybrid ID strategy and implementation
-- [STORAGE-ARCHITECTURE.md](STORAGE-ARCHITECTURE.md) - S3 and Vitess storage design
-- [JSON-RDF-CONVERTER.md](JSON-RDF-CONVERTER.md) - RDF generation with external ID handling
+- [STORAGE-ARCHITECTURE.md](./STORAGE-ARCHITECTURE.md) - S3 and Vitess storage design
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - Overall system architecture
+- [WORKERS.md](./WORKERS.md) - Worker architecture including IdGenerationWorker

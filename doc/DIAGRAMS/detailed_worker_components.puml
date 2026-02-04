@@ -15,6 +15,7 @@ package "Workers" as Workers #LightYellow {
     "GeneralStats" as GeneralStatsWorker
     "IdGenerator" as IdGeneratorWorker
     "NotificationCleanup" as NotificationCleanupWorker
+    "NotificationData" as NotificationData
     "RDFCanonicalizer" as RDFCanonicalizer
     "RDFSerializer" as RDFSerializer
     "UserStats" as UserStatsWorker

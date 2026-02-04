@@ -3,12 +3,13 @@
 import json
 import logging
 from abc import ABC
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 from botocore.exceptions import ClientError
 from pydantic import BaseModel, Field
 
 from models.common import OperationResult
+from models.data.infrastructure.s3 import DictLoadResponse, LoadResponse, StringLoadResponse
 from models.infrastructure.s3.exceptions import (
     S3StorageError,
     S3NotFoundError,
@@ -16,12 +17,6 @@ from models.infrastructure.s3.exceptions import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-class LoadResponse(BaseModel):
-    """Response model for load operations."""
-
-    data: Union[Dict[str, Any], str]
 
 
 class BaseS3Storage(ABC, BaseModel):
@@ -116,11 +111,12 @@ class BaseS3Storage(ABC, BaseModel):
 
             if content_type == "text/plain":
                 data = response["Body"].read().decode("utf-8")
+                logger.debug(f"S3 load successful: bucket={bucket_to_use}, key={key}")
+                return StringLoadResponse(data=data)
             else:
                 data = json.loads(response["Body"].read().decode("utf-8"))
-
-            logger.debug(f"S3 load successful: bucket={bucket_to_use}, key={key}")
-            return LoadResponse(data=data)
+                logger.debug(f"S3 load successful: bucket={bucket_to_use}, key={key}")
+                return DictLoadResponse(data=data)
 
         except ClientError as e:
             self._handle_client_error(e, "load", key, bucket_to_use)

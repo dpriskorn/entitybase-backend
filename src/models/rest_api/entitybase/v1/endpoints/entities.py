@@ -1,14 +1,12 @@
 """General entity endpoints for Entitybase v1 API."""
 
 import logging
-from typing import Any, Dict
 
 from fastapi import APIRouter, Query, Request, Response
 
 from models.common import EditHeadersType, OperationResult
 from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
 from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
-from models.data.rest_api.v1.entitybase.request import EntityUpdateRequest
 from models.data.rest_api.v1.entitybase.request import (
     PatchStatementRequest,
 )
@@ -33,6 +31,7 @@ from models.data.rest_api.v1.entitybase.response import TurtleResponse
 from models.rest_api.entitybase.v1.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.v1.services.entity_statement_service import EntityStatementService
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.handlers.export import ExportHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
@@ -233,7 +232,7 @@ async def add_entity_property(
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     # todo pass clients to the handler here
-    handler = EntityHandler(state=state)
+    handler = EntityStatementService(state=state)
     result = await handler.add_property(
         entity_id, property_id, request, edit_headers=headers
     )
@@ -258,8 +257,8 @@ async def remove_entity_statement(
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     # todo pass clients to the handler here
-    handler = EntityHandler(state=state)
-    result = handler.remove_statement(
+    handler = EntityStatementService(state=state)
+    result = await handler.remove_statement(
         entity_id,
         statement_hash,
         headers,
@@ -284,7 +283,7 @@ async def patch_entity_statement(
     state = req.app.state.state_handler
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
-    handler = EntityHandler(state=state)
+    handler = EntityStatementService(state=state)
     result = await handler.patch_statement(
         entity_id,
         statement_hash,
@@ -336,7 +335,6 @@ async def post_entity_sitelink(
         raise_validation_error("Invalid clients type", status_code=500)
 
     # Get current entity
-    # todo pass clients to the handler here
     handler = EntityReadHandler(state=state)
     current_entity = handler.get_entity(entity_id)
 
@@ -347,26 +345,15 @@ async def post_entity_sitelink(
             f"Sitelink for site {site} already exists", status_code=409
         )
 
-# Add sitelink
-    if "sitelinks" not in current_entity.entity_data:
-        current_entity.entity_data["sitelinks"] = {}
-    current_entity.entity_data["sitelinks"][site] = {
-        "title": sitelink_data.title,
-        "badges": sitelink_data.badges,
-    }
-
-    # Create new revision
+    # Create new revision using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
-    entity_type = current_entity.entity_data.get("type") or "item"
-    update_request = EntityUpdateRequest(
-        type=entity_type, **current_entity.entity_data
-    )
-
-    result = await update_handler.update_entity(
+    result = await update_handler.update_sitelink(
         entity_id,
-        update_request,
-        edit_headers=headers,
-        validator=state.validator,
+        site,
+        sitelink_data.title,
+        sitelink_data.badges,
+        headers,
+        state.validator,
     )
 
     return OperationResult(
@@ -394,34 +381,18 @@ async def put_entity_sitelink(
         raise_validation_error("Invalid clients type", status_code=500)
 
     # Get current entity
-    # todo pass clients to the handler here
     handler = EntityReadHandler(state=state)
     current_entity = handler.get_entity(entity_id)
 
-    # Check if sitelink exists
-    sitelinks = current_entity.entity_data.get("sitelinks", {})
-    if site not in sitelinks:
-        raise_validation_error(f"Sitelink for site {site} not found", status_code=404)
-
-    # Update sitelink
-    current_entity.entity_data["sitelinks"][site] = {
-        "title": sitelink_data.title,
-        "badges": sitelink_data.badges,
-    }
-
-    # Create new revision
-    # todo pass clients to the handler here
+    # Update sitelink using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
-    entity_type = current_entity.entity_data.get("type") or "item"
-    update_request = EntityUpdateRequest(
-        type=entity_type, **current_entity.entity_data
-    )
-
-    result = await update_handler.update_entity(
+    result = await update_handler.update_sitelink(
         entity_id,
-        update_request,
-        edit_headers=headers,
-        validator=state.validator,
+        site,
+        sitelink_data.title,
+        sitelink_data.badges,
+        headers,
+        state.validator,
     )
 
     return OperationResult(
@@ -447,33 +418,13 @@ async def delete_entity_sitelink(
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
 
-    # Get current entity
-    # todo pass clients to the handler here
-    handler = EntityReadHandler(state=state)
-    current_entity = handler.get_entity(entity_id)
-
-    # Check if sitelink exists
-    sitelinks = current_entity.entity_data.get("sitelinks", {})
-    if site not in sitelinks:
-        # Idempotent - return success if not found
-        return OperationResult(success=True, data=None)
-
-    # Remove sitelink
-    del current_entity.entity_data["sitelinks"][site]
-
-    # Create new revision
-    # todo pass clients to the handler here
+    # Delete sitelink using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
-    entity_type = current_entity.entity_data.get("type") or "item"
-    update_request = EntityUpdateRequest(
-        type=entity_type, **current_entity.entity_data
-    )
-
-    result = await update_handler.update_entity(
+    result = await update_handler.delete_sitelink(
         entity_id,
-        update_request,
-        edit_headers=headers,
-        validator=state.validator,
+        site,
+        headers,
+        state.validator,
     )
 
     return OperationResult(

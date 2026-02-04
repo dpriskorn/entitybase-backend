@@ -7,6 +7,7 @@ from .hashes.hash_maps import HashMaps
 from .hashes.labels_hashes import LabelsHashes
 from .hashes.sitelinks_hashes import SitelinksHashes
 from .hashes.statements_hashes import StatementsHashes
+from .load_response import DictLoadResponse, LoadResponse, StringLoadResponse
 from .property_counts import PropertyCounts
 from .qualifier_data import S3QualifierData
 from .reference_data import S3ReferenceData
@@ -20,12 +21,14 @@ __all__ = [
     "AliasesHashes",
     "DeleteType",
     "DescriptionsHashes",
+    "DictLoadResponse",
     "EditData",
     "EditType",
     "EntityState",
     "EntityType",
     "HashMaps",
     "LabelsHashes",
+    "LoadResponse",
     "MetadataType",
     "PropertyCounts",
     "RevisionMetadata",
@@ -38,4 +41,5 @@ __all__ = [
     "S3Statement",
     "SitelinksHashes",
     "StatementsHashes",
+    "StringLoadResponse",
 ]

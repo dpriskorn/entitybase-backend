@@ -16,6 +16,8 @@ def run_scc(path: str) -> str:
         "test_data",
         "--exclude-dir",
         "disabled_tests",
+        "--exclude-dir",
+        "__pycache__",
         path,
     ]
     result = subprocess.run(cmd, capture_output=True, text=True, cwd=".")

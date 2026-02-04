@@ -101,3 +101,16 @@ class StatementsHashResponse(BaseModel):
         default_factory=list,
         description="List of statement hashes (rapidhash of each statement). Example: [123456789, 987654321].",
     )
+
+
+class PropertyRecalculationResult(BaseModel):
+    """Result of property count recalculation after statement removal."""
+
+    properties: list[str] = Field(
+        default_factory=list,
+        description="List of property IDs after recalculation"
+    )
+    property_counts: PropertyCounts = Field(
+        default_factory=dict,
+        description="Mapping of property ID to statement count after recalculation"
+    )

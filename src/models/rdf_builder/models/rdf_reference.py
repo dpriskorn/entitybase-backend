@@ -33,5 +33,5 @@ class RDFReference(BaseModel):
         return f"wdref:{self.reference.hash}"
 
     @property
-    def hash(self):
+    def hash(self) -> str:
         return self.reference.hash

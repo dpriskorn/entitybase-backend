@@ -8,6 +8,7 @@ from typing import Any
 
 import uvicorn
 from fastapi import FastAPI
+from pydantic import FieldValidationInfo
 
 from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
 from models.data.rest_api.v1.entitybase.response import IdResponse
@@ -34,7 +35,7 @@ class IdGeneratorWorker(VitessWorker):
 
     enumeration_service: Any = None
 
-    def model_post_init(self, context) -> None:
+    def model_post_init(self, context: FieldValidationInfo) -> None:
         # Setup signal handlers for graceful shutdown
         signal.signal(signal.SIGTERM, self._signal_handler)
         signal.signal(signal.SIGINT, self._signal_handler)

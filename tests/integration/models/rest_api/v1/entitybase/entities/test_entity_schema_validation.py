@@ -1,9 +1,10 @@
 from pathlib import Path
 
 import pytest
-import requests
 import yaml
+from pathlib import Path
 from jsonschema import Draft202012Validator
+from typing import Any, cast
 
 
 @pytest.mark.integration
@@ -22,7 +23,7 @@ class TestEntitySchemaValidation:
             / "schema.yaml"
         )
         with open(schema_path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
+            return cast(dict[str, Any], yaml.safe_load(f))
 
     @pytest.fixture
     def schema_validator(self, entity_schema: dict) -> Draft202012Validator:

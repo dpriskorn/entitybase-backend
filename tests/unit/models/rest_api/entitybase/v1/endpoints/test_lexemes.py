@@ -429,14 +429,14 @@ class TestFormsAndSensesEndpoints:
         assert "short format" in str(exc.value.detail).lower()
 
     @pytest.mark.asyncio
-    async def test_delete_form_representation(self):
-        from src.models.rest_api.entitybase.v1.endpoints.lexemes import delete_form_representation
+    async def test_update_form_representation(self):
+        from src.models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
 
         mock_state = Mock()
         mock_handler = Mock()
         mock_update_handler = AsyncMock()
         mock_entity = Mock()
-        mock_entity.entity_data = {
+        mock_entity.data = {
             "forms": [
                 {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
             ],
@@ -445,24 +445,25 @@ class TestFormsAndSensesEndpoints:
         mock_handler.get_entity.return_value = mock_entity
         mock_state.state_handler = mock_state
         mock_state.validator = Mock()
-        mock_update_handler.update_entity = AsyncMock(return_value=mock_entity)
+        mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
 
         mock_req = Mock()
         mock_req.app.state.state_handler = mock_state
 
         with patch(
-            "src.models.rest_api.entitybase.v1.endpoints.lexemes.LexemeUpdateHandler",
+            "src.models.rest_api.entitybase.v1.endpoints.lexemes.EntityUpdateHandler",
             return_value=mock_update_handler
         ):
-            await delete_form_representation(
+            result = await update_form_representation(
                 "L42-F1",
                 "en",
+                Mock(language="en", value="new value"),
                 mock_req,
-                edit_summary="remove representation"
+                headers=Mock(x_user_id=123, x_edit_summary="test")
             )
 
-            # Check representation was removed
-            assert "en" not in mock_entity.entity_data["forms"][0]["representations"]
+            # Check update_lexeme was called
+            assert mock_update_handler.update_lexeme.called
 
     @pytest.mark.asyncio
     async def test_delete_form_representation_language_not_found(self):

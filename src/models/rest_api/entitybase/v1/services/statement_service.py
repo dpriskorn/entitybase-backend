@@ -3,8 +3,9 @@
 import logging
 import time
 import traceback
+from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, cast
 
 from models.common import OperationResult
 from models.config.settings import settings
@@ -13,16 +14,28 @@ from models.data.infrastructure.s3.reference_data import S3ReferenceData
 from models.data.infrastructure.s3.statement import S3Statement
 from models.data.rest_api.v1.entitybase.request import SnakRequest
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
+from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.internal_representation.qualifier_hasher import QualifierHasher
 from models.internal_representation.reference_hasher import ReferenceHasher
 from models.internal_representation.statement_extractor import StatementExtractor
 from models.internal_representation.statement_hasher import StatementHasher
-from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.entitybase.v1.services.snak_handler import SnakHandler
 from models.validation.json_schema_validator import JsonSchemaValidator
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class StatementProcessingContext:
+    """Context for processing a single statement."""
+
+    statement_hash: int
+    statement_data: dict[str, Any]
+    validator: JsonSchemaValidator | None
+    schema_version: str
+    idx: int
+    total_statements: int
 
 
 class StatementService(Service):
@@ -98,32 +111,22 @@ class StatementService(Service):
 
     def _process_single_statement(
         self,
-        statement_hash: int,
-        statement_data: dict[str, Any],
-        validator: JsonSchemaValidator | None,
-        schema_version: str,
-        idx: int,
-        total_statements: int,
+        context: StatementProcessingContext,
     ) -> OperationResult:
         """Process a single statement: extract mainsnak, check S3, write, insert DB.
 
         Args:
-            statement_hash: Hash of the statement
-            statement_data: Full statement data
-            validator: Optional JSON schema validator
-            schema_version: Schema version for S3 storage
-            idx: Current statement index (0-based)
-            total_statements: Total number of statements
+            context: StatementProcessingContext containing all processing data
 
         Returns:
             OperationResult indicating success/failure
         """
         logger.debug(
-            f"Processing statement {idx + 1}/{total_statements} with hash {statement_hash}"
+            f"Processing statement {context.idx + 1}/{context.total_statements} with hash {context.statement_hash}"
         )
 
         # Extract and store mainsnak via SnakHandler
-        mainsnak = statement_data.get("mainsnak")
+        mainsnak = context.statement_data.get("mainsnak")
         snak_hash = None
         if mainsnak:
             snak_request = SnakRequest(
@@ -132,49 +135,49 @@ class StatementService(Service):
             )
             snak_handler = SnakHandler(state=self.state)
             snak_hash = snak_handler.store_snak(snak_request)
-            statement_data = statement_data.copy()
-            statement_data["mainsnak"] = {"hash": snak_hash}
-            logger.debug(f"Stored mainsnak with hash {snak_hash} for statement {statement_hash}")
+            context.statement_data = context.statement_data.copy()
+            context.statement_data["mainsnak"] = {"hash": snak_hash}
+            logger.debug(f"Stored mainsnak with hash {snak_hash} for statement {context.statement_hash}")
 
         statement_with_hash = S3Statement(
-            schema=schema_version,
-            hash=statement_hash,
-            statement=statement_data,
+            schema=context.schema_version,
+            hash=context.statement_hash,
+            statement=context.statement_data,
             created_at=datetime.now(timezone.utc).isoformat() + "Z",
         )
-        s3_key = f"statements/{statement_hash}.json"
+        s3_key = f"statements/{context.statement_hash}.json"
 
         # Step 1: Check if S3 object exists
         s3_exists = False
         try:
-            self.state.s3_client.read_statement(statement_hash)
+            self.state.s3_client.read_statement(context.statement_hash)
             s3_exists = True
-            logger.debug(f"Statement {statement_hash} already exists in S3")
+            logger.debug(f"Statement {context.statement_hash} already exists in S3")
         except Exception:
             logger.debug(
-                f"Statement {statement_hash} not found in S3, will write new object"
+                f"Statement {context.statement_hash} not found in S3, will write new object"
             )
             s3_exists = False
 
         # Step 2: Validate statement before storing
-        if validator is not None:
-            validator.validate_statement(statement_with_hash.model_dump())
+        if context.validator is not None:
+            context.validator.validate_statement(statement_with_hash.model_dump())
 
         # Step 3: Write to S3 if not exists
         if not s3_exists:
             try:
                 write_start_time = time.time()
                 self.state.s3_client.write_statement(
-                    statement_hash,
+                    context.statement_hash,
                     statement_with_hash.model_dump(),
-                    schema_version=schema_version,
+                    schema_version=context.schema_version,
                 )
                 write_duration = time.time() - write_start_time
 
                 logger.info(
-                    f"Successfully wrote statement {statement_hash} to S3 at key: {s3_key}",
+                    f"Successfully wrote statement {context.statement_hash} to S3 at key: {s3_key}",
                     extra={
-                        "statement_hash": statement_hash,
+                        "statement_hash": context.statement_hash,
                         "s3_key": s3_key,
                         "write_duration_seconds": write_duration,
                         "statement_data_size": len(
@@ -184,13 +187,13 @@ class StatementService(Service):
                 )
             except Exception as write_error:
                 logger.error(
-                    f"Failed to write statement {statement_hash} to S3",
+                    f"Failed to write statement {context.statement_hash} to S3",
                     extra={
-                        "statement_hash": statement_hash,
+                        "statement_hash": context.statement_hash,
                         "s3_key": s3_key,
                         "error_type": type(write_error).__name__,
                         "error_message": str(write_error),
-                        "statement_data": statement_data,
+                        "statement_data": context.statement_data,
                         "s3_bucket": self.state.s3_client.config.bucket,
                         "s3_endpoint": self.state.s3_client.conn.meta.endpoint_url,
                         "stack_trace": traceback.format_exc()
@@ -202,17 +205,17 @@ class StatementService(Service):
 
         # Step 4: Insert into DB or increment ref_count
         inserted = self.state.vitess_client.insert_statement_content(
-            statement_hash
+            context.statement_hash
         )
         if inserted:
             logger.debug(
-                f"Inserted new statement {statement_hash} into statement_content"
+                f"Inserted new statement {context.statement_hash} into statement_content"
             )
         else:
             logger.debug(
-                f"Statement {statement_hash} already in DB, incrementing ref_count"
+                f"Statement {context.statement_hash} already in DB, incrementing ref_count"
             )
-            self.state.vitess_client.increment_ref_count(statement_hash)
+            self.state.vitess_client.increment_ref_count(context.statement_hash)
 
         return OperationResult(success=True)
 
@@ -247,7 +250,7 @@ class StatementService(Service):
             zip(hash_result.statements, hash_result.full_statements)
         ):
             try:
-                result = self._process_single_statement(
+                context = StatementProcessingContext(
                     statement_hash=statement_hash,
                     statement_data=statement_data,
                     validator=validator,
@@ -255,6 +258,7 @@ class StatementService(Service):
                     idx=idx,
                     total_statements=len(hash_result.statements),
                 )
+                result = self._process_single_statement(context)
                 if not result.success:
                     return result
             except Exception as e:
@@ -300,7 +304,8 @@ class StatementService(Service):
                 property=item["property"],
                 datavalue=item.get("datavalue", {})
             )
-            return snak_handler.store_snak(snak_request)
+            return cast(int | str | dict[str, Any] | list[Any] | float | None,
+                       snak_handler.store_snak(snak_request))
         return item
 
     def _process_snak_list_value(
@@ -314,7 +319,7 @@ class StatementService(Service):
         for snak_item in snak_list:
             processed = self._process_snak_item(snak_item, snak_handler)
             new_snak_values.append(processed)
-        return (snak_key, new_snak_values)
+        return snak_key, new_snak_values
 
     def _process_reference_snaks(
         self,
@@ -345,7 +350,7 @@ class StatementService(Service):
                 else:
                     new_snaks.append((snak_key, snak_value))
             ref_dict["snaks"] = dict(new_snaks)
-        return ref_dict
+        return cast(dict[str, Any], ref_dict)
 
     def _process_single_reference(
         self,

@@ -1,8 +1,9 @@
-from typing import Any, Dict
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from models.data.infrastructure.s3.enums import EntityType
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.response.statement import StatementHashResult
 
 
@@ -12,7 +13,7 @@ class CreateRevisionRequest(BaseModel):
     entity_id: str = Field(..., description="Entity identifier")
     new_revision_id: int = Field(..., description="New revision ID to create")
     head_revision_id: int = Field(..., description="Current head revision ID")
-    request_data: Dict[str, Any] = Field(..., description="Full entity data for revision")
+    request_data: PreparedRequestData = Field(..., description="Full entity data for revision")
     entity_type: EntityType = Field(..., description="Type of entity (item, property, etc.)")
     hash_result: StatementHashResult = Field(..., description="Processed statement hashes")
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")

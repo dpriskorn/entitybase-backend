@@ -98,6 +98,26 @@ class TripleWriters:
         output.write(f"{entity_uri} wdt:{property_id} {value} .\n")
 
     @staticmethod
+    def _write_value_node_triple(
+        output: TextIO,
+        subject_uri: str,
+        predicate_uri: str,
+        value: Any,
+        dedupe: HashDedupeBag | None = None,
+    ) -> None:
+        """Write value node triple and node if needed."""
+        if TripleWriters._needs_value_node(value):
+            node_id = generate_value_node_uri(value)
+            output.write(f"{subject_uri} {predicate_uri} wdv:{node_id} .\n")
+
+            if value.kind == "time":
+                ValueNodeWriter.write_time_value_node(output, node_id, value, dedupe)
+            elif value.kind == "quantity":
+                ValueNodeWriter.write_quantity_value_node(output, node_id, value, dedupe)
+            elif value.kind == "globe":
+                ValueNodeWriter.write_globe_value_node(output, node_id, value, dedupe)
+
+    @staticmethod
     def write_statement(
         output: TextIO,
         entity_id: str,
@@ -132,24 +152,13 @@ class TripleWriters:
 
         # Write statement value
         if TripleWriters._needs_value_node(rdf_statement.value):
-            value_node_id = generate_value_node_uri(rdf_statement.value)
-
-            output.write(
-                f"{stmt_uri_prefixed} {shape.predicates.value_node} wdv:{value_node_id} .\n"
+            TripleWriters._write_value_node_triple(
+                output,
+                stmt_uri_prefixed,
+                shape.predicates.value_node,
+                rdf_statement.value,
+                dedupe,
             )
-
-            if rdf_statement.value.kind == "time":
-                ValueNodeWriter.write_time_value_node(
-                    output, value_node_id, rdf_statement.value, dedupe
-                )
-            elif rdf_statement.value.kind == "quantity":
-                ValueNodeWriter.write_quantity_value_node(
-                    output, value_node_id, rdf_statement.value, dedupe
-                )
-            elif rdf_statement.value.kind == "globe":
-                ValueNodeWriter.write_globe_value_node(
-                    output, value_node_id, rdf_statement.value, dedupe
-                )
         else:
             value = ValueFormatter.format_value(rdf_statement.value)
             output.write(
@@ -171,28 +180,17 @@ class TripleWriters:
         # Qualifiers
         for qual in rdf_statement.qualifiers:
             q_shape = property_registry.shape(qual.property)
-            qv = ValueFormatter.format_value(qual.value)
 
             if TripleWriters._needs_value_node(qual.value):
-                qualifier_node_id = generate_value_node_uri(qual.value)
-
-                output.write(
-                    f"{stmt_uri_prefixed} {q_shape.predicates.qualifier_value} wdv:{qualifier_node_id} .\n"
+                TripleWriters._write_value_node_triple(
+                    output,
+                    stmt_uri_prefixed,
+                    q_shape.predicates.qualifier_value,
+                    qual.value,
+                    dedupe,
                 )
-
-                if qual.value.kind == "time":
-                    ValueNodeWriter.write_time_value_node(
-                        output, qualifier_node_id, qual.value, dedupe
-                    )
-                elif qual.value.kind == "quantity":
-                    ValueNodeWriter.write_quantity_value_node(
-                        output, qualifier_node_id, qual.value, dedupe
-                    )
-                elif qual.value.kind == "globe":
-                    ValueNodeWriter.write_globe_value_node(
-                        output, qualifier_node_id, qual.value, dedupe
-                    )
             else:
+                qv = ValueFormatter.format_value(qual.value)
                 output.write(
                     f"{stmt_uri_prefixed} {q_shape.predicates.qualifier} {qv} .\n"
                 )
@@ -205,28 +203,17 @@ class TripleWriters:
 
             for snak in ref.snaks:
                 snak_shape = property_registry.shape(snak.property)
-                rv = ValueFormatter.format_value(snak.value)
 
                 if TripleWriters._needs_value_node(snak.value):
-                    ref_node_id = generate_value_node_uri(snak.value)
-
-                    output.write(
-                        f"{ref_uri} {snak_shape.predicates.reference_value} wdv:{ref_node_id} .\n"
+                    TripleWriters._write_value_node_triple(
+                        output,
+                        ref_uri,
+                        snak_shape.predicates.reference_value,
+                        snak.value,
+                        dedupe,
                     )
-
-                    if snak.value.kind == "time":
-                        ValueNodeWriter.write_time_value_node(
-                            output, ref_node_id, snak.value, dedupe
-                        )
-                    elif snak.value.kind == "quantity":
-                        ValueNodeWriter.write_quantity_value_node(
-                            output, ref_node_id, snak.value, dedupe
-                        )
-                    elif snak.value.kind == "globe":
-                        ValueNodeWriter.write_globe_value_node(
-                            output, ref_node_id, snak.value, dedupe
-                        )
                 else:
+                    rv = ValueFormatter.format_value(snak.value)
                     output.write(
                         f"{ref_uri} {snak_shape.predicates.reference} {rv} .\n"
                     )

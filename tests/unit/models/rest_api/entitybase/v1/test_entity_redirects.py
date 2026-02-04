@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, cast
 from unittest.mock import Mock
 
 import pytest
@@ -111,7 +111,7 @@ class MockS3Client:
     ) -> int:
         revision_id = data["revision_id"]
         self.written_revisions[revision_id] = data
-        return revision_id
+        return cast(int, revision_id)
 
     def read_full_revision(self, entity_id: str, revision_id: int) -> dict:
         """Read S3 object and return parsed full revision JSON (matches real client)"""

@@ -73,12 +73,12 @@ class RDFCanonicalizer(BaseModel):
         triples = set()
 
         for line in nquads.strip().split("\n"):
-            line = line.strip()
-            if not line or line.startswith("#"):
+            cleaned_line = line.strip()
+            if not cleaned_line or cleaned_line.startswith("#"):
                 continue
 
             # Parse N-Quad/N-Triple: subject predicate object [graph] .
-            parts = line.rstrip(" .").split()
+            parts = cleaned_line.rstrip(" .").split()
             if len(parts) >= 3:
                 subject = parts[0]
                 predicate = parts[1]

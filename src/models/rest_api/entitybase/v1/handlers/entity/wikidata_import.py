@@ -10,6 +10,7 @@ from fastapi import HTTPException
 
 from models.data.rest_api.v1.entitybase.request import EntityJsonImportRequest
 from models.data.rest_api.v1.entitybase.response import EntityJsonImportResponse
+from models.infrastructure.s3.client import MyS3Client
 from models.services.wikidata_import_service import WikidataImportService
 from .create import EntityCreateHandler
 from ...handler import Handler
@@ -163,7 +164,7 @@ class EntityJsonImportHandler(Handler):
             return None
 
     @staticmethod
-    def _check_entity_exists(entity_id: str, s3_client) -> bool:
+    def _check_entity_exists(entity_id: str, s3_client: MyS3Client) -> bool:
         """Check if an entity already exists by trying to read its latest revision."""
         try:
             s3_client.read_revision(entity_id, 1)  # Try to read revision 1

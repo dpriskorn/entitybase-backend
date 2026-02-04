@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import Any
+from typing import Any, cast
 
 from pydantic import Field, validate_call
 
@@ -51,7 +51,7 @@ class RevisionRepository(Repository):
         )
         row = cursor.fetchone()
         if row:
-            return RevisionRecord.model_validate(
+            return cast(RevisionRecord, RevisionRecord.model_validate(
                 {
                     "statements": json.loads(row[0]) if row[0] else [],
                     "properties": json.loads(row[1]) if row[1] else [],
@@ -61,7 +61,7 @@ class RevisionRepository(Repository):
                     "aliases_hashes": json.loads(row[5]) if row[5] else [],
                     "sitelinks_hashes": json.loads(row[6]) if row[6] else {},
                 }
-            )
+            ))
         return None
 
     @validate_call
@@ -137,7 +137,7 @@ class RevisionRepository(Repository):
         )
         row = cursor.fetchone()
         if row and row[0] is not None:
-            return row[0]
+            return cast(int, row[0])
         raise_validation_error(f"No content_hash found for entity {internal_entity_id} revision {revision_id}", status_code=404)
 
     @validate_call

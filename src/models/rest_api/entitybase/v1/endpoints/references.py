@@ -12,6 +12,47 @@ from models.rest_api.entitybase.v1.services.snak_handler import SnakHandler
 
 logger = logging.getLogger(__name__)
 
+
+def _reconstruct_reference_snaks(reference_dict: dict, snak_handler: SnakHandler) -> dict:
+    """Reconstruct snaks from hashes in a reference dictionary.
+    
+    Args:
+        reference_dict: Reference dictionary containing snaks with potential hash values
+        snak_handler: SnakHandler instance for loading snak data
+        
+    Returns:
+        Reference dictionary with reconstructed snaks
+    """
+    if "snaks" not in reference_dict:
+        return reference_dict
+        
+    reconstructed_snaks = {}
+    for prop_key, snak_values in reference_dict["snaks"].items():
+        if isinstance(snak_values, list):
+            new_snak_values = []
+            for snak_item in snak_values:
+                if isinstance(snak_item, int) or (isinstance(snak_item, str) and snak_item.isdigit()):
+                    reconstructed_snak = snak_handler.get_snak(int(snak_item))
+                    if reconstructed_snak:
+                        new_snak_values.append(reconstructed_snak)
+                    else:
+                        logger.warning(f"Snak {snak_item} not found")
+                else:
+                    new_snak_values.append(snak_item)
+            reconstructed_snaks[prop_key] = new_snak_values
+        elif isinstance(snak_values, int) or (isinstance(snak_values, str) and snak_values.isdigit()):
+            reconstructed_snak = snak_handler.get_snak(int(snak_values))
+            if reconstructed_snak:
+                reconstructed_snaks[prop_key] = reconstructed_snak
+            else:
+                logger.warning(f"Snak {snak_values} not found")
+        else:
+            reconstructed_snaks[prop_key] = snak_values
+    
+    reference_dict["snaks"] = reconstructed_snaks
+    return reference_dict
+
+
 references_router = APIRouter(prefix="/references", tags=["statements"])
 
 
@@ -48,32 +89,7 @@ async def get_references(req: Request, hashes: str) -> list[ReferenceResponse | 
                 references.append(None)
                 continue
             
-            # Reconstruct snaks from hashes
-            reference_dict = item.reference.copy()
-            if "snaks" in reference_dict:
-                reconstructed_snaks = {}
-                for prop_key, snak_values in reference_dict["snaks"].items():
-                    if isinstance(snak_values, list):
-                        new_snak_values = []
-                        for snak_item in snak_values:
-                            if isinstance(snak_item, int) or (isinstance(snak_item, str) and snak_item.isdigit()):
-                                reconstructed_snak = snak_handler.get_snak(int(snak_item))
-                                if reconstructed_snak:
-                                    new_snak_values.append(reconstructed_snak)
-                                else:
-                                    logger.warning(f"Snak {snak_item} not found")
-                            else:
-                                new_snak_values.append(snak_item)
-                        reconstructed_snaks[prop_key] = new_snak_values
-                    elif isinstance(snak_values, int) or (isinstance(snak_values, str) and snak_values.isdigit()):
-                        reconstructed_snak = snak_handler.get_snak(int(snak_values))
-                        if reconstructed_snak:
-                            reconstructed_snaks[prop_key] = reconstructed_snak
-                        else:
-                            logger.warning(f"Snak {snak_values} not found")
-                    else:
-                        reconstructed_snaks[prop_key] = snak_values
-                reference_dict["snaks"] = reconstructed_snaks
+            reference_dict = _reconstruct_reference_snaks(item.reference.copy(), snak_handler)
             
             references.append(
                 ReferenceResponse(

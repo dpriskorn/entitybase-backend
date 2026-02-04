@@ -44,7 +44,7 @@ async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
             hash_value = int(h.strip())
             label = state.s3_client.load_metadata("labels", hash_value)
             if label:
-                result[h] = label
+                result[h] = label.data
         except ValueError:
             pass
     return result
@@ -67,7 +67,7 @@ async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
             hash_value = int(h.strip())
             desc = state.s3_client.load_metadata("descriptions", hash_value)
             if desc:
-                result[h] = desc
+                result[h] = desc.data
         except ValueError:
             pass
     return result
@@ -90,7 +90,7 @@ async def get_batch_aliases(hashes: str, req: Request) -> dict[str, list[str]]:
             hash_value = int(h.strip())
             aliases = state.s3_client.load_metadata("aliases", hash_value)
             if aliases:
-                result[h] = aliases
+                result[h] = aliases.data
         except ValueError:
             pass
     return result

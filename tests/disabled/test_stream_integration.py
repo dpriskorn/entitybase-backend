@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Any
+from typing import Any, cast
 
 import pytest
 from aiokafka import AIOKafkaConsumer  # type: ignore[import-untyped]
@@ -15,6 +15,27 @@ TEST_ENTITY_BASE = "Q888888"
 
 class TestStreamIntegration:
     """Integration tests for stream producer with real Redpanda"""
+
+    async def _consume_event(
+        self, clean_consumer: AIOKafkaConsumer, expected_entity: str, expected_type: str, timeout: float = 30.0
+    ) -> dict[str, Any]:
+        """Consume messages until finding the expected event type for an entity."""
+        start_time = asyncio.get_event_loop().time()
+        while asyncio.get_event_loop().time() - start_time < timeout:
+            try:
+                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
+                if msg.value is None:
+                    continue
+                if (
+                    msg.value["entity_id"] == expected_entity
+                    and msg.value.get("change_type") == expected_type
+                ):
+                    return cast(dict[str, Any], msg.value)
+            except asyncio.TimeoutError:
+                continue
+        raise TimeoutError(
+            f"Expected {expected_type} message for {expected_entity} not received within timeout"
+        )
 
     @pytest.mark.asyncio
     async def test_entity_creation_publishes_creation_event(
@@ -248,45 +269,11 @@ class TestStreamIntegration:
 
         create_source = api_client.post(f"{base_url}/entity", json=source_entity)
         assert create_source.status_code == 200
-        # Consume creation event for source
-        expected_entity = f"{TEST_ENTITY_BASE}5"
-        expected_type = "creation"
-        start_time = asyncio.get_event_loop().time()
-        while asyncio.get_event_loop().time() - start_time < 30.0:
-            try:
-                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
-                if (
-                    msg.value["entity_id"] == expected_entity
-                    and msg.value.get("change_type") == expected_type
-                ):
-                    break
-            except asyncio.TimeoutError:
-                continue
-        else:
-            raise TimeoutError(
-                f"Expected {expected_type} message for {expected_entity} not received"
-            )
+        await self._consume_event(clean_consumer, f"{TEST_ENTITY_BASE}5", "creation")
 
         create_target = api_client.post(f"{base_url}/entity", json=target_entity)
         assert create_target.status_code == 200
-        # Consume creation event for target
-        expected_entity = f"{TEST_ENTITY_BASE}6"
-        expected_type = "creation"
-        start_time = asyncio.get_event_loop().time()
-        while asyncio.get_event_loop().time() - start_time < 30.0:
-            try:
-                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
-                if (
-                    msg.value["entity_id"] == expected_entity
-                    and msg.value.get("change_type") == expected_type
-                ):
-                    break
-            except asyncio.TimeoutError:
-                continue
-        else:
-            raise TimeoutError(
-                f"Expected {expected_type} message for {expected_entity} not received"
-            )
+        await self._consume_event(clean_consumer, f"{TEST_ENTITY_BASE}6", "creation")
 
         redirect_response = api_client.post(
             f"{base_url}/redirects",
@@ -297,24 +284,7 @@ class TestStreamIntegration:
             },
         )
         assert redirect_response.status_code == 200
-        # Consume redirect event
-        expected_entity = f"{TEST_ENTITY_BASE}5"
-        expected_type = "redirect"
-        start_time = asyncio.get_event_loop().time()
-        while asyncio.get_event_loop().time() - start_time < 30.0:
-            try:
-                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
-                if (
-                    msg.value["entity_id"] == expected_entity
-                    and msg.value.get("change_type") == expected_type
-                ):
-                    break
-            except asyncio.TimeoutError:
-                continue
-        else:
-            raise TimeoutError(
-                f"Expected {expected_type} message for {expected_entity} not received"
-            )
+        await self._consume_event(clean_consumer, f"{TEST_ENTITY_BASE}5", "redirect")
 
         revert_response = api_client.post(
             f"{base_url}/entities/{TEST_ENTITY_BASE}5/revert-redirect",
@@ -325,26 +295,7 @@ class TestStreamIntegration:
         )
         assert revert_response.status_code == 200
 
-        # Consume unredirect event
-        expected_entity = f"{TEST_ENTITY_BASE}5"
-        expected_type = "unredirect"
-        start_time = asyncio.get_event_loop().time()
-        while asyncio.get_event_loop().time() - start_time < 30.0:
-            try:
-                msg = await asyncio.wait_for(clean_consumer.getone(), timeout=1.0)
-                if (
-                    msg.value["entity_id"] == expected_entity
-                    and msg.value.get("change_type") == expected_type
-                ):
-                    event = msg.value
-                    break
-            except asyncio.TimeoutError:
-                continue
-        else:
-            raise TimeoutError(
-                f"Expected {expected_type} message for {expected_entity} not received"
-            )
-
+        event = await self._consume_event(clean_consumer, f"{TEST_ENTITY_BASE}5", "unredirect")
         assert event["entity_id"] == f"{TEST_ENTITY_BASE}5"
         assert event["change_type"] == "unredirect"
         assert "revision_id" in event

@@ -1,7 +1,8 @@
-from typing import Dict, Any
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from models.data.infrastructure.s3 import S3RevisionData
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.rest_api.v1.entitybase.response.entity.wikibase import (
     SitelinkValue,
@@ -134,7 +135,7 @@ class EntityResponse(BaseModel):
     revision_id: int = Field(
         alias="rev_id", description="Revision ID of the entity. Example: 12345."
     )
-    entity_data: Dict[str, Any] = Field(
+    entity_data: S3RevisionData = Field(
         alias="data",
         description="Full entity JSON data. Example: {'id': 'Q42', 'type': 'item'}.",
     )

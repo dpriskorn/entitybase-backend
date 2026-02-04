@@ -122,7 +122,7 @@ def generate_markdown(models: List[Dict[str, Any]]) -> str:
 
 def main() -> None:
     """Main entry point."""
-    response_dir = Path("src/models/rest_api/response")
+    response_dir = Path("src/models/data/rest_api/v1/entitybase/response")
 
     if not response_dir.exists():
         print("Error: Response models directory not found")

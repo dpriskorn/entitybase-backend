@@ -2,6 +2,7 @@
 
 import logging
 from pathlib import Path
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict
 
@@ -29,7 +30,7 @@ class StateHandler(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     settings: Settings
 
-    def start(self):
+    def start(self) -> None:
         logger.info("Initializing clients...")
         logger.debug(f"S3 config: {self.settings.get_s3_config}")
         logger.debug(f"Vitess config: {self.settings.get_vitess_config}")
@@ -132,18 +133,18 @@ class StateHandler(BaseModel):
             raise_validation_error(message="No property registry path provided")
 
     @property
-    def enumeration_service(self):
+    def enumeration_service(self) -> EnumerationService:
         return EnumerationService(
             worker_id="rest-api", vitess_client=self.vitess_client
         )
 
     @property
-    def redirect_service(self):
+    def redirect_service(self) -> Any:
         from models.rest_api.entitybase.v1.services.redirects import RedirectService
         return RedirectService(state=self)
 
     @property
-    def validator(self):
+    def validator(self) -> JsonSchemaValidator:
         return JsonSchemaValidator(
             s3_revision_version=self.settings.s3_schema_revision_version,
             s3_statement_version=self.settings.s3_statement_version,

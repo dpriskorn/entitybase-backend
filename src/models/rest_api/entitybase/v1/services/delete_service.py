@@ -14,6 +14,7 @@ from models.data.infrastructure.s3.hashes.labels_hashes import LabelsHashes
 from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.data.infrastructure.s3.revision_data import S3RevisionData
+from models.data.infrastructure.stream import ChangeType
 from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest, UserActivityType
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.stream.event import EntityChangeEvent
@@ -24,6 +25,7 @@ from models.rest_api.utils import raise_validation_error
 logger = logging.getLogger(__name__)
 
 
+# noinspection PyArgumentList
 class DeleteService(Service):
     """Service for handling entity deletion logic."""
 
@@ -60,7 +62,7 @@ class DeleteService(Service):
             raise_validation_error("Entity not found", status_code=404)
 
         logger.debug(f"Current head revision for {entity_id}: {head_revision_id}")
-        return head_revision_id
+        return cast(int, head_revision_id)
 
     def validate_protection_status(self, entity_id: str) -> None:
         """Check if entity is protected from edits.

@@ -78,7 +78,6 @@ s3transfer==0.16.0
 setuptools==80.9.0
 six==1.17.0
 starlette==0.50.0
-tenacity==9.1.2
 types-awscrt==0.31.1
 types-boto3==1.42.30
 types-jsonschema==4.26.0.20260109

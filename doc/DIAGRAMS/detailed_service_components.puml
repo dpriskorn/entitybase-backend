@@ -4,6 +4,7 @@ title Wikibase Backend - Detailed Service Components
 
 package "Services" as Services #LightGreen {
     "BacklinkStatistics" as BacklinkStatisticsService
+    "Delete" as DeleteService
     "Enumeration" as EnumerationService
     "GeneralStats" as GeneralStatsService
     "Hash" as HashService

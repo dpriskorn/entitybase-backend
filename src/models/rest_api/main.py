@@ -169,7 +169,7 @@ async def get_openapi() -> dict:
 
 
 @app.get("/")
-async def redirect_to_docs():
+async def redirect_to_docs() -> RedirectResponse:
     """Redirect to the OpenAPI docs."""
     return RedirectResponse(url="/docs")
 

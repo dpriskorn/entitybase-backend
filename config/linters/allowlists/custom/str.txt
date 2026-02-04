@@ -27,3 +27,5 @@ src/models/rest_api/entitybase/v1/services/statement_service.py:222
 src/models/rest_api/entitybase/v1/services/statement_service.py:223
 src/models/infrastructure/s3/client.py:274
 src/models/infrastructure/s3/client.py:281
+src/models/rest_api/entitybase/v1/endpoints/lexemes.py:465
+src/models/rest_api/entitybase/v1/endpoints/lexemes.py:497

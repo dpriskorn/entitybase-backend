@@ -1,6 +1,101 @@
 # Architecture Changelog
 
-This file tracks architectural changes, feature additions, and modifications to the entitybase-backend.
+This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
+
+## [2026-02-02] Merge LexemeUpdateHandler into EntityUpdateHandler for Transaction Safety
+
+### Summary
+
+Merged LexemeUpdateHandler into EntityUpdateHandler to ensure lexeme term processing (form representations and sense glosses) happens within the transaction scope. This fixes a data integrity issue where S3 storage of lexeme terms occurred before the transaction started, leaving orphaned data on transaction failure.
+
+### Motivation
+
+- **Data Integrity**: Previous implementation stored lexeme terms to S3 before transaction began, causing orphaned data on rollback
+- **Transaction Safety**: Ensure all S3 lexeme term operations are rolled back with Vitess changes
+- **Code Consolidation**: Remove duplicate code in LexemeUpdateHandler
+- **Consistency**: Align lexeme updates with entity update transaction pattern
+
+### Changes
+
+#### UpdateTransaction Enhancements
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/update_transaction.py`
+
+- Added `lexeme_term_operations: list[Callable[[], None]]` field to track lexeme S3 operations for rollback
+- Added `process_lexeme_terms(forms, senses)` method to process forms and senses and store to S3
+- Added `_rollback_form_representation(hash_val)` method to delete form representations from S3 on rollback
+- Added `_rollback_sense_gloss(hash_val)` method to delete sense glosses from S3 on rollback
+- Updated `commit()` to clear `lexeme_term_operations`
+- Updated `rollback()` to process lexeme term operations in reverse order before other operations
+
+#### EntityUpdateHandler New Method
+**File**: `src/models/rest_api/entitybase/v1/handlers/entity/update.py`
+
+- Added `update_lexeme(entity_id, request, edit_headers, validator)` method that:
+  - Validates lexeme ID format (L\\d+)
+  - Checks entity exists/deleted/locked status
+  - Creates UpdateTransaction
+  - Processes lexeme terms within transaction (S3 storage)
+  - Processes statements within transaction
+  - Creates revision within transaction
+  - Publishes event within transaction
+  - Commits/rolls back both Vitess and S3 changes atomically
+
+#### Endpoint Updates
+**File**: `src/models/rest_api/entitybase/v1/endpoints/lexemes.py`
+
+- Removed import of `LexemeUpdateHandler`
+- Added import of `InternalEntityUpdateRequest` for type compatibility
+- Updated all lexeme update endpoints to use `EntityUpdateHandler` and `update_lexeme` method:
+  - `update_form_representation()` endpoint
+  - `update_sense_gloss()` endpoint
+  - `delete_form()` endpoint
+  - `delete_sense()` endpoint
+
+#### Removed Files
+- Deleted `src/models/rest_api/entitybase/v1/handlers/entity/lexeme/update.py` (LexemeUpdateHandler)
+- Removed duplicate lexeme-specific update logic
+
+#### Documentation
+**File**: `doc/DIAGRAMS/WRITE-PATHS/LEXEME-UPDATE-PROCESS.md`
+
+- Created comprehensive documentation of lexeme update transaction flow
+- Documents lexeme term processing within transaction scope
+- Documents rollback behavior for both S3 and Vitess changes
+
+### Transaction Flow After Fix
+
+```
+1. EntityUpdateHandler.update_lexeme
+   ↓
+2. Create UpdateTransaction
+   ↓
+3. Within transaction try block:
+   a. tx.process_lexeme_terms() → Store form representations and sense glosses to S3
+   b. tx.process_statements() → Store statements
+   c. tx.create_revision() → Create revision
+   d. tx.publish_event() → Publish event
+   ↓
+4. If success: tx.commit() → Clear rollback operations
+   ↓
+5. If failure: tx.rollback() →
+   - Rollback lexeme terms (delete from S3)
+   - Rollback statements (decrement ref_count, delete from S3 if orphaned)
+   - Rollback revision (delete from entity_revisions)
+```
+
+### Benefits
+
+- **Data Integrity**: S3 lexeme term data is cleaned up on transaction rollback
+- **Atomicity**: All lexeme update operations (S3 + Vitess) succeed or fail together
+- **Simplicity**: Consolidated lexeme update logic into single handler class
+- **Maintainability**: Single source of truth for entity update transaction pattern
+- **Consistency**: Lexeme updates follow same transaction safety guarantees as entity updates
+
+### Notes
+
+- **Breaking Change**: LexemeUpdateHandler class removed, endpoints now use EntityUpdateHandler.update_lexeme
+- **No Migration**: Existing S3 data remains valid; only new lexeme updates benefit from transaction safety
+- **Performance**: No performance impact; S3 operations simply moved into transaction scope
 
 ## [2026-01-28] Fix entity_type query issue by using pattern matching
 

@@ -29,15 +29,15 @@ class EntityConverter(BaseModel):
     enable_deduplication: bool = True
 
     @property
-    def properties(self):
+    def properties(self) -> PropertyRegistry:
         return self.property_registry
 
     @property
-    def writers(self):
+    def writers(self) -> TripleWriters:
         return TripleWriters()
 
     @property
-    def dedupe(self):
+    def dedupe(self) -> HashDedupeBag | None:
         return HashDedupeBag() if self.enable_deduplication else None
 
     def convert_to_turtle(self, entity: EntityMetadataResponse, output: TextIO) -> None:

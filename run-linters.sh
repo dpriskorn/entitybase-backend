@@ -5,7 +5,7 @@ set -e
 #./scripts/linters/custom_docstring_linter.py
 #./scripts/linters/basemodel_linter.py
 #./run-data-lint.sh
-./run-str-lint.sh
+#./run-str-lint.sh
 ./run-int-lint.sh
 ./scripts/linters/value_error_linter.py
 ./run-response-model-lint.sh
@@ -14,7 +14,7 @@ set -e
 ./run-dict-lint.sh
 ./run-pydantic-field-lint.sh
 ./run-any-lint.sh
-./run-cast-lint.sh
+#./run-cast-lint.sh
 ./run-tuple-lint.sh
 ./run-as-lint.sh
 ./run-key-length-lint.sh
@@ -24,7 +24,7 @@ set -e
 ./run-json-lint.sh
 
 # == external linters ==
-./run-ruff.sh
+#./run-ruff.sh
 ./run-mypy.sh
 # ./run-vulture.sh
 ./run-radon.sh

@@ -5,7 +5,7 @@ import logging
 from typing import AsyncGenerator
 
 from aiokafka import AIOKafkaConsumer  # type: ignore[import-untyped]
-from pydantic import ConfigDict, Field
+from pydantic import ConfigDict, Field, FieldValidationInfo
 
 from models.data.config.stream_consumer import StreamConsumerConfig
 from models.data.infrastructure.stream.consumer import EntityChangeEventData
@@ -45,7 +45,7 @@ class StreamConsumerClient(Client):
         """Get group_id."""
         return self.config.group_id
 
-    def model_post_init(self, context) -> None:
+    def model_post_init(self, context: FieldValidationInfo) -> None:
         self.bootstrap_servers = ",".join(self.config.brokers)
 
     async def start(self) -> None:

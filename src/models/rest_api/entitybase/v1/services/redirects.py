@@ -4,6 +4,7 @@ import logging
 from datetime import timezone, datetime
 from typing import TYPE_CHECKING
 
+from models.common import EditHeaders
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditData, EntityType, EditType
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
@@ -29,7 +30,7 @@ class RedirectService(Service):
     async def create_redirect(
             self,
             request: EntityRedirectRequest,
-            edit_headers,
+            edit_headers: EditHeaders,
     ) -> EntityRedirectResponse:
         """Mark an entity as redirect to another entity"""
         logger.debug(
@@ -143,7 +144,7 @@ class RedirectService(Service):
         self,
         entity_id: str,
         revert_to_revision_id: int,
-        edit_headers,
+        edit_headers: EditHeaders,
     ) -> EntityRevertResponse:
         """Revert a redirect entity back to normal using the general revert."""
         logger.debug(

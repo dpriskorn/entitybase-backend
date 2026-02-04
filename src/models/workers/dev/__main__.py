@@ -7,7 +7,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 # Add src to path for imports
 src_path = Path(__file__).parent.parent.parent / "src"
@@ -53,7 +53,7 @@ async def run_buckets_setup(args: Any) -> bool:
         for issue in results["health_check"]["issues"]:
             print(f"  - {issue}")
 
-    return results["setup_status"] == "completed"
+    return cast(bool, results["setup_status"] == "completed")
 
 
 async def run_buckets_health(args: Any) -> bool:
@@ -128,7 +128,7 @@ async def run_tables_setup(args: Any) -> bool:
         for issue in results["health_check"]["issues"]:
             print(f"  - {issue}")
 
-    return results["setup_status"] == "completed"
+    return cast(bool, results["setup_status"] == "completed")
 
 
 # noinspection PyUnusedLocal

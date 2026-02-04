@@ -52,7 +52,7 @@ class EntityCreateRequest(BaseModel):
 
 class EntityUpdateRequest(BaseModel):
     """Request model for updating an entity."""
-
+    # todo deprecate in favor of SitelinkUpdateRequest, AddSitelinkRequest, DeleteSitelinkRequest, etc.
     id: str = Field(
         ...,
         description="Entity ID (e.g., Q42)",
@@ -63,6 +63,51 @@ class EntityUpdateRequest(BaseModel):
     claims: Dict[str, Any] = {}
     aliases: Dict[str, Any] = {}
     sitelinks: Dict[str, Any] = {}
+    forms: List[Dict[str, Any]] = []
+    senses: List[Dict[str, Any]] = []
+    is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
+    state: EntityState = Field(default=EntityState(), description="Entity state")
+    edit_type: EditType = Field(
+        default=EditType.UNSPECIFIED,
+        description="Classification of edit type",
+    )
+    is_not_autoconfirmed_user: bool = Field(
+        default=False, description="User is not autoconfirmed (new/unconfirmed account)"
+    )
+    is_semi_protected: bool = Field(
+        default=False, description="Whether the entity is semi-protected"
+    )
+    is_locked: bool = Field(default=False, description="Whether the entity is locked")
+    is_archived: bool = Field(
+        default=False, description="Whether the entity is archived"
+    )
+    is_dangling: bool = Field(
+        default=False, description="Whether the entity is dangling"
+    )
+    is_mass_edit_protected: bool = Field(
+        default=False, description="Whether the entity has mass edit protection"
+    )
+
+    @property
+    def data(self) -> Dict[str, Any]:
+        return self.model_dump(exclude_unset=True)  # type: ignore[no-any-return]
+
+
+class LexemeUpdateRequest(BaseModel):
+    """Request model for updating a lexeme entity."""
+
+    id: str = Field(
+        ...,
+        description="Entity ID (e.g., L42)",
+    )
+    type: str = Field(default="lexeme", description="Entity type")
+    labels: Dict[str, Dict[str, str]] = {}
+    descriptions: Dict[str, Dict[str, str]] = {}
+    claims: Dict[str, Any] = {}
+    aliases: Dict[str, Any] = {}
+    sitelinks: Dict[str, Any] = {}
+    forms: List[Dict[str, Any]] = []
+    senses: List[Dict[str, Any]] = []
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     state: EntityState = Field(default=EntityState(), description="Entity state")
     edit_type: EditType = Field(

@@ -1,4 +1,29 @@
 # TODO
+EntityUpdateHandler is very long, refactor into multiple classes?
+
+{
+  "entities": {
+    "L42": {
+      "pageid": 54387043,
+      "ns": 146,
+      "title": "Lexeme:L42",
+      "lastrevid": 2425773420,
+      "modified": "2025-11-04T23:12:11Z",
+      "type": "lexeme",
+      "id": "L42",
+      "lemmas": {
+        "en": {
+          "language": "en",
+          "value": "answer"
+        }
+      },
+      "lexicalCategory": "Q1084",
+      "language": "Q1860",
+add support for lexicalcategory CU-logic (only one)
+add support for language CU-logic (only one)
+add support for lemmas CRUD (at least one is mandatory)
+
+
 Based on my analysis of the handler architecture, here's a comprehensive summary:
 ---
 Handler Architecture Analysis Summary

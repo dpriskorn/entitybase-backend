@@ -3,6 +3,7 @@
 Linter to check for = None assignments in Python files.
 """
 
+import re
 import sys
 from pathlib import Path
 
@@ -27,6 +28,12 @@ def check_file(file_path: Path) -> list[tuple[str, int, str]]:
                 # Skip method-level lines (indented with 8+ spaces)
                 if line.startswith("        "):
                     continue
+                # Skip function parameter lines (indented 4 spaces with type hints and = None)
+                # Pattern: indented 4 spaces, has type annotation, ends with = None or = None,
+                # Handles complex nested types like Optional[Callable[[int], None]]
+                if line.startswith("    ") and not line.startswith("        "):
+                    if re.search(r":\s*.+?\s*=\s*None,?\s*$", line):
+                        continue
                 # Allowlist upper_bound and lower_bound for QuantityValue
                 if "upper_bound" in line or "lower_bound" in line:
                     continue

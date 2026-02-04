@@ -8,5 +8,5 @@ class Service(ABC, BaseModel):
     state: Any  # this is the app state
 
     @property
-    def vitess_client(self):
+    def vitess_client(self) -> Any:
         return self.state.vitess_client

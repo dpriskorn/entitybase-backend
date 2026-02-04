@@ -17,16 +17,16 @@ package "Service Layer" as ServiceLayer #LightGreen {
     "Snak" as SnakHandler
     "BacklinkStatistics" as BacklinkStatisticsService
     "UserStats" as UserStatsService
-    ... (10 total components)
+    ... (11 total components)
 }
 
 package "Worker Layer" as WorkerLayer #LightYellow {
     "BaseStatsWorker" as BaseStatsWorker
     "VitessWorker" as VitessWorker
     "Worker" as Worker
+    "NotificationData" as NotificationData
     "ChangedProperties" as ChangedProperties
-    "BacklinkStatisticsWorker" as BacklinkStatisticsWorker
-    ... (18 total components)
+    ... (19 total components)
 }
 
 package "Infrastructure Layer" as InfrastructureLayer #LightGray {

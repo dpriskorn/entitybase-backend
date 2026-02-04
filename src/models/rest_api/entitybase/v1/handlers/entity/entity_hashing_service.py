@@ -1,7 +1,7 @@
 """Entity hashing service."""
 
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, cast
 
 from models.common import raise_validation_error
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
@@ -28,7 +28,7 @@ class EntityHashingService(Service):
             raise_validation_error(
                 hash_operation.error or "Failed to hash statements"
             )
-        return hash_operation.data
+        return cast(StatementHashResult, hash_operation.data)
 
     async def hash_terms(
         self,

@@ -78,10 +78,10 @@ class TestJsonImportIntegration:
 
             # Verify JSON parsing
             for line in lines:
-                line = line.strip()
-                if line.endswith(","):
-                    line = line[:-1]
-                parsed = json.loads(line)
+                stripped_line = line.strip()
+                if stripped_line.endswith(","):
+                    stripped_line = stripped_line[:-1]
+                parsed = json.loads(stripped_line)
                 assert "id" in parsed
                 assert "type" in parsed
 
@@ -130,11 +130,10 @@ class TestJsonImportIntegration:
 
         for i, line in enumerate(lines):
             # Remove trailing comma
-            if line.endswith(","):
-                line = line[:-1]
+            cleaned_line = line[:-1] if line.endswith(",") else line
 
             # Parse JSON
-            parsed = json.loads(line)
+            parsed = json.loads(cleaned_line)
 
             # Verify it matches expected entity
             expected = entities[i]

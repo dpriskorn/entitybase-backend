@@ -1,10 +1,10 @@
 """Metadata storage operations for terms and sitelinks."""
 
 import logging
-from typing import Any
 
 from models.common import OperationResult
 from models.config.settings import settings
+from models.data.infrastructure.s3 import LoadResponse
 from models.data.infrastructure.s3.enums import MetadataType
 from models.infrastructure.s3.base_storage import BaseS3Storage
 from models.infrastructure.s3.exceptions import S3StorageError
@@ -53,19 +53,16 @@ class MetadataStorage(BaseS3Storage):
 
     def load_metadata(
         self, metadata_type: MetadataType, content_hash: int
-    ) -> str | dict[str, Any] | None:
+    ) -> LoadResponse | None:
         """Load metadata value.
 
         Returns:
-            str | dict[str, Any] | None: Metadata content as text or structured data,
+            LoadResponse | None: Metadata load response with appropriate type,
             or None if not found.
         """
         bucket = self._get_bucket_for_type(metadata_type)
         key = str(content_hash)
-        load_result = self.load(key, bucket=bucket)
-        if load_result is None:
-            return None
-        return load_result.data
+        return self.load(key, bucket=bucket)
 
     def delete_metadata(
         self, metadata_type: MetadataType, content_hash: int

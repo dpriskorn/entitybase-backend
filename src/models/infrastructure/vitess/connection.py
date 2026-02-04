@@ -2,7 +2,7 @@
 
 import logging
 import pymysql
-from pydantic import Field, BaseModel
+from pydantic import Field, BaseModel, FieldValidationInfo
 from pymysql.connections import Connection
 
 from models.data.config.vitess import VitessConfig
@@ -21,7 +21,7 @@ class VitessConnectionManager(BaseModel):
         """Deconstructor that disconnect from the database"""
         self.disconnect()
 
-    def model_post_init(self, context) -> None:
+    def model_post_init(self, context: FieldValidationInfo) -> None:
         """Create a new database connection."""
         self.connect()
 

@@ -11,7 +11,6 @@ from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashe
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.data.infrastructure.s3.sitelink_data import S3SitelinkData
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
-
 from models.infrastructure.vitess.repositories.terms import TermsRepository
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.service import Service

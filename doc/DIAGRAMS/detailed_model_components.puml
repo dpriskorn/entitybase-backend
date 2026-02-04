@@ -34,10 +34,10 @@ package "Models" as Models #LightCyan {
     "EntityRedirect" as EntityRedirectResponse
     "Entity" as EntityResponse
     "EntityRevert" as EntityRevertResponse
-    "EntityRevision" as EntityRevisionResponse
     "EntitySitelinks" as EntitySitelinksResponse
     "EntityStatements" as EntityStatementsResponse
     "FormRepresentation" as FormRepresentationResponse
+    "FormRepresentations" as FormRepresentationsResponse
     "Form" as FormResponse
     "Forms" as FormsResponse
     "FullRevision" as FullRevisionResponse
@@ -51,6 +51,7 @@ package "Models" as Models #LightCyan {
     "Labels" as LabelsResponse
     "Message" as MessageResponse
     "MetadataContent" as MetadataContent
+    "MetadataData" as MetadataData
     "MetadataLoad" as MetadataLoadResponse
     "MostUsedStatements" as MostUsedStatementsResponse
     "Notification" as NotificationResponse
@@ -71,6 +72,7 @@ package "Models" as Models #LightCyan {
     "RevisionRead" as RevisionReadResponse
     "RevisionResult" as RevisionResult
     "SenseGloss" as SenseGlossResponse
+    "SenseGlosses" as SenseGlossesResponse
     "Sense" as SenseResponse
     "Senses" as SensesResponse
     "SingleEndorsementStats" as SingleEndorsementStatsResponse

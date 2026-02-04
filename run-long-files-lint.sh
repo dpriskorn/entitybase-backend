@@ -1,13 +1,12 @@
 #!/bin/bash
 set -Eeuo pipefail
 
-# Check for Python files with >=900 lines, excluding .venv
-long_files=$(find src -name "*.py" ! -path "./.venv/*" -exec wc -l {} \; | awk '$1 >= 900 {print $2 ": " $1 " lines"}')
+source .venv/bin/activate
 
-if [ -n "$long_files" ]; then
-    echo "Files with >=900 lines found:"
-    echo "$long_files"
-    exit 1
-else
-    echo "No files with >=900 lines found"
-fi
+LINE_LIMIT=${LONG_FILES_LIMIT:-800}
+
+echo "Checking for Python files with >${LINE_LIMIT} lines..."
+
+python scripts/linters/check_long_files.py src/ "$LINE_LIMIT"
+
+echo "Long files linting passed!"

@@ -5,26 +5,71 @@ Linter to check for 'as' in import statements.
 import ast
 import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Dict
+
+
+def load_allowlist() -> Dict[str, List[int]]:
+    """Load the allowlist from config/linters/allowlists/custom/as-imports.txt.
+
+    Returns:
+        Dict mapping file paths to list of line numbers to allow.
+        Patterns without line numbers are stored with an empty list.
+    """
+    allowlist_path = Path("config/linters/allowlists/custom/as-imports.txt")
+    allowlist: Dict[str, List[int]] = {}
+
+    if not allowlist_path.exists():
+        return allowlist
+
+    try:
+        with open(allowlist_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+
+                if ":" in line:
+                    parts = line.split(":")
+                    file_path = parts[0]
+                    line_no = parts[1]
+                    if file_path not in allowlist:
+                        allowlist[file_path] = []
+                    try:
+                        allowlist[file_path].append(int(line_no))
+                    except ValueError:
+                        pass
+                else:
+                    allowlist[line] = []
+    except Exception:
+        pass
+
+    return allowlist
 
 
 class AsImportChecker(ast.NodeVisitor):
     """AST visitor to check for 'as' in import statements."""
 
-    def __init__(self, source_lines: List[str], file_path: str, allowlist: set):
+    def __init__(self, source_lines: List[str], file_path: str, allowlist: Dict[str, List[int]]):
         self.source_lines = source_lines
         self.file_path = file_path
         self.allowlist = allowlist
         self.violations: List[Tuple[str, int, str, str]] = []
 
+    def is_allowed(self, line_no: int) -> bool:
+        """Check if this line number is allowed for the current file."""
+        if self.file_path in self.allowlist:
+            allowed_lines = self.allowlist[self.file_path]
+            if not allowed_lines:
+                return True
+            if line_no in allowed_lines:
+                return True
+        return False
+
     def visit_Import(self, node: ast.Import) -> None:
         for alias in node.names:
             if alias.asname is not None:
                 line_content = self.source_lines[node.lineno - 1].strip()
-                if (
-                    not any(allowed in line_content for allowed in self.allowlist)
-                    and "# noqa" not in line_content
-                ):
+                if not self.is_allowed(node.lineno) and "# noqa" not in line_content:
                     self.violations.append(
                         (
                             self.file_path,
@@ -39,10 +84,7 @@ class AsImportChecker(ast.NodeVisitor):
         for alias in node.names:
             if alias.asname is not None:
                 line_content = self.source_lines[node.lineno - 1].strip()
-                if (
-                    not any(allowed in line_content for allowed in self.allowlist)
-                    and "# noqa" not in line_content
-                ):
+                if not self.is_allowed(node.lineno) and "# noqa" not in line_content:
                     self.violations.append(
                         (
                             self.file_path,
@@ -54,7 +96,7 @@ class AsImportChecker(ast.NodeVisitor):
         self.generic_visit(node)
 
 
-def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str, str]]:
+def check_file(file_path: Path, allowlist: Dict[str, List[int]]) -> List[Tuple[str, int, str, str]]:
     """Check a single file for 'as' in imports."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -70,9 +112,7 @@ def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str, str
 
 def main(directories: List[str]) -> None:
     """Main function to check all Python files in directories."""
-    allowlist = {
-        "from moto import mock_aws as mock_s3"
-    }  # Add any allowed patterns if needed
+    allowlist = load_allowlist()
     violations = []
 
     for directory in directories:
@@ -85,6 +125,12 @@ def main(directories: List[str]) -> None:
         for file_path, line_no, line_content, message in violations:
             print(f"{file_path}:{line_no}: {message}")
             print(f"  {line_content}")
+
+        allowlist_path = Path("config/linters/allowlists/custom/as-imports.txt")
+        print(f"\nTo allowlist violations, add 'file:line' entries to {allowlist_path}:")
+        for file_path, line_no, _, _ in violations[:10]:
+            print(f"  {file_path}:{line_no}")
+
         sys.exit(1)
     else:
         print("No 'as' in imports found")

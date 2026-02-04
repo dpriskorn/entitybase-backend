@@ -1,13 +1,13 @@
 """S3 storage client for entity and statement data."""
 
 import logging
-from typing import TYPE_CHECKING, Any, List, Optional
+from typing import TYPE_CHECKING, Any, List, Optional, cast
 
 from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from pydantic import Field
 
-from models.data.infrastructure.s3 import S3RevisionData
+from models.data.infrastructure.s3 import DictLoadResponse, LoadResponse, StringLoadResponse, S3RevisionData
 
 if TYPE_CHECKING:
     pass
@@ -17,7 +17,6 @@ from models.data.infrastructure.s3.enums import MetadataType
 from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.data.infrastructure.s3.reference_data import S3ReferenceData
 from models.data.infrastructure.s3.snak_data import S3SnakData
-from models.data.rest_api.v1.entitybase.response import MetadataData
 from models.infrastructure.client import Client
 from models.infrastructure.s3.connection import S3ConnectionManager
 from models.infrastructure.s3.revision.revision_data import RevisionData
@@ -86,7 +85,7 @@ class MyS3Client(Client):
             created_at=data.created_at,
         )
 
-        return self.revisions.store_revision(content_hash, s3_revision_data)
+        return cast(OperationResult[None], self.revisions.store_revision(content_hash, s3_revision_data))
 
     def read_revision(self, entity_id: str, revision_id: int) -> S3RevisionData:
         """Read S3 object and return parsed JSON."""
@@ -101,7 +100,7 @@ class MyS3Client(Client):
         if content_hash is None:
             raise_validation_error("Revision not found", status_code=404)
 
-        return self.revisions.load_revision(content_hash)
+        return cast(S3RevisionData, self.revisions.load_revision(content_hash))
 
     read_full_revision = read_revision
     write_entity_revision = write_revision
@@ -133,7 +132,7 @@ class MyS3Client(Client):
 
     def read_statement(self, content_hash: int) -> "StatementResponse":
         """Read statement snapshot from S3."""
-        return self.statements.load_statement(content_hash)
+        return cast(StatementResponse, self.statements.load_statement(content_hash))
 
     def delete_metadata(self, metadata_type: MetadataType, content_hash: int) -> None:
         """Delete metadata content from S3 when ref_count reaches 0."""
@@ -156,8 +155,7 @@ class MyS3Client(Client):
         result = self.metadata.load_metadata(MetadataType.LABELS, content_hash)
         if result is None:
             raise_validation_error(f"Term metadata not found for hash {content_hash}", status_code=404)
-        assert isinstance(result, str)
-        return result
+        return cast(str, result.data)
 
     def store_sitelink_metadata(self, title: str, content_hash: int) -> None:
         """Store sitelink metadata as plain UTF-8 text in S3."""
@@ -172,14 +170,14 @@ class MyS3Client(Client):
         result = self.metadata.load_metadata(MetadataType.SITELINKS, content_hash)
         if result is None:
             raise_validation_error(f"Sitelink metadata not found for hash {content_hash}", status_code=404)
-        assert isinstance(result, str)
-        return result
+        return cast(str, result.data)
 
     def load_metadata(
         self, metadata_type: MetadataType, content_hash: int
-    ) -> str | dict[str, Any] | None:
+    ) -> LoadResponse | None:
         """Load metadata by type."""
-        return self.metadata.load_metadata(metadata_type, content_hash)
+        return cast(StringLoadResponse | DictLoadResponse | None, 
+                   self.metadata.load_metadata(metadata_type, content_hash))
 
     def store_reference(
         self, content_hash: int, reference_data: S3ReferenceData
@@ -191,13 +189,14 @@ class MyS3Client(Client):
 
     def load_reference(self, content_hash: int) -> S3ReferenceData:
         """Load a reference by its content hash."""
-        return self.references.load_reference(content_hash)
+        return cast(S3ReferenceData, self.references.load_reference(content_hash))
 
     def load_references_batch(
         self, content_hashes: list[int]
     ) -> list[S3ReferenceData | None]:
         """Load multiple references by their content hashes."""
-        return self.references.load_references_batch(content_hashes)
+        return cast(list[S3ReferenceData | None], 
+                   self.references.load_references_batch(content_hashes))
 
     def store_qualifier(
         self, content_hash: int, qualifier_data: S3QualifierData
@@ -209,13 +208,14 @@ class MyS3Client(Client):
 
     def load_qualifier(self, content_hash: int) -> S3QualifierData:
         """Load a qualifier by its content hash."""
-        return self.qualifiers.load_qualifier(content_hash)
+        return cast(S3QualifierData, self.qualifiers.load_qualifier(content_hash))
 
     def load_qualifiers_batch(
         self, content_hashes: list[int]
     ) -> list[S3QualifierData | None]:
         """Load multiple qualifiers by their content hashes."""
-        return self.qualifiers.load_qualifiers_batch(content_hashes)
+        return cast(list[S3QualifierData | None], 
+                   self.qualifiers.load_qualifiers_batch(content_hashes))
 
     def store_snak(
         self, content_hash: int, snak_data: S3SnakData
@@ -227,13 +227,14 @@ class MyS3Client(Client):
 
     def load_snak(self, content_hash: int) -> S3SnakData:
         """Load a snak by its content hash."""
-        return self.snaks.load_snak(content_hash)
+        return cast(S3SnakData, self.snaks.load_snak(content_hash))
 
     def load_snaks_batch(
         self, content_hashes: list[int]
     ) -> list[S3SnakData | None]:
         """Load multiple snaks by their content hashes."""
-        return self.snaks.load_snaks_batch(content_hashes)
+        return cast(list[S3SnakData | None], 
+                   self.snaks.load_snaks_batch(content_hashes))
 
     def store_revision(
         self, content_hash: int, revision_data
@@ -251,7 +252,7 @@ class MyS3Client(Client):
         from models.infrastructure.s3.storage.revision_storage import RevisionStorage
         if not hasattr(self, 'revisions') or self.revisions is None:
             self.revisions = RevisionStorage(connection_manager=self.connection_manager)
-        return self.revisions.load_revision(content_hash)
+        return cast(S3RevisionData, self.revisions.load_revision(content_hash))
 
     def store_form_representation(self, text: str, content_hash: int) -> None:
         """Store form representation text in terms bucket."""
@@ -276,11 +277,13 @@ class MyS3Client(Client):
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
         if not hasattr(self, 'lexeme_storage') or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
-        return self.lexemes.load_form_representations_batch(hashes)
+        return cast(list[str | None], 
+                   self.lexemes.load_form_representations_batch(hashes))
 
     def load_sense_glosses_batch(self, hashes: List[int]) -> List[Optional[str]]:
         """Load sense glosses by content hashes."""
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
         if not hasattr(self, 'lexeme_storage') or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
-        return self.lexemes.load_sense_glosses_batch(hashes)
+        return cast(list[str | None], 
+                   self.lexemes.load_sense_glosses_batch(hashes))

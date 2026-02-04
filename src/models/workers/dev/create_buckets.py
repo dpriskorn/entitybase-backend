@@ -60,7 +60,7 @@ class CreateBuckets(BaseModel):
             except ClientError as e:
                 # Handle AWS/MinIO client errors
                 error_code = e.response["Error"]["Code"]
-                if error_code == "404" or error_code == "NoSuchBucket":
+                if error_code in {"404", "NoSuchBucket"}:
                     # Bucket doesn't exist, create it
                     try:
                         self.s3_client.create_bucket(Bucket=bucket)

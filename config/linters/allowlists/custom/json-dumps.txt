@@ -9,11 +9,11 @@
 #
 # Format: filepath:line_number (one per line, lines starting with # are comments)
 
-# base_storage.py - Uses json.dumps on dict after model_dump(mode='json'), else branch uses default=str for non-model objects
-src/models/infrastructure/s3/base_storage.py:78
+# base_storage.py - Uses default=str for non-model objects (else branch)
+src/models/infrastructure/s3/base_storage.py:73
 
-# client.py - Uses json.dumps on revision_dict which is already from model_dump(mode='json')
-src/models/infrastructure/s3/client.py:79
+# client.py - Uses revision_dict which is already from model_dump(mode='json')
+src/models/infrastructure/s3/client.py:78
 
 # revision.py - Serializes properties list/dict to database storage
 src/models/infrastructure/vitess/repositories/revision.py:173
@@ -26,10 +26,15 @@ src/models/infrastructure/vitess/repositories/user.py:346
 # backlink.py - Serializes top entities dict for database storage
 src/models/infrastructure/vitess/repositories/backlink.py:135
 
-# handler.py - Uses revision_dict/request_data from model_dump() or dict sources, sorted for canonicalization
-src/models/rest_api/entitybase/v1/handlers/entity/handler.py:189
-src/models/rest_api/entitybase/v1/handlers/entity/handler.py:288
-src/models/rest_api/entitybase/v1/handlers/entity/handler.py:464
+# handler.py - Uses revision_dict from model_dump(mode='json') or plain dict, sorted for canonicalization
+src/models/rest_api/entitybase/v1/handlers/entity/handler.py:183
+src/models/rest_api/entitybase/v1/handlers/entity/handler.py:282
+
+# update_transaction.py - Uses revision_dict from model_dump(mode='json'), sorted for canonicalization
+src/models/rest_api/entitybase/v1/handlers/entity/update_transaction.py:164
+
+# creation_transaction.py - Uses revision_dict from model_dump(mode='json'), sorted for canonicalization
+src/models/rest_api/entitybase/v1/handlers/entity/creation_transaction.py:110
 
 # delete.py - Uses revision_dict from model_dump(mode='json'), sorted for canonicalization
 src/models/rest_api/entitybase/v1/handlers/entity/delete.py:161
@@ -41,7 +46,7 @@ src/models/rest_api/entitybase/v1/handlers/entity/revert.py:130
 src/models/rest_api/entitybase/v1/services/redirects.py:87
 
 # delete_service.py - Uses revision_dict from model_dump(mode='json'), sorted for canonicalization
-src/models/rest_api/entitybase/v1/services/delete_service.py:192
+src/models/rest_api/entitybase/v1/services/delete_service.py:194
 
 # statement_hasher.py - Canonical JSON for hashing (intentionally uses canonical form with sort_keys)
 src/models/internal_representation/statement_hasher.py:40

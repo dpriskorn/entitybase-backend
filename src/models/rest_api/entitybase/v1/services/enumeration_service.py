@@ -1,9 +1,9 @@
 """Entity ID enumeration service."""
 
 import logging
-from typing import Any
+from typing import Any, cast
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, FieldValidationInfo
 
 from models.data.rest_api.v1.entitybase.response import RangeStatuses
 from models.rest_api.utils import raise_validation_error
@@ -19,7 +19,7 @@ class EnumerationService(BaseModel):
     vitess_client: Any
     range_manager: Any = Field(default=None, exclude=True)
 
-    def model_post_init(self, context):
+    def model_post_init(self, context: FieldValidationInfo) -> None:
         # Minimum IDs to avoid collisions with Wikidata.org
         min_ids = {
             "Q": 300_000_000,
@@ -53,11 +53,11 @@ class EnumerationService(BaseModel):
             raise_validation_error(f"Unsupported entity type: {entity_type}")
 
         entity_prefix = type_mapping[entity_type]
-        return self.range_manager.get_next_id(entity_prefix)
+        return cast(str, self.range_manager.get_next_id(entity_prefix))
 
     def get_range_status(self) -> RangeStatuses:
         """Get status of ID ranges for monitoring."""
-        return self.range_manager.get_range_status()
+        return cast(RangeStatuses, self.range_manager.get_range_status())
 
     @staticmethod
     def confirm_id_usage(entity_id: str) -> None:

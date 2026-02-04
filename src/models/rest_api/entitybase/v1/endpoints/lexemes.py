@@ -9,8 +9,11 @@ from fastapi import APIRouter, HTTPException, Request
 from models.common import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
-    EntityUpdateRequest,
+    LexemeUpdateRequest,
     TermUpdateRequest,
+)
+from models.data.rest_api.v1.entitybase.request.entity.crud import (
+    EntityUpdateRequest as InternalEntityUpdateRequest,
 )
 from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
@@ -26,8 +29,8 @@ from models.data.rest_api.v1.entitybase.response import (
 from models.rest_api.entitybase.v1.handlers.entity.lexeme.create import (
     LexemeCreateHandler,
 )
-from models.rest_api.entitybase.v1.handlers.entity.lexeme.update import (
-    LexemeUpdateHandler,
+from models.rest_api.entitybase.v1.handlers.entity.update import (
+    EntityUpdateHandler,
 )
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 
@@ -268,13 +271,13 @@ async def update_form_representation(
         raise HTTPException(status_code=404, detail=f"Form {form_id} not found")
 
     # Create new revision
-    update_handler = LexemeUpdateHandler(state=state)
-    update_request = EntityUpdateRequest(
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = InternalEntityUpdateRequest(
         type="lexeme",
         **current_entity.data
     )
 
-    return await update_handler.update_entity(
+    return await update_handler.update_lexeme(
             lexeme_id,
             update_request,
             edit_headers=headers,
@@ -332,13 +335,13 @@ async def update_sense_gloss(
         raise HTTPException(status_code=404, detail=f"Sense {sense_id} not found")
 
     # Create new revision
-    update_handler = LexemeUpdateHandler(state=state)
-    update_request = EntityUpdateRequest(
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = InternalEntityUpdateRequest(
         type="lexeme",
         **current_entity.data
     )
 
-    return await update_handler.update_entity(
+    return await update_handler.update_lexeme(
             lexeme_id,
             update_request,
             edit_headers=headers,
@@ -379,13 +382,13 @@ async def delete_form(
     logger.debug(f"Removed form {form_id} from lexeme {lexeme_id}")
 
     # Create new revision
-    update_handler = LexemeUpdateHandler(state=state)
-    update_request = EntityUpdateRequest(
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = InternalEntityUpdateRequest(
         type="lexeme",
         **current_entity.data
     )
 
-    return await update_handler.update_entity(
+    return await update_handler.update_lexeme(
             lexeme_id,
             update_request,
             edit_headers=headers,
@@ -426,13 +429,13 @@ async def delete_sense(
     logger.debug(f"Removed sense {sense_id} from lexeme {lexeme_id}")
 
     # Create new revision
-    update_handler = LexemeUpdateHandler(state=state)
-    update_request = EntityUpdateRequest(
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = InternalEntityUpdateRequest(
         type="lexeme",
         **current_entity.data
     )
 
-    return await update_handler.update_entity(
+    return await update_handler.update_lexeme(
             lexeme_id,
             update_request,
             edit_headers=headers,
@@ -484,7 +487,7 @@ async def get_representations(req: Request, hashes: str) -> list[Optional[str]]:
 
     try:
         result = state.s3_client.load_form_representations_batch(rapidhashes)
-        return result
+        return cast(list[str | None], result)
     except Exception as e:
         logger.error(f"Failed to load representations: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -516,7 +519,7 @@ async def get_glosses(req: Request, hashes: str) -> list[Optional[str]]:
 
     try:
         result = state.s3_client.load_sense_glosses_batch(rapidhashes)
-        return result
+        return cast(list[str | None], result)
     except Exception as e:
         logger.error(f"Failed to load glosses: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")

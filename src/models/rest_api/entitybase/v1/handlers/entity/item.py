@@ -9,7 +9,6 @@ from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
-from models.data.rest_api.v1.entitybase.request.entity.revision import CreateRevisionRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.common import EditHeaders
 from models.rest_api.utils import raise_validation_error
@@ -52,34 +51,6 @@ class ItemCreateHandler(EntityCreateHandler):
         logger.debug(f"🔍 HANDLER: Prepared request data: {request_data_dict}")
         return PreparedRequestData(**request_data_dict)
 
-    @staticmethod
-    def _create_revision_request(
-            entity_id: str,
-        request_data: dict[str, Any],
-        request: EntityCreateRequest,
-        edit_headers: EditHeaders,
-        hash_result,
-    ) -> CreateRevisionRequest:
-        """Create revision request object."""
-        return CreateRevisionRequest(
-            entity_id=entity_id,
-            new_revision_id=1,
-            head_revision_id=0,
-            request_data=request_data,
-            entity_type=EntityType.ITEM,
-            hash_result=hash_result,
-            is_mass_edit=request.is_mass_edit,
-            edit_type=request.edit_type,
-            edit_summary=edit_headers.x_edit_summary,
-            is_semi_protected=request.state.is_semi_protected,
-            is_locked=request.state.is_locked,
-            is_archived=request.state.is_archived,
-            is_dangling=request.state.is_dangling,
-            is_mass_edit_protected=request.state.is_mass_edit_protected,
-            is_creation=True,
-            user_id=edit_headers.x_user_id,
-        )
-
     async def _execute_creation_transaction(
         self,
         tx: CreationTransaction,
@@ -96,10 +67,13 @@ class ItemCreateHandler(EntityCreateHandler):
         hash_result = tx.process_statements(entity_id, request_data, validator)
         logger.debug(f"🔍 HANDLER: Statements processed, hash_result: {hash_result}")
 
-        revision_request = self._create_revision_request(
-            entity_id, request_data, request, edit_headers, hash_result
+        response = await tx.create_revision(
+            entity_id=entity_id,
+            request_data=request_data,
+            entity_type=EntityType.ITEM,
+            edit_headers=edit_headers,
+            hash_result=hash_result,
         )
-        response = await tx.create_revision(revision_request)
         logger.debug(f"🔍 HANDLER: Revision created: {response}")
 
         tx.publish_event(

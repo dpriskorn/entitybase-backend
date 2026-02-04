@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Any
+from typing import Any, cast
 
 from models.common import EditHeaders
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
-from models.data.rest_api.v1.entitybase.request.entity.revision import CreateRevisionRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import (
@@ -41,23 +40,95 @@ class CreationTransaction(EntityTransaction):
             self.operations.append(
                 lambda h=hash_val: self._rollback_statement(h)  # type: ignore[misc]
             )
-        return hash_result
+        return cast(StatementHashResult, hash_result)
 
-    async def create_revision(self, request: CreateRevisionRequest) -> EntityResponse:
-        logger.debug(f"Creating revision for {request.entity_id}")
-        from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
-
-        handler = EntityHandler(state=self.state)
-        response = await handler.create_and_store_revision(request)
-        self.operations.append(
-            lambda: self._rollback_revision(request.entity_id, request.new_revision_id)
+    async def create_revision(
+        self,
+        entity_id: str,
+        request_data: PreparedRequestData,
+        entity_type: Any,
+        edit_headers: EditHeaders,
+        hash_result: StatementHashResult,
+    ) -> EntityResponse:
+        """Create revision using new architecture components."""
+        logger.debug(f"Creating revision for {entity_id}")
+        
+        from models.rest_api.entitybase.v1.services.hash_service import HashService
+        from models.data.infrastructure.s3.enums import EditType, EditData
+        from models.data.infrastructure.s3.entity_state import EntityState
+        import json
+        from rapidhash import rapidhash
+        from models.internal_representation.metadata_extractor import MetadataExtractor
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+        from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+        from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+        from models.config.settings import settings
+        
+        entity_json = json.dumps(request_data.model_dump(mode="json"), sort_keys=True)
+        content_hash = rapidhash(entity_json.encode())
+        
+        hs = HashService(state=self.state)
+        sitelink_hashes = hs.hash_sitelinks(request_data.get("sitelinks", {}))
+        labels_hashes = hs.hash_labels(request_data.get("labels", {}))
+        descriptions_hashes = hs.hash_descriptions(request_data.get("descriptions", {}))
+        aliases_hashes = hs.hash_aliases(request_data.get("aliases", {}))
+        
+        created_at = datetime.now().isoformat()
+        
+        revision_data = RevisionData(
+            revision_id=1,
+            entity_type=entity_type,
+            properties=hash_result.properties,
+            property_counts=hash_result.property_counts,
+            hashes=HashMaps(
+                statements=StatementsHashes(root=hash_result.statements),
+                sitelinks=sitelink_hashes,
+                labels=labels_hashes,
+                descriptions=descriptions_hashes,
+                aliases=aliases_hashes,
+            ),
+            edit=EditData(
+                mass=False,
+                type=EditType.UNSPECIFIED,
+                user_id=edit_headers.x_user_id,
+                summary=edit_headers.x_edit_summary,
+                at=created_at,
+            ),
+            state=EntityState(),
+            schema_version=settings.s3_schema_revision_version,
         )
-        if not response.success:
-            from models.rest_api.utils import raise_validation_error
-
-            raise_validation_error(response.error or "Failed to create revision")
-        assert isinstance(response.data, EntityResponse)
-        return response.data
+        
+        self.state.vitess_client.create_revision(
+            entity_id=entity_id,
+            entity_data=revision_data,
+            revision_id=1,
+            content_hash=content_hash,
+        )
+        
+        revision_dict = revision_data.model_dump(mode="json")
+        revision_json = json.dumps(revision_dict, sort_keys=True)
+        content_hash = MetadataExtractor.hash_string(revision_json)
+        
+        s3_revision_data = S3RevisionData(
+            schema=settings.s3_schema_revision_version,
+            revision=revision_dict,
+            hash=content_hash,
+            created_at=created_at,
+        )
+        
+        self.state.s3_client.store_revision(content_hash, s3_revision_data)
+        
+        self.operations.append(
+            lambda: self._rollback_revision(entity_id, 1)
+        )
+        
+        return EntityResponse(
+            id=entity_id,
+            rev_id=1,
+            data=revision_dict,
+            state=EntityState(),
+        )
 
     def publish_event(
         self,
