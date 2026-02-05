@@ -77,8 +77,8 @@ class LexemeRepository(Repository):
         """
         logger.debug(f"Retrieving lexeme terms for {entity_id}")
 
-        forms = {}
-        senses = {}
+        forms: dict[str, dict[str, str]] = {}
+        senses: dict[str, dict[str, str]] = {}
 
         with self.vitess_client.cursor as cursor:
             cursor.execute(

@@ -294,7 +294,7 @@ class StatementService(Service):
         return OperationResult(success=True)
 
     @staticmethod
-    def _process_snak_item(item: Any, snak_handler: SnakHandler) -> int | str | dict[str, Any] | list | float | None:
+    def _process_snak_item(item: Any, snak_handler: SnakHandler) -> int | str | dict[str, Any] | list[Any] | float | None | Any:
         """Process a single snak item.
 
         Returns snak hash if item is a dict with "property", otherwise original item.
@@ -312,7 +312,7 @@ class StatementService(Service):
         snak_key: str,
         snak_list: list,
         snak_handler: SnakHandler
-    ) -> tuple[str, list]:
+    ) -> tuple[str, list[Any]]:
         """Process snaks when value is a list."""
         new_snak_values = []
         for snak_item in snak_list:
@@ -345,7 +345,7 @@ class StatementService(Service):
                         datavalue=snak_value.get("datavalue", {})
                     )
                     snak_hash = snak_handler.store_snak(snak_request)
-                    new_snaks.append((snak_key, snak_hash))
+                    new_snaks.append((snak_key, [snak_hash]))
                 else:
                     new_snaks.append((snak_key, snak_value))
             ref_dict["snaks"] = dict(new_snaks)
@@ -473,7 +473,7 @@ class StatementService(Service):
                             datavalue=qual_values.get("datavalue", {})
                         )
                         snak_hash = snak_handler.store_snak(snak_request)
-                        new_qualifiers[prop_key] = snak_hash
+                        new_qualifiers[prop_key] = [snak_hash]
                     else:
                         new_qualifiers[prop_key] = qual_values
                 

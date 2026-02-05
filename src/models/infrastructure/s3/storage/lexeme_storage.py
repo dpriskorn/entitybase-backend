@@ -39,7 +39,7 @@ class LexemeStorage(MetadataStorage):
     def _load_metadata_batch(self, metadata_type: MetadataType, hashes: List[int]) -> List[Optional[str]]:
         """Helper method to load metadata in batches."""
         from models.data.infrastructure.s3 import StringLoadResponse
-        results = []
+        results: List[Optional[str]] = []
         for hash_val in hashes:
             try:
                 data = self.load_metadata(metadata_type, hash_val)

@@ -1,7 +1,7 @@
 """Revision storage operations."""
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from models.data.common import OperationResult
 from models.config.settings import settings
@@ -35,5 +35,4 @@ class RevisionStorage(BaseS3Storage):
             from models.infrastructure.s3.exceptions import S3NotFoundError
             raise S3NotFoundError(f"Revision not found: {key}")
         data = load_response.data
-        # data is dict from JSON, parse as S3RevisionData
-        return S3RevisionData(**data)
+        return cast(S3RevisionData, S3RevisionData.model_validate(data))

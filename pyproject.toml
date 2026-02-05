@@ -85,6 +85,10 @@ module = "src/models/rest_api/main.py"
 warn_return_any = false
 
 [[tool.mypy.overrides]]
+module = "src/models/rest_api/entitybase/v1/services/entity_statement_service.py"
+warn_return_any = false
+
+[[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
 

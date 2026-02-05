@@ -1,6 +1,7 @@
 """Reference routes for fetching deduplicated references."""
 
 import logging
+from typing import List
 
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
@@ -43,7 +44,7 @@ def _reconstruct_reference_snaks(reference_dict: dict, snak_handler: SnakHandler
         elif isinstance(snak_values, int) or (isinstance(snak_values, str) and snak_values.isdigit()):
             reconstructed_snak = snak_handler.get_snak(int(snak_values))
             if reconstructed_snak:
-                reconstructed_snaks[prop_key] = reconstructed_snak
+                reconstructed_snaks[prop_key] = [reconstructed_snak]
             else:
                 logger.warning(f"Snak {snak_values} not found")
         else:
@@ -57,7 +58,7 @@ references_router = APIRouter(prefix="/references", tags=["statements"])
 
 
 @references_router.get("/{hashes}")
-async def get_references(req: Request, hashes: str) -> list[ReferenceResponse | None]:
+async def get_references(req: Request, hashes: str) -> List[ReferenceResponse | None]:
     """Fetch references by hash(es).
 
     Supports single hash (e.g., /references/123) or comma-separated batch (e.g., /references/123,456,789).
@@ -83,7 +84,7 @@ async def get_references(req: Request, hashes: str) -> list[ReferenceResponse | 
         result = state.s3_client.load_references_batch(rapidhashes)
         snak_handler = SnakHandler(state=state)
         
-        references = []
+        references: List[ReferenceResponse | None] = []
         for item in result:
             if item is None:
                 references.append(None)

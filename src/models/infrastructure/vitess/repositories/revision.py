@@ -51,17 +51,17 @@ class RevisionRepository(Repository):
         )
         row = cursor.fetchone()
         if row:
-            return RevisionRecord.model_validate(
+            return cast(RevisionRecord, RevisionRecord.model_validate(
                 {
                     "statements": json.loads(row[0]) if row[0] else [],
                     "properties": json.loads(row[1]) if row[1] else [],
                     "property_counts": json.loads(row[2]) if row[2] else {},
                     "labels_hashes": json.loads(row[3]) if row[3] else {},
-                    "descriptions_hashes": json.loads(row[4]) if row[4] else [],
-                    "aliases_hashes": json.loads(row[5]) if row[5] else [],
+                    "descriptions_hashes": json.loads(row[4]) if row[4] else {},
+                    "aliases_hashes": json.loads(row[5]) if row[5] else {},
                     "sitelinks_hashes": json.loads(row[6]) if row[6] else {},
                 }
-            )
+            ))
         return None
 
     @validate_call

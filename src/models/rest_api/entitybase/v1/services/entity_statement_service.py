@@ -184,7 +184,7 @@ class EntityStatementService(Service):
             from models.data.infrastructure.s3.revision_data import S3RevisionData
             if not isinstance(s3_revision_data, S3RevisionData):
                 raise_validation_error("Invalid revision data type", status_code=500)
-            return RevisionData.model_validate(s3_revision_data.revision)
+            return RevisionData.model_validate(s3_revision_data.revision)  # type: ignore[no-any-return]
         except Exception as e:
             raise_validation_error(f"Failed to fetch revision: {e}", status_code=400)
     

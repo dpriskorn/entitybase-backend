@@ -160,8 +160,6 @@ class TestDeleteService:
 
         request = EntityDeleteRequest(
             delete_type=DeleteType.SOFT,
-            deletion_reason="Test deletion",
-            deleted_by="test_user",
         )
 
         revision_data = DeleteService.build_deletion_revision(
@@ -186,8 +184,6 @@ class TestDeleteService:
 
         request = EntityDeleteRequest(
             delete_type=DeleteType.HARD,
-            deletion_reason="Test deletion",
-            deleted_by="test_user",
         )
 
         revision_data = DeleteService.build_deletion_revision(
@@ -215,8 +211,6 @@ class TestDeleteService:
 
         request = EntityDeleteRequest(
             delete_type=DeleteType.SOFT,
-            deletion_reason="Test",
-            deleted_by="test_user",
         )
 
         revision_data = DeleteService.build_deletion_revision(
@@ -239,8 +233,6 @@ class TestDeleteService:
 
         request = EntityDeleteRequest(
             delete_type=DeleteType.SOFT,
-            deletion_reason="Test",
-            deleted_by="test_user",
         )
 
         revision_data = DeleteService.build_deletion_revision(

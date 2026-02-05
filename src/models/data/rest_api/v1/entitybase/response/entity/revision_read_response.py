@@ -4,6 +4,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from models.infrastructure.s3.revision.revision_data import RevisionData
+
 
 
 class RevisionReadResponse(BaseModel):
@@ -11,7 +13,7 @@ class RevisionReadResponse(BaseModel):
 
     entity_id: str
     revision_id: int
-    data: "RevisionData"
+    data: RevisionData
     content: dict[str, Any]
     schema_version: str = Field(default="")
     created_at: str = Field(default="")

@@ -102,8 +102,8 @@ async def get_qualifiers(req: Request, hashes: str) -> list[QualifierResponse | 
     try:
         result = state.s3_client.load_qualifiers_batch(rapidhashes)
         snak_handler = SnakHandler(state=state)
-        
-        qualifiers = []
+
+        qualifiers: list[QualifierResponse | None] = []
         for item in result:
             if item is None:
                 qualifiers.append(None)

@@ -95,7 +95,27 @@ class JsonSchemaValidator(BaseModel):
             self.recentchange_validator = Draft202012Validator(schema)
         return self.recentchange_validator
 
+    def _get_snak_validator(self) -> Draft202012Validator:
+        if self.snak_validator is None:
+            schema = self._get_snak_schema().data
+            self.snak_validator = Draft202012Validator(schema)
+        return self.snak_validator
 
+    def validate_statement(self, data: dict) -> None:
+        """Validate statement data against schema."""
+        validator = self._get_statement_validator()
+        errors = list(validator.iter_errors(data))
+        if errors:
+            error_messages = [
+                {
+                    "field": f"{'/' + '/'.join(str(p) for p in error.path) if error.path else '/'}",
+                    "message": error.message,
+                    "path": error.path,
+                }
+                for error in errors
+            ]
+            logger.error(f"Statement validation failed: {error_messages}")
+            raise_validation_error(str(errors[0]), status_code=400)
 
     # TODO: Implement usage in change streaming handlers when WMF recentchange events are consumed
     def validate_recentchange(self, data: dict) -> None:

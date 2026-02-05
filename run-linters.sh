@@ -24,7 +24,7 @@ set -e
 ./run-json-lint.sh
 
 # == external linters ==
-#./run-ruff.sh
+./run-ruff.sh
 ./run-radon.sh
 ./run-mypy.sh
-# ./run-vulture.sh
+./run-vulture.sh
