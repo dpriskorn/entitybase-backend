@@ -47,7 +47,7 @@ class TestLexemeForm:
         form = LexemeForm(
             id="L123-F1",
             representations={"en": representation},
-            grammatical_features=["Q110786"],
+            grammaticalFeatures=["Q110786"],
         )
 
         assert form.id == "L123-F1"

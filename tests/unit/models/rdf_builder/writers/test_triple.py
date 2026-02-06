@@ -7,6 +7,7 @@ from models.rdf_builder.models.rdf_statement import RDFStatement
 from models.rdf_builder.property_registry.models import PropertyShape, PropertyPredicates
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.writers.triple import TripleWriters
+from models.data.rest_api.v1.entitybase.request.entity.context import StatementWriteContext
 
 
 class TestTripleWriters:
@@ -168,7 +169,15 @@ class TestTripleWriters:
         # Mock property registry
         mock_registry = PropertyRegistry(properties={})
 
-        TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
+        ctx = StatementWriteContext(
+            output=output,
+            entity_id="Q42",
+            rdf_statement=rdf_statement,
+            shape=shape,
+            property_registry=mock_registry,
+            dedupe=None,
+        )
+        TripleWriters.write_statement(ctx)
 
         result = output.getvalue()
 
@@ -219,7 +228,15 @@ class TestTripleWriters:
         # Mock property registry
         mock_registry = PropertyRegistry(properties={})
 
-        TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
+        ctx = StatementWriteContext(
+            output=output,
+            entity_id="Q42",
+            rdf_statement=rdf_statement,
+            shape=shape,
+            property_registry=mock_registry,
+            dedupe=None,
+        )
+        TripleWriters.write_statement(ctx)
 
         result = output.getvalue()
 
@@ -258,7 +275,15 @@ class TestTripleWriters:
         mock_registry = PropertyRegistry(properties={})
 
         with patch('models.rdf_builder.writers.triple.ValueFormatter.format_value', return_value="wd:Q5"):
-            TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
+            ctx = StatementWriteContext(
+                output=output,
+                entity_id="Q42",
+                rdf_statement=rdf_statement,
+                shape=shape,
+                property_registry=mock_registry,
+                dedupe=None,
+            )
+            TripleWriters.write_statement(ctx)
 
         result = output.getvalue()
         assert "wikibase:rank wikibase:DeprecatedRank ." in result
@@ -308,7 +333,15 @@ class TestTripleWriters:
         mock_registry = PropertyRegistry(properties={})
 
         with patch('models.rdf_builder.property_registry.registry.PropertyRegistry.shape', return_value=PropertyShape(pid="P1107", datatype="quantity", predicates=PropertyPredicates(direct="wdt:P1107", statement="ps:P1107", qualifier="pq:P1107", qualifier_value="pqv:P1107", reference="pr:P1107"))):
-            TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
+            ctx = StatementWriteContext(
+                output=output,
+                entity_id="Q42",
+                rdf_statement=rdf_statement,
+                shape=shape,
+                property_registry=mock_registry,
+                dedupe=None,
+            )
+            TripleWriters.write_statement(ctx)
 
         result = output.getvalue()
 
@@ -359,7 +392,15 @@ class TestTripleWriters:
         mock_registry = PropertyRegistry(properties={})
 
         with patch('models.rdf_builder.property_registry.registry.PropertyRegistry.shape', return_value=PropertyShape(pid="P1476", datatype="string", predicates=PropertyPredicates(direct="wdt:P1476", statement="ps:P1476", qualifier="pq:P1476", reference="pr:P1476"))):
-            TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
+            ctx = StatementWriteContext(
+                output=output,
+                entity_id="Q42",
+                rdf_statement=rdf_statement,
+                shape=shape,
+                property_registry=mock_registry,
+                dedupe=None,
+            )
+            TripleWriters.write_statement(ctx)
 
         result = output.getvalue()
 
@@ -417,7 +458,15 @@ class TestTripleWriters:
             mock_rdf_ref.reference_uri = "wdref:123"
             mock_rdf_ref_class.return_value = mock_rdf_ref
 
-            TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
+            ctx = StatementWriteContext(
+                output=output,
+                entity_id="Q42",
+                rdf_statement=rdf_statement,
+                shape=shape,
+                property_registry=mock_registry,
+                dedupe=None,
+            )
+            TripleWriters.write_statement(ctx)
 
         result = output.getvalue()
 
@@ -456,7 +505,15 @@ class TestTripleWriters:
         mock_registry = PropertyRegistry(properties={})
 
         with patch('models.rdf_builder.writers.triple.ValueFormatter.format_value', return_value="wd:Q5"):
-            TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
+            ctx = StatementWriteContext(
+                output=output,
+                entity_id="Q42",
+                rdf_statement=rdf_statement,
+                shape=shape,
+                property_registry=mock_registry,
+                dedupe=None,
+            )
+            TripleWriters.write_statement(ctx)
 
         result = output.getvalue()
 
@@ -517,7 +574,15 @@ class TestTripleWriters:
 
         with patch('models.rdf_builder.property_registry.registry.PropertyRegistry.shape', side_effect=mock_shape), \
              patch('models.rdf_builder.writers.triple.ValueFormatter.format_value', return_value="wd:Q5"):
-            TripleWriters.write_statement(output, "Q42", rdf_statement, shape, mock_registry)
+            ctx = StatementWriteContext(
+                output=output,
+                entity_id="Q42",
+                rdf_statement=rdf_statement,
+                shape=shape,
+                property_registry=mock_registry,
+                dedupe=None,
+            )
+            TripleWriters.write_statement(ctx)
 
         result = output.getvalue()
 

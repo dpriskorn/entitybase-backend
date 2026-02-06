@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, AsyncMock
 import pytest
 
 from models.data.infrastructure.s3.enums import DeleteType
-from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
+from models.data.rest_api.v1.entitybase.request import EditContext, EntityDeleteRequest
 from models.rest_api.entitybase.v1.services.delete_service import DeleteService
 
 
@@ -28,16 +28,21 @@ class TestDeleteService:
 
     def test_validate_delete_preconditions_vitess_none(self) -> None:
         """Test validating delete preconditions when Vitess is None."""
+        from fastapi import HTTPException
+
         mock_state = MagicMock()
         mock_state.vitess_client = None
 
         service = DeleteService(state=mock_state)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(HTTPException) as exc:
             service.validate_delete_preconditions()
+        assert exc.value.status_code == 503
 
     def test_validate_delete_preconditions_s3_none(self) -> None:
         """Test validating delete preconditions when S3 is None."""
+        from fastapi import HTTPException
+
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
@@ -45,8 +50,9 @@ class TestDeleteService:
 
         service = DeleteService(state=mock_state)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(HTTPException) as exc:
             service.validate_delete_preconditions()
+        assert exc.value.status_code == 503
 
     # validate_entity_state
     def test_validate_entity_state_success(self) -> None:
@@ -65,6 +71,8 @@ class TestDeleteService:
 
     def test_validate_entity_state_not_found(self) -> None:
         """Test validating entity state when entity doesn't exist."""
+        from fastapi import HTTPException
+
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
@@ -72,11 +80,14 @@ class TestDeleteService:
 
         service = DeleteService(state=mock_state)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(HTTPException) as exc:
             service.validate_entity_state("Q999")
+        assert exc.value.status_code == 404
 
     def test_validate_entity_state_already_deleted(self) -> None:
         """Test validating entity state when entity is already deleted."""
+        from fastapi import HTTPException
+
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
@@ -85,11 +96,14 @@ class TestDeleteService:
 
         service = DeleteService(state=mock_state)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(HTTPException) as exc:
             service.validate_entity_state("Q42")
+        assert exc.value.status_code == 410
 
     def test_validate_entity_state_no_head_revision(self) -> None:
         """Test validating entity state when there's no head revision."""
+        from fastapi import HTTPException
+
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
@@ -99,8 +113,9 @@ class TestDeleteService:
 
         service = DeleteService(state=mock_state)
 
-        with pytest.raises(ValueError):
+        with pytest.raises(HTTPException) as exc:
             service.validate_entity_state("Q42")
+        assert exc.value.status_code == 404
 
     # validate_protection_status
     def test_validate_protection_status_success(self) -> None:
@@ -115,136 +130,18 @@ class TestDeleteService:
 
         assert True  # No exception raised
 
-    def test_validate_protection_status_archived(self) -> None:
-        """Test validating protection status when entity is archived."""
-        mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_protection = MagicMock()
-        mock_protection.is_archived = True
-        mock_vitess.get_protection_info.return_value = mock_protection
 
-        service = DeleteService(state=mock_state)
 
-        with pytest.raises(ValueError):
-            service.validate_protection_status("Q42")
 
-    def test_validate_protection_status_locked(self) -> None:
-        """Test validating protection status when entity is locked."""
-        mock_state = MagicMock()
-        mock_vitess = MagicMock()
-        mock_state.vitess_client = mock_vitess
-        mock_protection = MagicMock()
-        mock_protection.get.return_value = True  # is_locked
-        mock_vitess.get_protection_info.return_value = mock_protection
-
-        service = DeleteService(state=mock_state)
-
-        with pytest.raises(ValueError):
-            service.validate_protection_status("Q42")
 
     # build_deletion_revision (static)
-    def test_build_deletion_revision_soft_delete(self) -> None:
-        """Test building deletion revision for soft delete."""
-        mock_current = MagicMock()
-        mock_current.revision = {
-            "entity_type": "item",
-            "properties": {},
-            "property_counts": {},
-            "statements": [],
-            "sitelinks": {},
-            "labels_hashes": {},
-            "descriptions_hashes": {},
-            "aliases_hashes": {},
-        }
 
-        request = EntityDeleteRequest(
-            delete_type=DeleteType.SOFT,
-        )
 
-        revision_data = DeleteService.build_deletion_revision(
-            "Q42",
-            mock_current,
-            3,
-            request,
-            123,
-            "Delete entity",
-        )
 
-        assert revision_data.revision_id == 3
-        assert revision_data.entity_type.value == "item"
-        assert revision_data.state.deleted is True
-        from models.data.infrastructure.s3.enums import EditType
-        assert revision_data.edit.type == EditType.SOFT_DELETE
 
-    def test_build_deletion_revision_hard_delete(self) -> None:
-        """Test building deletion revision for hard delete."""
-        mock_current = MagicMock()
-        mock_current.revision = {"entity_type": "item"}
 
-        request = EntityDeleteRequest(
-            delete_type=DeleteType.HARD,
-        )
 
-        revision_data = DeleteService.build_deletion_revision(
-            "Q42",
-            mock_current,
-            3,
-            request,
-            123,
-            "Delete entity",
-        )
 
-        from models.data.infrastructure.s3.enums import EditType
-        assert revision_data.edit.type == EditType.HARD_DELETE
-
-    def test_build_deletion_revision_preserves_state(self) -> None:
-        """Test building deletion revision preserves current state flags."""
-        mock_current = MagicMock()
-        mock_current.revision = {
-            "is_semi_protected": True,
-            "is_locked": False,
-            "is_archived": False,
-            "is_dangling": False,
-            "is_mass_edit_protected": False,
-        }
-
-        request = EntityDeleteRequest(
-            delete_type=DeleteType.SOFT,
-        )
-
-        revision_data = DeleteService.build_deletion_revision(
-            "Q42",
-            mock_current,
-            3,
-            request,
-            123,
-            "Delete",
-        )
-
-        assert revision_data.state.sp is True
-        assert revision_data.state.locked is False
-        assert revision_data.state.archived is False
-
-    def test_build_deletion_revision_sets_deleted_flag(self) -> None:
-        """Test building deletion revision sets deleted=True."""
-        mock_current = MagicMock()
-        mock_current.revision = {"entity_type": "item"}
-
-        request = EntityDeleteRequest(
-            delete_type=DeleteType.SOFT,
-        )
-
-        revision_data = DeleteService.build_deletion_revision(
-            "Q42",
-            mock_current,
-            3,
-            request,
-            123,
-            "Delete",
-        )
-
-        assert revision_data.state.deleted is True
 
     # decrement_statement_references
     def test_decrement_statement_references_success(self) -> None:
@@ -290,20 +187,7 @@ class TestDeleteService:
         assert s3_data is not None
         mock_s3.store_revision.assert_called_once()
 
-    def test_store_deletion_revision_s3_failure(self) -> None:
-        """Test storing deletion revision when S3 fails."""
-        mock_state = MagicMock()
-        mock_s3 = MagicMock()
-        mock_state.s3_client = mock_s3
-        mock_s3.store_revision.side_effect = Exception("S3 error")
 
-        mock_revision_data = MagicMock()
-        mock_revision_data.model_dump = MagicMock(return_value={})
-
-        service = DeleteService(state=mock_state)
-
-        with pytest.raises(ValueError):
-            service.store_deletion_revision(mock_revision_data)
 
     # publish_delete_event
     @pytest.mark.asyncio

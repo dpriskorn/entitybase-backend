@@ -12,6 +12,27 @@ from models.config.settings import settings
 
 logger = logging.getLogger(__name__)
 
+AWS_LOGGERS = [
+    "botocore",
+    "boto3",
+    "urllib3",
+    "s3transfer",
+    "botocore.hooks",
+    "botocore.retryhandler",
+    "botocore.utils",
+    "botocore.parsers",
+    "botocore.endpoint",
+    "botocore.auth",
+]
+
+
+@pytest.fixture(autouse=True)
+def configure_aws_logging():
+    """Configure AWS loggers to WARNING level for integration tests."""
+    for logger_name in AWS_LOGGERS:
+        logging.getLogger(logger_name).setLevel(logging.WARNING)
+    yield
+
 
 @pytest.fixture(scope="session")
 def db_conn():

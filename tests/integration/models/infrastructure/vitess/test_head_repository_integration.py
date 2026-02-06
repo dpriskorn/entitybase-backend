@@ -6,6 +6,7 @@ from models.infrastructure.vitess.repositories.head import HeadRepository
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.data.infrastructure.s3.enums import EntityType, EditType, EditData
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+from models.data.rest_api.v1.entitybase.request.entity.context import EntityHeadUpdateContext
 
 
 @pytest.fixture
@@ -17,7 +18,7 @@ def repository(vitess_client):
 def test_cas_update_with_status_success(repository, vitess_client):
     """Test successful CAS update with status flags."""
     entity_id = "Q123456789"
-    
+
     # Register entity and set initial head
     vitess_client.register_entity(entity_id)
     vitess_client.entity_repository.create_entity(entity_id)
@@ -27,10 +28,10 @@ def test_cas_update_with_status_success(repository, vitess_client):
         edit=EditData(type=EditType.MANUAL_UPDATE, user_id=0, mass=False, summary="Initial", at="2025-01-01T00:00:00Z"),
         hashes=HashMaps(),
     )
-    vitess_client.insert_revision(entity_id=entity_id, revision_id=1, entity_data=revision_data)
-    
+    vitess_client.insert_revision(entity_id=entity_id, revision_id=1, entity_data=revision_data, content_hash=123456789)
+
     # Perform CAS update
-    result = repository.cas_update_with_status(
+    ctx = EntityHeadUpdateContext(
         entity_id=entity_id,
         expected_head=0,
         new_head=10,
@@ -42,7 +43,8 @@ def test_cas_update_with_status_success(repository, vitess_client):
         is_deleted=False,
         is_redirect=False,
     )
-    
+    result = repository.cas_update_with_status(ctx)
+
     assert result.success is True
     assert result.error is ""
 
@@ -50,7 +52,7 @@ def test_cas_update_with_status_success(repository, vitess_client):
 def test_cas_update_with_status_failure(repository, vitess_client):
     """Test CAS update when head doesn't match expected value."""
     entity_id = "Q987654321"
-    
+
     # Register entity and set head to 10
     vitess_client.register_entity(entity_id)
     vitess_client.entity_repository.create_entity(entity_id)
@@ -60,23 +62,29 @@ def test_cas_update_with_status_failure(repository, vitess_client):
         edit=EditData(type=EditType.MANUAL_UPDATE, user_id=0, mass=False, summary="Test", at="2025-01-01T00:00:00Z"),
         hashes=HashMaps()
     )
-    vitess_client.insert_revision(entity_id=entity_id, revision_id=10, entity_data=revision_data)
-    
+    vitess_client.insert_revision(entity_id=entity_id, revision_id=10, entity_data=revision_data, content_hash=987654321)
+
     # Try to CAS update with wrong expected head
-    result = repository.cas_update_with_status(
+    ctx = EntityHeadUpdateContext(
         entity_id=entity_id,
         expected_head=5,
         new_head=15,
     )
-    
+    result = repository.cas_update_with_status(ctx)
+
     assert result.success is False
     assert "CAS failed" in result.error
 
 
 def test_cas_update_with_status_entity_not_found(repository):
     """Test CAS update when entity doesn't exist."""
-    result = repository.cas_update_with_status("Q999", 0, 10)
-    
+    ctx = EntityHeadUpdateContext(
+        entity_id="Q999",
+        expected_head=0,
+        new_head=10,
+    )
+    result = repository.cas_update_with_status(ctx)
+
     assert result.success is False
     assert "not found" in result.error.lower()
 
@@ -85,7 +93,7 @@ def test_hard_delete(repository, vitess_client):
     """Test hard delete operation."""
     entity_id = "Q111111111"
     head_revision_id = 20
-    
+
     # Register entity and set head
     vitess_client.register_entity(entity_id)
     vitess_client.entity_repository.create_entity(entity_id)
@@ -95,11 +103,11 @@ def test_hard_delete(repository, vitess_client):
         edit=EditData(type=EditType.MANUAL_UPDATE, user_id=0, mass=False, summary="Test", at="2025-01-01T00:00:00Z"),
         hashes=HashMaps(),
     )
-    vitess_client.insert_revision(entity_id=entity_id, revision_id=head_revision_id, entity_data=revision_data)
-    
+    vitess_client.insert_revision(entity_id=entity_id, revision_id=head_revision_id, entity_data=revision_data, content_hash=111111111)
+
     # Perform hard delete
     result = repository.hard_delete(entity_id, head_revision_id)
-    
+
     assert result.success is True
 
 
@@ -114,7 +122,7 @@ def test_hard_delete_entity_not_found(repository):
 def test_soft_delete(repository, vitess_client):
     """Test soft delete operation."""
     entity_id = "Q222222222"
-    
+
     # Register entity and set head
     vitess_client.register_entity(entity_id)
     vitess_client.entity_repository.create_entity(entity_id)
@@ -124,11 +132,11 @@ def test_soft_delete(repository, vitess_client):
         edit=EditData(type=EditType.MANUAL_UPDATE, user_id=0, mass=False, summary="Test", at="2025-01-01T00:00:00Z"),
         hashes=HashMaps(),
     )
-    vitess_client.insert_revision(entity_id=entity_id, revision_id=10, entity_data=revision_data)
-    
+    vitess_client.insert_revision(entity_id=entity_id, revision_id=10, entity_data=revision_data, content_hash=222222222)
+
     # Perform soft delete
     result = repository.soft_delete(entity_id)
-    
+
     assert result.success is True
 
 
@@ -144,7 +152,7 @@ def test_get_head_revision_exists(repository, vitess_client):
     """Test getting head revision when entity exists."""
     entity_id = "Q333333333"
     revision_id = 30
-    
+
     # Register entity and insert revision
     vitess_client.register_entity(entity_id)
     vitess_client.entity_repository.create_entity(entity_id)
@@ -154,14 +162,14 @@ def test_get_head_revision_exists(repository, vitess_client):
         edit=EditData(type=EditType.MANUAL_UPDATE, user_id=0, mass=False, summary="Test", at="2025-01-01T00:00:00Z"),
         hashes=HashMaps(),
     )
-    vitess_client.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=revision_data)
-    
+    vitess_client.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=revision_data, content_hash=333333333)
+
     # Get internal ID
     internal_id = vitess_client.resolve_id(entity_id)
-    
+
     # Get head revision
     result = repository.get_head_revision(internal_id)
-    
+
     assert result.success is True
     assert result.data == revision_id
 

@@ -10,6 +10,8 @@ class TestHeadRepository:
 
     def test_cas_update_with_status_success(self):
         """Test successful CAS update with status flags."""
+        from models.data.rest_api.v1.entitybase.request.entity.context import EntityHeadUpdateContext
+
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
         mock_id_resolver = MagicMock()
@@ -20,7 +22,7 @@ class TestHeadRepository:
 
         repo = HeadRepository(vitess_client=mock_vitess_client)
 
-        result = repo.cas_update_with_status(
+        ctx = EntityHeadUpdateContext(
             entity_id="Q1",
             expected_head=10,
             new_head=11,
@@ -32,11 +34,14 @@ class TestHeadRepository:
             is_deleted=False,
             is_redirect=False,
         )
+        result = repo.cas_update_with_status(ctx)
 
         assert result.success is True
 
     def test_cas_update_with_status_entity_not_found(self):
         """Test CAS update when entity not found."""
+        from models.data.rest_api.v1.entitybase.request.entity.context import EntityHeadUpdateContext
+
         mock_vitess_client = MagicMock()
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = None
@@ -44,13 +49,16 @@ class TestHeadRepository:
 
         repo = HeadRepository(vitess_client=mock_vitess_client)
 
-        result = repo.cas_update_with_status("Q999", 10, 11)
+        ctx = EntityHeadUpdateContext(entity_id="Q999", expected_head=10, new_head=11)
+        result = repo.cas_update_with_status(ctx)
 
         assert result.success is False
         assert "Entity not found" in result.error
 
     def test_cas_update_with_status_cas_failure(self):
         """Test CAS update when head mismatch."""
+        from models.data.rest_api.v1.entitybase.request.entity.context import EntityHeadUpdateContext
+
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
         mock_id_resolver = MagicMock()
@@ -61,13 +69,16 @@ class TestHeadRepository:
 
         repo = HeadRepository(vitess_client=mock_vitess_client)
 
-        result = repo.cas_update_with_status("Q1", 10, 11)
+        ctx = EntityHeadUpdateContext(entity_id="Q1", expected_head=10, new_head=11)
+        result = repo.cas_update_with_status(ctx)
 
         assert result.success is False
         assert "CAS failed" in result.error
 
     def test_cas_update_with_status_database_error(self):
         """Test CAS update with database error."""
+        from models.data.rest_api.v1.entitybase.request.entity.context import EntityHeadUpdateContext
+
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
         mock_id_resolver = MagicMock()
@@ -78,7 +89,8 @@ class TestHeadRepository:
 
         repo = HeadRepository(vitess_client=mock_vitess_client)
 
-        result = repo.cas_update_with_status("Q1", 10, 11)
+        ctx = EntityHeadUpdateContext(entity_id="Q1", expected_head=10, new_head=11)
+        result = repo.cas_update_with_status(ctx)
 
         assert result.success is False
         assert "DB error" in result.error

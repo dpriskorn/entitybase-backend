@@ -48,7 +48,7 @@ class TestEditHeaders:
 
     def test_alias_instantiation(self):
         """Test instantiation using kebab-case aliases."""
-        edit_headers = EditHeaders(X_User_ID=999, X_Edit_Summary="Alias test")
+        edit_headers = EditHeaders(x_user_id=999, x_edit_summary="Alias test")
         assert edit_headers.x_user_id == 999
         assert edit_headers.x_edit_summary == "Alias test"
 

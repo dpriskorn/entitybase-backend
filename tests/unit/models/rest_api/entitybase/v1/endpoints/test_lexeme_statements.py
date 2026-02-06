@@ -10,6 +10,6 @@ class TestStatements(TestCase):
     def test_statements_hash_response_serialization(self):
         """Test that StatementsHashResponse serializes correctly."""
         response = StatementsHashResponse(hashes=[123456789, 987654321])
-        json_data = response.model_dump()
+        json_data = response.model_dump(by_alias=True)
         assert "hashes" in json_data
         assert json_data["hashes"] == [123456789, 987654321]
