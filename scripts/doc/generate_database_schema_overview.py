@@ -78,7 +78,7 @@ def extract_create_table_from_content(content: str, file_location: str) -> Dict[
             if any(keyword in line.upper() for keyword in ["PRIMARY KEY", "FOREIGN KEY", "INDEX", "UNIQUE"]):
                 continue
 
-            col_match = re.match(r"[`"]?(\w+)[`"]?\s+([^,\n\(]+)", line)
+            col_match = re.match(r'[`"]?(\w+)[`"]?\s+([^,\n\(]+)', line)
             if col_match:
                 col_name, col_type = col_match.groups()
                 columns.append(f"- `{col_name}`: {col_type.strip()}")

@@ -46,7 +46,7 @@ src/models/rest_api/entitybase/v1/handlers/entity/revert.py:130
 src/models/rest_api/entitybase/v1/services/redirects.py:88
 
 # delete_service.py - Uses revision_dict from model_dump(mode='json'), sorted for canonicalization
-src/models/rest_api/entitybase/v1/services/delete_service.py:194
+src/models/rest_api/entitybase/v1/services/delete_service.py:192
 
 # statement_hasher.py - Canonical JSON for hashing (intentionally uses canonical form with sort_keys)
 src/models/internal_representation/statement_hasher.py:40
