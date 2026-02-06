@@ -85,8 +85,9 @@ class EntityCreateHandler(EntityHandler):
 
         # Common processing logic using new architecture
         from models.data.infrastructure.s3.enums import EntityType
+        from models.data.rest_api.v1.entitybase.request.entity.context import ProcessEntityRevisionContext
 
-        response = await self.process_entity_revision_new(
+        ctx = ProcessEntityRevisionContext(
             entity_id=entity_id,
             request_data=request_data,
             entity_type=EntityType(request.type),
@@ -95,6 +96,7 @@ class EntityCreateHandler(EntityHandler):
             is_creation=True,
             validator=validator,
         )
+        response = await self.process_entity_revision_new(ctx)
 
         # Log activity
         if edit_headers.x_user_id > 0:

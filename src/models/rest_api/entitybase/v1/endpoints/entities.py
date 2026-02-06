@@ -13,6 +13,7 @@ from models.data.rest_api.v1.entitybase.request import (
 from models.data.rest_api.v1.entitybase.request import (
     RemoveStatementRequest,
 )
+from models.data.rest_api.v1.entitybase.request.entity.context import SitelinkUpdateContext
 from models.data.rest_api.v1.entitybase.request.entity.sitelink import SitelinkData
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.response import (
@@ -347,11 +348,14 @@ async def post_entity_sitelink(
 
     # Create new revision using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
+    ctx = SitelinkUpdateContext(
+        entity_id=entity_id,
+        site=site,
+        title=sitelink_data.title,
+        badges=sitelink_data.badges,
+    )
     result = await update_handler.update_sitelink(
-        entity_id,
-        site,
-        sitelink_data.title,
-        sitelink_data.badges,
+        ctx,
         headers,
         state.validator,
     )
@@ -386,11 +390,14 @@ async def put_entity_sitelink(
 
     # Update sitelink using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
+    ctx = SitelinkUpdateContext(
+        entity_id=entity_id,
+        site=site,
+        title=sitelink_data.title,
+        badges=sitelink_data.badges,
+    )
     result = await update_handler.update_sitelink(
-        entity_id,
-        site,
-        sitelink_data.title,
-        sitelink_data.badges,
+        ctx,
         headers,
         state.validator,
     )

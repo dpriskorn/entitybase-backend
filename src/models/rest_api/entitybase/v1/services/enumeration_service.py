@@ -3,7 +3,7 @@
 import logging
 from typing import Any, cast
 
-from pydantic import BaseModel, Field, FieldValidationInfo
+from pydantic import BaseModel, Field
 
 from models.data.rest_api.v1.entitybase.response import RangeStatuses
 from models.rest_api.utils import raise_validation_error
@@ -19,7 +19,7 @@ class EnumerationService(BaseModel):
     vitess_client: Any
     range_manager: Any = Field(default=None, exclude=True)
 
-    def model_post_init(self, context: FieldValidationInfo) -> None:
+    def model_post_init(self, context: Any) -> None:
         # Minimum IDs to avoid collisions with Wikidata.org
         min_ids = {
             "Q": 300_000_000,

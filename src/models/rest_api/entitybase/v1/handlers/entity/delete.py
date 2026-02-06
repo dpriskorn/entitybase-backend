@@ -4,7 +4,7 @@ import logging
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import DeleteType
-from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
+from models.data.rest_api.v1.entitybase.request import EditContext, EntityDeleteRequest
 from models.data.rest_api.v1.entitybase.response import EntityDeleteResponse
 from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.services.delete_service import DeleteService
@@ -45,13 +45,17 @@ class EntityDeleteHandler(Handler):
             entity_id, head_revision_id
         )
 
+        edit_context = EditContext(
+            user_id=edit_headers.x_user_id,
+            edit_summary=edit_headers.x_edit_summary,
+        )
+
         revision_data = delete_service.build_deletion_revision(
             entity_id=entity_id,
             current_revision=current_revision,
             new_revision_id=new_revision_id,
             request=request,
-            user_id=edit_headers.x_user_id,
-            edit_summary=edit_headers.x_edit_summary,
+            edit_context=edit_context,
         )
 
         if request.delete_type == DeleteType.HARD:

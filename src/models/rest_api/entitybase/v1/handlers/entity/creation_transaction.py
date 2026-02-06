@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import Any
 
 from models.data.infrastructure.stream.change_type import ChangeType
-from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData, EditContext, EventPublishContext
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
@@ -69,10 +69,10 @@ class CreationTransaction(EntityTransaction):
         content_hash = rapidhash(entity_json.encode())
         
         hs = HashService(state=self.state)
-        sitelink_hashes = hs.hash_sitelinks(request_data.get("sitelinks", {}))
-        labels_hashes = hs.hash_labels(request_data.get("labels", {}))
-        descriptions_hashes = hs.hash_descriptions(request_data.get("descriptions", {}))
-        aliases_hashes = hs.hash_aliases(request_data.get("aliases", {}))
+        sitelink_hashes = hs.hash_sitelinks(request_data.sitelinks)
+        labels_hashes = hs.hash_labels(request_data.labels)
+        descriptions_hashes = hs.hash_descriptions(request_data.descriptions)
+        aliases_hashes = hs.hash_aliases(request_data.aliases)
         
         created_at = datetime.now().isoformat()
 
@@ -133,27 +133,24 @@ class CreationTransaction(EntityTransaction):
 
     def publish_event(
         self,
-        entity_id: str,
-        revision_id: int,
-        change_type: str,
-        edit_headers: EditHeaders,
-        changed_at: datetime | None = None,
-        from_revision_id: int = 0,
+        event_context: EventPublishContext,
+        edit_context: EditContext,
     ) -> None:
         """Publish the entity creation event."""
+        changed_at = event_context.changed_at
         if changed_at is None:
             changed_at = datetime.now()
-        logger.info(f"[CreationTransaction] Starting event publishing for {entity_id}")
+        logger.info(f"[CreationTransaction] Starting event publishing for {event_context.entity_id}")
         if self.state.entity_change_stream_producer:
             from models.infrastructure.stream.event import EntityChangeEvent
 
             event = EntityChangeEvent(
-                id=entity_id,
-                rev=revision_id,
-                type=ChangeType(change_type),
-                from_rev=from_revision_id,
+                id=event_context.entity_id,
+                rev=event_context.revision_id,
+                type=ChangeType(event_context.change_type),
+                from_rev=event_context.from_revision_id,
                 at=changed_at,
-                summary=edit_headers.x_edit_summary,
+                summary=edit_context.edit_summary,
             )
             self.state.entity_change_stream_producer.publish_change(event)
         # Events are fire-and-forget, no rollback needed

@@ -290,10 +290,12 @@ class EntityStatementService(Service):
         validator: Any | None,
     ) -> EntityResponse:
         """Process entity update using new architecture."""
+        from models.data.rest_api.v1.entitybase.request.entity.context import ProcessEntityRevisionContext
+
         read_handler = EntityReadHandler(state=self.state)
         entity_response = read_handler.get_entity(entity_id)
         handler = EntityHandler(state=self.state)
-        return await handler.process_entity_revision_new(
+        ctx = ProcessEntityRevisionContext(
             entity_id=entity_id,
             request_data=current_data,
             entity_type=entity_response.entity_type,
@@ -301,5 +303,6 @@ class EntityStatementService(Service):
             edit_headers=edit_headers,
             is_creation=False,
             validator=validator,
-        ) # type: ignore
+        )
+        return await handler.process_entity_revision_new(ctx) # type: ignore
     

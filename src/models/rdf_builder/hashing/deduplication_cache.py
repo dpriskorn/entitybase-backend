@@ -4,9 +4,9 @@ Implements MediaWiki's HashDedupeBag pattern to avoid duplicate value node block
 Follows same algorithm as mediawiki-extensions-Wikibase/repo/includes/Rdf/HashDedupeBag.php
 """
 
-from typing import Protocol
+from typing import Protocol, Any
 
-from pydantic import BaseModel, Field, FieldValidationInfo
+from pydantic import BaseModel, Field
 
 from models.data.rest_api.v1.entitybase.response import DeduplicationStatsResponse
 from models.rest_api.utils import raise_validation_error
@@ -70,7 +70,7 @@ class HashDedupeBag(BaseModel):
     hits: int = 0
     misses: int = 0
 
-    def model_post_init(self, context: FieldValidationInfo) -> None:
+    def model_post_init(self, context: Any) -> None:
         """Initialize HashDedupeBag with the given cutoff value.
 
         The cutoff is the number of hash characters to use. A larger number means less collisions

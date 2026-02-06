@@ -3,6 +3,7 @@
 import logging
 
 from models.data.common import OperationResult
+from models.data.rest_api.v1.entitybase.request.entity.context import EntityHeadUpdateContext
 from models.infrastructure.vitess.repository import Repository
 
 logger = logging.getLogger(__name__)
@@ -11,24 +12,12 @@ logger = logging.getLogger(__name__)
 class HeadRepository(Repository):
     """Repository for entity head revision database operations."""
 
-    def cas_update_with_status(
-        self,
-        entity_id: str,
-        expected_head: int = 0,
-        new_head: int = 0,
-        is_semi_protected: bool = False,
-        is_locked: bool = False,
-        is_archived: bool = False,
-        is_dangling: bool = False,
-        is_mass_edit_protected: bool = False,
-        is_deleted: bool = False,
-        is_redirect: bool = False,
-    ) -> OperationResult:
+    def cas_update_with_status(self, ctx: EntityHeadUpdateContext) -> OperationResult:
         """Update entity head with compare-and-swap semantics and status flags."""
         logger.debug(
-            f"CAS update for entity {entity_id}, expected head {expected_head}, new head {new_head}"
+            f"CAS update for entity {ctx.entity_id}, expected head {ctx.expected_head}, new head {ctx.new_head}"
         )
-        internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
+        internal_id = self.vitess_client.id_resolver.resolve_id(ctx.entity_id)
         if not internal_id:
             return OperationResult(success=False, error="Entity not found")
 
@@ -46,16 +35,16 @@ class HeadRepository(Repository):
                            is_redirect = %s
                        WHERE internal_id = %s AND head_revision_id = %s""",
                 (
-                    new_head,
-                    is_semi_protected,
-                    is_locked,
-                    is_archived,
-                    is_dangling,
-                    is_mass_edit_protected,
-                    is_deleted,
-                    is_redirect,
+                    ctx.new_head,
+                    ctx.is_semi_protected,
+                    ctx.is_locked,
+                    ctx.is_archived,
+                    ctx.is_dangling,
+                    ctx.is_mass_edit_protected,
+                    ctx.is_deleted,
+                    ctx.is_redirect,
                     internal_id,
-                    expected_head,
+                    ctx.expected_head,
                 ),
             )
             affected_rows = int(cursor.rowcount)

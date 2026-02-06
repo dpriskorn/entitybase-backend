@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from pyld import jsonld
 from rdflib import Graph
 
-from models.workers.entity_diff.entity_diff_worker import Triple
+from models.workers.entity_diff.types import Triple
 from models.workers.entity_diff.enums import CanonicalizationMethod
 
 
@@ -29,15 +29,21 @@ class RDFCanonicalizer(BaseModel):
         # Parse RDF to JSON-LD
         g = Graph()
         g.parse(data=rdf_content, format=format_)
-        jsonld_data = jsonld.from_rdf(g)
+        
+        # Serialize to N-Quads format for pyld compatibility
+        nquads = g.serialize(format="nquads")
+        jsonld_data = jsonld.from_rdf(nquads)
 
         # Canonicalize to N-Quads
         canonical = jsonld.normalize(
             jsonld_data, {"algorithm": "URDNA2015", "format": "application/n-quads"}
         )
 
-        # Extract triples from N-Quads
-        return self._extract_triples_from_nquads(canonical)
+        # Extract triples from N-Quads (ensure string type)
+        if isinstance(canonical, str):
+            return self._extract_triples_from_nquads(canonical)
+        else:
+            return set()
 
     def _canonicalize_skolem(self, rdf_content: str, format_: str) -> Set[Triple]:
         """Canonicalize by skolemizing blank nodes."""

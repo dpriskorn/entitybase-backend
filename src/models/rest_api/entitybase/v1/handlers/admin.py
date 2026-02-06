@@ -15,33 +15,41 @@ class AdminHandler(Handler):
     def list_entities(
         self,
         entity_type: str = "",
+        status: str = "",
+        edit_type: str = "",
         limit: int = 100,
         offset: int = 0,
     ) -> EntityListResponse:
-        """List entities by type or all entities."""
+        """List entities by type, status, or edit_type."""
         if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
-        # Get entity IDs
-        entity_ids = self.state.vitess_client.list_entities_by_type(
-            entity_type, limit, offset
-        )
+        if not entity_type and not status and not edit_type:
+            raise_validation_error(
+                "At least one filter parameter (entity_type, status, or edit_type) is required",
+                status_code=400,
+            )
 
-        # Build response with ID and revision info
-        entities = []
-        for entity_id in entity_ids:
-            # noinspection PyBroadException
-            try:
-                head_revision_id = self.state.vitess_client.get_head(entity_id)
-                entities.append(
-                    {
-                        "id": entity_id,
-                        "revision_id": head_revision_id,
-                    }
-                )
-            except Exception:
-                # Skip entities with issues
-                continue
+        status_column_map = {
+            "locked": "locked",
+            "semi_protected": "semi_protected",
+            "archived": "archived",
+            "dangling": "dangling",
+        }
+
+        if status and status not in status_column_map:
+            raise_validation_error(
+                f"Invalid status: {status}. Valid values are: {', '.join(status_column_map.keys())}",
+                status_code=400,
+            )
+
+        entities = self.state.vitess_client.entity_repository.list_entities_filtered(
+            entity_type=entity_type,
+            status=status,
+            edit_type=edit_type,
+            limit=limit,
+            offset=offset,
+        )
 
         return EntityListResponse(entities=entities, count=len(entities))
 

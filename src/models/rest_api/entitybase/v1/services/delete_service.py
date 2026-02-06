@@ -15,7 +15,7 @@ from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashe
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.data.infrastructure.s3.revision_data import S3RevisionData
 from models.data.infrastructure.stream import ChangeType
-from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest, UserActivityType
+from models.data.rest_api.v1.entitybase.request import EditContext, EntityDeleteRequest, UserActivityType
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.internal_representation.metadata_extractor import MetadataExtractor
@@ -97,8 +97,7 @@ class DeleteService(Service):
         current_revision: S3RevisionData,
         new_revision_id: int,
         request: EntityDeleteRequest,
-        user_id: int,
-        edit_summary: str,
+        edit_context: EditContext,
     ) -> RevisionData:
         """Build the deletion revision data.
 
@@ -107,8 +106,7 @@ class DeleteService(Service):
             current_revision: Current revision from S3
             new_revision_id: The new revision ID for deletion
             request: The delete request
-            user_id: User performing the deletion
-            edit_summary: Edit summary for the deletion
+            edit_context: Context containing user_id and edit_summary
 
         Returns:
             RevisionData for the deletion
@@ -147,8 +145,8 @@ class DeleteService(Service):
             edit=EditData(
                 mass=False,
                 type=edit_type,
-                user_id=user_id,
-                summary=edit_summary,
+                user_id=edit_context.user_id,
+                summary=edit_context.edit_summary,
                 at=datetime.now(timezone.utc).isoformat(),
             ),
             state=EntityState(

@@ -19,53 +19,54 @@ class ThanksRepository(Repository):
         if from_user_id <= 0 or not entity_id or revision_id <= 0:
             return OperationResult(success=False, error="Invalid parameters")
 
-        try:
-            logger.debug(
-                f"Sending thank from user {from_user_id} for {entity_id}:{revision_id}"
-            )
+        logger.debug(
+            f"Sending thank from user {from_user_id} for {entity_id}:{revision_id}"
+        )
 
-            cursor = self.vitess_client.cursor
+        cursor = self.vitess_client.cursor
+        error = None
+        thank_id = None
+
+        try:
             # Resolve entity_id to internal_id
             internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
             if not internal_id:
-                return OperationResult(success=False, error="Entity not found")
-
-            # Get the user_id of the revision author
-            cursor.execute(
-                "SELECT user_id FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
-                (internal_id, revision_id),
-            )
-            row = cursor.fetchone()
-            if not row:
-                return OperationResult(success=False, error="Revision not found")
-
-            to_user_id = row[0]
-            if to_user_id == from_user_id:
-                return OperationResult(
-                    success=False, error="Cannot thank your own revision"
+                error = "Entity not found"
+            else:
+                # Get the user_id of the revision author
+                cursor.execute(
+                    "SELECT user_id FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
+                    (internal_id, revision_id),
                 )
-
-            # Check for existing thank
-            cursor.execute(
-                "SELECT id FROM user_thanks WHERE from_user_id = %s AND internal_entity_id = %s AND revision_id = %s",
-                (from_user_id, internal_id, revision_id),
-            )
-            if cursor.fetchone():
-                return OperationResult(
-                    success=False, error="Already thanked this revision"
-                )
-
-            # Insert thank
-            cursor.execute(
-                "INSERT INTO user_thanks (from_user_id, to_user_id, internal_entity_id, revision_id) VALUES (%s, %s, %s, %s)",
-                (from_user_id, to_user_id, internal_id, revision_id),
-            )
-            thank_id = cursor.lastrowid
-
-            return OperationResult(success=True, data=thank_id)
+                row = cursor.fetchone()
+                if not row:
+                    error = "Revision not found"
+                else:
+                    to_user_id = row[0]
+                    if to_user_id == from_user_id:
+                        error = "Cannot thank your own revision"
+                    else:
+                        # Check for existing thank
+                        cursor.execute(
+                            "SELECT id FROM user_thanks WHERE from_user_id = %s AND internal_entity_id = %s AND revision_id = %s",
+                            (from_user_id, internal_id, revision_id),
+                        )
+                        if cursor.fetchone():
+                            error = "Already thanked this revision"
+                        else:
+                            # Insert thank
+                            cursor.execute(
+                                "INSERT INTO user_thanks (from_user_id, to_user_id, internal_entity_id, revision_id) VALUES (%s, %s, %s, %s)",
+                                (from_user_id, to_user_id, internal_id, revision_id),
+                            )
+                            thank_id = cursor.lastrowid
         except Exception as e:
             logger.error(f"Error sending thank: {e}")
             return OperationResult(success=False, error=str(e))
+
+        if error:
+            return OperationResult(success=False, error=error)
+        return OperationResult(success=True, data=thank_id)
 
     def get_thanks_received(
         self, user_id: int, hours: int = 24, limit: int = 50, offset: int = 0

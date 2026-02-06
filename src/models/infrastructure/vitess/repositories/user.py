@@ -7,6 +7,7 @@ from typing import Any, List
 from models.data.common import OperationResult
 from models.infrastructure.vitess.repository import Repository
 from models.data.rest_api.v1.entitybase.request import UserActivityType
+from models.data.rest_api.v1.entitybase.request.entity.context import GeneralStatisticsContext
 from models.data.rest_api.v1.entitybase.response import UserResponse
 from models.data.rest_api.v1.entitybase.response import (
     UserActivityItemResponse,
@@ -270,20 +271,7 @@ class UserRepository(Repository):
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
-    def insert_general_statistics(
-        self,
-        date: str,
-        total_statements: int,
-        total_qualifiers: int,
-        total_references: int,
-        total_items: int,
-        total_lexemes: int,
-        total_properties: int,
-        total_sitelinks: int,
-        total_terms: int,
-        terms_per_language: dict[str, int],
-        terms_by_type: dict[str, int],
-    ) -> None:
+    def insert_general_statistics(self, ctx: GeneralStatisticsContext) -> None:
         """Insert daily general statistics.
 
         Raises:
@@ -291,19 +279,19 @@ class UserRepository(Repository):
             Exception: If database operation fails
         """
         # Input validation
-        if not isinstance(date, str) or len(date) != 10:
+        if not isinstance(ctx.date, str) or len(ctx.date) != 10:
             raise_validation_error(
-                f"Invalid date format: {date}. Expected YYYY-MM-DD", status_code=400
+                f"Invalid date format: {ctx.date}. Expected YYYY-MM-DD", status_code=400
             )
         for name, value in [
-            ("total_statements", total_statements),
-            ("total_qualifiers", total_qualifiers),
-            ("total_references", total_references),
-            ("total_items", total_items),
-            ("total_lexemes", total_lexemes),
-            ("total_properties", total_properties),
-            ("total_sitelinks", total_sitelinks),
-            ("total_terms", total_terms),
+            ("total_statements", ctx.total_statements),
+            ("total_qualifiers", ctx.total_qualifiers),
+            ("total_references", ctx.total_references),
+            ("total_items", ctx.total_items),
+            ("total_lexemes", ctx.total_lexemes),
+            ("total_properties", ctx.total_properties),
+            ("total_sitelinks", ctx.total_sitelinks),
+            ("total_terms", ctx.total_terms),
         ]:
             if value < 0:
                 raise_validation_error(
@@ -311,7 +299,7 @@ class UserRepository(Repository):
                     status_code=400,
                 )
 
-        logger.debug(f"Inserting general statistics for date {date}")
+        logger.debug(f"Inserting general statistics for date {ctx.date}")
 
         cursor = self.vitess_client.cursor
         try:
@@ -333,22 +321,22 @@ class UserRepository(Repository):
                 terms_by_type = VALUES(terms_by_type)
                 """,
                 (
-                    date,
-                    total_statements,
-                    total_qualifiers,
-                    total_references,
-                    total_items,
-                    total_lexemes,
-                    total_properties,
-                    total_sitelinks,
-                    total_terms,
-                    json.dumps(terms_per_language),
-                    json.dumps(terms_by_type),
+                    ctx.date,
+                    ctx.total_statements,
+                    ctx.total_qualifiers,
+                    ctx.total_references,
+                    ctx.total_items,
+                    ctx.total_lexemes,
+                    ctx.total_properties,
+                    ctx.total_sitelinks,
+                    ctx.total_terms,
+                    json.dumps(ctx.terms_per_language),
+                    json.dumps(ctx.terms_by_type),
                 ),
             )
-            logger.info(f"Successfully stored general statistics for {date}")
+            logger.info(f"Successfully stored general statistics for {ctx.date}")
         except Exception as e:
-            logger.error(f"Failed to insert general statistics for {date}: {e}")
+            logger.error(f"Failed to insert general statistics for {ctx.date}: {e}")
             raise
 
     def insert_user_statistics(

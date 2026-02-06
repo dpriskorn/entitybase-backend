@@ -1,14 +1,13 @@
 """Base class for entity transactions."""
 
+import logging
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
 from typing import Any, Callable, List
-import logging
 
-from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
-from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from pydantic import BaseModel, Field
 
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData, EditContext, EventPublishContext
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 
 logger = logging.getLogger(__name__)
@@ -59,29 +58,27 @@ class EntityTransaction(BaseModel, ABC):
 
     def publish_event(
         self,
-        entity_id: str,
-        revision_id: int,
-        change_type: str,
-        edit_headers: EditHeaders,
-        changed_at: datetime | None = None,
-        from_revision_id: int = 0,
+        event_context: EventPublishContext,
+        edit_context: EditContext,
     ) -> None:
         """Publish a change event."""
         from models.infrastructure.stream.event import EntityChangeEvent
         from models.data.infrastructure.stream.change_type import ChangeType
 
-        logger.info(
-            f"[EntityTransaction] Publishing event for {entity_id} revision {revision_id}"
-        )
+        changed_at = event_context.changed_at
         if changed_at is None:
             changed_at = datetime.now(timezone.utc)
-            event = EntityChangeEvent(
-                id=entity_id,
-                rev=revision_id,
-                type=ChangeType(change_type),
-                from_rev=from_revision_id,
-                at=changed_at,
-                summary=edit_headers.x_edit_summary,
-            )
-            # TODO: Publish to stream
-            logger.debug(f"Event: {event}")
+
+        logger.info(
+            f"[EntityTransaction] Publishing event for {event_context.entity_id} revision {event_context.revision_id}"
+        )
+        event = EntityChangeEvent(
+            id=event_context.entity_id,
+            rev=event_context.revision_id,
+            type=ChangeType(event_context.change_type),
+            from_rev=event_context.from_revision_id,
+            at=changed_at,
+            summary=edit_context.edit_summary,
+        )
+        # TODO: Publish to stream
+        logger.debug(f"Event: {event}")

@@ -9,6 +9,7 @@ from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import LexemeUpdateRequest, UserActivityType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
+from models.data.rest_api.v1.entitybase.request.entity.context import TermUpdateContext, EditContext, EventPublishContext, SitelinkUpdateContext
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.utils import raise_validation_error
@@ -76,14 +77,18 @@ class EntityUpdateHandler(EntityHandler):
             )
 
             # Publish event
-            tx.publish_event(
+            edit_context = EditContext(
+                user_id=edit_headers.x_user_id,
+                edit_summary=edit_headers.x_edit_summary,
+            )
+            event_context = EventPublishContext(
                 entity_id=entity_id,
                 revision_id=response.revision_id,
                 change_type=ChangeType.EDIT,
-                edit_headers=edit_headers,
                 from_revision_id=head_revision_id,
                 changed_at=None,
             )
+            tx.publish_event(event_context, edit_context)
 
             # Log activity
             if edit_headers.x_user_id:
@@ -109,18 +114,16 @@ class EntityUpdateHandler(EntityHandler):
     async def update_label(
         self,
         entity_id: str,
-        language_code: str,
-        language: str,
-        value: str,
+        context: TermUpdateContext,
         edit_headers: EditHeaders,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Update or add a label for a language."""
-        logger.debug(f"Updating label for {entity_id} in {language_code}")
+        logger.debug(f"Updating label for {entity_id} in {context.language_code}")
         # Validate language codes match
-        if language != language_code:
+        if context.language != context.language_code:
             raise_validation_error(
-                f"Language in request ({language}) does not match path parameter ({language_code})",
+                f"Language in request ({context.language}) does not match path parameter ({context.language_code})",
                 status_code=400
             )
 
@@ -139,9 +142,9 @@ class EntityUpdateHandler(EntityHandler):
         # Update label
         if "labels" not in entity_dict:
             entity_dict["labels"] = {}
-        entity_dict["labels"][language_code] = {
-            "language": language_code,
-            "value": value,
+        entity_dict["labels"][context.language_code] = {
+            "language": context.language_code,
+            "value": context.value,
         }
 
         # Update with transaction
@@ -194,18 +197,16 @@ class EntityUpdateHandler(EntityHandler):
     async def update_description(
         self,
         entity_id: str,
-        language_code: str,
-        language: str,
-        description: str,
+        context: TermUpdateContext,
         edit_headers: EditHeaders,
         validator: Any | None = None,
     ) -> EntityResponse:
         """Update or add a description for a language."""
-        logger.debug(f"Updating description for {entity_id} in {language_code}")
+        logger.debug(f"Updating description for {entity_id} in {context.language_code}")
         # Validate language codes match
-        if language != language_code:
+        if context.language != context.language_code:
             raise_validation_error(
-                f"Language in request ({language}) does not match path parameter ({language_code})",
+                f"Language in request ({context.language}) does not match path parameter ({context.language_code})",
                 status_code=400
             )
 
@@ -224,9 +225,9 @@ class EntityUpdateHandler(EntityHandler):
         # Update description
         if "descriptions" not in entity_dict:
             entity_dict["descriptions"] = {}
-        entity_dict["descriptions"][language_code] = {
-            "language": language_code,
-            "value": description,
+        entity_dict["descriptions"][context.language_code] = {
+            "language": context.language_code,
+            "value": context.value,
         }
 
         # Update with transaction
@@ -313,49 +314,41 @@ class EntityUpdateHandler(EntityHandler):
             validator,
         )
 
-    async def update_sitelink(
-        self,
-        entity_id: str,
-        site: str,
-        title: str,
-        badges: list[str],
-        edit_headers: EditHeaders,
-        validator: Any | None = None,
-    ) -> EntityResponse:
+    async def update_sitelink(self, ctx: SitelinkUpdateContext, edit_headers: EditHeaders, validator: Any | None = None) -> EntityResponse:
         """Update or add a sitelink.
 
         Returns EntityResponse (not OperationResult) for consistency with other methods.
         """
-        logger.debug(f"Updating sitelink {site} for {entity_id}")
+        logger.debug(f"Updating sitelink {ctx.site} for {ctx.entity_id}")
         # Validate entity ID format
-        entity_type = self._infer_entity_type_from_id(entity_id)
+        entity_type = self._infer_entity_type_from_id(ctx.entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
         # Fetch current entity
         read_handler = EntityReadHandler(state=self.state)
-        current_entity = read_handler.get_entity(entity_id)
+        current_entity = read_handler.get_entity(ctx.entity_id)
 
         # Get the revision data dictionary
         entity_dict = current_entity.entity_data.revision
 
         # Check if sitelink already exists
         sitelinks = entity_dict.get("sitelinks", {})
-        if site in sitelinks:
+        if ctx.site in sitelinks:
             # PUT operation: allow updating existing
             pass
 
         # Update sitelink
         if "sitelinks" not in entity_dict:
             entity_dict["sitelinks"] = {}
-        entity_dict["sitelinks"][site] = {
-            "title": title,
-            "badges": badges,
+        entity_dict["sitelinks"][ctx.site] = {
+            "title": ctx.title,
+            "badges": ctx.badges,
         }
 
         # Update with transaction
         return await self._update_with_transaction(
-            entity_id,
+            ctx.entity_id,
             entity_dict,
             entity_type,
             edit_headers,
@@ -498,14 +491,18 @@ class EntityUpdateHandler(EntityHandler):
             )
 
             # Publish event
-            tx.publish_event(
+            edit_context = EditContext(
+                user_id=edit_headers.x_user_id,
+                edit_summary=edit_headers.x_edit_summary,
+            )
+            event_context = EventPublishContext(
                 entity_id=entity_id,
                 revision_id=response.revision_id,
                 change_type=ChangeType.EDIT,
-                edit_headers=edit_headers,
                 from_revision_id=head_revision_id,
                 changed_at=None,
             )
+            tx.publish_event(event_context, edit_context)
 
             # Log activity
             if edit_headers.x_user_id:

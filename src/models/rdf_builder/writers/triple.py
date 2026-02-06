@@ -3,13 +3,12 @@
 import logging
 from typing import Any, TextIO
 
-from models.rdf_builder.models.rdf_statement import RDFStatement
-from models.rdf_builder.property_registry.models import PropertyShape
+from models.data.rest_api.v1.entitybase.request.entity.context import StatementWriteContext
+from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 from models.rdf_builder.uri_generator import URIGenerator
 from models.rdf_builder.value_formatters import ValueFormatter
 from models.rdf_builder.value_node import generate_value_node_uri
 from models.rdf_builder.writers.value_node import ValueNodeWriter
-from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 
 logger = logging.getLogger(__name__)
 
@@ -118,102 +117,95 @@ class TripleWriters:
                 ValueNodeWriter.write_globe_value_node(output, node_id, value, dedupe)
 
     @staticmethod
-    def write_statement(
-        output: TextIO,
-        entity_id: str,
-        rdf_statement: RDFStatement,
-        shape: PropertyShape,
-        property_registry: Any,
-        dedupe: HashDedupeBag | None = None,
-    ) -> None:
+    def write_statement(ctx: StatementWriteContext) -> None:
         """Write statement triple."""
-        logger.debug(f"Writing statement for entity {entity_id}, property {shape.pid}")
+        logger.debug(f"Writing statement for entity {ctx.entity_id}, property {ctx.shape.pid}")
         from models.rdf_builder.models.rdf_reference import RDFReference
 
-        entity_uri = TripleWriters.uri.entity_prefixed(entity_id)
-        stmt_uri_prefixed = TripleWriters.uri.statement_prefixed(rdf_statement.guid)
+        entity_uri = TripleWriters.uri.entity_prefixed(ctx.entity_id)
+        stmt_uri_prefixed = TripleWriters.uri.statement_prefixed(ctx.rdf_statement.guid)
 
         # Link entity → statement
-        output.write(
-            f"{entity_uri} p:{rdf_statement.property_id} {stmt_uri_prefixed} .\n"
+        ctx.output.write(
+            f"{entity_uri} p:{ctx.rdf_statement.property_id} {stmt_uri_prefixed} .\n"
         )
 
-        if rdf_statement.rank == "normal":
-            output.write(
+        if ctx.rdf_statement.rank == "normal":
+            ctx.output.write(
                 f"{stmt_uri_prefixed} a wikibase:Statement, wikibase:BestRank .\n"
             )
 
-            value = ValueFormatter.format_value(rdf_statement.value)
+            value = ValueFormatter.format_value(ctx.rdf_statement.value)
             TripleWriters.write_direct_claim(
-                output, entity_id, rdf_statement.property_id, value
+                ctx.output, ctx.entity_id, ctx.rdf_statement.property_id, value
             )
         else:
-            output.write(f"{stmt_uri_prefixed} a wikibase:Statement .\n")
+            ctx.output.write(f"{stmt_uri_prefixed} a wikibase:Statement .\n")
 
         # Write statement value
-        if TripleWriters._needs_value_node(rdf_statement.value):
+        if TripleWriters._needs_value_node(ctx.rdf_statement.value):
             TripleWriters._write_value_node_triple(
-                output,
+                ctx.output,
                 stmt_uri_prefixed,
-                shape.predicates.value_node,
-                rdf_statement.value,
-                dedupe,
+                ctx.shape.predicates.value_node,
+                ctx.rdf_statement.value,
+                ctx.dedupe,
             )
         else:
-            value = ValueFormatter.format_value(rdf_statement.value)
-            output.write(
-                f"{stmt_uri_prefixed} {shape.predicates.statement} {value} .\n"
+            value = ValueFormatter.format_value(ctx.rdf_statement.value)
+            ctx.output.write(
+                f"{stmt_uri_prefixed} {ctx.shape.predicates.statement} {value} .\n"
             )
 
         # Rank
         rank = (
             "NormalRank"
-            if rdf_statement.rank == "normal"
+            if ctx.rdf_statement.rank == "normal"
             else (
                 "PreferredRank"
-                if rdf_statement.rank == "preferred"
+                if ctx.rdf_statement.rank == "preferred"
                 else "DeprecatedRank"
             )
         )
-        output.write(f"{stmt_uri_prefixed} wikibase:rank wikibase:{rank} .\n")
+        ctx.output.write(f"{stmt_uri_prefixed} wikibase:rank wikibase:{rank} .\n")
 
         # Qualifiers
-        for qual in rdf_statement.qualifiers:
-            q_shape = property_registry.shape(qual.property)
+        for qual in ctx.rdf_statement.qualifiers:
+            q_shape = ctx.property_registry.shape(qual.property)
 
             if TripleWriters._needs_value_node(qual.value):
                 TripleWriters._write_value_node_triple(
-                    output,
+                    ctx.output,
                     stmt_uri_prefixed,
                     q_shape.predicates.qualifier_value,
                     qual.value,
-                    dedupe,
+                    ctx.dedupe,
                 )
             else:
                 qv = ValueFormatter.format_value(qual.value)
-                output.write(
+                ctx.output.write(
                     f"{stmt_uri_prefixed} {q_shape.predicates.qualifier} {qv} .\n"
                 )
 
         # References
-        for ref in rdf_statement.references:
+        for ref in ctx.rdf_statement.references:
             rdf_ref = RDFReference(reference=ref, statement_uri=stmt_uri_prefixed)
             ref_uri = rdf_ref.reference_uri
-            output.write(f"{stmt_uri_prefixed} prov:wasDerivedFrom {ref_uri} .\n")
+            ctx.output.write(f"{stmt_uri_prefixed} prov:wasDerivedFrom {ref_uri} .\n")
 
             for snak in ref.snaks:
-                snak_shape = property_registry.shape(snak.property)
+                snak_shape = ctx.property_registry.shape(snak.property)
 
                 if TripleWriters._needs_value_node(snak.value):
                     TripleWriters._write_value_node_triple(
-                        output,
+                        ctx.output,
                         ref_uri,
                         snak_shape.predicates.reference_value,
                         snak.value,
-                        dedupe,
+                        ctx.dedupe,
                     )
                 else:
                     rv = ValueFormatter.format_value(snak.value)
-                    output.write(
+                    ctx.output.write(
                         f"{ref_uri} {snak_shape.predicates.reference} {rv} .\n"
                     )

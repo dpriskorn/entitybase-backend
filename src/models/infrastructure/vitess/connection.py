@@ -2,7 +2,8 @@
 
 import logging
 import pymysql
-from pydantic import Field, BaseModel, FieldValidationInfo
+from typing import Any
+from pydantic import Field, BaseModel
 from pymysql.connections import Connection
 
 from models.data.config.vitess import VitessConfig
@@ -21,20 +22,27 @@ class VitessConnectionManager(BaseModel):
         """Deconstructor that disconnect from the database"""
         self.disconnect()
 
-    def model_post_init(self, context: FieldValidationInfo) -> None:
+    def model_post_init(self, context: Any) -> None:
         """Create a new database connection."""
+        logger.debug(f"Creating VitessConnectionManager with config: host='{self.config.host}', port={self.config.port}, database='{self.config.database}', user='{self.config.user}', password_length={len(self.config.password)}")
         self.connect()
 
     def connect(self) -> None:
         if self.connection is None:
-            self.connection = pymysql.connect(
-                host=self.config.host,
-                port=self.config.port,
-                user=self.config.user,
-                passwd=self.config.password,
-                database=self.config.database,
-                autocommit=True,
-            )
+            logger.info(f"Attempting database connection to {self.config.host}:{self.config.port}...")
+            try:
+                self.connection = pymysql.connect(
+                    host=self.config.host,
+                    port=self.config.port,
+                    user=self.config.user,
+                    passwd=self.config.password,
+                    database=self.config.database,
+                    autocommit=True,
+                )
+                logger.info(f"Successfully connected to database at {self.config.host}:{self.config.port}")
+            except Exception as e:
+                logger.error(f"Failed to connect to database at {self.config.host}:{self.config.port}: {e}")
+                raise
 
     @property
     def healthy_connection(self) -> bool:

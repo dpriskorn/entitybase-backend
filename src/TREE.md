@@ -40,11 +40,11 @@ src/
     │           ├── endpoints
     │           ├── handlers
     │           │   └── entity
-    │           │       ├── items
     │           │       ├── lexeme
     │           │       └── property
     │           ├── routes
-    │           └── services
+    │           ├── services
+    │           └── utils
     ├── services
     ├── validation
     └── workers

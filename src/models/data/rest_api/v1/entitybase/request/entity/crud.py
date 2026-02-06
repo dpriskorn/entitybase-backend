@@ -4,6 +4,34 @@ from pydantic import BaseModel, Field
 
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType, DeleteType
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EditContext,
+    EventPublishContext,
+    TermUpdateContext,
+    EntityHeadUpdateContext,
+    GeneralStatisticsContext,
+    StatementWriteContext,
+    ProcessEntityRevisionContext,
+    CreationTransactionContext,
+    SitelinkUpdateContext,
+)
+
+__all__ = [
+    "EntityCreateRequest",
+    "LexemeUpdateRequest",
+    "EntityDeleteRequest",
+    "EditContext",
+    "EventPublishContext",
+    "TermUpdateContext",
+    "EntityInsertDataRequest",
+    "PreparedRequestData",
+    "EntityHeadUpdateContext",
+    "GeneralStatisticsContext",
+    "StatementWriteContext",
+    "ProcessEntityRevisionContext",
+    "CreationTransactionContext",
+    "SitelinkUpdateContext",
+]
 
 
 class EntityCreateRequest(BaseModel):

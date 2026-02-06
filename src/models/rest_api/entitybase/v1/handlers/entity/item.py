@@ -9,6 +9,7 @@ from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
+from models.data.rest_api.v1.entitybase.request.entity.context import EditContext, EventPublishContext, CreationTransactionContext
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.rest_api.utils import raise_validation_error
@@ -52,40 +53,38 @@ class ItemCreateHandler(EntityCreateHandler):
         return PreparedRequestData(**request_data_dict)
 
     @staticmethod
-    async def _execute_creation_transaction(
-            tx: CreationTransaction,
-        entity_id: str,
-        request_data: PreparedRequestData,
-        request: EntityCreateRequest,
-        edit_headers: EditHeaders,
-        validator: Any,
-    ) -> EntityResponse:
+    async def _execute_creation_transaction(ctx: CreationTransactionContext) -> EntityResponse:
         """Execute the creation transaction operations."""
-        tx.register_entity(entity_id)
-        logger.debug(f"🔍 HANDLER: Entity {entity_id} registered successfully")
+        ctx.tx.register_entity(ctx.entity_id)
+        logger.debug(f"🔍 HANDLER: Entity {ctx.entity_id} registered successfully")
 
-        hash_result = tx.process_statements(entity_id, request_data, validator)
+        hash_result = ctx.tx.process_statements(ctx.entity_id, ctx.request_data, ctx.validator)
         logger.debug(f"🔍 HANDLER: Statements processed, hash_result: {hash_result}")
 
-        response = await tx.create_revision(
-            entity_id=entity_id,
-            request_data=request_data,
+        response = await ctx.tx.create_revision(
+            entity_id=ctx.entity_id,
+            request_data=ctx.request_data,
             entity_type=EntityType.ITEM,
-            edit_headers=edit_headers,
+            edit_headers=ctx.edit_headers,
             hash_result=hash_result,
         )
         logger.debug(f"🔍 HANDLER: Revision created: {response}")
 
-        tx.publish_event(
-            entity_id=entity_id,
+        edit_context = EditContext(
+            user_id=ctx.edit_headers.x_user_id,
+            edit_summary=ctx.edit_headers.x_edit_summary,
+        )
+        event_context = EventPublishContext(
+            entity_id=ctx.entity_id,
             revision_id=1,
             change_type=ChangeType.CREATION,
-            edit_headers=edit_headers,
+            from_revision_id=0,
             changed_at=datetime.now(),
         )
+        ctx.tx.publish_event(event_context, edit_context)
         logger.debug("🔍 HANDLER: Event published successfully")
 
-        tx.commit()
+        ctx.tx.commit()
         logger.debug("🔍 HANDLER: Transaction committed successfully")
 
         return response  # type: ignore[no-any-return]
@@ -109,9 +108,15 @@ class ItemCreateHandler(EntityCreateHandler):
         tx = CreationTransaction(state=self.state)
         logger.debug("🔍 HANDLER: Transaction created successfully")
         try:
-            response = await self._execute_creation_transaction(
-                tx, entity_id, request_data, request, edit_headers, validator
+            tx_ctx = CreationTransactionContext(
+                tx=tx,
+                entity_id=entity_id,
+                request_data=request_data,
+                request=request,
+                edit_headers=edit_headers,
+                validator=validator,
             )
+            response = await self._execute_creation_transaction(tx_ctx)
 
             if self.enumeration_service:
                 assert self.enumeration_service is not None

@@ -63,7 +63,7 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    command: python -m models.workers.dev tables setup
+    command: sh -c "sleep 15 && python -m models.workers.dev tables setup"
     environment:
       VITESS_HOST: mysql
       VITESS_PORT: 3306

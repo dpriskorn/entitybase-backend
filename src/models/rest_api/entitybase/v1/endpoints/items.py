@@ -10,6 +10,7 @@ from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
     TermUpdateRequest,
 )
+from models.data.rest_api.v1.entitybase.request.entity import TermUpdateContext
 from models.data.rest_api.v1.entitybase.response import (
     DescriptionResponse,
     LabelResponse,
@@ -91,13 +92,17 @@ async def update_item_label(
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 
+    context = TermUpdateContext(
+        language_code=language_code,
+        language=request.language,
+        value=request.value,
+    )
+
     # Update label using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
     return await update_handler.update_label(
         item_id,
-        language_code,
-        request.language,
-        request.value,
+        context,
         headers,
         validator,
     )
@@ -165,13 +170,17 @@ async def update_item_description(
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 
+    context = TermUpdateContext(
+        language_code=language_code,
+        language=request.language,
+        value=request.value,
+    )
+
     # Update description using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
     return await update_handler.update_description(
         item_id,
-        language_code,
-        request.language,
-        request.value,
+        context,
         headers,
         validator,
     )

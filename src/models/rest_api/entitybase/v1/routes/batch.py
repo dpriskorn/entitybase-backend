@@ -113,8 +113,8 @@ async def get_batch_statements(
     if len(entity_list) > 20:
         raise HTTPException(status_code=400, detail="Too many entities (max 20)")
     result = {}
-    for entity_id in entity_list:
-        entity_id = entity_id.strip()
+    for raw_entity_id in entity_list:
+        entity_id = raw_entity_id.strip()
         try:
             # Get entity revision
             handler = EntityReadHandler(state=state)
@@ -122,9 +122,9 @@ async def get_batch_statements(
             statements = entity_response.entity_data.get("statements", {})
             if property_list:
                 filtered = {p: statements.get(p, []) for p in property_list}
-                result[entity_id] = filtered
+                result[raw_entity_id] = filtered
             else:
-                result[entity_id] = statements
+                result[raw_entity_id] = statements
         except Exception:
-            result[entity_id] = {}
+            result[raw_entity_id] = {}
     return result

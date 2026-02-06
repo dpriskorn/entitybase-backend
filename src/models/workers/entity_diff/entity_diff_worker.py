@@ -4,21 +4,19 @@ Entity Diff Worker - Computes diffs between RDF versions of Wikibase entities
 
 import time
 from datetime import datetime, timezone
-from typing import Tuple, Dict, Any, Optional
+from typing import Dict, Any, Optional
 
 from pydantic import Field
 from pyld import jsonld  # type: ignore[import-untyped]
 
-from models.infrastructure.stream.producer import StreamProducerClient
 from models.data.rest_api.v1.entitybase.response import RDFChangeEvent
+from models.infrastructure.stream.producer import StreamProducerClient
 from models.workers.entity_diff.entity_diff_request import EntityDiffRequest
 from models.workers.entity_diff.entity_diff_response import EntityDiffResponse
 from models.workers.entity_diff.enums import CanonicalizationMethod
 from models.workers.entity_diff.rdf_cannonicalizer import RDFCanonicalizer
 from models.workers.entity_diff.rdf_serializer import RDFSerializer
 from models.workers.worker import Worker
-
-Triple = Tuple[str, str, str]  # (subject, predicate, object)
 
 
 class EntityDiffWorker(Worker):

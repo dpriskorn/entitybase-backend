@@ -2,6 +2,7 @@
 
 import json
 import logging
+from datetime import datetime
 from typing import Any, cast
 
 from pydantic import Field, validate_call
@@ -20,6 +21,16 @@ logger = logging.getLogger(__name__)
 
 class RevisionRepository(Repository):
     """Repository for entity revision database operations."""
+
+    @staticmethod
+    def _format_datetime_for_mysql(iso_datetime: str) -> str:
+        """Convert ISO 8601 datetime string to MySQL datetime format."""
+        try:
+            dt = datetime.fromisoformat(iso_datetime.replace('Z', '+00:00'))
+            return dt.strftime('%Y-%m-%d %H:%M:%S')
+        except (ValueError, AttributeError):
+            logger.warning(f"Invalid datetime format: {iso_datetime}, using as-is")
+            return iso_datetime
 
     @validate_call
     def insert_revision(
@@ -51,7 +62,7 @@ class RevisionRepository(Repository):
         )
         row = cursor.fetchone()
         if row:
-            return cast(RevisionRecord, RevisionRecord.model_validate(
+            return RevisionRecord.model_validate(
                 {
                     "statements": json.loads(row[0]) if row[0] else [],
                     "properties": json.loads(row[1]) if row[1] else [],
@@ -61,7 +72,7 @@ class RevisionRepository(Repository):
                     "aliases_hashes": json.loads(row[5]) if row[5] else {},
                     "sitelinks_hashes": json.loads(row[6]) if row[6] else {},
                 }
-            ))
+            )
         return None
 
     @validate_call
@@ -128,7 +139,7 @@ class RevisionRepository(Repository):
         return OperationResult(success=True)
 
     @validate_call
-    def get_content_hash(self, internal_entity_id: int = Field(gt=0), revision_id: int = Field(..., gt=0)) -> int:
+    def get_content_hash(self, internal_entity_id: int = Field(gt=0), revision_id: int = Field(..., gt=0)) -> int | None:
         """Get the content_hash for a specific revision."""
         cursor = self.vitess_client.cursor
         cursor.execute(
@@ -138,7 +149,7 @@ class RevisionRepository(Repository):
         row = cursor.fetchone()
         if row and row[0] is not None:
             return cast(int, row[0])
-        raise_validation_error(f"No content_hash found for entity {internal_entity_id} revision {revision_id}", status_code=404)
+        return None
 
     @validate_call
     def create_with_cas(
@@ -172,7 +183,7 @@ class RevisionRepository(Repository):
                     statements,
                     json.dumps(entity_data.properties or []),
                     entity_data.property_counts.model_dump_json() if entity_data.property_counts else "{}",
-                    entity_data.edit.at,
+                    self._format_datetime_for_mysql(entity_data.edit.at),
                     entity_data.edit.user_id,
                     entity_data.edit.edit_summary,
                     content_hash,
@@ -234,7 +245,7 @@ class RevisionRepository(Repository):
                 statements,
                 json.dumps(entity_data.properties or []),
                 entity_data.property_counts.model_dump_json() if entity_data.property_counts else "{}",
-                entity_data.edit.at,
+                self._format_datetime_for_mysql(entity_data.edit.at),
                 entity_data.edit.user_id,
                 entity_data.edit.edit_summary,
                 content_hash,

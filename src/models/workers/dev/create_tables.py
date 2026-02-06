@@ -64,7 +64,9 @@ class CreateTables(BaseModel):
     @property
     def vitess_config(self) -> Any:
         """Get Vitess configuration."""
-        return settings.get_vitess_config
+        config = settings.get_vitess_config
+        logger.debug(f"VitessConfig loaded: host='{config.host}', port={config.port}, database='{config.database}', user='{config.user}', password_length={len(config.password)}")
+        return config
 
     async def ensure_tables_exist(self) -> Dict[str, str]:
         """Ensure all required tables exist using SchemaRepository."""
@@ -75,6 +77,7 @@ class CreateTables(BaseModel):
             from models.infrastructure.vitess.client import VitessClient
 
             logger.info("Creating database tables using SchemaRepository...")
+            logger.debug(f"Creating VitessClient with config: host='{self.vitess_config.host}', port={self.vitess_config.port}, database='{self.vitess_config.database}'")
             vitess_client = VitessClient(config=self.vitess_config)
             schema_repository = SchemaRepository(vitess_client=vitess_client)
             schema_repository.create_tables()

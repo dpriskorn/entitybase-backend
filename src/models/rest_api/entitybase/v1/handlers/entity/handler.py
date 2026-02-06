@@ -6,7 +6,6 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, Field, ConfigDict
 
-from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.config.settings import settings
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType, EditData, EntityType
@@ -15,6 +14,7 @@ from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashe
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
+from models.data.rest_api.v1.entitybase.request.entity.context import ProcessEntityRevisionContext
 from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
 )
@@ -86,56 +86,53 @@ class EntityHandler(Handler):
     # New simplified method using context and services
     async def process_entity_revision_new(
         self,
-        entity_id: str,
-        request_data: Dict[str, Any],
-        entity_type: EntityType,
-        edit_type: EditType | None,
-        edit_headers: EditHeaders,
-        is_creation: bool,
-        validator: Any | None,
+        ctx: ProcessEntityRevisionContext,
     ) -> EntityResponse:
         """New simplified entity revision processing using services."""
-        logger.debug(f"Starting entity revision processing for {entity_id}")
+        logger.debug(f"Starting entity revision processing for {ctx.entity_id}")
 
-        ctx = RevisionContext(
-            entity_id=entity_id,
-            request_data=request_data,
-            entity_type=entity_type,
-            edit_type=edit_type,
-            edit_summary=edit_headers.x_edit_summary,
-            is_creation=is_creation,
-            validator=validator,
+        rev_ctx = RevisionContext(
+            entity_id=ctx.entity_id,
+            request_data=ctx.request_data,
+            entity_type=ctx.entity_type,
+            edit_type=ctx.edit_type,
+            edit_summary=ctx.edit_headers.x_edit_summary,
+            is_creation=ctx.is_creation,
+            vitess_client=self.state.vitess_client,
+            s3_client=self.state.s3_client,
+            stream_producer=self.state.stream_producer if hasattr(self.state, "stream_producer") else None,
+            validator=ctx.validator,
         )
 
         # 1. Validate request
-        self._validate_revision_request(ctx)
-        logger.debug(f"Request validation passed for {entity_id}")
+        self._validate_revision_request(rev_ctx)
+        logger.debug(f"Request validation passed for {ctx.entity_id}")
 
         # 2. Check idempotency
-        if cached := await self._check_idempotency_new(ctx):
-            logger.debug(f"Returning cached revision for {entity_id}")
+        if cached := await self._check_idempotency_new(rev_ctx):
+            logger.debug(f"Returning cached revision for {ctx.entity_id}")
             assert isinstance(cached, EntityResponse)
             return cached
-        logger.debug(f"Idempotency check passed for {entity_id}")
+        logger.debug(f"Idempotency check passed for {ctx.entity_id}")
 
         # 3. Process entity data
-        hash_result = await self._process_entity_data_new(ctx)
-        logger.debug(f"Entity data processed for {entity_id}")
+        hash_result = await self._process_entity_data_new(rev_ctx)
+        logger.debug(f"Entity data processed for {ctx.entity_id}")
 
         # 4. Create revision
-        result = await self._create_revision_new(ctx, hash_result)
-        logger.debug(f"Revision created for {entity_id}: {result.revision_id}")
+        result = await self._create_revision_new(rev_ctx, hash_result)
+        logger.debug(f"Revision created for {ctx.entity_id}: {result.revision_id}")
 
         # 5. Publish events
-        await self._publish_events_new(ctx, result)
-        logger.debug(f"Events published for {entity_id}")
+        await self._publish_events_new(rev_ctx, result)
+        logger.debug(f"Events published for {ctx.entity_id}")
 
         if not result.success:
             raise_validation_error(result.error or "Revision creation failed")
 
         # Build response
-        response = await self._build_entity_response(ctx, result)
-        logger.info(f"Entity revision created successfully for {entity_id}: revision {result.revision_id}")
+        response = await self._build_entity_response(rev_ctx, result)
+        logger.info(f"Entity revision created successfully for {ctx.entity_id}: revision {result.revision_id}")
         return response
 
     @staticmethod
@@ -149,7 +146,7 @@ class EntityHandler(Handler):
         self, ctx: RevisionContext
     ) -> EntityResponse | None:
         """Check if request is idempotent using validation service."""
-        validation_service = EntityValidationService(state=self.state)
+        validation_service = EntityValidationService()
         return validation_service.validate_idempotency(
             ctx.entity_id,
             ctx.vitess_client.get_head(ctx.entity_id),
@@ -160,7 +157,7 @@ class EntityHandler(Handler):
         self, ctx: RevisionContext
     ) -> StatementHashResult:
         """Process entity data using hashing service."""
-        hashing_service = EntityHashingService(state=self.state)
+        hashing_service = EntityHashingService()
         return await hashing_service.hash_statements(ctx.request_data)
 
     async def _create_revision_new(
@@ -213,12 +210,12 @@ class EntityHandler(Handler):
 
     async def _hash_terms_new(self, ctx: RevisionContext) -> HashMaps:
         """Hash entity terms (labels, descriptions, aliases)."""
-        hashing_service = EntityHashingService(state=self.state)
+        hashing_service = EntityHashingService()
         return await hashing_service.hash_terms(ctx.request_data)
 
     async def _hash_sitelinks_new(self, ctx: RevisionContext) -> SitelinksHashes:
         """Hash entity sitelinks."""
-        hashing_service = EntityHashingService(state=self.state)
+        hashing_service = EntityHashingService()
         return await hashing_service.hash_sitelinks(ctx.request_data)
 
     @staticmethod

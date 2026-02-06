@@ -13,6 +13,8 @@ src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 # noinspection PyPep8
+from models.config.settings import settings
+# noinspection PyPep8
 from models.workers.dev.create_buckets import CreateBuckets
 # noinspection PyPep8
 from models.workers.dev.create_tables import CreateTables
@@ -21,7 +23,7 @@ from models.workers.dev.create_tables import CreateTables
 def setup_logging() -> None:
     """Setup logging for CLI usage."""
     logging.basicConfig(
-        level=logging.INFO,
+        level=settings.get_log_level(),
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
 

@@ -40,7 +40,7 @@ class EntityReadHandler(Handler):
             response = EntityResponse(
                 id=entity_id,
                 rev_id=head_revision_id,
-                data=data,
+                data=revision,
                 state=EntityState(
                     sp=data.get("is_semi_protected", False),
                     locked=data.get("is_locked", False),
@@ -84,11 +84,10 @@ class EntityReadHandler(Handler):
 
         try:
             revision = self.state.s3_client.read_revision(entity_id, revision_id)
-            revision_data = revision.revision
             return EntityResponse(
                 id=entity_id,
                 rev_id=revision_id,
-                data=revision_data,
+                data=revision,
                 state=None,
             )
         except Exception as e:

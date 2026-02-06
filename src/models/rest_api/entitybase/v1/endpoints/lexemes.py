@@ -277,6 +277,7 @@ async def update_form_representation(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
+        id=lexeme_id,
         type="lexeme",
         **current_entity.entity_data.revision
     )
@@ -287,7 +288,6 @@ async def update_form_representation(
             edit_headers=headers,
             validator=validator,
         )
-
 
 @router.put("/entities/lexemes/senses/{sense_id}/glosses/{langcode}", response_model=EntityResponse)
 async def update_sense_gloss(
@@ -341,6 +341,7 @@ async def update_sense_gloss(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
+        id=lexeme_id,
         type="lexeme",
         **current_entity.entity_data.revision
     )
@@ -351,7 +352,6 @@ async def update_sense_gloss(
             edit_headers=headers,
             validator=validator,
         )
-
 
 @router.delete("/entities/lexemes/forms/{form_id}", response_model=EntityResponse)
 async def delete_form(
@@ -388,6 +388,7 @@ async def delete_form(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
+        id=lexeme_id,
         type="lexeme",
         **current_entity.entity_data.revision
     )
@@ -435,6 +436,7 @@ async def delete_sense(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
+        id=lexeme_id,
         type="lexeme",
         **current_entity.entity_data.revision
     )
@@ -623,6 +625,7 @@ async def delete_sense_gloss(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
+        id=lexeme_id,
         type="lexeme",
         **current_entity.entity_data.revision
     )

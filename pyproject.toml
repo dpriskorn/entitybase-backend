@@ -57,6 +57,9 @@ dev = [
 
 [tool.pytest.ini_options]
 addopts = "--tb=short"
+log_cli = true
+log_cli_level = "DEBUG"
+log_cli_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 markers = [
     "unit: marks tests as unit tests",
     "integration: marks tests as integration tests",

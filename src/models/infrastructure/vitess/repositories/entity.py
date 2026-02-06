@@ -1,6 +1,7 @@
 """Vitess entity repository for database operations."""
 
 import logging
+from typing import Any
 
 from models.infrastructure.vitess.repository import Repository
 from models.data.rest_api.v1.entitybase.response import ProtectionResponse
@@ -124,7 +125,7 @@ class EntityRepository(Repository):
         )
 
     def update_head_revision(self, entity_id: str, revision_id: int) -> None:
-        """Update the head revision for an entity."""
+        """Update head revision for an entity."""
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
         if not internal_id:
             return
@@ -133,3 +134,88 @@ class EntityRepository(Repository):
             "UPDATE entity_head SET head_revision_id = %s WHERE internal_id = %s",
             (revision_id, internal_id),
         )
+
+    def list_entities_filtered(
+        self,
+        entity_type: str = "",
+        status: str = "",
+        edit_type: str = "",
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[dict[str, Any]]:
+        """List entities with optional filters by type, status, and edit_type."""
+        logger.debug(
+            f"Listing entities - type: {entity_type}, status: {status}, edit_type: {edit_type}, limit: {limit}, offset: {offset}"
+        )
+
+        cursor = self.vitess_client.cursor
+
+        status_column_map = {
+            "locked": "is_locked",
+            "semi_protected": "is_semi_protected",
+            "archived": "is_archived",
+            "dangling": "is_dangling",
+        }
+
+        base_query = """SELECT e.entity_id, h.head_revision_id"""
+        if edit_type:
+            base_query += ", r.edit_type, r.revision_id"
+
+        base_query += " FROM entity_id_mapping e"
+        base_query += " JOIN entity_head h ON e.internal_id = h.internal_id"
+
+        if edit_type:
+            base_query += " JOIN entity_revisions r ON h.internal_id = r.internal_id AND h.head_revision_id = r.revision_id"
+
+        conditions = []
+        params = []
+
+        if entity_type:
+            pattern_map = {
+                "item": "Q%",
+                "lexeme": "L%",
+                "property": "P%",
+                "entityschema": "E%",
+            }
+            pattern = pattern_map.get(entity_type)
+            if pattern:
+                conditions.append("e.entity_id LIKE %s")
+                params.append(pattern)
+
+        if status:
+            if status not in status_column_map:
+                logger.warning(f"Invalid status filter: {status}")
+                return []
+            conditions.append(f"{status_column_map[status]} = TRUE")
+
+        if edit_type:
+            conditions.append("r.edit_type = %s")
+            params.append(edit_type)
+
+        if conditions:
+            base_query += " WHERE " + " AND ".join(conditions)
+
+        base_query += " LIMIT %s OFFSET %s"
+        params.extend([limit, offset])
+
+        cursor.execute(base_query, tuple(params))
+        rows = cursor.fetchall()
+
+        entities = []
+        for row in rows:
+            if edit_type:
+                entities.append(
+                    {
+                        "entity_id": row[0],
+                        "head_revision_id": row[1],
+                        "edit_type": row[2],
+                        "revision_id": row[3],
+                    }
+                )
+            else:
+                entities.append(
+                    {"entity_id": row[0], "head_revision_id": row[1]}
+                )
+
+        logger.debug(f"Found {len(entities)} entities matching filters")
+        return entities

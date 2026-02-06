@@ -1,10 +1,10 @@
 """Qualifier storage operations."""
 
 import logging
-from typing import List, cast
+from typing import List
 
-from models.data.common import OperationResult
 from models.config.settings import settings
+from models.data.common import OperationResult
 from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.infrastructure.s3.base_storage import BaseS3Storage
 from models.infrastructure.s3.exceptions import S3NotFoundError
@@ -32,7 +32,7 @@ class QualifierStorage(BaseS3Storage):
         if load_response is None:
             raise S3NotFoundError(f"Qualifier not found: {key}")
         data = load_response.data
-        return cast(S3QualifierData, S3QualifierData.model_validate(data))
+        return S3QualifierData.model_validate(data)
 
     def load_qualifiers_batch(
         self, content_hashes: List[int]

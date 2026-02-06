@@ -2,7 +2,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from models.workers.entity_diff.entity_diff_worker import Triple
+from models.workers.entity_diff.types import Triple
 
 
 class EntityDiffResponse(BaseModel):

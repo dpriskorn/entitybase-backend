@@ -83,11 +83,19 @@ class EntityConverter(BaseModel):
         self, entity_id: str, rdf_stmt: RDFStatement, output: TextIO
     ) -> None:
         """Write single statement with references."""
+        from models.data.rest_api.v1.entitybase.request.entity.context import StatementWriteContext
+
         shape = self.properties.shape(rdf_stmt.property_id)
         logger.debug(f"Writing statement for {rdf_stmt.property_id}, shape: {shape}")
-        self.writers.write_statement(
-            output, entity_id, rdf_stmt, shape, self.properties, self.dedupe
+        ctx = StatementWriteContext(
+            output=output,
+            entity_id=entity_id,
+            rdf_statement=rdf_stmt,
+            shape=shape,
+            property_registry=self.properties,
+            dedupe=self.dedupe,
         )
+        self.writers.write_statement(ctx)
 
     def _write_property_metadata(
         self, entity: EntityMetadataResponse, output: TextIO

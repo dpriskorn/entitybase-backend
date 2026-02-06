@@ -34,3 +34,4 @@ test_data/properties/*.json
 /coverage_below_threshold.txt
 /.opencode/plans/
 /unit-test.log
+/output.log

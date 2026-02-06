@@ -15,10 +15,13 @@ class SchemaRepository(Repository):
         logger.debug("Creating database tables")
         if not self.vitess_client:
             raise_validation_error(message="Vitess not initialized")
+        if not self.vitess_client.connection_manager:
+            raise_validation_error(message="Connection manager not initialized")
         if not self.vitess_client.connection_manager.connection:
             raise_validation_error(
                 message="Connection manager variable not initialized"
             )
+        logger.debug("Database connection validated, creating cursor")
         cursor = self.vitess_client.cursor
         cursor.execute(
                 """
