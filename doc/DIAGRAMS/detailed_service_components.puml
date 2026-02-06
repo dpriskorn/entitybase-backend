@@ -5,6 +5,7 @@ title Wikibase Backend - Detailed Service Components
 package "Services" as Services #LightGreen {
     "BacklinkStatistics" as BacklinkStatisticsService
     "Delete" as DeleteService
+    "EntityStatement" as EntityStatementService
     "Enumeration" as EnumerationService
     "GeneralStats" as GeneralStatsService
     "Hash" as HashService
@@ -12,8 +13,10 @@ package "Services" as Services #LightGreen {
     "IdRangeManager" as IdRangeManager
     "Redirect" as RedirectService
     "SnakHandler" as SnakHandler
+    "StatementProcessingContext" as StatementProcessingContext
     "Statement" as StatementService
     "UserStats" as UserStatsService
+    "_PropertyCountHelper" as _PropertyCountHelper
 }
 
 @enduml

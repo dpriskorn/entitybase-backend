@@ -5,6 +5,8 @@ title Wikibase Backend - Detailed Worker Components
 package "Workers" as Workers #LightYellow {
     "BacklinkStatistics" as BacklinkStatisticsWorker
     "BaseStats" as BaseStatsWorker
+    "BucketHealthCheckResult" as BucketHealthCheckResult
+    "BucketSetupResult" as BucketSetupResult
     "CanonicalizationMethod" as CanonicalizationMethod
     "ChangedProperties" as ChangedProperties
     "CreateBuckets" as CreateBuckets
@@ -18,6 +20,8 @@ package "Workers" as Workers #LightYellow {
     "NotificationData" as NotificationData
     "RDFCanonicalizer" as RDFCanonicalizer
     "RDFSerializer" as RDFSerializer
+    "TableHealthCheckResult" as TableHealthCheckResult
+    "TableSetupResult" as TableSetupResult
     "UserStats" as UserStatsWorker
     "Vitess" as VitessWorker
     "WatchlistConsumer" as WatchlistConsumerWorker

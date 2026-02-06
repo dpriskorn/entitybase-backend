@@ -8,16 +8,16 @@ package "API Layer" as APILayer #LightBlue {
     "Admin" as AdminHandler
     "Thanks" as ThanksHandler
     "UserActivity" as UserActivityHandler
-    ... (33 total components)
+    ... (30 total components)
 }
 
 package "Service Layer" as ServiceLayer #LightGreen {
     "Hash" as HashService
     "Enumeration" as EnumerationService
     "Snak" as SnakHandler
-    "BacklinkStatistics" as BacklinkStatisticsService
-    "UserStats" as UserStatsService
-    ... (11 total components)
+    "_PropertyCountHelper" as _PropertyCountHelper
+    "EntityStatement" as EntityStatementService
+    ... (14 total components)
 }
 
 package "Worker Layer" as WorkerLayer #LightYellow {
@@ -26,7 +26,7 @@ package "Worker Layer" as WorkerLayer #LightYellow {
     "Worker" as Worker
     "NotificationData" as NotificationData
     "ChangedProperties" as ChangedProperties
-    ... (19 total components)
+    ... (23 total components)
 }
 
 package "Infrastructure Layer" as InfrastructureLayer #LightGray {

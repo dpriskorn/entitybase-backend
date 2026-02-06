@@ -19,11 +19,8 @@ package "API Handlers" as APIHandlers #LightBlue {
     "EntityValidation" as EntityValidationService
     "Export" as ExportHandler
     "ItemCreate" as ItemCreateHandler
-    "ItemUpdate" as ItemUpdateHandler
     "LexemeCreate" as LexemeCreateHandler
-    "LexemeUpdate" as LexemeUpdateHandler
     "PropertyCreate" as PropertyCreateHandler
-    "PropertyUpdate" as PropertyUpdateHandler
     "Redirect" as RedirectHandler
     "RevisionContext" as RevisionContext
     "State" as StateHandler

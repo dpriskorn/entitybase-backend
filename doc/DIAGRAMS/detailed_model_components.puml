@@ -59,11 +59,13 @@ package "Models" as Models #LightCyan {
     "PropertyCounts" as PropertyCountsResponse
     "PropertyHashes" as PropertyHashesResponse
     "PropertyList" as PropertyListResponse
+    "PropertyRecalculationResult" as PropertyRecalculationResult
     "Protection" as ProtectionResponse
     "Qualifier" as QualifierResponse
     "RDFChangeEvent" as RDFChangeEvent
     "RangeStatus" as RangeStatus
     "RangeStatuses" as RangeStatuses
+    "ReconstructedSnakValue" as ReconstructedSnakValue
     "RedirectBatch" as RedirectBatchResponse
     "Reference" as ReferenceResponse
     "RepresentationData" as RepresentationData
@@ -75,6 +77,7 @@ package "Models" as Models #LightCyan {
     "SenseGlosses" as SenseGlossesResponse
     "Sense" as SenseResponse
     "Senses" as SensesResponse
+    "SerializableQualifierValue" as SerializableQualifierValue
     "SingleEndorsementStats" as SingleEndorsementStatsResponse
     "SitelinkValue" as SitelinkValue
     "Sitelinks" as SitelinksResponse
