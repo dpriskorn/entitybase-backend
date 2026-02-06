@@ -1,0 +1,4 @@
+# MOVED: This file content has been moved to test_items_update_handler.py
+# This file is kept with .txt extension to avoid pytest import conflicts
+# Original path: tests/unit/models/rest_api/entitybase/v1/handlers/entity/items/test_update.py
+# New path: tests/unit/models/rest_api/entitybase/v1/handlers/entity/items/test_items_update_handler.py

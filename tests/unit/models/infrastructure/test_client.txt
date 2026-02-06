@@ -1,0 +1,4 @@
+# MOVED: This file content has been moved to test_base_client.py
+# This file is kept with .txt extension to avoid pytest import conflicts
+# Original path: tests/unit/models/infrastructure/test_client.py
+# New path: tests/unit/models/infrastructure/test_base_client.py

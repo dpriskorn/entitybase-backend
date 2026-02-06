@@ -74,7 +74,8 @@ class TestRDFCanonicalizerURDNA2015:
         rdf_content = """
         @prefix wd: <http://www.wikidata.org/entity/> .
         @prefix wdt: <http://www.wikidata.org/prop/direct/> .
-        
+        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
         wd:Q42 wdt:P569 [ wdt:P577 "1952-03-11"^^xsd:dateTime ] .
         """
         
@@ -174,7 +175,8 @@ class TestRDFCanonicalizerStructuralHash:
         rdf_content = """
         @prefix wd: <http://www.wikidata.org/entity/> .
         @prefix wdt: <http://www.wikidata.org/prop/direct/> .
-        
+        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
         wd:Q42 wdt:P569 [ wdt:P577 "1952-03-11"^^xsd:dateTime ] .
         wd:Q42 wdt:P569 [ wdt:P577 "1952-03-11"^^xsd:dateTime ] .
         """

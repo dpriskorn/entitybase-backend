@@ -2,7 +2,7 @@ from typing import Set, Any
 
 from pydantic import BaseModel
 from pyld import jsonld
-from rdflib import Graph
+from rdflib import ConjunctiveGraph, Graph
 
 from models.workers.entity_diff.types import Triple
 from models.workers.entity_diff.enums import CanonicalizationMethod
@@ -27,7 +27,7 @@ class RDFCanonicalizer(BaseModel):
     def _canonicalize_urdna2015(self, rdf_content: str, format_: str) -> Set[Triple]:
         """Canonicalize using URDNA2015 algorithm."""
         # Parse RDF to JSON-LD
-        g = Graph()
+        g = ConjunctiveGraph()
         g.parse(data=rdf_content, format=format_)
         
         # Serialize to N-Quads format for pyld compatibility
@@ -76,22 +76,16 @@ class RDFCanonicalizer(BaseModel):
     @staticmethod
     def _extract_triples_from_nquads(nquads: str) -> Set[Triple]:
         """Extract normalized triples from N-Quads/N-Triples format."""
+        g = ConjunctiveGraph()
+        g.parse(data=nquads, format="nquads")
+
         triples = set()
+        for s, p, o in g:
+            subject = s.n3()
+            predicate = p.n3()
+            obj = o.n3()
 
-        for line in nquads.strip().split("\n"):
-            cleaned_line = line.strip()
-            if not cleaned_line or cleaned_line.startswith("#"):
-                continue
-
-            # Parse N-Quad/N-Triple: subject predicate object [graph] .
-            parts = cleaned_line.rstrip(" .").split()
-            if len(parts) >= 3:
-                subject = parts[0]
-                predicate = parts[1]
-                obj = " ".join(parts[2:-1]) if len(parts) > 3 else parts[2]
-                # Ignore graph part if present
-
-                triples.add((subject, predicate, obj))
+            triples.add((subject, predicate, obj))
 
         return triples
 

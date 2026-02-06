@@ -133,7 +133,6 @@ class VitessClient(Client):
 
     def list_entities_by_type(self, entity_type: str, limit: int = 100, offset: int = 0) -> list[str]:
         """List entity IDs by type using pattern matching on entity_id."""
-        cursor = self.cursor
         pattern_map = {
             "item": "Q%",
             "lexeme": "L%",
@@ -142,6 +141,7 @@ class VitessClient(Client):
         pattern = pattern_map.get(entity_type)
         if not pattern:
             return []
+        cursor = self.cursor
         cursor.execute(
             """SELECT entity_id FROM entity_id_mapping
                WHERE entity_id LIKE %s

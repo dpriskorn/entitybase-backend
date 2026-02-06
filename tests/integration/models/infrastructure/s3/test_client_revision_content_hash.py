@@ -2,15 +2,42 @@
 
 import pytest
 
+from models.data.infrastructure.s3.enums import EditType, EntityType, EditData
+from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.data.infrastructure.s3.revision_data import S3RevisionData
 from models.internal_representation.metadata_extractor import MetadataExtractor
+from models.infrastructure.s3.revision.revision_data import RevisionData
 from datetime import datetime, timezone
+
+
+def create_minimal_revision_data(
+    entity_id: str,
+    revision_id: int,
+    user_id: int = 1,
+    edit_summary: str = "test edit",
+) -> RevisionData:
+    """Create minimal RevisionData for testing purposes."""
+    return RevisionData(
+        revision_id=revision_id,
+        entity_type=EntityType.ITEM,
+        edit=EditData(
+            type=EditType.MANUAL_UPDATE,
+            user_id=user_id,
+            is_mass_edit=False,
+            edit_summary=edit_summary,
+            at=datetime.now(timezone.utc).isoformat(),
+        ),
+        hashes=HashMaps(
+            statements=StatementsHashes(hashes=[])
+        ),
+    )
 
 
 class TestS3ClientRevisionReadWithContentHash:
     """Integration tests for S3 client revision read functionality with content_hash."""
 
-    def test_read_revision_queries_database_first(self, vitess_client, s3_client, db_conn):
+    def test_read_revision_queries_database_first(self, vitess_client, s3_client):
         """Test that read_revision queries database for content_hash before S3."""
         entity_id = "Q42"
         revision_id = 1
@@ -19,20 +46,11 @@ class TestS3ClientRevisionReadWithContentHash:
 
         vitess_client.register_entity(entity_id)
 
-        cursor = db_conn.cursor()
-        cursor.execute("SELECT internal_id FROM entity_id_mapping WHERE entity_id = %s", (entity_id,))
-        row = cursor.fetchone()
-        actual_internal_id = row[0] if row else None
-
         revision_json = '{"entity": {"id": "' + entity_id + '"}, "revision_id": ' + str(revision_id) + '}'
         content_hash = MetadataExtractor.hash_string(revision_json)
 
-        cursor.execute(
-            "INSERT INTO entity_revisions "
-            "(internal_id, revision_id, created_at, is_mass_edit, edit_type, statements, properties, property_counts, content_hash) "
-            "VALUES (%s, %s, NOW(), FALSE, '', '[]', '[]', '{}', %s)",
-            (actual_internal_id, revision_id, content_hash),
-        )
+        entity_data = create_minimal_revision_data(entity_id, revision_id)
+        vitess_client.insert_revision(entity_id, revision_id, entity_data, content_hash)
 
         s3_revision_data = S3RevisionData(
             schema="1.0.0",
@@ -67,7 +85,7 @@ class TestS3ClientRevisionReadWithContentHash:
 
         assert "Revision not found" in str(exc_info.value)
 
-    def test_read_revision_end_to_end(self, vitess_client, s3_client, db_conn):
+    def test_read_revision_end_to_end(self, vitess_client, s3_client):
         """Test complete read_revision flow with all components."""
         entity_id = "Q44"
         revision_id = 1
@@ -75,11 +93,6 @@ class TestS3ClientRevisionReadWithContentHash:
         s3_client.vitess_client = vitess_client
 
         vitess_client.register_entity(entity_id)
-
-        cursor = db_conn.cursor()
-        cursor.execute("SELECT internal_id FROM entity_id_mapping WHERE entity_id = %s", (entity_id,))
-        row = cursor.fetchone()
-        actual_internal_id = row[0] if row else None
 
         revision_dict = {
             "entity": {"id": entity_id, "labels": {}},
@@ -90,12 +103,8 @@ class TestS3ClientRevisionReadWithContentHash:
         revision_json = '{"entity": {"id": "' + entity_id + '", "labels": {}}, "schema": "1.0.0", "revision_id": ' + str(revision_id) + '}'
         content_hash = MetadataExtractor.hash_string(revision_json)
 
-        cursor.execute(
-            "INSERT INTO entity_revisions "
-            "(internal_id, revision_id, created_at, is_mass_edit, edit_type, statements, properties, property_counts, content_hash) "
-            "VALUES (%s, %s, NOW(), FALSE, '', '[]', '[]', '{}', %s)",
-            (actual_internal_id, revision_id, content_hash),
-        )
+        entity_data = create_minimal_revision_data(entity_id, revision_id)
+        vitess_client.insert_revision(entity_id, revision_id, entity_data, content_hash)
 
         s3_revision_data = S3RevisionData(
             schema="1.0.0",

@@ -76,3 +76,21 @@ def mock_aiokafka():
             "aiokafka.AIOKafkaProducer", new_callable=AsyncMock
         ) as mock_producer:
             yield mock_consumer, mock_producer
+
+
+@pytest.fixture(scope="session", autouse=True)
+def mock_pymysql_connect():
+    """Mock pymysql.connect to prevent real database connections in unit tests.
+
+    This patch ensures that VitessClient and related infrastructure components
+    don't attempt to connect to a real MySQL database during unit testing.
+    Integration tests should use the real database connection.
+    """
+    mock_connection = MagicMock()
+    mock_cursor = MagicMock()
+    mock_connection.cursor.return_value = mock_cursor
+    mock_connection.__enter__ = MagicMock(return_value=mock_connection)
+    mock_connection.__exit__ = MagicMock(return_value=None)
+    
+    with patch("pymysql.connect", return_value=mock_connection):
+        yield
