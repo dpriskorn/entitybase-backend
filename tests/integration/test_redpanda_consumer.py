@@ -3,6 +3,7 @@
 import asyncio
 import json
 import logging
+import os
 import time
 from typing import AsyncGenerator, Any
 
@@ -17,8 +18,8 @@ from models.infrastructure.stream.producer import StreamProducerClient
 
 logger = logging.getLogger(__name__)
 
-KAFKA_BOOTSTRAP_SERVERS = "redpanda:9092"
-KAFKA_TOPIC = "wikibase.entity_change"
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "redpanda:9092")
+KAFKA_TOPIC = os.getenv("KAFKA_TOPIC", "wikibase.entity_change")
 TEST_ENTITY_BASE = "Q888888"
 TEST_USER_ID = "test-user-123"
 
