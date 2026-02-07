@@ -21,6 +21,10 @@ class AdminHandler(Handler):
         offset: int = 0,
     ) -> EntityListResponse:
         """List entities by type, status, or edit_type."""
+        logger.debug(
+            f"list_entities called with entity_type={entity_type}, status={status}, "
+            f"edit_type={edit_type}, limit={limit}, offset={offset}"
+        )
         if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
@@ -43,6 +47,7 @@ class AdminHandler(Handler):
                 status_code=400,
             )
 
+        logger.debug("Fetching entities from repository")
         entities = self.state.vitess_client.entity_repository.list_entities_filtered(
             entity_type=entity_type,
             status=status,
@@ -51,6 +56,7 @@ class AdminHandler(Handler):
             offset=offset,
         )
 
+        logger.debug(f"Successfully fetched {len(entities)} entities")
         return EntityListResponse(entities=entities, count=len(entities))
 
     # def get_raw_revision(
