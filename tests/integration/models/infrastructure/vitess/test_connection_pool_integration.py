@@ -1,68 +1,25 @@
 """Integration tests for Vitess connection pool with real MySQL database."""
 
 import logging
-import time
 
-import pymysql
 import pytest
-from pydantic import SecretStr
-
-from models.data.config.vitess import VitessConfig
-from models.infrastructure.vitess.connection import VitessConnectionManager
 
 logger = logging.getLogger(__name__)
+
+
+@pytest.fixture(autouse=True)
+def test_timer():
+    """Auto-apply timing to all tests."""
+    import time as time_module
+
+    logger.debug(f"=== TEST START: {time_module.time()} ===")
+    yield
+    logger.debug(f"=== TEST END: {time_module.time()} ===")
 
 
 @pytest.mark.integration
 class TestVitessConnectionPoolIntegration:
     """Integration tests for VitessConnectionManager connection pooling against real database."""
-
-    @pytest.fixture(scope="function")
-    def test_config(self) -> VitessConfig:
-        """Create test configuration with small pool for testing."""
-        return VitessConfig(
-            host="localhost",
-            port=3306,
-            database="test_vitess_pool",
-            user="root",
-            password="",
-            pool_size=2,
-            max_overflow=1,
-            pool_timeout=1,
-        )
-
-    @pytest.fixture(scope="function")
-    def db_cursor(self):
-        """Create a cursor to the test database."""
-        max_retries = 10
-        conn = None
-        for attempt in range(max_retries):
-            try:
-                conn = pymysql.connect(
-                    host="localhost",
-                    port=3306,
-                    user="root",
-                    password="",
-                    database="test_vitess_pool",
-                    autocommit=True
-                )
-                with conn.cursor() as cursor:
-                    cursor.execute("CREATE TABLE IF NOT EXISTS test_table (id INT)")
-                break
-            except pymysql.Error as e:
-                if attempt == max_retries - 1:
-                    logger.error(f"Failed to connect to test database after {max_retries} attempts: {e}")
-                    pytest.fail(f"Database not ready: {e}")
-                time.sleep(1)
-        yield conn.cursor()
-        conn.close()
-
-    @pytest.fixture(scope="function")
-    def connection_manager(self, test_config) -> VitessConnectionManager:
-        """Create a VitessConnectionManager for testing."""
-        manager = VitessConnectionManager(config=test_config)
-        yield manager
-        manager.disconnect()
 
     def test_acquire_timeout_when_pool_exhausted(self, connection_manager):
         """Test that acquire raises TimeoutError when pool is exhausted."""
@@ -78,7 +35,9 @@ class TestVitessConnectionPoolIntegration:
                 connections.append(conn)
                 assert conn.open, "Connection should be open"
 
-            with pytest.raises(TimeoutError, match="Could not acquire database connection"):
+            with pytest.raises(
+                TimeoutError, match="Could not acquire database connection"
+            ):
                 manager.acquire()
         finally:
             for conn in connections:
@@ -170,7 +129,9 @@ class TestVitessConnectionPoolIntegration:
             t.join()
 
         assert len(errors) == 0, f"Errors occurred: {errors}"
-        assert success_count[0] == num_threads * num_iterations, f"Expected {num_threads * num_iterations} successful operations"
+        assert success_count[0] == num_threads * num_iterations, (
+            f"Expected {num_threads * num_iterations} successful operations"
+        )
 
     def test_healthy_connection_with_real_database(self, connection_manager):
         """Test that healthy_connection property works with real database."""

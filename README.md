@@ -226,7 +226,7 @@ Use either the setup script or dev worker CLI to create these buckets automatica
 - **Item endpoints**: `/item` for item entities (Q IDs)
 - **Property endpoints**: `/property` for property entities (P IDs)
 - **Lexeme endpoints**: `/lexeme` for lexeme entities (L IDs)
-- **Entity Schema endpoints**: `/entityschema` for entity schema entities (E IDs)
+
 
 ## External links
 * https://www.mediawiki.org/wiki/User:So9q/Scaling_issues Implemenatation history and on-wiki details

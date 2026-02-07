@@ -13,7 +13,7 @@ health_router = APIRouter(tags=["health"])
 @health_router.get("/health", response_model=HealthCheckResponse)
 def health_check_endpoint(response: Response, req: Request) -> HealthCheckResponse:
     """Health check endpoint for monitoring service status."""
-    state = req.app.state.state_handler
+    state = getattr(req.app.state, "state_handler", None)
     if state is None:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return HealthCheckResponse(

@@ -5,6 +5,8 @@ import logging
 import re
 from typing import Any
 
+from models.rdf_builder.hashing.value_node_hasher import ValueNodeHasher
+
 logger = logging.getLogger(__name__)
 
 
@@ -39,30 +41,26 @@ def generate_value_node_uri(value: Any) -> str:
 def serialize_value(value: Any) -> str:
     """Serialize value object to string for hashing.
 
-    Different value types have different serialization formats.
+    Uses MediaWiki-compatible format from ValueNodeHasher for structured values.
     """
-    # logger.debug(f"Serializing value of type {type(value)}")
     if hasattr(value, "kind"):
         kind = value.kind
 
         if kind == "time":
-            time_str = value.value
-            if value.timezone == 0 and time_str.startswith("+"):
-                time_str = time_str[1:]  # Remove leading + for timezone 0
-            parts = [f"t:{time_str}", value.precision, value.timezone]
-            if value.before != 0:
-                parts.append(value.before)
-            if value.after != 0:
-                parts.append(value.after)
-            parts.append(value.calendarmodel)
-            return ":".join(str(p) for p in parts)
+            parts = [
+                f"t:{value.value}",
+                str(value.precision),
+                str(value.timezone),
+                value.calendarmodel,
+            ]
+            return ":".join(parts)
 
         elif kind == "quantity":
             parts = [f"q:{value.value}:{value.unit}"]
             if value.upper_bound:
-                parts.append(value.upper_bound)
+                parts.append(str(value.upper_bound))
             if value.lower_bound:
-                parts.append(value.lower_bound)
+                parts.append(str(value.lower_bound))
             return ":".join(parts)
 
         elif kind == "globe":

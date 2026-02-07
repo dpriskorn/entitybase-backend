@@ -7,12 +7,7 @@ else
   exit 1
 fi
 
-export VITESS_HOST=localhost
-export VITESS_PORT=3306
-export VITESS_DATABASE=entitybase
-export VITESS_USER=root
-export VITESS_PASSWORD=""
-export PYTHONPATH=src
+source test.env
 
 echo "Running E2E tests"
 #pytest -m integration

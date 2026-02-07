@@ -8,6 +8,9 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from jsonschema import ValidationError  # type: ignore[import-untyped]
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request as StarletteRequest
+from starlette.responses import Response as StarletteResponse
 #from starlette.exceptions import StarletteHTTPException
 
 from models.config.settings import settings
@@ -34,6 +37,32 @@ for logger_name in aws_loggers:
 logger = logging.getLogger(__name__)
 
 
+class StartupMiddleware(BaseHTTPMiddleware):
+    """Middleware to protect endpoints during application startup.
+
+    Returns 503 for non-essential endpoints while state_handler is initializing.
+    Always allows /health, /docs, and /openapi.json through.
+    """
+
+    async def dispatch(self, request: StarletteRequest, call_next) -> StarletteResponse:
+        allowed_paths = {"/health", "/docs", "/openapi.json", "/redoc"}
+        request_path = request.url.path
+
+        if request_path not in allowed_paths:
+            state_handler = getattr(request.app.state, "state_handler", None)
+            if state_handler is None:
+                logger.debug(f"Rejecting request to {request_path} during initialization")
+                return JSONResponse(
+                    status_code=503,
+                    content={
+                        "error": "Service Unavailable",
+                        "message": "Application is initializing. Please try again shortly."
+                    }
+                )
+
+        return await call_next(request)
+
+
 @asynccontextmanager
 async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager for startup and shutdown tasks."""
@@ -41,6 +70,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         state_handler = StateHandler(
             settings=settings
         )
+        state_handler.start()
         # Create database tables on startup (only if vitess is available)
         # try:
         #     logger.debug("Creating database tables...")
@@ -64,18 +94,25 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         )
         raise
     finally:
-        if app_.state.state_handler:
+        if hasattr(app_.state, "state_handler") and app_.state.state_handler:
             app_.state.state_handler.disconnect()
             logger.info("All clients disconnected")
 
         if (
-            settings.streaming_enabled
+            hasattr(app_.state, "state_handler")
+            and app_.state.state_handler
+            and settings.streaming_enabled
             and app_.state.state_handler.entity_change_stream_producer
         ):
             await app_.state.state_handler.entity_change_stream_producer.stop()
             logger.info("entitychange_stream_producer stopped")
 
-        if settings.streaming_enabled and app_.state.state_handler.entitydiff_stream_producer:
+        if (
+            hasattr(app_.state, "state_handler")
+            and app_.state.state_handler
+            and settings.streaming_enabled
+            and app_.state.state_handler.entitydiff_stream_producer
+        ):
             await app_.state.state_handler.entitydiff_stream_producer.stop()
             logger.info("entitydiff_stream_producer stopped")
 
@@ -83,6 +120,7 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
 app = FastAPI(
     title="EntityBase", version="1.0.0", openapi_version="3.1", lifespan=lifespan
 )
+app.add_middleware(StartupMiddleware)
 
 
 @app.exception_handler(ValidationError)

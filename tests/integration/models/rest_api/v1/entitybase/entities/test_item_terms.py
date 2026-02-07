@@ -17,15 +17,20 @@ def test_get_item_label_success(api_client: requests.Session, api_url: str) -> N
         labels={"en": {"value": "Test Label"}},
         edit_summary="test",
     )
-
+    url = f"{api_url}/entities/items"
+    logger.debug(f"sending API post request to {url}")
     response = api_client.post(
-        f"{api_url}/entities/items",
+        url,
         json=entity_data.model_dump(mode="json"),
         headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
+    # logger.debug("Got response")
     assert response.status_code == 200
+    logger.debug("Got 200 response")
 
-    response = api_client.get(f"{api_url}/entities/items/Q70001/labels/en")
+    url2 = f"{api_url}/entities/items/Q70001/labels/en"
+    logger.debug(f"sending API get request to {url2}")
+    response = api_client.get(url2)
     assert response.status_code == 200
     data = response.json()
     assert "value" in data

@@ -10,9 +10,7 @@ sys.path.insert(0, "src")
 # noinspection PyPep8
 from models.config.settings import settings
 
-logger = logging.getLogger(__name__)
-
-AWS_LOGGERS = [
+aws_loggers = [
     "botocore",
     "boto3",
     "urllib3",
@@ -25,41 +23,120 @@ AWS_LOGGERS = [
     "botocore.auth",
 ]
 
+for logger_name in aws_loggers:
+    logging.getLogger(logger_name).setLevel(logging.INFO)
+logger = logging.getLogger(__name__)
 
-@pytest.fixture(autouse=True)
-def configure_aws_logging():
-    """Configure AWS loggers to WARNING level for integration tests."""
-    for logger_name in AWS_LOGGERS:
-        logging.getLogger(logger_name).setLevel(logging.WARNING)
-    yield
+
+@pytest.fixture(scope="session", autouse=True)
+def validate_env_vars():
+    """Validate required environment variables are set before running integration tests.
+
+    This fixture fails fast if required environment variables are missing,
+    preventing long retry loops in connection fixtures.
+    """
+    import os
+
+    required_vars = {
+        "VITESS_HOST": "Vitess database host",
+        "VITESS_PORT": "Vitess database port",
+        "VITESS_DATABASE": "Vitess database name",
+        "VITESS_USER": "Vitess database user",
+        "S3_ENDPOINT": "S3 storage endpoint URL",
+        "S3_ACCESS_KEY": "S3 access key",
+        "S3_SECRET_KEY": "S3 secret key",
+    }
+
+    missing_vars = []
+    for var, description in required_vars.items():
+        value = os.getenv(var)
+        if not value or value == "":
+            missing_vars.append(f"  {var}: {description}")
+
+    if missing_vars:
+        error_msg = (
+            "Required environment variables are not set:\n"
+            + "\n".join(missing_vars)
+            + "\n\nPlease set these environment variables before running integration tests."
+        )
+        logger.error(error_msg)
+        pytest.fail(error_msg)
+
+    logger.debug("All required environment variables are validated")
+
+
+# @pytest.fixture(autouse=True)
+# def configure_aws_logging():
+#     """Configure AWS loggers to WARNING level for integration tests."""
+#     for logger_name in AWS_LOGGERS:
+#         logging.getLogger(logger_name).setLevel(logging.WARNING)
+#     yield
 
 
 @pytest.fixture(scope="session")
 def db_conn():
     """Database connection for cleanup"""
-    # Wait for DB to be ready
-    max_retries = 30
+    import time as time_module
+
+    start_time = time_module.time()
+    logger.debug("=== db_conn fixture START ===")
+    logger.debug(
+        f"Attempting to connect to: host='{settings.vitess_host}', port={settings.vitess_port}, user='{settings.vitess_user}', database='{settings.vitess_database}'"
+    )
+
+    # Wait for DB to be ready - optimized retry logic
+    max_retries = 5
     conn = None
     for attempt in range(max_retries):
+        attempt_start = time_module.time()
         try:
+            logger.debug(
+                f"Attempt {attempt + 1}/{max_retries}: Connecting to database..."
+            )
             conn = pymysql.connect(
                 host=settings.vitess_host,
                 port=settings.vitess_port,
                 user=settings.vitess_user,
                 password=settings.vitess_password,
                 database=settings.vitess_database,
+                connect_timeout=2,
             )
+            logger.debug(
+                f"Attempt {attempt + 1}/{max_retries}: Connection established in {(time_module.time() - attempt_start):.2f}s"
+            )
+
             # Test connection with a simple query
             with conn.cursor() as cursor:
+                query_start = time_module.time()
                 cursor.execute("SELECT 1")
                 cursor.fetchone()
+                logger.debug(
+                    f"Attempt {attempt + 1}/{max_retries}: Query executed in {(time_module.time() - query_start):.2f}s"
+                )
+
+            logger.debug(
+                f"=== db_conn fixture SUCCESS in {(time_module.time() - start_time):.2f}s ==="
+            )
             break
         except pymysql.Error as e:
+            attempt_time = time_module.time() - attempt_start
+            logger.debug(
+                f"Attempt {attempt + 1}/{max_retries} FAILED after {attempt_time:.2f}s: {e}"
+            )
             if attempt == max_retries - 1:
+                logger.error(
+                    f"=== db_conn fixture FAILED after {(time_module.time() - start_time):.2f}s ==="
+                )
                 raise e
-            time.sleep(2)
+            logger.debug(f"Waiting 1s before retry...")
+            time.sleep(1)
+
     yield conn
-    conn.close()
+    if conn:
+        conn.close()
+    logger.debug(
+        f"=== db_conn fixture END total time: {(time_module.time() - start_time):.2f}s ==="
+    )
 
 
 @pytest.fixture(autouse=True)
@@ -101,24 +178,41 @@ def db_cleanup(db_conn):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def create_tables(db_conn):
+def create_tables(vitess_client):
     """Create database tables before running integration tests."""
+    import time as time_module
+
+    start_time = time_module.time()
+    logger.debug("=== create_tables fixture START ===")
     try:
         from models.infrastructure.vitess.repositories.schema import SchemaRepository
-        from models.infrastructure.vitess.client import VitessClient
-        from models.config.settings import settings
 
-        # Create Vitess config and schema repository
-        vitess_config = settings.get_vitess_config
-        vitess_client = VitessClient(config=vitess_config)
+        schema_start = time_module.time()
         schema_repository = SchemaRepository(vitess_client=vitess_client)
         schema_repository.create_tables()
+        logger.debug(
+            f"Schema tables created in {(time_module.time() - schema_start):.2f}s"
+        )
+
         print("Database tables created for integration tests")
     except Exception as e:
-        print(f"Failed to create tables: {e}")
-        # Try to create tables using raw SQL as fallback
+        logger.debug(f"Failed to create tables: {e}")
+        # Try to create tables using raw SQL as fallback using db_conn
         try:
-            with db_conn.cursor() as cursor:
+            import pymysql
+            from models.config.settings import settings
+            import time as time_module
+
+            fallback_start = time_module.time()
+            conn = pymysql.connect(
+                host=settings.vitess_host,
+                port=settings.vitess_port,
+                user=settings.vitess_user,
+                password=settings.vitess_password,
+                database=settings.vitess_database,
+                connect_timeout=2,
+            )
+            with conn.cursor() as cursor:
                 # Create minimal tables needed for tests
                 cursor.execute("""
                     CREATE TABLE IF NOT EXISTS entity_id_mapping (
@@ -160,42 +254,84 @@ def create_tables(db_conn):
                         redirects_to BIGINT UNSIGNED NULL
                     )
                 """)
-            db_conn.commit()
+            conn.commit()
+            conn.close()
+            logger.debug(
+                f"Fallback SQL tables created in {(time_module.time() - fallback_start):.2f}s"
+            )
             print("Created minimal tables using raw SQL")
         except Exception as sql_e:
-            print(f"Failed to create tables with SQL: {sql_e}")
+            logger.debug(f"Failed to create tables with SQL: {sql_e}")
             raise
+
+    logger.debug(
+        f"=== create_tables fixture END total time: {(time_module.time() - start_time):.2f}s ==="
+    )
 
 
 @pytest.fixture(scope="session")
 def vitess_client():
     """Create a real VitessClient connected to test database."""
-    logger.debug("pytest:vitess_client: Running")
-    from models.infrastructure.vitess.client import VitessClient
+    import time as time_module
 
-    vitess_config = settings.get_vitess_config
+    start_time = time_module.time()
+    logger.debug("=== vitess_client fixture START ===")
+    logger.debug(f"pytest:vitess_client: Running")
+    from models.infrastructure.vitess.client import VitessClient
+    from models.data.config.vitess import VitessConfig
+
+    # Create a test-specific config with smaller pool for faster tests
+    vitess_config = VitessConfig(
+        host=settings.vitess_host,
+        port=settings.vitess_port,
+        database=settings.vitess_database,
+        user=settings.vitess_user,
+        password=settings.vitess_password,
+        pool_size=5,
+        max_overflow=5,
+        pool_timeout=2,
+    )
+    logger.debug(
+        f"Vitess config: host='{vitess_config.host}', port={vitess_config.port}, database='{vitess_config.database}'"
+    )
+
+    client_start = time_module.time()
     client = VitessClient(config=vitess_config)
+    logger.debug(f"VitessClient created in {(time_module.time() - client_start):.2f}s")
+
+    logger.debug(
+        f"=== vitess_client fixture END total time: {(time_module.time() - start_time):.2f}s ==="
+    )
     yield client
+
+    client.disconnect()
+
+
+@pytest.fixture(scope="function")
+def connection_manager():
+    """Create a VitessConnectionManager for testing connection pool behavior."""
+    from models.infrastructure.vitess.connection import VitessConnectionManager
+    from models.data.config.vitess import VitessConfig
+
+    # Use settings config but with smaller timeouts for faster tests
+    test_config = VitessConfig(
+        host=settings.vitess_host,
+        port=settings.vitess_port,
+        database=settings.vitess_database,
+        user=settings.vitess_user,
+        password=settings.vitess_password,
+        pool_size=2,
+        max_overflow=1,
+        pool_timeout=1,
+    )
+    manager = VitessConnectionManager(config=test_config)
+    yield manager
+    manager.disconnect()
 
 
 @pytest.fixture(scope="session")
 def api_client():
     """API client for E2E tests - connects to running application."""
-    # base_url = "http://api:8000"  # Adjust for Docker container URL
-
-    # # Wait for API to be ready
-    # @retry(
-    #     stop=stop_after_attempt(30), wait=wait_exponential(multiplier=1, min=1, max=10)
-    # )
-    # def wait_for_api():
-    #     try:
-    #         response = requests.get(f"{base_url}/health", timeout=5)
-    #         response.raise_for_status()
-    #         assert response.json().get("status") == "ok"
-    #     except requests.RequestException:
-    #         raise Exception("E2E API not ready")
-
-    # wait_for_api()
     return requests.Session()
 
 
@@ -209,6 +345,7 @@ def base_url():
 def api_url():
     """Full API URL including configurable prefix for integration tests."""
     from models.config.settings import settings
+
     return f"http://localhost:8000{settings.api_prefix}"
 
 
@@ -216,25 +353,43 @@ def api_url():
 def s3_config():
     """Create real S3Config from settings."""
     from models.config.settings import settings
+
     return settings.get_s3_config
 
 
 @pytest.fixture(scope="session")
 def s3_client(s3_config):
     """Create real MyS3Client connected to Minio."""
-    import time
+    import time as time_module
     from models.infrastructure.s3.client import MyS3Client
 
-    logger.debug("pytest:s3_client: Running")
-    max_retries = 30
+    start_time = time_module.time()
+    logger.debug("=== s3_client fixture START ===")
+    logger.debug(f"pytest:s3_client: Running, S3 endpoint: {s3_config.endpoint}")
+
+    max_retries = 5
     for attempt in range(max_retries):
+        attempt_start = time_module.time()
         try:
+            logger.debug(f"Attempt {attempt + 1}/{max_retries}: Connecting to S3...")
             client = MyS3Client(config=s3_config)
-            logger.debug(f"pytest:s3_client: Connected to S3 at attempt {attempt + 1}")
+            logger.debug(
+                f"pytest:s3_client: Connected to S3 at attempt {attempt + 1} in {(time_module.time() - attempt_start):.2f}s"
+            )
+            logger.debug(
+                f"=== s3_client fixture SUCCESS in {(time_module.time() - start_time):.2f}s ==="
+            )
             yield client
             return
         except Exception as e:
+            attempt_time = time_module.time() - attempt_start
+            logger.debug(
+                f"Attempt {attempt + 1}/{max_retries} FAILED after {attempt_time:.2f}s: {e}"
+            )
             if attempt == max_retries - 1:
+                logger.error(
+                    f"=== s3_client fixture FAILED after {(time_module.time() - start_time):.2f}s ==="
+                )
                 raise
-            logger.debug(f"pytest:s3_client: Retry {attempt + 1}/{max_retries} - {e}")
-            time.sleep(2)
+            logger.debug(f"Waiting 1s before retry...")
+            time_module.sleep(1)

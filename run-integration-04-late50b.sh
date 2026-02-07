@@ -8,15 +8,7 @@ else
   exit 1
 fi
 
-export VITESS_HOST=localhost
-export VITESS_PORT=3306
-export VITESS_DATABASE=entitybase
-export VITESS_USER=root
-export VITESS_PASSWORD=""
-export S3_ENDPOINT=http://localhost:9000
-export S3_ACCESS_KEY=fakekey
-export S3_SECRET_KEY=fakesecret
-export PYTHONPATH=src
+source test.env
 
 echo "Running tests 151-200"
 pytest tests/integration --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" -k "test_entity_parsing or test_string_value or test_json_fields or test_internal or test_values" --durations=10

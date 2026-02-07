@@ -1,5 +1,36 @@
+import os
+
 import pytest
 import requests
+
+
+@pytest.fixture(scope="session", autouse=True)
+def validate_e2e_env_vars():
+    """Validate required environment variables are set before running E2E tests.
+
+    This fixture fails fast if required environment variables are missing,
+    preventing long retry loops and confusing connection errors.
+    """
+    required_vars = {
+        "VITESS_HOST": "Vitess database host",
+        "VITESS_PORT": "Vitess database port",
+        "VITESS_DATABASE": "Vitess database name",
+        "VITESS_USER": "Vitess database user",
+    }
+
+    missing_vars = []
+    for var, description in required_vars.items():
+        value = os.getenv(var)
+        if not value or value == "":
+            missing_vars.append(f"  {var}: {description}")
+
+    if missing_vars:
+        error_msg = (
+            "Required environment variables are not set:\n"
+            + "\n".join(missing_vars)
+            + "\n\nPlease set these environment variables before running E2E tests."
+        )
+        pytest.fail(error_msg)
 
 
 @pytest.fixture(scope="session")

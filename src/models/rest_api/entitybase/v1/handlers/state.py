@@ -31,17 +31,21 @@ class StateHandler(BaseModel):
     settings: Settings
     cached_vitess_client: VitessClient | None = Field(default=None, exclude=True)
     cached_s3_client: MyS3Client | None = Field(default=None, exclude=True)
-    cached_enumeration_service: EnumerationService | None = Field(default=None, exclude=True)
-    cached_property_registry: PropertyRegistry | None = Field(default=None, exclude=True)
+    cached_enumeration_service: EnumerationService | None = Field(
+        default=None, exclude=True
+    )
+    cached_property_registry: PropertyRegistry | None = Field(
+        default=None, exclude=True
+    )
 
     def start(self) -> None:
         logger.info("Initializing clients...")
         logger.debug(f"S3 config: {self.settings.get_s3_config}")
         logger.debug(f"Vitess config: {self.settings.get_vitess_config}")
         logger.debug(
-            f"Kafka config: brokers={self.settings.kafka_brokers}, topic={self.settings.kafka_entity_change_topic}"
+            f"Kafka config: brokers={self.settings.kafka_brokers}, topic={self.settings.kafka_entitychange_json_topic}"
         )
-        if not self.streaming_enabled:
+        if not self.settings.streaming_enabled:
             logger.info("Streaming is disabled")
         self.health_check()
 
@@ -101,7 +105,10 @@ class StateHandler(BaseModel):
         if self.cached_s3_client is None:
             logger.debug("Creating new MyS3Client instance")
             from models.infrastructure.s3.client import MyS3Client
-            self.cached_s3_client = MyS3Client(config=self.s3_config, vitess_client=self.vitess_client)
+
+            self.cached_s3_client = MyS3Client(
+                config=self.s3_config, vitess_client=self.vitess_client
+            )
         return self.cached_s3_client
 
     @property
@@ -110,7 +117,7 @@ class StateHandler(BaseModel):
         if (
             self.settings.streaming_enabled
             and self.settings.kafka_brokers
-            and self.settings.kafka_entitychange_topic
+            and self.settings.kafka_entitychange_json_topic
         ):
             return StreamProducerClient(config=self.entity_change_stream_config)
         else:
@@ -123,9 +130,9 @@ class StateHandler(BaseModel):
     def entitydiff_stream_producer(self) -> StreamProducerClient | None:
         """Get a fully ready client"""
         if (
-            self.streaming_enabled
-            and self.kafka_brokers
-            and self.kafka_entitydiff_topic
+            self.settings.streaming_enabled
+            and self.settings.kafka_brokers
+            and self.settings.kafka_entity_diff_topic
         ):
             return StreamProducerClient(config=self.entity_diff_stream_config)
         else:
@@ -138,7 +145,9 @@ class StateHandler(BaseModel):
     def property_registry(self) -> PropertyRegistry | None:
         if self.cached_property_registry is None:
             if self.property_registry_path is not None:
-                self.cached_property_registry = load_property_registry(self.settings.property_registry_path)
+                self.cached_property_registry = load_property_registry(
+                    self.settings.property_registry_path
+                )
             else:
                 raise_validation_error(message="No property registry path provided")
         return self.cached_property_registry
@@ -166,6 +175,7 @@ class StateHandler(BaseModel):
     @property
     def redirect_service(self) -> Any:
         from models.rest_api.entitybase.v1.services.redirects import RedirectService
+
         return RedirectService(state=self)
 
     @property

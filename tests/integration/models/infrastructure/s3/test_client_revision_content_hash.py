@@ -4,8 +4,8 @@ import pytest
 
 from models.data.infrastructure.s3.enums import EntityType, EditType, EditData
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
-from models.data.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.s3.client import S3Client
+from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.s3.client import MyS3Client
 
 
 def create_minimal_revision_data(entity_id: str, revision_id: int) -> dict:
@@ -19,7 +19,7 @@ def create_minimal_revision_data(entity_id: str, revision_id: int) -> dict:
             user_id=0,
             mass=False,
             summary="Test",
-            at="2025-01-01T00:00:00Z"
+            at="2025-01-01T00:00:00Z",
         ),
         "hashes": HashMaps(),
     }
@@ -46,9 +46,16 @@ class TestS3ClientRevisionReadWithContentHash:
         entity_data = create_minimal_revision_data(entity_id, revision_id)
         content_hash = 123456789
 
-        vitess_client.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=entity_data, content_hash=content_hash)
+        vitess_client.insert_revision(
+            entity_id=entity_id,
+            revision_id=revision_id,
+            entity_data=entity_data,
+            content_hash=content_hash,
+        )
 
-        result = s3_client.read_revision(entity_id=entity_id, revision_id=revision_id, content_hash=content_hash)
+        result = s3_client.read_revision(
+            entity_id=entity_id, revision_id=revision_id, content_hash=content_hash
+        )
 
         assert result is not None
         assert result["entity_id"] == entity_id
@@ -61,7 +68,9 @@ class TestS3ClientRevisionReadWithContentHash:
         content_hash = 999999999
 
         with pytest.raises(ValueError):
-            s3_client.read_revision(entity_id=entity_id, revision_id=revision_id, content_hash=content_hash)
+            s3_client.read_revision(
+                entity_id=entity_id, revision_id=revision_id, content_hash=content_hash
+            )
 
     def test_read_revision_revision_not_found(self, s3_client, vitess_client):
         """Test that read_revision raises error for non-existent revision."""
@@ -70,7 +79,9 @@ class TestS3ClientRevisionReadWithContentHash:
         content_hash = 123456789
 
         with pytest.raises(ValueError):
-            s3_client.read_revision(entity_id=entity_id, revision_id=revision_id, content_hash=content_hash)
+            s3_client.read_revision(
+                entity_id=entity_id, revision_id=revision_id, content_hash=content_hash
+            )
 
     def test_read_revision_end_to_end(self, s3_client, vitess_client):
         """Test end-to-end read_revision operation."""
@@ -80,9 +91,16 @@ class TestS3ClientRevisionReadWithContentHash:
         entity_data = create_minimal_revision_data(entity_id, revision_id)
         content_hash = 987654321
 
-        vitess_client.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=entity_data, content_hash=content_hash)
+        vitess_client.insert_revision(
+            entity_id=entity_id,
+            revision_id=revision_id,
+            entity_data=entity_data,
+            content_hash=content_hash,
+        )
 
-        result = s3_client.read_revision(entity_id=entity_id, revision_id=revision_id, content_hash=content_hash)
+        result = s3_client.read_revision(
+            entity_id=entity_id, revision_id=revision_id, content_hash=content_hash
+        )
 
         assert result is not None
         assert result["entity_id"] == entity_id

@@ -7,15 +7,7 @@ else
   exit 1
 fi
 
-export VITESS_HOST=localhost
-export VITESS_PORT=3306
-export VITESS_DATABASE=entitybase
-export VITESS_USER=root
-export VITESS_PASSWORD=""
-export S3_ENDPOINT=http://localhost:9000
-export S3_ACCESS_KEY=fakekey
-export S3_SECRET_KEY=fakesecret
-export PYTHONPATH=src
+source test.env
 
 echo "Running integration tests"
 #pytest -m integration

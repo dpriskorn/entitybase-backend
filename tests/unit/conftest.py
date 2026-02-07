@@ -6,6 +6,9 @@ import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 from fastapi.testclient import TestClient
 
+from models.rdf_builder.ontology.datatypes import property_shape
+from models.rdf_builder.property_registry.registry import PropertyRegistry
+
 sys.path.insert(0, "src")
 os.environ["TEST_DATA_DIR"] = str(Path(__file__).parent.parent.parent / "test_data")
 
@@ -114,3 +117,74 @@ def mock_vitess_connection_manager():
     with patch.object(VitessConnectionManager, "connect", return_value=mock_connection):
         with patch.object(VitessConnectionManager, "acquire", return_value=mock_connection):
             yield mock_connection, mock_cursor
+
+
+@pytest.fixture
+def property_registry() -> PropertyRegistry:
+    """Minimal property registry for Q120248304 test."""
+    properties = {
+        "P31": property_shape(
+            "P31",
+            "wikibase-item",
+            labels={"en": {"language": "en", "value": "instance of"}},
+        ),
+        "P17": property_shape(
+            "P17",
+            "wikibase-item",
+            labels={"en": {"language": "en", "value": "country"}},
+        ),
+        "P127": property_shape(
+            "P127",
+            "wikibase-item",
+            labels={"en": {"language": "en", "value": "owned by"}},
+        ),
+        "P131": property_shape(
+            "P131",
+            "wikibase-item",
+            labels={"en": {"language": "en", "value": "located in"}},
+        ),
+        "P137": property_shape(
+            "P137",
+            "wikibase-item",
+            labels={"en": {"language": "en", "value": "operator"}},
+        ),
+        "P912": property_shape(
+            "P912",
+            "wikibase-item",
+            labels={"en": {"language": "en", "value": "sponsor"}},
+        ),
+        "P248": property_shape(
+            "P248",
+            "wikibase-item",
+            labels={"en": {"language": "en", "value": "stated in"}},
+        ),
+        "P11840": property_shape(
+            "P11840",
+            "external-id",
+            labels={"en": {"language": "en", "value": "crossref ID"}},
+        ),
+        "P1810": property_shape(
+            "P1810", "string", labels={"en": {"language": "en", "value": "short name"}}
+        ),
+        "P2561": property_shape(
+            "P2561",
+            "monolingualtext",
+            labels={"en": {"language": "en", "value": "description"}},
+        ),
+        "P5017": property_shape(
+            "P5017",
+            "time",
+            labels={"en": {"language": "en", "value": "date of official opening"}},
+        ),
+        "P625": property_shape(
+            "P625",
+            "globe-coordinate",
+            labels={"en": {"language": "en", "value": "coordinate location"}},
+        ),
+        "P6375": property_shape(
+            "P6375",
+            "monolingualtext",
+            labels={"en": {"language": "en", "value": "street address"}},
+        ),
+    }
+    return PropertyRegistry(properties=properties)
