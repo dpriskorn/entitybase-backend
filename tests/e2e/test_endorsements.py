@@ -147,3 +147,118 @@ async def test_endorsement_api_structure() -> None:
             # Should not have internal error details
             assert "error" not in str(data).lower()
             assert "exception" not in str(data).lower()
+
+
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def test_get_statement_most_used() -> None:
+    """Test getting most used statements."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get(
+            "/entitybase/v1/statements/most_used?limit=10&min_ref_count=1"
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "statements" in data or isinstance(data, list)
+
+
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def test_cleanup_orphaned_statements() -> None:
+    """Test cleaning up orphaned statements."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        cleanup_request = {"dry_run": True, "batch_size": 100}
+        response = await client.post(
+            "/entitybase/v1/statements/cleanup-orphaned", json=cleanup_request
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "orphaned_count" in data or "count" in data
+
+
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def test_get_single_statement() -> None:
+    """Test retrieving a single statement by content hash."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Get non-existent statement
+        response = await client.get("/entitybase/v1/statements/123456789")
+        # May return 404 or 200 with empty data
+        assert response.status_code in [200, 404]
+
+
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def test_endorse_and_withdraw_statement() -> None:
+    """Test endorsing and withdrawing from a statement."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create user
+        await client.post("/entitybase/v1/users", json={"user_id": 1003})
+
+        # Try to endorse non-existent statement (endpoint test)
+        endorse_response = await client.post(
+            "/entitybase/v1/statements/123456789/endorse", headers={"X-User-ID": "1003"}
+        )
+        # Will fail but endpoint works
+        assert endorse_response.status_code in [400, 404]
+
+        # Try to withdraw (endpoint test)
+        withdraw_response = await client.delete(
+            "/entitybase/v1/statements/123456789/endorse", headers={"X-User-ID": "1003"}
+        )
+        # Will fail but endpoint works
+        assert withdraw_response.status_code in [400, 404]
+
+
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def test_statement_endorsements_with_params() -> None:
+    """Test getting statement endorsements with query parameters."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Test with limit, offset, include_removed
+        response = await client.get(
+            "/entitybase/v1/statements/123456789/endorsements?limit=10&offset=0&include_removed=true"
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "endorsements" in data
+        assert "total_count" in data
+
+
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def test_statement_endorsements_stats_endpoint() -> None:
+    """Test statement endorsement stats endpoint."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get(
+            "/entitybase/v1/statements/123456789/endorsements/stats"
+        )
+        assert response.status_code == 200
+        data = response.json()
+        assert "total" in data
+        assert "active" in data
+        assert "withdrawn" in data
