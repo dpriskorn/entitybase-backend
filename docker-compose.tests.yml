@@ -39,7 +39,7 @@ services:
     cpus: 0.5
 
   redpanda:
-    image: redpandadata/redpanda:latest
+    image: docker.redpanda.com/redpandadata/redpanda:v25.3.6
     container_name: redpanda
     command:
       - redpanda
