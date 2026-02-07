@@ -280,8 +280,7 @@ class EntityHandler(Handler):
                     at=datetime.now(timezone.utc),
                     summary=ctx.edit_summary,
                 )
-                # TODO: Actually publish the event
-                logger.debug(f"Would publish event: {event}")
+                await ctx.stream_producer.publish_change(event)
             except Exception as e:
                 logger.warning(f"Failed to publish event for {ctx.entity_id}: {e}")
 
