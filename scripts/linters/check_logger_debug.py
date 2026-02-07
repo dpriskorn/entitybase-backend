@@ -6,12 +6,21 @@ Custom linter to check that methods with more than 30 lines contain at least one
 import ast
 import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import List
+from pydantic import BaseModel
 
 sys.path.append(str(Path(__file__).parent.resolve()))
 
 # noinspection PyUnresolvedReferences
 from allowlist_utils import is_line_allowed
+
+
+class LoggerViolation(BaseModel):
+    """Represents a logger violation found during linting."""
+    func_name: str
+    line_no: int
+    message: str
+    file_path: str
 
 
 def load_allowlist() -> set:
@@ -34,7 +43,7 @@ class LoggerInfoChecker(ast.NodeVisitor):
         self.source_lines = source_lines
         self.file_path = file_path
         self.allowlist = allowlist
-        self.violations: List[Tuple[str, int, str, str]] = []
+        self.violations: List[LoggerViolation] = []
         self.current_class = None
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
@@ -89,11 +98,11 @@ class LoggerInfoChecker(ast.NodeVisitor):
             if is_line_allowed(self.file_path, node.lineno, self.allowlist):
                 return
             self.violations.append(
-                (
-                    func_name,
-                    node.lineno,
-                    f"Function '{func_name}' has {body_lines} lines but no logger.debug() call",
-                    self.file_path
+                LoggerViolation(
+                    func_name=func_name,
+                    line_no=node.lineno,
+                    message=f"Function '{func_name}' has {body_lines} lines but no logger.debug() call",
+                    file_path=self.file_path
                 )
             )
 
@@ -138,7 +147,7 @@ class LoggerInfoChecker(ast.NodeVisitor):
         return False
 
 
-def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str, str]]:
+def check_file(file_path: Path, allowlist: set) -> List[LoggerViolation]:
     """Check a single Python file."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -153,9 +162,19 @@ def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str, str
         return checker.violations
 
     except SyntaxError:
-        return [(str(file_path), 0, f"Syntax error in {file_path}", str(file_path))]
+        return [LoggerViolation(
+            func_name="",
+            line_no=0,
+            message=f"Syntax error in {file_path}",
+            file_path=str(file_path)
+        )]
     except Exception as e:
-        return [(str(file_path), 0, f"Error processing {file_path}: {e}", str(file_path))]
+        return [LoggerViolation(
+            func_name="",
+            line_no=0,
+            message=f"Error processing {file_path}: {e}",
+            file_path=str(file_path)
+        )]
 
 
 def main() -> None:
@@ -187,8 +206,8 @@ def main() -> None:
 
     if violations:
         print("Logger check violations:")
-        for func_name, line_no, message, file_path in violations:
-            print(f"{message} at line {line_no}: {file_path}")
+        for violation in violations:
+            print(f"{violation.message} at line {violation.line_no}: {violation.file_path}")
         allowlist_path = Path("config/linters/allowlists/logger.txt")
         print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
         sys.exit(1)
