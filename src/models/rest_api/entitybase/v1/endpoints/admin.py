@@ -1,11 +1,14 @@
 """Admin routes."""
 
+import logging
 from fastapi import APIRouter, Query, Request
 
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.admin import AdminHandler
 from models.data.rest_api.v1.entitybase.response import EntityListResponse
 from models.rest_api.utils import raise_validation_error
+
+logger = logging.getLogger(__name__)
 
 
 admin_router = APIRouter()
@@ -32,6 +35,10 @@ def list_entities(  # type: ignore[no-any-return]
     offset: int = Query(0, ge=0, description="Number of entities to skip"),
 ) -> EntityListResponse:
     """List entities based on type, status, edit_type, limit, and offset."""
+    logger.debug(
+        f"Listing entities - type: {entity_type}, status: {status}, edit_type: {edit_type}, "
+        f"limit: {limit}, offset: {offset}"
+    )
     state = req.app.state.state_handler
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
