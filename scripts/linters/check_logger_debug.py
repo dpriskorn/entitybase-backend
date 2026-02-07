@@ -34,7 +34,7 @@ class LoggerInfoChecker(ast.NodeVisitor):
         self.source_lines = source_lines
         self.file_path = file_path
         self.allowlist = allowlist
-        self.violations: List[Tuple[str, int, str]] = []
+        self.violations: List[Tuple[str, int, str, str]] = []
         self.current_class = None
 
     def visit_ClassDef(self, node: ast.ClassDef) -> None:
@@ -93,6 +93,7 @@ class LoggerInfoChecker(ast.NodeVisitor):
                     func_name,
                     node.lineno,
                     f"Function '{func_name}' has {body_lines} lines but no logger.debug() call",
+                    self.file_path
                 )
             )
 
@@ -137,7 +138,7 @@ class LoggerInfoChecker(ast.NodeVisitor):
         return False
 
 
-def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str]]:
+def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str, str]]:
     """Check a single Python file."""
     try:
         with open(file_path, "r", encoding="utf-8") as f:
@@ -152,9 +153,9 @@ def check_file(file_path: Path, allowlist: set) -> List[Tuple[str, int, str]]:
         return checker.violations
 
     except SyntaxError:
-        return [(str(file_path), 0, f"Syntax error in {file_path}")]
+        return [(str(file_path), 0, f"Syntax error in {file_path}", str(file_path))]
     except Exception as e:
-        return [(str(file_path), 0, f"Error processing {file_path}: {e}")]
+        return [(str(file_path), 0, f"Error processing {file_path}: {e}", str(file_path))]
 
 
 def main() -> None:
@@ -186,8 +187,8 @@ def main() -> None:
 
     if violations:
         print("Logger check violations:")
-        for func_name, line_no, message in violations:
-            print(f"{message} at line {line_no}")
+        for func_name, line_no, message, file_path in violations:
+            print(f"{message} at line {line_no}: {file_path}")
         allowlist_path = Path("config/linters/allowlists/logger.txt")
         print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
         sys.exit(1)
