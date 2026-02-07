@@ -19,4 +19,4 @@ export S3_SECRET_KEY=fakesecret
 export PYTHONPATH=src
 
 echo "Running first 50 integration tests"
-pytest tests/integration --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" -k "test_app or test_id_resolver or test_connection_pool"
+pytest tests/integration --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" -k "test_app or test_id_resolver or test_connection_pool" --durations=10

@@ -19,4 +19,4 @@ export S3_SECRET_KEY=fakesecret
 export PYTHONPATH=src
 
 echo "Running tests 151-200"
-pytest tests/integration --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" -k "test_entity_parsing or test_string_value or test_json_fields or test_internal or test_values"
+pytest tests/integration --capture=no --strict-markers --log-cli-level=DEBUG --log-cli-format="%(asctime)s - %(name)s - %(levelname)s - %(message)s" -k "test_entity_parsing or test_string_value or test_json_fields or test_internal or test_values" --durations=10
