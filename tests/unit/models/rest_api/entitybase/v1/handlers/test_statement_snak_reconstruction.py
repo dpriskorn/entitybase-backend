@@ -157,7 +157,7 @@ class TestStatementHandlerSnakReconstruction:
         mock_state.vitess_client.get_head.return_value = 1
         
         mock_revision_metadata = Mock()
-        mock_revision_metadata.data = {
+        mock_revision_metadata.revision = {
             "statements": [123456789, 987654321],
             "properties": ["P31"],
         }

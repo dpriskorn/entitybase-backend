@@ -49,8 +49,6 @@ def process_lexeme_terms(
         logger.debug("No forms or senses to process")
         return
 
-    extractor = MetadataExtractor()
-
     forms_config = TermProcessingConfig(
         data_key="representations",
         hash_key="representation_hashes",

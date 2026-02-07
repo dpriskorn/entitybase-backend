@@ -64,6 +64,10 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         )
         raise
     finally:
+        if app_.state.state_handler:
+            app_.state.state_handler.disconnect()
+            logger.info("All clients disconnected")
+
         if (
             settings.streaming_enabled
             and app_.state.state_handler.entity_change_stream_producer

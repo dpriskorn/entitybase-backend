@@ -148,7 +148,7 @@ class StatementHandler(Handler):
         revision_metadata = self.state.s3_client.read_full_revision(
             entity_id, head_revision_id
         )
-        properties = revision_metadata.data.get("properties", [])  # type: ignore[attr-defined]
+        properties = revision_metadata.revision.get("properties", [])  # type: ignore[attr-defined]
         return PropertyListResponse(properties=properties)
 
     def get_entity_property_counts(self, entity_id: str) -> PropertyCountsResponse:
@@ -169,7 +169,7 @@ class StatementHandler(Handler):
         revision_metadata = self.state.s3_client.read_full_revision(
             entity_id, head_revision_id
         )
-        property_counts = revision_metadata.data.get("property_counts", {})  # type: ignore[attr-defined]
+        property_counts = revision_metadata.revision.get("property_counts", {})  # type: ignore[attr-defined]
         return PropertyCountsResponse(property_counts=property_counts)
 
     def get_entity_property_hashes(
@@ -202,7 +202,7 @@ class StatementHandler(Handler):
         requested_property_ids = [
             p.strip() for p in property_list.split(",") if p.strip()
         ]
-        statement_hashes = revision_metadata.data.get("statements", [])  # type: ignore[attr-defined]
+        statement_hashes = revision_metadata.revision.get("statements", [])  # type: ignore[attr-defined]
 
         matching_hashes = []
 

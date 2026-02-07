@@ -127,6 +127,7 @@ class StatementService(Service):
 
         # Extract and store mainsnak via SnakHandler
         mainsnak = context.statement_data.get("mainsnak")
+        # noinspection PyUnusedLocal
         snak_hash = None
         if mainsnak:
             snak_request = SnakRequest(
@@ -148,6 +149,7 @@ class StatementService(Service):
         s3_key = f"statements/{context.statement_hash}.json"
 
         # Step 1: Check if S3 object exists
+        # noinspection PyUnusedLocal
         s3_exists = False
         try:
             self.state.s3_client.read_statement(context.statement_hash)

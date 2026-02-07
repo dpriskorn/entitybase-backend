@@ -16,6 +16,11 @@ from models.infrastructure.vitess.client import VitessClient
 class TestVitessClient:
     """Unit tests for VitessClient."""
 
+    @pytest.fixture(autouse=True)
+    def setup_mock_connection_manager(self, mock_vitess_connection_manager):
+        """Apply the mock connection manager to all tests."""
+        self.mock_connection, self.mock_cursor = mock_vitess_connection_manager
+
     def setup_method(self):
         """Set up test fixtures."""
         self.config = VitessConfig(
@@ -37,32 +42,27 @@ class TestVitessClient:
 
     def test_cursor_property_creates_connection_when_none(self):
         """Test that cursor property creates connection when None."""
-        mock_cursor = MagicMock()
         self.client.connection_manager = MagicMock()
-        self.client.connection_manager.connection = None
-
-        def set_connection():
-            self.client.connection_manager.connection = MagicMock()
-            self.client.connection_manager.connection.cursor.return_value = mock_cursor
-
-        self.client.connection_manager.connect = MagicMock(side_effect=set_connection)
+        self.client.connection_manager.acquire.return_value = self.mock_connection
+        self.mock_connection.reset_mock()
 
         result = self.client.cursor
 
-        self.client.connection_manager.connect.assert_called_once()
-        assert result == mock_cursor
+        self.client.connection_manager.acquire.assert_called_once()
+        self.mock_connection.cursor.assert_called_once()
+        assert result == self.mock_cursor
 
     def test_cursor_property_returns_existing_cursor(self):
         """Test that cursor property returns existing cursor without reconnecting."""
-        mock_cursor = MagicMock()
         self.client.connection_manager = MagicMock()
-        self.client.connection_manager.connection = MagicMock()
-        self.client.connection_manager.connection.cursor.return_value = mock_cursor
+        self.client.connection_manager.acquire.return_value = self.mock_connection
+        self.mock_connection.reset_mock()
 
         result = self.client.cursor
 
-        self.client.connection_manager.connect.assert_not_called()
-        assert result == mock_cursor
+        self.client.connection_manager.acquire.assert_called_once()
+        self.mock_connection.cursor.assert_called_once()
+        assert result == self.mock_cursor
 
     def test_entity_repository_property(self):
         """Test that entity_repository property returns EntityRepository."""
@@ -289,15 +289,11 @@ class TestVitessClient:
 
     def test_list_entities_by_type_item(self):
         """Test list_entities_by_type for item type."""
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.return_value = [("Q1",), ("Q2",)]
-        self.client.connection_manager = MagicMock()
-        self.client.connection_manager.connection = MagicMock()
-        self.client.connection_manager.connection.cursor.return_value = mock_cursor
+        self.mock_cursor.fetchall.return_value = [("Q1",), ("Q2",)]
 
         result = self.client.list_entities_by_type("item", 10, 0)
 
-        mock_cursor.execute.assert_called_once_with(
+        self.mock_cursor.execute.assert_called_once_with(
             """SELECT entity_id FROM entity_id_mapping
                WHERE entity_id LIKE %s
                LIMIT %s OFFSET %s""",
@@ -307,15 +303,11 @@ class TestVitessClient:
 
     def test_list_entities_by_type_lexeme(self):
         """Test list_entities_by_type for lexeme type."""
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.return_value = [("L1",), ("L2",)]
-        self.client.connection_manager = MagicMock()
-        self.client.connection_manager.connection = MagicMock()
-        self.client.connection_manager.connection.cursor.return_value = mock_cursor
+        self.mock_cursor.fetchall.return_value = [("L1",), ("L2",)]
 
         result = self.client.list_entities_by_type("lexeme", 5, 0)
 
-        mock_cursor.execute.assert_called_once_with(
+        self.mock_cursor.execute.assert_called_once_with(
             """SELECT entity_id FROM entity_id_mapping
                WHERE entity_id LIKE %s
                LIMIT %s OFFSET %s""",
@@ -325,15 +317,11 @@ class TestVitessClient:
 
     def test_list_entities_by_type_property(self):
         """Test list_entities_by_type for property type."""
-        mock_cursor = MagicMock()
-        mock_cursor.fetchall.return_value = [("P1",)]
-        self.client.connection_manager = MagicMock()
-        self.client.connection_manager.connection = MagicMock()
-        self.client.connection_manager.connection.cursor.return_value = mock_cursor
+        self.mock_cursor.fetchall.return_value = [("P1",)]
 
         result = self.client.list_entities_by_type("property", 100, 10)
 
-        mock_cursor.execute.assert_called_once_with(
+        self.mock_cursor.execute.assert_called_once_with(
             """SELECT entity_id FROM entity_id_mapping
                WHERE entity_id LIKE %s
                LIMIT %s OFFSET %s""",
@@ -343,13 +331,9 @@ class TestVitessClient:
 
     def test_list_entities_by_type_invalid_type(self):
         """Test list_entities_by_type with invalid type returns empty list."""
-        self.client.connection_manager = MagicMock()
-        self.client.connection_manager.connection = MagicMock()
-        self.client.connection_manager.connection.cursor = MagicMock()
-
         result = self.client.list_entities_by_type("invalid_type")
 
-        self.client.connection_manager.connection.cursor.assert_not_called()
+        self.mock_cursor.execute.assert_not_called()
         assert result == []
 
     def test_get_redirect_target_delegates_to_redirect_repository(self):

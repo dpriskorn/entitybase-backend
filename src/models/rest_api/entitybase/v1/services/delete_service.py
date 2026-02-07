@@ -11,11 +11,12 @@ from models.data.infrastructure.s3.hashes.aliases_hashes import AliasesHashes
 from models.data.infrastructure.s3.hashes.descriptions_hashes import DescriptionsHashes
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
 from models.data.infrastructure.s3.hashes.labels_hashes import LabelsHashes
-from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
+from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinkHashes
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.data.infrastructure.s3.revision_data import S3RevisionData
 from models.data.infrastructure.stream import ChangeType
-from models.data.rest_api.v1.entitybase.request import EditContext, EntityDeleteRequest, UserActivityType
+from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
+from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest, UserActivityType
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.internal_representation.metadata_extractor import MetadataExtractor
@@ -129,7 +130,7 @@ class DeleteService(Service):
                 statements=StatementsHashes(
                     root=current_revision.revision.get("statements", [])
                 ),
-                sitelinks=SitelinksHashes(
+                sitelinks=SitelinkHashes(
                     root=current_revision.revision.get("sitelinks", {})
                 ),
                 labels=LabelsHashes(

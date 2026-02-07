@@ -7,7 +7,7 @@ from models.data.infrastructure.s3.hashes.aliases_hashes import AliasesHashes
 from models.data.infrastructure.s3.hashes.descriptions_hashes import DescriptionsHashes
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
 from models.data.infrastructure.s3.hashes.labels_hashes import LabelsHashes
-from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
+from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinkHashes
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.data.infrastructure.s3.sitelink_data import S3SitelinkData
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
@@ -57,7 +57,7 @@ class HashService(Service):
     def hash_sitelinks(
         self,
         sitelinks: dict[str, Any],
-    ) -> SitelinksHashes:
+    ) -> SitelinkHashes:
         """Hash sitelink titles and store in S3."""
         hashes = {}
         for wiki, sitelink_data in sitelinks.items():
@@ -67,7 +67,7 @@ class HashService(Service):
                 badges = sitelink_data.get("badges", [])
                 hashes[wiki] = S3SitelinkData(title_hash=hash_value, badges=badges)
                 self.state.s3_client.store_sitelink_metadata(title, hash_value)
-        return SitelinksHashes(root=hashes)
+        return SitelinkHashes(root=hashes)
 
     def hash_labels(
         self,

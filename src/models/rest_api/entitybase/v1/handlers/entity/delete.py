@@ -4,10 +4,13 @@ import logging
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import DeleteType
-from models.data.rest_api.v1.entitybase.request import EditContext, EntityDeleteRequest
+from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
+from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
 from models.data.rest_api.v1.entitybase.response import EntityDeleteResponse
+from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.entitybase.v1.handler import Handler
 from models.rest_api.entitybase.v1.services.delete_service import DeleteService
+from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +44,12 @@ class EntityDeleteHandler(Handler):
 
         new_revision_id = head_revision_id + 1
 
-        current_revision = self.state.s3_client.read_revision(
-            entity_id, head_revision_id
-        )
+        try:
+            current_revision = self.state.s3_client.read_revision(
+                entity_id, head_revision_id
+            )
+        except S3NotFoundError:
+            raise_validation_error(f"Entity revision not found: {entity_id}", status_code=404)
 
         edit_context = EditContext(
             user_id=edit_headers.x_user_id,
@@ -59,7 +65,7 @@ class EntityDeleteHandler(Handler):
         )
 
         if request.delete_type == DeleteType.HARD:
-            old_statements = current_revision.data.get("statements", [])
+            old_statements = current_revision.revision.get("statements", [])
             delete_service.decrement_statement_references(old_statements)
 
         content_hash, s3_revision_data = delete_service.store_deletion_revision(

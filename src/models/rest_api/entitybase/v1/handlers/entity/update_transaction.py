@@ -10,7 +10,9 @@ from models.data.infrastructure.s3 import EntityState
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import MetadataType
 from models.data.infrastructure.stream.change_type import ChangeType
-from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData, EditContext, EventPublishContext
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
+from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
+from models.data.rest_api.v1.entitybase.request.entity.context import EventPublishContext
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import (
@@ -91,6 +93,10 @@ class UpdateTransaction(EntityTransaction):
 
         # Record hashes for rollback
         self.statement_hashes.extend(hash_data.statements)
+        for hash_val in hash_data.statements:
+            self.operations.append(
+                lambda h=hash_val: self._rollback_statement(h)  # type: ignore[misc]
+            )
 
         return hash_data
 
@@ -181,7 +187,7 @@ class UpdateTransaction(EntityTransaction):
         return EntityResponse(
             id=entity_id,
             rev_id=new_revision_id,
-            data=revision_dict,
+            data=s3_revision_data,
             state=EntityState(),
         )
 

@@ -35,13 +35,15 @@ def test_insert_revision_idempotent(vitess_client) -> None:
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=revision_id,
-        entity_data=entity_data
+        entity_data=entity_data,
+        content_hash=123456789
     )
 
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=revision_id,
-        entity_data=entity_data
+        entity_data=entity_data,
+        content_hash=123456789
     )
 
     internal_id = vitess_client.resolve_id(entity_id)
@@ -69,13 +71,15 @@ def test_insert_revision_different_params(vitess_client) -> None:
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=1,
-        entity_data=entity_data_1
+        entity_data=entity_data_1,
+        content_hash=111111111
     )
 
     vitess_client.insert_revision(
         entity_id=entity_id,
         revision_id=2,
-        entity_data=entity_data_2
+        entity_data=entity_data_2,
+        content_hash=222222222
     )
 
     internal_id = vitess_client.resolve_id(entity_id)

@@ -12,8 +12,8 @@ from allowlist_utils import is_line_allowed
 
 
 def load_allowlist() -> set:
-    """Load the int allowlist from config/linters/allowlists/int.txt."""
-    allowlist_path = Path("config/linters/allowlists/int.txt")
+    """Load the int allowlist from config/linters/allowlists/custom/int.txt."""
+    allowlist_path = Path("config/linters/allowlists/custom/int.txt")
     allowlist = set()
     if allowlist_path.exists():
         with open(allowlist_path, "r", encoding="utf-8") as f:
@@ -114,7 +114,7 @@ def main() -> None:
     if violations:
         for file_path, line_no, message in violations:
             print(f"{file_path}:{line_no}: {message}")
-        allowlist_path = Path("config/linters/allowlists/int.txt")
+        allowlist_path = Path("config/linters/allowlists/custom/int.txt")
         print(f"To allowlist violations, add 'file:line' entries to {allowlist_path}")
         sys.exit(1)
     else:

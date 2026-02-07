@@ -237,11 +237,8 @@ async def update_form_representation(
         )
 
     state = req.app.state.state_handler
-    validator = state.validator
     handler = EntityReadHandler(state=state)
     current_entity = handler.get_entity(lexeme_id)
-
-    forms_data = current_entity.entity_data.revision.get("forms", [])
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator

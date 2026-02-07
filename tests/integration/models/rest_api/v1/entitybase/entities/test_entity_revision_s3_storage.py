@@ -8,10 +8,10 @@ from unittest.mock import MagicMock, patch
 class TestEntityRevisionS3Storage:
     """Integration tests for entity revision S3 storage."""
 
-    def test_entity_creation_stores_s3_revision_data(self, api_client) -> None:
+    def test_entity_creation_stores_s3_revision_data(self, api_client, base_url) -> None:
         """Test that creating an entity stores S3RevisionData in S3."""
-        # Mock the S3 client to capture the S3RevisionData storage
-        with patch("models.rest_api.entitybase.v1.handlers.entity.handler.MyS3Client") as mock_s3_client_class:
+        # Mock S3 client to capture S3RevisionData storage
+        with patch("models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client") as mock_s3_client_class:
             mock_s3_client = MagicMock()
             mock_s3_client_class.return_value = mock_s3_client
 
@@ -40,8 +40,8 @@ class TestEntityRevisionS3Storage:
                 },
             }
 
-            # Create the entity
-            response = api_client.post("/entitybase/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+            # Create entity
+            response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
             assert response.status_code == 201
 
             # Verify S3RevisionData was stored
@@ -64,9 +64,9 @@ class TestEntityRevisionS3Storage:
             assert "revision_id" in s3_revision_data.revision
             assert s3_revision_data.content_hash == content_hash
 
-    def test_s3_revision_data_content_hash_consistency(self, api_client) -> None:
+    def test_s3_revision_data_content_hash_consistency(self, api_client, base_url) -> None:
         """Test that S3RevisionData content hash is computed correctly."""
-        with patch("models.rest_api.entitybase.v1.handlers.entity.handler.MyS3Client") as mock_s3_client_class:
+        with patch("models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client") as mock_s3_client_class:
             mock_s3_client = MagicMock()
             mock_s3_client_class.return_value = mock_s3_client
 
@@ -74,7 +74,7 @@ class TestEntityRevisionS3Storage:
                 "labels": {"en": {"language": "en", "value": "Hash Test"}},
             }
 
-            response = api_client.post("/entitybase/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+            response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
             assert response.status_code == 201
 
             # Get the stored S3RevisionData
@@ -89,9 +89,9 @@ class TestEntityRevisionS3Storage:
             # The hash should be deterministic for the same data
             # (This is a basic check - in practice we'd verify against the actual hash function)
 
-    def test_s3_revision_data_structure_completeness(self, api_client) -> None:
+    def test_s3_revision_data_structure_completeness(self, api_client, base_url) -> None:
         """Test that S3RevisionData.revision contains complete revision data."""
-        with patch("models.rest_api.entitybase.v1.handlers.entity.handler.MyS3Client") as mock_s3_client_class:
+        with patch("models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client") as mock_s3_client_class:
             mock_s3_client = MagicMock()
             mock_s3_client_class.return_value = mock_s3_client
 
@@ -100,7 +100,7 @@ class TestEntityRevisionS3Storage:
                 "descriptions": {"en": {"language": "en", "value": "Test description"}},
             }
 
-            response = api_client.post("/entitybase/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+            response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
             assert response.status_code == 201
 
             # Get the stored S3RevisionData

@@ -38,6 +38,7 @@ from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 from models.rest_api.entitybase.v1.services.entity_statement_service import EntityStatementService
 from models.rest_api.utils import raise_validation_error
+from models.infrastructure.s3.exceptions import S3NotFoundError
 
 logger = logging.getLogger(__name__)
 
@@ -97,10 +98,13 @@ async def get_entity_ttl_revision(
     from models.workers.entity_diff.rdf_serializer import RDFSerializer
 
     state = req.app.state.state_handler
-    revision_data = state.s3_client.read_revision(entity_id, revision_id)
+    try:
+        revision_data = state.s3_client.read_revision(entity_id, revision_id)
+    except S3NotFoundError:
+        raise_validation_error(f"Revision content not found for entity {entity_id}, revision {revision_id}", status_code=404)
 
     serializer = RDFSerializer()
-    rdf_content = serializer.entity_data_to_rdf(revision_data.data, format_)
+    rdf_content = serializer.entity_data_to_rdf(revision_data.revision, format_)
 
     content_type = {
         "turtle": "text/turtle",
@@ -121,9 +125,12 @@ async def get_entity_json_revision(
 ) -> EntityJsonResponse:
     """Get JSON representation of a specific entity revision."""
     state = req.app.state.state_handler
-    revision_data = state.s3_client.read_revision(entity_id, revision_id)
+    try:
+        revision_data = state.s3_client.read_revision(entity_id, revision_id)
+    except S3NotFoundError:
+        raise_validation_error(f"Revision content not found for entity {entity_id}, revision {revision_id}", status_code=404)
 
-    return EntityJsonResponse(data=revision_data.data)
+    return EntityJsonResponse(data=revision_data.revision)
 
 
 @router.get("/entities/{entity_id}.ttl")
@@ -306,7 +313,7 @@ async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> Siteli
     handler = EntityReadHandler(state=state)
     entity_response = handler.get_entity(entity_id)
 
-    sitelinks = entity_response.entity_data.get("sitelinks", {})
+    sitelinks = entity_response.entity_data.revision.get("sitelinks", {})
     if site not in sitelinks:
         raise_validation_error(f"Sitelink for site {site} not found", status_code=404)
 
@@ -340,7 +347,7 @@ async def post_entity_sitelink(
     current_entity = handler.get_entity(entity_id)
 
     # Check if sitelink already exists
-    sitelinks = current_entity.entity_data.get("sitelinks", {})
+    sitelinks = current_entity.entity_data.revision.get("sitelinks", {})
     if site in sitelinks:
         raise_validation_error(
             f"Sitelink for site {site} already exists", status_code=409
@@ -383,10 +390,6 @@ async def put_entity_sitelink(
     state = req.app.state.state_handler
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
-
-    # Get current entity
-    handler = EntityReadHandler(state=state)
-    current_entity = handler.get_entity(entity_id)
 
     # Update sitelink using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)

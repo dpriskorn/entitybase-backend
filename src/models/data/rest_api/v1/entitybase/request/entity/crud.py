@@ -4,8 +4,8 @@ from pydantic import BaseModel, Field
 
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType, DeleteType
+from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
-    EditContext,
     EventPublishContext,
     TermUpdateContext,
     EntityHeadUpdateContext,

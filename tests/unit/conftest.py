@@ -26,11 +26,6 @@ with (
 @pytest.fixture(scope="session")
 def db_url():
     """Determine DB URL based on test type."""
-    import os
-
-    # Check if running integration tests (presence of integration in path or env)
-    if os.getenv("TEST_TYPE") == "integration" or "integration" in os.getcwd():
-        return "mysql://root@vitess:15309/page"
     return "sqlite:///:memory:"
 
 
@@ -91,6 +86,31 @@ def mock_pymysql_connect():
     mock_connection.cursor.return_value = mock_cursor
     mock_connection.__enter__ = MagicMock(return_value=mock_connection)
     mock_connection.__exit__ = MagicMock(return_value=None)
-    
+
     with patch("pymysql.connect", return_value=mock_connection):
         yield
+
+
+@pytest.fixture
+def mock_vitess_connection_manager():
+    """Mock VitessConnectionManager to prevent pool operations.
+
+    This fixture patches the connect and acquire methods to return a mock connection,
+    preventing the connection manager from attempting real database connections
+    or pool operations during unit tests.
+    """
+    from models.infrastructure.vitess.connection import VitessConnectionManager
+
+    mock_connection = MagicMock()
+    mock_cursor = MagicMock()
+    mock_connection.cursor.return_value = mock_cursor
+    mock_connection.open = True
+    mock_connection.__enter__ = MagicMock(return_value=mock_connection)
+    mock_connection.__exit__ = MagicMock(return_value=None)
+
+    mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+    mock_cursor.__exit__ = MagicMock(return_value=None)
+
+    with patch.object(VitessConnectionManager, "connect", return_value=mock_connection):
+        with patch.object(VitessConnectionManager, "acquire", return_value=mock_connection):
+            yield mock_connection, mock_cursor

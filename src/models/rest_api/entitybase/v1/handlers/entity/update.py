@@ -9,8 +9,10 @@ from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import LexemeUpdateRequest, UserActivityType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
-from models.data.rest_api.v1.entitybase.request.entity.context import TermUpdateContext, EditContext, EventPublishContext, SitelinkUpdateContext
+from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
+from models.data.rest_api.v1.entitybase.request.entity.context import TermUpdateContext, EventPublishContext, SitelinkUpdateContext
 from models.data.rest_api.v1.entitybase.response import EntityResponse
+from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.utils import raise_validation_error
 from .handler import EntityHandler
@@ -106,6 +108,10 @@ class EntityUpdateHandler(EntityHandler):
             # Commit
             tx.commit()
             return response
+        except S3NotFoundError:
+            logger.warning(f"Entity revision not found during update for {entity_id}")
+            tx.rollback()
+            raise_validation_error(f"Entity not found: {entity_id}", status_code=404)
         except Exception as e:
             logger.error(f"Entity update failed for {entity_id}: {e}", exc_info=True)
             tx.rollback()
@@ -520,6 +526,10 @@ class EntityUpdateHandler(EntityHandler):
             # Commit
             tx.commit()
             return response
+        except S3NotFoundError:
+            logger.warning(f"Lexeme revision not found during update for {entity_id}")
+            tx.rollback()
+            raise_validation_error(f"Entity not found: {entity_id}", status_code=404)
         except Exception as e:
             logger.error(f"Lexeme update failed for {entity_id}: {e}", exc_info=True)
             tx.rollback()

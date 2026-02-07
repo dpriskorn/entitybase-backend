@@ -52,6 +52,7 @@ def _reconstruct_snak_value(value: int | str, snak_handler: SnakHandler) -> Reco
     return value
 
 
+# noinspection PyTypeHints
 def _process_qualifier_value(qual_value: Any, snak_handler: SnakHandler) -> ProcessedQualifierValue:
     """Process qualifier value, handling both single values and lists."""
     if isinstance(qual_value, list):
@@ -72,6 +73,7 @@ def _build_qualifier_response(item: S3QualifierData, snak_handler: SnakHandler) 
     )
 
 
+# noinspection PyTypeHints
 def _convert_to_serializable(value: ProcessedQualifierValue) -> SerializableQualifierValue:
     """Convert ReconstructedSnakValue objects back to dicts for JSON serialization."""
     if isinstance(value, ReconstructedSnakValue):

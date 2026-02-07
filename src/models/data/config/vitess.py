@@ -11,3 +11,6 @@ class VitessConfig(Config):
     database: str
     user: str
     password: str
+    pool_size: int = 10
+    max_overflow: int = 10
+    pool_timeout: int = 30

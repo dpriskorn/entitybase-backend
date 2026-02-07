@@ -5,6 +5,7 @@ from unittest.mock import MagicMock
 import pytest
 
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
+from models.infrastructure.s3.exceptions import S3NotFoundError
 
 
 class TestEntityReadHandler:
@@ -66,8 +67,25 @@ class TestEntityReadHandler:
         with pytest.raises(Exception):  # Should raise validation error
             handler.get_entity("Q42")
 
+    def test_get_entity_s3_not_found(self) -> None:
+        """Test entity retrieval when S3 object not found (404)."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.vitess_client = mock_vitess
+        mock_state.s3_client = mock_s3
+
+        mock_vitess.entity_exists.return_value = True
+        mock_vitess.get_head.return_value = 12345
+        mock_s3.read_revision.side_effect = S3NotFoundError("Object not found: 12345")
+
+        handler = EntityReadHandler(state=mock_state)
+
+        with pytest.raises(Exception):  # Should raise validation error with 404
+            handler.get_entity("Q42")
+
     def test_get_entity_s3_read_failure(self) -> None:
-        """Test entity retrieval when S3 read fails."""
+        """Test entity retrieval when S3 read fails (500)."""
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_s3 = MagicMock()
@@ -80,7 +98,7 @@ class TestEntityReadHandler:
 
         handler = EntityReadHandler(state=mock_state)
 
-        with pytest.raises(Exception):  # Should raise validation error
+        with pytest.raises(Exception):  # Should raise validation error with 500
             handler.get_entity("Q42")
 
     def test_get_entity_history_success(self) -> None:
@@ -140,8 +158,21 @@ class TestEntityReadHandler:
         with pytest.raises(Exception):  # Should raise validation error
             handler.get_entity_revision("Q42", 12345)
 
+    def test_get_entity_revision_s3_not_found(self) -> None:
+        """Test entity revision retrieval when S3 object not found (404)."""
+        mock_state = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.s3_client = mock_s3
+
+        mock_s3.read_revision.side_effect = S3NotFoundError("Revision not found")
+
+        handler = EntityReadHandler(state=mock_state)
+
+        with pytest.raises(Exception):  # Should raise validation error with 404
+            handler.get_entity_revision("Q42", 99999)
+
     def test_get_entity_revision_s3_read_failure(self) -> None:
-        """Test entity revision retrieval when S3 read fails."""
+        """Test entity revision retrieval when S3 read fails (500)."""
         mock_state = MagicMock()
         mock_s3 = MagicMock()
         mock_state.s3_client = mock_s3
@@ -150,19 +181,6 @@ class TestEntityReadHandler:
 
         handler = EntityReadHandler(state=mock_state)
 
-        with pytest.raises(Exception):  # Should raise validation error
+        with pytest.raises(Exception):  # Should raise validation error with 500
             handler.get_entity_revision("Q42", 12345)
-
-    def test_get_entity_revision_not_found(self) -> None:
-        """Test entity revision retrieval when revision doesn't exist."""
-        mock_state = MagicMock()
-        mock_s3 = MagicMock()
-        mock_state.s3_client = mock_s3
-
-        mock_s3.read_revision.side_effect = Exception("Revision not found")
-
-        handler = EntityReadHandler(state=mock_state)
-
-        with pytest.raises(Exception):  # Should raise validation error
-            handler.get_entity_revision("Q42", 99999)
 

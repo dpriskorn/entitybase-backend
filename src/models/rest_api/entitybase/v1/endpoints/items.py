@@ -68,7 +68,7 @@ async def get_item_label(
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(item_id)
-    labels = response.data.get("labels", {})
+    labels = response.data.revision.get("labels", {})
     if language_code not in labels:
         raise HTTPException(
             status_code=404, detail=f"Label not found for language {language_code}"
@@ -144,7 +144,7 @@ async def get_item_description(
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(item_id)
-    descriptions = response.data.get("descriptions", {})
+    descriptions = response.data.revision.get("descriptions", {})
     if language_code not in descriptions:
         raise HTTPException(
             status_code=404,
@@ -222,7 +222,7 @@ async def get_item_aliases_for_language(
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(item_id)
-    aliases = response.data.get("aliases", {})
+    aliases = response.data.revision.get("aliases", {})
     if language_code not in aliases:
         raise HTTPException(
             status_code=404, detail=f"Aliases not found for language {language_code}"

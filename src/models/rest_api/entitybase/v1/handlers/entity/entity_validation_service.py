@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.rest_api.v1.entitybase.response import EntityResponse
+from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -43,25 +44,29 @@ class EntityValidationService(BaseModel):
             head_revision = self.state.s3_client.read_revision(
                 entity_id, head_revision_id
             )
-            head_content_hash = head_revision.data.get("content_hash")
+            head_content_hash = head_revision.content_hash
             logger.debug(f"Head revision content hash: {head_content_hash}")
 
             if head_content_hash == content_hash:
                 logger.debug(
                     f"Content unchanged, returning existing revision {head_revision_id}"
                 )
+                revision_dict = head_revision.revision
+                state_data = revision_dict.get("state", {})
                 return EntityResponse(
                     id=entity_id,
                     rev_id=head_revision_id,
-                    data=head_revision.entity,
+                    data=head_revision,
                     state=EntityState(
-                        sp=head_revision.data.get("is_semi_protected", False),
-                        locked=head_revision.data.get("is_locked", False),
-                        archived=head_revision.data.get("is_archived", False),
-                        dangling=head_revision.data.get("is_dangling", False),
-                        mep=head_revision.data.get("is_mass_edit_protected", False),
+                        sp=state_data.get("is_semi_protected", False),
+                        locked=state_data.get("is_locked", False),
+                        archived=state_data.get("is_archived", False),
+                        dangling=state_data.get("is_dangling", False),
+                        mep=state_data.get("is_mass_edit_protected", False),
                     ),
                 )
+        except S3NotFoundError:
+            logger.debug(f"Head revision not found for idempotency check on {entity_id}")
         except Exception as e:
             logger.warning(f"Failed to read head revision for idempotency check: {e}")
 

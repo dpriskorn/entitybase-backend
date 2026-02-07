@@ -1,22 +1,25 @@
 """Vitess client for database operations."""
 
 import logging
-from typing import Any, cast
+from contextlib import contextmanager
+from typing import Any, cast, Generator
 from typing import Optional
 
 from pydantic import Field
+from pymysql.connections import Connection
 
 from models.infrastructure.client import Client
 from models.data.config.vitess import VitessConfig
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.vitess.connection import VitessConnectionManager
 from models.infrastructure.vitess.id_resolver import IdResolver
+from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
 
 
 class VitessClient(Client):
-    """Vitess database client for entity operations."""
+    """Vitess database client for entity operations with connection pooling."""
 
     connection_manager: Optional[VitessConnectionManager] = Field(
         default=None, init=False, exclude=True
@@ -27,14 +30,35 @@ class VitessClient(Client):
     def model_post_init(self, context: Any) -> None:
         logger.debug(f"Initializing VitessClient with host='{self.config.host}', port={self.config.port}, database='{self.config.database}', user='{self.config.user}', password_length={len(self.config.password)}")
         self.connection_manager = VitessConnectionManager(config=self.config)
+        self.connection_manager.connect()
         self.id_resolver = IdResolver(vitess_client=self)
         # self.create_tables()
 
+    @contextmanager
+    def get_connection(self) -> Generator[Connection, None, None]:
+        """Context manager for acquiring and releasing database connections."""
+        if self.connection_manager is None:
+            raise RuntimeError("Connection manager not initialized")
+
+        connection = self.connection_manager.acquire()
+        try:
+            yield connection
+        finally:
+            self.connection_manager.release(connection)
+
     @property
     def cursor(self) -> Any:
-        if self.connection_manager.connection is None:
-            self.connection_manager.connect()
-        return self.connection_manager.connection.cursor()
+        if self.connection_manager is None:
+            raise RuntimeError("Connection manager not initialized")
+        connection = self.connection_manager.acquire()
+        cursor = connection.cursor()
+        return cursor
+
+    def disconnect(self) -> None:
+        """Disconnect from the database and close all pooled connections."""
+        if self.connection_manager is not None:
+            self.connection_manager.disconnect()
+            logger.info("VitessClient disconnected")
 
     @property
     def entity_repository(self) -> Any:
@@ -178,7 +202,7 @@ class VitessClient(Client):
             redirects_to_entity_id=redirects_to_entity_id,
         )
         if not result.success:
-            raise ValueError(result.error)
+            raise_validation_error(result.error, status_code=400)
 
     def revert_redirect(self, entity_id: str) -> None:
         """Revert a redirect by clearing the redirect target."""

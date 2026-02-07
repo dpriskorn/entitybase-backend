@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from models.rest_api.utils import raise_validation_error
 from models.config.settings import Settings
@@ -29,6 +29,10 @@ class StateHandler(BaseModel):
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
     settings: Settings
+    cached_vitess_client: VitessClient | None = Field(default=None, exclude=True)
+    cached_s3_client: MyS3Client | None = Field(default=None, exclude=True)
+    cached_enumeration_service: EnumerationService | None = Field(default=None, exclude=True)
+    cached_property_registry: PropertyRegistry | None = Field(default=None, exclude=True)
 
     def start(self) -> None:
         logger.info("Initializing clients...")
@@ -81,19 +85,24 @@ class StateHandler(BaseModel):
 
     @property
     def vitess_client(self) -> "VitessClient":
-        """Get a fully ready client"""
-        logger.debug("vitess_client: Running")
-        from models.infrastructure.vitess.client import VitessClient
+        """Get or create a cached VitessClient."""
+        if self.cached_vitess_client is None:
+            logger.debug("Creating new VitessClient instance")
+            from models.infrastructure.vitess.client import VitessClient
 
-        if self.vitess_config is None:
-            raise_validation_error(message="No vitess config provided")
-        return VitessClient(config=self.vitess_config)
+            if self.vitess_config is None:
+                raise_validation_error(message="No vitess config provided")
+            self.cached_vitess_client = VitessClient(config=self.vitess_config)
+        return self.cached_vitess_client
 
     @property
     def s3_client(self) -> "MyS3Client":
-        """Get a fully ready client"""
-        from models.infrastructure.s3.client import MyS3Client
-        return MyS3Client(config=self.s3_config, vitess_client=self.vitess_client)
+        """Get or create a cached MyS3Client."""
+        if self.cached_s3_client is None:
+            logger.debug("Creating new MyS3Client instance")
+            from models.infrastructure.s3.client import MyS3Client
+            self.cached_s3_client = MyS3Client(config=self.s3_config, vitess_client=self.vitess_client)
+        return self.cached_s3_client
 
     @property
     def entity_change_stream_producer(self) -> StreamProducerClient | None:
@@ -127,16 +136,32 @@ class StateHandler(BaseModel):
 
     @property
     def property_registry(self) -> PropertyRegistry | None:
-        if self.property_registry_path is not None:
-            return load_property_registry(self.settings.property_registry_path)
-        else:
-            raise_validation_error(message="No property registry path provided")
+        if self.cached_property_registry is None:
+            if self.property_registry_path is not None:
+                self.cached_property_registry = load_property_registry(self.settings.property_registry_path)
+            else:
+                raise_validation_error(message="No property registry path provided")
+        return self.cached_property_registry
 
     @property
     def enumeration_service(self) -> EnumerationService:
-        return EnumerationService(
-            worker_id="rest-api", vitess_client=self.vitess_client
-        )
+        if self.cached_enumeration_service is None:
+            self.cached_enumeration_service = EnumerationService(
+                worker_id="rest-api", vitess_client=self.vitess_client
+            )
+        return self.cached_enumeration_service
+
+    def disconnect(self) -> None:
+        """Disconnect all clients and release resources."""
+        if self.cached_vitess_client is not None:
+            self.cached_vitess_client.disconnect()
+            self.cached_vitess_client = None
+            logger.info("VitessClient disconnected")
+
+        if self.cached_s3_client is not None:
+            self.cached_s3_client.disconnect()
+            self.cached_s3_client = None
+            logger.info("S3Client disconnected")
 
     @property
     def redirect_service(self) -> Any:

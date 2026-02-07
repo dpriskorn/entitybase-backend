@@ -22,7 +22,6 @@ package "API Handlers" as APIHandlers #LightBlue {
     "LexemeCreate" as LexemeCreateHandler
     "PropertyCreate" as PropertyCreateHandler
     "Redirect" as RedirectHandler
-    "RevisionContext" as RevisionContext
     "State" as StateHandler
     "Statement" as StatementHandler
     "Thanks" as ThanksHandler

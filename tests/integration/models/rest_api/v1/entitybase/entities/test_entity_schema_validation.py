@@ -15,11 +15,11 @@ class TestEntitySchemaValidation:
     def entity_schema(self) -> dict:
         """Load entity schema."""
         schema_path = (
-            Path(__file__).parent.parent.parent.parent.parent
+            Path(__file__).parent.parent.parent.parent.parent.parent.parent
             / "schemas"
             / "entitybase"
             / "entity"
-            / "1.0.0"
+            / "2.0.0"
             / "schema.yaml"
         )
         with open(schema_path, "r", encoding="utf-8") as f:

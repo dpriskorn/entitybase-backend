@@ -5,7 +5,7 @@ from .hashes.aliases_hashes import AliasesHashes
 from .hashes.descriptions_hashes import DescriptionsHashes
 from .hashes.hash_maps import HashMaps
 from .hashes.labels_hashes import LabelsHashes
-from .hashes.sitelinks_hashes import SitelinksHashes
+from .hashes.sitelinks_hashes import SitelinkHashes
 from .hashes.statements_hashes import StatementsHashes
 from .load_response import DictLoadResponse, LoadResponse, StringLoadResponse
 from .property_counts import PropertyCounts
@@ -39,7 +39,7 @@ __all__ = [
     "S3SitelinkData",
     "S3SnakData",
     "S3Statement",
-    "SitelinksHashes",
+    "SitelinkHashes",
     "StatementsHashes",
     "StringLoadResponse",
 ]

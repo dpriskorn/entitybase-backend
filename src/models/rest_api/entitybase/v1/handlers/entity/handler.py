@@ -2,24 +2,23 @@
 
 import logging
 from datetime import datetime, timezone
-from typing import Any, Dict
-
-from pydantic import BaseModel, Field, ConfigDict
+from typing import Any
 
 from models.config.settings import settings
+from models.data.infrastructure.s3 import SitelinkHashes
 from models.data.infrastructure.s3.entity_state import EntityState
-from models.data.infrastructure.s3.enums import EditType, EditData, EntityType
+from models.data.infrastructure.s3.enums import EditType, EditData
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
-from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
-from models.data.rest_api.v1.entitybase.request.entity.context import ProcessEntityRevisionContext
+from models.data.rest_api.v1.entitybase.request.entity.context import ProcessEntityRevisionContext, RevisionContext
 from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
 )
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.rest_api.utils import raise_validation_error
 from .entity_hashing_service import EntityHashingService
@@ -60,23 +59,6 @@ def edit_type_to_change_type(edit_type: EditType | str) -> ChangeType:
     edit_type_str = str(edit_type)
 
     return EDIT_TYPE_TO_CHANGE_TYPE.get(edit_type_str, ChangeType.EDIT)
-
-
-class RevisionContext(BaseModel):
-    """Context for revision processing operations."""
-
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    entity_id: str
-    request_data: Dict[str, Any]
-    entity_type: EntityType
-    edit_type: EditType | None = Field(default=None)
-    edit_summary: str = ""
-    is_creation: bool = False
-    vitess_client: Any
-    s3_client: Any
-    stream_producer: Any = Field(default=None)
-    validator: Any | None = Field(default=None)
 
 
 # noinspection PyArgumentList
@@ -142,8 +124,9 @@ class EntityHandler(Handler):
         if not ctx.entity_id:
             raise_validation_error("Entity ID is required", 400)
 
+    @staticmethod
     async def _check_idempotency_new(
-        self, ctx: RevisionContext
+            ctx: RevisionContext
     ) -> EntityResponse | None:
         """Check if request is idempotent using validation service."""
         validation_service = EntityValidationService()
@@ -157,7 +140,7 @@ class EntityHandler(Handler):
         self, ctx: RevisionContext
     ) -> StatementHashResult:
         """Process entity data using hashing service."""
-        hashing_service = EntityHashingService()
+        hashing_service = EntityHashingService(state=self.state)
         return await hashing_service.hash_statements(ctx.request_data)
 
     async def _create_revision_new(
@@ -210,12 +193,12 @@ class EntityHandler(Handler):
 
     async def _hash_terms_new(self, ctx: RevisionContext) -> HashMaps:
         """Hash entity terms (labels, descriptions, aliases)."""
-        hashing_service = EntityHashingService()
+        hashing_service = EntityHashingService(state=self.state)
         return await hashing_service.hash_terms(ctx.request_data)
 
-    async def _hash_sitelinks_new(self, ctx: RevisionContext) -> SitelinksHashes:
+    async def _hash_sitelinks_new(self, ctx: RevisionContext) -> SitelinkHashes:
         """Hash entity sitelinks."""
-        hashing_service = EntityHashingService()
+        hashing_service = EntityHashingService(state=self.state)
         return await hashing_service.hash_sitelinks(ctx.request_data)
 
     @staticmethod
@@ -316,18 +299,21 @@ class EntityHandler(Handler):
             return EntityResponse(
                 id=ctx.entity_id,
                 rev_id=result.revision_id,
-                data=revision.entity,
+                data=revision,
                 state=EntityState(
-                    sp=revision.data.get("is_semi_protected", False),
-                    locked=revision.data.get("is_locked", False),
-                    archived=revision.data.get("is_archived", False),
-                    dangling=revision.data.get("is_dangling", False),
-                    mep=revision.data.get("is_mass_edit_protected", False),
+                    sp=revision.revision.get("state", {}).get("is_semi_protected", False),
+                    locked=revision.revision.get("state", {}).get("is_locked", False),
+                    archived=revision.revision.get("state", {}).get("is_archived", False),
+                    dangling=revision.revision.get("state", {}).get("is_dangling", False),
+                    mep=revision.revision.get("state", {}).get("is_mass_edit_protected", False),
                 ),
             )
+        except S3NotFoundError:
+            logger.warning(f"Created revision not found for {ctx.entity_id}, revision {result.revision_id}")
+            raise_validation_error(f"Revision not found: {ctx.entity_id}", status_code=404)
         except Exception as e:
             logger.error(f"Failed to build response for {ctx.entity_id}: {e}")
-            raise_validation_error("Failed to retrieve created revision")
+            raise_validation_error("Failed to retrieve created revision", status_code=500)
 
     def process_statements(
         self,

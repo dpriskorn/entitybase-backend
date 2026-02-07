@@ -5,7 +5,8 @@ from unittest.mock import MagicMock, AsyncMock
 import pytest
 
 from models.data.infrastructure.s3.enums import DeleteType
-from models.data.rest_api.v1.entitybase.request import EditContext, EntityDeleteRequest
+from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
+from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
 from models.rest_api.entitybase.v1.services.delete_service import DeleteService
 
 

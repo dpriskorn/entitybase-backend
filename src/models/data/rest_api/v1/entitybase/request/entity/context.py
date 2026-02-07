@@ -3,12 +3,7 @@
 from typing import Dict, Any, List
 from pydantic import BaseModel, Field, ConfigDict
 
-
-class EditContext(BaseModel):
-    """Context for an edit operation."""
-
-    user_id: int = Field(..., description="User performing the edit")
-    edit_summary: str = Field(..., description="Edit summary/description")
+from models.data.infrastructure.s3 import EntityType, EditType
 
 
 class EventPublishContext(BaseModel):
@@ -107,3 +102,20 @@ class SitelinkUpdateContext(BaseModel):
     site: str = Field(..., description="Site key (e.g., enwiki)")
     title: str = Field(..., description="Page title")
     badges: List[str] = Field(default_factory=list, description="Badge IDs")
+
+
+class RevisionContext(BaseModel):
+    """Context for revision processing operations."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+    entity_id: str
+    request_data: Dict[str, Any]
+    entity_type: EntityType
+    edit_type: EditType | None = Field(default=None)
+    edit_summary: str = ""
+    is_creation: bool = False
+    vitess_client: Any
+    s3_client: Any
+    stream_producer: Any = Field(default=None)
+    validator: Any | None = Field(default=None)

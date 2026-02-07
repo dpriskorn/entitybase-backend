@@ -22,10 +22,10 @@ def create_minimal_revision_data(
         revision_id=revision_id,
         entity_type=EntityType.ITEM,
         edit=EditData(
-            type=EditType.MANUAL_UPDATE,
+            edit_type=EditType.MANUAL_UPDATE,
             user_id=user_id,
             is_mass_edit=False,
-            edit_summary=edit_summary,
+            summary=edit_summary,
             at=datetime.now(timezone.utc).isoformat(),
         ),
         hashes=HashMaps(

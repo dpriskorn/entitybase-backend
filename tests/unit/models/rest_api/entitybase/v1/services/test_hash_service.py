@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
-from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
+from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinkHashes
 from models.data.infrastructure.s3.sitelink_data import S3SitelinkData
 from models.rest_api.entitybase.v1.services.hash_service import HashService
 
@@ -26,7 +26,7 @@ class TestHashService:
         with patch('models.internal_representation.metadata_extractor.MetadataExtractor.hash_string', side_effect=lambda x: hash(x)):
             result = service.hash_sitelinks(sitelinks)
 
-            assert isinstance(result, SitelinksHashes)
+            assert isinstance(result, SitelinkHashes)
             assert "enwiki" in result.root
             assert isinstance(result.root["enwiki"], S3SitelinkData)
             assert result.root["enwiki"].title_hash == hash("Test Page")

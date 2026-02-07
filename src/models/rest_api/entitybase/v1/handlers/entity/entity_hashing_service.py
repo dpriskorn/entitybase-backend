@@ -3,13 +3,14 @@
 import logging
 from typing import Any, Dict, cast
 
-
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
-from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinksHashes
+from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinkHashes
 
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.v1.service import Service
 from models.rest_api.entitybase.v1.services.hash_service import HashService
+from models.rest_api.entitybase.v1.services.statement_service import StatementService
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -22,9 +23,9 @@ class EntityHashingService(Service):
         self, request_data: Dict[str, Any]
     ) -> StatementHashResult:
         """Hash entity statements."""
-        hash_operation = HashService(state=self.state).hash_entity_statements(
-            request_data
-        )
+        ss = StatementService(state=self.state)
+        prepared_data = PreparedRequestData(**request_data)
+        hash_operation = ss.hash_entity_statements(prepared_data)
         if not hash_operation.success:
             raise_validation_error(
                 hash_operation.error or "Failed to hash statements"
@@ -49,7 +50,7 @@ class EntityHashingService(Service):
             aliases=aliases_hashes,
         )
 
-    async def hash_sitelinks(self, request_data: Dict[str, Any]) -> SitelinksHashes:
+    async def hash_sitelinks(self, request_data: Dict[str, Any]) -> SitelinkHashes:
         """Hash entity sitelinks."""
         return HashService(state=self.state).hash_sitelinks(
             request_data.get("sitelinks", {})

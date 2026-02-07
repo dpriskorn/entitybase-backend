@@ -1,7 +1,6 @@
 """Entity request models."""
 
 from .crud import (
-    EditContext,
     EventPublishContext,
     EntityCreateRequest,
     EntityDeleteRequest,

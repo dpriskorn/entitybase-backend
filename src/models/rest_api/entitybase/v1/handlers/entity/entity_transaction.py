@@ -7,7 +7,9 @@ from typing import Any, Callable, List
 
 from pydantic import BaseModel, Field
 
-from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData, EditContext, EventPublishContext
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
+from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
+from models.data.rest_api.v1.entitybase.request.entity.context import EventPublishContext
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 
 logger = logging.getLogger(__name__)

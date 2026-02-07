@@ -283,7 +283,13 @@ class MyS3Client(Client):
     def load_sense_glosses_batch(self, hashes: List[int]) -> List[Optional[str]]:
         """Load sense glosses by content hashes."""
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
-        if not hasattr(self, 'lexeme_storage') or self.lexemes is None:
+        if not hasattr(self, 'lexemes') or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
-        return cast(list[str | None], 
+        return cast(list[str | None],
                    self.lexemes.load_sense_glosses_batch(hashes))
+
+    def disconnect(self) -> None:
+        """Disconnect from S3 and release resources."""
+        if self.connection_manager is not None:
+            self.connection_manager.boto_client = None
+            logger.info("S3Client disconnected")

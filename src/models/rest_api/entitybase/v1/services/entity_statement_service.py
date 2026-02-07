@@ -15,6 +15,7 @@ from models.data.rest_api.v1.entitybase.response import (
     RevisionIdResult,
 )
 from models.infrastructure.s3.revision.revision_data import RevisionData
+from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.infrastructure.vitess.repositories.statement import StatementRepository
 from models.internal_representation.statement_hasher import StatementHasher
 from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler
@@ -126,7 +127,6 @@ class EntityStatementService(Service):
     ) -> OperationResult[RevisionIdResult]:
         """Replace a statement by hash with new claim data."""
         logger.info(f"Entity {entity_id}: Patching statement {statement_hash}")
-        entity_response = self._fetch_current_entity(entity_id)
         current_data = self._fetch_current_entity_data(entity_id)
         replaced = self._find_and_replace_statement(current_data.data, statement_hash, request.claim)
         if not replaced:
@@ -174,6 +174,8 @@ class EntityStatementService(Service):
         try:
             read_handler = EntityReadHandler(state=self.state)
             return read_handler.get_entity(entity_id)
+        except S3NotFoundError:
+            raise_validation_error(f"Entity not found: {entity_id}", status_code=404)
         except Exception as e:
             raise_validation_error(f"Failed to fetch entity: {e}", status_code=400)
     
@@ -185,6 +187,8 @@ class EntityStatementService(Service):
             if not isinstance(s3_revision_data, S3RevisionData):
                 raise_validation_error("Invalid revision data type", status_code=500)
             return RevisionData.model_validate(s3_revision_data.revision)  # type: ignore[no-any-return]
+        except S3NotFoundError:
+            raise_validation_error(f"Revision not found: {entity_id} revision {revision_id}", status_code=404)
         except Exception as e:
             raise_validation_error(f"Failed to fetch revision: {e}", status_code=400)
     

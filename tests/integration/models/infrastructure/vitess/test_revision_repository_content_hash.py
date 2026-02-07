@@ -6,8 +6,8 @@ from unittest.mock import MagicMock
 class TestRevisionRepositoryContentHash:
     """Integration tests for RevisionRepository content_hash functionality."""
 
-    def test_create_revision_stores_content_hash(self, db_connection):
-        """Test that create() stores content_hash in the database."""
+    def test_create_revision_stores_content_hash(self, db_conn):
+        """Test that create() stores content_hash in database."""
         from models.infrastructure.vitess.repositories.revision import RevisionRepository
         from models.data.infrastructure.s3.entity_state import EntityState
         from models.data.infrastructure.s3.enums import EntityType, EditType, EditData
@@ -17,7 +17,7 @@ class TestRevisionRepositoryContentHash:
         from datetime import datetime, timezone
 
         # Setup
-        cursor = db_connection.cursor()
+        cursor = db_conn.cursor()
 
         # First, create entity mapping
         cursor.execute("""
@@ -63,12 +63,12 @@ class TestRevisionRepositoryContentHash:
         result = cursor.fetchone()
         assert result[0] == content_hash
 
-    def test_get_content_hash(self, db_connection):
-        """Test that get_content_hash() retrieves the stored hash."""
+    def test_get_content_hash(self, db_conn):
+        """Test that get_content_hash() retrieves stored hash."""
         from models.infrastructure.vitess.repositories.revision import RevisionRepository
 
         # Setup
-        cursor = db_connection.cursor()
+        cursor = db_conn.cursor()
 
         # Insert entity mapping
         cursor.execute("""
@@ -98,11 +98,11 @@ class TestRevisionRepositoryContentHash:
 
         assert result == content_hash
 
-    def test_get_content_hash_no_revision(self, db_connection):
+    def test_get_content_hash_no_revision(self, db_conn):
         """Test that get_content_hash() returns None for non-existent revision."""
         from models.infrastructure.vitess.repositories.revision import RevisionRepository
 
-        cursor = db_connection.cursor()
+        cursor = db_conn.cursor()
 
         vitess_client = MagicMock()
         vitess_client.cursor = cursor
@@ -113,8 +113,8 @@ class TestRevisionRepositoryContentHash:
 
         assert result is None
 
-    def test_create_with_cas_stores_content_hash(self, db_connection):
-        """Test that create_with_cas() stores content_hash in the database."""
+    def test_create_with_cas_stores_content_hash(self, db_conn):
+        """Test that create_with_cas() stores content_hash in database."""
         from models.infrastructure.vitess.repositories.revision import RevisionRepository
         from models.data.infrastructure.s3.entity_state import EntityState
         from models.data.infrastructure.s3.enums import EntityType, EditType, EditData
@@ -124,7 +124,7 @@ class TestRevisionRepositoryContentHash:
         from datetime import datetime, timezone
 
         # Setup
-        cursor = db_connection.cursor()
+        cursor = db_conn.cursor()
 
         # Insert entity mapping and head
         cursor.execute("""

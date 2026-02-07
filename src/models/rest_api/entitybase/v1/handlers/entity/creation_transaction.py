@@ -7,7 +7,9 @@ from datetime import datetime
 from typing import Any
 
 from models.data.infrastructure.stream.change_type import ChangeType
-from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData, EditContext, EventPublishContext
+from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
+from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
+from models.data.rest_api.v1.entitybase.request.entity.context import EventPublishContext
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
@@ -127,7 +129,7 @@ class CreationTransaction(EntityTransaction):
         return EntityResponse(
             id=entity_id,
             rev_id=1,
-            data=revision_dict,
+            data=s3_revision_data,
             state=EntityState(),
         )
 

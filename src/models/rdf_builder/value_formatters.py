@@ -62,10 +62,12 @@ class ValueFormatter:
         url = ValueFormatter.escape_turtle(value.value)
         return f'"{url}"'
 
+    # noinspection PyUnusedLocal
     @staticmethod
     def _format_novalue(value: Any) -> str:
         return "wikibase:noValue"
 
+    # noinspection PyUnusedLocal
     @staticmethod
     def _format_somevalue(value: Any) -> str:
         return "wikibase:someValue"
