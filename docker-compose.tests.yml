@@ -38,6 +38,36 @@ services:
     mem_limit: 512m
     cpus: 0.5
 
+  redpanda:
+    image: redpandadata/redpanda:latest
+    container_name: redpanda
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp 1
+      - --memory 1G
+      - --reserve-memory 0M
+      - --node-id 0
+      - --check=false
+      - --kafka-addr PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:9092
+    ports:
+      - "9092:9092"
+      - "9644:9644"
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health | grep -q 'Healthy'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      deploy:
+        resources:
+          limits:
+            cpus: "1.0"
+            memory: 1g
+    mem_limit: 1g
+    cpus: "1.0"
+
   create-buckets:
     container_name: create-buckets
     build:
@@ -192,4 +222,6 @@ services:
 #    cpus: 1.0
 
 volumes:
+  redpanda-data: {}
+
   minio-data:
