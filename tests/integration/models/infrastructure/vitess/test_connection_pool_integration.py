@@ -25,7 +25,7 @@ class TestVitessConnectionPoolIntegration:
             port=3306,
             database="test_vitess_pool",
             user="root",
-            password=SecretStr(""),
+            password="",
             pool_size=2,
             max_overflow=1,
             pool_timeout=1,
