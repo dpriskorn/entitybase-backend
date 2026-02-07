@@ -28,12 +28,18 @@ class VitessConnectionManager(BaseModel):
 
     def model_post_init(self, context: Any) -> None:
         """Initialize the connection pool."""
-        logger.debug(f"Creating VitessConnectionManager with config: host='{self.config.host}', port={self.config.port}, database='{self.config.database}', user='{self.config.user}', password_length={len(self.config.password)}")
-        self.pool = queue.Queue(maxsize=self.config.pool_size + self.config.max_overflow)
+        logger.debug(
+            f"Creating VitessConnectionManager with config: host='{self.config.host}', port={self.config.port}, database='{self.config.database}', user='{self.config.user}', password_length={len(self.config.password)}"
+        )
+        self.pool = queue.Queue(
+            maxsize=self.config.pool_size + self.config.max_overflow
+        )
 
     def _create_new_connection(self) -> Connection:
         """Create a new database connection."""
-        logger.info(f"Attempting database connection to {self.config.host}:{self.config.port}...")
+        logger.info(
+            f"Attempting database connection to {self.config.host}:{self.config.port}..."
+        )
         try:
             connection = pymysql.connect(
                 host=self.config.host,
@@ -43,16 +49,22 @@ class VitessConnectionManager(BaseModel):
                 database=self.config.database,
                 autocommit=True,
             )
-            logger.info(f"Successfully connected to database at {self.config.host}:{self.config.port}")
+            logger.info(
+                f"Successfully connected to database at {self.config.host}:{self.config.port}"
+            )
             return connection
         except Exception as e:
-            logger.error(f"Failed to connect to database at {self.config.host}:{self.config.port}: {e}")
+            logger.error(
+                f"Failed to connect to database at {self.config.host}:{self.config.port}: {e}"
+            )
             raise
 
     def acquire(self) -> Connection:
         """Acquire a connection from the pool."""
         if self.pool is None:
-            self.pool = queue.Queue(maxsize=self.config.pool_size + self.config.max_overflow)
+            self.pool = queue.Queue(
+                maxsize=self.config.pool_size + self.config.max_overflow
+            )
 
         try:
             connection = self.pool.get(timeout=self.config.pool_timeout)
@@ -60,28 +72,43 @@ class VitessConnectionManager(BaseModel):
                 logger.warning("Acquired a closed connection, creating new one")
                 connection.close()
                 connection = self._create_new_connection()
-            logger.debug(f"Acquired connection from pool, pool size: {self.pool.qsize()}")
+            logger.debug(
+                f"Acquired connection from pool, pool size: {self.pool.qsize()}"
+            )
             return connection
         except queue.Empty:
             with self.pool_lock:
                 if self.pool.qsize() < self.config.pool_size + self.config.max_overflow:
                     connection = self._create_new_connection()
-                    logger.debug(f"Created new overflow connection, total: {self.pool.qsize() + 1}")
-                    return connection
-            logger.error(f"Connection pool exhausted (timeout: {self.config.pool_timeout}s)")
-            raise TimeoutError(f"Could not acquire database connection within {self.config.pool_timeout}s")
+                    self.pool.put_nowait(connection)
+                    logger.debug(
+                        f"Created new overflow connection, total: {self.pool.qsize()}"
+                    )
+                    return self.pool.get(timeout=self.config.pool_timeout)
+            logger.error(
+                f"Connection pool exhausted (timeout: {self.config.pool_timeout}s)"
+            )
+            raise TimeoutError(
+                f"Could not acquire database connection within {self.config.pool_timeout}s"
+            )
 
     def release(self, connection: Connection) -> None:
         """Release a connection back to the pool."""
         if self.pool is None:
-            self.pool = queue.Queue(maxsize=self.config.pool_size + self.config.max_overflow)
+            self.pool = queue.Queue(
+                maxsize=self.config.pool_size + self.config.max_overflow
+            )
 
         try:
             if connection and connection.open:
                 self.pool.put_nowait(connection)
-                logger.debug(f"Released connection to pool, pool size: {self.pool.qsize()}")
+                logger.debug(
+                    f"Released connection to pool, pool size: {self.pool.qsize()}"
+                )
             else:
-                logger.warning("Attempted to release a closed or None connection, discarding")
+                logger.warning(
+                    "Attempted to release a closed or None connection, discarding"
+                )
         except queue.Full:
             connection.close()
             logger.debug("Pool full, closed excess connection")
