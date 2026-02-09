@@ -79,12 +79,12 @@ def test_release_closes_excess_connections(connection_manager):
         assert manager.pool.qsize() == 0, "All connections should be checked out"
 
         manager.release(conn_overflow)
-        assert conn_overflow.open, "Overflow connection should remain open"
-        assert manager.pool.qsize() == 1, "One connection should be in pool"
+        assert not conn_overflow.open, "Overflow connection should be closed"
+        assert manager.pool.qsize() == 0, "Pool should be empty after releasing overflow connection"
 
         manager.release(connections[0])
         assert connections[0].open, "Pool connection should remain open"
-        assert manager.pool.qsize() == 1, "Still one connection in pool"
+        assert manager.pool.qsize() == 1, "One connection should be in pool after releasing pool connection"
     finally:
         for conn in connections:
             if conn and conn.open:

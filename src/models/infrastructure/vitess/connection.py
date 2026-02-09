@@ -22,6 +22,7 @@ class VitessConnectionManager(BaseModel):
     connection_semaphore: threading.Semaphore | None = Field(default=None, exclude=True)
     overflow_connections: set[Connection] = Field(default_factory=set, exclude=True)
     active_connections: set[Connection] = Field(default_factory=set, exclude=True)
+    pool_slots_created: int = Field(default=0, exclude=True)
     model_config = {"arbitrary_types_allowed": True}
 
     def model_post_init(self, context: Any) -> None:
@@ -103,7 +104,9 @@ class VitessConnectionManager(BaseModel):
             except queue.Empty:
                 logger.debug("Pool empty, creating new connection")
                 connection = self._create_new_connection()
-                is_overflow = True
+                is_overflow = self.pool_slots_created >= self.config.pool_size
+                if not is_overflow:
+                    self.pool_slots_created += 1
 
             if is_overflow:
                 self.overflow_connections.add(connection)
@@ -137,18 +140,8 @@ class VitessConnectionManager(BaseModel):
 
         if is_overflow:
             self.overflow_connections.discard(connection)
-            if self.pool.qsize() >= self.config.pool_size:
-                connection.close()
-                logger.debug("Pool full, closed overflow connection")
-            else:
-                try:
-                    self.pool.put_nowait(connection)
-                    logger.debug(
-                        f"Released overflow connection to pool, pool size: {self.pool.qsize()}"
-                    )
-                except queue.Full:
-                    connection.close()
-                    logger.debug("Pool full, closed excess connection")
+            connection.close()
+            logger.debug("Closed overflow connection")
             self.active_connections.discard(connection)
             self._release_semaphore()
             return
