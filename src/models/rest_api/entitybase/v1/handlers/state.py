@@ -39,6 +39,7 @@ class StateHandler(BaseModel):
     )
 
     def start(self) -> None:
+        logger.info("=== StateHandler.start() START ===")
         logger.info("Initializing clients...")
         logger.debug(f"S3 config: {self.settings.get_s3_config}")
         logger.debug(f"Vitess config: {self.settings.get_vitess_config}")
@@ -47,14 +48,19 @@ class StateHandler(BaseModel):
         )
         if not self.settings.streaming_enabled:
             logger.info("Streaming is disabled")
+        logger.debug("Calling health_check()...")
         self.health_check()
+        logger.info("=== StateHandler.start() END ===")
 
     def health_check(self) -> None:
         """Check if clients work"""
+        logger.debug("=== health_check() START ===")
+        logger.debug("Checking S3 connection...")
         if self.s3_config and self.s3_client.healthy_connection:
             logger.debug("S3 client connected successfully")
         else:
             logger.warning("S3 client connection failed")
+        logger.debug("Checking Vitess connection...")
         if self.vitess_config and self.vitess_client.healthy_connection:
             logger.debug("Vitess client connected successfully")
         else:
@@ -70,6 +76,7 @@ class StateHandler(BaseModel):
         #     logger.warning("Kafka entitydiff connection failed")
 
         logger.debug("Clients initialized successfully")
+        logger.debug("=== health_check() END ===")
 
     @property
     def entity_diff_stream_config(self) -> StreamConfig:
@@ -91,24 +98,28 @@ class StateHandler(BaseModel):
     def vitess_client(self) -> "VitessClient":
         """Get or create a cached VitessClient."""
         if self.cached_vitess_client is None:
-            logger.debug("Creating new VitessClient instance")
+            logger.debug("=== vitess_client property: Creating new VitessClient instance ===")
             from models.infrastructure.vitess.client import VitessClient
 
             if self.vitess_config is None:
                 raise_validation_error(message="No vitess config provided")
+            logger.debug("Instantiating VitessClient...")
             self.cached_vitess_client = VitessClient(config=self.vitess_config)
+            logger.debug("=== vitess_client property: VitessClient created ===")
         return self.cached_vitess_client
 
     @property
     def s3_client(self) -> "MyS3Client":
         """Get or create a cached MyS3Client."""
         if self.cached_s3_client is None:
-            logger.debug("Creating new MyS3Client instance")
+            logger.debug("=== s3_client property: Creating new MyS3Client instance ===")
             from models.infrastructure.s3.client import MyS3Client
 
+            logger.debug("Creating MyS3Client with vitess_client dependency...")
             self.cached_s3_client = MyS3Client(
                 config=self.s3_config, vitess_client=self.vitess_client
             )
+            logger.debug("=== s3_client property: MyS3Client created ===")
         return self.cached_s3_client
 
     @property

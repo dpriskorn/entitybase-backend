@@ -60,7 +60,7 @@ async def get_property_label(
         raise HTTPException(
             status_code=404, detail=f"Label not found for language {language_code}"
         )
-    return LabelResponse(value=labels[language_code])
+    return LabelResponse(value=labels[language_code]["value"])
 
 
 @router.get(
@@ -80,7 +80,7 @@ async def get_property_description(
             status_code=404,
             detail=f"Description not found for language {language_code}",
         )
-    return DescriptionResponse(value=descriptions[language_code])
+    return DescriptionResponse(value=descriptions[language_code]["value"])
 
 
 @router.get(

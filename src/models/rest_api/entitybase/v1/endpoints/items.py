@@ -35,7 +35,9 @@ async def create_item(
     headers: EditHeadersType,
 ) -> EntityResponse:
     """Create a new item entity."""
-    logger.info(f"🔍 ENDPOINT: Received create request for {request.id or 'auto-assign'}")
+    logger.info(
+        f"🔍 ENDPOINT: Received create request for {request.id or 'auto-assign'}"
+    )
     logger.debug(f"🔍 ENDPOINT: Request data: {request.model_dump()}")
 
     try:
@@ -44,12 +46,18 @@ async def create_item(
         validator = req.app.state.state_handler.validator
         enumeration_service = req.app.state.state_handler.enumeration_service
 
-        logger.debug(f"🔍 ENDPOINT: Services available - state: {state is not None}, validator: {validator is not None}, enum_svc: {enumeration_service is not None}")
+        logger.debug(
+            f"🔍 ENDPOINT: Services available - state: {state is not None}, validator: {validator is not None}, enum_svc: {enumeration_service is not None}"
+        )
 
-        handler = ItemCreateHandler(state=state, enumeration_service=enumeration_service)
+        handler = ItemCreateHandler(
+            state=state, enumeration_service=enumeration_service
+        )
         logger.info("🔍 ENDPOINT: Handler created, calling create_entity")
 
-        result = await handler.create_entity(request, edit_headers=headers, validator=validator)
+        result = await handler.create_entity(
+            request, edit_headers=headers, validator=validator
+        )
         logger.info(f"🔍 ENDPOINT: Entity creation successful: {result.id}")
         return result
 
@@ -73,7 +81,7 @@ async def get_item_label(
         raise HTTPException(
             status_code=404, detail=f"Label not found for language {language_code}"
         )
-    return LabelResponse(value=labels[language_code])
+    return LabelResponse(value=labels[language_code]["value"])
 
 
 @router.put(
@@ -87,7 +95,9 @@ async def update_item_label(
     headers: EditHeadersType,
 ) -> EntityResponse:
     """Update item label for language."""
-    logger.info(f"📝 LABEL UPDATE: Starting label update for item={item_id}, language={language_code}")
+    logger.info(
+        f"📝 LABEL UPDATE: Starting label update for item={item_id}, language={language_code}"
+    )
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
@@ -118,7 +128,9 @@ async def delete_item_label(
     headers: EditHeadersType,
 ) -> EntityResponse:
     """Delete item label for language."""
-    logger.info(f"🗑️ LABEL DELETE: Starting label deletion for item={item_id}, language={language_code}")
+    logger.info(
+        f"🗑️ LABEL DELETE: Starting label deletion for item={item_id}, language={language_code}"
+    )
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
@@ -150,7 +162,7 @@ async def get_item_description(
             status_code=404,
             detail=f"Description not found for language {language_code}",
         )
-    return DescriptionResponse(value=descriptions[language_code])
+    return DescriptionResponse(value=descriptions[language_code]["value"])
 
 
 @router.put(
@@ -165,7 +177,9 @@ async def update_item_description(
     headers: EditHeadersType,
 ) -> EntityResponse:
     """Update item description for language."""
-    logger.info(f"📝 DESCRIPTION UPDATE: Starting description update for item={item_id}, language={language_code}")
+    logger.info(
+        f"📝 DESCRIPTION UPDATE: Starting description update for item={item_id}, language={language_code}"
+    )
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
@@ -197,7 +211,9 @@ async def delete_item_description(
     headers: EditHeadersType,
 ) -> EntityResponse:
     """Delete item description for language."""
-    logger.info(f"🗑️ DESCRIPTION DELETE: Starting description deletion for item={item_id}, language={language_code}")
+    logger.info(
+        f"🗑️ DESCRIPTION DELETE: Starting description deletion for item={item_id}, language={language_code}"
+    )
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
@@ -241,7 +257,9 @@ async def put_item_aliases_for_language(
     headers: EditHeadersType,
 ) -> EntityResponse:
     """Update item aliases for language."""
-    logger.info(f"📝 ALIASES UPDATE: Starting aliases update for item={item_id}, language={language_code}")
+    logger.info(
+        f"📝 ALIASES UPDATE: Starting aliases update for item={item_id}, language={language_code}"
+    )
     logger.debug(f"📝 ALIASES UPDATE: New aliases count: {len(aliases_data)}")
 
     state = req.app.state.state_handler
