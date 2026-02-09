@@ -17,9 +17,11 @@ if TYPE_CHECKING:
 
 def include_routes(app: "FastAPI") -> None:
     """Include all route routers in the app."""
+    from models.config.settings import settings
+
     app.include_router(health.health_router)
-    app.include_router(users.users_router)
-    app.include_router(thanks.thanks_router)
-    app.include_router(endorsements.endorsements_router)
-    app.include_router(entities.entities_router)
+    app.include_router(users.users_router, prefix=settings.api_prefix)
+    app.include_router(thanks.thanks_router, prefix=settings.api_prefix)
+    app.include_router(endorsements.endorsements_router, prefix=settings.api_prefix)
+    app.include_router(entities.entities_router, prefix=settings.api_prefix)
     # v1 routes are added via imports above

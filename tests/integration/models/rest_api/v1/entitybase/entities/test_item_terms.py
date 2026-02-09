@@ -56,7 +56,7 @@ def test_get_item_label_not_found(api_client: requests.Session, api_url: str) ->
 
     response = api_client.get(f"{api_url}/entities/items/Q70002/labels/de")
     assert response.status_code == 404
-    assert "not found" in response.json()["detail"].lower()
+    assert "not found" in response.json()["message"].lower()
 
 
 @pytest.mark.integration
