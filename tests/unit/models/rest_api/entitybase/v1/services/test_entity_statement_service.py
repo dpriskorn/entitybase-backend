@@ -17,7 +17,6 @@ class TestEntityStatementService:
 
     # add_property tests
 
-
     @pytest.mark.asyncio
     async def test_add_property_new_property(self) -> None:
         """Test adding claims to a new property."""
@@ -34,14 +33,7 @@ class TestEntityStatementService:
         assert "P31" in current_data.data["claims"]
         assert current_data.data["claims"]["P31"] == [{"test": "data"}]
 
-
-
-
-
     # remove_statement tests
-
-
-
 
     @pytest.mark.asyncio
     async def test_remove_statement_decrements_ref_count(self) -> None:
@@ -49,15 +41,17 @@ class TestEntityStatementService:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
-        mock_vitess.cursor = MagicMock()
+        mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_vitess.cursor = mock_cursor
 
         service = EntityStatementService(state=mock_state)
         service._decrement_statement_ref_count("12345")
 
-        mock_vitess.cursor.execute.assert_called()
+        mock_cursor.execute.assert_called()
 
     # patch_statement tests
-
 
     @pytest.mark.asyncio
     async def test_patch_statement_not_found(self) -> None:
@@ -83,10 +77,6 @@ class TestEntityStatementService:
         service._validate_property_id("P31")
         assert True  # No exception raised
 
-
-
-
-
     # _merge_claims (static)
     def test_merge_claims_new_property(self) -> None:
         """Test merging claims for new property."""
@@ -106,7 +96,6 @@ class TestEntityStatementService:
 
     # _PropertyCountHelper tests
 
-
     def test_recalculate_property_counts_removes_property(self) -> None:
         """Test recalculating removes property when count is 0."""
         mock_revision = MagicMock()
@@ -118,17 +107,14 @@ class TestEntityStatementService:
         assert "P31" not in result.properties
         assert "P31" not in result.property_counts.root
 
-
-
     # _find_and_replace_statement (static)
     def test_find_and_replace_statement_found(self) -> None:
         """Test finding and replacing statement."""
         current_data = {
-            "claims": {
-                "P31": [{"mainsnak": {"datavalue": {"value": "Q146"}}}]
-            }
+            "claims": {"P31": [{"mainsnak": {"datavalue": {"value": "Q146"}}}]}
         }
         from models.internal_representation.statement_hasher import StatementHasher
+
         old_stmt = {"mainsnak": {"datavalue": {"value": "Q146"}}}
         stmt_hash = StatementHasher.compute_hash(old_stmt)
 
@@ -137,7 +123,9 @@ class TestEntityStatementService:
         )
 
         assert replaced is True
-        assert current_data["claims"]["P31"][0]["mainsnak"]["datavalue"]["value"] == "Q515"
+        assert (
+            current_data["claims"]["P31"][0]["mainsnak"]["datavalue"]["value"] == "Q515"
+        )
 
     def test_find_and_replace_statement_not_found(self) -> None:
         """Test finding statement when hash not found."""
@@ -151,10 +139,4 @@ class TestEntityStatementService:
 
     # _fetch_revision_data
 
-
-
-
     # _store_updated_revision
-
-
-

@@ -1,4 +1,5 @@
 import json
+import logging
 import tempfile
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
@@ -6,6 +7,8 @@ from typing import Any, Dict, List, Tuple
 import pytest
 
 from models.data.rest_api.v1.entitybase.request import EntityJsonImportRequest
+
+logger = logging.getLogger(__name__)
 
 
 class TestJsonImportIntegration:
@@ -117,11 +120,15 @@ class TestJsonImportIntegration:
         self, sample_jsonl_content: Tuple[str, List[Dict[str, Any]]]
     ) -> None:
         """Test processing of individual JSONL lines."""
+        logger.info("=== test_jsonl_line_processing START ===")
         content, entities = sample_jsonl_content
+        logger.debug(f"Processing {len(entities)} entities")
 
         lines = content.strip().split("\n")
+        logger.debug(f"Split into {len(lines)} lines")
 
         for i, line in enumerate(lines):
+            logger.debug(f"Processing line {i+1}/{len(lines)}")
             # Remove trailing comma
             cleaned_line = line[:-1] if line.endswith(",") else line
 
@@ -134,6 +141,9 @@ class TestJsonImportIntegration:
             assert parsed["type"] == expected["type"]
             assert "labels" in parsed
             assert "descriptions" in parsed
+            logger.debug(f"Line {i+1} validated successfully")
+
+        logger.info("=== test_jsonl_line_processing END ===")
 
     @pytest.mark.parametrize(
         "line_content,should_fail",
