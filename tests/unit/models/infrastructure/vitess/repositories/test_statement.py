@@ -12,6 +12,8 @@ class TestStatementRepository:
         """Test successful content insertion."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None  # not exists
         mock_vitess_client.cursor = mock_cursor
 
@@ -25,6 +27,8 @@ class TestStatementRepository:
         """Test inserting content that already exists."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (1,)  # exists
         mock_vitess_client.cursor = mock_cursor
 
@@ -39,6 +43,8 @@ class TestStatementRepository:
         """Test successful ref count increment."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (5,)  # new count
         mock_vitess_client.cursor = mock_cursor
 
@@ -64,6 +70,8 @@ class TestStatementRepository:
         """Test successful ref count decrement."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (3,)  # new count
         mock_vitess_client.cursor = mock_cursor
 
@@ -78,6 +86,8 @@ class TestStatementRepository:
         """Test getting orphaned content."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = [(12345,), (67890,)]
         mock_vitess_client.cursor = mock_cursor
 
@@ -103,6 +113,8 @@ class TestStatementRepository:
         """Test getting most used content."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = [(12345,), (67890,)]
         mock_vitess_client.cursor = mock_cursor
 
@@ -116,6 +128,8 @@ class TestStatementRepository:
         """Test content insertion with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
@@ -131,6 +145,8 @@ class TestStatementRepository:
         """Test decrement resulting in zero."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (0,)  # new count
         mock_vitess_client.cursor = mock_cursor
 
@@ -145,6 +161,8 @@ class TestStatementRepository:
         """Test getting orphaned with no results."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = []
         mock_vitess_client.cursor = mock_cursor
 
@@ -159,6 +177,8 @@ class TestStatementRepository:
         """Test getting most used with no results."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = []
         mock_vitess_client.cursor = mock_cursor
 

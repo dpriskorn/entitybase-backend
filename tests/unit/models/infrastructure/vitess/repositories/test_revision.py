@@ -53,6 +53,8 @@ class TestRevisionRepository:
         """Test getting content_hash for existing revision."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (12345678901234567890,)
         mock_vitess_client.cursor = mock_cursor
 
@@ -67,6 +69,8 @@ class TestRevisionRepository:
         """Test create_with_cas() includes content_hash in INSERT."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.rowcount = 1
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
@@ -91,7 +95,13 @@ class TestRevisionRepository:
             state=EntityState(),
         )
 
-        result = repo.create_with_cas("Q123", 1, entity_data, expected_revision_id=0, content_hash=12345678901234567890)
+        result = repo.create_with_cas(
+            "Q123",
+            1,
+            entity_data,
+            expected_revision_id=0,
+            content_hash=12345678901234567890,
+        )
 
         assert result is True
         mock_cursor.execute.assert_called()
@@ -99,5 +109,3 @@ class TestRevisionRepository:
         for call in call_args_list:
             if call[0][0] and "INSERT INTO entity_revisions" in call[0][0]:
                 assert "content_hash" in call[0][0]
-
-

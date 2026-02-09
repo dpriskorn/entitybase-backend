@@ -12,6 +12,8 @@ class TestWatchlistRepository:
         """Test getting entity watch count."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_connection_manager = MagicMock()
         mock_connection = MagicMock()
         mock_connection_manager.connect.return_value = mock_connection
@@ -32,6 +34,8 @@ class TestWatchlistRepository:
         """Test getting zero entity watch count."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_connection_manager = MagicMock()
         mock_connection = MagicMock()
         mock_connection_manager.connect.return_value = mock_connection
@@ -52,6 +56,8 @@ class TestWatchlistRepository:
         """Test getting property watch count."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_connection_manager = MagicMock()
         mock_connection = MagicMock()
         mock_connection_manager.connect.return_value = mock_connection
@@ -71,6 +77,8 @@ class TestWatchlistRepository:
         """Test adding watch successfully."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_connection_manager = MagicMock()
         mock_connection = MagicMock()
@@ -137,6 +145,8 @@ class TestWatchlistRepository:
         mock_connection.__exit__ = MagicMock(return_value=None)
         mock_id_resolver.resolve_id.return_value = 456
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
         mock_vitess_client.id_resolver = mock_id_resolver
@@ -153,6 +163,8 @@ class TestWatchlistRepository:
         """Test removing watch successfully."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 456
         mock_vitess_client.cursor = mock_cursor
@@ -167,6 +179,8 @@ class TestWatchlistRepository:
         """Test removing watch by ID successfully."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_connection_manager = MagicMock()
         mock_connection = MagicMock()
         mock_connection_manager.connect.return_value = mock_connection
@@ -186,6 +200,8 @@ class TestWatchlistRepository:
         """Test removing watch by ID when not found."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_connection_manager = MagicMock()
         mock_connection = MagicMock()
         mock_connection_manager.connect.return_value = mock_connection
@@ -206,6 +222,8 @@ class TestWatchlistRepository:
         """Test getting watches for user."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_connection_manager = MagicMock()
         mock_connection = MagicMock()
@@ -231,6 +249,8 @@ class TestWatchlistRepository:
         """Test getting watchers for entity."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_connection_manager = MagicMock()
         mock_connection = MagicMock()
@@ -256,6 +276,8 @@ class TestWatchlistRepository:
         """Test getting notification count."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_connection_manager = MagicMock()
         mock_connection = MagicMock()
         mock_connection_manager.connect.return_value = mock_connection
@@ -275,6 +297,8 @@ class TestWatchlistRepository:
         """Test getting user notifications."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_connection_manager = MagicMock()
         mock_connection = MagicMock()
         mock_connection_manager.connect.return_value = mock_connection
@@ -299,6 +323,8 @@ class TestWatchlistRepository:
         """Test marking notification as checked."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_connection_manager = MagicMock()
         mock_connection = MagicMock()
         mock_connection_manager.connect.return_value = mock_connection

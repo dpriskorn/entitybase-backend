@@ -12,6 +12,8 @@ class TestEndorsementRepository:
         """Test endorsement creation when statement doesn't exist."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None  # statement not found
         mock_vitess_client.cursor = mock_cursor
 
@@ -26,7 +28,12 @@ class TestEndorsementRepository:
         """Test endorsement creation when already endorsed."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
-        mock_cursor.fetchone.side_effect = [(1,), (1, None)]  # statement exists, existing active endorsement
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_cursor.fetchone.side_effect = [
+            (1,),
+            (1, None),
+        ]  # statement exists, existing active endorsement
         mock_vitess_client.cursor = mock_cursor
 
         repo = EndorsementRepository(vitess_client=mock_vitess_client)
@@ -51,6 +58,8 @@ class TestEndorsementRepository:
         """Test successful endorsement withdrawal."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (123,)  # existing endorsement
         mock_vitess_client.cursor = mock_cursor
 
@@ -65,6 +74,8 @@ class TestEndorsementRepository:
         """Test withdrawal when no active endorsement exists."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None  # no active endorsement
         mock_vitess_client.cursor = mock_cursor
 
@@ -77,6 +88,7 @@ class TestEndorsementRepository:
 
     def test_get_statement_endorsements_success(self):
         """Test getting statement endorsements."""
+
     pass
 
     def test_get_statement_endorsements_invalid_params(self):
@@ -94,6 +106,8 @@ class TestEndorsementRepository:
         """Test getting user endorsement stats."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.side_effect = [(10,), (7,)]  # total, active
         mock_vitess_client.cursor = mock_cursor
 
@@ -109,7 +123,12 @@ class TestEndorsementRepository:
         """Test reactivation when endorsed by different user."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
-        mock_cursor.fetchone.side_effect = [(456,), (1, None)]  # author, existing endorsement by different user
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_cursor.fetchone.side_effect = [
+            (456,),
+            (1, None),
+        ]  # author, existing endorsement by different user
         mock_vitess_client.cursor = mock_cursor
 
         repo = EndorsementRepository(vitess_client=mock_vitess_client)
@@ -123,6 +142,8 @@ class TestEndorsementRepository:
         """Test withdrawing non-existent endorsement."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None  # no endorsement
         mock_vitess_client.cursor = mock_cursor
 
@@ -133,16 +154,12 @@ class TestEndorsementRepository:
         assert result.success is False
         assert "No active endorsement found" in result.error
 
-
-
-
-
-
-
     def test_get_batch_statement_endorsement_stats_mixed(self):
         """Test batch stats with mix of statements with and without endorsements."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = [
             (789, 3, 2, 1),  # has endorsements
             # 790 has none, not in results
@@ -164,6 +181,8 @@ class TestEndorsementRepository:
         """Test getting statement endorsements with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -178,6 +197,8 @@ class TestEndorsementRepository:
         """Test getting user endorsements with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -192,6 +213,8 @@ class TestEndorsementRepository:
         """Test getting user endorsement stats with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -206,6 +229,8 @@ class TestEndorsementRepository:
         """Test batch stats with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -220,6 +245,8 @@ class TestEndorsementRepository:
         """Test withdrawal with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (123,)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
@@ -235,7 +262,12 @@ class TestEndorsementRepository:
         """Test endorsement creation reactivating a previously removed endorsement."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
-        mock_cursor.fetchone.side_effect = [(1,), (1, "2023-01-01")]  # statement exists, existing removed endorsement
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
+        mock_cursor.fetchone.side_effect = [
+            (1,),
+            (1, "2023-01-01"),
+        ]  # statement exists, existing removed endorsement
         mock_vitess_client.cursor = mock_cursor
 
         repo = EndorsementRepository(vitess_client=mock_vitess_client)
@@ -256,12 +288,6 @@ class TestEndorsementRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
-
-
-
-
-
-
     def test_get_user_endorsements_invalid_params(self):
         """Test getting user endorsements with invalid params."""
         mock_vitess_client = MagicMock()
@@ -277,9 +303,11 @@ class TestEndorsementRepository:
         """Test getting batch statement endorsement stats."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = [
             (789, 5, 3, 2),  # statement_hash, total, active, withdrawn
-            (790, 2, 2, 0)
+            (790, 2, 2, 0),
         ]
         mock_vitess_client.cursor = mock_cursor
 
@@ -296,6 +324,8 @@ class TestEndorsementRepository:
         """Test getting batch stats with no endorsements."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = []
         mock_vitess_client.cursor = mock_cursor
 
@@ -318,12 +348,12 @@ class TestEndorsementRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
-
-
     def test_create_endorsement_database_error(self):
         """Test endorsement creation with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (1,)  # statement exists
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
@@ -338,9 +368,12 @@ class TestEndorsementRepository:
     def test_create_endorsement_logging_success(self, caplog):
         """Test that creating endorsement logs debug message on success."""
         import logging
+
         caplog.set_level(logging.DEBUG)
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (1,)  # statement exists
         mock_cursor.lastrowid = 123
         mock_vitess_client.cursor = mock_cursor
@@ -354,9 +387,12 @@ class TestEndorsementRepository:
     def test_withdraw_endorsement_logging_success(self, caplog):
         """Test that withdrawing endorsement logs debug message."""
         import logging
+
         caplog.set_level(logging.DEBUG)
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (123,)  # existing endorsement
         mock_vitess_client.cursor = mock_cursor
 
@@ -369,9 +405,12 @@ class TestEndorsementRepository:
     def test_get_statement_endorsements_logging_success(self, caplog):
         """Test that getting statement endorsements logs error on failure."""
         import logging
+
         caplog.set_level(logging.ERROR)
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -384,9 +423,12 @@ class TestEndorsementRepository:
     def test_get_user_endorsements_logging_success(self, caplog):
         """Test that getting user endorsements logs error on failure."""
         import logging
+
         caplog.set_level(logging.ERROR)
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -399,9 +441,12 @@ class TestEndorsementRepository:
     def test_get_user_endorsement_stats_logging_success(self, caplog):
         """Test that getting user endorsement stats logs error on failure."""
         import logging
+
         caplog.set_level(logging.ERROR)
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -414,9 +459,12 @@ class TestEndorsementRepository:
     def test_get_batch_statement_endorsement_stats_logging_success(self, caplog):
         """Test that getting batch stats logs error on failure."""
         import logging
+
         caplog.set_level(logging.ERROR)
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -424,4 +472,6 @@ class TestEndorsementRepository:
 
         repo.get_batch_statement_endorsement_stats([789])
 
-        assert "Error getting batch statement endorsement stats: DB error" in caplog.text
+        assert (
+            "Error getting batch statement endorsement stats: DB error" in caplog.text
+        )

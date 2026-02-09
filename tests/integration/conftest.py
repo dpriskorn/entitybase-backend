@@ -365,7 +365,7 @@ def s3_client(s3_config):
 
     start_time = time_module.time()
     logger.debug("=== s3_client fixture START ===")
-    logger.debug(f"pytest:s3_client: Running, S3 endpoint: {s3_config.endpoint}")
+    logger.debug(f"pytest:s3_client: Running, S3 endpoint: {s3_config.endpoint_url}")
 
     max_retries = 5
     for attempt in range(max_retries):
@@ -393,3 +393,38 @@ def s3_client(s3_config):
                 raise
             logger.debug(f"Waiting 1s before retry...")
             time_module.sleep(1)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def initialized_app(vitess_client, s3_client):
+    """Initialize the FastAPI app with state_handler for integration tests.
+
+    This fixture ensures that app.state.state_handler is properly initialized
+    before tests run, preventing 503 errors from StartupMiddleware.
+
+    Session-scoped to avoid redundant health checks for each test.
+    """
+    import time as time_module
+    start_time = time_module.time()
+    logger.info("=== initialized_app fixture START ===")
+    from models.rest_api.main import app
+    from models.rest_api.entitybase.v1.handlers.state import StateHandler
+
+    logger.debug("Creating StateHandler...")
+    state_handler = StateHandler(settings=settings)
+    logger.debug("StateHandler created, calling start()...")
+    state_handler.start()
+    logger.debug("StateHandler started")
+
+    app.state.state_handler = state_handler
+    logger.debug(f"initialized_app fixture ready in {(time_module.time() - start_time):.2f}s")
+
+    yield
+
+    logger.debug("Disconnecting StateHandler...")
+    if state_handler:
+        state_handler.disconnect()
+        logger.debug("StateHandler disconnected in initialized_app fixture")
+    logger.debug(
+        f"=== initialized_app fixture END total time: {(time_module.time() - start_time):.2f}s ==="
+    )

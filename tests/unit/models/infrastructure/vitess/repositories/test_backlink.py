@@ -11,8 +11,6 @@ from models.infrastructure.vitess.repositories.backlink import BacklinkRepositor
 class TestBacklinkRepository:
     """Unit tests for BacklinkRepository."""
 
-
-
     def test_insert_backlinks_empty(self):
         """Test inserting empty backlinks list."""
         mock_vitess_client = MagicMock()
@@ -23,12 +21,12 @@ class TestBacklinkRepository:
 
         assert result.success is True
 
-
-
     def test_delete_backlinks_for_entity_success(self):
         """Test successful backlink deletion."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_vitess_client.cursor = mock_cursor
 
         repo = BacklinkRepository(vitess_client=mock_vitess_client)
@@ -55,6 +53,8 @@ class TestBacklinkRepository:
         """Test getting backlinks."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = [(2, 123, "P31", "normal")]
         mock_vitess_client.cursor = mock_cursor
 
@@ -70,6 +70,8 @@ class TestBacklinkRepository:
         """Test getting backlinks when none exist."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = []
         mock_vitess_client.cursor = mock_cursor
 
@@ -83,11 +85,15 @@ class TestBacklinkRepository:
         """Test successful statistics insertion."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_vitess_client.cursor = mock_cursor
 
         repo = BacklinkRepository(vitess_client=mock_vitess_client)
 
-        repo.insert_backlink_statistics("2023-01-01", 100, 50, [{"id": "Q1", "count": 10}])
+        repo.insert_backlink_statistics(
+            "2023-01-01", 100, 50, [{"id": "Q1", "count": 10}]
+        )
 
         mock_cursor.execute.assert_called_once()
 
@@ -113,6 +119,8 @@ class TestBacklinkRepository:
         """Test getting backlinks with limit and offset."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = [(2, 456, "P31", "normal")]
         mock_vitess_client.cursor = mock_cursor
 
@@ -146,6 +154,8 @@ class TestBacklinkRepository:
         """Test deletion with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -173,6 +183,8 @@ class TestBacklinkRepository:
         """Test statistics insertion with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("Insert failed")
         mock_vitess_client.cursor = mock_cursor
 

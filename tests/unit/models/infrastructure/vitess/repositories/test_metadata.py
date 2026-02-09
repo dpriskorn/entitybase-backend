@@ -13,6 +13,8 @@ class TestMetadataRepository:
         """Test inserting metadata content successfully."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_vitess_client.cursor = mock_cursor
 
         repo = MetadataRepository(vitess_client=mock_vitess_client)
@@ -25,6 +27,8 @@ class TestMetadataRepository:
         """Test inserting metadata content with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -39,6 +43,8 @@ class TestMetadataRepository:
         """Test getting metadata content successfully."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (5,)
         mock_vitess_client.cursor = mock_cursor
 
@@ -54,6 +60,8 @@ class TestMetadataRepository:
         """Test getting metadata content when not found."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None
         mock_vitess_client.cursor = mock_cursor
 
@@ -90,6 +98,8 @@ class TestMetadataRepository:
         """Test decrementing ref count successfully."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (3,)
         mock_vitess_client.cursor = mock_cursor
 
@@ -104,6 +114,8 @@ class TestMetadataRepository:
         """Test decrementing ref count to zero."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (0,)
         mock_vitess_client.cursor = mock_cursor
 
@@ -118,6 +130,8 @@ class TestMetadataRepository:
         """Test decrementing ref count when content not found."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None
         mock_vitess_client.cursor = mock_cursor
 
@@ -143,6 +157,8 @@ class TestMetadataRepository:
         """Test decrementing ref count with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -157,6 +173,8 @@ class TestMetadataRepository:
         """Test deleting metadata content successfully."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_vitess_client.cursor = mock_cursor
 
         repo = MetadataRepository(vitess_client=mock_vitess_client)

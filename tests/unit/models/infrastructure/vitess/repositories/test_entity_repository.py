@@ -12,6 +12,8 @@ class TestEntityRepository:
         """Test getting head revision when entity exists."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.return_value = (456,)
@@ -41,6 +43,8 @@ class TestEntityRepository:
         """Test getting head when no record exists."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.return_value = None
@@ -57,6 +61,8 @@ class TestEntityRepository:
         """Test checking if entity is deleted."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.return_value = (True,)
@@ -73,6 +79,8 @@ class TestEntityRepository:
         """Test checking if entity is not deleted."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.return_value = (False,)
@@ -89,6 +97,8 @@ class TestEntityRepository:
         """Test checking if entity is locked."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.return_value = (True,)

@@ -13,6 +13,8 @@ class TestRedirectRepository:
         """Test successful redirect target setting."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.side_effect = [123, 456]  # from, to
         mock_cursor.rowcount = 1
@@ -43,6 +45,8 @@ class TestRedirectRepository:
         """Test CAS failure in set_target."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.side_effect = [123, 456]
         mock_cursor.rowcount = 0  # no rows affected
@@ -60,6 +64,8 @@ class TestRedirectRepository:
         """Test successful redirect creation."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.side_effect = [123, 456]
         mock_vitess_client.cursor = mock_cursor
@@ -87,6 +93,8 @@ class TestRedirectRepository:
         """Test getting incoming redirects."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchall.return_value = [("Q1",), ("Q2",)]
@@ -116,6 +124,8 @@ class TestRedirectRepository:
         """Test getting redirect target when exists."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.return_value = ("Q2",)
@@ -132,6 +142,8 @@ class TestRedirectRepository:
         """Test getting target when no redirect exists."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.return_value = None
@@ -148,6 +160,8 @@ class TestRedirectRepository:
         """Test setting target with no redirects_to."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.rowcount = 1
@@ -164,6 +178,8 @@ class TestRedirectRepository:
         """Test redirect creation with custom created_by."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.side_effect = [123, 456]
         mock_vitess_client.cursor = mock_cursor
@@ -179,6 +195,8 @@ class TestRedirectRepository:
         """Test getting multiple incoming redirects."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchall.return_value = [("Q1",), ("Q2",), ("Q3",)]

@@ -13,6 +13,8 @@ class TestListingRepository:
         """Test listing locked entities."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = [("Q1", "item"), ("Q2", "property")]
         mock_vitess_client.cursor = mock_cursor
 
@@ -29,6 +31,8 @@ class TestListingRepository:
         """Test listing locked entities when none exist."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = []
         mock_vitess_client.cursor = mock_cursor
 
@@ -42,6 +46,8 @@ class TestListingRepository:
         """Test listing semi-protected entities."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = [("Q3", "item")]
         mock_vitess_client.cursor = mock_cursor
 
@@ -56,6 +62,8 @@ class TestListingRepository:
         """Test listing archived entities."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = [("Q4", "property")]
         mock_vitess_client.cursor = mock_cursor
 
@@ -70,6 +78,8 @@ class TestListingRepository:
         """Test listing dangling entities."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = [("Q5", "item")]
         mock_vitess_client.cursor = mock_cursor
 
@@ -84,6 +94,8 @@ class TestListingRepository:
         """Test listing semi-protected entities when none exist."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = []
         mock_vitess_client.cursor = mock_cursor
 
@@ -97,6 +109,8 @@ class TestListingRepository:
         """Test listing archived entities when none exist."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = []
         mock_vitess_client.cursor = mock_cursor
 
@@ -110,6 +124,8 @@ class TestListingRepository:
         """Test listing dangling entities when none exist."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = []
         mock_vitess_client.cursor = mock_cursor
 
@@ -123,6 +139,8 @@ class TestListingRepository:
         """Test listing entities by edit type when none exist."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = []
         mock_vitess_client.cursor = mock_cursor
 

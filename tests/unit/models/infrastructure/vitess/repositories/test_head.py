@@ -10,10 +10,14 @@ class TestHeadRepository:
 
     def test_cas_update_with_status_success(self):
         """Test successful CAS update with status flags."""
-        from models.data.rest_api.v1.entitybase.request.entity.context import EntityHeadUpdateContext
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            EntityHeadUpdateContext,
+        )
 
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.rowcount = 1
@@ -40,7 +44,9 @@ class TestHeadRepository:
 
     def test_cas_update_with_status_entity_not_found(self):
         """Test CAS update when entity not found."""
-        from models.data.rest_api.v1.entitybase.request.entity.context import EntityHeadUpdateContext
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            EntityHeadUpdateContext,
+        )
 
         mock_vitess_client = MagicMock()
         mock_id_resolver = MagicMock()
@@ -57,10 +63,14 @@ class TestHeadRepository:
 
     def test_cas_update_with_status_cas_failure(self):
         """Test CAS update when head mismatch."""
-        from models.data.rest_api.v1.entitybase.request.entity.context import EntityHeadUpdateContext
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            EntityHeadUpdateContext,
+        )
 
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.rowcount = 0  # No rows affected
@@ -77,10 +87,14 @@ class TestHeadRepository:
 
     def test_cas_update_with_status_database_error(self):
         """Test CAS update with database error."""
-        from models.data.rest_api.v1.entitybase.request.entity.context import EntityHeadUpdateContext
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            EntityHeadUpdateContext,
+        )
 
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.execute.side_effect = Exception("DB error")
@@ -99,6 +113,8 @@ class TestHeadRepository:
         """Test successful hard delete."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_vitess_client.cursor = mock_cursor
@@ -128,6 +144,8 @@ class TestHeadRepository:
         """Test successful soft delete."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_vitess_client.cursor = mock_cursor
@@ -157,6 +175,8 @@ class TestHeadRepository:
         """Test getting head revision successfully."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (15,)
         mock_vitess_client.cursor = mock_cursor
 
@@ -171,6 +191,8 @@ class TestHeadRepository:
         """Test getting head revision when entity not found."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None
         mock_vitess_client.cursor = mock_cursor
 
@@ -196,6 +218,8 @@ class TestHeadRepository:
         """Test getting head revision with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 

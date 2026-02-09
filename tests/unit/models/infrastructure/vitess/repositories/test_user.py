@@ -14,6 +14,8 @@ class TestUserRepository:
         """Test successful user creation."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_vitess_client.cursor = mock_cursor
 
         repo = UserRepository(vitess_client=mock_vitess_client)
@@ -27,6 +29,8 @@ class TestUserRepository:
         """Test user creation with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -41,6 +45,8 @@ class TestUserRepository:
         """Test user exists when found."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (1,)
         mock_vitess_client.cursor = mock_cursor
 
@@ -57,6 +63,8 @@ class TestUserRepository:
         """Test user does not exist."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None
         mock_vitess_client.cursor = mock_cursor
 
@@ -70,6 +78,8 @@ class TestUserRepository:
         """Test getting existing user."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (123, "2023-01-01", {"theme": "dark"})
         mock_vitess_client.cursor = mock_cursor
 
@@ -85,6 +95,8 @@ class TestUserRepository:
         """Test getting non-existent user."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None
         mock_vitess_client.cursor = mock_cursor
 
@@ -98,6 +110,8 @@ class TestUserRepository:
         """Test successful user activity update."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_vitess_client.cursor = mock_cursor
 
         repo = UserRepository(vitess_client=mock_vitess_client)
@@ -121,6 +135,8 @@ class TestUserRepository:
         """Test checking if watchlist is enabled."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (True,)
         mock_vitess_client.cursor = mock_cursor
 
@@ -134,6 +150,8 @@ class TestUserRepository:
         """Test checking if watchlist is disabled."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (False,)
         mock_vitess_client.cursor = mock_cursor
 
@@ -147,6 +165,8 @@ class TestUserRepository:
         """Test checking watchlist for non-existent user."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None
         mock_vitess_client.cursor = mock_cursor
 
@@ -160,6 +180,8 @@ class TestUserRepository:
         """Test enabling watchlist."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_vitess_client.cursor = mock_cursor
 
         repo = UserRepository(vitess_client=mock_vitess_client)
@@ -183,6 +205,8 @@ class TestUserRepository:
         """Test disabling watchlist."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_vitess_client.cursor = mock_cursor
 
         repo = UserRepository(vitess_client=mock_vitess_client)
@@ -199,21 +223,24 @@ class TestUserRepository:
         """Test logging user activity."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_vitess_client.cursor = mock_cursor
 
         repo = UserRepository(vitess_client=mock_vitess_client)
 
         from models.data.rest_api.v1.entitybase.request import UserActivityType
+
         result = repo.log_user_activity(123, UserActivityType.ENTITY_EDIT, "Q1", 1)
 
         assert result.success is True
-
-
 
     def test_get_user_preferences_success(self):
         """Test getting user preferences."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = (50, 24)
         mock_vitess_client.cursor = mock_cursor
 
@@ -229,6 +256,8 @@ class TestUserRepository:
         """Test getting preferences for non-existent user."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None
         mock_vitess_client.cursor = mock_cursor
 
@@ -243,6 +272,8 @@ class TestUserRepository:
         """Test updating user preferences."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_vitess_client.cursor = mock_cursor
 
         repo = UserRepository(vitess_client=mock_vitess_client)
@@ -262,8 +293,6 @@ class TestUserRepository:
         assert result.success is False
         assert "Invalid user ID" in result.error
 
-
-
     def test_get_user_activities_invalid_params(self):
         """Test getting activities with invalid params."""
         mock_vitess_client = MagicMock()
@@ -279,6 +308,8 @@ class TestUserRepository:
         """Test successful user creation for new user."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None  # user doesn't exist
         mock_vitess_client.cursor = mock_cursor
 
@@ -288,12 +319,12 @@ class TestUserRepository:
 
         assert result.success is True
 
-
-
     def test_get_user_not_found_case(self):
         """Test getting non-existent user."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None
         mock_vitess_client.cursor = mock_cursor
 
@@ -307,6 +338,8 @@ class TestUserRepository:
         """Test user activity update with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -321,6 +354,8 @@ class TestUserRepository:
         """Test watchlist check for non-existent user."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None
         mock_vitess_client.cursor = mock_cursor
 
@@ -334,6 +369,8 @@ class TestUserRepository:
         """Test setting watchlist with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -348,6 +385,8 @@ class TestUserRepository:
         """Test getting preferences for non-existent user."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.return_value = None
         mock_vitess_client.cursor = mock_cursor
 
@@ -362,6 +401,8 @@ class TestUserRepository:
         """Test updating preferences with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -376,6 +417,8 @@ class TestUserRepository:
         """Test getting activities when user has none."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.return_value = []  # no activities
         mock_vitess_client.cursor = mock_cursor
 
@@ -390,6 +433,8 @@ class TestUserRepository:
         """Test user exists with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -402,6 +447,8 @@ class TestUserRepository:
         """Test get user with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -414,6 +461,8 @@ class TestUserRepository:
         """Test watchlist check with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -426,6 +475,8 @@ class TestUserRepository:
         """Test logging activity with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.execute.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 

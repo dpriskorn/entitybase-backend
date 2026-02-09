@@ -17,7 +17,7 @@ class TestLifespanFailureScenarios:
         app_mock = FastAPI()
         with patch(
             "models.rest_api.main.StateHandler",
-            side_effect=RuntimeError("Failed to initialize")
+            side_effect=RuntimeError("Failed to initialize"),
         ):
             with pytest.raises(RuntimeError):
                 async with lifespan(app_mock):
@@ -136,8 +136,11 @@ class TestStartupMiddleware:
 
         class MockState:
             """Mock state that raises AttributeError for missing attributes."""
+
             def __getattr__(self, name):
-                raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+                raise AttributeError(
+                    f"'{type(self).__name__}' object has no attribute '{name}'"
+                )
 
         request.app.state = MockState()
 
@@ -154,14 +157,13 @@ class TestStartupMiddleware:
 class TestHealthCheckWithStateHandler:
     """Test health check endpoint with various state_handler states."""
 
-    @pytest.mark.asyncio
-    async def test_health_check_without_state_handler(self, client):
+    def test_health_check_without_state_handler(self, api_client):
         """Test health check returns 503 when state_handler is not set."""
         from models.rest_api.main import app
 
         app.state.__dict__.pop("state_handler", None)
 
-        response = await client.get("/health")
+        response = api_client.get("/health")
 
         assert response.status_code == 503
         data = response.json()
@@ -169,28 +171,26 @@ class TestHealthCheckWithStateHandler:
         assert data["s3"] == "disconnected"
         assert data["vitess"] == "disconnected"
 
-    @pytest.mark.asyncio
-    async def test_health_check_with_none_state_handler(self, client):
+    def test_health_check_with_none_state_handler(self, api_client):
         """Test health check returns 503 when state_handler is None."""
         from models.rest_api.main import app
 
         app.state.state_handler = None
 
-        response = await client.get("/health")
+        response = api_client.get("/health")
 
         assert response.status_code == 503
         data = response.json()
         assert data["status"] == "starting"
 
-    @pytest.mark.asyncio
-    async def test_health_check_returns_timestamp(self, client):
+    def test_health_check_returns_timestamp(self, api_client):
         """Test health check always returns timestamp."""
         from models.rest_api.main import app
         from datetime import datetime
 
         app.state.__dict__.pop("state_handler", None)
 
-        response = await client.get("/health")
+        response = api_client.get("/health")
 
         data = response.json()
         assert "timestamp" in data

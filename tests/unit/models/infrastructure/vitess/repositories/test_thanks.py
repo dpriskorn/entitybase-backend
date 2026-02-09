@@ -13,6 +13,8 @@ class TestThanksRepository:
         """Test successful thank sending."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.side_effect = [(456,), None]  # author, no existing thank
@@ -45,6 +47,8 @@ class TestThanksRepository:
         """Test sending thank when revision not found."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.return_value = None  # no revision
@@ -62,6 +66,8 @@ class TestThanksRepository:
         """Test sending thank to own revision."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.return_value = (111,)  # same user
@@ -79,6 +85,8 @@ class TestThanksRepository:
         """Test sending thank when already thanked."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.side_effect = [(456,), (1,)]  # author, existing thank
@@ -103,8 +111,6 @@ class TestThanksRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
-
-
     def test_get_thanks_received_invalid_params(self):
         """Test getting thanks received with invalid params."""
         mock_vitess_client = MagicMock()
@@ -120,6 +126,8 @@ class TestThanksRepository:
         """Test getting thanks for a revision."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchall.return_value = [(1, 111, 222, "Q1", 1, "2023-01-01")]
@@ -138,6 +146,8 @@ class TestThanksRepository:
         """Test getting thanks received with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -152,6 +162,8 @@ class TestThanksRepository:
         """Test getting thanks sent with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -166,6 +178,8 @@ class TestThanksRepository:
         """Test getting revision thanks with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchall.side_effect = Exception("DB error")
@@ -183,6 +197,8 @@ class TestThanksRepository:
         """Test sending thank when already sent."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.side_effect = [(456,), (1,)]  # author, existing thank
@@ -200,6 +216,8 @@ class TestThanksRepository:
         """Test sending thank with database error."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchone.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -209,12 +227,6 @@ class TestThanksRepository:
 
         assert result.success is False
         assert "DB error" in result.error
-
-
-
-
-
-
 
     def test_get_thanks_sent_invalid_params(self):
         """Test getting thanks sent with invalid params."""
@@ -227,14 +239,12 @@ class TestThanksRepository:
         assert result.success is False
         assert "Invalid parameters" in result.error
 
-
-
-
-
     def test_get_revision_thanks_no_thanks(self):
         """Test getting thanks for revision with none."""
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchall.return_value = []  # no thanks
@@ -265,9 +275,12 @@ class TestThanksRepository:
     def test_send_thank_logging_success(self, caplog):
         """Test that sending thank logs debug message."""
         import logging
+
         caplog.set_level(logging.DEBUG)
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchone.side_effect = [(456,), None]  # author, no existing thank
@@ -284,9 +297,12 @@ class TestThanksRepository:
     def test_get_thanks_received_logging_error(self, caplog):
         """Test that getting thanks received logs error on failure."""
         import logging
+
         caplog.set_level(logging.ERROR)
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -299,9 +315,12 @@ class TestThanksRepository:
     def test_get_thanks_sent_logging_error(self, caplog):
         """Test that getting thanks sent logs error on failure."""
         import logging
+
         caplog.set_level(logging.ERROR)
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_cursor.fetchall.side_effect = Exception("DB error")
         mock_vitess_client.cursor = mock_cursor
 
@@ -314,9 +333,12 @@ class TestThanksRepository:
     def test_get_revision_thanks_logging_error(self, caplog):
         """Test that getting revision thanks logs error on failure."""
         import logging
+
         caplog.set_level(logging.ERROR)
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
+        mock_cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_cursor.__exit__ = MagicMock(return_value=False)
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = 123
         mock_cursor.fetchall.side_effect = Exception("DB error")
