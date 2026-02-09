@@ -19,6 +19,7 @@ class TestVitessConnectionManager:
             database="test_db"
         )
 
+    def test_healthy_connection_check_success(self):
         """Test healthy connection check success."""
         manager = VitessConnectionManager(config=self.config)
         mock_connection = MagicMock()
@@ -34,7 +35,7 @@ class TestVitessConnectionManager:
         mock_cursor.execute.assert_called_once_with("SELECT 1")
         mock_cursor.close.assert_called_once()
 
-
+    def test_healthy_connection_connects_and_performs_check(self):
         """Test healthy connection connects and performs check."""
         manager = VitessConnectionManager(config=self.config)
         manager.connection = None
@@ -52,7 +53,7 @@ class TestVitessConnectionManager:
             mock_connect.assert_called_once()
             mock_cursor.execute.assert_called_once_with("SELECT 1")
 
-
+    def test_disconnect_when_connection_exists(self):
         """Test disconnecting when connection exists."""
         manager = VitessConnectionManager(config=self.config)
         mock_connection = MagicMock()
@@ -63,12 +64,11 @@ class TestVitessConnectionManager:
         mock_connection.close.assert_called_once()
         assert manager.connection is None
 
-
-        """Test destructor calls disconnect."""
+    def test_disconnect_clears_semaphore(self):
+        """Test that disconnect properly clears the semaphore."""
         manager = VitessConnectionManager(config=self.config)
-        mock_connection = MagicMock()
-        manager.connection = mock_connection
+        
+        manager.disconnect()
 
-        with patch.object(manager, 'disconnect') as mock_disconnect:
-            del manager
-            mock_disconnect.assert_called_once()
+        assert manager.connection_semaphore is None
+        assert manager.pool is None
