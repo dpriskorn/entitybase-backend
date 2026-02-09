@@ -89,6 +89,7 @@ class VitessConnectionManager(BaseModel):
                 f"Could not acquire database connection within {self.config.pool_timeout}s"
             )
 
+        is_overflow = False
         try:
             try:
                 logger.debug(
@@ -102,6 +103,10 @@ class VitessConnectionManager(BaseModel):
             except queue.Empty:
                 logger.debug("Pool empty, creating new connection")
                 connection = self._create_new_connection()
+                is_overflow = True
+
+            if is_overflow:
+                self.overflow_connections.add(connection)
 
             self.active_connections.add(connection)
             logger.debug(f"Successfully acquired connection, active connections: {len(self.active_connections)}")
@@ -135,11 +140,23 @@ class VitessConnectionManager(BaseModel):
             if self.pool.qsize() >= self.config.pool_size:
                 connection.close()
                 logger.debug("Pool full, closed overflow connection")
-                self._release_semaphore()
-                return
-        elif self.pool.qsize() >= self.config.pool_size:
+            else:
+                try:
+                    self.pool.put_nowait(connection)
+                    logger.debug(
+                        f"Released overflow connection to pool, pool size: {self.pool.qsize()}"
+                    )
+                except queue.Full:
+                    connection.close()
+                    logger.debug("Pool full, closed excess connection")
+            self.active_connections.discard(connection)
+            self._release_semaphore()
+            return
+
+        if self.pool.qsize() >= self.config.pool_size:
             connection.close()
             logger.debug("Pool at capacity, closed excess connection")
+            self.active_connections.discard(connection)
             self._release_semaphore()
             return
 

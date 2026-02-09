@@ -67,7 +67,7 @@ class TestVitessConnectionManager:
     def test_disconnect_clears_semaphore(self):
         """Test that disconnect properly clears the semaphore."""
         manager = VitessConnectionManager(config=self.config)
-        
+
         manager.disconnect()
 
         assert manager.connection_semaphore is None
