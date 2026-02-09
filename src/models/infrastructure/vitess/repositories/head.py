@@ -3,7 +3,9 @@
 import logging
 
 from models.data.common import OperationResult
-from models.data.rest_api.v1.entitybase.request.entity.context import EntityHeadUpdateContext
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EntityHeadUpdateContext,
+)
 from models.infrastructure.vitess.repository import Repository
 
 logger = logging.getLogger(__name__)
@@ -22,38 +24,38 @@ class HeadRepository(Repository):
             return OperationResult(success=False, error="Entity not found")
 
         try:
-            cursor = self.vitess_client.cursor
-            cursor.execute(
-                """UPDATE entity_head
-                       SET head_revision_id = %s,
-                           is_semi_protected = %s,
-                           is_locked = %s,
-                           is_archived = %s,
-                           is_dangling = %s,
-                           is_mass_edit_protected = %s,
-                           is_deleted = %s,
-                           is_redirect = %s
-                       WHERE internal_id = %s AND head_revision_id = %s""",
-                (
-                    ctx.new_head,
-                    ctx.is_semi_protected,
-                    ctx.is_locked,
-                    ctx.is_archived,
-                    ctx.is_dangling,
-                    ctx.is_mass_edit_protected,
-                    ctx.is_deleted,
-                    ctx.is_redirect,
-                    internal_id,
-                    ctx.expected_head,
-                ),
-            )
-            affected_rows = int(cursor.rowcount)
-            if affected_rows > 0:
-                return OperationResult(success=True)
-            else:
-                return OperationResult(
-                    success=False, error="CAS failed: head mismatch"
+            with self.vitess_client.cursor as cursor:
+                cursor.execute(
+                    """UPDATE entity_head
+                           SET head_revision_id = %s,
+                               is_semi_protected = %s,
+                               is_locked = %s,
+                               is_archived = %s,
+                               is_dangling = %s,
+                               is_mass_edit_protected = %s,
+                               is_deleted = %s,
+                               is_redirect = %s
+                           WHERE internal_id = %s AND head_revision_id = %s""",
+                    (
+                        ctx.new_head,
+                        ctx.is_semi_protected,
+                        ctx.is_locked,
+                        ctx.is_archived,
+                        ctx.is_dangling,
+                        ctx.is_mass_edit_protected,
+                        ctx.is_deleted,
+                        ctx.is_redirect,
+                        internal_id,
+                        ctx.expected_head,
+                    ),
                 )
+                affected_rows = int(cursor.rowcount)
+                if affected_rows > 0:
+                    return OperationResult(success=True)
+                else:
+                    return OperationResult(
+                        success=False, error="CAS failed: head mismatch"
+                    )
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -64,15 +66,15 @@ class HeadRepository(Repository):
             return OperationResult(success=False, error=f"Entity {entity_id} not found")
 
         try:
-            cursor = self.vitess_client.cursor
-            cursor.execute(
-                """UPDATE entity_head
-                       SET is_deleted = TRUE,
-                           head_revision_id = %s
-                       WHERE internal_id = %s""",
-                (head_revision_id, internal_id),
-            )
-            return OperationResult(success=True)
+            with self.vitess_client.cursor as cursor:
+                cursor.execute(
+                    """UPDATE entity_head
+                           SET is_deleted = TRUE,
+                               head_revision_id = %s
+                           WHERE internal_id = %s""",
+                    (head_revision_id, internal_id),
+                )
+                return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -83,15 +85,15 @@ class HeadRepository(Repository):
             return OperationResult(success=False, error=f"Entity {entity_id} not found")
 
         try:
-            cursor = self.vitess_client.cursor
-            cursor.execute(
-                """UPDATE entity_head
-                        SET is_deleted = TRUE,
-                            head_revision_id = 0
-                        WHERE internal_id = %s""",
-                (internal_id,),
-            )
-            return OperationResult(success=True)
+            with self.vitess_client.cursor as cursor:
+                cursor.execute(
+                    """UPDATE entity_head
+                            SET is_deleted = TRUE,
+                                head_revision_id = 0
+                            WHERE internal_id = %s""",
+                    (internal_id,),
+                )
+                return OperationResult(success=True)
         except Exception as e:
             return OperationResult(success=False, error=str(e))
 
@@ -101,14 +103,14 @@ class HeadRepository(Repository):
             return OperationResult(success=False, error="Invalid internal entity ID")
 
         try:
-            cursor = self.vitess_client.cursor
-            cursor.execute(
-                """SELECT head_revision_id FROM entity_head WHERE internal_id = %s""",
-                (internal_entity_id,),
-            )
-            result = cursor.fetchone()
-            if result and len(result) > 0:
-                return OperationResult(success=True, data=int(result[0]))
-            return OperationResult(success=False, error="Entity not found")
+            with self.vitess_client.cursor as cursor:
+                cursor.execute(
+                    """SELECT head_revision_id FROM entity_head WHERE internal_id = %s""",
+                    (internal_entity_id,),
+                )
+                result = cursor.fetchone()
+                if result and len(result) > 0:
+                    return OperationResult(success=True, data=int(result[0]))
+                return OperationResult(success=False, error="Entity not found")
         except Exception as e:
             return OperationResult(success=False, error=str(e))

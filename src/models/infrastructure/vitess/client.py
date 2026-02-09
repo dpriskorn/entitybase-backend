@@ -11,7 +11,10 @@ from pymysql.connections import Connection
 from models.infrastructure.client import Client
 from models.data.config.vitess import VitessConfig
 from models.infrastructure.s3.revision.revision_data import RevisionData
-from models.infrastructure.vitess.connection import VitessConnectionManager
+from models.infrastructure.vitess.connection import (
+    VitessConnectionManager,
+    CursorContextManager,
+)
 from models.infrastructure.vitess.id_resolver import IdResolver
 from models.rest_api.utils import raise_validation_error
 
@@ -28,10 +31,17 @@ class VitessClient(Client):
     config: VitessConfig
 
     def model_post_init(self, context: Any) -> None:
-        logger.debug(f"Initializing VitessClient with host='{self.config.host}', port={self.config.port}, database='{self.config.database}', user='{self.config.user}', password_length={len(self.config.password)}")
+        logger.info("=== VitessClient.model_post_init() START ===")
+        logger.debug(
+            f"Initializing VitessClient with host='{self.config.host}', port={self.config.port}, database='{self.config.database}', user='{self.config.user}', password_length={len(self.config.password)}"
+        )
+        logger.debug("Creating VitessConnectionManager...")
         self.connection_manager = VitessConnectionManager(config=self.config)
+        logger.debug("VitessConnectionManager created, calling connect()...")
         self.connection_manager.connect()
+        logger.debug("Connection established, creating IdResolver...")
         self.id_resolver = IdResolver(vitess_client=self)
+        logger.info("=== VitessClient.model_post_init() END ===")
         # self.create_tables()
 
     @contextmanager
@@ -47,12 +57,11 @@ class VitessClient(Client):
             self.connection_manager.release(connection)
 
     @property
-    def cursor(self) -> Any:
+    def cursor(self) -> CursorContextManager:
+        """Return a cursor context manager that properly manages connection lifecycle."""
         if self.connection_manager is None:
             raise RuntimeError("Connection manager not initialized")
-        connection = self.connection_manager.acquire()
-        cursor = connection.cursor()
-        return cursor
+        return CursorContextManager(self.connection_manager)
 
     def disconnect(self) -> None:
         """Disconnect from the database and close all pooled connections."""
@@ -61,56 +70,89 @@ class VitessClient(Client):
             logger.info("VitessClient disconnected")
 
     @property
+    def healthy_connection(self) -> bool:
+        """Check if database connection is healthy."""
+        if self.connection_manager is None:
+            logger.warning("Connection manager not initialized")
+            return False
+        return self.connection_manager.healthy_connection
+
+    @property
     def entity_repository(self) -> Any:
         """Get entity repository."""
         from models.infrastructure.vitess.repositories.entity import EntityRepository
+
         return EntityRepository(vitess_client=self)
 
     @property
     def revision_repository(self) -> Any:
         """Get revision repository."""
-        from models.infrastructure.vitess.repositories.revision import RevisionRepository
+        from models.infrastructure.vitess.repositories.revision import (
+            RevisionRepository,
+        )
+
         return RevisionRepository(vitess_client=self)
 
     @property
     def head_repository(self) -> Any:
         """Get head repository."""
         from models.infrastructure.vitess.repositories.head import HeadRepository
+
         return HeadRepository(vitess_client=self)
 
     @property
     def user_repository(self) -> Any:
         """Get user repository."""
         from models.infrastructure.vitess.repositories.user import UserRepository
+
         return UserRepository(vitess_client=self)
 
     @property
     def watchlist_repository(self) -> Any:
         """Get watchlist repository."""
-        from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
+        from models.infrastructure.vitess.repositories.watchlist import (
+            WatchlistRepository,
+        )
+
         return WatchlistRepository(vitess_client=self)
 
     @property
     def endorsement_repository(self) -> Any:
         """Get endorsement repository."""
-        from models.infrastructure.vitess.repositories.endorsement import EndorsementRepository
+        from models.infrastructure.vitess.repositories.endorsement import (
+            EndorsementRepository,
+        )
+
         return EndorsementRepository(vitess_client=self)
 
     @property
     def thanks_repository(self) -> Any:
         """Get thanks repository."""
         from models.infrastructure.vitess.repositories.thanks import ThanksRepository
+
         return ThanksRepository(vitess_client=self)
 
     @property
     def redirect_repository(self) -> Any:
         """Get redirect repository."""
-        from models.infrastructure.vitess.repositories.redirect import RedirectRepository
+        from models.infrastructure.vitess.repositories.redirect import (
+            RedirectRepository,
+        )
+
         return RedirectRepository(vitess_client=self)
 
-    def create_revision(self, entity_id: str, entity_data: RevisionData, revision_id: int, content_hash: int, expected_revision_id: int = 0) -> None:
+    def create_revision(
+        self,
+        entity_id: str,
+        entity_data: RevisionData,
+        revision_id: int,
+        content_hash: int,
+        expected_revision_id: int = 0,
+    ) -> None:
         """Create a new revision."""
-        self.revision_repository.insert_revision(entity_id, revision_id, entity_data, content_hash, expected_revision_id)
+        self.revision_repository.insert_revision(
+            entity_id, revision_id, entity_data, content_hash, expected_revision_id
+        )
 
     def create_tables(self) -> None:
         from models.infrastructure.vitess.repositories.schema import SchemaRepository
@@ -127,11 +169,19 @@ class VitessClient(Client):
     def get_head(self, entity_id: str) -> int:
         return cast(int, self.entity_repository.get_head(entity_id))
 
-    def get_history(self, entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
-        return cast(list[Any], self.revision_repository.get_history(entity_id, limit, offset))
+    def get_history(
+        self, entity_id: str, limit: int = 20, offset: int = 0
+    ) -> list[Any]:
+        return cast(
+            list[Any], self.revision_repository.get_history(entity_id, limit, offset)
+        )
 
-    def get_entity_history(self, entity_id: str, limit: int = 20, offset: int = 0) -> list[Any]:
-        return cast(list[Any], self.revision_repository.get_history(entity_id, limit, offset))
+    def get_entity_history(
+        self, entity_id: str, limit: int = 20, offset: int = 0
+    ) -> list[Any]:
+        return cast(
+            list[Any], self.revision_repository.get_history(entity_id, limit, offset)
+        )
 
     def register_entity(self, entity_id: str) -> None:
         self.id_resolver.register_entity(entity_id)
@@ -144,7 +194,13 @@ class VitessClient(Client):
         content_hash: int,
         expected_revision_id: int = 0,
     ) -> None:
-        self.revision_repository.insert_revision(entity_id=entity_id, revision_id=revision_id, entity_data=entity_data, content_hash=content_hash, expected_revision_id=expected_revision_id)
+        self.revision_repository.insert_revision(
+            entity_id=entity_id,
+            revision_id=revision_id,
+            entity_data=entity_data,
+            content_hash=content_hash,
+            expected_revision_id=expected_revision_id,
+        )
 
     def is_entity_deleted(self, entity_id: str) -> bool:
         return cast(bool, self.entity_repository.is_deleted(entity_id))
@@ -155,7 +211,9 @@ class VitessClient(Client):
     def is_entity_archived(self, entity_id: str) -> bool:
         return cast(bool, self.entity_repository.is_archived(entity_id))
 
-    def list_entities_by_type(self, entity_type: str, limit: int = 100, offset: int = 0) -> list[str]:
+    def list_entities_by_type(
+        self, entity_type: str, limit: int = 100, offset: int = 0
+    ) -> list[str]:
         """List entity IDs by type using pattern matching on entity_id."""
         pattern_map = {
             "item": "Q%",
@@ -165,14 +223,14 @@ class VitessClient(Client):
         pattern = pattern_map.get(entity_type)
         if not pattern:
             return []
-        cursor = self.cursor
-        cursor.execute(
-            """SELECT entity_id FROM entity_id_mapping
-               WHERE entity_id LIKE %s
-               LIMIT %s OFFSET %s""",
-            (pattern, limit, offset),
-        )
-        return [row[0] for row in cursor.fetchall()]
+        with self.cursor as cursor:
+            cursor.execute(
+                """SELECT entity_id FROM entity_id_mapping
+                   WHERE entity_id LIKE %s
+                   LIMIT %s OFFSET %s""",
+                (pattern, limit, offset),
+            )
+            return [row[0] for row in cursor.fetchall()]
 
     def get_redirect_target(self, entity_id: str) -> str:
         """Get the redirect target for an entity."""

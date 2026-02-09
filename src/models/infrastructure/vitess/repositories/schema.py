@@ -22,8 +22,8 @@ class SchemaRepository(Repository):
                 message="Connection manager variable not initialized"
             )
         logger.debug("Database connection validated, creating cursor")
-        cursor = self.vitess_client.cursor
-        cursor.execute(
+        with self.vitess_client.cursor as cursor:
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS entity_id_mapping (
                     entity_id VARCHAR(50) PRIMARY KEY,
@@ -32,7 +32,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS entity_head (
                     internal_id BIGINT UNSIGNED PRIMARY KEY,
@@ -49,7 +49,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS entity_redirects (
                     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -64,7 +64,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS statement_content (
                     content_hash BIGINT UNSIGNED PRIMARY KEY,
@@ -75,7 +75,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS entity_backlinks (
                     referenced_internal_id BIGINT UNSIGNED NOT NULL,
@@ -92,7 +92,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS backlink_statistics (
                     date DATE PRIMARY KEY,
@@ -104,7 +104,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS user_daily_stats (
                     stat_date DATE PRIMARY KEY,
@@ -115,7 +115,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS general_daily_stats (
                     stat_date DATE PRIMARY KEY,
@@ -134,7 +134,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS metadata_content (
                     content_hash BIGINT UNSIGNED NOT NULL,
@@ -148,7 +148,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS entity_revisions (
                     internal_id BIGINT UNSIGNED NOT NULL,
@@ -171,7 +171,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS entity_terms (
                     hash BIGINT PRIMARY KEY,
@@ -182,7 +182,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS id_ranges (
                     entity_type VARCHAR(1) PRIMARY KEY,
@@ -196,8 +196,8 @@ class SchemaRepository(Repository):
             """
             )
 
-        # Initialize ID ranges for each entity type
-        cursor.execute(
+            # Initialize ID ranges for each entity type
+            cursor.execute(
                 """
                 INSERT IGNORE INTO id_ranges (entity_type, current_range_start, current_range_end, range_size) VALUES
                 ('Q', 1, 1000000, 1000000),
@@ -207,7 +207,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS users (
                     user_id BIGINT PRIMARY KEY,
@@ -221,7 +221,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS watchlist (
                     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -235,7 +235,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS user_notifications (
                     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -254,7 +254,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS user_activity (
                     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -269,7 +269,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS user_thanks (
                     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -287,7 +287,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS user_statement_endorsements (
                     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -304,7 +304,7 @@ class SchemaRepository(Repository):
             """
             )
 
-        cursor.execute(
+            cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS lexeme_terms (
                     entity_id VARCHAR(20) NOT NULL,
