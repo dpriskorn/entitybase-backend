@@ -21,6 +21,7 @@ class VitessConnectionManager(BaseModel):
     pool: queue.Queue[Connection] | None = Field(default=None, exclude=True)
     connection_semaphore: threading.Semaphore | None = Field(default=None, exclude=True)
     overflow_connections: set[Connection] = Field(default_factory=set, exclude=True)
+    active_connections: set[Connection] = Field(default_factory=set, exclude=True)
     model_config = {"arbitrary_types_allowed": True}
 
     def model_post_init(self, context: Any) -> None:
@@ -102,7 +103,8 @@ class VitessConnectionManager(BaseModel):
                 logger.debug("Pool empty, creating new connection")
                 connection = self._create_new_connection()
 
-            logger.debug(f"Successfully acquired connection")
+            self.active_connections.add(connection)
+            logger.debug(f"Successfully acquired connection, active connections: {len(self.active_connections)}")
             return connection
         except Exception:
             logger.debug("Exception during acquire, releasing semaphore")
@@ -118,6 +120,7 @@ class VitessConnectionManager(BaseModel):
             logger.warning(
                 "Attempted to release a closed or None connection, discarding"
             )
+            self.active_connections.discard(connection)
             if self.connection_semaphore:
                 try:
                     self.connection_semaphore.release()
@@ -149,6 +152,7 @@ class VitessConnectionManager(BaseModel):
             connection.close()
             logger.debug("Pool full, closed excess connection")
 
+        self.active_connections.discard(connection)
         self._release_semaphore()
 
     def _release_semaphore(self) -> None:
@@ -219,6 +223,14 @@ class VitessConnectionManager(BaseModel):
             except Exception as e:
                 logger.warning(f"Error closing overflow connection: {e}")
         self.overflow_connections.clear()
+
+        for connection in list(self.active_connections):
+            try:
+                if connection.open:
+                    connection.close()
+            except Exception as e:
+                logger.warning(f"Error closing active connection: {e}")
+        self.active_connections.clear()
 
         logger.info("Disconnected all pooled connections")
 
