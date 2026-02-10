@@ -2,57 +2,61 @@
 
 import pytest
 from unittest.mock import MagicMock, patch
+from httpx import ASGITransport, AsyncClient
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-class TestEntityRevisionS3Storage:
-    """Integration tests for entity revision S3 storage."""
+async def test_entity_creation_stores_s3_revision_data(api_prefix: str) -> None:
+    """Test that creating an entity stores S3RevisionData in S3."""
+    from models.rest_api.main import app
 
-    def test_entity_creation_stores_s3_revision_data(self, api_client, base_url) -> None:
-        """Test that creating an entity stores S3RevisionData in S3."""
-        # Mock S3 client to capture S3RevisionData storage
-        with patch("models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client") as mock_s3_client_class:
-            mock_s3_client = MagicMock()
-            mock_s3_client_class.return_value = mock_s3_client
+    # Mock S3 client to capture S3RevisionData storage
+    with patch("models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client") as mock_s3_client_class:
+        mock_s3_client = MagicMock()
+        mock_s3_client_class.return_value = mock_s3_client
 
-            # Create entity with statement
-            entity_data = {
-                "labels": {"en": {"language": "en", "value": "Test Entity"}},
-                "claims": {
-                    "P31": [
-                        {
-                            "mainsnak": {
-                                "snaktype": "value",
-                                "property": "P31",
-                                "datavalue": {
-                                    "value": {
-                                        "id": "Q5",
-                                        "entity-type": "item",
-                                        "numeric-id": 5,
-                                    },
-                                    "type": "wikibase-entityid",
+        # Create entity with statement
+        entity_data = {
+            "labels": {"en": {"language": "en", "value": "Test Entity"}},
+            "claims": {
+                "P31": [
+                    {
+                        "mainsnak": {
+                            "snaktype": "value",
+                            "property": "P31",
+                            "datavalue": {
+                                "value": {
+                                    "id": "Q5",
+                                    "entity-type": "item",
+                                    "numeric-id": 5,
                                 },
+                                "type": "wikibase-entityid",
                             },
-                            "type": "statement",
-                            "rank": "normal",
-                        }
-                    ]
-                },
-            }
+                        },
+                        "type": "statement",
+                        "rank": "normal",
+                    }
+                ]
+            },
+        }
 
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
             # Create entity
-            response = await client.post("/v1/entitybase/entities/base/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+            response = await client.post(f"{api_prefix}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
             assert response.status_code == 201
 
             # Verify S3RevisionData was stored
             mock_s3_client.store_revision.assert_called_once()
 
-            # Check the arguments
+            # Check arguments
             call_args = mock_s3_client.store_revision.call_args
             content_hash = call_args[0][0]  # First argument
             s3_revision_data = call_args[0][1]  # Second argument
 
-            # Verify the S3RevisionData structure
+            # Verify S3RevisionData structure
             assert hasattr(s3_revision_data, 'schema_version')
             assert hasattr(s3_revision_data, 'revision')
             assert hasattr(s3_revision_data, 'content_hash')
@@ -64,17 +68,25 @@ class TestEntityRevisionS3Storage:
             assert "revision_id" in s3_revision_data.revision
             assert s3_revision_data.content_hash == content_hash
 
-    def test_s3_revision_data_content_hash_consistency(self, api_client, base_url) -> None:
-        """Test that S3RevisionData content hash is computed correctly."""
-        with patch("models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client") as mock_s3_client_class:
-            mock_s3_client = MagicMock()
-            mock_s3_client_class.return_value = mock_s3_client
 
-            entity_data = {
-                "labels": {"en": {"language": "en", "value": "Hash Test"}},
-            }
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_s3_revision_data_content_hash_consistency(api_prefix: str) -> None:
+    """Test that S3RevisionData content hash is computed correctly."""
+    from models.rest_api.main import app
 
-            response = await client.post("/v1/entitybase/entities/base/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    with patch("models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client") as mock_s3_client_class:
+        mock_s3_client = MagicMock()
+        mock_s3_client_class.return_value = mock_s3_client
+
+        entity_data = {
+            "labels": {"en": {"language": "en", "value": "Hash Test"}},
+        }
+
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            response = await client.post(f"{api_prefix}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
             assert response.status_code == 201
 
             # Get the stored S3RevisionData
@@ -86,21 +98,29 @@ class TestEntityRevisionS3Storage:
             assert isinstance(stored_hash, int)
             assert stored_hash == stored_data.content_hash
 
-            # The hash should be deterministic for the same data
-            # (This is a basic check - in practice we'd verify against the actual hash function)
+            # The hash should be deterministic for same data
+            # (This is a basic check - in practice we'd verify against actual hash function)
 
-    def test_s3_revision_data_structure_completeness(self, api_client, base_url) -> None:
-        """Test that S3RevisionData.revision contains complete revision data."""
-        with patch("models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client") as mock_s3_client_class:
-            mock_s3_client = MagicMock()
-            mock_s3_client_class.return_value = mock_s3_client
 
-            entity_data = {
-                "labels": {"en": {"language": "en", "value": "Complete Test"}},
-                "descriptions": {"en": {"language": "en", "value": "Test description"}},
-            }
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_s3_revision_data_structure_completeness(api_prefix: str) -> None:
+    """Test that S3RevisionData.revision contains complete revision data."""
+    from models.rest_api.main import app
 
-            response = await client.post("/v1/entitybase/entities/base/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    with patch("models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client") as mock_s3_client_class:
+        mock_s3_client = MagicMock()
+        mock_s3_client_class.return_value = mock_s3_client
+
+        entity_data = {
+            "labels": {"en": {"language": "en", "value": "Complete Test"}},
+            "descriptions": {"en": {"language": "en", "value": "Test description"}},
+        }
+
+        async with AsyncClient(
+            transport=ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            response = await client.post(f"{api_prefix}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
             assert response.status_code == 201
 
             # Get the stored S3RevisionData

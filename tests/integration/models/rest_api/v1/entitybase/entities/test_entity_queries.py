@@ -7,12 +7,12 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_query_locked_entities(api_client: requests.Session, base_url: str) -> None:
+async def test_query_locked_entities(api_prefix: str) -> None:
     """Query should return locked items"""
+    from models.rest_api.main import app
+
     logger = logging.getLogger(__name__)
 
     entity_data = {
@@ -20,24 +20,26 @@ def test_query_locked_entities(api_client: requests.Session, base_url: str) -> N
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Locked"}},
     }
-    await client.post("/v1/entitybase/entities/", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    response = await client.get(f"{base_url}/entities?status=locked")
-    assert response.status_code == 200
-    entities = response.json()
-    assert any(e["entity_id"] == "Q90010" for e in entities)
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        await client.post(f"{api_prefix}/entities/", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    logger.info("✓ Query locked entities works")
+        response = await client.get(f"{api_prefix}/entities?status=locked")
+        assert response.status_code == 200
+        entities = response.json()
+        assert any(e["entity_id"] == "Q90010" for e in entities)
+
+        logger.info("✓ Query locked entities works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_query_semi_protected_entities(
-    api_client: requests.Session, base_url: str
-) -> None:
+async def test_query_semi_protected_entities(api_prefix: str) -> None:
     """Query should return semi-protected items"""
+    from models.rest_api.main import app
+
     logger = logging.getLogger(__name__)
 
     entity_data = {
@@ -45,24 +47,28 @@ def test_query_semi_protected_entities(
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Protected"}},
     }
-    await client.post(
-        "/v1/entitybase/entities/", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
-    )
 
-    response = await client.get(f"{base_url}/entities?status=semi_protected")
-    assert response.status_code == 200
-    entities = response.json()
-    assert any(e["entity_id"] == "Q90011" for e in entities)
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        await client.post(
+            f"{api_prefix}/entities/", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
+        )
 
-    logger.info("✓ Query semi-protected entities works")
+        response = await client.get(f"{api_prefix}/entities?status=semi_protected")
+        assert response.status_code == 200
+        entities = response.json()
+        assert any(e["entity_id"] == "Q90011" for e in entities)
+
+        logger.info("✓ Query semi-protected entities works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_query_archived_entities(api_client: requests.Session, base_url: str) -> None:
+async def test_query_archived_entities(api_prefix: str) -> None:
     """Query should return archived items"""
+    from models.rest_api.main import app
+
     logger = logging.getLogger(__name__)
 
     entity_data = {
@@ -70,22 +76,26 @@ def test_query_archived_entities(api_client: requests.Session, base_url: str) ->
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Archived"}},
     }
-    await client.post("/v1/entitybase/entities/", json={**entity_data, "is_archived": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    response = await client.get(f"{base_url}/entities?status=archived")
-    assert response.status_code == 200
-    entities = response.json()
-    assert any(e["entity_id"] == "Q90012" for e in entities)
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        await client.post(f"{api_prefix}/entities/", json={**entity_data, "is_archived": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    logger.info("✓ Query archived entities works")
+        response = await client.get(f"{api_prefix}/entities?status=archived")
+        assert response.status_code == 200
+        entities = response.json()
+        assert any(e["entity_id"] == "Q90012" for e in entities)
+
+        logger.info("✓ Query archived entities works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_query_dangling_entities(api_client: requests.Session, base_url: str) -> None:
+async def test_query_dangling_entities(api_prefix: str) -> None:
     """Query should return dangling items"""
+    from models.rest_api.main import app
+
     logger = logging.getLogger(__name__)
 
     entity_data = {
@@ -93,70 +103,80 @@ def test_query_dangling_entities(api_client: requests.Session, base_url: str) ->
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Dangling"}},
     }
-    await client.post("/v1/entitybase/entities/", json={**entity_data, "is_dangling": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    response = await client.get(f"{base_url}/entities?status=dangling")
-    assert response.status_code == 200
-    entities = response.json()
-    assert any(e["entity_id"] == "Q90013" for e in entities)
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        await client.post(f"{api_prefix}/entities/", json={**entity_data, "is_dangling": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    logger.info("✓ Query dangling entities works")
+        response = await client.get(f"{api_prefix}/entities?status=dangling")
+        assert response.status_code == 200
+        entities = response.json()
+        assert any(e["entity_id"] == "Q90013" for e in entities)
+
+        logger.info("✓ Query dangling entities works")
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_list_entities_by_type(api_client: requests.Session, base_url: str) -> None:
+async def test_list_entities_by_type(api_prefix: str) -> None:
     """Test listing entities by type"""
+    from models.rest_api.main import app
+
     logger = logging.getLogger(__name__)
 
-    # Create some test entities
-    await client.post(
-        "/v1/entitybase/entities/base/v1/entities/items",
-        json={
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Test Item"}},
-        },
-        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
-    )
-    await client.post(
-        "/v1/entitybase/entities/base/v1/entities/lexemes",
-        json={
-            "type": "lexeme",
-            "lemmas": {"en": {"language": "en", "value": "test"}},
-            "lexicalCategory": "Q1084",
-            "language": "Q1860",
-        },
-        headers={"X-Edit-Summary": "create lexeme", "X-User-ID": "0"},
-    )
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create some test entities
+        await client.post(
+            f"{api_prefix}/entities/items",
+            json={
+                "type": "item",
+                "labels": {"en": {"language": "en", "value": "Test Item"}},
+            },
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
+        await client.post(
+            f"{api_prefix}/entities/lexemes",
+            json={
+                "type": "lexeme",
+                "lemmas": {"en": {"language": "en", "value": "test"}},
+                "lexicalCategory": "Q1084",
+                "language": "Q1860",
+            },
+            headers={"X-Edit-Summary": "create lexeme", "X-User-ID": "0"},
+        )
 
-    # List items
-    response = await client.get("/v1/entitybase/entities/base/v1/entities?entity_type=item")
-    assert response.status_code == 200
-    result = response.json()
-    assert "entities" in result
-    assert "count" in result
-    assert result["count"] > 0
-    for entity in result["entities"]:
-        assert "id" in entity
-        assert "revision_id" in entity
-        assert entity["id"].startswith("Q")
+        # List items
+        response = await client.get(f"{api_prefix}/entities?entity_type=item")
+        assert response.status_code == 200
+        result = response.json()
+        assert "entities" in result
+        assert "count" in result
+        assert result["count"] > 0
+        for entity in result["entities"]:
+            assert "id" in entity
+            assert "revision_id" in entity
+            assert entity["id"].startswith("Q")
 
-    # List lexemes
-    response = await client.get("/v1/entitybase/entities/base/v1/entities?entity_type=lexeme")
-    assert response.status_code == 200
-    result = response.json()
-    assert result["count"] > 0
-    for entity in result["entities"]:
-        assert entity["id"].startswith("L")
+        # List lexemes
+        response = await client.get(f"{api_prefix}/entities?entity_type=lexeme")
+        assert response.status_code == 200
+        result = response.json()
+        assert result["count"] > 0
+        for entity in result["entities"]:
+            assert entity["id"].startswith("L")
 
-    logger.info("✓ List entities by type works")
+        logger.info("✓ List entities by type works")
 
 
-@pytest.mark.skip(
-    reason="Endpoint not implemented yet - /entities endpoint is disabled"
-)
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_query_by_edit_type(api_client: requests.Session, base_url: str) -> None:
+async def test_query_by_edit_type(api_prefix: str) -> None:
     """Query should return entities filtered by edit_type"""
+    from models.rest_api.main import app
+
     logger = logging.getLogger(__name__)
 
     entity_data = {
@@ -165,15 +185,18 @@ def test_query_by_edit_type(api_client: requests.Session, base_url: str) -> None
         "labels": {"en": {"language": "en", "value": "Test"}},
     }
 
-    await client.post(
-        "/v1/entitybase/entities/",
-        json={**entity_data, "is_locked": True, "edit_type": "lock-added"},
-        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
-    )
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        await client.post(
+            f"{api_prefix}/entities/",
+            json={**entity_data, "is_locked": True, "edit_type": "lock-added"},
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
 
-    response = await client.get(f"{base_url}/entities?edit_type=lock-added")
-    assert response.status_code == 200
-    entities = response.json()
-    assert any(e["entity_id"] == "Q90014" for e in entities)
+        response = await client.get(f"{api_prefix}/entities?edit_type=lock-added")
+        assert response.status_code == 200
+        entities = response.json()
+        assert any(e["entity_id"] == "Q90014" for e in entities)
 
-    logger.info("✓ Query by edit_type works")
+        logger.info("✓ Query by edit_type works")

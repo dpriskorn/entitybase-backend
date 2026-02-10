@@ -1,18 +1,27 @@
 from httpx import ASGITransport, AsyncClient
 
+import pytest
 
-def test_get_nonexistent_statement_404(
-    api_client: requests.Session, base_url: str
-) -> None:
+
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_get_nonexistent_statement_404(api_prefix: str) -> None:
     """Test fetching nonexistent statement returns 404"""
-    response = await client.get(f"{base_url}/statement/999999")
-    assert response.status_code == 404
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get(f"{api_prefix}/statements/999999")
+        assert response.status_code == 404
 
 
-def test_entity_revision_with_statements(
-    api_client: requests.Session, base_url: str
-) -> None:
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_entity_revision_with_statements(api_prefix: str) -> None:
     """Test that entity revisions include statement hashes"""
+    from models.rest_api.main import app
+
     entity_data = {
         "id": "Q80005",
         "type": "item",
@@ -38,23 +47,28 @@ def test_entity_revision_with_statements(
         },
     }
 
-    response = await client.post("/v1/entitybase/entities/", json=entity_data)
-    assert response.status_code == 200
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.post(f"{api_prefix}/entities/", json=entity_data)
+        assert response.status_code == 200
 
-    # Get entity
-    entity_response = await client.get("/v1/entitybase/entities//Q80005")
-    assert entity_response.status_code == 200
-    entity = entity_response.json()
+        # Get entity
+        entity_response = await client.get(f"{api_prefix}/entities/Q80005")
+        assert entity_response.status_code == 200
+        entity = entity_response.json()
 
-    assert "statements" in entity
-    assert len(entity["statements"]) == 1
-    assert isinstance(entity["statements"][0], int)
+        assert "statements" in entity
+        assert len(entity["statements"]) == 1
+        assert isinstance(entity["statements"][0], int)
 
 
-def test_invalid_statement_rejected(
-    api_client: requests.Session, base_url: str
-) -> None:
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_invalid_statement_rejected(api_prefix: str) -> None:
     """Test that invalid statements are rejected"""
+    from models.rest_api.main import app
+
     entity_data = {
         "id": "Q80006",
         "type": "item",
@@ -80,5 +94,8 @@ def test_invalid_statement_rejected(
         },
     }
 
-    response = await client.post("/v1/entitybase/entities/", json=entity_data)
-    assert response.status_code == 400
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.post(f"{api_prefix}/entities/", json=entity_data)
+        assert response.status_code == 400

@@ -7,9 +7,12 @@ import pytest
 from httpx import ASGITransport, AsyncClient
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_update_lexeme(api_client: requests.Session, base_url: str) -> None:
+async def test_update_lexeme(api_prefix: str) -> None:
     """Test updating a lexeme entity"""
+    from models.rest_api.main import app
+
     logger = logging.getLogger(__name__)
 
     # Create lexeme
@@ -20,30 +23,33 @@ def test_update_lexeme(api_client: requests.Session, base_url: str) -> None:
         "language": "Q1860",  # English
     }
 
-    create_response = await client.post(
-        "/v1/entitybase/entities/base/v1/entities/lexemes", json=lexeme_data, headers={"X-Edit-Summary": "create lexeme", "X-User-ID": "0"}
-    )
-    assert create_response.status_code == 200
-    lexeme_id = create_response.json()["id"]
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        create_response = await client.post(
+            f"{api_prefix}/entities/lexemes", json=lexeme_data, headers={"X-Edit-Summary": "create lexeme", "X-User-ID": "0"}
+        )
+        assert create_response.status_code == 200
+        lexeme_id = create_response.json()["id"]
 
-    # Update lexeme
-    updated_lexeme_data = {
-        "data": {
-            "type": "lexeme",
-            "lemmas": {"en": {"language": "en", "value": "updated test"}},
-            "lexicalCategory": "Q1084",
-            "language": "Q1860",
+        # Update lexeme
+        updated_lexeme_data = {
+            "data": {
+                "type": "lexeme",
+                "lemmas": {"en": {"language": "en", "value": "updated test"}},
+                "lexicalCategory": "Q1084",
+                "language": "Q1860",
+            }
         }
-    }
 
-    response = await client.put(
-        "/v1/entitybase/entities/base/v1/lexeme/{lexeme_id}", json=updated_lexeme_data, headers={"X-Edit-Summary": "update lexeme", "X-User-ID": "0"}
-    )
-    assert response.status_code == 200
+        response = await client.put(
+            f"{api_prefix}/entities/lexemes/{lexeme_id}", json=updated_lexeme_data, headers={"X-Edit-Summary": "update lexeme", "X-User-ID": "0"}
+        )
+        assert response.status_code == 200
 
-    result = response.json()
-    assert result["id"] == lexeme_id
-    assert result["revision_id"] == 2
-    assert result["data"]["lemmas"]["en"]["value"] == "updated test"
+        result = response.json()
+        assert result["id"] == lexeme_id
+        assert result["revision_id"] == 2
+        assert result["data"]["lemmas"]["en"]["value"] == "updated test"
 
-    logger.info("✓ Lexeme update works correctly")
+        logger.info("✓ Lexeme update works correctly")
