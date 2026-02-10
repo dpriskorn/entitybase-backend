@@ -1,11 +1,7 @@
 set -e
 
 # Check if test infrastructure is running (MySQL, S3, etc.)
-if ! docker ps | grep -q vitess; then
-    echo "❌ Test infrastructure not running. Run ./run-docker-build-tests.sh first"
-    exit 1
-fi
-echo "✅ Test infrastructure is running"
+./check-docker-services.sh
 
 source test.env
 
