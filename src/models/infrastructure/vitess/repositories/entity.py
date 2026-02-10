@@ -1,10 +1,13 @@
 """Vitess entity repository for database operations."""
 
 import logging
-from typing import Any
 
 from models.infrastructure.vitess.repository import Repository
 from models.data.rest_api.v1.entitybase.response import ProtectionResponse
+from models.data.rest_api.v1.entitybase.response.entity.entitybase import (
+    EntityListItem,
+    EntityListItemWithEditType,
+)
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -131,7 +134,7 @@ class EntityRepository(Repository):
         edit_type: str = "",
         limit: int = 100,
         offset: int = 0,
-    ) -> list[dict[str, Any]]:
+    ) -> list[EntityListItem | EntityListItemWithEditType]:
         """List entities with optional filters by type, status, and edit_type."""
         logger.debug(
             f"Listing entities - type: {entity_type}, status: {status}, edit_type: {edit_type}, limit: {limit}, offset: {offset}"
@@ -193,15 +196,20 @@ class EntityRepository(Repository):
             for row in rows:
                 if edit_type:
                     entities.append(
-                        {
-                            "entity_id": row[0],
-                            "head_revision_id": row[1],
-                            "edit_type": row[2],
-                            "revision_id": row[3],
-                        }
+                        EntityListItemWithEditType(
+                            entity_id=row[0],
+                            head_revision_id=row[1],
+                            edit_type=row[2],
+                            revision_id=row[3],
+                        )
                     )
                 else:
-                    entities.append({"entity_id": row[0], "head_revision_id": row[1]})
+                    entities.append(
+                        EntityListItem(
+                            entity_id=row[0],
+                            head_revision_id=row[1],
+                        )
+                    )
 
             logger.debug(f"Found {len(entities)} entities matching filters")
             return entities

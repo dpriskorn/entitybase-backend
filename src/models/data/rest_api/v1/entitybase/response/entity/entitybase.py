@@ -177,7 +177,7 @@ class EntityRedirectResponse(BaseModel):
 class EntityListResponse(BaseModel):
     """Response model for entity list queries."""
 
-    entities: list[dict[str, Any]] = Field(
+    entities: list[EntityListItem | EntityListItemWithEditType] = Field(
         description="List of entities with their metadata"
     )
     count: int = Field(description="Total number of entities returned")
@@ -214,6 +214,20 @@ class EntityMetadataBatchResponse(BaseModel):
     metadata: dict[str, EntityMetadataResponse | None] = Field(
         description="Dictionary mapping entity_id to metadata or None"
     )
+
+
+class EntityListItem(BaseModel):
+    """Single entity item in a list response."""
+
+    entity_id: str = Field(description="Entity ID (e.g., 'Q42')")
+    head_revision_id: int = Field(description="Current head revision ID")
+
+
+class EntityListItemWithEditType(EntityListItem):
+    """Entity item with edit type and revision information."""
+
+    edit_type: str = Field(description="Edit type classification")
+    revision_id: int = Field(description="Specific revision ID")
 
 
 class ProtectionResponse(BaseModel):
