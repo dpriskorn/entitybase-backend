@@ -60,7 +60,7 @@ class Settings(BaseModel):
 
     # streaming
     streaming_enabled: bool = False
-    kafka_brokers: str = ""
+    kafka_bootstrap_servers: str = ""
     kafka_entitychange_json_topic: str = "entitybase.entity_change"
     kafka_entity_diff_topic: str = "wikibase.entity_diff"
     streaming_entity_change_version: str = "1.0.0"
@@ -139,7 +139,7 @@ class Settings(BaseModel):
 
         # Streaming Config
         self.streaming_enabled = os.getenv("STREAMING_ENABLED", "false").lower() == "true"
-        self.kafka_brokers = os.getenv("KAFKA_BROKERS", self.kafka_brokers)
+        self.kafka_bootstrap_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS", self.kafka_bootstrap_servers)
         self.kafka_entitychange_json_topic = os.getenv("KAFKA_ENTITY_CHANGE_TOPIC", self.kafka_entitychange_json_topic)
         self.kafka_entity_diff_topic = os.getenv("KAFKA_ENTITY_DIFF_TOPIC", self.kafka_entity_diff_topic)
 
@@ -210,7 +210,7 @@ class Settings(BaseModel):
         from models.data.config.stream import StreamConfig
 
         return StreamConfig(
-            bootstrap_servers=self.kafka_brokers if isinstance(self.kafka_brokers, list) else [self.kafka_brokers],
+            bootstrap_servers=self.kafka_bootstrap_servers if isinstance(self.kafka_bootstrap_servers, list) else [self.kafka_bootstrap_servers],
             topic=self.kafka_entitychange_json_topic,
         )
 
@@ -220,7 +220,7 @@ class Settings(BaseModel):
         from models.data.config.stream import StreamConfig
 
         return StreamConfig(
-            bootstrap_servers=self.kafka_brokers if isinstance(self.kafka_brokers, list) else [self.kafka_brokers],
+            bootstrap_servers=self.kafka_bootstrap_servers if isinstance(self.kafka_bootstrap_servers, list) else [self.kafka_bootstrap_servers],
             topic=self.kafka_entity_diff_topic,
         )
 

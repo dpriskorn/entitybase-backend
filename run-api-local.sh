@@ -55,7 +55,7 @@ export STREAMING_ENTITY_CHANGE_VERSION="1.0.0"
 export STREAMING_ENTITY_DIFF_VERSION="2.0.0"
 
 export STREAMING_ENABLED="false"
-export KAFKA_BROKERS="localhost:9092"
+export KAFKA_BOOTSTRAP_SERVERS="localhost:9092"
 export KAFKA_ENTITY_CHANGE_TOPIC="wikibase.entity_change"
 export KAFKA_ENTITY_DIFF_TOPIC="wikibase.entity_diff"
 
