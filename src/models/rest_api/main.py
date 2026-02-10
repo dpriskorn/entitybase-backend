@@ -11,7 +11,7 @@ from jsonschema import ValidationError  # type: ignore[import-untyped]
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request as StarletteRequest
 from starlette.responses import Response as StarletteResponse
-#from starlette.exceptions import StarletteHTTPException
+# from starlette.exceptions import StarletteHTTPException
 
 from models.config.settings import settings
 from models.rest_api.entitybase.v1.endpoints import v1_router
@@ -31,7 +31,19 @@ aws_loggers = [
     "botocore.auth",
 ]
 
+aiokafka_loggers = [
+    "aiokafka.conn",
+    "aiokafka.consumer.group_coordinator",
+    "aiokafka.consumer.fetcher",
+    "aiokafka.consumer.subscription_state",
+    "aiokafka.coordinator.assignor",
+    "aiokafka.coordinator.heartbeat",
+]
+
 for logger_name in aws_loggers:
+    logging.getLogger(logger_name).setLevel(logging.INFO)
+
+for logger_name in aiokafka_loggers:
     logging.getLogger(logger_name).setLevel(logging.INFO)
 
 logger = logging.getLogger(__name__)
@@ -51,13 +63,15 @@ class StartupMiddleware(BaseHTTPMiddleware):
         if request_path not in allowed_paths:
             state_handler = getattr(request.app.state, "state_handler", None)
             if state_handler is None:
-                logger.debug(f"Rejecting request to {request_path} during initialization")
+                logger.debug(
+                    f"Rejecting request to {request_path} during initialization"
+                )
                 return JSONResponse(
                     status_code=503,
                     content={
                         "error": "Service Unavailable",
-                        "message": "Application is initializing. Please try again shortly."
-                    }
+                        "message": "Application is initializing. Please try again shortly.",
+                    },
                 )
 
         return await call_next(request)
@@ -67,9 +81,7 @@ class StartupMiddleware(BaseHTTPMiddleware):
 async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager for startup and shutdown tasks."""
     try:
-        state_handler = StateHandler(
-            settings=settings
-        )
+        state_handler = StateHandler(settings=settings)
         state_handler.start()
         # Create database tables on startup (only if vitess is available)
         # try:
@@ -145,13 +157,15 @@ async def validation_error_handler(exc: ValidationError) -> JSONResponse:
 
 
 @app.exception_handler(HTTPException)
-async def starlette_http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+async def starlette_http_exception_handler(
+    request: Request, exc: HTTPException
+) -> JSONResponse:
     """Handle StarletteHTTPException with proper JSON formatting."""
     return JSONResponse(
         status_code=exc.status_code,
         content={
             "error": "http_error",
-            "message": exc.detail if exc.detail else "Not Found"
+            "message": exc.detail if exc.detail else "Not Found",
         },
     )
 
@@ -172,24 +186,24 @@ async def value_error_handler(request: Request, exc: ValueError) -> JSONResponse
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Handle all exceptions and return formatted JSON response."""
     is_prod = os.getenv("ENVIRONMENT", "dev").lower() == "prod"
-    
+
     logger.error(f"Unhandled exception: {type(exc).__name__}: {exc}", exc_info=True)
-    
+
     if is_prod:
         message = "An internal error occurred"
         detail = None
     else:
         message = str(exc)
         detail = f"{type(exc).__name__}: {exc}"
-    
+
     content = {
         "error": "internal_error",
         "message": message,
     }
-    
+
     if detail:
         content["detail"] = detail
-    
+
     return JSONResponse(
         status_code=500,
         content=content,
@@ -214,4 +228,3 @@ async def get_openapi() -> dict:
 async def redirect_to_docs() -> RedirectResponse:
     """Redirect to the OpenAPI docs."""
     return RedirectResponse(url="/docs")
-
