@@ -35,3 +35,12 @@ src/models/infrastructure/vitess/client.py:58
 src/models/infrastructure/vitess/client.py:64
 src/models/infrastructure/vitess/client.py:70
 src/models/infrastructure/vitess/client.py:76
+src/models/rest_api/entitybase/v1/handlers/state.py:187
+src/models/infrastructure/vitess/connection.py:256
+src/models/infrastructure/vitess/client.py:81
+src/models/infrastructure/vitess/client.py:88
+src/models/infrastructure/vitess/client.py:97
+src/models/infrastructure/vitess/client.py:111
+src/models/infrastructure/vitess/client.py:120
+src/models/infrastructure/vitess/client.py:129
+src/models/infrastructure/vitess/client.py:136
