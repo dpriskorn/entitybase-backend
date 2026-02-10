@@ -1,2 +1,13 @@
 src/models/rest_api/entitybase/v1/endpoints/lexemes.py:15
 src/models/rest_api/entitybase/v1/handlers/entity/update.py:18
+src/models/rest_api/main.py:12
+src/models/rest_api/main.py:13
+tests/integration/conftest.py:79
+tests/integration/conftest.py:183
+tests/integration/conftest.py:204
+tests/integration/conftest.py:275
+tests/integration/conftest.py:342
+tests/integration/conftest.py:386
+tests/integration/models/infrastructure/vitess/test_id_resolver_integration.py:2
+tests/integration/models/infrastructure/vitess/test_id_resolver_integration.py:19
+tests/integration/models/infrastructure/vitess/test_connection_pool_integration.py:18
