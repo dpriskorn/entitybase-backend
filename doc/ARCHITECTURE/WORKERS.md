@@ -71,7 +71,7 @@
 **Purpose**: Worker that consumes entity change events and creates notifications for watchers.
 
 **Configuration**:
-- `kafka_brokers`: Comma-separated list of Kafka broker addresses
+- `kafka_bootstrap_servers`: Comma-separated list of Kafka broker addresses
 - `kafka_topic`: Kafka topic for entity changes (default: "wikibase-entity-changes")
 
 **Health Checks**: Available via worker health endpoint

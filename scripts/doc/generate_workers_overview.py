@@ -55,7 +55,7 @@ def extract_worker_settings() -> Dict[str, List[str]]:
         ],
         "backlink_statistics": [],
         "watchlist_consumer": [
-            "`kafka_brokers`: Comma-separated list of Kafka broker addresses",
+            "`kafka_bootstrap_servers`: Comma-separated list of Kafka broker addresses",
             '`kafka_topic`: Kafka topic for entity changes (default: "wikibase-entity-changes")',
         ],
     }

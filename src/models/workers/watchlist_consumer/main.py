@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 class WatchlistConsumerWorker(VitessWorker):
     """Worker that consumes entity change events and creates notifications for watchers."""
+
     consumer: StreamConsumerClient | None = None
 
     @asynccontextmanager
@@ -28,8 +29,8 @@ class WatchlistConsumerWorker(VitessWorker):
             # s3_config = settings.to_s3_config()
             # vitess_config = settings.to_vitess_config()
             kafka_brokers = (
-                [b.strip() for b in settings.kafka_brokers.split(",")]
-                if settings.kafka_brokers
+                [b.strip() for b in settings.kafka_bootstrap_servers.split(",")]
+                if settings.kafka_bootstrap_servers
                 else []
             )
             kafka_topic = settings.kafka_entitychange_json_topic
@@ -38,7 +39,7 @@ class WatchlistConsumerWorker(VitessWorker):
                 consumer_config = StreamConsumerConfig(
                     brokers=kafka_brokers,
                     topic=kafka_topic,
-                    group_id="watchlist-consumer"
+                    group_id="watchlist-consumer",
                 )
                 self.consumer = StreamConsumerClient(
                     config=consumer_config,
@@ -125,7 +126,8 @@ class WatchlistConsumerWorker(VitessWorker):
 
     @staticmethod
     def _should_notify(
-            watched_properties: list[str] | None, changed_properties: ChangedProperties | None
+        watched_properties: list[str] | None,
+        changed_properties: ChangedProperties | None,
     ) -> bool:
         """Determine if user should be notified based on watched vs changed properties."""
         if watched_properties is None:
@@ -139,7 +141,9 @@ class WatchlistConsumerWorker(VitessWorker):
         # Check if any changed property is watched
         return any(prop in watched_properties for prop in changed_properties.properties)
 
-    async def _create_notification(self, user_id: int, notification_data: NotificationData) -> None:
+    async def _create_notification(
+        self, user_id: int, notification_data: NotificationData
+    ) -> None:
         """Create a notification record in the database."""
         # For now, insert into user_notifications table
         # In a real system, this might trigger email/webhook
@@ -156,11 +160,15 @@ class WatchlistConsumerWorker(VitessWorker):
                     notification_data.entity_id,
                     notification_data.revision_id,
                     notification_data.change_type,
-                    notification_data.changed_properties.model_dump_json() if notification_data.changed_properties else None,
+                    notification_data.changed_properties.model_dump_json()
+                    if notification_data.changed_properties
+                    else None,
                     notification_data.event_timestamp,
                 ),
             )
-            logger.debug(f"Created notification for user {user_id} on {notification_data.entity_id}")
+            logger.debug(
+                f"Created notification for user {user_id} on {notification_data.entity_id}"
+            )
 
 
 async def main() -> None:

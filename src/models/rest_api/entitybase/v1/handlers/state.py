@@ -44,7 +44,7 @@ class StateHandler(BaseModel):
         logger.debug(f"S3 config: {self.settings.get_s3_config}")
         logger.debug(f"Vitess config: {self.settings.get_vitess_config}")
         logger.debug(
-            f"Kafka config: brokers={self.settings.kafka_brokers}, topic={self.settings.kafka_entitychange_json_topic}"
+            f"Kafka config: brokers={self.settings.kafka_bootstrap_servers}, topic={self.settings.kafka_entitychange_json_topic}"
         )
         if not self.settings.streaming_enabled:
             logger.info("Streaming is disabled")
@@ -98,7 +98,9 @@ class StateHandler(BaseModel):
     def vitess_client(self) -> "VitessClient":
         """Get or create a cached VitessClient."""
         if self.cached_vitess_client is None:
-            logger.debug("=== vitess_client property: Creating new VitessClient instance ===")
+            logger.debug(
+                "=== vitess_client property: Creating new VitessClient instance ==="
+            )
             from models.infrastructure.vitess.client import VitessClient
 
             if self.vitess_config is None:
@@ -127,7 +129,7 @@ class StateHandler(BaseModel):
         """Get a fully ready client"""
         if (
             self.settings.streaming_enabled
-            and self.settings.kafka_brokers
+            and self.settings.kafka_bootstrap_servers
             and self.settings.kafka_entitychange_json_topic
         ):
             return StreamProducerClient(config=self.entity_change_stream_config)
@@ -142,7 +144,7 @@ class StateHandler(BaseModel):
         """Get a fully ready client"""
         if (
             self.settings.streaming_enabled
-            and self.settings.kafka_brokers
+            and self.settings.kafka_bootstrap_servers
             and self.settings.kafka_entity_diff_topic
         ):
             return StreamProducerClient(config=self.entity_diff_stream_config)

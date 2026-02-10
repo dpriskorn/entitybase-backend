@@ -290,9 +290,9 @@ def process_entity_change(change_event):
 
 | Option | Description | Default |
 |---------|-------------|---------|
-| `input_kafka_brokers` | Kafka brokers for change events | localhost:9092 |
+| `input_kafka_bootstrap_servers` | Kafka brokers for change events | localhost:9092 |
 | `input_topic` | Input topic for entity changes | wikibase.entity_change |
-| `output_kafka_brokers` | Kafka brokers for RDF changes | localhost:9092 |
+| `output_kafka_bootstrap_servers` | Kafka brokers for RDF changes | localhost:9092 |
 | `output_topic` | Output topic for RDF changes | wikibase.rdf_change |
 | `s3_bucket` | S3 bucket for snapshots | wikibase-revisions |
 | `rdf_diff_library` | RDF library for diff computation | jena |
