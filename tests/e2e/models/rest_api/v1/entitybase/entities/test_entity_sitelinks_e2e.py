@@ -66,7 +66,7 @@ def test_add_sitelink(e2e_api_client, e2e_base_url, sample_item_data) -> None:
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_update_sitelink(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_update_sitelink(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Update an existing sitelink for an entity."""
@@ -105,7 +105,7 @@ async def def test_update_sitelink(e2e_api_client, e2e_base_url) -> None:() -> N
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_delete_sitelink(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_delete_sitelink(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Delete a sitelink from an entity."""

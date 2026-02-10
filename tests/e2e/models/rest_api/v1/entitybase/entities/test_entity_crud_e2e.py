@@ -9,7 +9,7 @@ sys.path.insert(0, "src")
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_list_entities_all(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_list_entities_all(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: List all entities without filters."""
@@ -22,7 +22,7 @@ async def def test_list_entities_all(e2e_api_client, e2e_base_url) -> None:() ->
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_list_entities_with_type_filter(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_list_entities_with_type_filter(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: List entities filtered by type."""
@@ -35,7 +35,7 @@ async def def test_list_entities_with_type_filter(e2e_api_client, e2e_base_url) 
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_list_entities_with_limit_offset(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_list_entities_with_limit_offset(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: List entities with limit and offset pagination."""
@@ -108,7 +108,7 @@ def test_get_entity_ttl_export(e2e_api_client, e2e_base_url, sample_item_data) -
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_entity_history(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_entity_history(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get revision history for an entity."""
@@ -144,7 +144,7 @@ async def def test_get_entity_history(e2e_api_client, e2e_base_url) -> None:() -
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_revert_entity(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_revert_entity(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Revert entity to a previous revision."""
@@ -183,7 +183,7 @@ async def def test_revert_entity(e2e_api_client, e2e_base_url) -> None:() -> Non
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_delete_entity(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_delete_entity(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Delete an entity."""

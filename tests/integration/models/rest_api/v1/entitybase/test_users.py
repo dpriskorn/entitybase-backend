@@ -8,14 +8,14 @@ sys.path.insert(0, "src")
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_create_user_new() -> None:
+async def test_create_user_new(api_prefix: str) -> None:
     """Test creating a new user"""
     from models.rest_api.main import app
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        response = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -24,7 +24,7 @@ async def test_create_user_new() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_create_user_existing() -> None:
+async def test_create_user_existing(api_prefix: str) -> None:
     """Test creating a user that already exists"""
     from models.rest_api.main import app
 
@@ -32,12 +32,12 @@ async def test_create_user_existing() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # First create
-        response1 = await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        response1 = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         assert response1.status_code == 200
         assert response1.json()["created"] is True
 
         # Second create (should return created=False)
-        response2 = await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        response2 = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         assert response2.status_code == 200
         data = response2.json()
         assert data["user_id"] == 12345
@@ -46,7 +46,7 @@ async def test_create_user_existing() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_existing() -> None:
+async def test_get_user_existing(api_prefix: str) -> None:
     """Test getting an existing user"""
     from models.rest_api.main import app
 
@@ -54,10 +54,10 @@ async def test_get_user_existing() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # First create user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
         # Then get user
-        response = await client.get("/v1/entitybase/users/12345")
+        response = await client.get(f"{api_prefix}/users/12345")
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -66,20 +66,20 @@ async def test_get_user_existing() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_not_found() -> None:
+async def test_get_user_not_found(api_prefix: str) -> None:
     """Test getting a non-existing user"""
     from models.rest_api.main import app
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/v1/entitybase/users/99999")
+        response = await client.get(f"{api_prefix}/users/99999")
         assert response.status_code == 404
 
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_create_user_invalid() -> None:
+async def test_create_user_invalid(api_prefix: str) -> None:
     """Test creating a user with invalid data"""
     from models.rest_api.main import app
 
@@ -87,13 +87,13 @@ async def test_create_user_invalid() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Invalid user_id (negative)
-        response = await client.post("/v1/entitybase/users", json={"user_id": -1})
+        response = await client.post(f"{api_prefix}/users", json={"user_id": -1})
         assert response.status_code == 422  # Validation error
 
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_toggle_watchlist_enable() -> None:
+async def test_toggle_watchlist_enable(api_prefix: str) -> None:
     """Test enabling watchlist for user"""
     from models.rest_api.main import app
 
@@ -101,16 +101,16 @@ async def test_toggle_watchlist_enable() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
         # Toggle to disable first
         await client.put(
-            "/v1/entitybase/users/12345/watchlist/toggle", json={"enabled": False}
+            f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": False}
         )
 
         # Then enable
         response = await client.put(
-            "/v1/entitybase/users/12345/watchlist/toggle", json={"enabled": True}
+            f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": True}
         )
         assert response.status_code == 200
         data = response.json()
@@ -120,7 +120,7 @@ async def test_toggle_watchlist_enable() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_toggle_watchlist_disable() -> None:
+async def test_toggle_watchlist_disable(api_prefix: str) -> None:
     """Test disabling watchlist for user"""
     from models.rest_api.main import app
 
@@ -128,11 +128,11 @@ async def test_toggle_watchlist_disable() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
         # Disable
         response = await client.put(
-            "/v1/entitybase/users/12345/watchlist/toggle", json={"enabled": False}
+            f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": False}
         )
         assert response.status_code == 200
         data = response.json()
@@ -142,7 +142,7 @@ async def test_toggle_watchlist_disable() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_toggle_watchlist_user_not_registered() -> None:
+async def test_toggle_watchlist_user_not_registered(api_prefix: str) -> None:
     """Test toggle for unregistered user"""
     from models.rest_api.main import app
 
@@ -150,7 +150,7 @@ async def test_toggle_watchlist_user_not_registered() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.put(
-            "/v1/entitybase/users/99999/watchlist/toggle", json={"enabled": True}
+            f"{api_prefix}/users/99999/watchlist/toggle", json={"enabled": True}
         )
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
@@ -158,7 +158,7 @@ async def test_toggle_watchlist_user_not_registered() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_activity() -> None:
+async def test_get_user_activity(api_prefix: str) -> None:
     """Test getting user activity"""
     from models.rest_api.main import app
 
@@ -166,10 +166,10 @@ async def test_get_user_activity() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
         # Get activity (should be empty initially)
-        response = await client.get("/v1/entitybase/users/12345/activity")
+        response = await client.get(f"{api_prefix}/users/12345/activity")
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -178,21 +178,21 @@ async def test_get_user_activity() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_activity_user_not_registered() -> None:
+async def test_get_user_activity_user_not_registered(api_prefix: str) -> None:
     """Test getting activity for unregistered user"""
     from models.rest_api.main import app
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/v1/entitybase/users/99999/activity")
+        response = await client.get(f"{api_prefix}/users/99999/activity")
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
 
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_activity_invalid_type() -> None:
+async def test_get_user_activity_invalid_type(api_prefix: str) -> None:
     """Test getting activity with invalid type filter"""
     from models.rest_api.main import app
 
@@ -200,16 +200,16 @@ async def test_get_user_activity_invalid_type() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
-        response = await client.get("/v1/entitybase/users/12345/activity?type=invalid")
+        response = await client.get(f"{api_prefix}/users/12345/activity?type=invalid")
         assert response.status_code == 400
         assert "Invalid activity type" in response.json()["message"]
 
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_activity_invalid_limit() -> None:
+async def test_get_user_activity_invalid_limit(api_prefix: str) -> None:
     """Test getting activity with invalid limit"""
     from models.rest_api.main import app
 
@@ -217,23 +217,23 @@ async def test_get_user_activity_invalid_limit() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
-        response = await client.get("/v1/entitybase/users/12345/activity?limit=1000")
+        response = await client.get(f"{api_prefix}/users/12345/activity?limit=1000")
         assert response.status_code == 400
         assert "Limit must be one of" in response.json()["message"]
 
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_stats() -> None:
+async def test_get_user_stats(api_prefix: str) -> None:
     """Test getting user statistics"""
     from models.rest_api.main import app
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/v1/entitybase/users/stat")
+        response = await client.get(f"{api_prefix}/users/stat")
         assert response.status_code == 200
         data = response.json()
         assert "total_users" in data
@@ -245,14 +245,14 @@ async def test_get_user_stats() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_general_stats() -> None:
+async def test_get_general_stats(api_prefix: str) -> None:
     """Test getting general wiki statistics"""
     from models.rest_api.main import app
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/v1/entitybase/stats")
+        response = await client.get(f"{api_prefix}/stats")
         assert response.status_code == 200
         data = response.json()
         assert "total_statements" in data
@@ -273,7 +273,7 @@ async def test_get_general_stats() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_watchlist_add() -> None:
+async def test_watchlist_add(api_prefix: str) -> None:
     """Test adding a watchlist entry"""
     from models.rest_api.main import app
 
@@ -281,10 +281,10 @@ async def test_watchlist_add() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         # Enable watchlist
         await client.put(
-            "/v1/entitybase/users/12345/watchlist/toggle", json={"enabled": True}
+            f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": True}
         )
 
         response = await client.post(
@@ -298,7 +298,7 @@ async def test_watchlist_add() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_watchlist_get() -> None:
+async def test_watchlist_get(api_prefix: str) -> None:
     """Test getting user's watchlist"""
     from models.rest_api.main import app
 
@@ -306,10 +306,10 @@ async def test_watchlist_get() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         # Enable watchlist
         await client.put(
-            "/v1/entitybase/users/12345/watchlist/toggle", json={"enabled": True}
+            f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": True}
         )
 
         response = await client.get("/entitybase/users/12345/watchlist")
@@ -321,7 +321,7 @@ async def test_watchlist_get() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_watchlist_notifications() -> None:
+async def test_watchlist_notifications(api_prefix: str) -> None:
     """Test getting watchlist notifications"""
     from models.rest_api.main import app
 
@@ -329,10 +329,10 @@ async def test_watchlist_notifications() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         # Enable watchlist
         await client.put(
-            "/v1/entitybase/users/12345/watchlist/toggle", json={"enabled": True}
+            f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": True}
         )
 
         response = await client.get("/entitybase/users/12345/watchlist/notifications")
@@ -344,7 +344,7 @@ async def test_watchlist_notifications() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_watchlist_stats() -> None:
+async def test_watchlist_stats(api_prefix: str) -> None:
     """Test getting watchlist statistics"""
     from models.rest_api.main import app
 
@@ -352,7 +352,7 @@ async def test_watchlist_stats() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
         response = await client.get("/entitybase/users/12345/watchlist/stats")
         assert response.status_code == 200

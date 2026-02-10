@@ -9,7 +9,7 @@ sys.path.insert(0, "src")
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_specific_revision(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_specific_revision(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get a specific revision of an entity."""
@@ -39,7 +39,7 @@ async def def test_get_specific_revision(e2e_api_client, e2e_base_url) -> None:(
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_revision_json_format(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_revision_json_format(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get JSON representation of a specific revision."""
@@ -69,7 +69,7 @@ async def def test_get_revision_json_format(e2e_api_client, e2e_base_url) -> Non
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_revision_ttl_format(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_revision_ttl_format(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get Turtle (TTL) representation of a specific revision."""

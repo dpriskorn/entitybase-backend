@@ -9,7 +9,7 @@ sys.path.insert(0, "src")
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_send_thank(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_send_thank(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Send a thank for a specific revision."""
@@ -38,7 +38,7 @@ async def def test_send_thank(e2e_api_client, e2e_base_url) -> None:() -> None:
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_revision_thanks(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_revision_thanks(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get all thanks for a specific revision."""
@@ -67,7 +67,7 @@ async def def test_get_revision_thanks(e2e_api_client, e2e_base_url) -> None:() 
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_thanks_received(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_thanks_received(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get thanks received by user."""
@@ -77,7 +77,7 @@ async def def test_get_thanks_received(e2e_api_client, e2e_base_url) -> None:() 
 
     # Get thanks received
     response = await client.get(
-        "/v1/entitybase/users/90014/thanks/received?limit=50&hours=24"
+        f"{api_prefix}/users/90014/thanks/received?limit=50&hours=24"
     )
     assert response.status_code == 200
     data = response.json()
@@ -87,7 +87,7 @@ async def def test_get_thanks_received(e2e_api_client, e2e_base_url) -> None:() 
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_thanks_sent(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_thanks_sent(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get thanks sent by user."""
@@ -97,7 +97,7 @@ async def def test_get_thanks_sent(e2e_api_client, e2e_base_url) -> None:() -> N
 
     # Get thanks sent
     response = await client.get(
-        "/v1/entitybase/users/90015/thanks/sent?limit=50&hours=24"
+        f"{api_prefix}/users/90015/thanks/sent?limit=50&hours=24"
     )
     assert response.status_code == 200
     data = response.json()

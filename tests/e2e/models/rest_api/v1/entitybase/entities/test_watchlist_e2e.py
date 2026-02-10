@@ -9,7 +9,7 @@ sys.path.insert(0, "src")
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_add_watch(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_add_watch(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Add a watchlist entry for user."""
@@ -32,7 +32,7 @@ async def def test_add_watch(e2e_api_client, e2e_base_url) -> None:() -> None:
     # Add watch
     watch_data = {"entity_id": entity_id, "properties": ["P31"]}
     response = await client.post(
-        "/v1/entitybase/users/90006/watchlist", json=watch_data
+        f"{api_prefix}/users/90006/watchlist", json=watch_data
     )
     assert response.status_code == 200
 
@@ -40,7 +40,7 @@ async def def test_add_watch(e2e_api_client, e2e_base_url) -> None:() -> None:
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_watchlist(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_watchlist(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get user's watchlist."""
@@ -62,10 +62,10 @@ async def def test_get_watchlist(e2e_api_client, e2e_base_url) -> None:() -> Non
 
     # Add watch
     watch_data = {"entity_id": entity_id, "properties": ["P31"]}
-    await client.post("/v1/entitybase/users/90007/watchlist", json=watch_data)
+    await client.post(f"{api_prefix}/users/90007/watchlist", json=watch_data)
 
     # Get watchlist
-    response = await client.get("/v1/entitybase/users/90007/watchlist")
+    response = await client.get(f"{api_prefix}/users/90007/watchlist")
     assert response.status_code == 200
     data = response.json()
     assert "watches" in data
@@ -75,7 +75,7 @@ async def def test_get_watchlist(e2e_api_client, e2e_base_url) -> None:() -> Non
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_remove_watch_by_id(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_remove_watch_by_id(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Remove a watchlist entry by ID."""
@@ -97,21 +97,21 @@ async def def test_remove_watch_by_id(e2e_api_client, e2e_base_url) -> None:() -
 
     # Add watch
     watch_data = {"entity_id": entity_id, "properties": ["P31"]}
-    await client.post("/v1/entitybase/users/90008/watchlist", json=watch_data)
+    await client.post(f"{api_prefix}/users/90008/watchlist", json=watch_data)
 
     # Get watchlist to get watch ID
-    response = await client.get("/v1/entitybase/users/90008/watchlist")
+    response = await client.get(f"{api_prefix}/users/90008/watchlist")
     watch_id = response.json()["watches"][0]["id"]
 
     # Remove by ID
-    response = await client.delete("/v1/entitybase/users/90008/watchlist/{watch_id}")
+    response = await client.delete(f"{api_prefix}/users/90008/watchlist/{watch_id}")
     assert response.status_code in [200, 204]
 
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_toggle_watchlist(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_toggle_watchlist(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Enable or disable watchlist for user."""
@@ -122,7 +122,7 @@ async def def test_toggle_watchlist(e2e_api_client, e2e_base_url) -> None:() -> 
     # Toggle watchlist
     toggle_data = {"enabled": True}
     response = await client.put(
-        "/v1/entitybase/users/90009/watchlist/toggle", json=toggle_data
+        f"{api_prefix}/users/90009/watchlist/toggle", json=toggle_data
     )
     assert response.status_code == 200
 
@@ -130,7 +130,7 @@ async def def test_toggle_watchlist(e2e_api_client, e2e_base_url) -> None:() -> 
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_remove_watch_by_entity(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_remove_watch_by_entity(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Remove a watchlist entry by entity."""
@@ -152,11 +152,11 @@ async def def test_remove_watch_by_entity(e2e_api_client, e2e_base_url) -> None:
 
     # Add watch
     watch_data = {"entity_id": entity_id, "properties": ["P31"]}
-    await client.post("/v1/entitybase/users/90010/watchlist", json=watch_data)
+    await client.post(f"{api_prefix}/users/90010/watchlist", json=watch_data)
 
     # Remove by entity
     response = await client.post(
-        "/v1/entitybase/users/90010/watchlist/remove", json={"entity_id": entity_id}
+        f"{api_prefix}/users/90010/watchlist/remove", json={"entity_id": entity_id}
     )
     assert response.status_code == 200
 
@@ -164,7 +164,7 @@ async def def test_remove_watch_by_entity(e2e_api_client, e2e_base_url) -> None:
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_watchlist_stats(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_watchlist_stats(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get user's watchlist statistics."""
@@ -173,7 +173,7 @@ async def def test_get_watchlist_stats(e2e_api_client, e2e_base_url) -> None:() 
     await client.post(f"{e2e_base_url}/users", json=user_data)
 
     # Get watchlist stats
-    response = await client.get("/v1/entitybase/users/90011/watchlist/stats")
+    response = await client.get(f"{api_prefix}/users/90011/watchlist/stats")
     assert response.status_code == 200
     data = response.json()
     assert "total_watches" in data or "count" in data
@@ -182,7 +182,7 @@ async def def test_get_watchlist_stats(e2e_api_client, e2e_base_url) -> None:() 
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_watchlist_notifications(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_watchlist_notifications(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get user's recent watchlist notifications."""
@@ -192,7 +192,7 @@ async def def test_get_watchlist_notifications(e2e_api_client, e2e_base_url) -> 
 
     # Get notifications
     response = await client.get(
-        "/v1/entitybase/users/90012/watchlist/notifications?hours=24&limit=50&offset=0"
+        f"{api_prefix}/users/90012/watchlist/notifications?hours=24&limit=50&offset=0"
     )
     assert response.status_code == 200
     data = response.json()
@@ -203,7 +203,7 @@ async def def test_get_watchlist_notifications(e2e_api_client, e2e_base_url) -> 
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_mark_notification_checked(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_mark_notification_checked(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Mark a notification as checked."""
@@ -213,7 +213,7 @@ async def def test_mark_notification_checked(e2e_api_client, e2e_base_url) -> No
 
     # Mark notification as checked
     response = await client.put(
-        "/v1/entitybase/users/90013/watchlist/notifications/123/check"
+        f"{api_prefix}/users/90013/watchlist/notifications/123/check"
     )
     # May succeed even if notification doesn't exist (idempotent)
     assert response.status_code in [200, 404]

@@ -8,7 +8,7 @@ sys.path.insert(0, "src")
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_add_watch() -> None:
+async def test_add_watch(api_prefix: str) -> None:
     """Test adding a watch"""
     from models.rest_api.main import app
 
@@ -16,11 +16,11 @@ async def test_add_watch() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # First register user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
         # Add watch
         response = await client.post(
-            "/v1/entitybase/users/12345/watchlist",
+            f"{api_prefix}/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 200
@@ -30,7 +30,7 @@ async def test_add_watch() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_add_watch_user_not_registered() -> None:
+async def test_add_watch_user_not_registered(api_prefix: str) -> None:
     """Test adding a watch for unregistered user"""
     from models.rest_api.main import app
 
@@ -38,7 +38,7 @@ async def test_add_watch_user_not_registered() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/v1/entitybase/users/12345/watchlist",
+            f"{api_prefix}/users/12345/watchlist",
             json={"user_id": 99999, "entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 400
@@ -47,7 +47,7 @@ async def test_add_watch_user_not_registered() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_remove_watch() -> None:
+async def test_remove_watch(api_prefix: str) -> None:
     """Test removing a watch"""
     from models.rest_api.main import app
 
@@ -55,16 +55,16 @@ async def test_remove_watch() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user and add watch
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         await client.post(
-            "/v1/entitybase/users/12345/watchlist",
+            f"{api_prefix}/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
 
         # Remove watch
         response = await client.request(
             "DELETE",
-            "/v1/entitybase/users/12345/watchlist",
+            f"{api_prefix}/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 200
@@ -74,7 +74,7 @@ async def test_remove_watch() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_watchlist() -> None:
+async def test_get_watchlist(api_prefix: str) -> None:
     """Test getting user's watchlist"""
     from models.rest_api.main import app
 
@@ -82,14 +82,14 @@ async def test_get_watchlist() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user and add watch
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         await client.post(
-            "/v1/entitybase/users/12345/watchlist",
+            f"{api_prefix}/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
 
         # Get watchlist
-        response = await client.get("/v1/entitybase/users/12345/watchlist")
+        response = await client.get(f"{api_prefix}/users/12345/watchlist")
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -100,21 +100,21 @@ async def test_get_watchlist() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_watchlist_user_not_registered() -> None:
+async def test_get_watchlist_user_not_registered(api_prefix: str) -> None:
     """Test getting watchlist for unregistered user"""
     from models.rest_api.main import app
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/v1/entitybase/users/99999/watchlist")
+        response = await client.get(f"{api_prefix}/users/99999/watchlist")
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
 
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_remove_watch_by_id() -> None:
+async def test_remove_watch_by_id(api_prefix: str) -> None:
     """Test removing a watch by ID"""
     from models.rest_api.main import app
 
@@ -122,28 +122,28 @@ async def test_remove_watch_by_id() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user and add watch
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         await client.post(
-            "/v1/entitybase/users/12345/watchlist",
+            f"{api_prefix}/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
 
         # Get watchlist to obtain the watch ID
-        response = await client.get("/v1/entitybase/users/12345/watchlist")
+        response = await client.get(f"{api_prefix}/users/12345/watchlist")
         assert response.status_code == 200
         data = response.json()
         watch_id = data["watches"][0]["id"]
 
         # Remove watch by ID
         response = await client.delete(
-            f"/v1/entitybase/users/12345/watchlist/{watch_id}"
+            f"{api_prefix}/users/12345/watchlist/{watch_id}"
         )
         assert response.status_code == 200
         data = response.json()
         assert data["message"] == "Watch removed"
 
         # Verify watch is removed
-        response = await client.get("/v1/entitybase/users/12345/watchlist")
+        response = await client.get(f"{api_prefix}/users/12345/watchlist")
         assert response.status_code == 200
         data = response.json()
         assert len(data["watches"]) == 0
@@ -151,7 +151,7 @@ async def test_remove_watch_by_id() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_notifications() -> None:
+async def test_get_notifications(api_prefix: str) -> None:
     """Test getting user notifications"""
     from models.rest_api.main import app
 
@@ -159,11 +159,11 @@ async def test_get_notifications() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
         # Get notifications (should be empty initially)
         response = await client.get(
-            "/v1/entitybase/users/12345/watchlist/notifications"
+            f"{api_prefix}/users/12345/watchlist/notifications"
         )
         assert response.status_code == 200
         data = response.json()
@@ -173,7 +173,7 @@ async def test_get_notifications() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_notifications_user_not_registered() -> None:
+async def test_get_notifications_user_not_registered(api_prefix: str) -> None:
     """Test getting notifications for unregistered user"""
     from models.rest_api.main import app
 
@@ -181,7 +181,7 @@ async def test_get_notifications_user_not_registered() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.get(
-            "/v1/entitybase/users/99999/watchlist/notifications"
+            f"{api_prefix}/users/99999/watchlist/notifications"
         )
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
@@ -189,7 +189,7 @@ async def test_get_notifications_user_not_registered() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_mark_notification_checked() -> None:
+async def test_mark_notification_checked(api_prefix: str) -> None:
     """Test marking notification as checked"""
     from models.rest_api.main import app
 
@@ -197,11 +197,11 @@ async def test_mark_notification_checked() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/v1/entitybase/users", json={"user_id": 12345})
+        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
         # Mark notification checked (even if doesn't exist, should not error)
         response = await client.post(
-            "/v1/entitybase/users/12345/watchlist/notifications/check",
+            f"{api_prefix}/users/12345/watchlist/notifications/check",
             json={"notification_id": 1},
         )
         assert response.status_code == 200

@@ -14,7 +14,7 @@ sys.path.insert(0, "src")
 class TestEndorsements(TestCase):
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_endorse_statement(self) -> None:
+    async def test_endorse_statement(self, api_prefix: str) -> None:
         """Test endorsing a statement."""
         from models.rest_api.main import app
 
@@ -23,7 +23,7 @@ class TestEndorsements(TestCase):
         ) as client:
             # First create a user
             response = await client.post(
-                "/v1/entitybase/users", json={"user_id": 12345}
+                f"{api_prefix}/users", json={"user_id": 12345}
             )
             assert response.status_code == 200
 
@@ -38,7 +38,7 @@ class TestEndorsements(TestCase):
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_withdraw_endorsement(self) -> None:
+    async def test_withdraw_endorsement(self, api_prefix: str) -> None:
         """Test withdrawing an endorsement."""
         from models.rest_api.main import app
 
@@ -47,7 +47,7 @@ class TestEndorsements(TestCase):
         ) as client:
             # Create a user
             response = await client.post(
-                "/v1/entitybase/users", json={"user_id": 12345}
+                f"{api_prefix}/users", json={"user_id": 12345}
             )
             assert response.status_code == 200
 
@@ -62,7 +62,7 @@ class TestEndorsements(TestCase):
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_get_statement_endorsements(self) -> None:
+    async def test_get_statement_endorsements(self, api_prefix: str) -> None:
         """Test getting statement endorsements."""
         from models.rest_api.main import app
 
@@ -70,7 +70,7 @@ class TestEndorsements(TestCase):
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
             response = await client.get(
-                "/v1/entitybase/statements/123456789/endorsements"
+                f"{api_prefix}/statements/123456789/endorsements"
             )
 
             # Should return endorsements list (might be empty)
@@ -83,7 +83,7 @@ class TestEndorsements(TestCase):
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_get_statement_endorsement_stats(self) -> None:
+    async def test_get_statement_endorsement_stats(self, api_prefix: str) -> None:
         """Test getting statement endorsement stats."""
         from models.rest_api.main import app
 
@@ -101,7 +101,7 @@ class TestEndorsements(TestCase):
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_get_user_endorsements(self) -> None:
+    async def test_get_user_endorsements(self, api_prefix: str) -> None:
         """Test getting user endorsements."""
         from models.rest_api.main import app
 
@@ -110,7 +110,7 @@ class TestEndorsements(TestCase):
         ) as client:
             # Create a user first
             response = await client.post(
-                "/v1/entitybase/users", json={"user_id": 12345}
+                f"{api_prefix}/users", json={"user_id": 12345}
             )
             assert response.status_code == 200
 
@@ -126,7 +126,7 @@ class TestEndorsements(TestCase):
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_get_user_endorsement_stats(self) -> None:
+    async def test_get_user_endorsement_stats(self, api_prefix: str) -> None:
         """Test getting user endorsement stats."""
         from models.rest_api.main import app
 
@@ -135,7 +135,7 @@ class TestEndorsements(TestCase):
         ) as client:
             # Create a user first
             response = await client.post(
-                "/v1/entitybase/users", json={"user_id": 12345}
+                f"{api_prefix}/users", json={"user_id": 12345}
             )
             assert response.status_code == 200
 
@@ -150,7 +150,7 @@ class TestEndorsements(TestCase):
 
     @pytest.mark.asyncio
     @pytest.mark.integration
-    async def test_batch_endorsement_stats(self) -> None:
+    async def test_batch_endorsement_stats(self, api_prefix: str) -> None:
         """Test batch statement endorsement stats."""
         from models.rest_api.main import app
 

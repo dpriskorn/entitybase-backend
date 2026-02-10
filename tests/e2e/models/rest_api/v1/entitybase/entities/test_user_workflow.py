@@ -7,7 +7,7 @@ sys.path.insert(0, "src")
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_user_workflow(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_user_workflow(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: User registration and watchlist management."""

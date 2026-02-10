@@ -91,7 +91,7 @@ def test_get_entity_property_hashes_alternative_endpoint(
     entity_id = response.json()["id"]
 
     # Get property hashes via alternative endpoint
-    response = await client.get("/v1/entitybase/{entity_id}/properties/P31")
+    response = await client.get(f"{api_prefix}/{entity_id}/properties/P31")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list) or "hashes" in data

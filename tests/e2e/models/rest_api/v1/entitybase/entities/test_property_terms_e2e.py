@@ -23,7 +23,7 @@ def test_create_property(e2e_api_client, e2e_base_url, sample_property_data) -> 
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_property_aliases(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_property_aliases(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get property aliases for language."""
@@ -55,7 +55,7 @@ async def def test_get_property_aliases(e2e_api_client, e2e_base_url) -> None:()
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_update_property_aliases(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_update_property_aliases(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Update property aliases for language."""
@@ -93,7 +93,7 @@ async def def test_update_property_aliases(e2e_api_client, e2e_base_url) -> None
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_property_description(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_property_description(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get property description for language."""
@@ -125,7 +125,7 @@ async def def test_get_property_description(e2e_api_client, e2e_base_url) -> Non
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_get_property_label(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_get_property_label(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get property label for language."""

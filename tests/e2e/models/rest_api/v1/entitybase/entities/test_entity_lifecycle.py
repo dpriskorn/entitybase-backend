@@ -7,7 +7,7 @@ sys.path.insert(0, "src")
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_health_check(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_health_check(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Health check endpoint."""
@@ -20,7 +20,7 @@ async def def test_health_check(e2e_api_client, e2e_base_url) -> None:() -> None
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_general_stats(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_general_stats(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get general statistics."""
@@ -33,7 +33,7 @@ async def def test_general_stats(e2e_api_client, e2e_base_url) -> None:() -> Non
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_json_import_endpoint(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_json_import_endpoint(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Import entities from Wikidata JSONL dump file."""
@@ -58,7 +58,7 @@ async def def test_json_import_endpoint(e2e_api_client, e2e_base_url) -> None:()
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def def test_entity_lifecycle(e2e_api_client, e2e_base_url) -> None:() -> None:
+async def test_entity_lifecycle(e2e_api_client, e2e_base_url, api_prefix) -> None:
     from models.rest_api.main import app
 
     """E2E test: Create, read, update, delete entity."""
