@@ -4,6 +4,7 @@ import logging
 
 from models.rest_api.entitybase.v1.handler import Handler
 from models.data.rest_api.v1.entitybase.response import EntityListResponse
+from models.data.rest_api.v1.entitybase.request.entity_filter import EntityFilterRequest
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -48,12 +49,15 @@ class AdminHandler(Handler):
             )
 
         logger.debug("Fetching entities from repository")
-        entities = self.state.vitess_client.entity_repository.list_entities_filtered(
+        filter_request = EntityFilterRequest(
             entity_type=entity_type,
             status=status,
             edit_type=edit_type,
             limit=limit,
             offset=offset,
+        )
+        entities = self.state.vitess_client.entity_repository.list_entities_filtered(
+            filter_request=filter_request
         )
 
         logger.debug(f"Successfully fetched {len(entities)} entities")

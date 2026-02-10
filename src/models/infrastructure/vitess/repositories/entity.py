@@ -8,6 +8,7 @@ from models.data.rest_api.v1.entitybase.response.entity.entitybase import (
     EntityListItem,
     EntityListItemWithEditType,
 )
+from models.data.rest_api.v1.entitybase.request.entity_filter import EntityFilterRequest
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -128,14 +129,14 @@ class EntityRepository(Repository):
             )
 
     def list_entities_filtered(
-        self,
-        entity_type: str = "",
-        status: str = "",
-        edit_type: str = "",
-        limit: int = 100,
-        offset: int = 0,
+        self, filter_request: EntityFilterRequest
     ) -> list[EntityListItem | EntityListItemWithEditType]:
         """List entities with optional filters by type, status, and edit_type."""
+        entity_type = filter_request.entity_type
+        status = filter_request.status
+        edit_type = filter_request.edit_type
+        limit = filter_request.limit
+        offset = filter_request.offset
         logger.debug(
             f"Listing entities - type: {entity_type}, status: {status}, edit_type: {edit_type}, limit: {limit}, offset: {offset}"
         )
@@ -189,7 +190,7 @@ class EntityRepository(Repository):
             base_query += " LIMIT %s OFFSET %s"
             params.extend([limit, offset])
 
-            cursor.execute(base_query, tuple(params))
+            cursor.execute(base_query, (*params,))
             rows = cursor.fetchall()
 
             entities = []
