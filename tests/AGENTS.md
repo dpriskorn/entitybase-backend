@@ -8,13 +8,13 @@ Primary Test Framework:
 Test Organization:
 - Three distinct test categories with pytest markers:
   - @pytest.mark.unit - Unit tests
-  - @pytest.mark.integration - Integration tests  
+  - @pytest.mark.integration - Integration tests
   - @pytest.mark.e2e - End-to-end tests
+- Directory hierarchy mirrors src/models/ structure (see Section 4)
 Test Patterns:
-- Unit tests: Class-based structure with descriptive method names
-- Integration tests: Class-based with async fixtures for database/API setup
-- E2E tests: Function-based with session-scoped fixtures
-- Mocking: Extensive use of unittest.mock for S3, database, and Kafka
+- Unit tests: Use mocks (unittest.mock, pytest-mock) for all external dependencies
+- Integration tests: Use ASGITransport with FastAPI app for API endpoint testing
+- E2E tests: Use ASGITransport with FastAPI app for end-to-end workflow testing
 2. Test Coverage Analysis
 Current Coverage Threshold:
 - Target: 50% minimum coverage
@@ -25,6 +25,7 @@ Coverage Areas:
 - Moderately covered: Internal representation models, RDF builders
 - Less covered: API handlers, services, repositories
 - Minimal coverage: Configuration, infrastructure, error handling
+
 3. Test Structure Breakdown
 Test Files by Type:
 Unit Tests (Primary Focus):
@@ -42,99 +43,94 @@ Unit Tests (Primary Focus):
 ├── Validation (~2 test files)
 └── Services (~1 test file)
 Integration Tests (~15 test files):
-├── REST API endpoints
+├── REST API endpoints (ASGITransport)
 ├── Database repositories (Vitess)
 ├── S3 storage
 ├── Worker processes
 └── Infrastructure components
 E2E Tests (~4 test files):
-├── Entity lifecycle
+├── Entity lifecycle workflows
 ├── User workflows
 └── Endorsements
-4. Missing Test Areas
-Critical Missing Tests:
-1. Configuration & Settings
-   - No tests for models/config/settings.py
-   - Missing validation of environment variable handling
-   - No tests for configuration edge cases
-2. Main Application
-   - No tests for models/rest_api/main.py (FastAPI app setup)
-   - Missing lifespan management tests
-   - No tests for application initialization
-3. API Handlers & Endpoints
-   - Limited coverage of API endpoint handlers
-   - Missing tests for error responses
-   - No tests for request/response validation
-4. Repository Layer
-   - Sparse coverage of database repositories
-   - Missing tests for Vitess client interactions
-   - No tests for transaction handling
-5. Service Layer
-   - Only one service test file found
-   - Missing tests for business logic orchestration
-   - No tests for service error handling
-6. Infrastructure Components
-   - Limited S3 client testing
-   - No tests for Kafka producers/consumers (disabled tests exist)
-   - Missing Redis/cache tests (if used)
-5. Areas Needing Updates/Improvements
-Test Quality Issues:
-1. Test Organization
-   - Some tests use inconsistent naming patterns
-   - Mixed fixture usage patterns
-   - Inconsistent use of test class vs function organization
-2. Test Data Management
-   - Limited use of parameterized tests
-   - Hardcoded test data in many places
-   - Missing test data factories/builders
-3. Mock Usage
-   - Over-reliance on mocking in integration tests
-   - Inconsistent mock setup patterns
-   - Missing tests with real infrastructure where appropriate
-4. Async Testing
-   - Mixed async/sync test patterns
-   - Some integration tests should be async but aren't
-   - Missing proper async context management
-5. Error Handling Tests
-   - Insufficient error condition testing
-   - Missing edge case coverage
-   - Limited exception handling validation
-6. Test Configuration & Infrastructure
+
+Directory Hierarchy:
+- tests/unit/models/ mirrors src/models/ structure
+- tests/integration/models/ mirrors src/models/ structure
+- tests/e2e/models/ mirrors src/models/ structure
+- Each subdirectory in src/models/ has corresponding test directories
+- See Section 4 for detailed hierarchy guidelines
+
+4. Directory Hierarchy Guidelines
+
+Test directories must mirror the source code structure in `src/models/`:
+
+```
+src/models/
+├── config/
+├── data/
+│   ├── infrastructure/
+│   └── rest_api/
+├── internal_representation/
+├── json_parser/
+├── rdf_builder/
+├── rest_api/
+├── services/
+├── validation/
+└── workers/
+
+tests/unit/models/
+├── config/                    # Tests for models/config/
+├── data/                     # Tests for models/data/
+├── internal_representation/  # Tests for models/internal_representation/
+├── json_parser/              # Tests for models/json_parser/
+├── rdf_builder/              # Tests for models/rdf_builder/
+├── rest_api/                 # Tests for models/rest_api/
+├── services/                 # Tests for models/services/
+├── validation/               # Tests for models/validation/
+└── workers/                  # Tests for models/workers/
+
+tests/integration/models/
+├── infrastructure/           # Integration tests for infrastructure
+├── rest_api/                 # Integration tests for API endpoints
+└── workers/                  # Integration tests for workers
+
+tests/e2e/models/
+├── infrastructure/           # E2E tests for infrastructure
+├── internal_representation/  # E2E tests for business logic
+└── rest_api/                 # E2E workflow tests
+```
+
+**Key Principles:**
+- Each subdirectory in `src/models/` should have corresponding test directories in `tests/unit/models/`
+- Maintain consistent naming and organization across test types
+- Unit tests in `tests/unit/models/` use mocks for external dependencies
+- Integration tests in `tests/integration/models/` use ASGITransport for API endpoints
+- E2E tests in `tests/e2e/models/` use ASGITransport for workflow testing
+
+5. Test Configuration & Infrastructure
 Current Setup:
 - Separate conftest.py files for unit, integration, and e2e tests
-- Database cleanup fixtures for integration tests
-- Mock fixtures for external dependencies
-- Docker-based infrastructure for integration tests
-Recommendations:
-1. Unified Test Configuration: Consider consolidating common fixtures
-2. Better Test Data Management: Implement test data factories
-3. Infrastructure Testing: Add tests with real dependencies
-4. Performance Testing: Add load/performance test suite
-5. Contract Testing: Add API contract tests
-7. Specific Recommendations
-High Priority:
-1. Add tests for main application setup and configuration
-2. Expand API endpoint test coverage
-3. Add repository layer tests with real database
-4. Enable and complete disabled stream/integration tests
-Medium Priority:
-1. Implement test data factories
-2. Add parameterized tests for edge cases
-3. Improve error handling test coverage
-4. Add performance/load tests
-Low Priority:
-1. Contract testing for APIs
-2. Chaos engineering tests
-3. Accessibility tests for web interfaces
-4. Security-focused testing
-8. Test Documentation
+- Mock fixtures for external dependencies in unit tests
+- ASGITransport fixtures for integration and e2e tests
+- pytest-asyncio for async test support
+
+Key Fixtures:
+- `tests/conftest.py` - Global test configuration
+- `tests/unit/conftest.py` - Unit test fixtures and mocks
+- `tests/integration/conftest.py` - Integration test fixtures with ASGITransport
+- `tests/e2e/conftest.py` - E2E test fixtures with ASGITransport
+
+6. Test Documentation
 Current State:
 - Basic pytest configuration in pyproject.toml
 - Some inline documentation in test files
 - Agent instructions document provides testing guidelines
-Missing:
-- Comprehensive testing strategy document
-- Test data requirements documentation
-- Mock usage guidelines
-- Integration test setup instructions
-This analysis reveals a well-structured but incomplete test suite with strong unit test coverage for core parsing logic but significant gaps in API, service, and infrastructure testing.
+
+Best Practices:
+- Maintain directory hierarchy mirroring src/models/
+- Use descriptive test names and docstrings
+- Add docstrings to test functions explaining what is being tested
+- Include inline comments for complex test scenarios
+- Document mock usage patterns in test files
+
+This document provides a comprehensive overview of the test suite structure and testing patterns for the Wikibase Backend project.
