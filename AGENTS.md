@@ -182,23 +182,61 @@ def test_parse_string_value():
 ```
 
 #### Integration Tests
+
+Integration tests should use `httpx.AsyncClient` with `ASGITransport` for FastAPI app testing:
+
 ```python
 import pytest
-from httpx import AsyncClient
+from httpx import ASGITransport, AsyncClient
 
-class TestJsonImportIntegration:
-    """Integration tests for the /json-import endpoint."""
+@pytest.mark.asyncio
+@pytest.mark.integration
+async def test_api_endpoint() -> None:
+    """Example integration test using ASGITransport."""
+    from models.rest_api.main import app
+    
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.post(
+            "/v1/entitybase/endpoint",
+            json={"data": "value"},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+```
 
-    @pytest.fixture
-    async def client(self, app):
-        """Create test client for the FastAPI app."""
-        async with AsyncClient(app=app, base_url="http://testserver") as client:
-            yield client
+**Key Points:**
+- Always use `@pytest.mark.asyncio` decorator
+- Import `app` inline within test function: `from models.rest_api.main import app`
+- Use `/v1/entitybase/` prefix for all API endpoints
+- Use `await` with all HTTP methods
+- No external server required (faster test execution)
 
-    async def test_json_import_endpoint_exists(self, client):
-        """Test that the JSON import endpoint exists."""
-        response = await client.get("/v1/json-import")
-        assert response.status_code in [200, 405]  # Exists or method not allowed
+**URL Prefix Rules:**
+- ✅ Correct: `/v1/entitybase/users/12345/watchlist`
+- ❌ Incorrect: `/entitybase/v1/users/12345/watchlist`
+- Health check uses: `/health` (no prefix)
+
+**Migration Complete:**
+All 16 `requests.Session` test files have been migrated to `ASGITransport`:
+- test_item_terms.py (21 tests)
+- test_entity_basic.py (6 tests)
+- test_entity_deletion.py
+- test_entity_protection.py
+- test_entities_list.py
+- test_entity_other.py
+- test_entity_status.py
+- test_entity_schema_validation.py
+- test_entity_revision_retrieval.py
+- test_entity_revision_s3_storage.py
+- test_entity_queries.py
+- test_property_terms.py
+- test_statement_basic.py (3 tests)
+- test_statement_batch_and_properties.py
+- test_statement_update.py
+- test_entitybase_properties.py (3 tests)
+
 ```
 
 #### Fixtures and Test Data

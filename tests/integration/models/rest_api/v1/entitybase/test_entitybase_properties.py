@@ -1,5 +1,8 @@
 import pytest
-import requests
+from httpx import ASGITransport, AsyncClient
+
+
+from models.rest_api.main import app
 
 
 @pytest.mark.integration
@@ -13,8 +16,8 @@ def test_entitybase_create_property(
         "descriptions": {"en": {"language": "en", "value": "A test property"}},
         "datatype": "string",
     }
-    response = api_client.post(
-        f"{base_url}/entitybase/v1/entities/properties", json=data
+    response = await client.post(
+        "/v1/entitybase/entities/base/v1/entities/properties", json=data
     )
     assert response.status_code == 201  # Created
 
@@ -24,6 +27,7 @@ def test_entitybase_create_property(
     assert response_data["type"] == "property"
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
 def test_entitybase_create_property_minimal(
     api_client: requests.Session, base_url: str
@@ -34,8 +38,8 @@ def test_entitybase_create_property_minimal(
         "labels": {"en": {"language": "en", "value": "Minimal Property"}},
         "datatype": "wikibase-item",
     }
-    response = api_client.post(
-        f"{base_url}/entitybase/v1/entities/properties", json=data
+    response = await client.post(
+        "/v1/entitybase/entities/base/v1/entities/properties", json=data
     )
     assert response.status_code == 201
 
@@ -46,6 +50,7 @@ def test_entitybase_create_property_minimal(
     assert response_data["labels"]["en"]["value"] == "Minimal Property"
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
 def test_entitybase_create_property_invalid(
     api_client: requests.Session, base_url: str
@@ -56,8 +61,8 @@ def test_entitybase_create_property_invalid(
         "labels": {},  # Missing labels
         "datatype": "string",
     }
-    response = api_client.post(
-        f"{base_url}/entitybase/v1/entities/properties", json=data
+    response = await client.post(
+        "/v1/entitybase/entities/base/v1/entities/properties", json=data
     )
     # Should fail validation
     assert response.status_code == 400

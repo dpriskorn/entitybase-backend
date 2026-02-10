@@ -1,7 +1,10 @@
 import logging
+import sys
+
+sys.path.insert(0, "src")
 
 import pytest
-import requests
+from httpx import ASGITransport, AsyncClient
 
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 
@@ -9,7 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.integration
+@pytest.mark.asyncio
 def test_get_property_label_success(api_client: requests.Session, api_url: str) -> None:
+    from models.rest_api.main import app
+
     """Test getting property label for language."""
     entity_data = EntityCreateRequest(
         id="P70001",
@@ -18,14 +24,14 @@ def test_get_property_label_success(api_client: requests.Session, api_url: str) 
         edit_summary="test",
     )
 
-    response = api_client.post(
-        f"{api_url}/entities/properties",
+    response = await client.post(
+        "/v1/entitybase/entities/properties",
         json=entity_data.model_dump(mode="json"),
         headers={"X-Edit-Summary": "create test property", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
-    response = api_client.get(f"{api_url}/entities/properties/P70001/labels/en")
+    response = await client.get("/v1/entitybase/entities/properties/P70001/labels/en")
     assert response.status_code == 200
     data = response.json()
     assert "value" in data
@@ -33,7 +39,10 @@ def test_get_property_label_success(api_client: requests.Session, api_url: str) 
 
 
 @pytest.mark.integration
+@pytest.mark.asyncio
 def test_get_property_label_not_found(api_client: requests.Session, api_url: str) -> None:
+    from models.rest_api.main import app
+
     """Test getting property label for non-existent language returns 404."""
     entity_data = EntityCreateRequest(
         id="P70002",
@@ -42,20 +51,23 @@ def test_get_property_label_not_found(api_client: requests.Session, api_url: str
         edit_summary="test",
     )
 
-    response = api_client.post(
-        f"{api_url}/entities/properties",
+    response = await client.post(
+        "/v1/entitybase/entities/properties",
         json=entity_data.model_dump(mode="json"),
         headers={"X-Edit-Summary": "create test property", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
-    response = api_client.get(f"{api_url}/entities/properties/P70002/labels/de")
+    response = await client.get("/v1/entitybase/entities/properties/P70002/labels/de")
     assert response.status_code == 404
     assert "not found" in response.json()["detail"].lower()
 
 
 @pytest.mark.integration
+@pytest.mark.asyncio
 def test_get_property_description_success(api_client: requests.Session, api_url: str) -> None:
+    from models.rest_api.main import app
+
     """Test getting property description for language."""
     entity_data = EntityCreateRequest(
         id="P70003",
@@ -64,14 +76,14 @@ def test_get_property_description_success(api_client: requests.Session, api_url:
         edit_summary="test",
     )
 
-    response = api_client.post(
-        f"{api_url}/entities/properties",
+    response = await client.post(
+        "/v1/entitybase/entities/properties",
         json=entity_data.model_dump(mode="json"),
         headers={"X-Edit-Summary": "create test property", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
-    response = api_client.get(f"{api_url}/entities/properties/P70003/descriptions/en")
+    response = await client.get("/v1/entitybase/entities/properties/P70003/descriptions/en")
     assert response.status_code == 200
     data = response.json()
     assert "value" in data
@@ -79,7 +91,10 @@ def test_get_property_description_success(api_client: requests.Session, api_url:
 
 
 @pytest.mark.integration
+@pytest.mark.asyncio
 def test_get_property_description_not_found(api_client: requests.Session, api_url: str) -> None:
+    from models.rest_api.main import app
+
     """Test getting property description for non-existent language returns 404."""
     entity_data = EntityCreateRequest(
         id="P70004",
@@ -88,19 +103,22 @@ def test_get_property_description_not_found(api_client: requests.Session, api_ur
         edit_summary="test",
     )
 
-    response = api_client.post(
-        f"{api_url}/entities/properties",
+    response = await client.post(
+        "/v1/entitybase/entities/properties",
         json=entity_data.model_dump(mode="json"),
         headers={"X-Edit-Summary": "create test property", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
-    response = api_client.get(f"{api_url}/entities/properties/P70004/descriptions/de")
+    response = await client.get("/v1/entitybase/entities/properties/P70004/descriptions/de")
     assert response.status_code == 404
 
 
 @pytest.mark.integration
+@pytest.mark.asyncio
 def test_get_property_aliases_success(api_client: requests.Session, api_url: str) -> None:
+    from models.rest_api.main import app
+
     """Test getting property aliases for language."""
     entity_data = EntityCreateRequest(
         id="P70005",
@@ -109,14 +127,14 @@ def test_get_property_aliases_success(api_client: requests.Session, api_url: str
         edit_summary="test",
     )
 
-    response = api_client.post(
-        f"{api_url}/entities/properties",
+    response = await client.post(
+        "/v1/entitybase/entities/properties",
         json=entity_data.model_dump(mode="json"),
         headers={"X-Edit-Summary": "create test property", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
-    response = api_client.get(f"{api_url}/entities/properties/P70005/aliases/en")
+    response = await client.get("/v1/entitybase/entities/properties/P70005/aliases/en")
     assert response.status_code == 200
     data = response.json()
     assert "aliases" in data
@@ -126,7 +144,10 @@ def test_get_property_aliases_success(api_client: requests.Session, api_url: str
 
 
 @pytest.mark.integration
+@pytest.mark.asyncio
 def test_get_property_aliases_not_found(api_client: requests.Session, api_url: str) -> None:
+    from models.rest_api.main import app
+
     """Test getting property aliases for non-existent language returns 404."""
     entity_data = EntityCreateRequest(
         id="P70006",
@@ -135,19 +156,22 @@ def test_get_property_aliases_not_found(api_client: requests.Session, api_url: s
         edit_summary="test",
     )
 
-    response = api_client.post(
-        f"{api_url}/entities/properties",
+    response = await client.post(
+        "/v1/entitybase/entities/properties",
         json=entity_data.model_dump(mode="json"),
         headers={"X-Edit-Summary": "create test property", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
-    response = api_client.get(f"{api_url}/entities/properties/P70006/aliases/de")
+    response = await client.get("/v1/entitybase/entities/properties/P70006/aliases/de")
     assert response.status_code == 404
 
 
 @pytest.mark.integration
+@pytest.mark.asyncio
 def test_update_property_aliases_replace(api_client: requests.Session, api_url: str) -> None:
+    from models.rest_api.main import app
+
     """Test updating property aliases replaces existing ones."""
     entity_data = EntityCreateRequest(
         id="P70007",
@@ -156,15 +180,15 @@ def test_update_property_aliases_replace(api_client: requests.Session, api_url: 
         edit_summary="test",
     )
 
-    response = api_client.post(
-        f"{api_url}/entities/properties",
+    response = await client.post(
+        "/v1/entitybase/entities/properties",
         json=entity_data.model_dump(mode="json"),
         headers={"X-Edit-Summary": "create test property", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
-    response = api_client.put(
-        f"{api_url}/entities/properties/P70007/aliases/en",
+    response = await client.put(
+        "/v1/entitybase/entities/properties/P70007/aliases/en",
         json=["New Alias 1", "New Alias 2"],
         headers={"X-Edit-Summary": "replace property aliases", "X-User-ID": "0"},
     )
@@ -177,7 +201,10 @@ def test_update_property_aliases_replace(api_client: requests.Session, api_url: 
 
 
 @pytest.mark.integration
+@pytest.mark.asyncio
 def test_update_property_aliases_add(api_client: requests.Session, api_url: str) -> None:
+    from models.rest_api.main import app
+
     """Test updating property aliases creates new if not exists."""
     entity_data = EntityCreateRequest(
         id="P70008",
@@ -186,15 +213,15 @@ def test_update_property_aliases_add(api_client: requests.Session, api_url: str)
         edit_summary="test",
     )
 
-    response = api_client.post(
-        f"{api_url}/entities/properties",
+    response = await client.post(
+        "/v1/entitybase/entities/properties",
         json=entity_data.model_dump(mode="json"),
         headers={"X-Edit-Summary": "create test property", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
-    response = api_client.put(
-        f"{api_url}/entities/properties/P70008/aliases/en",
+    response = await client.put(
+        "/v1/entitybase/entities/properties/P70008/aliases/en",
         json=["Property Alias 1", "Property Alias 2"],
         headers={"X-Edit-Summary": "add property aliases", "X-User-ID": "0"},
     )

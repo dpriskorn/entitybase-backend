@@ -1,7 +1,10 @@
 import logging
+import sys
+
+sys.path.insert(0, "src")
 
 import pytest
-import requests
+from httpx import ASGITransport, AsyncClient
 
 
 @pytest.mark.integration
@@ -18,13 +21,13 @@ def test_semi_protection_blocks_not_autoconfirmed_users(
     }
 
     # Create semi-protected item
-    api_client.post(
-        f"{base_url}/entity", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
+    await client.post(
+        "/v1/entitybase/entities/", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
     )
 
     # Attempt edit by not-autoconfirmed user (should fail)
-    response = api_client.post(
-        f"{base_url}/entity",
+    response = await client.post(
+        "/v1/entitybase/entities/",
         json={
             **entity_data,
             "labels": {"en": {"language": "en", "value": "Updated"}},
@@ -36,8 +39,8 @@ def test_semi_protection_blocks_not_autoconfirmed_users(
     assert "unconfirmed" in response.json()["message"].lower()
 
     # Autoconfirmed user should be able to edit
-    response = api_client.post(
-        f"{base_url}/entity",
+    response = await client.post(
+        "/v1/entitybase/entities/",
         json={
             **entity_data,
             "labels": {"en": {"language": "en", "value": "Updated"}},
@@ -64,13 +67,13 @@ def test_semi_protection_allows_autoconfirmed_users(
     }
 
     # Create semi-protected item
-    api_client.post(
-        f"{base_url}/entity", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
+    await client.post(
+        "/v1/entitybase/entities/", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
     )
 
     # Autoconfirmed user edit should succeed
-    response = api_client.post(
-        f"{base_url}/entity",
+    response = await client.post(
+        "/v1/entitybase/entities/",
         json={
             **entity_data,
             "labels": {"en": {"language": "en", "value": "Updated"}},
@@ -97,11 +100,11 @@ def test_locked_items_block_all_edits(
     }
 
     # Create locked item
-    api_client.post(f"{base_url}/entity", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post("/v1/entitybase/entities/", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
     # Attempt manual edit (should fail)
-    response = api_client.post(
-        f"{base_url}/entity",
+    response = await client.post(
+        "/v1/entitybase/entities/",
         json={**entity_data, "labels": {"en": {"language": "en", "value": "Updated"}}},
         headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
     )
@@ -125,11 +128,11 @@ def test_archived_items_block_all_edits(
     }
 
     # Create archived item
-    api_client.post(f"{base_url}/entity", json={**entity_data, "is_archived": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post("/v1/entitybase/entities/", json={**entity_data, "is_archived": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
     # Attempt edit (should fail)
-    response = api_client.post(
-        f"{base_url}/entity",
+    response = await client.post(
+        "/v1/entitybase/entities/",
         json={**entity_data, "labels": {"en": {"language": "en", "value": "Updated"}}},
         headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
     )
@@ -153,13 +156,13 @@ def test_mass_edit_protection_blocks_mass_edits(
     }
 
     # Create mass-edit protected item
-    api_client.post(
-        f"{base_url}/entity", json={**entity_data, "is_mass_edit_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
+    await client.post(
+        "/v1/entitybase/entities/", json={**entity_data, "is_mass_edit_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
     )
 
     # Attempt mass edit (should fail)
-    response = api_client.post(
-        f"{base_url}/entity",
+    response = await client.post(
+        "/v1/entitybase/entities/",
         json={
             **entity_data,
             "is_mass_edit": True,
@@ -171,8 +174,8 @@ def test_mass_edit_protection_blocks_mass_edits(
     assert "mass edits blocked" in response.json()["message"].lower()
 
     # Manual edit should work
-    response = api_client.post(
-        f"{base_url}/entity",
+    response = await client.post(
+        "/v1/entitybase/entities/",
         json={
             **entity_data,
             "is_mass_edit": False,

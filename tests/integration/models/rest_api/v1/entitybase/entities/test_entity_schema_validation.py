@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Any, cast
 
 import pytest
-import requests
+from httpx import ASGITransport, AsyncClient
 import yaml
 from jsonschema import Draft202012Validator
 
@@ -51,8 +51,8 @@ class TestEntitySchemaValidation:
             "edit_summary": "Test entity for schema validation"
         }
 
-        response = api_client.post(
-            f"{base_url}/entitybase/v1/entities/items",
+        response = await client.post(
+            "/v1/entitybase/entities/base/v1/entities/items",
             json=item_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -61,7 +61,7 @@ class TestEntitySchemaValidation:
         entity_id = create_result["id"]
         assert entity_id.startswith("Q")
 
-        json_response = api_client.get(f"{base_url}/entitybase/v1/entities/{entity_id}.json")
+        json_response = await client.get("/v1/entitybase/entities/base/v1/entities/{entity_id}.json")
         assert json_response.status_code == 200
         entity_data = json_response.json()["data"]
 
@@ -89,14 +89,14 @@ class TestEntitySchemaValidation:
             "type": "item",
             "edit_summary": "Test required fields"
         }
-        response = api_client.post(
-            f"{base_url}/entitybase/v1/entities/items",
+        response = await client.post(
+            "/v1/entitybase/entities/base/v1/entities/items",
             json=item_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         entity_id = response.json()["id"]
 
-        json_response = api_client.get(f"{base_url}/entitybase/v1/entities/{entity_id}.json")
+        json_response = await client.get("/v1/entitybase/entities/base/v1/entities/{entity_id}.json")
         entity_data = json_response.json()["data"]
 
         assert "id" in entity_data
@@ -120,14 +120,14 @@ class TestEntitySchemaValidation:
             "edit_summary": "Test item with descriptions"
         }
 
-        response = api_client.post(
-            f"{base_url}/entitybase/v1/entities/items",
+        response = await client.post(
+            "/v1/entitybase/entities/base/v1/entities/items",
             json=item_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         entity_id = response.json()["id"]
 
-        json_response = api_client.get(f"{base_url}/entitybase/v1/entities/{entity_id}.json")
+        json_response = await client.get("/v1/entitybase/entities/base/v1/entities/{entity_id}.json")
         entity_data = json_response.json()["data"]
 
         errors = list(schema_validator.iter_errors(entity_data))
@@ -166,14 +166,14 @@ class TestEntitySchemaValidation:
             "edit_summary": "Test item with claims"
         }
 
-        response = api_client.post(
-            f"{base_url}/entitybase/v1/entities/items",
+        response = await client.post(
+            "/v1/entitybase/entities/base/v1/entities/items",
             json=item_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         entity_id = response.json()["id"]
 
-        json_response = api_client.get(f"{base_url}/entitybase/v1/entities/{entity_id}.json")
+        json_response = await client.get("/v1/entitybase/entities/base/v1/entities/{entity_id}.json")
         entity_data = json_response.json()["data"]
 
         errors = list(schema_validator.iter_errors(entity_data))

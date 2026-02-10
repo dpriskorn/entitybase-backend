@@ -1,7 +1,10 @@
 import logging
+import sys
+
+sys.path.insert(0, "src")
 
 import pytest
-import requests
+from httpx import ASGITransport, AsyncClient
 
 
 @pytest.mark.integration
@@ -16,11 +19,11 @@ def test_hard_delete_entity(api_client: requests.Session, base_url: str) -> None
     }
 
     # Create entity
-    api_client.post(f"{base_url}/entity", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post("/v1/entitybase/entities/", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
     # Hard delete
-    delete_response = api_client.delete(
-        f"{base_url}/entity/Q99002",
+    delete_response = await client.delete(
+        "/v1/entitybase/entities//Q99002",
         json={"delete_type": "hard"},
         headers={"X-Edit-Summary": "delete entity", "X-User-ID": "0"},
     )
@@ -32,7 +35,7 @@ def test_hard_delete_entity(api_client: requests.Session, base_url: str) -> None
     assert result["deletion_type"] == "hard"
 
     # Verify entity no longer accessible (hard delete hides)
-    get_response = api_client.get(f"{base_url}/entity/Q99002")
+    get_response = await client.get("/v1/entitybase/entities//Q99002")
     assert get_response.status_code == 410  # Gone
     assert "deleted" in get_response.json()["message"].lower()
 
@@ -53,18 +56,18 @@ def test_hard_delete_prevents_undelete(
     }
 
     # Create entity
-    api_client.post(f"{base_url}/entity", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post("/v1/entitybase/entities/", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
     # Hard delete
-    api_client.delete(
-        f"{base_url}/entity/Q99004",
+    await client.delete(
+        "/v1/entitybase/entities//Q99004",
         json={"delete_type": "hard"},
         headers={"X-Edit-Summary": "delete entity", "X-User-ID": "0"},
     )
 
     # Try to undelete (should fail with 410)
-    response = api_client.post(
-        f"{base_url}/entity",
+    response = await client.post(
+        "/v1/entitybase/entities/",
         json={
             "id": "Q99004",
             "type": "item",

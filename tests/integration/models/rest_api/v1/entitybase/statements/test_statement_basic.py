@@ -1,11 +1,11 @@
-import requests
+from httpx import ASGITransport, AsyncClient
 
 
 def test_get_nonexistent_statement_404(
     api_client: requests.Session, base_url: str
 ) -> None:
     """Test fetching nonexistent statement returns 404"""
-    response = api_client.get(f"{base_url}/statement/999999")
+    response = await client.get(f"{base_url}/statement/999999")
     assert response.status_code == 404
 
 
@@ -38,11 +38,11 @@ def test_entity_revision_with_statements(
         },
     }
 
-    response = api_client.post(f"{base_url}/entity", json=entity_data)
+    response = await client.post("/v1/entitybase/entities/", json=entity_data)
     assert response.status_code == 200
 
     # Get entity
-    entity_response = api_client.get(f"{base_url}/entity/Q80005")
+    entity_response = await client.get("/v1/entitybase/entities//Q80005")
     assert entity_response.status_code == 200
     entity = entity_response.json()
 
@@ -80,5 +80,5 @@ def test_invalid_statement_rejected(
         },
     }
 
-    response = api_client.post(f"{base_url}/entity", json=entity_data)
+    response = await client.post("/v1/entitybase/entities/", json=entity_data)
     assert response.status_code == 400

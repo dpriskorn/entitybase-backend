@@ -1,7 +1,10 @@
 import logging
+import sys
+
+sys.path.insert(0, "src")
 
 import pytest
-import requests
+from httpx import ASGITransport, AsyncClient
 
 
 @pytest.mark.integration
@@ -17,8 +20,8 @@ def test_status_flags_returned_in_response(
         "labels": {"en": {"language": "en", "value": "Test"}},
     }
 
-    api_client.post(
-        f"{base_url}/entity",
+    await client.post(
+        "/v1/entitybase/entities/",
         json={
             **entity_data,
             "is_semi_protected": True,
@@ -30,7 +33,7 @@ def test_status_flags_returned_in_response(
         headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
 
-    response = api_client.get(f"{base_url}/entity/Q90005")
+    response = await client.get("/v1/entitybase/entities//Q90005")
     data = response.json()
     assert data["is_semi_protected"]
     assert not data["is_locked"]

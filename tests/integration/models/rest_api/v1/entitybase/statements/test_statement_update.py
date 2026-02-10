@@ -1,15 +1,24 @@
 import logging
+import sys
+
+sys.path.insert(0, "src")
+import sys
+
+sys.path.insert(0, "src")
 
 import pytest
-import requests
+from httpx import ASGITransport, AsyncClient
 
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 
 logger = logging.getLogger(__name__)
 
 
+from models.rest_api.main import app
+
+
 @pytest.mark.integration
-def test_delete_statement_success(api_client: requests.Session, api_url: str) -> None:
+async def test_delete_statement_success() -> None:
     """Test deleting a statement by hash from an entity."""
     entity_data = {
         "id": "Q72001",
@@ -36,10 +45,10 @@ def test_delete_statement_success(api_client: requests.Session, api_url: str) ->
         },
     }
 
-    response = api_client.post(f"{api_url}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    response = await client.post(/v1/entitybase/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
     assert response.status_code == 200
 
-    entity_response = api_client.get(f"{api_url}/entities/Q72001")
+    entity_response = await client.get(/v1/entitybase/entities/Q72001")
     assert entity_response.status_code == 200
     entity = entity_response.json()
     assert "statements" in entity
@@ -47,21 +56,22 @@ def test_delete_statement_success(api_client: requests.Session, api_url: str) ->
 
     statement_hash = str(entity["statements"][0])
 
-    delete_response = api_client.delete(
-        f"{api_url}/entities/Q72001/statements/{statement_hash}",
+    delete_response = await client.delete(
+        /v1/entitybase/entities/Q72001/statements/{statement_hash}",
         json={},
         headers={"X-Edit-Summary": "delete statement", "X-User-ID": "0"},
     )
     assert delete_response.status_code == 200
 
-    entity_response = api_client.get(f"{api_url}/entities/Q72001")
+    entity_response = await client.get(/v1/entitybase/entities/Q72001")
     assert entity_response.status_code == 200
     entity = entity_response.json()
     assert len(entity["statements"]) == 0
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_delete_statement_not_found(api_client: requests.Session, api_url: str) -> None:
+async def test_delete_statement_not_found() -> None:
     """Test deleting a non-existent statement hash returns 404."""
     entity_data = EntityCreateRequest(
         id="Q72002",
@@ -70,23 +80,24 @@ def test_delete_statement_not_found(api_client: requests.Session, api_url: str) 
         edit_summary="test",
     )
 
-    response = api_client.post(
-        f"{api_url}/entities/items",
+    response = await client.post(
+        /v1/entitybase/entities/items",
         json=entity_data.model_dump(mode="json"),
         headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
-    delete_response = api_client.delete(
-        f"{api_url}/entities/Q72002/statements/999999",
+    delete_response = await client.delete(
+        /v1/entitybase/entities/Q72002/statements/999999",
         json={},
         headers={"X-Edit-Summary": "delete statement", "X-User-ID": "0"},
     )
     assert delete_response.status_code == 404
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_delete_statement_updates_entity(api_client: requests.Session, api_url: str) -> None:
+async def test_delete_statement_updates_entity() -> None:
     """Test that deleting a statement increments entity revision."""
     entity_data = {
         "id": "Q72003",
@@ -113,31 +124,32 @@ def test_delete_statement_updates_entity(api_client: requests.Session, api_url: 
         },
     }
 
-    response = api_client.post(f"{api_url}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    response = await client.post(/v1/entitybase/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
     assert response.status_code == 200
 
-    entity_response = api_client.get(f"{api_url}/entities/Q72003")
+    entity_response = await client.get(/v1/entitybase/entities/Q72003")
     assert entity_response.status_code == 200
     entity = entity_response.json()
     assert entity["rev_id"] == 1
 
     statement_hash = str(entity["statements"][0])
 
-    delete_response = api_client.delete(
-        f"{api_url}/entities/Q72003/statements/{statement_hash}",
+    delete_response = await client.delete(
+        /v1/entitybase/entities/Q72003/statements/{statement_hash}",
         json={},
         headers={"X-Edit-Summary": "delete statement", "X-User-ID": "0"},
     )
     assert delete_response.status_code == 200
 
-    entity_response = api_client.get(f"{api_url}/entities/Q72003")
+    entity_response = await client.get(/v1/entitybase/entities/Q72003")
     assert entity_response.status_code == 200
     entity = entity_response.json()
     assert entity["rev_id"] == 2
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_patch_statement_success(api_client: requests.Session, api_url: str) -> None:
+async def test_patch_statement_success() -> None:
     """Test patching a statement by hash with new claim data."""
     entity_data = {
         "id": "Q72004",
@@ -164,10 +176,10 @@ def test_patch_statement_success(api_client: requests.Session, api_url: str) -> 
         },
     }
 
-    response = api_client.post(f"{api_url}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    response = await client.post(/v1/entitybase/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
     assert response.status_code == 200
 
-    entity_response = api_client.get(f"{api_url}/entities/Q72004")
+    entity_response = await client.get(/v1/entitybase/entities/Q72004")
     assert entity_response.status_code == 200
     entity = entity_response.json()
     statement_hash = str(entity["statements"][0])
@@ -194,16 +206,17 @@ def test_patch_statement_success(api_client: requests.Session, api_url: str) -> 
         }
     }
 
-    patch_response = api_client.patch(
-        f"{api_url}/entities/Q72004/statements/{statement_hash}",
+    patch_response = await client.patch(
+        /v1/entitybase/entities/Q72004/statements/{statement_hash}",
         json=patch_data,
         headers={"X-Edit-Summary": "patch statement", "X-User-ID": "0"},
     )
     assert patch_response.status_code == 200
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_patch_statement_not_found(api_client: requests.Session, api_url: str) -> None:
+async def test_patch_statement_not_found() -> None:
     """Test patching a non-existent statement hash returns 404."""
     entity_data = EntityCreateRequest(
         id="Q72005",
@@ -212,8 +225,8 @@ def test_patch_statement_not_found(api_client: requests.Session, api_url: str) -
         edit_summary="test",
     )
 
-    response = api_client.post(
-        f"{api_url}/entities/items",
+    response = await client.post(
+        /v1/entitybase/entities/items",
         json=entity_data.model_dump(mode="json"),
         headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
@@ -223,16 +236,17 @@ def test_patch_statement_not_found(api_client: requests.Session, api_url: str) -
         "claims": {}
     }
 
-    patch_response = api_client.patch(
-        f"{api_url}/entities/Q72005/statements/999999",
+    patch_response = await client.patch(
+        /v1/entitybase/entities/Q72005/statements/999999",
         json=patch_data,
         headers={"X-Edit-Summary": "patch statement", "X-User-ID": "0"},
     )
     assert patch_response.status_code == 404
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_patch_statement_modifies_value(api_client: requests.Session, api_url: str) -> None:
+async def test_patch_statement_modifies_value() -> None:
     """Test that patching a statement modifies the value correctly."""
     entity_data = {
         "id": "Q72006",
@@ -259,10 +273,10 @@ def test_patch_statement_modifies_value(api_client: requests.Session, api_url: s
         },
     }
 
-    response = api_client.post(f"{api_url}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    response = await client.post(/v1/entitybase/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
     assert response.status_code == 200
 
-    entity_response = api_client.get(f"{api_url}/entities/Q72006")
+    entity_response = await client.get(/v1/entitybase/entities/Q72006")
     assert entity_response.status_code == 200
     entity = entity_response.json()
     statement_hash = str(entity["statements"][0])
@@ -289,14 +303,14 @@ def test_patch_statement_modifies_value(api_client: requests.Session, api_url: s
         }
     }
 
-    patch_response = api_client.patch(
-        f"{api_url}/entities/Q72006/statements/{statement_hash}",
+    patch_response = await client.patch(
+        /v1/entitybase/entities/Q72006/statements/{statement_hash}",
         json=patch_data,
         headers={"X-Edit-Summary": "patch statement", "X-User-ID": "0"},
     )
     assert patch_response.status_code == 200
 
-    entity_response = api_client.get(f"{api_url}/entities/Q72006")
+    entity_response = await client.get(/v1/entitybase/entities/Q72006")
     assert entity_response.status_code == 200
     entity = entity_response.json()
     assert entity["rev_id"] == 2

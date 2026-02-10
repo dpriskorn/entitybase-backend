@@ -1,11 +1,11 @@
-import requests
+from httpx import ASGITransport, AsyncClient
 
 
 def test_batch_fetch_with_missing_hashes(
     api_client: requests.Session, base_url: str
 ) -> None:
     """Test batch fetch handles missing statement hashes gracefully"""
-    response = api_client.post(
+    response = await client.post(
         f"{base_url}/statements/batch", json={"hashes": [1, 999999, 2]}
     )
     assert response.status_code == 200
@@ -78,9 +78,9 @@ def test_entity_properties_list(api_client: requests.Session, base_url: str) -> 
         },
     }
 
-    api_client.post(f"{base_url}/entity", json=entity_data)
+    await client.post("/v1/entitybase/entities/", json=entity_data)
 
-    response = api_client.get(f"{base_url}/entity/Q80006/properties")
+    response = await client.get("/v1/entitybase/entities//Q80006/properties")
     assert response.status_code == 200
 
     result = response.json()
@@ -159,9 +159,9 @@ def test_entity_property_counts(api_client: requests.Session, base_url: str) -> 
         },
     }
 
-    api_client.post(f"{base_url}/entity", json=entity_data)
+    await client.post("/v1/entitybase/entities/", json=entity_data)
 
-    response = api_client.get(f"{base_url}/entity/Q80007/property_counts")
+    response = await client.get("/v1/entitybase/entities//Q80007/property_counts")
     assert response.status_code == 200
 
     result = response.json()
@@ -252,9 +252,9 @@ def test_most_used_statements(api_client: requests.Session, base_url: str) -> No
     ]
 
     for entity in entities:
-        api_client.post(f"{base_url}/entity", json=entity)
+        await client.post("/v1/entitybase/entities/", json=entity)
 
-    response = api_client.get(f"{base_url}/statements/most_used?limit=5")
+    response = await client.get(f"{base_url}/statements/most_used?limit=5")
     assert response.status_code == 200
 
     result = response.json()

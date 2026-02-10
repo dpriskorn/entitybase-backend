@@ -23,7 +23,7 @@ class TestEndorsements(TestCase):
         ) as client:
             # First create a user
             response = await client.post(
-                "/entitybase/v1/users", json={"user_id": 12345}
+                "/v1/entitybase/users", json={"user_id": 12345}
             )
             assert response.status_code == 200
 
@@ -47,7 +47,7 @@ class TestEndorsements(TestCase):
         ) as client:
             # Create a user
             response = await client.post(
-                "/entitybase/v1/users", json={"user_id": 12345}
+                "/v1/entitybase/users", json={"user_id": 12345}
             )
             assert response.status_code == 200
 
@@ -70,7 +70,7 @@ class TestEndorsements(TestCase):
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
             response = await client.get(
-                "/entitybase/v1/statements/123456789/endorsements"
+                "/v1/entitybase/statements/123456789/endorsements"
             )
 
             # Should return endorsements list (might be empty)
@@ -110,7 +110,7 @@ class TestEndorsements(TestCase):
         ) as client:
             # Create a user first
             response = await client.post(
-                "/entitybase/v1/users", json={"user_id": 12345}
+                "/v1/entitybase/users", json={"user_id": 12345}
             )
             assert response.status_code == 200
 
@@ -135,7 +135,7 @@ class TestEndorsements(TestCase):
         ) as client:
             # Create a user first
             response = await client.post(
-                "/entitybase/v1/users", json={"user_id": 12345}
+                "/v1/entitybase/users", json={"user_id": 12345}
             )
             assert response.status_code == 200
 

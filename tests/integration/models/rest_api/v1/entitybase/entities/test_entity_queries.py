@@ -1,7 +1,10 @@
 import logging
+import sys
+
+sys.path.insert(0, "src")
 
 import pytest
-import requests
+from httpx import ASGITransport, AsyncClient
 
 
 @pytest.mark.skip(
@@ -17,9 +20,9 @@ def test_query_locked_entities(api_client: requests.Session, base_url: str) -> N
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Locked"}},
     }
-    api_client.post(f"{base_url}/entity", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post("/v1/entitybase/entities/", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    response = api_client.get(f"{base_url}/entities?status=locked")
+    response = await client.get(f"{base_url}/entities?status=locked")
     assert response.status_code == 200
     entities = response.json()
     assert any(e["entity_id"] == "Q90010" for e in entities)
@@ -42,11 +45,11 @@ def test_query_semi_protected_entities(
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Protected"}},
     }
-    api_client.post(
-        f"{base_url}/entity", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
+    await client.post(
+        "/v1/entitybase/entities/", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
     )
 
-    response = api_client.get(f"{base_url}/entities?status=semi_protected")
+    response = await client.get(f"{base_url}/entities?status=semi_protected")
     assert response.status_code == 200
     entities = response.json()
     assert any(e["entity_id"] == "Q90011" for e in entities)
@@ -67,9 +70,9 @@ def test_query_archived_entities(api_client: requests.Session, base_url: str) ->
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Archived"}},
     }
-    api_client.post(f"{base_url}/entity", json={**entity_data, "is_archived": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post("/v1/entitybase/entities/", json={**entity_data, "is_archived": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    response = api_client.get(f"{base_url}/entities?status=archived")
+    response = await client.get(f"{base_url}/entities?status=archived")
     assert response.status_code == 200
     entities = response.json()
     assert any(e["entity_id"] == "Q90012" for e in entities)
@@ -90,9 +93,9 @@ def test_query_dangling_entities(api_client: requests.Session, base_url: str) ->
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Dangling"}},
     }
-    api_client.post(f"{base_url}/entity", json={**entity_data, "is_dangling": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post("/v1/entitybase/entities/", json={**entity_data, "is_dangling": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    response = api_client.get(f"{base_url}/entities?status=dangling")
+    response = await client.get(f"{base_url}/entities?status=dangling")
     assert response.status_code == 200
     entities = response.json()
     assert any(e["entity_id"] == "Q90013" for e in entities)
@@ -106,16 +109,16 @@ def test_list_entities_by_type(api_client: requests.Session, base_url: str) -> N
     logger = logging.getLogger(__name__)
 
     # Create some test entities
-    api_client.post(
-        f"{base_url}/entitybase/v1/entities/items",
+    await client.post(
+        "/v1/entitybase/entities/base/v1/entities/items",
         json={
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Test Item"}},
         },
         headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
-    api_client.post(
-        f"{base_url}/entitybase/v1/entities/lexemes",
+    await client.post(
+        "/v1/entitybase/entities/base/v1/entities/lexemes",
         json={
             "type": "lexeme",
             "lemmas": {"en": {"language": "en", "value": "test"}},
@@ -126,7 +129,7 @@ def test_list_entities_by_type(api_client: requests.Session, base_url: str) -> N
     )
 
     # List items
-    response = api_client.get(f"{base_url}/entitybase/v1/entities?entity_type=item")
+    response = await client.get("/v1/entitybase/entities/base/v1/entities?entity_type=item")
     assert response.status_code == 200
     result = response.json()
     assert "entities" in result
@@ -138,7 +141,7 @@ def test_list_entities_by_type(api_client: requests.Session, base_url: str) -> N
         assert entity["id"].startswith("Q")
 
     # List lexemes
-    response = api_client.get(f"{base_url}/entitybase/v1/entities?entity_type=lexeme")
+    response = await client.get("/v1/entitybase/entities/base/v1/entities?entity_type=lexeme")
     assert response.status_code == 200
     result = response.json()
     assert result["count"] > 0
@@ -162,13 +165,13 @@ def test_query_by_edit_type(api_client: requests.Session, base_url: str) -> None
         "labels": {"en": {"language": "en", "value": "Test"}},
     }
 
-    api_client.post(
-        f"{base_url}/entity",
+    await client.post(
+        "/v1/entitybase/entities/",
         json={**entity_data, "is_locked": True, "edit_type": "lock-added"},
         headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
 
-    response = api_client.get(f"{base_url}/entities?edit_type=lock-added")
+    response = await client.get(f"{base_url}/entities?edit_type=lock-added")
     assert response.status_code == 200
     entities = response.json()
     assert any(e["entity_id"] == "Q90014" for e in entities)

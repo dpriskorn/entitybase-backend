@@ -16,11 +16,11 @@ async def test_add_watch() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # First register user
-        await client.post("/entitybase/v1/users", json={"user_id": 12345})
+        await client.post("/v1/entitybase/users", json={"user_id": 12345})
 
         # Add watch
         response = await client.post(
-            "/entitybase/v1/users/12345/watchlist",
+            "/v1/entitybase/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 200
@@ -38,7 +38,7 @@ async def test_add_watch_user_not_registered() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/entitybase/v1/users/12345/watchlist",
+            "/v1/entitybase/users/12345/watchlist",
             json={"user_id": 99999, "entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 400
@@ -55,16 +55,16 @@ async def test_remove_watch() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user and add watch
-        await client.post("/entitybase/v1/users", json={"user_id": 12345})
+        await client.post("/v1/entitybase/users", json={"user_id": 12345})
         await client.post(
-            "/entitybase/v1/users/12345/watchlist",
+            "/v1/entitybase/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
 
         # Remove watch
         response = await client.request(
             "DELETE",
-            "/entitybase/v1/users/12345/watchlist",
+            "/v1/entitybase/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 200
@@ -82,14 +82,14 @@ async def test_get_watchlist() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user and add watch
-        await client.post("/entitybase/v1/users", json={"user_id": 12345})
+        await client.post("/v1/entitybase/users", json={"user_id": 12345})
         await client.post(
-            "/entitybase/v1/users/12345/watchlist",
+            "/v1/entitybase/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
 
         # Get watchlist
-        response = await client.get("/entitybase/v1/users/12345/watchlist")
+        response = await client.get("/v1/entitybase/users/12345/watchlist")
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -107,7 +107,7 @@ async def test_get_watchlist_user_not_registered() -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/entitybase/v1/users/99999/watchlist")
+        response = await client.get("/v1/entitybase/users/99999/watchlist")
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
 
@@ -122,28 +122,28 @@ async def test_remove_watch_by_id() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user and add watch
-        await client.post("/entitybase/v1/users", json={"user_id": 12345})
+        await client.post("/v1/entitybase/users", json={"user_id": 12345})
         await client.post(
-            "/entitybase/v1/users/12345/watchlist",
+            "/v1/entitybase/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
 
         # Get watchlist to obtain the watch ID
-        response = await client.get("/entitybase/v1/users/12345/watchlist")
+        response = await client.get("/v1/entitybase/users/12345/watchlist")
         assert response.status_code == 200
         data = response.json()
         watch_id = data["watches"][0]["id"]
 
         # Remove watch by ID
         response = await client.delete(
-            f"/entitybase/v1/users/12345/watchlist/{watch_id}"
+            f"/v1/entitybase/users/12345/watchlist/{watch_id}"
         )
         assert response.status_code == 200
         data = response.json()
         assert data["message"] == "Watch removed"
 
         # Verify watch is removed
-        response = await client.get("/entitybase/v1/users/12345/watchlist")
+        response = await client.get("/v1/entitybase/users/12345/watchlist")
         assert response.status_code == 200
         data = response.json()
         assert len(data["watches"]) == 0
@@ -159,11 +159,11 @@ async def test_get_notifications() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/entitybase/v1/users", json={"user_id": 12345})
+        await client.post("/v1/entitybase/users", json={"user_id": 12345})
 
         # Get notifications (should be empty initially)
         response = await client.get(
-            "/entitybase/v1/users/12345/watchlist/notifications"
+            "/v1/entitybase/users/12345/watchlist/notifications"
         )
         assert response.status_code == 200
         data = response.json()
@@ -181,7 +181,7 @@ async def test_get_notifications_user_not_registered() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.get(
-            "/entitybase/v1/users/99999/watchlist/notifications"
+            "/v1/entitybase/users/99999/watchlist/notifications"
         )
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
@@ -197,11 +197,11 @@ async def test_mark_notification_checked() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post("/entitybase/v1/users", json={"user_id": 12345})
+        await client.post("/v1/entitybase/users", json={"user_id": 12345})
 
         # Mark notification checked (even if doesn't exist, should not error)
         response = await client.post(
-            "/entitybase/v1/users/12345/watchlist/notifications/check",
+            "/v1/entitybase/users/12345/watchlist/notifications/check",
             json={"notification_id": 1},
         )
         assert response.status_code == 200

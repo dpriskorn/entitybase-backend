@@ -41,7 +41,7 @@ class TestEntityRevisionS3Storage:
             }
 
             # Create entity
-            response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+            response = await client.post("/v1/entitybase/entities/base/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
             assert response.status_code == 201
 
             # Verify S3RevisionData was stored
@@ -74,7 +74,7 @@ class TestEntityRevisionS3Storage:
                 "labels": {"en": {"language": "en", "value": "Hash Test"}},
             }
 
-            response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+            response = await client.post("/v1/entitybase/entities/base/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
             assert response.status_code == 201
 
             # Get the stored S3RevisionData
@@ -100,7 +100,7 @@ class TestEntityRevisionS3Storage:
                 "descriptions": {"en": {"language": "en", "value": "Test description"}},
             }
 
-            response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+            response = await client.post("/v1/entitybase/entities/base/v1/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
             assert response.status_code == 201
 
             # Get the stored S3RevisionData

@@ -328,27 +328,6 @@ def connection_manager():
     yield manager
     manager.disconnect()
 
-
-@pytest.fixture(scope="session")
-def api_client():
-    """API client for E2E tests - connects to running application."""
-    return requests.Session()
-
-
-@pytest.fixture(scope="session")
-def base_url():
-    """Base API URL for integration and e2e tests."""
-    return "http://localhost:8000"
-
-
-@pytest.fixture(scope="session")
-def api_url():
-    """Full API URL including configurable prefix for integration tests."""
-    from models.config.settings import settings
-
-    return f"http://localhost:8000{settings.api_prefix}"
-
-
 @pytest.fixture(scope="session")
 def s3_config():
     """Create real S3Config from settings."""

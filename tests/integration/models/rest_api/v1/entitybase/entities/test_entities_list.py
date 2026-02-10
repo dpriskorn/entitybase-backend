@@ -1,7 +1,10 @@
 import logging
+import sys
+
+sys.path.insert(0, "src")
 
 
-import requests
+from httpx import ASGITransport, AsyncClient
 
 
 def test_entities_endpoint_requires_filter(
@@ -10,7 +13,7 @@ def test_entities_endpoint_requires_filter(
     """Test that /entities endpoint requires either status or edit_type filter"""
     logger = logging.getLogger(__name__)
 
-    response = api_client.get(f"{api_url}/entities")
+    response = await client.get(f"{api_url}/entities")
     assert response.status_code == 400
     assert "filter" in response.json()["message"].lower()
 
@@ -21,7 +24,7 @@ def test_entities_invalid_status(api_client: requests.Session, api_url: str) -> 
     """Test that /entities returns 400 for invalid status value"""
     logger = logging.getLogger(__name__)
 
-    response = api_client.get(f"{api_url}/entities?status=invalid")
+    response = await client.get(f"{api_url}/entities?status=invalid")
     assert response.status_code == 400
 
     logger.info("✓ /entities validates status parameter")
@@ -36,11 +39,11 @@ def test_list_locked_entities(api_client: requests.Session, api_url: str) -> Non
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Locked"}},
     }
-    api_client.post(
+    await client.post(
         f"{api_url}/entity", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
     )
 
-    response = api_client.get(f"{api_url}/entities?status=locked")
+    response = await client.get(f"{api_url}/entities?status=locked")
     assert response.status_code == 200
     result = response.json()
     assert "entities" in result
@@ -67,11 +70,11 @@ def test_list_semi_protected_entities(
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Protected"}},
     }
-    api_client.post(
+    await client.post(
         f"{api_url}/entity", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
     )
 
-    response = api_client.get(f"{api_url}/entities?status=semi_protected")
+    response = await client.get(f"{api_url}/entities?status=semi_protected")
     assert response.status_code == 200
     result = response.json()
     assert "entities" in result
@@ -90,9 +93,9 @@ def test_list_archived_entities(api_client: requests.Session, api_url: str) -> N
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Archived"}},
     }
-    api_client.post(f"{api_url}/entity", json={**entity_data, "is_archived": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post(f"{api_url}/entity", json={**entity_data, "is_archived": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    response = api_client.get(f"{api_url}/entities?status=archived")
+    response = await client.get(f"{api_url}/entities?status=archived")
     assert response.status_code == 200
     result = response.json()
     assert "entities" in result
@@ -111,9 +114,9 @@ def test_list_dangling_entities(api_client: requests.Session, api_url: str) -> N
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Dangling"}},
     }
-    api_client.post(f"{api_url}/entity", json={**entity_data, "is_dangling": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post(f"{api_url}/entity", json={**entity_data, "is_dangling": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    response = api_client.get(f"{api_url}/entities?status=dangling")
+    response = await client.get(f"{api_url}/entities?status=dangling")
     assert response.status_code == 200
     result = response.json()
     assert "entities" in result
@@ -135,13 +138,13 @@ def test_list_by_edit_type_lock_added(
         "labels": {"en": {"language": "en", "value": "Test"}},
     }
 
-    api_client.post(
+    await client.post(
         f"{api_url}/entity",
         json={**entity_data, "is_locked": True, "edit_type": "lock-added"},
         headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
 
-    response = api_client.get(f"{api_url}/entities?edit_type=lock-added")
+    response = await client.get(f"{api_url}/entities?edit_type=lock-added")
     assert response.status_code == 200
     result = response.json()
     assert "entities" in result
@@ -168,13 +171,13 @@ def test_list_by_edit_type_lock_removed(
         "labels": {"en": {"language": "en", "value": "Test"}},
     }
 
-    api_client.post(
+    await client.post(
         f"{api_url}/entity",
         json={**entity_data, "is_locked": False, "edit_type": "lock-removed"},
         headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
 
-    response = api_client.get(f"{api_url}/entities?edit_type=lock-removed")
+    response = await client.get(f"{api_url}/entities?edit_type=lock-removed")
     assert response.status_code == 200
     result = response.json()
     assert any(e["entity_id"] == "Q90015" for e in result["entities"])
@@ -194,7 +197,7 @@ def test_list_by_edit_type_mass_protection_added(
         "labels": {"en": {"language": "en", "value": "Test"}},
     }
 
-    api_client.post(
+    await client.post(
         f"{api_url}/entity",
         json={
             **entity_data,
@@ -204,7 +207,7 @@ def test_list_by_edit_type_mass_protection_added(
         headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
 
-    response = api_client.get(f"{api_url}/entities?edit_type=mass-protection-added")
+    response = await client.get(f"{api_url}/entities?edit_type=mass-protection-added")
     assert response.status_code == 200
     result = response.json()
     assert any(e["entity_id"] == "Q90016" for e in result["entities"])
@@ -224,7 +227,7 @@ def test_list_by_edit_type_mass_protection_removed(
         "labels": {"en": {"language": "en", "value": "Test"}},
     }
 
-    api_client.post(
+    await client.post(
         f"{api_url}/entity",
         json={
             **entity_data,
@@ -234,7 +237,7 @@ def test_list_by_edit_type_mass_protection_removed(
         headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
 
-    response = api_client.get(f"{api_url}/entities?edit_type=mass-protection-removed")
+    response = await client.get(f"{api_url}/entities?edit_type=mass-protection-removed")
     assert response.status_code == 200
     result = response.json()
     assert any(e["entity_id"] == "Q90017" for e in result["entities"])
@@ -254,10 +257,10 @@ def test_list_by_edit_type_soft_delete(
         "labels": {"en": {"language": "en", "value": "To Delete"}},
     }
 
-    api_client.post(f"{api_url}/entity", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
-    api_client.delete(f"{api_url}/entity/Q90018", json={"delete_type": "soft"}, headers={"X-Edit-Summary": "delete entity", "X-User-ID": "0"})
+    await client.post(f"{api_url}/entity", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.delete("/v1/entitybase/entity/Q90018", json={"delete_type": "soft"}, headers={"X-Edit-Summary": "delete entity", "X-User-ID": "0"})
 
-    response = api_client.get(f"{api_url}/entities?edit_type=soft-delete")
+    response = await client.get(f"{api_url}/entities?edit_type=soft-delete")
     assert response.status_code == 200
     result = response.json()
     assert any(e["entity_id"] == "Q90018" for e in result["entities"])
@@ -274,10 +277,10 @@ def test_list_by_edit_type_redirect_create(
     entity_from = {"id": "Q90019", "type": "item", "labels": {"en": {"value": "From"}}}
     entity_to = {"id": "Q90020", "type": "item", "labels": {"en": {"value": "To"}}}
 
-    api_client.post(f"{api_url}/entity", json=entity_from, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
-    api_client.post(f"{api_url}/entity", json=entity_to, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post(f"{api_url}/entity", json=entity_from, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post(f"{api_url}/entity", json=entity_to, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    response = api_client.post(
+    response = await client.post(
         f"{api_url}/redirects",
         json={
             "redirect_from_id": "Q90019",
@@ -288,7 +291,7 @@ def test_list_by_edit_type_redirect_create(
     )
     assert response.status_code == 200
 
-    response = api_client.get(f"{api_url}/entities?edit_type=redirect-create")
+    response = await client.get(f"{api_url}/entities?edit_type=redirect-create")
     assert response.status_code == 200
     result = response.json()
     assert any(e["entity_id"] == "Q90019" for e in result["entities"])
@@ -305,10 +308,10 @@ def test_list_by_edit_type_redirect_revert(
     entity_from = {"id": "Q90021", "type": "item", "labels": {"en": {"value": "From"}}}
     entity_to = {"id": "Q90022", "type": "item", "labels": {"en": {"value": "To"}}}
 
-    api_client.post(f"{api_url}/entity", json=entity_from, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
-    api_client.post(f"{api_url}/entity", json=entity_to, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post(f"{api_url}/entity", json=entity_from, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post(f"{api_url}/entity", json=entity_to, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    api_client.post(
+    await client.post(
         f"{api_url}/redirects",
         json={
             "redirect_from_id": "Q90021",
@@ -318,8 +321,8 @@ def test_list_by_edit_type_redirect_revert(
         headers={"X-Edit-Summary": "create redirect", "X-User-ID": "0"},
     )
 
-    api_client.post(
-        f"{api_url}/entities/Q90021/revert-redirect",
+    await client.post(
+        "/v1/entitybase/entities/Q90021/revert-redirect",
         json={
             "revert_to_revision_id": 1,
             "revert_reason": "test",
@@ -328,7 +331,7 @@ def test_list_by_edit_type_redirect_revert(
         headers={"X-Edit-Summary": "revert redirect", "X-User-ID": "0"},
     )
 
-    response = api_client.get(f"{api_url}/entities?edit_type=redirect-revert")
+    response = await client.get(f"{api_url}/entities?edit_type=redirect-revert")
     assert response.status_code == 200
     result = response.json()
     assert any(e["entity_id"] == "Q90021" for e in result["entities"])
@@ -346,9 +349,9 @@ def test_list_respects_limit(api_client: requests.Session, api_url: str) -> None
             "type": "item",
             "labels": {"en": {"language": "en", "value": f"Test {i}"}},
         }
-        api_client.post(f"{api_url}/entity", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+        await client.post(f"{api_url}/entity", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    response = api_client.get(f"{api_url}/entities?status=locked&limit=5")
+    response = await client.get(f"{api_url}/entities?status=locked&limit=5")
     assert response.status_code == 200
     result = response.json()
     assert result["count"] == 5
@@ -361,7 +364,7 @@ def test_list_default_limit(api_client: requests.Session, api_url: str) -> None:
     """Test that /entities has a sensible default limit"""
     logger = logging.getLogger(__name__)
 
-    response = api_client.get(f"{api_url}/entities?status=locked")
+    response = await client.get(f"{api_url}/entities?status=locked")
     assert response.status_code == 200
     result = response.json()
     assert "count" in result
@@ -374,7 +377,7 @@ def test_list_empty_results(api_client: requests.Session, api_url: str) -> None:
     """Test that /entities returns empty array when no entities match filter"""
     logger = logging.getLogger(__name__)
 
-    response = api_client.get(f"{api_url}/entities?status=locked")
+    response = await client.get(f"{api_url}/entities?status=locked")
     assert response.status_code == 200
     result = response.json()
     assert result["entities"] == []
@@ -392,9 +395,9 @@ def test_list_response_structure(api_client: requests.Session, api_url: str) -> 
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test"}},
     }
-    api_client.post(f"{api_url}/entity", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post(f"{api_url}/entity", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    response = api_client.get(f"{api_url}/entities?status=locked")
+    response = await client.get(f"{api_url}/entities?status=locked")
     assert response.status_code == 200
     result = response.json()
 
@@ -422,13 +425,13 @@ def test_list_edit_type_response_includes_edit_type(
         "labels": {"en": {"language": "en", "value": "Test"}},
     }
 
-    api_client.post(
+    await client.post(
         f"{api_url}/entity",
         json={**entity_data, "edit_type": "custom-edit-type"},
         headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
 
-    response = api_client.get(f"{api_url}/entities?edit_type=custom-edit-type")
+    response = await client.get(f"{api_url}/entities?edit_type=custom-edit-type")
     assert response.status_code == 200
     result = response.json()
 
@@ -451,9 +454,9 @@ def test_list_multiple_filters_behavior(
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test"}},
     }
-    api_client.post(f"{api_url}/entity", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    await client.post(f"{api_url}/entity", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
 
-    response = api_client.get(f"{api_url}/entities?status=locked&edit_type=lock-added")
+    response = await client.get(f"{api_url}/entities?status=locked&edit_type=lock-added")
     assert response.status_code == 200
 
     result = response.json()
@@ -467,7 +470,7 @@ def test_list_large_limit(api_client: requests.Session, api_url: str) -> None:
     """Test that /entities handles large limit values"""
     logger = logging.getLogger(__name__)
 
-    response = api_client.get(f"{api_url}/entities?status=locked&limit=1000")
+    response = await client.get(f"{api_url}/entities?status=locked&limit=1000")
     assert response.status_code == 200
     result = response.json()
     assert "entities" in result

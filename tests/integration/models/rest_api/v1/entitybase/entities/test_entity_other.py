@@ -1,7 +1,10 @@
 import logging
+import sys
+
+sys.path.insert(0, "src")
 
 import pytest
-import requests
+from httpx import ASGITransport, AsyncClient
 
 
 @pytest.mark.integration
@@ -17,8 +20,8 @@ def test_update_lexeme(api_client: requests.Session, base_url: str) -> None:
         "language": "Q1860",  # English
     }
 
-    create_response = api_client.post(
-        f"{base_url}/entitybase/v1/entities/lexemes", json=lexeme_data, headers={"X-Edit-Summary": "create lexeme", "X-User-ID": "0"}
+    create_response = await client.post(
+        "/v1/entitybase/entities/base/v1/entities/lexemes", json=lexeme_data, headers={"X-Edit-Summary": "create lexeme", "X-User-ID": "0"}
     )
     assert create_response.status_code == 200
     lexeme_id = create_response.json()["id"]
@@ -33,8 +36,8 @@ def test_update_lexeme(api_client: requests.Session, base_url: str) -> None:
         }
     }
 
-    response = api_client.put(
-        f"{base_url}/entitybase/v1/lexeme/{lexeme_id}", json=updated_lexeme_data, headers={"X-Edit-Summary": "update lexeme", "X-User-ID": "0"}
+    response = await client.put(
+        "/v1/entitybase/entities/base/v1/lexeme/{lexeme_id}", json=updated_lexeme_data, headers={"X-Edit-Summary": "update lexeme", "X-User-ID": "0"}
     )
     assert response.status_code == 200
 
