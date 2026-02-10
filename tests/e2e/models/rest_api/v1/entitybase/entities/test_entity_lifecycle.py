@@ -1,26 +1,41 @@
 import pytest
+import sys
+
+sys.path.insert(0, "src")
 
 
 @pytest.mark.e2e
-def test_health_check(e2e_api_client, e2e_base_url) -> None:
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def def test_health_check(e2e_api_client, e2e_base_url) -> None:() -> None:
+    from models.rest_api.main import app
+
     """E2E test: Health check endpoint."""
-    response = e2e_api_client.get(f"{e2e_base_url}/health")
+    response = await client.get(f"{e2e_base_url}/health")
     assert response.status_code == 200
     data = response.json()
     assert data["status"] == "ok"
 
 
 @pytest.mark.e2e
-def test_general_stats(e2e_api_client, e2e_base_url) -> None:
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def def test_general_stats(e2e_api_client, e2e_base_url) -> None:() -> None:
+    from models.rest_api.main import app
+
     """E2E test: Get general statistics."""
-    response = e2e_api_client.get(f"{e2e_base_url}/stats")
+    response = await client.get(f"{e2e_base_url}/stats")
     assert response.status_code == 200
     data = response.json()
     assert "total_entities" in data or "entities" in data
 
 
 @pytest.mark.e2e
-def test_json_import_endpoint(e2e_api_client, e2e_base_url) -> None:
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def def test_json_import_endpoint(e2e_api_client, e2e_base_url) -> None:() -> None:
+    from models.rest_api.main import app
+
     """E2E test: Import entities from Wikidata JSONL dump file."""
     import_data = {
         "entities": [
@@ -31,7 +46,7 @@ def test_json_import_endpoint(e2e_api_client, e2e_base_url) -> None:
         ],
         "batch_size": 10,
     }
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/json-import",
         json=import_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -41,9 +56,12 @@ def test_json_import_endpoint(e2e_api_client, e2e_base_url) -> None:
 
 
 @pytest.mark.e2e
-def test_entity_lifecycle(e2e_api_client, e2e_base_url) -> None:
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def def test_entity_lifecycle(e2e_api_client, e2e_base_url) -> None:() -> None:
+    from models.rest_api.main import app
+
     """E2E test: Create, read, update, delete entity."""
-    base_url = e2e_base_url
 
     # Create entity
     create_data = {
@@ -51,7 +69,7 @@ def test_entity_lifecycle(e2e_api_client, e2e_base_url) -> None:
         "labels": {"en": {"language": "en", "value": "Test Item"}},
         "descriptions": {"en": {"language": "en", "value": "E2E test item"}},
     }
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{base_url}/entities/items",
         json=create_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -62,7 +80,7 @@ def test_entity_lifecycle(e2e_api_client, e2e_base_url) -> None:
     assert entity_id.startswith("Q")
 
     # Read entity
-    response = e2e_api_client.get(f"{base_url}/entities/{entity_id}")
+    response = await client.get(f"{base_url}/entities/{entity_id}")
     assert response.status_code == 200
     data = response.json()
     assert data["labels"]["en"]["value"] == "Test Item"
@@ -81,7 +99,7 @@ def test_entity_lifecycle(e2e_api_client, e2e_base_url) -> None:
             }
         ],
     }
-    response = e2e_api_client.put(
+    response = await client.put(
         f"{base_url}/entities/{entity_id}",
         json=update_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -89,7 +107,7 @@ def test_entity_lifecycle(e2e_api_client, e2e_base_url) -> None:
     assert response.status_code == 200
 
     # Verify update
-    response = e2e_api_client.get(f"{base_url}/entities/{entity_id}")
+    response = await client.get(f"{base_url}/entities/{entity_id}")
     assert response.status_code == 200
     data = response.json()
     assert data["labels"]["en"]["value"] == "Updated Test Item"
@@ -97,9 +115,9 @@ def test_entity_lifecycle(e2e_api_client, e2e_base_url) -> None:
 
     # Delete entity (if supported)
     # Note: Wikibase may not support direct deletion; adjust based on API
-    # response = e2e_api_client.delete(f"{base_url}/entities/{entity_id}")
+    # response = await client.delete(f"{base_url}/entities/{entity_id}")
     # assert response.status_code == 204
 
     # For now, just verify the entity exists
-    response = e2e_api_client.get(f"{base_url}/entities/{entity_id}")
+    response = await client.get(f"{base_url}/entities/{entity_id}")
     assert response.status_code == 200

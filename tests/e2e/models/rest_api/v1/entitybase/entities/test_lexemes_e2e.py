@@ -1,12 +1,15 @@
 """E2E tests for comprehensive lexeme operations."""
 
 import pytest
+import sys
+
+sys.path.insert(0, "src")
 
 
 @pytest.mark.e2e
 def test_create_lexeme(e2e_api_client, e2e_base_url, sample_lexeme_data) -> None:
     """E2E test: Create a new lexeme entity."""
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -25,7 +28,7 @@ def test_create_lexeme(e2e_api_client, e2e_base_url, sample_lexeme_data) -> None
 def test_list_lexeme_forms(e2e_api_client, e2e_base_url, sample_lexeme_data) -> None:
     """E2E test: List all forms for a lexeme."""
     # Create lexeme
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -34,7 +37,7 @@ def test_list_lexeme_forms(e2e_api_client, e2e_base_url, sample_lexeme_data) -> 
     lexeme_id = response.json()["id"]
 
     # List forms
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/forms"
     )
     assert response.status_code == 200
@@ -47,7 +50,7 @@ def test_list_lexeme_forms(e2e_api_client, e2e_base_url, sample_lexeme_data) -> 
 def test_get_single_form(e2e_api_client, e2e_base_url, sample_lexeme_data) -> None:
     """E2E test: Get single form by ID."""
     # Create lexeme
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -56,7 +59,7 @@ def test_get_single_form(e2e_api_client, e2e_base_url, sample_lexeme_data) -> No
     lexeme_id = response.json()["id"]
 
     # Get form ID from lexeme
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/forms"
     )
     assert response.status_code == 200
@@ -64,7 +67,7 @@ def test_get_single_form(e2e_api_client, e2e_base_url, sample_lexeme_data) -> No
     form_id = forms_data["forms"][0]["id"]
 
     # Get single form
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/forms/{form_id}"
     )
     assert response.status_code == 200
@@ -91,7 +94,7 @@ def test_delete_form(e2e_api_client, e2e_base_url, sample_lexeme_data) -> None:
             },
         ],
     }
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -100,21 +103,21 @@ def test_delete_form(e2e_api_client, e2e_base_url, sample_lexeme_data) -> None:
     lexeme_id = response.json()["id"]
 
     # Get forms
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/forms"
     )
     forms_data = response.json()
     form_id = forms_data["forms"][0]["id"]
 
     # Delete form
-    response = e2e_api_client.delete(
+    response = await client.delete(
         f"{e2e_base_url}/representations/entities/lexemes/forms/{form_id}",
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
     # Verify deletion
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/forms"
     )
     forms_data = response.json()
@@ -127,7 +130,7 @@ def test_get_all_form_representations(
 ) -> None:
     """E2E test: Get all representations for a form."""
     # Create lexeme
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -136,14 +139,14 @@ def test_get_all_form_representations(
     lexeme_id = response.json()["id"]
 
     # Get form ID
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/forms"
     )
     forms_data = response.json()
     form_id = forms_data["forms"][0]["id"]
 
     # Get all representations
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/forms/{form_id}/representation"
     )
     assert response.status_code == 200
@@ -157,7 +160,7 @@ def test_get_form_representation_by_language(
 ) -> None:
     """E2E test: Get representation for a form in specific language."""
     # Create lexeme
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -166,14 +169,14 @@ def test_get_form_representation_by_language(
     lexeme_id = response.json()["id"]
 
     # Get form ID
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/forms"
     )
     forms_data = response.json()
     form_id = forms_data["forms"][0]["id"]
 
     # Get representation by language
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/forms/{form_id}/representation/en"
     )
     assert response.status_code == 200
@@ -188,7 +191,7 @@ def test_update_form_representation(
 ) -> None:
     """E2E test: Update form representation for language."""
     # Create lexeme
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -197,7 +200,7 @@ def test_update_form_representation(
     lexeme_id = response.json()["id"]
 
     # Get form ID
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/forms"
     )
     forms_data = response.json()
@@ -205,7 +208,7 @@ def test_update_form_representation(
 
     # Update representation
     update_data = {"language": "en", "value": "updated representation"}
-    response = e2e_api_client.put(
+    response = await client.put(
         f"{e2e_base_url}/representations/entities/lexemes/forms/{form_id}/representation/en",
         json=update_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -213,7 +216,7 @@ def test_update_form_representation(
     assert response.status_code == 200
 
     # Verify update
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/forms/{form_id}/representation/en"
     )
     assert response.status_code == 200
@@ -240,7 +243,7 @@ def test_delete_form_representation(
             }
         ],
     }
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -249,14 +252,14 @@ def test_delete_form_representation(
     lexeme_id = response.json()["id"]
 
     # Get form ID
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/forms"
     )
     forms_data = response.json()
     form_id = forms_data["forms"][0]["id"]
 
     # Delete representation
-    response = e2e_api_client.delete(
+    response = await client.delete(
         f"{e2e_base_url}/representations/entities/lexemes/forms/{form_id}/representation/de",
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
     )
@@ -270,7 +273,7 @@ def test_delete_form_representation(
 def test_list_lexeme_senses(e2e_api_client, e2e_base_url, sample_lexeme_data) -> None:
     """E2E test: List all senses for a lexeme."""
     # Create lexeme
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -279,7 +282,7 @@ def test_list_lexeme_senses(e2e_api_client, e2e_base_url, sample_lexeme_data) ->
     lexeme_id = response.json()["id"]
 
     # List senses
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/senses"
     )
     assert response.status_code == 200
@@ -292,7 +295,7 @@ def test_list_lexeme_senses(e2e_api_client, e2e_base_url, sample_lexeme_data) ->
 def test_get_single_sense(e2e_api_client, e2e_base_url, sample_lexeme_data) -> None:
     """E2E test: Get single sense by ID."""
     # Create lexeme
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -301,7 +304,7 @@ def test_get_single_sense(e2e_api_client, e2e_base_url, sample_lexeme_data) -> N
     lexeme_id = response.json()["id"]
 
     # Get sense ID from lexeme
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/senses"
     )
     assert response.status_code == 200
@@ -309,7 +312,7 @@ def test_get_single_sense(e2e_api_client, e2e_base_url, sample_lexeme_data) -> N
     sense_id = senses_data["senses"][0]["id"]
 
     # Get single sense
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/senses/{sense_id}"
     )
     assert response.status_code == 200
@@ -328,7 +331,7 @@ def test_delete_sense(e2e_api_client, e2e_base_url, sample_lexeme_data) -> None:
             {"id": "L1-S2", "glosses": {"en": {"language": "en", "value": "sense2"}}},
         ],
     }
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -337,21 +340,21 @@ def test_delete_sense(e2e_api_client, e2e_base_url, sample_lexeme_data) -> None:
     lexeme_id = response.json()["id"]
 
     # Get senses
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/senses"
     )
     senses_data = response.json()
     sense_id = senses_data["senses"][0]["id"]
 
     # Delete sense
-    response = e2e_api_client.delete(
+    response = await client.delete(
         f"{e2e_base_url}/representations/entities/lexemes/senses/{sense_id}",
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
     )
     assert response.status_code == 200
 
     # Verify deletion
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/senses"
     )
     senses_data = response.json()
@@ -364,7 +367,7 @@ def test_get_all_sense_glosses(
 ) -> None:
     """E2E test: Get all glosses for a sense."""
     # Create lexeme
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -373,14 +376,14 @@ def test_get_all_sense_glosses(
     lexeme_id = response.json()["id"]
 
     # Get sense ID
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/senses"
     )
     senses_data = response.json()
     sense_id = senses_data["senses"][0]["id"]
 
     # Get all glosses
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/senses/{sense_id}/glosses"
     )
     assert response.status_code == 200
@@ -394,7 +397,7 @@ def test_get_sense_gloss_by_language(
 ) -> None:
     """E2E test: Get gloss for a sense in specific language."""
     # Create lexeme
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -403,14 +406,14 @@ def test_get_sense_gloss_by_language(
     lexeme_id = response.json()["id"]
 
     # Get sense ID
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/senses"
     )
     senses_data = response.json()
     sense_id = senses_data["senses"][0]["id"]
 
     # Get gloss by language
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/senses/{sense_id}/glosses/en"
     )
     assert response.status_code == 200
@@ -423,7 +426,7 @@ def test_get_sense_gloss_by_language(
 def test_update_sense_gloss(e2e_api_client, e2e_base_url, sample_lexeme_data) -> None:
     """E2E test: Update sense gloss for language."""
     # Create lexeme
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -432,7 +435,7 @@ def test_update_sense_gloss(e2e_api_client, e2e_base_url, sample_lexeme_data) ->
     lexeme_id = response.json()["id"]
 
     # Get sense ID
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/senses"
     )
     senses_data = response.json()
@@ -440,7 +443,7 @@ def test_update_sense_gloss(e2e_api_client, e2e_base_url, sample_lexeme_data) ->
 
     # Update gloss
     update_data = {"language": "en", "value": "updated gloss"}
-    response = e2e_api_client.put(
+    response = await client.put(
         f"{e2e_base_url}/representations/entities/lexemes/senses/{sense_id}/glosses/en",
         json=update_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -448,7 +451,7 @@ def test_update_sense_gloss(e2e_api_client, e2e_base_url, sample_lexeme_data) ->
     assert response.status_code == 200
 
     # Verify update
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/senses/{sense_id}/glosses/en"
     )
     assert response.status_code == 200
@@ -472,7 +475,7 @@ def test_delete_sense_gloss(e2e_api_client, e2e_base_url, sample_lexeme_data) ->
             }
         ],
     }
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -481,14 +484,14 @@ def test_delete_sense_gloss(e2e_api_client, e2e_base_url, sample_lexeme_data) ->
     lexeme_id = response.json()["id"]
 
     # Get sense ID
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/representations/entities/lexemes/{lexeme_id}/senses"
     )
     senses_data = response.json()
     sense_id = senses_data["senses"][0]["id"]
 
     # Delete gloss
-    response = e2e_api_client.delete(
+    response = await client.delete(
         f"{e2e_base_url}/representations/entities/lexemes/senses/{sense_id}/glosses/de",
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
     )
@@ -504,7 +507,7 @@ def test_get_form_representations_batch(
 ) -> None:
     """E2E test: Fetch form representations by hash(es)."""
     # Create lexeme
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -512,7 +515,7 @@ def test_get_form_representations_batch(
     assert response.status_code == 200
 
     # Get batch representations (may return empty if no hashes exist yet)
-    response = e2e_api_client.get(f"{e2e_base_url}/representations/123,456")
+    response = await client.get(f"{e2e_base_url}/representations/123,456")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -524,7 +527,7 @@ def test_get_sense_glosses_batch(
 ) -> None:
     """E2E test: Fetch sense glosses by hash(es)."""
     # Create lexeme
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/representations/entities/lexemes",
         json=sample_lexeme_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -532,7 +535,7 @@ def test_get_sense_glosses_batch(
     assert response.status_code == 200
 
     # Get batch glosses (may return empty if no hashes exist yet)
-    response = e2e_api_client.get(f"{e2e_base_url}/representations/123,456")
+    response = await client.get(f"{e2e_base_url}/representations/123,456")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)

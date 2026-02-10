@@ -1,17 +1,24 @@
 """E2E tests for thanks operations."""
 
 import pytest
+import sys
+
+sys.path.insert(0, "src")
 
 
 @pytest.mark.e2e
-def test_send_thank(e2e_api_client, e2e_base_url) -> None:
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def def test_send_thank(e2e_api_client, e2e_base_url) -> None:() -> None:
+    from models.rest_api.main import app
+
     """E2E test: Send a thank for a specific revision."""
     # Create entity
     entity_data = {
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Thanks Test"}},
     }
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/entities/items",
         json=entity_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -20,7 +27,7 @@ def test_send_thank(e2e_api_client, e2e_base_url) -> None:
     revision_id = 1
 
     # Send thank (will fail for non-existent user but endpoint works)
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/entities/{entity_id}/revisions/{revision_id}/thank",
         headers={"X-User-ID": "99999"},
     )
@@ -29,14 +36,18 @@ def test_send_thank(e2e_api_client, e2e_base_url) -> None:
 
 
 @pytest.mark.e2e
-def test_get_revision_thanks(e2e_api_client, e2e_base_url) -> None:
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def def test_get_revision_thanks(e2e_api_client, e2e_base_url) -> None:() -> None:
+    from models.rest_api.main import app
+
     """E2E test: Get all thanks for a specific revision."""
     # Create entity
     entity_data = {
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Revision Thanks Test"}},
     }
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/entities/items",
         json=entity_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -45,7 +56,7 @@ def test_get_revision_thanks(e2e_api_client, e2e_base_url) -> None:
     revision_id = 1
 
     # Get thanks for revision
-    response = e2e_api_client.get(
+    response = await client.get(
         f"{e2e_base_url}/entities/{entity_id}/revisions/{revision_id}/thanks"
     )
     assert response.status_code == 200
@@ -54,15 +65,19 @@ def test_get_revision_thanks(e2e_api_client, e2e_base_url) -> None:
 
 
 @pytest.mark.e2e
-def test_get_thanks_received(e2e_api_client, e2e_base_url) -> None:
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def def test_get_thanks_received(e2e_api_client, e2e_base_url) -> None:() -> None:
+    from models.rest_api.main import app
+
     """E2E test: Get thanks received by user."""
     # Create user
     user_data = {"user_id": 90014}
-    e2e_api_client.post(f"{e2e_base_url}/users", json=user_data)
+    await client.post(f"{e2e_base_url}/users", json=user_data)
 
     # Get thanks received
-    response = e2e_api_client.get(
-        f"{e2e_base_url}/users/90014/thanks/received?limit=50&hours=24"
+    response = await client.get(
+        "/v1/entitybase/users/90014/thanks/received?limit=50&hours=24"
     )
     assert response.status_code == 200
     data = response.json()
@@ -70,15 +85,19 @@ def test_get_thanks_received(e2e_api_client, e2e_base_url) -> None:
 
 
 @pytest.mark.e2e
-def test_get_thanks_sent(e2e_api_client, e2e_base_url) -> None:
+@pytest.mark.asyncio
+@pytest.mark.e2e
+async def def test_get_thanks_sent(e2e_api_client, e2e_base_url) -> None:() -> None:
+    from models.rest_api.main import app
+
     """E2E test: Get thanks sent by user."""
     # Create user
     user_data = {"user_id": 90015}
-    e2e_api_client.post(f"{e2e_base_url}/users", json=user_data)
+    await client.post(f"{e2e_base_url}/users", json=user_data)
 
     # Get thanks sent
-    response = e2e_api_client.get(
-        f"{e2e_base_url}/users/90015/thanks/sent?limit=50&hours=24"
+    response = await client.get(
+        "/v1/entitybase/users/90015/thanks/sent?limit=50&hours=24"
     )
     assert response.status_code == 200
     data = response.json()

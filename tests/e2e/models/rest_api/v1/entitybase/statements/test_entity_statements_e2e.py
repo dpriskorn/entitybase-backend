@@ -1,6 +1,9 @@
 """E2E tests for entity statement management."""
 
 import pytest
+import sys
+
+sys.path.insert(0, "src")
 
 
 @pytest.mark.e2e
@@ -9,7 +12,7 @@ def test_remove_statement(
 ) -> None:
     """E2E test: Remove a statement by hash from an entity."""
     # Create entity with statements
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/entities/items",
         json=sample_item_with_statements,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -18,20 +21,20 @@ def test_remove_statement(
     entity_id = response.json()["id"]
 
     # Get statement hash
-    response = e2e_api_client.get(f"{e2e_base_url}/entities/{entity_id}")
+    response = await client.get(f"{e2e_base_url}/entities/{entity_id}")
     assert response.status_code == 200
     data = response.json()
     statement_hash = data["statements"][0]
 
     # Remove statement
-    response = e2e_api_client.delete(
+    response = await client.delete(
         f"{e2e_base_url}/entities/{entity_id}/statements/{statement_hash}",
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
     )
     assert response.status_code in [200, 204]
 
     # Verify removal
-    response = e2e_api_client.get(f"{e2e_base_url}/entities/{entity_id}")
+    response = await client.get(f"{e2e_base_url}/entities/{entity_id}")
     assert response.status_code == 200
     data = response.json()
     assert statement_hash not in data["statements"] or len(data["statements"]) == 0
@@ -43,7 +46,7 @@ def test_replace_statement(
 ) -> None:
     """E2E test: Replace a statement by hash with new claim data."""
     # Create entity with statements
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/entities/items",
         json=sample_item_with_statements,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -52,7 +55,7 @@ def test_replace_statement(
     entity_id = response.json()["id"]
 
     # Get statement hash
-    response = e2e_api_client.get(f"{e2e_base_url}/entities/{entity_id}")
+    response = await client.get(f"{e2e_base_url}/entities/{entity_id}")
     assert response.status_code == 200
     data = response.json()
     original_hash = data["statements"][0]
@@ -71,7 +74,7 @@ def test_replace_statement(
     assert response.status_code == 200
 
     # Verify replacement
-    response = e2e_api_client.get(f"{e2e_base_url}/entities/{entity_id}")
+    response = await client.get(f"{e2e_base_url}/entities/{entity_id}")
     assert response.status_code == 200
     data = response.json()
     # Statement hash should be different after update

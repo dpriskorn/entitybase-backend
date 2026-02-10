@@ -35,20 +35,53 @@ def validate_e2e_env_vars():
 
 @pytest.fixture(scope="session")
 def e2e_api_client():
-    """API client for E2E tests - connects to running application."""
+    """API client for E2E tests - DEPRECATED, use ASGITransport directly in tests.
+    
+    All E2E tests have been migrated to use httpx.AsyncClient with ASGITransport.
+    This fixture is kept for backward compatibility but should not be used.
+    """
+    import warnings
+    warnings.warn(
+        "e2e_api_client fixture is deprecated. "
+        "Use httpx.AsyncClient with ASGITransport in test functions instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     base_url = "http://api:8000"  # Adjust for Docker container URL
     return requests.Session()
 
 
 @pytest.fixture(scope="session")
 def e2e_base_url():
-    """Base URL for E2E API."""
+    """Base URL for E2E API - DEPRECATED, use base_url in AsyncClient.
+    
+    All E2E tests have been migrated to use httpx.AsyncClient with ASGITransport.
+    This fixture is kept for backward compatibility but should not be used.
+    """
+    import warnings
+    warnings.warn(
+        "e2e_base_url fixture is deprecated. "
+        "Use base_url='http://test' in AsyncClient instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     return "http://api:8000"
 
 
 @pytest.fixture(scope="session")
 def create_entity_helper(e2e_api_client, e2e_base_url):
-    """Helper fixture to create entities and return entity ID."""
+    """Helper fixture to create entities and return entity ID - DEPRECATED.
+
+    All E2E tests have been migrated to use ASGITransport directly.
+    This fixture is kept for backward compatibility but should not be used.
+    """
+    import warnings
+    warnings.warn(
+        "create_entity_helper fixture is deprecated. "
+        "Use direct ASGITransport calls in test functions.",
+        DeprecationWarning,
+        stacklevel=2
+    )
 
     def _create(entity_data):
         response = e2e_api_client.post(

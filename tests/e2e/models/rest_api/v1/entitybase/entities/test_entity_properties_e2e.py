@@ -1,6 +1,9 @@
 """E2E tests for entity property operations."""
 
 import pytest
+import sys
+
+sys.path.insert(0, "src")
 
 
 @pytest.mark.e2e
@@ -9,7 +12,7 @@ def test_get_entity_properties(
 ) -> None:
     """E2E test: Get list of unique property IDs for an entity."""
     # Create entity with statements
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/entities/items",
         json=sample_item_with_statements,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -18,7 +21,7 @@ def test_get_entity_properties(
     entity_id = response.json()["id"]
 
     # Get properties
-    response = e2e_api_client.get(f"{e2e_base_url}/entities/{entity_id}/properties")
+    response = await client.get(f"{e2e_base_url}/entities/{entity_id}/properties")
     assert response.status_code == 200
     data = response.json()
     assert "properties" in data or isinstance(data, list)
@@ -30,7 +33,7 @@ def test_get_entity_properties(
 def test_add_property_to_entity(e2e_api_client, e2e_base_url, sample_item_data) -> None:
     """E2E test: Add claims for a single property to an entity."""
     # Create entity
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/entities/items",
         json=sample_item_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -44,7 +47,7 @@ def test_add_property_to_entity(e2e_api_client, e2e_base_url, sample_item_data) 
         "value": {"type": "value", "content": "Q5"},
         "rank": "normal",
     }
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/entities/{entity_id}/properties/P31",
         json=claim_data,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -58,7 +61,7 @@ def test_get_entity_property_hashes(
 ) -> None:
     """E2E test: Get entity property hashes for specified properties."""
     # Create entity with statements
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/entities/items",
         json=sample_item_with_statements,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -67,7 +70,7 @@ def test_get_entity_property_hashes(
     entity_id = response.json()["id"]
 
     # Get property hashes
-    response = e2e_api_client.get(f"{e2e_base_url}/entities/{entity_id}/properties/P31")
+    response = await client.get(f"{e2e_base_url}/entities/{entity_id}/properties/P31")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list) or "hashes" in data
@@ -79,7 +82,7 @@ def test_get_entity_property_hashes_alternative_endpoint(
 ) -> None:
     """E2E test: Get statement hashes using alternative endpoint."""
     # Create entity with statements
-    response = e2e_api_client.post(
+    response = await client.post(
         f"{e2e_base_url}/entities/items",
         json=sample_item_with_statements,
         headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
@@ -88,7 +91,7 @@ def test_get_entity_property_hashes_alternative_endpoint(
     entity_id = response.json()["id"]
 
     # Get property hashes via alternative endpoint
-    response = e2e_api_client.get(f"{e2e_base_url}/entity/{entity_id}/properties/P31")
+    response = await client.get("/v1/entitybase/{entity_id}/properties/P31")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list) or "hashes" in data

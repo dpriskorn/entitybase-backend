@@ -1,15 +1,15 @@
 set -e
 
-if [ "$(docker ps -q | wc -l)" -gt 0 ]; then
-  echo "Containers are running"
-else
-  echo "No containers are running, run ./run-api-local.sh before this"
-  exit 1
+# Check if test infrastructure is running (MySQL, S3, etc.)
+if ! docker ps | grep -q vitess; then
+    echo "❌ Test infrastructure not running. Run ./run-docker-build-tests.sh first"
+    exit 1
 fi
+echo "✅ Test infrastructure is running"
 
 source test.env
 
-echo "Running E2E tests"
+echo "Running E2E tests (ASGITransport - no server required)"
 #pytest -m integration
 
 # sdt out / logs

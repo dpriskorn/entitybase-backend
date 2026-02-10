@@ -3,6 +3,9 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+import sys
+
+sys.path.insert(0, "src")
 
 from models.data.infrastructure.s3 import PropertyCounts
 
