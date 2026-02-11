@@ -127,20 +127,26 @@ class StatementService(Service):
 
         # Extract and store mainsnak via SnakHandler
         mainsnak = context.statement_data.get("mainsnak")
-        # noinspection PyUnusedLocal
+        snak_handler = SnakHandler(state=self.state)
         snak_hash = None
         if mainsnak:
             snak_request = SnakRequest(
                 property=mainsnak.get("property"),
                 datavalue=mainsnak.get("datavalue", {}),
             )
-            snak_handler = SnakHandler(state=self.state)
             snak_hash = snak_handler.store_snak(snak_request)
             context.statement_data = context.statement_data.copy()
             context.statement_data["mainsnak"] = {"hash": snak_hash}
             logger.debug(
                 f"Stored mainsnak with hash {snak_hash} for statement {context.statement_hash}"
             )
+
+        # Process references before storing
+        self._process_statement_references(context.statement_data, snak_handler)
+        logger.debug(f"After processing references: {context.statement_data.get('references')}")
+
+        # Process qualifiers before storing
+        self._process_statement_qualifiers(context.statement_data, snak_handler)
 
         statement_with_hash = S3Statement(
             schema=context.schema_version,
@@ -208,10 +214,11 @@ class StatementService(Service):
                 raise
 
         # Step 4: Insert into DB or increment ref_count
-        inserted = self.state.vitess_client.insert_statement_content(
-            context.statement_hash
+        stmt_repo = self.state.vitess_client.statement_repository
+        inserted = stmt_repo.increment_ref_count(
+            content_hash=context.statement_hash
         )
-        if inserted:
+        if inserted.success:
             logger.debug(
                 f"Inserted new statement {context.statement_hash} into statement_content"
             )
@@ -219,7 +226,6 @@ class StatementService(Service):
             logger.debug(
                 f"Statement {context.statement_hash} already in DB, incrementing ref_count"
             )
-            self.state.vitess_client.increment_ref_count(context.statement_hash)
 
         return OperationResult(success=True)
 
@@ -354,17 +360,40 @@ class StatementService(Service):
         return cast(dict[str, Any], ref_dict)
 
     def _process_single_reference(
-        self, ref: S3ReferenceData | int, snak_handler: SnakHandler
+        self, ref: S3ReferenceData | dict | int, snak_handler: SnakHandler
     ) -> int:
-        """Process one reference (S3ReferenceData or hash).
+        """Process one reference (S3ReferenceData, dict, or hash).
 
         Args:
-            ref: S3ReferenceData instance or hash integer
+            ref: S3ReferenceData instance, dict, or hash integer
             snak_handler: SnakHandler for processing snaks within reference
 
         Returns:
             Reference hash as integer
         """
+        # If already a hash, return it
+        if isinstance(ref, int):
+            return ref
+
+        # If it's a dict, convert to S3ReferenceData format
+        if isinstance(ref, dict):
+            ref_data_dict = {
+                "hash": 0,
+                "reference": ref,
+                "created_at": datetime.now(timezone.utc).isoformat() + "Z",
+            }
+            ref_data = S3ReferenceData(**ref_data_dict)
+            ref_hash = ReferenceHasher.compute_hash(ref_data)
+            ref_dict = self._process_reference_snaks(ref_data, snak_handler)
+            ref_data = S3ReferenceData(
+                hash=ref_hash,
+                reference=ref_dict,
+                created_at=datetime.now(timezone.utc).isoformat() + "Z",
+            )
+            self.state.s3_client.store_reference(ref_hash, ref_data)
+            return ref_hash
+
+        # If it's S3ReferenceData, process it
         if isinstance(ref, S3ReferenceData):
             ref_hash = ReferenceHasher.compute_hash(ref)
             ref_dict = self._process_reference_snaks(ref, snak_handler)
@@ -375,6 +404,7 @@ class StatementService(Service):
             )
             self.state.s3_client.store_reference(ref_hash, ref_data)
             return ref_hash
+
         return ref
 
     def _process_statement_references(
@@ -387,11 +417,67 @@ class StatementService(Service):
         if "references" in statement_data and isinstance(
             statement_data["references"], list
         ):
+            logger.debug(f"Processing {len(statement_data['references'])} references")
             new_references = []
-            for ref in statement_data["references"]:
+            for idx, ref in enumerate(statement_data["references"]):
+                logger.debug(f"Processing reference {idx}: type={type(ref)}, is_S3ReferenceData={isinstance(ref, S3ReferenceData)}")
                 processed_ref = self._process_single_reference(ref, snak_handler)
+                logger.debug(f"Processed reference {idx}: type={type(processed_ref)}, value={processed_ref}")
                 new_references.append(processed_ref)
             statement_data["references"] = new_references
+
+    def _process_statement_qualifiers(
+        self, statement_data: dict, snak_handler: SnakHandler
+    ) -> None:
+        """Process all qualifiers in a statement.
+
+        Mutates statement_data's qualifiers in-place.
+        """
+        if "qualifiers" in statement_data and isinstance(
+            statement_data["qualifiers"], dict
+        ):
+            qualifiers_dict = statement_data["qualifiers"]
+            new_qualifiers = {}
+
+            # Process qualifiers and extract snaks
+            for prop_key, qual_values in qualifiers_dict.items():
+                if isinstance(qual_values, list):
+                    new_qual_values = []
+                    for qual_item in qual_values:
+                        if isinstance(qual_item, dict) and "property" in qual_item:
+                            snak_request = SnakRequest(
+                                property=qual_item["property"],
+                                datavalue=qual_item.get("datavalue", {}),
+                            )
+                            snak_hash = snak_handler.store_snak(snak_request)
+                            new_qual_values.append(snak_hash)
+                        else:
+                            new_qual_values.append(qual_item)
+                    new_qualifiers[prop_key] = new_qual_values
+                elif isinstance(qual_values, dict) and "property" in qual_values:
+                    snak_request = SnakRequest(
+                        property=qual_values["property"],
+                        datavalue=qual_values.get("datavalue", {}),
+                    )
+                    snak_hash = snak_handler.store_snak(snak_request)
+                    new_qualifiers[prop_key] = [snak_hash]
+                else:
+                    new_qualifiers[prop_key] = qual_values
+
+            # Compute rapidhash
+            qual_hash = QualifierHasher.compute_hash(new_qualifiers)
+            # Store in S3 (idempotent)
+            try:
+                qual_data = S3QualifierData(
+                    qualifier=new_qualifiers,
+                    hash=qual_hash,
+                    created_at=datetime.now(timezone.utc).isoformat() + "Z",
+                )
+                self.state.s3_client.store_qualifier(qual_hash, qual_data)
+            except Exception as e:
+                logger.warning(f"Failed to store qualifiers {qual_hash}: {e}")
+            # Replace with hash
+            statement_data["qualifiers"] = qual_hash
 
     def deduplicate_references_in_statements(
         self,

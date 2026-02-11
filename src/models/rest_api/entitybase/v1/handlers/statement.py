@@ -3,6 +3,7 @@
 import logging
 
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
+from typing import Any, cast
 
 from models.rest_api.entitybase.v1.handler import Handler
 from models.data.rest_api.v1.entitybase.request import CleanupOrphanedRequest
@@ -46,7 +47,11 @@ class StatementHandler(Handler):
 
             # Reconstruct mainsnak from hash
             statement_dict = statement_data.statement.copy()
-            mainsnak_hash = statement_dict["mainsnak"]["hash"]
+            mainsnak_hash_input = statement_dict["mainsnak"]
+            if isinstance(mainsnak_hash_input, dict) and "hash" in mainsnak_hash_input:
+                mainsnak_hash = cast(int, mainsnak_hash_input["hash"])
+            else:
+                mainsnak_hash = cast(int, mainsnak_hash_input)
             snak_handler = SnakHandler(state=self.state)
             retrieved_snak = snak_handler.get_snak(mainsnak_hash)
             if retrieved_snak:
@@ -104,7 +109,11 @@ class StatementHandler(Handler):
 
                 # Reconstruct mainsnak from hash
                 statement_dict = statement_data.statement.copy()
-                mainsnak_hash = statement_dict["mainsnak"]["hash"]
+                mainsnak_hash_input = statement_dict["mainsnak"]
+                if isinstance(mainsnak_hash_input, dict) and "hash" in mainsnak_hash_input:
+                    mainsnak_hash = cast(int, mainsnak_hash_input["hash"])
+                else:
+                    mainsnak_hash = cast(int, mainsnak_hash_input)
                 retrieved_snak = snak_handler.get_snak(mainsnak_hash)
                 if retrieved_snak:
                     statement_dict["mainsnak"] = retrieved_snak
@@ -220,7 +229,11 @@ class StatementHandler(Handler):
                 statement_data = self.state.s3_client.read_statement(statement_hash)
 
                 # Reconstruct from hash to get property ID
-                mainsnak_hash = statement_data.statement["mainsnak"]["hash"]
+                mainsnak_hash_input = statement_data.statement["mainsnak"]
+                if isinstance(mainsnak_hash_input, dict) and "hash" in mainsnak_hash_input:
+                    mainsnak_hash = cast(int, mainsnak_hash_input["hash"])
+                else:
+                    mainsnak_hash = cast(int, mainsnak_hash_input)
                 retrieved_snak = snak_handler.get_snak(mainsnak_hash)
                 if retrieved_snak:
                     property_id = retrieved_snak["property"]
