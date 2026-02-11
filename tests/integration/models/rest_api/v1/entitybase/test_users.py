@@ -236,11 +236,11 @@ async def test_get_user_stats(api_prefix: str, initialized_app: None) -> None:
         response = await client.get(f"{api_prefix}/users/stat")
         assert response.status_code == 200
         data = response.json()
-        assert "total_users" in data
-        assert "active_users" in data
+        assert "total" in data
+        assert "active" in data
         assert "date" in data
-        assert isinstance(data["total_users"], int)
-        assert isinstance(data["active_users"], int)
+        assert isinstance(data["total"], int)
+        assert isinstance(data["active"], int)
 
 
 @pytest.mark.asyncio
