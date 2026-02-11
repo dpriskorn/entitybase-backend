@@ -156,13 +156,6 @@ class EntityHandler(Handler):
             # Get current head revision
             head_revision_id = ctx.vitess_client.get_head(ctx.entity_id)
 
-            # Calculate content hash
-            import json
-            from rapidhash import rapidhash
-
-            entity_json = json.dumps(ctx.request_data, sort_keys=True)
-            content_hash = rapidhash(entity_json.encode())
-
             # Calculate new revision ID
             new_revision_id = head_revision_id + 1 if head_revision_id else 1
 
@@ -179,16 +172,15 @@ class EntityHandler(Handler):
                 new_revision_id,
             )
 
-            # Store in database
+            # Store in database and S3 with same content hash
+            content_hash = await self._store_revision_s3_new(ctx, revision_data)
+
             ctx.vitess_client.create_revision(
                 entity_id=ctx.entity_id,
                 entity_data=revision_data,
                 revision_id=new_revision_id,
                 content_hash=content_hash,
             )
-
-            # Store in S3
-            await self._store_revision_s3_new(ctx, revision_data)
 
             return RevisionResult(success=True, revision_id=new_revision_id)
 
@@ -248,8 +240,8 @@ class EntityHandler(Handler):
     @staticmethod
     async def _store_revision_s3_new(
         ctx: RevisionContext, revision_data: RevisionData
-    ) -> None:
-        """Store revision data in S3."""
+    ) -> int:
+        """Store revision data in S3 and return content hash."""
         import json
         from models.internal_representation.metadata_extractor import MetadataExtractor
         from models.data.infrastructure.s3.revision_data import S3RevisionData
@@ -266,6 +258,7 @@ class EntityHandler(Handler):
         )
 
         ctx.s3_client.store_revision(content_hash, s3_revision_data)
+        return content_hash
 
     @staticmethod
     async def _publish_events_new(ctx: RevisionContext, result: RevisionResult) -> None:

@@ -61,7 +61,6 @@ class CreationTransaction(EntityTransaction):
         from models.data.infrastructure.s3.enums import EditType, EditData
         from models.data.infrastructure.s3.entity_state import EntityState
         import json
-        from rapidhash import rapidhash
         from models.internal_representation.metadata_extractor import MetadataExtractor
         from models.data.infrastructure.s3.revision_data import S3RevisionData
         from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
@@ -70,9 +69,6 @@ class CreationTransaction(EntityTransaction):
         )
         from models.infrastructure.s3.revision.revision_data import RevisionData
         from models.config.settings import settings
-
-        entity_json = json.dumps(request_data.model_dump(mode="json"), sort_keys=True)
-        content_hash = rapidhash(entity_json.encode())
 
         hs = HashService(state=self.state)
         sitelink_hashes = hs.hash_sitelinks(request_data.sitelinks)
@@ -106,16 +102,16 @@ class CreationTransaction(EntityTransaction):
             schema_version=settings.s3_schema_revision_version,
         )
 
+        revision_dict = revision_data.model_dump(mode="json")
+        revision_json = json.dumps(revision_dict, sort_keys=True)
+        content_hash = MetadataExtractor.hash_string(revision_json)
+
         self.state.vitess_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,
             revision_id=1,
             content_hash=content_hash,
         )
-
-        revision_dict = revision_data.model_dump(mode="json")
-        revision_json = json.dumps(revision_dict, sort_keys=True)
-        content_hash = MetadataExtractor.hash_string(revision_json)
 
         s3_revision_data = S3RevisionData(
             schema=settings.s3_schema_revision_version,
