@@ -79,9 +79,7 @@ class TestProducerIntegration:
 
         await producer.start()
         try:
-            await producer.publish_change(event_data)
-
-            # Consume the published message
+            # Start consumer before publishing to ensure we capture the event
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
@@ -90,8 +88,8 @@ class TestProducerIntegration:
                 auto_offset_reset="latest",
             )
             await consumer.start()
-            await consumer.seek_to_end()
             try:
+                await producer.publish_change(event_data)
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 received_data = message.value
                 assert received_data["id"] == f"{TEST_ENTITY_BASE}0"
@@ -124,9 +122,7 @@ class TestProducerIntegration:
 
         await producer.start()
         try:
-            await producer.publish_change(event_data)
-
-            # Consume the published message
+            # Start consumer before publishing to ensure we capture the event
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
@@ -135,8 +131,8 @@ class TestProducerIntegration:
                 auto_offset_reset="latest",
             )
             await consumer.start()
-            await consumer.seek_to_end()
             try:
+                await producer.publish_change(event_data)
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 received_data = message.value
                 assert received_data["id"] == f"{TEST_ENTITY_BASE}1"
@@ -169,9 +165,7 @@ class TestProducerIntegration:
 
         await producer.start()
         try:
-            await producer.publish_change(event_data)
-
-            # Consume the published message
+            # Start consumer before publishing to ensure we capture the event
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
@@ -180,8 +174,8 @@ class TestProducerIntegration:
                 auto_offset_reset="latest",
             )
             await consumer.start()
-            await consumer.seek_to_end()
             try:
+                await producer.publish_change(event_data)
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 received_data = message.value
                 assert received_data["id"] == f"{TEST_ENTITY_BASE}2"
@@ -212,9 +206,7 @@ class TestProducerIntegration:
 
         await producer.start()
         try:
-            await producer.publish_change(event_data)
-
-            # Consume the published message
+            # Start consumer before publishing to ensure we capture the event
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
@@ -223,8 +215,8 @@ class TestProducerIntegration:
                 auto_offset_reset="latest",
             )
             await consumer.start()
-            await consumer.seek_to_end()
             try:
+                await producer.publish_change(event_data)
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 received_data = message.value
                 assert received_data["id"] == f"{TEST_ENTITY_BASE}3"
@@ -271,10 +263,7 @@ class TestProducerIntegration:
 
         await producer.start()
         try:
-            for event in events:
-                await producer.publish_change(event)
-
-            # Consume all events
+            # Start consumer before publishing to ensure we capture the events
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
@@ -283,8 +272,10 @@ class TestProducerIntegration:
                 auto_offset_reset="latest",
             )
             await consumer.start()
-            await consumer.seek_to_end()
             try:
+                for event in events:
+                    await producer.publish_change(event)
+
                 received_events = []
                 for _ in events:
                     message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
@@ -333,9 +324,7 @@ class TestProducerIntegration:
 
         await producer.start()
         try:
-            await producer.publish_change(event_data)
-
-            # Consume the published message and check key
+            # Start consumer before publishing to ensure we capture the event
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
@@ -344,8 +333,8 @@ class TestProducerIntegration:
                 auto_offset_reset="latest",
             )
             await consumer.start()
-            await consumer.seek_to_end()
             try:
+                await producer.publish_change(event_data)
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 # The key should be the entity_id
                 assert message.key == f"{TEST_ENTITY_BASE}10".encode()
@@ -374,9 +363,7 @@ class TestProducerIntegration:
 
         await producer.start()
         try:
-            await producer.publish_change(event_data)
-
-            # Consume the published message and verify JSON structure
+            # Start consumer before publishing to ensure we capture the event
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
@@ -385,8 +372,8 @@ class TestProducerIntegration:
                 auto_offset_reset="latest",
             )
             await consumer.start()
-            await consumer.seek_to_end()
             try:
+                await producer.publish_change(event_data)
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 received_data = message.value
 
@@ -431,19 +418,7 @@ class TestProducerIntegration:
 
         await producer.start()
         try:
-            for i, change_type_str in enumerate(TEST_CHANGE_TYPES):
-                change_type = change_type_map.get(change_type_str, ChangeType.EDIT)
-                event_data = EntityChangeEvent(
-                    entity_id=f"{TEST_ENTITY_BASE}50{i}",
-                    revision_id=10,
-                    change_type=change_type,
-                    changed_at=datetime.now(timezone.utc),
-                    user_id=TEST_USER_ID,
-                    from_revision_id=9 if change_type_str in ["edit", "soft_delete", "redirect", "unredirect"] else None,
-                )
-                await producer.publish_change(event_data)
-
-            # Consume all events and verify types
+            # Start consumer before publishing to ensure we capture the events
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
@@ -452,8 +427,19 @@ class TestProducerIntegration:
                 auto_offset_reset="latest",
             )
             await consumer.start()
-            await consumer.seek_to_end()
             try:
+                for i, change_type_str in enumerate(TEST_CHANGE_TYPES):
+                    change_type = change_type_map.get(change_type_str, ChangeType.EDIT)
+                    event_data = EntityChangeEvent(
+                        entity_id=f"{TEST_ENTITY_BASE}50{i}",
+                        revision_id=10,
+                        change_type=change_type,
+                        changed_at=datetime.now(timezone.utc),
+                        user_id=TEST_USER_ID,
+                        from_revision_id=9 if change_type_str in ["edit", "soft_delete", "redirect", "unredirect"] else None,
+                    )
+                    await producer.publish_change(event_data)
+
                 received_events = []
                 for _ in TEST_CHANGE_TYPES:
                     message = await asyncio.wait_for(consumer.getone(), timeout=5.0)

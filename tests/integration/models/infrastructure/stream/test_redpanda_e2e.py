@@ -4,6 +4,7 @@ import asyncio
 import logging
 import os
 import time
+import uuid
 from datetime import datetime, timezone
 from typing import Any
 
@@ -25,6 +26,11 @@ TEST_ENTITY_BASE = "Q888888"
 TEST_USER_ID = "test-user-123"
 
 
+def get_unique_consumer_id() -> str:
+    """Generate a unique consumer group ID for each test."""
+    return f"test-consumer-e2e-{uuid.uuid4().hex[:8]}"
+
+
 class TestProducerConsumerEndToEnd:
     """End-to-end tests for producer and consumer integration."""
 
@@ -35,7 +41,7 @@ class TestProducerConsumerEndToEnd:
         consumer_config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-e2e",
+            group_id=get_unique_consumer_id(),
         )
         consumer = StreamConsumerClient(config=consumer_config)
 
@@ -119,7 +125,7 @@ class TestProducerConsumerEndToEnd:
         consumer_config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-delete",
+            group_id=get_unique_consumer_id(),
         )
         consumer = StreamConsumerClient(config=consumer_config)
 
@@ -188,7 +194,7 @@ class TestProducerConsumerEndToEnd:
         consumer_config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-redirect",
+            group_id=get_unique_consumer_id(),
         )
         consumer = StreamConsumerClient(config=consumer_config)
 
@@ -268,7 +274,7 @@ class TestProducerConsumerEndToEnd:
         consumer_config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-unredirect",
+            group_id=get_unique_consumer_id(),
         )
         consumer = StreamConsumerClient(config=consumer_config)
 
@@ -362,7 +368,7 @@ class TestProducerConsumerEndToEnd:
         consumer_config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-multi-entity",
+            group_id=get_unique_consumer_id(),
         )
         consumer = StreamConsumerClient(config=consumer_config)
 
@@ -446,7 +452,7 @@ class TestProducerConsumerEndToEnd:
         consumer_config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-error",
+            group_id=get_unique_consumer_id(),
         )
         consumer = StreamConsumerClient(config=consumer_config)
 
