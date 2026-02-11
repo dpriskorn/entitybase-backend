@@ -9,3 +9,4 @@ class StreamConsumerConfig(Config):
     brokers: list[str]
     topic: str = "wikibase-entity-changes"
     group_id: str = "watchlist-consumer"
+    auto_offset_reset: str = "latest"

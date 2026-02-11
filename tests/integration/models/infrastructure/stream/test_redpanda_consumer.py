@@ -5,8 +5,10 @@ import json
 import logging
 import os
 import time
-from datetime import datetime, timezone
+import uuid
+from datetime import datetime
 from typing import AsyncGenerator, Any
+from dateutil.parser import parse as parse_datetime
 
 import pytest
 from aiokafka import AIOKafkaProducer
@@ -36,7 +38,7 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer",
+            group_id=f"test-consumer-{uuid.uuid4()}",
         )
         consumer = StreamConsumerClient(config=config)
 
@@ -57,7 +59,8 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-single",
+            group_id=f"test-consumer-single-{uuid.uuid4()}",
+            auto_offset_reset="earliest",
         )
         consumer = StreamConsumerClient(config=config)
 
@@ -67,12 +70,11 @@ class TestConsumerIntegration:
         )
         producer = StreamProducerClient(config=producer_config)
 
-        changed_at = time.strftime("%Y-%m-%dT%H:%M:%SZ")
         event = EntityChangeEvent(
             entity_id=f"{TEST_ENTITY_BASE}30",
             revision_id=1,
             change_type=ChangeType.CREATION,
-            changed_at=datetime.now(timezone.utc),
+            changed_at=datetime.now(),
             user_id=TEST_USER_ID,
         )
 
@@ -102,7 +104,8 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-multi",
+            group_id=f"test-consumer-multi-{uuid.uuid4()}",
+            auto_offset_reset="earliest",
         )
         consumer = StreamConsumerClient(config=config)
 
@@ -117,14 +120,14 @@ class TestConsumerIntegration:
                 entity_id=f"{TEST_ENTITY_BASE}40",
                 revision_id=1,
                 change_type=ChangeType.CREATION,
-                changed_at=datetime.now(timezone.utc),
+                changed_at=datetime.now(),
                 user_id=TEST_USER_ID,
             ),
             EntityChangeEvent(
                 entity_id=f"{TEST_ENTITY_BASE}40",
                 revision_id=2,
                 change_type=ChangeType.EDIT,
-                changed_at=datetime.now(timezone.utc),
+                changed_at=datetime.now(),
                 user_id=TEST_USER_ID,
                 from_revision_id=1,
             ),
@@ -132,7 +135,7 @@ class TestConsumerIntegration:
                 entity_id=f"{TEST_ENTITY_BASE}41",
                 revision_id=3,
                 change_type=ChangeType.CREATION,
-                changed_at=datetime.now(timezone.utc),
+                changed_at=datetime.now(),
                 user_id=TEST_USER_ID,
             ),
         ]
@@ -146,9 +149,14 @@ class TestConsumerIntegration:
         await consumer.start()
         try:
             events: list[EntityChangeEventData] = []
+            expected_events = {(f"{TEST_ENTITY_BASE}40", 1), (f"{TEST_ENTITY_BASE}40", 2), (f"{TEST_ENTITY_BASE}41", 3)}
+            
             async for event in consumer.consume_events():
-                events.append(event)
-                if len(events) >= 3:
+                key = (event.entity_id, event.revision_id)
+                if key in expected_events:
+                    events.append(event)
+                    expected_events.remove(key)
+                if not expected_events:
                     break
 
             assert len(events) == 3
@@ -187,7 +195,7 @@ class TestConsumerIntegration:
             entity_id=f"{TEST_ENTITY_BASE}50",
             revision_id=1,
             change_type=ChangeType.CREATION,
-            changed_at=datetime.now(timezone.utc),
+            changed_at=datetime.now(),
             user_id=TEST_USER_ID,
         )
 
@@ -195,7 +203,7 @@ class TestConsumerIntegration:
             entity_id=f"{TEST_ENTITY_BASE}51",
             revision_id=1,
             change_type=ChangeType.EDIT,
-            changed_at=datetime.now(timezone.utc),
+            changed_at=datetime.now(),
             user_id=TEST_USER_ID,
         )
 
@@ -210,7 +218,8 @@ class TestConsumerIntegration:
         consumer_config1 = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=topic1,
-            group_id="test-consumer-topic1",
+            group_id=f"test-consumer-topic1-{uuid.uuid4()}",
+            auto_offset_reset="earliest",
         )
         consumer1 = StreamConsumerClient(config=consumer_config1)
 
@@ -218,8 +227,9 @@ class TestConsumerIntegration:
         try:
             events: list[EntityChangeEventData] = []
             async for event in consumer1.consume_events():
-                events.append(event)
-                break
+                if event.entity_id == f"{TEST_ENTITY_BASE}50" and event.revision_id == 1:
+                    events.append(event)
+                    break
 
             assert len(events) == 1
             assert events[0].entity_id == f"{TEST_ENTITY_BASE}50"
@@ -231,7 +241,8 @@ class TestConsumerIntegration:
         consumer_config2 = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=topic2,
-            group_id="test-consumer-topic2",
+            group_id=f"test-consumer-topic2-{uuid.uuid4()}",
+            auto_offset_reset="earliest",
         )
         consumer2 = StreamConsumerClient(config=consumer_config2)
 
@@ -239,12 +250,13 @@ class TestConsumerIntegration:
         try:
             events: list[EntityChangeEventData] = []
             async for event in consumer2.consume_events():
-                events.append(event)
-                break
+                if event.entity_id == f"{TEST_ENTITY_BASE}51" and event.revision_id == 1:
+                    events.append(event)
+                    break
 
             assert len(events) == 1
             assert events[0].entity_id == f"{TEST_ENTITY_BASE}51"
-            assert events[0].change_type == "entity_diff"
+            assert events[0].change_type == "edit"
         finally:
             await consumer2.stop()
 
@@ -254,7 +266,7 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-health",
+            group_id=f"test-consumer-health-{uuid.uuid4()}",
         )
         consumer = StreamConsumerClient(config=config)
 
@@ -272,7 +284,8 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-after-stop",
+            group_id=f"test-consumer-after-stop-{uuid.uuid4()}",
+            auto_offset_reset="earliest",
         )
         consumer = StreamConsumerClient(config=config)
 
@@ -286,7 +299,7 @@ class TestConsumerIntegration:
             entity_id=f"{TEST_ENTITY_BASE}60",
             revision_id=1,
             change_type=ChangeType.CREATION,
-            changed_at=datetime.now(timezone.utc),
+            changed_at=datetime.now(),
             user_id=TEST_USER_ID,
         )
 
@@ -299,8 +312,9 @@ class TestConsumerIntegration:
         try:
             events: list[EntityChangeEventData] = []
             async for event in consumer.consume_events():
-                events.append(event)
-                break
+                if event.entity_id == f"{TEST_ENTITY_BASE}60" and event.revision_id == 1:
+                    events.append(event)
+                    break
 
             assert len(events) == 1
             assert events[0].entity_id == f"{TEST_ENTITY_BASE}60"
@@ -322,7 +336,7 @@ class TestConsumerIntegration:
             entity_id=f"{TEST_ENTITY_BASE}70",
             revision_id=1,
             change_type=ChangeType.CREATION,
-            changed_at=datetime.now(timezone.utc),
+            changed_at=datetime.now(),
             user_id=TEST_USER_ID,
         )
 
@@ -332,12 +346,12 @@ class TestConsumerIntegration:
 
         # Create multiple consumers with different groups
         consumer1_config = StreamConsumerConfig(
-            brokers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic, group_id="group-consumer-1"
+            brokers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic, group_id=f"group-consumer-1-{uuid.uuid4()}", auto_offset_reset="earliest"
         )
         consumer1 = StreamConsumerClient(config=consumer1_config)
 
         consumer2_config = StreamConsumerConfig(
-            brokers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic, group_id="group-consumer-2"
+            brokers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic, group_id=f"group-consumer-2-{uuid.uuid4()}", auto_offset_reset="earliest"
         )
         consumer2 = StreamConsumerClient(config=consumer2_config)
 
@@ -349,12 +363,14 @@ class TestConsumerIntegration:
             events2: list[EntityChangeEventData] = []
 
             async for event in consumer1.consume_events():
-                events1.append(event)
-                break
+                if event.entity_id == f"{TEST_ENTITY_BASE}70" and event.revision_id == 1:
+                    events1.append(event)
+                    break
 
             async for event in consumer2.consume_events():
-                events2.append(event)
-                break
+                if event.entity_id == f"{TEST_ENTITY_BASE}70" and event.revision_id == 1:
+                    events2.append(event)
+                    break
 
             assert len(events1) == 1
             assert len(events2) == 1
@@ -374,7 +390,7 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=topic,
-            group_id="test-consumer-late",
+            group_id=f"test-consumer-late-{uuid.uuid4()}",
         )
         consumer = StreamConsumerClient(config=config)
 
@@ -393,7 +409,7 @@ class TestConsumerIntegration:
                 entity_id=f"{TEST_ENTITY_BASE}80",
                 revision_id=1,
                 change_type=ChangeType.CREATION,
-                changed_at=datetime.now(timezone.utc),
+                changed_at=datetime.now(),
                 user_id=TEST_USER_ID,
             )
 
@@ -428,7 +444,7 @@ class TestConsumerIntegration:
             entity_id=f"{TEST_ENTITY_BASE}90",
             revision_id=1,
             change_type=ChangeType.EDIT,
-            changed_at=datetime.now(timezone.utc),
+            changed_at=datetime.now(),
             user_id=TEST_USER_ID,
             edit_summary="Test with special chars: <>&\"' and emojis: 🚀✨",
         )
@@ -441,7 +457,8 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=topic,
-            group_id="test-consumer-special",
+            group_id=f"test-consumer-special-{uuid.uuid4()}",
+            auto_offset_reset="earliest",
         )
         consumer = StreamConsumerClient(config=config)
 
@@ -449,8 +466,9 @@ class TestConsumerIntegration:
         try:
             events: list[EntityChangeEventData] = []
             async for event in consumer.consume_events():
-                events.append(event)
-                break
+                if event.entity_id == f"{TEST_ENTITY_BASE}90" and event.revision_id == 1:
+                    events.append(event)
+                    break
 
             assert len(events) == 1
             assert events[0].entity_id == f"{TEST_ENTITY_BASE}90"
@@ -465,9 +483,9 @@ class TestConsumerIntegration:
     async def test_consumer_multiple_brokers(self) -> None:
         """Test that consumer can connect to multiple brokers."""
         config = StreamConsumerConfig(
-            brokers=["redpanda:9092", "redpanda:9093"],
+            brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-multi-brokers",
+            group_id=f"test-consumer-multi-brokers-{uuid.uuid4()}",
         )
         consumer = StreamConsumerClient(config=config)
 

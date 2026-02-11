@@ -55,7 +55,7 @@ class StreamConsumerClient(Client):
             bootstrap_servers=self.bootstrap_servers,
             group_id=self.config.group_id,
             value_deserializer=lambda v: json.loads(v.decode("utf-8")),
-            auto_offset_reset="latest",
+            auto_offset_reset=self.config.auto_offset_reset,
         )
         await self.consumer.start()
         logger.info(f"Started Kafka consumer for topic {self.config.topic}")
@@ -64,6 +64,7 @@ class StreamConsumerClient(Client):
         """Stop the Kafka consumer."""
         if self.consumer:
             await self.consumer.stop()
+            self.consumer = None
             logger.info("Stopped Kafka consumer")
 
     async def consume_events(self) -> AsyncGenerator[EntityChangeEventData, None]:
