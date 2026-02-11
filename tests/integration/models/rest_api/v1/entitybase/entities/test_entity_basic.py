@@ -1,187 +1,162 @@
 import logging
-from pprint import pprint
 
 import pytest
-import requests
-
-from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
+from httpx import ASGITransport, AsyncClient
 
 logger = logging.getLogger(__name__)
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_health_check(api_client: requests.Session, base_url: str) -> None:
+async def test_health_check() -> None:
     """Test that health check endpoint returns OK
     This does not test all buckets work"""
+    from models.rest_api.main import app
 
-    response = api_client.get(f"{base_url}/health")
-    assert response.status_code == 200
-    data = response.json()
-    assert data["status"] == "ok"
-    assert data["s3"] == "connected"
-    assert data["vitess"] == "connected"
-    logger.info("✓ Health check passed")
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.get("/health")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "ok"
+        assert data["s3"] == "connected"
+        assert data["vitess"] == "connected"
+        logger.info("✓ Health check passed")
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_create_item(api_client: requests.Session, api_url: str) -> None:
+async def test_create_item() -> None:
     """Test creating a new entity"""
-    entity_data1 = EntityCreateRequest(
+    from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
+    from models.rest_api.main import app
+
+    entity_data = EntityCreateRequest(
         type="item", labels={"en": {"value": "Test Entity"}}, edit_summary="test"
     )
-    # entity_data = {
-    #     "type": "item",
-    #     "labels": {"en": {"language": "en", "value": "Test Entity"}},
-    #     "descriptions": {
-    #         "en": {"language": "en", "value": "A test entity for integration testing"}
-    #     },
-    # }
 
-    response = api_client.post(
-        f"{api_url}/entities/items",
-        json=entity_data1.model_dump(mode="json"),
-        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
-    )
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.post(
+            "/v1/entitybase/entities/items",
+            json=entity_data.model_dump(mode="json"),
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
 
-    # Debug output for 500 error investigation
-    logger.error(f"🔍 TEST: Status Code: {response.status_code}")
-    logger.error(f"🔍 TEST: Response Headers: {dict(response.headers)}")
-    if response.status_code >= 400:
-        logger.error(f"🔍 TEST: Response Body: {response.text}")
-        logger.error(f"🔍 TEST: Request Data: {entity_data1.model_dump(mode='json')}")
-
-    assert response.status_code == 200
-
-    result = response.json()
-    logger.debug(result)
-    entity_id = result["id"]
-    assert entity_id.startswith("Q")
-    assert result["rev_id"] == 1
-
-    # Hash computation now works with nested data property
-    # entity_json = json.dumps(result["data"], sort_keys=True)
-    # computed_hash = rapidhash(entity_json.encode())
-    #
-    # raw_response = api_client.get(f"{base_url}/entitybase/raw/{entity_id}/1")
-    # raw_data = raw_response.json()
-    # api_hash = raw_data.get("content_hash")
-    #
-    # assert api_hash == computed_hash, (
-    #     f"API hash {api_hash} must match computed hash {computed_hash}"
-    # )
-    #
-    # logger.info("✓ Entity creation passed with rapidhash verification")
+        assert response.status_code == 200
+        result = response.json()
+        entity_id = result["id"]
+        assert entity_id.startswith("Q")
+        assert result["rev_id"] == 1
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_get_item(api_client: requests.Session, api_url: str) -> None:
+async def test_get_item() -> None:
     """Test retrieving an entity"""
+    from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
+    from models.rest_api.main import app
 
-    # First create an entity
-    entity_data1 = EntityCreateRequest(
+    entity_data = EntityCreateRequest(
         id="Q99998",
         type="item",
         labels={"en": {"value": "Test Entity"}},
         edit_summary="test",
     )
-    # entity_data = {
-    #     "id": "Q99998",
-    #     "type": "item",
-    #     "labels": {"en": {"language": "en", "value": "Test Entity for Get"}},
-    # }
-    response = api_client.post(
-        f"{api_url}/entities/items",
-        json=entity_data1.model_dump(mode="json"),
-        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
-    )
-    logger.debug("Response")
-    pprint(response.json())
-    assert response.status_code == 200
 
-    # Then retrieve it
-    response2 = api_client.get(f"{api_url}/entities/Q99998")
-    logger.debug("Response2")
-    pprint(response2.json())
-    assert response2.status_code == 200
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        create_response = await client.post(
+            "/v1/entitybase/entities/items",
+            json=entity_data.model_dump(mode="json"),
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
+        assert create_response.status_code == 200
 
-    result = response2.json()
-    assert result["id"] == "Q99998"
-    assert result["rev_id"] == 1
-    # assert "data" in result
-    logger.info("✓ Entity retrieval passed")
+        response = await client.get("/v1/entitybase/entities/Q99998")
+        assert response.status_code == 200
+
+        result = response.json()
+        assert result["id"] == "Q99998"
+        assert result["rev_id"] == 1
+        logger.info("✓ Entity retrieval passed")
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_create_item_already_exists(api_client: requests.Session, api_url: str) -> None:
+async def test_create_item_already_exists() -> None:
     """Test that POST /entity fails with 409 when entity already exists"""
+    from models.rest_api.main import app
 
-    # Create initial entity
     entity_data = {
         "id": "Q99998",
         "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
         "edit_summary": "Test creation",
     }
-    api_client.post(
-        f"{api_url}/entities/items",
-        json=entity_data,
-        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
-    )
 
-    # Try to create the same entity again - should fail
-    response = api_client.post(
-        f"{api_url}/entities/items",
-        json=entity_data,
-        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
-    )
-    assert response.status_code == 409
-    assert "already exists" in response.json().get("message", "")
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        await client.post(
+            "/v1/entitybase/entities/items",
+            json=entity_data,
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
 
-    logger.info("✓ POST with existing entity correctly returns 409")
+        response = await client.post(
+            "/v1/entitybase/entities/items",
+            json=entity_data,
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
+        assert response.status_code == 409
+        assert "already exists" in response.json().get("message", "")
+
+        logger.info("✓ POST with existing entity correctly returns 409")
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_get_item_history(api_client: requests.Session, api_url: str) -> None:
+async def test_get_item_history() -> None:
     """Test retrieving entity history"""
+    from models.rest_api.main import app
 
     entity_id = "Q99996"
 
-    create_response = api_client.post(
-        f"{api_url}/entities/items",
-        json={
-            "id": entity_id,
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Test Entity"}},
-            "edit_summary": "create entity",
-        },
-        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
-    )
-    assert create_response.status_code == 200
-    create_response.json()
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        create_response = await client.post(
+            "/v1/entitybase/entities/items",
+            json={
+                "id": entity_id,
+                "type": "item",
+                "labels": {"en": {"language": "en", "value": "Test Entity"}},
+                "edit_summary": "create entity",
+            },
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
+        assert create_response.status_code == 200
 
-    api_client.put(
-        f"{api_url}/entities/items/{entity_id}/labels/en",
-        json={"language": "en", "value": "Updated Test Entity"},
-        headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
-    )
+        await client.put(
+            f"/v1/entitybase/entities/items/{entity_id}/labels/en",
+            json={"language": "en", "value": "Updated Test Entity"},
+            headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
+        )
 
-    response = api_client.get(f"{api_url}/entities/{entity_id}/history")
-    assert response.status_code == 200
+        response = await client.get(f"/v1/entitybase/entities/{entity_id}/history")
+        assert response.status_code == 200
 
-    history = response.json()
-    assert len(history) == 2
-    assert history[0]["revision_id"] == 2
-    assert history[1]["revision_id"] == 1
-    assert "created_at" in history[0]
-    assert "created_at" in history[1]
-    logger.info("✓ Entity history retrieval passed")
+        history = response.json()
+        assert len(history) == 2
+        assert history[0]["revision_id"] == 2
+        assert history[1]["revision_id"] == 1
+        assert "created_at" in history[0]
+        assert "created_at" in history[1]
+        logger.info("✓ Entity history retrieval passed")
 
 
+@pytest.mark.asyncio
 @pytest.mark.integration
-def test_entity_not_found(api_client: requests.Session, api_url: str) -> None:
+async def test_entity_not_found() -> None:
     """Test that non-existent entities return 404"""
+    from models.rest_api.main import app
 
-    response = api_client.get(f"{api_url}/entities/Q88888")
-    assert response.status_code == 404
-    assert "not found" in response.json()["message"].lower()
-    logger.info("✓ 404 handling passed")
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        response = await client.get("/v1/entitybase/entities/Q88888")
+        assert response.status_code == 404
+        assert "not found" in response.json()["message"].lower()
+        logger.info("✓ 404 handling passed")
