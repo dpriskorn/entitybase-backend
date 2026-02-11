@@ -87,6 +87,23 @@ class Settings(BaseModel):
     general_stats_enabled: bool = True
     general_stats_schedule: str = "0 2 * * *"  # Daily at 2 AM
 
+    # JSON dump worker
+    json_dump_enabled: bool = True
+    json_dump_schedule: str = "0 2 * * 0"  # Sunday 2AM UTC
+    s3_dump_bucket: str = "wikibase-dumps"
+    json_dump_batch_size: int = 1000
+    json_dump_parallel_workers: int = 50
+    json_dump_compression: bool = True
+    json_dump_generate_checksums: bool = True
+
+    # TTL dump worker
+    ttl_dump_enabled: bool = True
+    ttl_dump_schedule: str = "0 3 * * 0"  # Sunday 3AM UTC (after JSON dump)
+    ttl_dump_batch_size: int = 1000
+    ttl_dump_parallel_workers: int = 50
+    ttl_dump_compression: bool = True
+    ttl_dump_generate_checksums: bool = True
+
     def model_post_init(self, context: Any) -> None:
         """Initialize all fields from environment variables.
 
@@ -205,6 +222,45 @@ class Settings(BaseModel):
         )
         self.general_stats_enabled = (
             os.getenv("GENERAL_STATS_ENABLED", str(self.general_stats_enabled)).lower()
+            == "true"
+        )
+        self.json_dump_enabled = (
+            os.getenv("JSON_DUMP_ENABLED", str(self.json_dump_enabled)).lower()
+            == "true"
+        )
+        self.json_dump_schedule = os.getenv("JSON_DUMP_SCHEDULE", self.json_dump_schedule)
+        self.s3_dump_bucket = os.getenv("S3_DUMP_BUCKET", self.s3_dump_bucket)
+        self.json_dump_batch_size = int(
+            os.getenv("JSON_DUMP_BATCH_SIZE", str(self.json_dump_batch_size))
+        )
+        self.json_dump_parallel_workers = int(
+            os.getenv("JSON_DUMP_PARALLEL_WORKERS", str(self.json_dump_parallel_workers))
+        )
+        self.json_dump_compression = (
+            os.getenv("JSON_DUMP_COMPRESSION", str(self.json_dump_compression)).lower()
+            == "true"
+        )
+        self.json_dump_generate_checksums = (
+            os.getenv("JSON_DUMP_GENERATE_CHECKSUMS", str(self.json_dump_generate_checksums)).lower()
+            == "true"
+        )
+        self.ttl_dump_enabled = (
+            os.getenv("TTL_DUMP_ENABLED", str(self.ttl_dump_enabled)).lower()
+            == "true"
+        )
+        self.ttl_dump_schedule = os.getenv("TTL_DUMP_SCHEDULE", self.ttl_dump_schedule)
+        self.ttl_dump_batch_size = int(
+            os.getenv("TTL_DUMP_BATCH_SIZE", str(self.ttl_dump_batch_size))
+        )
+        self.ttl_dump_parallel_workers = int(
+            os.getenv("TTL_DUMP_PARALLEL_WORKERS", str(self.ttl_dump_parallel_workers))
+        )
+        self.ttl_dump_compression = (
+            os.getenv("TTL_DUMP_COMPRESSION", str(self.ttl_dump_compression)).lower()
+            == "true"
+        )
+        self.ttl_dump_generate_checksums = (
+            os.getenv("TTL_DUMP_GENERATE_CHECKSUMS", str(self.ttl_dump_generate_checksums)).lower()
             == "true"
         )
 
