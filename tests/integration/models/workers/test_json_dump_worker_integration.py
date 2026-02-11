@@ -3,7 +3,7 @@
 import json
 import logging
 import pytest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from httpx import ASGITransport, AsyncClient
 
@@ -25,7 +25,7 @@ class TestJsonDumpWorkerIntegration:
         return worker
 
     @pytest.fixture
-    async def setup_test_entities(self, api_prefix: str):
+    async def setup_test_entities(self):
         """Setup test entities from test_data/json_import/test1.jsonl."""
         from models.rest_api.main import app
 
@@ -46,7 +46,7 @@ class TestJsonDumpWorkerIntegration:
                 "labels": {"en": {"language": "en", "value": "answer"}},
             }
             response = await client.post(
-                f"{api_prefix}/entities/lexemes",
+                "/v1/entitybase/entities/lexemes",
                 json=L42_data,
                 headers=headers,
             )
@@ -64,7 +64,7 @@ class TestJsonDumpWorkerIntegration:
                 },
             }
             response = await client.post(
-                f"{api_prefix}/entities/items",
+                "/v1/entitybase/entities/items",
                 json=Q42_data,
                 headers=headers,
             )
@@ -86,7 +86,7 @@ class TestJsonDumpWorkerIntegration:
                 },
             }
             response = await client.post(
-                f"{api_prefix}/entities/properties",
+                "/v1/entitybase/entities/properties",
                 json=P31_data,
                 headers=headers,
             )
@@ -142,9 +142,12 @@ class TestJsonDumpWorkerIntegration:
         """Test fetching entity data from real S3."""
         logger.info("=== test_fetch_entity_data_from_s3 START ===")
 
-        record = EntityDumpRecord(entity_id="Q42", internal_id=100, revision_id=1)
+        entities = await json_dump_worker._fetch_all_entities()
 
-        data = await json_dump_worker._fetch_entity_data(record)
+        q42_entity = next((e for e in entities if e.entity_id == "Q42"), None)
+        assert q42_entity is not None, "Q42 not found in database"
+
+        data = await json_dump_worker._fetch_entity_data(q42_entity)
 
         assert data is not None
         assert data.get("id") == "Q42"

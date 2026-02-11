@@ -173,21 +173,21 @@ class JsonDumpWorker(Worker):
                 entity_id_list = ",".join(f"'{eid}'" for eid in entity_ids)
 
                 cursor.execute(
-                    f"""SELECT revision_id, internal_id, updated_at
+                    f"""SELECT revision_id, internal_id, created_at
                        FROM entity_revisions
                        WHERE internal_id IN (
                            SELECT internal_id FROM entity_id_mapping WHERE entity_id IN ({entity_id_list})
                        )
-                       AND updated_at >= %s AND updated_at < %s""",
+                       AND created_at >= %s AND created_at < %s""",
                     (week_start, week_end),
                 )
                 revision_results = cursor.fetchall()
 
                 entity_map = {e.entity_id: e for e in batch}
-                for rev_id, internal_id, updated_at in revision_results:
+                for rev_id, internal_id, created_at in revision_results:
                     for entity in batch:
                         if entity.internal_id == internal_id and entity.revision_id == rev_id:
-                            entity.updated_at = updated_at
+                            entity.updated_at = created_at
                             break
 
             return [e for e in entities if e.updated_at is not None]
@@ -233,7 +233,7 @@ class JsonDumpWorker(Worker):
                 dump_type=dump_type,
             )
             with open(metadata_file, "w") as f:
-                json.dump(metadata.model_dump(), f, indent=2)
+                json.dump(metadata.model_dump(mode='json'), f, indent=2)
 
             metadata_key = f"weekly/{dump_date}/metadata.json"
             await self._upload_to_s3(metadata_file, metadata_key, "")
