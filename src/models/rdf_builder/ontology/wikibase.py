@@ -1,4 +1,5 @@
 """RDF ontology Wikibase predicates."""
+
 from models.data.rest_api.v1.entitybase.response import WikibasePredicatesResponse
 
 

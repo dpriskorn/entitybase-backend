@@ -1,4 +1,5 @@
 """RDF Turtle writer."""
+
 from io import StringIO
 from typing import TextIO, List
 

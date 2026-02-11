@@ -115,7 +115,7 @@ def parse_entity_data(raw_entity_data: dict[str, Any]) -> EntityData:
                 id=form_data["id"],
                 representations=form_data.get("representations", {}),
                 grammaticalFeatures=form_data.get("grammaticalFeatures", []),
-                claims=form_data.get("claims", {})
+                claims=form_data.get("claims", {}),
             )
             forms.append(form)
 
@@ -125,7 +125,7 @@ def parse_entity_data(raw_entity_data: dict[str, Any]) -> EntityData:
             sense = LexemeSense(
                 id=sense_data["id"],
                 glosses=sense_data.get("glosses", {}),
-                claims=sense_data.get("claims", {})
+                claims=sense_data.get("claims", {}),
             )
             senses.append(sense)
 

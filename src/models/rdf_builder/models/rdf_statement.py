@@ -1,4 +1,5 @@
 """RDF statement model."""
+
 from typing import Any
 
 from pydantic import BaseModel
@@ -19,5 +20,3 @@ class RDFStatement(BaseModel):
     rank: str
     qualifiers: Any
     references: Any
-
-

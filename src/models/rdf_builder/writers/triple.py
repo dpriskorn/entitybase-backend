@@ -3,7 +3,9 @@
 import logging
 from typing import Any, TextIO
 
-from models.data.rest_api.v1.entitybase.request.entity.context import StatementWriteContext
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    StatementWriteContext,
+)
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
 from models.rdf_builder.uri_generator import URIGenerator
 from models.rdf_builder.value_formatters import ValueFormatter
@@ -112,14 +114,18 @@ class TripleWriters:
             if value.kind == "time":
                 ValueNodeWriter.write_time_value_node(output, node_id, value, dedupe)
             elif value.kind == "quantity":
-                ValueNodeWriter.write_quantity_value_node(output, node_id, value, dedupe)
+                ValueNodeWriter.write_quantity_value_node(
+                    output, node_id, value, dedupe
+                )
             elif value.kind == "globe":
                 ValueNodeWriter.write_globe_value_node(output, node_id, value, dedupe)
 
     @staticmethod
     def write_statement(ctx: StatementWriteContext) -> None:
         """Write statement triple."""
-        logger.debug(f"Writing statement for entity {ctx.entity_id}, property {ctx.shape.pid}")
+        logger.debug(
+            f"Writing statement for entity {ctx.entity_id}, property {ctx.shape.pid}"
+        )
         from models.rdf_builder.models.rdf_reference import RDFReference
 
         entity_uri = TripleWriters.uri.entity_prefixed(ctx.entity_id)

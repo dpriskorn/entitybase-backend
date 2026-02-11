@@ -1,4 +1,5 @@
 """RDF reference model."""
+
 from typing import Any
 
 from pydantic import BaseModel, Field

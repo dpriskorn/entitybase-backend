@@ -13,7 +13,9 @@ class EntityData(BaseModel):
 
     id: str
     type: str  # Simplified, or use EntityType
-    labels: Dict[str, Dict[str, str]]  # e.g., {"en": {"language": "en", "value": "Test"}}
+    labels: Dict[
+        str, Dict[str, str]
+    ]  # e.g., {"en": {"language": "en", "value": "Test"}}
     descriptions: Dict[str, Dict[str, str]]
     aliases: Dict[str, List[Dict[str, str]]]
     statements: List[Statement]

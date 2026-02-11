@@ -1,4 +1,9 @@
 # TODO
+- [ ] Implement Dump Worker service for RDF dump generation
+- [ ] Test all endpoints with docker
+- [ ] Create integration tests for ID generation and type-specific endpoints
+- [ ] Add monitoring and metrics for worker health and range utilization
+
 Rewrite documentation using the AGENTS.md and system that vibe-kanban uses.
 
 {

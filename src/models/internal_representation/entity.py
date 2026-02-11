@@ -1,4 +1,5 @@
 """Internal representation of Wikibase entities."""
+
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -29,4 +30,3 @@ class Entity(BaseModel):
     def get_entity_type(self) -> str:
         """Get the entity type as string."""
         return self.type.value
-

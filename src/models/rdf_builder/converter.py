@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 class EntityConverter(BaseModel):
     """Converts internal Entity representation to RDF Turtle format."""
+
     property_registry: PropertyRegistry
     entity_metadata_dir: Path | None = Field(default=None)
     redirects_dir: Path | None = Field(default=None)
@@ -83,7 +84,9 @@ class EntityConverter(BaseModel):
         self, entity_id: str, rdf_stmt: RDFStatement, output: TextIO
     ) -> None:
         """Write single statement with references."""
-        from models.data.rest_api.v1.entitybase.request.entity.context import StatementWriteContext
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            StatementWriteContext,
+        )
 
         shape = self.properties.shape(rdf_stmt.property_id)
         logger.debug(f"Writing statement for {rdf_stmt.property_id}, shape: {shape}")
