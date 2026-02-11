@@ -55,7 +55,7 @@ class StreamProducerClient(Client):
 
             await self.producer.send_and_wait(
                 topic=self.config.topic,
-                key=str(key),
+                key=str(key).encode("utf-8"),
                 value=event,
             )
             logger.debug(f"Published event: {event}")
