@@ -22,18 +22,18 @@ class TestVitessConnectionManager:
     def test_healthy_connection_check_success(self):
         """Test healthy connection check success."""
         manager = VitessConnectionManager(config=self.config)
-        mock_connection = MagicMock()
-        manager.connection = mock_connection
 
+        mock_connection = MagicMock()
         mock_cursor = MagicMock()
         mock_connection.cursor.return_value = mock_cursor
         mock_cursor.fetchone.return_value = (1,)
 
-        result = manager.healthy_connection
+        with patch.object(manager, "_create_new_connection", return_value=mock_connection):
+            result = manager.healthy_connection
 
-        assert result is True
-        mock_cursor.execute.assert_called_once_with("SELECT 1")
-        mock_cursor.close.assert_called_once()
+            assert result is True
+            mock_cursor.execute.assert_called_once_with("SELECT 1")
+            mock_cursor.close.assert_called_once()
 
     def test_healthy_connection_connects_and_performs_check(self):
         """Test healthy connection connects and performs check."""
