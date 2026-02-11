@@ -141,6 +141,28 @@ class VitessClient(Client):
 
         return RedirectRepository(vitess_client=self)
 
+    @property
+    def statement_repository(self) -> Any:
+        """Get statement repository."""
+        from models.infrastructure.vitess.repositories.statement import (
+            StatementRepository,
+        )
+
+        return StatementRepository(vitess_client=self)
+
+    def insert_statement_content(self, content_hash: int) -> bool:
+        """Insert statement content or increment ref count.
+
+        Args:
+            content_hash: Hash of the statement
+
+        Returns:
+            True if inserted, False if already existed (incremented)
+        """
+        stmt_repo = self.statement_repository
+        result = stmt_repo.increment_ref_count(content_hash=content_hash)
+        return result.success
+
     def create_revision(
         self,
         entity_id: str,

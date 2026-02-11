@@ -2,9 +2,11 @@ import logging
 import sys
 import time
 
+import boto3
 import pymysql
 import pytest
 import requests
+from botocore.exceptions import ClientError
 
 sys.path.insert(0, "src")
 # noinspection PyPep8
@@ -337,6 +339,62 @@ def s3_config():
     return settings.get_s3_config
 
 
+@pytest.fixture(scope="session", autouse=True)
+def create_s3_buckets(s3_config):
+    """Create S3 buckets before running integration tests.
+
+    This fixture ensures all required S3 buckets exist before tests run,
+    preventing NoSuchBucket errors when storing data.
+    """
+    import time as time_module
+
+    start_time = time_module.time()
+    logger.debug("=== create_s3_buckets fixture START ===")
+
+    from models.config.settings import settings
+
+    required_buckets = [
+        settings.s3_terms_bucket,
+        settings.s3_statements_bucket,
+        settings.s3_references_bucket,
+        settings.s3_qualifiers_bucket,
+        settings.s3_revisions_bucket,
+        settings.s3_sitelinks_bucket,
+        settings.s3_snaks_bucket,
+    ]
+
+    s3 = boto3.client(
+        "s3",
+        endpoint_url=s3_config.endpoint_url,
+        aws_access_key_id=s3_config.access_key,
+        aws_secret_access_key=s3_config.secret_key,
+    )
+
+    created_count = 0
+    for bucket in required_buckets:
+        try:
+            s3.head_bucket(Bucket=bucket)
+            logger.debug(f"Bucket already exists: {bucket}")
+        except ClientError as e:
+            error_code = e.response.get("Error", {}).get("Code")
+            if error_code in {"404", "NoSuchBucket"}:
+                try:
+                    s3.create_bucket(Bucket=bucket)
+                    logger.debug(f"Created bucket: {bucket}")
+                    created_count += 1
+                except Exception as create_error:
+                    logger.error(f"Failed to create bucket {bucket}: {create_error}")
+                    raise
+            else:
+                logger.error(f"Error checking bucket {bucket}: {error_code}")
+                raise
+
+    logger.debug(
+        f"=== create_s3_buckets fixture END total time: {(time_module.time() - start_time):.2f}s ==="
+    )
+    print(f"S3 buckets ready: {len(required_buckets)} buckets ({created_count} created)")
+
+
 @pytest.fixture(scope="session")
 def s3_client(s3_config):
     """Create real MyS3Client connected to Minio."""
@@ -376,7 +434,7 @@ def s3_client(s3_config):
 
 
 @pytest.fixture(scope="session", autouse=True)
-def initialized_app(vitess_client, s3_client):
+def initialized_app(vitess_client, s3_client, create_s3_buckets):
     """Initialize the FastAPI app with state_handler for integration tests.
 
     This fixture ensures that app.state.state_handler is properly initialized
