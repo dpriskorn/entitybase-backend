@@ -14,13 +14,13 @@ def test_insert_metadata_content_new(repository, vitess_client):
     """Test inserting new metadata content."""
     repository.insert_metadata_content(12345, "labels")
 
-    cursor = vitess_client.cursor
-    cursor.execute(
-        "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
-        (12345, "labels"),
-    )
-    result = cursor.fetchone()
-    assert result[0] == 1
+    with vitess_client.cursor as cursor:
+        cursor.execute(
+            "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
+            (12345, "labels"),
+        )
+        result = cursor.fetchone()
+        assert result[0] == 1
 
 
 def test_get_metadata_content_exists(repository, vitess_client):
@@ -52,13 +52,13 @@ def test_decrement_ref_count_above_zero(repository, vitess_client):
     repository.decrement_ref_count(12345, "labels")
 
     # Verify ref_count=1
-    cursor = vitess_client.cursor
-    cursor.execute(
-        "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
-        (12345, "labels"),
-    )
-    result = cursor.fetchone()
-    assert result[0] == 1
+    with vitess_client.cursor as cursor:
+        cursor.execute(
+            "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
+            (12345, "labels"),
+        )
+        result = cursor.fetchone()
+        assert result[0] == 1
 
 
 def test_decrement_ref_count_reaches_zero(repository, vitess_client):
@@ -83,10 +83,10 @@ def test_delete_metadata_content(repository, vitess_client):
     repository.delete_metadata_content(12345, "labels")
 
     # Verify deletion
-    cursor = vitess_client.cursor
-    cursor.execute(
-        "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
-        (12345, "labels"),
-    )
-    result = cursor.fetchone()
-    assert result is None
+    with vitess_client.cursor as cursor:
+        cursor.execute(
+            "SELECT ref_count FROM metadata_content WHERE content_hash = %s AND content_type = %s",
+            (12345, "labels"),
+        )
+        result = cursor.fetchone()
+        assert result is None

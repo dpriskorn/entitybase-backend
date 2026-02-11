@@ -149,16 +149,15 @@ class TestProducerIntegration:
         )
         producer = StreamProducerClient(config=config)
 
-        event_data = {
-            "entity_id": f"{TEST_ENTITY_BASE}2",
-            "revision_id": 3,
-            "change_type": "soft_delete",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-            "from_revision_id": 2,
-            "delete_type": "soft",
-            "deletion_reason": "Test deletion",
-        }
+        event_data = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}2",
+            revision_id=3,
+            change_type=ChangeType.SOFT_DELETE,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+            from_revision_id=2,
+            edit_summary="Test deletion",
+        )
 
         await producer.start()
         try:
@@ -176,10 +175,9 @@ class TestProducerIntegration:
             try:
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 received_data = message.value
-                assert received_data["entity_id"] == f"{TEST_ENTITY_BASE}2"
-                assert received_data["change_type"] == "soft_delete"
-                assert received_data["delete_type"] == "soft"
-                assert received_data["deletion_reason"] == "Test deletion"
+                assert received_data["id"] == f"{TEST_ENTITY_BASE}2"
+                assert received_data["type"] == "soft_delete"
+                assert received_data["summary"] == "Test deletion"
             finally:
                 await consumer.stop()
         finally:
@@ -193,16 +191,15 @@ class TestProducerIntegration:
         )
         producer = StreamProducerClient(config=config)
 
-        event_data = {
-            "entity_id": f"{TEST_ENTITY_BASE}3",
-            "revision_id": 4,
-            "change_type": "redirect",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-            "from_revision_id": 3,
-            "redirect_from_id": f"{TEST_ENTITY_BASE}3",
-            "redirect_to_id": f"{TEST_ENTITY_BASE}4",
-        }
+        event_data = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}3",
+            revision_id=4,
+            change_type=ChangeType.REDIRECT,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+            from_revision_id=3,
+            edit_summary="Test redirect",
+        )
 
         await producer.start()
         try:
@@ -220,10 +217,9 @@ class TestProducerIntegration:
             try:
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 received_data = message.value
-                assert received_data["entity_id"] == f"{TEST_ENTITY_BASE}3"
-                assert received_data["change_type"] == "redirect"
-                assert received_data["redirect_from_id"] == f"{TEST_ENTITY_BASE}3"
-                assert received_data["redirect_to_id"] == f"{TEST_ENTITY_BASE}4"
+                assert received_data["id"] == f"{TEST_ENTITY_BASE}3"
+                assert received_data["type"] == "redirect"
+                assert received_data["from_rev"] == 3
             finally:
                 await consumer.stop()
         finally:
@@ -422,10 +418,10 @@ class TestProducerIntegration:
 
         await producer.start()
         try:
-            for change_type_str in TEST_CHANGE_TYPES:
+            for i, change_type_str in enumerate(TEST_CHANGE_TYPES):
                 change_type = change_type_map.get(change_type_str, ChangeType.EDIT)
                 event_data = EntityChangeEvent(
-                    entity_id=f"{TEST_ENTITY_BASE}{ord(change_type_str)}",
+                    entity_id=f"{TEST_ENTITY_BASE}50{i}",
                     revision_id=10,
                     change_type=change_type,
                     changed_at=datetime.now(timezone.utc),

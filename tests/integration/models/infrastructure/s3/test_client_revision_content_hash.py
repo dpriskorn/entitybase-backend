@@ -44,33 +44,31 @@ class TestS3ClientRevisionReadWithContentHash:
         )
 
         result = s3_client.read_revision(
-            entity_id=entity_id, revision_id=revision_id, content_hash=content_hash
+            entity_id=entity_id, revision_id=revision_id
         )
 
         assert result is not None
-        assert result["entity_id"] == entity_id
-        assert result["revision_id"] == revision_id
+        assert result["revision"]["entity_id"] == entity_id
+        assert result["revision"]["revision_id"] == revision_id
 
     def test_read_revision_entity_not_found(self, s3_client, vitess_client):
         """Test that read_revision raises error for non-existent entity."""
         entity_id = "Q999"
         revision_id = 1
-        content_hash = 999999999
 
         with pytest.raises(ValueError):
             s3_client.read_revision(
-                entity_id=entity_id, revision_id=revision_id, content_hash=content_hash
+                entity_id=entity_id, revision_id=revision_id
             )
 
     def test_read_revision_revision_not_found(self, s3_client, vitess_client):
         """Test that read_revision raises error for non-existent revision."""
         entity_id = "Q123"
         revision_id = 999
-        content_hash = 123456789
 
         with pytest.raises(ValueError):
             s3_client.read_revision(
-                entity_id=entity_id, revision_id=revision_id, content_hash=content_hash
+                entity_id=entity_id, revision_id=revision_id
             )
 
     def test_read_revision_end_to_end(self, s3_client, vitess_client):
@@ -89,9 +87,9 @@ class TestS3ClientRevisionReadWithContentHash:
         )
 
         result = s3_client.read_revision(
-            entity_id=entity_id, revision_id=revision_id, content_hash=content_hash
+            entity_id=entity_id, revision_id=revision_id
         )
 
         assert result is not None
-        assert result["entity_id"] == entity_id
-        assert result["revision_id"] == revision_id
+        assert result["revision"]["entity_id"] == entity_id
+        assert result["revision"]["revision_id"] == revision_id

@@ -99,8 +99,8 @@ async def test_list_semi_protected_entities(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
-            json={**entity_data, "is_semi_protected": True},
+            f"{api_prefix}/entities/items",
+            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
@@ -132,7 +132,7 @@ async def test_list_archived_entities(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json={**entity_data, "is_archived": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -165,7 +165,7 @@ async def test_list_dangling_entities(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json={**entity_data, "is_dangling": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -198,7 +198,7 @@ async def test_list_by_edit_type_lock_added(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json={**entity_data, "is_locked": True, "edit_type": "lock-added"},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -236,7 +236,7 @@ async def test_list_by_edit_type_lock_removed(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json={**entity_data, "is_locked": False, "edit_type": "lock-removed"},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -267,7 +267,7 @@ async def test_list_by_edit_type_mass_protection_added(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json={
                 **entity_data,
                 "is_mass_edit_protected": True,
@@ -304,7 +304,7 @@ async def test_list_by_edit_type_mass_protection_removed(api_prefix: str) -> Non
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json={
                 **entity_data,
                 "is_mass_edit_protected": False,
@@ -346,8 +346,7 @@ async def test_list_by_edit_type_soft_delete(api_prefix: str) -> None:
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         await client.delete(
-            f"{api_prefix}/entities/Q90018",
-            json={"delete_type": "soft"},
+            f"{api_prefix}/entities/Q90018?delete_type=soft",
             headers={"X-Edit-Summary": "delete entity", "X-User-ID": "0"},
         )
 
@@ -474,7 +473,7 @@ async def test_list_respects_limit(api_prefix: str) -> None:
                 "labels": {"en": {"language": "en", "value": f"Test {i}"}},
             }
             await client.post(
-                f"{api_prefix}/entities",
+                f"{api_prefix}/entities/items",
                 json={**entity_data, "is_locked": True},
                 headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
             )
@@ -546,7 +545,7 @@ async def test_list_response_structure(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json={**entity_data, "is_locked": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -585,7 +584,7 @@ async def test_list_edit_type_response_includes_edit_type(api_prefix: str) -> No
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json={**entity_data, "edit_type": "custom-edit-type"},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -620,7 +619,7 @@ async def test_list_multiple_filters_behavior(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )

@@ -84,7 +84,7 @@ class TestRevisionRepositoryContentHash:
 
         # Insert revision with content_hash
         revision_id = 1
-        content_hash = 98765432109876543210
+        content_hash = 9876543210
         cursor.execute(
             """
             INSERT INTO entity_revisions

@@ -43,10 +43,10 @@ def test_cas_update_with_status_success(repository, vitess_client):
         content_hash=123456789,
     )
 
-    # Perform CAS update
+    # Perform CAS update with expected_head=1 (after insert_revision)
     ctx = EntityHeadUpdateContext(
         entity_id=entity_id,
-        expected_head=0,
+        expected_head=1,
         new_head=10,
         is_semi_protected=True,
         is_locked=False,
