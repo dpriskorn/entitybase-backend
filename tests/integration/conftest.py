@@ -397,7 +397,7 @@ def create_s3_buckets(s3_config):
 
 
 @pytest.fixture(scope="session")
-def s3_client(s3_config):
+def s3_client(s3_config, vitess_client):
     """Create real MyS3Client connected to Minio."""
     import time as time_module
     from models.infrastructure.s3.client import MyS3Client
@@ -411,7 +411,7 @@ def s3_client(s3_config):
         attempt_start = time_module.time()
         try:
             logger.debug(f"Attempt {attempt + 1}/{max_retries}: Connecting to S3...")
-            client = MyS3Client(config=s3_config)
+            client = MyS3Client(config=s3_config, vitess_client=vitess_client)
             logger.debug(
                 f"pytest:s3_client: Connected to S3 at attempt {attempt + 1} in {(time_module.time() - attempt_start):.2f}s"
             )
