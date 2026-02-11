@@ -174,7 +174,7 @@ class SchemaRepository(Repository):
             cursor.execute(
                 """
                 CREATE TABLE IF NOT EXISTS entity_terms (
-                    hash BIGINT PRIMARY KEY,
+                    hash BIGINT UNSIGNED PRIMARY KEY,
                     term TEXT NOT NULL,
                     term_type ENUM('label', 'alias') NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

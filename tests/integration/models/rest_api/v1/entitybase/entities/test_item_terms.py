@@ -140,6 +140,9 @@ async def test_update_item_label_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
+        logger.debug(f"Response data keys: {list(data.keys())}")
+        logger.debug(f"Response data['data'] keys: {list(data['data'].keys())}")
+        logger.debug(f"Response data['data'] content: {data['data']}")
         assert data["data"]["labels"]["en"]["value"] == "Updated Label"
 
 
