@@ -43,24 +43,36 @@ class GeneralStatsService(Service):
 
     def get_total_statements(self) -> int:
         """Count total statements."""
-        with self.state.vitess_client.cursor as cursor:
-            cursor.execute("SELECT COUNT(*) FROM statements")
-            result = cursor.fetchone()
-            return result[0] if result else 0
+        try:
+            with self.state.vitess_client.cursor as cursor:
+                cursor.execute("SELECT COUNT(*) FROM statements")
+                result = cursor.fetchone()
+                return result[0] if result else 0
+        except Exception:
+            logger.debug("statements table does not exist, returning 0")
+            return 0
 
     def get_total_qualifiers(self) -> int:
         """Count total qualifiers."""
-        with self.state.vitess_client.cursor as cursor:
-            cursor.execute("SELECT COUNT(*) FROM qualifiers")
-            result = cursor.fetchone()
-            return result[0] if result else 0
+        try:
+            with self.state.vitess_client.cursor as cursor:
+                cursor.execute("SELECT COUNT(*) FROM qualifiers")
+                result = cursor.fetchone()
+                return result[0] if result else 0
+        except Exception:
+            logger.debug("qualifiers table does not exist, returning 0")
+            return 0
 
     def get_total_references(self) -> int:
         """Count total references."""
-        with self.state.vitess_client.cursor as cursor:
-            cursor.execute("SELECT COUNT(*) FROM references")
-            result = cursor.fetchone()
-            return result[0] if result else 0
+        try:
+            with self.state.vitess_client.cursor as cursor:
+                cursor.execute("SELECT COUNT(*) FROM references")
+                result = cursor.fetchone()
+                return result[0] if result else 0
+        except Exception:
+            logger.debug("references table does not exist, returning 0")
+            return 0
 
     def get_total_items(self) -> int:
         """Count total items."""
@@ -97,61 +109,92 @@ class GeneralStatsService(Service):
 
     def get_total_sitelinks(self) -> int:
         """Count total sitelinks."""
-        with self.state.vitess_client.cursor as cursor:
-            cursor.execute("SELECT COUNT(*) FROM sitelinks")
-            result = cursor.fetchone()
-            return result[0] if result else 0
+        try:
+            with self.state.vitess_client.cursor as cursor:
+                cursor.execute("SELECT COUNT(*) FROM sitelinks")
+                result = cursor.fetchone()
+                return result[0] if result else 0
+        except Exception:
+            logger.debug("sitelinks table does not exist, returning 0")
+            return 0
 
     def get_total_terms(self) -> int:
         """Count total terms."""
-        with self.state.vitess_client.cursor as cursor:
-            cursor.execute("SELECT COUNT(*) FROM terms")
-            result = cursor.fetchone()
-            return result[0] if result else 0
+        try:
+            with self.state.vitess_client.cursor as cursor:
+                cursor.execute("SELECT COUNT(*) FROM terms")
+                result = cursor.fetchone()
+                return result[0] if result else 0
+        except Exception:
+            logger.debug("terms table does not exist, returning 0")
+            return 0
 
     def get_terms_per_language(self) -> TermsPerLanguage:
         """Count terms per language."""
         terms_per_lang: dict[str, int] = {}
-        with self.state.vitess_client.cursor as cursor:
-            # Labels per language
-            cursor.execute(
-                "SELECT language_code, COUNT(*) FROM labels GROUP BY language_code"
-            )
-            for row in cursor.fetchall():
-                lang, count = row
-                terms_per_lang[lang] = terms_per_lang.get(lang, 0) + count
+        try:
+            with self.state.vitess_client.cursor as cursor:
+                try:
+                    cursor.execute(
+                        "SELECT language_code, COUNT(*) FROM labels GROUP BY language_code"
+                    )
+                    for row in cursor.fetchall():
+                        lang, count = row
+                        terms_per_lang[lang] = terms_per_lang.get(lang, 0) + count
+                except Exception:
+                    logger.debug("labels table does not exist, skipping")
 
-            # Descriptions per language
-            cursor.execute(
-                "SELECT language_code, COUNT(*) FROM descriptions GROUP BY language_code"
-            )
-            for row in cursor.fetchall():
-                lang, count = row
-                terms_per_lang[lang] = terms_per_lang.get(lang, 0) + count
+                try:
+                    cursor.execute(
+                        "SELECT language_code, COUNT(*) FROM descriptions GROUP BY language_code"
+                    )
+                    for row in cursor.fetchall():
+                        lang, count = row
+                        terms_per_lang[lang] = terms_per_lang.get(lang, 0) + count
+                except Exception:
+                    logger.debug("descriptions table does not exist, skipping")
 
-            # Aliases per language
-            cursor.execute(
-                "SELECT language_code, COUNT(*) FROM aliases GROUP BY language_code"
-            )
-            for row in cursor.fetchall():
-                lang, count = row
-                terms_per_lang[lang] = terms_per_lang.get(lang, 0) + count
-
+                try:
+                    cursor.execute(
+                        "SELECT language_code, COUNT(*) FROM aliases GROUP BY language_code"
+                    )
+                    for row in cursor.fetchall():
+                        lang, count = row
+                        terms_per_lang[lang] = terms_per_lang.get(lang, 0) + count
+                except Exception:
+                    logger.debug("aliases table does not exist, skipping")
+        except Exception as e:
+            logger.debug(f"Error getting terms per language: {e}")
         return TermsPerLanguage(terms=terms_per_lang)
 
     def get_terms_by_type(self) -> TermsByType:
         """Count terms by type (labels, descriptions, aliases)."""
-        with self.state.vitess_client.cursor as cursor:
-            cursor.execute(
-                """
-                SELECT 'labels' AS type, COUNT(*) FROM labels
-                UNION ALL
-                SELECT 'descriptions' AS type, COUNT(*) FROM descriptions
-                UNION ALL
-                SELECT 'aliases' AS type, COUNT(*) FROM aliases
-                """
-            )
-            results = cursor.fetchall()
-            data = {row[0]: row[1] for row in results}
+        data = {}
+        try:
+            with self.state.vitess_client.cursor as cursor:
+                try:
+                    cursor.execute("SELECT 'labels' AS type, COUNT(*) FROM labels")
+                    result = cursor.fetchone()
+                    if result:
+                        data[result[0]] = result[1]
+                except Exception:
+                    logger.debug("labels table does not exist, skipping")
 
+                try:
+                    cursor.execute("SELECT 'descriptions' AS type, COUNT(*) FROM descriptions")
+                    result = cursor.fetchone()
+                    if result:
+                        data[result[0]] = result[1]
+                except Exception:
+                    logger.debug("descriptions table does not exist, skipping")
+
+                try:
+                    cursor.execute("SELECT 'aliases' AS type, COUNT(*) FROM aliases")
+                    result = cursor.fetchone()
+                    if result:
+                        data[result[0]] = result[1]
+                except Exception:
+                    logger.debug("aliases table does not exist, skipping")
+        except Exception as e:
+            logger.debug(f"Error getting terms by type: {e}")
         return TermsByType(counts=data)

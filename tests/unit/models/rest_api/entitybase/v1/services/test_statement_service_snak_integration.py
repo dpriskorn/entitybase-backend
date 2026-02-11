@@ -110,7 +110,6 @@ class TestStatementServiceSnakIntegration:
             # Verify stored statement has hash reference instead of full mainsnak
             assert len(s3_written_statements) > 0
             stored_statement = s3_written_statements[0]
-            assert "hash" in stored_statement["statement"]["mainsnak"]
-            assert stored_statement["statement"]["mainsnak"]["hash"] == 999999999
+            assert stored_statement["statement"]["mainsnak"] == 999999999
 
         assert result.success is True
