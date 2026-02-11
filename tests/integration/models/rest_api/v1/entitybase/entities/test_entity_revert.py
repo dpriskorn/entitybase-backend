@@ -43,7 +43,7 @@ async def test_revert_entity() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_revert_entity_missing_user_header() -> None:
+async def test_revert_entity_missing_user_header(api_prefix: str) -> None:
     """Test revert without user ID header"""
     from models.rest_api.main import app
 
@@ -55,7 +55,7 @@ async def test_revert_entity_missing_user_header() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/entitybase/v1/entities/Q42/revert",
+            f"{api_prefix}/entities/Q42/revert",
             json={"to_revision_id": 123, "edit_summary": "Test revert"},
         )
         assert response.status_code == 422  # Missing required header
@@ -63,7 +63,7 @@ async def test_revert_entity_missing_user_header() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_revert_entity_invalid_user_header() -> None:
+async def test_revert_entity_invalid_user_header(api_prefix: str) -> None:
     """Test revert with invalid user ID header"""
     from models.rest_api.main import app
 
@@ -75,7 +75,7 @@ async def test_revert_entity_invalid_user_header() -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            "/entitybase/v1/entities/Q42/revert",
+            f"{api_prefix}/entities/Q42/revert",
             headers={"X-Edit-Summary": "invalid user test", "X-User-ID": "0"},
             json={"to_revision_id": 123, "edit_summary": "Test revert"},
         )
@@ -84,7 +84,7 @@ async def test_revert_entity_invalid_user_header() -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_revert_entity_invalid_request() -> None:
+async def test_revert_entity_invalid_request(api_prefix: str) -> None:
     """Test revert with invalid request data"""
     from models.rest_api.main import app
 
@@ -97,7 +97,7 @@ async def test_revert_entity_invalid_request() -> None:
     ) as client:
         # Missing required field
         response = await client.post(
-            "/entitybase/v1/entities/Q42/revert",
+            f"{api_prefix}/entities/Q42/revert",
             headers={"X-Edit-Summary": "invalid request test", "X-User-ID": "456"},
             json={"edit_summary": "Test revert"},
         )

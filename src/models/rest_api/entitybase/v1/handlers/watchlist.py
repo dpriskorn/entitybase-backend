@@ -61,8 +61,12 @@ class WatchlistHandler(Handler):
         )
         return MessageResponse(message="Watch removed")
 
-    def remove_watch_by_id(self, watch_id: int) -> MessageResponse:
+    def remove_watch_by_id(self, user_id: int, watch_id: int) -> MessageResponse:
         """Remove a watchlist entry by ID."""
+        # Check if user exists
+        if not self.state.vitess_client.user_repository.user_exists(user_id):
+            raise_validation_error("User not registered", status_code=400)
+
         result = self.state.vitess_client.watchlist_repository.remove_watch_by_id(
             watch_id
         )

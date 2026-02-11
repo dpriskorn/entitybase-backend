@@ -202,7 +202,7 @@ async def test_get_user_activity_invalid_type(api_prefix: str, initialized_app: 
         # Register user
         await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
-        response = await client.get(f"{api_prefix}/users/12345/activity?type=invalid")
+        response = await client.get(f"{api_prefix}/users/12345/activity?activity_type=invalid")
         assert response.status_code == 400
         assert "Invalid activity type" in response.json()["message"]
 

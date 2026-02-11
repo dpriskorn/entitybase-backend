@@ -53,12 +53,12 @@ def remove_watch(
 @watchlist_router.delete(
     "/users/{user_id}/watchlist/{watch_id}", response_model=MessageResponse
 )
-def remove_watch_by_id(watch_id: int, req: Request) -> MessageResponse:
+def remove_watch_by_id(user_id: int, watch_id: int, req: Request) -> MessageResponse:
     """Remove a watchlist entry by ID."""
     state = req.app.state.state_handler
     handler = WatchlistHandler(state=state)
     try:
-        result = handler.remove_watch_by_id(watch_id)
+        result = handler.remove_watch_by_id(user_id, watch_id)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

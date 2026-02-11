@@ -20,7 +20,7 @@ async def test_get_property_label_success(api_prefix: str) -> None:
     entity_data = EntityCreateRequest(
         id="P70001",
         type="property",
-        labels={"en": {"value": "Test Property Label"}},
+        labels={"en": {"language": "en", "value": "Test Property Label"}},
         edit_summary="test",
     )
 
@@ -52,7 +52,7 @@ async def test_get_property_label_not_found(api_prefix: str) -> None:
     entity_data = EntityCreateRequest(
         id="P70002",
         type="property",
-        labels={"en": {"value": "Test Property Label"}},
+        labels={"en": {"language": "en", "value": "Test Property Label"}},
         edit_summary="test",
     )
 
@@ -82,7 +82,7 @@ async def test_get_property_description_success(api_prefix: str) -> None:
     entity_data = EntityCreateRequest(
         id="P70003",
         type="property",
-        descriptions={"en": {"value": "Test Property Description"}},
+        descriptions={"en": {"language": "en", "value": "Test Property Description"}},
         edit_summary="test",
     )
 
@@ -114,7 +114,7 @@ async def test_get_property_description_not_found(api_prefix: str) -> None:
     entity_data = EntityCreateRequest(
         id="P70004",
         type="property",
-        descriptions={"en": {"value": "Test Property Description"}},
+        descriptions={"en": {"language": "en", "value": "Test Property Description"}},
         edit_summary="test",
     )
 
@@ -143,7 +143,7 @@ async def test_get_property_aliases_success(api_prefix: str) -> None:
     entity_data = EntityCreateRequest(
         id="P70005",
         type="property",
-        aliases={"en": [{"value": "Property Alias 1"}, {"value": "Property Alias 2"}]},
+        aliases={"en": [{"language": "en", "value": "Property Alias 1"}, {"language": "en", "value": "Property Alias 2"}]},
         edit_summary="test",
     )
 
@@ -177,7 +177,7 @@ async def test_get_property_aliases_not_found(api_prefix: str) -> None:
     entity_data = EntityCreateRequest(
         id="P70006",
         type="property",
-        aliases={"en": [{"value": "Test Alias"}]},
+        aliases={"en": [{"language": "en", "value": "Test Alias"}]},
         edit_summary="test",
     )
 
@@ -206,7 +206,7 @@ async def test_update_property_aliases_replace(api_prefix: str) -> None:
     entity_data = EntityCreateRequest(
         id="P70007",
         type="property",
-        aliases={"en": [{"value": "Old Alias 1"}, {"value": "Old Alias 2"}]},
+        aliases={"en": [{"language": "en", "value": "Old Alias 1"}, {"language": "en", "value": "Old Alias 2"}]},
         edit_summary="test",
     )
 
@@ -242,7 +242,7 @@ async def test_update_property_aliases_add(api_prefix: str) -> None:
     entity_data = EntityCreateRequest(
         id="P70008",
         type="property",
-        labels={"en": {"value": "Test Property"}},
+        labels={"en": {"language": "en", "value": "Test Property"}},
         edit_summary="test",
     )
 

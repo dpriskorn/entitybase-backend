@@ -13,7 +13,6 @@ async def test_entitybase_create_property(api_prefix: str) -> None:
         "type": "property",
         "labels": {"en": {"language": "en", "value": "Test Property"}},
         "descriptions": {"en": {"language": "en", "value": "A test property"}},
-        "datatype": "string",
     }
 
     async with AsyncClient(
@@ -35,7 +34,6 @@ async def test_entitybase_create_property_minimal(api_prefix: str) -> None:
     data = {
         "type": "property",
         "labels": {"en": {"language": "en", "value": "Minimal Property"}},
-        "datatype": "wikibase-item",
     }
 
     async with AsyncClient(

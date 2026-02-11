@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 class WatchlistAddRequest(BaseModel):
     """Request to add a watchlist entry."""
 
-    user_id: int = Field(..., description="MediaWiki user ID")
+    user_id: int | None = Field(None, description="MediaWiki user ID (from path)")
     entity_id: str = Field(..., description="Entity ID (e.g., Q42)")
     properties: List[str] | None = Field(
         None, description="Specific properties to watch, empty for whole entity"
@@ -16,9 +16,13 @@ class WatchlistAddRequest(BaseModel):
 
 
 class WatchlistRemoveRequest(BaseModel):
-    """Request to remove a watchlist entry by ID."""
+    """Request to remove a watchlist entry."""
 
-    watch_id: int = Field(..., description="Watchlist entry ID to remove")
+    user_id: int | None = Field(None, description="MediaWiki user ID (from path)")
+    entity_id: str = Field(..., description="Entity ID to remove from watchlist")
+    properties: List[str] | None = Field(
+        None, description="Specific properties to stop watching"
+    )
 
 
 class MarkCheckedRequest(BaseModel):

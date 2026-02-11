@@ -39,10 +39,10 @@ async def test_status_flags_returned_in_response(api_prefix: str) -> None:
 
         response = await client.get(f"{api_prefix}/entities/Q90005")
         data = response.json()
-        assert data["is_semi_protected"]
-        assert not data["is_locked"]
-        assert not data["is_archived"]
-        assert not data["is_dangling"]
-        assert data["is_mass_edit_protected"]
+        assert data["state"]["is_semi_protected"]
+        assert not data["state"]["is_locked"]
+        assert not data["state"]["is_archived"]
+        assert not data["state"]["is_dangling"]
+        assert data["state"]["is_mass_edit_protected"]
 
         logger.info("✓ Status flags returned in API response")

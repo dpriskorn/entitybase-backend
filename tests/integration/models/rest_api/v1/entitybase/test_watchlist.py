@@ -38,8 +38,8 @@ async def test_add_watch_user_not_registered(api_prefix: str, initialized_app: N
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(
-            f"{api_prefix}/users/12345/watchlist",
-            json={"user_id": 99999, "entity_id": "Q42", "properties": ["P31"]},
+            f"{api_prefix}/users/99999/watchlist",
+            json={"entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
@@ -62,9 +62,8 @@ async def test_remove_watch(api_prefix: str, initialized_app: None) -> None:
         )
 
         # Remove watch
-        response = await client.request(
-            "DELETE",
-            f"{api_prefix}/users/12345/watchlist",
+        response = await client.post(
+            f"{api_prefix}/users/12345/watchlist/remove",
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 200
@@ -194,9 +193,8 @@ async def test_mark_notification_checked(api_prefix: str, initialized_app: None)
         await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
         # Mark notification checked (even if doesn't exist, should not error)
-        response = await client.post(
-            f"{api_prefix}/users/12345/watchlist/notifications/check",
-            json={"notification_id": 1},
+        response = await client.put(
+            f"{api_prefix}/users/12345/watchlist/notifications/1/check",
         )
         assert response.status_code == 200
         data = response.json()

@@ -31,11 +31,16 @@ async def test_hard_delete_entity(api_prefix: str) -> None:
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
+        import json
         # Hard delete
         delete_response = await client.delete(
             f"{api_prefix}/entities/Q99002",
-            json={"delete_type": "hard"},
-            headers={"X-Edit-Summary": "delete entity", "X-User-ID": "0"},
+            content=json.dumps({"delete_type": "hard"}),
+            headers={
+                "X-Edit-Summary": "delete entity",
+                "X-User-ID": "0",
+                "Content-Type": "application/json",
+            },
         )
         assert delete_response.status_code == 200
 
@@ -76,11 +81,16 @@ async def test_hard_delete_prevents_undelete(api_prefix: str) -> None:
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
+        import json
         # Hard delete
         await client.delete(
             f"{api_prefix}/entities/Q99004",
-            json={"delete_type": "hard"},
-            headers={"X-Edit-Summary": "delete entity", "X-User-ID": "0"},
+            content=json.dumps({"delete_type": "hard"}),
+            headers={
+                "X-Edit-Summary": "delete entity",
+                "X-User-ID": "0",
+                "Content-Type": "application/json",
+            },
         )
 
         # Try to undelete (should fail with 410)
