@@ -11,9 +11,7 @@ class TestGeoShapeValueParser:
 
     def test_parse_valid_geo_shape_value(self):
         """Test parsing a valid geo shape value."""
-        datavalue = {
-            "value": "Data:World_Map.svg"
-        }
+        datavalue = {"value": "Data:World_Map.svg"}
 
         result = parse_geo_shape_value(datavalue)
 
@@ -24,9 +22,7 @@ class TestGeoShapeValueParser:
 
     def test_parse_geo_shape_value_wikidata_file(self):
         """Test parsing a geo shape value referencing a Wikidata file."""
-        datavalue = {
-            "value": "Data:Europe.svg"
-        }
+        datavalue = {"value": "Data:Europe.svg"}
 
         result = parse_geo_shape_value(datavalue)
 
@@ -34,9 +30,7 @@ class TestGeoShapeValueParser:
 
     def test_parse_geo_shape_value_complex_filename(self):
         """Test parsing a geo shape value with complex filename."""
-        datavalue = {
-            "value": "Data:United_States_outline_with_state_boundaries.svg"
-        }
+        datavalue = {"value": "Data:United_States_outline_with_state_boundaries.svg"}
 
         result = parse_geo_shape_value(datavalue)
 
@@ -44,9 +38,7 @@ class TestGeoShapeValueParser:
 
     def test_parse_geo_shape_value_empty_string(self):
         """Test parsing an empty geo shape value."""
-        datavalue = {
-            "value": ""
-        }
+        datavalue = {"value": ""}
 
         result = parse_geo_shape_value(datavalue)
 
@@ -67,7 +59,7 @@ class TestGeoShapeValueParser:
             "Data:map.kml",
             "Data:region.geojson",
             "Data:boundary.topojson",
-            "Data:shape.wkt"
+            "Data:shape.wkt",
         ]
 
         for fmt in formats:
@@ -77,9 +69,7 @@ class TestGeoShapeValueParser:
 
     def test_parse_geo_shape_value_unicode_filename(self):
         """Test parsing a geo shape value with unicode characters."""
-        datavalue = {
-            "value": "Data:Карта_мира.svg"
-        }
+        datavalue = {"value": "Data:Карта_мира.svg"}
 
         result = parse_geo_shape_value(datavalue)
 
@@ -87,9 +77,7 @@ class TestGeoShapeValueParser:
 
     def test_parse_geo_shape_value_result_immutability(self):
         """Test that the parsed result is immutable (frozen model)."""
-        datavalue = {
-            "value": "Data:World.svg"
-        }
+        datavalue = {"value": "Data:World.svg"}
 
         result = parse_geo_shape_value(datavalue)
 
@@ -101,9 +89,7 @@ class TestGeoShapeValueParser:
     def test_parse_geo_shape_value_long_filename(self):
         """Test parsing a geo shape value with a very long filename."""
         long_filename = "Data:" + "A" * 200 + ".svg"
-        datavalue = {
-            "value": long_filename
-        }
+        datavalue = {"value": long_filename}
 
         result = parse_geo_shape_value(datavalue)
 

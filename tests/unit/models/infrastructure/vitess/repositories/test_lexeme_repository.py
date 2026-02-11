@@ -19,20 +19,15 @@ class TestLexemeRepository:
         repo = LexemeRepository(vitess_client=mock_vitess_client)
 
         term_hashes = {
-            "forms": {
-                "L42-F1": {"en": 123, "de": 456}
-            },
-            "senses": {
-                "L42-S1": {"en": 789, "de": 101}
-            }
+            "forms": {"L42-F1": {"en": 123, "de": 456}},
+            "senses": {"L42-S1": {"en": 789, "de": 101}},
         }
 
         repo.store_lexeme_terms("L42", term_hashes)
 
         # Verify DELETE was called
         mock_cursor.execute.assert_any_call(
-            "DELETE FROM lexeme_terms WHERE entity_id = %s",
-            ("L42",)
+            "DELETE FROM lexeme_terms WHERE entity_id = %s", ("L42",)
         )
 
         # Verify INSERTs for forms
@@ -54,11 +49,8 @@ class TestLexemeRepository:
 
         # Only DELETE should be called
         mock_cursor.execute.assert_called_once_with(
-            "DELETE FROM lexeme_terms WHERE entity_id = %s",
-            ("L42",)
+            "DELETE FROM lexeme_terms WHERE entity_id = %s", ("L42",)
         )
-
-
 
     def test_get_lexeme_terms_different_entity(self):
         """Test retrieving terms for different entity."""
@@ -81,14 +73,3 @@ class TestLexemeRepository:
         calls = [call[0][1][0] for call in mock_cursor.execute.call_args_list]
         assert "L42" in calls
         assert "L43" in calls
-
-
-
-
-
-
-
-
-
-
-

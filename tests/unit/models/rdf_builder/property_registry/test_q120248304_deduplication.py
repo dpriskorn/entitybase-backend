@@ -55,5 +55,3 @@ def test_deduplication_disabled(full_property_registry: Any) -> None:
     actual_ttl = converter.convert_to_string(entity)
     assert len(actual_ttl) > 0
     assert "wd:Q120248304" in actual_ttl
-
-

@@ -33,6 +33,7 @@ class RevisionStorage(BaseS3Storage):
         load_response = self.load(key)
         if load_response is None:
             from models.infrastructure.s3.exceptions import S3NotFoundError
+
             raise S3NotFoundError(f"Revision not found: {key}")
         data = load_response.data
         return S3RevisionData.model_validate(data)

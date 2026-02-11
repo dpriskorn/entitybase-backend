@@ -11,9 +11,7 @@ class TestMathValueParser:
 
     def test_parse_valid_math_value(self):
         """Test parsing a valid math value."""
-        datavalue = {
-            "value": "\\frac{a}{b} + \\sqrt{c}"
-        }
+        datavalue = {"value": "\\frac{a}{b} + \\sqrt{c}"}
 
         result = parse_math_value(datavalue)
 
@@ -24,9 +22,7 @@ class TestMathValueParser:
 
     def test_parse_math_value_simple_expression(self):
         """Test parsing a simple mathematical expression."""
-        datavalue = {
-            "value": "E = mc^2"
-        }
+        datavalue = {"value": "E = mc^2"}
 
         result = parse_math_value(datavalue)
 
@@ -40,13 +36,14 @@ class TestMathValueParser:
 
         result = parse_math_value(datavalue)
 
-        assert result.value == "\\int_{0}^{\\infty} e^{-x^2} \\, dx = \\frac{\\sqrt{\\pi}}{2}"
+        assert (
+            result.value
+            == "\\int_{0}^{\\infty} e^{-x^2} \\, dx = \\frac{\\sqrt{\\pi}}{2}"
+        )
 
     def test_parse_math_value_empty_string(self):
         """Test parsing an empty math value."""
-        datavalue = {
-            "value": ""
-        }
+        datavalue = {"value": ""}
 
         result = parse_math_value(datavalue)
 
@@ -63,9 +60,7 @@ class TestMathValueParser:
 
     def test_parse_math_value_unicode_symbols(self):
         """Test parsing a math value with unicode mathematical symbols."""
-        datavalue = {
-            "value": "∀x ∈ ℝ: x² ≥ 0"
-        }
+        datavalue = {"value": "∀x ∈ ℝ: x² ≥ 0"}
 
         result = parse_math_value(datavalue)
 
@@ -73,9 +68,7 @@ class TestMathValueParser:
 
     def test_parse_math_value_mixed_content(self):
         """Test parsing a math value with mixed text and symbols."""
-        datavalue = {
-            "value": "Pythagorean theorem: a² + b² = c²"
-        }
+        datavalue = {"value": "Pythagorean theorem: a² + b² = c²"}
 
         result = parse_math_value(datavalue)
 
@@ -83,9 +76,7 @@ class TestMathValueParser:
 
     def test_parse_math_value_result_immutability(self):
         """Test that the parsed result is immutable (frozen model)."""
-        datavalue = {
-            "value": "x + y = z"
-        }
+        datavalue = {"value": "x + y = z"}
 
         result = parse_math_value(datavalue)
 
@@ -96,10 +87,10 @@ class TestMathValueParser:
 
     def test_parse_math_value_long_expression(self):
         """Test parsing a very long mathematical expression."""
-        long_expression = "\\frac{d}{dx} \\left[ \\int_{a}^{x} f(t) \\, dt \\right] = f(x)"
-        datavalue = {
-            "value": long_expression
-        }
+        long_expression = (
+            "\\frac{d}{dx} \\left[ \\int_{a}^{x} f(t) \\, dt \\right] = f(x)"
+        )
+        datavalue = {"value": long_expression}
 
         result = parse_math_value(datavalue)
 

@@ -9,4 +9,6 @@ class S3SitelinkData(BaseModel):
     """Model for individual sitelink data stored in revision."""
 
     title_hash: int = Field(description="Hash of the sitelink title.")
-    badges: List[str] = Field(default_factory=list, description="List of badges associated with the sitelink.")
+    badges: List[str] = Field(
+        default_factory=list, description="List of badges associated with the sitelink."
+    )

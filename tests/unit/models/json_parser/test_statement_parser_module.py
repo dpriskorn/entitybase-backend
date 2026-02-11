@@ -12,14 +12,19 @@ from models.internal_representation.values.base import Value
 class TestStatementParser:
     """Unit tests for statement parser."""
 
-
-
     def test_parse_statement_minimal(self) -> None:
         """Test parsing a minimal statement with only mainsnak."""
-        with patch("models.json_parser.statement_parser.parse_value") as mock_parse_value, \
-             patch("models.json_parser.statement_parser.parse_qualifiers") as mock_parse_qualifiers, \
-             patch("models.json_parser.statement_parser.parse_references") as mock_parse_references:
-
+        with (
+            patch(
+                "models.json_parser.statement_parser.parse_value"
+            ) as mock_parse_value,
+            patch(
+                "models.json_parser.statement_parser.parse_qualifiers"
+            ) as mock_parse_qualifiers,
+            patch(
+                "models.json_parser.statement_parser.parse_references"
+            ) as mock_parse_references,
+        ):
             mock_value = MagicMock(spec=Value)
             mock_parse_value.return_value = mock_value
             mock_parse_qualifiers.return_value = []
@@ -28,7 +33,7 @@ class TestStatementParser:
             statement_json = {
                 "mainsnak": {
                     "property": "P31",
-                    "datavalue": {"type": "wikibase-entityid", "value": {"id": "Q5"}}
+                    "datavalue": {"type": "wikibase-entityid", "value": {"id": "Q5"}},
                 }
             }
 
@@ -44,18 +49,23 @@ class TestStatementParser:
 
     def test_parse_statement_missing_mainsnak(self) -> None:
         """Test parsing statement with missing mainsnak."""
-        with patch("models.json_parser.statement_parser.parse_value") as mock_parse_value, \
-             patch("models.json_parser.statement_parser.parse_qualifiers") as mock_parse_qualifiers, \
-             patch("models.json_parser.statement_parser.parse_references") as mock_parse_references:
-
+        with (
+            patch(
+                "models.json_parser.statement_parser.parse_value"
+            ) as mock_parse_value,
+            patch(
+                "models.json_parser.statement_parser.parse_qualifiers"
+            ) as mock_parse_qualifiers,
+            patch(
+                "models.json_parser.statement_parser.parse_references"
+            ) as mock_parse_references,
+        ):
             mock_value = MagicMock(spec=Value)
             mock_parse_value.return_value = mock_value
             mock_parse_qualifiers.return_value = []
             mock_parse_references.return_value = []
 
-            statement_json = {
-                "rank": "normal"
-            }
+            statement_json = {"rank": "normal"}
 
             result = parse_statement(statement_json)
 
@@ -64,20 +74,24 @@ class TestStatementParser:
 
     def test_parse_statement_different_ranks(self) -> None:
         """Test parsing statements with different ranks."""
-        with patch("models.json_parser.statement_parser.parse_value") as mock_parse_value, \
-             patch("models.json_parser.statement_parser.parse_qualifiers") as mock_parse_qualifiers, \
-             patch("models.json_parser.statement_parser.parse_references") as mock_parse_references:
-
+        with (
+            patch(
+                "models.json_parser.statement_parser.parse_value"
+            ) as mock_parse_value,
+            patch(
+                "models.json_parser.statement_parser.parse_qualifiers"
+            ) as mock_parse_qualifiers,
+            patch(
+                "models.json_parser.statement_parser.parse_references"
+            ) as mock_parse_references,
+        ):
             mock_value = MagicMock(spec=Value)
             mock_parse_value.return_value = mock_value
             mock_parse_qualifiers.return_value = []
             mock_parse_references.return_value = []
 
             # Test preferred rank
-            statement_json = {
-                "mainsnak": {"property": "P31"},
-                "rank": "preferred"
-            }
+            statement_json = {"mainsnak": {"property": "P31"}, "rank": "preferred"}
             result = parse_statement(statement_json)
             assert result.rank == Rank.PREFERRED
 
@@ -93,10 +107,17 @@ class TestStatementParser:
 
     def test_parse_statement_empty_json(self) -> None:
         """Test parsing completely empty statement JSON."""
-        with patch("models.json_parser.statement_parser.parse_value") as mock_parse_value, \
-             patch("models.json_parser.statement_parser.parse_qualifiers") as mock_parse_qualifiers, \
-             patch("models.json_parser.statement_parser.parse_references") as mock_parse_references:
-
+        with (
+            patch(
+                "models.json_parser.statement_parser.parse_value"
+            ) as mock_parse_value,
+            patch(
+                "models.json_parser.statement_parser.parse_qualifiers"
+            ) as mock_parse_qualifiers,
+            patch(
+                "models.json_parser.statement_parser.parse_references"
+            ) as mock_parse_references,
+        ):
             mock_value = MagicMock(spec=Value)
             mock_parse_value.return_value = mock_value
             mock_parse_qualifiers.return_value = []
@@ -114,10 +135,17 @@ class TestStatementParser:
 
     def test_parse_statement_complex_property(self) -> None:
         """Test parsing statement with complex property ID."""
-        with patch("models.json_parser.statement_parser.parse_value") as mock_parse_value, \
-             patch("models.json_parser.statement_parser.parse_qualifiers") as mock_parse_qualifiers, \
-             patch("models.json_parser.statement_parser.parse_references") as mock_parse_references:
-
+        with (
+            patch(
+                "models.json_parser.statement_parser.parse_value"
+            ) as mock_parse_value,
+            patch(
+                "models.json_parser.statement_parser.parse_qualifiers"
+            ) as mock_parse_qualifiers,
+            patch(
+                "models.json_parser.statement_parser.parse_references"
+            ) as mock_parse_references,
+        ):
             mock_value = MagicMock(spec=Value)
             mock_parse_value.return_value = mock_value
             mock_parse_qualifiers.return_value = []
@@ -125,7 +153,7 @@ class TestStatementParser:
 
             statement_json = {
                 "mainsnak": {"property": "P12345"},
-                "id": "Q42$complex-guid-here"
+                "id": "Q42$complex-guid-here",
             }
 
             result = parse_statement(statement_json)
@@ -135,10 +163,17 @@ class TestStatementParser:
 
     def test_parse_statement_result_immutability(self) -> None:
         """Test that parsed statement result is immutable."""
-        with patch("models.json_parser.statement_parser.parse_value") as mock_parse_value, \
-             patch("models.json_parser.statement_parser.parse_qualifiers") as mock_parse_qualifiers, \
-             patch("models.json_parser.statement_parser.parse_references") as mock_parse_references:
-
+        with (
+            patch(
+                "models.json_parser.statement_parser.parse_value"
+            ) as mock_parse_value,
+            patch(
+                "models.json_parser.statement_parser.parse_qualifiers"
+            ) as mock_parse_qualifiers,
+            patch(
+                "models.json_parser.statement_parser.parse_references"
+            ) as mock_parse_references,
+        ):
             mock_value = MagicMock(spec=Value)
             mock_parse_value.return_value = mock_value
             mock_parse_qualifiers.return_value = []

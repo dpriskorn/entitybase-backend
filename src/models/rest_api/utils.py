@@ -21,6 +21,7 @@ def raise_validation_error(
     to ensure proper HTTP error handling for user responses.
     """
     from models.config.settings import settings
+
     logger.info(f"Raising validation error: {message} with status {status_code}")
     from fastapi import HTTPException
 

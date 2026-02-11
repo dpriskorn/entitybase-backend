@@ -3,13 +3,16 @@
 import json
 from pathlib import Path
 
+
 # Test basic lexeme processing
 def test_basic_lexeme_processing():
     """Test that we can parse L42 and extract terms for deduplication."""
     print("Testing basic lexeme processing...")
 
     # Load L42 test data
-    test_data_path = Path(__file__).parent.parent / "test_data" / "json" / "entities" / "L42.json"
+    test_data_path = (
+        Path(__file__).parent.parent / "test_data" / "json" / "entities" / "L42.json"
+    )
 
     try:
         with open(test_data_path, "r", encoding="utf-8") as f:
@@ -38,7 +41,9 @@ def test_basic_lexeme_processing():
             total_glosses += len(glosses)
             print(f"  Sense {sense['id']}: {len(glosses)} glosses")
 
-        print(f"✅ Total: {total_representations} representations, {total_glosses} glosses")
+        print(
+            f"✅ Total: {total_representations} representations, {total_glosses} glosses"
+        )
         print("✅ Lexeme processing validation passed!")
 
         return True

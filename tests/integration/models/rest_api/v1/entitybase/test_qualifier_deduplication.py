@@ -7,7 +7,9 @@ import pytest
 class TestQualifierDeduplication:
     """Integration tests for qualifier deduplication."""
 
-    def test_entity_creation_with_qualifiers_deduplicates(self, api_client, base_url) -> None:
+    def test_entity_creation_with_qualifiers_deduplicates(
+        self, api_client, base_url
+    ) -> None:
         """Test that creating an entity with qualifiers in statements stores them as hash references."""
         # Create entity with statement containing qualifiers
         entity_data = {
@@ -55,7 +57,9 @@ class TestQualifierDeduplication:
         }
 
         # Create the entity
-        response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
+        response = api_client.post(
+            f"{base_url}/entitybase/v1/entities/items", json=entity_data
+        )
         assert response.status_code == 201
         entity_response = response.json()
         entity_id = entity_response["id"]
@@ -123,7 +127,9 @@ class TestQualifierDeduplication:
         }
 
         # Create entity
-        response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
+        response = api_client.post(
+            f"{base_url}/entitybase/v1/entities/items", json=entity_data
+        )
         assert response.status_code == 201
         entity_response = response.json()
         entity_id = entity_response["id"]
@@ -139,7 +145,9 @@ class TestQualifierDeduplication:
         assert isinstance(qualifier_hash, int)
 
         # Test fetching qualifier
-        response = api_client.get(f"{base_url}/entitybase/v1/qualifiers/{qualifier_hash}")
+        response = api_client.get(
+            f"{base_url}/entitybase/v1/qualifiers/{qualifier_hash}"
+        )
         assert response.status_code == 200
         result = response.json()
         # Should return array with one element containing qualifier data
@@ -262,13 +270,15 @@ class TestQualifierDeduplication:
                                 }
                             ]
                         },
-                    }
+                    },
                 ]
             },
         }
 
         # Create entity
-        response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
+        response = api_client.post(
+            f"{base_url}/entitybase/v1/entities/items", json=entity_data
+        )
         assert response.status_code == 201
         entity_response = response.json()
         entity_id = entity_response["id"]

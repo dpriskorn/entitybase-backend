@@ -50,7 +50,7 @@ check_completed_job "create-buckets" || overall_status=1
 if [ $overall_status -eq 0 ]; then
     echo "✅ All services healthy and ready"
 else
-    echo "❌ Some services are not healthy. Run ./run-docker-build-tests.sh first"
+    echo "❌ Some services are not healthy. Run ./run-api-local.sh first"
 fi
 
 exit $overall_status

@@ -30,10 +30,10 @@ class TestSnaksEndpoint:
                 "snaktype": "value",
                 "property": "P31",
                 "datatype": "wikibase-item",
-                "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-entityid"}
+                "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-entityid"},
             },
             hash=12345,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
 
         mock_s3_client.load_snaks_batch.return_value = [mock_snak_data]
@@ -66,7 +66,7 @@ class TestSnaksEndpoint:
             schema="1.0.0",
             snak={"snaktype": "value", "property": "P31"},
             hash=12345,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
 
         mock_s3_client.load_snaks_batch.return_value = [mock_snak_data, None]
@@ -183,7 +183,7 @@ class TestSnaksEndpoint:
             schema="1.0.0",
             snak={"snaktype": "value", "property": "P31"},
             hash=12345,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
 
         mock_s3_client.load_snaks_batch.return_value = [mock_snak_data]

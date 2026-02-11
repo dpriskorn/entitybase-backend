@@ -26,9 +26,7 @@ class BacklinkHandler(Handler):
         if not internal_id:
             raise HTTPException(status_code=404, detail="Entity not found")
 
-        backlinks = self.state.vitess_client.get_backlinks(
-            internal_id, limit, offset
-        )
+        backlinks = self.state.vitess_client.get_backlinks(internal_id, limit, offset)
 
         backlink_models = []
         for b in backlinks:

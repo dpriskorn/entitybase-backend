@@ -37,7 +37,9 @@ class ExportHandler(Handler):
             revision = self.state.s3_client.read_revision(entity_id, head_revision_id)
             entity_data = revision.data["entity"]
         except S3NotFoundError:
-            raise_validation_error(f"Entity revision not found: {entity_id}", status_code=404)
+            raise_validation_error(
+                f"Entity revision not found: {entity_id}", status_code=404
+            )
 
         turtle = serialize_entity_to_turtle(entity_data, self.state.property_registry)
         return TurtleResponse(turtle=turtle)

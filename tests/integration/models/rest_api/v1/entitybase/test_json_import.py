@@ -128,7 +128,7 @@ class TestJsonImportIntegration:
         logger.debug(f"Split into {len(lines)} lines")
 
         for i, line in enumerate(lines):
-            logger.debug(f"Processing line {i+1}/{len(lines)}")
+            logger.debug(f"Processing line {i + 1}/{len(lines)}")
             # Remove trailing comma
             cleaned_line = line[:-1] if line.endswith(",") else line
 
@@ -141,7 +141,7 @@ class TestJsonImportIntegration:
             assert parsed["type"] == expected["type"]
             assert "labels" in parsed
             assert "descriptions" in parsed
-            logger.debug(f"Line {i+1} validated successfully")
+            logger.debug(f"Line {i + 1} validated successfully")
 
         logger.info("=== test_jsonl_line_processing END ===")
 

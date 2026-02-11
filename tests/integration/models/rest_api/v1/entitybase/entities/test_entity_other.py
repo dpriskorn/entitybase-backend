@@ -27,7 +27,9 @@ async def test_update_lexeme(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         create_response = await client.post(
-            f"{api_prefix}/entities/lexemes", json=lexeme_data, headers={"X-Edit-Summary": "create lexeme", "X-User-ID": "0"}
+            f"{api_prefix}/entities/lexemes",
+            json=lexeme_data,
+            headers={"X-Edit-Summary": "create lexeme", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
         lexeme_id = create_response.json()["id"]
@@ -43,7 +45,9 @@ async def test_update_lexeme(api_prefix: str) -> None:
         }
 
         response = await client.put(
-            f"{api_prefix}/entities/lexemes/{lexeme_id}", json=updated_lexeme_data, headers={"X-Edit-Summary": "update lexeme", "X-User-ID": "0"}
+            f"{api_prefix}/entities/lexemes/{lexeme_id}",
+            json=updated_lexeme_data,
+            headers={"X-Edit-Summary": "update lexeme", "X-User-ID": "0"},
         )
         assert response.status_code == 200
 

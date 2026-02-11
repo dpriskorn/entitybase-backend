@@ -45,7 +45,11 @@ async def test_delete_statement_success(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post(f"{api_prefix}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=entity_data,
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
         assert response.status_code == 200
 
         entity_response = await client.get(f"{api_prefix}/entities/Q72001")
@@ -134,7 +138,11 @@ async def test_delete_statement_updates_entity(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post(f"{api_prefix}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=entity_data,
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
         assert response.status_code == 200
 
         entity_response = await client.get(f"{api_prefix}/entities/Q72003")
@@ -191,7 +199,11 @@ async def test_patch_statement_success(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post(f"{api_prefix}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=entity_data,
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
         assert response.status_code == 200
 
         entity_response = await client.get(f"{api_prefix}/entities/Q72004")
@@ -252,9 +264,7 @@ async def test_patch_statement_not_found(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        patch_data = {
-            "claims": {}
-        }
+        patch_data = {"claims": {}}
 
         patch_response = await client.patch(
             f"{api_prefix}/entities/Q72005/statements/999999",
@@ -298,7 +308,11 @@ async def test_patch_statement_modifies_value(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post(f"{api_prefix}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=entity_data,
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
         assert response.status_code == 200
 
         entity_response = await client.get(f"{api_prefix}/entities/Q72006")

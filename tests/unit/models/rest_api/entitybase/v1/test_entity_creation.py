@@ -78,7 +78,8 @@ class TestItemCreateHandler:
 
         with pytest.raises(Exception) as exc_info:
             await handler.create_entity(
-                request=request, edit_headers=EditHeaders(x_user_id=1, x_edit_summary="test")
+                request=request,
+                edit_headers=EditHeaders(x_user_id=1, x_edit_summary="test"),
             )
 
         assert "already exists" in str(exc_info.value)

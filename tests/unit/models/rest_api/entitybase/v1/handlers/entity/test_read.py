@@ -183,4 +183,3 @@ class TestEntityReadHandler:
 
         with pytest.raises(Exception):  # Should raise validation error with 500
             handler.get_entity_revision("Q42", 12345)
-

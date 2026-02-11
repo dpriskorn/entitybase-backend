@@ -4,10 +4,15 @@ import io
 from unittest.mock import MagicMock, patch
 
 from models.rdf_builder.models.rdf_statement import RDFStatement
-from models.rdf_builder.property_registry.models import PropertyShape, PropertyPredicates
+from models.rdf_builder.property_registry.models import (
+    PropertyShape,
+    PropertyPredicates,
+)
 from models.rdf_builder.property_registry.registry import PropertyRegistry
 from models.rdf_builder.writers.triple import TripleWriters
-from models.data.rest_api.v1.entitybase.request.entity.context import StatementWriteContext
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    StatementWriteContext,
+)
 
 
 class TestTripleWriters:
@@ -40,7 +45,10 @@ class TestTripleWriters:
         result = output.getvalue()
         assert "data:Q42 a schema:Dataset ." in result
         assert "data:Q42 schema:about wd:Q42 ." in result
-        assert "data:Q42 cc:license <http://creativecommons.org/publicdomain/zero/1.0/> ." in result
+        assert (
+            "data:Q42 cc:license <http://creativecommons.org/publicdomain/zero/1.0/> ."
+            in result
+        )
 
     def test_write_label(self) -> None:
         """Test writing label triple."""
@@ -73,7 +81,9 @@ class TestTripleWriters:
         TripleWriters.write_sitelink(output, "Q42", sitelink_data)
 
         result = output.getvalue()
-        expected = "wd:Q42 schema:sameAs <https://enwiki.wikipedia.org/wiki/Douglas_Adams> .\n"
+        expected = (
+            "wd:Q42 schema:sameAs <https://enwiki.wikipedia.org/wiki/Douglas_Adams> .\n"
+        )
         assert result == expected
 
     def test_write_sitelink_with_spaces(self) -> None:
@@ -129,10 +139,12 @@ class TestTripleWriters:
         plain_value = "plain string"
         assert TripleWriters._needs_value_node(plain_value) is False
 
-    @patch('models.rdf_builder.writers.triple.ValueFormatter.format_value')
-    @patch('models.rdf_builder.writers.triple.ValueNodeWriter.write_time_value_node')
-    @patch('models.rdf_builder.writers.triple.generate_value_node_uri')
-    def test_write_statement_with_time_value_node(self, mock_gen_uri, mock_write_node, mock_format_value) -> None:
+    @patch("models.rdf_builder.writers.triple.ValueFormatter.format_value")
+    @patch("models.rdf_builder.writers.triple.ValueNodeWriter.write_time_value_node")
+    @patch("models.rdf_builder.writers.triple.generate_value_node_uri")
+    def test_write_statement_with_time_value_node(
+        self, mock_gen_uri, mock_write_node, mock_format_value
+    ) -> None:
         """Test writing statement with time value that needs a value node."""
         output = io.StringIO()
 
@@ -147,7 +159,7 @@ class TestTripleWriters:
             value=mock_time_value,
             rank="normal",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         # Mock property shape
@@ -159,8 +171,8 @@ class TestTripleWriters:
                 statement="ps:P569",
                 qualifier="pq:P569",
                 reference="pr:P569",
-                value_node="psv:P569"
-            )
+                value_node="psv:P569",
+            ),
         )
 
         mock_gen_uri.return_value = "TIME123"
@@ -190,9 +202,11 @@ class TestTripleWriters:
         assert "wd:Q42 wdt:P569" in result
 
         # Should call value node writer
-        mock_write_node.assert_called_once_with(output, "TIME123", mock_time_value, None)
+        mock_write_node.assert_called_once_with(
+            output, "TIME123", mock_time_value, None
+        )
 
-    @patch('models.rdf_builder.writers.triple.ValueFormatter.format_value')
+    @patch("models.rdf_builder.writers.triple.ValueFormatter.format_value")
     def test_write_statement_simple_value(self, mock_format_value) -> None:
         """Test writing statement with simple value (no value node needed)."""
         output = io.StringIO()
@@ -208,7 +222,7 @@ class TestTripleWriters:
             value=mock_string_value,
             rank="preferred",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         # Mock property shape
@@ -219,8 +233,8 @@ class TestTripleWriters:
                 direct="wdt:P1476",
                 statement="ps:P1476",
                 qualifier="pq:P1476",
-                reference="pr:P1476"
-            )
+                reference="pr:P1476",
+            ),
         )
 
         mock_format_value.return_value = '"The Hitchhiker\'s Guide"@en'
@@ -256,7 +270,7 @@ class TestTripleWriters:
             value="wd:Q5",
             rank="deprecated",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         # Mock property shape
@@ -267,14 +281,17 @@ class TestTripleWriters:
                 direct="wdt:P31",
                 statement="ps:P31",
                 qualifier="pq:P31",
-                reference="pr:P31"
-            )
+                reference="pr:P31",
+            ),
         )
 
         # Mock property registry
         mock_registry = PropertyRegistry(properties={})
 
-        with patch('models.rdf_builder.writers.triple.ValueFormatter.format_value', return_value="wd:Q5"):
+        with patch(
+            "models.rdf_builder.writers.triple.ValueFormatter.format_value",
+            return_value="wd:Q5",
+        ):
             ctx = StatementWriteContext(
                 output=output,
                 entity_id="Q42",
@@ -288,10 +305,14 @@ class TestTripleWriters:
         result = output.getvalue()
         assert "wikibase:rank wikibase:DeprecatedRank ." in result
 
-    @patch('models.rdf_builder.writers.triple.ValueFormatter.format_value')
-    @patch('models.rdf_builder.writers.triple.ValueNodeWriter.write_quantity_value_node')
-    @patch('models.rdf_builder.writers.triple.generate_value_node_uri')
-    def test_write_statement_with_qualifier_value_node(self, mock_gen_uri, mock_write_node, mock_format_value) -> None:
+    @patch("models.rdf_builder.writers.triple.ValueFormatter.format_value")
+    @patch(
+        "models.rdf_builder.writers.triple.ValueNodeWriter.write_quantity_value_node"
+    )
+    @patch("models.rdf_builder.writers.triple.generate_value_node_uri")
+    def test_write_statement_with_qualifier_value_node(
+        self, mock_gen_uri, mock_write_node, mock_format_value
+    ) -> None:
         """Test writing statement with qualifier that needs value node."""
         output = io.StringIO()
 
@@ -310,7 +331,7 @@ class TestTripleWriters:
             value="wd:Q5",
             rank="normal",
             qualifiers=[qualifier],
-            references=[]
+            references=[],
         )
 
         # Mock property shape
@@ -322,8 +343,8 @@ class TestTripleWriters:
                 statement="ps:P31",
                 qualifier="pq:P31",
                 qualifier_value="pqv:P31",
-                reference="pr:P31"
-            )
+                reference="pr:P31",
+            ),
         )
 
         mock_gen_uri.return_value = "QUANT123"
@@ -332,7 +353,20 @@ class TestTripleWriters:
         # Mock property registry
         mock_registry = PropertyRegistry(properties={})
 
-        with patch('models.rdf_builder.property_registry.registry.PropertyRegistry.shape', return_value=PropertyShape(pid="P1107", datatype="quantity", predicates=PropertyPredicates(direct="wdt:P1107", statement="ps:P1107", qualifier="pq:P1107", qualifier_value="pqv:P1107", reference="pr:P1107"))):
+        with patch(
+            "models.rdf_builder.property_registry.registry.PropertyRegistry.shape",
+            return_value=PropertyShape(
+                pid="P1107",
+                datatype="quantity",
+                predicates=PropertyPredicates(
+                    direct="wdt:P1107",
+                    statement="ps:P1107",
+                    qualifier="pq:P1107",
+                    qualifier_value="pqv:P1107",
+                    reference="pr:P1107",
+                ),
+            ),
+        ):
             ctx = StatementWriteContext(
                 output=output,
                 entity_id="Q42",
@@ -349,9 +383,11 @@ class TestTripleWriters:
         assert "pqv:P1107 wdv:QUANT123 ." in result
 
         # Should call value node writer for qualifier
-        mock_write_node.assert_called_once_with(output, "QUANT123", mock_qualifier_value, None)
+        mock_write_node.assert_called_once_with(
+            output, "QUANT123", mock_qualifier_value, None
+        )
 
-    @patch('models.rdf_builder.writers.triple.ValueFormatter.format_value')
+    @patch("models.rdf_builder.writers.triple.ValueFormatter.format_value")
     def test_write_statement_with_simple_qualifier(self, mock_format_value) -> None:
         """Test writing statement with simple qualifier (no value node)."""
         output = io.StringIO()
@@ -371,7 +407,7 @@ class TestTripleWriters:
             value="wd:Q5",
             rank="normal",
             qualifiers=[qualifier],
-            references=[]
+            references=[],
         )
 
         # Mock property shape
@@ -382,16 +418,30 @@ class TestTripleWriters:
                 direct="wdt:P31",
                 statement="ps:P31",
                 qualifier="pq:P31",
-                reference="pr:P31"
-            )
+                reference="pr:P31",
+            ),
         )
 
-        mock_format_value.side_effect = lambda v: "wd:Q5" if v == "wd:Q5" else '"Book Title"@en'
+        mock_format_value.side_effect = (
+            lambda v: "wd:Q5" if v == "wd:Q5" else '"Book Title"@en'
+        )
 
         # Mock property registry
         mock_registry = PropertyRegistry(properties={})
 
-        with patch('models.rdf_builder.property_registry.registry.PropertyRegistry.shape', return_value=PropertyShape(pid="P1476", datatype="string", predicates=PropertyPredicates(direct="wdt:P1476", statement="ps:P1476", qualifier="pq:P1476", reference="pr:P1476"))):
+        with patch(
+            "models.rdf_builder.property_registry.registry.PropertyRegistry.shape",
+            return_value=PropertyShape(
+                pid="P1476",
+                datatype="string",
+                predicates=PropertyPredicates(
+                    direct="wdt:P1476",
+                    statement="ps:P1476",
+                    qualifier="pq:P1476",
+                    reference="pr:P1476",
+                ),
+            ),
+        ):
             ctx = StatementWriteContext(
                 output=output,
                 entity_id="Q42",
@@ -407,7 +457,7 @@ class TestTripleWriters:
         # Should write simple qualifier
         assert 'pq:P1476 "Book Title"@en .' in result
 
-    @patch('models.rdf_builder.writers.triple.ValueFormatter.format_value')
+    @patch("models.rdf_builder.writers.triple.ValueFormatter.format_value")
     def test_write_statement_with_references(self, mock_format_value) -> None:
         """Test writing statement with references."""
         output = io.StringIO()
@@ -430,7 +480,7 @@ class TestTripleWriters:
             value="wd:Q5",
             rank="normal",
             qualifiers=[],
-            references=[reference]
+            references=[reference],
         )
 
         # Mock property shape
@@ -441,11 +491,13 @@ class TestTripleWriters:
                 direct="wdt:P31",
                 statement="ps:P31",
                 qualifier="pq:P31",
-                reference="pr:P31"
-            )
+                reference="pr:P31",
+            ),
         )
 
-        mock_format_value.side_effect = lambda v: "wd:Q5" if v == "wd:Q5" else '"https://example.com"'
+        mock_format_value.side_effect = (
+            lambda v: "wd:Q5" if v == "wd:Q5" else '"https://example.com"'
+        )
 
         # Mock property registry and RDF reference
         mock_registry = MagicMock()
@@ -453,7 +505,9 @@ class TestTripleWriters:
         mock_snak_shape.predicates.reference = "pr:P854"
         mock_registry.shape.return_value = mock_snak_shape
 
-        with patch('models.rdf_builder.models.rdf_reference.RDFReference') as mock_rdf_ref_class:
+        with patch(
+            "models.rdf_builder.models.rdf_reference.RDFReference"
+        ) as mock_rdf_ref_class:
             mock_rdf_ref = MagicMock()
             mock_rdf_ref.reference_uri = "wdref:123"
             mock_rdf_ref_class.return_value = mock_rdf_ref
@@ -486,7 +540,7 @@ class TestTripleWriters:
             value="wd:Q5",
             rank="normal",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         # Mock property shape
@@ -497,14 +551,17 @@ class TestTripleWriters:
                 direct="wdt:P31",
                 statement="ps:P31",
                 qualifier="pq:P31",
-                reference="pr:P31"
-            )
+                reference="pr:P31",
+            ),
         )
 
         # Mock property registry
         mock_registry = PropertyRegistry(properties={})
 
-        with patch('models.rdf_builder.writers.triple.ValueFormatter.format_value', return_value="wd:Q5"):
+        with patch(
+            "models.rdf_builder.writers.triple.ValueFormatter.format_value",
+            return_value="wd:Q5",
+        ):
             ctx = StatementWriteContext(
                 output=output,
                 entity_id="Q42",
@@ -532,7 +589,7 @@ class TestTripleWriters:
         for i in range(3):
             qualifier = MagicMock()
             qualifier.value = f"value_{i}"
-            qualifier.property = f"P{i+580}"
+            qualifier.property = f"P{i + 580}"
             qualifiers.append(qualifier)
 
         # Mock RDF statement
@@ -542,7 +599,7 @@ class TestTripleWriters:
             value="wd:Q5",
             rank="normal",
             qualifiers=qualifiers,
-            references=[]
+            references=[],
         )
 
         # Mock property shape
@@ -553,9 +610,9 @@ class TestTripleWriters:
                 direct="wdt:P31",
                 statement="ps:P31",
                 qualifier="pq:P31",
-                reference="pr:P31"
-             )
-         )
+                reference="pr:P31",
+            ),
+        )
 
         # Mock property registry
         mock_registry = PropertyRegistry(properties={})
@@ -568,12 +625,20 @@ class TestTripleWriters:
                     direct=f"wdt:{pid}",
                     statement=f"ps:{pid}",
                     qualifier=f"pq:{pid}",
-                    reference=f"pr:{pid}"
-                )
+                    reference=f"pr:{pid}",
+                ),
             )
 
-        with patch('models.rdf_builder.property_registry.registry.PropertyRegistry.shape', side_effect=mock_shape), \
-             patch('models.rdf_builder.writers.triple.ValueFormatter.format_value', return_value="wd:Q5"):
+        with (
+            patch(
+                "models.rdf_builder.property_registry.registry.PropertyRegistry.shape",
+                side_effect=mock_shape,
+            ),
+            patch(
+                "models.rdf_builder.writers.triple.ValueFormatter.format_value",
+                return_value="wd:Q5",
+            ),
+        ):
             ctx = StatementWriteContext(
                 output=output,
                 entity_id="Q42",
@@ -588,4 +653,4 @@ class TestTripleWriters:
 
         # Should have qualifier triples for each qualifier
         for i in range(3):
-            assert f"pq:P{i+580}" in result
+            assert f"pq:P{i + 580}" in result

@@ -24,7 +24,11 @@ async def test_query_locked_entities(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(f"{api_prefix}/entities/", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+        await client.post(
+            f"{api_prefix}/entities/",
+            json={**entity_data, "is_locked": True},
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
 
         response = await client.get(f"{api_prefix}/entities?status=locked")
         assert response.status_code == 200
@@ -52,7 +56,9 @@ async def test_query_semi_protected_entities(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities/", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
+            f"{api_prefix}/entities/",
+            json={**entity_data, "is_semi_protected": True},
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
         response = await client.get(f"{api_prefix}/entities?status=semi_protected")
@@ -80,7 +86,11 @@ async def test_query_archived_entities(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(f"{api_prefix}/entities/", json={**entity_data, "is_archived": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+        await client.post(
+            f"{api_prefix}/entities/",
+            json={**entity_data, "is_archived": True},
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
 
         response = await client.get(f"{api_prefix}/entities?status=archived")
         assert response.status_code == 200
@@ -107,7 +117,11 @@ async def test_query_dangling_entities(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(f"{api_prefix}/entities/", json={**entity_data, "is_dangling": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+        await client.post(
+            f"{api_prefix}/entities/",
+            json={**entity_data, "is_dangling": True},
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
 
         response = await client.get(f"{api_prefix}/entities?status=dangling")
         assert response.status_code == 200

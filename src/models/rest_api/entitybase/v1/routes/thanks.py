@@ -62,9 +62,7 @@ def get_thanks_received_endpoint(
     return result
 
 
-@thanks_router.get(
-    "/users/{user_id}/thanks/sent", response_model=ThanksListResponse
-)
+@thanks_router.get("/users/{user_id}/thanks/sent", response_model=ThanksListResponse)
 def get_thanks_sent_endpoint(
     req: Request,
     user_id: int,

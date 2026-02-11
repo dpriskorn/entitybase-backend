@@ -6,7 +6,10 @@ import pytest
 from fastapi import HTTPException
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
-from models.data.rest_api.v1.entitybase.request.entity.context import TermUpdateContext, SitelinkUpdateContext
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    TermUpdateContext,
+    SitelinkUpdateContext,
+)
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.infrastructure.s3 import S3RevisionData
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
@@ -36,7 +39,9 @@ class TestEntityUpdateHandler:
         handler = EntityUpdateHandler(state=mock_state)
         modified_data = {"labels": {"en": {"language": "en", "value": "Test"}}}
 
-        with patch.object(handler, '_update_with_transaction', new_callable=AsyncMock) as mock_update:
+        with patch.object(
+            handler, "_update_with_transaction", new_callable=AsyncMock
+        ) as mock_update:
             s3_data = S3RevisionData(
                 schema="1.0.0",
                 revision={"labels": {"en": {"language": "en", "value": "Test"}}},
@@ -147,7 +152,9 @@ class TestEntityUpdateHandler:
 
         handler = EntityUpdateHandler(state=mock_state)
 
-        with patch.object(handler, '_update_with_transaction', new_callable=AsyncMock) as mock_update:
+        with patch.object(
+            handler, "_update_with_transaction", new_callable=AsyncMock
+        ) as mock_update:
             s3_data = S3RevisionData(
                 schema="1.0.0",
                 revision={"labels": {"en": {"language": "en", "value": "New"}}},
@@ -161,12 +168,18 @@ class TestEntityUpdateHandler:
             )
             mock_update.return_value = mock_response
 
-            with patch.object(handler, '_infer_entity_type_from_id', return_value=MagicMock()):
+            with patch.object(
+                handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            ):
                 with patch(
-                    'models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler',
-                    return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity))
+                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    return_value=MagicMock(
+                        get_entity=MagicMock(return_value=mock_entity)
+                    ),
                 ):
-                    context = TermUpdateContext(language_code="en", language="en", value="New Label")
+                    context = TermUpdateContext(
+                        language_code="en", language="en", value="New Label"
+                    )
                     result = await handler.update_label(
                         "Q42",
                         context,
@@ -182,7 +195,9 @@ class TestEntityUpdateHandler:
         handler = EntityUpdateHandler(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            context = TermUpdateContext(language_code="en", language="de", value="Neues Label")
+            context = TermUpdateContext(
+                language_code="en", language="de", value="Neues Label"
+            )
             await handler.update_label(
                 "Q42",
                 context,
@@ -198,7 +213,9 @@ class TestEntityUpdateHandler:
         handler = EntityUpdateHandler(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            context = TermUpdateContext(language_code="en", language="en", value="Label")
+            context = TermUpdateContext(
+                language_code="en", language="en", value="Label"
+            )
             await handler.update_label(
                 "INVALID",
                 context,
@@ -218,17 +235,25 @@ class TestEntityUpdateHandler:
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
-        mock_entity.entity_data.revision = {"labels": {"en": {"language": "en", "value": "Old"}}}
+        mock_entity.entity_data.revision = {
+            "labels": {"en": {"language": "en", "value": "Old"}}
+        }
 
         handler = EntityUpdateHandler(state=mock_state)
 
-        with patch.object(handler, '_update_with_transaction', new_callable=AsyncMock) as mock_update:
+        with patch.object(
+            handler, "_update_with_transaction", new_callable=AsyncMock
+        ) as mock_update:
             mock_update.return_value = mock_entity
 
-            with patch.object(handler, '_infer_entity_type_from_id', return_value=MagicMock()):
+            with patch.object(
+                handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            ):
                 with patch(
-                    'models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler',
-                    return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity))
+                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    return_value=MagicMock(
+                        get_entity=MagicMock(return_value=mock_entity)
+                    ),
                 ):
                     result = await handler.delete_label(
                         "Q42",
@@ -251,14 +276,18 @@ class TestEntityUpdateHandler:
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
-        mock_entity.entity_data.revision = {"labels": {"de": {"language": "de", "value": "Test"}}}
+        mock_entity.entity_data.revision = {
+            "labels": {"de": {"language": "de", "value": "Test"}}
+        }
 
         handler = EntityUpdateHandler(state=mock_state)
 
-        with patch.object(handler, '_infer_entity_type_from_id', return_value=MagicMock()):
+        with patch.object(
+            handler, "_infer_entity_type_from_id", return_value=MagicMock()
+        ):
             with patch(
-                'models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler',
-                return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity))
+                "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
                 result = await handler.delete_label(
                     "Q42",
@@ -284,15 +313,23 @@ class TestEntityUpdateHandler:
 
         handler = EntityUpdateHandler(state=mock_state)
 
-        with patch.object(handler, '_update_with_transaction', new_callable=AsyncMock) as mock_update:
+        with patch.object(
+            handler, "_update_with_transaction", new_callable=AsyncMock
+        ) as mock_update:
             mock_update.return_value = mock_entity
 
-            with patch.object(handler, '_infer_entity_type_from_id', return_value=MagicMock()):
+            with patch.object(
+                handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            ):
                 with patch(
-                    'models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler',
-                    return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity))
+                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    return_value=MagicMock(
+                        get_entity=MagicMock(return_value=mock_entity)
+                    ),
                 ):
-                    context = TermUpdateContext(language_code="en", language="en", value="New description")
+                    context = TermUpdateContext(
+                        language_code="en", language="en", value="New description"
+                    )
                     result = await handler.update_description(
                         "Q42",
                         context,
@@ -308,7 +345,9 @@ class TestEntityUpdateHandler:
         handler = EntityUpdateHandler(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            context = TermUpdateContext(language_code="en", language="de", value="Beschreibung")
+            context = TermUpdateContext(
+                language_code="en", language="de", value="Beschreibung"
+            )
             await handler.update_description(
                 "Q42",
                 context,
@@ -324,7 +363,9 @@ class TestEntityUpdateHandler:
         handler = EntityUpdateHandler(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            context = TermUpdateContext(language_code="en", language="en", value="Description")
+            context = TermUpdateContext(
+                language_code="en", language="en", value="Description"
+            )
             await handler.update_description(
                 "INVALID",
                 context,
@@ -346,18 +387,24 @@ class TestEntityUpdateHandler:
         mock_entity.entity_data = MagicMock()
         mock_entity.entity_data.revision = {
             "labels": {},
-            "descriptions": {"en": {"language": "en", "value": "Old desc"}}
+            "descriptions": {"en": {"language": "en", "value": "Old desc"}},
         }
 
         handler = EntityUpdateHandler(state=mock_state)
 
-        with patch.object(handler, '_update_with_transaction', new_callable=AsyncMock) as mock_update:
+        with patch.object(
+            handler, "_update_with_transaction", new_callable=AsyncMock
+        ) as mock_update:
             mock_update.return_value = mock_entity
 
-            with patch.object(handler, '_infer_entity_type_from_id', return_value=MagicMock()):
+            with patch.object(
+                handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            ):
                 with patch(
-                    'models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler',
-                    return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity))
+                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    return_value=MagicMock(
+                        get_entity=MagicMock(return_value=mock_entity)
+                    ),
                 ):
                     result = await handler.delete_description(
                         "Q42",
@@ -384,10 +431,12 @@ class TestEntityUpdateHandler:
 
         handler = EntityUpdateHandler(state=mock_state)
 
-        with patch.object(handler, '_infer_entity_type_from_id', return_value=MagicMock()):
+        with patch.object(
+            handler, "_infer_entity_type_from_id", return_value=MagicMock()
+        ):
             with patch(
-                'models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler',
-                return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity))
+                "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
                 result = await handler.delete_description(
                     "Q42",
@@ -412,13 +461,19 @@ class TestEntityUpdateHandler:
 
         handler = EntityUpdateHandler(state=mock_state)
 
-        with patch.object(handler, '_update_with_transaction', new_callable=AsyncMock) as mock_update:
+        with patch.object(
+            handler, "_update_with_transaction", new_callable=AsyncMock
+        ) as mock_update:
             mock_update.return_value = mock_entity
 
-            with patch.object(handler, '_infer_entity_type_from_id', return_value=MagicMock()):
+            with patch.object(
+                handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            ):
                 with patch(
-                    'models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler',
-                    return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity))
+                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    return_value=MagicMock(
+                        get_entity=MagicMock(return_value=mock_entity)
+                    ),
                 ):
                     result = await handler.update_aliases(
                         "Q42",
@@ -432,7 +487,7 @@ class TestEntityUpdateHandler:
                     call_args = mock_update.call_args[0]
                     assert call_args[1]["aliases"]["en"] == [
                         {"value": "Alias1"},
-                        {"value": "Alias2"}
+                        {"value": "Alias2"},
                     ]
 
     @pytest.mark.asyncio
@@ -466,15 +521,26 @@ class TestEntityUpdateHandler:
 
         handler = EntityUpdateHandler(state=mock_state)
 
-        with patch.object(handler, '_update_with_transaction', new_callable=AsyncMock) as mock_update:
+        with patch.object(
+            handler, "_update_with_transaction", new_callable=AsyncMock
+        ) as mock_update:
             mock_update.return_value = mock_entity
 
-            with patch.object(handler, '_infer_entity_type_from_id', return_value=MagicMock()):
+            with patch.object(
+                handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            ):
                 with patch(
-                    'models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler',
-                    return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity))
+                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    return_value=MagicMock(
+                        get_entity=MagicMock(return_value=mock_entity)
+                    ),
                 ):
-                    ctx = SitelinkUpdateContext(entity_id="Q42", site="enwiki", title="Test_Item", badges=["Q123"])
+                    ctx = SitelinkUpdateContext(
+                        entity_id="Q42",
+                        site="enwiki",
+                        title="Test_Item",
+                        badges=["Q123"],
+                    )
                     result = await handler.update_sitelink(
                         ctx,
                         EditHeaders(x_user_id=1, x_edit_summary="Update sitelink"),
@@ -502,15 +568,26 @@ class TestEntityUpdateHandler:
 
         handler = EntityUpdateHandler(state=mock_state)
 
-        with patch.object(handler, '_update_with_transaction', new_callable=AsyncMock) as mock_update:
+        with patch.object(
+            handler, "_update_with_transaction", new_callable=AsyncMock
+        ) as mock_update:
             mock_update.return_value = mock_entity
 
-            with patch.object(handler, '_infer_entity_type_from_id', return_value=MagicMock()):
+            with patch.object(
+                handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            ):
                 with patch(
-                    'models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler',
-                    return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity))
+                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    return_value=MagicMock(
+                        get_entity=MagicMock(return_value=mock_entity)
+                    ),
                 ):
-                    ctx = SitelinkUpdateContext(entity_id="Q42", site="enwiki", title="New_Title", badges=["Q456"])
+                    ctx = SitelinkUpdateContext(
+                        entity_id="Q42",
+                        site="enwiki",
+                        title="New_Title",
+                        badges=["Q456"],
+                    )
                     result = await handler.update_sitelink(
                         ctx,
                         EditHeaders(x_user_id=1, x_edit_summary="Update sitelink"),
@@ -525,7 +602,9 @@ class TestEntityUpdateHandler:
         handler = EntityUpdateHandler(state=mock_state)
 
         with pytest.raises(HTTPException) as exc_info:
-            ctx = SitelinkUpdateContext(entity_id="INVALID", site="enwiki", title="Title", badges=[])
+            ctx = SitelinkUpdateContext(
+                entity_id="INVALID", site="enwiki", title="Title", badges=[]
+            )
             await handler.update_sitelink(
                 ctx,
                 EditHeaders(x_user_id=1, x_edit_summary="Update sitelink"),
@@ -550,13 +629,19 @@ class TestEntityUpdateHandler:
 
         handler = EntityUpdateHandler(state=mock_state)
 
-        with patch.object(handler, '_update_with_transaction', new_callable=AsyncMock) as mock_update:
+        with patch.object(
+            handler, "_update_with_transaction", new_callable=AsyncMock
+        ) as mock_update:
             mock_update.return_value = mock_entity
 
-            with patch.object(handler, '_infer_entity_type_from_id', return_value=MagicMock()):
+            with patch.object(
+                handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            ):
                 with patch(
-                    'models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler',
-                    return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity))
+                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    return_value=MagicMock(
+                        get_entity=MagicMock(return_value=mock_entity)
+                    ),
                 ):
                     result = await handler.delete_sitelink(
                         "Q42",
@@ -583,10 +668,12 @@ class TestEntityUpdateHandler:
 
         handler = EntityUpdateHandler(state=mock_state)
 
-        with patch.object(handler, '_infer_entity_type_from_id', return_value=MagicMock()):
+        with patch.object(
+            handler, "_infer_entity_type_from_id", return_value=MagicMock()
+        ):
             with patch(
-                'models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler',
-                return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity))
+                "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
                 result = await handler.delete_sitelink(
                     "Q42",
@@ -601,18 +688,21 @@ class TestEntityUpdateHandler:
         """Test inferring ITEM type from Q prefix."""
         result = EntityUpdateHandler._infer_entity_type_from_id("Q42")
         from models.data.infrastructure.s3.enums import EntityType
+
         assert result == EntityType.ITEM
 
     def test_infer_entity_type_from_id_property(self) -> None:
         """Test inferring PROPERTY type from P prefix."""
         result = EntityUpdateHandler._infer_entity_type_from_id("P31")
         from models.data.infrastructure.s3.enums import EntityType
+
         assert result == EntityType.PROPERTY
 
     def test_infer_entity_type_from_id_lexeme(self) -> None:
         """Test inferring LEXEME type from L prefix."""
         result = EntityUpdateHandler._infer_entity_type_from_id("L123")
         from models.data.infrastructure.s3.enums import EntityType
+
         assert result == EntityType.LEXEME
 
     def test_infer_entity_type_from_id_invalid(self) -> None:

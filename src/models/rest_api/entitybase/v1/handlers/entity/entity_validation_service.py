@@ -66,7 +66,9 @@ class EntityValidationService(BaseModel):
                     ),
                 )
         except S3NotFoundError:
-            logger.debug(f"Head revision not found for idempotency check on {entity_id}")
+            logger.debug(
+                f"Head revision not found for idempotency check on {entity_id}"
+            )
         except Exception as e:
             logger.warning(f"Failed to read head revision for idempotency check: {e}")
 

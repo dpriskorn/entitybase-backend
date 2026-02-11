@@ -11,7 +11,7 @@ class TestSitelinkHashes:
         """Test creating SitelinkHashes with S3SitelinkData."""
         data = {
             "enwiki": S3SitelinkData(title_hash=123, badges=["featured"]),
-            "dewiki": S3SitelinkData(title_hash=456, badges=[])
+            "dewiki": S3SitelinkData(title_hash=456, badges=[]),
         }
         # noinspection PyArgumentList
         hashes = SitelinkHashes(root=data)

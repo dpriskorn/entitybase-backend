@@ -45,7 +45,7 @@ class TestEditHeaders:
         """Test ValidationError for negative user_id."""
         with pytest.raises(ValidationError) as exc_info:
             EditHeaders(x_user_id=-1, x_edit_summary="test")
-        
+
         errors = exc_info.value.errors()
         assert any(error["loc"] == ("x_user_id",) for error in errors)
         assert any("greater than or equal to 0" in str(error) for error in errors)
@@ -54,26 +54,32 @@ class TestEditHeaders:
         """Test ValidationError for empty edit summary."""
         with pytest.raises(ValidationError) as exc_info:
             EditHeaders(x_user_id=123, x_edit_summary="")
-        
+
         errors = exc_info.value.errors()
         assert any(error["loc"] == ("x_edit_summary",) for error in errors)
-        assert any("at least 1 character" in str(error) or "min_length" in str(error) for error in errors)
+        assert any(
+            "at least 1 character" in str(error) or "min_length" in str(error)
+            for error in errors
+        )
 
     def test_validation_error_summary_too_long(self):
         """Test ValidationError for edit summary exceeding 200 characters."""
         summary = "a" * 201
         with pytest.raises(ValidationError) as exc_info:
             EditHeaders(x_user_id=123, x_edit_summary=summary)
-        
+
         errors = exc_info.value.errors()
         assert any(error["loc"] == ("x_edit_summary",) for error in errors)
-        assert any("at most 200 character" in str(error) or "max_length" in str(error) for error in errors)
+        assert any(
+            "at most 200 character" in str(error) or "max_length" in str(error)
+            for error in errors
+        )
 
     def test_type_validation_user_id_float(self):
         """Test ValidationError when user_id is a float instead of int."""
         with pytest.raises(ValidationError) as exc_info:
             EditHeaders(x_user_id=123.5, x_edit_summary="test")
-        
+
         errors = exc_info.value.errors()
         assert any(error["loc"] == ("x_user_id",) for error in errors)
 
@@ -81,7 +87,7 @@ class TestEditHeaders:
         """Test ValidationError when edit_summary is an int instead of str."""
         with pytest.raises(ValidationError) as exc_info:
             EditHeaders(x_user_id=123, x_edit_summary=123)
-        
+
         errors = exc_info.value.errors()
         assert any(error["loc"] == ("x_edit_summary",) for error in errors)
 

@@ -1,4 +1,5 @@
 """Health check routes."""
+
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Response
@@ -17,10 +18,13 @@ def health_check_endpoint(response: Response, req: Request) -> HealthCheckRespon
     if state is None:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         return HealthCheckResponse(
-            status="starting", s3="disconnected", vitess="disconnected", timestamp=datetime.now(
-                timezone.utc).isoformat()
+            status="starting",
+            s3="disconnected",
+            vitess="disconnected",
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
     from models.rest_api.entitybase.v1.handlers.state import StateHandler
+
     assert isinstance(state, StateHandler)
     from models.infrastructure.s3.client import MyS3Client
     from models.infrastructure.vitess.client import VitessClient
@@ -34,10 +38,13 @@ def health_check_endpoint(response: Response, req: Request) -> HealthCheckRespon
     vitess = state.vitess_client
     vitess_status = (
         "connected"
-        if vitess
-        and isinstance(vitess, VitessClient)
-        and vitess.healthy_connection
+        if vitess and isinstance(vitess, VitessClient) and vitess.healthy_connection
         else "disconnected"
     )
 
-    return HealthCheckResponse(status="ok", s3=s3_status, vitess=vitess_status, timestamp=datetime.now(timezone.utc).isoformat())
+    return HealthCheckResponse(
+        status="ok",
+        s3=s3_status,
+        vitess=vitess_status,
+        timestamp=datetime.now(timezone.utc).isoformat(),
+    )

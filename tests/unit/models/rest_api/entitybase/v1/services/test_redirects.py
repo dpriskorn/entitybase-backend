@@ -6,4 +6,5 @@
 
 class TestRedirectService:
     """Unit tests for RedirectService."""
+
     pass

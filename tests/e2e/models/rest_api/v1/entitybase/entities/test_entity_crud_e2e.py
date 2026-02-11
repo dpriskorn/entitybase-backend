@@ -22,7 +22,9 @@ async def test_list_entities_all(e2e_api_client, e2e_base_url, api_prefix) -> No
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def test_list_entities_with_type_filter(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_list_entities_with_type_filter(
+    e2e_api_client, e2e_base_url, api_prefix
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: List entities filtered by type."""
@@ -35,7 +37,9 @@ async def test_list_entities_with_type_filter(e2e_api_client, e2e_base_url, api_
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def test_list_entities_with_limit_offset(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_list_entities_with_limit_offset(
+    e2e_api_client, e2e_base_url, api_prefix
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: List entities with limit and offset pagination."""

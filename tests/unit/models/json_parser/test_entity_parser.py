@@ -14,13 +14,11 @@ class TestEntityParser:
                 "L42": {
                     "id": "L42",
                     "type": "lexeme",
-                    "lemmas": {
-                        "en": {"language": "en", "value": "test"}
-                    },
+                    "lemmas": {"en": {"language": "en", "value": "test"}},
                     "lexicalCategory": "Q1084",
                     "language": "Q1860",
                     "forms": [],
-                    "senses": []
+                    "senses": [],
                 }
             }
         }
@@ -39,13 +37,11 @@ class TestEntityParser:
                 "Q42": {
                     "id": "Q42",
                     "type": "item",
-                    "labels": {
-                        "en": {"language": "en", "value": "Test Item"}
-                    },
+                    "labels": {"en": {"language": "en", "value": "Test Item"}},
                     "descriptions": {},
                     "aliases": {},
                     "claims": {},
-                    "sitelinks": {}
+                    "sitelinks": {},
                 }
             }
         }

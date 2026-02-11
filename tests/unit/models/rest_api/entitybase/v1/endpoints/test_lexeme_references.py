@@ -39,10 +39,10 @@ class TestReferencesEndpoint:
                         }
                     ]
                 },
-                "snaks-order": ["P854"]
+                "snaks-order": ["P854"],
             },
             hash=12345,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
 
         mock_s3_client.load_references_batch.return_value = [mock_reference_data]
@@ -74,7 +74,7 @@ class TestReferencesEndpoint:
         mock_reference_data = S3ReferenceData(
             reference={"snaks": {"P854": []}, "snaks-order": []},
             hash=12345,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
 
         mock_s3_client.load_references_batch.return_value = [mock_reference_data, None]
@@ -148,7 +148,9 @@ class TestReferencesEndpoint:
         mock_request.app.state.state_handler = mock_state
 
         # Mock S3 client to raise an exception
-        mock_s3_client.load_references_batch.side_effect = Exception("S3 connection error")
+        mock_s3_client.load_references_batch.side_effect = Exception(
+            "S3 connection error"
+        )
 
         with pytest.raises(HTTPException) as exc_info:
             await get_references(mock_request, "12345")
@@ -190,7 +192,7 @@ class TestReferencesEndpoint:
         mock_reference_data = S3ReferenceData(
             reference={"snaks": {"P854": []}, "snaks-order": []},
             hash=12345,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
 
         mock_s3_client.load_references_batch.return_value = [mock_reference_data]

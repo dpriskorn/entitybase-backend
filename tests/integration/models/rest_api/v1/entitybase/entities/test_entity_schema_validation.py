@@ -32,7 +32,7 @@ async def test_create_item_and_validate_json_response(api_prefix: str) -> None:
         "labels": {
             "en": {"language": "en", "value": "Test Entity for Schema Validation"}
         },
-        "edit_summary": "Test entity for schema validation"
+        "edit_summary": "Test entity for schema validation",
     }
 
     async with AsyncClient(
@@ -73,10 +73,7 @@ async def test_required_fields_present(api_prefix: str) -> None:
     """Verify required fields are present in response."""
     from models.rest_api.main import app
 
-    item_data = {
-        "type": "item",
-        "edit_summary": "Test required fields"
-    }
+    item_data = {"type": "item", "edit_summary": "Test required fields"}
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
@@ -117,13 +114,11 @@ async def test_item_with_descriptions_validates(api_prefix: str) -> None:
 
     item_data = {
         "type": "item",
-        "labels": {
-            "en": {"language": "en", "value": "Test Item"}
-        },
+        "labels": {"en": {"language": "en", "value": "Test Item"}},
         "descriptions": {
             "en": {"language": "en", "value": "A test item with descriptions"}
         },
-        "edit_summary": "Test item with descriptions"
+        "edit_summary": "Test item with descriptions",
     }
 
     async with AsyncClient(
@@ -169,24 +164,24 @@ async def test_item_with_claims_validates(api_prefix: str) -> None:
 
     item_data = {
         "type": "item",
-        "labels": {
-            "en": {"language": "en", "value": "Test Item"}
-        },
+        "labels": {"en": {"language": "en", "value": "Test Item"}},
         "claims": {
-            "P31": [{
-                "mainsnak": {
-                    "snaktype": "value",
-                    "property": "P31",
-                    "datavalue": {
-                        "value": {"entity-type": "item", "id": "Q5"},
-                        "type": "wikibase-entityid"
-                    }
-                },
-                "type": "statement",
-                "rank": "normal"
-            }]
+            "P31": [
+                {
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datavalue": {
+                            "value": {"entity-type": "item", "id": "Q5"},
+                            "type": "wikibase-entityid",
+                        },
+                    },
+                    "type": "statement",
+                    "rank": "normal",
+                }
+            ]
         },
-        "edit_summary": "Test item with claims"
+        "edit_summary": "Test item with claims",
     }
 
     async with AsyncClient(

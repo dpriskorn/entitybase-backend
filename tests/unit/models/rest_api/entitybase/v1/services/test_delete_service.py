@@ -131,18 +131,7 @@ class TestDeleteService:
 
         assert True  # No exception raised
 
-
-
-
-
     # build_deletion_revision (static)
-
-
-
-
-
-
-
 
     # decrement_statement_references
     def test_decrement_statement_references_success(self) -> None:
@@ -187,8 +176,6 @@ class TestDeleteService:
         assert content_hash is not None
         assert s3_data is not None
         mock_s3.store_revision.assert_called_once()
-
-
 
     # publish_delete_event
     @pytest.mark.asyncio
@@ -264,7 +251,9 @@ class TestDeleteService:
         mock_user_repo = MagicMock()
         mock_state.vitess_client = mock_vitess
         mock_vitess.user_repository = mock_user_repo
-        mock_user_repo.log_user_activity.return_value = MagicMock(success=False, error="DB error")
+        mock_user_repo.log_user_activity.return_value = MagicMock(
+            success=False, error="DB error"
+        )
 
         service = DeleteService(state=mock_state)
         service.log_delete_activity(123, "Q42", 3)

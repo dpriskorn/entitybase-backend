@@ -51,4 +51,3 @@ class TestEntity:
         result = entity.get_entity_type()
 
         assert result == "property"
-

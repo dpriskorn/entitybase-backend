@@ -12,7 +12,10 @@ from models.rdf_builder.redirect_cache import (
     load_entity_redirects_batch,
     load_entity_redirects,
 )
-from models.data.rest_api.v1.entitybase.response import RedirectBatchResponse, MetadataLoadResponse
+from models.data.rest_api.v1.entitybase.response import (
+    RedirectBatchResponse,
+    MetadataLoadResponse,
+)
 
 
 class TestRedirectCache:
@@ -218,7 +221,9 @@ class TestRedirectCache:
     @patch("models.rdf_builder.redirect_cache.logger")
     @patch("models.rdf_builder.redirect_cache.time.sleep")
     @patch("models.rdf_builder.redirect_cache.requests.get")
-    def test_fetch_entity_redirects_batch_invalid_json(self, mock_get, mock_sleep, mock_logger) -> None:
+    def test_fetch_entity_redirects_batch_invalid_json(
+        self, mock_get, mock_sleep, mock_logger
+    ) -> None:
         """Test fetch_entity_redirects_batch when response JSON is invalid."""
         entity_ids = ["Q1"]
 

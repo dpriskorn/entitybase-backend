@@ -12,7 +12,9 @@ class TestRDFReference:
     def test_rdf_reference_creation_with_hash(self) -> None:
         """Test creating RDFReference with valid hash."""
         reference = Reference(hash="a4d108601216cffd2ff1819ccf12b483486b62e7")
-        rdf_ref = RDFReference(reference=reference, statement_uri="wds:Q42-12345678-ABCD")
+        rdf_ref = RDFReference(
+            reference=reference, statement_uri="wds:Q42-12345678-ABCD"
+        )
         assert rdf_ref.statement_uri == "wds:Q42-12345678-ABCD"
         assert rdf_ref.hash == "a4d108601216cffd2ff1819ccf12b483486b62e7"
 

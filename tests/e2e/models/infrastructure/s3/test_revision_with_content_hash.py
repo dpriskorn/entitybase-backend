@@ -34,9 +34,15 @@ class TestRevisionCreateReadE2E:
             "properties": [],
             "property_counts": {},
             "hashes": {"statements": {"root": []}},
-            "edit": {"mass": False, "type": "manual_update", "user_id": 1, "summary": "test", "at": datetime.now(timezone.utc)},
+            "edit": {
+                "mass": False,
+                "type": "manual_update",
+                "user_id": 1,
+                "summary": "test",
+                "at": datetime.now(timezone.utc),
+            },
             "state": {},
-            "redirects_to": ""
+            "redirects_to": "",
         }
 
         # Setup S3 client mocks
@@ -46,10 +52,12 @@ class TestRevisionCreateReadE2E:
             access_key="test",
             secret_key="test",
             bucket="test-bucket",
-            region="us-east-1"
+            region="us-east-1",
         )
 
-        with patch("models.infrastructure.s3.client.S3ConnectionManager") as mock_conn_class:
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager"
+        ) as mock_conn_class:
             mock_conn_class.return_value = mock_connection_manager
 
             # Mock vitess client
@@ -81,7 +89,9 @@ class TestRevisionCreateReadE2E:
             s3_client.store_revision(content_hash, s3_revision_data)
 
             # Verify storage
-            mock_revision_storage.store_revision.assert_called_once_with(content_hash, s3_revision_data)
+            mock_revision_storage.store_revision.assert_called_once_with(
+                content_hash, s3_revision_data
+            )
 
     @pytest.mark.asyncio
     async def test_read_revision_queries_content_hash_from_db(self):
@@ -101,10 +111,12 @@ class TestRevisionCreateReadE2E:
             access_key="test",
             secret_key="test",
             bucket="test-bucket",
-            region="us-east-1"
+            region="us-east-1",
         )
 
-        with patch("models.infrastructure.s3.client.S3ConnectionManager") as mock_conn_class:
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager"
+        ) as mock_conn_class:
             mock_conn_class.return_value = mock_connection_manager
 
             # Mock vitess client
@@ -127,23 +139,32 @@ class TestRevisionCreateReadE2E:
             s3_client.revisions = mock_revision_storage
 
             # Read revision
-            with patch("models.infrastructure.s3.client.RevisionRepository", return_value=mock_revision_repo):
+            with patch(
+                "models.infrastructure.s3.client.RevisionRepository",
+                return_value=mock_revision_repo,
+            ):
                 result = s3_client.read_revision(entity_id, revision_id)
 
             # Verify flow
             mock_id_resolver.resolve_id.assert_called_once_with(entity_id)
-            mock_revision_repo.get_content_hash.assert_called_once_with(internal_id, revision_id)
+            mock_revision_repo.get_content_hash.assert_called_once_with(
+                internal_id, revision_id
+            )
             mock_revision_storage.load_revision.assert_called_once_with(content_hash)
             assert result == expected_revision
 
     @pytest.mark.asyncio
     async def test_repository_create_with_content_hash(self):
         """Test RevisionRepository.create() stores content_hash."""
-        from models.infrastructure.vitess.repositories.revision import RevisionRepository
+        from models.infrastructure.vitess.repositories.revision import (
+            RevisionRepository,
+        )
         from models.data.infrastructure.s3.entity_state import EntityState
         from models.data.infrastructure.s3.enums import EntityType, EditType, EditData
         from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
-        from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
+        from models.data.infrastructure.s3.hashes.statements_hashes import (
+            StatementsHashes,
+        )
         from models.infrastructure.s3.revision.revision_data import RevisionData
         from datetime import datetime, timezone
 
@@ -197,7 +218,9 @@ class TestRevisionCreateReadE2E:
     @pytest.mark.asyncio
     async def test_repository_get_content_hash(self):
         """Test RevisionRepository.get_content_hash() retrieves stored hash."""
-        from models.infrastructure.vitess.repositories.revision import RevisionRepository
+        from models.infrastructure.vitess.repositories.revision import (
+            RevisionRepository,
+        )
 
         internal_id = 100
         revision_id = 1
@@ -245,10 +268,12 @@ class TestRevisionCreateReadE2E:
             access_key="test",
             secret_key="test",
             bucket="test-bucket",
-            region="us-east-1"
+            region="us-east-1",
         )
 
-        with patch("models.infrastructure.s3.client.S3ConnectionManager") as mock_conn_class:
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager"
+        ) as mock_conn_class:
             mock_conn_class.return_value = mock_connection_manager
 
             # Mock vitess client
@@ -285,13 +310,18 @@ class TestRevisionCreateReadE2E:
             mock_vitess_client.cursor = mock_cursor
 
             # Step 3: Read revision back using the content_hash
-            with patch("models.infrastructure.s3.client.RevisionRepository", return_value=mock_revision_repo):
+            with patch(
+                "models.infrastructure.s3.client.RevisionRepository",
+                return_value=mock_revision_repo,
+            ):
                 result = s3_client.read_revision(entity_id, revision_id)
 
             # Verify: id resolution -> content_hash query -> S3 load
             assert result == revision_dict
             mock_id_resolver.resolve_id.assert_called_once_with(entity_id)
-            mock_revision_repo.get_content_hash.assert_called_once_with(internal_id, revision_id)
+            mock_revision_repo.get_content_hash.assert_called_once_with(
+                internal_id, revision_id
+            )
             mock_revision_storage.load_revision.assert_called_once_with(content_hash)
 
     @pytest.mark.asyncio
@@ -312,10 +342,12 @@ class TestRevisionCreateReadE2E:
             access_key="test",
             secret_key="test",
             bucket="test-bucket",
-            region="us-east-1"
+            region="us-east-1",
         )
 
-        with patch("models.infrastructure.s3.client.S3ConnectionManager") as mock_conn_class:
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager"
+        ) as mock_conn_class:
             mock_conn_class.return_value = mock_connection_manager
 
             # Mock state
@@ -334,7 +366,10 @@ class TestRevisionCreateReadE2E:
             revision_data = {"key": "value"}
             revision_json = json.dumps(revision_data, sort_keys=True)
 
-            from models.internal_representation.metadata_extractor import MetadataExtractor
+            from models.internal_representation.metadata_extractor import (
+                MetadataExtractor,
+            )
+
             calculated_hash = MetadataExtractor.hash_string(revision_json)
 
             assert calculated_hash is not None

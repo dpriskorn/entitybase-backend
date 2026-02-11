@@ -33,9 +33,7 @@ class EntityRevertHandler(Handler):
             f"Reverting entity {entity_id} to revision {request.to_revision_id}"
         )
         # Resolve internal ID
-        internal_entity_id = self.state.vitess_client.id_resolver.resolve_id(
-            entity_id
-        )
+        internal_entity_id = self.state.vitess_client.id_resolver.resolve_id(entity_id)
 
         if internal_entity_id == 0:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
@@ -75,7 +73,11 @@ class EntityRevertHandler(Handler):
 
         # Create new revision data using RevisionData model
         # For revert, we need to copy the entity data from target revision
-        target_data = target_revision_data.data if hasattr(target_revision_data, 'data') else target_revision_data
+        target_data = (
+            target_revision_data.data
+            if hasattr(target_revision_data, "data")
+            else target_revision_data
+        )
 
         # Copy hashes from target revision
         target_hashes = target_data.get("hashes", {})
@@ -96,10 +98,18 @@ class EntityRevertHandler(Handler):
             state = EntityState(
                 sp=target_state.get("sp", target_state.get("is_semi_protected", False)),
                 locked=target_state.get("locked", target_state.get("is_locked", False)),
-                archived=target_state.get("archived", target_state.get("is_archived", False)),
-                dangling=target_state.get("dangling", target_state.get("is_dangling", False)),
-                mep=target_state.get("mep", target_state.get("is_mass_edit_protected", False)),
-                deleted=target_state.get("deleted", target_state.get("is_deleted", False)),
+                archived=target_state.get(
+                    "archived", target_state.get("is_archived", False)
+                ),
+                dangling=target_state.get(
+                    "dangling", target_state.get("is_dangling", False)
+                ),
+                mep=target_state.get(
+                    "mep", target_state.get("is_mass_edit_protected", False)
+                ),
+                deleted=target_state.get(
+                    "deleted", target_state.get("is_deleted", False)
+                ),
             )
         else:
             state = EntityState()

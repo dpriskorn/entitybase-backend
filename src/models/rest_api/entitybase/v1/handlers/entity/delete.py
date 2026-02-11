@@ -49,7 +49,9 @@ class EntityDeleteHandler(Handler):
                 entity_id, head_revision_id
             )
         except S3NotFoundError:
-            raise_validation_error(f"Entity revision not found: {entity_id}", status_code=404)
+            raise_validation_error(
+                f"Entity revision not found: {entity_id}", status_code=404
+            )
 
         edit_context = EditContext(
             user_id=edit_headers.x_user_id,
@@ -94,9 +96,7 @@ class EntityDeleteHandler(Handler):
         )
 
         del_status = (
-            "soft_deleted"
-            if request.delete_type == DeleteType.SOFT
-            else "hard_deleted"
+            "soft_deleted" if request.delete_type == DeleteType.SOFT else "hard_deleted"
         )
 
         return EntityDeleteResponse(

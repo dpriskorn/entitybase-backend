@@ -27,9 +27,7 @@ class EntityHashingService(Service):
         prepared_data = PreparedRequestData(**request_data)
         hash_operation = ss.hash_entity_statements(prepared_data)
         if not hash_operation.success:
-            raise_validation_error(
-                hash_operation.error or "Failed to hash statements"
-            )
+            raise_validation_error(hash_operation.error or "Failed to hash statements")
         return cast(StatementHashResult, hash_operation.data)
 
     async def hash_terms(

@@ -11,9 +11,7 @@ class TestExternalIdValueParser:
 
     def test_parse_valid_external_id_value(self):
         """Test parsing a valid external ID value."""
-        datavalue = {
-            "value": "ISBN 978-0-123456-78-9"
-        }
+        datavalue = {"value": "ISBN 978-0-123456-78-9"}
 
         result = parse_external_id_value(datavalue)
 
@@ -24,9 +22,7 @@ class TestExternalIdValueParser:
 
     def test_parse_external_id_value_numeric(self):
         """Test parsing an external ID value that is numeric."""
-        datavalue = {
-            "value": "123456789"
-        }
+        datavalue = {"value": "123456789"}
 
         result = parse_external_id_value(datavalue)
 
@@ -34,9 +30,7 @@ class TestExternalIdValueParser:
 
     def test_parse_external_id_value_empty_string(self):
         """Test parsing an external ID value that is an empty string."""
-        datavalue = {
-            "value": ""
-        }
+        datavalue = {"value": ""}
 
         result = parse_external_id_value(datavalue)
 
@@ -44,9 +38,7 @@ class TestExternalIdValueParser:
 
     def test_parse_external_id_value_special_characters(self):
         """Test parsing an external ID value with special characters."""
-        datavalue = {
-            "value": "DOI:10.1000/xyz123"
-        }
+        datavalue = {"value": "DOI:10.1000/xyz123"}
 
         result = parse_external_id_value(datavalue)
 
@@ -63,9 +55,7 @@ class TestExternalIdValueParser:
 
     def test_parse_external_id_value_unicode(self):
         """Test parsing an external ID value with unicode characters."""
-        datavalue = {
-            "value": "测试_ID_123"
-        }
+        datavalue = {"value": "测试_ID_123"}
 
         result = parse_external_id_value(datavalue)
 
@@ -74,9 +64,7 @@ class TestExternalIdValueParser:
     def test_parse_external_id_value_long_string(self):
         """Test parsing a very long external ID value."""
         long_id = "A" * 1000  # Very long string
-        datavalue = {
-            "value": long_id
-        }
+        datavalue = {"value": long_id}
 
         result = parse_external_id_value(datavalue)
 
@@ -84,9 +72,7 @@ class TestExternalIdValueParser:
 
     def test_parse_external_id_value_result_immutability(self):
         """Test that the parsed result is immutable (frozen model)."""
-        datavalue = {
-            "value": "ISBN 123456789"
-        }
+        datavalue = {"value": "ISBN 123456789"}
 
         result = parse_external_id_value(datavalue)
 
@@ -97,9 +83,7 @@ class TestExternalIdValueParser:
 
     def test_parse_external_id_value_whitespace(self):
         """Test parsing an external ID value with whitespace."""
-        datavalue = {
-            "value": "  spaced out  "
-        }
+        datavalue = {"value": "  spaced out  "}
 
         result = parse_external_id_value(datavalue)
 

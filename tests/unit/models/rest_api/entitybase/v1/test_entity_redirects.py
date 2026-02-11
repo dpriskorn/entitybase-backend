@@ -291,97 +291,97 @@ def redirect_service() -> RedirectService:
 
 
 def test_revert_redirect_entity_not_redirect(redirect_service: RedirectService) -> None:
-        """Test that reverting a non-redirect entity raises 404"""
-        vitess = redirect_service.vitess
+    """Test that reverting a non-redirect entity raises 404"""
+    vitess = redirect_service.vitess
 
-        vitess.resolved_ids["Q100"] = 100
+    vitess.resolved_ids["Q100"] = 100
 
-        edit_headers = Mock()
-        edit_headers.x_edit_summary = "Test revert"
-        edit_headers.x_user_id = 1
+    edit_headers = Mock()
+    edit_headers.x_edit_summary = "Test revert"
+    edit_headers.x_user_id = 1
 
-        from fastapi import HTTPException
+    from fastapi import HTTPException
 
-        try:
-            redirect_service.revert_redirect(
-                entity_id="Q100", revert_to_revision_id=1, edit_headers=edit_headers
-            )
-            assert False, "Should have raised HTTPException"
-        except HTTPException as e:
-            assert e.status_code == 404
-            assert "not a redirect" in e.detail.lower()
+    try:
+        redirect_service.revert_redirect(
+            entity_id="Q100", revert_to_revision_id=1, edit_headers=edit_headers
+        )
+        assert False, "Should have raised HTTPException"
+    except HTTPException as e:
+        assert e.status_code == 404
+        assert "not a redirect" in e.detail.lower()
 
 
 def test_revert_redirect_entity_deleted(redirect_service: RedirectService) -> None:
-        """Test that reverting a deleted entity raises 423"""
-        vitess = redirect_service.vitess
+    """Test that reverting a deleted entity raises 423"""
+    vitess = redirect_service.vitess
 
-        vitess.resolved_ids["Q100"] = 100
-        vitess.resolved_ids["Q42"] = 42
-        vitess.set_redirect_target("Q100", "Q42")  # Set up as redirect first
-        vitess.deleted_entities.add("Q100")
+    vitess.resolved_ids["Q100"] = 100
+    vitess.resolved_ids["Q42"] = 42
+    vitess.set_redirect_target("Q100", "Q42")  # Set up as redirect first
+    vitess.deleted_entities.add("Q100")
 
-        edit_headers = Mock()
-        edit_headers.x_edit_summary = "Test revert"
-        edit_headers.x_user_id = 1
+    edit_headers = Mock()
+    edit_headers.x_edit_summary = "Test revert"
+    edit_headers.x_user_id = 1
 
-        from fastapi import HTTPException
+    from fastapi import HTTPException
 
-        try:
-            redirect_service.revert_redirect(
-                entity_id="Q100", revert_to_revision_id=1, edit_headers=edit_headers
-            )
-            assert False, "Should have raised HTTPException"
-        except HTTPException as e:
-            assert e.status_code == 423
-            assert "deleted" in e.detail.lower()
+    try:
+        redirect_service.revert_redirect(
+            entity_id="Q100", revert_to_revision_id=1, edit_headers=edit_headers
+        )
+        assert False, "Should have raised HTTPException"
+    except HTTPException as e:
+        assert e.status_code == 423
+        assert "deleted" in e.detail.lower()
 
 
 def test_revert_redirect_entity_locked(redirect_service: RedirectService) -> None:
-        """Test that reverting a locked entity raises 423"""
-        vitess = redirect_service.vitess
+    """Test that reverting a locked entity raises 423"""
+    vitess = redirect_service.vitess
 
-        vitess.resolved_ids["Q100"] = 100
-        vitess.resolved_ids["Q42"] = 42
-        vitess.set_redirect_target("Q100", "Q42")  # Set up as redirect first
-        vitess.locked_entities.add("Q100")
+    vitess.resolved_ids["Q100"] = 100
+    vitess.resolved_ids["Q42"] = 42
+    vitess.set_redirect_target("Q100", "Q42")  # Set up as redirect first
+    vitess.locked_entities.add("Q100")
 
-        edit_headers = Mock()
-        edit_headers.x_edit_summary = "Test revert"
-        edit_headers.x_user_id = 1
+    edit_headers = Mock()
+    edit_headers.x_edit_summary = "Test revert"
+    edit_headers.x_user_id = 1
 
-        from fastapi import HTTPException
+    from fastapi import HTTPException
 
-        try:
-            redirect_service.revert_redirect(
-                entity_id="Q100", revert_to_revision_id=1, edit_headers=edit_headers
-            )
-            assert False, "Should have raised HTTPException"
-        except HTTPException as e:
-            assert e.status_code == 423
-            assert "locked" in e.detail.lower()
+    try:
+        redirect_service.revert_redirect(
+            entity_id="Q100", revert_to_revision_id=1, edit_headers=edit_headers
+        )
+        assert False, "Should have raised HTTPException"
+    except HTTPException as e:
+        assert e.status_code == 423
+        assert "locked" in e.detail.lower()
 
 
 def test_revert_redirect_entity_archived(redirect_service: RedirectService) -> None:
-        """Test that reverting an archived entity raises 423"""
-        vitess = redirect_service.vitess
+    """Test that reverting an archived entity raises 423"""
+    vitess = redirect_service.vitess
 
-        vitess.resolved_ids["Q100"] = 100
-        vitess.resolved_ids["Q42"] = 42
-        vitess.set_redirect_target("Q100", "Q42")  # Set up as redirect first
-        vitess.archived_entities.add("Q100")
+    vitess.resolved_ids["Q100"] = 100
+    vitess.resolved_ids["Q42"] = 42
+    vitess.set_redirect_target("Q100", "Q42")  # Set up as redirect first
+    vitess.archived_entities.add("Q100")
 
-        edit_headers = Mock()
-        edit_headers.x_edit_summary = "Test revert"
-        edit_headers.x_user_id = 1
+    edit_headers = Mock()
+    edit_headers.x_edit_summary = "Test revert"
+    edit_headers.x_user_id = 1
 
-        from fastapi import HTTPException
+    from fastapi import HTTPException
 
-        try:
-            redirect_service.revert_redirect(
-                entity_id="Q100", revert_to_revision_id=1, edit_headers=edit_headers
-            )
-            assert False, "Should have raised HTTPException"
-        except HTTPException as e:
-            assert e.status_code == 423
-            assert "archived" in e.detail.lower()
+    try:
+        redirect_service.revert_redirect(
+            entity_id="Q100", revert_to_revision_id=1, edit_headers=edit_headers
+        )
+        assert False, "Should have raised HTTPException"
+    except HTTPException as e:
+        assert e.status_code == 423
+        assert "archived" in e.detail.lower()

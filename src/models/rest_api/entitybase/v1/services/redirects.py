@@ -28,9 +28,9 @@ class RedirectService(Service):
     """Service for managing entity redirects"""
 
     async def create_redirect(
-            self,
-            request: EntityRedirectRequest,
-            edit_headers: EditHeaders,
+        self,
+        request: EntityRedirectRequest,
+        edit_headers: EditHeaders,
     ) -> EntityRedirectResponse:
         """Mark an entity as redirect to another entity"""
         logger.debug(
@@ -42,7 +42,9 @@ class RedirectService(Service):
         if request.redirect_from_id == request.redirect_to_id:
             raise_validation_error("Cannot redirect to self", status_code=400)
 
-        existing_target = self.vitess_client.get_redirect_target(request.redirect_from_id)
+        existing_target = self.vitess_client.get_redirect_target(
+            request.redirect_from_id
+        )
         if existing_target:
             raise_validation_error("Redirect already exists", status_code=409)
 
@@ -160,9 +162,9 @@ class RedirectService(Service):
         if self.vitess_client.is_entity_deleted(entity_id):
             raise_validation_error("Entity has been deleted", status_code=423)
 
-        if self.vitess_client.is_entity_locked(entity_id) or self.vitess_client.is_entity_archived(
+        if self.vitess_client.is_entity_locked(
             entity_id
-        ):
+        ) or self.vitess_client.is_entity_archived(entity_id):
             raise_validation_error("Entity is locked or archived", status_code=423)
 
         # Call general revert
@@ -177,9 +179,7 @@ class RedirectService(Service):
         )
         general_handler = EntityRevertHandler(state=self.state)
         revert_result = await general_handler.revert_entity(
-            entity_id,
-            general_request,
-            edit_headers=edit_headers
+            entity_id, general_request, edit_headers=edit_headers
         )
 
         # Clear the redirect target

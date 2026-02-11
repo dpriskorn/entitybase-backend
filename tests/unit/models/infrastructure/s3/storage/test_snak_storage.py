@@ -3,7 +3,5 @@
 
 class TestSnakStorage:
     """Unit tests for SnakStorage class."""
-    pass
-    
 
-    
+    pass

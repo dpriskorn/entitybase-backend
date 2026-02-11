@@ -7,7 +7,9 @@ import pytest
 class TestSnakDeduplication:
     """Integration tests for snak deduplication."""
 
-    def test_entity_creation_with_snaks_deduplicates(self, api_client, base_url) -> None:
+    def test_entity_creation_with_snaks_deduplicates(
+        self, api_client, base_url
+    ) -> None:
         """Test that creating an entity with snaks in statements deduplicates them."""
         # Create entity with statement containing snak
         entity_data = {
@@ -55,7 +57,9 @@ class TestSnakDeduplication:
         }
 
         # Create entity
-        response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
+        response = api_client.post(
+            f"{base_url}/entitybase/v1/entities/items", json=entity_data
+        )
         assert response.status_code == 201
         entity_response = response.json()
         entity_id = entity_response["id"]
@@ -129,7 +133,9 @@ class TestSnakDeduplication:
         }
 
         # Create entity
-        response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
+        response = api_client.post(
+            f"{base_url}/entitybase/v1/entities/items", json=entity_data
+        )
         assert response.status_code == 201
 
         # For now, we'll use a mock hash since we don't have actual deduplication logic

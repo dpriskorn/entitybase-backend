@@ -53,11 +53,16 @@ class EntityReadHandler(Handler):
             )
             return response
         except S3NotFoundError:
-            logger.warning(f"Entity revision not found for {entity_id}, revision {head_revision_id}")
+            logger.warning(
+                f"Entity revision not found for {entity_id}, revision {head_revision_id}"
+            )
             raise_validation_error(f"Entity not found: {entity_id}", status_code=404)
         except Exception as e:
             logger.error(f"Failed to read entity {entity_id}: {e}")
-            raise_validation_error(f"Failed to read entity {entity_id}: {type(e).__name__}: {str(e)}", status_code=500)
+            raise_validation_error(
+                f"Failed to read entity {entity_id}: {type(e).__name__}: {str(e)}",
+                status_code=500,
+            )
 
     def get_entity_history(
         self,  # type: ignore[return,func-returns-value]
@@ -76,7 +81,10 @@ class EntityReadHandler(Handler):
             return self.state.vitess_client.get_entity_history(entity_id, limit, offset)  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"Failed to get entity history for {entity_id}: {e}")
-            raise_validation_error(f"Failed to get entity history: {type(e).__name__}: {str(e)}", status_code=500)
+            raise_validation_error(
+                f"Failed to get entity history: {type(e).__name__}: {str(e)}",
+                status_code=500,
+            )
 
     def get_entity_revision(
         self,  # type: ignore[return]
@@ -96,10 +104,18 @@ class EntityReadHandler(Handler):
                 state=None,
             )
         except S3NotFoundError:
-            logger.warning(f"Entity revision not found for {entity_id}, revision {revision_id}")
-            raise_validation_error(f"Revision not found: {entity_id} revision {revision_id}", status_code=404)
+            logger.warning(
+                f"Entity revision not found for {entity_id}, revision {revision_id}"
+            )
+            raise_validation_error(
+                f"Revision not found: {entity_id} revision {revision_id}",
+                status_code=404,
+            )
         except Exception as e:
             logger.error(
                 f"Failed to read revision {revision_id} for entity {entity_id}: {e}"
             )
-            raise_validation_error(f"Failed to read revision: {type(e).__name__}: {str(e)}", status_code=500)
+            raise_validation_error(
+                f"Failed to read revision: {type(e).__name__}: {str(e)}",
+                status_code=500,
+            )

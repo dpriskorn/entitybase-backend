@@ -34,7 +34,9 @@ async def test_get_property_label_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(f"{api_prefix}/entities/properties/P70001/labels/en")
+        response = await client.get(
+            f"{api_prefix}/entities/properties/P70001/labels/en"
+        )
         assert response.status_code == 200
         data = response.json()
         assert "value" in data
@@ -64,7 +66,9 @@ async def test_get_property_label_not_found(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(f"{api_prefix}/entities/properties/P70002/labels/de")
+        response = await client.get(
+            f"{api_prefix}/entities/properties/P70002/labels/de"
+        )
         assert response.status_code == 404
         assert "not found" in response.json()["detail"].lower()
 
@@ -92,7 +96,9 @@ async def test_get_property_description_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(f"{api_prefix}/entities/properties/P70003/descriptions/en")
+        response = await client.get(
+            f"{api_prefix}/entities/properties/P70003/descriptions/en"
+        )
         assert response.status_code == 200
         data = response.json()
         assert "value" in data
@@ -122,7 +128,9 @@ async def test_get_property_description_not_found(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(f"{api_prefix}/entities/properties/P70004/descriptions/de")
+        response = await client.get(
+            f"{api_prefix}/entities/properties/P70004/descriptions/de"
+        )
         assert response.status_code == 404
 
 
@@ -149,7 +157,9 @@ async def test_get_property_aliases_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(f"{api_prefix}/entities/properties/P70005/aliases/en")
+        response = await client.get(
+            f"{api_prefix}/entities/properties/P70005/aliases/en"
+        )
         assert response.status_code == 200
         data = response.json()
         assert "aliases" in data
@@ -181,7 +191,9 @@ async def test_get_property_aliases_not_found(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(f"{api_prefix}/entities/properties/P70006/aliases/de")
+        response = await client.get(
+            f"{api_prefix}/entities/properties/P70006/aliases/de"
+        )
         assert response.status_code == 404
 
 

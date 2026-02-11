@@ -167,7 +167,10 @@ async def test_get_revision_ttl_success(api_prefix: str) -> None:
 
         response = await client.get(f"{api_prefix}/entities/Q71004/revision/1/ttl")
         assert response.status_code == 200
-        assert response.headers.get("content-type") in ["text/turtle; charset=utf-8", "text/turtle"]
+        assert response.headers.get("content-type") in [
+            "text/turtle; charset=utf-8",
+            "text/turtle",
+        ]
 
 
 @pytest.mark.asyncio

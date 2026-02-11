@@ -46,7 +46,7 @@ class TestQualifiersEndpoint:
                 ]
             },
             hash=12345,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
 
         mock_s3_client.load_qualifiers_batch.return_value = [mock_qualifier_data]
@@ -76,9 +76,7 @@ class TestQualifiersEndpoint:
 
         # Mock qualifier data - first found, second missing
         mock_qualifier_data = S3QualifierData(
-            qualifier={"P580": []},
-            hash=12345,
-            created_at="2023-01-01T12:00:00Z"
+            qualifier={"P580": []}, hash=12345, created_at="2023-01-01T12:00:00Z"
         )
 
         mock_s3_client.load_qualifiers_batch.return_value = [mock_qualifier_data, None]
@@ -152,7 +150,9 @@ class TestQualifiersEndpoint:
         mock_request.app.state.state_handler = mock_state
 
         # Mock S3 client to raise an exception
-        mock_s3_client.load_qualifiers_batch.side_effect = Exception("S3 connection error")
+        mock_s3_client.load_qualifiers_batch.side_effect = Exception(
+            "S3 connection error"
+        )
 
         with pytest.raises(HTTPException) as exc_info:
             await get_qualifiers(mock_request, "12345")
@@ -192,9 +192,7 @@ class TestQualifiersEndpoint:
 
         # Mock qualifier data
         mock_qualifier_data = S3QualifierData(
-            qualifier={"P580": []},
-            hash=12345,
-            created_at="2023-01-01T12:00:00Z"
+            qualifier={"P580": []}, hash=12345, created_at="2023-01-01T12:00:00Z"
         )
 
         mock_s3_client.load_qualifiers_batch.return_value = [mock_qualifier_data]

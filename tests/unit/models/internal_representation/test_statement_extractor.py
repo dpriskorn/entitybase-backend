@@ -32,5 +32,3 @@ def test_extract_properties_from_claims_all_empty() -> None:
     claims: dict[str, list[dict[str, str]]] = {"P31": [], "P569": []}
     properties = StatementExtractor.extract_properties_from_claims(claims)
     assert properties == [], "Expected empty list"
-
-

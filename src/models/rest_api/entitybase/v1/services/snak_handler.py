@@ -27,7 +27,7 @@ class SnakHandler(Handler):
             schema="1.0.0",
             snak=snak.model_dump(),
             hash=content_hash,
-            created_at=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+            created_at=datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ"),
         )
 
         # Store using S3 client

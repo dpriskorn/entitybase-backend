@@ -31,9 +31,7 @@ async def test_add_watch(e2e_api_client, e2e_base_url, api_prefix) -> None:
 
     # Add watch
     watch_data = {"entity_id": entity_id, "properties": ["P31"]}
-    response = await client.post(
-        f"{api_prefix}/users/90006/watchlist", json=watch_data
-    )
+    response = await client.post(f"{api_prefix}/users/90006/watchlist", json=watch_data)
     assert response.status_code == 200
 
 
@@ -182,7 +180,9 @@ async def test_get_watchlist_stats(e2e_api_client, e2e_base_url, api_prefix) -> 
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def test_get_watchlist_notifications(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_get_watchlist_notifications(
+    e2e_api_client, e2e_base_url, api_prefix
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get user's recent watchlist notifications."""
@@ -203,7 +203,9 @@ async def test_get_watchlist_notifications(e2e_api_client, e2e_base_url, api_pre
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def test_mark_notification_checked(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_mark_notification_checked(
+    e2e_api_client, e2e_base_url, api_prefix
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: Mark a notification as checked."""

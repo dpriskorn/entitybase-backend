@@ -55,7 +55,9 @@ async def test_get_property_aliases(e2e_api_client, e2e_base_url, api_prefix) ->
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def test_update_property_aliases(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_update_property_aliases(
+    e2e_api_client, e2e_base_url, api_prefix
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: Update property aliases for language."""
@@ -93,7 +95,9 @@ async def test_update_property_aliases(e2e_api_client, e2e_base_url, api_prefix)
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def test_get_property_description(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_get_property_description(
+    e2e_api_client, e2e_base_url, api_prefix
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get property description for language."""

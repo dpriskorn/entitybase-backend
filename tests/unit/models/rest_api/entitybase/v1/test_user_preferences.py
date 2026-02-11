@@ -93,4 +93,3 @@ class TestUserPreferencesHandler:
         mock_vitess_client.user_repository.update_user_preferences.assert_called_once_with(
             user_id=12345, notification_limit=200, retention_hours=168
         )
-

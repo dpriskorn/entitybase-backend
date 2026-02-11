@@ -14,7 +14,7 @@ class TestRDFStatement:
             value="wd:Q5",
             rank="normal",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         assert statement.guid == "Q42$12345-6789-ABCD-EFGH-123456789ABC"
@@ -28,7 +28,7 @@ class TestRDFStatement:
         """Test creating RDF statement with qualifiers."""
         qualifiers = [
             {"property": "P580", "value": '"2020-01-01"^^xsd:dateTime'},
-            {"property": "P582", "value": '"2020-12-31"^^xsd:dateTime'}
+            {"property": "P582", "value": '"2020-12-31"^^xsd:dateTime'},
         ]
 
         statement = RDFStatement(
@@ -37,7 +37,7 @@ class TestRDFStatement:
             value="wd:Q11696",
             rank="preferred",
             qualifiers=qualifiers,
-            references=[]
+            references=[],
         )
 
         assert statement.qualifiers == qualifiers
@@ -50,7 +50,7 @@ class TestRDFStatement:
             {
                 "snaks": {
                     "P854": [{"value": '"https://example.com"'}],
-                    "P813": [{"value": '"2023-01-01"^^xsd:dateTime'}]
+                    "P813": [{"value": '"2023-01-01"^^xsd:dateTime'}],
                 }
             }
         ]
@@ -61,7 +61,7 @@ class TestRDFStatement:
             value="wd:Q5",
             rank="normal",
             qualifiers=[],
-            references=references
+            references=references,
         )
 
         assert statement.references == references
@@ -75,7 +75,7 @@ class TestRDFStatement:
             value="wd:Q5",
             rank="deprecated",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         assert statement.rank == "deprecated"
@@ -88,7 +88,7 @@ class TestRDFStatement:
             value="wd:Q5",
             rank="preferred",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         assert statement.rank == "preferred"
@@ -101,7 +101,7 @@ class TestRDFStatement:
             value="42.5^^xsd:decimal",
             rank="normal",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         assert statement.value == "42.5^^xsd:decimal"
@@ -115,7 +115,7 @@ class TestRDFStatement:
             value='"1939-11-23"^^xsd:dateTime',
             rank="normal",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         assert statement.value == '"1939-11-23"^^xsd:dateTime'
@@ -129,7 +129,7 @@ class TestRDFStatement:
             value='"The Hitchhiker\'s Guide to the Galaxy"@en',
             rank="normal",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         assert statement.value == '"The Hitchhiker\'s Guide to the Galaxy"@en'
@@ -142,7 +142,7 @@ class TestRDFStatement:
             value='"Point(-0.1275 51.5072)"^^geo:wktLiteral',
             rank="normal",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         assert statement.value == '"Point(-0.1275 51.5072)"^^geo:wktLiteral'
@@ -156,7 +156,7 @@ class TestRDFStatement:
             value="wd:Q5",
             rank="normal",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         assert statement.qualifiers == []
@@ -170,7 +170,7 @@ class TestRDFStatement:
             value="wd:Q5",
             rank="normal",
             qualifiers=None,
-            references=None
+            references=None,
         )
 
         assert statement.qualifiers is None
@@ -182,26 +182,28 @@ class TestRDFStatement:
             {
                 "property": "P580",  # start time
                 "value": '"2020-01-01"^^xsd:dateTime',
-                "datatype": "time"
+                "datatype": "time",
             },
             {
                 "property": "P582",  # end time
                 "value": '"2020-12-31"^^xsd:dateTime',
-                "datatype": "time"
+                "datatype": "time",
             },
             {
                 "property": "P459",  # determination method
                 "value": "wd:Q18122778",  # stated in
-                "datatype": "wikibase-item"
-            }
+                "datatype": "wikibase-item",
+            },
         ]
 
         references = [
             {
                 "snaks": {
-                    "P854": [{"value": '"https://en.wikipedia.org/wiki/Douglas_Adams"'}],
+                    "P854": [
+                        {"value": '"https://en.wikipedia.org/wiki/Douglas_Adams"'}
+                    ],
                     "P1476": [{"value": '"Douglas Adams"@en'}],
-                    "P813": [{"value": '"2023-01-01"^^xsd:dateTime'}]
+                    "P813": [{"value": '"2023-01-01"^^xsd:dateTime'}],
                 }
             }
         ]
@@ -212,7 +214,7 @@ class TestRDFStatement:
             value='"1952-03-11"^^xsd:dateTime',
             rank="preferred",
             qualifiers=qualifiers,
-            references=references
+            references=references,
         )
 
         assert len(statement.qualifiers) == 3
@@ -229,7 +231,7 @@ class TestRDFStatement:
             value="wd:Q5",
             rank="normal",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         assert statement.guid == "Q1$1"
@@ -243,7 +245,7 @@ class TestRDFStatement:
             value="wd:Q5",
             rank="normal",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         assert statement.guid == long_guid
@@ -264,7 +266,7 @@ class TestRDFStatement:
                 value="wd:Q5",
                 rank="normal",
                 qualifiers=[],
-                references=[]
+                references=[],
             )
             assert statement.property_id == prop_id
 
@@ -276,7 +278,7 @@ class TestRDFStatement:
             value="wd:Q5",
             rank="normal",
             qualifiers=[],
-            references=[]
+            references=[],
         )
 
         # Test that it's a valid Pydantic model

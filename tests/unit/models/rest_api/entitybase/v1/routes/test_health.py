@@ -3,4 +3,3 @@
 
 class TestHealthRoutes:
     """Unit tests for health routes."""
-

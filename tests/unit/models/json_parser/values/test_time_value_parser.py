@@ -18,7 +18,7 @@ class TestTimeValueParser:
                 "before": 1,
                 "after": 2,
                 "precision": 11,
-                "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
             }
         }
 
@@ -36,21 +36,19 @@ class TestTimeValueParser:
 
     def test_parse_time_value_defaults(self):
         """Test parsing time value with minimal data (all defaults)."""
-        datavalue = {
-            "value": {
-                "time": "+2023-12-25T00:00:00Z"
-            }
-        }
+        datavalue = {"value": {"time": "+2023-12-25T00:00:00Z"}}
 
         result = parse_time_value(datavalue)
 
         assert isinstance(result, TimeValue)
         assert result.value == "+2023-12-25T00:00:00Z"
         assert result.timezone == 0  # Default
-        assert result.before == 0   # Default
-        assert result.after == 0    # Default
+        assert result.before == 0  # Default
+        assert result.after == 0  # Default
         assert result.precision == 11  # Default
-        assert result.calendarmodel == "http://www.wikidata.org/entity/Q1985727"  # Default
+        assert (
+            result.calendarmodel == "http://www.wikidata.org/entity/Q1985727"
+        )  # Default
 
     def test_parse_time_value_missing_timezone(self):
         """Test parsing time value without timezone."""
@@ -59,7 +57,7 @@ class TestTimeValueParser:
                 "time": "+2023-12-25T00:00:00Z",
                 "before": 5,
                 "after": 3,
-                "precision": 10
+                "precision": 10,
             }
         }
 
@@ -75,7 +73,7 @@ class TestTimeValueParser:
         datavalue = {
             "value": {
                 "time": "+2023-12-25T00:00:00Z",
-                "timezone": -300  # UTC-5
+                "timezone": -300,  # UTC-5
             }
         }
 
@@ -88,7 +86,7 @@ class TestTimeValueParser:
         datavalue = {
             "value": {
                 "time": "+2023-12-25T00:00:00Z",
-                "calendarmodel": "http://www.wikidata.org/entity/Q1985786"  # Julian calendar
+                "calendarmodel": "http://www.wikidata.org/entity/Q1985786",  # Julian calendar
             }
         }
 
@@ -99,10 +97,7 @@ class TestTimeValueParser:
     def test_parse_time_value_qid_calendar_model(self):
         """Test parsing time value with QID-only calendar model (gets normalized)."""
         datavalue = {
-            "value": {
-                "time": "+2023-12-25T00:00:00Z",
-                "calendarmodel": "Q1985786"
-            }
+            "value": {"time": "+2023-12-25T00:00:00Z", "calendarmodel": "Q1985786"}
         }
 
         result = parse_time_value(datavalue)
@@ -111,12 +106,7 @@ class TestTimeValueParser:
 
     def test_parse_time_value_precision_zero(self):
         """Test parsing time value with precision 0."""
-        datavalue = {
-            "value": {
-                "time": "+2023-12-25T00:00:00Z",
-                "precision": 0
-            }
-        }
+        datavalue = {"value": {"time": "+2023-12-25T00:00:00Z", "precision": 0}}
 
         result = parse_time_value(datavalue)
 
@@ -124,24 +114,14 @@ class TestTimeValueParser:
 
     def test_parse_time_value_precision_max(self):
         """Test parsing time value with maximum precision 14."""
-        datavalue = {
-            "value": {
-                "time": "+2023-12-25T00:00:00Z",
-                "precision": 14
-            }
-        }
+        datavalue = {"value": {"time": "+2023-12-25T00:00:00Z", "precision": 14}}
 
         result = parse_time_value(datavalue)
         assert result.precision == 14
 
     def test_parse_time_value_result_immutability(self):
         """Test that the parsed result is immutable (frozen model)."""
-        datavalue = {
-            "value": {
-                "time": "+2023-12-25T00:00:00Z",
-                "timezone": 60
-            }
-        }
+        datavalue = {"value": {"time": "+2023-12-25T00:00:00Z", "timezone": 60}}
 
         result = parse_time_value(datavalue)
 
@@ -164,11 +144,7 @@ class TestTimeValueParser:
 
     def test_parse_time_value_negative_year(self):
         """Test parsing time value with negative year."""
-        datavalue = {
-            "value": {
-                "time": "-0045-03-15T00:00:00Z"
-            }
-        }
+        datavalue = {"value": {"time": "-0045-03-15T00:00:00Z"}}
 
         result = parse_time_value(datavalue)
 
@@ -176,11 +152,7 @@ class TestTimeValueParser:
 
     def test_parse_time_value_already_has_plus(self):
         """Test that time value already with + prefix is unchanged."""
-        datavalue = {
-            "value": {
-                "time": "+2023-12-25T00:00:00Z"
-            }
-        }
+        datavalue = {"value": {"time": "+2023-12-25T00:00:00Z"}}
 
         result = parse_time_value(datavalue)
 

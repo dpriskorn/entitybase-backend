@@ -281,5 +281,3 @@ def test_parse_value_with_novalue_snaktype() -> None:
     assert value.kind == "novalue"
     assert value.value is None
     assert value.datatype_uri == "http://wikiba.se/ontology#NoValue"
-
-

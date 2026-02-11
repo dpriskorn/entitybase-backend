@@ -11,9 +11,7 @@ class TestTabularDataValueParser:
 
     def test_parse_valid_tabular_data_value(self):
         """Test parsing a valid tabular data value."""
-        datavalue = {
-            "value": "Data:Population_statistics.csv"
-        }
+        datavalue = {"value": "Data:Population_statistics.csv"}
 
         result = parse_tabular_data_value(datavalue)
 
@@ -24,9 +22,7 @@ class TestTabularDataValueParser:
 
     def test_parse_tabular_data_value_csv_file(self):
         """Test parsing a tabular data value with CSV file."""
-        datavalue = {
-            "value": "Data:survey_results.csv"
-        }
+        datavalue = {"value": "Data:survey_results.csv"}
 
         result = parse_tabular_data_value(datavalue)
 
@@ -34,9 +30,7 @@ class TestTabularDataValueParser:
 
     def test_parse_tabular_data_value_excel_file(self):
         """Test parsing a tabular data value with Excel file."""
-        datavalue = {
-            "value": "Data:financial_data.xlsx"
-        }
+        datavalue = {"value": "Data:financial_data.xlsx"}
 
         result = parse_tabular_data_value(datavalue)
 
@@ -44,9 +38,7 @@ class TestTabularDataValueParser:
 
     def test_parse_tabular_data_value_tsv_file(self):
         """Test parsing a tabular data value with TSV file."""
-        datavalue = {
-            "value": "Data:gene_data.tsv"
-        }
+        datavalue = {"value": "Data:gene_data.tsv"}
 
         result = parse_tabular_data_value(datavalue)
 
@@ -54,9 +46,7 @@ class TestTabularDataValueParser:
 
     def test_parse_tabular_data_value_empty_string(self):
         """Test parsing an empty tabular data value."""
-        datavalue = {
-            "value": ""
-        }
+        datavalue = {"value": ""}
 
         result = parse_tabular_data_value(datavalue)
 
@@ -77,7 +67,7 @@ class TestTabularDataValueParser:
             "Data:data.json",
             "Data:table.xml",
             "Data:spreadsheet.ods",
-            "Data:database.sqlite"
+            "Data:database.sqlite",
         ]
 
         for fmt in formats:
@@ -87,9 +77,7 @@ class TestTabularDataValueParser:
 
     def test_parse_tabular_data_value_unicode_filename(self):
         """Test parsing a tabular data value with unicode characters."""
-        datavalue = {
-            "value": "Data:данные_таблицы.csv"
-        }
+        datavalue = {"value": "Data:данные_таблицы.csv"}
 
         result = parse_tabular_data_value(datavalue)
 
@@ -97,9 +85,7 @@ class TestTabularDataValueParser:
 
     def test_parse_tabular_data_value_result_immutability(self):
         """Test that the parsed result is immutable (frozen model)."""
-        datavalue = {
-            "value": "Data:sample_data.csv"
-        }
+        datavalue = {"value": "Data:sample_data.csv"}
 
         result = parse_tabular_data_value(datavalue)
 
@@ -111,9 +97,7 @@ class TestTabularDataValueParser:
     def test_parse_tabular_data_value_long_filename(self):
         """Test parsing a tabular data value with a very long filename."""
         long_filename = "Data:" + "A" * 200 + ".csv"
-        datavalue = {
-            "value": long_filename
-        }
+        datavalue = {"value": long_filename}
 
         result = parse_tabular_data_value(datavalue)
 

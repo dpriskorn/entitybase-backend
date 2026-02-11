@@ -22,9 +22,7 @@ class TestEndorsements(TestCase):
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
             # First create a user
-            response = await client.post(
-                f"{api_prefix}/users", json={"user_id": 12345}
-            )
+            response = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
             assert response.status_code == 200
 
             # Try to endorse a statement (this might fail due to missing statement, but tests the endpoint)
@@ -46,9 +44,7 @@ class TestEndorsements(TestCase):
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
             # Create a user
-            response = await client.post(
-                f"{api_prefix}/users", json={"user_id": 12345}
-            )
+            response = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
             assert response.status_code == 200
 
             # Try to withdraw endorsement
@@ -109,9 +105,7 @@ class TestEndorsements(TestCase):
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
             # Create a user first
-            response = await client.post(
-                f"{api_prefix}/users", json={"user_id": 12345}
-            )
+            response = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
             assert response.status_code == 200
 
             # Get user endorsements
@@ -134,9 +128,7 @@ class TestEndorsements(TestCase):
             transport=ASGITransport(app=app), base_url="http://api:8000"
         ) as client:
             # Create a user first
-            response = await client.post(
-                f"{api_prefix}/users", json={"user_id": 12345}
-            )
+            response = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
             assert response.status_code == 200
 
             # Get user endorsement stats

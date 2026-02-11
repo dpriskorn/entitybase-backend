@@ -8,20 +8,6 @@ from models.infrastructure.s3.storage.reference_storage import ReferenceStorage
 class TestReferenceStorage:
     """Unit tests for ReferenceStorage class."""
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def test_load_references_batch_empty_list(self) -> None:
         """Test batch loading with empty hash list."""
         mock_connection_manager = MagicMock()

@@ -25,8 +25,14 @@ class TestURIGenerator:
     def test_data_uri(self) -> None:
         """Test data URI generation."""
         generator = URIGenerator()
-        assert generator.data_uri("Q42") == "https://www.wikidata.org/wiki/Special:EntityData/Q42"
-        assert generator.data_uri("L123") == "https://www.wikidata.org/wiki/Special:EntityData/L123"
+        assert (
+            generator.data_uri("Q42")
+            == "https://www.wikidata.org/wiki/Special:EntityData/Q42"
+        )
+        assert (
+            generator.data_uri("L123")
+            == "https://www.wikidata.org/wiki/Special:EntityData/L123"
+        )
 
     def test_statement_uri_simple(self) -> None:
         """Test statement URI generation with simple statement ID."""
@@ -69,13 +75,17 @@ class TestURIGenerator:
 
     def test_statement_prefixed_simple(self) -> None:
         """Test statement prefixed URI generation with simple ID."""
-        result = URIGenerator.statement_prefixed("Q42$12345-6789-ABCD-EFGH-123456789ABC")
+        result = URIGenerator.statement_prefixed(
+            "Q42$12345-6789-ABCD-EFGH-123456789ABC"
+        )
         expected = "wds:Q42-12345-6789-ABCD-EFGH-123456789ABC"
         assert result == expected
 
     def test_statement_prefixed_no_dollar(self) -> None:
         """Test statement prefixed URI generation with no dollar sign."""
-        result = URIGenerator.statement_prefixed("Q42-12345-6789-ABCD-EFGH-123456789ABC")
+        result = URIGenerator.statement_prefixed(
+            "Q42-12345-6789-ABCD-EFGH-123456789ABC"
+        )
         expected = "wds:Q42-12345-6789-ABCD-EFGH-123456789ABC"
         assert result == expected
 
@@ -90,7 +100,7 @@ class TestURIGenerator:
         generator = URIGenerator(
             wd="https://custom.wikidata.org/entity",
             data="https://custom.wikidata.org/data",
-            wds="https://custom.wikidata.org/statement"
+            wds="https://custom.wikidata.org/statement",
         )
 
         assert generator.entity_uri("Q42") == "https://custom.wikidata.org/entity/Q42"
@@ -112,10 +122,15 @@ class TestURIGenerator:
         generator = URIGenerator()
 
         # Empty string
-        assert generator.statement_uri("") == "http://www.wikidata.org/entity/statement/"
+        assert (
+            generator.statement_uri("") == "http://www.wikidata.org/entity/statement/"
+        )
 
         # Only entity ID
-        assert generator.statement_uri("Q42") == "http://www.wikidata.org/entity/statement/Q42"
+        assert (
+            generator.statement_uri("Q42")
+            == "http://www.wikidata.org/entity/statement/Q42"
+        )
 
         # Dollar at start
         result = generator.statement_uri("$GUID")
@@ -155,6 +170,8 @@ class TestURIGenerator:
         expected = "http://www.wikidata.org/entity/statement/L42-F1234567-89AB-CDEF-0123-456789ABCDEF"
         assert result == expected
 
-        prefixed_result = URIGenerator.statement_prefixed("L42$F1234567-89AB-CDEF-0123-456789ABCDEF")
+        prefixed_result = URIGenerator.statement_prefixed(
+            "L42$F1234567-89AB-CDEF-0123-456789ABCDEF"
+        )
         prefixed_expected = "wds:L42-F1234567-89AB-CDEF-0123-456789ABCDEF"
         assert prefixed_result == prefixed_expected

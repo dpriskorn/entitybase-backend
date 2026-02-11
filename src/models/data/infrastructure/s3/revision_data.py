@@ -9,7 +9,8 @@ class S3RevisionData(BaseModel):
     model_config = ConfigDict(populate_by_name=True)
 
     schema_version: str = Field(
-        alias="schema", description="Schema version (MAJOR.MINOR.PATCH). Example: '1.0.0'."
+        alias="schema",
+        description="Schema version (MAJOR.MINOR.PATCH). Example: '1.0.0'.",
     )
     revision: dict = Field(
         description="Complete revision data including entity and metadata."

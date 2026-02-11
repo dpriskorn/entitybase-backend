@@ -84,8 +84,7 @@ class TestWikidataImportServiceFetchEntityData:
     def test_fetch_entity_data_request_exception(self, mocker):
         """Test handling of request exceptions."""
         mocker.patch(
-            "requests.get",
-            side_effect=requests.RequestException("Network error")
+            "requests.get", side_effect=requests.RequestException("Network error")
         )
 
         with pytest.raises(ValueError) as exc_info:
@@ -220,8 +219,7 @@ class TestWikidataImportServiceImportEntity:
     def test_import_entity_fetch_failure(self, mocker):
         """Test import_entity when fetch fails."""
         mocker.patch(
-            "requests.get",
-            side_effect=requests.RequestException("Network error")
+            "requests.get", side_effect=requests.RequestException("Network error")
         )
 
         with pytest.raises(ValueError) as exc_info:

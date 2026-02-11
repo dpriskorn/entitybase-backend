@@ -32,9 +32,7 @@ class SnakStorage(BaseS3Storage):
         assert isinstance(data, S3SnakData)
         return data
 
-    def load_snaks_batch(
-        self, content_hashes: List[int]
-    ) -> List[S3SnakData | None]:
+    def load_snaks_batch(self, content_hashes: List[int]) -> List[S3SnakData | None]:
         """Load multiple snaks by their content hashes."""
         results: List[S3SnakData | None] = []
         for h in content_hashes:

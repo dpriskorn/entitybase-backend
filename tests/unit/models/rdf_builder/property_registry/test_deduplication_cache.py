@@ -3,6 +3,7 @@
 import pytest
 
 from models.rdf_builder.hashing.deduplication_cache import HashDedupeBag
+
 pytestmark = pytest.mark.unit
 
 

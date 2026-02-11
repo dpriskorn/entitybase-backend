@@ -17,7 +17,7 @@ class TestValueNode:
         result = _format_scientific_notation(1.0e-05)
         assert result == "1.0E-5"
 
-        result = _format_scientific_notation(1.5e+03)
+        result = _format_scientific_notation(1.5e03)
         assert result == "1.5E+3"
 
     def test_format_scientific_notation_no_match(self):
@@ -60,7 +60,9 @@ class TestValueNode:
         mock_dedupe = MagicMock()
         mock_dedupe.already_seen.return_value = True
 
-        ValueNodeWriter.write_time_value_node(output, "time123", mock_time_value, mock_dedupe)
+        ValueNodeWriter.write_time_value_node(
+            output, "time123", mock_time_value, mock_dedupe
+        )
 
         mock_dedupe.already_seen.assert_called_once_with("time123", "wdv")
         assert output.getvalue() == ""  # Nothing written
@@ -76,7 +78,9 @@ class TestValueNode:
         mock_dedupe = MagicMock()
         mock_dedupe.already_seen.return_value = False
 
-        ValueNodeWriter.write_time_value_node(output, "time123", mock_time_value, mock_dedupe)
+        ValueNodeWriter.write_time_value_node(
+            output, "time123", mock_time_value, mock_dedupe
+        )
 
         mock_dedupe.already_seen.assert_called_once_with("time123", "wdv")
         assert "wdv:time123" in output.getvalue()
@@ -90,7 +94,9 @@ class TestValueNode:
         mock_quantity_value.upper_bound = None
         mock_quantity_value.lower_bound = None
 
-        ValueNodeWriter.write_quantity_value_node(output, "quantity123", mock_quantity_value)
+        ValueNodeWriter.write_quantity_value_node(
+            output, "quantity123", mock_quantity_value
+        )
 
         result = output.getvalue()
         assert "wdv:quantity123 a wikibase:QuantityValue ;" in result
@@ -107,7 +113,9 @@ class TestValueNode:
         mock_quantity_value.upper_bound = "50.0"
         mock_quantity_value.lower_bound = None
 
-        ValueNodeWriter.write_quantity_value_node(output, "quantity123", mock_quantity_value)
+        ValueNodeWriter.write_quantity_value_node(
+            output, "quantity123", mock_quantity_value
+        )
 
         result = output.getvalue()
         assert '"42.5"^^xsd:decimal' in result
@@ -124,7 +132,9 @@ class TestValueNode:
         mock_quantity_value.upper_bound = None
         mock_quantity_value.lower_bound = "35.0"
 
-        ValueNodeWriter.write_quantity_value_node(output, "quantity123", mock_quantity_value)
+        ValueNodeWriter.write_quantity_value_node(
+            output, "quantity123", mock_quantity_value
+        )
 
         result = output.getvalue()
         assert '"42.5"^^xsd:decimal' in result
@@ -141,7 +151,9 @@ class TestValueNode:
         mock_quantity_value.upper_bound = "50.0"
         mock_quantity_value.lower_bound = "35.0"
 
-        ValueNodeWriter.write_quantity_value_node(output, "quantity123", mock_quantity_value)
+        ValueNodeWriter.write_quantity_value_node(
+            output, "quantity123", mock_quantity_value
+        )
 
         result = output.getvalue()
         assert '"42.5"^^xsd:decimal' in result
@@ -157,7 +169,9 @@ class TestValueNode:
         mock_dedupe = MagicMock()
         mock_dedupe.already_seen.return_value = True
 
-        ValueNodeWriter.write_quantity_value_node(output, "quantity123", mock_quantity_value, mock_dedupe)
+        ValueNodeWriter.write_quantity_value_node(
+            output, "quantity123", mock_quantity_value, mock_dedupe
+        )
 
         mock_dedupe.already_seen.assert_called_once_with("quantity123", "wdv")
         assert output.getvalue() == ""
@@ -187,7 +201,9 @@ class TestValueNode:
         mock_dedupe = MagicMock()
         mock_dedupe.already_seen.return_value = True
 
-        ValueNodeWriter.write_globe_value_node(output, "globe123", mock_globe_value, mock_dedupe)
+        ValueNodeWriter.write_globe_value_node(
+            output, "globe123", mock_globe_value, mock_dedupe
+        )
 
         mock_dedupe.already_seen.assert_called_once_with("globe123", "wdv")
         assert output.getvalue() == ""
@@ -229,7 +245,9 @@ class TestValueNode:
         mock_quantity_value.upper_bound = None
         mock_quantity_value.lower_bound = None
 
-        ValueNodeWriter.write_quantity_value_node(output, "quantity123", mock_quantity_value, None)
+        ValueNodeWriter.write_quantity_value_node(
+            output, "quantity123", mock_quantity_value, None
+        )
 
         assert "wdv:quantity123" in output.getvalue()
 
@@ -242,6 +260,8 @@ class TestValueNode:
         mock_globe_value.precision = 0.0001
         mock_globe_value.globe = "http://www.wikidata.org/entity/Q2"
 
-        ValueNodeWriter.write_globe_value_node(output, "globe123", mock_globe_value, None)
+        ValueNodeWriter.write_globe_value_node(
+            output, "globe123", mock_globe_value, None
+        )
 
         assert "wdv:globe123" in output.getvalue()

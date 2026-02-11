@@ -17,7 +17,10 @@ class TestStreamIntegration:
 
     @staticmethod
     async def _consume_event(
-            clean_consumer: AIOKafkaConsumer, expected_entity: str, expected_type: str, timeout: float = 30.0
+        clean_consumer: AIOKafkaConsumer,
+        expected_entity: str,
+        expected_type: str,
+        timeout: float = 30.0,
     ) -> dict[str, Any]:
         """Consume messages until finding the expected event type for an entity."""
         start_time = asyncio.get_event_loop().time()
@@ -295,7 +298,9 @@ class TestStreamIntegration:
         )
         assert revert_response.status_code == 200
 
-        event = await self._consume_event(clean_consumer, f"{TEST_ENTITY_BASE}5", "unredirect")
+        event = await self._consume_event(
+            clean_consumer, f"{TEST_ENTITY_BASE}5", "unredirect"
+        )
         assert event["entity_id"] == f"{TEST_ENTITY_BASE}5"
         assert event["change_type"] == "unredirect"
         assert "revision_id" in event

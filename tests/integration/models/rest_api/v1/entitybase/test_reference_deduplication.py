@@ -7,7 +7,9 @@ import pytest
 class TestReferenceDeduplication:
     """Integration tests for reference deduplication."""
 
-    def test_entity_creation_with_references_deduplicates(self, api_client, base_url) -> None:
+    def test_entity_creation_with_references_deduplicates(
+        self, api_client, base_url
+    ) -> None:
         """Test that creating an entity with references deduplicates them."""
         # Create entity with statement containing references
         entity_data = {
@@ -52,7 +54,9 @@ class TestReferenceDeduplication:
         }
 
         # Create entity
-        response = api_client.post(f"{base_url}/entitybase/v1/entities/items", json=entity_data)
+        response = api_client.post(
+            f"{base_url}/entitybase/v1/entities/items", json=entity_data
+        )
         assert response.status_code == 201
         entity_id = response.json()["id"]
 

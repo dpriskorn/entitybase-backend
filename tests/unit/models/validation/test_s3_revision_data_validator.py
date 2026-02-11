@@ -17,21 +17,21 @@ class TestS3RevisionDataValidation:
                 "id": "Q42",
                 "type": "item",
                 "labels": {"en": {"language": "en", "value": "Test Entity"}},
-                "claims": {}
+                "claims": {},
             },
             "edit": {
                 "mass": False,
                 "type": "manual-create",
                 "user_id": 456,
                 "summary": "Created test entity",
-                "at": "2023-01-01T12:00:00Z"
+                "at": "2023-01-01T12:00:00Z",
             },
             "hashes": {
                 "statements": {"root": []},
                 "labels": {},
                 "descriptions": {},
                 "aliases": {},
-                "sitelinks": {}
+                "sitelinks": {},
             },
             "properties": [],
             "property_counts": {},
@@ -43,8 +43,8 @@ class TestS3RevisionDataValidation:
                 "archived": False,
                 "dangling": False,
                 "mep": False,
-                "deleted": False
-            }
+                "deleted": False,
+            },
         }
 
         # Create S3RevisionData
@@ -52,15 +52,13 @@ class TestS3RevisionDataValidation:
             schema="1.0.0",
             revision=revision_data,
             hash=987654321,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
 
         # Test that the entity data structure is correct
         assert s3_revision_data.revision["entity"]["id"] == "Q42"
         assert s3_revision_data.revision["entity"]["type"] == "item"
         assert "labels" in s3_revision_data.revision["entity"]
-
-
 
     def test_s3_revision_data_alias_usage(self) -> None:
         """Test that S3RevisionData uses aliases correctly."""
@@ -70,7 +68,7 @@ class TestS3RevisionDataValidation:
                 "type": "manual-update",
                 "user_id": 123,
                 "summary": "test summary",
-                "at": "2023-01-01T00:00:00Z"
+                "at": "2023-01-01T00:00:00Z",
             }
         }
 
@@ -78,7 +76,7 @@ class TestS3RevisionDataValidation:
             schema="1.0.0",
             revision=revision_data,
             hash=12345,
-            created_at="2023-01-01T00:00:00Z"
+            created_at="2023-01-01T00:00:00Z",
         )
 
         # Test that model_dump() produces the correct alias structure
@@ -99,22 +97,22 @@ class TestS3RevisionDataValidation:
                 "type": "manual-create",
                 "user_id": 1,
                 "summary": "test",
-                "at": "2023-01-01T00:00:00Z"
+                "at": "2023-01-01T00:00:00Z",
             },
             "hashes": {
                 "statements": {"root": []},
                 "labels": {},
                 "descriptions": {},
                 "aliases": {},
-                "sitelinks": {}
-            }
+                "sitelinks": {},
+            },
         }
 
         s3_revision_data = S3RevisionData(
             schema="1.0.0",
             revision=revision_data,
             hash=12345,
-            created_at="2023-01-01T00:00:00Z"
+            created_at="2023-01-01T00:00:00Z",
         )
 
         # The S3RevisionData itself is valid, but the entity data within it is not
@@ -125,10 +123,7 @@ class TestS3RevisionDataValidation:
     def test_s3_revision_data_empty_revision(self) -> None:
         """Test S3RevisionData with empty revision dict."""
         s3_revision_data = S3RevisionData(
-            schema="1.0.0",
-            revision={},
-            hash=12345,
-            created_at="2023-01-01T00:00:00Z"
+            schema="1.0.0", revision={}, hash=12345, created_at="2023-01-01T00:00:00Z"
         )
 
         assert s3_revision_data.revision == {}

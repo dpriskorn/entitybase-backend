@@ -66,7 +66,9 @@ def _parse_form_id(form_id: str) -> tuple[str, str]:
     if short_match:
         return "", short_match.group(1)
 
-    raise HTTPException(status_code=400, detail="Invalid form ID format. Use L42-F1 or F1")
+    raise HTTPException(
+        status_code=400, detail="Invalid form ID format. Use L42-F1 or F1"
+    )
 
 
 def _parse_sense_id(sense_id: str) -> tuple[str, str]:
@@ -91,7 +93,9 @@ def _parse_sense_id(sense_id: str) -> tuple[str, str]:
     if short_match:
         return "", short_match.group(1)
 
-    raise HTTPException(status_code=400, detail="Invalid sense ID format. Use L42-S1 or S1")
+    raise HTTPException(
+        status_code=400, detail="Invalid sense ID format. Use L42-S1 or S1"
+    )
 
 
 def _extract_numeric_suffix(suffix: str) -> int:
@@ -147,7 +151,7 @@ async def get_form_by_id(form_id: str, req: Request) -> FormResponse:
         # For now, we'll require full format or add a search later
         raise HTTPException(
             status_code=400,
-            detail="Short format F1 not yet supported - use full L42-F1 format"
+            detail="Short format F1 not yet supported - use full L42-F1 format",
         )
 
     forms_data = entity.entity_data.revision.get("forms", [])
@@ -173,7 +177,7 @@ async def get_sense_by_id(sense_id: str, req: Request) -> SenseResponse:
         # For short format S1, need to find the lexeme containing this sense
         raise HTTPException(
             status_code=400,
-            detail="Short format S1 not yet supported - use full L42-S1 format"
+            detail="Short format S1 not yet supported - use full L42-S1 format",
         )
 
     senses_data = entity.entity_data.revision.get("senses", [])
@@ -184,41 +188,65 @@ async def get_sense_by_id(sense_id: str, req: Request) -> SenseResponse:
     raise HTTPException(status_code=404, detail=f"Sense {full_sense_id} not found")
 
 
-@router.get("/entities/lexemes/forms/{form_id}/representation", response_model=FormRepresentationsResponse)
-async def get_form_representations(form_id: str, req: Request) -> FormRepresentationsResponse:
+@router.get(
+    "/entities/lexemes/forms/{form_id}/representation",
+    response_model=FormRepresentationsResponse,
+)
+async def get_form_representations(
+    form_id: str, req: Request
+) -> FormRepresentationsResponse:
     """Get all representations for a form."""
     form = await get_form_by_id(form_id, req)
     return FormRepresentationsResponse(representations=form.representations)
 
 
-@router.get("/entities/lexemes/forms/{form_id}/representation/{langcode}", response_model=FormRepresentationResponse)
-async def get_form_representation(form_id: str, langcode: str, req: Request) -> FormRepresentationResponse:
+@router.get(
+    "/entities/lexemes/forms/{form_id}/representation/{langcode}",
+    response_model=FormRepresentationResponse,
+)
+async def get_form_representation(
+    form_id: str, langcode: str, req: Request
+) -> FormRepresentationResponse:
     """Get representation for a form in specific language."""
     form = await get_form_by_id(form_id, req)
     representation = form.representations.get(langcode)
     if not representation:
-        raise HTTPException(status_code=404, detail=f"Representation not found for language {langcode}")
+        raise HTTPException(
+            status_code=404, detail=f"Representation not found for language {langcode}"
+        )
     return FormRepresentationResponse(value=representation.value)
 
 
-@router.get("/entities/lexemes/senses/{sense_id}/glosses", response_model=SenseGlossesResponse)
+@router.get(
+    "/entities/lexemes/senses/{sense_id}/glosses", response_model=SenseGlossesResponse
+)
 async def get_sense_glosses(sense_id: str, req: Request) -> SenseGlossesResponse:
     """Get all glosses for a sense."""
     sense = await get_sense_by_id(sense_id, req)
     return SenseGlossesResponse(glosses=sense.glosses)
 
 
-@router.get("/entities/lexemes/senses/{sense_id}/glosses/{langcode}", response_model=SenseGlossResponse)
-async def get_sense_gloss(sense_id: str, langcode: str, req: Request) -> SenseGlossResponse:
+@router.get(
+    "/entities/lexemes/senses/{sense_id}/glosses/{langcode}",
+    response_model=SenseGlossResponse,
+)
+async def get_sense_gloss(
+    sense_id: str, langcode: str, req: Request
+) -> SenseGlossResponse:
     """Get gloss for a sense in specific language."""
     sense = await get_sense_by_id(sense_id, req)
     gloss = sense.glosses.get(langcode)
     if not gloss:
-        raise HTTPException(status_code=404, detail=f"Gloss not found for language {langcode}")
+        raise HTTPException(
+            status_code=404, detail=f"Gloss not found for language {langcode}"
+        )
     return SenseGlossResponse(value=gloss.value)
 
 
-@router.put("/entities/lexemes/forms/{form_id}/representation/{langcode}", response_model=EntityResponse)
+@router.put(
+    "/entities/lexemes/forms/{form_id}/representation/{langcode}",
+    response_model=EntityResponse,
+)
 async def update_form_representation(
     form_id: str,
     langcode: str,
@@ -233,7 +261,7 @@ async def update_form_representation(
     if request.language != langcode:
         raise HTTPException(
             status_code=400,
-            detail=f"Language in request body ({request.language}) does not match path parameter ({langcode})"
+            detail=f"Language in request body ({request.language}) does not match path parameter ({langcode})",
         )
 
     state = req.app.state.state_handler
@@ -257,15 +285,17 @@ async def update_form_representation(
             if langcode not in representations:
                 raise HTTPException(
                     status_code=404,
-                    detail=f"Representation not found for language {langcode}"
+                    detail=f"Representation not found for language {langcode}",
                 )
 
             # Update the representation value
             form["representations"][langcode] = {
                 "language": langcode,
-                "value": request.value
+                "value": request.value,
             }
-            logger.debug(f"Updated representation value for form {form_id} in language {langcode}")
+            logger.debug(
+                f"Updated representation value for form {form_id} in language {langcode}"
+            )
             break
 
     if not form_found:
@@ -274,19 +304,21 @@ async def update_form_representation(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
-        id=lexeme_id,
-        type="lexeme",
-        **current_entity.entity_data.revision
+        id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
     return await update_handler.update_lexeme(
-            lexeme_id,
-            update_request,
-            edit_headers=headers,
-            validator=validator,
-        )
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
 
-@router.put("/entities/lexemes/senses/{sense_id}/glosses/{langcode}", response_model=EntityResponse)
+
+@router.put(
+    "/entities/lexemes/senses/{sense_id}/glosses/{langcode}",
+    response_model=EntityResponse,
+)
 async def update_sense_gloss(
     sense_id: str,
     langcode: str,
@@ -301,7 +333,7 @@ async def update_sense_gloss(
     if request.language != langcode:
         raise HTTPException(
             status_code=400,
-            detail=f"Language in request body ({request.language}) does not match path parameter ({langcode})"
+            detail=f"Language in request body ({request.language}) does not match path parameter ({langcode})",
         )
 
     state = req.app.state.state_handler
@@ -320,16 +352,14 @@ async def update_sense_gloss(
             glosses = sense.get("glosses", {})
             if langcode not in glosses:
                 raise HTTPException(
-                    status_code=404,
-                    detail=f"Gloss not found for language {langcode}"
+                    status_code=404, detail=f"Gloss not found for language {langcode}"
                 )
 
             # Update the gloss value
-            sense["glosses"][langcode] = {
-                "language": langcode,
-                "value": request.value
-            }
-            logger.debug(f"Updated gloss value for sense {sense_id} in language {langcode}")
+            sense["glosses"][langcode] = {"language": langcode, "value": request.value}
+            logger.debug(
+                f"Updated gloss value for sense {sense_id} in language {langcode}"
+            )
             break
 
     if not sense_found:
@@ -338,17 +368,16 @@ async def update_sense_gloss(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
-        id=lexeme_id,
-        type="lexeme",
-        **current_entity.entity_data.revision
+        id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
     return await update_handler.update_lexeme(
-            lexeme_id,
-            update_request,
-            edit_headers=headers,
-            validator=validator,
-        )
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
+
 
 @router.delete("/entities/lexemes/forms/{form_id}", response_model=EntityResponse)
 async def delete_form(
@@ -385,17 +414,15 @@ async def delete_form(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
-        id=lexeme_id,
-        type="lexeme",
-        **current_entity.entity_data.revision
+        id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
     return await update_handler.update_lexeme(
-            lexeme_id,
-            update_request,
-            edit_headers=headers,
-            validator=validator,
-        )
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
 
 
 @router.delete("/entities/lexemes/senses/{sense_id}", response_model=EntityResponse)
@@ -433,17 +460,15 @@ async def delete_sense(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
-        id=lexeme_id,
-        type="lexeme",
-        **current_entity.entity_data.revision
+        id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
     return await update_handler.update_lexeme(
-            lexeme_id,
-            update_request,
-            edit_headers=headers,
-            validator=validator,
-        )
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
 
 
 @router.post("/entities/lexemes", response_model=EntityResponse)
@@ -528,7 +553,10 @@ async def get_glosses(req: Request, hashes: str) -> list[Optional[str]]:
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@router.delete("/entities/lexemes/forms/{form_id}/representation/{langcode}", response_model=EntityResponse)
+@router.delete(
+    "/entities/lexemes/forms/{form_id}/representation/{langcode}",
+    response_model=EntityResponse,
+)
 async def delete_form_representation(
     form_id: str,
     langcode: str,
@@ -556,12 +584,14 @@ async def delete_form_representation(
             if langcode not in representations:
                 raise HTTPException(
                     status_code=404,
-                    detail=f"Representation not found for language {langcode}"
+                    detail=f"Representation not found for language {langcode}",
                 )
 
             # Delete the representation
             del form["representations"][langcode]
-            logger.debug(f"Deleted representation for form {form_id} in language {langcode}")
+            logger.debug(
+                f"Deleted representation for form {form_id} in language {langcode}"
+            )
             break
 
     if not form_found:
@@ -570,19 +600,21 @@ async def delete_form_representation(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
-        type="lexeme",
-        **current_entity.entity_data.revision
+        type="lexeme", **current_entity.entity_data.revision
     )
 
     return await update_handler.update_lexeme(
-            lexeme_id,
-            update_request,
-            edit_headers=headers,
-            validator=validator,
-        )
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
 
 
-@router.delete("/entities/lexemes/senses/{sense_id}/glosses/{langcode}", response_model=EntityResponse)
+@router.delete(
+    "/entities/lexemes/senses/{sense_id}/glosses/{langcode}",
+    response_model=EntityResponse,
+)
 async def delete_sense_gloss(
     sense_id: str,
     langcode: str,
@@ -622,14 +654,12 @@ async def delete_sense_gloss(
     # Create new revision
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
-        id=lexeme_id,
-        type="lexeme",
-        **current_entity.entity_data.revision
+        id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
     return await update_handler.update_lexeme(
-            lexeme_id,
-            update_request,
-            edit_headers=headers,
-            validator=validator,
-        )
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )

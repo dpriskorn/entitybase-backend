@@ -2,7 +2,9 @@
 
 import pytest
 
-from models.json_parser.values.entity_schema_value_parser import parse_entity_schema_value
+from models.json_parser.values.entity_schema_value_parser import (
+    parse_entity_schema_value,
+)
 from models.internal_representation.values.entity_schema_value import EntitySchemaValue
 
 
@@ -11,9 +13,7 @@ class TestEntitySchemaValueParser:
 
     def test_parse_valid_entity_schema_value(self):
         """Test parsing a valid entity schema value."""
-        datavalue = {
-            "value": "E123"
-        }
+        datavalue = {"value": "E123"}
 
         result = parse_entity_schema_value(datavalue)
 
@@ -24,9 +24,7 @@ class TestEntitySchemaValueParser:
 
     def test_parse_entity_schema_value_numeric_id(self):
         """Test parsing an entity schema value with numeric ID."""
-        datavalue = {
-            "value": "E456"
-        }
+        datavalue = {"value": "E456"}
 
         result = parse_entity_schema_value(datavalue)
 
@@ -34,9 +32,7 @@ class TestEntitySchemaValueParser:
 
     def test_parse_entity_schema_value_empty_string(self):
         """Test parsing an empty entity schema value."""
-        datavalue = {
-            "value": ""
-        }
+        datavalue = {"value": ""}
 
         result = parse_entity_schema_value(datavalue)
 
@@ -53,9 +49,7 @@ class TestEntitySchemaValueParser:
 
     def test_parse_entity_schema_value_complex_id(self):
         """Test parsing an entity schema value with complex ID."""
-        datavalue = {
-            "value": "E12345"
-        }
+        datavalue = {"value": "E12345"}
 
         result = parse_entity_schema_value(datavalue)
 
@@ -63,9 +57,7 @@ class TestEntitySchemaValueParser:
 
     def test_parse_entity_schema_value_unicode_content(self):
         """Test parsing an entity schema value with unicode characters."""
-        datavalue = {
-            "value": "E123_测试"
-        }
+        datavalue = {"value": "E123_测试"}
 
         result = parse_entity_schema_value(datavalue)
 
@@ -73,9 +65,7 @@ class TestEntitySchemaValueParser:
 
     def test_parse_entity_schema_value_result_immutability(self):
         """Test that the parsed result is immutable (frozen model)."""
-        datavalue = {
-            "value": "E123"
-        }
+        datavalue = {"value": "E123"}
 
         result = parse_entity_schema_value(datavalue)
 
@@ -86,9 +76,7 @@ class TestEntitySchemaValueParser:
 
     def test_parse_entity_schema_value_special_characters(self):
         """Test parsing an entity schema value with special characters."""
-        datavalue = {
-            "value": "E123-test_schema"
-        }
+        datavalue = {"value": "E123-test_schema"}
 
         result = parse_entity_schema_value(datavalue)
 

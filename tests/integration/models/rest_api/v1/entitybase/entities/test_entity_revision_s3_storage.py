@@ -12,7 +12,9 @@ async def test_entity_creation_stores_s3_revision_data(api_prefix: str) -> None:
     from models.rest_api.main import app
 
     # Mock S3 client to capture S3RevisionData storage
-    with patch("models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client") as mock_s3_client_class:
+    with patch(
+        "models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client"
+    ) as mock_s3_client_class:
         mock_s3_client = MagicMock()
         mock_s3_client_class.return_value = mock_s3_client
 
@@ -45,7 +47,11 @@ async def test_entity_creation_stores_s3_revision_data(api_prefix: str) -> None:
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
             # Create entity
-            response = await client.post(f"{api_prefix}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+            response = await client.post(
+                f"{api_prefix}/entities/items",
+                json=entity_data,
+                headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+            )
             assert response.status_code == 201
 
             # Verify S3RevisionData was stored
@@ -57,10 +63,10 @@ async def test_entity_creation_stores_s3_revision_data(api_prefix: str) -> None:
             s3_revision_data = call_args[0][1]  # Second argument
 
             # Verify S3RevisionData structure
-            assert hasattr(s3_revision_data, 'schema_version')
-            assert hasattr(s3_revision_data, 'revision')
-            assert hasattr(s3_revision_data, 'content_hash')
-            assert hasattr(s3_revision_data, 'created_at')
+            assert hasattr(s3_revision_data, "schema_version")
+            assert hasattr(s3_revision_data, "revision")
+            assert hasattr(s3_revision_data, "content_hash")
+            assert hasattr(s3_revision_data, "created_at")
 
             assert s3_revision_data.schema_version == "4.0.0"  # From settings
             assert isinstance(s3_revision_data.revision, dict)
@@ -75,7 +81,9 @@ async def test_s3_revision_data_content_hash_consistency(api_prefix: str) -> Non
     """Test that S3RevisionData content hash is computed correctly."""
     from models.rest_api.main import app
 
-    with patch("models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client") as mock_s3_client_class:
+    with patch(
+        "models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client"
+    ) as mock_s3_client_class:
         mock_s3_client = MagicMock()
         mock_s3_client_class.return_value = mock_s3_client
 
@@ -86,7 +94,11 @@ async def test_s3_revision_data_content_hash_consistency(api_prefix: str) -> Non
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            response = await client.post(f"{api_prefix}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+            response = await client.post(
+                f"{api_prefix}/entities/items",
+                json=entity_data,
+                headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+            )
             assert response.status_code == 201
 
             # Get the stored S3RevisionData
@@ -108,7 +120,9 @@ async def test_s3_revision_data_structure_completeness(api_prefix: str) -> None:
     """Test that S3RevisionData.revision contains complete revision data."""
     from models.rest_api.main import app
 
-    with patch("models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client") as mock_s3_client_class:
+    with patch(
+        "models.rest_api.entitybase.v1.handlers.entity.wikidata_import.MyS3Client"
+    ) as mock_s3_client_class:
         mock_s3_client = MagicMock()
         mock_s3_client_class.return_value = mock_s3_client
 
@@ -120,7 +134,11 @@ async def test_s3_revision_data_structure_completeness(api_prefix: str) -> None:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            response = await client.post(f"{api_prefix}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+            response = await client.post(
+                f"{api_prefix}/entities/items",
+                json=entity_data,
+                headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+            )
             assert response.status_code == 201
 
             # Get the stored S3RevisionData
@@ -131,9 +149,17 @@ async def test_s3_revision_data_structure_completeness(api_prefix: str) -> None:
 
             # Check that all expected fields are present
             required_fields = [
-                "schema_version", "revision_id", "entity_type", "entity",
-                "edit", "hashes", "properties", "property_counts",
-                "created_at", "redirects_to", "state"
+                "schema_version",
+                "revision_id",
+                "entity_type",
+                "entity",
+                "edit",
+                "hashes",
+                "properties",
+                "property_counts",
+                "created_at",
+                "redirects_to",
+                "state",
             ]
 
             for field in required_fields:

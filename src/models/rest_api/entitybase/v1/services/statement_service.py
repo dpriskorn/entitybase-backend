@@ -41,7 +41,7 @@ class StatementProcessingContext:
 class StatementService(Service):
     @staticmethod
     def hash_entity_statements(
-            entity_data: PreparedRequestData,
+        entity_data: PreparedRequestData,
     ) -> OperationResult:
         """Extract and hash statements from entity data.
 
@@ -132,13 +132,15 @@ class StatementService(Service):
         if mainsnak:
             snak_request = SnakRequest(
                 property=mainsnak.get("property"),
-                datavalue=mainsnak.get("datavalue", {})
+                datavalue=mainsnak.get("datavalue", {}),
             )
             snak_handler = SnakHandler(state=self.state)
             snak_hash = snak_handler.store_snak(snak_request)
             context.statement_data = context.statement_data.copy()
             context.statement_data["mainsnak"] = {"hash": snak_hash}
-            logger.debug(f"Stored mainsnak with hash {snak_hash} for statement {context.statement_hash}")
+            logger.debug(
+                f"Stored mainsnak with hash {snak_hash} for statement {context.statement_hash}"
+            )
 
         statement_with_hash = S3Statement(
             schema=context.schema_version,
@@ -296,24 +298,22 @@ class StatementService(Service):
         return OperationResult(success=True)
 
     @staticmethod
-    def _process_snak_item(item: Any, snak_handler: SnakHandler) -> int | str | dict[str, Any] | list[Any] | float | None | Any:
+    def _process_snak_item(
+        item: Any, snak_handler: SnakHandler
+    ) -> int | str | dict[str, Any] | list[Any] | float | None | Any:
         """Process a single snak item.
 
         Returns snak hash if item is a dict with "property", otherwise original item.
         """
         if isinstance(item, dict) and "property" in item:
             snak_request = SnakRequest(
-                property=item["property"],
-                datavalue=item.get("datavalue", {})
+                property=item["property"], datavalue=item.get("datavalue", {})
             )
             return snak_handler.store_snak(snak_request)
         return item
 
     def _process_snak_list_value(
-        self,
-        snak_key: str,
-        snak_list: list,
-        snak_handler: SnakHandler
+        self, snak_key: str, snak_list: list, snak_handler: SnakHandler
     ) -> tuple[str, list[Any]]:
         """Process snaks when value is a list."""
         new_snak_values = []
@@ -323,9 +323,7 @@ class StatementService(Service):
         return snak_key, new_snak_values
 
     def _process_reference_snaks(
-        self,
-        ref: S3ReferenceData,
-        snak_handler: SnakHandler
+        self, ref: S3ReferenceData, snak_handler: SnakHandler
     ) -> dict[str, Any]:
         """Process all snaks within a reference.
 
@@ -339,12 +337,14 @@ class StatementService(Service):
             for snak_key, snak_value in ref_dict["snaks"].items():
                 if isinstance(snak_value, list):
                     new_snaks.append(
-                        self._process_snak_list_value(snak_key, snak_value, snak_handler)
+                        self._process_snak_list_value(
+                            snak_key, snak_value, snak_handler
+                        )
                     )
                 elif isinstance(snak_value, dict) and "property" in snak_value:
                     snak_request = SnakRequest(
                         property=snak_value["property"],
-                        datavalue=snak_value.get("datavalue", {})
+                        datavalue=snak_value.get("datavalue", {}),
                     )
                     snak_hash = snak_handler.store_snak(snak_request)
                     new_snaks.append((snak_key, [snak_hash]))
@@ -354,9 +354,7 @@ class StatementService(Service):
         return cast(dict[str, Any], ref_dict)
 
     def _process_single_reference(
-        self,
-        ref: S3ReferenceData | int,
-        snak_handler: SnakHandler
+        self, ref: S3ReferenceData | int, snak_handler: SnakHandler
     ) -> int:
         """Process one reference (S3ReferenceData or hash).
 
@@ -373,16 +371,14 @@ class StatementService(Service):
             ref_data = S3ReferenceData(
                 hash=ref_hash,
                 reference=ref_dict,
-                created_at=datetime.now(timezone.utc).isoformat() + "Z"
+                created_at=datetime.now(timezone.utc).isoformat() + "Z",
             )
             self.state.s3_client.store_reference(ref_hash, ref_data)
             return ref_hash
         return ref
 
     def _process_statement_references(
-        self,
-        statement_data: dict,
-        snak_handler: SnakHandler
+        self, statement_data: dict, snak_handler: SnakHandler
     ) -> None:
         """Process all references in a statement.
 
@@ -446,14 +442,14 @@ class StatementService(Service):
         )
 
         snak_handler = SnakHandler(state=self.state)
-        
+
         for idx, statement_data in enumerate(hash_result.full_statements):
             if "qualifiers" in statement_data and isinstance(
                 statement_data["qualifiers"], dict
             ):
                 qualifiers_dict = statement_data["qualifiers"]
                 new_qualifiers = {}
-                
+
                 # Process qualifiers and extract snaks
                 for prop_key, qual_values in qualifiers_dict.items():
                     if isinstance(qual_values, list):
@@ -462,7 +458,7 @@ class StatementService(Service):
                             if isinstance(qual_item, dict) and "property" in qual_item:
                                 snak_request = SnakRequest(
                                     property=qual_item["property"],
-                                    datavalue=qual_item.get("datavalue", {})
+                                    datavalue=qual_item.get("datavalue", {}),
                                 )
                                 snak_hash = snak_handler.store_snak(snak_request)
                                 new_qual_values.append(snak_hash)
@@ -472,13 +468,13 @@ class StatementService(Service):
                     elif isinstance(qual_values, dict) and "property" in qual_values:
                         snak_request = SnakRequest(
                             property=qual_values["property"],
-                            datavalue=qual_values.get("datavalue", {})
+                            datavalue=qual_values.get("datavalue", {}),
                         )
                         snak_hash = snak_handler.store_snak(snak_request)
                         new_qualifiers[prop_key] = [snak_hash]
                     else:
                         new_qualifiers[prop_key] = qual_values
-                
+
                 # Compute rapidhash
                 qual_hash = QualifierHasher.compute_hash(new_qualifiers)
                 # Store in S3 (idempotent)

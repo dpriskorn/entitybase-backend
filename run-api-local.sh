@@ -1,29 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-#echo "🚀 Starting dependency containers..."
-#docker compose -f docker-compose.deps.yml up -d
-#
-#echo "⏳ Waiting for services to become healthy..."
-#
-#wait_for() {
-#  local name=$1
-#  local url=$2
-#
-#  echo -n "  - $name"
-#  until curl -fs "$url" >/dev/null; do
-#    echo -n "."
-#    sleep 2
-#  done
-#  echo " ✅"
-#}
-#
-#wait_for "MinIO" "http://localhost:9000/minio/health/live"
-#wait_for "MySQL" "http://localhost:3306"
-#wait_for "API deps" "http://localhost:8080/health" || true
-#
-#echo "✅ All dependencies ready"
-
+echo "🚀 Starting docker containers..."
 ./run-docker-build-tests.sh
 echo "✅ All dependencies ready"
 

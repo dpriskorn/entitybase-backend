@@ -24,9 +24,7 @@ def test_get_sitelink(e2e_api_client, e2e_base_url, sample_sitelink) -> None:
     entity_id = response.json()["id"]
 
     # Get sitelink
-    response = await client.get(
-        f"{e2e_base_url}/entities/{entity_id}/sitelinks/enwiki"
-    )
+    response = await client.get(f"{e2e_base_url}/entities/{entity_id}/sitelinks/enwiki")
     assert response.status_code == 200
     data = response.json()
     assert "title" in data
@@ -55,9 +53,7 @@ def test_add_sitelink(e2e_api_client, e2e_base_url, sample_item_data) -> None:
     assert response.status_code in [200, 201]
 
     # Verify addition
-    response = await client.get(
-        f"{e2e_base_url}/entities/{entity_id}/sitelinks/enwiki"
-    )
+    response = await client.get(f"{e2e_base_url}/entities/{entity_id}/sitelinks/enwiki")
     assert response.status_code == 200
     data = response.json()
     assert data["title"] == "New Article"
@@ -94,9 +90,7 @@ async def test_update_sitelink(e2e_api_client, e2e_base_url, api_prefix) -> None
     assert response.status_code == 200
 
     # Verify update
-    response = await client.get(
-        f"{e2e_base_url}/entities/{entity_id}/sitelinks/enwiki"
-    )
+    response = await client.get(f"{e2e_base_url}/entities/{entity_id}/sitelinks/enwiki")
     assert response.status_code == 200
     data = response.json()
     assert data["title"] == "Updated Title"

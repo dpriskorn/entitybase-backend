@@ -85,7 +85,9 @@ class EntityCreateHandler(EntityHandler):
 
         # Common processing logic using new architecture
         from models.data.infrastructure.s3.enums import EntityType
-        from models.data.rest_api.v1.entitybase.request.entity.context import ProcessEntityRevisionContext
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            ProcessEntityRevisionContext,
+        )
 
         ctx = ProcessEntityRevisionContext(
             entity_id=entity_id,

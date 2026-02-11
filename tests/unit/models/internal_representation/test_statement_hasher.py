@@ -82,7 +82,11 @@ def test_statement_hash_dict_input() -> None:
     """Test computing hash from dict input."""
     statement_dict = {
         "property": "P31",
-        "value": {"kind": "entity", "value": "Q5", "datatype_uri": "http://www.wikidata.org/entity/"},
+        "value": {
+            "kind": "entity",
+            "value": "Q5",
+            "datatype_uri": "http://www.wikidata.org/entity/",
+        },
         "rank": "normal",
         "qualifiers": [],
         "references": [],

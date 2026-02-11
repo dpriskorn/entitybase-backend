@@ -15,13 +15,13 @@ class TestSnakHandler:
 
         self.handler = SnakHandler(state=state)
 
-    @patch('models.rest_api.entitybase.v1.services.snak_handler.MetadataExtractor')
-    @patch('models.rest_api.entitybase.v1.services.snak_handler.datetime')
+    @patch("models.rest_api.entitybase.v1.services.snak_handler.MetadataExtractor")
+    @patch("models.rest_api.entitybase.v1.services.snak_handler.datetime")
     def test_store_snak_success(self, mock_datetime, mock_extractor):
         """Test successful snak storage."""
         pass
 
-    @patch('models.rest_api.entitybase.v1.services.snak_handler.MetadataExtractor')
+    @patch("models.rest_api.entitybase.v1.services.snak_handler.MetadataExtractor")
     def test_store_snak_s3_error(self, mock_extractor):
         """Test snak storage when S3 client raises error."""
         pass
@@ -38,7 +38,7 @@ class TestSnakHandler:
         """Test snak retrieval when S3 client raises error."""
         pass
 
-    @patch('models.rest_api.entitybase.v1.services.snak_handler.MetadataExtractor')
+    @patch("models.rest_api.entitybase.v1.services.snak_handler.MetadataExtractor")
     def test_store_snak_json_dumps(self, mock_extractor):
         """Test that snak is JSON serialized with sorted keys."""
         pass

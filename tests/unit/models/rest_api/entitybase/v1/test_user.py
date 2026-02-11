@@ -99,4 +99,3 @@ class TestUserHandler:
         mock_vitess_client.user_repository.set_watchlist_enabled.assert_called_once_with(
             12345, False
         )
-

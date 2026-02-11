@@ -3,7 +3,10 @@
 import pytest
 from pydantic import ValidationError
 
-from models.internal_representation.reference_qualifier_models import ReferenceModel, QualifierModel
+from models.internal_representation.reference_qualifier_models import (
+    ReferenceModel,
+    QualifierModel,
+)
 
 
 class TestReferenceModel:
@@ -11,7 +14,15 @@ class TestReferenceModel:
 
     def test_reference_model_creation_valid(self):
         """Test creating a valid ReferenceModel."""
-        snaks = {"P123": [{"snaktype": "value", "property": "P123", "datavalue": {"type": "string", "value": "test"}}]}
+        snaks = {
+            "P123": [
+                {
+                    "snaktype": "value",
+                    "property": "P123",
+                    "datavalue": {"type": "string", "value": "test"},
+                }
+            ]
+        }
         snaks_order = ["P123"]
 
         ref = ReferenceModel(
@@ -31,11 +42,7 @@ class TestReferenceModel:
 
         with pytest.raises(ValidationError):
             # noinspection PyTypeChecker
-            ReferenceModel(
-                snaks=snaks,
-                snaks_order=snaks_order,
-                hash=None
-            )
+            ReferenceModel(snaks=snaks, snaks_order=snaks_order, hash=None)
 
     def test_reference_model_empty_snaks(self):
         """Test ReferenceModel with empty snaks."""
@@ -57,7 +64,15 @@ class TestQualifierModel:
 
     def test_qualifier_model_creation_valid(self):
         """Test creating a valid QualifierModel."""
-        qualifiers = {"P123": [{"snaktype": "value", "property": "P123", "datavalue": {"type": "string", "value": "qualifier"}}]}
+        qualifiers = {
+            "P123": [
+                {
+                    "snaktype": "value",
+                    "property": "P123",
+                    "datavalue": {"type": "string", "value": "qualifier"},
+                }
+            ]
+        }
 
         qual = QualifierModel(qualifiers=qualifiers)
 

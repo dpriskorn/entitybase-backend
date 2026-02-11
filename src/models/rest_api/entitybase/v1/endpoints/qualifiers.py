@@ -19,10 +19,7 @@ from models.rest_api.entitybase.v1.services.snak_handler import SnakHandler
 logger = logging.getLogger(__name__)
 
 ProcessedQualifierValue = (
-    ReconstructedSnakValue
-    | int
-    | str
-    | list[ReconstructedSnakValue | int | str]
+    ReconstructedSnakValue | int | str | list[ReconstructedSnakValue | int | str]
 )
 
 qualifiers_router = APIRouter(prefix="/qualifiers", tags=["statements"])
@@ -41,7 +38,9 @@ def _validate_and_parse_hashes(hashes: str) -> list[int]:
         raise HTTPException(status_code=400, detail="Invalid hash format")
 
 
-def _reconstruct_snak_value(value: int | str, snak_handler: SnakHandler) -> ReconstructedSnakValue | int | str:
+def _reconstruct_snak_value(
+    value: int | str, snak_handler: SnakHandler
+) -> ReconstructedSnakValue | int | str:
     """Reconstruct snak from hash if value is a hash, otherwise return as-is."""
     if isinstance(value, int) or (isinstance(value, str) and value.isdigit()):
         reconstructed_snak = snak_handler.get_snak(int(value))
@@ -53,14 +52,18 @@ def _reconstruct_snak_value(value: int | str, snak_handler: SnakHandler) -> Reco
 
 
 # noinspection PyTypeHints
-def _process_qualifier_value(qual_value: Any, snak_handler: SnakHandler) -> ProcessedQualifierValue:
+def _process_qualifier_value(
+    qual_value: Any, snak_handler: SnakHandler
+) -> ProcessedQualifierValue:
     """Process qualifier value, handling both single values and lists."""
     if isinstance(qual_value, list):
         return [_reconstruct_snak_value(item, snak_handler) for item in qual_value]
     return _reconstruct_snak_value(qual_value, snak_handler)
 
 
-def _build_qualifier_response(item: S3QualifierData, snak_handler: SnakHandler) -> QualifierResponse:
+def _build_qualifier_response(
+    item: S3QualifierData, snak_handler: SnakHandler
+) -> QualifierResponse:
     """Build qualifier response with reconstructed snaks."""
     qualifier_dict = {}
     for prop_key, qual_values in item.qualifier.items():
@@ -74,7 +77,9 @@ def _build_qualifier_response(item: S3QualifierData, snak_handler: SnakHandler) 
 
 
 # noinspection PyTypeHints
-def _convert_to_serializable(value: ProcessedQualifierValue) -> SerializableQualifierValue:
+def _convert_to_serializable(
+    value: ProcessedQualifierValue,
+) -> SerializableQualifierValue:
     """Convert ReconstructedSnakValue objects back to dicts for JSON serialization."""
     if isinstance(value, ReconstructedSnakValue):
         return SerializableQualifierValue(value=value.model_dump())
@@ -111,7 +116,7 @@ async def get_qualifiers(req: Request, hashes: str) -> list[QualifierResponse | 
                 qualifiers.append(None)
             else:
                 qualifiers.append(_build_qualifier_response(item, snak_handler))
-        
+
         return qualifiers
     except Exception as e:
         logger.error(f"Failed to load qualifiers {rapidhashes}: {e}")

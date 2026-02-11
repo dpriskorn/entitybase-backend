@@ -52,7 +52,5 @@ class TestReferenceHasher(unittest.TestCase):
         self.assertNotEqual(hash1, hash2)
 
 
-
-
 if __name__ == "__main__":
     unittest.main()

@@ -26,7 +26,9 @@ async def test_semi_protection_blocks_not_autoconfirmed_users(api_prefix: str) -
     ) as client:
         # Create semi-protected item
         await client.post(
-            f"{api_prefix}/entities/", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
+            f"{api_prefix}/entities/",
+            json={**entity_data, "is_semi_protected": True},
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
         # Attempt edit by not-autoconfirmed user (should fail)
@@ -76,7 +78,9 @@ async def test_semi_protection_allows_autoconfirmed_users(api_prefix: str) -> No
     ) as client:
         # Create semi-protected item
         await client.post(
-            f"{api_prefix}/entities/", json={**entity_data, "is_semi_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
+            f"{api_prefix}/entities/",
+            json={**entity_data, "is_semi_protected": True},
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
         # Autoconfirmed user edit should succeed
@@ -112,12 +116,19 @@ async def test_locked_items_block_all_edits(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create locked item
-        await client.post(f"{api_prefix}/entities/", json={**entity_data, "is_locked": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+        await client.post(
+            f"{api_prefix}/entities/",
+            json={**entity_data, "is_locked": True},
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
 
         # Attempt manual edit (should fail)
         response = await client.post(
             f"{api_prefix}/entities/",
-            json={**entity_data, "labels": {"en": {"language": "en", "value": "Updated"}}},
+            json={
+                **entity_data,
+                "labels": {"en": {"language": "en", "value": "Updated"}},
+            },
             headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
         )
         assert response.status_code == 403
@@ -144,12 +155,19 @@ async def test_archived_items_block_all_edits(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create archived item
-        await client.post(f"{api_prefix}/entities/", json={**entity_data, "is_archived": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+        await client.post(
+            f"{api_prefix}/entities/",
+            json={**entity_data, "is_archived": True},
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+        )
 
         # Attempt edit (should fail)
         response = await client.post(
             f"{api_prefix}/entities/",
-            json={**entity_data, "labels": {"en": {"language": "en", "value": "Updated"}}},
+            json={
+                **entity_data,
+                "labels": {"en": {"language": "en", "value": "Updated"}},
+            },
             headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
         )
         assert response.status_code == 403
@@ -177,7 +195,9 @@ async def test_mass_edit_protection_blocks_mass_edits(api_prefix: str) -> None:
     ) as client:
         # Create mass-edit protected item
         await client.post(
-            f"{api_prefix}/entities/", json={**entity_data, "is_mass_edit_protected": True}, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
+            f"{api_prefix}/entities/",
+            json={**entity_data, "is_mass_edit_protected": True},
+            headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
         # Attempt mass edit (should fail)

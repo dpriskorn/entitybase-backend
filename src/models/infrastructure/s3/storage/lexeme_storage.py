@@ -16,10 +16,16 @@ class LexemeStorage(MetadataStorage):
 
     bucket: str = settings.s3_terms_bucket  # Use terms bucket for deduplication
 
-    def store_form_representation(self, text: str, content_hash: int) -> OperationResult[None]:
+    def store_form_representation(
+        self, text: str, content_hash: int
+    ) -> OperationResult[None]:
         """Store form representation text in terms bucket."""
-        logger.debug(f"Storing form representation: hash={content_hash}, text='{text[:50]}...'")
-        return self.store_metadata(MetadataType.FORM_REPRESENTATIONS, content_hash, text)
+        logger.debug(
+            f"Storing form representation: hash={content_hash}, text='{text[:50]}...'"
+        )
+        return self.store_metadata(
+            MetadataType.FORM_REPRESENTATIONS, content_hash, text
+        )
 
     def store_sense_gloss(self, text: str, content_hash: int) -> OperationResult[None]:
         """Store sense gloss text in terms bucket."""
@@ -36,9 +42,12 @@ class LexemeStorage(MetadataStorage):
         logger.debug(f"Loading {len(hashes)} sense glosses")
         return self._load_metadata_batch(MetadataType.SENSE_GLOSSES, hashes)
 
-    def _load_metadata_batch(self, metadata_type: MetadataType, hashes: List[int]) -> List[Optional[str]]:
+    def _load_metadata_batch(
+        self, metadata_type: MetadataType, hashes: List[int]
+    ) -> List[Optional[str]]:
         """Helper method to load metadata in batches."""
         from models.data.infrastructure.s3 import StringLoadResponse
+
         results: List[Optional[str]] = []
         for hash_val in hashes:
             try:
@@ -46,7 +55,9 @@ class LexemeStorage(MetadataStorage):
                 if isinstance(data, StringLoadResponse):
                     results.append(data.data)
                 else:
-                    logger.warning(f"Unexpected data type for {metadata_type} hash {hash_val}: {type(data)}")
+                    logger.warning(
+                        f"Unexpected data type for {metadata_type} hash {hash_val}: {type(data)}"
+                    )
                     results.append(None)
             except Exception as e:
                 logger.warning(f"Failed to load {metadata_type} hash {hash_val}: {e}")

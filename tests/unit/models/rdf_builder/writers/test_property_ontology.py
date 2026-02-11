@@ -2,7 +2,10 @@
 
 import io
 
-from models.rdf_builder.property_registry.models import PropertyShape, PropertyPredicates
+from models.rdf_builder.property_registry.models import (
+    PropertyShape,
+    PropertyPredicates,
+)
 from models.rdf_builder.writers.property_ontology import PropertyOntologyWriter
 
 
@@ -19,10 +22,14 @@ class TestPropertyOntologyWriter:
                 direct="wdt:P31",
                 statement="ps:P31",
                 qualifier="pq:P31",
-                reference="pr:P31"
+                reference="pr:P31",
             ),
             labels={"en": {"value": "instance of"}},
-            descriptions={"en": {"value": "that class of which this subject is a particular example and member"}}
+            descriptions={
+                "en": {
+                    "value": "that class of which this subject is a particular example and member"
+                }
+            },
         )
 
         PropertyOntologyWriter.write_property_metadata(output, shape)
@@ -31,8 +38,13 @@ class TestPropertyOntologyWriter:
         assert "wd:P31 a wikibase:Property ;" in result
         assert 'rdfs:label "instance of"@en ;' in result
         assert 'schema:name "instance of"@en ;' in result
-        assert 'schema:description "that class of which this subject is a particular example and member"@en ;' in result
-        assert "wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;" in result
+        assert (
+            'schema:description "that class of which this subject is a particular example and member"@en ;'
+            in result
+        )
+        assert (
+            "wikibase:propertyType <http://wikiba.se/ontology#WikibaseItem> ;" in result
+        )
         assert "wikibase:directClaim wdt:P31 ;" in result
         assert "wikibase:claim p:P31 ;" in result
         assert "wikibase:statementProperty ps:P31 ;" in result
@@ -51,8 +63,8 @@ class TestPropertyOntologyWriter:
                 statement="ps:P569",
                 qualifier="pq:P569",
                 reference="pr:P569",
-                value_node="psv:P569"
-            )
+                value_node="psv:P569",
+            ),
         )
 
         PropertyOntologyWriter.write_property_metadata(output, shape)
@@ -76,8 +88,8 @@ class TestPropertyOntologyWriter:
                 statement_normalized="psn:P625",
                 qualifier_normalized="pqn:P625",
                 reference_normalized="prn:P625",
-                direct_normalized="wdtn:P625"
-            )
+                direct_normalized="wdtn:P625",
+            ),
         )
 
         PropertyOntologyWriter.write_property_metadata(output, shape)
@@ -98,17 +110,17 @@ class TestPropertyOntologyWriter:
                 direct="wdt:P1476",
                 statement="ps:P1476",
                 qualifier="pq:P1476",
-                reference="pr:P1476"
+                reference="pr:P1476",
             ),
             labels={
                 "en": {"value": "title"},
                 "de": {"value": "Titel"},
-                "fr": {"value": "titre"}
+                "fr": {"value": "titre"},
             },
             descriptions={
                 "en": {"value": "title of a creative work"},
-                "de": {"value": "Titel eines Werks"}
-            }
+                "de": {"value": "Titel eines Werks"},
+            },
         )
 
         PropertyOntologyWriter.write_property_metadata(output, shape)
@@ -141,9 +153,18 @@ class TestPropertyOntologyWriter:
 
     def test_datatype_uri_case_insensitive(self) -> None:
         """Test that datatype URI mapping handles case variations."""
-        assert PropertyOntologyWriter._datatype_uri("commonsMedia") == "http://wikiba.se/ontology#CommonsMedia"
-        assert PropertyOntologyWriter._datatype_uri("globe-coordinate") == "http://wikiba.se/ontology#Globecoordinate"
-        assert PropertyOntologyWriter._datatype_uri("tabulardata") == "http://wikiba.se/ontology#TabularData"
+        assert (
+            PropertyOntologyWriter._datatype_uri("commonsMedia")
+            == "http://wikiba.se/ontology#CommonsMedia"
+        )
+        assert (
+            PropertyOntologyWriter._datatype_uri("globe-coordinate")
+            == "http://wikiba.se/ontology#Globecoordinate"
+        )
+        assert (
+            PropertyOntologyWriter._datatype_uri("tabulardata")
+            == "http://wikiba.se/ontology#TabularData"
+        )
 
     def test_write_property_basic(self) -> None:
         """Test writing basic property ontology."""
@@ -155,8 +176,8 @@ class TestPropertyOntologyWriter:
                 direct="wdt:P31",
                 statement="ps:P31",
                 qualifier="pq:P31",
-                reference="pr:P31"
-            )
+                reference="pr:P31",
+            ),
         )
 
         PropertyOntologyWriter.write_property(output, shape)
@@ -185,8 +206,8 @@ class TestPropertyOntologyWriter:
                 statement_normalized="psn:P625",
                 qualifier_normalized="pqn:P625",
                 reference_normalized="prn:P625",
-                direct_normalized="wdtn:P625"
-            )
+                direct_normalized="wdtn:P625",
+            ),
         )
 
         PropertyOntologyWriter.write_property(output, shape)
@@ -207,10 +228,10 @@ class TestPropertyOntologyWriter:
                 direct="wdt:P123",
                 statement="ps:P123",
                 qualifier="pq:P123",
-                reference="pr:P123"
+                reference="pr:P123",
             ),
             labels={},
-            descriptions={}
+            descriptions={},
         )
 
         PropertyOntologyWriter.write_property_metadata(output, shape)
@@ -231,9 +252,9 @@ class TestPropertyOntologyWriter:
                 direct="wdt:P1476",
                 statement="ps:P1476",
                 qualifier="pq:P1476",
-                reference="pr:P1476"
+                reference="pr:P1476",
             ),
-            labels={"en": {"value": 'Title with "quotes" and émojis 🎭'}}
+            labels={"en": {"value": 'Title with "quotes" and émojis 🎭'}},
         )
 
         PropertyOntologyWriter.write_property_metadata(output, shape)
@@ -255,8 +276,8 @@ class TestPropertyOntologyWriter:
                     direct=f"wdt:{pid}",
                     statement=f"ps:{pid}",
                     qualifier=f"pq:{pid}",
-                    reference=f"pr:{pid}"
-                )
+                    reference=f"pr:{pid}",
+                ),
             )
 
             PropertyOntologyWriter.write_property(output, shape)

@@ -77,7 +77,6 @@ def test_create_item(api_client: requests.Session, api_url: str) -> None:
 def test_get_item(api_client: requests.Session, api_url: str) -> None:
     """Test retrieving an entity"""
 
-
     # First create an entity
     entity_data1 = EntityCreateRequest(
         id="Q99998",
@@ -112,13 +111,9 @@ def test_get_item(api_client: requests.Session, api_url: str) -> None:
     logger.info("✓ Entity retrieval passed")
 
 
-
 @pytest.mark.integration
-def test_create_item_already_exists(
-    api_client: requests.Session, api_url: str
-) -> None:
+def test_create_item_already_exists(api_client: requests.Session, api_url: str) -> None:
     """Test that POST /entity fails with 409 when entity already exists"""
-
 
     # Create initial entity
     entity_data = {
@@ -127,11 +122,17 @@ def test_create_item_already_exists(
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
         "edit_summary": "Test creation",
     }
-    api_client.post(f"{api_url}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"})
+    api_client.post(
+        f"{api_url}/entities/items",
+        json=entity_data,
+        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
+    )
 
     # Try to create the same entity again - should fail
     response = api_client.post(
-        f"{api_url}/entities/items", json=entity_data, headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"}
+        f"{api_url}/entities/items",
+        json=entity_data,
+        headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
     )
     assert response.status_code == 409
     assert "already exists" in response.json().get("message", "")

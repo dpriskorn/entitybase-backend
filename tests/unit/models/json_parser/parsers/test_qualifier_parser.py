@@ -79,10 +79,7 @@ def test_parse_qualifier_with_property_override() -> None:
     qualifier_json = {
         "snaktype": "value",
         "property": "P999",  # Different from parameter
-        "datavalue": {
-            "value": "test",
-            "type": "string"
-        }
+        "datavalue": {"value": "test", "type": "string"},
     }
 
     # Property in JSON should take precedence
@@ -96,10 +93,7 @@ def test_parse_qualifier_property_fallback() -> None:
     """Test parsing qualifier where property falls back to parameter"""
     qualifier_json = {
         "snaktype": "value",
-        "datavalue": {
-            "value": "test",
-            "type": "string"
-        }
+        "datavalue": {"value": "test", "type": "string"},
         # No property field in JSON
     }
 
@@ -120,20 +114,17 @@ def test_parse_qualifiers_mixed_properties() -> None:
             {
                 "snaktype": "value",
                 "property": "P2",
-                "datavalue": {"value": "test1", "type": "string"}
+                "datavalue": {"value": "test1", "type": "string"},
             }
         ],
         "P3": [
             {
                 "snaktype": "value",
                 "property": "P3",
-                "datavalue": {"value": "test2", "type": "string"}
+                "datavalue": {"value": "test2", "type": "string"},
             },
-            {
-                "snaktype": "novalue",
-                "property": "P3"
-            }
-        ]
+            {"snaktype": "novalue", "property": "P3"},
+        ],
     }
 
     qualifiers = parse_qualifiers(qualifiers_json)
@@ -166,10 +157,10 @@ def test_parse_qualifiers_time_values() -> None:
                         "before": 0,
                         "after": 0,
                         "precision": 11,
-                        "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                        "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
                     },
-                    "type": "time"
-                }
+                    "type": "time",
+                },
             }
         ]
     }
@@ -190,12 +181,9 @@ def test_parse_qualifiers_quantity_values() -> None:
                 "property": "P1107",
                 "datatype": "quantity",
                 "datavalue": {
-                    "value": {
-                        "amount": "42",
-                        "unit": "1"
-                    },
-                    "type": "quantity"
-                }
+                    "value": {"amount": "42", "unit": "1"},
+                    "type": "quantity",
+                },
             }
         ]
     }
@@ -216,7 +204,6 @@ def test_parse_qualifier_result_immutability() -> None:
 
     # Should not be able to modify frozen model
     import pytest
+
     with pytest.raises(Exception):  # TypeError or ValidationError
         qualifier.property = "P999"
-
-

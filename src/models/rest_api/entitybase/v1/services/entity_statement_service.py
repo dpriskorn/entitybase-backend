@@ -1,4 +1,5 @@
 """Entity statement modification service."""
+
 import logging
 from datetime import datetime, timezone
 from typing import Any
@@ -28,27 +29,26 @@ logger = logging.getLogger(__name__)
 
 class _PropertyCountHelper:
     """Utility class for property count recalculation."""
-    
+
     @staticmethod
     def recalculate_property_counts(
-        revision_data: RevisionData, 
-        index: int
+        revision_data: RevisionData, index: int
     ) -> PropertyRecalculationResult:
         """Recalculate properties and property_counts after statement removal.
-        
+
         Args:
             revision_data: Revision data object with properties and property_counts
             index: Index of the removed statement
-            
+
         Returns:
             PropertyRecalculationResult with updated properties and counts
         """
         from models.data.infrastructure.s3.property_counts import PropertyCounts
-        
+
         start = 0
         new_properties = []
         new_property_counts_dict = {}
-        
+
         for prop in revision_data.properties:
             count = revision_data.property_counts.get(prop, 0)
             if start <= index < start + count:
@@ -61,13 +61,13 @@ class _PropertyCountHelper:
         # noinspection PyArgumentList
         return PropertyRecalculationResult(
             properties=new_properties,
-            property_counts=PropertyCounts(root=new_property_counts_dict)
+            property_counts=PropertyCounts(root=new_property_counts_dict),
         )
 
 
 class EntityStatementService(Service):
     """Service for entity statement modification operations."""
-    
+
     async def add_property(
         self,
         entity_id: str,
@@ -94,7 +94,7 @@ class EntityStatementService(Service):
             success=True,
             data=RevisionIdResult(revision_id=entity_response.rev_id),
         )
-    
+
     async def remove_statement(
         self,
         entity_id: str,
@@ -116,7 +116,7 @@ class EntityStatementService(Service):
             success=True,
             data=RevisionIdResult(revision_id=new_revision_id),
         )
-    
+
     async def patch_statement(
         self,
         entity_id: str,
@@ -128,7 +128,9 @@ class EntityStatementService(Service):
         """Replace a statement by hash with new claim data."""
         logger.info(f"Entity {entity_id}: Patching statement {statement_hash}")
         current_data = self._fetch_current_entity_data(entity_id)
-        replaced = self._find_and_replace_statement(current_data.data, statement_hash, request.claim)
+        replaced = self._find_and_replace_statement(
+            current_data.data, statement_hash, request.claim
+        )
         if not replaced:
             return OperationResult(success=False, error="Statement not found in entity")
         entity_response = await self._process_entity_update(
@@ -141,14 +143,14 @@ class EntityStatementService(Service):
             success=True,
             data=RevisionIdResult(revision_id=entity_response.rev_id),
         )
-    
+
     # Private validation methods
     @staticmethod
     def _validate_property_id(property_id: str) -> None:
         """Validate property ID format."""
         if not property_id.startswith("P") or not property_id[1:].isdigit():
             raise_validation_error("Invalid property ID format", status_code=400)
-    
+
     def _validate_property_exists(self, property_id: str) -> None:
         """Validate that property exists and is a property type."""
         try:
@@ -158,7 +160,7 @@ class EntityStatementService(Service):
                 raise_validation_error("Entity is not a property", status_code=400)
         except Exception:
             raise_validation_error("Property does not exist", status_code=400)
-    
+
     # Private data fetching methods
     def _fetch_current_entity_data(self, entity_id: str) -> RawEntityData:
         """Fetch current entity data."""
@@ -168,7 +170,7 @@ class EntityStatementService(Service):
             return RawEntityData(data=entity_response.entity_data.revision)
         except Exception as e:
             raise_validation_error(f"Failed to fetch entity: {e}", status_code=400)
-    
+
     def _fetch_current_entity(self, entity_id: str) -> EntityResponse:
         """Fetch current entity response."""
         try:
@@ -178,38 +180,50 @@ class EntityStatementService(Service):
             raise_validation_error(f"Entity not found: {entity_id}", status_code=404)
         except Exception as e:
             raise_validation_error(f"Failed to fetch entity: {e}", status_code=400)
-    
+
     def _fetch_revision_data(self, entity_id: str, revision_id: int) -> RevisionData:
         """Fetch revision data from S3."""
         try:
-            s3_revision_data = self.state.s3_client.read_revision(entity_id, revision_id)
+            s3_revision_data = self.state.s3_client.read_revision(
+                entity_id, revision_id
+            )
             from models.data.infrastructure.s3.revision_data import S3RevisionData
+
             if not isinstance(s3_revision_data, S3RevisionData):
                 raise_validation_error("Invalid revision data type", status_code=500)
             return RevisionData.model_validate(s3_revision_data.revision)  # type: ignore[no-any-return]
         except S3NotFoundError:
-            raise_validation_error(f"Revision not found: {entity_id} revision {revision_id}", status_code=404)
+            raise_validation_error(
+                f"Revision not found: {entity_id} revision {revision_id}",
+                status_code=404,
+            )
         except Exception as e:
             raise_validation_error(f"Failed to fetch revision: {e}", status_code=400)
-    
+
     # Private data manipulation methods
     @staticmethod
-    def _merge_claims(current_data: dict[str, Any], property_id: str, claims: list) -> None:
+    def _merge_claims(
+        current_data: dict[str, Any], property_id: str, claims: list
+    ) -> None:
         """Merge claims into current entity data."""
         if "claims" not in current_data:
             current_data["claims"] = {}
         if property_id not in current_data["claims"]:
             current_data["claims"][property_id] = []
         current_data["claims"][property_id].extend(claims)
-    
+
     @staticmethod
     def _remove_statement_from_revision(
-            revision_data: RevisionData,
-        statement_hash: str
+        revision_data: RevisionData, statement_hash: str
     ) -> OperationResult:
         """Remove statement hash from revision data and recalculate property counts."""
-        if not hasattr(revision_data.hashes, "statements") or not revision_data.hashes.statements:
-            return OperationResult(success=False, error="No statements found in revision")
+        if (
+            not hasattr(revision_data.hashes, "statements")
+            or not revision_data.hashes.statements
+        ):
+            return OperationResult(
+                success=False, error="No statements found in revision"
+            )
         try:
             hash_int = int(statement_hash)
             if hash_int in revision_data.hashes.statements.root:
@@ -225,7 +239,7 @@ class EntityStatementService(Service):
         except ValueError:
             return OperationResult(success=False, error="Invalid statement hash format")
         return OperationResult(success=True)
-    
+
     def _decrement_statement_ref_count(self, statement_hash: str) -> None:
         """Decrement ref_count for a statement."""
         stmt_repo = StatementRepository(vitess_client=self.state.vitess_client)
@@ -235,7 +249,7 @@ class EntityStatementService(Service):
                 f"Failed to decrement ref_count for statement {statement_hash}: {result.error}",
                 status_code=500,
             )
-    
+
     async def _store_updated_revision(
         self,
         revision_data: RevisionData,
@@ -251,8 +265,10 @@ class EntityStatementService(Service):
         revision_data.edit.user_id = edit_headers.x_user_id
         try:
             from models.data.infrastructure.s3.revision_data import S3RevisionData
+
             revision_dict = revision_data.model_dump(mode="json")
             from rapidhash import rapidhash
+
             content_hash = rapidhash(str(revision_dict).encode())
             s3_revision_data = S3RevisionData(
                 schema=revision_data.schema_version,
@@ -263,9 +279,11 @@ class EntityStatementService(Service):
             self.state.s3_client.store_revision(content_hash, s3_revision_data)
             self.state.vitess_client.update_head_revision(entity_id, new_revision_id)
         except Exception as e:
-            raise_validation_error(f"Failed to store updated revision: {e}", status_code=400)
+            raise_validation_error(
+                f"Failed to store updated revision: {e}", status_code=400
+            )
         return new_revision_id
-    
+
     @staticmethod
     def _find_and_replace_statement(
         current_data: dict[str, Any],
@@ -285,7 +303,7 @@ class EntityStatementService(Service):
                 if replaced:
                     break
         return replaced
-    
+
     async def _process_entity_update(
         self,
         entity_id: str,
@@ -294,7 +312,9 @@ class EntityStatementService(Service):
         validator: Any | None,
     ) -> EntityResponse:
         """Process entity update using new architecture."""
-        from models.data.rest_api.v1.entitybase.request.entity.context import ProcessEntityRevisionContext
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            ProcessEntityRevisionContext,
+        )
 
         read_handler = EntityReadHandler(state=self.state)
         entity_response = read_handler.get_entity(entity_id)
@@ -308,5 +328,4 @@ class EntityStatementService(Service):
             is_creation=False,
             validator=validator,
         )
-        return await handler.process_entity_revision_new(ctx) # type: ignore
-    
+        return await handler.process_entity_revision_new(ctx)  # type: ignore

@@ -7,7 +7,9 @@ sys.path.insert(0, "src")
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def test_item_labels_full_workflow(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_item_labels_full_workflow(
+    e2e_api_client, e2e_base_url, api_prefix
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: Create item, update labels, get labels, delete labels."""
@@ -53,7 +55,9 @@ async def test_item_labels_full_workflow(e2e_api_client, e2e_base_url, api_prefi
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def test_item_descriptions_full_workflow(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_item_descriptions_full_workflow(
+    e2e_api_client, e2e_base_url, api_prefix
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: Create item, update descriptions, get descriptions, delete descriptions."""
@@ -131,7 +135,9 @@ async def test_item_descriptions_full_workflow(e2e_api_client, e2e_base_url, api
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def test_item_aliases_full_workflow(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_item_aliases_full_workflow(
+    e2e_api_client, e2e_base_url, api_prefix
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: Create item, update aliases, get aliases."""

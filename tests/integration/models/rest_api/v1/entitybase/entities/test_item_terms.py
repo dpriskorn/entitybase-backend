@@ -60,7 +60,9 @@ def test_get_item_label_not_found(api_client: requests.Session, api_url: str) ->
 
 
 @pytest.mark.integration
-def test_get_item_label_multiple_languages(api_client: requests.Session, api_url: str) -> None:
+def test_get_item_label_multiple_languages(
+    api_client: requests.Session, api_url: str
+) -> None:
     """Test getting item labels for multiple languages."""
     entity_data = EntityCreateRequest(
         id="Q70003",
@@ -80,7 +82,11 @@ def test_get_item_label_multiple_languages(api_client: requests.Session, api_url
     )
     assert response.status_code == 200
 
-    for lang, expected in [("en", "Test English"), ("de", "Test German"), ("fr", "Test French")]:
+    for lang, expected in [
+        ("en", "Test English"),
+        ("de", "Test German"),
+        ("fr", "Test French"),
+    ]:
         response = api_client.get(f"{api_url}/entities/items/Q70003/labels/{lang}")
         assert response.status_code == 200
         data = response.json()
@@ -115,7 +121,9 @@ def test_update_item_label_success(api_client: requests.Session, api_url: str) -
 
 
 @pytest.mark.integration
-def test_update_item_label_creates_new(api_client: requests.Session, api_url: str) -> None:
+def test_update_item_label_creates_new(
+    api_client: requests.Session, api_url: str
+) -> None:
     """Test updating item label creates new language if not exists."""
     entity_data = EntityCreateRequest(
         id="Q70005",
@@ -143,7 +151,9 @@ def test_update_item_label_creates_new(api_client: requests.Session, api_url: st
 
 
 @pytest.mark.integration
-def test_update_item_label_entity_not_found(api_client: requests.Session, api_url: str) -> None:
+def test_update_item_label_entity_not_found(
+    api_client: requests.Session, api_url: str
+) -> None:
     """Test updating item label for non-existent entity returns 404."""
     response = api_client.put(
         f"{api_url}/entities/items/Q99999/labels/en",
@@ -181,7 +191,9 @@ def test_delete_item_label_success(api_client: requests.Session, api_url: str) -
 
 
 @pytest.mark.integration
-def test_delete_item_label_not_found(api_client: requests.Session, api_url: str) -> None:
+def test_delete_item_label_not_found(
+    api_client: requests.Session, api_url: str
+) -> None:
     """Test deleting non-existent item label returns 404."""
     entity_data = EntityCreateRequest(
         id="Q70007",
@@ -205,7 +217,9 @@ def test_delete_item_label_not_found(api_client: requests.Session, api_url: str)
 
 
 @pytest.mark.integration
-def test_delete_item_label_entity_not_found(api_client: requests.Session, api_url: str) -> None:
+def test_delete_item_label_entity_not_found(
+    api_client: requests.Session, api_url: str
+) -> None:
     """Test deleting item label for non-existent entity returns 404."""
     response = api_client.delete(
         f"{api_url}/entities/items/Q99999/labels/en",
@@ -215,7 +229,9 @@ def test_delete_item_label_entity_not_found(api_client: requests.Session, api_ur
 
 
 @pytest.mark.integration
-def test_get_item_description_success(api_client: requests.Session, api_url: str) -> None:
+def test_get_item_description_success(
+    api_client: requests.Session, api_url: str
+) -> None:
     """Test getting item description for language."""
     entity_data = EntityCreateRequest(
         id="Q70008",
@@ -239,7 +255,9 @@ def test_get_item_description_success(api_client: requests.Session, api_url: str
 
 
 @pytest.mark.integration
-def test_get_item_description_not_found(api_client: requests.Session, api_url: str) -> None:
+def test_get_item_description_not_found(
+    api_client: requests.Session, api_url: str
+) -> None:
     """Test getting item description for non-existent language returns 404."""
     entity_data = EntityCreateRequest(
         id="Q70009",
@@ -260,7 +278,9 @@ def test_get_item_description_not_found(api_client: requests.Session, api_url: s
 
 
 @pytest.mark.integration
-def test_update_item_description_success(api_client: requests.Session, api_url: str) -> None:
+def test_update_item_description_success(
+    api_client: requests.Session, api_url: str
+) -> None:
     """Test updating item description for language."""
     entity_data = EntityCreateRequest(
         id="Q70010",
@@ -287,7 +307,9 @@ def test_update_item_description_success(api_client: requests.Session, api_url: 
 
 
 @pytest.mark.integration
-def test_update_item_description_creates_new(api_client: requests.Session, api_url: str) -> None:
+def test_update_item_description_creates_new(
+    api_client: requests.Session, api_url: str
+) -> None:
     """Test updating item description creates new language if not exists."""
     entity_data = EntityCreateRequest(
         id="Q70011",
@@ -315,12 +337,17 @@ def test_update_item_description_creates_new(api_client: requests.Session, api_u
 
 
 @pytest.mark.integration
-def test_delete_item_description_success(api_client: requests.Session, api_url: str) -> None:
+def test_delete_item_description_success(
+    api_client: requests.Session, api_url: str
+) -> None:
     """Test deleting item description for language."""
     entity_data = EntityCreateRequest(
         id="Q70012",
         type="item",
-        descriptions={"en": {"value": "Description to Delete"}, "de": {"value": "German Description"}},
+        descriptions={
+            "en": {"value": "Description to Delete"},
+            "de": {"value": "German Description"},
+        },
         edit_summary="test",
     )
 
@@ -342,7 +369,9 @@ def test_delete_item_description_success(api_client: requests.Session, api_url: 
 
 
 @pytest.mark.integration
-def test_delete_item_description_not_found(api_client: requests.Session, api_url: str) -> None:
+def test_delete_item_description_not_found(
+    api_client: requests.Session, api_url: str
+) -> None:
     """Test deleting non-existent item description returns 404."""
     entity_data = EntityCreateRequest(
         id="Q70013",
@@ -418,7 +447,9 @@ def test_get_item_aliases_multiple(api_client: requests.Session, api_url: str) -
     entity_data = EntityCreateRequest(
         id="Q70016",
         type="item",
-        aliases={"en": [{"value": "Alias 1"}, {"value": "Alias 2"}, {"value": "Alias 3"}]},
+        aliases={
+            "en": [{"value": "Alias 1"}, {"value": "Alias 2"}, {"value": "Alias 3"}]
+        },
         edit_summary="test",
     )
 
@@ -436,7 +467,9 @@ def test_get_item_aliases_multiple(api_client: requests.Session, api_url: str) -
 
 
 @pytest.mark.integration
-def test_update_item_aliases_replace(api_client: requests.Session, api_url: str) -> None:
+def test_update_item_aliases_replace(
+    api_client: requests.Session, api_url: str
+) -> None:
     """Test updating item aliases replaces existing ones."""
     entity_data = EntityCreateRequest(
         id="Q70017",
@@ -517,4 +550,6 @@ def test_update_item_aliases_clear(api_client: requests.Session, api_url: str) -
     )
     assert response.status_code == 200
     data = response.json()
-    assert "en" not in data["data"]["aliases"] or len(data["data"]["aliases"]["en"]) == 0
+    assert (
+        "en" not in data["data"]["aliases"] or len(data["data"]["aliases"]["en"]) == 0
+    )

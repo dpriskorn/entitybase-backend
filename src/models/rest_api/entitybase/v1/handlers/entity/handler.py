@@ -12,7 +12,10 @@ from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
 from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
-from models.data.rest_api.v1.entitybase.request.entity.context import ProcessEntityRevisionContext, RevisionContext
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    ProcessEntityRevisionContext,
+    RevisionContext,
+)
 from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
 )
@@ -82,7 +85,9 @@ class EntityHandler(Handler):
             is_creation=ctx.is_creation,
             vitess_client=self.state.vitess_client,
             s3_client=self.state.s3_client,
-            stream_producer=self.state.stream_producer if hasattr(self.state, "stream_producer") else None,
+            stream_producer=self.state.stream_producer
+            if hasattr(self.state, "stream_producer")
+            else None,
             validator=ctx.validator,
         )
 
@@ -114,7 +119,9 @@ class EntityHandler(Handler):
 
         # Build response
         response = await self._build_entity_response(rev_ctx, result)
-        logger.info(f"Entity revision created successfully for {ctx.entity_id}: revision {result.revision_id}")
+        logger.info(
+            f"Entity revision created successfully for {ctx.entity_id}: revision {result.revision_id}"
+        )
         return response
 
     @staticmethod
@@ -125,9 +132,7 @@ class EntityHandler(Handler):
             raise_validation_error("Entity ID is required", 400)
 
     @staticmethod
-    async def _check_idempotency_new(
-            ctx: RevisionContext
-    ) -> EntityResponse | None:
+    async def _check_idempotency_new(ctx: RevisionContext) -> EntityResponse | None:
         """Check if request is idempotent using validation service."""
         validation_service = EntityValidationService()
         return validation_service.validate_idempotency(
@@ -215,7 +220,6 @@ class EntityHandler(Handler):
             f"Building revision data for {ctx.entity_id} revision {new_revision_id}"
         )
 
-
         created_at = datetime.now(timezone.utc).isoformat()
 
         return RevisionData(
@@ -243,7 +247,7 @@ class EntityHandler(Handler):
 
     @staticmethod
     async def _store_revision_s3_new(
-            ctx: RevisionContext, revision_data: RevisionData
+        ctx: RevisionContext, revision_data: RevisionData
     ) -> None:
         """Store revision data in S3."""
         import json
@@ -264,9 +268,7 @@ class EntityHandler(Handler):
         ctx.s3_client.store_revision(content_hash, s3_revision_data)
 
     @staticmethod
-    async def _publish_events_new(
-            ctx: RevisionContext, result: RevisionResult
-    ) -> None:
+    async def _publish_events_new(ctx: RevisionContext, result: RevisionResult) -> None:
         """Publish revision events."""
         if ctx.stream_producer and result.revision_id:
             try:
@@ -280,14 +282,16 @@ class EntityHandler(Handler):
                     at=datetime.now(timezone.utc),
                     summary=ctx.edit_summary,
                 )
-                logger.debug(f"Publishing event to stream for entity {ctx.entity_id} revision {result.revision_id}")
+                logger.debug(
+                    f"Publishing event to stream for entity {ctx.entity_id} revision {result.revision_id}"
+                )
                 await ctx.stream_producer.publish_change(event)
             except Exception as e:
                 logger.warning(f"Failed to publish event for {ctx.entity_id}: {e}")
 
     @staticmethod
     async def _build_entity_response(
-            ctx: RevisionContext, result: RevisionResult
+        ctx: RevisionContext, result: RevisionResult
     ) -> EntityResponse:
         """Build EntityResponse from revision result."""
         if not result.success or not result.revision_id:
@@ -301,19 +305,33 @@ class EntityHandler(Handler):
                 rev_id=result.revision_id,
                 data=revision,
                 state=EntityState(
-                    sp=revision.revision.get("state", {}).get("is_semi_protected", False),
+                    sp=revision.revision.get("state", {}).get(
+                        "is_semi_protected", False
+                    ),
                     locked=revision.revision.get("state", {}).get("is_locked", False),
-                    archived=revision.revision.get("state", {}).get("is_archived", False),
-                    dangling=revision.revision.get("state", {}).get("is_dangling", False),
-                    mep=revision.revision.get("state", {}).get("is_mass_edit_protected", False),
+                    archived=revision.revision.get("state", {}).get(
+                        "is_archived", False
+                    ),
+                    dangling=revision.revision.get("state", {}).get(
+                        "is_dangling", False
+                    ),
+                    mep=revision.revision.get("state", {}).get(
+                        "is_mass_edit_protected", False
+                    ),
                 ),
             )
         except S3NotFoundError:
-            logger.warning(f"Created revision not found for {ctx.entity_id}, revision {result.revision_id}")
-            raise_validation_error(f"Revision not found: {ctx.entity_id}", status_code=404)
+            logger.warning(
+                f"Created revision not found for {ctx.entity_id}, revision {result.revision_id}"
+            )
+            raise_validation_error(
+                f"Revision not found: {ctx.entity_id}", status_code=404
+            )
         except Exception as e:
             logger.error(f"Failed to build response for {ctx.entity_id}: {e}")
-            raise_validation_error("Failed to retrieve created revision", status_code=500)
+            raise_validation_error(
+                "Failed to retrieve created revision", status_code=500
+            )
 
     def process_statements(
         self,

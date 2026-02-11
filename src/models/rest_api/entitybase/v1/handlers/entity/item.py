@@ -10,7 +10,10 @@ from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
-from models.data.rest_api.v1.entitybase.request.entity.context import EventPublishContext, CreationTransactionContext
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EventPublishContext,
+    CreationTransactionContext,
+)
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.rest_api.utils import raise_validation_error
@@ -46,7 +49,9 @@ class ItemCreateHandler(EntityCreateHandler):
         return entity_id
 
     @staticmethod
-    def _prepare_request_data(request: EntityCreateRequest, entity_id: str) -> PreparedRequestData:
+    def _prepare_request_data(
+        request: EntityCreateRequest, entity_id: str
+    ) -> PreparedRequestData:
         """Prepare request data for entity creation."""
         request_data_dict = request.data.copy()
         request_data_dict["id"] = entity_id
@@ -54,12 +59,16 @@ class ItemCreateHandler(EntityCreateHandler):
         return PreparedRequestData(**request_data_dict)
 
     @staticmethod
-    async def _execute_creation_transaction(ctx: CreationTransactionContext) -> EntityResponse:
+    async def _execute_creation_transaction(
+        ctx: CreationTransactionContext,
+    ) -> EntityResponse:
         """Execute the creation transaction operations."""
         ctx.tx.register_entity(ctx.entity_id)
         logger.debug(f"🔍 HANDLER: Entity {ctx.entity_id} registered successfully")
 
-        hash_result = ctx.tx.process_statements(ctx.entity_id, ctx.request_data, ctx.validator)
+        hash_result = ctx.tx.process_statements(
+            ctx.entity_id, ctx.request_data, ctx.validator
+        )
         logger.debug(f"🔍 HANDLER: Statements processed, hash_result: {hash_result}")
 
         response = await ctx.tx.create_revision(
@@ -98,7 +107,9 @@ class ItemCreateHandler(EntityCreateHandler):
         auto_assign_id: bool = False,
     ) -> EntityResponse:
         """Create a new item with auto-assigned Q ID using EntityTransaction."""
-        logger.info(f"🔍 HANDLER: Starting item creation for {request.id or 'auto-assign'}")
+        logger.info(
+            f"🔍 HANDLER: Starting item creation for {request.id or 'auto-assign'}"
+        )
         logger.debug(f"🔍 HANDLER: Request: {request.model_dump()}")
         entity_id = self._resolve_entity_id(request)
 

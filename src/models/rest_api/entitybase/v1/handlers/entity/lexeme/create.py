@@ -43,7 +43,9 @@ class LexemeCreateHandler(EntityCreateHandler):
             self.enumeration_service.confirm_id_usage(request.id)
         return response
 
-    async def _process_lexeme_terms(self, request: EntityCreateRequest, entity_id: str) -> None:
+    async def _process_lexeme_terms(
+        self, request: EntityCreateRequest, entity_id: str
+    ) -> None:
         """Process and deduplicate lexeme form representations and sense glosses."""
         logger.debug(f"Processing lexeme terms for {entity_id}")
 

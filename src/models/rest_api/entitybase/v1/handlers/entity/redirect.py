@@ -26,8 +26,10 @@ class RedirectHandler(Handler):
         logger.debug(
             f"Creating redirect from {request.redirect_from_id} to {request.redirect_to_id}"
         )
-        return cast(EntityRedirectResponse, 
-                   await self.state.redirect_service.create_redirect(request, edit_headers))
+        return cast(
+            EntityRedirectResponse,
+            await self.state.redirect_service.create_redirect(request, edit_headers),
+        )
 
     async def revert_entity_redirect(
         self, entity_id: str, request: RedirectRevertRequest, edit_headers: EditHeaders
@@ -36,5 +38,9 @@ class RedirectHandler(Handler):
         logger.debug(
             f"Reverting redirect for entity {entity_id} to revision {request.revert_to_revision_id}"
         )
-        return cast(EntityRevertResponse, 
-                   await self.state.redirect_service.revert_redirect(entity_id, request.revert_to_revision_id, edit_headers))
+        return cast(
+            EntityRevertResponse,
+            await self.state.redirect_service.revert_redirect(
+                entity_id, request.revert_to_revision_id, edit_headers
+            ),
+        )

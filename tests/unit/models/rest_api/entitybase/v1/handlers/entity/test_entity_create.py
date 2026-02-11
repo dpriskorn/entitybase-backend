@@ -15,10 +15,6 @@ from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 class TestEntityCreateHandler:
     """Unit tests for EntityCreateHandler."""
 
-
-
-
-
     @pytest.mark.asyncio
     async def test_create_entity_exists(self) -> None:
         """Test creating an entity that already exists."""
@@ -31,9 +27,7 @@ class TestEntityCreateHandler:
         handler = EntityCreateHandler(state=mock_state)
 
         request = EntityCreateRequest(
-            type="item",
-            id="Q42",
-            labels={"en": {"value": "Test Entity"}}
+            type="item", id="Q42", labels={"en": {"value": "Test Entity"}}
         )
 
         edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
@@ -55,9 +49,7 @@ class TestEntityCreateHandler:
         handler = EntityCreateHandler(state=mock_state)
 
         request = EntityCreateRequest(
-            type="item",
-            id="Q42",
-            labels={"en": {"value": "Test Entity"}}
+            type="item", id="Q42", labels={"en": {"value": "Test Entity"}}
         )
 
         edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
@@ -72,8 +64,7 @@ class TestEntityCreateHandler:
         handler = EntityCreateHandler(state=mock_state)
 
         request = EntityCreateRequest(
-            type="item",
-            labels={"en": {"value": "Test Entity"}}
+            type="item", labels={"en": {"value": "Test Entity"}}
         )
 
         edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
@@ -88,17 +79,14 @@ class TestEntityCreateHandler:
         handler = EntityCreateHandler(state=mock_state, enumeration_service=None)
 
         request = EntityCreateRequest(
-            type="item",
-            labels={"en": {"value": "Test Entity"}}
+            type="item", labels={"en": {"value": "Test Entity"}}
         )
 
         edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
         with pytest.raises(Exception):  # Should raise validation error
-            await handler.create_entity(request, edit_headers=edit_headers, auto_assign_id=True)
-
-
-
-
+            await handler.create_entity(
+                request, edit_headers=edit_headers, auto_assign_id=True
+            )
 
     @pytest.mark.asyncio
     async def test_create_entity_with_validator(self) -> None:
@@ -118,32 +106,29 @@ class TestEntityCreateHandler:
             schema="1.0.0",
             revision={"id": "Q42", "type": "item"},
             hash=123456789,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
-        mock_response = EntityResponse(
-            id="Q42",
-            rev_id=12345,
-            data=s3_revision_data
-        )
+        mock_response = EntityResponse(id="Q42", rev_id=12345, data=s3_revision_data)
 
         handler = EntityCreateHandler(state=mock_state)
 
-        with patch('models.rest_api.entitybase.v1.handlers.entity.handler.EntityHandler.process_entity_revision_new', new_callable=AsyncMock) as mock_process:
+        with patch(
+            "models.rest_api.entitybase.v1.handlers.entity.handler.EntityHandler.process_entity_revision_new",
+            new_callable=AsyncMock,
+        ) as mock_process:
             mock_process.return_value = mock_response
 
             request = EntityCreateRequest(
-                type="item",
-                id="Q42",
-                labels={"en": {"value": "Test Entity"}}
+                type="item", id="Q42", labels={"en": {"value": "Test Entity"}}
             )
 
             edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
-            result = await handler.create_entity(request, edit_headers=edit_headers, validator=mock_validator)
+            result = await handler.create_entity(
+                request, edit_headers=edit_headers, validator=mock_validator
+            )
 
             assert result.id == "Q42"
             # Verify validator was passed to process method
             mock_process.assert_called_once()
             ctx = mock_process.call_args[0][0]
             assert ctx.validator == mock_validator
-
-

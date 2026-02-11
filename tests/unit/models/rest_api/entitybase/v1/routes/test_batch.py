@@ -1,4 +1,5 @@
 """Unit tests for batch routes."""
+
 import unittest
 from unittest import TestCase
 
@@ -29,7 +30,9 @@ class TestBatchRoutes(TestCase):
         mock_request.app.state.state_handler = mock_state
 
         # Mock S3 client responses
-        mock_s3_client.load_sitelink_metadata.side_effect = lambda h: f"Title{h}" if h in [123, 456] else None
+        mock_s3_client.load_sitelink_metadata.side_effect = (
+            lambda h: f"Title{h}" if h in [123, 456] else None
+        )
 
         # Call the endpoint
         result = await get_batch_sitelinks("123,456,789", mock_request)
@@ -86,7 +89,9 @@ class TestBatchRoutes(TestCase):
         mock_request.app.state.state_handler = mock_state
 
         # Mock S3 client responses
-        mock_s3_client.load_metadata.side_effect = lambda t, h: f"Label{h}" if t == "labels" and h in [123, 456] else None
+        mock_s3_client.load_metadata.side_effect = (
+            lambda t, h: f"Label{h}" if t == "labels" and h in [123, 456] else None
+        )
 
         # Call the endpoint
         result = await get_batch_labels("123,456,789", mock_request)
@@ -109,7 +114,11 @@ class TestBatchRoutes(TestCase):
         mock_request.app.state.state_handler = mock_state
 
         # Mock S3 client responses
-        mock_s3_client.load_metadata.side_effect = lambda t, h: f"Description{h}" if t == "descriptions" and h in [123, 456] else None
+        mock_s3_client.load_metadata.side_effect = (
+            lambda t, h: f"Description{h}"
+            if t == "descriptions" and h in [123, 456]
+            else None
+        )
 
         # Call the endpoint
         result = await get_batch_descriptions("123,456,789", mock_request)
@@ -130,7 +139,9 @@ class TestBatchRoutes(TestCase):
 
         # Mock S3 client responses
         mock_aliases = ["Alias1", "Alias2"]
-        mock_s3_client.load_metadata.side_effect = lambda t, h: mock_aliases if t == "aliases" and h in [123, 456] else None
+        mock_s3_client.load_metadata.side_effect = (
+            lambda t, h: mock_aliases if t == "aliases" and h in [123, 456] else None
+        )
 
         # Call the endpoint
         result = await get_batch_aliases("123,456,789", mock_request)
@@ -167,13 +178,16 @@ class TestBatchRoutes(TestCase):
         mock_entity_response.entity_data = {
             "statements": {
                 "P31": [{"id": "Q5:12345", "mainsnak": {"property": "P31"}}],
-                "P17": [{"id": "Q5:67890", "mainsnak": {"property": "P17"}}]
+                "P17": [{"id": "Q5:67890", "mainsnak": {"property": "P17"}}],
             }
         }
         mock_handler.get_entity.return_value = mock_entity_response
 
         # Mock the EntityReadHandler import
-        with unittest.mock.patch("models.rest_api.entitybase.v1.routes.batch.EntityReadHandler", return_value=mock_handler):
+        with unittest.mock.patch(
+            "models.rest_api.entitybase.v1.routes.batch.EntityReadHandler",
+            return_value=mock_handler,
+        ):
             # Call the endpoint
             result = await get_batch_statements(mock_request, "Q5", "P31,P17")
 
@@ -181,7 +195,7 @@ class TestBatchRoutes(TestCase):
             expected = {
                 "Q5": {
                     "P31": [{"id": "Q5:12345", "mainsnak": {"property": "P31"}}],
-                    "P17": [{"id": "Q5:67890", "mainsnak": {"property": "P17"}}]
+                    "P17": [{"id": "Q5:67890", "mainsnak": {"property": "P17"}}],
                 }
             }
             assert result == expected
@@ -200,13 +214,16 @@ class TestBatchRoutes(TestCase):
         mock_entity_response.entity_data = {
             "statements": {
                 "P31": [{"id": "Q5:12345", "mainsnak": {"property": "P31"}}],
-                "P17": [{"id": "Q5:67890", "mainsnak": {"property": "P17"}}]
+                "P17": [{"id": "Q5:67890", "mainsnak": {"property": "P17"}}],
             }
         }
         mock_handler.get_entity.return_value = mock_entity_response
 
         # Mock the EntityReadHandler import
-        with unittest.mock.patch("models.rest_api.entitybase.v1.routes.batch.EntityReadHandler", return_value=mock_handler):
+        with unittest.mock.patch(
+            "models.rest_api.entitybase.v1.routes.batch.EntityReadHandler",
+            return_value=mock_handler,
+        ):
             # Call the endpoint without property filter
             result = await get_batch_statements(mock_request, "Q5", "")
 
@@ -242,7 +259,10 @@ class TestBatchRoutes(TestCase):
         mock_handler.get_entity.side_effect = Exception("Entity not found")
 
         # Mock the EntityReadHandler import
-        with unittest.mock.patch("models.rest_api.entitybase.v1.routes.batch.EntityReadHandler", return_value=mock_handler):
+        with unittest.mock.patch(
+            "models.rest_api.entitybase.v1.routes.batch.EntityReadHandler",
+            return_value=mock_handler,
+        ):
             # Call the endpoint
             result = await get_batch_statements(mock_request, "Q999", "")
 

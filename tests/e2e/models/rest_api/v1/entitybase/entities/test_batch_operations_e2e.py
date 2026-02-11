@@ -58,9 +58,7 @@ def test_batch_labels(e2e_api_client, e2e_base_url, sample_item_data) -> None:
     assert response.status_code == 200
 
     # Get batch labels (may return empty if no hashes exist yet)
-    response = await client.get(
-        f"{e2e_base_url}/v1/entitybase/entities/labels/123,456"
-    )
+    response = await client.get(f"{e2e_base_url}/v1/entitybase/entities/labels/123,456")
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)

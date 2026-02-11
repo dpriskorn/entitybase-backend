@@ -11,12 +11,7 @@ class TestMonolingualValueParser:
 
     def test_parse_valid_monolingual_value(self):
         """Test parsing a valid monolingual value."""
-        datavalue = {
-            "value": {
-                "language": "en",
-                "text": "Hello World"
-            }
-        }
+        datavalue = {"value": {"language": "en", "text": "Hello World"}}
 
         result = parse_monolingual_value(datavalue)
 
@@ -29,12 +24,7 @@ class TestMonolingualValueParser:
 
     def test_parse_monolingual_value_with_special_characters(self):
         """Test parsing monolingual value with special characters."""
-        datavalue = {
-            "value": {
-                "language": "es",
-                "text": "¡Hola, mundo! ¿Cómo estás?"
-            }
-        }
+        datavalue = {"value": {"language": "es", "text": "¡Hola, mundo! ¿Cómo estás?"}}
 
         result = parse_monolingual_value(datavalue)
 
@@ -43,12 +33,7 @@ class TestMonolingualValueParser:
 
     def test_parse_monolingual_value_unicode_text(self):
         """Test parsing monolingual value with unicode text."""
-        datavalue = {
-            "value": {
-                "language": "zh",
-                "text": "你好世界"
-            }
-        }
+        datavalue = {"value": {"language": "zh", "text": "你好世界"}}
 
         result = parse_monolingual_value(datavalue)
 
@@ -57,11 +42,7 @@ class TestMonolingualValueParser:
 
     def test_parse_monolingual_value_missing_language(self):
         """Test parsing when language field is missing."""
-        datavalue = {
-            "value": {
-                "text": "Some text"
-            }
-        }
+        datavalue = {"value": {"text": "Some text"}}
 
         result = parse_monolingual_value(datavalue)
 
@@ -70,11 +51,7 @@ class TestMonolingualValueParser:
 
     def test_parse_monolingual_value_missing_text(self):
         """Test parsing when text field is missing."""
-        datavalue = {
-            "value": {
-                "language": "fr"
-            }
-        }
+        datavalue = {"value": {"language": "fr"}}
 
         result = parse_monolingual_value(datavalue)
 
@@ -83,12 +60,7 @@ class TestMonolingualValueParser:
 
     def test_parse_monolingual_value_empty_fields(self):
         """Test parsing with empty language and text."""
-        datavalue = {
-            "value": {
-                "language": "",
-                "text": ""
-            }
-        }
+        datavalue = {"value": {"language": "", "text": ""}}
 
         result = parse_monolingual_value(datavalue)
 
@@ -103,16 +75,11 @@ class TestMonolingualValueParser:
 
         assert isinstance(result, MonolingualValue)
         assert result.language == ""  # Empty string default
-        assert result.text == ""     # Empty string default
+        assert result.text == ""  # Empty string default
 
     def test_parse_monolingual_value_result_immutability(self):
         """Test that the parsed result is immutable (frozen model)."""
-        datavalue = {
-            "value": {
-                "language": "de",
-                "text": "Hallo Welt"
-            }
-        }
+        datavalue = {"value": {"language": "de", "text": "Hallo Welt"}}
 
         result = parse_monolingual_value(datavalue)
 
@@ -126,14 +93,12 @@ class TestMonolingualValueParser:
         datavalue = {
             "value": {
                 "language": "en",
-                "text": "Text\twith\ttabs  and  multiple   spaces"
+                "text": "Text\twith\ttabs  and  multiple   spaces",
             }
         }
 
         result = parse_monolingual_value(datavalue)
 
-        assert result.text == "Text\twith\ttabs  and  multiple   spaces"  # Whitespace preserved
-
-    
-
-    
+        assert (
+            result.text == "Text\twith\ttabs  and  multiple   spaces"
+        )  # Whitespace preserved

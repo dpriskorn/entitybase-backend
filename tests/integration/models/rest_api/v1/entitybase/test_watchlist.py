@@ -135,9 +135,7 @@ async def test_remove_watch_by_id(api_prefix: str) -> None:
         watch_id = data["watches"][0]["id"]
 
         # Remove watch by ID
-        response = await client.delete(
-            f"{api_prefix}/users/12345/watchlist/{watch_id}"
-        )
+        response = await client.delete(f"{api_prefix}/users/12345/watchlist/{watch_id}")
         assert response.status_code == 200
         data = response.json()
         assert data["message"] == "Watch removed"
@@ -162,9 +160,7 @@ async def test_get_notifications(api_prefix: str) -> None:
         await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
         # Get notifications (should be empty initially)
-        response = await client.get(
-            f"{api_prefix}/users/12345/watchlist/notifications"
-        )
+        response = await client.get(f"{api_prefix}/users/12345/watchlist/notifications")
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -180,9 +176,7 @@ async def test_get_notifications_user_not_registered(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(
-            f"{api_prefix}/users/99999/watchlist/notifications"
-        )
+        response = await client.get(f"{api_prefix}/users/99999/watchlist/notifications")
         assert response.status_code == 400
         assert "User not registered" in response.json()["detail"]
 

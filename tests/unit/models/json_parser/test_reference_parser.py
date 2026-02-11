@@ -15,10 +15,7 @@ class TestReferenceParser:
                     {
                         "snaktype": "value",
                         "property": "P854",
-                        "datavalue": {
-                            "value": "http://example.com",
-                            "type": "string"
-                        }
+                        "datavalue": {"value": "http://example.com", "type": "string"},
                     }
                 ]
             }
@@ -38,10 +35,7 @@ class TestReferenceParser:
                     {
                         "snaktype": "value",
                         "property": "P854",
-                        "datavalue": {
-                            "value": "http://example.com",
-                            "type": "string"
-                        }
+                        "datavalue": {"value": "http://example.com", "type": "string"},
                     }
                 ],
                 "P813": [
@@ -56,13 +50,13 @@ class TestReferenceParser:
                                 "before": 0,
                                 "after": 0,
                                 "precision": 11,
-                                "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                                "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
                             },
-                            "type": "time"
-                        }
+                            "type": "time",
+                        },
                     }
-                ]
-            }
+                ],
+            },
         }
 
         result = parse_reference(reference_json)
@@ -85,11 +79,11 @@ class TestReferenceParser:
                             "property": "P854",
                             "datavalue": {
                                 "value": "http://example.com",
-                                "type": "string"
-                            }
+                                "type": "string",
+                            },
                         }
                     ]
-                }
+                },
             },
             {
                 "hash": "def456",
@@ -106,14 +100,14 @@ class TestReferenceParser:
                                     "before": 0,
                                     "after": 0,
                                     "precision": 11,
-                                    "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+                                    "calendarmodel": "http://www.wikidata.org/entity/Q1985727",
                                 },
-                                "type": "time"
-                            }
+                                "type": "time",
+                            },
                         }
                     ]
-                }
-            }
+                },
+            },
         ]
 
         result = parse_references(references_json)
@@ -130,12 +124,7 @@ class TestReferenceParser:
 
     def test_parse_references_no_snaks(self):
         """Test parsing reference with no snaks."""
-        references_json = [
-            {
-                "hash": "abc123",
-                "snaks": {}
-            }
-        ]
+        references_json = [{"hash": "abc123", "snaks": {}}]
 
         result = parse_references(references_json)
 

@@ -6,7 +6,12 @@ from datetime import datetime, timezone
 
 from models.config.settings import settings
 from models.data.infrastructure.s3.entity_state import EntityState
-from models.data.infrastructure.s3.enums import DeleteType, EditData, EditType, EntityType
+from models.data.infrastructure.s3.enums import (
+    DeleteType,
+    EditData,
+    EditType,
+    EntityType,
+)
 from models.data.infrastructure.s3.hashes.aliases_hashes import AliasesHashes
 from models.data.infrastructure.s3.hashes.descriptions_hashes import DescriptionsHashes
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
@@ -16,7 +21,10 @@ from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHas
 from models.data.infrastructure.s3.revision_data import S3RevisionData
 from models.data.infrastructure.stream import ChangeType
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
-from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest, UserActivityType
+from models.data.rest_api.v1.entitybase.request import (
+    EntityDeleteRequest,
+    UserActivityType,
+)
 from models.infrastructure.s3.revision.revision_data import RevisionData
 from models.infrastructure.stream.event import EntityChangeEvent
 from models.internal_representation.metadata_extractor import MetadataExtractor
@@ -94,7 +102,7 @@ class DeleteService(Service):
 
     @staticmethod
     def build_deletion_revision(
-            entity_id: str,
+        entity_id: str,
         current_revision: S3RevisionData,
         new_revision_id: int,
         request: EntityDeleteRequest,
@@ -118,12 +126,16 @@ class DeleteService(Service):
             else EditType.HARD_DELETE
         )
 
-        logger.debug(f"Building deletion revision for {entity_id}, revision {new_revision_id}, type={edit_type}")
+        logger.debug(
+            f"Building deletion revision for {entity_id}, revision {new_revision_id}, type={edit_type}"
+        )
 
         deletion_revision = RevisionData(
             schema_version=settings.s3_schema_revision_version,
             revision_id=new_revision_id,
-            entity_type=EntityType(current_revision.revision.get("entity_type", "item")),
+            entity_type=EntityType(
+                current_revision.revision.get("entity_type", "item")
+            ),
             properties=current_revision.revision.get("properties", {}),
             property_counts=current_revision.revision.get("property_counts", {}),
             hashes=HashMaps(
@@ -160,7 +172,9 @@ class DeleteService(Service):
             ),
         )
 
-        logger.debug(f"Deletion revision built successfully for {entity_id}, revision {new_revision_id}")
+        logger.debug(
+            f"Deletion revision built successfully for {entity_id}, revision {new_revision_id}"
+        )
 
         return deletion_revision
 

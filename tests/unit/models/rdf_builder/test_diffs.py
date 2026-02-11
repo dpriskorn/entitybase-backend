@@ -1,6 +1,12 @@
 """Tests for diff classes."""
 
-from models.rdf_builder import DiffResult, StatementDiff, TermsDiff, SitelinksDiff, EntityDiffs
+from models.rdf_builder import (
+    DiffResult,
+    StatementDiff,
+    TermsDiff,
+    SitelinksDiff,
+    EntityDiffs,
+)
 
 
 def test_diff_result_model():
@@ -78,6 +84,7 @@ def test_entity_diffs_model():
 
 def test_statement_diff_with_modified():
     """Test StatementDiff with modified statements."""
+
     class MockStmt:
         def __init__(self, stmt_id, property_id):
             self.id = stmt_id

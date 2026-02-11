@@ -19,9 +19,7 @@ async def test_entitybase_create_property(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post(
-            f"{api_prefix}/entities/properties", json=data
-        )
+        response = await client.post(f"{api_prefix}/entities/properties", json=data)
         assert response.status_code == 201  # Created
 
         response_data = response.json()
@@ -43,9 +41,7 @@ async def test_entitybase_create_property_minimal(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post(
-            f"{api_prefix}/entities/properties", json=data
-        )
+        response = await client.post(f"{api_prefix}/entities/properties", json=data)
         assert response.status_code == 201
 
         response_data = response.json()
@@ -68,8 +64,6 @@ async def test_entitybase_create_property_invalid(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post(
-            f"{api_prefix}/entities/properties", json=data
-        )
+        response = await client.post(f"{api_prefix}/entities/properties", json=data)
         # Should fail validation
         assert response.status_code == 400

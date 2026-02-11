@@ -21,6 +21,5 @@ class TestAddProperty(unittest.IsolatedAsyncioTestCase):
         self.handler = EntityHandler(state=self.mock_state)
 
 
-
 if __name__ == "__main__":
     unittest.main()

@@ -41,5 +41,7 @@ class TestClient:
 
         client = Client(config=mock_config)
 
-        with pytest.raises((ValueError, HTTPException)):  # raise_validation_error raises ValueError or HTTPException
+        with pytest.raises(
+            (ValueError, HTTPException)
+        ):  # raise_validation_error raises ValueError or HTTPException
             _ = client.healthy_connection

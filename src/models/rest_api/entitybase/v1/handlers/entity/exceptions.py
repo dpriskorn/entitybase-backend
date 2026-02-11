@@ -1,4 +1,1 @@
 """Entity processing errors."""
-
-
-

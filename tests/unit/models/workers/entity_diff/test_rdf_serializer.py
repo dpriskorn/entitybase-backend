@@ -7,10 +7,10 @@
 
 class TestRdfSerializer:
     """Placeholder test class for rdf_serializer."""
-    
+
     def test_placeholder(self):
         """Placeholder test - replace with actual tests.
-        
+
         This module contains logic that should be thoroughly tested:
         - Core functionality and edge cases
         - Error handling and validation

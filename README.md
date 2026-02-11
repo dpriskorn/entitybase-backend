@@ -197,13 +197,6 @@ Use either the setup script or dev worker CLI to create these buckets automatica
 - **Performance-first**: Range-based ID allocation eliminates write hotspots
 - **Type safety**: Dedicated endpoints for each Wikibase entity type
 
-## Next Steps
-
-- [ ] Implement Dump Worker service for RDF dump generation
-- [ ] Test all endpoints with docker
-- [ ] Create integration tests for ID generation and type-specific endpoints
-- [ ] Add monitoring and metrics for worker health and range utilization
-
 ## Features
 
 ### Redirect Support
@@ -227,6 +220,11 @@ Use either the setup script or dev worker CLI to create these buckets automatica
 - **Property endpoints**: `/property` for property entities (P IDs)
 - **Lexeme endpoints**: `/lexeme` for lexeme entities (L IDs)
 
+# License
+GPLv3+ 
+
+# Copyright 
+Nizo Priskorn 2026 
 
 ## External links
 * https://www.mediawiki.org/wiki/User:So9q/Scaling_issues Implemenatation history and on-wiki details

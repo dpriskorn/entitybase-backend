@@ -15,12 +15,17 @@ class TestQualifierStorage:
         """Test successful qualifier storage."""
         mock_connection_manager = MagicMock()
 
-        with patch('models.infrastructure.s3.storage.qualifier_storage.settings') as mock_settings:
+        with patch(
+            "models.infrastructure.s3.storage.qualifier_storage.settings"
+        ) as mock_settings:
             mock_settings.s3_qualifiers_bucket = "test-qualifiers"
             storage = QualifierStorage(connection_manager=mock_connection_manager)
 
         # Mock the store method
-        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.store', return_value=MagicMock(success=True)) as mock_store:
+        with patch(
+            "models.infrastructure.s3.base_storage.BaseS3Storage.store",
+            return_value=MagicMock(success=True),
+        ) as mock_store:
             qualifier_data = S3QualifierData(
                 qualifier={
                     "P580": [
@@ -43,7 +48,7 @@ class TestQualifierStorage:
                     ]
                 },
                 hash=12345,
-                created_at="2023-01-01T12:00:00Z"
+                created_at="2023-01-01T12:00:00Z",
             )
 
             result = storage.store_qualifier(12345, qualifier_data)
@@ -59,15 +64,18 @@ class TestQualifierStorage:
         """Test qualifier storage failure."""
         mock_connection_manager = MagicMock()
 
-        with patch('models.infrastructure.s3.storage.qualifier_storage.settings') as mock_settings:
+        with patch(
+            "models.infrastructure.s3.storage.qualifier_storage.settings"
+        ) as mock_settings:
             mock_settings.s3_qualifiers_bucket = "test-qualifiers"
             storage = QualifierStorage(connection_manager=mock_connection_manager)
 
-        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.store', return_value=MagicMock(success=False)):
+        with patch(
+            "models.infrastructure.s3.base_storage.BaseS3Storage.store",
+            return_value=MagicMock(success=False),
+        ):
             qualifier_data = S3QualifierData(
-                qualifier={"P580": []},
-                hash=12345,
-                created_at="2023-01-01T12:00:00Z"
+                qualifier={"P580": []}, hash=12345, created_at="2023-01-01T12:00:00Z"
             )
 
             result = storage.store_qualifier(12345, qualifier_data)
@@ -77,19 +85,22 @@ class TestQualifierStorage:
     def test_load_qualifier_success(self) -> None:
         """Test successful qualifier loading."""
         mock_qualifier_data = S3QualifierData(
-            qualifier={"P580": []},
-            hash=12345,
-            created_at="2023-01-01T12:00:00Z"
+            qualifier={"P580": []}, hash=12345, created_at="2023-01-01T12:00:00Z"
         )
         data_dict = mock_qualifier_data.model_dump()
 
         mock_connection_manager = MagicMock()
 
-        with patch('models.infrastructure.s3.storage.qualifier_storage.settings') as mock_settings:
+        with patch(
+            "models.infrastructure.s3.storage.qualifier_storage.settings"
+        ) as mock_settings:
             mock_settings.s3_qualifiers_bucket = "test-qualifiers"
             storage = QualifierStorage(connection_manager=mock_connection_manager)
 
-        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.load', return_value=MagicMock(data=data_dict)) as mock_load:
+        with patch(
+            "models.infrastructure.s3.base_storage.BaseS3Storage.load",
+            return_value=MagicMock(data=data_dict),
+        ) as mock_load:
             result = storage.load_qualifier(12345)
 
             assert result == mock_qualifier_data
@@ -98,21 +109,19 @@ class TestQualifierStorage:
     def test_load_qualifiers_batch_all_found(self) -> None:
         """Test batch loading when all qualifiers are found."""
         mock_qualifier_data1 = S3QualifierData(
-            qualifier={"P580": []},
-            hash=12345,
-            created_at="2023-01-01T12:00:00Z"
+            qualifier={"P580": []}, hash=12345, created_at="2023-01-01T12:00:00Z"
         )
         data_dict1 = mock_qualifier_data1.model_dump()
         mock_qualifier_data2 = S3QualifierData(
-            qualifier={"P582": []},
-            hash=67890,
-            created_at="2023-01-02T12:00:00Z"
+            qualifier={"P582": []}, hash=67890, created_at="2023-01-02T12:00:00Z"
         )
         data_dict2 = mock_qualifier_data2.model_dump()
 
         mock_connection_manager = MagicMock()
 
-        with patch('models.infrastructure.s3.storage.qualifier_storage.settings') as mock_settings:
+        with patch(
+            "models.infrastructure.s3.storage.qualifier_storage.settings"
+        ) as mock_settings:
             mock_settings.s3_qualifiers_bucket = "test-qualifiers"
             storage = QualifierStorage(connection_manager=mock_connection_manager)
 
@@ -125,7 +134,10 @@ class TestQualifierStorage:
             else:
                 return None
 
-        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.load', side_effect=mock_load):
+        with patch(
+            "models.infrastructure.s3.base_storage.BaseS3Storage.load",
+            side_effect=mock_load,
+        ):
             result = storage.load_qualifiers_batch([12345, 67890])
 
             assert len(result) == 2
@@ -135,15 +147,15 @@ class TestQualifierStorage:
     def test_load_qualifiers_batch_some_missing(self) -> None:
         """Test batch loading when some qualifiers are missing."""
         mock_qualifier_data = S3QualifierData(
-            qualifier={"P580": []},
-            hash=12345,
-            created_at="2023-01-01T12:00:00Z"
+            qualifier={"P580": []}, hash=12345, created_at="2023-01-01T12:00:00Z"
         )
         data_dict = mock_qualifier_data.model_dump()
 
         mock_connection_manager = MagicMock()
 
-        with patch('models.infrastructure.s3.storage.qualifier_storage.settings') as mock_settings:
+        with patch(
+            "models.infrastructure.s3.storage.qualifier_storage.settings"
+        ) as mock_settings:
             mock_settings.s3_qualifiers_bucket = "test-qualifiers"
             storage = QualifierStorage(connection_manager=mock_connection_manager)
 
@@ -154,7 +166,10 @@ class TestQualifierStorage:
             else:
                 return None
 
-        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.load', side_effect=mock_load):
+        with patch(
+            "models.infrastructure.s3.base_storage.BaseS3Storage.load",
+            side_effect=mock_load,
+        ):
             result = storage.load_qualifiers_batch([12345, 67890])
 
             assert len(result) == 2
@@ -167,7 +182,10 @@ class TestQualifierStorage:
         storage = QualifierStorage(connection_manager=mock_connection_manager)
         storage.bucket = "test-qualifiers"
 
-        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.load', return_value=None):
+        with patch(
+            "models.infrastructure.s3.base_storage.BaseS3Storage.load",
+            return_value=None,
+        ):
             result = storage.load_qualifiers_batch([12345, 67890])
 
             assert len(result) == 2
@@ -178,7 +196,9 @@ class TestQualifierStorage:
         """Test batch loading with empty hash list."""
         mock_connection_manager = MagicMock()
 
-        with patch('models.infrastructure.s3.storage.qualifier_storage.settings') as mock_settings:
+        with patch(
+            "models.infrastructure.s3.storage.qualifier_storage.settings"
+        ) as mock_settings:
             mock_settings.s3_qualifiers_bucket = "test-qualifiers"
             storage = QualifierStorage(connection_manager=mock_connection_manager)
         result = storage.load_qualifiers_batch([])
@@ -189,10 +209,15 @@ class TestQualifierStorage:
         """Test loading qualifier when not found."""
         mock_connection_manager = MagicMock()
 
-        with patch('models.infrastructure.s3.storage.qualifier_storage.settings') as mock_settings:
+        with patch(
+            "models.infrastructure.s3.storage.qualifier_storage.settings"
+        ) as mock_settings:
             mock_settings.s3_qualifiers_bucket = "test-qualifiers"
             storage = QualifierStorage(connection_manager=mock_connection_manager)
 
-        with patch('models.infrastructure.s3.base_storage.BaseS3Storage.load', return_value=None) as mock_load:
+        with patch(
+            "models.infrastructure.s3.base_storage.BaseS3Storage.load",
+            return_value=None,
+        ) as mock_load:
             with pytest.raises(S3NotFoundError, match="Qualifier not found: 999"):
                 storage.load_qualifier(999)

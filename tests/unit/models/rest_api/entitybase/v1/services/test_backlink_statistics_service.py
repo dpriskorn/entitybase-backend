@@ -7,10 +7,10 @@
 
 class TestBacklinkStatisticsService:
     """Placeholder test class for backlink_statistics_service."""
-    
+
     def test_placeholder(self):
         """Placeholder test - replace with actual tests.
-        
+
         This module contains logic that should be thoroughly tested:
         - Core functionality and edge cases
         - Error handling and validation

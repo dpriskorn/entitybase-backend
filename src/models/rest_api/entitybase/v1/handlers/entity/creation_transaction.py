@@ -9,7 +9,9 @@ from typing import Any
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
-from models.data.rest_api.v1.entitybase.request.entity.context import EventPublishContext
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EventPublishContext,
+)
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
@@ -54,7 +56,7 @@ class CreationTransaction(EntityTransaction):
     ) -> EntityResponse:
         """Create revision using new architecture components."""
         logger.debug(f"Creating revision for {entity_id}")
-        
+
         from models.rest_api.entitybase.v1.services.hash_service import HashService
         from models.data.infrastructure.s3.enums import EditType, EditData
         from models.data.infrastructure.s3.entity_state import EntityState
@@ -63,19 +65,21 @@ class CreationTransaction(EntityTransaction):
         from models.internal_representation.metadata_extractor import MetadataExtractor
         from models.data.infrastructure.s3.revision_data import S3RevisionData
         from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
-        from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
+        from models.data.infrastructure.s3.hashes.statements_hashes import (
+            StatementsHashes,
+        )
         from models.infrastructure.s3.revision.revision_data import RevisionData
         from models.config.settings import settings
-        
+
         entity_json = json.dumps(request_data.model_dump(mode="json"), sort_keys=True)
         content_hash = rapidhash(entity_json.encode())
-        
+
         hs = HashService(state=self.state)
         sitelink_hashes = hs.hash_sitelinks(request_data.sitelinks)
         labels_hashes = hs.hash_labels(request_data.labels)
         descriptions_hashes = hs.hash_descriptions(request_data.descriptions)
         aliases_hashes = hs.hash_aliases(request_data.aliases)
-        
+
         created_at = datetime.now().isoformat()
 
         # noinspection PyArgumentList
@@ -101,31 +105,29 @@ class CreationTransaction(EntityTransaction):
             state=EntityState(),
             schema_version=settings.s3_schema_revision_version,
         )
-        
+
         self.state.vitess_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,
             revision_id=1,
             content_hash=content_hash,
         )
-        
+
         revision_dict = revision_data.model_dump(mode="json")
         revision_json = json.dumps(revision_dict, sort_keys=True)
         content_hash = MetadataExtractor.hash_string(revision_json)
-        
+
         s3_revision_data = S3RevisionData(
             schema=settings.s3_schema_revision_version,
             revision=revision_dict,
             hash=content_hash,
             created_at=created_at,
         )
-        
+
         self.state.s3_client.store_revision(content_hash, s3_revision_data)
-        
-        self.operations.append(
-            lambda: self._rollback_revision(entity_id, 1)
-        )
-        
+
+        self.operations.append(lambda: self._rollback_revision(entity_id, 1))
+
         return EntityResponse(
             id=entity_id,
             rev_id=1,
@@ -142,7 +144,9 @@ class CreationTransaction(EntityTransaction):
         changed_at = event_context.changed_at
         if changed_at is None:
             changed_at = datetime.now()
-        logger.info(f"[CreationTransaction] Starting event publishing for {event_context.entity_id}")
+        logger.info(
+            f"[CreationTransaction] Starting event publishing for {event_context.entity_id}"
+        )
         if self.state.entity_change_stream_producer:
             from models.infrastructure.stream.event import EntityChangeEvent
 

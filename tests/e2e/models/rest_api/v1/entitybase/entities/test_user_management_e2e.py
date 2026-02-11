@@ -80,7 +80,9 @@ async def test_get_user_endorsements(e2e_api_client, e2e_base_url, api_prefix) -
 @pytest.mark.e2e
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def test_get_user_endorsement_stats(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_get_user_endorsement_stats(
+    e2e_api_client, e2e_base_url, api_prefix
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get endorsement statistics for a user."""

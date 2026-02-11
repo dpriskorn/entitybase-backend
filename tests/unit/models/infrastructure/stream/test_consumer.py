@@ -69,7 +69,9 @@ class TestConsumer:
         mock_consumer.stop.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_consume_events_without_start(self, consumer: StreamConsumerClient) -> None:
+    async def test_consume_events_without_start(
+        self, consumer: StreamConsumerClient
+    ) -> None:
         """Test consuming events without starting raises error."""
         with pytest.raises(RuntimeError, match="Consumer not started"):
             async for _ in consumer.consume_events():

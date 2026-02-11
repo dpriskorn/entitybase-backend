@@ -13,7 +13,9 @@ from models.data.rest_api.v1.entitybase.request import (
 from models.data.rest_api.v1.entitybase.request import (
     RemoveStatementRequest,
 )
-from models.data.rest_api.v1.entitybase.request.entity.context import SitelinkUpdateContext
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    SitelinkUpdateContext,
+)
 from models.data.rest_api.v1.entitybase.request.entity.sitelink import SitelinkData
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.response import (
@@ -36,7 +38,9 @@ from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHan
 from models.rest_api.entitybase.v1.handlers.export import ExportHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
-from models.rest_api.entitybase.v1.services.entity_statement_service import EntityStatementService
+from models.rest_api.entitybase.v1.services.entity_statement_service import (
+    EntityStatementService,
+)
 from models.rest_api.utils import raise_validation_error
 from models.infrastructure.s3.exceptions import S3NotFoundError
 
@@ -101,7 +105,10 @@ async def get_entity_ttl_revision(
     try:
         revision_data = state.s3_client.read_revision(entity_id, revision_id)
     except S3NotFoundError:
-        raise_validation_error(f"Revision content not found for entity {entity_id}, revision {revision_id}", status_code=404)
+        raise_validation_error(
+            f"Revision content not found for entity {entity_id}, revision {revision_id}",
+            status_code=404,
+        )
 
     serializer = RDFSerializer()
     rdf_content = serializer.entity_data_to_rdf(revision_data.revision, format_)
@@ -116,7 +123,8 @@ async def get_entity_ttl_revision(
 
 
 @router.get(
-    "/entities/{entity_id}/revision/{revision_id}/json", response_model=EntityJsonResponse
+    "/entities/{entity_id}/revision/{revision_id}/json",
+    response_model=EntityJsonResponse,
 )
 async def get_entity_json_revision(
     entity_id: str,
@@ -128,7 +136,10 @@ async def get_entity_json_revision(
     try:
         revision_data = state.s3_client.read_revision(entity_id, revision_id)
     except S3NotFoundError:
-        raise_validation_error(f"Revision content not found for entity {entity_id}, revision {revision_id}", status_code=404)
+        raise_validation_error(
+            f"Revision content not found for entity {entity_id}, revision {revision_id}",
+            status_code=404,
+        )
 
     return EntityJsonResponse(data=revision_data.revision)
 

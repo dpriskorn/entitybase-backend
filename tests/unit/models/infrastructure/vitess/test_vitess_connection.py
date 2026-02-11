@@ -16,7 +16,7 @@ class TestVitessConnectionManager:
             port=3306,
             user="user",
             password="pass",
-            database="test_db"
+            database="test_db",
         )
 
     def test_healthy_connection_check_success(self):
@@ -40,7 +40,9 @@ class TestVitessConnectionManager:
         manager = VitessConnectionManager(config=self.config)
         manager.connection = None
 
-        with patch('models.infrastructure.vitess.connection.pymysql.connect') as mock_connect:
+        with patch(
+            "models.infrastructure.vitess.connection.pymysql.connect"
+        ) as mock_connect:
             mock_connection = MagicMock()
             mock_connect.return_value = mock_connection
             mock_cursor = MagicMock()

@@ -39,8 +39,7 @@ class TestFastAPIApp:
         mock_state_handler.start.return_value = None
 
         mocker.patch(
-            "models.rest_api.main.StateHandler",
-            return_value=mock_state_handler
+            "models.rest_api.main.StateHandler", return_value=mock_state_handler
         )
 
         async with lifespan(app_mock) as _:
@@ -59,8 +58,7 @@ class TestFastAPIApp:
         mock_state_handler.start.return_value = None
 
         mocker.patch(
-            "models.rest_api.main.StateHandler",
-            return_value=mock_state_handler
+            "models.rest_api.main.StateHandler", return_value=mock_state_handler
         )
 
         with caplog.at_level(logging.DEBUG):
@@ -80,8 +78,7 @@ class TestFastAPIApp:
         mock_state_handler.start.side_effect = RuntimeError("Startup failed")
 
         mocker.patch(
-            "models.rest_api.main.StateHandler",
-            return_value=mock_state_handler
+            "models.rest_api.main.StateHandler", return_value=mock_state_handler
         )
 
         with pytest.raises(RuntimeError) as exc_info:

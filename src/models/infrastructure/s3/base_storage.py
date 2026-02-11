@@ -9,7 +9,11 @@ from botocore.exceptions import ClientError
 from pydantic import BaseModel, Field
 
 from models.data.common import OperationResult
-from models.data.infrastructure.s3 import DictLoadResponse, LoadResponse, StringLoadResponse
+from models.data.infrastructure.s3 import (
+    DictLoadResponse,
+    LoadResponse,
+    StringLoadResponse,
+)
 from models.infrastructure.s3.exceptions import (
     S3StorageError,
     S3NotFoundError,
@@ -29,17 +33,25 @@ class BaseS3Storage(ABC, BaseModel):
 
     def _ensure_connection(self) -> None:
         """Ensure S3 connection is available."""
-        if not self.connection_manager or not hasattr(self.connection_manager, 'boto_client') or not self.connection_manager.boto_client:
+        if (
+            not self.connection_manager
+            or not hasattr(self.connection_manager, "boto_client")
+            or not self.connection_manager.boto_client
+        ):
             raise S3ConnectionError("S3 service unavailable")
 
-    def _handle_client_error(self, e: ClientError, operation: str, key: str, bucket: str | None = None) -> None:
+    def _handle_client_error(
+        self, e: ClientError, operation: str, key: str, bucket: str | None = None
+    ) -> None:
         """Handle boto3 ClientError with appropriate logging and exceptions."""
         bucket_to_use = bucket if bucket is not None else self.bucket
         error_code = e.response["Error"].get("Code", "Unknown")
         error_message = e.response["Error"].get("Message", str(e))
 
         if error_code in ["NoSuchKey", "404"]:
-            logger.warning(f"S3 {operation} not found: bucket={bucket_to_use}, key={key}")
+            logger.warning(
+                f"S3 {operation} not found: bucket={bucket_to_use}, key={key}"
+            )
             raise S3NotFoundError(f"Object not found: {key}")
         else:
             logger.error(
@@ -158,7 +170,9 @@ class BaseS3Storage(ABC, BaseModel):
 
         try:
             assert self.connection_manager is not None  # For type checker
-            self.connection_manager.boto_client.head_object(Bucket=bucket_to_use, Key=key)
+            self.connection_manager.boto_client.head_object(
+                Bucket=bucket_to_use, Key=key
+            )
             return True
         except ClientError as e:
             if e.response["Error"].get("Code") in ["NoSuchKey", "404"]:

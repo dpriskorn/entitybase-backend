@@ -16,26 +16,44 @@ class TestS3RevisionData:
                 "id": "Q42",
                 "type": "item",
                 "labels": {"en": {"language": "en", "value": "Test Entity"}},
-                "claims": {}
+                "claims": {},
             },
-            "edit": {"mass": False, "type": "manual-create", "user_id": 456, "summary": "test", "at": "2023-01-01T00:00:00Z"},
-            "hashes": {"statements": {"root": []}, "labels": {}, "descriptions": {}, "aliases": {}, "sitelinks": {}},
+            "edit": {
+                "mass": False,
+                "type": "manual-create",
+                "user_id": 456,
+                "summary": "test",
+                "at": "2023-01-01T00:00:00Z",
+            },
+            "hashes": {
+                "statements": {"root": []},
+                "labels": {},
+                "descriptions": {},
+                "aliases": {},
+                "sitelinks": {},
+            },
             "properties": [],
             "property_counts": {},
             "created_at": "2023-01-01T00:00:00Z",
             "redirects_to": "",
-            "state": {"sp": False, "locked": False, "archived": False, "dangling": False, "mep": False, "deleted": False}
+            "state": {
+                "sp": False,
+                "locked": False,
+                "archived": False,
+                "dangling": False,
+                "mep": False,
+                "deleted": False,
+            },
         }
 
         s3_revision = S3RevisionData(
             schema="1.0.0",
             revision=revision_data,
             hash=987654321,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
 
         assert s3_revision.schema_version == "1.0.0"
         assert s3_revision.revision == revision_data
         assert s3_revision.content_hash == 987654321
         assert s3_revision.created_at == "2023-01-01T12:00:00Z"
-

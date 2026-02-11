@@ -14,25 +14,29 @@ from models.rest_api.entitybase.v1.services.snak_handler import SnakHandler
 logger = logging.getLogger(__name__)
 
 
-def _reconstruct_reference_snaks(reference_dict: dict, snak_handler: SnakHandler) -> dict:
+def _reconstruct_reference_snaks(
+    reference_dict: dict, snak_handler: SnakHandler
+) -> dict:
     """Reconstruct snaks from hashes in a reference dictionary.
-    
+
     Args:
         reference_dict: Reference dictionary containing snaks with potential hash values
         snak_handler: SnakHandler instance for loading snak data
-        
+
     Returns:
         Reference dictionary with reconstructed snaks
     """
     if "snaks" not in reference_dict:
         return reference_dict
-        
+
     reconstructed_snaks = {}
     for prop_key, snak_values in reference_dict["snaks"].items():
         if isinstance(snak_values, list):
             new_snak_values = []
             for snak_item in snak_values:
-                if isinstance(snak_item, int) or (isinstance(snak_item, str) and snak_item.isdigit()):
+                if isinstance(snak_item, int) or (
+                    isinstance(snak_item, str) and snak_item.isdigit()
+                ):
                     reconstructed_snak = snak_handler.get_snak(int(snak_item))
                     if reconstructed_snak:
                         new_snak_values.append(reconstructed_snak)
@@ -41,7 +45,9 @@ def _reconstruct_reference_snaks(reference_dict: dict, snak_handler: SnakHandler
                 else:
                     new_snak_values.append(snak_item)
             reconstructed_snaks[prop_key] = new_snak_values
-        elif isinstance(snak_values, int) or (isinstance(snak_values, str) and snak_values.isdigit()):
+        elif isinstance(snak_values, int) or (
+            isinstance(snak_values, str) and snak_values.isdigit()
+        ):
             reconstructed_snak = snak_handler.get_snak(int(snak_values))
             if reconstructed_snak:
                 reconstructed_snaks[prop_key] = [reconstructed_snak]
@@ -49,7 +55,7 @@ def _reconstruct_reference_snaks(reference_dict: dict, snak_handler: SnakHandler
                 logger.warning(f"Snak {snak_values} not found")
         else:
             reconstructed_snaks[prop_key] = snak_values
-    
+
     reference_dict["snaks"] = reconstructed_snaks
     return reference_dict
 
@@ -83,15 +89,17 @@ async def get_references(req: Request, hashes: str) -> List[ReferenceResponse | 
     try:
         result = state.s3_client.load_references_batch(rapidhashes)
         snak_handler = SnakHandler(state=state)
-        
+
         references: List[ReferenceResponse | None] = []
         for item in result:
             if item is None:
                 references.append(None)
                 continue
-            
-            reference_dict = _reconstruct_reference_snaks(item.reference.copy(), snak_handler)
-            
+
+            reference_dict = _reconstruct_reference_snaks(
+                item.reference.copy(), snak_handler
+            )
+
             references.append(
                 ReferenceResponse(
                     reference=reference_dict,
@@ -99,7 +107,7 @@ async def get_references(req: Request, hashes: str) -> List[ReferenceResponse | 
                     created_at=item.created_at,
                 )
             )
-        
+
         return references
     except Exception as e:
         logger.error(f"Failed to load references {rapidhashes}: {e}")

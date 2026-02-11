@@ -62,12 +62,8 @@ class TestProcessLexemeTerms:
         form_callback_calls = []
         gloss_callback_calls = []
 
-        forms = [
-            {"id": "L123-F1", "representations": {"en": {"value": "cats"}}}
-        ]
-        senses = [
-            {"id": "L123-S1", "glosses": {"en": {"value": "animal"}}}
-        ]
+        forms = [{"id": "L123-F1", "representations": {"en": {"value": "cats"}}}]
+        senses = [{"id": "L123-S1", "glosses": {"en": {"value": "animal"}}}]
 
         def form_callback(hash_val):
             form_callback_calls.append(hash_val)
@@ -86,12 +82,8 @@ class TestProcessLexemeTerms:
         mock_s3.store_form_representation.side_effect = Exception("S3 error")
         mock_s3.store_sense_gloss.side_effect = Exception("S3 error")
 
-        forms = [
-            {"id": "L123-F1", "representations": {"en": {"value": "cats"}}}
-        ]
-        senses = [
-            {"id": "L123-S1", "glosses": {"en": {"value": "animal"}}}
-        ]
+        forms = [{"id": "L123-F1", "representations": {"en": {"value": "cats"}}}]
+        senses = [{"id": "L123-S1", "glosses": {"en": {"value": "animal"}}}]
 
         # Should not raise exception
         process_lexeme_terms(forms, senses, mock_s3)
@@ -161,9 +153,7 @@ class TestProcessLexemeTerms:
         mock_s3 = MagicMock()
         mock_s3.store_form_representation = MagicMock()
 
-        terms = [
-            {"representations": {"en": {"value": "cats"}}}
-        ]
+        terms = [{"representations": {"en": {"value": "cats"}}}]
 
         config = TermProcessingConfig(
             data_key="representations",

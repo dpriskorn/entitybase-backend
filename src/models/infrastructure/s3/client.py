@@ -7,7 +7,12 @@ from boto3.session import Session as BotoSession  # noqa  # type: ignore[import-
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from pydantic import Field
 
-from models.data.infrastructure.s3 import DictLoadResponse, LoadResponse, StringLoadResponse, S3RevisionData
+from models.data.infrastructure.s3 import (
+    DictLoadResponse,
+    LoadResponse,
+    StringLoadResponse,
+    S3RevisionData,
+)
 
 if TYPE_CHECKING:
     pass
@@ -154,7 +159,9 @@ class MyS3Client(Client):
         """Load term metadata as plain UTF-8 text from S3."""
         result = self.metadata.load_metadata(MetadataType.LABELS, content_hash)
         if result is None:
-            raise_validation_error(f"Term metadata not found for hash {content_hash}", status_code=404)
+            raise_validation_error(
+                f"Term metadata not found for hash {content_hash}", status_code=404
+            )
         return cast(str, result.data)
 
     def store_sitelink_metadata(self, title: str, content_hash: int) -> None:
@@ -169,15 +176,19 @@ class MyS3Client(Client):
         """Load sitelink metadata as plain UTF-8 text from S3."""
         result = self.metadata.load_metadata(MetadataType.SITELINKS, content_hash)
         if result is None:
-            raise_validation_error(f"Sitelink metadata not found for hash {content_hash}", status_code=404)
+            raise_validation_error(
+                f"Sitelink metadata not found for hash {content_hash}", status_code=404
+            )
         return cast(str, result.data)
 
     def load_metadata(
         self, metadata_type: MetadataType, content_hash: int
     ) -> LoadResponse | None:
         """Load metadata by type."""
-        return cast(StringLoadResponse | DictLoadResponse | None, 
-                   self.metadata.load_metadata(metadata_type, content_hash))
+        return cast(
+            StringLoadResponse | DictLoadResponse | None,
+            self.metadata.load_metadata(metadata_type, content_hash),
+        )
 
     def store_reference(
         self, content_hash: int, reference_data: S3ReferenceData
@@ -195,8 +206,10 @@ class MyS3Client(Client):
         self, content_hashes: list[int]
     ) -> list[S3ReferenceData | None]:
         """Load multiple references by their content hashes."""
-        return cast(list[S3ReferenceData | None], 
-                   self.references.load_references_batch(content_hashes))
+        return cast(
+            list[S3ReferenceData | None],
+            self.references.load_references_batch(content_hashes),
+        )
 
     def store_qualifier(
         self, content_hash: int, qualifier_data: S3QualifierData
@@ -214,12 +227,12 @@ class MyS3Client(Client):
         self, content_hashes: list[int]
     ) -> list[S3QualifierData | None]:
         """Load multiple qualifiers by their content hashes."""
-        return cast(list[S3QualifierData | None], 
-                   self.qualifiers.load_qualifiers_batch(content_hashes))
+        return cast(
+            list[S3QualifierData | None],
+            self.qualifiers.load_qualifiers_batch(content_hashes),
+        )
 
-    def store_snak(
-        self, content_hash: int, snak_data: S3SnakData
-    ) -> None:
+    def store_snak(self, content_hash: int, snak_data: S3SnakData) -> None:
         """Store a snak by its content hash."""
         result = self.snaks.store_snak(content_hash, snak_data)
         if not result.success:
@@ -229,19 +242,17 @@ class MyS3Client(Client):
         """Load a snak by its content hash."""
         return cast(S3SnakData, self.snaks.load_snak(content_hash))
 
-    def load_snaks_batch(
-        self, content_hashes: list[int]
-    ) -> list[S3SnakData | None]:
+    def load_snaks_batch(self, content_hashes: list[int]) -> list[S3SnakData | None]:
         """Load multiple snaks by their content hashes."""
-        return cast(list[S3SnakData | None], 
-                   self.snaks.load_snaks_batch(content_hashes))
+        return cast(
+            list[S3SnakData | None], self.snaks.load_snaks_batch(content_hashes)
+        )
 
-    def store_revision(
-        self, content_hash: int, revision_data: S3RevisionData
-    ) -> None:
+    def store_revision(self, content_hash: int, revision_data: S3RevisionData) -> None:
         """Store a revision by its content hash."""
         from models.infrastructure.s3.storage.revision_storage import RevisionStorage
-        if not hasattr(self, 'revisions') or self.revisions is None:
+
+        if not hasattr(self, "revisions") or self.revisions is None:
             self.revisions = RevisionStorage(connection_manager=self.connection_manager)
         result = self.revisions.store_revision(content_hash, revision_data)
         if not result.success:
@@ -250,14 +261,16 @@ class MyS3Client(Client):
     def load_revision(self, content_hash: int) -> S3RevisionData:
         """Load a revision by its content hash."""
         from models.infrastructure.s3.storage.revision_storage import RevisionStorage
-        if not hasattr(self, 'revisions') or self.revisions is None:
+
+        if not hasattr(self, "revisions") or self.revisions is None:
             self.revisions = RevisionStorage(connection_manager=self.connection_manager)
         return cast(S3RevisionData, self.revisions.load_revision(content_hash))
 
     def store_form_representation(self, text: str, content_hash: int) -> None:
         """Store form representation text in terms bucket."""
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
-        if not hasattr(self, 'lexeme_storage') or self.lexemes is None:
+
+        if not hasattr(self, "lexeme_storage") or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
         result = self.lexemes.store_form_representation(text, content_hash)
         if not result.success:
@@ -266,7 +279,8 @@ class MyS3Client(Client):
     def store_sense_gloss(self, text: str, content_hash: int) -> None:
         """Store sense gloss text in terms bucket."""
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
-        if not hasattr(self, 'lexeme_storage') or self.lexemes is None:
+
+        if not hasattr(self, "lexeme_storage") or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
         result = self.lexemes.store_sense_gloss(text, content_hash)
         if not result.success:
@@ -275,18 +289,20 @@ class MyS3Client(Client):
     def load_form_representations_batch(self, hashes: List[int]) -> List[Optional[str]]:
         """Load form representations by content hashes."""
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
-        if not hasattr(self, 'lexeme_storage') or self.lexemes is None:
+
+        if not hasattr(self, "lexeme_storage") or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
-        return cast(list[str | None], 
-                   self.lexemes.load_form_representations_batch(hashes))
+        return cast(
+            list[str | None], self.lexemes.load_form_representations_batch(hashes)
+        )
 
     def load_sense_glosses_batch(self, hashes: List[int]) -> List[Optional[str]]:
         """Load sense glosses by content hashes."""
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
-        if not hasattr(self, 'lexemes') or self.lexemes is None:
+
+        if not hasattr(self, "lexemes") or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
-        return cast(list[str | None],
-                   self.lexemes.load_sense_glosses_batch(hashes))
+        return cast(list[str | None], self.lexemes.load_sense_glosses_batch(hashes))
 
     def disconnect(self) -> None:
         """Disconnect from S3 and release resources."""

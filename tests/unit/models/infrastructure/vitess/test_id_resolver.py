@@ -43,14 +43,14 @@ class TestIdResolver:
 
     def test_entity_exists_true(self):
         """Test entity_exists returns True when entity exists."""
-        with patch.object(type(self.resolver), 'resolve_id', return_value=456):
+        with patch.object(type(self.resolver), "resolve_id", return_value=456):
             result = self.resolver.entity_exists("Q42")
 
             assert result is True
 
     def test_entity_exists_false(self):
         """Test entity_exists returns False when entity doesn't exist."""
-        with patch.object(type(self.resolver), 'resolve_id', return_value=0):
+        with patch.object(type(self.resolver), "resolve_id", return_value=0):
             result = self.resolver.entity_exists("Q999")
 
             assert result is False
@@ -83,10 +83,10 @@ class TestIdResolver:
 
         assert result == ""
 
-    @patch('models.infrastructure.unique_id.UniqueIdGenerator')
+    @patch("models.infrastructure.unique_id.UniqueIdGenerator")
     def test_register_entity_already_exists(self, mock_generator_class):
         """Test registering an entity that already exists."""
-        with patch.object(type(self.resolver), 'entity_exists', return_value=True):
+        with patch.object(type(self.resolver), "entity_exists", return_value=True):
             self.resolver.register_entity("Q42")
 
             # Should not generate ID or insert

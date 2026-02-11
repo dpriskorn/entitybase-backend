@@ -1,4 +1,5 @@
 """Unit tests for statements."""
+
 from unittest import TestCase
 
 from models.data.rest_api.v1.entitybase.response import StatementsHashResponse

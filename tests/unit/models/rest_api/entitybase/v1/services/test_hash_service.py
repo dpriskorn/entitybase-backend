@@ -19,11 +19,14 @@ class TestHashService:
 
         sitelinks = {
             "enwiki": {"title": "Test Page", "badges": ["featured"]},
-            "dewiki": {"title": "Test Seite", "badges": []}
+            "dewiki": {"title": "Test Seite", "badges": []},
         }
 
         # Mock hash_string
-        with patch('models.internal_representation.metadata_extractor.MetadataExtractor.hash_string', side_effect=lambda x: hash(x)):
+        with patch(
+            "models.internal_representation.metadata_extractor.MetadataExtractor.hash_string",
+            side_effect=lambda x: hash(x),
+        ):
             result = service.hash_sitelinks(sitelinks)
 
             assert isinstance(result, SitelinkHashes)
@@ -35,8 +38,12 @@ class TestHashService:
             assert result.root["dewiki"].badges == []
 
             # Verify S3 calls
-            s3_client.store_sitelink_metadata.assert_any_call("Test Page", hash("Test Page"))
-            s3_client.store_sitelink_metadata.assert_any_call("Test Seite", hash("Test Seite"))
+            s3_client.store_sitelink_metadata.assert_any_call(
+                "Test Page", hash("Test Page")
+            )
+            s3_client.store_sitelink_metadata.assert_any_call(
+                "Test Seite", hash("Test Seite")
+            )
 
     def test_hash_sitelinks_no_title(self):
         """Test hashing sitelinks skips entries without title."""
@@ -47,10 +54,13 @@ class TestHashService:
 
         sitelinks = {
             "enwiki": {"badges": ["featured"]},  # No title
-            "dewiki": {"title": "Test Seite", "badges": []}
+            "dewiki": {"title": "Test Seite", "badges": []},
         }
 
-        with patch('models.internal_representation.metadata_extractor.MetadataExtractor.hash_string', side_effect=lambda x: hash(x)):
+        with patch(
+            "models.internal_representation.metadata_extractor.MetadataExtractor.hash_string",
+            side_effect=lambda x: hash(x),
+        ):
             result = service.hash_sitelinks(sitelinks)
 
             assert "enwiki" not in result.root

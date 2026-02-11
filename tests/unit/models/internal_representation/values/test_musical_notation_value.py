@@ -7,10 +7,10 @@
 
 class TestMusicalNotationValue:
     """Placeholder test class for musical_notation_value."""
-    
+
     def test_placeholder(self):
         """Placeholder test - replace with actual tests.
-        
+
         This module contains logic that should be thoroughly tested:
         - Core functionality and edge cases
         - Error handling and validation

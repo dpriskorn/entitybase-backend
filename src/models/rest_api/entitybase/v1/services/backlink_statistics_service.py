@@ -4,7 +4,10 @@ import logging
 
 from pydantic import BaseModel, Field
 
-from models.data.rest_api.v1.entitybase.response import TopEntityByBacklinks, BacklinkStatisticsData
+from models.data.rest_api.v1.entitybase.response import (
+    TopEntityByBacklinks,
+    BacklinkStatisticsData,
+)
 
 logger = logging.getLogger(__name__)
 

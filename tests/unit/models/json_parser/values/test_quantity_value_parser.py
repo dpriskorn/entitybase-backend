@@ -35,7 +35,7 @@ class TestQuantityValueParser:
                 "amount": "100",
                 "unit": "1",
                 "upperBound": "105",
-                "lowerBound": "95"
+                "lowerBound": "95",
             }
         }
 
@@ -53,7 +53,7 @@ class TestQuantityValueParser:
             "value": {
                 "amount": "50",
                 "unit": "http://www.wikidata.org/entity/Q712226",  # degree Celsius
-                "upperBound": "52"
+                "upperBound": "52",
             }
         }
 
@@ -66,13 +66,7 @@ class TestQuantityValueParser:
 
     def test_parse_quantity_lower_bound_only(self):
         """Test parsing a quantity value with only lower bound."""
-        datavalue = {
-            "value": {
-                "amount": "10",
-                "unit": "1",
-                "lowerBound": "8"
-            }
-        }
+        datavalue = {"value": {"amount": "10", "unit": "1", "lowerBound": "8"}}
 
         result = parse_quantity_value(datavalue)
 
@@ -83,11 +77,7 @@ class TestQuantityValueParser:
 
     def test_parse_quantity_default_unit(self):
         """Test parsing a quantity value without unit (should default to '1')."""
-        datavalue = {
-            "value": {
-                "amount": "25"
-            }
-        }
+        datavalue = {"value": {"amount": "25"}}
 
         result = parse_quantity_value(datavalue)
 
@@ -97,12 +87,7 @@ class TestQuantityValueParser:
 
     def test_parse_quantity_zero_value(self):
         """Test parsing a quantity value of zero."""
-        datavalue = {
-            "value": {
-                "amount": "0",
-                "unit": "1"
-            }
-        }
+        datavalue = {"value": {"amount": "0", "unit": "1"}}
 
         result = parse_quantity_value(datavalue)
 
@@ -114,7 +99,7 @@ class TestQuantityValueParser:
         datavalue = {
             "value": {
                 "amount": "-15.5",
-                "unit": "http://www.wikidata.org/entity/Q11579"  # kelvin
+                "unit": "http://www.wikidata.org/entity/Q11579",  # kelvin
             }
         }
 
@@ -125,12 +110,7 @@ class TestQuantityValueParser:
 
     def test_parse_quantity_scientific_notation(self):
         """Test parsing a quantity value in scientific notation."""
-        datavalue = {
-            "value": {
-                "amount": "6.022e23",
-                "unit": "1"
-            }
-        }
+        datavalue = {"value": {"amount": "6.022e23", "unit": "1"}}
 
         result = parse_quantity_value(datavalue)
 
@@ -145,7 +125,7 @@ class TestQuantityValueParser:
 
         assert isinstance(result, QuantityValue)
         assert result.value == "0"  # Default when amount is missing
-        assert result.unit == "1"   # Default unit
+        assert result.unit == "1"  # Default unit
 
     def test_parse_quantity_missing_amount(self):
         """Test parsing when amount is missing from value dict."""
@@ -162,12 +142,7 @@ class TestQuantityValueParser:
 
     def test_parse_quantity_result_immutability(self):
         """Test that the parsed result is immutable (frozen model)."""
-        datavalue = {
-            "value": {
-                "amount": "100",
-                "unit": "1"
-            }
-        }
+        datavalue = {"value": {"amount": "100", "unit": "1"}}
 
         result = parse_quantity_value(datavalue)
 
@@ -183,7 +158,7 @@ class TestQuantityValueParser:
                 "amount": "50",
                 "unit": "1",
                 "upperBound": 55,  # Numeric value
-                "lowerBound": 45   # Numeric value
+                "lowerBound": 45,  # Numeric value
             }
         }
 

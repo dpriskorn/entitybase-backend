@@ -7,10 +7,17 @@ from typing import Any
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
-from models.data.rest_api.v1.entitybase.request import LexemeUpdateRequest, UserActivityType
+from models.data.rest_api.v1.entitybase.request import (
+    LexemeUpdateRequest,
+    UserActivityType,
+)
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
-from models.data.rest_api.v1.entitybase.request.entity.context import TermUpdateContext, EventPublishContext, SitelinkUpdateContext
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    TermUpdateContext,
+    EventPublishContext,
+    SitelinkUpdateContext,
+)
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
@@ -103,7 +110,9 @@ class EntityUpdateHandler(EntityHandler):
                     )
                 )
                 if not activity_result.success:
-                    logger.warning(f"Failed to log user activity: {activity_result.error}")
+                    logger.warning(
+                        f"Failed to log user activity: {activity_result.error}"
+                    )
 
             # Commit
             tx.commit()
@@ -115,7 +124,9 @@ class EntityUpdateHandler(EntityHandler):
         except Exception as e:
             logger.error(f"Entity update failed for {entity_id}: {e}", exc_info=True)
             tx.rollback()
-            raise_validation_error(f"Update failed: {type(e).__name__}: {str(e)}", status_code=500)
+            raise_validation_error(
+                f"Update failed: {type(e).__name__}: {str(e)}", status_code=500
+            )
 
     async def update_label(
         self,
@@ -130,7 +141,7 @@ class EntityUpdateHandler(EntityHandler):
         if context.language != context.language_code:
             raise_validation_error(
                 f"Language in request ({context.language}) does not match path parameter ({context.language_code})",
-                status_code=400
+                status_code=400,
             )
 
         # Validate entity ID format
@@ -213,7 +224,7 @@ class EntityUpdateHandler(EntityHandler):
         if context.language != context.language_code:
             raise_validation_error(
                 f"Language in request ({context.language}) does not match path parameter ({context.language_code})",
-                status_code=400
+                status_code=400,
             )
 
         # Validate entity ID format
@@ -307,9 +318,7 @@ class EntityUpdateHandler(EntityHandler):
         # Update aliases: convert list of strings to internal format
         if "aliases" not in entity_dict:
             entity_dict["aliases"] = {}
-        entity_dict["aliases"][language_code] = [
-            {"value": alias} for alias in aliases
-        ]
+        entity_dict["aliases"][language_code] = [{"value": alias} for alias in aliases]
 
         # Update with transaction
         return await self._update_with_transaction(
@@ -320,7 +329,12 @@ class EntityUpdateHandler(EntityHandler):
             validator,
         )
 
-    async def update_sitelink(self, ctx: SitelinkUpdateContext, edit_headers: EditHeaders, validator: Any | None = None) -> EntityResponse:
+    async def update_sitelink(
+        self,
+        ctx: SitelinkUpdateContext,
+        edit_headers: EditHeaders,
+        validator: Any | None = None,
+    ) -> EntityResponse:
         """Update or add a sitelink.
 
         Returns EntityResponse (not OperationResult) for consistency with other methods.
@@ -521,7 +535,9 @@ class EntityUpdateHandler(EntityHandler):
                     )
                 )
                 if not activity_result.success:
-                    logger.warning(f"Failed to log user activity: {activity_result.error}")
+                    logger.warning(
+                        f"Failed to log user activity: {activity_result.error}"
+                    )
 
             # Commit
             tx.commit()
@@ -533,4 +549,6 @@ class EntityUpdateHandler(EntityHandler):
         except Exception as e:
             logger.error(f"Lexeme update failed for {entity_id}: {e}", exc_info=True)
             tx.rollback()
-            raise_validation_error(f"Update failed: {type(e).__name__}: {str(e)}", status_code=500)
+            raise_validation_error(
+                f"Update failed: {type(e).__name__}: {str(e)}", status_code=500
+            )

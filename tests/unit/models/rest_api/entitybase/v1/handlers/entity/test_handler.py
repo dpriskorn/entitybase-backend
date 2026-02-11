@@ -9,10 +9,19 @@ import pytest
 from models.data.infrastructure.s3.enums import EntityType, EditType
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.revision_data import S3RevisionData
-from models.data.rest_api.v1.entitybase.request.entity.context import ProcessEntityRevisionContext, RevisionContext
-from models.data.rest_api.v1.entitybase.response import EntityResponse, StatementHashResult
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    ProcessEntityRevisionContext,
+    RevisionContext,
+)
+from models.data.rest_api.v1.entitybase.response import (
+    EntityResponse,
+    StatementHashResult,
+)
 from models.infrastructure.s3.exceptions import S3NotFoundError
-from models.rest_api.entitybase.v1.handlers.entity.handler import EntityHandler, RevisionResult
+from models.rest_api.entitybase.v1.handlers.entity.handler import (
+    EntityHandler,
+    RevisionResult,
+)
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
 from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinkHashes
 
@@ -44,11 +53,11 @@ class TestEntityHandler:
                     "is_locked": False,
                     "is_archived": False,
                     "is_dangling": False,
-                    "is_mass_edit_protected": False
-                }
+                    "is_mass_edit_protected": False,
+                },
             },
             hash=123456789,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
 
         mock_s3.read_revision.return_value = s3_revision_data
@@ -64,7 +73,7 @@ class TestEntityHandler:
             edit_summary="Test",
             is_creation=True,
             vitess_client=mock_vitess,
-            s3_client=mock_s3
+            s3_client=mock_s3,
         )
 
         response = await EntityHandler._build_entity_response(ctx, result)
@@ -97,11 +106,11 @@ class TestEntityHandler:
                     "is_locked": False,
                     "is_archived": True,
                     "is_dangling": False,
-                    "is_mass_edit_protected": True
-                }
+                    "is_mass_edit_protected": True,
+                },
             },
             hash=123456789,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
 
         mock_s3.read_revision.return_value = s3_revision_data
@@ -117,7 +126,7 @@ class TestEntityHandler:
             edit_summary="Test",
             is_creation=True,
             vitess_client=mock_vitess,
-            s3_client=mock_s3
+            s3_client=mock_s3,
         )
 
         response = await EntityHandler._build_entity_response(ctx, result)
@@ -145,7 +154,7 @@ class TestEntityHandler:
             "descriptions": {},
             "aliases": {},
             "sitelinks": {},
-            "claims": {}
+            "claims": {},
         }
 
         ctx = RevisionContext(
@@ -156,7 +165,7 @@ class TestEntityHandler:
             edit_summary="Test",
             is_creation=True,
             vitess_client=mock_vitess,
-            s3_client=mock_s3
+            s3_client=mock_s3,
         )
 
         result = await handler._process_entity_data_new(ctx)
@@ -177,7 +186,7 @@ class TestEntityHandler:
         request_data = {
             "labels": {"en": {"language": "en", "value": "Test"}},
             "descriptions": {"en": {"language": "en", "value": "Test description"}},
-            "aliases": {"en": [{"language": "en", "value": "Alias1"}]}
+            "aliases": {"en": [{"language": "en", "value": "Alias1"}]},
         }
 
         ctx = RevisionContext(
@@ -188,7 +197,7 @@ class TestEntityHandler:
             edit_summary="Test",
             is_creation=True,
             vitess_client=mock_vitess,
-            s3_client=mock_s3
+            s3_client=mock_s3,
         )
 
         result = await handler._hash_terms_new(ctx)
@@ -210,9 +219,7 @@ class TestEntityHandler:
         handler = EntityHandler(state=mock_state)
 
         request_data = {
-            "sitelinks": {
-                "enwiki": {"site": "enwiki", "title": "Test", "badges": []}
-            }
+            "sitelinks": {"enwiki": {"site": "enwiki", "title": "Test", "badges": []}}
         }
 
         ctx = RevisionContext(
@@ -223,7 +230,7 @@ class TestEntityHandler:
             edit_summary="Test",
             is_creation=True,
             vitess_client=mock_vitess,
-            s3_client=mock_s3
+            s3_client=mock_s3,
         )
 
         result = await handler._hash_sitelinks_new(ctx)
@@ -252,7 +259,7 @@ class TestEntityHandler:
             edit_summary="Test",
             is_creation=True,
             vitess_client=mock_vitess,
-            s3_client=mock_s3
+            s3_client=mock_s3,
         )
 
         with pytest.raises(Exception):  # Should raise validation error with 404

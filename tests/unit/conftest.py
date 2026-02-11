@@ -63,6 +63,7 @@ def mock_kafka_producer():
 def validator():
     """Return a JsonSchemaValidator for testing."""
     from models.validation.json_schema_validator import JsonSchemaValidator
+
     return JsonSchemaValidator()
 
 
@@ -115,7 +116,9 @@ def mock_vitess_connection_manager():
     mock_cursor.__exit__ = MagicMock(return_value=None)
 
     with patch.object(VitessConnectionManager, "connect", return_value=mock_connection):
-        with patch.object(VitessConnectionManager, "acquire", return_value=mock_connection):
+        with patch.object(
+            VitessConnectionManager, "acquire", return_value=mock_connection
+        ):
             yield mock_connection, mock_cursor
 
 

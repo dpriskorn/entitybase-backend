@@ -12,10 +12,14 @@ from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
-from models.data.rest_api.v1.entitybase.request.entity.context import EventPublishContext
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EventPublishContext,
+)
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
-from models.rest_api.entitybase.v1.handlers.entity.creation_transaction import CreationTransaction
+from models.rest_api.entitybase.v1.handlers.entity.creation_transaction import (
+    CreationTransaction,
+)
 from models.config.settings import settings
 
 
@@ -34,13 +38,11 @@ class TestCreationTransaction:
         entity_id = "Q42"
         entity_type = EntityType.ITEM
         edit_headers = EditHeaders(x_user_id=123, x_edit_summary="Test creation")
-        
+
         hash_result = StatementHashResult(
-            statements=[1, 2, 3],
-            properties=["P31"],
-            property_counts={"P31": 1}
+            statements=[1, 2, 3], properties=["P31"], property_counts={"P31": 1}
         )
-        
+
         request_data = PreparedRequestData(
             id=entity_id,
             labels={"en": {"language": "en", "value": "Test"}},
@@ -48,20 +50,17 @@ class TestCreationTransaction:
             aliases={},
             sitelinks={},
             claims={},
-            data={}
+            data={},
         )
 
-        transaction = CreationTransaction(
-            state=mock_state,
-            entity_id=entity_id
-        )
+        transaction = CreationTransaction(state=mock_state, entity_id=entity_id)
 
         result = await transaction.create_revision(
             entity_id=entity_id,
             request_data=request_data,
             entity_type=entity_type,
             edit_headers=edit_headers,
-            hash_result=hash_result
+            hash_result=hash_result,
         )
 
         assert result.id == entity_id
@@ -83,13 +82,13 @@ class TestCreationTransaction:
         entity_id = "Q1"
         entity_type = EntityType.ITEM
         edit_headers = EditHeaders(x_user_id=1, x_edit_summary="Initial creation")
-        
+
         hash_result = StatementHashResult(
             statements=[10, 20, 30],
             properties=["P31", "P279"],
-            property_counts={"P31": 1, "P279": 2}
+            property_counts={"P31": 1, "P279": 2},
         )
-        
+
         request_data = PreparedRequestData(
             id=entity_id,
             labels={},
@@ -97,20 +96,17 @@ class TestCreationTransaction:
             aliases={},
             sitelinks={},
             claims={},
-            data={}
+            data={},
         )
 
-        transaction = CreationTransaction(
-            state=mock_state,
-            entity_id=entity_id
-        )
+        transaction = CreationTransaction(state=mock_state, entity_id=entity_id)
 
         result = await transaction.create_revision(
             entity_id=entity_id,
             request_data=request_data,
             entity_type=entity_type,
             edit_headers=edit_headers,
-            hash_result=hash_result
+            hash_result=hash_result,
         )
 
         assert result.id == entity_id
@@ -123,7 +119,7 @@ class TestCreationTransaction:
         assert call_args[1]["entity_data"].properties == ["P31", "P279"]
 
     @pytest.mark.asyncio
-    @patch('models.rest_api.entitybase.v1.handlers.entity.handler.EntityHandler')
+    @patch("models.rest_api.entitybase.v1.handlers.entity.handler.EntityHandler")
     async def test_process_statements(self, mock_entity_handler_class) -> None:
         """Test statement processing."""
         mock_state = MagicMock()
@@ -131,9 +127,7 @@ class TestCreationTransaction:
         mock_entity_handler_class.return_value = mock_entity_handler
 
         hash_result = StatementHashResult(
-            statements=[100, 200],
-            properties=["P1"],
-            property_counts={"P1": 2}
+            statements=[100, 200], properties=["P1"], property_counts={"P1": 2}
         )
         mock_entity_handler.process_statements.return_value = hash_result
 
@@ -145,19 +139,14 @@ class TestCreationTransaction:
             aliases={},
             sitelinks={},
             claims={},
-            data={}
+            data={},
         )
         validator = MagicMock()
 
-        transaction = CreationTransaction(
-            state=mock_state,
-            entity_id=entity_id
-        )
+        transaction = CreationTransaction(state=mock_state, entity_id=entity_id)
 
         result = transaction.process_statements(
-            entity_id=entity_id,
-            request_data=request_data,
-            validator=validator
+            entity_id=entity_id, request_data=request_data, validator=validator
         )
 
         assert result == hash_result
@@ -178,17 +167,11 @@ class TestCreationTransaction:
             revision_id=revision_id,
             from_revision_id=0,
             change_type=ChangeType.CREATION,
-            changed_at=datetime.now(timezone.utc)
+            changed_at=datetime.now(timezone.utc),
         )
-        edit_context = EditContext(
-            user_id=123,
-            edit_summary="Test creation"
-        )
+        edit_context = EditContext(user_id=123, edit_summary="Test creation")
 
-        transaction = CreationTransaction(
-            state=mock_state,
-            entity_id=entity_id
-        )
+        transaction = CreationTransaction(state=mock_state, entity_id=entity_id)
 
         transaction.publish_event(event_context, edit_context)
 
@@ -198,35 +181,29 @@ class TestCreationTransaction:
         """Test transaction commit."""
         mock_state = MagicMock()
         entity_id = "Q42"
-        transaction = CreationTransaction(
-            state=mock_state,
-            entity_id=entity_id
-        )
-        
+        transaction = CreationTransaction(state=mock_state, entity_id=entity_id)
+
         transaction.operations.append(lambda: None)
         transaction.operations.append(lambda: None)
-        
+
         assert len(transaction.operations) == 2
-        
+
         transaction.commit()
-        
+
         assert len(transaction.operations) == 0
 
     def test_rollback(self) -> None:
         """Test transaction rollback."""
         mock_state = MagicMock()
         entity_id = "Q42"
-        transaction = CreationTransaction(
-            state=mock_state,
-            entity_id=entity_id
-        )
-        
+        transaction = CreationTransaction(state=mock_state, entity_id=entity_id)
+
         rollback_calls = []
         transaction.operations.append(lambda: rollback_calls.append(1))
         transaction.operations.append(lambda: rollback_calls.append(2))
         transaction.operations.append(lambda: rollback_calls.append(3))
-        
+
         transaction.rollback()
-        
+
         assert rollback_calls == [3, 2, 1]
         assert len(transaction.operations) == 0

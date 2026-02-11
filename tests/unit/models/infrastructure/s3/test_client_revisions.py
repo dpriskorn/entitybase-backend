@@ -21,10 +21,13 @@ class TestS3ClientRevisions:
             access_key="test",
             secret_key="test",
             bucket="test-bucket",
-            region="us-east-1"
+            region="us-east-1",
         )
 
-        with patch("models.infrastructure.s3.client.S3ConnectionManager", return_value=mock_connection_manager):
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=mock_connection_manager,
+        ):
             client = MyS3Client(config=config)
 
             # Mock the revision storage
@@ -37,14 +40,16 @@ class TestS3ClientRevisions:
                 schema="1.0.0",
                 revision={"entity": {"id": "Q42"}},
                 hash=12345,
-                created_at="2023-01-01T12:00:00Z"
+                created_at="2023-01-01T12:00:00Z",
             )
 
             # Call the method
             client.store_revision(12345, revision_data)
 
             # Verify the storage was called
-            mock_revision_storage.store_revision.assert_called_once_with(12345, revision_data)
+            mock_revision_storage.store_revision.assert_called_once_with(
+                12345, revision_data
+            )
 
     def test_load_revision_success(self) -> None:
         """Test successful revision loading via S3 client."""
@@ -56,10 +61,13 @@ class TestS3ClientRevisions:
             access_key="test",
             secret_key="test",
             bucket="test-bucket",
-            region="us-east-1"
+            region="us-east-1",
         )
 
-        with patch("models.infrastructure.s3.client.S3ConnectionManager", return_value=mock_connection_manager):
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=mock_connection_manager,
+        ):
             client = MyS3Client(config=config)
 
             # Mock the revision storage
@@ -70,7 +78,7 @@ class TestS3ClientRevisions:
                 schema="1.0.0",
                 revision={"entity": {"id": "Q42"}},
                 hash=12345,
-                created_at="2023-01-01T12:00:00Z"
+                created_at="2023-01-01T12:00:00Z",
             )
             mock_revision_storage.load_revision.return_value = expected_revision_data
 
@@ -90,7 +98,7 @@ class TestS3ClientRevisions:
             access_key="test",
             secret_key="test",
             bucket="test-bucket",
-            region="us-east-1"
+            region="us-east-1",
         )
 
         # Mock vitess client and id_resolver
@@ -99,7 +107,10 @@ class TestS3ClientRevisions:
         mock_id_resolver.resolve_id.return_value = 123
         mock_vitess_client.id_resolver = mock_id_resolver
 
-        with patch("models.infrastructure.s3.client.S3ConnectionManager", return_value=mock_connection_manager):
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=mock_connection_manager,
+        ):
             client = MyS3Client(config=config, vitess_client=mock_vitess_client)
 
             # Mock revision repository
@@ -113,14 +124,19 @@ class TestS3ClientRevisions:
             client.revisions = mock_revision_storage
 
             # Call read_revision
-            with patch("models.infrastructure.s3.client.RevisionRepository", return_value=mock_revision_repo):
+            with patch(
+                "models.infrastructure.s3.client.RevisionRepository",
+                return_value=mock_revision_repo,
+            ):
                 result = client.read_revision("Q42", 1)
 
             # Verify
             assert result == expected_revision_data
             mock_id_resolver.resolve_id.assert_called_once_with("Q42")
             mock_revision_repo.get_content_hash.assert_called_once_with(123, 1)
-            mock_revision_storage.load_revision.assert_called_once_with(12345678901234567890)
+            mock_revision_storage.load_revision.assert_called_once_with(
+                12345678901234567890
+            )
 
     def test_read_revision_entity_not_found(self):
         """Test read_revision raises 404 when entity not found."""
@@ -131,7 +147,7 @@ class TestS3ClientRevisions:
             access_key="test",
             secret_key="test",
             bucket="test-bucket",
-            region="us-east-1"
+            region="us-east-1",
         )
 
         # Mock vitess client with entity not found
@@ -140,10 +156,12 @@ class TestS3ClientRevisions:
         mock_id_resolver.resolve_id.return_value = None
         mock_vitess_client.id_resolver = mock_id_resolver
 
-        with patch("models.infrastructure.s3.client.S3ConnectionManager", return_value=mock_connection_manager):
+        with patch(
+            "models.infrastructure.s3.client.S3ConnectionManager",
+            return_value=mock_connection_manager,
+        ):
             client = MyS3Client(config=config, vitess_client=mock_vitess_client)
 
             # Call read_revision and expect error
             with pytest.raises(Exception):
                 client.read_revision("Q999", 1)
-

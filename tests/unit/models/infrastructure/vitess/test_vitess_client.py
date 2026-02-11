@@ -82,7 +82,9 @@ class TestVitessClient:
     @pytest.mark.skip(reason="Skipping all Vitess unit tests")
     def test_revision_repository_property(self):
         """Test that revision_repository property returns RevisionRepository."""
-        from models.infrastructure.vitess.repositories.revision import RevisionRepository
+        from models.infrastructure.vitess.repositories.revision import (
+            RevisionRepository,
+        )
 
         result = self.client.revision_repository
 
@@ -112,7 +114,9 @@ class TestVitessClient:
     @pytest.mark.skip(reason="Skipping all Vitess unit tests")
     def test_watchlist_repository_property(self):
         """Test that watchlist_repository property returns WatchlistRepository."""
-        from models.infrastructure.vitess.repositories.watchlist import WatchlistRepository
+        from models.infrastructure.vitess.repositories.watchlist import (
+            WatchlistRepository,
+        )
 
         result = self.client.watchlist_repository
 
@@ -122,7 +126,9 @@ class TestVitessClient:
     @pytest.mark.skip(reason="Skipping all Vitess unit tests")
     def test_endorsement_repository_property(self):
         """Test that endorsement_repository property returns EndorsementRepository."""
-        from models.infrastructure.vitess.repositories.endorsement import EndorsementRepository
+        from models.infrastructure.vitess.repositories.endorsement import (
+            EndorsementRepository,
+        )
 
         result = self.client.endorsement_repository
 
@@ -142,7 +148,9 @@ class TestVitessClient:
     @pytest.mark.skip(reason="Skipping all Vitess unit tests")
     def test_redirect_repository_property(self):
         """Test that redirect_repository property returns RedirectRepository."""
-        from models.infrastructure.vitess.repositories.redirect import RedirectRepository
+        from models.infrastructure.vitess.repositories.redirect import (
+            RedirectRepository,
+        )
 
         result = self.client.redirect_repository
 
@@ -153,6 +161,7 @@ class TestVitessClient:
     def test_create_revision_delegates_to_revision_repository(self):
         """Test that create_revision delegates to revision_repository.insert_revision."""
         from unittest.mock import patch, PropertyMock
+
         mock_revision_repository = MagicMock()
 
         entity_id = "Q123"
@@ -161,9 +170,13 @@ class TestVitessClient:
         content_hash = 12345
         expected_revision_id = 0
 
-        with patch.object(VitessClient, 'revision_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "revision_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_revision_repository
-            self.client.create_revision(entity_id, entity_data, revision_id, content_hash, expected_revision_id)
+            self.client.create_revision(
+                entity_id, entity_data, revision_id, content_hash, expected_revision_id
+            )
 
         mock_revision_repository.insert_revision.assert_called_once_with(
             entity_id, revision_id, entity_data, content_hash, expected_revision_id
@@ -197,10 +210,13 @@ class TestVitessClient:
     def test_get_head_delegates_to_entity_repository(self):
         """Test that get_head delegates to entity_repository.get_head."""
         from unittest.mock import patch, PropertyMock
+
         mock_entity_repository = MagicMock()
         mock_entity_repository.get_head.return_value = 10
 
-        with patch.object(VitessClient, 'entity_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "entity_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_entity_repository
             result = self.client.get_head("Q123")
 
@@ -211,10 +227,13 @@ class TestVitessClient:
     def test_get_history_delegates_to_revision_repository(self):
         """Test that get_history delegates to revision_repository.get_history."""
         from unittest.mock import patch, PropertyMock
+
         mock_revision_repository = MagicMock()
         mock_revision_repository.get_history.return_value = []
 
-        with patch.object(VitessClient, 'revision_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "revision_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_revision_repository
             result = self.client.get_history("Q123", 20, 0)
 
@@ -225,10 +244,13 @@ class TestVitessClient:
     def test_get_entity_history_delegates_to_revision_repository(self):
         """Test that get_entity_history delegates to revision_repository.get_history."""
         from unittest.mock import patch, PropertyMock
+
         mock_revision_repository = MagicMock()
         mock_revision_repository.get_history.return_value = []
 
-        with patch.object(VitessClient, 'revision_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "revision_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_revision_repository
             result = self.client.get_entity_history("Q123", 10, 5)
 
@@ -249,6 +271,7 @@ class TestVitessClient:
     def test_insert_revision_delegates_to_revision_repository(self):
         """Test that insert_revision delegates to revision_repository.insert_revision."""
         from unittest.mock import patch, PropertyMock
+
         mock_revision_repository = MagicMock()
 
         entity_id = "Q123"
@@ -257,9 +280,13 @@ class TestVitessClient:
         content_hash = 12345
         expected_revision_id = 0
 
-        with patch.object(VitessClient, 'revision_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "revision_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_revision_repository
-            self.client.insert_revision(entity_id, revision_id, entity_data, content_hash, expected_revision_id)
+            self.client.insert_revision(
+                entity_id, revision_id, entity_data, content_hash, expected_revision_id
+            )
 
         mock_revision_repository.insert_revision.assert_called_once_with(
             entity_id=entity_id,
@@ -273,10 +300,13 @@ class TestVitessClient:
     def test_is_entity_deleted_delegates_to_entity_repository(self):
         """Test that is_entity_deleted delegates to entity_repository.is_deleted."""
         from unittest.mock import patch, PropertyMock
+
         mock_entity_repository = MagicMock()
         mock_entity_repository.is_deleted.return_value = True
 
-        with patch.object(VitessClient, 'entity_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "entity_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_entity_repository
             result = self.client.is_entity_deleted("Q123")
 
@@ -287,10 +317,13 @@ class TestVitessClient:
     def test_is_entity_locked_delegates_to_entity_repository(self):
         """Test that is_entity_locked delegates to entity_repository.is_locked."""
         from unittest.mock import patch, PropertyMock
+
         mock_entity_repository = MagicMock()
         mock_entity_repository.is_locked.return_value = False
 
-        with patch.object(VitessClient, 'entity_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "entity_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_entity_repository
             result = self.client.is_entity_locked("Q123")
 
@@ -301,10 +334,13 @@ class TestVitessClient:
     def test_is_entity_archived_delegates_to_entity_repository(self):
         """Test that is_entity_archived delegates to entity_repository.is_archived."""
         from unittest.mock import patch, PropertyMock
+
         mock_entity_repository = MagicMock()
         mock_entity_repository.is_archived.return_value = False
 
-        with patch.object(VitessClient, 'entity_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "entity_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_entity_repository
             result = self.client.is_entity_archived("Q123")
 
@@ -368,10 +404,13 @@ class TestVitessClient:
     def test_get_redirect_target_delegates_to_redirect_repository(self):
         """Test that get_redirect_target delegates to redirect_repository.get_target."""
         from unittest.mock import patch, PropertyMock
+
         mock_redirect_repository = MagicMock()
         mock_redirect_repository.get_target.return_value = "Q456"
 
-        with patch.object(VitessClient, 'redirect_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "redirect_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_redirect_repository
             result = self.client.get_redirect_target("Q123")
 
@@ -382,9 +421,12 @@ class TestVitessClient:
     def test_create_redirect_delegates_to_redirect_repository(self):
         """Test that create_redirect delegates to redirect_repository.create."""
         from unittest.mock import patch, PropertyMock
+
         mock_redirect_repository = MagicMock()
 
-        with patch.object(VitessClient, 'redirect_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "redirect_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_redirect_repository
             self.client.create_redirect("Q123", "Q456", "test_user")
 
@@ -398,9 +440,12 @@ class TestVitessClient:
     def test_create_redirect_default_created_by(self):
         """Test that create_redirect uses default created_by value."""
         from unittest.mock import patch, PropertyMock
+
         mock_redirect_repository = MagicMock()
 
-        with patch.object(VitessClient, 'redirect_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "redirect_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_redirect_repository
             self.client.create_redirect("Q123", "Q456")
 
@@ -414,29 +459,37 @@ class TestVitessClient:
     def test_set_redirect_target_calls_repository(self):
         """Test that set_redirect_target calls redirect_repository.set_target."""
         from unittest.mock import patch, PropertyMock
+
         mock_redirect_repository = MagicMock()
         mock_result = MagicMock()
         mock_result.success = True
         mock_result.error = ""
         mock_redirect_repository.set_target.return_value = mock_result
 
-        with patch.object(VitessClient, 'redirect_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "redirect_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_redirect_repository
             self.client.set_redirect_target("Q123", "Q456")
 
-        mock_redirect_repository.set_target.assert_called_once_with(entity_id="Q123", redirects_to_entity_id="Q456")
+        mock_redirect_repository.set_target.assert_called_once_with(
+            entity_id="Q123", redirects_to_entity_id="Q456"
+        )
 
     @pytest.mark.skip(reason="Skipping all Vitess unit tests")
     def test_set_redirect_target_raises_on_failure(self):
         """Test that set_redirect_target raises ValueError on failure."""
         from unittest.mock import patch, PropertyMock
+
         mock_redirect_repository = MagicMock()
         mock_result = MagicMock()
         mock_result.success = False
         mock_result.error = "Some error"
         mock_redirect_repository.set_target.return_value = mock_result
 
-        with patch.object(VitessClient, 'redirect_repository', new_callable=PropertyMock) as mock_repo:
+        with patch.object(
+            VitessClient, "redirect_repository", new_callable=PropertyMock
+        ) as mock_repo:
             mock_repo.return_value = mock_redirect_repository
             with pytest.raises(ValueError, match="Some error"):
                 self.client.set_redirect_target("Q123", "Q456")
@@ -445,10 +498,13 @@ class TestVitessClient:
     def test_revert_redirect_calls_set_redirect_target_with_empty_string(self):
         """Test that revert_redirect calls set_redirect_target with empty string."""
         from unittest.mock import patch
-        with patch.object(VitessClient, 'set_redirect_target') as mock_set_redirect:
+
+        with patch.object(VitessClient, "set_redirect_target") as mock_set_redirect:
             self.client.revert_redirect("Q123")
 
-        mock_set_redirect.assert_called_once_with(entity_id="Q123", redirects_to_entity_id="")
+        mock_set_redirect.assert_called_once_with(
+            entity_id="Q123", redirects_to_entity_id=""
+        )
 
     @pytest.mark.skip(reason="Skipping all Vitess unit tests")
     def test_create_tables_creates_schema_repository(self):
@@ -457,7 +513,9 @@ class TestVitessClient:
 
         self.client.connection_manager = MagicMock()
 
-        with patch("models.infrastructure.vitess.repositories.schema.SchemaRepository") as mock_schema_repo_class:
+        with patch(
+            "models.infrastructure.vitess.repositories.schema.SchemaRepository"
+        ) as mock_schema_repo_class:
             mock_schema_repo = MagicMock()
             mock_schema_repo_class.return_value = mock_schema_repo
 

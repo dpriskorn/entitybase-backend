@@ -76,11 +76,7 @@ class TestStringValueParser:
 
     def test_parse_complex_datavalue_structure(self):
         """Test parsing with additional fields in datavalue (should ignore them)."""
-        datavalue = {
-            "value": "test string",
-            "type": "string",
-            "extra_field": "ignored"
-        }
+        datavalue = {"value": "test string", "type": "string", "extra_field": "ignored"}
 
         result = parse_string_value(datavalue)
 

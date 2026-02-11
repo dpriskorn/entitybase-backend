@@ -12,7 +12,9 @@ from models.data.infrastructure.s3.enums import MetadataType
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
-from models.data.rest_api.v1.entitybase.request.entity.context import EventPublishContext
+from models.data.rest_api.v1.entitybase.request.entity.context import (
+    EventPublishContext,
+)
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
 from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import (
@@ -110,7 +112,7 @@ class UpdateTransaction(EntityTransaction):
     ) -> EntityResponse:
         """Create revision using new architecture components."""
         logger.debug(f"[UpdateTransaction] Starting revision creation for {entity_id}")
-        
+
         from models.rest_api.entitybase.v1.services.hash_service import HashService
         from models.data.infrastructure.s3.enums import EditType, EditData
         import json
@@ -118,22 +120,24 @@ class UpdateTransaction(EntityTransaction):
         from models.internal_representation.metadata_extractor import MetadataExtractor
         from models.data.infrastructure.s3.revision_data import S3RevisionData
         from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
-        from models.data.infrastructure.s3.hashes.statements_hashes import StatementsHashes
+        from models.data.infrastructure.s3.hashes.statements_hashes import (
+            StatementsHashes,
+        )
         from models.infrastructure.s3.revision.revision_data import RevisionData
         from models.config.settings import settings
-        
+
         head_revision_id = self.state.vitess_client.get_head(entity_id)
         new_revision_id = head_revision_id + 1 if head_revision_id else 1
-        
+
         entity_json = json.dumps(request_data.model_dump(mode="json"), sort_keys=True)
         content_hash = rapidhash(entity_json.encode())
-        
+
         hs = HashService(state=self.state)
         sitelink_hashes = hs.hash_sitelinks(request_data.sitelinks)
         labels_hashes = hs.hash_labels(request_data.labels)
         descriptions_hashes = hs.hash_descriptions(request_data.descriptions)
         aliases_hashes = hs.hash_aliases(request_data.aliases)
-        
+
         created_at = datetime.now(timezone.utc).isoformat()
 
         # noinspection PyArgumentList
@@ -159,31 +163,31 @@ class UpdateTransaction(EntityTransaction):
             state=EntityState(),
             schema_version=settings.s3_schema_revision_version,
         )
-        
+
         self.state.vitess_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,
             revision_id=new_revision_id,
             content_hash=content_hash,
         )
-        
+
         revision_dict = revision_data.model_dump(mode="json")
         revision_json = json.dumps(revision_dict, sort_keys=True)
         content_hash = MetadataExtractor.hash_string(revision_json)
-        
+
         s3_revision_data = S3RevisionData(
             schema=settings.s3_schema_revision_version,
             revision=revision_dict,
             hash=content_hash,
             created_at=created_at,
         )
-        
+
         self.state.s3_client.store_revision(content_hash, s3_revision_data)
-        
+
         self.operations.append(
             lambda: self._rollback_revision(entity_id, new_revision_id)
         )
-        
+
         return EntityResponse(
             id=entity_id,
             rev_id=new_revision_id,
@@ -205,7 +209,9 @@ class UpdateTransaction(EntityTransaction):
         if changed_at is None:
             changed_at = datetime.now(timezone.utc)
 
-        logger.info(f"[UpdateTransaction] Starting event publishing for {event_context.entity_id}")
+        logger.info(
+            f"[UpdateTransaction] Starting event publishing for {event_context.entity_id}"
+        )
         if self.state.entity_change_stream_producer:
             from models.infrastructure.stream.event import EntityChangeEvent
 
@@ -257,9 +263,13 @@ class UpdateTransaction(EntityTransaction):
         """Rollback form representation by deleting from S3."""
         logger.info(f"[UpdateTransaction] Rolling back form representation {hash_val}")
         try:
-            self.state.s3_client._delete_metadata(MetadataType.FORM_REPRESENTATIONS, hash_val)
+            self.state.s3_client._delete_metadata(
+                MetadataType.FORM_REPRESENTATIONS, hash_val
+            )
         except Exception as e:
-            logger.warning(f"[UpdateTransaction] Failed to rollback form representation {hash_val}: {e}")
+            logger.warning(
+                f"[UpdateTransaction] Failed to rollback form representation {hash_val}: {e}"
+            )
 
     def _rollback_sense_gloss(self, hash_val: int) -> None:
         """Rollback sense gloss by deleting from S3."""
@@ -267,7 +277,9 @@ class UpdateTransaction(EntityTransaction):
         try:
             self.state.s3_client._delete_metadata(MetadataType.SENSE_GLOSSES, hash_val)
         except Exception as e:
-            logger.warning(f"[UpdateTransaction] Failed to rollback sense gloss {hash_val}: {e}")
+            logger.warning(
+                f"[UpdateTransaction] Failed to rollback sense gloss {hash_val}: {e}"
+            )
 
     def _rollback_revision(self, entity_id: str, revision_id: int) -> None:
         logger.info(

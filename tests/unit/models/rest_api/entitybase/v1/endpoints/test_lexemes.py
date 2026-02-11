@@ -64,13 +64,19 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={
                 "forms": [
-                    {"id": "L42-F2", "representations": {"en": {"language": "en", "value": "form2"}}},
-                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "form1"}}},
+                    {
+                        "id": "L42-F2",
+                        "representations": {"en": {"language": "en", "value": "form2"}},
+                    },
+                    {
+                        "id": "L42-F1",
+                        "representations": {"en": {"language": "en", "value": "form1"}},
+                    },
                 ],
                 "senses": [],
             },
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -84,7 +90,9 @@ class TestFormsAndSensesEndpoints:
         assert result.forms[1].id == "L42-F2"
 
     @pytest.mark.asyncio
-    async def test_get_lexeme_senses_returns_sorted_senses(self, mock_entity_read_state):
+    async def test_get_lexeme_senses_returns_sorted_senses(
+        self, mock_entity_read_state
+    ):
         from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_senses
         from models.data.infrastructure.s3 import S3RevisionData
 
@@ -94,13 +102,19 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={
                 "senses": [
-                    {"id": "L42-S2", "glosses": {"en": {"language": "en", "value": "gloss2"}}},
-                    {"id": "L42-S1", "glosses": {"en": {"language": "en", "value": "gloss1"}}},
+                    {
+                        "id": "L42-S2",
+                        "glosses": {"en": {"language": "en", "value": "gloss2"}},
+                    },
+                    {
+                        "id": "L42-S1",
+                        "glosses": {"en": {"language": "en", "value": "gloss1"}},
+                    },
                 ],
                 "forms": [],
             },
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -124,12 +138,17 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={
                 "forms": [
-                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                    {
+                        "id": "L42-F1",
+                        "representations": {
+                            "en": {"language": "en", "value": "answer"}
+                        },
+                    }
                 ],
                 "senses": [],
             },
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -152,7 +171,7 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={"forms": [], "senses": []},
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -175,12 +194,15 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={
                 "senses": [
-                    {"id": "L42-S1", "glosses": {"en": {"language": "en", "value": "reply"}}}
+                    {
+                        "id": "L42-S1",
+                        "glosses": {"en": {"language": "en", "value": "reply"}},
+                    }
                 ],
                 "forms": [],
             },
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -203,7 +225,7 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={"forms": [], "senses": []},
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -215,13 +237,13 @@ class TestFormsAndSensesEndpoints:
 
         assert exc.value.status_code == 404
 
-
-
-
-
     @pytest.mark.asyncio
-    async def test_update_form_representation_missing_language(self, mock_entity_read_state):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
+    async def test_update_form_representation_missing_language(
+        self, mock_entity_read_state
+    ):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+            update_form_representation,
+        )
         from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
         from models.data.infrastructure.s3 import S3RevisionData
 
@@ -231,12 +253,17 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={
                 "forms": [
-                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                    {
+                        "id": "L42-F1",
+                        "representations": {
+                            "en": {"language": "en", "value": "answer"}
+                        },
+                    }
                 ],
                 "senses": [],
             },
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -249,15 +276,19 @@ class TestFormsAndSensesEndpoints:
                 "en",
                 TermUpdateRequest(language="fr", value="réponse"),
                 mock_req,
-                headers=Mock(x_user_id=123, x_edit_summary="test edit")
+                headers=Mock(x_user_id=123, x_edit_summary="test edit"),
             )
 
         assert exc.value.status_code == 400
         assert "does not match" in exc.value.detail
 
     @pytest.mark.asyncio
-    async def test_update_form_representation_language_mismatch(self, mock_entity_read_state):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
+    async def test_update_form_representation_language_mismatch(
+        self, mock_entity_read_state
+    ):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+            update_form_representation,
+        )
         from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
         from models.data.infrastructure.s3 import S3RevisionData
 
@@ -267,12 +298,17 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={
                 "forms": [
-                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                    {
+                        "id": "L42-F1",
+                        "representations": {
+                            "en": {"language": "en", "value": "answer"}
+                        },
+                    }
                 ],
                 "senses": [],
             },
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -285,13 +321,11 @@ class TestFormsAndSensesEndpoints:
                 "en",
                 TermUpdateRequest(language="fr", value="réponse"),
                 mock_req,
-                headers=Mock(x_user_id=123, x_edit_summary="test edit")
+                headers=Mock(x_user_id=123, x_edit_summary="test edit"),
             )
 
         assert exc.value.status_code == 400
         assert "does not match" in exc.value.detail
-
-
 
     @pytest.mark.asyncio
     async def test_form_id_short_format_not_implemented(self):
@@ -319,7 +353,9 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_update_form_representation(self, mock_entity_read_state):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import update_form_representation
+        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+            update_form_representation,
+        )
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
@@ -327,7 +363,10 @@ class TestFormsAndSensesEndpoints:
         mock_entity = Mock()
         mock_entity.data = {
             "forms": [
-                {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                {
+                    "id": "L42-F1",
+                    "representations": {"en": {"language": "en", "value": "answer"}},
+                }
             ],
             "senses": [],
         }
@@ -336,12 +375,17 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={
                 "forms": [
-                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                    {
+                        "id": "L42-F1",
+                        "representations": {
+                            "en": {"language": "en", "value": "answer"}
+                        },
+                    }
                 ],
                 "senses": [],
             },
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -353,28 +397,33 @@ class TestFormsAndSensesEndpoints:
 
         with patch(
             "models.rest_api.entitybase.v1.endpoints.lexemes.EntityUpdateHandler",
-            return_value=mock_update_handler
+            return_value=mock_update_handler,
         ):
             result = await update_form_representation(
                 "L42-F1",
                 "en",
                 Mock(language="en", value="new value"),
                 mock_req,
-                headers=Mock(x_user_id=123, x_edit_summary="test")
+                headers=Mock(x_user_id=123, x_edit_summary="test"),
             )
 
             # Check update_lexeme was called
             assert mock_update_handler.update_lexeme.called
 
     @pytest.mark.asyncio
-    async def test_delete_form_representation_language_not_found(self, mock_entity_read_state):
+    async def test_delete_form_representation_language_not_found(
+        self, mock_entity_read_state
+    ):
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
         mock_entity = Mock()
         mock_entity.data = {
             "forms": [
-                {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                {
+                    "id": "L42-F1",
+                    "representations": {"en": {"language": "en", "value": "answer"}},
+                }
             ],
             "senses": [],
         }
@@ -383,12 +432,17 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={
                 "forms": [
-                    {"id": "L42-F1", "representations": {"en": {"language": "en", "value": "answer"}}}
+                    {
+                        "id": "L42-F1",
+                        "representations": {
+                            "en": {"language": "en", "value": "answer"}
+                        },
+                    }
                 ],
                 "senses": [],
             },
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -402,13 +456,15 @@ class TestFormsAndSensesEndpoints:
                 "L42-F1",
                 "fr",
                 mock_req,
-                headers=Mock(x_user_id=123, x_edit_summary="remove representation")
+                headers=Mock(x_user_id=123, x_edit_summary="remove representation"),
             )
 
         assert exc.value.status_code == 404
 
     @pytest.mark.asyncio
-    async def test_delete_form_representation_form_not_found(self, mock_entity_read_state):
+    async def test_delete_form_representation_form_not_found(
+        self, mock_entity_read_state
+    ):
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
@@ -417,7 +473,7 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={"forms": [], "senses": []},
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -431,15 +487,15 @@ class TestFormsAndSensesEndpoints:
                 "L42-F99",
                 "en",
                 mock_req,
-                headers=Mock(x_user_id=123, x_edit_summary="remove representation")
+                headers=Mock(x_user_id=123, x_edit_summary="remove representation"),
             )
 
         assert exc.value.status_code == 404
 
-
-
     @pytest.mark.asyncio
-    async def test_delete_sense_gloss_not_found_idempotent(self, mock_entity_read_state):
+    async def test_delete_sense_gloss_not_found_idempotent(
+        self, mock_entity_read_state
+    ):
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
@@ -447,7 +503,10 @@ class TestFormsAndSensesEndpoints:
         mock_entity.id = "L42"
         mock_entity.data = {
             "senses": [
-                {"id": "L42-S1", "glosses": {"en": {"language": "en", "value": "reply"}}}
+                {
+                    "id": "L42-S1",
+                    "glosses": {"en": {"language": "en", "value": "reply"}},
+                }
             ],
             "forms": [],
         }
@@ -456,12 +515,15 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={
                 "senses": [
-                    {"id": "L42-S1", "glosses": {"en": {"language": "en", "value": "reply"}}}
+                    {
+                        "id": "L42-S1",
+                        "glosses": {"en": {"language": "en", "value": "reply"}},
+                    }
                 ],
                 "forms": [],
             },
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -472,7 +534,7 @@ class TestFormsAndSensesEndpoints:
             "L42-S1",
             "fr",
             mock_req,
-            headers=Mock(x_user_id=123, x_edit_summary="remove gloss")
+            headers=Mock(x_user_id=123, x_edit_summary="remove gloss"),
         )
 
         # Should return current entity idempotently
@@ -488,7 +550,7 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={"senses": [], "forms": []},
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -502,12 +564,10 @@ class TestFormsAndSensesEndpoints:
                 "L42-S99",
                 "en",
                 mock_req,
-                headers=Mock(x_user_id=123, x_edit_summary="remove gloss")
+                headers=Mock(x_user_id=123, x_edit_summary="remove gloss"),
             )
 
         assert exc.value.status_code == 404
-
-
 
     @pytest.mark.asyncio
     async def test_delete_form_not_found(self, mock_entity_read_state):
@@ -520,7 +580,7 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={"forms": [], "senses": []},
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -533,12 +593,10 @@ class TestFormsAndSensesEndpoints:
             await delete_form(
                 "L42-F99",
                 mock_req,
-                headers=Mock(x_user_id=123, x_edit_summary="remove form")
+                headers=Mock(x_user_id=123, x_edit_summary="remove form"),
             )
 
         assert exc.value.status_code == 404
-
-
 
     @pytest.mark.asyncio
     async def test_delete_sense_not_found(self, mock_entity_read_state):
@@ -551,7 +609,7 @@ class TestFormsAndSensesEndpoints:
             schema="1.0.0",
             revision={"senses": [], "forms": []},
             hash=123456,
-            created_at="2023-01-01T12:00:00Z"
+            created_at="2023-01-01T12:00:00Z",
         )
         mock_s3.read_revision.return_value = mock_revision_data
 
@@ -564,7 +622,7 @@ class TestFormsAndSensesEndpoints:
             await delete_sense(
                 "L42-S99",
                 mock_req,
-                headers=Mock(x_user_id=123, x_edit_summary="remove sense")
+                headers=Mock(x_user_id=123, x_edit_summary="remove sense"),
             )
 
         assert exc.value.status_code == 404

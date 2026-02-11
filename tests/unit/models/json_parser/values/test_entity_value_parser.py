@@ -11,11 +11,7 @@ class TestEntityValueParser:
 
     def test_parse_valid_entity_value(self):
         """Test parsing a valid entity value."""
-        datavalue = {
-            "value": {
-                "id": "Q42"
-            }
-        }
+        datavalue = {"value": {"id": "Q42"}}
 
         result = parse_entity_value(datavalue)
 
@@ -26,11 +22,7 @@ class TestEntityValueParser:
 
     def test_parse_entity_value_qid(self):
         """Test parsing an entity value with QID."""
-        datavalue = {
-            "value": {
-                "id": "Q123456"
-            }
-        }
+        datavalue = {"value": {"id": "Q123456"}}
 
         result = parse_entity_value(datavalue)
 
@@ -38,11 +30,7 @@ class TestEntityValueParser:
 
     def test_parse_entity_value_pid(self):
         """Test parsing an entity value with property ID."""
-        datavalue = {
-            "value": {
-                "id": "P31"
-            }
-        }
+        datavalue = {"value": {"id": "P31"}}
 
         result = parse_entity_value(datavalue)
 
@@ -50,11 +38,7 @@ class TestEntityValueParser:
 
     def test_parse_entity_value_lid(self):
         """Test parsing an entity value with lexeme ID."""
-        datavalue = {
-            "value": {
-                "id": "L123"
-            }
-        }
+        datavalue = {"value": {"id": "L123"}}
 
         result = parse_entity_value(datavalue)
 
@@ -84,11 +68,7 @@ class TestEntityValueParser:
 
     def test_parse_entity_value_empty_id(self):
         """Test parsing an entity value with empty ID."""
-        datavalue = {
-            "value": {
-                "id": ""
-            }
-        }
+        datavalue = {"value": {"id": ""}}
 
         result = parse_entity_value(datavalue)
 
@@ -96,11 +76,7 @@ class TestEntityValueParser:
 
     def test_parse_entity_value_result_immutability(self):
         """Test that the parsed result is immutable (frozen model)."""
-        datavalue = {
-            "value": {
-                "id": "Q42"
-            }
-        }
+        datavalue = {"value": {"id": "Q42"}}
 
         result = parse_entity_value(datavalue)
 
