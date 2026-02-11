@@ -15,7 +15,25 @@ async def test_add_watch(api_prefix: str, initialized_app: None) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # First register user
+        headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
+
+        # Create Q42 entity first
+        Q42_data = {
+            "id": "Q42",
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
+            "descriptions": {
+                "en": {"language": "en", "value": "British science fiction writer"}
+            },
+        }
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=Q42_data,
+            headers=headers,
+        )
+        assert response.status_code == 200
+
+        # Register user
         await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
         # Add watch
@@ -42,7 +60,7 @@ async def test_add_watch_user_not_registered(api_prefix: str, initialized_app: N
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 400
-        assert "User not registered" in response.json()["detail"]
+        assert "User not registered" in response.json()["message"]
 
 
 @pytest.mark.asyncio
@@ -54,6 +72,24 @@ async def test_remove_watch(api_prefix: str, initialized_app: None) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
+        headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
+
+        # Create Q42 entity first
+        Q42_data = {
+            "id": "Q42",
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
+            "descriptions": {
+                "en": {"language": "en", "value": "British science fiction writer"}
+            },
+        }
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=Q42_data,
+            headers=headers,
+        )
+        assert response.status_code == 200
+
         # Register user and add watch
         await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         await client.post(
@@ -80,6 +116,24 @@ async def test_get_watchlist(api_prefix: str, initialized_app: None) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
+        headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
+
+        # Create Q42 entity first
+        Q42_data = {
+            "id": "Q42",
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
+            "descriptions": {
+                "en": {"language": "en", "value": "British science fiction writer"}
+            },
+        }
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=Q42_data,
+            headers=headers,
+        )
+        assert response.status_code == 200
+
         # Register user and add watch
         await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         await client.post(
@@ -108,7 +162,7 @@ async def test_get_watchlist_user_not_registered(api_prefix: str, initialized_ap
     ) as client:
         response = await client.get(f"{api_prefix}/users/99999/watchlist")
         assert response.status_code == 400
-        assert "User not registered" in response.json()["detail"]
+        assert "User not registered" in response.json()["message"]
 
 
 @pytest.mark.asyncio
@@ -120,6 +174,24 @@ async def test_remove_watch_by_id(api_prefix: str, initialized_app: None) -> Non
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
+        headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
+
+        # Create Q42 entity first
+        Q42_data = {
+            "id": "Q42",
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
+            "descriptions": {
+                "en": {"language": "en", "value": "British science fiction writer"}
+            },
+        }
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=Q42_data,
+            headers=headers,
+        )
+        assert response.status_code == 200
+
         # Register user and add watch
         await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         await client.post(
@@ -177,7 +249,7 @@ async def test_get_notifications_user_not_registered(api_prefix: str, initialize
     ) as client:
         response = await client.get(f"{api_prefix}/users/99999/watchlist/notifications")
         assert response.status_code == 400
-        assert "User not registered" in response.json()["detail"]
+        assert "User not registered" in response.json()["message"]
 
 
 @pytest.mark.asyncio

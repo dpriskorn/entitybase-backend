@@ -92,9 +92,9 @@ class BaseStatsWorker(Worker, ABC):
 
         # Next run is today if not yet passed, otherwise tomorrow
         if now.time() < target_time:
-            next_run = datetime.combine(now.date(), target_time)
+            next_run = datetime.combine(now.date(), target_time, tzinfo=timezone.utc)
         else:
-            next_run = datetime.combine(now.date() + timedelta(days=1), target_time)
+            next_run = datetime.combine(now.date() + timedelta(days=1), target_time, tzinfo=timezone.utc)
 
         seconds_until = (next_run - now).total_seconds()
         return max(seconds_until, 0)  # Ensure non-negative
@@ -104,5 +104,8 @@ class BaseStatsWorker(Worker, ABC):
         status = "healthy" if self.running else "unhealthy"
 
         return WorkerHealthCheckResponse(
-            status=status, worker_id=self.worker_id, range_status={}
+            status=status,
+            worker_id=self.worker_id,
+            details={"running": self.running, "last_run": self.last_run.isoformat() if self.last_run else None},
+            range_status={},
         )
