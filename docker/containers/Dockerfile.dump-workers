@@ -1,0 +1,27 @@
+# Use Python 3.13 slim image for smaller size
+FROM python:3.13-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements*.txt ./
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY src/ ./
+
+# Set environment variables
+ENV PYTHONPATH=/app
+
+# Expose health check port (different ports for each worker)
+# JSON dump worker uses 8002
+# TTL dump worker uses 8003
+
+# Run the worker (will be overridden by docker-compose CMD)
+CMD ["python", "-m", "models.workers.json_dumps.json_dump_worker"]

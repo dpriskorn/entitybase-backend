@@ -117,7 +117,7 @@ services:
       create-tables:
         condition: service_completed_successfully
       # This is needed to make sure we don't
-      # start the API before redpanda is up
+      # start API before redpanda is up
       redpanda:
         condition: service_healthy
     healthcheck:
@@ -128,6 +128,91 @@ services:
       start_period: 30s
     mem_limit: 512m
     cpus: 0.5
+
+  json-dump-worker:
+    container_name: json-dump-worker
+    build:
+      context: .
+      dockerfile: docker/containers/Dockerfile.dump-workers
+    ports:
+      - "8002:8002"
+    environment:
+      WORKER_ID: json_dump_worker_1
+      VITESS_HOST: mysql
+      VITESS_PORT: 3306
+      VITESS_DATABASE: entitybase
+      VITESS_USER: root
+      VITESS_PASSWORD: ""
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: fakekey
+      S3_SECRET_KEY: fakesecret
+      S3_DUMP_BUCKET: wikibase-dumps
+      JSON_DUMP_ENABLED: "true"
+      JSON_DUMP_SCHEDULE: "0 2 * * 0"
+      JSON_DUMP_BATCH_SIZE: "1000"
+      JSON_DUMP_PARALLEL_WORKERS: "50"
+      JSON_DUMP_COMPRESSION: "true"
+      JSON_DUMP_GENERATE_CHECKSUMS: "true"
+      LOG_LEVEL: "INFO"
+    depends_on:
+      create-tables:
+        condition: service_completed_successfully
+      create-buckets:
+        condition: service_completed_successfully
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8002/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 1g
+    cpus: 0.5
+    command: ["python", "-m", "models.workers.json_dumps.json_dump_worker"]
+
+  ttl-dump-worker:
+    container_name: ttl-dump-worker
+    build:
+      context: .
+      dockerfile: docker/containers/Dockerfile.dump-workers
+    ports:
+      - "8003:8003"
+    environment:
+      WORKER_ID: ttl_dump_worker_1
+      VITESS_HOST: mysql
+      VITESS_PORT: 3306
+      VITESS_DATABASE: entitybase
+      VITESS_USER: root
+      VITESS_PASSWORD: ""
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: fakekey
+      S3_SECRET_KEY: fakesecret
+      S3_DUMP_BUCKET: wikibase-dumps
+      TTL_DUMP_ENABLED: "true"
+      TTL_DUMP_SCHEDULE: "0 3 * * 0"
+      TTL_DUMP_BATCH_SIZE: "1000"
+      TTL_DUMP_PARALLEL_WORKERS: "50"
+      TTL_DUMP_COMPRESSION: "true"
+      TTL_DUMP_GENERATE_CHECKSUMS: "true"
+      LOG_LEVEL: "INFO"
+      PROPERTY_REGISTRY_PATH: /app/src/properties
+    depends_on:
+      create-tables:
+        condition: service_completed_successfully
+      create-buckets:
+        condition: service_completed_successfully
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    mem_limit: 1g
+    cpus: 0.5
+    command: ["python", "-m", "models.workers.ttl_dumps.ttl_dump_worker"]
 
 #  api:
 #    build:

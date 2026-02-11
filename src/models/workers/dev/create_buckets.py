@@ -52,6 +52,7 @@ class CreateBuckets(BaseModel):
             settings.s3_qualifiers_bucket,
             settings.s3_revisions_bucket,
             settings.s3_sitelinks_bucket,
+            settings.s3_dump_bucket,
         ]
 
     @property
