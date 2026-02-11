@@ -26,14 +26,14 @@ async def test_semi_protection_blocks_not_autoconfirmed_users(api_prefix: str) -
     ) as client:
         # Create semi-protected item
         await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={**entity_data, "is_semi_protected": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
         # Attempt edit by not-autoconfirmed user (should fail)
         response = await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={
                 **entity_data,
                 "labels": {"en": {"language": "en", "value": "Updated"}},
@@ -46,7 +46,7 @@ async def test_semi_protection_blocks_not_autoconfirmed_users(api_prefix: str) -
 
         # Autoconfirmed user should be able to edit
         response = await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={
                 **entity_data,
                 "labels": {"en": {"language": "en", "value": "Updated"}},
@@ -78,14 +78,14 @@ async def test_semi_protection_allows_autoconfirmed_users(api_prefix: str) -> No
     ) as client:
         # Create semi-protected item
         await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={**entity_data, "is_semi_protected": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
         # Autoconfirmed user edit should succeed
         response = await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={
                 **entity_data,
                 "labels": {"en": {"language": "en", "value": "Updated"}},
@@ -117,14 +117,14 @@ async def test_locked_items_block_all_edits(api_prefix: str) -> None:
     ) as client:
         # Create locked item
         await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={**entity_data, "is_locked": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
         # Attempt manual edit (should fail)
         response = await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={
                 **entity_data,
                 "labels": {"en": {"language": "en", "value": "Updated"}},
@@ -156,14 +156,14 @@ async def test_archived_items_block_all_edits(api_prefix: str) -> None:
     ) as client:
         # Create archived item
         await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={**entity_data, "is_archived": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
         # Attempt edit (should fail)
         response = await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={
                 **entity_data,
                 "labels": {"en": {"language": "en", "value": "Updated"}},
@@ -195,14 +195,14 @@ async def test_mass_edit_protection_blocks_mass_edits(api_prefix: str) -> None:
     ) as client:
         # Create mass-edit protected item
         await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={**entity_data, "is_mass_edit_protected": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
         # Attempt mass edit (should fail)
         response = await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={
                 **entity_data,
                 "is_mass_edit": True,
@@ -215,7 +215,7 @@ async def test_mass_edit_protection_blocks_mass_edits(api_prefix: str) -> None:
 
         # Manual edit should work
         response = await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={
                 **entity_data,
                 "is_mass_edit": False,

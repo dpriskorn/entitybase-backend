@@ -70,7 +70,7 @@ async def test_get_property_label_not_found(api_prefix: str) -> None:
             f"{api_prefix}/entities/properties/P70002/labels/de"
         )
         assert response.status_code == 404
-        assert "not found" in response.json()["detail"].lower()
+        assert "not found" in response.json()["message"].lower()
 
 
 @pytest.mark.asyncio
