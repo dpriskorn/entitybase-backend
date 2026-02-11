@@ -78,7 +78,9 @@ class UserHandler(Handler):
 
     def get_user_stats(self) -> UserStatsResponse:
         """Get user statistics from the daily stats table."""
-        with self.state.vitess_client.connection_manager.connection.cursor() as cursor:
+        connection = self.state.vitess_client.connection_manager.acquire()
+        cursor = connection.cursor()
+        try:
             cursor.execute(
                 "SELECT stat_date, total_users, active_users FROM user_daily_stats ORDER BY stat_date DESC LIMIT 1"
             )
@@ -106,14 +108,60 @@ class UserHandler(Handler):
                     total=stats.total_users,
                     active=stats.active_users,
                 )
+        finally:
+            cursor.close()
+            self.state.vitess_client.connection_manager.release(connection)
 
     def get_general_stats(self) -> GeneralStatsResponse:
         """Get general wiki statistics from the daily stats table."""
         logger.debug("Fetching general stats from database")
-        with self.state.vitess_client.connection_manager.connection.cursor() as cursor:
+        connection = self.state.vitess_client.connection_manager.acquire()
+        cursor = connection.cursor()
+        try:
             cursor.execute(
                 "SELECT stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, terms_per_language, terms_by_type FROM general_daily_stats ORDER BY stat_date DESC LIMIT 1"
             )
+            row = cursor.fetchone()
+            if row:
+                return GeneralStatsResponse(
+                    date=row[0].isoformat(),
+                    total_statements=row[1],
+                    total_qualifiers=row[2],
+                    total_references=row[3],
+                    total_items=row[4],
+                    total_lexemes=row[5],
+                    total_properties=row[6],
+                    total_sitelinks=row[7],
+                    total_terms=row[8],
+                    terms_per_language=TermsPerLanguage(
+                        terms=json.loads(row[9]) if isinstance(row[9], str) and row[9] else {}
+                    ),
+                    terms_by_type=TermsByType(
+                        counts=json.loads(row[10]) if isinstance(row[10], str) and row[10] else {}
+                    ),
+                )
+            else:
+                # Fallback to live computation if no data
+                from models.rest_api.entitybase.v1.services.general_stats_service import (
+                    GeneralStatsService,
+                )
+
+                service = GeneralStatsService(state=self.state)
+                stats = service.compute_daily_stats()
+                return GeneralStatsResponse(
+                    date="live",
+                    total_statements=stats.total_statements,
+                    total_qualifiers=stats.total_qualifiers,
+                    total_references=stats.total_references,
+                    total_items=stats.total_items,
+                    total_lexemes=stats.total_lexemes,
+                    total_properties=stats.total_properties,
+                    total_sitelinks=stats.total_sitelinks,
+                    total_terms=stats.total_terms,
+                )
+        finally:
+            cursor.close()
+            self.state.vitess_client.connection_manager.release(connection)
             row = cursor.fetchone()
             if row:
                 return GeneralStatsResponse(

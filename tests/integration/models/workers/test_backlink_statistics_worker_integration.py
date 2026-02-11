@@ -112,7 +112,7 @@ class TestBacklinkStatisticsWorkerIntegration:
                 "models.workers.backlink_statistics.backlink_statistics_worker.datetime"
             ) as mock_datetime,
             patch(
-                "models.workers.backlink_statistics.backlink_statistics_worker.timedelta"
+                "models.workers.base_stats_worker.timedelta"
             ) as mock_timedelta,
         ):
             # Mock current time as 10:00 AM

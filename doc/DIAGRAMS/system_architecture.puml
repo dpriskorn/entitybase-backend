@@ -24,9 +24,9 @@ package "Worker Layer" as WorkerLayer #LightYellow {
     "BaseStatsWorker" as BaseStatsWorker
     "VitessWorker" as VitessWorker
     "Worker" as Worker
-    "NotificationData" as NotificationData
-    "ChangedProperties" as ChangedProperties
-    ... (23 total components)
+    "EntityDumpRecord" as EntityDumpRecord
+    "DumpMetadata" as DumpMetadata
+    ... (27 total components)
 }
 
 package "Infrastructure Layer" as InfrastructureLayer #LightGray {

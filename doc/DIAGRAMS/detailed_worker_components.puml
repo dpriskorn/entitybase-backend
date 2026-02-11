@@ -11,17 +11,21 @@ package "Workers" as Workers #LightYellow {
     "ChangedProperties" as ChangedProperties
     "CreateBuckets" as CreateBuckets
     "CreateTables" as CreateTables
+    "DumpMetadata" as DumpMetadata
     "EntityDiffRequest" as EntityDiffRequest
     "EntityDiffResponse" as EntityDiffResponse
     "EntityDiff" as EntityDiffWorker
+    "EntityDumpRecord" as EntityDumpRecord
     "GeneralStats" as GeneralStatsWorker
     "IdGenerator" as IdGeneratorWorker
+    "JsonDump" as JsonDumpWorker
     "NotificationCleanup" as NotificationCleanupWorker
     "NotificationData" as NotificationData
     "RDFCanonicalizer" as RDFCanonicalizer
     "RDFSerializer" as RDFSerializer
     "TableHealthCheckResult" as TableHealthCheckResult
     "TableSetupResult" as TableSetupResult
+    "TtlDump" as TtlDumpWorker
     "UserStats" as UserStatsWorker
     "Vitess" as VitessWorker
     "WatchlistConsumer" as WatchlistConsumerWorker

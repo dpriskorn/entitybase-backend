@@ -1,7 +1,7 @@
 """Backlink statistics worker for computing daily analytics."""
 
 import logging
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 from models.config.settings import settings
 from models.rest_api.entitybase.v1.services.backlink_statistics_service import (
@@ -48,3 +48,19 @@ class BacklinkStatisticsWorker(BaseStatsWorker):
         except Exception as e:
             logger.error(f"Failed to compute backlink statistics: {e}")
             raise
+
+    async def _store_statistics(self, stats) -> None:
+        """Store computed statistics in database via repository."""
+        if not self.vitess_client:
+            return
+
+        today = date.today().isoformat()
+
+        self.vitess_client.backlink_repository.insert_backlink_statistics(
+            date=today,
+            total_backlinks=stats.total_backlinks,
+            unique_entities_with_backlinks=stats.unique_entities_with_backlinks,
+            top_entities_by_backlinks=[
+                entity.model_dump(mode="json") for entity in stats.top_entities_by_backlinks
+            ],
+        )

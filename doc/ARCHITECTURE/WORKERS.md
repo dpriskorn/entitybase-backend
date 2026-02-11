@@ -48,11 +48,27 @@
 
 **Health Checks**: Available via worker health endpoint
 
+## Json Dumps Worker
+
+**Class**: ``
+**Location**: `models/workers/json_dumps/__main__.py`
+**Purpose**: 
+
+**Health Checks**: Available via worker health endpoint
+
 ## Notification Cleanup Worker
 
 **Class**: `NotificationCleanupWorker`
 **Location**: `models/workers/notification_cleanup/main.py`
 **Purpose**: Worker that periodically cleans up old notifications to enforce limits.
+
+**Health Checks**: Available via worker health endpoint
+
+## Ttl Dumps Worker
+
+**Class**: ``
+**Location**: `models/workers/ttl_dumps/__main__.py`
+**Purpose**: 
 
 **Health Checks**: Available via worker health endpoint
 

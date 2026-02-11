@@ -139,6 +139,12 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'4.0.0'`
 - **Description**: No description available
 
+### `s3_dump_bucket`
+
+- **Type**: `str`
+- **Default**: `'wikibase-dumps'`
+- **Description**: No description available
+
 ## API Settings
 
 ### `api_prefix`
@@ -165,6 +171,18 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `int`
 - **Default**: `100`
+- **Description**: No description available
+
+### `json_dump_parallel_workers`
+
+- **Type**: `int`
+- **Default**: `50`
+- **Description**: No description available
+
+### `ttl_dump_parallel_workers`
+
+- **Type**: `int`
+- **Default**: `50`
 - **Description**: No description available
 
 ## Development Settings
@@ -289,6 +307,66 @@ All settings can be overridden using environment variables with the same name.
 
 - **Type**: `str`
 - **Default**: `'0 2 * * *'`
+- **Description**: No description available
+
+### `json_dump_enabled`
+
+- **Type**: `bool`
+- **Default**: `True`
+- **Description**: JSON dump worker
+
+### `json_dump_schedule`
+
+- **Type**: `str`
+- **Default**: `'0 2 * * 0'`
+- **Description**: No description available
+
+### `json_dump_batch_size`
+
+- **Type**: `int`
+- **Default**: `1000`
+- **Description**: No description available
+
+### `json_dump_compression`
+
+- **Type**: `bool`
+- **Default**: `True`
+- **Description**: No description available
+
+### `json_dump_generate_checksums`
+
+- **Type**: `bool`
+- **Default**: `True`
+- **Description**: No description available
+
+### `ttl_dump_enabled`
+
+- **Type**: `bool`
+- **Default**: `True`
+- **Description**: TTL dump worker
+
+### `ttl_dump_schedule`
+
+- **Type**: `str`
+- **Default**: `'0 3 * * 0'`
+- **Description**: No description available
+
+### `ttl_dump_batch_size`
+
+- **Type**: `int`
+- **Default**: `1000`
+- **Description**: No description available
+
+### `ttl_dump_compression`
+
+- **Type**: `bool`
+- **Default**: `True`
+- **Description**: No description available
+
+### `ttl_dump_generate_checksums`
+
+- **Type**: `bool`
+- **Default**: `True`
 - **Description**: No description available
 
 ## Usage Example
