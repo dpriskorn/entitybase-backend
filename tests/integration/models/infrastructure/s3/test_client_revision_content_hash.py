@@ -28,16 +28,6 @@ def create_minimal_revision_data(entity_id: str, revision_id: int) -> dict:
 class TestS3ClientRevisionReadWithContentHash:
     """Integration tests for S3Client revision reading with content hash."""
 
-    @pytest.fixture
-    def s3_client(self, s3_client):
-        """Create S3 client for testing."""
-        return s3_client
-
-    @pytest.fixture
-    def vitess_client(self, vitess_client):
-        """Create Vitess client for testing."""
-        return vitess_client
-
     def test_read_revision_queries_database_first(self, s3_client, vitess_client):
         """Test that read_revision queries database first for content hash."""
         entity_id = "Q123"
