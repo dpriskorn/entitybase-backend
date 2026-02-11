@@ -370,8 +370,8 @@ async def run_worker(worker: JsonDumpWorker) -> None:
 
 
 async def run_server(app: Any) -> None:
-    if not FASTAPI_AVAILABLE:
-        raise RuntimeError("FastAPI/uvicorn not installed, cannot run server")
+    if uvicorn is None:
+        raise RuntimeError("uvicorn not installed, cannot run server")
     config = uvicorn.Config(app, host="0.0.0.0", port=8002, loop="asyncio")
     server = uvicorn.Server(config)
     await server.serve()
@@ -385,7 +385,7 @@ async def main() -> None:
 
     worker = JsonDumpWorker()
 
-    if not FASTAPI_AVAILABLE:
+    if FastAPI is None:
         logger.warning("FastAPI/uvicorn not installed, running worker without HTTP server")
         await worker.start()
     else:
