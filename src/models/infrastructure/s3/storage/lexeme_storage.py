@@ -12,9 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 class LexemeStorage(MetadataStorage):
-    """Storage operations for lexeme-specific terms (forms and senses)."""
+    """Storage operations for lexeme-specific terms (lemmas, forms and senses)."""
 
     bucket: str = settings.s3_terms_bucket  # Use terms bucket for deduplication
+
+    def store_lemma(self, text: str, content_hash: int) -> OperationResult[None]:
+        """Store lemma text in terms bucket."""
+        logger.debug(f"Storing lemma: hash={content_hash}, text='{text[:50]}...'")
+        return self.store_metadata(MetadataType.LEMMAS, content_hash, text)
 
     def store_form_representation(
         self, text: str, content_hash: int
@@ -41,6 +46,11 @@ class LexemeStorage(MetadataStorage):
         """Load sense glosses by content hashes."""
         logger.debug(f"Loading {len(hashes)} sense glosses")
         return self._load_metadata_batch(MetadataType.SENSE_GLOSSES, hashes)
+
+    def load_lemmas_batch(self, hashes: List[int]) -> List[Optional[str]]:
+        """Load lemmas by content hashes."""
+        logger.debug(f"Loading {len(hashes)} lemmas")
+        return self._load_metadata_batch(MetadataType.LEMMAS, hashes)
 
     def _load_metadata_batch(
         self, metadata_type: MetadataType, hashes: List[int]

@@ -1,4 +1,4 @@
-"""Response models for lexeme forms and senses endpoints."""
+"""Response models for lexeme forms, lemmas, and senses endpoints."""
 
 from typing import Any, Dict, List
 
@@ -9,6 +9,15 @@ class RepresentationData(BaseModel):
     language: str
     value: str
     model_config = ConfigDict(frozen=True)
+
+
+class LemmaResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    value: str
+
+
+class LemmasResponse(BaseModel):
+    lemmas: Dict[str, RepresentationData]
 
 
 class FormResponse(BaseModel):

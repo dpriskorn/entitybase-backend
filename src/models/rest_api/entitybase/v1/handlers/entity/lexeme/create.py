@@ -28,6 +28,16 @@ class LexemeCreateHandler(EntityCreateHandler):
     ) -> EntityResponse:
         """Create a new lexeme with auto-assigned L ID."""
         logger.debug("Creating new lexeme")
+
+        from models.rest_api.utils import raise_validation_error
+
+        lemma_count = sum(1 for lang in request.lemmas if lang != "lemma_hashes")
+        if lemma_count == 0:
+            raise_validation_error(
+                "A lexeme must have at least one lemma.",
+                status_code=400,
+            )
+
         response = await super().create_entity(
             request,
             edit_headers,
@@ -56,6 +66,7 @@ class LexemeCreateHandler(EntityCreateHandler):
         process_lexeme_terms(
             forms=request.forms,
             senses=request.senses,
+            lemmas=request.lemmas if request.lemmas else None,
             s3_client=self.state.s3_client,
         )
 

@@ -49,6 +49,7 @@ class EntityCreateRequest(BaseModel):
     sitelinks: Dict[str, Any] = {}
     forms: List[Dict[str, Any]] = []
     senses: List[Dict[str, Any]] = []
+    lemmas: Dict[str, Dict[str, str]] = {}
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     edit_type: EditType = Field(
         default=EditType.UNSPECIFIED,
@@ -93,6 +94,7 @@ class LexemeUpdateRequest(BaseModel):
     sitelinks: Dict[str, Any] = {}
     forms: List[Dict[str, Any]] = []
     senses: List[Dict[str, Any]] = []
+    lemmas: Dict[str, Dict[str, str]] = {}
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     state: EntityState = Field(default=EntityState(), description="Entity state")
     edit_type: EditType = Field(
@@ -149,6 +151,7 @@ class PreparedRequestData(BaseModel):
     sitelinks: Dict[str, Any] = Field(default_factory=dict)
     forms: List[Dict[str, Any]] = Field(default_factory=list)
     senses: List[Dict[str, Any]] = Field(default_factory=list)
+    lemmas: Dict[str, Dict[str, str]] = Field(default_factory=dict)
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     edit_type: EditType = Field(
         default=EditType.UNSPECIFIED,

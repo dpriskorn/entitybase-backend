@@ -460,6 +460,18 @@ Response model for generated entity ID.
 
 - `forms` (List[FormResponse]): No description
 
+### LemmaResponse
+
+**Fields**:
+
+- `value` (str): No description
+
+### LemmasResponse
+
+**Fields**:
+
+- `lemmas` (Dict[str, RepresentationData]): No description
+
 ### RepresentationData
 
 **Fields**:

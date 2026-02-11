@@ -51,6 +51,8 @@ package "Models" as Models #LightCyan {
     "Label" as LabelResponse
     "LabelValue" as LabelValue
     "Labels" as LabelsResponse
+    "Lemma" as LemmaResponse
+    "Lemmas" as LemmasResponse
     "Message" as MessageResponse
     "MetadataContent" as MetadataContent
     "MetadataData" as MetadataData

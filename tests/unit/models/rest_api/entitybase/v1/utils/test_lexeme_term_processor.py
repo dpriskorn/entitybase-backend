@@ -71,7 +71,14 @@ class TestProcessLexemeTerms:
         def gloss_callback(hash_val):
             gloss_callback_calls.append(hash_val)
 
-        process_lexeme_terms(forms, senses, mock_s3, form_callback, gloss_callback)
+        process_lexeme_terms(
+            forms,
+            senses,
+            mock_s3,
+            None,
+            on_form_stored=form_callback,
+            on_gloss_stored=gloss_callback,
+        )
 
         assert len(form_callback_calls) == 1
         assert len(gloss_callback_calls) == 1
@@ -86,7 +93,7 @@ class TestProcessLexemeTerms:
         senses = [{"id": "L123-S1", "glosses": {"en": {"value": "animal"}}}]
 
         # Should not raise exception
-        process_lexeme_terms(forms, senses, mock_s3)
+        process_lexeme_terms(forms, senses, mock_s3, None)
 
         assert True  # No exception raised
 
@@ -166,3 +173,33 @@ class TestProcessLexemeTerms:
 
         # Check that hash_key was added to term
         assert "representation_hashes" in terms[0]
+
+    def test_process_lexeme_terms_with_lemmas(self) -> None:
+        """Test processing lexeme lemmas."""
+        mock_s3 = MagicMock()
+        mock_s3.store_lemma = MagicMock()
+
+        lemmas = {
+            "en": {"language": "en", "value": "answer"},
+            "de": {"language": "de", "value": "Antwort"},
+        }
+
+        process_lexeme_terms([], [], mock_s3, lemmas)
+
+        assert mock_s3.store_lemma.call_count == 2
+
+    def test_process_lexeme_terms_lemma_callback(self) -> None:
+        """Test that lemma callback is invoked for each stored hash."""
+        mock_s3 = MagicMock()
+        mock_s3.store_lemma = MagicMock()
+
+        lemma_callback_calls = []
+
+        lemmas = {"en": {"language": "en", "value": "answer"}}
+
+        def lemma_callback(hash_val):
+            lemma_callback_calls.append(hash_val)
+
+        process_lexeme_terms([], [], mock_s3, lemmas, on_lemma_stored=lemma_callback)
+
+        assert len(lemma_callback_calls) == 1

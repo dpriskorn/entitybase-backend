@@ -491,7 +491,8 @@ class EntityUpdateHandler(EntityHandler):
             # Process lexeme terms within transaction (S3 operations)
             forms = data.get("forms", [])
             senses = data.get("senses", [])
-            tx.process_lexeme_terms(forms, senses)
+            lemmas = data.get("lemmas", {})
+            tx.process_lexeme_terms(forms, senses, lemmas)
 
             # Update data with hashes from S3 storage
             data["forms"] = forms

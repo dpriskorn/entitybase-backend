@@ -258,6 +258,16 @@ class MyS3Client(Client):
         if not result.success:
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
+    def store_lemma(self, text: str, content_hash: int) -> None:
+        """Store lemma text in terms bucket."""
+        from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
+
+        if not hasattr(self, "lexeme_storage") or self.lexemes is None:
+            self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
+        result = self.lexemes.store_lemma(text, content_hash)
+        if not result.success:
+            raise_validation_error("S3 storage service unavailable", status_code=503)
+
     def load_revision(self, content_hash: int) -> S3RevisionData:
         """Load a revision by its content hash."""
         from models.infrastructure.s3.storage.revision_storage import RevisionStorage
@@ -303,6 +313,14 @@ class MyS3Client(Client):
         if not hasattr(self, "lexemes") or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
         return cast(list[str | None], self.lexemes.load_sense_glosses_batch(hashes))
+
+    def load_lemmas_batch(self, hashes: List[int]) -> List[Optional[str]]:
+        """Load lemmas by content hashes."""
+        from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
+
+        if not hasattr(self, "lexemes") or self.lexemes is None:
+            self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
+        return cast(list[str | None], self.lexemes.load_lemmas_batch(hashes))
 
     def disconnect(self) -> None:
         """Disconnect from S3 and release resources."""

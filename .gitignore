@@ -33,6 +33,6 @@ test_data/properties/*.json
 /coverage.txt
 /coverage_below_threshold.txt
 /.opencode/plans/
-/unit-test.log
+/unit.log
 /output.log
 /integration.log

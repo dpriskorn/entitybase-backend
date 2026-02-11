@@ -34,12 +34,14 @@ class UpdateTransaction(EntityTransaction):
         self,
         forms: list[dict[str, Any]],
         senses: list[dict[str, Any]],
+        lemmas: dict[str, dict[str, Any]] | None = None,
     ) -> None:
-        """Process lexeme terms (forms and senses) for S3 storage.
+        """Process lexeme terms (lemmas, forms and senses) for S3 storage.
 
         Args:
             forms: List of form data with representations
             senses: List of sense data with glosses
+            lemmas: Lexeme lemmas dict keyed by language
         """
         logger.info("[UpdateTransaction] Starting lexeme term processing")
 
@@ -50,12 +52,16 @@ class UpdateTransaction(EntityTransaction):
         process_lexeme_terms(
             forms=forms,
             senses=senses,
+            lemmas=lemmas,
             s3_client=self.state.s3_client,
             on_form_stored=lambda h: self.lexeme_term_operations.append(
                 lambda: self._rollback_form_representation(h)
             ),
             on_gloss_stored=lambda h: self.lexeme_term_operations.append(
                 lambda: self._rollback_sense_gloss(h)
+            ),
+            on_lemma_stored=lambda h: self.lexeme_term_operations.append(
+                lambda: self._rollback_lemma(h)
             ),
         )
 
@@ -279,6 +285,16 @@ class UpdateTransaction(EntityTransaction):
         except Exception as e:
             logger.warning(
                 f"[UpdateTransaction] Failed to rollback sense gloss {hash_val}: {e}"
+            )
+
+    def _rollback_lemma(self, hash_val: int) -> None:
+        """Rollback lemma by deleting from S3."""
+        logger.info(f"[UpdateTransaction] Rolling back lemma {hash_val}")
+        try:
+            self.state.s3_client._delete_metadata(MetadataType.LEMMAS, hash_val)
+        except Exception as e:
+            logger.warning(
+                f"[UpdateTransaction] Failed to rollback lemma {hash_val}: {e}"
             )
 
     def _rollback_revision(self, entity_id: str, revision_id: int) -> None:

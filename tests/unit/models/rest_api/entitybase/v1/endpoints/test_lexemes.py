@@ -348,8 +348,127 @@ class TestFormsAndSensesEndpoints:
         with pytest.raises(HTTPException) as exc:
             await get_sense_by_id("S1", mock_req)
 
+
+class TestLemmasEndpoints:
+    """Test lemma endpoints."""
+
+    @pytest.mark.asyncio
+    async def test_get_lexeme_lemmas(self, mock_entity_read_state):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_lemmas
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "lemmas": {
+                    "en": {"language": "en", "value": "answer"},
+                    "de": {"language": "de", "value": "Antwort"},
+                },
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        result = await get_lexeme_lemmas("L42", mock_req)
+
+        assert "en" in result.lemmas
+        assert "de" in result.lemmas
+        assert result.lemmas["en"].value == "answer"
+        assert result.lemmas["de"].value == "Antwort"
+
+    @pytest.mark.asyncio
+    async def test_get_lexeme_lemma_by_language(self, mock_entity_read_state):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_lemma
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "lemmas": {"en": {"language": "en", "value": "answer"}},
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        result = await get_lexeme_lemma("L42", "en", mock_req)
+
+        assert result.value == "answer"
+
+    @pytest.mark.asyncio
+    async def test_get_lexeme_lemma_not_found(self, mock_entity_read_state):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_lemma
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "lemmas": {"en": {"language": "en", "value": "answer"}},
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        with pytest.raises(HTTPException) as exc:
+            await get_lexeme_lemma("L42", "de", mock_req)
+
+        assert exc.value.status_code == 404
+        assert "not found" in exc.value.detail.lower()
+
+    @pytest.mark.asyncio
+    async def test_delete_lexeme_lemma_last_lemma_fails(
+        self, mock_entity_read_state
+    ):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import delete_lexeme_lemma
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "lemmas": {"en": {"language": "en", "value": "answer"}},
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        with pytest.raises(HTTPException) as exc:
+            await delete_lexeme_lemma(
+                "L42", "en", mock_req, headers=Mock(x_user_id=123, x_edit_summary="test edit")
+            )
+
         assert exc.value.status_code == 400
-        assert "short format" in str(exc.value.detail).lower()
+        assert "at least one lemma" in exc.value.detail.lower()
 
     @pytest.mark.asyncio
     async def test_update_form_representation(self, mock_entity_read_state):

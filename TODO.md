@@ -1,6 +1,5 @@
 # TODO
 - [ ] Implement Dump Worker service for RDF dump generation
-- [ ] Test all endpoints with docker
 - [ ] Create integration tests for ID generation and type-specific endpoints
 - [ ] Add monitoring and metrics for worker health and range utilization
 

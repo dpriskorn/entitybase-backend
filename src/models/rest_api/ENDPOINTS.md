@@ -63,6 +63,10 @@
 | ✅ | PUT | `/representations/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Update sense gloss for language. |
 | ✅ | DELETE | `/representations/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Delete sense gloss for language. |
 | ✅ | GET | `/representations/entities/lexemes/{lexeme_id}/forms` | List all forms for a lexeme, sorted by numeric suffix. |
+| ✅ | GET | `/representations/entities/lexemes/{lexeme_id}/lemmas` | Get all lemmas for a lexeme. |
+| ✅ | GET | `/representations/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Get lemma for a lexeme in specific language. |
+| ✅ | PUT | `/representations/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Update lemma for language. |
+| ✅ | DELETE | `/representations/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Delete lemma for language. |
 | ✅ | GET | `/representations/entities/lexemes/{lexeme_id}/senses` | List all senses for a lexeme, sorted by numeric suffix. |
 | ✅ | GET | `/representations/{hashes}` | Fetch form representations by hash(es). |
 | ✅ | GET | `/representations/{hashes}` | Fetch sense glosses by hash(es). |
@@ -94,6 +98,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 89 |
+| Implemented | 93 |
 | Not Implemented | 0 |
-| Total | 89 |
+| Total | 93 |
