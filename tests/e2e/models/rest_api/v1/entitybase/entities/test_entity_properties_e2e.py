@@ -3,95 +3,121 @@
 import pytest
 import sys
 
+from httpx import ASGITransport, AsyncClient
+
 sys.path.insert(0, "src")
 
 
+@pytest.mark.asyncio
 @pytest.mark.e2e
-def test_get_entity_properties(
-    e2e_api_client, e2e_base_url, sample_item_with_statements
+async def test_get_entity_properties(
+    api_prefix: str, sample_item_with_statements
 ) -> None:
     """E2E test: Get list of unique property IDs for an entity."""
-    # Create entity with statements
-    response = await client.post(
-        f"{e2e_base_url}/entities/items",
-        json=sample_item_with_statements,
-        headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
-    )
-    assert response.status_code == 200
-    entity_id = response.json()["id"]
+    from models.rest_api.main import app
 
-    # Get properties
-    response = await client.get(f"{e2e_base_url}/entities/{entity_id}/properties")
-    assert response.status_code == 200
-    data = response.json()
-    assert "properties" in data or isinstance(data, list)
-    if isinstance(data, dict) and "properties" in data:
-        assert "P31" in data["properties"] or len(data["properties"]) > 0
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create entity with statements
+        response = await client.post(
+            "/entities/items",
+            json=sample_item_with_statements,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+        entity_id = response.json()["id"]
+
+        # Get properties
+        response = await client.get(f"/entities/{entity_id}/properties")
+        assert response.status_code == 200
+        data = response.json()
+        assert "properties" in data or isinstance(data, list)
+        if isinstance(data, dict) and "properties" in data:
+            assert "P31" in data["properties"] or len(data["properties"]) > 0
 
 
+@pytest.mark.asyncio
 @pytest.mark.e2e
-def test_add_property_to_entity(e2e_api_client, e2e_base_url, sample_item_data) -> None:
+async def test_add_property_to_entity(api_prefix: str, sample_item_data) -> None:
     """E2E test: Add claims for a single property to an entity."""
-    # Create entity
-    response = await client.post(
-        f"{e2e_base_url}/entities/items",
-        json=sample_item_data,
-        headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
-    )
-    assert response.status_code == 200
-    entity_id = response.json()["id"]
+    from models.rest_api.main import app
 
-    # Add property claim
-    claim_data = {
-        "property": {"id": "P31", "data_type": "wikibase-item"},
-        "value": {"type": "value", "content": "Q5"},
-        "rank": "normal",
-    }
-    response = await client.post(
-        f"{e2e_base_url}/entities/{entity_id}/properties/P31",
-        json=claim_data,
-        headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
-    )
-    assert response.status_code in [200, 201]
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create entity
+        response = await client.post(
+            "/entities/items",
+            json=sample_item_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+        entity_id = response.json()["id"]
+
+        # Add property claim
+        claim_data = {
+            "property": {"id": "P31", "data_type": "wikibase-item"},
+            "value": {"type": "value", "content": "Q5"},
+            "rank": "normal",
+        }
+        response = await client.post(
+            f"/entities/{entity_id}/properties/P31",
+            json=claim_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code in [200, 201]
 
 
+@pytest.mark.asyncio
 @pytest.mark.e2e
-def test_get_entity_property_hashes(
-    e2e_api_client, e2e_base_url, sample_item_with_statements
+async def test_get_entity_property_hashes(
+    api_prefix: str, sample_item_with_statements
 ) -> None:
     """E2E test: Get entity property hashes for specified properties."""
-    # Create entity with statements
-    response = await client.post(
-        f"{e2e_base_url}/entities/items",
-        json=sample_item_with_statements,
-        headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
-    )
-    assert response.status_code == 200
-    entity_id = response.json()["id"]
+    from models.rest_api.main import app
 
-    # Get property hashes
-    response = await client.get(f"{e2e_base_url}/entities/{entity_id}/properties/P31")
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list) or "hashes" in data
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create entity with statements
+        response = await client.post(
+            "/entities/items",
+            json=sample_item_with_statements,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+        entity_id = response.json()["id"]
+
+        # Get property hashes
+        response = await client.get(f"/entities/{entity_id}/properties/P31")
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list) or "hashes" in data
 
 
+@pytest.mark.asyncio
 @pytest.mark.e2e
-def test_get_entity_property_hashes_alternative_endpoint(
-    e2e_api_client, e2e_base_url, sample_item_with_statements
+async def test_get_entity_property_hashes_alternative_endpoint(
+    api_prefix: str, sample_item_with_statements
 ) -> None:
     """E2E test: Get statement hashes using alternative endpoint."""
-    # Create entity with statements
-    response = await client.post(
-        f"{e2e_base_url}/entities/items",
-        json=sample_item_with_statements,
-        headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
-    )
-    assert response.status_code == 200
-    entity_id = response.json()["id"]
+    from models.rest_api.main import app
 
-    # Get property hashes via alternative endpoint
-    response = await client.get(f"{api_prefix}/{entity_id}/properties/P31")
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list) or "hashes" in data
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create entity with statements
+        response = await client.post(
+            "/entities/items",
+            json=sample_item_with_statements,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+        entity_id = response.json()["id"]
+
+        # Get property hashes via alternative endpoint
+        response = await client.get(f"{api_prefix}/{entity_id}/properties/P31")
+        assert response.status_code == 200
+        data = response.json()
+        assert isinstance(data, list) or "hashes" in data
