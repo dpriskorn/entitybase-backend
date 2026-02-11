@@ -207,7 +207,7 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `False`
 - **Description**: streaming
 
-### `kafka_brokers`
+### `kafka_bootstrap_servers`
 
 - **Type**: `str`
 - **Default**: `''`

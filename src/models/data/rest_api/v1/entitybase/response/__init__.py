@@ -18,7 +18,10 @@ from .entity import (
     EntityMetadataResponse,
     EntityRevertResponse,
 )
-from .entity.backlink_statistics import BacklinkStatisticsData, BacklinkStatisticsResponse
+from .entity.backlink_statistics import (
+    BacklinkStatisticsData,
+    BacklinkStatisticsResponse,
+)
 from .entity.backlinks import BacklinkResponse, BacklinksResponse
 from .entity.change import EntityChange
 from .entity.entitybase import (

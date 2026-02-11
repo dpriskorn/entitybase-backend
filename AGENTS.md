@@ -323,10 +323,10 @@ tests/
 #### Docker Development
 ```bash
 # Build and run development environment
-./run-docker-build.sh
+./run-docker-build-tests.sh
 
 # Clean rebuild (removes volumes)
-./run-docker-build.sh  # With volume pruning
+./run-docker-build-tests.sh  # With volume pruning
 ```
 
 #### Local Development
@@ -337,6 +337,5 @@ source .venv/bin/activate
 # Install dependencies
 poetry install --with dev
 
-# Run development server
-uvicorn src.models.rest_api.main:app --reload
+Tell the user to start the API webserver if needed.
 ```

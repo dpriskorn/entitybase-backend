@@ -17,7 +17,11 @@ from .entity import (
     LexemeUpdateRequest,
     RedirectRevertRequest,
 )
-from .entity.term_update import DescriptionUpdateRequest, LabelUpdateRequest, TermUpdateRequest
+from .entity.term_update import (
+    DescriptionUpdateRequest,
+    LabelUpdateRequest,
+    TermUpdateRequest,
+)
 from .entity.add_property import AddPropertyRequest
 from .entity.patch import (
     AliasPatchRequest,

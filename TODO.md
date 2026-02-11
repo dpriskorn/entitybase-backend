@@ -1,5 +1,5 @@
 # TODO
-EntityUpdateHandler is very long, refactor into multiple classes?
+Rewrite documentation using the AGENTS.md and system that vibe-kanban uses.
 
 {
   "entities": {
@@ -21,7 +21,7 @@ EntityUpdateHandler is very long, refactor into multiple classes?
       "language": "Q1860",
 add support for lexicalcategory CU-logic (only one)
 add support for language CU-logic (only one)
-add support for lemmas CRUD (at least one is mandatory)
+add support for lemmas CRUD 
 
 
 Based on my analysis of the handler architecture, here's a comprehensive summary:

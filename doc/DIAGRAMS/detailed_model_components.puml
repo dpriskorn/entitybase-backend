@@ -27,6 +27,8 @@ package "Models" as Models #LightCyan {
     "EntityJsonImport" as EntityJsonImportResponse
     "EntityJson" as EntityJsonResponse
     "EntityLabels" as EntityLabelsResponse
+    "EntityListItem" as EntityListItem
+    "EntityListItemWithEditType" as EntityListItemWithEditType
     "EntityList" as EntityListResponse
     "EntityListing" as EntityListing
     "EntityMetadataBatch" as EntityMetadataBatchResponse

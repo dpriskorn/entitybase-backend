@@ -12,7 +12,7 @@ This document describes how to set up and run the Enitybase Backend development 
 1. Clone the repository:
    ```bash
    git clone <repository-url>
-   cd wikibase-backend
+   cd entitybase-backend
    ```
 
 2. Ensure Docker is running.
@@ -22,15 +22,11 @@ This document describes how to set up and run the Enitybase Backend development 
 To start the development environment with a pristine state:
 
    ```bash
-   ./run-docker-build.sh`
+   ./run-docker-build-tests.sh`
    ```
 This process ensures a clean database and environment each time, as all volumes are deleted and recreated.
 
 ## Running Tests
-
-### Integration Tests
-
-Integration tests can be run within the Docker environment. The database is reset between builds, providing a clean state for each test run.
 
 ### Unit Tests Locally
 
@@ -41,6 +37,24 @@ To run unit tests locally without Docker:
    ```
 
 If pytest is not found, install it via `pip install pytest` or activate your virtual environment.
+
+### Integration Tests
+
+Integration tests need docker to be able to access minio and mysql.
+The database is reset between tests, providing a clean state for each test run.
+
+   ```bash
+   ./run-integration-tests.sh
+   ```
+
+### End-to-end (E2E) Tests
+
+E2E tests need docker to be able to access minio and mysql.
+The database is reset between tests, providing a clean state for each test run.
+
+   ```bash
+   ./run-e2e-tests.sh
+   ```
 
 ## Development Workflow
 

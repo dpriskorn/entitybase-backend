@@ -13,7 +13,9 @@ class EventPublishContext(BaseModel):
     revision_id: int = Field(..., description="Revision ID of the change")
     change_type: str = Field(..., description="Type of change")
     changed_at: Any = Field(default=None, description="Timestamp of change")
-    from_revision_id: int = Field(default=0, description="Previous revision ID (0 for creations)")
+    from_revision_id: int = Field(
+        default=0, description="Previous revision ID (0 for creations)"
+    )
 
 
 class TermUpdateContext(BaseModel):
@@ -28,13 +30,17 @@ class EntityHeadUpdateContext(BaseModel):
     """Context for entity head update operations."""
 
     entity_id: str = Field(..., description="Entity ID")
-    expected_head: int = Field(default=0, description="Expected current head revision ID")
+    expected_head: int = Field(
+        default=0, description="Expected current head revision ID"
+    )
     new_head: int = Field(default=0, description="New head revision ID")
     is_semi_protected: bool = Field(default=False, description="Semi-protection status")
     is_locked: bool = Field(default=False, description="Lock status")
     is_archived: bool = Field(default=False, description="Archive status")
     is_dangling: bool = Field(default=False, description="Dangling status")
-    is_mass_edit_protected: bool = Field(default=False, description="Mass edit protection status")
+    is_mass_edit_protected: bool = Field(
+        default=False, description="Mass edit protection status"
+    )
     is_deleted: bool = Field(default=False, description="Deletion status")
     is_redirect: bool = Field(default=False, description="Redirect status")
 
@@ -51,8 +57,12 @@ class GeneralStatisticsContext(BaseModel):
     total_properties: int = Field(..., description="Total number of properties")
     total_sitelinks: int = Field(..., description="Total number of sitelinks")
     total_terms: int = Field(..., description="Total number of terms")
-    terms_per_language: Dict[str, int] = Field(default_factory=dict, description="Terms count per language")
-    terms_by_type: Dict[str, int] = Field(default_factory=dict, description="Terms count by type")
+    terms_per_language: Dict[str, int] = Field(
+        default_factory=dict, description="Terms count per language"
+    )
+    terms_by_type: Dict[str, int] = Field(
+        default_factory=dict, description="Terms count by type"
+    )
 
 
 class StatementWriteContext(BaseModel):
@@ -78,7 +88,9 @@ class ProcessEntityRevisionContext(BaseModel):
     entity_type: Any = Field(..., description="Entity type enum")
     edit_type: Any = Field(default=None, description="Edit type")
     edit_headers: Any = Field(..., description="Edit headers")
-    is_creation: bool = Field(default=False, description="Whether this is a creation operation")
+    is_creation: bool = Field(
+        default=False, description="Whether this is a creation operation"
+    )
     validator: Any = Field(default=None, description="Validator instance")
 
 

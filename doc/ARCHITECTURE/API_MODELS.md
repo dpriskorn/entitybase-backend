@@ -197,13 +197,22 @@ Collection of labels keyed by language code.
 
 - `data` (dict[str, LabelValue]): Dictionary of labels keyed by language code. Example: {'en': {'language': 'en', 'value': 'Test'}}.
 
+### EntityListItem
+
+Single entity item in a list response.
+
+**Fields**:
+
+- `entity_id` (str): Entity ID (e.g., 'Q42')
+- `head_revision_id` (int): Current head revision ID
+
 ### EntityListResponse
 
 Response model for entity list queries.
 
 **Fields**:
 
-- `entities` (list[dict[str, Any]]): List of entities with their metadata
+- `entities` (list[EntityListItem | EntityListItemWithEditType]): List of entities with their metadata
 - `count` (int): Total number of entities returned
 
 ### EntityMetadataBatchResponse

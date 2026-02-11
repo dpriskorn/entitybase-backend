@@ -44,7 +44,7 @@ class EntityCreateRequest(BaseModel):
     type: str = Field(default="item", description="Entity type")
     labels: Dict[str, Dict[str, str]] = {}
     descriptions: Dict[str, Dict[str, str]] = {}
-    claims: Dict[str, Any] = {} # this is Wikibase speak for statements
+    claims: Dict[str, Any] = {}  # this is Wikibase speak for statements
     aliases: Dict[str, Any] = {}
     sitelinks: Dict[str, Any] = {}
     forms: List[Dict[str, Any]] = []
@@ -154,10 +154,7 @@ class PreparedRequestData(BaseModel):
         default=EditType.UNSPECIFIED,
         description="Classification of edit type",
     )
-    state: EntityState = Field(
-        default_factory=EntityState,
-        description="Entity state"
-    )
+    state: EntityState = Field(default_factory=EntityState, description="Entity state")
     is_autoconfirmed_user: bool = Field(
         default=False,
         description="User is autoconfirmed (not a new/unconfirmed account)",

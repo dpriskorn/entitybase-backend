@@ -92,7 +92,7 @@ class StatementsResponse(BaseModel):
     statements: dict[str, Any] = Field(..., description="Statements data")
 
 
-#todo plan a rewrite of the handlers as needed
+# todo plan a rewrite of the handlers as needed
 class StatementsHashResponse(BaseModel):
     """Response model for entity statement hashes (schema 2.0.0)."""
 
@@ -107,10 +107,9 @@ class PropertyRecalculationResult(BaseModel):
     """Result of property count recalculation after statement removal."""
 
     properties: list[str] = Field(
-        default_factory=list,
-        description="List of property IDs after recalculation"
+        default_factory=list, description="List of property IDs after recalculation"
     )
     property_counts: PropertyCounts = Field(
         default_factory=dict,
-        description="Mapping of property ID to statement count after recalculation"
+        description="Mapping of property ID to statement count after recalculation",
     )

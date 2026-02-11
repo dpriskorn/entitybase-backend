@@ -129,7 +129,9 @@ class MetadataData(BaseModel):
 
     model_config = {"extra": "allow"}
 
-    data: str | dict[str, Any] = Field(..., description="Metadata content as text or structured data")
+    data: str | dict[str, Any] = Field(
+        ..., description="Metadata content as text or structured data"
+    )
 
 
 class TopEntityByBacklinks(BaseModel):

@@ -14,7 +14,9 @@ class RepresentationData(BaseModel):
 class FormResponse(BaseModel):
     id: str
     representations: Dict[str, RepresentationData]
-    grammatical_features: List[str] = Field(default_factory=list, alias="grammaticalFeatures")
+    grammatical_features: List[str] = Field(
+        default_factory=list, alias="grammaticalFeatures"
+    )
     claims: Dict[str, List[Dict[str, Any]]] = Field(default_factory=dict)
     model_config = ConfigDict(frozen=True)
 

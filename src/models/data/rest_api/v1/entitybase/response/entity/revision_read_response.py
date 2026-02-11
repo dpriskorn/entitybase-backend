@@ -7,7 +7,6 @@ from pydantic import BaseModel, Field
 from models.infrastructure.s3.revision.revision_data import RevisionData
 
 
-
 class RevisionReadResponse(BaseModel):
     """Response model for reading revisions."""
 

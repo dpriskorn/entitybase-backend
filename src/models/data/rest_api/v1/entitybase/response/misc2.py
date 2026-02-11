@@ -4,7 +4,10 @@ from typing import Any, Dict
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from models.data.rest_api.v1.entitybase.response.misc import TermsByType, TermsPerLanguage
+from models.data.rest_api.v1.entitybase.response.misc import (
+    TermsByType,
+    TermsPerLanguage,
+)
 
 
 class QualifierResponse(BaseModel):
@@ -69,7 +72,7 @@ class ReconstructedSnakValue(BaseModel):
     )
     datavalue: Dict[str, Any] | None = Field(
         default=None,
-        description="Data value of the snak. Example: {'value': 'Q1', 'type': 'wikibase-entityid'}."
+        description="Data value of the snak. Example: {'value': 'Q1', 'type': 'wikibase-entityid'}.",
     )
 
 
@@ -78,9 +81,11 @@ class SerializableQualifierValue(BaseModel):
 
     model_config = {"extra": "allow"}
 
-    value: Dict[str, Any] | int | str | list["SerializableQualifierValue"] | None = Field(
-        default=None,
-        description="Serializable qualifier value (dict, int, str, or list of SerializableQualifierValue)."
+    value: Dict[str, Any] | int | str | list["SerializableQualifierValue"] | None = (
+        Field(
+            default=None,
+            description="Serializable qualifier value (dict, int, str, or list of SerializableQualifierValue).",
+        )
     )
 
 
