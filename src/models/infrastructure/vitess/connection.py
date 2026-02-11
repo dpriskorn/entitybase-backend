@@ -40,7 +40,9 @@ class VitessConnectionManager(BaseModel):
         logger.info(
             f"Attempting database connection to {self.config.host}:{self.config.port}..."
         )
-        logger.debug(f"Connection parameters: user='{self.config.user}', database='{self.config.database}'")
+        logger.debug(
+            f"Connection parameters: user='{self.config.user}', database='{self.config.database}'"
+        )
         try:
             logger.debug("Calling pymysql.connect()...")
             connection = pymysql.connect(
@@ -74,9 +76,7 @@ class VitessConnectionManager(BaseModel):
             )
 
         try:
-            logger.debug(
-                f"Acquiring semaphore (timeout={self.config.pool_timeout}s)"
-            )
+            logger.debug(f"Acquiring semaphore (timeout={self.config.pool_timeout}s)")
             if not self.connection_semaphore.acquire(timeout=self.config.pool_timeout):
                 logger.error(
                     f"Connection pool exhausted (timeout: {self.config.pool_timeout}s)"
@@ -97,7 +97,9 @@ class VitessConnectionManager(BaseModel):
                     f"Attempting to get connection from pool, pool size: {self.pool.qsize()}"
                 )
                 connection = self.pool.get_nowait()
-                logger.debug(f"Got connection from pool, checking if open: {connection.open}")
+                logger.debug(
+                    f"Got connection from pool, checking if open: {connection.open}"
+                )
                 if not connection.open:
                     logger.warning("Acquired a closed connection, creating new one")
                     connection = self._create_new_connection()
@@ -112,7 +114,9 @@ class VitessConnectionManager(BaseModel):
                 self.overflow_connections.add(connection)
 
             self.active_connections.add(connection)
-            logger.debug(f"Successfully acquired connection, active connections: {len(self.active_connections)}")
+            logger.debug(
+                f"Successfully acquired connection, active connections: {len(self.active_connections)}"
+            )
             return connection
         except Exception:
             logger.debug("Exception during acquire, releasing semaphore")
@@ -155,9 +159,7 @@ class VitessConnectionManager(BaseModel):
 
         try:
             self.pool.put_nowait(connection)
-            logger.debug(
-                f"Released connection to pool, pool size: {self.pool.qsize()}"
-            )
+            logger.debug(f"Released connection to pool, pool size: {self.pool.qsize()}")
         except queue.Full:
             connection.close()
             logger.debug("Pool full, closed excess connection")

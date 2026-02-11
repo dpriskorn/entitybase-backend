@@ -14,8 +14,10 @@ sys.path.insert(0, str(src_path))
 
 # noinspection PyPep8
 from models.config.settings import settings
+
 # noinspection PyPep8
 from models.workers.dev.create_buckets import CreateBuckets
+
 # noinspection PyPep8
 from models.workers.dev.create_tables import CreateTables
 
@@ -53,35 +55,45 @@ def main() -> int:
 
     # Buckets component
     buckets_parser = subparsers.add_parser("buckets", help="Manage MinIO buckets")
-    buckets_subparsers = buckets_parser.add_subparsers(dest="operation", help="Bucket operations")
+    buckets_subparsers = buckets_parser.add_subparsers(
+        dest="operation", help="Bucket operations"
+    )
 
     # Bucket operations
-    buckets_setup_parser = buckets_subparsers.add_parser("setup", help="Create and setup MinIO buckets")
+    buckets_setup_parser = buckets_subparsers.add_parser(
+        "setup", help="Create and setup MinIO buckets"
+    )
     buckets_setup_parser.set_defaults(func=run_buckets_setup)
 
-    buckets_health_parser = buckets_subparsers.add_parser("health", help="Check bucket health")
+    buckets_health_parser = buckets_subparsers.add_parser(
+        "health", help="Check bucket health"
+    )
     buckets_health_parser.set_defaults(func=run_buckets_health)
-
-
 
     # Tables component
     tables_parser = subparsers.add_parser("tables", help="Manage database tables")
-    tables_subparsers = tables_parser.add_subparsers(dest="operation", help="Table operations")
+    tables_subparsers = tables_parser.add_subparsers(
+        dest="operation", help="Table operations"
+    )
 
     # Table operations
-    tables_setup_parser = tables_subparsers.add_parser("setup", help="Create and setup database tables")
+    tables_setup_parser = tables_subparsers.add_parser(
+        "setup", help="Create and setup database tables"
+    )
     tables_setup_parser.set_defaults(func=run_tables_setup)
 
-    tables_health_parser = tables_subparsers.add_parser("health", help="Check table health")
+    tables_health_parser = tables_subparsers.add_parser(
+        "health", help="Check table health"
+    )
     tables_health_parser.set_defaults(func=run_tables_health)
 
     args = parser.parse_args()
 
-    if not hasattr(args, 'component') or not args.component:
+    if not hasattr(args, "component") or not args.component:
         parser.print_help()
         return 1
 
-    if not hasattr(args, 'operation') or not args.operation:
+    if not hasattr(args, "operation") or not args.operation:
         parser.print_help()
         return 1
 
@@ -104,7 +116,7 @@ async def run_buckets_setup(args: argparse.Namespace) -> bool:
     )
     results = await create_buckets.run_setup()
     print(f"Buckets setup completed: {results['setup_status']}")
-    return results['setup_status'] == 'completed'
+    return results["setup_status"] == "completed"
 
 
 async def run_buckets_health(args: argparse.Namespace) -> bool:
@@ -116,10 +128,7 @@ async def run_buckets_health(args: argparse.Namespace) -> bool:
     )
     health_status = await create_buckets.bucket_health_check()
     print(f"Bucket health status: {health_status['overall_status']}")
-    return health_status['overall_status'] == 'healthy'
-
-
-
+    return health_status["overall_status"] == "healthy"
 
 
 async def run_tables_setup(args: argparse.Namespace) -> bool:
@@ -127,7 +136,7 @@ async def run_tables_setup(args: argparse.Namespace) -> bool:
     create_tables = CreateTables()
     results = await create_tables.run_setup()
     print(f"Tables setup completed: {results['setup_status']}")
-    return results['setup_status'] == 'completed'
+    return results["setup_status"] == "completed"
 
 
 async def run_tables_health(args: argparse.Namespace) -> bool:
@@ -135,8 +144,10 @@ async def run_tables_health(args: argparse.Namespace) -> bool:
     create_tables = CreateTables()
     health_status = await create_tables.table_health_check()
     print(f"Table health status: {health_status['overall_status']}")
-    print(f"Healthy tables: {health_status['healthy_tables']}/{health_status['total_tables']}")
-    return health_status['overall_status'] == 'healthy'
+    print(
+        f"Healthy tables: {health_status['healthy_tables']}/{health_status['total_tables']}"
+    )
+    return health_status["overall_status"] == "healthy"
 
 
 if __name__ == "__main__":

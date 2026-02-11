@@ -12,6 +12,7 @@ from pydantic import BaseModel
 
 class TableHealthCheckResult(TypedDict):
     """Result of table health check."""
+
     overall_status: str
     healthy_tables: int
     total_tables: int
@@ -20,9 +21,11 @@ class TableHealthCheckResult(TypedDict):
 
 class TableSetupResult(TypedDict):
     """Result of table setup operation."""
+
     tables_created: Dict[str, str]
     health_check: TableHealthCheckResult
     setup_status: str
+
 
 logger = logging.getLogger(__name__)
 
@@ -59,13 +62,13 @@ class CreateTables(BaseModel):
         "id_ranges",
     ]
 
-
-
     @property
     def vitess_config(self) -> Any:
         """Get Vitess configuration."""
         config = settings.get_vitess_config
-        logger.debug(f"VitessConfig loaded: host='{config.host}', port={config.port}, database='{config.database}', user='{config.user}', password_length={len(config.password)}")
+        logger.debug(
+            f"VitessConfig loaded: host='{config.host}', port={config.port}, database='{config.database}', user='{config.user}', password_length={len(config.password)}"
+        )
         return config
 
     async def ensure_tables_exist(self) -> Dict[str, str]:
@@ -73,11 +76,15 @@ class CreateTables(BaseModel):
         results = {}
 
         try:
-            from models.infrastructure.vitess.repositories.schema import SchemaRepository
+            from models.infrastructure.vitess.repositories.schema import (
+                SchemaRepository,
+            )
             from models.infrastructure.vitess.client import VitessClient
 
             logger.info("Creating database tables using SchemaRepository...")
-            logger.debug(f"Creating VitessClient with config: host='{self.vitess_config.host}', port={self.vitess_config.port}, database='{self.vitess_config.database}'")
+            logger.debug(
+                f"Creating VitessClient with config: host='{self.vitess_config.host}', port={self.vitess_config.port}, database='{self.vitess_config.database}'"
+            )
             vitess_client = VitessClient(config=self.vitess_config)
             schema_repository = SchemaRepository(vitess_client=vitess_client)
             schema_repository.create_tables()

@@ -29,7 +29,7 @@ class RDFCanonicalizer(BaseModel):
         # Parse RDF to JSON-LD
         g = ConjunctiveGraph()
         g.parse(data=rdf_content, format=format_)
-        
+
         # Serialize to N-Quads format for pyld compatibility
         nquads = g.serialize(format="nquads")
         jsonld_data = jsonld.from_rdf(nquads)

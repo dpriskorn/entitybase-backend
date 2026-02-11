@@ -48,5 +48,3 @@ class BacklinkStatisticsWorker(BaseStatsWorker):
         except Exception as e:
             logger.error(f"Failed to compute backlink statistics: {e}")
             raise
-
-

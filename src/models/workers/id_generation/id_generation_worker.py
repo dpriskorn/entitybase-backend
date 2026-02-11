@@ -170,8 +170,6 @@ class IdGeneratorWorker(VitessWorker):
         return IdResponse(id=entity_id)
 
 
-
-
 async def run_worker(worker: IdGeneratorWorker) -> None:
     """Run the worker loop."""
     await worker.start()

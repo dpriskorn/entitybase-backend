@@ -18,10 +18,16 @@ logger = logging.getLogger(__name__)
 class JsonSchemaValidator(BaseModel):
     """Validator for JSON schemas used in entity validation."""
 
-    s3_revision_version: str = Field(default_factory=lambda: settings.s3_schema_revision_version)
-    s3_statement_version: str = Field(default_factory=lambda: settings.s3_statement_version)
+    s3_revision_version: str = Field(
+        default_factory=lambda: settings.s3_schema_revision_version
+    )
+    s3_statement_version: str = Field(
+        default_factory=lambda: settings.s3_statement_version
+    )
     s3_snak_version: str = Field(default_factory=lambda: settings.s3_snak_version)
-    entity_change_version: str = Field(default_factory=lambda: settings.streaming_entity_change_version)
+    entity_change_version: str = Field(
+        default_factory=lambda: settings.streaming_entity_change_version
+    )
     entity_revision_schema: JsonSchema | None = Field(default=None)
     statement_schema: JsonSchema | None = Field(default=None)
     recentchange_schema: JsonSchema | None = Field(default=None)
@@ -55,25 +61,33 @@ class JsonSchemaValidator(BaseModel):
 
     def _get_entity_revision_schema(self) -> JsonSchema:
         if self.entity_revision_schema is None:
-            schema_path = Path(f"schemas/entitybase/s3/revision/{self.s3_revision_version}/schema.yaml")
+            schema_path = Path(
+                f"schemas/entitybase/s3/revision/{self.s3_revision_version}/schema.yaml"
+            )
             self.entity_revision_schema = self._load_schema(str(schema_path))
         return self.entity_revision_schema
 
     def _get_statement_schema(self) -> JsonSchema:
         if self.statement_schema is None:
-            schema_path = Path(f"schemas/entitybase/s3/statement/{self.s3_statement_version}/schema.yaml")
+            schema_path = Path(
+                f"schemas/entitybase/s3/statement/{self.s3_statement_version}/schema.yaml"
+            )
             self.statement_schema = self._load_schema(str(schema_path))
         return self.statement_schema
 
     def _get_recentchange_schema(self) -> JsonSchema:
         if self.recentchange_schema is None:
-            schema_path = Path(f"schemas/entitybase/events/entity_change/{self.entity_change_version}/schema.yaml")
+            schema_path = Path(
+                f"schemas/entitybase/events/entity_change/{self.entity_change_version}/schema.yaml"
+            )
             self.recentchange_schema = self._load_schema(str(schema_path))
         return self.recentchange_schema
 
     def _get_snak_schema(self) -> JsonSchema:
         if self.snak_schema is None:
-            schema_path = Path(f"schemas/entitybase/s3/snak/{self.s3_snak_version}/schema.yaml")
+            schema_path = Path(
+                f"schemas/entitybase/s3/snak/{self.s3_snak_version}/schema.yaml"
+            )
             self.snak_schema = self._load_schema(str(schema_path))
         return self.snak_schema
 

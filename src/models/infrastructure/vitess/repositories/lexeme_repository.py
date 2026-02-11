@@ -17,7 +17,9 @@ logger = logging.getLogger(__name__)
 class LexemeRepository(Repository):
     """Database operations for lexeme metadata and term mappings."""
 
-    def store_lexeme_terms(self, entity_id: str, term_hashes: Optional[Dict[str, Any]]) -> None:
+    def store_lexeme_terms(
+        self, entity_id: str, term_hashes: Optional[Dict[str, Any]]
+    ) -> None:
         """Store lexeme term hash mappings for an entity.
 
         Args:
@@ -33,8 +35,7 @@ class LexemeRepository(Repository):
         with self.vitess_client.cursor as cursor:
             # Clear existing terms for this entity
             cursor.execute(
-                "DELETE FROM lexeme_terms WHERE entity_id = %s",
-                (entity_id,)
+                "DELETE FROM lexeme_terms WHERE entity_id = %s", (entity_id,)
             )
 
             # Insert form terms
@@ -47,7 +48,7 @@ class LexemeRepository(Repository):
                             (entity_id, form_sense_id, term_type, language, term_hash)
                             VALUES (%s, %s, %s, %s, %s)
                             """,
-                            (entity_id, form_id, "form", lang, term_hash)
+                            (entity_id, form_id, "form", lang, term_hash),
                         )
 
             # Insert sense terms
@@ -60,7 +61,7 @@ class LexemeRepository(Repository):
                             (entity_id, form_sense_id, term_type, language, term_hash)
                             VALUES (%s, %s, %s, %s, %s)
                             """,
-                            (entity_id, sense_id, "sense", lang, term_hash)
+                            (entity_id, sense_id, "sense", lang, term_hash),
                         )
 
         logger.info(f"Stored lexeme terms for {entity_id}")
@@ -87,7 +88,7 @@ class LexemeRepository(Repository):
                 FROM lexeme_terms
                 WHERE entity_id = %s
                 """,
-                (entity_id,)
+                (entity_id,),
             )
 
             for row in cursor.fetchall():
@@ -109,9 +110,6 @@ class LexemeRepository(Repository):
                 }
             ),
             senses=SenseTermHashes(
-                {
-                    sense_id: TermHashes(glosses)
-                    for sense_id, glosses in senses.items()
-                }
-            )
+                {sense_id: TermHashes(glosses) for sense_id, glosses in senses.items()}
+            ),
         )

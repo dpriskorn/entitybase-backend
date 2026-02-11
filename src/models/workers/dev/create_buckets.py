@@ -12,6 +12,7 @@ from pydantic import BaseModel
 
 class BucketHealthCheckResult(TypedDict):
     """Result of bucket health check."""
+
     overall_status: str
     buckets: Dict[str, Any]
     issues: List[str]
@@ -19,9 +20,11 @@ class BucketHealthCheckResult(TypedDict):
 
 class BucketSetupResult(TypedDict):
     """Result of bucket setup operation."""
+
     buckets_created: Dict[str, str]
     health_check: BucketHealthCheckResult
     setup_status: str
+
 
 logger = logging.getLogger(__name__)
 
@@ -36,12 +39,12 @@ class CreateBuckets(BaseModel):
     minio_endpoint: str = os.getenv("MINIO_ENDPOINT", "http://localhost:9000")
     minio_access_key: str = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
     minio_secret_key: str = os.getenv("MINIO_SECRET_KEY", "minioadmin")
-    required_buckets: List[str] = [
-    ]
+    required_buckets: List[str] = []
 
     def model_post_init(self, context: Any) -> None:
         # noinspection PyPep8
         from models.config.settings import settings
+
         self.required_buckets: List[str] = [
             settings.s3_terms_bucket,
             settings.s3_statements_bucket,
