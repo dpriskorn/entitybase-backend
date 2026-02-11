@@ -1,6 +1,10 @@
 # FAQ
+## When was Entitybase first released?
+It was released on the 25th birthday of Wikipedia the 19th of january 2026. 
+Horray for 25 years of sharing in the sum of notable knowledge!
+
 ## What is the unique selling point?
-Entitybase scales the Wikibase data model to enable storing the sum of human knowledge in a single system. 
+Entitybase scales the Wikibase data model to enable storing the sum of human knowledge in a single system. See [VALUE_PROPOSITION.md](VALUE_PROPOSITION.md).
 
 ## Why build a new backend for the Wikibase data model?
 Wikibase is built as an extension to the legacy PHP MediaWiki project. 
@@ -14,22 +18,22 @@ Also the rate of changes has proven difficult to keep up with for the Blazegraph
 WMF tasked a small team called Wikidata platform team in august 2025 to 
 begin planning and executing a migration away from Blazegraph and that work is currently ongoing.
 
-# Does it output data in the Wikibase data model?
+## Does it output data in the Wikibase data model?
 Yes, `/entities/{entity_id}.json` is designed to output deduplicated entity data in JSON format. 
 It can be expanded to the format used by Wikibase by looking up all the hashes 
 but you probably rarely need to look up all at once.
 
-# Which version of the Wikibase data model is supported?
-The latest official one here The latest official one here https://www.wikidata.org/wiki/Wikidata:Data_model
+## Which version of the Wikibase data model is supported?
+The latest official one, https://www.mediawiki.org/w/index.php?title=Wikibase/DataModel&oldid=7684672
 
-# Can I set up a QLever instance that follows the changes in the Entitybase backend
+## Can I set up a QLever instance that follows the changes in the Entitybase backend
 Perhaps :)
 
 The system is designed to output RDF change events just like Wikidata 
 does using the same schema as WMF currently use in production, but that feature is currently experimental. 
 See doc/ARCHITECTURE/CHANGE-STREAMING/CONTINUOUS-RDF-CHANGE-STREAMER.md
 
-# How can Entitybase scale better than Wikibase Suite?
+## How can Entitybase scale better than Wikibase Suite?
 A few design choices of the Wikibase system make it unsuitable for storing 1 trillion statements. 
 The most limiting design flaw is not deduplicating 
 the content in any way and just storing a blob of JSON for each revision.
@@ -41,7 +45,7 @@ storage costs is very important to approach O(n) and not have exponential
 growth like the current Wikibase Suite does (each revision is storing duplication of all the data which 
 works ok for a 7M page Wikipedia, but not for 1 billion entities with a mean of 10+ revisions).
 
-# Is Entitybase a drop-in replacement for Wikibase? 
+## Is Entitybase a drop-in replacement for Wikibase? 
 No. It does not support any of the current tooling around Wikidata/Wikibase.
 It does not yet have a frontend either.
 
@@ -53,29 +57,33 @@ It has to be broken down in 2 operations: first adding a lemma and then adding a
 
 Thus Entitybase is not compatible with the Wikibase REST API nor the MediaWiki APIs.
 
-# Does it have a search backend?
+## Can I upload the latest Wikidata dump to Entitybase?
+Probably :) This has yet to be tested. Be bold and try it. See the dedicated endpoint and worker.
+
+## Does it have a search backend?
 No, not currently. Search is very important but currently not in scope of the project. 
 Feel free to send a PR! :D
 
-# Does it have a frontend?
+## Does it have a frontend?
 No, not currently. A frontend is very important but currently not in scope of the project. 
 Feel free to write one! :D
 
-# Who developed Entitybase backend
-[Q111016131](https://www.wikidata.org/wiki/Q111016131)
+## Who developed Entitybase backend
+[Nizo Priskorn](https://www.wikidata.org/wiki/Q111016131)
 
-# Is it stable
+## Is it stable
 No, the backend is currently in alpha state. You get to keep all the parts if it breaks :D
 
-# Can I help
+## Can I help
 Yes! Please feel free to open issues, write PRs, or share what you need 
 from a scalable Wikibase data model compatible backend.
 
-# How was it built?
+## How was it built?
 Development started in december 2025. 
-It has been build using mostly GLM4.7 and opencode. 
-First the architecture was written and then implementation in Python started.
+It has been build using mostly [GLM4.7](https://www.wikidata.org/wiki/Q138133653) and [opencode](https://opencode.ai/). 
+
+First the architecture documents were written and discussed with the community in various Telegram channels then implementation in Python started.
 Some parts have been fixed manually when GLM did not get the job done.
 
-# Are there tests that verify the features work as expected?
-Yes! See STATISTICS.md
+## Are there tests that verify the features work as expected?
+Yes! See [STATISTICS.md](STATISTICS.md)
