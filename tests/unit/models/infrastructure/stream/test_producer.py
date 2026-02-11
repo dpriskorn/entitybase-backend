@@ -1,4 +1,5 @@
 """Unit tests for producer."""
+
 from datetime import datetime, timezone
 from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
@@ -15,13 +16,17 @@ class TestStreamProducerClient:
 
     def setup_method(self):
         """Set up test fixtures."""
-        self.config = StreamConfig(bootstrap_servers=["localhost:9092"], topic="test-topic")
+        self.config = StreamConfig(
+            bootstrap_servers=["localhost:9092"], topic="test-topic"
+        )
         self.client = StreamProducerClient(config=self.config)
 
     @pytest.mark.asyncio
     async def test_start_producer(self):
         """Test starting the Kafka producer."""
-        with patch('models.infrastructure.stream.producer.AIOKafkaProducer') as mock_producer_class:
+        with patch(
+            "models.infrastructure.stream.producer.AIOKafkaProducer"
+        ) as mock_producer_class:
             mock_producer = AsyncMock()
             mock_producer_class.return_value = mock_producer
 
@@ -72,10 +77,11 @@ class TestStreamProducerClient:
         self.client.producer = mock_producer
 
         event = EntityChangeEvent(
-            id="Q42",
-            rev=123,
-            type=ChangeType.EDIT,
-            at=datetime.now(timezone.utc),
+            entity_id="Q42",
+            revision_id=123,
+            change_type=ChangeType.EDIT,
+            changed_at=datetime.now(timezone.utc),
+            user_id="test-user",
         )
 
         await self.client.publish_change(event)
@@ -105,7 +111,7 @@ class TestStreamProducerClient:
         )
 
     @pytest.mark.asyncio
-    @patch('models.infrastructure.stream.producer.AIOKafkaProducer')
+    @patch("models.infrastructure.stream.producer.AIOKafkaProducer")
     async def test_publish_change_no_producer(self, mock_producer_class):
         """Test publishing when producer is not started (lazy start)."""
         self.client.producer = None
@@ -144,17 +150,16 @@ class TestStreamProducerClient:
         self.client.producer = mock_producer
 
         event = EntityChangeEvent(
-            id="Q42",
-            rev=123,
-            type=ChangeType.EDIT,
-            at=datetime.now(timezone.utc),
+            entity_id="Q42",
+            revision_id=123,
+            change_type=ChangeType.EDIT,
+            changed_at=datetime.now(timezone.utc),
+            user_id="test-user",
         )
 
         await self.client.publish_change(event)
 
         # Should log error but not raise
-
-
 
     def test_value_serializer(self):
         """Test the value serializer function."""

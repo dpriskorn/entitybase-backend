@@ -4,6 +4,7 @@ import asyncio
 import logging
 import os
 import time
+from datetime import datetime, timezone
 from typing import Any
 
 import pytest
@@ -13,6 +14,8 @@ from models.data.config.stream_consumer import StreamConsumerConfig
 from models.data.infrastructure.stream.consumer import EntityChangeEventData
 from models.infrastructure.stream.consumer import StreamConsumerClient
 from models.infrastructure.stream.producer import StreamProducerClient
+from models.infrastructure.stream.event import EntityChangeEvent
+from models.data.infrastructure.stream.change_type import ChangeType
 
 logger = logging.getLogger(__name__)
 
@@ -32,41 +35,40 @@ class TestProducerConsumerEndToEnd:
         consumer_config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-e2e"
+            group_id="test-consumer-e2e",
         )
         consumer = StreamConsumerClient(config=consumer_config)
 
         # Setup producer
         producer_config = StreamConfig(
-            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=KAFKA_TOPIC
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=KAFKA_TOPIC
         )
         producer = StreamProducerClient(config=producer_config)
 
         # Create events
         events = [
-            {
-                "entity_id": f"{TEST_ENTITY_BASE}100",
-                "revision_id": 1,
-                "change_type": "creation",
-                "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "user_id": TEST_USER_ID,
-            },
-            {
-                "entity_id": f"{TEST_ENTITY_BASE}100",
-                "revision_id": 2,
-                "change_type": "edit",
-                "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "user_id": TEST_USER_ID,
-                "from_revision_id": 1,
-            },
-            {
-                "entity_id": f"{TEST_ENTITY_BASE}101",
-                "revision_id": 3,
-                "change_type": "creation",
-                "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "user_id": TEST_USER_ID,
-            },
+            EntityChangeEvent(
+                entity_id=f"{TEST_ENTITY_BASE}100",
+                revision_id=1,
+                change_type=ChangeType.CREATION,
+                changed_at=datetime.now(timezone.utc),
+                user_id=TEST_USER_ID,
+            ),
+            EntityChangeEvent(
+                entity_id=f"{TEST_ENTITY_BASE}100",
+                revision_id=2,
+                change_type=ChangeType.EDIT,
+                changed_at=datetime.now(timezone.utc),
+                user_id=TEST_USER_ID,
+                from_revision_id=1,
+            ),
+            EntityChangeEvent(
+                entity_id=f"{TEST_ENTITY_BASE}101",
+                revision_id=3,
+                change_type=ChangeType.CREATION,
+                changed_at=datetime.now(timezone.utc),
+                user_id=TEST_USER_ID,
+            ),
         ]
 
         # Start consumer and producer
@@ -75,8 +77,8 @@ class TestProducerConsumerEndToEnd:
 
         try:
             # Publish all events
-            for event_data in events:
-                await producer.publish_change(event_data)
+            for event in events:
+                await producer.publish_change(event)
 
             # Consume all events
             received_events: list[EntityChangeEventData] = []
@@ -117,24 +119,23 @@ class TestProducerConsumerEndToEnd:
         consumer_config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-delete"
+            group_id="test-consumer-delete",
         )
         consumer = StreamConsumerClient(config=consumer_config)
 
         producer_config = StreamConfig(
-            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=KAFKA_TOPIC
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=KAFKA_TOPIC
         )
         producer = StreamProducerClient(config=producer_config)
 
         # Create a new entity
-        create_event = {
-            "entity_id": f"{TEST_ENTITY_BASE}200",
-            "revision_id": 1,
-            "change_type": "creation",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-        }
+        create_event = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}200",
+            revision_id=1,
+            change_type=ChangeType.CREATION,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+        )
 
         # Publish creation
         await producer.start()
@@ -153,16 +154,15 @@ class TestProducerConsumerEndToEnd:
             assert events[0].change_type == "creation"
 
             # Publish soft delete
-            delete_event = {
-                "entity_id": f"{TEST_ENTITY_BASE}200",
-                "revision_id": 2,
-                "change_type": "soft_delete",
-                "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "user_id": TEST_USER_ID,
-                "from_revision_id": 1,
-                "delete_type": "soft",
-                "deletion_reason": "Test deletion",
-            }
+            delete_event = EntityChangeEvent(
+                entity_id=f"{TEST_ENTITY_BASE}200",
+                revision_id=2,
+                change_type=ChangeType.SOFT_DELETE,
+                changed_at=datetime.now(timezone.utc),
+                user_id=TEST_USER_ID,
+                from_revision_id=1,
+                edit_summary="Test deletion",
+            )
 
             await producer.publish_change(delete_event)
 
@@ -174,8 +174,7 @@ class TestProducerConsumerEndToEnd:
 
             assert len(events) == 1
             assert events[0].change_type == "soft_delete"
-            assert events[0].delete_type == "soft"
-            assert events[0].deletion_reason == "Test deletion"
+            assert events[0].edit_summary == "Test deletion"
             assert events[0].from_revision_id == 1
 
         finally:
@@ -189,44 +188,41 @@ class TestProducerConsumerEndToEnd:
         consumer_config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-redirect"
+            group_id="test-consumer-redirect",
         )
         consumer = StreamConsumerClient(config=consumer_config)
 
         producer_config = StreamConfig(
-            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=KAFKA_TOPIC
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=KAFKA_TOPIC
         )
         producer = StreamProducerClient(config=producer_config)
 
         # Create two entities
-        source_event = {
-            "entity_id": f"{TEST_ENTITY_BASE}300",
-            "revision_id": 1,
-            "change_type": "creation",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-        }
+        source_event = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}300",
+            revision_id=1,
+            change_type=ChangeType.CREATION,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+        )
 
-        target_event = {
-            "entity_id": f"{TEST_ENTITY_BASE}301",
-            "revision_id": 2,
-            "change_type": "creation",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-        }
+        target_event = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}301",
+            revision_id=2,
+            change_type=ChangeType.CREATION,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+        )
 
         # Create redirect
-        redirect_event = {
-            "entity_id": f"{TEST_ENTITY_BASE}300",
-            "revision_id": 3,
-            "change_type": "redirect",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-            "from_revision_id": 2,
-            "redirect_from_id": f"{TEST_ENTITY_BASE}300",
-            "redirect_to_id": f"{TEST_ENTITY_BASE}301",
-        }
+        redirect_event = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}300",
+            revision_id=3,
+            change_type=ChangeType.REDIRECT,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+            from_revision_id=2,
+        )
 
         # Start both components
         await producer.start()
@@ -259,8 +255,7 @@ class TestProducerConsumerEndToEnd:
             # Redirect
             assert events[2].entity_id == f"{TEST_ENTITY_BASE}300"
             assert events[2].change_type == "redirect"
-            assert events[2].redirect_from_id == f"{TEST_ENTITY_BASE}300"
-            assert events[2].redirect_to_id == f"{TEST_ENTITY_BASE}301"
+            assert events[2].from_revision_id == 2
 
         finally:
             await producer.stop()
@@ -273,53 +268,50 @@ class TestProducerConsumerEndToEnd:
         consumer_config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-unredirect"
+            group_id="test-consumer-unredirect",
         )
         consumer = StreamConsumerClient(config=consumer_config)
 
         producer_config = StreamConfig(
-            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=KAFKA_TOPIC
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=KAFKA_TOPIC
         )
         producer = StreamProducerClient(config=producer_config)
 
         # Create entities and redirect
-        source_event = {
-            "entity_id": f"{TEST_ENTITY_BASE}400",
-            "revision_id": 1,
-            "change_type": "creation",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-        }
+        source_event = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}400",
+            revision_id=1,
+            change_type=ChangeType.CREATION,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+        )
 
-        target_event = {
-            "entity_id": f"{TEST_ENTITY_BASE}401",
-            "revision_id": 2,
-            "change_type": "creation",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-        }
+        target_event = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}401",
+            revision_id=2,
+            change_type=ChangeType.CREATION,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+        )
 
-        redirect_event = {
-            "entity_id": f"{TEST_ENTITY_BASE}400",
-            "revision_id": 3,
-            "change_type": "redirect",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-            "from_revision_id": 2,
-            "redirect_from_id": f"{TEST_ENTITY_BASE}400",
-            "redirect_to_id": f"{TEST_ENTITY_BASE}401",
-        }
+        redirect_event = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}400",
+            revision_id=3,
+            change_type=ChangeType.REDIRECT,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+            from_revision_id=2,
+        )
 
         # Unredirect
-        unredirect_event = {
-            "entity_id": f"{TEST_ENTITY_BASE}400",
-            "revision_id": 4,
-            "change_type": "unredirect",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-            "from_revision_id": 3,
-        }
+        unredirect_event = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}400",
+            revision_id=4,
+            change_type=ChangeType.UNREDIRECT,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+            from_revision_id=3,
+        )
 
         # Start both components
         await producer.start()
@@ -370,13 +362,12 @@ class TestProducerConsumerEndToEnd:
         consumer_config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-multi-entity"
+            group_id="test-consumer-multi-entity",
         )
         consumer = StreamConsumerClient(config=consumer_config)
 
         producer_config = StreamConfig(
-            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=KAFKA_TOPIC
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=KAFKA_TOPIC
         )
         producer = StreamProducerClient(config=producer_config)
 
@@ -395,22 +386,26 @@ class TestProducerConsumerEndToEnd:
             # Publish creation and edit events for each entity
             for entity_id in entities_to_create:
                 # Creation
-                await producer.publish_change({
-                    "entity_id": entity_id,
-                    "revision_id": 1,
-                    "change_type": "creation",
-                    "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                    "user_id": TEST_USER_ID,
-                })
+                await producer.publish_change(
+                    EntityChangeEvent(
+                        entity_id=entity_id,
+                        revision_id=1,
+                        change_type=ChangeType.CREATION,
+                        changed_at=datetime.now(timezone.utc),
+                        user_id=TEST_USER_ID,
+                    )
+                )
                 # Edit
-                await producer.publish_change({
-                    "entity_id": entity_id,
-                    "revision_id": 2,
-                    "change_type": "edit",
-                    "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                    "user_id": TEST_USER_ID,
-                    "from_revision_id": 1,
-                })
+                await producer.publish_change(
+                    EntityChangeEvent(
+                        entity_id=entity_id,
+                        revision_id=2,
+                        change_type=ChangeType.EDIT,
+                        changed_at=datetime.now(timezone.utc),
+                        user_id=TEST_USER_ID,
+                        from_revision_id=1,
+                    )
+                )
 
             # Consume all events
             events: list[EntityChangeEventData] = []
@@ -451,7 +446,7 @@ class TestProducerConsumerEndToEnd:
         consumer_config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-error"
+            group_id="test-consumer-error",
         )
         consumer = StreamConsumerClient(config=consumer_config)
 
@@ -462,8 +457,7 @@ class TestProducerConsumerEndToEnd:
             # Try to consume without publishing events (should timeout)
             with pytest.raises(asyncio.TimeoutError):
                 await asyncio.wait_for(
-                    consumer.consume_events().__anext__(),
-                    timeout=2.0
+                    consumer.consume_events().__anext__(), timeout=2.0
                 )
         finally:
             await consumer.stop()

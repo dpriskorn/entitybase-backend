@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class EntityChangeEventData(BaseModel):
@@ -6,8 +6,10 @@ class EntityChangeEventData(BaseModel):
 
     model_config = ConfigDict(populate_by_name=True)
 
-    entity_id: str
-    revision_id: int
-    timestamp: str
-    user_id: str
-    type: str
+    entity_id: str = Field(alias="id")
+    revision_id: int = Field(alias="rev")
+    change_type: str = Field(alias="type")
+    from_revision_id: int | None = Field(default=None, alias="from_rev")
+    timestamp: str = Field(alias="at")
+    user_id: str = Field(alias="user")
+    edit_summary: str = Field(default="", alias="summary")

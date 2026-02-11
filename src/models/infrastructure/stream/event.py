@@ -62,6 +62,7 @@ class EntityChangeEvent(BaseModel):
         description="Previous revision ID (None for creations)",
     )
     changed_at: datetime = Field(alias="at", description="Timestamp of change")
+    user_id: str = Field(alias="user")
     edit_summary: str = Field(alias="summary", default="", description="Edit summary")
 
     @field_serializer("changed_at")

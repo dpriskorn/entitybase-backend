@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import time
+from datetime import datetime, timezone
 from typing import AsyncGenerator, Any
 
 import pytest
@@ -15,6 +16,8 @@ from models.data.infrastructure.stream.consumer import EntityChangeEventData
 from models.infrastructure.stream.consumer import StreamConsumerClient
 from models.data.config.stream import StreamConfig
 from models.infrastructure.stream.producer import StreamProducerClient
+from models.infrastructure.stream.event import EntityChangeEvent
+from models.data.infrastructure.stream.change_type import ChangeType
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +36,7 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer"
+            group_id="test-consumer",
         )
         consumer = StreamConsumerClient(config=config)
 
@@ -54,27 +57,27 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-single"
+            group_id="test-consumer-single",
         )
         consumer = StreamConsumerClient(config=config)
 
         # First, publish an event
         producer_config = StreamConfig(
-            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=KAFKA_TOPIC
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=KAFKA_TOPIC
         )
         producer = StreamProducerClient(config=producer_config)
 
-        event_data = {
-            "entity_id": f"{TEST_ENTITY_BASE}30",
-            "revision_id": 1,
-            "change_type": "creation",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-        }
+        changed_at = time.strftime("%Y-%m-%dT%H:%M:%SZ")
+        event = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}30",
+            revision_id=1,
+            change_type=ChangeType.CREATION,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+        )
 
         await producer.start()
-        await producer.publish_change(event_data)
+        await producer.publish_change(event)
         await producer.stop()
 
         # Then, consume the event
@@ -90,7 +93,6 @@ class TestConsumerIntegration:
             assert events[0].revision_id == 1
             assert events[0].change_type == "creation"
             assert events[0].user_id == TEST_USER_ID
-            assert events[0].timestamp == event_data["changed_at"]
         finally:
             await consumer.stop()
 
@@ -100,26 +102,44 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-multi"
+            group_id="test-consumer-multi",
         )
         consumer = StreamConsumerClient(config=config)
 
         # First, publish multiple events
         producer_config = StreamConfig(
-            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=KAFKA_TOPIC
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=KAFKA_TOPIC
         )
         producer = StreamProducerClient(config=producer_config)
 
         events_to_publish = [
-            {"entity_id": f"{TEST_ENTITY_BASE}40", "revision_id": 1, "change_type": "creation", "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"), "user_id": TEST_USER_ID},
-            {"entity_id": f"{TEST_ENTITY_BASE}40", "revision_id": 2, "change_type": "edit", "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"), "user_id": TEST_USER_ID, "from_revision_id": 1},
-            {"entity_id": f"{TEST_ENTITY_BASE}41", "revision_id": 3, "change_type": "creation", "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"), "user_id": TEST_USER_ID},
+            EntityChangeEvent(
+                entity_id=f"{TEST_ENTITY_BASE}40",
+                revision_id=1,
+                change_type=ChangeType.CREATION,
+                changed_at=datetime.now(timezone.utc),
+                user_id=TEST_USER_ID,
+            ),
+            EntityChangeEvent(
+                entity_id=f"{TEST_ENTITY_BASE}40",
+                revision_id=2,
+                change_type=ChangeType.EDIT,
+                changed_at=datetime.now(timezone.utc),
+                user_id=TEST_USER_ID,
+                from_revision_id=1,
+            ),
+            EntityChangeEvent(
+                entity_id=f"{TEST_ENTITY_BASE}41",
+                revision_id=3,
+                change_type=ChangeType.CREATION,
+                changed_at=datetime.now(timezone.utc),
+                user_id=TEST_USER_ID,
+            ),
         ]
 
         await producer.start()
-        for event_data in events_to_publish:
-            await producer.publish_change(event_data)
+        for event in events_to_publish:
+            await producer.publish_change(event)
         await producer.stop()
 
         # Then, consume all events
@@ -154,31 +174,30 @@ class TestConsumerIntegration:
 
         # Publish events to different topics
         producer_config1 = StreamConfig(
-            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=topic1
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic1
         )
         producer1 = StreamProducerClient(config=producer_config1)
 
         producer_config2 = StreamConfig(
-            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=topic2
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic2
         )
         producer2 = StreamProducerClient(config=producer_config2)
 
-        event1 = {
-            "entity_id": f"{TEST_ENTITY_BASE}50",
-            "revision_id": 1,
-            "change_type": "creation",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-        }
+        event1 = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}50",
+            revision_id=1,
+            change_type=ChangeType.CREATION,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+        )
 
-        event2 = {
-            "entity_id": f"{TEST_ENTITY_BASE}51",
-            "diff_type": "entity_diff",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-        }
+        event2 = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}51",
+            revision_id=1,
+            change_type=ChangeType.EDIT,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+        )
 
         await producer1.start()
         await producer2.start()
@@ -191,7 +210,7 @@ class TestConsumerIntegration:
         consumer_config1 = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=topic1,
-            group_id="test-consumer-topic1"
+            group_id="test-consumer-topic1",
         )
         consumer1 = StreamConsumerClient(config=consumer_config1)
 
@@ -212,7 +231,7 @@ class TestConsumerIntegration:
         consumer_config2 = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=topic2,
-            group_id="test-consumer-topic2"
+            group_id="test-consumer-topic2",
         )
         consumer2 = StreamConsumerClient(config=consumer_config2)
 
@@ -235,7 +254,7 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-health"
+            group_id="test-consumer-health",
         )
         consumer = StreamConsumerClient(config=config)
 
@@ -253,24 +272,23 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-after-stop"
+            group_id="test-consumer-after-stop",
         )
         consumer = StreamConsumerClient(config=config)
 
         # Publish an event
         producer_config = StreamConfig(
-            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=KAFKA_TOPIC
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=KAFKA_TOPIC
         )
         producer = StreamProducerClient(config=producer_config)
 
-        event_data = {
-            "entity_id": f"{TEST_ENTITY_BASE}60",
-            "revision_id": 1,
-            "change_type": "creation",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-        }
+        event_data = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}60",
+            revision_id=1,
+            change_type=ChangeType.CREATION,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+        )
 
         await producer.start()
         await producer.publish_change(event_data)
@@ -296,18 +314,17 @@ class TestConsumerIntegration:
 
         # Publish an event
         producer_config = StreamConfig(
-            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=topic
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic
         )
         producer = StreamProducerClient(config=producer_config)
 
-        event_data = {
-            "entity_id": f"{TEST_ENTITY_BASE}70",
-            "revision_id": 1,
-            "change_type": "creation",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-        }
+        event_data = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}70",
+            revision_id=1,
+            change_type=ChangeType.CREATION,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+        )
 
         await producer.start()
         await producer.publish_change(event_data)
@@ -315,16 +332,12 @@ class TestConsumerIntegration:
 
         # Create multiple consumers with different groups
         consumer1_config = StreamConsumerConfig(
-            brokers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=topic,
-            group_id="group-consumer-1"
+            brokers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic, group_id="group-consumer-1"
         )
         consumer1 = StreamConsumerClient(config=consumer1_config)
 
         consumer2_config = StreamConsumerConfig(
-            brokers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=topic,
-            group_id="group-consumer-2"
+            brokers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic, group_id="group-consumer-2"
         )
         consumer2 = StreamConsumerClient(config=consumer2_config)
 
@@ -345,7 +358,9 @@ class TestConsumerIntegration:
 
             assert len(events1) == 1
             assert len(events2) == 1
-            assert events1[0].entity_id == events2[0].entity_id == f"{TEST_ENTITY_BASE}70"
+            assert (
+                events1[0].entity_id == events2[0].entity_id == f"{TEST_ENTITY_BASE}70"
+            )
         finally:
             await consumer1.stop()
             await consumer2.stop()
@@ -359,7 +374,7 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=topic,
-            group_id="test-consumer-late"
+            group_id="test-consumer-late",
         )
         consumer = StreamConsumerClient(config=config)
 
@@ -370,18 +385,17 @@ class TestConsumerIntegration:
 
             # Publish event after consumer starts
             producer_config = StreamConfig(
-                bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-                topic=topic
+                bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic
             )
             producer = StreamProducerClient(config=producer_config)
 
-            event_data = {
-                "entity_id": f"{TEST_ENTITY_BASE}80",
-                "revision_id": 1,
-                "change_type": "creation",
-                "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "user_id": TEST_USER_ID,
-            }
+            event_data = EntityChangeEvent(
+                entity_id=f"{TEST_ENTITY_BASE}80",
+                revision_id=1,
+                change_type=ChangeType.CREATION,
+                changed_at=datetime.now(timezone.utc),
+                user_id=TEST_USER_ID,
+            )
 
             await producer.start()
             await producer.publish_change(event_data)
@@ -406,19 +420,18 @@ class TestConsumerIntegration:
 
         # Publish event with special characters
         producer_config = StreamConfig(
-            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS],
-            topic=topic
+            bootstrap_servers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic
         )
         producer = StreamProducerClient(config=producer_config)
 
-        event_data = {
-            "entity_id": f"{TEST_ENTITY_BASE}90",
-            "revision_id": 1,
-            "change_type": "edit",
-            "changed_at": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "user_id": TEST_USER_ID,
-            "edit_summary": "Test with special chars: <>&\"' and emojis: 🚀✨"
-        }
+        event_data = EntityChangeEvent(
+            entity_id=f"{TEST_ENTITY_BASE}90",
+            revision_id=1,
+            change_type=ChangeType.EDIT,
+            changed_at=datetime.now(timezone.utc),
+            user_id=TEST_USER_ID,
+            edit_summary="Test with special chars: <>&\"' and emojis: 🚀✨",
+        )
 
         await producer.start()
         await producer.publish_change(event_data)
@@ -428,7 +441,7 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=[KAFKA_BOOTSTRAP_SERVERS],
             topic=topic,
-            group_id="test-consumer-special"
+            group_id="test-consumer-special",
         )
         consumer = StreamConsumerClient(config=config)
 
@@ -441,7 +454,10 @@ class TestConsumerIntegration:
 
             assert len(events) == 1
             assert events[0].entity_id == f"{TEST_ENTITY_BASE}90"
-            assert events[0].edit_summary == "Test with special chars: <>&\"' and emojis: 🚀✨"
+            assert (
+                events[0].edit_summary
+                == "Test with special chars: <>&\"' and emojis: 🚀✨"
+            )
         finally:
             await consumer.stop()
 
@@ -451,7 +467,7 @@ class TestConsumerIntegration:
         config = StreamConsumerConfig(
             brokers=["redpanda:9092", "redpanda:9093"],
             topic=KAFKA_TOPIC,
-            group_id="test-consumer-multi-brokers"
+            group_id="test-consumer-multi-brokers",
         )
         consumer = StreamConsumerClient(config=config)
 

@@ -78,7 +78,7 @@ class WatchlistConsumerWorker(VitessWorker):
             # Parse the event
             entity_id = message.entity_id
             revision_id = message.revision_id
-            change_type = message.type
+            change_type = message.change_type
 
             if not entity_id or not revision_id or not change_type:
                 logger.warning(
