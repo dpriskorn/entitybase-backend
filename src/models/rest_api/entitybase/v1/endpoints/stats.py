@@ -17,6 +17,8 @@ def get_general_stats(req: Request) -> GeneralStatsResponse:
         stats = handler.get_general_stats()
         return stats
     except ValueError as e:
+        import logging
+        logging.error(f"ValueError in get_general_stats: {e}")
         from fastapi import HTTPException
 
         raise HTTPException(status_code=400, detail=str(e))

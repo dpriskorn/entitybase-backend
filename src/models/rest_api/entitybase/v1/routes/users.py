@@ -15,10 +15,7 @@ from models.data.rest_api.v1.entitybase.response import (
 )
 from models.data.rest_api.v1.entitybase.response import UserStatsResponse
 from models.data.rest_api.v1.entitybase.response import UserResponse
-from models.data.rest_api.v1.entitybase.response import (
-    UserActivityResponse,
-    GeneralStatsResponse,
-)
+from models.data.rest_api.v1.entitybase.response import UserActivityResponse
 from models.rest_api.utils import raise_validation_error
 
 
@@ -101,16 +98,5 @@ def get_user_activity(
     handler = UserActivityHandler(state=state)
     try:
         return handler.get_user_activity(user_id, activity_type, hours, limit, offset)
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
-@users_router.get("/stats", response_model=GeneralStatsResponse)
-def get_general_stats(req: Request) -> GeneralStatsResponse:
-    """Get general wiki statistics."""
-    state = req.app.state.state_handler
-    handler = UserHandler(state=state)
-    try:
-        return handler.get_general_stats()
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
