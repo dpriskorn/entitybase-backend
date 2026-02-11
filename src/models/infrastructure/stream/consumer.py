@@ -58,6 +58,7 @@ class StreamConsumerClient(Client):
             auto_offset_reset=self.config.auto_offset_reset,
         )
         await self.consumer.start()
+        await self.consumer.seek_to_end()
         logger.info(f"Started Kafka consumer for topic {self.config.topic}")
 
     async def stop(self) -> None:

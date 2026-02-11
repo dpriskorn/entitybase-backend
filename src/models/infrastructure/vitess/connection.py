@@ -235,7 +235,15 @@ class VitessConnectionManager(BaseModel):
             except Exception as e:
                 logger.warning(f"Error closing overflow connection: {e}")
         self.overflow_connections.clear()
+
+        for connection in list(self.active_connections):
+            try:
+                if connection.open:
+                    connection.close()
+            except Exception as e:
+                logger.warning(f"Error closing active connection: {e}")
         self.active_connections.clear()
+
         self.connection_semaphore = None
 
         logger.info("Disconnected all pooled connections")

@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import time
+import uuid
 from datetime import datetime, timezone
 from typing import Any
 
@@ -31,6 +32,11 @@ TEST_CHANGE_TYPES = [
     "unredirect",
 ]
 TEST_USER_ID = "test-user-123"
+
+
+def get_unique_consumer_id() -> str:
+    """Generate a unique consumer group ID for each test."""
+    return f"test-consumer-{uuid.uuid4().hex[:8]}"
 
 
 class TestProducerIntegration:
@@ -79,11 +85,12 @@ class TestProducerIntegration:
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-                group_id="test-consumer",
+                group_id=get_unique_consumer_id(),
                 value_deserializer=lambda v: json.loads(v.decode("utf-8")),
-                auto_offset_reset="earliest",
+                auto_offset_reset="latest",
             )
             await consumer.start()
+            await consumer.seek_to_end()
             try:
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 received_data = message.value
@@ -123,11 +130,12 @@ class TestProducerIntegration:
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-                group_id="test-consumer",
+                group_id=get_unique_consumer_id(),
                 value_deserializer=lambda v: json.loads(v.decode("utf-8")),
-                auto_offset_reset="earliest",
+                auto_offset_reset="latest",
             )
             await consumer.start()
+            await consumer.seek_to_end()
             try:
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 received_data = message.value
@@ -167,11 +175,12 @@ class TestProducerIntegration:
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-                group_id="test-consumer",
+                group_id=get_unique_consumer_id(),
                 value_deserializer=lambda v: json.loads(v.decode("utf-8")),
-                auto_offset_reset="earliest",
+                auto_offset_reset="latest",
             )
             await consumer.start()
+            await consumer.seek_to_end()
             try:
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 received_data = message.value
@@ -209,11 +218,12 @@ class TestProducerIntegration:
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-                group_id="test-consumer",
+                group_id=get_unique_consumer_id(),
                 value_deserializer=lambda v: json.loads(v.decode("utf-8")),
-                auto_offset_reset="earliest",
+                auto_offset_reset="latest",
             )
             await consumer.start()
+            await consumer.seek_to_end()
             try:
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 received_data = message.value
@@ -268,11 +278,12 @@ class TestProducerIntegration:
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-                group_id="test-consumer",
+                group_id=get_unique_consumer_id(),
                 value_deserializer=lambda v: json.loads(v.decode("utf-8")),
-                auto_offset_reset="earliest",
+                auto_offset_reset="latest",
             )
             await consumer.start()
+            await consumer.seek_to_end()
             try:
                 received_events = []
                 for _ in events:
@@ -328,11 +339,12 @@ class TestProducerIntegration:
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-                group_id="test-consumer",
+                group_id=get_unique_consumer_id(),
                 value_deserializer=lambda v: json.loads(v.decode("utf-8")),
-                auto_offset_reset="earliest",
+                auto_offset_reset="latest",
             )
             await consumer.start()
+            await consumer.seek_to_end()
             try:
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 # The key should be the entity_id
@@ -368,11 +380,12 @@ class TestProducerIntegration:
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-                group_id="test-consumer",
+                group_id=get_unique_consumer_id(),
                 value_deserializer=lambda v: json.loads(v.decode("utf-8")),
-                auto_offset_reset="earliest",
+                auto_offset_reset="latest",
             )
             await consumer.start()
+            await consumer.seek_to_end()
             try:
                 message = await asyncio.wait_for(consumer.getone(), timeout=5.0)
                 received_data = message.value
@@ -434,11 +447,12 @@ class TestProducerIntegration:
             consumer = AIOKafkaConsumer(
                 KAFKA_TOPIC,
                 bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
-                group_id="test-consumer",
+                group_id=get_unique_consumer_id(),
                 value_deserializer=lambda v: json.loads(v.decode("utf-8")),
-                auto_offset_reset="earliest",
+                auto_offset_reset="latest",
             )
             await consumer.start()
+            await consumer.seek_to_end()
             try:
                 received_events = []
                 for _ in TEST_CHANGE_TYPES:
