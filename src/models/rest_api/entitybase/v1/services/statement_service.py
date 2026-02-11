@@ -136,7 +136,7 @@ class StatementService(Service):
             )
             snak_hash = snak_handler.store_snak(snak_request)
             context.statement_data = context.statement_data.copy()
-            context.statement_data["mainsnak"] = {"hash": snak_hash}
+            context.statement_data["mainsnak"] = snak_hash
             logger.debug(
                 f"Stored mainsnak with hash {snak_hash} for statement {context.statement_hash}"
             )

@@ -153,7 +153,7 @@ async def test_toggle_watchlist_user_not_registered(api_prefix: str, initialized
             f"{api_prefix}/users/99999/watchlist/toggle", json={"enabled": True}
         )
         assert response.status_code == 400
-        assert "User not registered" in response.json()["detail"]
+        assert "User not registered" in response.json()["message"]
 
 
 @pytest.mark.asyncio
@@ -187,7 +187,7 @@ async def test_get_user_activity_user_not_registered(api_prefix: str, initialize
     ) as client:
         response = await client.get(f"{api_prefix}/users/99999/activity")
         assert response.status_code == 400
-        assert "User not registered" in response.json()["detail"]
+        assert "User not registered" in response.json()["message"]
 
 
 @pytest.mark.asyncio
@@ -202,7 +202,7 @@ async def test_get_user_activity_invalid_type(api_prefix: str, initialized_app: 
         # Register user
         await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
-        response = await client.get(f"{api_prefix}/users/12345/activity?activity_type=invalid")
+        response = await client.get(f"{api_prefix}/users/12345/activity?type=invalid")
         assert response.status_code == 400
         assert "Invalid activity type" in response.json()["message"]
 
@@ -280,6 +280,24 @@ async def test_watchlist_add(api_prefix: str, initialized_app: None) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
+        headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
+
+        # Create Q42 entity first
+        Q42_data = {
+            "id": "Q42",
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
+            "descriptions": {
+                "en": {"language": "en", "value": "British science fiction writer"}
+            },
+        }
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=Q42_data,
+            headers=headers,
+        )
+        assert response.status_code == 200
+
         # Create user
         await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         # Enable watchlist
@@ -305,11 +323,33 @@ async def test_watchlist_get(api_prefix: str, initialized_app: None) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
+        headers = {"X-Edit-Summary": "test", "X-User-ID": "0"}
+
+        # Create Q42 entity first
+        Q42_data = {
+            "id": "Q42",
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
+            "descriptions": {
+                "en": {"language": "en", "value": "British science fiction writer"}
+            },
+        }
+        await client.post(
+            f"{api_prefix}/entities/items",
+            json=Q42_data,
+            headers=headers,
+        )
+
         # Create user
         await client.post(f"{api_prefix}/users", json={"user_id": 12345})
         # Enable watchlist
         await client.put(
             f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": True}
+        )
+        # Add watch
+        await client.post(
+            f"{api_prefix}/users/12345/watchlist",
+            json={"entity_id": "Q42", "properties": ["P31"]},
         )
 
         response = await client.get(f"{api_prefix}/users/12345/watchlist")
@@ -339,7 +379,7 @@ async def test_watchlist_notifications(api_prefix: str, initialized_app: None) -
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
-        assert "notifications" in data
+        assert data["notifications"] == []
 
 
 @pytest.mark.asyncio

@@ -43,10 +43,8 @@ properties:
           - normal
           - deprecated
       qualifiers:
-        type: array
-        description: List of qualifier snak hashes.
-        items:
-          type: integer
+        type: integer
+        description: Rapidhash of qualifiers dict for deduplication.
       references:
         type: array
         description: List of reference hashes.

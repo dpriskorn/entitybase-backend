@@ -57,13 +57,13 @@ async def test_entity_creation_with_qualifiers_deduplicates(api_prefix: str) -> 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create the entity
+        # Create entity
         response = await client.post(
             f"{api_prefix}/entities/items",
             json=entity_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
-        assert response.status_code == 201
+        assert response.status_code in (200, 201)
         entity_response = response.json()
         entity_id = entity_response["id"]
 

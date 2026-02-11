@@ -214,6 +214,15 @@ class EntityHandler(Handler):
 
         created_at = datetime.now(timezone.utc).isoformat()
 
+        # Extract state fields from request data
+        entity_state = EntityState(
+            sp=ctx.request_data.get("is_semi_protected", False),
+            locked=ctx.request_data.get("is_locked", False),
+            archived=ctx.request_data.get("is_archived", False),
+            dangling=ctx.request_data.get("is_dangling", False),
+            mep=ctx.request_data.get("is_mass_edit_protected", False),
+        )
+
         return RevisionData(
             revision_id=new_revision_id,
             entity_type=ctx.entity_type,
@@ -233,7 +242,7 @@ class EntityHandler(Handler):
                 summary=ctx.edit_summary,
                 at=created_at,
             ),
-            state=EntityState(),  # Default state
+            state=entity_state,
             schema_version=settings.s3_schema_revision_version,
         )
 
