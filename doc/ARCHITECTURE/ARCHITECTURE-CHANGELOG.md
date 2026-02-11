@@ -1,7 +1,235 @@
 # Architecture Changelog
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
+
 ## [2026-02-11] Lexeme Lemma Support with S3 Deduplication
+
+## [2026-02-11] Weekly JSON and TTL Dump Workers
+
+### Summary
+
+Implemented two separate workers for generating weekly dumps of all entities in JSON and RDF Turtle formats. Workers generate both full snapshots and incremental dumps (entities updated in the last 7 days), with support for gzip compression, SHA256 checksums, and S3 uploads.
+
+### Motivation
+
+- **Data Export**: Provide complete weekly snapshots of the knowledge base for archival and distribution
+- **Incremental Updates**: Support incremental dumps to reduce bandwidth for consumers who only need changes
+- **Multiple Formats**: Support both JSON (for programmatic access) and RDF Turtle (for semantic web/linked data)
+- **S3 Storage**: Store dumps in S3 with proper compression and metadata
+- **Monitoring**: Health check endpoints for container orchestration
+
+### Changes
+
+#### Worker Infrastructure
+
+**New File: `src/models/workers/dump_types.py`**
+- Added `EntityDumpRecord` model for entity dump records (entity_id, revision_id, internal_id, updated_at)
+- Added `DumpMetadata` model for dump metadata (dump_id, generated_at, entity_count, file info, checksums)
+
+**New Directory: `src/models/workers/json_dumps/`**
+
+**File: `src/models/workers/json_dumps/json_dump_worker.py`**
+- Implemented `JsonDumpWorker` class extending `Worker`
+- Weekly cron scheduling (configurable, default: Sunday 2AM UTC)
+- `lifespan()` context manager for Vitess and S3 client initialization
+- `run_weekly_dump()` orchestrates full and incremental dump generation
+- `_fetch_all_entities()` queries entity_head for all non-deleted entities
+- `_fetch_entities_for_week()` queries entity_revisions for entities updated in last 7 days
+- `_generate_and_upload_dump()` generates JSON dump with metadata and uploads to S3
+- `_generate_json_dump()` creates canonical JSON format with dump_metadata section
+- `_fetch_entity_data()` retrieves entity revisions from S3 with error handling
+- `_generate_checksum()` computes SHA256 checksum for integrity verification
+- `_upload_to_s3()` uploads to S3 with proper Content-Type and checksum metadata
+- `_calculate_seconds_until_next_run()` computes time until next scheduled run
+- `health_check()` returns worker status for monitoring
+- `main()` entry point with concurrent worker loop and FastAPI health server (port 8002)
+
+**File: `src/models/workers/json_dumps/__init__.py`**
+- Exports: `JsonDumpWorker`, `main`, `run_server`, `run_worker`
+
+**File: `src/models/workers/json_dumps/__main__.py`**
+- Entry point for running JSON dump worker as module
+
+**New Directory: `src/models/workers/ttl_dumps/`**
+
+**File: `src/models/workers/ttl_dumps/ttl_dump_worker.py`**
+- Implemented `TtlDumpWorker` class extending `Worker`
+- Weekly cron scheduling (configurable, default: Sunday 3AM UTC, after JSON dump)
+- `lifespan()` context manager initializes Vitess, S3, and EntityConverter with PropertyRegistry
+- `run_weekly_dump()` orchestrates full and incremental dump generation
+- Entity fetching same as JSON dump worker
+- `_generate_and_upload_dump()` generates Turtle dump with metadata and uploads to S3
+- `_generate_ttl_dump()` streaming Turtle generation using EntityConverter from rdf_builder
+- `_fetch_and_convert_entity()` fetches entity from S3 and converts to Turtle format
+- Checksum, S3 upload, scheduling, and health check same as JSON dump worker
+- `main()` entry point with concurrent worker loop and FastAPI health server (port 8003)
+
+**File: `src/models/workers/ttl_dumps/__init__.py`**
+- Exports: `TtlDumpWorker`, `main`, `run_server`, `run_worker`
+
+**File: `src/models/workers/ttl_dumps/__main__.py`**
+- Entry point for running TTL dump worker as module
+
+#### Configuration
+
+**File: `src/models/config/settings.py`**
+- Added `json_dump_enabled: bool = True`
+- Added `json_dump_schedule: str = "0 2 * * 0"`
+- Added `s3_dump_bucket: str = "wikibase-dumps"`
+- Added `json_dump_batch_size: int = 1000`
+- Added `json_dump_parallel_workers: int = 50`
+- Added `json_dump_compression: bool = True`
+- Added `json_dump_generate_checksums: bool = True`
+- Added `ttl_dump_enabled: bool = True`
+- Added `ttl_dump_schedule: str = "0 3 * * 0"`
+- Added `ttl_dump_batch_size: int = 1000`
+- Added `ttl_dump_parallel_workers: int = 50`
+- Added `ttl_dump_compression: bool = True`
+- Added `ttl_dump_generate_checksums: bool = True`
+- Added environment variable loading for all new settings
+
+#### Testing
+
+**New File: `tests/unit/models/workers/json_dumps/test_json_dump_worker.py`**
+- `TestJsonDumpWorker` class with 8 unit tests
+- `test_worker_initialization()` - verifies worker creation
+- `test_lifespan_initialization()` - tests client initialization
+- `test_health_check_running()` - tests healthy status when running
+- `test_health_check_stopped()` - tests unhealthy status when stopped
+- `test_calculate_seconds_until_next_run()` - tests cron scheduling calculation
+- `test_fetch_all_entities()` - tests entity fetching from Vitess
+- `test_fetch_entities_for_week()` - tests incremental entity fetching
+- `test_generate_checksum()` - tests SHA256 checksum generation
+- `test_fetch_entity_data_success()` - tests successful S3 fetch
+- `test_fetch_entity_data_failure()` - tests error handling on S3 fetch
+
+**New File: `tests/unit/models/workers/ttl_dumps/test_ttl_dump_worker.py`**
+- `TestTtlDumpWorker` class with 9 unit tests
+- `test_worker_initialization()` - verifies worker creation
+- `test_lifespan_initialization()` - tests client initialization including PropertyRegistry
+- `test_health_check_running()` - tests healthy status when running
+- `test_health_check_stopped()` - tests unhealthy status when stopped
+- `test_calculate_seconds_until_next_run()` - tests cron scheduling calculation
+- `test_fetch_all_entities()` - tests entity fetching from Vitess
+- `test_fetch_entities_for_week()` - tests incremental entity fetching
+- `test_generate_checksum()` - tests SHA256 checksum generation
+- `test_fetch_and_convert_entity_success()` - tests S3 fetch and Turtle conversion
+- `test_fetch_and_convert_entity_failure()` - tests error handling
+
+#### Docker Configuration
+
+**New File: `docker/containers/Dockerfile.dump-workers`**
+- Docker image for both dump workers
+- Based on `python:3.13-slim`
+- Exposes ports 8002 (JSON) and 8003 (TTL)
+- CMD configurable via docker-compose command override
+
+**File: `docker-compose.tests.yml`**
+- Added `json-dump-worker` service:
+  - Container name: json-dump-worker
+  - Port: 8002
+  - Environment: all JSON dump configuration variables
+  - Dependencies: create-tables, create-buckets, minio
+  - Health check: `/health` endpoint
+  - Command: runs json_dump_worker module
+  - Resources: 1GB memory, 0.5 CPU
+
+- Added `ttl-dump-worker` service:
+  - Container name: ttl-dump-worker
+  - Port: 8003
+  - Environment: all TTL dump configuration variables plus PROPERTY_REGISTRY_PATH
+  - Dependencies: create-tables, create-buckets, minio
+  - Health check: `/health` endpoint
+  - Command: runs ttl_dump_worker module
+  - Resources: 1GB memory, 0.5 CPU
+
+**File: `src/models/workers/dev/create_buckets.py`**
+- Added `settings.s3_dump_bucket` to required buckets list
+- Ensures wikibase-dumps bucket is created during setup
+
+### Dump Output Format
+
+#### JSON Dump Structure
+```json
+{
+  "dump_metadata": {
+    "generated_at": "2025-01-15T00:00:00Z",
+    "time_range": "2025-01-08T00:00:00Z/2025-01-15T00:00:00Z",
+    "entity_count": 1234567,
+    "format": "canonical-json"
+  },
+  "entities": [
+    {
+      "entity": { /* full entity data */ },
+      "metadata": {
+        "revision_id": 327,
+        "entity_id": "Q42",
+        "s3_uri": "s3://wikibase-revisions/Q42/r327.json",
+        "updated_at": "2025-01-15T10:30:00Z"
+      }
+    },
+    ...
+  ]
+}
+```
+
+#### TTL Dump Structure (Turtle)
+```turtle
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix schema: <http://schema.org/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix wd: <http://www.wikidata.org/entity/> .
+@prefix wikibase: <http://wikiba.se/ontology#> .
+
+# Dump metadata
+[] a schema:DataDownload ;
+    schema:dateModified "2025-01-15T00:00:00Z"^^xsd:dateTime ;
+    schema:temporalCoverage "2025-01-08T00:00:00Z/2025-01-15T00:00:00Z" ;
+    schema:numberOfItems 1234567 ;
+    dcat:downloadURL <https://s3.amazonaws.com/wikibase-dumps/weekly/2025/01/15/full.ttl> ;
+    schema:encodingFormat "text/turtle" ;
+    schema:name "Wikibase Weekly RDF Dump" .
+
+# Entity Q42
+wd:Q42 a wikibase:Item ;
+    rdfs:label "Douglas Adams"@en ;
+    ...
+```
+
+### S3 Upload Structure
+
+```
+s3://wikibase-dumps/weekly/YYYY-MM-DD/
+├── full.json.gz
+├── full.ttl.gz
+├── incremental.json.gz
+├── incremental.ttl.gz
+├── metadata.json
+```
+
+### Environment Variables
+
+```bash
+# JSON Dump Worker
+JSON_DUMP_ENABLED=true
+JSON_DUMP_SCHEDULE="0 2 * * 0"  # Sunday 2AM UTC
+S3_DUMP_BUCKET=wikibase-dumps
+JSON_DUMP_BATCH_SIZE=1000
+JSON_DUMP_PARALLEL_WORKERS=50
+JSON_DUMP_COMPRESSION=true
+JSON_DUMP_GENERATE_CHECKSUMS=true
+
+# TTL Dump Worker
+TTL_DUMP_ENABLED=true
+TTL_DUMP_SCHEDULE="0 3 * * 0"  # Sunday 3AM UTC
+TTL_DUMP_BATCH_SIZE=1000
+TTL_DUMP_PARALLEL_WORKERS=50
+TTL_DUMP_COMPRESSION=true
+TTL_DUMP_GENERATE_CHECKSUMS=true
+PROPERTY_REGISTRY_PATH=/app/src/properties
+```
 
 ### Summary
 
