@@ -50,7 +50,13 @@ class UserHandler(Handler):
         user = self.state.vitess_client.user_repository.get_user(user_id)
         if user is None:
             raise_validation_error("User not found", status_code=404)
-        assert isinstance(user, UserResponse)
+        if not isinstance(user, UserResponse):
+            logger.error(
+                f"Unexpected type for user: {type(user)}, value: {user}"
+            )
+            raise_validation_error(
+                f"Unexpected response type: {type(user).__name__}", status_code=500
+            )
         return user
 
     def toggle_watchlist(
@@ -121,10 +127,10 @@ class UserHandler(Handler):
                     total_sitelinks=row[7],
                     total_terms=row[8],
                     terms_per_language=TermsPerLanguage(
-                        terms=json.loads(row[9]) if row[9] else {}
+                        terms=json.loads(row[9]) if isinstance(row[9], str) and row[9] else {}
                     ),
                     terms_by_type=TermsByType(
-                        counts=json.loads(row[10]) if row[10] else {}
+                        counts=json.loads(row[10]) if isinstance(row[10], str) and row[10] else {}
                     ),
                 )
             else:

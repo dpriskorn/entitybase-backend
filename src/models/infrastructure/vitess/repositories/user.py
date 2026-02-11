@@ -78,11 +78,19 @@ class UserRepository(Repository):
             )
             row = cursor.fetchone()
             if row:
-                return UserResponse(
-                    user_id=row[0],
-                    created_at=row[1],
-                    preferences=row[2],
-                )
+                try:
+                    user = UserResponse(
+                        user_id=row[0],
+                        created_at=row[1],
+                        preferences=row[2],
+                    )
+                    logger.debug(f"Successfully created UserResponse for user_id={user_id}")
+                    return user
+                except Exception as e:
+                    logger.error(
+                        f"Failed to create UserResponse from row {row}: {e}"
+                    )
+                    raise ValueError(f"Invalid user data: {e}")
             return None
 
     def update_user_activity(self, user_id: int) -> OperationResult:

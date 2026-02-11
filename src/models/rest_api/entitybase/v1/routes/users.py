@@ -34,6 +34,18 @@ def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
     return result
 
 
+@users_router.get("/users/stat", response_model=UserStatsResponse)
+def get_user_stats(req: Request) -> UserStatsResponse:
+    """Get user statistics."""
+    state = req.app.state.state_handler
+    handler = UserHandler(state=state)
+    try:
+        stats = handler.get_user_stats()
+        return stats
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
 @users_router.get("/users/{user_id}", response_model=UserResponse)
 def get_user(user_id: int, req: Request) -> UserResponse:
     """Get user information by MediaWiki user ID."""
@@ -62,9 +74,6 @@ def toggle_watchlist(
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-
-
-@users_router.get("/users/stat", response_model=UserStatsResponse)
 def get_user_stats(req: Request) -> UserStatsResponse:
     """Get user statistics."""
     state = req.app.state.state_handler

@@ -65,5 +65,5 @@ async def test_entitybase_create_property_invalid(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.post(f"{api_prefix}/entities/properties", json=data)
-        # Should fail validation
-        assert response.status_code == 400
+        # Should fail validation - Pydantic returns 422 for validation errors
+        assert response.status_code == 422

@@ -397,6 +397,7 @@ def initialized_app(vitess_client, s3_client):
     logger.debug("StateHandler started")
 
     app.state.state_handler = state_handler
+    logger.debug(f"app.state.state_handler set: {type(app.state.state_handler).__name__}")
     logger.debug(f"initialized_app fixture ready in {(time_module.time() - start_time):.2f}s")
 
     yield

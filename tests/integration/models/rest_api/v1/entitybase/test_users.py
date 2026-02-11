@@ -8,7 +8,7 @@ sys.path.insert(0, "src")
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_create_user_new(api_prefix: str) -> None:
+async def test_create_user_new(api_prefix: str, initialized_app: None) -> None:
     """Test creating a new user"""
     from models.rest_api.main import app
 
@@ -24,7 +24,7 @@ async def test_create_user_new(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_create_user_existing(api_prefix: str) -> None:
+async def test_create_user_existing(api_prefix: str, initialized_app: None) -> None:
     """Test creating a user that already exists"""
     from models.rest_api.main import app
 
@@ -46,7 +46,7 @@ async def test_create_user_existing(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_existing(api_prefix: str) -> None:
+async def test_get_user_existing(api_prefix: str, initialized_app: None) -> None:
     """Test getting an existing user"""
     from models.rest_api.main import app
 
@@ -66,7 +66,7 @@ async def test_get_user_existing(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_not_found(api_prefix: str) -> None:
+async def test_get_user_not_found(api_prefix: str, initialized_app: None) -> None:
     """Test getting a non-existing user"""
     from models.rest_api.main import app
 
@@ -79,7 +79,7 @@ async def test_get_user_not_found(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_create_user_invalid(api_prefix: str) -> None:
+async def test_create_user_invalid(api_prefix: str, initialized_app: None) -> None:
     """Test creating a user with invalid data"""
     from models.rest_api.main import app
 
@@ -93,7 +93,7 @@ async def test_create_user_invalid(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_toggle_watchlist_enable(api_prefix: str) -> None:
+async def test_toggle_watchlist_enable(api_prefix: str, initialized_app: None) -> None:
     """Test enabling watchlist for user"""
     from models.rest_api.main import app
 
@@ -120,7 +120,7 @@ async def test_toggle_watchlist_enable(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_toggle_watchlist_disable(api_prefix: str) -> None:
+async def test_toggle_watchlist_disable(api_prefix: str, initialized_app: None) -> None:
     """Test disabling watchlist for user"""
     from models.rest_api.main import app
 
@@ -142,7 +142,7 @@ async def test_toggle_watchlist_disable(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_toggle_watchlist_user_not_registered(api_prefix: str) -> None:
+async def test_toggle_watchlist_user_not_registered(api_prefix: str, initialized_app: None) -> None:
     """Test toggle for unregistered user"""
     from models.rest_api.main import app
 
@@ -158,7 +158,7 @@ async def test_toggle_watchlist_user_not_registered(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_activity(api_prefix: str) -> None:
+async def test_get_user_activity(api_prefix: str, initialized_app: None) -> None:
     """Test getting user activity"""
     from models.rest_api.main import app
 
@@ -178,7 +178,7 @@ async def test_get_user_activity(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_activity_user_not_registered(api_prefix: str) -> None:
+async def test_get_user_activity_user_not_registered(api_prefix: str, initialized_app: None) -> None:
     """Test getting activity for unregistered user"""
     from models.rest_api.main import app
 
@@ -192,7 +192,7 @@ async def test_get_user_activity_user_not_registered(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_activity_invalid_type(api_prefix: str) -> None:
+async def test_get_user_activity_invalid_type(api_prefix: str, initialized_app: None) -> None:
     """Test getting activity with invalid type filter"""
     from models.rest_api.main import app
 
@@ -209,7 +209,7 @@ async def test_get_user_activity_invalid_type(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_activity_invalid_limit(api_prefix: str) -> None:
+async def test_get_user_activity_invalid_limit(api_prefix: str, initialized_app: None) -> None:
     """Test getting activity with invalid limit"""
     from models.rest_api.main import app
 
@@ -226,7 +226,7 @@ async def test_get_user_activity_invalid_limit(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_stats(api_prefix: str) -> None:
+async def test_get_user_stats(api_prefix: str, initialized_app: None) -> None:
     """Test getting user statistics"""
     from models.rest_api.main import app
 
@@ -245,7 +245,7 @@ async def test_get_user_stats(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_general_stats(api_prefix: str) -> None:
+async def test_get_general_stats(api_prefix: str, initialized_app: None) -> None:
     """Test getting general wiki statistics"""
     from models.rest_api.main import app
 
@@ -273,7 +273,7 @@ async def test_get_general_stats(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_watchlist_add(api_prefix: str) -> None:
+async def test_watchlist_add(api_prefix: str, initialized_app: None) -> None:
     """Test adding a watchlist entry"""
     from models.rest_api.main import app
 
@@ -288,7 +288,7 @@ async def test_watchlist_add(api_prefix: str) -> None:
         )
 
         response = await client.post(
-            "/entitybase/users/12345/watchlist",
+            f"{api_prefix}/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
         )
         assert response.status_code == 200
@@ -298,7 +298,7 @@ async def test_watchlist_add(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_watchlist_get(api_prefix: str) -> None:
+async def test_watchlist_get(api_prefix: str, initialized_app: None) -> None:
     """Test getting user's watchlist"""
     from models.rest_api.main import app
 
@@ -312,7 +312,7 @@ async def test_watchlist_get(api_prefix: str) -> None:
             f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": True}
         )
 
-        response = await client.get("/entitybase/users/12345/watchlist")
+        response = await client.get(f"{api_prefix}/users/12345/watchlist")
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -321,7 +321,7 @@ async def test_watchlist_get(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_watchlist_notifications(api_prefix: str) -> None:
+async def test_watchlist_notifications(api_prefix: str, initialized_app: None) -> None:
     """Test getting watchlist notifications"""
     from models.rest_api.main import app
 
@@ -335,7 +335,7 @@ async def test_watchlist_notifications(api_prefix: str) -> None:
             f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": True}
         )
 
-        response = await client.get("/entitybase/users/12345/watchlist/notifications")
+        response = await client.get(f"{api_prefix}/users/12345/watchlist/notifications")
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -344,7 +344,7 @@ async def test_watchlist_notifications(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_watchlist_stats(api_prefix: str) -> None:
+async def test_watchlist_stats(api_prefix: str, initialized_app: None) -> None:
     """Test getting watchlist statistics"""
     from models.rest_api.main import app
 
@@ -354,7 +354,7 @@ async def test_watchlist_stats(api_prefix: str) -> None:
         # Create user
         await client.post(f"{api_prefix}/users", json={"user_id": 12345})
 
-        response = await client.get("/entitybase/users/12345/watchlist/stats")
+        response = await client.get(f"{api_prefix}/users/12345/watchlist/stats")
         assert response.status_code == 200
         data = response.json()
         assert "entity_count" in data
