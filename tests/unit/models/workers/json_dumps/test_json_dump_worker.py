@@ -206,6 +206,7 @@ class TestJsonDumpWorker:
         """Test worker handles exceptions and sleeps after error."""
         import asyncio
         from models.workers.json_dumps.json_dump_worker import JsonDumpWorker as WorkerClass
+        from contextlib import asynccontextmanager
 
         worker = JsonDumpWorker()
 
@@ -216,6 +217,7 @@ class TestJsonDumpWorker:
             if len(mock_sleep_calls) == 1 and seconds == 300:
                 worker.running = False
 
+        @asynccontextmanager
         async def mock_lifespan(self):
             yield
 
