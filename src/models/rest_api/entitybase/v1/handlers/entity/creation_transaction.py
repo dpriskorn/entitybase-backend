@@ -156,6 +156,7 @@ class CreationTransaction(EntityTransaction):
                 type=ChangeType(event_context.change_type),
                 from_rev=event_context.from_revision_id,
                 at=changed_at,
+                user=str(edit_context.user_id),
                 summary=edit_context.edit_summary,
             )
             self.state.entity_change_stream_producer.publish_change(event)

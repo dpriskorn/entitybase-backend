@@ -26,7 +26,7 @@ class TestEntityChangeEvent:
         assert event.revision_id == 456
         assert event.timestamp == "2023-01-01T00:00:00Z"
         assert event.user_id == "user123"
-        assert event.type == "edit"
+        assert event.change_type == "edit"
 
 
 class TestConsumer:

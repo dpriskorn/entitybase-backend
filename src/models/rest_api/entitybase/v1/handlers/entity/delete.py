@@ -86,7 +86,10 @@ class EntityDeleteHandler(Handler):
             entity_id=entity_id,
             new_revision_id=new_revision_id,
             head_revision_id=head_revision_id,
-            edit_summary=edit_headers.x_edit_summary,
+            edit_context=EditContext(
+                user_id=edit_headers.x_user_id,
+                edit_summary=edit_headers.x_edit_summary,
+            ),
         )
 
         delete_service.log_delete_activity(

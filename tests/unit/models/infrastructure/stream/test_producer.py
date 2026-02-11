@@ -88,7 +88,7 @@ class TestStreamProducerClient:
 
         mock_producer.send_and_wait.assert_called_once_with(
             topic="test-topic",
-            key="Q42",
+            key=b"Q42",
             value=event,
         )
 
@@ -106,7 +106,7 @@ class TestStreamProducerClient:
 
         mock_producer.send_and_wait.assert_called_once_with(
             topic="test-topic",
-            key="abc123",
+            key=b"abc123",
             value=event,
         )
 

@@ -222,7 +222,7 @@ class DeleteService(Service):
         entity_id: str,
         new_revision_id: int,
         head_revision_id: int,
-        edit_summary: str,
+        edit_context: EditContext,
     ) -> None:
         """Publish entity deletion event to stream.
 
@@ -230,7 +230,7 @@ class DeleteService(Service):
             entity_id: The entity ID being deleted
             new_revision_id: The new revision ID
             head_revision_id: The previous head revision ID
-            edit_summary: Edit summary for the deletion
+            edit_context: Context containing user_id and edit_summary
         """
         if self.state.entity_change_stream_producer:
             try:
@@ -241,7 +241,8 @@ class DeleteService(Service):
                         type=ChangeType.SOFT_DELETE,
                         from_rev=head_revision_id,
                         at=datetime.now(timezone.utc),
-                        summary=edit_summary,
+                        user=str(edit_context.user_id),
+                        summary=edit_context.edit_summary,
                     )
                 )
                 logger.debug(

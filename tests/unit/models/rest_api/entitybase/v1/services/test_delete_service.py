@@ -187,7 +187,8 @@ class TestDeleteService:
         mock_state.entity_change_stream_producer = mock_producer
 
         service = DeleteService(state=mock_state)
-        await service.publish_delete_event("Q42", 3, 2, "Delete entity")
+        edit_context = EditContext(user_id=123, edit_summary="Delete entity")
+        await service.publish_delete_event("Q42", 3, 2, edit_context)
 
         mock_producer.publish_change.assert_called_once()
 
@@ -198,7 +199,8 @@ class TestDeleteService:
         mock_state.entity_change_stream_producer = None
 
         service = DeleteService(state=mock_state)
-        await service.publish_delete_event("Q42", 3, 2, "Delete entity")
+        edit_context = EditContext(user_id=123, edit_summary="Delete entity")
+        await service.publish_delete_event("Q42", 3, 2, edit_context)
 
         assert True  # No exception raised
 
@@ -211,7 +213,8 @@ class TestDeleteService:
         mock_state.entity_change_stream_producer = mock_producer
 
         service = DeleteService(state=mock_state)
-        await service.publish_delete_event("Q42", 3, 2, "Delete entity")
+        edit_context = EditContext(user_id=123, edit_summary="Delete entity")
+        await service.publish_delete_event("Q42", 3, 2, edit_context)
 
         assert True  # No exception raised, just logged
 
