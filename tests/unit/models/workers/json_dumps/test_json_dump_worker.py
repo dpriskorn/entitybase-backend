@@ -204,31 +204,31 @@ class TestJsonDumpWorker:
     @pytest.mark.asyncio
     async def test_start_loop_error_recovery(self):
         """Test worker handles exceptions and sleeps after error."""
-        import json
+        import asyncio
+        from models.workers.json_dumps.json_dump_worker import JsonDumpWorker as WorkerClass
+
         worker = JsonDumpWorker()
 
-        async def mock_run_weekly_dump():
-            raise Exception("Test error")
+        mock_sleep_calls = []
 
-        original_start = worker.start
-        call_count = [0]
+        async def mock_sleep(seconds):
+            mock_sleep_calls.append(seconds)
+            if len(mock_sleep_calls) == 1 and seconds == 300:
+                worker.running = False
 
-        async def mock_start_with_exception():
-            if call_count[0] == 0:
-                call_count[0] = 1
-                raise Exception("Test error")
+        async def mock_lifespan(self):
+            yield
 
-        object.__setattr__(worker, "run_weekly_dump", mock_run_weekly_dump)
+        with patch("asyncio.sleep", side_effect=mock_sleep):
+            with patch("models.workers.json_dumps.json_dump_worker.settings") as mock_settings:
+                mock_settings.json_dump_enabled = True
 
-        with patch("asyncio.sleep") as mock_sleep:
-            worker.running = True
+                with patch.object(WorkerClass, "lifespan", mock_lifespan):
+                    with patch.object(worker, "_calculate_seconds_until_next_run", return_value=0.001):
+                        with patch.object(WorkerClass, "run_weekly_dump", side_effect=Exception("Test error")):
+                            await worker.start()
 
-            try:
-                await worker.start()
-            except Exception:
-                pass
-
-        mock_sleep.assert_called_once_with(300)
+        assert 300 in mock_sleep_calls
 
     @pytest.mark.asyncio
     async def test_run_weekly_dump_no_full_entities(self):
