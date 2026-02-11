@@ -1,5 +1,6 @@
 ./run-scc.sh
 python scripts/doc/generate_git_stats.py >> STATISTICS.md
+./count-tests.sh >> STATISTICS.md
 ./count-words.sh
 # ./run-coverage.sh
 # python scripts/doc/update-coverage-stats.py

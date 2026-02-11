@@ -210,3 +210,10 @@ Processed 1344594 bytes, 1.345 megabytes (SI)
 # Git Commits
 1458
 
+# Test Counts
+- Overall (pytest): 1651
+- Unit: 138
+- Integration: 59
+- E2E: 40
+- Disabled: 10
+

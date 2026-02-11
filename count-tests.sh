@@ -1,9 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "Test Counts"
-echo "==========="
-echo ""
+echo "# Test Counts"
 
 # Activate virtual environment
 source .venv/bin/activate
@@ -17,8 +15,9 @@ INTEGRATION_COUNT=$(grep -r "^def test_" tests/integration/ --include="*.py" | w
 E2E_COUNT=$(grep -r "^def test_" tests/e2e/ --include="*.py" | wc -l)
 DISABLED_COUNT=$(grep -r "^def test_" tests/disabled/ --include="*.py" | wc -l)
 
-echo "Overall (pytest): $OVERALL"
-echo "Unit: $UNIT_COUNT"
-echo "Integration: $INTEGRATION_COUNT"
-echo "E2E: $E2E_COUNT"
-echo "Disabled: $DISABLED_COUNT"
+echo "- Overall (pytest): $OVERALL"
+echo "- Unit: $UNIT_COUNT"
+echo "- Integration: $INTEGRATION_COUNT"
+echo "- E2E: $E2E_COUNT"
+echo "- Disabled: $DISABLED_COUNT"
+echo ""
