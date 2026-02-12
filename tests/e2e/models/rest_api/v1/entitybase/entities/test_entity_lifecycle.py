@@ -1,123 +1,132 @@
 import pytest
 import sys
 
+from httpx import ASGITransport, AsyncClient
+
 sys.path.insert(0, "src")
 
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.e2e
-async def test_health_check(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_health_check(api_prefix: str) -> None:
     from models.rest_api.main import app
 
     """E2E test: Health check endpoint."""
-    response = await client.get(f"{e2e_base_url}/health")
-    assert response.status_code == 200
-    data = response.json()
-    assert data["status"] == "ok"
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get("/health")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "ok"
 
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.e2e
-async def test_general_stats(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_general_stats(api_prefix: str) -> None:
     from models.rest_api.main import app
 
     """E2E test: Get general statistics."""
-    response = await client.get(f"{e2e_base_url}/stats")
-    assert response.status_code == 200
-    data = response.json()
-    assert "total_entities" in data or "entities" in data
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get("/stats")
+        assert response.status_code == 200
+        data = response.json()
+        assert "total_entities" in data or "entities" in data
 
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.e2e
-async def test_json_import_endpoint(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_json_import_endpoint(api_prefix: str) -> None:
     from models.rest_api.main import app
 
     """E2E test: Import entities from Wikidata JSONL dump file."""
-    import_data = {
-        "entities": [
-            {
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Import Test"}},
-            }
-        ],
-        "batch_size": 10,
-    }
-    response = await client.post(
-        f"{e2e_base_url}/json-import",
-        json=import_data,
-        headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
-    )
-    # May return 202 for async processing or 200 for success
-    assert response.status_code in [200, 202, 400]
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        import_data = {
+            "entities": [
+                {
+                    "type": "item",
+                    "labels": {"en": {"language": "en", "value": "Import Test"}},
+                }
+            ],
+            "batch_size": 10,
+        }
+        response = await client.post(
+            "/json-import",
+            json=import_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        # May return 202 for async processing or 200 for success
+        assert response.status_code in [200, 202, 400]
 
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.e2e
-async def test_entity_lifecycle(e2e_api_client, e2e_base_url, api_prefix) -> None:
+async def test_entity_lifecycle(api_prefix: str) -> None:
     from models.rest_api.main import app
 
     """E2E test: Create, read, update, delete entity."""
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        # Create entity
+        create_data = {
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Test Item"}},
+            "descriptions": {"en": {"language": "en", "value": "E2E test item"}},
+        }
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=create_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+        entity_data = response.json()
+        entity_id = entity_data["id"]
+        assert entity_id.startswith("Q")
 
-    # Create entity
-    create_data = {
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Test Item"}},
-        "descriptions": {"en": {"language": "en", "value": "E2E test item"}},
-    }
-    response = await client.post(
-        f"{base_url}/entities/items",
-        json=create_data,
-        headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
-    )
-    assert response.status_code == 200
-    entity_data = response.json()
-    entity_id = entity_data["id"]
-    assert entity_id.startswith("Q")
+        # Read entity
+        response = await client.get(f"{api_prefix}/entities/{entity_id}")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["labels"]["en"]["value"] == "Test Item"
 
-    # Read entity
-    response = await client.get(f"{base_url}/entities/{entity_id}")
-    assert response.status_code == 200
-    data = response.json()
-    assert data["labels"]["en"]["value"] == "Test Item"
+        # Update entity (add statement)
+        update_data = {
+            "id": entity_id,
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Updated Test Item"}},
+            "descriptions": {"en": {"language": "en", "value": "Updated E2E test item"}},
+            "statements": [
+                {
+                    "property": {"id": "P31", "data_type": "wikibase-item"},
+                    "value": {"type": "value", "content": "Q5"},  # instance of human
+                    "rank": "normal",
+                }
+            ],
+        }
+        response = await client.put(
+            f"{api_prefix}/entities/{entity_id}",
+            json=update_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
 
-    # Update entity (add statement)
-    update_data = {
-        "id": entity_id,
-        "type": "item",
-        "labels": {"en": {"language": "en", "value": "Updated Test Item"}},
-        "descriptions": {"en": {"language": "en", "value": "Updated E2E test item"}},
-        "statements": [
-            {
-                "property": {"id": "P31", "data_type": "wikibase-item"},
-                "value": {"type": "value", "content": "Q5"},  # instance of human
-                "rank": "normal",
-            }
-        ],
-    }
-    response = await client.put(
-        f"{base_url}/entities/{entity_id}",
-        json=update_data,
-        headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
-    )
-    assert response.status_code == 200
+        # Verify update
+        response = await client.get(f"{api_prefix}/entities/{entity_id}")
+        assert response.status_code == 200
+        data = response.json()
+        assert data["labels"]["en"]["value"] == "Updated Test Item"
+        assert len(data["statements"]) > 0
 
-    # Verify update
-    response = await client.get(f"{base_url}/entities/{entity_id}")
-    assert response.status_code == 200
-    data = response.json()
-    assert data["labels"]["en"]["value"] == "Updated Test Item"
-    assert len(data["statements"]) > 0
+        # Delete entity (if supported)
+        # Note: Wikibase may not support direct deletion; adjust based on API
+        # response = await client.delete(f"{api_prefix}/entities/{entity_id}")
+        # assert response.status_code == 204
 
-    # Delete entity (if supported)
-    # Note: Wikibase may not support direct deletion; adjust based on API
-    # response = await client.delete(f"{base_url}/entities/{entity_id}")
-    # assert response.status_code == 204
-
-    # For now, just verify the entity exists
-    response = await client.get(f"{base_url}/entities/{entity_id}")
-    assert response.status_code == 200
+        # For now, just verify the entity exists
+        response = await client.get(f"{api_prefix}/entities/{entity_id}")
+        assert response.status_code == 200
