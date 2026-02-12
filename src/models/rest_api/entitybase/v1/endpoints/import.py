@@ -7,6 +7,7 @@ from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.entitybase.v1.handlers.entity.create import EntityCreateHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
+from models.rest_api.utils import raise_validation_error
 
 import_router = APIRouter(tags=["import"])
 
@@ -14,7 +15,7 @@ import_router = APIRouter(tags=["import"])
 @import_router.post(
     "/import",
     response_model=EntityResponse,
-    summary="Import a single entity (item, property, or lexeme)"
+    summary="Import a single entity (item, property, or lexeme)",
 )
 async def import_entity(
     request: EntityCreateRequest,
@@ -54,14 +55,16 @@ async def import_entity(
 
     handler = EntityCreateHandler(state=state)
 
-    edit_headers = EditHeaders(
-        x_user_id=0,
-        x_edit_summary="Bulk import"
-    )
+    edit_headers = EditHeaders(x_user_id=0, x_edit_summary="Bulk import")
+
+    if request.type == "lexeme":
+        lemma_count = sum(1 for lang in request.lemmas if lang != "lemma_hashes")
+        if lemma_count == 0:
+            raise_validation_error(
+                "A lexeme must have at least one lemma.",
+                status_code=400,
+            )
 
     return await handler.create_entity(
-        request,
-        edit_headers=edit_headers,
-        validator=validator,
-        auto_assign_id=False
+        request, edit_headers=edit_headers, validator=validator, auto_assign_id=False
     )

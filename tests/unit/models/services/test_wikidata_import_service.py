@@ -142,12 +142,38 @@ class TestWikidataImportServiceTransformToCreateRequest:
             "descriptions": {},
             "aliases": {},
             "claims": {},
+            "lemmas": {"en": {"language": "en", "value": "test lemma"}},
+            "forms": [
+                {
+                    "id": "L123-F1",
+                    "representations": {"en": {"language": "en", "value": "test"}},
+                }
+            ],
+            "senses": [
+                {
+                    "id": "L123-S1",
+                    "glosses": {"en": {"language": "en", "value": "test gloss"}},
+                }
+            ],
         }
 
         result = WikidataImportService.transform_to_create_request(wikidata_data)
 
         assert result.id == "L123"
         assert result.type == "lexeme"
+        assert result.lemmas == {"en": {"language": "en", "value": "test lemma"}}
+        assert result.forms == [
+            {
+                "id": "L123-F1",
+                "representations": {"en": {"language": "en", "value": "test"}},
+            }
+        ]
+        assert result.senses == [
+            {
+                "id": "L123-S1",
+                "glosses": {"en": {"language": "en", "value": "test gloss"}},
+            }
+        ]
 
     def test_transform_to_create_request_unknown_type(self):
         """Test transforming Wikidata data with unknown type."""

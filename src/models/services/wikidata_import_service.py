@@ -126,6 +126,9 @@ class WikidataImportService(BaseModel):
             aliases=aliases,
             claims=claims,
             sitelinks=sitelinks,
+            forms=wikidata_data.get("forms", []),
+            senses=wikidata_data.get("senses", []),
+            lemmas=wikidata_data.get("lemmas", {}),
             edit_type=EditType.BOT_IMPORT,
         )
 
