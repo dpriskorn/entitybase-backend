@@ -273,17 +273,11 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `'2.0.0'`
 - **Description**: entity version
 
-### `environment`
-
-- **Type**: `str`
-- **Default**: `'prod'`
-- **Description**: other
-
 ### `user_agent`
 
 - **Type**: `str`
 - **Default**: `'Entitybase/1.0 User:So9q'`
-- **Description**: No description available
+- **Description**: other
 
 ### `user_stats_enabled`
 
