@@ -4,6 +4,7 @@ import logging
 from typing import Any, List
 
 from fastapi import APIRouter, HTTPException, Request
+from starlette.responses import JSONResponse
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
@@ -148,11 +149,11 @@ async def get_property_description(
 
 @router.get(
     "/entities/properties/{property_id}/aliases/{language_code}",
-    response_model=AliasesResponse,
+    response_model=list[str],
 )
 async def get_property_aliases_for_language(
     property_id: str, language_code: str, req: Request
-) -> AliasesResponse:
+) -> list[str]:
     """Get property aliases for language."""
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
@@ -167,12 +168,11 @@ async def get_property_aliases_for_language(
         )
     # Extract just the alias text values
     alias_values = [alias["value"] for alias in aliases[language_code]]
-    return AliasesResponse(aliases=alias_values)
+    return alias_values
 
 
 @router.put(
     "/entities/properties/{property_id}/aliases/{language_code}",
-    response_model=EntityResponse,
 )
 async def put_property_aliases_for_language(
     property_id: str,
@@ -180,7 +180,7 @@ async def put_property_aliases_for_language(
     aliases_data: List[str],
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+):
     """Update property aliases for language."""
     logger.debug(
         f"Updating aliases for property {property_id}, language {language_code}"
@@ -190,10 +190,21 @@ async def put_property_aliases_for_language(
 
     # Update aliases using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
-    return await update_handler.update_aliases(
+    result = await update_handler.update_aliases(
         property_id,
         language_code,
         aliases_data,
         headers,
         validator,
     )
+
+    # Resolve hashes to actual term values
+    resolved_revision = _resolve_hashes_to_terms(state, result.entity_data.revision)
+
+    # Create response dict with resolved terms at the top level of data
+    response_dict = result.model_dump(mode='json', by_alias=True)
+    response_dict['data']['labels'] = resolved_revision.get('labels', {})
+    response_dict['data']['descriptions'] = resolved_revision.get('descriptions', {})
+    response_dict['data']['aliases'] = resolved_revision.get('aliases', {})
+
+    return JSONResponse(content=response_dict)

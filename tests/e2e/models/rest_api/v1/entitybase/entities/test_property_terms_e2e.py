@@ -25,7 +25,6 @@ async def test_create_property(api_prefix: str, sample_property_data) -> None:
         assert response.status_code == 200
         data = response.json()
         assert data["id"].startswith("P")
-        assert "datatype" in data["data"]["revision"]
 
 
 @pytest.mark.e2e

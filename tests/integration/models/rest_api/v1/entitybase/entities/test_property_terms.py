@@ -162,10 +162,10 @@ async def test_get_property_aliases_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "aliases" in data
-        assert len(data["aliases"]) == 2
-        assert data["aliases"][0]["value"] == "Property Alias 1"
-        assert data["aliases"][1]["value"] == "Property Alias 2"
+        assert isinstance(data, list)
+        assert len(data) == 2
+        assert data[0] == "Property Alias 1"
+        assert data[1] == "Property Alias 2"
 
 
 @pytest.mark.asyncio

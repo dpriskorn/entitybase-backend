@@ -35,7 +35,7 @@ class ExportHandler(Handler):
 
         try:
             revision = self.state.s3_client.read_revision(entity_id, head_revision_id)
-            entity_data = revision.data["entity"]
+            entity_data = revision.revision
         except S3NotFoundError:
             raise_validation_error(
                 f"Entity revision not found: {entity_id}", status_code=404

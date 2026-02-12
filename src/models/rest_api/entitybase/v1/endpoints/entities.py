@@ -63,7 +63,7 @@ async def get_entity_data_json(entity_id: str, req: Request) -> EntityJsonRespon
 
 
 @router.get("/entities/{entity_id}.ttl")
-async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse:
+async def get_entity_data_turtle(entity_id: str, req: Request) -> Response:
     """Get entity data in Turtle format."""
     logger.debug(f"get_entity_data_turtle called with entity_id: {entity_id}")
     actual_entity_id = entity_id.rsplit(".ttl", 1)[0]
@@ -71,9 +71,7 @@ async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse
     state = req.app.state.state_handler
     handler = ExportHandler(state=state)
     result = handler.get_entity_data_turtle(actual_entity_id)
-    if not isinstance(result, TurtleResponse):
-        raise_validation_error("Invalid response type", status_code=500)
-    return result
+    return Response(content=result.turtle, media_type="text/turtle")
 
 
 @router.get("/entities/{entity_id}", response_model=EntityResponse)

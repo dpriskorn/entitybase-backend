@@ -181,7 +181,7 @@ async def test_cleanup_orphaned_statements(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "orphaned_count" in data or "count" in data
+        assert "cleaned_count" in data or "count" in data
 
 
 @pytest.mark.asyncio

@@ -103,7 +103,7 @@ async def test_get_entity_json_export(api_prefix: str, sample_item_data) -> None
         response = await client.get(f"{api_prefix}/entities/{entity_id}.json")
         assert response.status_code == 200
         data = response.json()
-        assert data["id"] == entity_id
+        assert data["data"]["id"] == entity_id
 
 
 @pytest.mark.asyncio
