@@ -38,28 +38,15 @@ src/
     │   └── writers
     ├── rest_api
     │   └── entitybase
-    │       ├── handlers
-    │       │   └── entity
-    │       │       ├── items
-    │       │       ├── lexeme
-    │       │       └── property
-    │       ├── request
-    │       │   └── entity
-    │       ├── response
-    │       │   └── entity
-    │       ├── routes
-    │       ├── services
-    │       ├── v1
-    │       │   ├── endpoints
-    │       │   ├── handlers
-    │       │   │   └── entity
-    │       │   │       ├── lexeme
-    │       │   │       └── property
-    │       │   ├── routes
-    │       │   ├── services
-    │       │   └── utils
-    │       └── versions
-    │           └── v1
+    │       └── v1
+    │           ├── endpoints
+    │           ├── handlers
+    │           │   └── entity
+    │           │       ├── lexeme
+    │           │       └── property
+    │           ├── routes
+    │           ├── services
+    │           └── utils
     ├── services
     ├── validation
     └── workers
@@ -74,5 +61,5 @@ src/
         ├── user_stats
         └── watchlist_consumer
 
-73 directories
+60 directories
 ```
