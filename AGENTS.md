@@ -120,9 +120,8 @@ from fastapi import HTTPException
 with pytest.raises(HTTPException, match=".*"):
     repository.some_method(invalid_data)
 
-# Other ValueErrors (not from raise_validation_error) work as expected
-with pytest.raises(ValueError):
-    some_function_that_raises_value_error()
+# Other ValueErrors (not from raise_validation_error) should be caught by linters
+# Code should not raise ValueError directly - use raise_validation_error() instead
 ```
 
 ### Code Structure

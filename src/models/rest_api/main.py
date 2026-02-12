@@ -4,6 +4,7 @@ import logging
 import os
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -56,7 +57,7 @@ class StartupMiddleware(BaseHTTPMiddleware):
     Always allows /health, /docs, and /openapi.json through.
     """
 
-    async def dispatch(self, request: StarletteRequest, call_next) -> StarletteResponse:
+    async def dispatch(self, request: StarletteRequest, call_next: Any) -> StarletteResponse:
         allowed_paths = {"/health", "/docs", "/openapi.json", "/redoc"}
         request_path = request.url.path
 

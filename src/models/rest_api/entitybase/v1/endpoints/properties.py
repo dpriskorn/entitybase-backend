@@ -4,7 +4,7 @@ import logging
 from typing import Any, List
 
 from fastapi import APIRouter, HTTPException, Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
@@ -63,7 +63,7 @@ def _resolve_hashes_to_terms(state: StateHandler, revision: dict[str, Any]) -> d
 
     # Resolve aliases
     aliases_hashes = hashes.get("aliases", {})
-    resolved_aliases = {}
+    resolved_aliases: dict[str, list[dict[str, str]]] = {}
     for lang, hash_list in aliases_hashes.items():
         resolved_aliases[lang] = []
         for hash_val in hash_list:
@@ -180,7 +180,7 @@ async def put_property_aliases_for_language(
     aliases_data: List[str],
     req: Request,
     headers: EditHeadersType,
-):
+) -> Response:
     """Update property aliases for language."""
     logger.debug(
         f"Updating aliases for property {property_id}, language {language_code}"

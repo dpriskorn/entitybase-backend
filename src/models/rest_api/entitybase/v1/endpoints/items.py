@@ -67,7 +67,7 @@ def _resolve_hashes_to_terms(state: StateHandler, revision: dict[str, Any]) -> d
     
     # Resolve aliases
     aliases_hashes = hashes.get("aliases", {})
-    resolved_aliases = {}
+    resolved_aliases: dict[str, list[dict[str, str]]] = {}
     for lang, hash_list in aliases_hashes.items():
         resolved_aliases[lang] = []
         for hash_val in hash_list:

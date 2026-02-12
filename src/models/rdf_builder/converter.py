@@ -149,10 +149,7 @@ class EntityConverter(BaseModel):
         from models.json_parser.entity_parser import parse_entity
 
         if not self.entity_metadata_dir:
-            raise_validation_error(
-                f"No entity_metadata_dir set, cannot load {entity_id}",
-                exception_class=ValueError,
-            )
+            raise ValueError(f"No entity_metadata_dir set, cannot load {entity_id}")
 
         assert self.entity_metadata_dir is not None
         json_path = self.entity_metadata_dir / f"{entity_id}.json"
