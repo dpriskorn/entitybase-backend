@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 
 from fastapi import HTTPException, Request
 
+from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.endpoints import v1_router
 
@@ -24,8 +25,8 @@ async def get_batch_sitelinks(hashes: str, req: Request) -> dict[str, str]:
             title = state.s3_client.load_sitelink_metadata(hash_value)
             if title:
                 result[h] = title
-        except ValueError:
-            pass  # Skip invalid hashes
+        except (ValueError, S3NotFoundError):
+            pass  # Skip invalid or not found hashes
     return result
 
 
@@ -45,7 +46,7 @@ async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
             label = state.s3_client.load_metadata("labels", hash_value)
             if label:
                 result[h] = label.data
-        except ValueError:
+        except (ValueError, S3NotFoundError):
             pass
     return result
 
@@ -68,7 +69,7 @@ async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
             desc = state.s3_client.load_metadata("descriptions", hash_value)
             if desc:
                 result[h] = desc.data
-        except ValueError:
+        except (ValueError, S3NotFoundError):
             pass
     return result
 
@@ -91,7 +92,7 @@ async def get_batch_aliases(hashes: str, req: Request) -> dict[str, list[str]]:
             aliases = state.s3_client.load_metadata("aliases", hash_value)
             if aliases:
                 result[h] = aliases.data
-        except ValueError:
+        except (ValueError, S3NotFoundError):
             pass
     return result
 

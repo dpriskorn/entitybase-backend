@@ -21,7 +21,7 @@ async def test_get_entity_properties(
     ) as client:
         # Create entity with statements
         response = await client.post(
-            "/entities/items",
+            f"{api_prefix}/entities/items",
             json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -29,7 +29,7 @@ async def test_get_entity_properties(
         entity_id = response.json()["id"]
 
         # Get properties
-        response = await client.get(f"/entities/{entity_id}/properties")
+        response = await client.get(f"{api_prefix}/entities/{entity_id}/properties")
         assert response.status_code == 200
         data = response.json()
         assert "properties" in data or isinstance(data, list)
@@ -48,7 +48,7 @@ async def test_add_property_to_entity(api_prefix: str, sample_item_data) -> None
     ) as client:
         # Create entity
         response = await client.post(
-            "/entities/items",
+            f"{api_prefix}/entities/items",
             json=sample_item_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -62,7 +62,7 @@ async def test_add_property_to_entity(api_prefix: str, sample_item_data) -> None
             "rank": "normal",
         }
         response = await client.post(
-            f"/entities/{entity_id}/properties/P31",
+            f"{api_prefix}/entities/{entity_id}/properties/P31",
             json=claim_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -82,7 +82,7 @@ async def test_get_entity_property_hashes(
     ) as client:
         # Create entity with statements
         response = await client.post(
-            "/entities/items",
+            f"{api_prefix}/entities/items",
             json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -90,7 +90,7 @@ async def test_get_entity_property_hashes(
         entity_id = response.json()["id"]
 
         # Get property hashes
-        response = await client.get(f"/entities/{entity_id}/properties/P31")
+        response = await client.get(f"{api_prefix}/entities/{entity_id}/properties/P31")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list) or "hashes" in data
@@ -109,7 +109,7 @@ async def test_get_entity_property_hashes_alternative_endpoint(
     ) as client:
         # Create entity with statements
         response = await client.post(
-            "/entities/items",
+            f"{api_prefix}/entities/items",
             json=sample_item_with_statements,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -117,7 +117,7 @@ async def test_get_entity_property_hashes_alternative_endpoint(
         entity_id = response.json()["id"]
 
         # Get property hashes via alternative endpoint
-        response = await client.get(f"{api_prefix}/{entity_id}/properties/P31")
+        response = await client.get(f"{api_prefix}/entities/{entity_id}/properties/P31")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list) or "hashes" in data
