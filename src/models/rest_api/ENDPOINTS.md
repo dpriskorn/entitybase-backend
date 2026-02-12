@@ -6,6 +6,7 @@
 | ✅ | POST | `/entities/items` | Create a new item entity. |
 | ✅ | GET | `/entities/items/{item_id}/aliases/{language_code}` | Get item aliases for language. |
 | ✅ | PUT | `/entities/items/{item_id}/aliases/{language_code}` | Update item aliases for language. |
+| ✅ | POST | `/entities/items/{item_id}/aliases/{language_code}` | Add a single alias to item for language. |
 | ✅ | GET | `/entities/items/{item_id}/descriptions/{language_code}` | Get item description for language. |
 | ✅ | PUT | `/entities/items/{item_id}/descriptions/{language_code}` | Update item description for language. |
 | ✅ | DELETE | `/entities/items/{item_id}/descriptions/{language_code}` | Delete item description for language. |
@@ -15,6 +16,7 @@
 | ✅ | POST | `/entities/properties` | Create a new property entity. |
 | ✅ | GET | `/entities/properties/{property_id}/aliases/{language_code}` | Get property aliases for language. |
 | ✅ | PUT | `/entities/properties/{property_id}/aliases/{language_code}` | Update property aliases for language. |
+| ✅ | POST | `/entities/properties/{property_id}/aliases/{language_code}` | Add a single alias to property for language. |
 | ✅ | GET | `/entities/properties/{property_id}/descriptions/{language_code}` | Get property description for language. |
 | ✅ | GET | `/entities/properties/{property_id}/labels/{language_code}` | Get property label for language. |
 | ✅ | GET | `/entities/{entity_id}` | Retrieve a single entity by its ID. |
@@ -37,11 +39,9 @@
 | ✅ | POST | `/entities/{entity_id}/sitelinks/{site}` | Add a new sitelink for an entity. |
 | ✅ | PUT | `/entities/{entity_id}/sitelinks/{site}` | Update an existing sitelink for an entity. |
 | ✅ | DELETE | `/entities/{entity_id}/sitelinks/{site}` | Delete a sitelink from an entity. |
-| ✅ | POST | `/entities/{entity_id}/statements` | Add a statement to an entity. |
+| ✅ | POST | `/entities/{entity_id}/statements` | Add a single statement to an entity. |
 | ✅ | DELETE | `/entities/{entity_id}/statements/{statement_hash}` | Remove a statement by hash from an entity. |
 | ✅ | PATCH | `/entities/{entity_id}/statements/{statement_hash}` | Replace a statement by hash with new claim data. |
-| ✅ | POST | `/entities/lexemes/forms/{form_id}/statements` | Add a statement to a lexeme form. |
-| ✅ | POST | `/entities/lexemes/senses/{sense_id}/statements` | Add a statement to a lexeme sense. |
 | ✅ | GET | `/entity/{entity_id}/properties/{property_list}` | Get statement hashes for specified properties in an entity. |
 | ✅ | GET | `/entitybase/v1/entities/aliases/{hashes}` | Get batch aliases by hashes. |
 | ✅ | GET | `/entitybase/v1/entities/descriptions/{hashes}` | Get batch descriptions by hashes. |
@@ -58,20 +58,26 @@
 | ✅ | DELETE | `/representations/entities/lexemes/forms/{form_id}` | Delete a form by ID. |
 | ✅ | GET | `/representations/entities/lexemes/forms/{form_id}/representation` | Get all representations for a form. |
 | ✅ | GET | `/representations/entities/lexemes/forms/{form_id}/representation/{langcode}` | Get representation for a form in specific language. |
+| ✅ | POST | `/representations/entities/lexemes/forms/{form_id}/representation/{langcode}` | Add a new form representation for language. |
 | ✅ | PUT | `/representations/entities/lexemes/forms/{form_id}/representation/{langcode}` | Update form representation for language. |
 | ✅ | DELETE | `/representations/entities/lexemes/forms/{form_id}/representation/{langcode}` | Delete form representation for language. |
+| ✅ | POST | `/representations/entities/lexemes/forms/{form_id}/statements` | Add a statement to a form. |
 | ✅ | GET | `/representations/entities/lexemes/senses/{sense_id}` | Get single sense by ID (accepts L42-S1 or S1 format). |
 | ✅ | DELETE | `/representations/entities/lexemes/senses/{sense_id}` | Delete a sense by ID. |
 | ✅ | GET | `/representations/entities/lexemes/senses/{sense_id}/glosses` | Get all glosses for a sense. |
 | ✅ | GET | `/representations/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Get gloss for a sense in specific language. |
 | ✅ | PUT | `/representations/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Update sense gloss for language. |
 | ✅ | DELETE | `/representations/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Delete sense gloss for language. |
+| ✅ | POST | `/representations/entities/lexemes/senses/{sense_id}/statements` | Add a statement to a sense. |
 | ✅ | GET | `/representations/entities/lexemes/{lexeme_id}/forms` | List all forms for a lexeme, sorted by numeric suffix. |
+| ✅ | POST | `/representations/entities/lexemes/{lexeme_id}/forms` | Create a new form for a lexeme. |
 | ✅ | GET | `/representations/entities/lexemes/{lexeme_id}/lemmas` | Get all lemmas for a lexeme. |
 | ✅ | GET | `/representations/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Get lemma for a lexeme in specific language. |
+| ✅ | POST | `/representations/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Add a new lemma for language. |
 | ✅ | PUT | `/representations/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Update lemma for language. |
 | ✅ | DELETE | `/representations/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Delete lemma for language. |
 | ✅ | GET | `/representations/entities/lexemes/{lexeme_id}/senses` | List all senses for a lexeme, sorted by numeric suffix. |
+| ✅ | POST | `/representations/entities/lexemes/{lexeme_id}/senses` | Create a new sense for a lexeme. |
 | ✅ | GET | `/representations/{hashes}` | Fetch form representations by hash(es). |
 | ✅ | GET | `/representations/{hashes}` | Fetch sense glosses by hash(es). |
 | ✅ | GET | `/snaks/{hashes}` | Fetch snaks by hash(es). |
@@ -103,6 +109,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 98 |
+| Implemented | 104 |
 | Not Implemented | 0 |
-| Total | 98 |
+| Total | 104 |

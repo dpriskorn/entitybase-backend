@@ -303,24 +303,60 @@ class EntityUpdateHandler(EntityHandler):
         validator: Any | None = None,
     ) -> EntityResponse:
         """Replace all aliases for a language."""
-        # Validate entity ID format
         entity_type = self._infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
-        # Fetch current entity
         read_handler = EntityReadHandler(state=self.state)
         current_entity = read_handler.get_entity(entity_id)
 
-        # Get the revision data dictionary
         entity_dict = current_entity.entity_data.revision
 
-        # Update aliases: convert list of strings to internal format
         if "aliases" not in entity_dict:
             entity_dict["aliases"] = {}
         entity_dict["aliases"][language_code] = [{"value": alias} for alias in aliases]
 
-        # Update with transaction
+        return await self._update_with_transaction(
+            entity_id,
+            entity_dict,
+            entity_type,
+            edit_headers,
+            validator,
+        )
+
+    async def add_alias(
+        self,
+        entity_id: str,
+        language_code: str,
+        alias: str,
+        edit_headers: EditHeaders,
+        validator: Any | None = None,
+    ) -> EntityResponse:
+        """Add a single alias to the existing list for a language."""
+        entity_type = self._infer_entity_type_from_id(entity_id)
+        if not entity_type:
+            raise_validation_error("Invalid entity ID format", status_code=400)
+
+        read_handler = EntityReadHandler(state=self.state)
+        current_entity = read_handler.get_entity(entity_id)
+
+        entity_dict = current_entity.entity_data.revision
+
+        if "aliases" not in entity_dict:
+            entity_dict["aliases"] = {}
+        
+        existing_aliases = entity_dict["aliases"].get(language_code, [])
+        existing_values = [a.get("value", a) if isinstance(a, dict) else a for a in existing_aliases]
+        
+        if alias in existing_values:
+            raise_validation_error(
+                f"Alias '{alias}' already exists for language {language_code}",
+                status_code=409,
+            )
+        
+        existing_aliases.append({"value": alias})
+        entity_dict["aliases"][language_code] = existing_aliases
+
         return await self._update_with_transaction(
             entity_id,
             entity_dict,

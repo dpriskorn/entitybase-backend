@@ -9,6 +9,7 @@ from starlette.responses import JSONResponse, Response
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
+    TermUpdateRequest,
 )
 from models.data.rest_api.v1.entitybase.response import (
     AliasesResponse,
@@ -188,7 +189,6 @@ async def put_property_aliases_for_language(
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 
-    # Update aliases using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
     result = await update_handler.update_aliases(
         property_id,
@@ -198,10 +198,51 @@ async def put_property_aliases_for_language(
         validator,
     )
 
-    # Resolve hashes to actual term values
     resolved_revision = _resolve_hashes_to_terms(state, result.entity_data.revision)
 
-    # Create response dict with resolved terms at the top level of data
+    response_dict = result.model_dump(mode='json', by_alias=True)
+    response_dict['data']['labels'] = resolved_revision.get('labels', {})
+    response_dict['data']['descriptions'] = resolved_revision.get('descriptions', {})
+    response_dict['data']['aliases'] = resolved_revision.get('aliases', {})
+
+    return JSONResponse(content=response_dict)
+
+
+@router.post(
+    "/entities/properties/{property_id}/aliases/{language_code}",
+)
+async def post_property_alias_for_language(
+    property_id: str,
+    language_code: str,
+    request: TermUpdateRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> Response:
+    """Add a single alias to property for language."""
+    logger.debug(
+        f"Adding alias for property {property_id}, language {language_code}"
+    )
+
+    if request.language != language_code:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Language in request body ({request.language}) does not match path parameter ({language_code})",
+        )
+
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+
+    update_handler = EntityUpdateHandler(state=state)
+    result = await update_handler.add_alias(
+        property_id,
+        language_code,
+        request.value,
+        headers,
+        validator,
+    )
+
+    resolved_revision = _resolve_hashes_to_terms(state, result.entity_data.revision)
+
     response_dict = result.model_dump(mode='json', by_alias=True)
     response_dict['data']['labels'] = resolved_revision.get('labels', {})
     response_dict['data']['descriptions'] = resolved_revision.get('descriptions', {})

@@ -10,7 +10,9 @@ from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
     AddStatementRequest,
     EntityCreateRequest,
+    FormCreateRequest,
     LexemeUpdateRequest,
+    SenseCreateRequest,
     TermUpdateRequest,
 )
 from models.data.rest_api.v1.entitybase.response import (
@@ -138,6 +140,117 @@ async def get_lexeme_senses(lexeme_id: str, req: Request) -> SensesResponse:
     return SensesResponse(senses=senses)
 
 
+@router.post("/entities/lexemes/{lexeme_id}/forms", response_model=EntityResponse)
+async def create_lexeme_form(
+    lexeme_id: str,
+    request: FormCreateRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
+    """Create a new form for a lexeme."""
+    logger.debug(f"Creating form for lexeme {lexeme_id}")
+
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(lexeme_id)
+
+    forms_data = current_entity.entity_data.revision.get("forms", [])
+
+    max_form_num = 0
+    for form in forms_data:
+        form_id = form.get("id", "")
+        if "-" in form_id:
+            suffix = form_id.split("-")[-1]
+            if suffix.startswith("F"):
+                try:
+                    num = int(suffix[1:])
+                    max_form_num = max(max_form_num, num)
+                except ValueError:
+                    pass
+
+    new_form_num = max_form_num + 1
+    new_form_id = f"{lexeme_id}-F{new_form_num}"
+
+    new_form = {
+        "id": new_form_id,
+        "representations": request.representations,
+        "grammaticalFeatures": request.grammatical_features,
+        "claims": request.claims,
+    }
+
+    forms_data.append(new_form)
+    logger.debug(f"Created form {new_form_id} for lexeme {lexeme_id}")
+
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = LexemeUpdateRequest(
+        id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
+    )
+
+    return await update_handler.update_lexeme(
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
+
+
+@router.post("/entities/lexemes/{lexeme_id}/senses", response_model=EntityResponse)
+async def create_lexeme_sense(
+    lexeme_id: str,
+    request: SenseCreateRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
+    """Create a new sense for a lexeme."""
+    logger.debug(f"Creating sense for lexeme {lexeme_id}")
+
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(lexeme_id)
+
+    senses_data = current_entity.entity_data.revision.get("senses", [])
+
+    max_sense_num = 0
+    for sense in senses_data:
+        sense_id = sense.get("id", "")
+        if "-" in sense_id:
+            suffix = sense_id.split("-")[-1]
+            if suffix.startswith("S"):
+                try:
+                    num = int(suffix[1:])
+                    max_sense_num = max(max_sense_num, num)
+                except ValueError:
+                    pass
+
+    new_sense_num = max_sense_num + 1
+    new_sense_id = f"{lexeme_id}-S{new_sense_num}"
+
+    new_sense = {
+        "id": new_sense_id,
+        "glosses": request.glosses,
+        "claims": request.claims,
+    }
+
+    senses_data.append(new_sense)
+    logger.debug(f"Created sense {new_sense_id} for lexeme {lexeme_id}")
+
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = LexemeUpdateRequest(
+        id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
+    )
+
+    return await update_handler.update_lexeme(
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
+
+
 @router.get("/entities/lexemes/forms/{form_id}", response_model=FormResponse)
 async def get_form_by_id(form_id: str, req: Request) -> FormResponse:
     """Get single form by ID (accepts L42-F1 or F1 format)."""
@@ -244,6 +357,70 @@ async def get_sense_gloss(
             status_code=404, detail=f"Gloss not found for language {langcode}"
         )
     return SenseGlossResponse(value=gloss.value)
+
+
+@router.post(
+    "/entities/lexemes/forms/{form_id}/representation/{langcode}",
+    response_model=EntityResponse,
+)
+async def add_form_representation(
+    form_id: str,
+    langcode: str,
+    request: TermUpdateRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
+    """Add a new form representation for language."""
+    logger.debug(f"Adding representation for form {form_id}, language {langcode}")
+    lexeme_id, form_suffix = _parse_form_id(form_id)
+
+    if request.language != langcode:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Language in request body ({request.language}) does not match path parameter ({langcode})",
+        )
+
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(lexeme_id)
+
+    forms_data = current_entity.entity_data.revision.get("forms", [])
+    form_found = False
+    for form in forms_data:
+        if form["id"] == form_id:
+            form_found = True
+            representations = form.get("representations", {})
+            if langcode in representations:
+                raise HTTPException(
+                    status_code=409,
+                    detail=f"Representation already exists for language {langcode}. Use PUT to update.",
+                )
+
+            form["representations"][langcode] = {
+                "language": langcode,
+                "value": request.value,
+            }
+            logger.debug(
+                f"Added representation for form {form_id} in language {langcode}"
+            )
+            break
+
+    if not form_found:
+        raise HTTPException(status_code=404, detail=f"Form {form_id} not found")
+
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = LexemeUpdateRequest(
+        id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
+    )
+
+    return await update_handler.update_lexeme(
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
 
 
 @router.put(
@@ -528,6 +705,56 @@ async def get_lexeme_lemma(
             status_code=404, detail=f"Lemma not found for language {langcode}"
         )
     return LemmaResponse(value=lemma["value"])
+
+
+@router.post(
+    "/entities/lexemes/{lexeme_id}/lemmas/{langcode}",
+    response_model=EntityResponse,
+)
+async def add_lexeme_lemma(
+    lexeme_id: str,
+    langcode: str,
+    request: TermUpdateRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
+    """Add a new lemma for language."""
+    logger.debug(f"Adding lemma for lexeme {lexeme_id}, language {langcode}")
+
+    if request.language != langcode:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Language in request body ({request.language}) does not match path parameter ({langcode})",
+        )
+
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(lexeme_id)
+
+    lemmas_data = current_entity.entity_data.revision.get("lemmas", {})
+    if langcode in lemmas_data:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Lemma already exists for language {langcode}. Use PUT to update.",
+        )
+
+    lemmas_data[langcode] = {"language": langcode, "value": request.value}
+
+    logger.debug(f"Added lemma for lexeme {lexeme_id} in language {langcode}")
+
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = LexemeUpdateRequest(
+        id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
+    )
+
+    return await update_handler.update_lexeme(
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
 
 
 @router.put(

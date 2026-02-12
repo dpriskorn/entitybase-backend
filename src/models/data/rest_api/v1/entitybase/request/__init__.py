@@ -14,8 +14,10 @@ from .entity import (
     EventPublishContext,
     EntityRedirectRequest,
     EntityRevertRequest,
+    FormCreateRequest,
     LexemeUpdateRequest,
     RedirectRevertRequest,
+    SenseCreateRequest,
 )
 from .entity.term_update import (
     DescriptionUpdateRequest,
@@ -71,6 +73,7 @@ __all__ = [
     "EntityRedirectRequest",
     "EntityRevertRequest",
     "EventPublishContext",
+    "FormCreateRequest",
     "LabelPatchRequest",
     "LabelUpdateRequest",
     "LexemeUpdateRequest",
@@ -79,6 +82,7 @@ __all__ = [
     "PatchStatementRequest",
     "RedirectRevertRequest",
     "RemoveStatementRequest",
+    "SenseCreateRequest",
     "SitelinkPatchRequest",
     "SnakRequest",
     "StatePatchRequest",
