@@ -419,6 +419,7 @@ Model for worker health check response.
 
 - `status` (str): Health status: healthy or unhealthy
 - `worker_id` (str): Unique worker identifier
+- `details` (dict[str, Any]): Worker health details including running status and last_run
 - `range_status` (dict[str, Any]): Current ID range allocation status
 
 ## models/data/rest_api/v1/entitybase/response/id_response.py

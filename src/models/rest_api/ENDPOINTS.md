@@ -83,6 +83,7 @@
 | ✅ | POST | `/users` | Create a new user. |
 | ✅ | GET | `/users/stat` | Get user statistics. |
 | ✅ | GET | `/users/{user_id}` | Get user information by MediaWiki user ID. |
+| ✅ | GET | `/users/{user_id}/activity` | Get user's activity with filtering. |
 | ✅ | GET | `/users/{user_id}/endorsements` | Get endorsements given by a user. |
 | ✅ | GET | `/users/{user_id}/endorsements/stats` | Get endorsement statistics for a user. |
 | ✅ | GET | `/users/{user_id}/thanks/received` | Get thanks received by user. |
@@ -98,6 +99,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 93 |
+| Implemented | 94 |
 | Not Implemented | 0 |
-| Total | 93 |
+| Total | 94 |
