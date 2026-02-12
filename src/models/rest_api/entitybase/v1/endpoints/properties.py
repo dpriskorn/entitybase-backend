@@ -55,7 +55,7 @@ async def get_property_label(
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(property_id)
-    labels = response.data.revision.get("labels", {})
+    labels = response.entity_data.revision.get("labels", {})
     if language_code not in labels:
         raise HTTPException(
             status_code=404, detail=f"Label not found for language {language_code}"
@@ -74,7 +74,7 @@ async def get_property_description(
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(property_id)
-    descriptions = response.data.revision.get("descriptions", {})
+    descriptions = response.entity_data.revision.get("descriptions", {})
     if language_code not in descriptions:
         raise HTTPException(
             status_code=404,
@@ -94,7 +94,7 @@ async def get_property_aliases_for_language(
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(property_id)
-    aliases = response.data.revision.get("aliases", {})
+    aliases = response.entity_data.revision.get("aliases", {})
     if language_code not in aliases:
         raise HTTPException(
             status_code=404, detail=f"Aliases not found for language {language_code}"
