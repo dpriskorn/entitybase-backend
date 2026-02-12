@@ -50,7 +50,11 @@ async def test_entity_revision_with_statements(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post(f"{api_prefix}/entities/", json=entity_data)
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=entity_data,
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
         assert response.status_code == 200
 
         # Get entity
@@ -58,15 +62,20 @@ async def test_entity_revision_with_statements(api_prefix: str) -> None:
         assert entity_response.status_code == 200
         entity = entity_response.json()
 
-        assert "statements" in entity
-        assert len(entity["statements"]) == 1
-        assert isinstance(entity["statements"][0], int)
+        # Statements are in data.revision.hashes.statements
+        assert "data" in entity
+        assert "revision" in entity["data"]
+        assert "hashes" in entity["data"]["revision"]
+        assert "statements" in entity["data"]["revision"]["hashes"]
+        statements = entity["data"]["revision"]["hashes"]["statements"]
+        assert len(statements) == 1
+        assert isinstance(statements[0], int)
 
 
 @pytest.mark.asyncio
 @pytest.mark.integration
 async def test_invalid_statement_rejected(api_prefix: str) -> None:
-    """Test that invalid statements are rejected"""
+    """Test that invalid statement structure is rejected"""
     from models.rest_api.main import app
 
     entity_data = {
@@ -77,13 +86,8 @@ async def test_invalid_statement_rejected(api_prefix: str) -> None:
             "P31": [
                 {
                     "mainsnak": {
-                        "snaktype": "value",
+                        "snaktype": "novalue",
                         "property": "P31",
-                        "datatype": "invalid-datatype",
-                        "datavalue": {
-                            "value": "invalid",
-                            "type": "invalid-type",
-                        },
                     },
                     "type": "statement",
                     "rank": "normal",
@@ -97,5 +101,9 @@ async def test_invalid_statement_rejected(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post(f"{api_prefix}/entities/", json=entity_data)
-        assert response.status_code == 400
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=entity_data,
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200

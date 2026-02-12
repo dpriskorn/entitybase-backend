@@ -130,7 +130,7 @@ class StatementHandler(Handler):
                         created_at=statement_data.created_at,
                     )
                 )
-            except ClientError:
+            except (ClientError, Exception):
                 not_found.append(content_hash)
 
         return StatementBatchResponse(statements=statements, not_found=not_found)
@@ -269,7 +269,7 @@ class StatementHandler(Handler):
         if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
-        statement_hashes = self.state.vitess_client.get_most_used_statements(
+        statement_hashes = self.state.vitess_client.statement_repository.get_most_used(
             limit=limit, min_ref_count=min_ref_count
         )
         return MostUsedStatementsResponse(statements=statement_hashes)

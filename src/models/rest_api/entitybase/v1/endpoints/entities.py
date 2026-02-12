@@ -27,6 +27,7 @@ from models.data.rest_api.v1.entitybase.response import (
     EntityJsonResponse,
 )
 from models.data.rest_api.v1.entitybase.response import (
+    PropertyCountsResponse,
     PropertyHashesResponse,
     PropertyListResponse,
 )
@@ -217,6 +218,24 @@ async def get_entity_properties(entity_id: str, req: Request) -> PropertyListRes
     # todo pass clients to the handler here
     handler = StatementHandler(state=state)
     return handler.get_entity_properties(entity_id)
+
+
+@router.get(
+    "/entities/{entity_id}/property_counts", response_model=PropertyCountsResponse
+)
+async def get_entity_property_counts(
+    entity_id: str, req: Request
+) -> PropertyCountsResponse:
+    """Get statement counts per property for an entity's head revision.
+
+    Returns dict mapping property ID -> count of statements.
+    """
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
+        raise_validation_error("Invalid clients type", status_code=500)
+    # todo pass clients to the handler here
+    handler = StatementHandler(state=state)
+    return handler.get_entity_property_counts(entity_id)
 
 
 @router.get(

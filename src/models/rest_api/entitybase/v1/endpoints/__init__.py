@@ -18,6 +18,10 @@ from . import (
     watchlist,
 )
 
+# Import the json_import module using importlib to avoid keyword conflict
+import importlib
+json_import = importlib.import_module(".import", package="models.rest_api.entitybase.v1.endpoints")
+
 
 v1_router = APIRouter()
 
@@ -35,3 +39,4 @@ v1_router.include_router(redirects.redirects_router, tags=["redirects"])
 v1_router.include_router(watchlist.watchlist_router, tags=["watchlist"])
 v1_router.include_router(stats.stats_router, tags=["statistics"])
 v1_router.include_router(property_hashes.property_hashes_router, tags=["properties"])
+v1_router.include_router(json_import.import_router, tags=["import"])
