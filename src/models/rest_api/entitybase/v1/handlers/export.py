@@ -41,5 +41,8 @@ class ExportHandler(Handler):
                 f"Entity revision not found: {entity_id}", status_code=404
             )
 
+        logger.debug(f"Serializing entity {entity_id} to Turtle, entity_data keys: {entity_data.keys()}")
+        logger.debug(f"Entity data: {entity_data}")
         turtle = serialize_entity_to_turtle(entity_data, self.state.property_registry)
+        logger.debug(f"Generated Turtle length: {len(turtle)}")
         return TurtleResponse(turtle=turtle)
