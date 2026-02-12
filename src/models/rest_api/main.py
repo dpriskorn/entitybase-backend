@@ -173,24 +173,13 @@ async def starlette_http_exception_handler(
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Handle all exceptions and return formatted JSON response."""
-    is_prod = os.getenv("ENVIRONMENT", "dev").lower() == "prod"
-
     logger.error(f"Unhandled exception: {type(exc).__name__}: {exc}", exc_info=True)
-
-    if is_prod:
-        message = "An internal error occurred"
-        detail = None
-    else:
-        message = str(exc)
-        detail = f"{type(exc).__name__}: {exc}"
 
     content = {
         "error": "internal_error",
-        "message": message,
+        "message": str(exc),
+        "detail": f"{type(exc).__name__}: {exc}",
     }
-
-    if detail:
-        content["detail"] = detail
 
     return JSONResponse(
         status_code=500,

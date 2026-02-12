@@ -261,7 +261,7 @@ services:
 #      KAFKA_ENTITY_CHANGE_TOPIC: wikibase.entity_change
 #      KAFKA_ENTITY_DIFF_TOPIC: wikibase.entity_diff
 #      LOG_LEVEL: "DEBUG"
-#      ENVIRONMENT: "dev"
+#      ENVIRONMENT: "dev"  # Environment support removed - validation errors now always raise HTTPException
 #      USER_AGENT: "Entitybase/1.0 User:So9q"
 #    command: uvicorn models.rest_api.main:app --host 0.0.0.0 --port 8000
 #    healthcheck:

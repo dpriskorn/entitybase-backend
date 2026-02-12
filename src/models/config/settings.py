@@ -75,7 +75,6 @@ class Settings(BaseModel):
     api_prefix: str = "/v1/entitybase"
 
     # other
-    environment: str = "prod"
     user_agent: str = "Entitybase/1.0 User:So9q"
 
     # workers
@@ -198,7 +197,6 @@ class Settings(BaseModel):
 
         # Other
         self.log_level = os.getenv("LOG_LEVEL", self.log_level)
-        self.environment = os.getenv("ENVIRONMENT", self.environment)
         self.user_agent = os.getenv("USER_AGENT", self.user_agent)
 
         # RDF
