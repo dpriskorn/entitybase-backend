@@ -27,13 +27,12 @@ def extract_endpoints_from_file(file_path: Path) -> list[dict[str, Any]]:
     else:
         prefix = ""
 
-    # Find router prefix from APIRouter declaration
-    router_prefix = ""
-    router_match = re.search(
+    # Find all router prefixes from APIRouter declarations
+    router_prefixes: dict[str, str] = {}
+    for router_match in re.finditer(
         r'(\w*router)\s*=\s*APIRouter\(\s*prefix\s*=\s*["\']([^"\']+)["\']', content
-    )
-    if router_match:
-        router_prefix = router_match.group(2)
+    ):
+        router_prefixes[router_match.group(1)] = router_match.group(2)
 
     # Find all router decorators and their functions
     decorator_pattern = r'@(\w*router)\.(get|post|put|delete|patch|head|options)\s*\(\s*["\']([^"\']+)["\']'
@@ -43,7 +42,7 @@ def extract_endpoints_from_file(file_path: Path) -> list[dict[str, Any]]:
         router_name = match.group(1)
         method = match.group(2).upper()
         path = match.group(3)
-        full_path = prefix + router_prefix + path
+        full_path = prefix + router_prefixes.get(router_name, "") + path
         file_rel = str(file_path.relative_to(Path(__file__).parent.parent.parent))
 
         # Find the function name and docstring
