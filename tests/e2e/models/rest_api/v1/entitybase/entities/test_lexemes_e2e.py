@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_lexeme_lemmas_workflow() -> None:
+async def test_lexeme_lemmas_workflow(api_prefix: str) -> None:
     """E2E test: Full workflow for lexeme lemmas."""
     from models.rest_api.main import app
 
@@ -35,7 +35,7 @@ async def test_lexeme_lemmas_workflow() -> None:
             "language": "Q1860",
         }
         response = await client.post(
-            "/entities/lexemes",
+            f"{api_prefix}/entities/lexemes",
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -44,7 +44,7 @@ async def test_lexeme_lemmas_workflow() -> None:
         logger.info(f"✓ Created lexeme {lexeme_id}")
 
         # Get all lemmas
-        response = await client.get(f"/entities/lexemes/{lexeme_id}/lemmas")
+        response = await client.get(f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas")
         assert response.status_code == 200
         lemmas = response.json()["lemmas"]
         assert "en" in lemmas
@@ -54,7 +54,7 @@ async def test_lexeme_lemmas_workflow() -> None:
 
         # Get single lemma
         response = await client.get(
-            f"/entities/lexemes/{lexeme_id}/lemmas/en"
+            f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas/en"
         )
         assert response.status_code == 200
         assert response.json()["value"] == "answer"
@@ -63,7 +63,7 @@ async def test_lexeme_lemmas_workflow() -> None:
         # Update lemma
         update_data = {"language": "en", "value": "reply"}
         response = await client.put(
-            f"/entities/lexemes/{lexeme_id}/lemmas/en",
+            f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas/en",
             json=update_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -71,20 +71,20 @@ async def test_lexeme_lemmas_workflow() -> None:
 
         # Verify update
         response = await client.get(
-            f"/entities/lexemes/{lexeme_id}/lemmas/en"
+            f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas/en"
         )
         assert response.json()["value"] == "reply"
         logger.info("✓ Update lemma works correctly")
 
         # Delete one lemma (there are still 2, so should succeed)
         response = await client.delete(
-            f"/entities/lexemes/{lexeme_id}/lemmas/de",
+            f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas/de",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
 
         # Verify only en lemma remains
-        response = await client.get(f"/entities/lexemes/{lexeme_id}/lemmas")
+        response = await client.get(f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas")
         lemmas_after = response.json()["lemmas"]
         assert "en" in lemmas_after
         assert "de" not in lemmas_after
@@ -93,7 +93,7 @@ async def test_lexeme_lemmas_workflow() -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_delete_last_lemma_fails() -> None:
+async def test_delete_last_lemma_fails(api_prefix: str) -> None:
     """E2E test: Cannot delete last lemma - validation works."""
     from models.rest_api.main import app
 
@@ -108,7 +108,7 @@ async def test_delete_last_lemma_fails() -> None:
             "language": "Q1860",
         }
         response = await client.post(
-            "/entities/lexemes",
+            f"{api_prefix}/entities/lexemes",
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -117,7 +117,7 @@ async def test_delete_last_lemma_fails() -> None:
 
         # Try to delete last lemma (should fail)
         response = await client.delete(
-            f"/entities/lexemes/{lexeme_id}/lemmas/en",
+            f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas/en",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 400
@@ -127,7 +127,7 @@ async def test_delete_last_lemma_fails() -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_create_lexeme_without_lemmas_fails() -> None:
+async def test_create_lexeme_without_lemmas_fails(api_prefix: str) -> None:
     """E2E test: Cannot create lexeme without lemmas."""
     from models.rest_api.main import app
 
@@ -142,7 +142,7 @@ async def test_create_lexeme_without_lemmas_fails() -> None:
             "language": "Q1860",
         }
         response = await client.post(
-            "/entities/lexemes",
+            f"{api_prefix}/entities/lexemes",
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )

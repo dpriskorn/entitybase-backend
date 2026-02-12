@@ -39,7 +39,7 @@ async def test_create_redirect(api_prefix: str, sample_item_data) -> None:
         target_id = response.json()["id"]
 
         # Create redirect
-        redirect_data = {"source_entity_id": source_id, "target_entity_id": target_id}
+        redirect_data = {"redirect_from_id": source_id, "redirect_to_id": target_id}
         response = await client.post(
             f"{api_prefix}/redirects",
             json=redirect_data,
@@ -67,7 +67,7 @@ async def test_revert_redirect(api_prefix: str, sample_item_data) -> None:
         entity_id = response.json()["id"]
 
         # Try to revert redirect (will fail if no redirect exists)
-        revert_data = {"revision_id": 1}
+        revert_data = {"revert_to_revision_id": 1}
         response = await client.post(
             f"{api_prefix}/entities/{entity_id}/revert-redirect",
             json=revert_data,

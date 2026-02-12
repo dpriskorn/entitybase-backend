@@ -343,14 +343,29 @@ async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> Siteli
     handler = EntityReadHandler(state=state)
     entity_response = handler.get_entity(entity_id)
 
-    sitelinks = entity_response.entity_data.revision.get("sitelinks", {})
+    sitelinks = entity_response.entity_data.revision.get("hashes", {}).get("sitelinks", {})
     if site not in sitelinks:
         raise_validation_error(f"Sitelink for site {site} not found", status_code=404)
 
-    sitelink_data = sitelinks[site]
-    return SitelinkData(
-        title=sitelink_data.get("title", ""), badges=sitelink_data.get("badges", [])
-    )
+    sitelink_hash_data = sitelinks[site]
+    title_hash = sitelink_hash_data.get("title_hash")
+    badges = sitelink_hash_data.get("badges", [])
+
+    from models.infrastructure.s3.storage.metadata_storage import MetadataStorage
+    from models.data.infrastructure.s3.enums import MetadataType
+
+    metadata_storage = MetadataStorage(connection_manager=state.s3_client.connection_manager, bucket="")
+    load_response = metadata_storage.load_metadata(MetadataType.SITELINKS, title_hash)
+
+    if load_response is None or not hasattr(load_response, "data"):
+        raise_validation_error(f"Sitelink title not found for site {site}", status_code=404)
+
+    if isinstance(load_response.data, str):
+        title = load_response.data
+    else:
+        raise_validation_error(f"Sitelink title is not a string for site {site}", status_code=500)
+
+    return SitelinkData(title=title, badges=badges)
 
 
 @router.post(
