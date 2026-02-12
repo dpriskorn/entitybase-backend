@@ -1,0 +1,54 @@
+@startuml System Architecture
+
+title Wikibase Backend - System Architecture
+
+package "API Layer" as APILayer #LightBlue {
+    "Watchlist" as WatchlistHandler
+    "Endorsement" as EndorsementHandler
+    "Admin" as AdminHandler
+    "Thanks" as ThanksHandler
+    "UserActivity" as UserActivityHandler
+    ... (29 total components)
+}
+
+package "Service Layer" as ServiceLayer #LightGreen {
+    "Hash" as HashService
+    "Enumeration" as EnumerationService
+    "Snak" as SnakHandler
+    "_PropertyCountHelper" as _PropertyCountHelper
+    "EntityStatement" as EntityStatementService
+    ... (14 total components)
+}
+
+package "Worker Layer" as WorkerLayer #LightYellow {
+    "BaseStatsWorker" as BaseStatsWorker
+    "VitessWorker" as VitessWorker
+    "Worker" as Worker
+    "EntityDumpRecord" as EntityDumpRecord
+    "DumpMetadata" as DumpMetadata
+    ... (27 total components)
+}
+
+package "Infrastructure Layer" as InfrastructureLayer #LightGray {
+    "Lexeme" as LexemeRepository
+    "Vitess Client" as Vitess_Client
+    "S3 Client" as S3_Client
+}
+
+package "Data Models" as DataModels #LightCyan {
+    "WatchlistEntryResponse" as WatchlistEntryResponse
+    "WatchlistResponse" as WatchlistResponse
+    "EndorsementResponse" as EndorsementResponse
+    "EndorsementListResponse" as EndorsementListResponse
+    "EndorsementStatsResponse" as EndorsementStatsResponse
+    ... (10 total components)
+}
+
+
+' Relationships
+API -> Service : business logic
+Service -> Infrastructure : data access
+Worker -> Infrastructure : background processing
+API -> DataModels : serialization
+
+@enduml

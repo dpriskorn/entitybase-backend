@@ -1,3 +1,0 @@
-L42: Lexeme for English word "answer" with lemmas, forms (F1, F2, F4), senses (S1, S2, S3), and claims (P5402, P5275, P12690, etc.)
-Q42: Item for Douglas Adams - British science fiction writer with labels in ~70 languages, descriptions, aliases, and claims including P31 (instance of human), P21 (sex/gender), and more
-P31: Property for "instance of" - wikibase-item datatype with labels in ~180 languages and descriptions in ~80 languages
