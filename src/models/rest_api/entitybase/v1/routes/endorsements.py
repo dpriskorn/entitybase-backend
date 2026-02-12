@@ -144,16 +144,14 @@ def get_statement_endorsement_stats(
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
 
-    # Get stats for single statement
     handler = EndorsementHandler(state=state)
     result = handler.get_batch_statement_endorsement_stats([statement_hash])
     if not isinstance(result, BatchEndorsementStatsResponse):
         raise_validation_error("Invalid response type", status_code=500)
 
     if not result.stats:
-        raise_validation_error("Statement not found", status_code=404)
+        return SingleEndorsementStatsResponse(total=0, active=0, withdrawn=0)
 
-    # Convert batch response to single response
     stat = result.stats[0]
     return SingleEndorsementStatsResponse(
         total=stat.total, active=stat.active, withdrawn=stat.withdrawn

@@ -265,7 +265,10 @@ class EndorsementHandler(Handler):
         self, statement_hashes: list[int]
     ) -> BatchEndorsementStatsResponse:
         """Get endorsement statistics for multiple statements."""
-        # Validate statement hashes exist (basic validation)
+        from models.data.rest_api.v1.entitybase.response import (
+            StatementEndorsementStats,
+        )
+
         for statement_hash in statement_hashes:
             if statement_hash <= 0:
                 raise_validation_error("Invalid statement hash", status_code=400)
@@ -278,4 +281,13 @@ class EndorsementHandler(Handler):
                 result.error or "Failed to get endorsement stats", status_code=500
             )
 
-        return BatchEndorsementStatsResponse(stats=result.data)
+        stats_list = [
+            StatementEndorsementStats(
+                total=item["total_endorsements"],
+                active=item["active_endorsements"],
+                withdrawn=item["withdrawn_endorsements"],
+            )
+            for item in result.data
+        ]
+
+        return BatchEndorsementStatsResponse(stats=stats_list)

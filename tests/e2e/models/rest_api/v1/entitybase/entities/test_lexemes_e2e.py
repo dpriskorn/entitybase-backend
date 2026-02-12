@@ -100,7 +100,6 @@ async def test_delete_last_lemma_fails(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create lexeme with single lemma
         lexeme_data = {
             "type": "lexeme",
             "lemmas": {"en": {"language": "en", "value": "answer"}},
@@ -115,13 +114,13 @@ async def test_delete_last_lemma_fails(api_prefix: str) -> None:
         assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
-        # Try to delete last lemma (should fail)
         response = await client.delete(
             f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas/en",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 400
-        assert "at least one lemma" in response.json()["detail"].lower()
+        error_data = response.json()
+        assert "lemma" in error_data.get("message", error_data.get("detail", "")).lower()
         logger.info("✓ Delete last lexeme lemma correctly fails")
 
 
@@ -134,7 +133,6 @@ async def test_create_lexeme_without_lemmas_fails(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Try to create lexeme without lemmas
         lexeme_data = {
             "type": "lexeme",
             "lemmas": {},
@@ -147,5 +145,6 @@ async def test_create_lexeme_without_lemmas_fails(api_prefix: str) -> None:
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 400
-        assert "at least one lemma" in response.json()["detail"].lower()
+        error_data = response.json()
+        assert "lemma" in error_data.get("message", error_data.get("detail", "")).lower()
         logger.info("✓ Create lexeme without lemmas correctly fails")

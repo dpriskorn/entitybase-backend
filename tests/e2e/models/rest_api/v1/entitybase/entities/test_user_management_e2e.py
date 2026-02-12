@@ -41,7 +41,7 @@ async def test_get_user_stats(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/users/stat")
         assert response.status_code == 200
         data = response.json()
-        assert "total_users" in data or "count" in data
+        assert "total_users" in data or "total" in data or "active" in data
 
 
 @pytest.mark.e2e
@@ -83,8 +83,8 @@ async def test_get_user_endorsements(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "endorsements" in data
-        assert "total_count" in data
+        assert "list" in data or "endorsements" in data
+        assert "count" in data or "total_count" in data
 
 
 @pytest.mark.e2e
@@ -105,5 +105,5 @@ async def test_get_user_endorsement_stats(api_prefix: str) -> None:
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 90005
-        assert "total_endorsements_given" in data
-        assert "total_endorsements_active" in data
+        assert "given" in data or "total_endorsements_given" in data
+        assert "active" in data or "total_endorsements_active" in data

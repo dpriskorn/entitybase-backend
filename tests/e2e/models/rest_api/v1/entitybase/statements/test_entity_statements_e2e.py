@@ -30,7 +30,10 @@ async def test_remove_statement(api_prefix: str, sample_item_with_statements) ->
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert response.status_code == 200
         data = response.json()
-        statement_hash = data["statements"][0]
+        revision = data.get("data", {}).get("revision", data)
+        statements = revision.get("statements", revision.get("hashes", {}).get("statements", []))
+        statement_hash = statements[0] if statements else None
+        assert statement_hash is not None, "No statements found"
 
         # Remove statement
         response = await client.delete(
@@ -43,7 +46,9 @@ async def test_remove_statement(api_prefix: str, sample_item_with_statements) ->
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert response.status_code == 200
         data = response.json()
-        assert statement_hash not in data["statements"] or len(data["statements"]) == 0
+        revision = data.get("data", {}).get("revision", data)
+        statements = revision.get("statements", revision.get("hashes", {}).get("statements", []))
+        assert statement_hash not in statements or len(statements) == 0
 
 
 @pytest.mark.e2e
@@ -68,7 +73,10 @@ async def test_replace_statement(api_prefix: str, sample_item_with_statements) -
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert response.status_code == 200
         data = response.json()
-        original_hash = data["statements"][0]
+        revision = data.get("data", {}).get("revision", data)
+        statements = revision.get("statements", revision.get("hashes", {}).get("statements", []))
+        original_hash = statements[0] if statements else None
+        assert original_hash is not None, "No statements found"
 
         # Replace statement
         new_claim_data = {
@@ -87,5 +95,6 @@ async def test_replace_statement(api_prefix: str, sample_item_with_statements) -
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert response.status_code == 200
         data = response.json()
-        # Statement hash should be different after update
-        assert original_hash not in data["statements"] or len(data["statements"]) > 0
+        revision = data.get("data", {}).get("revision", data)
+        statements = revision.get("statements", revision.get("hashes", {}).get("statements", []))
+        assert original_hash not in statements or len(statements) > 0

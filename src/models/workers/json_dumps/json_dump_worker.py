@@ -351,9 +351,9 @@ class JsonDumpWorker(Worker):
         target_time = time(hour, minute, 0)
 
         if now.time() < target_time:
-            next_run = datetime.combine(now.date(), target_time)
+            next_run = datetime.combine(now.date(), target_time, tzinfo=timezone.utc)
         else:
-            next_run = datetime.combine(now.date() + timedelta(days=1), target_time)
+            next_run = datetime.combine(now.date() + timedelta(days=1), target_time, tzinfo=timezone.utc)
 
         seconds_until = (next_run - now).total_seconds()
         return max(seconds_until, 0)

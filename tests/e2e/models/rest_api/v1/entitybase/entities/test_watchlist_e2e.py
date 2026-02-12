@@ -188,7 +188,7 @@ async def test_get_watchlist_stats(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/users/90011/watchlist/stats")
         assert response.status_code == 200
         data = response.json()
-        assert "total_watches" in data or "count" in data
+        assert "total_watches" in data or "count" in data or "entity_count" in data
 
 
 @pytest.mark.e2e

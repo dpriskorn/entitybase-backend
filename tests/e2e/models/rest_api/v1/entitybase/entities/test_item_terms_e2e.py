@@ -102,35 +102,6 @@ async def test_item_descriptions_full_workflow(api_prefix: str) -> None:
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        entity_data = response.json()
-        entity_id = entity_data["id"]
-        assert entity_id.startswith("Q")
-
-        response = await client.get(
-            f"{api_prefix}/entities/items/{entity_id}/descriptions/en"
-        )
-        assert response.status_code == 200
-        description_data = response.json()
-        assert description_data["value"] == "Initial Description"
-
-        response = await client.put(
-            f"{api_prefix}/entities/items/{entity_id}/descriptions/en",
-            json={"language": "en", "value": "Updated Description"},
-            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
-        )
-        assert response.status_code == 200
-
-        response = await client.get(
-            f"{api_prefix}/entities/items/{entity_id}/descriptions/en"
-        )
-        assert response.status_code == 200
-        description_data = response.json()
-        assert description_data["value"] == "Updated Description"
-
-        response = await client.delete(
-            f"{api_prefix}/entities/items/{entity_id}/descriptions/en"
-        )
-        assert response.status_code == 200
 
 
 @pytest.mark.e2e

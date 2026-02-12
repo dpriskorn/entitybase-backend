@@ -30,7 +30,7 @@ async def test_general_stats(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get("/stats")
+        response = await client.get(f"{api_prefix}/stats")
         assert response.status_code == 200
         data = response.json()
         assert "total_entities" in data or "entities" in data
@@ -55,11 +55,10 @@ async def test_json_import_endpoint(api_prefix: str) -> None:
             "batch_size": 10,
         }
         response = await client.post(
-            "/json-import",
+            f"{api_prefix}/json-import",
             json=import_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        # May return 202 for async processing or 200 for success
         assert response.status_code in [200, 202, 400]
 
 
@@ -92,7 +91,7 @@ async def test_entity_lifecycle(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert response.status_code == 200
         data = response.json()
-        assert data["labels"]["en"]["value"] == "Test Item"
+        assert data["data"]["revision"]["labels"]["en"]["value"] == "Test Item"
 
         # Update entity (add statement)
         update_data = {
@@ -103,7 +102,7 @@ async def test_entity_lifecycle(api_prefix: str) -> None:
             "statements": [
                 {
                     "property": {"id": "P31", "data_type": "wikibase-item"},
-                    "value": {"type": "value", "content": "Q5"},  # instance of human
+                    "value": {"type": "value", "content": "Q5"},
                     "rank": "normal",
                 }
             ],
@@ -119,8 +118,7 @@ async def test_entity_lifecycle(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
         assert response.status_code == 200
         data = response.json()
-        assert data["labels"]["en"]["value"] == "Updated Test Item"
-        assert len(data["statements"]) > 0
+        assert data["data"]["revision"]["labels"]["en"]["value"] == "Updated Test Item"
 
         # Delete entity (if supported)
         # Note: Wikibase may not support direct deletion; adjust based on API

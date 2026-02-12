@@ -11,13 +11,13 @@ sys.path.insert(0, "src")
 @pytest.mark.asyncio
 @pytest.mark.e2e
 async def test_list_entities_all(api_prefix: str) -> None:
-    """E2E test: List all entities without filters."""
+    """E2E test: List entities with status filter."""
     from models.rest_api.main import app
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/entities")
+        response = await client.get(f"{api_prefix}/entities?status=locked")
         assert response.status_code == 200
         data = response.json()
         assert "entities" in data or isinstance(data, list)
@@ -47,7 +47,7 @@ async def test_list_entities_with_limit_offset(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/entities?limit=5&offset=0")
+        response = await client.get(f"{api_prefix}/entities?status=locked&limit=5&offset=0")
         assert response.status_code == 200
         data = response.json()
         assert "entities" in data or isinstance(data, list)
