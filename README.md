@@ -35,15 +35,19 @@ The Entitybase Backend implements a microservices architecture designed for bill
          │                       │                       │                       │
          └───────────────────────┼───────────────────────┼───────────────────────┘
                                  │                       │
-                    ┌─────────────────────┐    ┌─────────────────────┐
-                    │                     │    │                     │
-                    │   Storage Stack     │    │   S3 Buckets        │
-                    │                     │    │                     │
-                    │ • S3 (immutable     │    │ • terms (metadata)  │
-                    │   snapshots)       │    │ • statements (dedup)│
-                    │ • Vitess (indexing)│    │ • revisions (data)  │
-                    │ • Event streaming  │    │ • dumps (exports)   │
-                    └─────────────────────┘    └─────────────────────┘
+                     ┌─────────────────────┐    ┌─────────────────────┐
+                     │                     │    │                     │
+                     │   Storage Stack     │    │   S3 Buckets        │
+                     │                     │    │                     │
+                     │ • S3 (immutable     │    │ • terms (metadata)  │
+                     │   snapshots)       │    │ • statements (dedup)│
+                     │ • Vitess (indexing)│    │ • references        │
+                     │ • Event streaming  │    │ • qualifiers        │
+                     │                     │    │ • revisions (data)  │
+                     │                     │    │ • sitelinks         │
+                     │                     │    │ • snaks             │
+                     │                     │    │ • wikibase-dumps    │
+                     └─────────────────────┘    └─────────────────────┘
 ```
 
 ### Service Components
@@ -127,7 +131,7 @@ The Entitybase Backend implements a microservices architecture designed for bill
 - **Health Monitoring**: Bucket accessibility and status reporting
 
 **Key Features**:
-- Four specialized buckets (terms, statements, revisions, dumps)
+- Eight specialized buckets (terms, statements, references, qualifiers, revisions, sitelinks, snaks, wikibase-dumps)
 - Idempotent setup operations
 - Development workflow integration
 - Incremental change streaming for real-time RDF updates
@@ -156,33 +160,18 @@ docker-compose up -d
 # Vitess admin at http://localhost:15100
 ```
 
-### Development Setup
-
-```bash
-# Install dependencies
-poetry install
-
-# Setup MinIO buckets (requires MinIO running)
-./scripts/setup/minio_buckets.sh
-
-# Alternative: Use the dev worker CLI
-cd src && python -m models.workers.dev setup
-
-# Run tests
-poetry run pytest
-
-# Start development server
-poetry run uvicorn src.models.rest_api.main:app --reload
-```
-
 #### MinIO Bucket Setup
 
-The system uses four S3-compatible buckets for different data types:
+The system uses eight S3-compatible buckets for different data types:
 
 - **`terms`**: Stores entity metadata (labels, descriptions, aliases)
 - **`statements`**: Stores statement content with deduplication
+- **`references`**: Stores reference data
+- **`qualifiers`**: Stores qualifier data
 - **`revisions`**: Stores revision data and metadata
-- **`dumps`**: Stores entity export dumps
+- **`sitelinks`**: Stores sitelink data
+- **`snaks`**: Stores snak data
+- **`wikibase-dumps`**: Stores entity export dumps
 
 Use either the setup script or dev worker CLI to create these buckets automatically.
 
