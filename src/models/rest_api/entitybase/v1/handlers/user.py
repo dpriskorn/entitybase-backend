@@ -148,6 +148,24 @@ class UserHandler(Handler):
 
                 service = GeneralStatsService(state=self.state)
                 stats = service.compute_daily_stats()
+                terms_per_lang = (
+                    stats.terms_per_language
+                    if isinstance(stats.terms_per_language, TermsPerLanguage)
+                    else TermsPerLanguage(
+                        terms=stats.terms_per_language
+                        if isinstance(stats.terms_per_language, dict)
+                        else {}
+                    )
+                )
+                terms_by_t = (
+                    stats.terms_by_type
+                    if isinstance(stats.terms_by_type, TermsByType)
+                    else TermsByType(
+                        counts=stats.terms_by_type
+                        if isinstance(stats.terms_by_type, dict)
+                        else {}
+                    )
+                )
                 return GeneralStatsResponse(
                     date="live",
                     total_statements=stats.total_statements,
@@ -158,16 +176,8 @@ class UserHandler(Handler):
                     total_properties=stats.total_properties,
                     total_sitelinks=stats.total_sitelinks,
                     total_terms=stats.total_terms,
-                    terms_per_language=TermsPerLanguage(
-                        terms=stats.terms_per_language.terms
-                        if hasattr(stats.terms_per_language, "terms")
-                        else stats.terms_per_language
-                    ),
-                    terms_by_type=TermsByType(
-                        counts=stats.terms_by_type.counts
-                        if hasattr(stats.terms_by_type, "counts")
-                        else stats.terms_by_type
-                    ),
+                    terms_per_language=terms_per_lang,
+                    terms_by_type=terms_by_t,
                 )
         finally:
             cursor.close()

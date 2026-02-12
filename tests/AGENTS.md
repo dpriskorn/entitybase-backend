@@ -134,3 +134,44 @@ Best Practices:
 - Document mock usage patterns in test files
 
 This document provides a comprehensive overview of the test suite structure and testing patterns for the Wikibase Backend project.
+
+7. Hash Resolution in Tests
+
+The API uses content hashes (integers) to reference labels, descriptions, aliases,
+statements, sitelinks, qualifiers, references, snaks, glosses, and representations.
+
+- **Entity IDs** (e.g., `Q123`, `P456`) are range-based, not hashes
+- **POST/PUT/PATCH/DELETE endpoints**: Responses contain content hashes (integers)
+- **GET endpoints**: Send hashes to retrieve resolved content
+
+**Schema Reference:** [`schemas/entitybase/entity/2.0.0/schema.yaml`](../schemas/entitybase/entity/2.0.0/schema.yaml)
+
+**Example - Creating an entity and resolving hashes:**
+```python
+@pytest.mark.asyncio
+async def test_hash_resolution() -> None:
+    from models.rest_api.main import app
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        # POST returns entity with hash references
+        response = await client.post(
+            "/v1/entitybase/entities/items",
+            json={"type": "item", "labels": {"en": {"value": "Test"}}},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
+        entity = response.json()
+        entity_id = entity["id"]  # Range-based ID like "Q123"
+        label_hash = entity["data"]["labels"]["en"]  # Integer hash like 123456789
+        statement_hashes = entity["data"]["statements"]["hashes"]  # Array of integers
+
+        # GET resolves label hash to actual text
+        response = await client.get(f"/v1/entitybase/entities/labels/{label_hash}")
+        label = response.json()  # {"language": "en", "value": "Test"}
+
+        # GET resolves statement hash to full statement content
+        if statement_hashes:
+            response = await client.get(
+                f"/v1/entitybase/statements/{statement_hashes[0]}"
+            )
+            statement = response.json()  # Full statement data
+```

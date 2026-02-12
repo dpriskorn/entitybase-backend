@@ -37,8 +37,8 @@ async def test_weekly_dump_full_workflow_e2e(api_prefix: str) -> None:
             json=L42_data,
             headers=headers,
         )
-        assert response.status_code == 200
-        logger.info("Created L42 entity")
+        assert response.status_code in [200, 409]
+        logger.info("Created L42 entity (or already exists)")
 
         Q42_data = {
             "id": "Q42",
@@ -53,8 +53,8 @@ async def test_weekly_dump_full_workflow_e2e(api_prefix: str) -> None:
             json=Q42_data,
             headers=headers,
         )
-        assert response.status_code == 200
-        logger.info("Created Q42 entity")
+        assert response.status_code in [200, 409]
+        logger.info("Created Q42 entity (or already exists)")
 
         P31_data = {
             "id": "P31",
@@ -67,8 +67,8 @@ async def test_weekly_dump_full_workflow_e2e(api_prefix: str) -> None:
             json=P31_data,
             headers=headers,
         )
-        assert response.status_code == 200
-        logger.info("Created P31 entity")
+        assert response.status_code in [200, 409]
+        logger.info("Created P31 entity (or already exists)")
 
     logger.info("Entities created, running dump worker...")
 

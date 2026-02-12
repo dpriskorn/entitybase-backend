@@ -1,5 +1,6 @@
 import pytest
 import sys
+import time
 
 from httpx import ASGITransport, AsyncClient
 
@@ -15,11 +16,12 @@ async def test_user_workflow(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Register user (assuming API supports)
-        user_data = {"user_id": 90001}
+        # Use unique user ID to avoid conflicts with previous test runs
+        unique_user_id = int(time.time() * 1000) % 100000000
+        user_data = {"user_id": unique_user_id}
         response = await client.post(f"{api_prefix}/users", json=user_data)
         if response.status_code == 200:  # If registration succeeds
-            user_id = 90001
+            user_id = unique_user_id
 
             # Create entity to watch
             entity_data = {
