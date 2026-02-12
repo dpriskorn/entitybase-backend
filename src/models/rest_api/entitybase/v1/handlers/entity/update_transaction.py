@@ -197,6 +197,103 @@ class UpdateTransaction(EntityTransaction):
             state=EntityState(),
         )
 
+    async def create_revision_with_hashes(
+        self,
+        entity_id: str,
+        entity_type: Any,
+        edit_headers: EditHeaders,
+        existing_hashes: dict[str, Any],
+        existing_revision: dict[str, Any],
+    ) -> EntityResponse:
+        """Create revision with pre-computed hashes (for single-term updates).
+
+        Used by add_alias to avoid re-hashing all terms.
+        """
+        from models.data.infrastructure.s3.enums import EditType, EditData
+        from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+        from models.data.infrastructure.s3.hashes.statements_hashes import (
+            StatementsHashes,
+        )
+        from models.data.infrastructure.s3.hashes.labels_hashes import LabelsHashes
+        from models.data.infrastructure.s3.hashes.descriptions_hashes import (
+            DescriptionsHashes,
+        )
+        from models.data.infrastructure.s3.hashes.aliases_hashes import AliasesHashes
+        from models.data.infrastructure.s3.hashes.sitelinks_hashes import SitelinkHashes
+        from models.infrastructure.s3.revision.revision_data import RevisionData
+        from models.data.infrastructure.s3.revision_data import S3RevisionData
+        from models.config.settings import settings
+        from models.internal_representation.metadata_extractor import MetadataExtractor
+        import json
+
+        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        new_revision_id = head_revision_id + 1 if head_revision_id else 1
+
+        created_at = datetime.now(timezone.utc).isoformat()
+
+        labels_data = existing_hashes.get("labels", {})
+        descriptions_data = existing_hashes.get("descriptions", {})
+        aliases_data = existing_hashes.get("aliases", {})
+        sitelinks_data = existing_hashes.get("sitelinks", {})
+        statements_data = existing_hashes.get("statements", {})
+
+        revision_data = RevisionData(
+            revision_id=new_revision_id,
+            entity_type=entity_type,
+            properties=existing_revision.get("properties", []),
+            property_counts=existing_revision.get("property_counts"),
+            hashes=HashMaps(
+                statements=StatementsHashes(root=statements_data),
+                sitelinks=SitelinkHashes(root=sitelinks_data),
+                labels=LabelsHashes(root=labels_data),
+                descriptions=DescriptionsHashes(root=descriptions_data),
+                aliases=AliasesHashes(root=aliases_data),
+            ),
+            edit=EditData(
+                mass=False,
+                type=EditType.UNSPECIFIED,
+                user_id=edit_headers.x_user_id,
+                summary=edit_headers.x_edit_summary,
+                at=created_at,
+            ),
+            state=EntityState(),
+            schema_version=settings.s3_schema_revision_version,
+            lemmas=existing_revision.get("lemmas", {}),
+            forms=existing_revision.get("forms", []),
+            senses=existing_revision.get("senses", []),
+        )
+
+        revision_dict = revision_data.model_dump(mode="json")
+        revision_json = json.dumps(revision_dict, sort_keys=True)
+        content_hash = MetadataExtractor.hash_string(revision_json)
+
+        self.state.vitess_client.create_revision(
+            entity_id=entity_id,
+            entity_data=revision_data,
+            revision_id=new_revision_id,
+            content_hash=content_hash,
+        )
+
+        s3_revision_data = S3RevisionData(
+            schema=settings.s3_schema_revision_version,
+            revision=revision_dict,
+            hash=content_hash,
+            created_at=created_at,
+        )
+
+        self.state.s3_client.store_revision(content_hash, s3_revision_data)
+
+        self.operations.append(
+            lambda: self._rollback_revision(entity_id, new_revision_id)
+        )
+
+        return EntityResponse(
+            id=entity_id,
+            rev_id=new_revision_id,
+            data=s3_revision_data,
+            state=EntityState(),
+        )
+
     def publish_event(
         self,
         event_context: EventPublishContext,

@@ -25,7 +25,7 @@ router = APIRouter()
 async def get_entity_label(
     entity_id: str, language_code: str, req: Request
 ) -> LabelResponse:
-    """Get entity label hash for language."""
+    """Get entity label text for language."""
     logger.info(f"Getting label for entity {entity_id}, language {language_code}")
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
@@ -37,7 +37,13 @@ async def get_entity_label(
             status_code=404, detail=f"Label not found for language {language_code}"
         )
 
-    return LabelResponse(value=labels_hashes[language_code])
+    hash_value = int(labels_hashes[language_code])
+    label_text = state.s3_client.load_metadata("labels", hash_value)
+    if label_text is None:
+        raise HTTPException(
+            status_code=404, detail=f"Label not found for hash {hash_value}"
+        )
+    return LabelResponse(value=str(label_text.data))
 
 
 @router.put("/entities/{entity_id}/labels/{language_code}")

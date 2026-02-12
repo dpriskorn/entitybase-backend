@@ -110,12 +110,6 @@ class MyS3Client(Client):
     read_full_revision = read_revision
     write_entity_revision = write_revision
 
-    def mark_published(
-        self, entity_id: str, revision_id: int, publication_state: str
-    ) -> None:
-        """Update the publication state of an entity revision."""
-        self.revisions.mark_published(entity_id, revision_id, publication_state)
-
     def delete_statement(self, content_hash: int) -> None:
         """Delete statement from S3."""
         result = self.statements.delete_statement(content_hash)

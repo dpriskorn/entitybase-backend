@@ -24,7 +24,7 @@ router = APIRouter()
 async def get_entity_aliases(
     entity_id: str, language_code: str, req: Request
 ) -> list[str]:
-    """Get entity alias hashes for language."""
+    """Get entity alias texts for language."""
     logger.info(f"Getting aliases for entity {entity_id}, language {language_code}")
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
@@ -36,7 +36,12 @@ async def get_entity_aliases(
             status_code=404, detail=f"Aliases not found for language {language_code}"
         )
 
-    return aliases_hashes[language_code]
+    alias_texts = []
+    for hash_value in aliases_hashes[language_code]:
+        alias_data = state.s3_client.load_metadata("labels", int(hash_value))
+        if alias_data and alias_data.data:
+            alias_texts.append(str(alias_data.data))
+    return alias_texts
 
 
 @router.put("/entities/{entity_id}/aliases/{language_code}")

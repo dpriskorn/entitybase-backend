@@ -25,7 +25,7 @@ router = APIRouter()
 async def get_entity_description(
     entity_id: str, language_code: str, req: Request
 ) -> DescriptionResponse:
-    """Get entity description hash for language."""
+    """Get entity description text for language."""
     logger.info(
         f"Getting description for entity {entity_id}, language {language_code}"
     )
@@ -42,7 +42,13 @@ async def get_entity_description(
             detail=f"Description not found for language {language_code}",
         )
 
-    return DescriptionResponse(value=descriptions_hashes[language_code])
+    hash_value = int(descriptions_hashes[language_code])
+    description_text = state.s3_client.load_metadata("descriptions", hash_value)
+    if description_text is None:
+        raise HTTPException(
+            status_code=404, detail=f"Description not found for hash {hash_value}"
+        )
+    return DescriptionResponse(value=str(description_text.data))
 
 
 @router.put("/entities/{entity_id}/descriptions/{language_code}")

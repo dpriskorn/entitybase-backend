@@ -118,12 +118,6 @@ class RedirectService(Service):
             redirects_to_entity_id=request.redirect_to_id,
         )
 
-        self.state.s3_client.mark_published(
-            entity_id=request.redirect_from_id,
-            revision_id=redirect_revision_id,
-            publication_state="published",
-        )
-
         if self.state.entity_change_stream_producer:
             event = EntityChangeEvent(
                 id=request.redirect_from_id,
@@ -131,6 +125,7 @@ class RedirectService(Service):
                 type=ChangeType.REDIRECT,
                 from_rev=from_head_revision_id if from_head_revision_id else None,
                 at=datetime.now(timezone.utc),
+                user=str(edit_headers.x_user_id),
                 summary=edit_headers.x_edit_summary,
             )
             await self.state.entity_change_stream_producer.publish_event(event)
