@@ -151,7 +151,7 @@ class PreparedRequestData(BaseModel):
     sitelinks: Dict[str, Any] = Field(default_factory=dict)
     forms: List[Dict[str, Any]] = Field(default_factory=list)
     senses: List[Dict[str, Any]] = Field(default_factory=list)
-    lemmas: Dict[str, Dict[str, str]] = Field(default_factory=dict)
+    lemmas: Dict[str, Any] = Field(default_factory=dict)
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     edit_type: EditType = Field(
         default=EditType.UNSPECIFIED,

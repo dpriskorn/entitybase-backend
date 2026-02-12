@@ -70,15 +70,25 @@ class WatchlistRepository(Repository):
     def remove_watch(
         self, user_id: int, entity_id: str, properties: List[str] | None
     ) -> None:
-        """Remove a watchlist entry."""
-        internal_entity_id = self.vitess_client.id_resolver.resolve_id(entity_id)
-        properties_json = ",".join(properties) if properties else ""
+        """Remove a watchlist entry.
 
-        with self.vitess_client.cursor as cursor:
-            cursor.execute(
-                "DELETE FROM watchlist WHERE user_id = %s AND internal_entity_id = %s AND watched_properties = %s",
-                (user_id, internal_entity_id, properties_json),
-            )
+        If properties is None, removes all watches for the entity.
+        If properties is specified, removes only the exact match.
+        """
+        with self._get_conn() as _:
+            with self.vitess_client.cursor as cursor:
+                internal_entity_id = self.vitess_client.id_resolver.resolve_id(entity_id)
+                if properties is None:
+                    cursor.execute(
+                        "DELETE FROM watchlist WHERE user_id = %s AND internal_entity_id = %s",
+                        (user_id, internal_entity_id),
+                    )
+                else:
+                    properties_json = ",".join(properties)
+                    cursor.execute(
+                        "DELETE FROM watchlist WHERE user_id = %s AND internal_entity_id = %s AND watched_properties = %s",
+                        (user_id, internal_entity_id, properties_json),
+                    )
 
     def remove_watch_by_id(self, watch_id: int) -> OperationResult:
         """Remove a watchlist entry by ID."""

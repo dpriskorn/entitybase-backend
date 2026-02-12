@@ -129,8 +129,8 @@ class EndorsementRepository(Repository):
                 # Get total count
                 cursor.execute(
                     f"""
-                    SELECT COUNT(*) FROM user_statement_endorsements
-                    WHERE statement_hash = %s{removed_condition}
+                    SELECT COUNT(*) FROM user_statement_endorsements e
+                    WHERE e.statement_hash = %s{removed_condition}
                     """,
                     (statement_hash,),
                 )
