@@ -1,6 +1,7 @@
 """Revision data model."""
 
 from datetime import timezone, datetime
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -36,3 +37,15 @@ class RevisionData(BaseModel):
     state: EntityState = Field(default=EntityState())
     property_counts: PropertyCounts | None = Field(default=None)
     properties: list[str] = Field(default_factory=list)
+    lemmas: dict[str, Any] = Field(
+        default_factory=dict,
+        description="Lexeme lemmas with language keys. E.g. {'en': {'language': 'en', 'value': 'test'}}"
+    )
+    forms: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description="Lexeme forms data."
+    )
+    senses: list[dict[str, Any]] = Field(
+        default_factory=list,
+        description="Lexeme senses data."
+    )

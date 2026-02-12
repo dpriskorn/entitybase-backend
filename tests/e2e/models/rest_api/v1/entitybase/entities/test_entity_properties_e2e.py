@@ -57,9 +57,13 @@ async def test_add_property_to_entity(api_prefix: str, sample_item_data) -> None
 
         # Add property claim
         claim_data = {
-            "property": {"id": "P31", "data_type": "wikibase-item"},
-            "value": {"type": "value", "content": "Q5"},
-            "rank": "normal",
+            "claims": [
+                {
+                    "property": {"id": "P31", "data_type": "wikibase-item"},
+                    "value": {"type": "value", "content": "Q5"},
+                    "rank": "normal",
+                }
+            ]
         }
         response = await client.post(
             f"{api_prefix}/entities/{entity_id}/properties/P31",

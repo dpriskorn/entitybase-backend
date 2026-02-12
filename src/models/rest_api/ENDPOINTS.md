@@ -37,8 +37,11 @@
 | ✅ | POST | `/entities/{entity_id}/sitelinks/{site}` | Add a new sitelink for an entity. |
 | ✅ | PUT | `/entities/{entity_id}/sitelinks/{site}` | Update an existing sitelink for an entity. |
 | ✅ | DELETE | `/entities/{entity_id}/sitelinks/{site}` | Delete a sitelink from an entity. |
+| ✅ | POST | `/entities/{entity_id}/statements` | Add a statement to an entity. |
 | ✅ | DELETE | `/entities/{entity_id}/statements/{statement_hash}` | Remove a statement by hash from an entity. |
 | ✅ | PATCH | `/entities/{entity_id}/statements/{statement_hash}` | Replace a statement by hash with new claim data. |
+| ✅ | POST | `/entities/lexemes/forms/{form_id}/statements` | Add a statement to a lexeme form. |
+| ✅ | POST | `/entities/lexemes/senses/{sense_id}/statements` | Add a statement to a lexeme sense. |
 | ✅ | GET | `/entity/{entity_id}/properties/{property_list}` | Get statement hashes for specified properties in an entity. |
 | ✅ | GET | `/entitybase/v1/entities/aliases/{hashes}` | Get batch aliases by hashes. |
 | ✅ | GET | `/entitybase/v1/entities/descriptions/{hashes}` | Get batch descriptions by hashes. |
@@ -100,6 +103,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 95 |
+| Implemented | 98 |
 | Not Implemented | 0 |
-| Total | 95 |
+| Total | 98 |

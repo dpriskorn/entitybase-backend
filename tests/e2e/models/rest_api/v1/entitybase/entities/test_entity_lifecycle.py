@@ -93,23 +93,10 @@ async def test_entity_lifecycle(api_prefix: str) -> None:
         data = response.json()
         assert data["data"]["revision"]["labels"]["en"]["value"] == "Test Item"
 
-        # Update entity (add statement)
-        update_data = {
-            "id": entity_id,
-            "type": "item",
-            "labels": {"en": {"language": "en", "value": "Updated Test Item"}},
-            "descriptions": {"en": {"language": "en", "value": "Updated E2E test item"}},
-            "statements": [
-                {
-                    "property": {"id": "P31", "data_type": "wikibase-item"},
-                    "value": {"type": "value", "content": "Q5"},
-                    "rank": "normal",
-                }
-            ],
-        }
+        # Update entity label using atomic endpoint
         response = await client.put(
-            f"{api_prefix}/entities/{entity_id}",
-            json=update_data,
+            f"{api_prefix}/entities/items/{entity_id}/labels/en",
+            json={"language": "en", "value": "Updated Test Item"},
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200

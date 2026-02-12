@@ -23,6 +23,7 @@ from .entity.term_update import (
     TermUpdateRequest,
 )
 from .entity.add_property import AddPropertyRequest
+from .entity.add_statement import AddStatementRequest
 from .entity.patch import (
     AliasPatchRequest,
     BasePatchRequest,
@@ -53,6 +54,7 @@ from .user_preferences import UserPreferencesRequest
 
 __all__ = [
     "AddPropertyRequest",
+    "AddStatementRequest",
     "AliasPatchRequest",
     "BasePatchRequest",
     "ClaimPatchRequest",

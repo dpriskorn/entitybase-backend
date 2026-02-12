@@ -72,7 +72,7 @@ class RedirectService(Service):
             entity_type=EntityType.ITEM,
             edit=EditData(
                 type=EditType.REDIRECT_CREATE,
-                at="",
+                at=datetime.now(timezone.utc).isoformat(),
                 summary=edit_headers.x_edit_summary,
                 user_id=edit_headers.x_user_id,
             ),

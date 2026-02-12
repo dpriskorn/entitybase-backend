@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, Request
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import (
+    AddStatementRequest,
     EntityCreateRequest,
     LexemeUpdateRequest,
     TermUpdateRequest,
@@ -787,6 +788,118 @@ async def delete_sense_gloss(
         raise HTTPException(status_code=404, detail=f"Sense {sense_id} not found")
 
     # Create new revision
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = LexemeUpdateRequest(
+        id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
+    )
+
+    return await update_handler.update_lexeme(
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
+
+
+@router.post(
+    "/entities/lexemes/forms/{form_id}/statements",
+    response_model=EntityResponse,
+)
+async def add_form_statement(
+    form_id: str,
+    request: AddStatementRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
+    """Add a statement to a form."""
+    logger.debug(f"Adding statement to form {form_id}")
+    lexeme_id, form_suffix = _parse_form_id(form_id)
+
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(lexeme_id)
+
+    forms_data = current_entity.entity_data.revision.get("forms", [])
+    form_found = False
+    for form in forms_data:
+        if form["id"] == form_id:
+            form_found = True
+            if "claims" not in form:
+                form["claims"] = {}
+            claim = request.claim
+            property_id = claim.get("property", {}).get("id") or claim.get("mainsnak", {}).get("property")
+            if not property_id:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Statement must have a property ID",
+                )
+            if property_id not in form["claims"]:
+                form["claims"][property_id] = []
+            form["claims"][property_id].append(claim)
+            logger.debug(f"Added statement to form {form_id}")
+            break
+
+    if not form_found:
+        raise HTTPException(status_code=404, detail=f"Form {form_id} not found")
+
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = LexemeUpdateRequest(
+        id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
+    )
+
+    return await update_handler.update_lexeme(
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
+
+
+@router.post(
+    "/entities/lexemes/senses/{sense_id}/statements",
+    response_model=EntityResponse,
+)
+async def add_sense_statement(
+    sense_id: str,
+    request: AddStatementRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
+    """Add a statement to a sense."""
+    logger.debug(f"Adding statement to sense {sense_id}")
+    lexeme_id, sense_suffix = _parse_sense_id(sense_id)
+
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(lexeme_id)
+
+    senses_data = current_entity.entity_data.revision.get("senses", [])
+    sense_found = False
+    for sense in senses_data:
+        if sense["id"] == sense_id:
+            sense_found = True
+            if "claims" not in sense:
+                sense["claims"] = {}
+            claim = request.claim
+            property_id = claim.get("property", {}).get("id") or claim.get("mainsnak", {}).get("property")
+            if not property_id:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Statement must have a property ID",
+                )
+            if property_id not in sense["claims"]:
+                sense["claims"][property_id] = []
+            sense["claims"][property_id].append(claim)
+            logger.debug(f"Added statement to sense {sense_id}")
+            break
+
+    if not sense_found:
+        raise HTTPException(status_code=404, detail=f"Sense {sense_id} not found")
+
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision

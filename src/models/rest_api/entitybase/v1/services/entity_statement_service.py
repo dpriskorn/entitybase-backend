@@ -9,6 +9,7 @@ from models.data.common import OperationResult
 from models.data.infrastructure.s3.enums import EditType
 from models.data.raw_entity import RawEntityData
 from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
+from models.data.rest_api.v1.entitybase.request import AddStatementRequest
 from models.data.rest_api.v1.entitybase.request import PatchStatementRequest
 from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
@@ -114,7 +115,29 @@ class EntityStatementService(Service):
         )
         return OperationResult(
             success=True,
-            data=RevisionIdResult(revision_id=new_revision_id),
+            data=RevisionIdResult(revision_id=entity_response.rev_id),
+        )
+
+    async def add_statement(
+        self,
+        entity_id: str,
+        request: AddStatementRequest,
+        edit_headers: EditHeaders,
+        validator: Any | None = None,
+    ) -> OperationResult[RevisionIdResult]:
+        """Add a single statement to an entity."""
+        logger.info(f"Entity {entity_id}: Adding single statement")
+        claim = request.claim
+        property_id = claim.get("property", {}).get("id") or claim.get("mainsnak", {}).get("property")
+        if not property_id:
+            raise_validation_error("Statement must have a property ID", status_code=400)
+        
+        self._validate_property_id(property_id)
+        self._validate_property_exists(property_id)
+        
+        add_property_request = AddPropertyRequest(claims=[claim])
+        return await self.add_property(
+            entity_id, property_id, add_property_request, edit_headers, validator
         )
 
     async def patch_statement(

@@ -6,6 +6,7 @@ from fastapi import APIRouter, Body, Query, Request, Response
 
 from models.data.common import OperationResult
 from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
+from models.data.rest_api.v1.entitybase.request import AddStatementRequest
 from models.data.rest_api.v1.entitybase.request import EntityDeleteRequest
 from models.data.rest_api.v1.entitybase.request import (
     PatchStatementRequest,
@@ -275,6 +276,29 @@ async def add_entity_property(
     handler = EntityStatementService(state=state)
     result = await handler.add_property(
         entity_id, property_id, request, edit_headers=headers
+    )
+    if not isinstance(result, OperationResult):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
+
+
+@router.post(
+    "/entities/{entity_id}/statements",
+    response_model=OperationResult[RevisionIdResult],
+)
+async def add_entity_statement(
+    entity_id: str,
+    request: AddStatementRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> OperationResult[RevisionIdResult]:
+    """Add a single statement to an entity."""
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityStatementService(state=state)
+    result = await handler.add_statement(
+        entity_id, request, edit_headers=headers
     )
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)

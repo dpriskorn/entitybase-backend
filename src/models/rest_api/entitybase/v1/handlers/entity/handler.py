@@ -236,14 +236,17 @@ class EntityHandler(Handler):
                 sitelinks=sitelink_hashes,
             ),
             edit=EditData(
-                mass=False,  # Default for now
+                mass=False,
                 type=ctx.edit_type or EditType.UNSPECIFIED,
-                user_id=0,  # TODO: Get from context
+                user_id=0,
                 summary=ctx.edit_summary,
                 at=created_at,
             ),
             state=entity_state,
             schema_version=settings.s3_schema_revision_version,
+            lemmas=ctx.request_data.get("lemmas", {}),
+            forms=ctx.request_data.get("forms", []),
+            senses=ctx.request_data.get("senses", []),
         )
 
     @staticmethod
