@@ -7,6 +7,14 @@ from typing import NoReturn, Optional
 logger = logging.getLogger(__name__)
 
 
+class ValidationErrorWithStatus(ValueError):
+    """ValidationError with associated HTTP status code."""
+
+    def __init__(self, message: str, status_code: int = 400):
+        super().__init__(message)
+        self.status_code = status_code
+
+
 def raise_validation_error(
     message: str,
     status_code: int = 400,
@@ -36,4 +44,4 @@ def raise_validation_error(
     elif is_prod:
         raise HTTPException(status_code=status_code, detail=message)
     else:
-        raise ValueError(message)
+        raise ValidationErrorWithStatus(message, status_code)

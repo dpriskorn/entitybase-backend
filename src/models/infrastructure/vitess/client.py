@@ -287,3 +287,32 @@ class VitessClient(Client):
     def revert_redirect(self, entity_id: str) -> None:
         """Revert a redirect by clearing the redirect target."""
         self.set_redirect_target(entity_id=entity_id, redirects_to_entity_id="")
+
+    def get_orphaned_statements(
+        self, older_than_days: int, limit: int
+    ) -> list[int]:
+        """Get orphaned statement content hashes.
+
+        Args:
+            older_than_days: Minimum age in days
+            limit: Maximum number of statements to return
+
+        Returns:
+            List of statement content hashes
+        """
+        from models.data.common import OperationResult
+
+        result = self.statement_repository.get_orphaned(
+            older_than_days=older_than_days, limit=limit
+        )
+        if not result.success or result.data is None:
+            return []
+        return cast(list[int], result.data)
+
+    def delete_statement(self, content_hash: int) -> None:
+        """Delete statement content from database.
+
+        Args:
+            content_hash: Hash of the statement to delete
+        """
+        self.statement_repository.delete_content(content_hash=content_hash)

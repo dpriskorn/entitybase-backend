@@ -127,6 +127,7 @@ class TestRevisionCreateReadE2E:
             mock_connection_manager.vitess_client = mock_vitess_client
 
             s3_client = MyS3Client(config=config)
+            s3_client.vitess_client = mock_vitess_client
 
             # Mock revision repository
             mock_revision_repo = MagicMock()
@@ -177,7 +178,9 @@ class TestRevisionCreateReadE2E:
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = (0,)  # revision doesn't exist
-        mock_vitess_client.cursor = mock_cursor
+        mock_vitess_client.cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_vitess_client.cursor.__exit__ = MagicMock(return_value=False)
+        mock_vitess_client.cursor.return_value = mock_cursor
         mock_id_resolver = MagicMock()
         mock_id_resolver.resolve_id.return_value = internal_id
         mock_vitess_client.id_resolver = mock_id_resolver
@@ -206,13 +209,19 @@ class TestRevisionCreateReadE2E:
         # Create revision with content_hash
         repo.create(entity_id, revision_id, revision_data, content_hash=content_hash)
 
-        # Verify INSERT includes content_hash
-        mock_cursor.execute.assert_called_once()
-        call_args = mock_cursor.execute.call_args
-        sql = call_args[0][0]
-        params = call_args[0][1]
+        # Verify INSERT includes content_hash (check the INSERT INTO entity_revisions call)
+        calls = mock_cursor.execute.call_args_list
+        insert_call = None
+        for call in calls:
+            if "INSERT INTO entity_revisions" in call[0][0].lower():
+                insert_call = call
+                break
 
-        assert "content_hash" in sql.upper()
+        assert insert_call is not None, "INSERT INTO entity_revisions not found"
+        sql = insert_call[0][0]
+        params = insert_call[0][1]
+
+        assert "content_hash" in sql.lower()
         assert content_hash in params
 
     @pytest.mark.asyncio
@@ -230,7 +239,9 @@ class TestRevisionCreateReadE2E:
         mock_vitess_client = MagicMock()
         mock_cursor = MagicMock()
         mock_cursor.fetchone.return_value = (content_hash,)
-        mock_vitess_client.cursor = mock_cursor
+        mock_vitess_client.cursor.__enter__ = MagicMock(return_value=mock_cursor)
+        mock_vitess_client.cursor.__exit__ = MagicMock(return_value=False)
+        mock_vitess_client.cursor.return_value = mock_cursor
 
         repo = RevisionRepository(vitess_client=mock_vitess_client)
 
@@ -284,6 +295,7 @@ class TestRevisionCreateReadE2E:
             mock_connection_manager.vitess_client = mock_vitess_client
 
             s3_client = MyS3Client(config=config)
+            s3_client.vitess_client = mock_vitess_client
 
             # Mock S3 revision storage
             mock_revision_storage = MagicMock()

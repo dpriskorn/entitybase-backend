@@ -21,15 +21,12 @@ class PropertyCreateHandler(EntityCreateHandler):
         validator: Any | None = None,
         auto_assign_id: bool = False,
     ) -> EntityResponse:
-        """Create a new property with auto-assigned P ID."""
+        """Create a new property with auto-assigned P ID if not provided."""
         logger.debug("Creating new property")
         response = await super().create_entity(
             request,
             edit_headers,
             validator,
-            auto_assign_id=True,
+            auto_assign_id=not bool(request.id),
         )
-        # Confirm ID usage to worker
-        if request.id and self.enumeration_service:
-            self.enumeration_service.confirm_id_usage(request.id)
         return response

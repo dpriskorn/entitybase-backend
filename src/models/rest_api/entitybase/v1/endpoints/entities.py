@@ -50,6 +50,32 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+@router.get("/entities/{entity_id}.json", response_model=EntityJsonResponse)
+async def get_entity_data_json(entity_id: str, req: Request) -> EntityJsonResponse:
+    """Get entity data in JSON format."""
+    logger.debug(f"get_entity_data_json called with entity_id: {entity_id}")
+    actual_entity_id = entity_id.rsplit(".json", 1)[0]
+    logger.debug(f"Stripped entity_id: {actual_entity_id}")
+    state = req.app.state.state_handler
+    handler = EntityReadHandler(state=state)
+    entity_response = handler.get_entity(actual_entity_id)
+    return EntityJsonResponse(data={"id": actual_entity_id, **entity_response.entity_data.revision})
+
+
+@router.get("/entities/{entity_id}.ttl")
+async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse:
+    """Get entity data in Turtle format."""
+    logger.debug(f"get_entity_data_turtle called with entity_id: {entity_id}")
+    actual_entity_id = entity_id.rsplit(".ttl", 1)[0]
+    logger.debug(f"Stripped entity_id: {actual_entity_id}")
+    state = req.app.state.state_handler
+    handler = ExportHandler(state=state)
+    result = handler.get_entity_data_turtle(actual_entity_id)
+    if not isinstance(result, TurtleResponse):
+        raise_validation_error("Invalid response type", status_code=500)
+    return result
+
+
 @router.get("/entities/{entity_id}", response_model=EntityResponse)
 def get_entity(entity_id: str, req: Request) -> EntityResponse:
     """Retrieve a single entity by its ID."""
@@ -143,28 +169,6 @@ async def get_entity_json_revision(
         )
 
     return EntityJsonResponse(data=revision_data.revision)
-
-
-@router.get("/entities/{entity_id}.ttl")
-async def get_entity_data_turtle(entity_id: str, req: Request) -> TurtleResponse:
-    """Get entity data in Turtle format."""
-    state = req.app.state.state_handler
-    handler = ExportHandler(state=state)
-    result = handler.get_entity_data_turtle(entity_id)
-    if not isinstance(result, TurtleResponse):
-        raise_validation_error("Invalid response type", status_code=500)
-    return result
-
-
-@router.get("/entities/{entity_id}.json", response_model=EntityJsonResponse)
-async def get_entity_data_json(entity_id: str, req: Request) -> EntityJsonResponse:
-    """Get entity data in JSON format."""
-    state = req.app.state.state_handler
-    handler = EntityReadHandler(state=state)
-    entity_response = handler.get_entity(entity_id)
-    if not isinstance(entity_response.entity_data, dict):
-        raise_validation_error("Invalid response type", status_code=500)
-    return EntityJsonResponse(data=entity_response.entity_data)
 
 
 @router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)

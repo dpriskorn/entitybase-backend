@@ -84,15 +84,15 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         state_handler = StateHandler(settings=settings)
         state_handler.start()
         # Create database tables on startup (only if vitess is available)
-        # try:
-        #     logger.debug("Creating database tables...")
-        #     from models.infrastructure.vitess.repositories.schema import SchemaRepository
-        #     schema_repository = SchemaRepository(vitess_client=state_handler.vitess_client)
-        #     schema_repository.create_tables()
-        #     logger.info("Database tables created/verified")
-        # except Exception as e:
-        #     logger.warning(f"Could not create database tables on startup: {e}")
-        #     logger.info("Tables will be created when first accessed or in tests")
+        try:
+            logger.debug("Creating database tables...")
+            from models.infrastructure.vitess.repositories.schema import SchemaRepository
+            schema_repository = SchemaRepository(vitess_client=state_handler.vitess_client)
+            schema_repository.create_tables()
+            logger.info("Database tables created/verified")
+        except Exception as e:
+            logger.warning(f"Could not create database tables on startup: {e}")
+            logger.info("Tables will be created when first accessed or in tests")
 
         logger.info(
             "Clients, validator, and enumeration service initialized successfully"
@@ -173,8 +173,14 @@ async def starlette_http_exception_handler(
 @app.exception_handler(ValueError)
 async def value_error_handler(request: Request, exc: ValueError) -> JSONResponse:
     """Handle ValueError from validation errors in dev mode."""
+    from models.rest_api.utils import ValidationErrorWithStatus
+
+    status_code = 400
+    if isinstance(exc, ValidationErrorWithStatus):
+        status_code = exc.status_code
+
     return JSONResponse(
-        status_code=400,
+        status_code=status_code,
         content={
             "error": "validation_error",
             "message": str(exc),

@@ -45,9 +45,9 @@ async def test_endorsement_full_workflow(api_prefix: str) -> None:
         )
         assert list_response.status_code == 200
         data = list_response.json()
-        assert data["endorsements"] == []
-        assert data["total_count"] == 0
-        assert not data["has_more"]
+        assert data["list"] == []
+        assert data["count"] == 0
+        assert not data["more"]
         assert data["stats"]["total"] == 0
         assert data["stats"]["active"] == 0
         assert data["stats"]["withdrawn"] == 0
@@ -68,8 +68,8 @@ async def test_endorsement_full_workflow(api_prefix: str) -> None:
         )
         assert user_endorsements_response.status_code == 200
         user_data = user_endorsements_response.json()
-        assert user_data["endorsements"] == []
-        assert user_data["total_count"] == 0
+        assert user_data["list"] == []
+        assert user_data["count"] == 0
         assert user_data["stats"]["total"] == 0
 
         # Step 6: Test user endorsement stats
@@ -241,8 +241,8 @@ async def test_statement_endorsements_with_params(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "endorsements" in data
-        assert "total_count" in data
+        assert "list" in data
+        assert "count" in data
 
 
 @pytest.mark.asyncio

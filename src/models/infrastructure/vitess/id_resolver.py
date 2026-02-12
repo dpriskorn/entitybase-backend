@@ -1,6 +1,9 @@
+import logging
 from typing import Any
 
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 
 class IdResolver(BaseModel):
@@ -16,7 +19,9 @@ class IdResolver(BaseModel):
             return result[0] if result else 0
 
     def entity_exists(self, entity_id: str) -> bool:
-        return self.resolve_id(entity_id) != 0
+        result = self.resolve_id(entity_id)
+        logger.debug(f"entity_exists({entity_id}) = {result != 0} (resolved to {result})")
+        return result != 0
 
     def resolve_entity_id(self, internal_id: int) -> str:
         with self.vitess_client.cursor as cursor:
@@ -41,3 +46,4 @@ class IdResolver(BaseModel):
                 "INSERT INTO entity_id_mapping (entity_id, internal_id) VALUES (%s, %s)",
                 (entity_id, internal_id),
             )
+            logger.info(f"Registered entity {entity_id} with internal_id {internal_id}")

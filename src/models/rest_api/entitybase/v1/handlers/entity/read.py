@@ -21,16 +21,20 @@ class EntityReadHandler(Handler):
         entity_id: str,
     ) -> EntityResponse:
         """Get entity by ID."""
+        logger.debug(f"get_entity({entity_id}) called")
         if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
         if self.state.s3_client is None:
             raise_validation_error("S3 not initialized", status_code=503)
 
-        if not self.state.vitess_client.entity_exists(entity_id):
+        entity_exists = self.state.vitess_client.entity_exists(entity_id)
+        logger.debug(f"get_entity({entity_id}): entity_exists = {entity_exists}")
+        if not entity_exists:
             raise_validation_error("Entity not found", status_code=404)
 
         head_revision_id = self.state.vitess_client.get_head(entity_id)
+        logger.debug(f"get_entity({entity_id}): head_revision_id = {head_revision_id}")
         if head_revision_id == 0:
             raise_validation_error("Entity not found", status_code=404)
 

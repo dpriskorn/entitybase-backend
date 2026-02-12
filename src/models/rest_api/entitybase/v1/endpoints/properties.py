@@ -1,7 +1,7 @@
 """Property endpoints for Entitybase v1 API."""
 
 import logging
-from typing import List
+from typing import Any, List
 
 from fastapi import APIRouter, HTTPException, Request
 
@@ -18,10 +18,65 @@ from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.entitybase.v1.handlers.entity.property import PropertyCreateHandler
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
+from models.rest_api.entitybase.v1.handlers.state import StateHandler
+from models.infrastructure.vitess.repositories.terms import TermsRepository
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def _resolve_hashes_to_terms(state: StateHandler, revision: dict[str, Any]) -> dict[str, Any]:
+    """Resolve hashes in revision to actual term values."""
+    terms_repo = TermsRepository(vitess_client=state.vitess_client)
+    resolved = revision.copy()
+
+    # Resolve labels
+    hashes = revision.get("hashes", {})
+    labels_hashes = hashes.get("labels", {})
+    resolved_labels = {}
+    for lang, hash_val in labels_hashes.items():
+        term_data = terms_repo.get_term(hash_val)
+        if term_data:
+            term_value, term_type = term_data
+            if term_type == "label":
+                resolved_labels[lang] = {
+                    "language": lang,
+                    "value": term_value,
+                }
+    resolved["labels"] = resolved_labels
+
+    # Resolve descriptions
+    descriptions_hashes = hashes.get("descriptions", {})
+    resolved_descriptions = {}
+    for lang, hash_val in descriptions_hashes.items():
+        term_data = terms_repo.get_term(hash_val)
+        if term_data:
+            term_value, term_type = term_data
+            if term_type == "description":
+                resolved_descriptions[lang] = {
+                    "language": lang,
+                    "value": term_value,
+                }
+    resolved["descriptions"] = resolved_descriptions
+
+    # Resolve aliases
+    aliases_hashes = hashes.get("aliases", {})
+    resolved_aliases = {}
+    for lang, hash_list in aliases_hashes.items():
+        resolved_aliases[lang] = []
+        for hash_val in hash_list:
+            term_data = terms_repo.get_term(hash_val)
+            if term_data:
+                term_value, term_type = term_data
+                if term_type == "alias":
+                    resolved_aliases[lang].append({
+                        "language": lang,
+                        "value": term_value,
+                    })
+    resolved["aliases"] = resolved_aliases
+
+    return resolved
 
 
 @router.post("/entities/properties", response_model=EntityResponse)
@@ -52,10 +107,15 @@ async def get_property_label(
     property_id: str, language_code: str, req: Request
 ) -> LabelResponse:
     """Get property label for language."""
+    logger.debug(f"Getting property label for {property_id}, language {language_code}")
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(property_id)
-    labels = response.entity_data.revision.get("labels", {})
+
+    # Resolve hashes to actual term values
+    resolved_revision = _resolve_hashes_to_terms(state, response.entity_data.revision)
+    labels = resolved_revision.get("labels", {})
+    logger.debug(f"Labels for {property_id}: {list(labels.keys())}")
     if language_code not in labels:
         raise HTTPException(
             status_code=404, detail=f"Label not found for language {language_code}"
@@ -74,7 +134,10 @@ async def get_property_description(
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(property_id)
-    descriptions = response.entity_data.revision.get("descriptions", {})
+
+    # Resolve hashes to actual term values
+    resolved_revision = _resolve_hashes_to_terms(state, response.entity_data.revision)
+    descriptions = resolved_revision.get("descriptions", {})
     if language_code not in descriptions:
         raise HTTPException(
             status_code=404,
@@ -94,12 +157,17 @@ async def get_property_aliases_for_language(
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(property_id)
-    aliases = response.entity_data.revision.get("aliases", {})
+
+    # Resolve hashes to actual term values
+    resolved_revision = _resolve_hashes_to_terms(state, response.entity_data.revision)
+    aliases = resolved_revision.get("aliases", {})
     if language_code not in aliases:
         raise HTTPException(
             status_code=404, detail=f"Aliases not found for language {language_code}"
         )
-    return AliasesResponse(aliases=aliases[language_code])
+    # Extract just the alias text values
+    alias_values = [alias["value"] for alias in aliases[language_code]]
+    return AliasesResponse(aliases=alias_values)
 
 
 @router.put(
