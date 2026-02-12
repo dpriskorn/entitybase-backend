@@ -143,9 +143,37 @@ class RevisionRepository(Repository):
             logger.debug(f"Entity {entity_id} not found for deletion")
             return OperationResult(success=False, error="Entity not found")
         with self.vitess_client.cursor as cursor:
+            # Debug: check current head revision
             cursor.execute(
-                "DELETE FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
-                (internal_id, revision_id),
+                "SELECT head_revision_id FROM entity_head WHERE internal_id = %s",
+                (internal_id,),
+            )
+            current_head = cursor.fetchone()
+            logger.debug(f"Current head_revision_id for entity {entity_id}: {current_head}")
+
+            cursor.execute(
+                """UPDATE entity_head
+                   SET head_revision_id = %s,
+                       is_semi_protected = %s,
+                       is_locked = %s,
+                       is_archived = %s,
+                       is_dangling = %s,
+                       is_mass_edit_protected = %s,
+                       is_deleted = %s,
+                       is_redirect = %s
+                   WHERE internal_id = %s AND head_revision_id = %s""",
+                (
+                    revision_id,
+                    entity_data.state.is_semi_protected,
+                    entity_data.state.is_locked,
+                    entity_data.state.is_archived,
+                    entity_data.state.is_dangling,
+                    entity_data.state.is_mass_edit_protected,
+                    entity_data.state.is_deleted,
+                    False,
+                    internal_id,
+                    expected_revision_id,
+                ),
             )
             # Also delete from entity_head if it's the head
             cursor.execute(
@@ -220,12 +248,14 @@ class RevisionRepository(Repository):
             cursor.execute(
                 """UPDATE entity_head
                    SET head_revision_id = %s,
-                        is_semi_protected = %s,
-                        is_locked = %s,
-                        is_archived = %s,
-                        is_dangling = %s,
-                        is_mass_edit_protected = %s
-                    WHERE internal_id = %s AND head_revision_id = %s""",
+                       is_semi_protected = %s,
+                       is_locked = %s,
+                       is_archived = %s,
+                       is_dangling = %s,
+                       is_mass_edit_protected = %s,
+                       is_deleted = %s,
+                       is_redirect = %s
+                   WHERE internal_id = %s AND head_revision_id = %s""",
                 (
                     revision_id,
                     entity_data.state.is_semi_protected,
@@ -233,6 +263,8 @@ class RevisionRepository(Repository):
                     entity_data.state.is_archived,
                     entity_data.state.is_dangling,
                     entity_data.state.is_mass_edit_protected,
+                    entity_data.state.is_deleted,
+                    False,
                     internal_id,
                     expected_revision_id,
                 ),
@@ -316,7 +348,7 @@ class RevisionRepository(Repository):
                     entity_data.state.is_archived,
                     entity_data.state.is_dangling,
                     entity_data.state.is_mass_edit_protected,
-                    False,
+                    entity_data.state.is_deleted,
                     False,
                 ),
             )

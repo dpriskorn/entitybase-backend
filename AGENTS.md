@@ -115,9 +115,14 @@ def insert_backlink_statistics(self, conn, date, total_backlinks, ...):
 
 #### Exception Handling in Tests
 ```python
-# Tests should expect ValueError in test environments
-with pytest.raises(ValueError):
+# raise_validation_error always raises HTTPException
+from fastapi import HTTPException
+with pytest.raises(HTTPException, match=".*"):
     repository.some_method(invalid_data)
+
+# Other ValueErrors (not from raise_validation_error) work as expected
+with pytest.raises(ValueError):
+    some_function_that_raises_value_error()
 ```
 
 ### Code Structure

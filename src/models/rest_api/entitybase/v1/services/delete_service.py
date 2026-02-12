@@ -84,7 +84,7 @@ class DeleteService(Service):
         """
         from fastapi import HTTPException
 
-        protection_info = self.vitess_client.get_protection_info(entity_id)
+        protection_info = self.vitess_client.entity_repository.get_protection_info(entity_id)
         logger.debug(f"Protection info for {entity_id}: {protection_info}")
 
         try:

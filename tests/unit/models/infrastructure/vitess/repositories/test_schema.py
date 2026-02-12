@@ -14,7 +14,8 @@ class TestSchemaRepository:
         """Test create_tables with no vitess client."""
         repo = SchemaRepository(vitess_client=None)
 
-        with pytest.raises(Exception):  # raise_validation_error raises ValueError
+        from fastapi import HTTPException
+        with pytest.raises(HTTPException, match="Vitess not initialized"):
             repo.create_tables()
 
     def test_create_tables_no_connection(self):

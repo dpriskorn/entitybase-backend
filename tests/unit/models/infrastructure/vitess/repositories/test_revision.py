@@ -46,8 +46,9 @@ class TestRevisionRepository:
 
         repo = RevisionRepository(vitess_client=mock_vitess_client)
 
-        with pytest.raises(Exception):  # raise_validation_error raises ValueError
-            repo.insert_revision("Q999", 1, sample_revision_data)
+        from fastapi import HTTPException
+        with pytest.raises(HTTPException, match="Entity.*not found"):
+            repo.insert_revision("Q999", 1, sample_revision_data, 1234567890123456789)
 
     def test_get_content_hash_found(self):
         """Test getting content_hash for existing revision."""

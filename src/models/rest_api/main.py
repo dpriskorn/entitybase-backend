@@ -170,24 +170,6 @@ async def starlette_http_exception_handler(
     )
 
 
-@app.exception_handler(ValueError)
-async def value_error_handler(request: Request, exc: ValueError) -> JSONResponse:
-    """Handle ValueError from validation errors in dev mode."""
-    from models.rest_api.utils import ValidationErrorWithStatus
-
-    status_code = 400
-    if isinstance(exc, ValidationErrorWithStatus):
-        status_code = exc.status_code
-
-    return JSONResponse(
-        status_code=status_code,
-        content={
-            "error": "validation_error",
-            "message": str(exc),
-        },
-    )
-
-
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Handle all exceptions and return formatted JSON response."""

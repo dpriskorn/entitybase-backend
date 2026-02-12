@@ -2,7 +2,7 @@
 
 import logging
 
-from fastapi import APIRouter, Query, Request, Response
+from fastapi import APIRouter, Body, Query, Request, Response
 
 from models.data.common import OperationResult
 from models.data.rest_api.v1.entitybase.request import AddPropertyRequest
@@ -172,9 +172,9 @@ async def get_entity_json_revision(
 @router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)
 async def delete_entity(  # type: ignore[no-any-return]
     entity_id: str,
-    request: EntityDeleteRequest,
     req: Request,
     headers: EditHeadersType,
+    request: EntityDeleteRequest = Body(default_factory=lambda: EntityDeleteRequest(delete_type="soft")),
 ) -> EntityDeleteResponse:
     """Delete an entity."""
     state = req.app.state.state_handler

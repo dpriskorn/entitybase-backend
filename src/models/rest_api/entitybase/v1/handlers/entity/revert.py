@@ -74,8 +74,8 @@ class EntityRevertHandler(Handler):
         # Create new revision data using RevisionData model
         # For revert, we need to copy the entity data from target revision
         target_data = (
-            target_revision_data.data
-            if hasattr(target_revision_data, "data")
+            target_revision_data.revision
+            if hasattr(target_revision_data, "revision")
             else target_revision_data
         )
 
@@ -154,6 +154,7 @@ class EntityRevertHandler(Handler):
             entity_id,
             new_revision_id,
             new_revision_data,
+            content_hash,
         )
 
         # Mark as published

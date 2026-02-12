@@ -43,6 +43,10 @@ class EntityReadHandler(Handler):
             assert isinstance(revision, S3RevisionData)
             revision_dict = revision.revision
             state_data = revision_dict.get("state", {})
+            logger.debug(f"Entity {entity_id} state_data: {state_data}")
+            if state_data.get("is_deleted", False):
+                logger.debug(f"Entity {entity_id} is deleted, returning 404")
+                raise_validation_error(f"Entity {entity_id} is deleted", status_code=404)
             response = EntityResponse(
                 id=entity_id,
                 rev_id=head_revision_id,

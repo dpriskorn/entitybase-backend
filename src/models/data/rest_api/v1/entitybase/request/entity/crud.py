@@ -126,7 +126,7 @@ class LexemeUpdateRequest(BaseModel):
 class EntityDeleteRequest(BaseModel):
     """Request to delete an entity."""
 
-    delete_type: DeleteType = Field(description="Type of deletion")
+    delete_type: DeleteType = Field(default=DeleteType.SOFT, description="Type of deletion")
 
 
 class EntityInsertDataRequest(BaseModel):

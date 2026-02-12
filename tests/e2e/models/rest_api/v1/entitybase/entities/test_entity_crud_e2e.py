@@ -202,7 +202,7 @@ async def test_revert_entity(api_prefix: str) -> None:
         assert response.status_code == 200
 
         # Revert to original
-        revert_data = {"revision_id": original_rev}
+        revert_data = {"to_revision_id": original_rev}
         response = await client.post(
             f"{api_prefix}/entities/{entity_id}/revert",
             json=revert_data,
