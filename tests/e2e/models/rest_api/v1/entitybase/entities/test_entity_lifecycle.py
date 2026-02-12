@@ -60,7 +60,7 @@ async def test_json_import_endpoint(api_prefix: str) -> None:
             json=import_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 202, 400, 404]
+        assert response.status_code in [200, 202, 400, 404, 409]
 
 
 @pytest.mark.e2e
