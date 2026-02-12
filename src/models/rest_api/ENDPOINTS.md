@@ -25,6 +25,7 @@
 | ✅ | GET | `/entities/{entity_id}/properties` | Get list of unique property IDs for an entity's head revision. |
 | ✅ | POST | `/entities/{entity_id}/properties/{property_id}` | Add claims for a single property to an entity. |
 | ✅ | GET | `/entities/{entity_id}/properties/{property_list}` | Get entity property hashes for specified properties. |
+| ✅ | GET | `/entities/{entity_id}/property_counts` | Get statement counts per property for an entity's head revision. |
 | ✅ | POST | `/entities/{entity_id}/revert` | Revert entity to a previous revision. |
 | ✅ | POST | `/entities/{entity_id}/revert-redirect` | No description |
 | ✅ | GET | `/entities/{entity_id}/revision/{revision_id}` | Get a specific revision of an entity. |
@@ -45,7 +46,7 @@
 | ✅ | GET | `/entitybase/v1/entities/sitelinks/{hashes}` | Get batch sitelink titles by hashes. |
 | ✅ | GET | `/entitybase/v1/statements/batch` | Get batch statements for entities and properties. |
 | ✅ | GET | `/health` | Health check endpoint for monitoring service status. |
-| ✅ | POST | `/json-import` | Import entities from Wikidata JSONL dump file. |
+| ✅ | POST | `/import` | Import a single entity of any type. |
 | ✅ | GET | `/qualifiers/{hashes}` | Fetch qualifiers by hash(es). |
 | ✅ | POST | `/redirects` | Create a redirect for an entity. |
 | ✅ | GET | `/references/{hashes}` | Fetch references by hash(es). |
@@ -73,7 +74,7 @@
 | ✅ | GET | `/snaks/{hashes}` | Fetch snaks by hash(es). |
 | ✅ | POST | `/statements/batch` | Retrieve multiple statements by their content hashes in a batch request. |
 | ✅ | POST | `/statements/cleanup-orphaned` | Clean up orphaned statements that are no longer referenced. |
-| ✅ | GET | `/statements/most_used` | Get the most used statements based on reference count. |
+| ✅ | GET | `/statements/most_used` | Get most used statements based on reference count. |
 | ✅ | GET | `/statements/{content_hash}` | Retrieve a single statement by its content hash. |
 | ✅ | POST | `/statements/{statement_hash}/endorse` | Endorse a statement to signal trust. |
 | ✅ | DELETE | `/statements/{statement_hash}/endorse` | Withdraw endorsement from a statement. |
@@ -99,6 +100,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 94 |
+| Implemented | 95 |
 | Not Implemented | 0 |
-| Total | 94 |
+| Total | 95 |
