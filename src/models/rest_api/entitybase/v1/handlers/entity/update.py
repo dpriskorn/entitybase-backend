@@ -365,6 +365,37 @@ class EntityUpdateHandler(EntityHandler):
             validator,
         )
 
+    async def delete_aliases(
+        self,
+        entity_id: str,
+        language_code: str,
+        edit_headers: EditHeaders,
+        validator: Any | None = None,
+    ) -> EntityResponse:
+        """Delete all aliases for a language (idempotent)."""
+        entity_type = self._infer_entity_type_from_id(entity_id)
+        if not entity_type:
+            raise_validation_error("Invalid entity ID format", status_code=400)
+
+        read_handler = EntityReadHandler(state=self.state)
+        current_entity = read_handler.get_entity(entity_id)
+
+        entity_dict = current_entity.entity_data.revision
+
+        aliases = entity_dict.get("aliases", {})
+        if language_code not in aliases:
+            return current_entity
+
+        del entity_dict["aliases"][language_code]
+
+        return await self._update_with_transaction(
+            entity_id,
+            entity_dict,
+            entity_type,
+            edit_headers,
+            validator,
+        )
+
     async def update_sitelink(
         self,
         ctx: SitelinkUpdateContext,

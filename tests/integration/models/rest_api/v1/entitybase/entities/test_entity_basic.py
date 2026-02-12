@@ -132,7 +132,7 @@ async def test_get_item_history() -> None:
         assert create_response.status_code == 200
 
         await client.put(
-            f"/v1/entitybase/entities/items/{entity_id}/labels/en",
+            f"/v1/entitybase/entities/{entity_id}/labels/en",
             json={"language": "en", "value": "Updated Test Entity"},
             headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
         )

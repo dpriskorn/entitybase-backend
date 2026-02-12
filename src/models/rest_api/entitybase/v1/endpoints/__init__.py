@@ -5,6 +5,9 @@ from fastapi import APIRouter
 from . import (
     admin,
     entities,
+    entities_aliases,
+    entities_descriptions,
+    entities_labels,
     items,
     lexemes,
     properties,
@@ -27,6 +30,9 @@ v1_router = APIRouter()
 
 # Include sub-routers
 v1_router.include_router(entities.router, tags=["entities"])
+v1_router.include_router(entities_labels.router, tags=["entities"])
+v1_router.include_router(entities_descriptions.router, tags=["entities"])
+v1_router.include_router(entities_aliases.router, tags=["entities"])
 v1_router.include_router(items.router, tags=["items"])
 v1_router.include_router(lexemes.router, tags=["lexemes"])
 v1_router.include_router(properties.router, tags=["properties"])

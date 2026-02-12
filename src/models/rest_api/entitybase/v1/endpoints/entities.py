@@ -60,7 +60,9 @@ async def get_entity_data_json(entity_id: str, req: Request) -> EntityJsonRespon
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     entity_response = handler.get_entity(actual_entity_id)
-    return EntityJsonResponse(data={"id": actual_entity_id, **entity_response.entity_data.revision})
+    return EntityJsonResponse(
+        data={"id": actual_entity_id, **entity_response.entity_data.revision}
+    )
 
 
 @router.get("/entities/{entity_id}.ttl")
@@ -175,38 +177,19 @@ async def delete_entity(  # type: ignore[no-any-return]
     entity_id: str,
     req: Request,
     headers: EditHeadersType,
-    request: EntityDeleteRequest = Body(default_factory=lambda: EntityDeleteRequest(delete_type="soft")),
+    request: EntityDeleteRequest = Body(
+        default_factory=lambda: EntityDeleteRequest(delete_type="soft")
+    ),
 ) -> EntityDeleteResponse:
     """Delete an entity."""
     state = req.app.state.state_handler
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
-    # todo pass clients to the handler here
     handler = EntityDeleteHandler(state=state)
     result = await handler.delete_entity(entity_id, request, edit_headers=headers)
     if not isinstance(result, EntityDeleteResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
-
-
-# @router.get(
-#     "/entities/{entity_id}/revision/raw/{revision_id}",
-#     response_model=RawRevisionResponse,
-# )
-# def get_raw_revision(
-#     entity_id: str, revision_id: int, req: Request
-# ) -> RawRevisionResponse:
-#     state = req.app.state.state_handler
-#     if not isinstance(clients, Clients):
-#         raise_validation_error("Invalid clients type", status_code=500)
-#     handler = AdminHandler(state=state)
-#     result = handler.get_raw_revision(
-#         entity_id, revision_id, clients.vitess, clients.s3
-#     )  # type: ignore
-#     if not isinstance(result, RawRevisionResponse):
-#         raise_validation_error("Invalid response type", status_code=500)
-#     assert isinstance(result, RawRevisionResponse)
-#     return result
 
 
 @router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)
@@ -218,7 +201,6 @@ async def get_entity_properties(entity_id: str, req: Request) -> PropertyListRes
     state = req.app.state.state_handler
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
-    # todo pass clients to the handler here
     handler = StatementHandler(state=state)
     return handler.get_entity_properties(entity_id)
 
@@ -236,7 +218,6 @@ async def get_entity_property_counts(
     state = req.app.state.state_handler
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
-    # todo pass clients to the handler here
     handler = StatementHandler(state=state)
     return handler.get_entity_property_counts(entity_id)
 
@@ -252,7 +233,6 @@ async def get_entity_property_hashes(
     state = req.app.state.state_handler
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
-    # todo pass clients to the handler here
     handler = StatementHandler(state=state)
     return handler.get_entity_property_hashes(entity_id, property_list)
 
@@ -272,7 +252,6 @@ async def add_entity_property(
     state = req.app.state.state_handler
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
-    # todo pass clients to the handler here
     handler = EntityStatementService(state=state)
     result = await handler.add_property(
         entity_id, property_id, request, edit_headers=headers
@@ -297,9 +276,7 @@ async def add_entity_statement(
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityStatementService(state=state)
-    result = await handler.add_statement(
-        entity_id, request, edit_headers=headers
-    )
+    result = await handler.add_statement(entity_id, request, edit_headers=headers)
     if not isinstance(result, OperationResult):
         raise_validation_error("Invalid response type", status_code=500)
     return result
@@ -320,7 +297,6 @@ async def remove_entity_statement(
     state = req.app.state.state_handler
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
-    # todo pass clients to the handler here
     handler = EntityStatementService(state=state)
     result = await handler.remove_statement(
         entity_id,
@@ -365,11 +341,12 @@ async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> Siteli
     state = req.app.state.state_handler
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
-    # todo pass clients to the handler here
     handler = EntityReadHandler(state=state)
     entity_response = handler.get_entity(entity_id)
 
-    sitelinks = entity_response.entity_data.revision.get("hashes", {}).get("sitelinks", {})
+    sitelinks = entity_response.entity_data.revision.get("hashes", {}).get(
+        "sitelinks", {}
+    )
     if site not in sitelinks:
         raise_validation_error(f"Sitelink for site {site} not found", status_code=404)
 
@@ -380,16 +357,22 @@ async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> Siteli
     from models.infrastructure.s3.storage.metadata_storage import MetadataStorage
     from models.data.infrastructure.s3.enums import MetadataType
 
-    metadata_storage = MetadataStorage(connection_manager=state.s3_client.connection_manager, bucket="")
+    metadata_storage = MetadataStorage(
+        connection_manager=state.s3_client.connection_manager, bucket=""
+    )
     load_response = metadata_storage.load_metadata(MetadataType.SITELINKS, title_hash)
 
     if load_response is None or not hasattr(load_response, "data"):
-        raise_validation_error(f"Sitelink title not found for site {site}", status_code=404)
+        raise_validation_error(
+            f"Sitelink title not found for site {site}", status_code=404
+        )
 
     if isinstance(load_response.data, str):
         title = load_response.data
     else:
-        raise_validation_error(f"Sitelink title is not a string for site {site}", status_code=500)
+        raise_validation_error(
+            f"Sitelink title is not a string for site {site}", status_code=500
+        )
 
     return SitelinkData(title=title, badges=badges)
 
@@ -413,18 +396,15 @@ async def post_entity_sitelink(
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
 
-    # Get current entity
     handler = EntityReadHandler(state=state)
     current_entity = handler.get_entity(entity_id)
 
-    # Check if sitelink already exists
     sitelinks = current_entity.entity_data.revision.get("sitelinks", {})
     if site in sitelinks:
         raise_validation_error(
             f"Sitelink for site {site} already exists", status_code=409
         )
 
-    # Create new revision using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
     ctx = SitelinkUpdateContext(
         entity_id=entity_id,
@@ -462,7 +442,6 @@ async def put_entity_sitelink(
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
 
-    # Update sitelink using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
     ctx = SitelinkUpdateContext(
         entity_id=entity_id,
@@ -499,7 +478,6 @@ async def delete_entity_sitelink(
     if not isinstance(state, StateHandler):
         raise_validation_error("Invalid clients type", status_code=500)
 
-    # Delete sitelink using EntityUpdateHandler
     update_handler = EntityUpdateHandler(state=state)
     result = await update_handler.delete_sitelink(
         entity_id,

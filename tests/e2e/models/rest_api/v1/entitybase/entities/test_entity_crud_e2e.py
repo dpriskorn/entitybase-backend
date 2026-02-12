@@ -156,7 +156,7 @@ async def test_get_entity_history(api_prefix: str) -> None:
 
         # Update to create second revision
         response = await client.put(
-            f"{api_prefix}/entities/items/{entity_id}/labels/en",
+            f"{api_prefix}/entities/{entity_id}/labels/en",
             json={"language": "en", "value": "Updated History Test"},
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -195,7 +195,7 @@ async def test_revert_entity(api_prefix: str) -> None:
 
         # Update label
         response = await client.put(
-            f"{api_prefix}/entities/items/{entity_id}/labels/en",
+            f"{api_prefix}/entities/{entity_id}/labels/en",
             json={"language": "en", "value": "Modified Label"},
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )

@@ -78,7 +78,7 @@ async def test_get_specific_revision_ordering(api_prefix: str) -> None:
         assert response.status_code == 200
 
         response = await client.put(
-            f"{api_prefix}/entities/items/Q71002/labels/en",
+            f"{api_prefix}/entities/Q71002/labels/en",
             json={"language": "en", "value": "Updated Label"},
             headers={"X-Edit-Summary": "update label", "X-User-ID": "0"},
         )

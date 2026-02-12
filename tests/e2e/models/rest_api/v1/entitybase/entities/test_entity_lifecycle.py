@@ -95,7 +95,7 @@ async def test_entity_lifecycle(api_prefix: str) -> None:
 
         # Update entity label using atomic endpoint
         response = await client.put(
-            f"{api_prefix}/entities/items/{entity_id}/labels/en",
+            f"{api_prefix}/entities/{entity_id}/labels/en",
             json={"language": "en", "value": "Updated Test Item"},
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )

@@ -53,7 +53,7 @@ async def test_get_property_aliases(api_prefix: str) -> None:
 
         # Get aliases
         response = await client.get(
-            f"{api_prefix}/entities/properties/{property_id}/aliases/en"
+            f"{api_prefix}/entities/{property_id}/aliases/en"
         )
         assert response.status_code == 200
         aliases_data = response.json()
@@ -86,7 +86,7 @@ async def test_update_property_aliases(api_prefix: str) -> None:
 
         # Update aliases
         response = await client.put(
-            f"{api_prefix}/entities/properties/{property_id}/aliases/en",
+            f"{api_prefix}/entities/{property_id}/aliases/en",
             json=["New Alias 1", "New Alias 2"],
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -94,7 +94,7 @@ async def test_update_property_aliases(api_prefix: str) -> None:
 
         # Verify update
         response = await client.get(
-            f"{api_prefix}/entities/properties/{property_id}/aliases/en"
+            f"{api_prefix}/entities/{property_id}/aliases/en"
         )
         assert response.status_code == 200
         aliases_data = response.json()
@@ -127,7 +127,7 @@ async def test_get_property_description(api_prefix: str) -> None:
 
         # Get description
         response = await client.get(
-            f"{api_prefix}/entities/properties/{property_id}/descriptions/en"
+            f"{api_prefix}/entities/{property_id}/descriptions/en"
         )
         assert response.status_code == 200
         description_data = response.json()
@@ -160,7 +160,7 @@ async def test_get_property_label(api_prefix: str) -> None:
 
         # Get label
         response = await client.get(
-            f"{api_prefix}/entities/properties/{property_id}/labels/en"
+            f"{api_prefix}/entities/{property_id}/labels/en"
         )
         assert response.status_code == 200
         label_data = response.json()
