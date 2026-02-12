@@ -69,7 +69,7 @@ async def test_endorsement_full_workflow(api_prefix: str) -> None:
         user_data = user_endorsements_response.json()
         assert user_data["list"] == []
         assert user_data["count"] == 0
-        assert user_data["stats"]["total"] == 0
+        assert user_data["stats"] is None
 
         # Step 6: Test user endorsement stats
         user_stats_response = await client.get(
@@ -78,8 +78,8 @@ async def test_endorsement_full_workflow(api_prefix: str) -> None:
         assert user_stats_response.status_code == 200
         user_stats = user_stats_response.json()
         assert user_stats["user_id"] == 1001
-        assert user_stats["total_endorsements_given"] == 0
-        assert user_stats["total_endorsements_active"] == 0
+        assert user_stats["given"] == 0
+        assert user_stats["active"] == 0
 
         # Step 7: Test withdrawal on non-existent endorsement
         withdraw_response = await client.delete(
