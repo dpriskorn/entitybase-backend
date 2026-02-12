@@ -139,8 +139,11 @@ class ImportStateManager:
             conn.execute("""
                 UPDATE entities
                 SET status = 'processing', last_attempt = CURRENT_TIMESTAMP
-                WHERE run_id = ? AND status = 'pending'
-                LIMIT ?
+                WHERE rowid IN (
+                    SELECT rowid FROM entities
+                    WHERE run_id = ? AND status = 'pending'
+                    LIMIT ?
+                )
             """, (run_id, limit))
             conn.commit()
 
