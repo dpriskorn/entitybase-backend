@@ -587,7 +587,7 @@ def save_diagrams():
     print("Generating diagrams...")
 
     # Create diagrams directory
-    diagrams_dir = Path("doc/DIAGRAMS")
+    diagrams_dir = Path("docs/DIAGRAMS")
     diagrams_dir.mkdir(parents=True, exist_ok=True)
 
     # Generate system architecture diagram

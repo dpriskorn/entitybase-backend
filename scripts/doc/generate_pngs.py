@@ -95,7 +95,7 @@ def main():
     # Use absolute paths to avoid issues with current working directory
     script_dir = Path(__file__).parent
     project_root = script_dir.parent.parent
-    diagrams_dir = project_root / "doc" / "DIAGRAMS"
+    diagrams_dir = project_root / "docs" / "DIAGRAMS"
     png_dir = diagrams_dir / "png"
     cache_file = diagrams_dir / ".png_cache.yaml"
 
