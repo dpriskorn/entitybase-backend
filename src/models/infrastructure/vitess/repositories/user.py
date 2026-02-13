@@ -229,6 +229,9 @@ class UserRepository(Repository):
         offset: int = 0,
     ) -> OperationResult:
         """Get user's activities with filtering."""
+        logger.debug(
+            f"get_user_activities called with user_id={user_id}, activity_type={activity_type}"
+        )
         errors = []
         if user_id <= 0:
             errors.append("user_id must be positive")

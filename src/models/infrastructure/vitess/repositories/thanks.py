@@ -77,6 +77,7 @@ class ThanksRepository(Repository):
         self, user_id: int, hours: int = 24, limit: int = 50, offset: int = 0
     ) -> OperationResult:
         """Get thanks received by user."""
+        logger.debug(f"Getting thanks received for user {user_id}")
         if user_id <= 0 or hours <= 0 or limit <= 0 or offset < 0:
             return OperationResult(success=False, error="Invalid parameters")
 
@@ -134,6 +135,7 @@ class ThanksRepository(Repository):
         self, user_id: int, hours: int = 24, limit: int = 50, offset: int = 0
     ) -> OperationResult:
         """Get thanks sent by user."""
+        logger.debug(f"Getting thanks sent by user {user_id}")
         if user_id <= 0 or hours <= 0 or limit <= 0 or offset < 0:
             return OperationResult(success=False, error="Invalid parameters")
 

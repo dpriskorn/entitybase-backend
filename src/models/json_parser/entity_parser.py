@@ -77,6 +77,7 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> EntityMetadataResponse:
 def parse_entity_data(raw_entity_data: dict[str, Any]) -> EntityData:
     """Parse entity from Wikidata JSON format into internal EntityData."""
     logger.debug("Parsing entity data from raw data")
+    logger.debug(f"Raw data keys: {list(raw_entity_data.keys())}")
     # Handle nested structure {"entities": {"Q42": {...}}}
     metadata_dict = raw_entity_data
     if "entities" in metadata_dict:
@@ -93,8 +94,12 @@ def parse_entity_data(raw_entity_data: dict[str, Any]) -> EntityData:
     sitelinks_json = metadata_dict.get(JsonField.SITELINKS.value, {})
 
     entity_type = metadata_dict.get(JsonField.TYPE.value, EntityType.ITEM.value)
+    logger.debug(
+        f"Entity type: {entity_type}, ID: {metadata_dict.get(JsonField.ID.value)}"
+    )
 
     statements = []
+    logger.debug("Parsing statements")
     for prop_claims in claims_json.values():
         for stmt in prop_claims:
             statements.append(parse_statement(stmt))

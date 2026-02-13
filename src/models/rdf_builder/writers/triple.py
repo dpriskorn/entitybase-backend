@@ -126,6 +126,7 @@ class TripleWriters:
         logger.debug(
             f"Writing statement for entity {ctx.entity_id}, property {ctx.shape.pid}"
         )
+        logger.debug("Importing RDF reference")
         from models.rdf_builder.models.rdf_reference import RDFReference
 
         entity_uri = TripleWriters.uri.entity_prefixed(ctx.entity_id)

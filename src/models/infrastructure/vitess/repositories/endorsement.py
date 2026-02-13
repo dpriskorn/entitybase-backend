@@ -104,6 +104,7 @@ class EndorsementRepository(Repository):
         include_removed: bool = False,
     ) -> OperationResult:
         """Get all endorsements for a statement."""
+        logger.debug(f"Getting endorsements for statement {statement_hash}")
         if statement_hash <= 0 or limit <= 0 or offset < 0:
             return OperationResult(success=False, error="Invalid parameters")
 
@@ -168,6 +169,7 @@ class EndorsementRepository(Repository):
         include_removed: bool = False,
     ) -> OperationResult:
         """Get endorsements given by a user."""
+        logger.debug(f"Getting user endorsements for user {user_id}")
         if user_id <= 0 or limit <= 0 or offset < 0:
             return OperationResult(success=False, error="Invalid parameters")
 

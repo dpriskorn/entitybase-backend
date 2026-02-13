@@ -29,6 +29,7 @@ def property_shape(
         PropertyShape with predicates configured for datatype
     """
     logger.debug(f"Creating property shape for {pid} with datatype {datatype}")
+    logger.debug("Building base predicates")
     base = {
         "direct": f"wdt:{pid}",
         "statement": f"ps:{pid}",
@@ -36,8 +37,10 @@ def property_shape(
         "reference": f"pr:{pid}",
     }
 
+    logger.debug("Creating PropertyPredicates from base")
     predicates = PropertyPredicates(**base)
 
+    logger.debug(f"Checking datatype category for {datatype}")
     if datatype in {
         "wikibase-item",
         "wikibase-lexeme",

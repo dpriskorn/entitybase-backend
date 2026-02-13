@@ -13,6 +13,7 @@ class SchemaRepository(Repository):
     def create_tables(self) -> None:
         """Create all required database tables."""
         logger.debug("Creating database tables")
+        logger.debug("Validating Vitess client and connection")
         if not self.vitess_client:
             raise_validation_error(message="Vitess not initialized")
         if not self.vitess_client.connection_manager:
@@ -22,6 +23,7 @@ class SchemaRepository(Repository):
                 message="Connection manager variable not initialized"
             )
         logger.debug("Database connection validated, creating cursor")
+        logger.debug("Starting table creation")
         with self.vitess_client.cursor as cursor:
             cursor.execute(
                 """
