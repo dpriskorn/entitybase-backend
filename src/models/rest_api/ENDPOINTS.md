@@ -66,7 +66,6 @@
 | ✅ | DELETE | `/entities/{entity_id}/statements/{statement_hash}` | Remove a statement by hash from an entity. |
 | ✅ | PATCH | `/entities/{entity_id}/statements/{statement_hash}` | Replace a statement by hash with new claim data. |
 | ✅ | GET | `/entity/{entity_id}/properties/{property_list}` | Get statement hashes for specified properties in an entity. |
-| ✅ | GET | `/entitybase/v1/statements/batch` | Get batch statements for entities and properties. |
 | ✅ | GET | `/health` | Health check endpoint for monitoring service status. |
 | ✅ | POST | `/import` | Import a single entity of any type. |
 | ✅ | POST | `/redirects` | Create a redirect for an entity. |
@@ -80,6 +79,7 @@
 | ✅ | GET | `/resolve/sitelinks/{hashes}` | Get batch sitelink titles by hashes. |
 | ✅ | GET | `/resolve/snaks/{hashes}` | Fetch snaks by hash(es). |
 | ✅ | GET | `/resolve/statements/{hashes}` | Fetch statements by hash(es). |
+| ✅ | GET | `/statements/batch` | Get statement hashes for multiple entities. |
 | ✅ | POST | `/statements/cleanup-orphaned` | Clean up orphaned statements that are no longer referenced. |
 | ✅ | GET | `/statements/most_used` | Get most used statements based on reference count. |
 | ✅ | GET | `/statements/{content_hash}` | Retrieve a single statement by its content hash. |
