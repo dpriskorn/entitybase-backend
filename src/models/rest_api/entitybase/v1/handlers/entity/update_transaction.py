@@ -119,6 +119,7 @@ class UpdateTransaction(EntityTransaction):
         """Create revision using new architecture components."""
         logger.debug(f"[UpdateTransaction] Starting revision creation for {entity_id}")
 
+        logger.debug("Importing hash service and revision components")
         from models.rest_api.entitybase.v1.services.hash_service import HashService
         from models.data.infrastructure.s3.enums import EditType, EditData
         import json
@@ -131,9 +132,12 @@ class UpdateTransaction(EntityTransaction):
         from models.infrastructure.s3.revision.revision_data import RevisionData
         from models.config.settings import settings
 
+        logger.debug("Getting head revision ID")
         head_revision_id = self.state.vitess_client.get_head(entity_id)
         new_revision_id = head_revision_id + 1 if head_revision_id else 1
+        logger.debug(f"New revision ID: {new_revision_id}")
 
+        logger.debug("Hashing terms")
         hs = HashService(state=self.state)
         sitelink_hashes = hs.hash_sitelinks(request_data.sitelinks)
         labels_hashes = hs.hash_labels(request_data.labels)
@@ -142,6 +146,7 @@ class UpdateTransaction(EntityTransaction):
 
         created_at = datetime.now(timezone.utc).isoformat()
 
+        logger.debug("Creating RevisionData object")
         # noinspection PyArgumentList
         revision_data = RevisionData(
             revision_id=new_revision_id,
@@ -212,6 +217,7 @@ class UpdateTransaction(EntityTransaction):
         logger.debug(
             f"Creating revision with pre-computed hashes for entity {entity_id}"
         )
+        logger.debug("Importing revision and hash components")
         from models.data.infrastructure.s3.enums import EditType, EditData
         from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
         from models.data.infrastructure.s3.hashes.statements_hashes import (
@@ -229,17 +235,21 @@ class UpdateTransaction(EntityTransaction):
         from models.internal_representation.metadata_extractor import MetadataExtractor
         import json
 
+        logger.debug(f"Getting head revision for entity {entity_id}")
         head_revision_id = self.state.vitess_client.get_head(entity_id)
         new_revision_id = head_revision_id + 1 if head_revision_id else 1
+        logger.debug(f"New revision ID: {new_revision_id}")
 
         created_at = datetime.now(timezone.utc).isoformat()
 
+        logger.debug("Extracting hash data from existing_hashes")
         labels_data = existing_hashes.get("labels", {})
         descriptions_data = existing_hashes.get("descriptions", {})
         aliases_data = existing_hashes.get("aliases", {})
         sitelinks_data = existing_hashes.get("sitelinks", {})
         statements_data = existing_hashes.get("statements", {})
 
+        logger.debug("Creating RevisionData object with pre-computed hashes")
         revision_data = RevisionData(
             revision_id=new_revision_id,
             entity_type=entity_type,
@@ -266,10 +276,13 @@ class UpdateTransaction(EntityTransaction):
             senses=existing_revision.get("senses", []),
         )
 
+        logger.debug("Converting revision to dict and computing hash")
         revision_dict = revision_data.model_dump(mode="json")
         revision_json = json.dumps(revision_dict, sort_keys=True)
         content_hash = MetadataExtractor.hash_string(revision_json)
+        logger.debug(f"Content hash: {content_hash}")
 
+        logger.debug("Creating revision in Vitess")
         self.state.vitess_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,

@@ -340,6 +340,9 @@ class EntityUpdateHandler(EntityHandler):
         3. Store the new alias in S3/Vitess
         4. Create new revision with updated hash list
         """
+        logger.debug(
+            f"Adding alias '{alias}' for entity {entity_id}, language {language_code}"
+        )
         from models.internal_representation.metadata_extractor import MetadataExtractor
         from models.infrastructure.vitess.repositories.terms import TermsRepository
         from models.rest_api.entitybase.v1.handlers.entity.update_transaction import (
