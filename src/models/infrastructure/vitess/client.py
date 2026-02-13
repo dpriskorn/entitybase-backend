@@ -150,6 +150,23 @@ class VitessClient(Client):
 
         return StatementRepository(vitess_client=self)
 
+    @property
+    def backlink_repository(self) -> Any:
+        """Get backlink repository."""
+        from models.infrastructure.vitess.repositories.backlink import (
+            BacklinkRepository,
+        )
+
+        return BacklinkRepository(vitess_client=self)
+
+    def get_backlinks(
+        self, referenced_internal_id: int, limit: int = 100, offset: int = 0
+    ) -> list[Any]:
+        """Get backlinks for an entity."""
+        return self.backlink_repository.get_backlinks(
+            referenced_internal_id, limit, offset
+        )
+
     def insert_statement_content(self, content_hash: int) -> bool:
         """Insert statement content or increment ref count.
 
@@ -288,9 +305,7 @@ class VitessClient(Client):
         """Revert a redirect by clearing the redirect target."""
         self.set_redirect_target(entity_id=entity_id, redirects_to_entity_id="")
 
-    def get_orphaned_statements(
-        self, older_than_days: int, limit: int
-    ) -> list[int]:
+    def get_orphaned_statements(self, older_than_days: int, limit: int) -> list[int]:
         """Get orphaned statement content hashes.
 
         Args:

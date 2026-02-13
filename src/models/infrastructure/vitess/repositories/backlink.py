@@ -68,17 +68,17 @@ class BacklinkRepository(Repository):
         logger.debug(
             f"Getting backlinks for internal_id {referenced_internal_id}, limit {limit}"
         )
+        # TODO: Fix SQL syntax error - MySQL rejecting this query despite correct syntax
+        # Error: "You have an error in your SQL syntax... near 'FROM entity_backlinks'"
+        sql = """SELECT referencing_internal_id, statement_hash, property_id, rank
+                   FROM entity_backlinks
+                   WHERE referenced_internal_id = %s
+                   ORDER BY statement_hash
+                   LIMIT %s OFFSET %s"""
+        logger.debug(f"SQL query: {repr(sql)}")
+        logger.debug(f"SQL params: ({referenced_internal_id}, {limit}, {offset})")
         with self.vitess_client.cursor as cursor:
-            cursor.execute(
-                """
-                SELECT referencing_internal_id, statement_hash, property_id, rank
-                FROM entity_backlinks
-                WHERE referenced_internal_id = %s
-                ORDER BY statement_hash
-                LIMIT %s OFFSET %s
-                """,
-                (referenced_internal_id, limit, offset),
-            )
+            cursor.execute(sql, (referenced_internal_id, limit, offset))
             return [
                 BacklinkRecord(
                     referencing_internal_id=row[0],

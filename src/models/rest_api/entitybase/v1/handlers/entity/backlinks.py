@@ -22,11 +22,17 @@ class BacklinkHandler(Handler):
     ) -> BacklinksResponse:
         """Get backlinks for an entity."""
         logger.debug(f"Getting backlinks for entity {entity_id}, limit {limit}")
+        logger.debug(f"Resolving entity_id: {entity_id}")
         internal_id = self.state.vitess_client.id_resolver.resolve_id(entity_id)
+        logger.debug(f"Resolved internal_id: {internal_id}")
         if not internal_id:
             raise HTTPException(status_code=404, detail="Entity not found")
 
+        logger.debug(
+            f"Calling get_backlinks with internal_id={internal_id}, limit={limit}, offset={offset}"
+        )
         backlinks = self.state.vitess_client.get_backlinks(internal_id, limit, offset)
+        logger.debug(f"Got {len(backlinks)} backlinks")
 
         backlink_models = []
         for b in backlinks:

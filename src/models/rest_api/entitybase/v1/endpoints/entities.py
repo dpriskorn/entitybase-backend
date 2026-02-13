@@ -34,9 +34,11 @@ from models.data.rest_api.v1.entitybase.response import (
 )
 from models.data.rest_api.v1.entitybase.response import RevisionIdResult
 from models.data.rest_api.v1.entitybase.response import TurtleResponse
+from models.data.rest_api.v1.entitybase.response import BacklinksResponse
 from models.rest_api.entitybase.v1.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
+from models.rest_api.entitybase.v1.handlers.entity.backlinks import BacklinkHandler
 from models.rest_api.entitybase.v1.handlers.export import ExportHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
@@ -495,3 +497,17 @@ async def delete_entity_sitelink(
     return OperationResult(
         success=True, data=RevisionIdResult(revision_id=result.revision_id)
     )
+
+
+@router.get("/entities/{entity_id}/backlinks", response_model=BacklinksResponse)
+async def get_entity_backlinks(
+    entity_id: str,
+    req: Request,
+    limit: int = Query(default=100, ge=1, le=1000),
+    offset: int = Query(default=0, ge=0),
+) -> BacklinksResponse:
+    """Get backlinks for an entity."""
+    logger.debug(f"get_entity_backlinks called with entity_id: {entity_id}, limit: {limit}")
+    state = req.app.state.state_handler
+    handler = BacklinkHandler(state=state)
+    return await handler.get(entity_id, limit, offset)
