@@ -2,13 +2,15 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException, Request, Response
-from starlette.responses import JSONResponse
+from fastapi import APIRouter, HTTPException, Request
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
 from models.data.rest_api.v1.entitybase.request.entity import TermUpdateContext
-from models.data.rest_api.v1.entitybase.response import DescriptionResponse
+from models.data.rest_api.v1.entitybase.response import (
+    DescriptionResponse,
+    EntityResponse,
+)
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
@@ -26,9 +28,7 @@ async def get_entity_description(
     entity_id: str, language_code: str, req: Request
 ) -> DescriptionResponse:
     """Get entity description text for language."""
-    logger.info(
-        f"Getting description for entity {entity_id}, language {language_code}"
-    )
+    logger.info(f"Getting description for entity {entity_id}, language {language_code}")
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
     response = handler.get_entity(entity_id)
@@ -51,14 +51,16 @@ async def get_entity_description(
     return DescriptionResponse(value=str(description_text.data))
 
 
-@router.put("/entities/{entity_id}/descriptions/{language_code}")
+@router.put(
+    "/entities/{entity_id}/descriptions/{language_code}", response_model=EntityResponse
+)
 async def update_entity_description(
     entity_id: str,
     language_code: str,
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> Response:
+) -> EntityResponse:
     """Update entity description for language."""
     logger.info(
         f"📝 DESCRIPTION UPDATE: Starting description update for entity={entity_id}, language={language_code}"
@@ -81,17 +83,18 @@ async def update_entity_description(
         validator,
     )
 
-    response_dict = result.model_dump(mode="json", by_alias=True)
-    return JSONResponse(content=response_dict)
+    return result
 
 
-@router.delete("/entities/{entity_id}/descriptions/{language_code}")
+@router.delete(
+    "/entities/{entity_id}/descriptions/{language_code}", response_model=EntityResponse
+)
 async def delete_entity_description(
     entity_id: str,
     language_code: str,
     req: Request,
     headers: EditHeadersType,
-) -> Response:
+) -> EntityResponse:
     """Delete entity description for language."""
     logger.info(
         f"🗑️ DESCRIPTION DELETE: Starting description deletion for entity={entity_id}, language={language_code}"
@@ -108,18 +111,19 @@ async def delete_entity_description(
         validator,
     )
 
-    response_dict = result.model_dump(mode="json", by_alias=True)
-    return JSONResponse(content=response_dict)
+    return result
 
 
-@router.post("/entities/{entity_id}/descriptions/{language_code}")
+@router.post(
+    "/entities/{entity_id}/descriptions/{language_code}", response_model=EntityResponse
+)
 async def add_entity_description(
     entity_id: str,
     language_code: str,
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> Response:
+) -> EntityResponse:
     """Add a new description to entity for language (alias for PUT)."""
     logger.info(
         f"📝 DESCRIPTION ADD: Starting description add for entity={entity_id}, language={language_code}"
@@ -142,5 +146,4 @@ async def add_entity_description(
         validator,
     )
 
-    response_dict = result.model_dump(mode="json", by_alias=True)
-    return JSONResponse(content=response_dict)
+    return result

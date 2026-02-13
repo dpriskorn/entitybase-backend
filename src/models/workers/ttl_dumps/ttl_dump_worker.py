@@ -135,7 +135,9 @@ class TtlDumpWorker(Worker):
 
             logger.info("Fetching entities for incremental dump")
             incremental_entities = await self._fetch_entities_for_week(week_start, now)
-            logger.info(f"Found {len(incremental_entities)} entities for incremental dump")
+            logger.info(
+                f"Found {len(incremental_entities)} entities for incremental dump"
+            )
 
             dump_date = now.strftime("%Y-%m-%d")
 
@@ -215,7 +217,10 @@ class TtlDumpWorker(Worker):
                 entity_map = {e.entity_id: e for e in batch}
                 for rev_id, internal_id, updated_at in revision_results:
                     for entity in batch:
-                        if entity.internal_id == internal_id and entity.revision_id == rev_id:
+                        if (
+                            entity.internal_id == internal_id
+                            and entity.revision_id == rev_id
+                        ):
                             entity.updated_at = updated_at
                             break
 
@@ -268,6 +273,7 @@ class TtlDumpWorker(Worker):
 
             with open(metadata_file, "w") as f:
                 import json
+
                 json.dump(metadata_dict, f, indent=2)
 
             metadata_key = f"weekly/{dump_date}/metadata.json"
@@ -303,7 +309,7 @@ class TtlDumpWorker(Worker):
 [] a schema:DataDownload ;
     schema:dateModified "{now}"^^xsd:dateTime ;
     schema:temporalCoverage "{week_start_iso}/{now}" ;
-    dcat:downloadURL <https://s3.amazonaws.com/{settings.s3_dump_bucket}/weekly/{datetime.now(timezone.utc).strftime('%Y-%m-%d')}/full.ttl> ;
+    dcat:downloadURL <https://s3.amazonaws.com/{settings.s3_dump_bucket}/weekly/{datetime.now(timezone.utc).strftime("%Y-%m-%d")}/full.ttl> ;
     schema:encodingFormat "text/turtle" ;
     schema:name "Wikibase Weekly RDF Dump" .
 
@@ -316,8 +322,7 @@ class TtlDumpWorker(Worker):
                 )
 
                 tasks = [
-                    self._fetch_and_convert_entity(record, writers)
-                    for record in batch
+                    self._fetch_and_convert_entity(record, writers) for record in batch
                 ]
                 batch_results = await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -344,7 +349,9 @@ class TtlDumpWorker(Worker):
                 record.entity_id, record.revision_id
             )
 
-            from models.data.rest_api.v1.entitybase.response import EntityMetadataResponse
+            from models.data.rest_api.v1.entitybase.response import (
+                EntityMetadataResponse,
+            )
 
             entity_response = EntityMetadataResponse(
                 id=record.entity_id,
@@ -376,7 +383,9 @@ class TtlDumpWorker(Worker):
             raise ValueError("S3 connection manager not initialized")
 
         boto_client = self.s3_client.connection_manager.boto_client
-        content_type = "text/turtle" if not str(filepath).endswith(".gz") else "application/gzip"
+        content_type = (
+            "text/turtle" if not str(filepath).endswith(".gz") else "application/gzip"
+        )
 
         extra_args = {"ContentType": content_type}
         if checksum:
@@ -389,7 +398,9 @@ class TtlDumpWorker(Worker):
             ExtraArgs=extra_args,
         )
 
-        logger.info(f"Uploaded {filepath.name} to s3://{settings.s3_dump_bucket}/{s3_key}")
+        logger.info(
+            f"Uploaded {filepath.name} to s3://{settings.s3_dump_bucket}/{s3_key}"
+        )
 
     def _calculate_seconds_until_next_run(self) -> float:
         schedule_str = settings.ttl_dump_schedule
@@ -439,10 +450,12 @@ async def main() -> None:
     worker = TtlDumpWorker()
 
     if FastAPI is None:
-        logger.warning("FastAPI/uvicorn not installed, running worker without HTTP server")
+        logger.warning(
+            "FastAPI/uvicorn not installed, running worker without HTTP server"
+        )
         await worker.start()
     else:
-        app = FastAPI()
+        app = FastAPI(response_model_by_alias=True)
 
         @app.get("/health")
         def health() -> WorkerHealthCheckResponse:

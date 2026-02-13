@@ -3,11 +3,11 @@
 import logging
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Request, Response
-from starlette.responses import JSONResponse
+from fastapi import APIRouter, HTTPException, Request
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
+from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
@@ -44,14 +44,16 @@ async def get_entity_aliases(
     return alias_texts
 
 
-@router.put("/entities/{entity_id}/aliases/{language_code}")
+@router.put(
+    "/entities/{entity_id}/aliases/{language_code}", response_model=EntityResponse
+)
 async def update_entity_aliases(
     entity_id: str,
     language_code: str,
     aliases_data: List[str],
     req: Request,
     headers: EditHeadersType,
-) -> Response:
+) -> EntityResponse:
     """Update entity aliases for language."""
     logger.info(
         f"📝 ALIASES UPDATE: Starting aliases update for entity={entity_id}, language={language_code}"
@@ -70,18 +72,19 @@ async def update_entity_aliases(
         validator,
     )
 
-    response_dict = result.model_dump(mode="json", by_alias=True)
-    return JSONResponse(content=response_dict)
+    return result
 
 
-@router.post("/entities/{entity_id}/aliases/{language_code}")
+@router.post(
+    "/entities/{entity_id}/aliases/{language_code}", response_model=EntityResponse
+)
 async def add_entity_alias(
     entity_id: str,
     language_code: str,
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> Response:
+) -> EntityResponse:
     """Add a single alias to entity for language."""
     logger.info(
         f"📝 ALIAS ADD: Starting alias add for entity={entity_id}, language={language_code}"
@@ -105,17 +108,18 @@ async def add_entity_alias(
         validator,
     )
 
-    response_dict = result.model_dump(mode="json", by_alias=True)
-    return JSONResponse(content=response_dict)
+    return result
 
 
-@router.delete("/entities/{entity_id}/aliases/{language_code}")
+@router.delete(
+    "/entities/{entity_id}/aliases/{language_code}", response_model=EntityResponse
+)
 async def delete_entity_aliases(
     entity_id: str,
     language_code: str,
     req: Request,
     headers: EditHeadersType,
-) -> Response:
+) -> EntityResponse:
     """Delete all aliases for entity language."""
     logger.info(
         f"🗑️ ALIASES DELETE: Starting aliases deletion for entity={entity_id}, language={language_code}"
@@ -132,5 +136,4 @@ async def delete_entity_aliases(
         validator,
     )
 
-    response_dict = result.model_dump(mode="json", by_alias=True)
-    return JSONResponse(content=response_dict)
+    return result

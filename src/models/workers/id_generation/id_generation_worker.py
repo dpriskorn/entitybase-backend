@@ -203,7 +203,7 @@ async def main() -> None:
     worker = IdGeneratorWorker()
 
     # Create FastAPI app
-    app = FastAPI()
+    app = FastAPI(response_model_by_alias=True)
 
     @app.get("/health")
     def health() -> WorkerHealthCheckResponse:

@@ -106,7 +106,9 @@ class JsonDumpWorker(Worker):
 
             logger.info("Fetching entities for incremental dump")
             incremental_entities = await self._fetch_entities_for_week(week_start, now)
-            logger.info(f"Found {len(incremental_entities)} entities for incremental dump")
+            logger.info(
+                f"Found {len(incremental_entities)} entities for incremental dump"
+            )
 
             dump_date = now.strftime("%Y-%m-%d")
 
@@ -186,7 +188,10 @@ class JsonDumpWorker(Worker):
                 entity_map = {e.entity_id: e for e in batch}
                 for rev_id, internal_id, created_at in revision_results:
                     for entity in batch:
-                        if entity.internal_id == internal_id and entity.revision_id == rev_id:
+                        if (
+                            entity.internal_id == internal_id
+                            and entity.revision_id == rev_id
+                        ):
                             entity.updated_at = created_at
                             break
 
@@ -233,7 +238,7 @@ class JsonDumpWorker(Worker):
                 dump_type=dump_type,
             )
             with open(metadata_file, "w") as f:
-                json.dump(metadata.model_dump(mode='json'), f, indent=2)
+                json.dump(metadata.model_dump(mode="json"), f, indent=2)
 
             metadata_key = f"weekly/{dump_date}/metadata.json"
             await self._upload_to_s3(metadata_file, metadata_key, "")
@@ -257,9 +262,7 @@ class JsonDumpWorker(Worker):
                 f"Fetching batch {i // settings.json_dump_batch_size + 1}/{(len(entities) + settings.json_dump_batch_size - 1) // settings.json_dump_batch_size}"
             )
 
-            tasks = [
-                self._fetch_entity_data(record) for record in batch
-            ]
+            tasks = [self._fetch_entity_data(record) for record in batch]
             batch_results = await asyncio.gather(*tasks, return_exceptions=True)
 
             for record, result in zip(batch, batch_results):
@@ -274,7 +277,9 @@ class JsonDumpWorker(Worker):
                                 "revision_id": record.revision_id,
                                 "entity_id": record.entity_id,
                                 "s3_uri": f"s3://{settings.s3_dump_bucket}/{record.entity_id}/r{record.revision_id}.json",
-                                "updated_at": record.updated_at.isoformat() if record.updated_at else None,
+                                "updated_at": record.updated_at.isoformat()
+                                if record.updated_at
+                                else None,
                             },
                         }
                     )
@@ -298,7 +303,9 @@ class JsonDumpWorker(Worker):
             else:
                 json.dump(dump_data, f, indent=2)
 
-    async def _fetch_entity_data(self, record: EntityDumpRecord) -> dict[str, Any] | None:
+    async def _fetch_entity_data(
+        self, record: EntityDumpRecord
+    ) -> dict[str, Any] | None:
         if not self.s3_client:
             return None
 
@@ -323,7 +330,11 @@ class JsonDumpWorker(Worker):
             raise ValueError("S3 connection manager not initialized")
 
         boto_client = self.s3_client.connection_manager.boto_client
-        content_type = "application/json" if not str(filepath).endswith(".gz") else "application/gzip"
+        content_type = (
+            "application/json"
+            if not str(filepath).endswith(".gz")
+            else "application/gzip"
+        )
 
         extra_args = {"ContentType": content_type}
         if checksum:
@@ -336,7 +347,9 @@ class JsonDumpWorker(Worker):
             ExtraArgs=extra_args,
         )
 
-        logger.info(f"Uploaded {filepath.name} to s3://{settings.s3_dump_bucket}/{s3_key}")
+        logger.info(
+            f"Uploaded {filepath.name} to s3://{settings.s3_dump_bucket}/{s3_key}"
+        )
 
     def _calculate_seconds_until_next_run(self) -> float:
         schedule_str = settings.json_dump_schedule
@@ -353,7 +366,9 @@ class JsonDumpWorker(Worker):
         if now.time() < target_time:
             next_run = datetime.combine(now.date(), target_time, tzinfo=timezone.utc)
         else:
-            next_run = datetime.combine(now.date() + timedelta(days=1), target_time, tzinfo=timezone.utc)
+            next_run = datetime.combine(
+                now.date() + timedelta(days=1), target_time, tzinfo=timezone.utc
+            )
 
         seconds_until = (next_run - now).total_seconds()
         return max(seconds_until, 0)
@@ -386,10 +401,12 @@ async def main() -> None:
     worker = JsonDumpWorker()
 
     if FastAPI is None:
-        logger.warning("FastAPI/uvicorn not installed, running worker without HTTP server")
+        logger.warning(
+            "FastAPI/uvicorn not installed, running worker without HTTP server"
+        )
         await worker.start()
     else:
-        app = FastAPI()
+        app = FastAPI(response_model_by_alias=True)
 
         @app.get("/health")
         def health() -> WorkerHealthCheckResponse:

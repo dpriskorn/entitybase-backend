@@ -57,7 +57,9 @@ class StartupMiddleware(BaseHTTPMiddleware):
     Always allows /health, /docs, and /openapi.json through.
     """
 
-    async def dispatch(self, request: StarletteRequest, call_next: Any) -> StarletteResponse:
+    async def dispatch(
+        self, request: StarletteRequest, call_next: Any
+    ) -> StarletteResponse:
         allowed_paths = {"/health", "/docs", "/openapi.json", "/redoc"}
         request_path = request.url.path
 
@@ -87,8 +89,13 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         # Create database tables on startup (only if vitess is available)
         try:
             logger.debug("Creating database tables...")
-            from models.infrastructure.vitess.repositories.schema import SchemaRepository
-            schema_repository = SchemaRepository(vitess_client=state_handler.vitess_client)
+            from models.infrastructure.vitess.repositories.schema import (
+                SchemaRepository,
+            )
+
+            schema_repository = SchemaRepository(
+                vitess_client=state_handler.vitess_client
+            )
             schema_repository.create_tables()
             logger.info("Database tables created/verified")
         except Exception as e:
@@ -131,7 +138,11 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(
-    title="EntityBase", version="1.0.0", openapi_version="3.1", lifespan=lifespan
+    title="EntityBase",
+    version="1.0.0",
+    openapi_version="3.1",
+    lifespan=lifespan,
+    response_model_by_alias=True,
 )
 app.add_middleware(StartupMiddleware)
 

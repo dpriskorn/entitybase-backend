@@ -2,13 +2,13 @@
 
 import logging
 
-from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi import APIRouter, HTTPException, Request
 from starlette.responses import JSONResponse
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
 from models.data.rest_api.v1.entitybase.request.entity import TermUpdateContext
-from models.data.rest_api.v1.entitybase.response import LabelResponse
+from models.data.rest_api.v1.entitybase.response import LabelResponse, EntityResponse
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
@@ -46,14 +46,16 @@ async def get_entity_label(
     return LabelResponse(value=str(label_text.data))
 
 
-@router.put("/entities/{entity_id}/labels/{language_code}")
+@router.put(
+    "/entities/{entity_id}/labels/{language_code}", response_model=EntityResponse
+)
 async def update_entity_label(
     entity_id: str,
     language_code: str,
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> Response:
+) -> EntityResponse:
     """Update entity label for language."""
     logger.info(
         f"📝 LABEL UPDATE: Starting label update for entity={entity_id}, language={language_code}"
@@ -76,17 +78,18 @@ async def update_entity_label(
         validator,
     )
 
-    response_dict = result.model_dump(mode="json", by_alias=True)
-    return JSONResponse(content=response_dict)
+    return result
 
 
-@router.delete("/entities/{entity_id}/labels/{language_code}")
+@router.delete(
+    "/entities/{entity_id}/labels/{language_code}", response_model=EntityResponse
+)
 async def delete_entity_label(
     entity_id: str,
     language_code: str,
     req: Request,
     headers: EditHeadersType,
-) -> Response:
+) -> EntityResponse:
     """Delete entity label for language."""
     logger.info(
         f"🗑️ LABEL DELETE: Starting label deletion for entity={entity_id}, language={language_code}"
@@ -103,18 +106,19 @@ async def delete_entity_label(
         validator,
     )
 
-    response_dict = result.model_dump(mode="json", by_alias=True)
-    return JSONResponse(content=response_dict)
+    return result
 
 
-@router.post("/entities/{entity_id}/labels/{language_code}")
+@router.post(
+    "/entities/{entity_id}/labels/{language_code}", response_model=EntityResponse
+)
 async def add_entity_label(
     entity_id: str,
     language_code: str,
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> Response:
+) -> EntityResponse:
     """Add a new label to entity for language (alias for PUT)."""
     logger.info(
         f"📝 LABEL ADD: Starting label add for entity={entity_id}, language={language_code}"
@@ -137,5 +141,4 @@ async def add_entity_label(
         validator,
     )
 
-    response_dict = result.model_dump(mode="json", by_alias=True)
-    return JSONResponse(content=response_dict)
+    return result

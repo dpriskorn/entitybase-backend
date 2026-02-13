@@ -2,6 +2,146 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-02-13] FastAPI response_model_by_alias Configuration
+
+### Summary
+
+Configured all FastAPI applications to use `response_model_by_alias=True`, enabling automatic field alias usage in JSON responses. Simplified term update endpoints (labels, aliases, descriptions) by removing manual `model_dump(mode="json", by_alias=True)` calls and `JSONResponse` wrappers.
+
+### Motivation
+
+- **Consistency**: Ensure all FastAPI responses use field aliases consistently across the API
+- **Simplicity**: Eliminate manual serialization code in endpoints
+- **Correctness**: Rely on FastAPI's built-in response serialization with proper configuration
+- **Maintainability**: Reduce boilerplate code and potential for errors
+
+### Changes
+
+#### FastAPI Application Configuration
+
+**Files Updated (5 files):**
+
+1. `src/models/rest_api/main.py:133` - Added `response_model_by_alias=True` to EntityBase app
+2. `src/models/rest_api/app.py:43` - Added `response_model_by_alias=True` to Wikibase Backend API app
+3. `src/models/workers/json_dumps/json_dump_worker.py:392` - Added to JSON dump worker app
+4. `src/models/workers/ttl_dumps/ttl_dump_worker.py:445` - Added to TTL dump worker app
+5. `src/models/workers/id_generation/id_generation_worker.py:206` - Added to ID generation worker app
+
+**Change Pattern:**
+```python
+# Before
+app = FastAPI(
+    title="EntityBase", version="1.0.0", openapi_version="3.1", lifespan=lifespan
+)
+
+# After
+app = FastAPI(
+    title="EntityBase", version="1.0.0", openapi_version="3.1", lifespan=lifespan, response_model_by_alias=True
+)
+```
+
+#### Endpoint Simplification
+
+**Files Updated (3 files, 9 endpoints):**
+
+1. `src/models/rest_api/entitybase/v1/endpoints/entities_labels.py`
+   - Updated imports: Added `EntityResponse`, removed `Response` and `JSONResponse` import
+   - `PUT /entities/{entity_id}/labels/{language_code}` - Added `response_model=EntityResponse`, removed manual serialization
+   - `DELETE /entities/{entity_id}/labels/{language_code}` - Added `response_model=EntityResponse`, removed manual serialization
+   - `POST /entities/{entity_id}/labels/{language_code}` - Added `response_model=EntityResponse`, removed manual serialization
+
+2. `src/models/rest_api/entitybase/v1/endpoints/entities_aliases.py`
+   - Updated imports: Added `EntityResponse`, removed `Response` and `JSONResponse` import
+   - `PUT /entities/{entity_id}/aliases/{language_code}` - Added `response_model=EntityResponse`, removed manual serialization
+   - `POST /entities/{entity_id}/aliases/{language_code}` - Added `response_model=EntityResponse`, removed manual serialization
+   - `DELETE /entities/{entity_id}/aliases/{language_code}` - Added `response_model=EntityResponse`, removed manual serialization
+
+3. `src/models/rest_api/entitybase/v1/endpoints/entities_descriptions.py`
+   - Updated imports: Added `EntityResponse`, removed `Response` and `JSONResponse` import
+   - `PUT /entities/{entity_id}/descriptions/{language_code}` - Added `response_model=EntityResponse`, removed manual serialization
+   - `DELETE /entities/{entity_id}/descriptions/{language_code}` - Added `response_model=EntityResponse`, removed manual serialization
+   - `POST /entities/{entity_id}/descriptions/{language_code}` - Added `response_model=EntityResponse`, removed manual serialization
+
+**Endpoint Change Pattern:**
+```python
+# Before
+@router.put("/entities/{entity_id}/labels/{language_code}")
+async def update_entity_label(
+    entity_id: str,
+    language_code: str,
+    request: TermUpdateRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> Response:
+    """Update entity label for language."""
+    # ... handler code ...
+    result = await update_handler.update_label(entity_id, context, headers, validator)
+    response_dict = result.model_dump(mode="json", by_alias=True)
+    return JSONResponse(content=response_dict)
+
+# After
+@router.put("/entities/{entity_id}/labels/{language_code}", response_model=EntityResponse)
+async def update_entity_label(
+    entity_id: str,
+    language_code: str,
+    request: TermUpdateRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
+    """Update entity label for language."""
+    # ... handler code ...
+    result = await update_handler.update_label(entity_id, context, headers, validator)
+    return result
+```
+
+### Benefits
+
+**Consistency:**
+- All FastAPI apps now uniformly use `response_model_by_alias=True`
+- Field aliases (e.g., `revision_id` → `rev_id`) are automatically applied to JSON responses
+- Consistent with Pydantic model configurations that use `populate_by_name=True`
+
+**Code Simplification:**
+- Removed 9 instances of manual `model_dump(mode="json", by_alias=True)` calls
+- Removed 9 instances of `JSONResponse` wrapper returns
+- Clearer endpoint return types that match `response_model` declarations
+
+**Maintainability:**
+- Less boilerplate code to maintain
+- Reduced chance of forgetting `by_alias=True` in new endpoints
+- Leverages FastAPI's built-in response serialization
+
+**Correctness:**
+- Ensures all response models with field aliases properly serialize to JSON with aliases
+- Models with `populate_by_name=True` can accept both field names and aliases for input, while output uses aliases
+- No risk of mismatch between endpoint signature and actual serialization behavior
+
+### Technical Details
+
+**Field Alias Examples:**
+The following response models use field aliases that will now be properly serialized:
+- `EntityResponse`: `revision_id` → `rev_id`, `entity_data` → `data`
+- `EntityMetadataResponse`: `revision_id` → `rev_id`, `entity_data` → `data`
+- `EditHeaders` (request model): `x_user_id` → `X-User-ID`, `x_edit_summary` → `X-Edit-Summary`
+- `Statement` (S3 model): `schema_version` → `schema`, `content_hash` → `hash`
+
+**Populate by Name:**
+Many response models already have `populate_by_name=True`, allowing:
+```python
+# Input can use either field name or alias
+EntityResponse(rev_id=123)  # Works with alias
+EntityResponse(revision_id=123)  # Works with field name
+
+# Output always uses aliases
+# JSON: {"rev_id": 123, ...}
+```
+
+### Backward Compatibility
+
+- **No breaking changes**: This change makes serialization more consistent across all endpoints
+- **Existing tests**: Should continue to work as they already expect aliased field names in responses
+- **API consumers**: Will see no change in response format - they already receive aliased field names from endpoints using manual serialization
+
 ## [2026-02-11] Lexeme Lemma Support with S3 Deduplication
 
 ## [2026-02-11] Weekly JSON and TTL Dump Workers

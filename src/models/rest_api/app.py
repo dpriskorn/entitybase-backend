@@ -45,4 +45,5 @@ app = FastAPI(
     description="Backend API for Wikibase entity management",
     version="1.0.0",
     lifespan=lifespan,
+    response_model_by_alias=True,
 )
