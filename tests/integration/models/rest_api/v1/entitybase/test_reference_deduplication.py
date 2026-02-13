@@ -87,7 +87,7 @@ async def test_reference_batch_endpoint(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Assume some references exist from previous test
-        response = await client.get(f"{api_prefix}/references/123,456")
+        response = await client.get(f"{api_prefix}/resolve/references/123,456")
         # Should return array with nulls for missing
         assert response.status_code == 200
         data = response.json()

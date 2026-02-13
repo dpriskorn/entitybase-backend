@@ -10,9 +10,7 @@ sys.path.insert(0, "src")
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_batch_statements(
-    api_prefix: str, sample_item_with_statements
-) -> None:
+async def test_batch_statements(api_prefix: str, sample_item_with_statements) -> None:
     """E2E test: Retrieve multiple statements by their content hashes."""
     from models.rest_api.main import app
 
@@ -55,8 +53,7 @@ async def test_fetch_qualifiers(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Fetch qualifiers (may return empty if no hashes exist)
-        response = await client.get(f"{api_prefix}/qualifiers/123,456")
+        response = await client.get(f"{api_prefix}/resolve/qualifiers/123,456")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
@@ -71,8 +68,7 @@ async def test_fetch_references(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Fetch references (may return empty if no hashes exist)
-        response = await client.get(f"{api_prefix}/references/123,456")
+        response = await client.get(f"{api_prefix}/resolve/references/123,456")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
@@ -87,8 +83,7 @@ async def test_fetch_snaks(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Fetch snaks (may return empty if no hashes exist)
-        response = await client.get(f"{api_prefix}/snaks/123,456")
+        response = await client.get(f"{api_prefix}/resolve/snaks/123,456")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)

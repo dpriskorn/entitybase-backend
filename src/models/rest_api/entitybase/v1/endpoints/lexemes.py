@@ -40,14 +40,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# Sub-routers for representations and glosses
-representations_router = APIRouter(prefix="/representations", tags=["lexemes"])
-glosses_router = APIRouter(prefix="/glosses", tags=["lexemes"])
-
-# Include sub-routers
-router.include_router(representations_router)
-router.include_router(glosses_router)
-
 
 def _parse_form_id(form_id: str) -> tuple[str, str]:
     """Parse form ID and extract lexeme ID and form suffix.
@@ -678,6 +670,7 @@ async def get_lexeme_lemmas(lexeme_id: str, req: Request) -> LemmasResponse:
     lemmas_data = entity.entity_data.revision.get("lemmas", {})
 
     from models.data.rest_api.v1.entitybase.response.lexemes import RepresentationData
+
     lemmas = {
         lang: RepresentationData(language=lang, value=data["value"])
         for lang, data in lemmas_data.items()
@@ -852,70 +845,6 @@ async def delete_lexeme_lemma(
     )
 
 
-@representations_router.get("/{hashes}")
-async def get_representations(req: Request, hashes: str) -> list[Optional[str]]:
-    """Fetch form representations by hash(es).
-
-    Supports single hash (e.g., /representations/123) or comma-separated batch
-    (e.g., /representations/123,456,789).
-
-    Returns array of representation strings in request order; null for missing hashes.
-    Max 100 hashes per request.
-    """
-    state = req.app.state.state_handler
-    hash_list = [h.strip() for h in hashes.split(",") if h.strip()]
-    if not hash_list:
-        raise HTTPException(status_code=400, detail="No hashes provided")
-
-    if len(hash_list) > 100:
-        raise HTTPException(status_code=400, detail="Too many hashes (max 100)")
-
-    try:
-        # Convert to int
-        rapidhashes = [int(h) for h in hash_list]
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid hash format")
-
-    try:
-        result = state.s3_client.load_form_representations_batch(rapidhashes)
-        return cast(list[str | None], result)
-    except Exception as e:
-        logger.error(f"Failed to load representations: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-
-@glosses_router.get("/{hashes}")
-async def get_glosses(req: Request, hashes: str) -> list[Optional[str]]:
-    """Fetch sense glosses by hash(es).
-
-    Supports single hash (e.g., /glosses/123) or comma-separated batch
-    (e.g., /glosses/123,456,789).
-
-    Returns array of gloss strings in request order; null for missing hashes.
-    Max 100 hashes per request.
-    """
-    state = req.app.state.state_handler
-    hash_list = [h.strip() for h in hashes.split(",") if h.strip()]
-    if not hash_list:
-        raise HTTPException(status_code=400, detail="No hashes provided")
-
-    if len(hash_list) > 100:
-        raise HTTPException(status_code=400, detail="Too many hashes (max 100)")
-
-    try:
-        # Convert to int
-        rapidhashes = [int(h) for h in hash_list]
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid hash format")
-
-    try:
-        result = state.s3_client.load_sense_glosses_batch(rapidhashes)
-        return cast(list[str | None], result)
-    except Exception as e:
-        logger.error(f"Failed to load glosses: {e}")
-        raise HTTPException(status_code=500, detail="Internal server error")
-
-
 @router.delete(
     "/entities/lexemes/forms/{form_id}/representation/{langcode}",
     response_model=EntityResponse,
@@ -1056,7 +985,9 @@ async def add_form_statement(
             if "claims" not in form:
                 form["claims"] = {}
             claim = request.claim
-            property_id = claim.get("property", {}).get("id") or claim.get("mainsnak", {}).get("property")
+            property_id = claim.get("property", {}).get("id") or claim.get(
+                "mainsnak", {}
+            ).get("property")
             if not property_id:
                 raise HTTPException(
                     status_code=400,
@@ -1112,7 +1043,9 @@ async def add_sense_statement(
             if "claims" not in sense:
                 sense["claims"] = {}
             claim = request.claim
-            property_id = claim.get("property", {}).get("id") or claim.get("mainsnak", {}).get("property")
+            property_id = claim.get("property", {}).get("id") or claim.get(
+                "mainsnak", {}
+            ).get("property")
             if not property_id:
                 raise HTTPException(
                     status_code=400,

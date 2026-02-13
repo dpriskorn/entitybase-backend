@@ -21,8 +21,7 @@ async def test_get_qualifiers_by_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Get qualifiers (may return empty if no hashes exist)
-        response = await client.get(f"{api_prefix}/qualifiers/123,456,789")
+        response = await client.get(f"{api_prefix}/resolve/qualifiers/123,456,789")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -37,7 +36,7 @@ async def test_get_single_qualifier_by_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/qualifiers/123")
+        response = await client.get(f"{api_prefix}/resolve/qualifiers/123")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -52,7 +51,7 @@ async def test_get_references_by_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/references/123,456,789")
+        response = await client.get(f"{api_prefix}/resolve/references/123,456,789")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -67,7 +66,7 @@ async def test_get_single_reference_by_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/references/123")
+        response = await client.get(f"{api_prefix}/resolve/references/123")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -82,7 +81,7 @@ async def test_get_snaks_by_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/snaks/123,456,789")
+        response = await client.get(f"{api_prefix}/resolve/snaks/123,456,789")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -97,7 +96,7 @@ async def test_get_single_snak_by_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/snaks/123")
+        response = await client.get(f"{api_prefix}/resolve/snaks/123")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -112,7 +111,7 @@ async def test_get_glosses_by_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/glosses/123,456,789")
+        response = await client.get(f"{api_prefix}/resolve/glosses/123,456,789")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -127,7 +126,7 @@ async def test_get_single_gloss_by_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/glosses/123")
+        response = await client.get(f"{api_prefix}/resolve/glosses/123")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -142,7 +141,7 @@ async def test_get_representations_by_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/representations/123,456,789")
+        response = await client.get(f"{api_prefix}/resolve/representations/123,456,789")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -157,7 +156,7 @@ async def test_get_single_representation_by_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/representations/123")
+        response = await client.get(f"{api_prefix}/resolve/representations/123")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -234,11 +233,11 @@ async def test_get_empty_hashes_result(api_prefix: str) -> None:
     ) as client:
         # All hash resolution endpoints should handle non-existent hashes gracefully
         endpoints_to_test = [
-            f"{api_prefix}/qualifiers/999999999",
-            f"{api_prefix}/references/999999999",
-            f"{api_prefix}/snaks/999999999",
-            f"{api_prefix}/glosses/999999999",
-            f"{api_prefix}/representations/999999999",
+            f"{api_prefix}/resolve/qualifiers/999999999",
+            f"{api_prefix}/resolve/references/999999999",
+            f"{api_prefix}/resolve/snaks/999999999",
+            f"{api_prefix}/resolve/glosses/999999999",
+            f"{api_prefix}/resolve/representations/999999999",
         ]
 
         for endpoint in endpoints_to_test:

@@ -66,19 +66,19 @@
 | ✅ | DELETE | `/entities/{entity_id}/statements/{statement_hash}` | Remove a statement by hash from an entity. |
 | ✅ | PATCH | `/entities/{entity_id}/statements/{statement_hash}` | Replace a statement by hash with new claim data. |
 | ✅ | GET | `/entity/{entity_id}/properties/{property_list}` | Get statement hashes for specified properties in an entity. |
-| ✅ | GET | `/entitybase/v1/entities/aliases/{hashes}` | Get batch aliases by hashes. |
-| ✅ | GET | `/entitybase/v1/entities/descriptions/{hashes}` | Get batch descriptions by hashes. |
-| ✅ | GET | `/entitybase/v1/entities/labels/{hashes}` | Get batch labels by hashes. |
-| ✅ | GET | `/entitybase/v1/entities/sitelinks/{hashes}` | Get batch sitelink titles by hashes. |
 | ✅ | GET | `/entitybase/v1/statements/batch` | Get batch statements for entities and properties. |
-| ✅ | GET | `/glosses/{hashes}` | Fetch sense glosses by hash(es). |
 | ✅ | GET | `/health` | Health check endpoint for monitoring service status. |
 | ✅ | POST | `/import` | Import a single entity of any type. |
-| ✅ | GET | `/qualifiers/{hashes}` | Fetch qualifiers by hash(es). |
 | ✅ | POST | `/redirects` | Create a redirect for an entity. |
-| ✅ | GET | `/references/{hashes}` | Fetch references by hash(es). |
-| ✅ | GET | `/representations/{hashes}` | Fetch form representations by hash(es). |
-| ✅ | GET | `/snaks/{hashes}` | Fetch snaks by hash(es). |
+| ✅ | GET | `/resolve/aliases/{hashes}` | Get batch aliases by hashes. |
+| ✅ | GET | `/resolve/descriptions/{hashes}` | Get batch descriptions by hashes. |
+| ✅ | GET | `/resolve/glosses/{hashes}` | Fetch sense glosses by hash(es). |
+| ✅ | GET | `/resolve/labels/{hashes}` | Get batch labels by hashes. |
+| ✅ | GET | `/resolve/qualifiers/{hashes}` | Fetch qualifiers by hash(es). |
+| ✅ | GET | `/resolve/references/{hashes}` | Fetch references by hash(es). |
+| ✅ | GET | `/resolve/representations/{hashes}` | Fetch form representations by hash(es). |
+| ✅ | GET | `/resolve/sitelinks/{hashes}` | Get batch sitelink titles by hashes. |
+| ✅ | GET | `/resolve/snaks/{hashes}` | Fetch snaks by hash(es). |
 | ✅ | POST | `/statements/batch` | Retrieve multiple statements by their content hashes in a batch request. |
 | ✅ | POST | `/statements/cleanup-orphaned` | Clean up orphaned statements that are no longer referenced. |
 | ✅ | GET | `/statements/most_used` | Get most used statements based on reference count. |

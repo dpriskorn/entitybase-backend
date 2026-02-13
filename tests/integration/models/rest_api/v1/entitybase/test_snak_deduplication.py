@@ -155,7 +155,7 @@ async def test_snak_endpoint_single_fetch(api_prefix: str) -> None:
         mock_hash = "123456789"
 
         # Test fetching snak (this will likely return null for now)
-        response = await client.get(f"{api_prefix}/snaks/{mock_hash}")
+        response = await client.get(f"{api_prefix}/resolve/snaks/{mock_hash}")
         # The endpoint exists, but may return null if the hash doesn't exist
         assert response.status_code == 200
         result = response.json()
@@ -177,7 +177,7 @@ async def test_snak_endpoint_batch_fetch(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/snaks/{mock_hashes}")
+        response = await client.get(f"{api_prefix}/resolve/snaks/{mock_hashes}")
         assert response.status_code == 200
         result = response.json()
 
@@ -196,7 +196,7 @@ async def test_snak_endpoint_invalid_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/snaks/invalid-hash")
+        response = await client.get(f"{api_prefix}/resolve/snaks/invalid-hash")
         assert response.status_code == 400
         error = response.json()
         assert "Invalid hash format" in error["message"]
@@ -214,7 +214,7 @@ async def test_snak_endpoint_too_many_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/snaks/{mock_hashes}")
+        response = await client.get(f"{api_prefix}/resolve/snaks/{mock_hashes}")
         assert response.status_code == 400
         error = response.json()
         assert "Too many hashes" in error["message"]
@@ -229,11 +229,11 @@ async def test_snak_endpoint_no_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/snaks/")
+        response = await client.get(f"{api_prefix}/resolve/snaks/")
         assert response.status_code == 404
 
         # Test with empty hash parameter
-        response = await client.get(f"{api_prefix}/snaks/,,,")
+        response = await client.get(f"{api_prefix}/resolve/snaks/,,,")
         assert response.status_code == 400
         error = response.json()
         assert "No hashes provided" in error["message"]

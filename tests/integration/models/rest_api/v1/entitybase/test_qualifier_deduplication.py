@@ -157,7 +157,7 @@ async def test_qualifier_endpoint_single_fetch(api_prefix: str) -> None:
         assert isinstance(qualifier_hash, int)
 
         # Test fetching qualifier
-        response = await client.get(f"{api_prefix}/qualifiers/{qualifier_hash}")
+        response = await client.get(f"{api_prefix}/resolve/qualifiers/{qualifier_hash}")
         assert response.status_code == 200
         result = response.json()
         # Should return array with one element containing qualifier data
@@ -315,7 +315,7 @@ async def test_qualifier_endpoint_batch_fetch(api_prefix: str) -> None:
         hashes_str = ",".join(str(h) for h in qualifier_hashes)
 
         # Test batch fetch
-        response = await client.get(f"{api_prefix}/qualifiers/{hashes_str}")
+        response = await client.get(f"{api_prefix}/resolve/qualifiers/{hashes_str}")
         assert response.status_code == 200
         result = response.json()
 
@@ -335,7 +335,7 @@ async def test_qualifier_endpoint_invalid_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/qualifiers/invalid-hash")
+        response = await client.get(f"{api_prefix}/resolve/qualifiers/invalid-hash")
         assert response.status_code == 400
         error = response.json()
         assert "Invalid hash format" in error["message"]
@@ -353,7 +353,7 @@ async def test_qualifier_endpoint_too_many_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/qualifiers/{mock_hashes}")
+        response = await client.get(f"{api_prefix}/resolve/qualifiers/{mock_hashes}")
         assert response.status_code == 400
         error = response.json()
         assert "Too many hashes" in error["message"]
@@ -368,11 +368,11 @@ async def test_qualifier_endpoint_no_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/qualifiers/")
+        response = await client.get(f"{api_prefix}/resolve/qualifiers/")
         assert response.status_code == 404
 
         # Test with empty hash parameter
-        response = await client.get(f"{api_prefix}/qualifiers/,,,")
+        response = await client.get(f"{api_prefix}/resolve/qualifiers/,,,")
         assert response.status_code == 400
         error = response.json()
         assert "No hashes provided" in error["message"]

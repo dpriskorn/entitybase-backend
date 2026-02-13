@@ -7,6 +7,7 @@ from . import (
     endorsements,
     entities,
     health,
+    resolve,
     thanks,
     users,
 )
@@ -24,4 +25,5 @@ def include_routes(app: "FastAPI") -> None:
     app.include_router(thanks.thanks_router, prefix=settings.api_prefix)
     app.include_router(endorsements.endorsements_router, prefix=settings.api_prefix)
     app.include_router(entities.entities_router, prefix=settings.api_prefix)
+    app.include_router(resolve.resolve_router, prefix=settings.api_prefix)
     # v1 routes are added via imports above
