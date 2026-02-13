@@ -528,6 +528,38 @@ Response model for entity aliases.
 
 - `aliases` (list[str]): List of alias texts for the specified language
 
+### BatchAliasesResponse
+
+Response model for batch aliases lookup by hash.
+
+**Fields**:
+
+- `aliases` (dict[str, list[str]]): Dictionary mapping hash strings to alias text lists
+
+### BatchDescriptionsResponse
+
+Response model for batch descriptions lookup by hash.
+
+**Fields**:
+
+- `descriptions` (dict[str, str]): Dictionary mapping hash strings to description text
+
+### BatchLabelsResponse
+
+Response model for batch labels lookup by hash.
+
+**Fields**:
+
+- `labels` (dict[str, str]): Dictionary mapping hash strings to label text
+
+### BatchSitelinksResponse
+
+Response model for batch sitelinks lookup by hash.
+
+**Fields**:
+
+- `sitelinks` (dict[str, str]): Dictionary mapping hash strings to sitelink titles
+
 ### CleanupOrphanedResponse
 
 **Fields**:
@@ -861,6 +893,14 @@ Result of revision processing.
 - `error` (str): Error message if the operation failed
 
 ## models/data/rest_api/v1/entitybase/response/statement.py
+
+### BatchStatementsResponse
+
+Response model for batch statements lookup.
+
+**Fields**:
+
+- `statements` (dict[str, dict[str, list[int]]]): Dictionary mapping entity_id → property_id → list of statement hashes
 
 ### MostUsedStatementsResponse
 

@@ -9,7 +9,12 @@ package "Models" as Models #LightCyan {
     "BacklinkStatisticsData" as BacklinkStatisticsData
     "BacklinkStatistics" as BacklinkStatisticsResponse
     "Backlinks" as BacklinksResponse
+    "BatchAliases" as BatchAliasesResponse
+    "BatchDescriptions" as BatchDescriptionsResponse
     "BatchEndorsementStats" as BatchEndorsementStatsResponse
+    "BatchLabels" as BatchLabelsResponse
+    "BatchSitelinks" as BatchSitelinksResponse
+    "BatchStatements" as BatchStatementsResponse
     "CleanupOrphaned" as CleanupOrphanedResponse
     "DeduplicationStats" as DeduplicationStatsResponse
     "Description" as DescriptionResponse

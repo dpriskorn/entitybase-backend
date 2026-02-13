@@ -5,6 +5,8 @@
 | ✅ | GET | `/entities` | List entities based on type, status, edit_type, limit, and offset. |
 | ✅ | POST | `/entities/items` | Create a new item entity. |
 | ✅ | POST | `/entities/lexemes` | Create a new lexeme entity. |
+| ✅ | GET | `/entities/lexemes/forms/{form_id}` | Get form by ID. |
+| ✅ | DELETE | `/entities/lexemes/forms/{form_id}` | Delete a form. |
 | ✅ | GET | `/entities/lexemes/forms/{form_id}` | Get single form by ID (accepts L42-F1 or F1 format). |
 | ✅ | DELETE | `/entities/lexemes/forms/{form_id}` | Delete a form by ID. |
 | ✅ | GET | `/entities/lexemes/forms/{form_id}/representation` | Get all representations for a form. |
@@ -12,14 +14,20 @@
 | ✅ | POST | `/entities/lexemes/forms/{form_id}/representation/{langcode}` | Add a new form representation for language. |
 | ✅ | PUT | `/entities/lexemes/forms/{form_id}/representation/{langcode}` | Update form representation for language. |
 | ✅ | DELETE | `/entities/lexemes/forms/{form_id}/representation/{langcode}` | Delete form representation for language. |
+| ✅ | PUT | `/entities/lexemes/forms/{form_id}/representations/{langcode}` | Update form representation for a language. |
+| ✅ | DELETE | `/entities/lexemes/forms/{form_id}/representations/{langcode}` | Delete form representation for a language. |
 | ✅ | POST | `/entities/lexemes/forms/{form_id}/statements` | Add a statement to a form. |
+| ✅ | GET | `/entities/lexemes/senses/{sense_id}` | Get sense by ID. |
+| ✅ | DELETE | `/entities/lexemes/senses/{sense_id}` | Delete a sense. |
 | ✅ | GET | `/entities/lexemes/senses/{sense_id}` | Get single sense by ID (accepts L42-S1 or S1 format). |
 | ✅ | DELETE | `/entities/lexemes/senses/{sense_id}` | Delete a sense by ID. |
 | ✅ | GET | `/entities/lexemes/senses/{sense_id}/glosses` | Get all glosses for a sense. |
+| ✅ | DELETE | `/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Delete sense gloss for a language. |
 | ✅ | GET | `/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Get gloss for a sense in specific language. |
 | ✅ | PUT | `/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Update sense gloss for language. |
 | ✅ | DELETE | `/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Delete sense gloss for language. |
 | ✅ | POST | `/entities/lexemes/senses/{sense_id}/statements` | Add a statement to a sense. |
+| ✅ | GET | `/entities/lexemes/{lexeme_id}/forms` | Get all forms for a lexeme, sorted by numeric suffix. |
 | ✅ | GET | `/entities/lexemes/{lexeme_id}/forms` | List all forms for a lexeme, sorted by numeric suffix. |
 | ✅ | POST | `/entities/lexemes/{lexeme_id}/forms` | Create a new form for a lexeme. |
 | ✅ | GET | `/entities/lexemes/{lexeme_id}/lemmas` | Get all lemmas for a lexeme. |
@@ -27,6 +35,7 @@
 | ✅ | POST | `/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Add a new lemma for language. |
 | ✅ | PUT | `/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Update lemma for language. |
 | ✅ | DELETE | `/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Delete lemma for language. |
+| ✅ | GET | `/entities/lexemes/{lexeme_id}/senses` | Get all senses for a lexeme, sorted by numeric suffix. |
 | ✅ | GET | `/entities/lexemes/{lexeme_id}/senses` | List all senses for a lexeme, sorted by numeric suffix. |
 | ✅ | POST | `/entities/lexemes/{lexeme_id}/senses` | Create a new sense for a lexeme. |
 | ✅ | POST | `/entities/properties` | Create a new property entity. |
@@ -38,6 +47,7 @@
 | ✅ | PUT | `/entities/{entity_id}/aliases/{language_code}` | Update entity aliases for language. |
 | ✅ | POST | `/entities/{entity_id}/aliases/{language_code}` | Add a single alias to entity for language. |
 | ✅ | DELETE | `/entities/{entity_id}/aliases/{language_code}` | Delete all aliases for entity language. |
+| ✅ | GET | `/entities/{entity_id}/backlinks` | Get backlinks for an entity. |
 | ✅ | GET | `/entities/{entity_id}/descriptions/{language_code}` | Get entity description text for language. |
 | ✅ | PUT | `/entities/{entity_id}/descriptions/{language_code}` | Update entity description for language. |
 | ✅ | DELETE | `/entities/{entity_id}/descriptions/{language_code}` | Delete entity description for language. |
@@ -107,6 +117,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 102 |
+| Implemented | 112 |
 | Not Implemented | 0 |
-| Total | 102 |
+| Total | 112 |
