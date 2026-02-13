@@ -7,6 +7,7 @@ import pymysql
 from typing import Any
 from pydantic import Field, BaseModel
 from pymysql.connections import Connection
+from pymysql.cursors import Cursor
 
 from models.data.config.vitess import VitessConfig
 
@@ -257,7 +258,7 @@ class CursorContextManager:
         self.connection: Connection | None = None
         self.cursor: Any | None = None
 
-    def __enter__(self) -> Any:
+    def __enter__(self) -> Cursor:
         """Acquire connection from pool and create cursor."""
         self.connection = self.connection_manager.acquire()
         if self.connection is None:
