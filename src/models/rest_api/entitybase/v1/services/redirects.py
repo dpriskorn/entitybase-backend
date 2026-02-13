@@ -38,7 +38,7 @@ class RedirectService(Service):
             request.redirect_from_id,
             request.redirect_to_id,
         )
-
+        logger.debug("Validating redirect constraints")
         if request.redirect_from_id == request.redirect_to_id:
             raise_validation_error("Cannot redirect to self", status_code=400)
 
@@ -60,6 +60,7 @@ class RedirectService(Service):
                 "Target entity is locked or archived", status_code=423
             )
 
+        logger.debug("Getting head revisions for source and target entities")
         to_head_revision_id = self.vitess_client.get_head(request.redirect_to_id)
         if to_head_revision_id == 0:
             raise_validation_error("Target entity has no revisions", status_code=404)
@@ -89,6 +90,7 @@ class RedirectService(Service):
         revision_dict = redirect_revision_data.model_dump(mode="json")
         revision_json = json.dumps(revision_dict, sort_keys=True)
         content_hash = MetadataExtractor.hash_string(revision_json)
+        logger.debug(f"Content hash: {content_hash}")
 
         s3_revision_data = S3RevisionData(
             schema=settings.s3_schema_revision_version,
@@ -97,8 +99,10 @@ class RedirectService(Service):
             created_at=datetime.now(timezone.utc).isoformat(),
         )
 
+        logger.debug("Storing revision to S3")
         self.state.s3_client.store_revision(content_hash, s3_revision_data)
 
+        logger.debug("Creating revision in Vitess")
         self.vitess_client.create_revision(
             entity_id=request.redirect_from_id,
             revision_id=redirect_revision_id,

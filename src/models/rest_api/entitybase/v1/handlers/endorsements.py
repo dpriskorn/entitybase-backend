@@ -26,6 +26,7 @@ class EndorsementHandler(Handler):
     ) -> EndorsementResponse:
         """Create an endorsement for a statement."""
         logger.debug(f"Endorsing statement {statement_hash} for user {user_id}")
+        logger.debug("Validating user exists")
         # Validate user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=400)
@@ -95,6 +96,7 @@ class EndorsementHandler(Handler):
         logger.debug(
             f"Withdrawing endorsement for statement {statement_hash} by user {user_id}"
         )
+        logger.debug("Validating user exists")
         # Validate user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
             raise_validation_error("User not registered", status_code=400)

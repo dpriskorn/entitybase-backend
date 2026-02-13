@@ -49,10 +49,14 @@ def process_lexeme_terms(
 
     Errors during S3 storage are logged as warnings but don't halt processing.
     """
+    logger.debug(
+        f"Processing lexeme terms: {len(forms)} forms, {len(senses)} senses, {len(lemmas) if lemmas else 0} lemmas"
+    )
     if not forms and not senses and not lemmas:
         logger.debug("No forms, senses, or lemmas to process")
         return
 
+    logger.debug("Starting lemmas processing")
     if lemmas:
         lemmas_config = TermProcessingConfig(
             data_key="value",
@@ -68,6 +72,7 @@ def process_lexeme_terms(
             on_lemma_stored,
         )
 
+    logger.debug("Starting forms and senses processing")
     forms_config = TermProcessingConfig(
         data_key="representations",
         hash_key="representation_hashes",

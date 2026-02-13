@@ -27,6 +27,7 @@ class EntityDeleteHandler(Handler):
     ) -> EntityDeleteResponse:
         """Delete entity (soft or hard delete)."""
         delete_service = DeleteService(state=self.state)
+        logger.debug(f"Initializing delete for entity {entity_id}")
 
         logger.info(
             f"=== ENTITY DELETE START: {entity_id} ===",
@@ -38,6 +39,7 @@ class EntityDeleteHandler(Handler):
             },
         )
 
+        logger.debug("Validating delete preconditions")
         delete_service.validate_delete_preconditions()
         head_revision_id = delete_service.validate_entity_state(entity_id)
         delete_service.validate_protection_status(entity_id)

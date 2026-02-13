@@ -125,6 +125,7 @@ class UserHandler(Handler):
         connection = self.state.vitess_client.connection_manager.acquire()
         cursor = connection.cursor()
         try:
+            logger.debug("Executing query for general_daily_stats")
             cursor.execute(
                 "SELECT stat_date, total_statements, total_qualifiers, total_references, total_items, total_lexemes, total_properties, total_sitelinks, total_terms, terms_per_language, terms_by_type FROM general_daily_stats ORDER BY stat_date DESC LIMIT 1"
             )

@@ -56,7 +56,7 @@ class CreationTransaction(EntityTransaction):
     ) -> EntityResponse:
         """Create revision using new architecture components."""
         logger.debug(f"Creating revision for {entity_id}")
-
+        logger.debug("Importing hash service and revision components")
         from models.rest_api.entitybase.v1.services.hash_service import HashService
         from models.data.infrastructure.s3.enums import EditType, EditData
         from models.data.infrastructure.s3.entity_state import EntityState
@@ -70,6 +70,7 @@ class CreationTransaction(EntityTransaction):
         from models.infrastructure.s3.revision.revision_data import RevisionData
         from models.config.settings import settings
 
+        logger.debug("Hashing terms")
         hs = HashService(state=self.state)
         sitelink_hashes = hs.hash_sitelinks(request_data.sitelinks)
         labels_hashes = hs.hash_labels(request_data.labels)
@@ -78,6 +79,7 @@ class CreationTransaction(EntityTransaction):
 
         created_at = datetime.now().isoformat()
 
+        logger.debug("Creating RevisionData object")
         # noinspection PyArgumentList
         revision_data = RevisionData(
             revision_id=1,

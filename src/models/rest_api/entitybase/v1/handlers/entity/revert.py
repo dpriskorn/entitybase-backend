@@ -32,6 +32,7 @@ class EntityRevertHandler(Handler):
         logger.debug(
             f"Reverting entity {entity_id} to revision {request.to_revision_id}"
         )
+        logger.debug("Resolving internal entity ID")
         # Resolve internal ID
         internal_entity_id = self.state.vitess_client.id_resolver.resolve_id(entity_id)
 
@@ -68,9 +69,11 @@ class EntityRevertHandler(Handler):
                 status_code=400,
             )
 
+        logger.debug(f"New revision ID: {new_revision_id}")
         # Calculate new revision ID
         new_revision_id = head_revision + 1
 
+        logger.debug("Creating new revision data from target revision")
         # Create new revision data using RevisionData model
         # For revert, we need to copy the entity data from target revision
         target_data = (
@@ -130,6 +133,7 @@ class EntityRevertHandler(Handler):
             properties=target_data.get("properties", []),
         )
 
+        logger.debug("Converting revision to dict and computing hash")
         # Write new revision to S3
         import json
         from models.internal_representation.metadata_extractor import MetadataExtractor
@@ -139,6 +143,7 @@ class EntityRevertHandler(Handler):
         revision_dict = new_revision_data.model_dump(mode="json")
         revision_json = json.dumps(revision_dict, sort_keys=True)
         content_hash = MetadataExtractor.hash_string(revision_json)
+        logger.debug(f"Content hash: {content_hash}")
 
         s3_revision_data = S3RevisionData(
             schema=settings.s3_schema_revision_version,
@@ -147,8 +152,10 @@ class EntityRevertHandler(Handler):
             created_at=datetime.now(timezone.utc).isoformat(),
         )
 
+        logger.debug("Storing revision to S3")
         self.state.s3_client.store_revision(content_hash, s3_revision_data)
 
+        logger.debug("Inserting revision in Vitess")
         # Insert revision in DB
         self.state.vitess_client.insert_revision(
             entity_id,
