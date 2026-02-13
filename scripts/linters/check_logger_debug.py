@@ -39,8 +39,8 @@ class LoggerViolation(BaseModel):
 
 
 def load_allowlist() -> set:
-    """Load the logger allowlist from config/linters/allowlists/logger.txt."""
-    allowlist_path = Path("config/linters/allowlists/logger.txt")
+    """Load the logger allowlist from config/linters/allowlists/custom/logger.txt."""
+    allowlist_path = Path("config/linters/allowlists/custom/logger.txt")
     allowlist = set()
     if allowlist_path.exists():
         with open(allowlist_path, "r", encoding="utf-8") as f:
