@@ -34,16 +34,16 @@
 | ✅ | DELETE | `/entities/{entity_id}` | Delete an entity. |
 | ✅ | GET | `/entities/{entity_id}.json` | Get entity data in JSON format. |
 | ✅ | GET | `/entities/{entity_id}.ttl` | Get entity data in Turtle format. |
-| ✅ | GET | `/entities/{entity_id}/aliases/{language_code}` | Get entity alias hashes for language. |
+| ✅ | GET | `/entities/{entity_id}/aliases/{language_code}` | Get entity alias texts for language. |
 | ✅ | PUT | `/entities/{entity_id}/aliases/{language_code}` | Update entity aliases for language. |
 | ✅ | POST | `/entities/{entity_id}/aliases/{language_code}` | Add a single alias to entity for language. |
 | ✅ | DELETE | `/entities/{entity_id}/aliases/{language_code}` | Delete all aliases for entity language. |
-| ✅ | GET | `/entities/{entity_id}/descriptions/{language_code}` | Get entity description hash for language. |
+| ✅ | GET | `/entities/{entity_id}/descriptions/{language_code}` | Get entity description text for language. |
 | ✅ | PUT | `/entities/{entity_id}/descriptions/{language_code}` | Update entity description for language. |
 | ✅ | DELETE | `/entities/{entity_id}/descriptions/{language_code}` | Delete entity description for language. |
 | ✅ | POST | `/entities/{entity_id}/descriptions/{language_code}` | Add a new description to entity for language (alias for PUT). |
 | ✅ | GET | `/entities/{entity_id}/history` | Get the revision history for an entity. |
-| ✅ | GET | `/entities/{entity_id}/labels/{language_code}` | Get entity label hash for language. |
+| ✅ | GET | `/entities/{entity_id}/labels/{language_code}` | Get entity label text for language. |
 | ✅ | PUT | `/entities/{entity_id}/labels/{language_code}` | Update entity label for language. |
 | ✅ | DELETE | `/entities/{entity_id}/labels/{language_code}` | Delete entity label for language. |
 | ✅ | POST | `/entities/{entity_id}/labels/{language_code}` | Add a new label to entity for language (alias for PUT). |
