@@ -70,11 +70,12 @@ The Entitybase Backend implements a microservices architecture designed for bill
 - **Auto-scaling** via Docker Compose replicas
 - **Health monitoring** and range utilization tracking
 
-#### **Dump Worker (Planned)**
-- **Weekly RDF dumps** generation for public consumption
-- **Continuous RDF change streaming** for real-time updates
-- **Bulk export operations** for data migration
-- **Parallel processing** for large-scale dump generation
+#### **Dump Worker Service**
+- **JSONL Entity Dumps**: Generate complete entity exports in JSON Lines format
+- **S3 Integration**: Store dumps in dedicated S3 bucket
+- **Raw Revision Data**: Export full revision content without manipulation
+- **Shard-based Processing** (Planned): Process entities by Vitess shard for scalability
+- **Parallel Processing** (Planned): Large-scale dump generation
 
 ### Storage Stack
 
@@ -109,20 +110,8 @@ The Entitybase Backend implements a microservices architecture designed for bill
 - **Storage Growth**: 2.84B entities over 10 years
 - **Read Performance**: Sub-millisecond via S3 + Vitess caching
 - **Write Performance**: Range-based ID allocation eliminates bottlenecks
-- **RDF Generation**: Parallel processing for dump and streaming workloads
 
 ### Service Components
-
-#### **Dump Worker Service** ✅
-- **JSONL Entity Dumps**: Generate complete entity exports in JSON Lines format
-- **Shard-based Processing**: Process entities by Vitess shard for scalability
-- **S3 Integration**: Store dumps in dedicated S3 bucket
-- **Raw Revision Data**: Export full revision content without manipulation
-
-**Key Features**:
-- Raw revision schema export
-- Shard-parallel processing
-- S3 dump bucket storage
 
 #### **Dev Worker Service** ✅
 - **Bucket Management**: Automated MinIO bucket creation and health checks
