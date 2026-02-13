@@ -9,6 +9,8 @@ from . import (
     entities_descriptions,
     entities_labels,
     items,
+    lexeme_forms,
+    lexeme_senses,
     lexemes,
     properties,
     property_hashes,
@@ -35,6 +37,8 @@ v1_router.include_router(entities_descriptions.router, tags=["entities"])
 v1_router.include_router(entities_aliases.router, tags=["entities"])
 v1_router.include_router(items.router, tags=["items"])
 v1_router.include_router(lexemes.router, tags=["lexemes"])
+v1_router.include_router(lexeme_forms.router, tags=["lexemes"])
+v1_router.include_router(lexeme_senses.router, tags=["lexemes"])
 v1_router.include_router(properties.router, tags=["properties"])
 v1_router.include_router(statements.router, tags=["statements"])
 v1_router.include_router(admin.admin_router, tags=["list"])
