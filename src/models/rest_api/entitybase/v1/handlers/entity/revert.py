@@ -69,9 +69,9 @@ class EntityRevertHandler(Handler):
                 status_code=400,
             )
 
-        logger.debug(f"New revision ID: {new_revision_id}")
         # Calculate new revision ID
         new_revision_id = head_revision + 1
+        logger.debug(f"New revision ID: {new_revision_id}")
 
         logger.debug("Creating new revision data from target revision")
         # Create new revision data using RevisionData model

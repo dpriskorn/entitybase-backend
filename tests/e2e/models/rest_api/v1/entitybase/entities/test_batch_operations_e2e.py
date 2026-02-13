@@ -18,7 +18,7 @@ async def test_batch_aliases(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Get batch aliases (may return empty if no hashes exist yet)
-        response = await client.get(f"{api_prefix}/entities/aliases/123,456")
+        response = await client.get(f"{api_prefix}/resolve/aliases/123,456")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -34,7 +34,7 @@ async def test_batch_descriptions(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Get batch descriptions (may return empty if no hashes exist yet)
-        response = await client.get(f"{api_prefix}/entities/descriptions/123,456")
+        response = await client.get(f"{api_prefix}/resolve/descriptions/123,456")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -50,7 +50,7 @@ async def test_batch_labels(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Get batch labels (may return empty if no hashes exist yet)
-        response = await client.get(f"{api_prefix}/entities/labels/123,456")
+        response = await client.get(f"{api_prefix}/resolve/labels/123,456")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)
@@ -66,7 +66,7 @@ async def test_batch_sitelinks(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Get batch sitelinks (may return empty if no hashes exist yet)
-        response = await client.get(f"{api_prefix}/entities/sitelinks/123,456")
+        response = await client.get(f"{api_prefix}/resolve/sitelinks/123,456")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, dict)

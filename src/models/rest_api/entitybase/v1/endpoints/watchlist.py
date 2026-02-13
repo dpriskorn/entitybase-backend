@@ -26,8 +26,7 @@ def add_watch(
     state = req.app.state.state_handler
     handler = WatchlistHandler(state=state)
     try:
-        request.user_id = user_id  # Override to ensure consistency
-        result = handler.add_watch(request)
+        result = handler.add_watch(user_id, request)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -43,8 +42,7 @@ def remove_watch(
     state = req.app.state.state_handler
     handler = WatchlistHandler(state=state)
     try:
-        request.user_id = user_id  # Override to ensure consistency
-        result = handler.remove_watch(request)
+        result = handler.remove_watch(user_id, request)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

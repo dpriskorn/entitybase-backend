@@ -4,14 +4,14 @@ import logging
 
 from models.rest_api.entitybase.v1.handler import Handler
 
-from models.data.rest_api.v1.entitybase.request import WatchlistRemoveRequest
+from models.data.rest_api.v1.entitybase.request.watchlist import WatchlistRemoveRequest
 from models.data.rest_api.v1.entitybase.response import WatchCounts
 from models.data.rest_api.v1.entitybase.response import (
     MessageResponse,
     NotificationResponse,
 )
 from models.rest_api.utils import raise_validation_error
-from models.data.rest_api.v1.entitybase.request import (
+from models.data.rest_api.v1.entitybase.request.watchlist import (
     WatchlistAddRequest,
     MarkCheckedRequest,
 )
@@ -23,22 +23,20 @@ logger = logging.getLogger(__name__)
 class WatchlistHandler(Handler):
     """Handler for watchlist-related operations."""
 
-    def add_watch(self, request: WatchlistAddRequest) -> MessageResponse:
+    def add_watch(self, user_id: int, request: WatchlistAddRequest) -> MessageResponse:
         """Add a watchlist entry."""
         # Check if user exists
-        if not self.state.vitess_client.user_repository.user_exists(request.user_id):
+        if not self.state.vitess_client.user_repository.user_exists(user_id):
             raise_validation_error("User not registered", status_code=400)
 
         # Check if watchlist is enabled
-        if not self.state.vitess_client.user_repository.is_watchlist_enabled(
-            request.user_id
-        ):
+        if not self.state.vitess_client.user_repository.is_watchlist_enabled(user_id):
             raise_validation_error(
                 "Watchlist is disabled for this user", status_code=400
             )
 
         result = self.state.vitess_client.watchlist_repository.add_watch(
-            request.user_id, request.entity_id, request.properties
+            user_id, request.entity_id, request.properties
         )
         if not result.success:
             raise_validation_error(
@@ -47,17 +45,19 @@ class WatchlistHandler(Handler):
 
         # Update activity
         activity_result = self.state.vitess_client.user_repository.update_user_activity(
-            request.user_id
+            user_id
         )
         if not activity_result.success:
             # Log error but don't fail the watch add
             logger.warning(f"Failed to update user activity: {activity_result.error}")
         return MessageResponse(message="Watch added")
 
-    def remove_watch(self, request: WatchlistRemoveRequest) -> MessageResponse:
+    def remove_watch(
+        self, user_id: int, request: WatchlistRemoveRequest
+    ) -> MessageResponse:
         """Remove a watchlist entry."""
         self.state.vitess_client.watchlist_repository.remove_watch(
-            request.user_id, request.entity_id, request.properties
+            user_id, request.entity_id, request.properties
         )
         return MessageResponse(message="Watch removed")
 

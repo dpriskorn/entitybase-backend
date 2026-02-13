@@ -44,11 +44,13 @@ from .statement import (
     StatementBatchRequest,
 )
 from .thanks import ThanksListRequest
-from .user import (
+from .watchlist import (
     MarkCheckedRequest,
-    UserCreateRequest,
     WatchlistAddRequest,
     WatchlistRemoveRequest,
+)
+from .user import (
+    UserCreateRequest,
     WatchlistToggleRequest,
 )
 from .user_activity import UserActivityRequest
