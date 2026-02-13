@@ -4,6 +4,7 @@ import os
 import sys
 from typing import Any
 
+import pymysql
 import pytest
 import requests
 
@@ -39,6 +40,71 @@ def validate_e2e_env_vars():
             + "\n\nPlease set these environment variables before running E2E tests."
         )
         pytest.fail(error_msg)
+
+
+@pytest.fixture(scope="session")
+def db_conn():
+    """Database connection for cleanup."""
+    from models.config.settings import settings
+
+    conn = pymysql.connect(
+        host=settings.vitess_host,
+        port=settings.vitess_port,
+        user=settings.vitess_user,
+        password=settings.vitess_password,
+        database=settings.vitess_database,
+        connect_timeout=2,
+    )
+    yield conn
+    if conn:
+        conn.close()
+
+
+@pytest.fixture(autouse=True)
+def db_cleanup(db_conn):
+    """Clean up database tables after each E2E test."""
+    yield
+    tables = [
+        "entity_id_mapping",
+        "entity_revisions",
+        "entity_head",
+        "metadata_content",
+        "entity_backlinks",
+        "backlink_statistics",
+        "statement_content",
+        "entity_terms",
+        "user_activity",
+        "user_notifications",
+        "user_thanks",
+        "user_statement_endorsements",
+        "watchlist",
+        "entity_redirects",
+        "users",
+        "user_daily_stats",
+        "general_daily_stats",
+    ]
+    with db_conn.cursor() as cursor:
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
+        for table in tables:
+            try:
+                cursor.execute(f"TRUNCATE TABLE {table}")
+            except pymysql.err.ProgrammingError as e:
+                if "doesn't exist" in str(e):
+                    continue
+                else:
+                    raise
+        cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
+    db_conn.commit()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def create_tables(vitess_client):
+    """Create database tables before running E2E tests."""
+    from models.infrastructure.vitess.repositories.schema import SchemaRepository
+
+    schema_repository = SchemaRepository(vitess_client=vitess_client)
+    schema_repository.create_tables()
+    logger.info("Database tables created for E2E tests")
 
 
 @pytest.fixture(scope="session")
@@ -114,7 +180,9 @@ def create_s3_buckets(s3_config):
                 logger.error(f"Error checking bucket {bucket}: {error_code}")
                 raise
 
-    print(f"S3 buckets ready: {len(required_buckets)} buckets ({created_count} created)")
+    print(
+        f"S3 buckets ready: {len(required_buckets)} buckets ({created_count} created)"
+    )
 
 
 @pytest.fixture(scope="session")
@@ -140,7 +208,9 @@ def initialized_app(vitess_client, s3_client, create_s3_buckets):
     logger.debug("StateHandler started")
 
     app.state.state_handler = state_handler
-    logger.debug(f"app.state.state_handler set: {type(app.state.state_handler).__name__}")
+    logger.debug(
+        f"app.state.state_handler set: {type(app.state.state_handler).__name__}"
+    )
 
     yield
 
