@@ -84,13 +84,13 @@ class UserRepository(Repository):
                         created_at=row[1],
                         preferences=row[2],
                     )
-                    logger.debug(f"Successfully created UserResponse for user_id={user_id}")
+                    logger.debug(
+                        f"Successfully created UserResponse for user_id={user_id}"
+                    )
                     return user
                 except Exception as e:
-                    logger.error(
-                        f"Failed to create UserResponse from row {row}: {e}"
-                    )
-                    raise ValueError(f"Invalid user data: {e}")
+                    logger.error(f"Failed to create UserResponse from row {row}: {e}")
+                    raise_validation_error(f"Invalid user data: {e}", status_code=400)
             return None
 
     def update_user_activity(self, user_id: int) -> OperationResult:
