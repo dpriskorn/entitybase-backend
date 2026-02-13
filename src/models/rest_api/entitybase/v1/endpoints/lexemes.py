@@ -401,6 +401,8 @@ async def update_form_representation(
     headers: EditHeadersType,
 ) -> EntityResponse:
     """Update form representation for a language."""
+    logger.debug(f"Updating form {form_id} representation for language {langcode}")
+
     if request.language != langcode:
         raise HTTPException(
             status_code=400,
@@ -431,6 +433,8 @@ async def update_form_representation(
     if not form_found:
         raise HTTPException(status_code=404, detail=f"Form not found: {form_id}")
 
+    logger.debug(f"Updated form {form_id} representation in language {langcode}")
+
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
@@ -455,6 +459,8 @@ async def delete_form_representation(
     headers: EditHeadersType,
 ) -> EntityResponse:
     """Delete form representation for a language."""
+    logger.debug(f"Deleting form {form_id} representation for language {langcode}")
+
     lexeme_id, _ = _parse_form_id(form_id)
 
     state = req.app.state.state_handler
@@ -478,6 +484,8 @@ async def delete_form_representation(
 
     if not form_found:
         raise HTTPException(status_code=404, detail=f"Form not found: {form_id}")
+
+    logger.debug(f"Deleted form {form_id} representation in language {langcode}")
 
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
@@ -538,6 +546,8 @@ async def delete_sense_gloss(
     headers: EditHeadersType,
 ) -> EntityResponse:
     """Delete sense gloss for a language."""
+    logger.debug(f"Deleting sense {sense_id} gloss for language {langcode}")
+
     lexeme_id, _ = _parse_sense_id(sense_id)
 
     state = req.app.state.state_handler
@@ -562,6 +572,8 @@ async def delete_sense_gloss(
 
     if not gloss_found:
         return current_entity
+
+    logger.debug(f"Deleted sense {sense_id} gloss in language {langcode}")
 
     update_handler = EntityUpdateHandler(state=state)
     update_request = LexemeUpdateRequest(
