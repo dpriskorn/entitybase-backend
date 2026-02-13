@@ -209,6 +209,9 @@ class UpdateTransaction(EntityTransaction):
 
         Used by add_alias to avoid re-hashing all terms.
         """
+        logger.debug(
+            f"Creating revision with pre-computed hashes for entity {entity_id}"
+        )
         from models.data.infrastructure.s3.enums import EditType, EditData
         from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
         from models.data.infrastructure.s3.hashes.statements_hashes import (

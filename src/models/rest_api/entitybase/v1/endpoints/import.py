@@ -1,8 +1,12 @@
 """Import routes."""
 
+import logging
+
 from fastapi import APIRouter, Request
 
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
+
+logger = logging.getLogger(__name__)
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.entitybase.v1.handlers.entity.create import EntityCreateHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
@@ -50,21 +54,28 @@ async def import_entity(
     - 409: Entity already exists
     - 400: Validation error
     """
+    logger.debug(f"Importing entity: {request.id} of type {request.type}")
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 
+    logger.debug("Creating entity handler")
     handler = EntityCreateHandler(state=state)
 
-    edit_headers = EditHeaders(x_user_id=0, x_edit_summary="Bulk import")
+    edit_headers = EditHeaders.model_validate(
+        {"X-User-ID": 0, "X-Edit-Summary": "Bulk import"}
+    )
 
     if request.type == "lexeme":
+        logger.debug("Validating lexeme has at least one lemma")
         lemma_count = sum(1 for lang in request.lemmas if lang != "lemma_hashes")
         if lemma_count == 0:
+            logger.warning("Lexeme has no lemmas")
             raise_validation_error(
                 "A lexeme must have at least one lemma.",
                 status_code=400,
             )
 
+    logger.debug(f"Calling handler.create_entity for entity {request.id}")
     return await handler.create_entity(
         request, edit_headers=edit_headers, validator=validator, auto_assign_id=False
     )

@@ -143,7 +143,9 @@ class StatementService(Service):
 
         # Process references before storing
         self._process_statement_references(context.statement_data, snak_handler)
-        logger.debug(f"After processing references: {context.statement_data.get('references')}")
+        logger.debug(
+            f"After processing references: {context.statement_data.get('references')}"
+        )
 
         # Process qualifiers before storing
         self._process_statement_qualifiers(context.statement_data, snak_handler)
@@ -215,9 +217,7 @@ class StatementService(Service):
 
         # Step 4: Insert into DB or increment ref_count
         stmt_repo = self.state.vitess_client.statement_repository
-        inserted = stmt_repo.increment_ref_count(
-            content_hash=context.statement_hash
-        )
+        inserted = stmt_repo.increment_ref_count(content_hash=context.statement_hash)
         if inserted.success:
             logger.debug(
                 f"Inserted new statement {context.statement_hash} into statement_content"
@@ -371,31 +371,40 @@ class StatementService(Service):
         Returns:
             Reference hash as integer
         """
+        logger.debug(f"Processing reference: {type(ref).__name__}")
         # If already a hash, return it
         if isinstance(ref, int):
+            logger.debug(f"Reference is already a hash: {ref}")
             return ref
 
         # If it's a dict, convert to S3ReferenceData format
         if isinstance(ref, dict):
+            logger.debug("Converting dict to S3ReferenceData")
             ref_data_dict = {
                 "hash": 0,
                 "reference": ref,
                 "created_at": datetime.now(timezone.utc).isoformat() + "Z",
             }
             ref_data = S3ReferenceData(**ref_data_dict)
+            logger.debug("Computing reference hash")
             ref_hash = ReferenceHasher.compute_hash(ref_data)
+            logger.debug(f"Reference hash: {ref_hash}")
+            logger.debug("Processing reference snaks")
             ref_dict = self._process_reference_snaks(ref_data, snak_handler)
             ref_data = S3ReferenceData(
                 hash=ref_hash,
                 reference=ref_dict,
                 created_at=datetime.now(timezone.utc).isoformat() + "Z",
             )
+            logger.debug("Storing reference to S3")
             self.state.s3_client.store_reference(ref_hash, ref_data)
             return ref_hash
 
         # If it's S3ReferenceData, process it
         if isinstance(ref, S3ReferenceData):
+            logger.debug("Processing S3ReferenceData")
             ref_hash = ReferenceHasher.compute_hash(ref)
+            logger.debug(f"Reference hash: {ref_hash}")
             ref_dict = self._process_reference_snaks(ref, snak_handler)
             ref_data = S3ReferenceData(
                 hash=ref_hash,
@@ -420,9 +429,13 @@ class StatementService(Service):
             logger.debug(f"Processing {len(statement_data['references'])} references")
             new_references = []
             for idx, ref in enumerate(statement_data["references"]):
-                logger.debug(f"Processing reference {idx}: type={type(ref)}, is_S3ReferenceData={isinstance(ref, S3ReferenceData)}")
+                logger.debug(
+                    f"Processing reference {idx}: type={type(ref)}, is_S3ReferenceData={isinstance(ref, S3ReferenceData)}"
+                )
                 processed_ref = self._process_single_reference(ref, snak_handler)
-                logger.debug(f"Processed reference {idx}: type={type(processed_ref)}, value={processed_ref}")
+                logger.debug(
+                    f"Processed reference {idx}: type={type(processed_ref)}, value={processed_ref}"
+                )
                 new_references.append(processed_ref)
             statement_data["references"] = new_references
 

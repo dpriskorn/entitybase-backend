@@ -338,21 +338,27 @@ async def patch_entity_statement(
 @router.get("/entities/{entity_id}/sitelinks/{site}", response_model=SitelinkData)
 async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> SitelinkData:
     """Get a single sitelink for an entity."""
+    logger.debug(f"Getting sitelink for entity {entity_id}, site {site}")
     state = req.app.state.state_handler
     if not isinstance(state, StateHandler):
+        logger.error("Invalid state type")
         raise_validation_error("Invalid clients type", status_code=500)
+    logger.debug(f"Getting entity {entity_id}")
     handler = EntityReadHandler(state=state)
     entity_response = handler.get_entity(entity_id)
 
+    logger.debug("Extracting sitelinks from entity")
     sitelinks = entity_response.entity_data.revision.get("hashes", {}).get(
         "sitelinks", {}
     )
     if site not in sitelinks:
+        logger.warning(f"Sitelink for site {site} not found")
         raise_validation_error(f"Sitelink for site {site} not found", status_code=404)
 
     sitelink_hash_data = sitelinks[site]
     title_hash = sitelink_hash_data.get("title_hash")
     badges = sitelink_hash_data.get("badges", [])
+    logger.debug(f"Sitelink hash data: title_hash={title_hash}, badges={badges}")
 
     from models.infrastructure.s3.storage.metadata_storage import MetadataStorage
     from models.data.infrastructure.s3.enums import MetadataType

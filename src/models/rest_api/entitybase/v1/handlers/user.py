@@ -51,9 +51,7 @@ class UserHandler(Handler):
         if user is None:
             raise_validation_error("User not found", status_code=404)
         if not isinstance(user, UserResponse):
-            logger.error(
-                f"Unexpected type for user: {type(user)}, value: {user}"
-            )
+            logger.error(f"Unexpected type for user: {type(user)}, value: {user}")
             raise_validation_error(
                 f"Unexpected response type: {type(user).__name__}", status_code=500
             )
@@ -78,9 +76,11 @@ class UserHandler(Handler):
 
     def get_user_stats(self) -> UserStatsResponse:
         """Get user statistics from the daily stats table."""
+        logger.debug("Fetching user stats from database")
         connection = self.state.vitess_client.connection_manager.acquire()
         cursor = connection.cursor()
         try:
+            logger.debug("Executing query for user_daily_stats")
             cursor.execute(
                 "SELECT stat_date, total_users, active_users FROM user_daily_stats ORDER BY stat_date DESC LIMIT 1"
             )
@@ -90,6 +90,9 @@ class UserHandler(Handler):
                 date_str = (
                     row[0].isoformat() if hasattr(row[0], "isoformat") else str(row[0])
                 )
+                logger.debug(
+                    f"Found user stats: date={date_str}, total={row[1]}, active={row[2]}"
+                )
                 return UserStatsResponse(
                     date=date_str,
                     total=row[1],
@@ -97,12 +100,16 @@ class UserHandler(Handler):
                 )
             else:
                 # Fallback to live computation if no data
+                logger.debug("No daily stats found, computing live stats")
                 from models.rest_api.entitybase.v1.services.user_stats_service import (
                     UserStatsService,
                 )
 
                 service = UserStatsService(state=self.state)
                 stats = service.compute_daily_stats()
+                logger.debug(
+                    f"Computed live stats: total={stats.total_users}, active={stats.active_users}"
+                )
                 return UserStatsResponse(
                     date="live",
                     total=stats.total_users,
@@ -134,10 +141,14 @@ class UserHandler(Handler):
                     total_sitelinks=row[7],
                     total_terms=row[8],
                     terms_per_language=TermsPerLanguage(
-                        terms=json.loads(row[9]) if isinstance(row[9], str) and row[9] else {}
+                        terms=json.loads(row[9])
+                        if isinstance(row[9], str) and row[9]
+                        else {}
                     ),
                     terms_by_type=TermsByType(
-                        counts=json.loads(row[10]) if isinstance(row[10], str) and row[10] else {}
+                        counts=json.loads(row[10])
+                        if isinstance(row[10], str) and row[10]
+                        else {}
                     ),
                 )
             else:

@@ -128,13 +128,15 @@ class EntityStatementService(Service):
         """Add a single statement to an entity."""
         logger.info(f"Entity {entity_id}: Adding single statement")
         claim = request.claim
-        property_id = claim.get("property", {}).get("id") or claim.get("mainsnak", {}).get("property")
+        property_id = claim.get("property", {}).get("id") or claim.get(
+            "mainsnak", {}
+        ).get("property")
         if not property_id:
             raise_validation_error("Statement must have a property ID", status_code=400)
-        
+
         self._validate_property_id(property_id)
         self._validate_property_exists(property_id)
-        
+
         add_property_request = AddPropertyRequest(claims=[claim])
         return await self.add_property(
             entity_id, property_id, add_property_request, edit_headers, validator
@@ -281,7 +283,9 @@ class EntityStatementService(Service):
         edit_headers: EditHeaders,
     ) -> int:
         """Store updated revision and return new revision ID."""
+        logger.debug(f"Storing updated revision for entity {entity_id}")
         new_revision_id = revision_data.revision_id + 1
+        logger.debug(f"New revision ID: {new_revision_id}")
         revision_data.revision_id = new_revision_id
         revision_data.edit.summary = edit_headers.x_edit_summary
         revision_data.edit.at = datetime.now(timezone.utc).isoformat()
@@ -289,19 +293,25 @@ class EntityStatementService(Service):
         try:
             from models.data.infrastructure.s3.revision_data import S3RevisionData
 
+            logger.debug("Converting revision data to dict")
             revision_dict = revision_data.model_dump(mode="json")
             from rapidhash import rapidhash
 
+            logger.debug("Computing content hash")
             content_hash = rapidhash(str(revision_dict).encode())
+            logger.debug(f"Content hash: {content_hash}")
             s3_revision_data = S3RevisionData(
                 schema=revision_data.schema_version,
                 revision=revision_dict,
                 hash=content_hash,
                 created_at=revision_data.created_at,
             )
+            logger.debug("Storing revision to S3")
             self.state.s3_client.store_revision(content_hash, s3_revision_data)
+            logger.debug("Updating head revision in Vitess")
             self.state.vitess_client.update_head_revision(entity_id, new_revision_id)
         except Exception as e:
+            logger.error(f"Failed to store updated revision: {e}")
             raise_validation_error(
                 f"Failed to store updated revision: {e}", status_code=400
             )
