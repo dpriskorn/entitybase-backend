@@ -29,3 +29,7 @@ src/models/data/rest_api/v1/entitybase/request/entity/crud.py:120
 src/models/data/rest_api/v1/entitybase/request/entity/crud.py:135
 src/models/data/rest_api/v1/entitybase/request/entity/crud.py:145
 src/models/infrastructure/vitess/repositories/entity.py:127
+src/models/rest_api/main.py:198
+src/models/rest_api/entitybase/v1/services/statement_service.py:307
+src/models/rest_api/entitybase/v1/services/statement_service.py:331
+src/models/rest_api/entitybase/v1/routes/resolve.py:172
