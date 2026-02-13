@@ -17,7 +17,6 @@ class TestVitessClient:
     """Unit tests for VitessClient."""
 
     @pytest.fixture(autouse=True)
-    @pytest.mark.skip(reason="Skipping all Vitess unit tests")
     def setup_mock_connection_manager(self, mock_vitess_connection_manager):
         """Apply the mock connection manager to all tests."""
         self.mock_connection, self.mock_cursor = mock_vitess_connection_manager

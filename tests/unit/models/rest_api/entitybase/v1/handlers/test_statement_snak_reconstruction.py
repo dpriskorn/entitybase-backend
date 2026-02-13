@@ -4,7 +4,6 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from models.data.rest_api.v1.entitybase.request import StatementBatchRequest
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 
 
@@ -146,13 +145,12 @@ class TestStatementHandlerSnakReconstruction:
             ]
             MockSnakHandler.return_value = mock_snak_handler_instance
 
-            request = StatementBatchRequest(hashes=[111111111, 222222222])
-            response = handler.get_statements_batch(request)
+            response = handler.get_statements_batch([111111111, 222222222])
 
             # Verify both snaks were reconstructed
-            assert len(response.statements) == 2
-            assert response.statements[0].statement["mainsnak"]["property"] == "P31"
-            assert response.statements[1].statement["mainsnak"]["property"] == "P569"
+            assert len(response) == 2
+            assert response[0].statement["mainsnak"]["property"] == "P31"
+            assert response[1].statement["mainsnak"]["property"] == "P569"
 
             # Verify SnakHandler.get_snak called twice
             assert mock_snak_handler_instance.get_snak.call_count == 2

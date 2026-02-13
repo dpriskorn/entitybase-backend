@@ -124,7 +124,7 @@ class TestDeleteService:
         mock_state = MagicMock()
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
-        mock_vitess.get_protection_info.return_value = None
+        mock_vitess.entity_repository.get_protection_info.return_value = None
 
         service = DeleteService(state=mock_state)
         service.validate_protection_status("Q42")
