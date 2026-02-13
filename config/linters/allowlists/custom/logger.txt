@@ -1,0 +1,8 @@
+# Logger linter allowlist
+# Format: file_path:line_number
+# 
+# Add entries here to exempt specific functions from logger checks
+# Example: src/models/some/file.py:42
+
+# Pydantic model_post_init has complex init logic but minimal logging needed
+src/models/config/settings.py:106
