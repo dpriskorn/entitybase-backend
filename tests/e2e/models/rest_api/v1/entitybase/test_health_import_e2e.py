@@ -1,5 +1,7 @@
 """E2E tests for health check and import endpoints."""
 
+import uuid
+
 import pytest
 import sys
 
@@ -25,9 +27,6 @@ async def test_health_check() -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    reason="Entity ID conflict on re-run - tests don't generate unique IDs"
-)
 async def test_import_single_entity(api_prefix: str) -> None:
     """E2E test: Import a single entity of any type."""
     from models.rest_api.main import app
@@ -36,7 +35,9 @@ async def test_import_single_entity(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Import an item
+        unique_qid = f"Q{uuid.uuid4().int % 1000000000}"
         entity_data = {
+            "id": unique_qid,
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Imported Item"}},
             "descriptions": {"en": {"language": "en", "value": "Imported via API"}},
@@ -54,9 +55,6 @@ async def test_import_single_entity(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    reason="Entity ID conflict on re-run - tests don't generate unique IDs"
-)
 async def test_import_property(api_prefix: str) -> None:
     """E2E test: Import a property entity."""
     from models.rest_api.main import app
@@ -65,7 +63,9 @@ async def test_import_property(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Import a property
+        unique_pid = f"P{uuid.uuid4().int % 1000000000}"
         property_data = {
+            "id": unique_pid,
             "type": "property",
             "datatype": "string",
             "labels": {"en": {"language": "en", "value": "Imported Property"}},
@@ -84,9 +84,6 @@ async def test_import_property(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    reason="Entity ID conflict on re-run - tests don't generate unique IDs"
-)
 async def test_import_lexeme(api_prefix: str) -> None:
     """E2E test: Import a lexeme entity."""
     from models.rest_api.main import app
@@ -95,7 +92,9 @@ async def test_import_lexeme(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Import a lexeme
+        unique_lid = f"L{uuid.uuid4().int % 1000000000}"
         lexeme_data = {
+            "id": unique_lid,
             "type": "lexeme",
             "language": "Q1860",
             "lexicalCategory": "Q1084",
@@ -115,9 +114,6 @@ async def test_import_lexeme(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    reason="Entity ID conflict on re-run - tests don't generate unique IDs"
-)
 async def test_import_entity_with_statements(api_prefix: str) -> None:
     """E2E test: Import an entity with statements."""
     from models.rest_api.main import app
@@ -126,7 +122,9 @@ async def test_import_entity_with_statements(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Import an item with statements
+        unique_qid = f"Q{uuid.uuid4().int % 1000000000}"
         entity_data = {
+            "id": unique_qid,
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Item with Statements"}},
             "statements": [
@@ -149,9 +147,6 @@ async def test_import_entity_with_statements(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(
-    reason="Entity ID conflict on re-run - tests don't generate unique IDs"
-)
 async def test_import_validation_error(api_prefix: str) -> None:
     """E2E test: Import fails for invalid entity data."""
     from models.rest_api.main import app

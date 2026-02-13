@@ -203,6 +203,12 @@ def initialized_app(vitess_client, s3_client, create_s3_buckets):
 
     logger.debug("Creating StateHandler...")
     state_handler = StateHandler(settings=settings)
+
+    # Inject pre-configured test clients instead of creating new ones
+    state_handler.cached_vitess_client = vitess_client
+    state_handler.cached_s3_client = s3_client
+    logger.debug("Injected test Vitess and S3 clients into StateHandler")
+
     logger.debug("StateHandler created, calling start()...")
     state_handler.start()
     logger.debug("StateHandler started")

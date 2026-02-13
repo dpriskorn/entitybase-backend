@@ -10,7 +10,6 @@ sys.path.insert(0, "src")
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Lexeme creation validation not fully implemented")
 async def test_list_lexeme_forms(api_prefix: str) -> None:
     """E2E test: List all forms for a lexeme, sorted by numeric suffix."""
     from models.rest_api.main import app
@@ -53,7 +52,6 @@ async def test_list_lexeme_forms(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Lexeme creation validation not fully implemented")
 async def test_create_lexeme_form(api_prefix: str) -> None:
     """E2E test: Create a new form for a lexeme."""
     from models.rest_api.main import app
@@ -92,7 +90,6 @@ async def test_create_lexeme_form(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Lexeme creation validation not fully implemented")
 async def test_get_single_form(api_prefix: str) -> None:
     """E2E test: Get single form by ID (accepts L42-F1 or F1 format)."""
     from models.rest_api.main import app
@@ -135,7 +132,6 @@ async def test_get_single_form(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Lexeme creation validation not fully implemented")
 async def test_delete_form(api_prefix: str) -> None:
     """E2E test: Delete a form by ID."""
     from models.rest_api.main import app
@@ -179,7 +175,6 @@ async def test_delete_form(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Lexeme creation validation not fully implemented")
 async def test_get_form_representations(api_prefix: str) -> None:
     """E2E test: Get all representations for a form."""
     from models.rest_api.main import app
@@ -224,7 +219,6 @@ async def test_get_form_representations(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Lexeme creation validation not fully implemented")
 async def test_get_form_representation_by_language(api_prefix: str) -> None:
     """E2E test: Get representation for a form in specific language."""
     from models.rest_api.main import app
@@ -263,7 +257,6 @@ async def test_get_form_representation_by_language(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Lexeme creation validation not fully implemented")
 async def test_add_form_representation(api_prefix: str) -> None:
     """E2E test: Add a new form representation for language."""
     from models.rest_api.main import app
@@ -305,7 +298,6 @@ async def test_add_form_representation(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Lexeme creation validation not fully implemented")
 async def test_update_form_representation(api_prefix: str) -> None:
     """E2E test: Update form representation for language."""
     from models.rest_api.main import app
@@ -347,7 +339,6 @@ async def test_update_form_representation(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Lexeme creation validation not fully implemented")
 async def test_delete_form_representation(api_prefix: str) -> None:
     """E2E test: Delete form representation for language."""
     from models.rest_api.main import app
@@ -390,7 +381,6 @@ async def test_delete_form_representation(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Lexeme creation validation not fully implemented")
 async def test_add_statement_to_form(api_prefix: str) -> None:
     """E2E test: Add a statement to a form."""
     from models.rest_api.main import app

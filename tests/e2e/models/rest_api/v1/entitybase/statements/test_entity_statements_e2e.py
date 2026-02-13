@@ -10,7 +10,6 @@ sys.path.insert(0, "src")
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Request validation error - implementation issue")
 async def test_add_statement(api_prefix: str, sample_item_data) -> None:
     from models.rest_api.main import app
 
@@ -29,9 +28,11 @@ async def test_add_statement(api_prefix: str, sample_item_data) -> None:
 
         # Add statement
         statement_data = {
-            "property": {"id": "P31", "data_type": "wikibase-item"},
-            "value": {"type": "value", "content": "Q5"},
-            "rank": "normal",
+            "claim": {
+                "property": {"id": "P31", "data_type": "wikibase-item"},
+                "value": {"type": "value", "content": "Q5"},
+                "rank": "normal",
+            }
         }
         response = await client.post(
             f"{api_prefix}/entities/{entity_id}/statements",
