@@ -212,14 +212,10 @@ async def test_post_batch_statements(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Get batch statements by hash
-        batch_data = {"hashes": [123, 456, 789]}
-        response = await client.post(
-            f"{api_prefix}/statements/batch",
-            json=batch_data,
-        )
+        response = await client.get(f"{api_prefix}/resolve/statements/123,456,789")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, dict) or isinstance(data, list)
+        assert isinstance(data, list)
 
 
 @pytest.mark.e2e

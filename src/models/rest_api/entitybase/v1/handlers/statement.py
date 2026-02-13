@@ -84,33 +84,35 @@ class StatementHandler(Handler):
                 f"Statement {content_hash} not found", status_code=404
             )
 
-    def get_statements_batch(
-        self, request: StatementBatchRequest
-    ) -> StatementBatchResponse:
+    def get_statements_batch(self, hashes: list[int]) -> list[StatementResponse | None]:
         """Get multiple statements by their hashes.
 
         Efficiently fetches multiple statements in one request.
-        Returns not_found list for any hashes that don't exist.
+        Returns array with null for any hashes that don't exist.
         """
         if self.state.s3_client is None:
-            raise_validation_error(
-                f"Statement {request.hashes[0]} not found", status_code=404
-            )
-
-        statements = []
-        not_found = []
+            if hashes:
+                raise_validation_error(
+                    f"Statement {hashes[0]} not found", status_code=404
+                )
+            return []
 
         # Initialize SnakHandler for batch processing
         snak_handler = SnakHandler(state=self.state)
 
-        for content_hash in request.hashes:
+        statements: list[StatementResponse | None] = []
+
+        for content_hash in hashes:
             try:
                 statement_data = self.state.s3_client.read_statement(content_hash)
 
                 # Reconstruct mainsnak from hash
                 statement_dict = statement_data.statement.copy()
                 mainsnak_hash_input = statement_dict["mainsnak"]
-                if isinstance(mainsnak_hash_input, dict) and "hash" in mainsnak_hash_input:
+                if (
+                    isinstance(mainsnak_hash_input, dict)
+                    and "hash" in mainsnak_hash_input
+                ):
                     mainsnak_hash = cast(int, mainsnak_hash_input["hash"])
                 else:
                     mainsnak_hash = cast(int, mainsnak_hash_input)
@@ -131,9 +133,9 @@ class StatementHandler(Handler):
                     )
                 )
             except (ClientError, Exception):
-                not_found.append(content_hash)
+                statements.append(None)
 
-        return StatementBatchResponse(statements=statements, not_found=not_found)
+        return statements
 
     def get_entity_properties(self, entity_id: str) -> PropertyListResponse:
         """Get list of unique property IDs for an entity's head revision.
@@ -230,7 +232,10 @@ class StatementHandler(Handler):
 
                 # Reconstruct from hash to get property ID
                 mainsnak_hash_input = statement_data.statement["mainsnak"]
-                if isinstance(mainsnak_hash_input, dict) and "hash" in mainsnak_hash_input:
+                if (
+                    isinstance(mainsnak_hash_input, dict)
+                    and "hash" in mainsnak_hash_input
+                ):
                     mainsnak_hash = cast(int, mainsnak_hash_input["hash"])
                 else:
                     mainsnak_hash = cast(int, mainsnak_hash_input)

@@ -35,12 +35,8 @@ async def test_batch_statements(api_prefix: str, sample_item_with_statements) ->
         # Get batch statements
         statement_hashes = entity_data.get("statements", [])
         if statement_hashes:
-            batch_request = {
-                "content_hashes": statement_hashes[:1]  # Get first statement
-            }
-            response = await client.post(
-                f"{api_prefix}/entitybase/v1/statements/batch", json=batch_request
-            )
+            hashes_str = ",".join(str(h) for h in statement_hashes[:1])
+            response = await client.get(f"{api_prefix}/resolve/statements/{hashes_str}")
             assert response.status_code == 200
 
 

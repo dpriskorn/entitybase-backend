@@ -12,12 +12,14 @@ from models.data.rest_api.v1.entitybase.response import (
     ReconstructedSnakValue,
     ReferenceResponse,
     SnakResponse,
+    StatementResponse,
 )
 from models.data.rest_api.v1.entitybase.response.misc2 import (
     SerializableQualifierValue,
 )
 from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
+from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 from models.rest_api.entitybase.v1.services.snak_handler import SnakHandler
 
 logger = logging.getLogger(__name__)
@@ -240,6 +242,27 @@ async def get_snaks(req: Request, hashes: str) -> list[SnakResponse | None]:
         ]
     except Exception as e:
         logger.error(f"Failed to load snaks {rapidhashes}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+@resolve_router.get("/statements/{hashes}")
+async def get_statements(req: Request, hashes: str) -> list[StatementResponse | None]:
+    """Fetch statements by hash(es).
+
+    Supports single hash (e.g., /resolve/statements/123) or comma-separated batch
+    (e.g., /resolve/statements/123,456,789).
+
+    Returns array of statement dicts in request order; null for missing hashes.
+    Max 100 hashes per request.
+    """
+    state = req.app.state.state_handler
+    rapidhashes = _validate_and_parse_hashes(hashes)
+
+    try:
+        handler = StatementHandler(state=state)
+        return handler.get_statements_batch(rapidhashes)
+    except Exception as e:
+        logger.error(f"Failed to load statements {rapidhashes}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 

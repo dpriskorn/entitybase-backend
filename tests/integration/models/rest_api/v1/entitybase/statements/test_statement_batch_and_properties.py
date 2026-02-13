@@ -13,16 +13,16 @@ async def test_batch_fetch_with_missing_hashes(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Request statement hashes that don't exist
-        response = await client.post(
-            f"{api_prefix}/statements/batch", json={"hashes": [999999, 888888, 777777]}
+        response = await client.get(
+            f"{api_prefix}/resolve/statements/999999,888888,777777"
         )
         assert response.status_code == 200
 
         result = response.json()
-        assert "statements" in result
-        assert "not_found" in result
-        assert len(result["statements"]) == 0
-        assert len(result["not_found"]) == 3
+        # Should return list with nulls for missing hashes
+        assert isinstance(result, list)
+        assert len(result) == 3
+        assert all(stmt is None for stmt in result)
 
 
 @pytest.mark.asyncio

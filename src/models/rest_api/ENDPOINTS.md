@@ -79,7 +79,7 @@
 | ✅ | GET | `/resolve/representations/{hashes}` | Fetch form representations by hash(es). |
 | ✅ | GET | `/resolve/sitelinks/{hashes}` | Get batch sitelink titles by hashes. |
 | ✅ | GET | `/resolve/snaks/{hashes}` | Fetch snaks by hash(es). |
-| ✅ | POST | `/statements/batch` | Retrieve multiple statements by their content hashes in a batch request. |
+| ✅ | GET | `/resolve/statements/{hashes}` | Fetch statements by hash(es). |
 | ✅ | POST | `/statements/cleanup-orphaned` | Clean up orphaned statements that are no longer referenced. |
 | ✅ | GET | `/statements/most_used` | Get most used statements based on reference count. |
 | ✅ | GET | `/statements/{content_hash}` | Retrieve a single statement by its content hash. |

@@ -3,14 +3,10 @@
 from fastapi import APIRouter, HTTPException, Query, Request
 
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
-from models.data.rest_api.v1.entitybase.request import (
-    CleanupOrphanedRequest,
-    StatementBatchRequest,
-)
+from models.data.rest_api.v1.entitybase.request import CleanupOrphanedRequest
 from models.data.rest_api.v1.entitybase.response import (
     CleanupOrphanedResponse,
     MostUsedStatementsResponse,
-    StatementBatchResponse,
     StatementResponse,
 )
 from models.rest_api.utils import raise_validation_error
@@ -53,18 +49,6 @@ def get_statement(content_hash: int, req: Request) -> StatementResponse:
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
     return handler.get_statement(content_hash)  # type: ignore[no-any-return]
-
-
-@router.post("/statements/batch", response_model=StatementBatchResponse)
-def get_statements_batch(  # type: ignore[no-any-return]
-    request: StatementBatchRequest, req: Request
-) -> StatementBatchResponse:
-    """Retrieve multiple statements by their content hashes in a batch request."""
-    state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
-        raise HTTPException(status_code=500, detail="Invalid clients type")
-    handler = StatementHandler(state=state)
-    return handler.get_statements_batch(request)  # type: ignore[no-any-return]
 
 
 # todo convert this into a worker instead
