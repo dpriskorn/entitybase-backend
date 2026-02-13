@@ -44,6 +44,10 @@ from .id_response import IdResponse
 from .listings import EntityListing
 from .misc import (
     AliasesResponse,
+    BatchAliasesResponse,
+    BatchDescriptionsResponse,
+    BatchLabelsResponse,
+    BatchSitelinksResponse,
     CleanupOrphanedResponse,
     DescriptionResponse,
     DescriptionsResponse,
@@ -82,6 +86,7 @@ from .rdf import (
 )
 from .result import RevisionIdResult, RevisionResult
 from .statement import (
+    BatchStatementsResponse,
     MostUsedStatementsResponse,
     PropertyCountsResponse,
     PropertyHashesResponse,
@@ -127,7 +132,11 @@ __all__ = [
     "BacklinkStatisticsData",
     "BacklinkStatisticsResponse",
     "BacklinksResponse",
+    "BatchAliasesResponse",
     "BatchEndorsementStatsResponse",
+    "BatchDescriptionsResponse",
+    "BatchLabelsResponse",
+    "BatchSitelinksResponse",
     "CleanupOrphanedResponse",
     "DescriptionResponse",
     "DescriptionValue",

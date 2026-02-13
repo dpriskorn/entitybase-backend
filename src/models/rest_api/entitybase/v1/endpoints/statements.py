@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.data.rest_api.v1.entitybase.request import CleanupOrphanedRequest
 from models.data.rest_api.v1.entitybase.response import (
+    BatchStatementsResponse,
     CleanupOrphanedResponse,
     MostUsedStatementsResponse,
     StatementResponse,
@@ -70,10 +71,12 @@ def cleanup_orphaned_statements(  # type: ignore[no-any-return]
     return handler.cleanup_orphaned_statements(request)  # type: ignore[no-any-return]
 
 
-@router.get("/statements/batch", tags=["statements"])
+@router.get(
+    "/statements/batch", tags=["statements"], response_model=BatchStatementsResponse
+)
 async def get_batch_statements(
     req: Request, entity_ids: str, property_ids: str = ""
-) -> dict[str, dict[str, list]]:
+) -> BatchStatementsResponse:
     """Get statement hashes for multiple entities.
 
     Query params:
@@ -99,7 +102,7 @@ async def get_batch_statements(
     if len(entity_list) > 20:
         logger.warning(f"Too many entities requested: {len(entity_list)}")
         raise HTTPException(status_code=400, detail="Too many entities (max 20)")
-    result = {}
+    result: dict[str, dict[str, list]] = {}
     for raw_entity_id in entity_list:
         entity_id = raw_entity_id.strip()
         logger.debug(f"Fetching statements for entity {entity_id}")
@@ -115,4 +118,4 @@ async def get_batch_statements(
                 result[raw_entity_id] = statements
         except Exception:
             result[raw_entity_id] = {}
-    return result
+    return BatchStatementsResponse(statements=result)

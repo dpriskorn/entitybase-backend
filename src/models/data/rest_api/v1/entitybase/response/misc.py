@@ -197,3 +197,39 @@ class EntityJsonResponse(BaseModel):
     """Response model for JSON format entity data."""
 
     data: Dict[str, Any] = Field(..., description="Entity data in JSON format")
+
+
+class BatchLabelsResponse(BaseModel):
+    """Response model for batch labels lookup by hash."""
+
+    labels: dict[str, str] = Field(
+        default_factory=dict,
+        description="Dictionary mapping hash strings to label text",
+    )
+
+
+class BatchDescriptionsResponse(BaseModel):
+    """Response model for batch descriptions lookup by hash."""
+
+    descriptions: dict[str, str] = Field(
+        default_factory=dict,
+        description="Dictionary mapping hash strings to description text",
+    )
+
+
+class BatchAliasesResponse(BaseModel):
+    """Response model for batch aliases lookup by hash."""
+
+    aliases: dict[str, list[str]] = Field(
+        default_factory=dict,
+        description="Dictionary mapping hash strings to alias text lists",
+    )
+
+
+class BatchSitelinksResponse(BaseModel):
+    """Response model for batch sitelinks lookup by hash."""
+
+    sitelinks: dict[str, str] = Field(
+        default_factory=dict,
+        description="Dictionary mapping hash strings to sitelink titles",
+    )

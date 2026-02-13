@@ -113,3 +113,12 @@ class PropertyRecalculationResult(BaseModel):
         default_factory=dict,
         description="Mapping of property ID to statement count after recalculation",
     )
+
+
+class BatchStatementsResponse(BaseModel):
+    """Response model for batch statements lookup."""
+
+    statements: dict[str, dict[str, list[int]]] = Field(
+        default_factory=dict,
+        description="Dictionary mapping entity_id → property_id → list of statement hashes",
+    )

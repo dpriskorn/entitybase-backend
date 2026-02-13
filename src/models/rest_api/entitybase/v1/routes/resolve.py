@@ -8,6 +8,10 @@ from starlette.requests import Request
 
 from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.data.rest_api.v1.entitybase.response import (
+    BatchAliasesResponse,
+    BatchDescriptionsResponse,
+    BatchLabelsResponse,
+    BatchSitelinksResponse,
     QualifierResponse,
     ReconstructedSnakValue,
     ReferenceResponse,
@@ -308,8 +312,8 @@ async def get_representations(req: Request, hashes: str) -> list[Optional[str]]:
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
-@resolve_router.get("/labels/{hashes}")
-async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
+@resolve_router.get("/labels/{hashes}", response_model=BatchLabelsResponse)
+async def get_batch_labels(hashes: str, req: Request) -> BatchLabelsResponse:
     """Get batch labels by hashes.
 
     Supports single hash (e.g., /resolve/labels/123) or comma-separated batch
@@ -321,7 +325,7 @@ async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
     hash_list = hashes.split(",")
     if len(hash_list) > 20:
         raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
-    result = {}
+    result: dict[str, str] = {}
     for h in hash_list:
         try:
             hash_value = int(h.strip())
@@ -330,11 +334,13 @@ async def get_batch_labels(hashes: str, req: Request) -> dict[str, str]:
                 result[h] = label.data
         except (ValueError, S3NotFoundError):
             pass
-    return result
+    return BatchLabelsResponse(labels=result)
 
 
-@resolve_router.get("/descriptions/{hashes}")
-async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
+@resolve_router.get("/descriptions/{hashes}", response_model=BatchDescriptionsResponse)
+async def get_batch_descriptions(
+    hashes: str, req: Request
+) -> BatchDescriptionsResponse:
     """Get batch descriptions by hashes.
 
     Supports single hash (e.g., /resolve/descriptions/123) or comma-separated batch
@@ -346,7 +352,7 @@ async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
     hash_list = hashes.split(",")
     if len(hash_list) > 20:
         raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
-    result = {}
+    result: dict[str, str] = {}
     for h in hash_list:
         try:
             hash_value = int(h.strip())
@@ -355,11 +361,11 @@ async def get_batch_descriptions(hashes: str, req: Request) -> dict[str, str]:
                 result[h] = desc.data
         except (ValueError, S3NotFoundError):
             pass
-    return result
+    return BatchDescriptionsResponse(descriptions=result)
 
 
-@resolve_router.get("/aliases/{hashes}")
-async def get_batch_aliases(hashes: str, req: Request) -> dict[str, list[str]]:
+@resolve_router.get("/aliases/{hashes}", response_model=BatchAliasesResponse)
+async def get_batch_aliases(hashes: str, req: Request) -> BatchAliasesResponse:
     """Get batch aliases by hashes.
 
     Supports single hash (e.g., /resolve/aliases/123) or comma-separated batch
@@ -371,7 +377,7 @@ async def get_batch_aliases(hashes: str, req: Request) -> dict[str, list[str]]:
     hash_list = hashes.split(",")
     if len(hash_list) > 20:
         raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
-    result = {}
+    result: dict[str, list[str]] = {}
     for h in hash_list:
         try:
             hash_value = int(h.strip())
@@ -380,11 +386,11 @@ async def get_batch_aliases(hashes: str, req: Request) -> dict[str, list[str]]:
                 result[h] = aliases.data
         except (ValueError, S3NotFoundError):
             pass
-    return result
+    return BatchAliasesResponse(aliases=result)
 
 
-@resolve_router.get("/sitelinks/{hashes}")
-async def get_batch_sitelinks(hashes: str, req: Request) -> dict[str, str]:
+@resolve_router.get("/sitelinks/{hashes}", response_model=BatchSitelinksResponse)
+async def get_batch_sitelinks(hashes: str, req: Request) -> BatchSitelinksResponse:
     """Get batch sitelink titles by hashes.
 
     Supports single hash (e.g., /resolve/sitelinks/123) or comma-separated batch
@@ -396,7 +402,7 @@ async def get_batch_sitelinks(hashes: str, req: Request) -> dict[str, str]:
     hash_list = hashes.split(",")
     if len(hash_list) > 20:
         raise HTTPException(status_code=400, detail="Too many hashes (max 20)")
-    result = {}
+    result: dict[str, str] = {}
     for h in hash_list:
         try:
             hash_value = int(h.strip())
@@ -405,4 +411,4 @@ async def get_batch_sitelinks(hashes: str, req: Request) -> dict[str, str]:
                 result[h] = title
         except (ValueError, S3NotFoundError):
             pass
-    return result
+    return BatchSitelinksResponse(sitelinks=result)

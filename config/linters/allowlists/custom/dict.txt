@@ -32,4 +32,4 @@ src/models/infrastructure/vitess/repositories/entity.py:127
 src/models/rest_api/main.py:198
 src/models/rest_api/entitybase/v1/services/statement_service.py:307
 src/models/rest_api/entitybase/v1/services/statement_service.py:331
-src/models/rest_api/entitybase/v1/routes/resolve.py:172
+src/models/rest_api/entitybase/v1/routes/resolve.py:176
