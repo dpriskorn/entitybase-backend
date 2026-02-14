@@ -126,13 +126,9 @@ class WatchlistHandler(Handler):
         self, user_id: int, request: MarkCheckedRequest
     ) -> MessageResponse:
         """Mark a notification as checked."""
-        result = (
-            self.state.vitess_client.watchlist_repository.mark_notification_checked(
-                request.notification_id, user_id
-            )
+        self.state.vitess_client.watchlist_repository.mark_notification_checked(
+            request.notification_id, user_id
         )
-        if not result:
-            raise_validation_error("Notification not found", status_code=404)
         return MessageResponse(message="Notification marked as checked")
 
     def get_watch_counts(self, user_id: int) -> WatchCounts:
