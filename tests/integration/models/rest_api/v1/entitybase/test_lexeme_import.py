@@ -8,14 +8,16 @@ from httpx import ASGITransport, AsyncClient
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 
 
-_lexeme_id_counter = 0
+class LexemeIdGenerator:
+    """Generate unique lexeme IDs for testing."""
 
+    _counter = 0
 
-def get_unique_lexeme_id():
-    """Generate a unique lexeme ID for testing."""
-    global _lexeme_id_counter
-    _lexeme_id_counter += 1
-    return f"L9999{_lexeme_id_counter}"
+    @classmethod
+    def get_next(cls) -> str:
+        """Generate a unique lexeme ID."""
+        cls._counter += 1
+        return f"L9999{cls._counter}"
 
 
 @pytest.mark.asyncio
@@ -24,7 +26,7 @@ async def test_lexeme_import_with_lemmas() -> None:
     """Test that lexeme import works with lemmas field."""
     from models.rest_api.main import app
 
-    lexeme_id = get_unique_lexeme_id()
+    lexeme_id = LexemeIdGenerator.get_next()
     form_id = f"{lexeme_id}-F1"
     sense_id = f"{lexeme_id}-S1"
 
@@ -69,7 +71,7 @@ async def test_lexeme_import_without_lemmas_fails() -> None:
     """Test that lexeme import fails without lemmas field."""
     from models.rest_api.main import app
 
-    lexeme_id = get_unique_lexeme_id()
+    lexeme_id = LexemeIdGenerator.get_next()
     lexeme_data = {
         "id": lexeme_id,
         "type": "lexeme",
@@ -97,7 +99,7 @@ async def test_lexeme_import_preserves_wikidata_id() -> None:
     """Test that lexeme import preserves Wikidata L-prefixed ID."""
     from models.rest_api.main import app
 
-    lexeme_id = get_unique_lexeme_id()
+    lexeme_id = LexemeIdGenerator.get_next()
     lexeme_data = {
         "id": lexeme_id,
         "type": "lexeme",
@@ -129,7 +131,7 @@ async def test_lexeme_language_get_after_creation() -> None:
     """Test that language can be retrieved after lexeme creation."""
     from models.rest_api.main import app
 
-    lexeme_id = get_unique_lexeme_id()
+    lexeme_id = LexemeIdGenerator.get_next()
     lexeme_data = {
         "id": lexeme_id,
         "type": "lexeme",
@@ -163,7 +165,7 @@ async def test_lexeme_lexicalcategory_get_after_creation() -> None:
     """Test that lexical category can be retrieved after lexeme creation."""
     from models.rest_api.main import app
 
-    lexeme_id = get_unique_lexeme_id()
+    lexeme_id = LexemeIdGenerator.get_next()
     lexeme_data = {
         "id": lexeme_id,
         "type": "lexeme",
@@ -197,7 +199,7 @@ async def test_lexeme_language_update_invalid_qid_fails() -> None:
     """Test that language update with invalid QID fails."""
     from models.rest_api.main import app
 
-    lexeme_id = get_unique_lexeme_id()
+    lexeme_id = LexemeIdGenerator.get_next()
     lexeme_data = {
         "id": lexeme_id,
         "type": "lexeme",
@@ -233,7 +235,7 @@ async def test_lexeme_lexicalcategory_update_invalid_qid_fails() -> None:
     """Test that lexical category update with invalid QID fails."""
     from models.rest_api.main import app
 
-    lexeme_id = get_unique_lexeme_id()
+    lexeme_id = LexemeIdGenerator.get_next()
     lexeme_data = {
         "id": lexeme_id,
         "type": "lexeme",

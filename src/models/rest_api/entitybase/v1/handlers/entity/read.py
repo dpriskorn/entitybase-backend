@@ -2,6 +2,7 @@
 
 import logging
 
+from fastapi import HTTPException
 from models.data.infrastructure.s3 import S3RevisionData
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.infrastructure.s3.exceptions import S3NotFoundError
@@ -46,7 +47,9 @@ class EntityReadHandler(Handler):
             logger.debug(f"Entity {entity_id} state_data: {state_data}")
             if state_data.get("is_deleted", False):
                 logger.debug(f"Entity {entity_id} is deleted, returning 404")
-                raise_validation_error(f"Entity {entity_id} is deleted", status_code=404)
+                raise_validation_error(
+                    f"Entity {entity_id} is deleted", status_code=404
+                )
             response = EntityResponse(
                 id=entity_id,
                 rev_id=head_revision_id,
@@ -65,6 +68,8 @@ class EntityReadHandler(Handler):
                 f"Entity revision not found for {entity_id}, revision {head_revision_id}"
             )
             raise_validation_error(f"Entity not found: {entity_id}", status_code=404)
+        except HTTPException:
+            raise  # Re-raise HTTP exceptions as-is
         except Exception as e:
             logger.error(f"Failed to read entity {entity_id}: {e}")
             raise_validation_error(

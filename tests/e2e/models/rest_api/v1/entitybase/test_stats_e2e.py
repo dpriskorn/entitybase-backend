@@ -25,7 +25,7 @@ async def test_get_general_stats(api_prefix: str) -> None:
             data = response.json()
             assert isinstance(data, dict)
             # Stats may include entity counts, statement counts, etc.
-            assert "entities" in data or "statements" in data or "total" in data
+            assert "total_items" in data or "total_statements" in data or "date" in data
 
 
 @pytest.mark.e2e

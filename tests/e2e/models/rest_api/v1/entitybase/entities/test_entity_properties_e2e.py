@@ -40,13 +40,25 @@ async def test_get_entity_properties(
 
 @pytest.mark.asyncio
 @pytest.mark.e2e
-async def test_add_property_to_entity(api_prefix: str, sample_item_data) -> None:
+async def test_add_property_to_entity(
+    api_prefix: str, sample_item_data, sample_property_data
+) -> None:
     """E2E test: Add claims for a single property to an entity."""
     from models.rest_api.main import app
 
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
+        # Create property first
+        property_data = sample_property_data.copy()
+        property_data["id"] = "P31"
+        response = await client.post(
+            f"{api_prefix}/entities/properties",
+            json=property_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+
         # Create entity
         response = await client.post(
             f"{api_prefix}/entities/items",

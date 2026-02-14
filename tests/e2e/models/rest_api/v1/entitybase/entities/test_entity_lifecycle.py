@@ -46,18 +46,14 @@ async def test_general_stats(api_prefix: str) -> None:
 async def test_json_import_endpoint(api_prefix: str) -> None:
     from models.rest_api.main import app
 
-    """E2E test: Import entities from Wikidata JSONL dump file."""
+    """E2E test: Import a single entity."""
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         import_data = {
-            "entities": [
-                {
-                    "type": "item",
-                    "labels": {"en": {"language": "en", "value": "Import Test"}},
-                }
-            ],
-            "batch_size": 10,
+            "id": "Q999999",
+            "type": "item",
+            "labels": {"en": {"language": "en", "value": "Import Test"}},
         }
         response = await client.post(
             f"{api_prefix}/import",

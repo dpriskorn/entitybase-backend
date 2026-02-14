@@ -46,14 +46,13 @@ class UpdateTransaction(EntityTransaction):
         logger.info("[UpdateTransaction] Starting lexeme term processing")
 
         from models.rest_api.entitybase.v1.utils.lexeme_term_processor import (
+            LexemeTermProcessorConfig,
             process_lexeme_terms,
         )
 
-        process_lexeme_terms(
-            forms=forms,
-            senses=senses,
-            lemmas=lemmas,
+        config = LexemeTermProcessorConfig(
             s3_client=self.state.s3_client,
+            lemmas=lemmas,
             on_form_stored=lambda h: self.lexeme_term_operations.append(
                 lambda: self._rollback_form_representation(h)
             ),
@@ -63,6 +62,12 @@ class UpdateTransaction(EntityTransaction):
             on_lemma_stored=lambda h: self.lexeme_term_operations.append(
                 lambda: self._rollback_lemma(h)
             ),
+        )
+
+        process_lexeme_terms(
+            forms=forms,
+            senses=senses,
+            config=config,
         )
 
         logger.info("[UpdateTransaction] Completed lexeme term processing")

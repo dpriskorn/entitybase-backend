@@ -84,14 +84,19 @@ class LexemeCreateHandler(EntityCreateHandler):
         logger.debug(f"Processing lexeme terms for {entity_id}")
 
         from models.rest_api.entitybase.v1.utils.lexeme_term_processor import (
+            LexemeTermProcessorConfig,
             process_lexeme_terms,
+        )
+
+        config = LexemeTermProcessorConfig(
+            s3_client=self.state.s3_client,
+            lemmas=request.lemmas if request.lemmas else None,
         )
 
         process_lexeme_terms(
             forms=request.forms,
             senses=request.senses,
-            lemmas=request.lemmas if request.lemmas else None,
-            s3_client=self.state.s3_client,
+            config=config,
         )
 
         logger.debug(f"Completed processing lexeme terms for {entity_id}")

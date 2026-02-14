@@ -3,6 +3,7 @@
 from unittest.mock import MagicMock
 
 from models.rest_api.entitybase.v1.utils.lexeme_term_processor import (
+    LexemeTermProcessorConfig,
     process_lexeme_terms,
     _process_term_data,
     TermProcessingConfig,
@@ -16,7 +17,8 @@ class TestProcessLexemeTerms:
         """Test processing with no forms or senses."""
         mock_s3 = MagicMock()
 
-        process_lexeme_terms([], [], mock_s3)
+        config = LexemeTermProcessorConfig(s3_client=mock_s3)
+        process_lexeme_terms([], [], config)
 
         mock_s3.store_form_representation.assert_not_called()
         mock_s3.store_sense_gloss.assert_not_called()
@@ -33,7 +35,8 @@ class TestProcessLexemeTerms:
             }
         ]
 
-        process_lexeme_terms(forms, [], mock_s3)
+        config = LexemeTermProcessorConfig(s3_client=mock_s3)
+        process_lexeme_terms(forms, [], config)
 
         mock_s3.store_form_representation.assert_called_once()
 
@@ -49,7 +52,8 @@ class TestProcessLexemeTerms:
             }
         ]
 
-        process_lexeme_terms([], senses, mock_s3)
+        config = LexemeTermProcessorConfig(s3_client=mock_s3)
+        process_lexeme_terms([], senses, config)
 
         mock_s3.store_sense_gloss.assert_called_once()
 
@@ -71,14 +75,12 @@ class TestProcessLexemeTerms:
         def gloss_callback(hash_val):
             gloss_callback_calls.append(hash_val)
 
-        process_lexeme_terms(
-            forms,
-            senses,
-            mock_s3,
-            None,
+        config = LexemeTermProcessorConfig(
+            s3_client=mock_s3,
             on_form_stored=form_callback,
             on_gloss_stored=gloss_callback,
         )
+        process_lexeme_terms(forms, senses, config)
 
         assert len(form_callback_calls) == 1
         assert len(gloss_callback_calls) == 1
@@ -92,8 +94,9 @@ class TestProcessLexemeTerms:
         forms = [{"id": "L123-F1", "representations": {"en": {"value": "cats"}}}]
         senses = [{"id": "L123-S1", "glosses": {"en": {"value": "animal"}}}]
 
+        config = LexemeTermProcessorConfig(s3_client=mock_s3)
         # Should not raise exception
-        process_lexeme_terms(forms, senses, mock_s3, None)
+        process_lexeme_terms(forms, senses, config)
 
         assert True  # No exception raised
 
@@ -184,7 +187,8 @@ class TestProcessLexemeTerms:
             "de": {"language": "de", "value": "Antwort"},
         }
 
-        process_lexeme_terms([], [], mock_s3, lemmas)
+        config = LexemeTermProcessorConfig(s3_client=mock_s3, lemmas=lemmas)
+        process_lexeme_terms([], [], config)
 
         assert mock_s3.store_lemma.call_count == 2
 
@@ -200,6 +204,9 @@ class TestProcessLexemeTerms:
         def lemma_callback(hash_val):
             lemma_callback_calls.append(hash_val)
 
-        process_lexeme_terms([], [], mock_s3, lemmas, on_lemma_stored=lemma_callback)
+        config = LexemeTermProcessorConfig(
+            s3_client=mock_s3, lemmas=lemmas, on_lemma_stored=lemma_callback
+        )
+        process_lexeme_terms([], [], config)
 
         assert len(lemma_callback_calls) == 1

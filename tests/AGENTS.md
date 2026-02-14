@@ -192,7 +192,6 @@ assert response.status_code in (200, 201, 204)
 ```python
 # Always assert exactly one expected status code
 assert response.status_code == 201
-assert response.status_code == 404
 ```
 
 **Rationale:**

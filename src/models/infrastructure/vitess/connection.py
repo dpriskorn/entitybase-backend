@@ -211,6 +211,15 @@ class VitessConnectionManager(BaseModel):
 
     def disconnect(self) -> None:
         """Close all connections in pool."""
+        self._close_stored_connection()
+        self._drain_pool()
+        self._close_overflow_connections()
+        self._close_active_connections()
+        self.connection_semaphore = None
+        logger.info("Disconnected all pooled connections")
+
+    def _close_stored_connection(self) -> None:
+        """Close the stored connection if it exists."""
         if self.connection is not None:
             try:
                 if self.connection.open:
@@ -219,6 +228,8 @@ class VitessConnectionManager(BaseModel):
             except Exception as e:
                 logger.warning(f"Error closing stored connection: {e}")
 
+    def _drain_pool(self) -> None:
+        """Drain all connections from the pool."""
         if self.pool is not None:
             while not self.pool.empty():
                 try:
@@ -229,6 +240,8 @@ class VitessConnectionManager(BaseModel):
                     logger.warning(f"Error closing pooled connection: {e}")
             self.pool = None
 
+    def _close_overflow_connections(self) -> None:
+        """Close all overflow connections."""
         for connection in list(self.overflow_connections):
             try:
                 if connection.open:
@@ -237,6 +250,8 @@ class VitessConnectionManager(BaseModel):
                 logger.warning(f"Error closing overflow connection: {e}")
         self.overflow_connections.clear()
 
+    def _close_active_connections(self) -> None:
+        """Close all active connections."""
         for connection in list(self.active_connections):
             try:
                 if connection.open:
@@ -244,10 +259,6 @@ class VitessConnectionManager(BaseModel):
             except Exception as e:
                 logger.warning(f"Error closing active connection: {e}")
         self.active_connections.clear()
-
-        self.connection_semaphore = None
-
-        logger.info("Disconnected all pooled connections")
 
 
 class CursorContextManager:

@@ -1,6 +1,6 @@
 """User-related routes."""
 
-from fastapi import APIRouter, HTTPException, Request, Query
+from fastapi import APIRouter, HTTPException, Request, Depends, Query
 
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.user import UserHandler
@@ -17,9 +17,36 @@ from models.data.rest_api.v1.entitybase.response import UserStatsResponse
 from models.data.rest_api.v1.entitybase.response import UserResponse
 from models.data.rest_api.v1.entitybase.response import UserActivityResponse
 from models.rest_api.utils import raise_validation_error
+from pydantic import BaseModel
 
 
 users_router = APIRouter(tags=["users"])
+
+
+class UserActivityQuery(BaseModel):
+    """Query parameters for user activity."""
+
+    activity_type: str | None = Query(
+        None, alias="type", description="Activity type filter"
+    )
+    hours: int = Query(24, ge=1, description="Hours to look back")
+    limit: int = Query(50, ge=1, description="Max activities to return")
+    offset: int = Query(0, ge=0, description="Offset for pagination")
+
+
+def get_user_activity_query(
+    activity_type: str | None = Query(None, alias="type"),
+    hours: int = Query(24, ge=1),
+    limit: int = Query(50, ge=1),
+    offset: int = Query(0, ge=0),
+) -> UserActivityQuery:
+    """Dependency to extract query parameters."""
+    return UserActivityQuery(
+        activity_type=activity_type,
+        hours=hours,
+        limit=limit,
+        offset=offset,
+    )
 
 
 @users_router.post("/users", response_model=UserCreateResponse)
@@ -88,15 +115,14 @@ def toggle_watchlist(
 def get_user_activity(
     user_id: int,
     req: Request,
-    activity_type: str | None = Query(None, alias="type", description="Activity type filter"),
-    hours: int = Query(24, ge=1, description="Hours to look back"),
-    limit: int = Query(50, ge=1, description="Max activities to return"),
-    offset: int = Query(0, ge=0, description="Offset for pagination"),
+    query: UserActivityQuery = Depends(get_user_activity_query),
 ) -> UserActivityResponse:
     """Get user's activity with filtering."""
     state = req.app.state.state_handler
     handler = UserActivityHandler(state=state)
     try:
-        return handler.get_user_activity(user_id, activity_type, hours, limit, offset)
+        return handler.get_user_activity(
+            user_id, query.activity_type, query.hours, query.limit, query.offset
+        )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

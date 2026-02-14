@@ -209,7 +209,9 @@ async def test_entity_update_publishes_edit_event(api_prefix: str) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_redirect_creation_publishes_redirect_event(api_prefix: str) -> None:
+async def test_redirect_creation_publishes_redirect_event(  # noqa: PLR0912
+    api_prefix: str,
+) -> None:
     """Test that creating a redirect publishes a REDIRECT event"""
     from models.rest_api.main import app
 

@@ -112,22 +112,20 @@ class Settings(BaseModel):
         This method runs after the model is created to fetch values
         from environment variables, overriding any default values.
         """
-        # S3
+        self._load_s3_config()
+        self._load_vitess_config()
+        self._load_entity_config()
+        self._load_streaming_config()
+        self._load_other_config()
+        self._load_rdf_config()
+        self._load_workers_config()
+
+    def _load_s3_config(self) -> None:
+        """Load S3 configuration from environment variables."""
         self.s3_endpoint = os.getenv("S3_ENDPOINT", self.s3_endpoint)
         self.s3_access_key = os.getenv("S3_ACCESS_KEY", self.s3_access_key)
         self.s3_secret_key = os.getenv("S3_SECRET_KEY", self.s3_secret_key)
 
-        # Vitess
-        self.vitess_host = os.getenv("VITESS_HOST", self.vitess_host)
-        # if not self.vitess_host:
-        #     raise_validation_error("No VITESS_HOST enviroment variable found")
-        logger.debug(f"self.vitess_host: {self.vitess_host}")
-        self.vitess_port = int(os.getenv("VITESS_PORT", str(self.vitess_port)))
-        self.vitess_database = os.getenv("VITESS_DATABASE", self.vitess_database)
-        self.vitess_user = os.getenv("VITESS_USER", self.vitess_user)
-        self.vitess_password = os.getenv("VITESS_PASSWORD", self.vitess_password)
-
-        # S3 Buckets
         self.s3_references_bucket = os.getenv(
             "S3_REFERENCES_BUCKET", self.s3_references_bucket
         )
@@ -146,7 +144,6 @@ class Settings(BaseModel):
             "S3_REVISIONS_BUCKET", self.s3_revisions_bucket
         )
 
-        # S3 Versions
         self.s3_snak_version = os.getenv("S3_SNAK_VERSION", self.s3_snak_version)
         self.s3_sitelink_version = os.getenv(
             "S3_SITELINK_VERSION", self.s3_sitelink_version
@@ -164,13 +161,22 @@ class Settings(BaseModel):
             "S3_REVISION_VERSION", self.s3_schema_revision_version
         )
 
-        # Entity Version
-        self.entity_version = os.getenv("ENTITY_VERSION", self.entity_version)
+    def _load_vitess_config(self) -> None:
+        """Load Vitess configuration from environment variables."""
+        self.vitess_host = os.getenv("VITESS_HOST", self.vitess_host)
+        logger.debug(f"self.vitess_host: {self.vitess_host}")
+        self.vitess_port = int(os.getenv("VITESS_PORT", str(self.vitess_port)))
+        self.vitess_database = os.getenv("VITESS_DATABASE", self.vitess_database)
+        self.vitess_user = os.getenv("VITESS_USER", self.vitess_user)
+        self.vitess_password = os.getenv("VITESS_PASSWORD", self.vitess_password)
 
-        # API Configuration
+    def _load_entity_config(self) -> None:
+        """Load entity version and API config from environment variables."""
+        self.entity_version = os.getenv("ENTITY_VERSION", self.entity_version)
         self.api_prefix = os.getenv("API_PREFIX", self.api_prefix)
 
-        # Streaming Versions
+    def _load_streaming_config(self) -> None:
+        """Load streaming configuration from environment variables."""
         self.streaming_entity_change_version = os.getenv(
             "STREAMING_ENTITY_CHANGE_VERSION", self.streaming_entity_change_version
         )
@@ -184,7 +190,6 @@ class Settings(BaseModel):
             "STREAMING_ENTITY_DIFF_VERSION", self.streaming_entity_diff_version
         )
 
-        # Streaming Config
         self.streaming_enabled = (
             os.getenv("STREAMING_ENABLED", "false").lower() == "true"
         )
@@ -198,11 +203,13 @@ class Settings(BaseModel):
             "KAFKA_ENTITY_DIFF_TOPIC", self.kafka_entity_diff_topic
         )
 
-        # Other
+    def _load_other_config(self) -> None:
+        """Load other configuration from environment variables."""
         self.log_level = os.getenv("LOG_LEVEL", self.log_level)
         self.user_agent = os.getenv("USER_AGENT", self.user_agent)
 
-        # RDF
+    def _load_rdf_config(self) -> None:
+        """Load RDF configuration from environment variables."""
         self.wikibase_repository_name = os.getenv(
             "WIKIBASE_REPOSITORY_NAME", self.wikibase_repository_name
         )
@@ -210,7 +217,8 @@ class Settings(BaseModel):
             os.getenv("PROPERTY_REGISTRY_PATH", self.property_registry_path)
         )
 
-        # Workers
+    def _load_workers_config(self) -> None:
+        """Load workers configuration from environment variables."""
         self.backlink_stats_enabled = (
             os.getenv(
                 "BACKLINK_STATS_ENABLED", str(self.backlink_stats_enabled)

@@ -36,9 +36,11 @@ class EndorsementHandler(Handler):
             user_id, statement_hash
         )
         if not result.success:
-            raise_validation_error(
-                result.error or "Failed to create endorsement", status_code=400
-            )
+            error_msg = result.error or "Failed to create endorsement"
+            if "not found" in error_msg.lower():
+                raise_validation_error(error_msg, status_code=404)
+            else:
+                raise_validation_error(error_msg, status_code=400)
 
         # Get the endorsement details for response
         endorsements_result = (
@@ -106,9 +108,11 @@ class EndorsementHandler(Handler):
             user_id, statement_hash
         )
         if not result.success:
-            raise_validation_error(
-                result.error or "Failed to withdraw endorsement", status_code=400
-            )
+            error_msg = result.error or "Failed to withdraw endorsement"
+            if "not found" in error_msg.lower():
+                raise_validation_error(error_msg, status_code=404)
+            else:
+                raise_validation_error(error_msg, status_code=400)
 
         # Get the withdrawn endorsement details for response
         endorsements_result = (

@@ -21,43 +21,45 @@ class TermProcessingConfig(BaseModel):
     term_type: str = Field(..., description="Type of term for logging")
 
 
+class LexemeTermProcessorConfig(BaseModel):
+    """Configuration for lexeme term processing."""
+
+    s3_client: Any
+    lemmas: dict[str, dict[str, Any]] | None = None
+    on_form_stored: Optional[Callable[[int], None]] = None
+    on_gloss_stored: Optional[Callable[[int], None]] = None
+    on_lemma_stored: Optional[Callable[[int], None]] = None
+
+
 def process_lexeme_terms(
     forms: list[dict[str, Any]],
     senses: list[dict[str, Any]],
-    s3_client: Any,
-    lemmas: dict[str, dict[str, Any]] | None = None,
-    on_form_stored: Optional[Callable[[int], None]] = None,
-    on_gloss_stored: Optional[Callable[[int], None]] = None,
-    on_lemma_stored: Optional[Callable[[int], None]] = None,
+    config: LexemeTermProcessorConfig,
 ) -> None:
     """Process and deduplicate lexeme lemmas, form representations and sense glosses.
 
     Args:
         forms: List of form data with representations
         senses: List of sense data with glosses
-        s3_client: S3 client instance for storage operations
-        lemmas: Lexeme lemmas dict keyed by language
-        on_form_stored: Optional callback for each stored form representation hash
-        on_gloss_stored: Optional callback for each stored sense gloss hash
-        on_lemma_stored: Optional callback for each stored lemma hash
+        config: Configuration object containing S3 client and callbacks
 
     This function processes each term by:
     1. Hashing text value using MetadataExtractor
     2. Storing text in S3 with hash
     3. Adding hash to term data for deduplication
-    4. Optionally invoking callbacks for each stored hash
+    4. Optionally invokes callbacks for each stored hash
 
     Errors during S3 storage are logged as warnings but don't halt processing.
     """
     logger.debug(
-        f"Processing lexeme terms: {len(forms)} forms, {len(senses)} senses, {len(lemmas) if lemmas else 0} lemmas"
+        f"Processing lexeme terms: {len(forms)} forms, {len(senses)} senses, {len(config.lemmas) if config.lemmas else 0} lemmas"
     )
-    if not forms and not senses and not lemmas:
+    if not forms and not senses and not config.lemmas:
         logger.debug("No forms, senses, or lemmas to process")
         return
 
     logger.debug("Starting lemmas processing")
-    if lemmas:
+    if config.lemmas:
         lemmas_config = TermProcessingConfig(
             data_key="value",
             hash_key="lemma_hashes",
@@ -66,10 +68,10 @@ def process_lexeme_terms(
         )
 
         _process_lexeme_lemmas(
-            lemmas,
-            s3_client,
+            config.lemmas,
+            config.s3_client,
             lemmas_config,
-            on_lemma_stored,
+            config.on_lemma_stored,
         )
 
     logger.debug("Starting forms and senses processing")
@@ -82,9 +84,9 @@ def process_lexeme_terms(
 
     _process_term_data(
         forms,
-        s3_client,
+        config.s3_client,
         forms_config,
-        on_form_stored,
+        config.on_form_stored,
     )
 
     senses_config = TermProcessingConfig(
@@ -96,9 +98,9 @@ def process_lexeme_terms(
 
     _process_term_data(
         senses,
-        s3_client,
+        config.s3_client,
         senses_config,
-        on_gloss_stored,
+        config.on_gloss_stored,
     )
 
 

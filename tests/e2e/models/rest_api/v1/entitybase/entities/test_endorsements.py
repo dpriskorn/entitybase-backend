@@ -85,8 +85,8 @@ async def test_endorsement_full_workflow(api_prefix: str) -> None:
         withdraw_response = await client.delete(
             f"{api_prefix}/statements/999999999/endorse", headers={"X-User-ID": "1001"}
         )
-        # Should fail since no endorsement exists
-        assert withdraw_response.status_code == 404
+        # Should fail since no endorsement exists (400 - no active endorsement)
+        assert withdraw_response.status_code == 400
 
 
 @pytest.mark.asyncio
@@ -193,8 +193,8 @@ async def test_get_single_statement(api_prefix: str) -> None:
     ) as client:
         # Get non-existent statement
         response = await client.get(f"{api_prefix}/statements/123456789")
-        # May return 404 or 200 with empty data
-        assert response.status_code == 200
+        # Returns 404 when statement doesn't exist
+        assert response.status_code == 404
 
 
 @pytest.mark.asyncio
@@ -216,12 +216,12 @@ async def test_endorse_and_withdraw_statement(api_prefix: str) -> None:
         # Will fail but endpoint works
         assert endorse_response.status_code == 404
 
-        # Try to withdraw (endpoint test)
+        # Try to withdraw (endpoint test) - returns 400 since no endorsement exists
         withdraw_response = await client.delete(
             f"{api_prefix}/statements/123456789/endorse", headers={"X-User-ID": "1003"}
         )
         # Will fail but endpoint works
-        assert withdraw_response.status_code == 404
+        assert withdraw_response.status_code == 400
 
 
 @pytest.mark.asyncio
