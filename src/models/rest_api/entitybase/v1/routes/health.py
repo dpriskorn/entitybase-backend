@@ -31,7 +31,17 @@ def health_check_endpoint(response: Response, req: Request) -> HealthCheckRespon
     logger.debug("Checking connection status for S3 and Vitess")
     from models.rest_api.entitybase.v1.handlers.state import StateHandler
 
-    assert isinstance(state, StateHandler)
+    if not isinstance(state, StateHandler):
+        logger.debug(
+            "State handler not properly initialized, returning unavailable status"
+        )
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        return HealthCheckResponse(
+            status="unavailable",
+            s3="disconnected",
+            vitess="disconnected",
+            timestamp=datetime.now(timezone.utc).isoformat(),
+        )
     from models.infrastructure.s3.client import MyS3Client
     from models.infrastructure.vitess.client import VitessClient
 

@@ -254,7 +254,7 @@ async def test_get_notifications_user_not_registered(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.get(f"{api_prefix}/users/99999/watchlist/notifications")
-        assert response.status_code == 400
+        assert response.status_code == 404
         assert "User not registered" in response.json()["message"]
 
 
