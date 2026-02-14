@@ -3,13 +3,21 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from models.infrastructure.unique_id import generate_unique_id
+from models.infrastructure.unique_id import UniqueIdGenerator
 
 logger = logging.getLogger(__name__)
 
 
 class IdResolver(BaseModel):
+    """Resolves entity IDs to internal IDs and vice versa."""
+
+    model_config = {"arbitrary_types_allowed": True}
+
     vitess_client: Any  # VitessClient
+
+    def __init__(self, **data: Any) -> None:
+        super().__init__(**data)
+        self._unique_id_generator: UniqueIdGenerator = UniqueIdGenerator()
 
     def resolve_id(self, entity_id: str) -> int:
         logger.debug(f"[IdResolver] resolve_id({entity_id}) called")
@@ -49,7 +57,7 @@ class IdResolver(BaseModel):
             logger.debug(f"[IdResolver] register_entity: {entity_id} already exists")
             return  # Already registered, idempotent
 
-        internal_id = generate_unique_id()
+        internal_id = self._unique_id_generator.generate_unique_id()
 
         logger.debug(
             f"[IdResolver] register_entity: Attempting to insert {entity_id} "
@@ -62,7 +70,11 @@ class IdResolver(BaseModel):
                     "INSERT INTO entity_id_mapping (entity_id, internal_id) VALUES (%s, %s)",
                     (entity_id, internal_id),
                 )
-            logger.debug(f"[IdResolver] register_entity: INSERT successful for {entity_id}")
+            logger.debug(
+                f"[IdResolver] register_entity: INSERT successful for {entity_id}"
+            )
         except Exception as e:
-            logger.error(f"[IdResolver] register_entity: INSERT FAILED for {entity_id}: {e}")
+            logger.error(
+                f"[IdResolver] register_entity: INSERT FAILED for {entity_id}: {e}"
+            )
             raise
