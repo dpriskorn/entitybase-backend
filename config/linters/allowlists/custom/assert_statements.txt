@@ -1,0 +1,4 @@
+# Allowlist for assert statement linter
+# Format: file_path:line_number
+# Lines can be within ±2 of the specified line number
+

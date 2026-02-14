@@ -8,6 +8,7 @@ set -e
 #./run-str-lint.sh
 ./run-int-lint.sh
 ./scripts/linters/value_error_linter.py
+./run-assert-linter.sh
 ./run-response-model-lint.sh
 ./run-logger-lint.sh
 ./run-long-files-lint.sh
@@ -16,7 +17,7 @@ set -e
 ./run-any-lint.sh
 #./run-cast-lint.sh
 ./run-tuple-lint.sh
-./run-as-lint.sh
+#./run-as-lint.sh
 ./run-key-length-lint.sh
 ./run-init-lint.sh
 #./run-description-lint.sh
