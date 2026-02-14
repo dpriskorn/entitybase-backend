@@ -584,6 +584,14 @@ Response model for batch sitelinks lookup by hash.
 - `failed_count` (int): Number of statements that failed to clean up
 - `errors` (list[str]): List of error messages for failed cleanups
 
+### DeleteResponse
+
+Response for DELETE operations.
+
+**Fields**:
+
+- `success` (bool): Whether the operation succeeded.
+
 ### DescriptionResponse
 
 Response model for entity descriptions.
@@ -712,6 +720,22 @@ Response model for all entity sitelinks.
 **Fields**:
 
 - `sitelinks` (dict[str, str]): Sitelinks per site
+
+### TermHashResponse
+
+Response for single term (label/description/alias/lemma) operations.
+
+**Fields**:
+
+- `hash` (int): Hash of the stored term.
+
+### TermHashesResponse
+
+Response for multi-term operations (e.g., aliases PUT).
+
+**Fields**:
+
+- `hashes` (list[int]): Hashes of the stored terms.
 
 ### TermsByType
 

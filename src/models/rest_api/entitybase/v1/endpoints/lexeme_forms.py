@@ -11,12 +11,15 @@ from models.data.rest_api.v1.entitybase.request import (
     TermUpdateRequest,
 )
 from models.data.rest_api.v1.entitybase.response import (
+    DeleteResponse,
     EntityResponse,
     FormRepresentationResponse,
     FormRepresentationsResponse,
     FormResponse,
     FormsResponse,
+    TermHashResponse,
 )
+from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.endpoints.lexeme_utils import (
@@ -159,7 +162,7 @@ async def get_form_representation(
 
 @router.post(
     "/entities/lexemes/forms/{form_id}/representation/{langcode}",
-    response_model=EntityResponse,
+    response_model=TermHashResponse,
 )
 async def add_form_representation(
     form_id: str,
@@ -167,7 +170,7 @@ async def add_form_representation(
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> TermHashResponse:
     """Add a new form representation for language."""
     logger.debug(f"Adding representation for form {form_id}, language {langcode}")
     lexeme_id, form_suffix = _parse_form_id(form_id)
@@ -213,17 +216,20 @@ async def add_form_representation(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
-    return await update_handler.update_lexeme(
+    await update_handler.update_lexeme(
         lexeme_id,
         update_request,
         edit_headers=headers,
         validator=validator,
     )
 
+    hash_value = MetadataExtractor.hash_string(request.value)
+    return TermHashResponse(hash=hash_value)
+
 
 @router.put(
     "/entities/lexemes/forms/{form_id}/representation/{langcode}",
-    response_model=EntityResponse,
+    response_model=TermHashResponse,
 )
 async def update_form_representation(
     form_id: str,
@@ -231,7 +237,7 @@ async def update_form_representation(
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> TermHashResponse:
     """Update form representation for language."""
     logger.debug(f"Updating representation for form {form_id}, language {langcode}")
     lexeme_id, form_suffix = _parse_form_id(form_id)
@@ -281,12 +287,15 @@ async def update_form_representation(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
-    return await update_handler.update_lexeme(
+    await update_handler.update_lexeme(
         lexeme_id,
         update_request,
         edit_headers=headers,
         validator=validator,
     )
+
+    hash_value = MetadataExtractor.hash_string(request.value)
+    return TermHashResponse(hash=hash_value)
 
 
 @router.delete("/entities/lexemes/forms/{form_id}", response_model=EntityResponse)
@@ -333,14 +342,14 @@ async def delete_form(
 
 @router.delete(
     "/entities/lexemes/forms/{form_id}/representation/{langcode}",
-    response_model=EntityResponse,
+    response_model=DeleteResponse,
 )
 async def delete_form_representation(
     form_id: str,
     langcode: str,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> DeleteResponse:
     """Delete form representation for language."""
     logger.debug(f"Deleting representation for form {form_id}, language {langcode}")
     lexeme_id, form_suffix = _parse_form_id(form_id)
@@ -377,12 +386,14 @@ async def delete_form_representation(
         type="lexeme", **current_entity.entity_data.revision
     )
 
-    return await update_handler.update_lexeme(
+    await update_handler.update_lexeme(
         lexeme_id,
         update_request,
         edit_headers=headers,
         validator=validator,
     )
+
+    return DeleteResponse(success=True)
 
 
 @router.post(

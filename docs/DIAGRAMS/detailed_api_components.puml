@@ -16,6 +16,9 @@ package "API Handlers" as APIHandlers #LightBlue {
     "EntityRevert" as EntityRevertHandler
     "EntityTransaction" as EntityTransaction
     "EntityUpdate" as EntityUpdateHandler
+    "EntityUpdateLexemeMixin" as EntityUpdateLexemeMixin
+    "EntityUpdateSitelinksMixin" as EntityUpdateSitelinksMixin
+    "EntityUpdateTermsMixin" as EntityUpdateTermsMixin
     "EntityValidation" as EntityValidationService
     "Export" as ExportHandler
     "ItemCreate" as ItemCreateHandler

@@ -17,6 +17,7 @@ package "Models" as Models #LightCyan {
     "BatchStatements" as BatchStatementsResponse
     "CleanupOrphaned" as CleanupOrphanedResponse
     "DeduplicationStats" as DeduplicationStatsResponse
+    "Delete" as DeleteResponse
     "Description" as DescriptionResponse
     "DescriptionValue" as DescriptionValue
     "Descriptions" as DescriptionsResponse
@@ -100,6 +101,8 @@ package "Models" as Models #LightCyan {
     "Statement" as StatementResponse
     "StatementsHash" as StatementsHashResponse
     "Statements" as StatementsResponse
+    "TermHash" as TermHashResponse
+    "TermHashes" as TermHashesResponse
     "TermsByType" as TermsByType
     "TermsPerLanguage" as TermsPerLanguage
     "Terms" as TermsResponse

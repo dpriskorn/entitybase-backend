@@ -11,12 +11,15 @@ from models.data.rest_api.v1.entitybase.request import (
     TermUpdateRequest,
 )
 from models.data.rest_api.v1.entitybase.response import (
+    DeleteResponse,
     EntityResponse,
     SenseGlossResponse,
     SenseGlossesResponse,
     SenseResponse,
     SensesResponse,
+    TermHashResponse,
 )
+from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.endpoints.lexeme_utils import (
@@ -136,26 +139,71 @@ async def get_sense_glosses(sense_id: str, req: Request) -> SenseGlossesResponse
     return SenseGlossesResponse(glosses=sense.glosses)
 
 
-@router.get(
+@router.post(
     "/entities/lexemes/senses/{sense_id}/glosses/{langcode}",
-    response_model=SenseGlossResponse,
+    response_model=TermHashResponse,
 )
-async def get_sense_gloss(
-    sense_id: str, langcode: str, req: Request
-) -> SenseGlossResponse:
-    """Get gloss for a sense in specific language."""
-    sense = await get_sense_by_id(sense_id, req)
-    gloss = sense.glosses.get(langcode)
-    if not gloss:
+async def add_sense_gloss(
+    sense_id: str,
+    langcode: str,
+    request: TermUpdateRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> TermHashResponse:
+    """Add a new sense gloss for a language."""
+    logger.debug(f"Adding gloss for sense {sense_id}, language {langcode}")
+    lexeme_id, sense_suffix = _parse_sense_id(sense_id)
+
+    if request.language != langcode:
         raise HTTPException(
-            status_code=404, detail=f"Gloss not found for language {langcode}"
+            status_code=400,
+            detail=f"Language in request body ({request.language}) does not match path parameter ({langcode})",
         )
-    return SenseGlossResponse(value=gloss.value)
+
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(lexeme_id)
+
+    senses_data = current_entity.entity_data.revision.get("senses", [])
+    sense_found = False
+    for sense in senses_data:
+        if sense["id"] == sense_id:
+            sense_found = True
+            glosses = sense.get("glosses", {})
+            if langcode in glosses:
+                raise HTTPException(
+                    status_code=409,
+                    detail=f"Gloss already exists for language {langcode}. Use PUT to update.",
+                )
+            glosses[langcode] = {"language": langcode, "value": request.value}
+            sense["glosses"] = glosses
+            logger.debug(f"Added gloss for sense {sense_id} in language {langcode}")
+            break
+
+    if not sense_found:
+        raise HTTPException(status_code=404, detail=f"Sense {sense_id} not found")
+
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = LexemeUpdateRequest(
+        id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
+    )
+
+    await update_handler.update_lexeme(
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
+
+    hash_value = MetadataExtractor.hash_string(request.value)
+    return TermHashResponse(hash=hash_value)
 
 
 @router.put(
     "/entities/lexemes/senses/{sense_id}/glosses/{langcode}",
-    response_model=EntityResponse,
+    response_model=TermHashResponse,
 )
 async def update_sense_gloss(
     sense_id: str,
@@ -163,7 +211,7 @@ async def update_sense_gloss(
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> TermHashResponse:
     """Update sense gloss for language."""
     logger.debug(f"Updating gloss for sense {sense_id}, language {langcode}")
     lexeme_id, sense_suffix = _parse_sense_id(sense_id)
@@ -205,12 +253,15 @@ async def update_sense_gloss(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
-    return await update_handler.update_lexeme(
+    await update_handler.update_lexeme(
         lexeme_id,
         update_request,
         edit_headers=headers,
         validator=validator,
     )
+
+    hash_value = MetadataExtractor.hash_string(request.value)
+    return TermHashResponse(hash=hash_value)
 
 
 @router.delete("/entities/lexemes/senses/{sense_id}", response_model=EntityResponse)
@@ -257,14 +308,14 @@ async def delete_sense(
 
 @router.delete(
     "/entities/lexemes/senses/{sense_id}/glosses/{langcode}",
-    response_model=EntityResponse,
+    response_model=DeleteResponse,
 )
 async def delete_sense_gloss(
     sense_id: str,
     langcode: str,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> DeleteResponse:
     """Delete sense gloss for language."""
     logger.debug(f"Deleting gloss for sense {sense_id}, language {langcode}")
     lexeme_id, sense_suffix = _parse_sense_id(sense_id)
@@ -282,9 +333,14 @@ async def delete_sense_gloss(
             sense_found = True
             glosses = sense.get("glosses", {})
             if langcode not in glosses:
-                return current_entity
+                return DeleteResponse(success=True)
 
-            del sense["glosses"][langcode]
+            del glosses[langcode]
+            if not glosses:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Sense cannot have 0 glosses. Add a new gloss and retry or use the PUT endpoint",
+                )
             logger.debug(f"Deleted gloss for sense {sense_id} in language {langcode}")
             break
 
@@ -296,12 +352,14 @@ async def delete_sense_gloss(
         id=lexeme_id, type="lexeme", **current_entity.entity_data.revision
     )
 
-    return await update_handler.update_lexeme(
+    await update_handler.update_lexeme(
         lexeme_id,
         update_request,
         edit_headers=headers,
         validator=validator,
     )
+
+    return DeleteResponse(success=True)
 
 
 @router.post(

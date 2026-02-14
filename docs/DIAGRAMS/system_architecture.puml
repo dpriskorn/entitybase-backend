@@ -8,7 +8,7 @@ package "API Layer" as APILayer #LightBlue {
     "Admin" as AdminHandler
     "Thanks" as ThanksHandler
     "UserActivity" as UserActivityHandler
-    ... (29 total components)
+    ... (32 total components)
 }
 
 package "Service Layer" as ServiceLayer #LightGreen {

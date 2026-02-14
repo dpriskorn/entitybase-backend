@@ -312,6 +312,114 @@ async def test_delete_sense_gloss(api_prefix: str) -> None:
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
+async def test_add_sense_gloss(api_prefix: str) -> None:
+    """E2E test: Add a new sense gloss via POST."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        lexeme_data = {
+            "type": "lexeme",
+            "language": "Q1860",
+            "lexicalCategory": "Q1084",
+            "lemmas": {"en": {"language": "en", "value": "test"}},
+            "senses": [
+                {"glosses": {"en": {"language": "en", "value": "A test sense"}}},
+            ],
+        }
+        response = await client.post(
+            f"{api_prefix}/entities/lexemes",
+            json=lexeme_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        if response.status_code != 200:
+            pytest.skip("Lexeme creation with senses not fully implemented")
+        lexeme_id = response.json()["id"]
+
+        gloss_data = {"language": "de", "value": "Ein Testsinn"}
+        response = await client.post(
+            f"{api_prefix}/entities/lexemes/senses/S1/glosses/de",
+            json=gloss_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 200
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_add_sense_gloss_already_exists(api_prefix: str) -> None:
+    """E2E test: Adding existing gloss returns 409."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        lexeme_data = {
+            "type": "lexeme",
+            "language": "Q1860",
+            "lexicalCategory": "Q1084",
+            "lemmas": {"en": {"language": "en", "value": "test"}},
+            "senses": [
+                {"glosses": {"en": {"language": "en", "value": "A test sense"}}},
+            ],
+        }
+        response = await client.post(
+            f"{api_prefix}/entities/lexemes",
+            json=lexeme_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        if response.status_code != 200:
+            pytest.skip("Lexeme creation with senses not fully implemented")
+        lexeme_id = response.json()["id"]
+
+        gloss_data = {"language": "en", "value": "A test sense"}
+        response = await client.post(
+            f"{api_prefix}/entities/lexemes/senses/S1/glosses/en",
+            json=gloss_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 409
+        assert "already exists" in response.json()["detail"]
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
+async def test_delete_sense_gloss_last_gloss_fails(api_prefix: str) -> None:
+    """E2E test: Deleting last gloss returns 400."""
+    from models.rest_api.main import app
+
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        lexeme_data = {
+            "type": "lexeme",
+            "language": "Q1860",
+            "lexicalCategory": "Q1084",
+            "lemmas": {"en": {"language": "en", "value": "test"}},
+            "senses": [
+                {"glosses": {"en": {"language": "en", "value": "A test sense"}}},
+            ],
+        }
+        response = await client.post(
+            f"{api_prefix}/entities/lexemes",
+            json=lexeme_data,
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        if response.status_code != 200:
+            pytest.skip("Lexeme creation with senses not fully implemented")
+        lexeme_id = response.json()["id"]
+
+        response = await client.delete(
+            f"{api_prefix}/entities/lexemes/senses/S1/glosses/en",
+            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+        )
+        assert response.status_code == 400
+        assert "cannot have 0 glosses" in response.json()["detail"]
+
+
+@pytest.mark.e2e
+@pytest.mark.asyncio
 async def test_add_statement_to_sense(api_prefix: str) -> None:
     """E2E test: Add a statement to a sense."""
     from models.rest_api.main import app
