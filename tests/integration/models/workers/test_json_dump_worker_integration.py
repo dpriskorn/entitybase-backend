@@ -82,7 +82,7 @@ class TestJsonDumpWorkerIntegration:
                 "descriptions": {
                     "en": {
                         "language": "en",
-                        "value": "that class of which this subject is a particular instance and member"
+                        "value": "that class of which this subject is a particular instance and member",
                     }
                 },
             }

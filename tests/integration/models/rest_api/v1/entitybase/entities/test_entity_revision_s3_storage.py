@@ -48,7 +48,10 @@ async def test_entity_creation_stores_s3_revision_data(api_prefix: str) -> None:
             assert hasattr(s3_revision_data, "content_hash")
             assert hasattr(s3_revision_data, "created_at")
 
-            assert s3_revision_data.schema_version in ["3.0.0", "4.0.0"]  # From settings
+            assert s3_revision_data.schema_version in [
+                "3.0.0",
+                "4.0.0",
+            ]  # From settings
             assert isinstance(s3_revision_data.revision, dict)
             assert "revision_id" in s3_revision_data.revision
             assert "entity_type" in s3_revision_data.revision

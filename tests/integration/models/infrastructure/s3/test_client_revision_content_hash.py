@@ -51,7 +51,9 @@ class TestS3ClientRevisionReadWithContentHash:
             hash=content_hash,
             created_at="2025-01-01T00:00:00Z",
         )
-        s3_client.store_revision(content_hash=content_hash, revision_data=s3_revision_data)
+        s3_client.store_revision(
+            content_hash=content_hash, revision_data=s3_revision_data
+        )
         vitess_client.insert_revision(
             entity_id=entity_id,
             revision_id=revision_id,
@@ -59,9 +61,7 @@ class TestS3ClientRevisionReadWithContentHash:
             content_hash=content_hash,
         )
 
-        result = s3_client.read_revision(
-            entity_id=entity_id, revision_id=revision_id
-        )
+        result = s3_client.read_revision(entity_id=entity_id, revision_id=revision_id)
 
         assert result is not None
         assert result.revision["revision_id"] == revision_id
@@ -72,9 +72,7 @@ class TestS3ClientRevisionReadWithContentHash:
         revision_id = 1
 
         with pytest.raises(HTTPException):
-            s3_client.read_revision(
-                entity_id=entity_id, revision_id=revision_id
-            )
+            s3_client.read_revision(entity_id=entity_id, revision_id=revision_id)
 
     def test_read_revision_revision_not_found(self, s3_client, vitess_client):
         """Test that read_revision raises error for non-existent revision."""
@@ -83,9 +81,7 @@ class TestS3ClientRevisionReadWithContentHash:
 
         vitess_client.register_entity(entity_id)
         with pytest.raises(HTTPException):
-            s3_client.read_revision(
-                entity_id=entity_id, revision_id=revision_id
-            )
+            s3_client.read_revision(entity_id=entity_id, revision_id=revision_id)
 
     def test_read_revision_end_to_end(self, s3_client, vitess_client):
         """Test end-to-end read_revision operation."""
@@ -102,7 +98,9 @@ class TestS3ClientRevisionReadWithContentHash:
             hash=content_hash,
             created_at="2025-01-01T00:00:00Z",
         )
-        s3_client.store_revision(content_hash=content_hash, revision_data=s3_revision_data)
+        s3_client.store_revision(
+            content_hash=content_hash, revision_data=s3_revision_data
+        )
         vitess_client.insert_revision(
             entity_id=entity_id,
             revision_id=revision_id,
@@ -110,9 +108,7 @@ class TestS3ClientRevisionReadWithContentHash:
             content_hash=content_hash,
         )
 
-        result = s3_client.read_revision(
-            entity_id=entity_id, revision_id=revision_id
-        )
+        result = s3_client.read_revision(entity_id=entity_id, revision_id=revision_id)
 
         assert result is not None
         assert result.revision["revision_id"] == revision_id

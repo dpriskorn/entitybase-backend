@@ -507,7 +507,9 @@ async def get_entity_backlinks(
     offset: int = Query(default=0, ge=0),
 ) -> BacklinksResponse:
     """Get backlinks for an entity."""
-    logger.debug(f"get_entity_backlinks called with entity_id: {entity_id}, limit: {limit}")
+    logger.debug(
+        f"get_entity_backlinks called with entity_id: {entity_id}, limit: {limit}"
+    )
     state = req.app.state.state_handler
     handler = BacklinkHandler(state=state)
     return await handler.get(entity_id, limit, offset)

@@ -142,7 +142,9 @@ async def test_toggle_watchlist_disable(api_prefix: str, initialized_app: None) 
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_toggle_watchlist_user_not_registered(api_prefix: str, initialized_app: None) -> None:
+async def test_toggle_watchlist_user_not_registered(
+    api_prefix: str, initialized_app: None
+) -> None:
     """Test toggle for unregistered user"""
     from models.rest_api.main import app
 
@@ -178,7 +180,9 @@ async def test_get_user_activity(api_prefix: str, initialized_app: None) -> None
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_activity_user_not_registered(api_prefix: str, initialized_app: None) -> None:
+async def test_get_user_activity_user_not_registered(
+    api_prefix: str, initialized_app: None
+) -> None:
     """Test getting activity for unregistered user"""
     from models.rest_api.main import app
 
@@ -192,7 +196,9 @@ async def test_get_user_activity_user_not_registered(api_prefix: str, initialize
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_activity_invalid_type(api_prefix: str, initialized_app: None) -> None:
+async def test_get_user_activity_invalid_type(
+    api_prefix: str, initialized_app: None
+) -> None:
     """Test getting activity with invalid type filter"""
     from models.rest_api.main import app
 
@@ -209,7 +215,9 @@ async def test_get_user_activity_invalid_type(api_prefix: str, initialized_app: 
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_user_activity_invalid_limit(api_prefix: str, initialized_app: None) -> None:
+async def test_get_user_activity_invalid_limit(
+    api_prefix: str, initialized_app: None
+) -> None:
     """Test getting activity with invalid limit"""
     from models.rest_api.main import app
 

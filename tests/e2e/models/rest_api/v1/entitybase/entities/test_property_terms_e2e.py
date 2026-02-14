@@ -52,9 +52,7 @@ async def test_get_property_aliases(api_prefix: str) -> None:
         property_id = response.json()["id"]
 
         # Get aliases
-        response = await client.get(
-            f"{api_prefix}/entities/{property_id}/aliases/en"
-        )
+        response = await client.get(f"{api_prefix}/entities/{property_id}/aliases/en")
         assert response.status_code == 200
         aliases_data = response.json()
         assert isinstance(aliases_data, list)
@@ -93,9 +91,7 @@ async def test_update_property_aliases(api_prefix: str) -> None:
         assert response.status_code == 200
 
         # Verify update
-        response = await client.get(
-            f"{api_prefix}/entities/{property_id}/aliases/en"
-        )
+        response = await client.get(f"{api_prefix}/entities/{property_id}/aliases/en")
         assert response.status_code == 200
         aliases_data = response.json()
         assert "New Alias 1" in aliases_data
@@ -159,9 +155,7 @@ async def test_get_property_label(api_prefix: str) -> None:
         property_id = response.json()["id"]
 
         # Get label
-        response = await client.get(
-            f"{api_prefix}/entities/{property_id}/labels/en"
-        )
+        response = await client.get(f"{api_prefix}/entities/{property_id}/labels/en")
         assert response.status_code == 200
         label_data = response.json()
         assert "value" in label_data
@@ -248,7 +242,9 @@ async def test_property_descriptions_full_workflow(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(f"{api_prefix}/entities/{property_id}/descriptions/en")
+        response = await client.get(
+            f"{api_prefix}/entities/{property_id}/descriptions/en"
+        )
         assert response.status_code == 200
         assert response.json()["value"] == "Updated Description"
 
@@ -318,7 +314,11 @@ async def test_property_aliases_full_workflow(api_prefix: str) -> None:
         aliases_after_post = response.json()
         if isinstance(aliases_after_post, list):
             # POST should add one more alias
-            assert len(aliases_after_post) >= len(aliases_data) if isinstance(aliases_data, list) else True
+            assert (
+                len(aliases_after_post) >= len(aliases_data)
+                if isinstance(aliases_data, list)
+                else True
+            )
         # Hash-based format is also valid
 
         response = await client.delete(

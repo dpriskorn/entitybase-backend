@@ -181,7 +181,9 @@ class GeneralStatsService(Service):
                     logger.debug("labels table does not exist, skipping")
 
                 try:
-                    cursor.execute("SELECT 'descriptions' AS type, COUNT(*) FROM descriptions")
+                    cursor.execute(
+                        "SELECT 'descriptions' AS type, COUNT(*) FROM descriptions"
+                    )
                     result = cursor.fetchone()
                     if result:
                         data[result[0]] = result[1]

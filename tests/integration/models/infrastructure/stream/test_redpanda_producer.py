@@ -436,7 +436,10 @@ class TestProducerIntegration:
                         change_type=change_type,
                         changed_at=datetime.now(timezone.utc),
                         user_id=TEST_USER_ID,
-                        from_revision_id=9 if change_type_str in ["edit", "soft_delete", "redirect", "unredirect"] else None,
+                        from_revision_id=9
+                        if change_type_str
+                        in ["edit", "soft_delete", "redirect", "unredirect"]
+                        else None,
                     )
                     await producer.publish_change(event_data)
 

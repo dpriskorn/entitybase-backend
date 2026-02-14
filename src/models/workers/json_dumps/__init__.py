@@ -1,4 +1,5 @@
 """JSON dump worker module for weekly JSON dumps."""
+
 from models.workers.json_dumps.json_dump_worker import (
     JsonDumpWorker,
     main,

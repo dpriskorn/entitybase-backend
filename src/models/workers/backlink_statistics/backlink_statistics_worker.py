@@ -61,6 +61,7 @@ class BacklinkStatisticsWorker(BaseStatsWorker):
             total_backlinks=stats.total_backlinks,
             unique_entities_with_backlinks=stats.unique_entities_with_backlinks,
             top_entities_by_backlinks=[
-                entity.model_dump(mode="json") for entity in stats.top_entities_by_backlinks
+                entity.model_dump(mode="json")
+                for entity in stats.top_entities_by_backlinks
             ],
         )

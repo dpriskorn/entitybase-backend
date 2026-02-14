@@ -28,7 +28,9 @@ class TestVitessConnectionManager:
         mock_connection.cursor.return_value = mock_cursor
         mock_cursor.fetchone.return_value = (1,)
 
-        with patch.object(manager, "_create_new_connection", return_value=mock_connection):
+        with patch.object(
+            manager, "_create_new_connection", return_value=mock_connection
+        ):
             result = manager.healthy_connection
 
             assert result is True

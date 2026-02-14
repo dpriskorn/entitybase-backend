@@ -102,4 +102,8 @@ async def test_get_revision_ttl_format(api_prefix: str) -> None:
         assert response.status_code == 200
         ttl_data = response.text
         # TTL should contain prefix declarations or entity reference
-        assert "@prefix" in ttl_data.lower() or entity_id.lower() in ttl_data.lower() or len(ttl_data) > 0
+        assert (
+            "@prefix" in ttl_data.lower()
+            or entity_id.lower() in ttl_data.lower()
+            or len(ttl_data) > 0
+        )

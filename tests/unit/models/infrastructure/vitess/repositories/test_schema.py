@@ -15,6 +15,7 @@ class TestSchemaRepository:
         repo = SchemaRepository(vitess_client=None)
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException, match="Vitess not initialized"):
             repo.create_tables()
 

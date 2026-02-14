@@ -149,8 +149,12 @@ class TestConsumerIntegration:
         await consumer.start()
         try:
             events: list[EntityChangeEventData] = []
-            expected_events = {(f"{TEST_ENTITY_BASE}40", 1), (f"{TEST_ENTITY_BASE}40", 2), (f"{TEST_ENTITY_BASE}41", 3)}
-            
+            expected_events = {
+                (f"{TEST_ENTITY_BASE}40", 1),
+                (f"{TEST_ENTITY_BASE}40", 2),
+                (f"{TEST_ENTITY_BASE}41", 3),
+            }
+
             async for event in consumer.consume_events():
                 key = (event.entity_id, event.revision_id)
                 if key in expected_events:
@@ -227,7 +231,10 @@ class TestConsumerIntegration:
         try:
             events: list[EntityChangeEventData] = []
             async for event in consumer1.consume_events():
-                if event.entity_id == f"{TEST_ENTITY_BASE}50" and event.revision_id == 1:
+                if (
+                    event.entity_id == f"{TEST_ENTITY_BASE}50"
+                    and event.revision_id == 1
+                ):
                     events.append(event)
                     break
 
@@ -250,7 +257,10 @@ class TestConsumerIntegration:
         try:
             events: list[EntityChangeEventData] = []
             async for event in consumer2.consume_events():
-                if event.entity_id == f"{TEST_ENTITY_BASE}51" and event.revision_id == 1:
+                if (
+                    event.entity_id == f"{TEST_ENTITY_BASE}51"
+                    and event.revision_id == 1
+                ):
                     events.append(event)
                     break
 
@@ -312,7 +322,10 @@ class TestConsumerIntegration:
         try:
             events: list[EntityChangeEventData] = []
             async for event in consumer.consume_events():
-                if event.entity_id == f"{TEST_ENTITY_BASE}60" and event.revision_id == 1:
+                if (
+                    event.entity_id == f"{TEST_ENTITY_BASE}60"
+                    and event.revision_id == 1
+                ):
                     events.append(event)
                     break
 
@@ -346,12 +359,18 @@ class TestConsumerIntegration:
 
         # Create multiple consumers with different groups
         consumer1_config = StreamConsumerConfig(
-            brokers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic, group_id=f"group-consumer-1-{uuid.uuid4()}", auto_offset_reset="earliest"
+            brokers=[KAFKA_BOOTSTRAP_SERVERS],
+            topic=topic,
+            group_id=f"group-consumer-1-{uuid.uuid4()}",
+            auto_offset_reset="earliest",
         )
         consumer1 = StreamConsumerClient(config=consumer1_config)
 
         consumer2_config = StreamConsumerConfig(
-            brokers=[KAFKA_BOOTSTRAP_SERVERS], topic=topic, group_id=f"group-consumer-2-{uuid.uuid4()}", auto_offset_reset="earliest"
+            brokers=[KAFKA_BOOTSTRAP_SERVERS],
+            topic=topic,
+            group_id=f"group-consumer-2-{uuid.uuid4()}",
+            auto_offset_reset="earliest",
         )
         consumer2 = StreamConsumerClient(config=consumer2_config)
 
@@ -363,12 +382,18 @@ class TestConsumerIntegration:
             events2: list[EntityChangeEventData] = []
 
             async for event in consumer1.consume_events():
-                if event.entity_id == f"{TEST_ENTITY_BASE}70" and event.revision_id == 1:
+                if (
+                    event.entity_id == f"{TEST_ENTITY_BASE}70"
+                    and event.revision_id == 1
+                ):
                     events1.append(event)
                     break
 
             async for event in consumer2.consume_events():
-                if event.entity_id == f"{TEST_ENTITY_BASE}70" and event.revision_id == 1:
+                if (
+                    event.entity_id == f"{TEST_ENTITY_BASE}70"
+                    and event.revision_id == 1
+                ):
                     events2.append(event)
                     break
 
@@ -466,7 +491,10 @@ class TestConsumerIntegration:
         try:
             events: list[EntityChangeEventData] = []
             async for event in consumer.consume_events():
-                if event.entity_id == f"{TEST_ENTITY_BASE}90" and event.revision_id == 1:
+                if (
+                    event.entity_id == f"{TEST_ENTITY_BASE}90"
+                    and event.revision_id == 1
+                ):
                     events.append(event)
                     break
 

@@ -13,7 +13,9 @@ async def test_health_check() -> None:
     This does not test all buckets work"""
     from models.rest_api.main import app
 
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         response = await client.get("/health")
         assert response.status_code == 200
         data = response.json()
@@ -34,7 +36,9 @@ async def test_create_item() -> None:
         type="item", labels={"en": {"value": "Test Entity"}}, edit_summary="test"
     )
 
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         response = await client.post(
             "/v1/entitybase/entities/items",
             json=entity_data.model_dump(mode="json"),
@@ -62,7 +66,9 @@ async def test_get_item() -> None:
         edit_summary="test",
     )
 
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         create_response = await client.post(
             "/v1/entitybase/entities/items",
             json=entity_data.model_dump(mode="json"),
@@ -92,7 +98,9 @@ async def test_create_item_already_exists() -> None:
         "edit_summary": "Test creation",
     }
 
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         await client.post(
             "/v1/entitybase/entities/items",
             json=entity_data,
@@ -118,7 +126,9 @@ async def test_get_item_history() -> None:
 
     entity_id = "Q99996"
 
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         create_response = await client.post(
             "/v1/entitybase/entities/items",
             json={
@@ -155,7 +165,9 @@ async def test_entity_not_found() -> None:
     """Test that non-existent entities return 404"""
     from models.rest_api.main import app
 
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
         response = await client.get("/v1/entitybase/entities/Q88888")
         assert response.status_code == 404
         assert "not found" in response.json()["message"].lower()

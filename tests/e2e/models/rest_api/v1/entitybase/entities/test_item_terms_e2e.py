@@ -208,7 +208,9 @@ async def test_item_add_description_via_post(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(f"{api_prefix}/entities/{entity_id}/descriptions/fr")
+        response = await client.get(
+            f"{api_prefix}/entities/{entity_id}/descriptions/fr"
+        )
         assert response.status_code == 200
         description_data = response.json()
         assert description_data["value"] == "French Description"
@@ -260,7 +262,10 @@ async def test_item_delete_aliases(api_prefix: str) -> None:
         create_data = {
             "type": "item",
             "aliases": {
-                "en": [{"language": "en", "value": "Alias 1"}, {"language": "en", "value": "Alias 2"}],
+                "en": [
+                    {"language": "en", "value": "Alias 1"},
+                    {"language": "en", "value": "Alias 2"},
+                ],
                 "de": [{"language": "de", "value": "Alias DE"}],
             },
         }

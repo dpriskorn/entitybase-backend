@@ -32,19 +32,26 @@ class TestTtlDumpWorker:
 
         worker = TtlDumpWorker()
 
-        with patch(
-            "models.workers.ttl_dumps.ttl_dump_worker.VitessClient",
-            return_value=mock_vitess_client,
-        ), patch(
-            "models.workers.ttl_dumps.ttl_dump_worker.MyS3Client",
-            return_value=mock_s3_client,
-        ), patch(
-            "models.workers.ttl_dumps.ttl_dump_worker.EntityConverter",
-            return_value=mock_converter,
-        ), patch(
-            "models.workers.ttl_dumps.ttl_dump_worker.PropertyRegistry",
-        ) as mock_registry_class:
-            mock_registry_class.load_from_directory.return_value = mock_property_registry
+        with (
+            patch(
+                "models.workers.ttl_dumps.ttl_dump_worker.VitessClient",
+                return_value=mock_vitess_client,
+            ),
+            patch(
+                "models.workers.ttl_dumps.ttl_dump_worker.MyS3Client",
+                return_value=mock_s3_client,
+            ),
+            patch(
+                "models.workers.ttl_dumps.ttl_dump_worker.EntityConverter",
+                return_value=mock_converter,
+            ),
+            patch(
+                "models.workers.ttl_dumps.ttl_dump_worker.PropertyRegistry",
+            ) as mock_registry_class,
+        ):
+            mock_registry_class.load_from_directory.return_value = (
+                mock_property_registry
+            )
 
             async with worker.lifespan():
                 assert worker.vitess_client is not None
@@ -87,7 +94,9 @@ class TestTtlDumpWorker:
                 mock_datetime.time.side_effect = lambda h, m, s: datetime(
                     2025, 1, 1, h, m, s
                 ).time()
-                mock_datetime.combine.side_effect = lambda d, t: datetime.combine(d, t).replace(tzinfo=timezone.utc)
+                mock_datetime.combine.side_effect = lambda d, t: datetime.combine(
+                    d, t
+                ).replace(tzinfo=timezone.utc)
                 mock_datetime.timedelta = timedelta
 
                 seconds = worker._calculate_seconds_until_next_run()
@@ -155,12 +164,14 @@ class TestTtlDumpWorker:
     def test_generate_checksum(self):
         """Test checksum generation."""
         import tempfile
+
         worker = TtlDumpWorker()
 
         with tempfile.NamedTemporaryFile(delete=False, mode="w") as f:
             f.write("test content")
             f.flush()
             from pathlib import Path
+
             checksum = worker._generate_checksum(Path(f.name))
 
             assert len(checksum) == 64  # SHA256 hex length

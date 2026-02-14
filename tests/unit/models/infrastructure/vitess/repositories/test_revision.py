@@ -47,6 +47,7 @@ class TestRevisionRepository:
         repo = RevisionRepository(vitess_client=mock_vitess_client)
 
         from fastapi import HTTPException
+
         with pytest.raises(HTTPException, match="Entity.*not found"):
             repo.insert_revision("Q999", 1, sample_revision_data, 1234567890123456789)
 

@@ -75,7 +75,9 @@ class HashService(Service):
     ) -> LabelsHashes:
         """Hash label values, store in S3 and Vitess."""
         hashes = {}
-        logger.debug(f"hash_labels: vitess_config={self.state.vitess_config is not None}, vitess_client={self.vitess_client is not None}")
+        logger.debug(
+            f"hash_labels: vitess_config={self.state.vitess_config is not None}, vitess_client={self.vitess_client is not None}"
+        )
         if self.state.vitess_config:
             terms_repo = TermsRepository(vitess_client=self.vitess_client)
             for lang, label_data in labels.items():
@@ -83,10 +85,14 @@ class HashService(Service):
                     value = label_data["value"]
                     hash_value = MetadataExtractor.hash_string(value)
                     hashes[lang] = hash_value
-                    logger.debug(f"hash_labels: Storing label '{value}' for language '{lang}' with hash {hash_value}")
+                    logger.debug(
+                        f"hash_labels: Storing label '{value}' for language '{lang}' with hash {hash_value}"
+                    )
                     self.state.s3_client.store_term_metadata(value, hash_value)
                     result = terms_repo.insert_term(hash_value, value, "label")
-                    logger.debug(f"hash_labels: insert_term result: success={result.success}, error={result.error}")
+                    logger.debug(
+                        f"hash_labels: insert_term result: success={result.success}, error={result.error}"
+                    )
         return LabelsHashes(root=hashes)
 
     def hash_descriptions(

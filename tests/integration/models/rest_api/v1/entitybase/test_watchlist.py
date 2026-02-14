@@ -48,7 +48,9 @@ async def test_add_watch(api_prefix: str, initialized_app: None) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_add_watch_user_not_registered(api_prefix: str, initialized_app: None) -> None:
+async def test_add_watch_user_not_registered(
+    api_prefix: str, initialized_app: None
+) -> None:
     """Test adding a watch for unregistered user"""
     from models.rest_api.main import app
 
@@ -153,7 +155,9 @@ async def test_get_watchlist(api_prefix: str, initialized_app: None) -> None:
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_watchlist_user_not_registered(api_prefix: str, initialized_app: None) -> None:
+async def test_get_watchlist_user_not_registered(
+    api_prefix: str, initialized_app: None
+) -> None:
     """Test getting watchlist for unregistered user"""
     from models.rest_api.main import app
 
@@ -240,7 +244,9 @@ async def test_get_notifications(api_prefix: str, initialized_app: None) -> None
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_get_notifications_user_not_registered(api_prefix: str, initialized_app: None) -> None:
+async def test_get_notifications_user_not_registered(
+    api_prefix: str, initialized_app: None
+) -> None:
     """Test getting notifications for unregistered user"""
     from models.rest_api.main import app
 
@@ -254,7 +260,9 @@ async def test_get_notifications_user_not_registered(api_prefix: str, initialize
 
 @pytest.mark.asyncio
 @pytest.mark.integration
-async def test_mark_notification_checked(api_prefix: str, initialized_app: None) -> None:
+async def test_mark_notification_checked(
+    api_prefix: str, initialized_app: None
+) -> None:
     """Test marking notification as checked"""
     from models.rest_api.main import app
 
