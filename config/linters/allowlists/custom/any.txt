@@ -45,4 +45,4 @@ src/models/infrastructure/vitess/client.py:111
 src/models/infrastructure/vitess/client.py:120
 src/models/infrastructure/vitess/client.py:129
 src/models/infrastructure/vitess/client.py:136
-src/models/infrastructure/vitess/client.py:154
+src/models/infrastructure/vitess/client.py:145
