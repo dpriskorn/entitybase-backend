@@ -80,7 +80,7 @@ class EntityUpdateHandler(
 
             logger.debug(f"_update_with_transaction: processing statements for {entity_id}")
             hash_result = tx.process_statements(entity_id, request_data, validator)
-            logger.debug(f"_update_with_transaction: statements processed, hash_result.success={hash_result.success}")
+            logger.debug(f"_update_with_transaction: statements processed, hash_result has {len(hash_result.statements)} statements")
 
             logger.debug(f"_update_with_transaction: creating revision for {entity_id}")
             response = await tx.create_revision(
