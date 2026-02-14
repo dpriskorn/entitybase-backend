@@ -2,3 +2,4 @@
 # Line-specific (with tolerance of ±2 lines)
 
 src/models/infrastructure/vitess/connection.py:256
+src/models/infrastructure/vitess/connection.py:267

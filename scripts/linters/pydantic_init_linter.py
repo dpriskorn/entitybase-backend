@@ -33,7 +33,7 @@ def check_file(file_path: Path, allowlist: set) -> List[str]:
                     break
             if class_name:
                 errors.append(
-                    f"{file_path}:{node.lineno}:1: Class '{class_name}' defines __init__. Consider using model_post_init if it's a Pydantic model."
+                    f"{file_path}:{node.lineno}:1: Class '{class_name}' defines __init__. Consider using model_post_init if it's a Pydantic model. (add to allowlist: {file_path}:{node.lineno})"
                 )
 
     return errors
