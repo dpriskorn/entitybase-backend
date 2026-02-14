@@ -1,4 +1,4 @@
-"""Entity update handlers."""
+"""Entity update lexeme mixins."""
 
 import logging
 import re
@@ -7,51 +7,53 @@ from typing import Any
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
-from models.data.rest_api.v1.entitybase.request import UserActivityType
+from models.data.rest_api.v1.entitybase.request import LexemeUpdateRequest
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
 from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
 from models.data.rest_api.v1.entitybase.request.entity.context import (
     EventPublishContext,
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
+from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.infrastructure.s3.exceptions import S3NotFoundError
 from models.rest_api.utils import raise_validation_error
-from .handler import EntityHandler
 from .update_transaction import UpdateTransaction
-from .update_terms import EntityUpdateTermsMixin
-from .update_sitelinks import EntityUpdateSitelinksMixin
-from .update_lexeme import EntityUpdateLexemeMixin
 
 logger = logging.getLogger(__name__)
 
 
-class EntityUpdateHandler(
-    EntityUpdateTermsMixin,
-    EntityUpdateSitelinksMixin,
-    EntityUpdateLexemeMixin,
-    EntityHandler,
-):
-    """Handler for entity update operations."""
+class EntityUpdateLexemeMixin:
+    """Mixin for lexeme-specific update operations."""
 
-    async def _update_with_transaction(
+    async def update_lexeme(
         self,
         entity_id: str,
-        modified_data: dict[str, Any],
-        entity_type: EntityType,
+        request: LexemeUpdateRequest,
         edit_headers: EditHeaders,
         validator: Any | None = None,
     ) -> EntityResponse:
-        """Execute entity update using UpdateTransaction.
+        """Update a lexeme with proper transaction handling for S3 lexeme terms.
 
-        This method handles the common pattern:
-        1. Validation (exists, deleted, locked)
-        2. UpdateTransaction creation
-        3. Statement processing
-        4. Revision creation
-        5. Event publishing
-        6. Activity logging
-        7. Commit/Rollback
+        This method processes lexeme terms (form representations and sense glosses)
+        within the transaction scope, ensuring S3 data is cleaned up on rollback.
+
+        Args:
+            entity_id: The lexeme ID (must match L\\d+ format)
+            request: EntityUpdateRequest containing the lexeme data
+            edit_headers: Edit metadata headers
+            validator: Optional validator for statement processing
+
+        Returns:
+            EntityResponse with updated lexeme data
         """
+        logger.debug(f"Updating lexeme {entity_id}")
+
+        if not re.match(r"^L\d+$", entity_id):
+            raise_validation_error(
+                "Entity ID must be a lexeme (format: L followed by digits)",
+                status_code=400,
+            )
+
         if not self.state.vitess_client.entity_exists(entity_id):
             raise_validation_error("Entity not found", status_code=404)
 
@@ -63,18 +65,28 @@ class EntityUpdateHandler(
 
         tx = UpdateTransaction(state=self.state)
         tx.entity_id = entity_id
+
         try:
             head_revision_id = tx.state.vitess_client.get_head(entity_id)
 
-            modified_data["id"] = entity_id
-            request_data = PreparedRequestData(**modified_data)
+            data = request.data.copy()
+            data["id"] = entity_id
+
+            forms = data.get("forms", [])
+            senses = data.get("senses", [])
+            lemmas = data.get("lemmas", {})
+            tx.process_lexeme_terms(forms, senses, lemmas)
+
+            data["forms"] = forms
+            data["senses"] = senses
+            request_data = PreparedRequestData(**data)
 
             hash_result = tx.process_statements(entity_id, request_data, validator)
 
             response = await tx.create_revision(
                 entity_id=entity_id,
                 request_data=request_data,
-                entity_type=entity_type,
+                entity_type=EntityType(request.type),
                 edit_headers=edit_headers,
                 hash_result=hash_result,
             )
@@ -109,30 +121,12 @@ class EntityUpdateHandler(
             tx.commit()
             return response
         except S3NotFoundError:
-            logger.warning(f"Entity revision not found during update for {entity_id}")
+            logger.warning(f"Lexeme revision not found during update for {entity_id}")
             tx.rollback()
             raise_validation_error(f"Entity not found: {entity_id}", status_code=404)
         except Exception as e:
-            logger.error(f"Entity update failed for {entity_id}: {e}", exc_info=True)
+            logger.error(f"Lexeme update failed for {entity_id}: {e}", exc_info=True)
             tx.rollback()
             raise_validation_error(
                 f"Update failed: {type(e).__name__}: {str(e)}", status_code=500
             )
-
-    @staticmethod
-    def _infer_entity_type_from_id(entity_id: str) -> EntityType | None:
-        """Infer entity type from ID format.
-
-        Returns:
-            EntityType.ITEM for Q\\d+
-            EntityType.PROPERTY for P\\d+
-            EntityType.LEXEME for L\\d+
-            None if invalid format
-        """
-        if re.match(r"^Q\d+$", entity_id):
-            return EntityType.ITEM
-        elif re.match(r"^P\d+$", entity_id):
-            return EntityType.PROPERTY
-        elif re.match(r"^L\d+$", entity_id):
-            return EntityType.LEXEME
-        return None
