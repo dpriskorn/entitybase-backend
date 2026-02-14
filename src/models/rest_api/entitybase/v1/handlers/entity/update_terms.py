@@ -1,6 +1,9 @@
 """Entity update term mixins."""
 
 import logging
+from typing import Any
+
+from pydantic import BaseModel
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
@@ -32,15 +35,20 @@ def _infer_entity_type_from_id(entity_id: str) -> EntityType | None:
     return None
 
 
-class EntityUpdateTermsMixin:
+class EntityUpdateTermsMixin(BaseModel):
     """Mixin for entity term update operations (labels, descriptions, aliases)."""
+
+    model_config = {"extra": "allow"}
+
+    state: Any
+    _update_with_transaction: Any
 
     async def update_label(
         self,
         entity_id: str,
         context: TermUpdateContext,
         edit_headers: EditHeaders,
-        validator=None,
+        validator: Any | None = None,
     ) -> EntityResponse:
         """Update or add a label for a language."""
         logger.debug(f"Updating label for {entity_id} in {context.language_code}")
@@ -66,7 +74,7 @@ class EntityUpdateTermsMixin:
             "value": context.value,
         }
 
-        return await self._update_with_transaction(
+        return await self._update_with_transaction(  # type: ignore[no-any-return]
             entity_id,
             entity_dict,
             entity_type,
@@ -79,7 +87,7 @@ class EntityUpdateTermsMixin:
         entity_id: str,
         language_code: str,
         edit_headers: EditHeaders,
-        validator=None,
+        validator: Any | None = None,
     ) -> EntityResponse:
         """Delete a label for a language (idempotent)."""
         from .update_transaction import UpdateTransaction
@@ -162,7 +170,7 @@ class EntityUpdateTermsMixin:
         entity_id: str,
         context: TermUpdateContext,
         edit_headers: EditHeaders,
-        validator=None,
+        validator: Any | None = None,
     ) -> EntityResponse:
         """Update or add a description for a language."""
         logger.debug(f"Updating description for {entity_id} in {context.language_code}")
@@ -188,7 +196,7 @@ class EntityUpdateTermsMixin:
             "value": context.value,
         }
 
-        return await self._update_with_transaction(
+        return await self._update_with_transaction(  # type: ignore[no-any-return]
             entity_id,
             entity_dict,
             entity_type,
@@ -201,7 +209,7 @@ class EntityUpdateTermsMixin:
         entity_id: str,
         language_code: str,
         edit_headers: EditHeaders,
-        validator=None,
+        validator: Any | None = None,
     ) -> EntityResponse:
         """Delete a description for a language (idempotent)."""
         from .update_transaction import UpdateTransaction
@@ -288,7 +296,7 @@ class EntityUpdateTermsMixin:
         language_code: str,
         aliases: list[str],
         edit_headers: EditHeaders,
-        validator=None,
+        validator: Any | None = None,
     ) -> EntityResponse:
         """Replace all aliases for a language."""
         entity_type = _infer_entity_type_from_id(entity_id)
@@ -304,7 +312,7 @@ class EntityUpdateTermsMixin:
             entity_dict["aliases"] = {}
         entity_dict["aliases"][language_code] = [{"value": alias} for alias in aliases]
 
-        return await self._update_with_transaction(
+        return await self._update_with_transaction(  # type: ignore[no-any-return]
             entity_id,
             entity_dict,
             entity_type,
@@ -318,7 +326,7 @@ class EntityUpdateTermsMixin:
         language_code: str,
         alias: str,
         edit_headers: EditHeaders,
-        validator=None,
+        validator: Any | None = None,
     ) -> EntityResponse:
         """Add a single alias to the existing list for a language.
 
@@ -426,7 +434,7 @@ class EntityUpdateTermsMixin:
         entity_id: str,
         language_code: str,
         edit_headers: EditHeaders,
-        validator=None,
+        validator: Any | None = None,
     ) -> EntityResponse:
         """Delete all aliases for a language (idempotent)."""
         from .update_transaction import UpdateTransaction

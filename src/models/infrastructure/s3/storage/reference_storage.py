@@ -28,7 +28,10 @@ class ReferenceStorage(BaseS3Storage):
     def load_reference(self, content_hash: int) -> S3ReferenceData:
         """Load a reference by its content hash."""
         key = str(content_hash)
-        data = self.load(key).data
+        load_response = self.load(key)
+        if load_response is None:
+            raise S3NotFoundError(f"Reference not found: {key}")
+        data = load_response.data
         assert isinstance(data, S3ReferenceData)
         return data
 

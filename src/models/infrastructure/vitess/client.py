@@ -16,6 +16,7 @@ from models.infrastructure.vitess.connection import (
     CursorContextManager,
 )
 from models.infrastructure.vitess.id_resolver import IdResolver
+from models.infrastructure.vitess.repositories.backlink import BacklinkRecord
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -161,9 +162,9 @@ class VitessClient(Client):
 
     def get_backlinks(
         self, referenced_internal_id: int, limit: int = 100, offset: int = 0
-    ) -> list[Any]:
+    ) -> list[BacklinkRecord]:
         """Get backlinks for an entity."""
-        return self.backlink_repository.get_backlinks(
+        return self.backlink_repository.get_backlinks(  # type: ignore[no-any-return]
             referenced_internal_id, limit, offset
         )
 
@@ -178,7 +179,7 @@ class VitessClient(Client):
         """
         stmt_repo = self.statement_repository
         result = stmt_repo.increment_ref_count(content_hash=content_hash)
-        return result.success
+        return result.success  # type: ignore[no-any-return]
 
     def create_revision(
         self,
@@ -200,10 +201,10 @@ class VitessClient(Client):
         schema_repository.create_tables()
 
     def entity_exists(self, entity_id: str) -> bool:
-        return self.id_resolver.entity_exists(entity_id)
+        return self.id_resolver.entity_exists(entity_id)  # type: ignore[union-attr]
 
     def resolve_id(self, entity_id: str) -> int:
-        return self.id_resolver.resolve_id(entity_id)
+        return self.id_resolver.resolve_id(entity_id)  # type: ignore[union-attr]
 
     def get_head(self, entity_id: str) -> int:
         return cast(int, self.entity_repository.get_head(entity_id))
@@ -223,7 +224,7 @@ class VitessClient(Client):
         )
 
     def register_entity(self, entity_id: str) -> None:
-        self.id_resolver.register_entity(entity_id)
+        self.id_resolver.register_entity(entity_id)  # type: ignore[union-attr]
 
     def insert_revision(
         self,
@@ -273,7 +274,7 @@ class VitessClient(Client):
 
     def get_redirect_target(self, entity_id: str) -> str:
         """Get the redirect target for an entity."""
-        return self.redirect_repository.get_target(entity_id)
+        return self.redirect_repository.get_target(entity_id)  # type: ignore[no-any-return]
 
     def create_redirect(
         self,

@@ -1,6 +1,7 @@
 """Vitess entity repository for database operations."""
 
 import logging
+from typing import Any
 
 from models.infrastructure.vitess.repository import Repository
 from models.data.rest_api.v1.entitybase.response import ProtectionResponse
@@ -160,7 +161,7 @@ class EntityRepository(Repository):
                 base_query += " JOIN entity_revisions r ON h.internal_id = r.internal_id AND h.head_revision_id = r.revision_id"
 
             conditions = []
-            params = []
+            params: list[Any] = []
 
             if entity_type:
                 pattern_map = {

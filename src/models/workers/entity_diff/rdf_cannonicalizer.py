@@ -1,7 +1,7 @@
 from typing import Set, Any
 
 from pydantic import BaseModel
-from pyld import jsonld
+from pyld import jsonld  # type: ignore[import-untyped]
 from rdflib import ConjunctiveGraph, Graph
 
 from models.workers.entity_diff.types import Triple

@@ -4,6 +4,8 @@ import logging
 import re
 from typing import Any
 
+from pydantic import BaseModel
+
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.enums import EntityType
 from models.data.infrastructure.stream.change_type import ChangeType
@@ -22,8 +24,12 @@ from .update_transaction import UpdateTransaction
 logger = logging.getLogger(__name__)
 
 
-class EntityUpdateLexemeMixin:
+class EntityUpdateLexemeMixin(BaseModel):
     """Mixin for lexeme-specific update operations."""
+
+    model_config = {"extra": "allow"}
+
+    state: Any
 
     async def update_lexeme(
         self,

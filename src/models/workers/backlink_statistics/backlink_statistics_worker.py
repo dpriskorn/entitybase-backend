@@ -4,6 +4,9 @@ import logging
 from datetime import date, datetime, timezone
 
 from models.config.settings import settings
+from models.data.rest_api.v1.entitybase.response.entity.backlink_statistics import (
+    BacklinkStatisticsData,
+)
 from models.rest_api.entitybase.v1.services.backlink_statistics_service import (
     BacklinkStatisticsService,
 )
@@ -49,7 +52,7 @@ class BacklinkStatisticsWorker(BaseStatsWorker):
             logger.error(f"Failed to compute backlink statistics: {e}")
             raise
 
-    async def _store_statistics(self, stats) -> None:
+    async def _store_statistics(self, stats: BacklinkStatisticsData) -> None:
         """Store computed statistics in database via repository."""
         if not self.vitess_client:
             return

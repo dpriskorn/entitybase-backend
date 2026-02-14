@@ -294,18 +294,18 @@ class TtlDumpWorker(Worker):
         writers = TripleWriters()
 
         opener = gzip.open if settings.ttl_dump_compression else open
-        mode = "wt" if settings.ttl_dump_compression else "w"
+        mode = "wb" if settings.ttl_dump_compression else "w"
 
         entity_count = 0
         triples_count = 0
 
         with opener(output_path, mode, encoding="utf-8") as f:
-            writers.write_header(f)
+            writers.write_header(f)  # type: ignore[arg-type]
 
             now = datetime.now(timezone.utc).isoformat()
             week_start_iso = week_start.isoformat()
 
-            f.write(f"""# Dump metadata
+            header_content = f"""# Dump metadata
 [] a schema:DataDownload ;
     schema:dateModified "{now}"^^xsd:dateTime ;
     schema:temporalCoverage "{week_start_iso}/{now}" ;
@@ -313,7 +313,11 @@ class TtlDumpWorker(Worker):
     schema:encodingFormat "text/turtle" ;
     schema:name "Wikibase Weekly RDF Dump" .
 
-""")
+"""
+            if settings.ttl_dump_compression:
+                f.write(header_content.encode("utf-8"))  # type: ignore[arg-type]
+            else:
+                f.write(header_content)  # type: ignore[arg-type]
 
             for i in range(0, len(entities), settings.ttl_dump_batch_size):
                 batch = entities[i : i + settings.ttl_dump_batch_size]
@@ -331,10 +335,14 @@ class TtlDumpWorker(Worker):
                         logger.error(f"Failed to process {record.entity_id}: {result}")
                         continue
                     if result:
-                        f.write(result)
-                        f.write("\n")
+                        if settings.ttl_dump_compression:
+                            f.write(result.encode("utf-8"))  # type: ignore[arg-type,union-attr]
+                            f.write(b"\n")  # type: ignore[arg-type,union-attr]
+                        else:
+                            f.write(result)  # type: ignore[arg-type,union-attr]
+                            f.write("\n")  # type: ignore[arg-type,union-attr]
                         entity_count += 1
-                        triples_count += result.count(";")
+                        triples_count += result.count(";")  # type: ignore[union-attr]
 
         return entity_count, triples_count
 
@@ -387,7 +395,7 @@ class TtlDumpWorker(Worker):
             "text/turtle" if not str(filepath).endswith(".gz") else "application/gzip"
         )
 
-        extra_args = {"ContentType": content_type}
+        extra_args: dict[str, Any] = {"ContentType": content_type}
         if checksum:
             extra_args["Metadata"] = {"sha256": checksum}
 

@@ -68,7 +68,7 @@ class RevisionRepository(Repository):
             )
             row = cursor.fetchone()
             if row:
-                return RevisionRecord.model_validate(
+                return RevisionRecord.model_validate(  # type: ignore[no-any-return]
                     {
                         "statements": json.loads(row[0]) if row[0] else [],
                         "properties": json.loads(row[1]) if row[1] else [],
@@ -153,30 +153,6 @@ class RevisionRepository(Repository):
                 f"Current head_revision_id for entity {entity_id}: {current_head}"
             )
 
-            cursor.execute(
-                """UPDATE entity_head
-                   SET head_revision_id = %s,
-                       is_semi_protected = %s,
-                       is_locked = %s,
-                       is_archived = %s,
-                       is_dangling = %s,
-                       is_mass_edit_protected = %s,
-                       is_deleted = %s,
-                       is_redirect = %s
-                   WHERE internal_id = %s AND head_revision_id = %s""",
-                (
-                    revision_id,
-                    entity_data.state.is_semi_protected,
-                    entity_data.state.is_locked,
-                    entity_data.state.is_archived,
-                    entity_data.state.is_dangling,
-                    entity_data.state.is_mass_edit_protected,
-                    entity_data.state.is_deleted,
-                    False,
-                    internal_id,
-                    expected_revision_id,
-                ),
-            )
             # Also delete from entity_head if it's the head
             cursor.execute(
                 "UPDATE entity_head SET head_revision_id = head_revision_id - 1 WHERE internal_id = %s AND head_revision_id = %s",

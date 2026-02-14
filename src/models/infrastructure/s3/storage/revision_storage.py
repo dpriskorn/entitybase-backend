@@ -36,4 +36,4 @@ class RevisionStorage(BaseS3Storage):
 
             raise S3NotFoundError(f"Revision not found: {key}")
         data = load_response.data
-        return S3RevisionData.model_validate(data)
+        return S3RevisionData.model_validate(data)  # type: ignore[no-any-return]

@@ -32,7 +32,7 @@ class QualifierStorage(BaseS3Storage):
         if load_response is None:
             raise S3NotFoundError(f"Qualifier not found: {key}")
         data = load_response.data
-        return S3QualifierData.model_validate(data)
+        return S3QualifierData.model_validate(data)  # type: ignore[no-any-return]
 
     def load_qualifiers_batch(
         self, content_hashes: List[int]

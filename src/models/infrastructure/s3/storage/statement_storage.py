@@ -41,7 +41,10 @@ class StatementStorage(BaseS3Storage):
         key = str(content_hash)
 
         try:
-            data = self.load(key).data
+            load_response = self.load(key)
+            if load_response is None:
+                raise S3NotFoundError(f"Statement not found: {key}")
+            data = load_response.data
             stored_statement = S3Statement.model_validate(data)
 
             return StatementResponse(

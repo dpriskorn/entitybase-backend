@@ -48,6 +48,9 @@ class StreamProducerClient(Client):
             await self.start()
 
         try:
+            if self.producer is None:
+                logger.error("Producer not initialized")
+                return
             key = getattr(event, "entity_id", None) or getattr(event, "hash", None)
             if key is None:
                 logger.error(f"Event {event} has no key field")

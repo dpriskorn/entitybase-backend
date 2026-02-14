@@ -2,6 +2,9 @@
 
 import logging
 import re
+from typing import Any
+
+from pydantic import BaseModel
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.rest_api.v1.entitybase.request.entity.context import (
@@ -26,14 +29,19 @@ def _infer_entity_type_from_id(entity_id: str) -> EntityType | None:
     return None
 
 
-class EntityUpdateSitelinksMixin:
+class EntityUpdateSitelinksMixin(BaseModel):
     """Mixin for entity sitelink update operations."""
+
+    model_config = {"extra": "allow"}
+
+    state: Any
+    _update_with_transaction: Any
 
     async def update_sitelink(
         self,
         ctx: SitelinkUpdateContext,
         edit_headers: EditHeaders,
-        validator=None,
+        validator: Any | None = None,
     ) -> EntityResponse:
         """Update or add a sitelink.
 
@@ -60,7 +68,7 @@ class EntityUpdateSitelinksMixin:
             "badges": ctx.badges,
         }
 
-        return await self._update_with_transaction(
+        return await self._update_with_transaction(  # type: ignore[no-any-return]
             ctx.entity_id,
             entity_dict,
             entity_type,
@@ -73,7 +81,7 @@ class EntityUpdateSitelinksMixin:
         entity_id: str,
         site: str,
         edit_headers: EditHeaders,
-        validator=None,
+        validator: Any | None = None,
     ) -> EntityResponse:
         """Delete a sitelink (idempotent).
 
@@ -94,7 +102,7 @@ class EntityUpdateSitelinksMixin:
 
         del entity_dict["sitelinks"][site]
 
-        return await self._update_with_transaction(
+        return await self._update_with_transaction(  # type: ignore[no-any-return]
             entity_id,
             entity_dict,
             entity_type,

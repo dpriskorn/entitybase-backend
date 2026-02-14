@@ -216,7 +216,7 @@ class WatchlistRepository(Repository):
                     """,
                     (notification_id, user_id),
                 )
-                return cursor.rowcount > 0
+                return cursor.rowcount > 0  # type: ignore[no-any-return]
 
     def _get_conn(self) -> pymysql.Connection:
         """Get database connection."""

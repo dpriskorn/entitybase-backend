@@ -295,13 +295,13 @@ class JsonDumpWorker(Worker):
         }
 
         opener = gzip.open if settings.json_dump_compression else open
-        mode = "wt" if settings.json_dump_compression else "w"
+        mode = "wb" if settings.json_dump_compression else "w"
 
         with opener(output_path, mode, encoding="utf-8") as f:
             if settings.json_dump_compression:
-                f.write(json.dumps(dump_data, indent=2))
+                f.write(json.dumps(dump_data, indent=2).encode("utf-8"))  # type: ignore[arg-type]
             else:
-                json.dump(dump_data, f, indent=2)
+                json.dump(dump_data, f, indent=2)  # type: ignore[arg-type]
 
     async def _fetch_entity_data(
         self, record: EntityDumpRecord
@@ -313,7 +313,7 @@ class JsonDumpWorker(Worker):
             revision_data = self.s3_client.read_revision(
                 record.entity_id, record.revision_id
             )
-            return revision_data.revision
+            return revision_data.revision  # type: ignore[no-any-return]
         except Exception as e:
             logger.error(f"Error fetching {record.entity_id}: {e}")
             return None
@@ -336,7 +336,7 @@ class JsonDumpWorker(Worker):
             else "application/gzip"
         )
 
-        extra_args = {"ContentType": content_type}
+        extra_args: dict[str, Any] = {"ContentType": content_type}
         if checksum:
             extra_args["Metadata"] = {"sha256": checksum}
 

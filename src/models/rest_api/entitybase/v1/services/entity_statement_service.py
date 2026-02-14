@@ -50,8 +50,11 @@ class _PropertyCountHelper:
         new_properties = []
         new_property_counts_dict = {}
 
+        property_counts_dict = (
+            revision_data.property_counts.root if revision_data.property_counts else {}
+        )
         for prop in revision_data.properties:
-            count = revision_data.property_counts.get(prop, 0)
+            count = property_counts_dict.get(prop, 0)
             if start <= index < start + count:
                 count -= 1
             if count > 0:
@@ -116,7 +119,7 @@ class EntityStatementService(Service):
         )
         return OperationResult(
             success=True,
-            data=RevisionIdResult(revision_id=entity_response.revision_id),
+            data=RevisionIdResult(revision_id=new_revision_id),
         )
 
     async def add_statement(

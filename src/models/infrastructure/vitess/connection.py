@@ -4,7 +4,7 @@ import logging
 import queue
 import threading
 import pymysql
-from typing import Any
+from typing import Any, Literal
 from pydantic import Field, BaseModel
 from pymysql.connections import Connection
 from pymysql.cursors import Cursor
@@ -277,7 +277,7 @@ class CursorContextManager:
         self.cursor = self.connection.cursor()
         return self.cursor
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> bool:
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> Literal[False]:
         """Close cursor and release connection back to pool."""
         try:
             if self.cursor:
