@@ -299,6 +299,7 @@ class EntityUpdateTermsMixin(BaseModel):
     ) -> EntityResponse:
         """Replace all aliases for a language."""
         logger.info(f"update_aliases: entity={entity_id}, lang={language_code}, count={len(aliases)}")
+        logger.debug(f"[update_aliases] vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}")
         entity_type = _infer_entity_type_from_id(entity_id)
         if not entity_type:
             logger.warning(f"update_aliases: invalid entity ID format: {entity_id}")

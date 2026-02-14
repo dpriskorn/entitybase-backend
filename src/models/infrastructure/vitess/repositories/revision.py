@@ -264,7 +264,9 @@ class RevisionRepository(Repository):
         """Create a new revision for an entity."""
         logger.debug(f"Creating revision {revision_id} for entity {entity_id}")
         internal_id = self.vitess_client.id_resolver.resolve_id(entity_id)
+        logger.debug(f"[RevisionRepository.create] entity_id={entity_id}, resolved internal_id={internal_id}")
         if not internal_id:
+            logger.error(f"[RevisionRepository.create] FAILED: No internal_id found for entity {entity_id}")
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
         statements = (
             entity_data.hashes.statements.model_dump_json()

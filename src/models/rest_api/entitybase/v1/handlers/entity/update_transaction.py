@@ -184,6 +184,7 @@ class UpdateTransaction(EntityTransaction):
         revision_json = json.dumps(revision_dict, sort_keys=True)
         content_hash = MetadataExtractor.hash_string(revision_json)
 
+        logger.debug(f"[UpdateTransaction.create_revision] entity_id={entity_id}, vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}")
         self.state.vitess_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,

@@ -1,22 +1,31 @@
+import logging
 from typing import Any
 
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 
 class IdResolver(BaseModel):
     vitess_client: Any  # VitessClient
 
     def resolve_id(self, entity_id: str) -> int:
+        logger.debug(f"[IdResolver] resolve_id({entity_id}) called")
         with self.vitess_client.cursor as cursor:
             cursor.execute(
                 "SELECT internal_id FROM entity_id_mapping WHERE entity_id = %s",
                 (entity_id,),
             )
             result = cursor.fetchone()
-            return result[0] if result else 0
+            internal_id = result[0] if result else 0
+            logger.debug(f"[IdResolver] resolve_id({entity_id}) result: {internal_id}")
+            return internal_id
 
     def entity_exists(self, entity_id: str) -> bool:
-        return self.resolve_id(entity_id) != 0
+        internal_id = self.resolve_id(entity_id)
+        exists = internal_id != 0
+        logger.debug(f"[IdResolver] entity_exists({entity_id}): {exists} (internal_id={internal_id})")
+        return exists
 
     def resolve_entity_id(self, internal_id: int) -> str:
         with self.vitess_client.cursor as cursor:

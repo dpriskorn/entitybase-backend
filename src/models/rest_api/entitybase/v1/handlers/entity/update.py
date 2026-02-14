@@ -54,6 +54,7 @@ class EntityUpdateHandler(
         """
         logger.info(f"_update_with_transaction START: entity={entity_id}, type={entity_type}")
         logger.debug(f"_update_with_transaction: modified_data keys: {list(modified_data.keys())}")
+        logger.debug(f"[_update_with_transaction] vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}")
 
         if not self.state.vitess_client.entity_exists(entity_id):
             logger.warning(f"_update_with_transaction: entity not found: {entity_id}")

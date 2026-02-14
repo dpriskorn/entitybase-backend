@@ -67,6 +67,7 @@ class EntityCreateHandler(EntityHandler):
 
         # Check if entity already exists - for create, this should fail
         entity_existed = self.state.vitess_client.entity_exists(entity_id)
+        logger.debug(f"[create_entity] vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}, entity_existed={entity_existed}")
         if entity_existed:
             logger.error(f"Entity {entity_id} already exists, cannot create")
             raise_validation_error("Entity already exists", status_code=409)
