@@ -41,6 +41,24 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `''`
 - **Description**: No description available
 
+### `vitess_pool_size`
+
+- **Type**: `int`
+- **Default**: `20`
+- **Description**: No description available
+
+### `vitess_max_overflow`
+
+- **Type**: `int`
+- **Default**: `20`
+- **Description**: No description available
+
+### `vitess_pool_timeout`
+
+- **Type**: `int`
+- **Default**: `30`
+- **Description**: No description available
+
 ## Storage Settings
 
 ### `s3_endpoint`
