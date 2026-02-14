@@ -60,7 +60,7 @@ async def test_entity_creation_with_references_deduplicates(api_prefix: str) -> 
             json=entity_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
-        assert response.status_code in (200, 201)
+        assert response.status_code == 200
         entity_id = response.json()["id"]
 
         # Read entity back

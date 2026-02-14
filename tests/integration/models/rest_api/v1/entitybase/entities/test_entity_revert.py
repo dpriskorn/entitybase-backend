@@ -35,10 +35,7 @@ async def test_revert_entity() -> None:
             },
         )
         # Expect 404 or 400 since no test data, but validates request structure
-        assert response.status_code in [
-            400,
-            404,
-        ]  # Entity/revision not found is expected in test env
+        assert response.status_code == 404
 
 
 @pytest.mark.asyncio

@@ -201,7 +201,7 @@ async def test_update_item_label_entity_not_found(api_prefix: str) -> None:
             json={"language": "en", "value": "Updated Label"},
             headers={"X-Edit-Summary": "update label", "X-User-ID": "0"},
         )
-        assert response.status_code in (404, 500)  # 404 expected, 500 if handler fails
+        assert response.status_code == 404
 
 
 @pytest.mark.asyncio
@@ -282,7 +282,7 @@ async def test_delete_item_label_entity_not_found(api_prefix: str) -> None:
             f"{api_prefix}/entities/Q99999/labels/en",
             headers={"X-Edit-Summary": "delete label", "X-User-ID": "0"},
         )
-        assert response.status_code in (404, 500)  # 404 expected, 500 if handler fails
+        assert response.status_code == 404
 
 
 @pytest.mark.asyncio

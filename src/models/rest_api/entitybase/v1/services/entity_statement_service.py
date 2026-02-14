@@ -84,6 +84,7 @@ class EntityStatementService(Service):
         self._validate_property_id(property_id)
         self._validate_property_exists(property_id)
         current_data = self._fetch_current_entity_data(entity_id)
+        current_data.data["id"] = entity_id
         self._merge_claims(current_data.data, property_id, request.claims)
         entity_response = await self._process_entity_update(
             entity_id,
@@ -93,7 +94,7 @@ class EntityStatementService(Service):
         )
         return OperationResult(
             success=True,
-            data=RevisionIdResult(revision_id=entity_response.rev_id),
+            data=RevisionIdResult(revision_id=entity_response.revision_id),
         )
 
     async def remove_statement(
@@ -115,7 +116,7 @@ class EntityStatementService(Service):
         )
         return OperationResult(
             success=True,
-            data=RevisionIdResult(revision_id=entity_response.rev_id),
+            data=RevisionIdResult(revision_id=entity_response.revision_id),
         )
 
     async def add_statement(
@@ -166,7 +167,7 @@ class EntityStatementService(Service):
         )
         return OperationResult(
             success=True,
-            data=RevisionIdResult(revision_id=entity_response.rev_id),
+            data=RevisionIdResult(revision_id=entity_response.revision_id),
         )
 
     # Private validation methods

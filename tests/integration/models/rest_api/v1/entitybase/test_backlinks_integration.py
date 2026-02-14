@@ -36,7 +36,7 @@ class TestBacklinksIntegration:
                 json=entity_data,
                 headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
             )
-            assert response.status_code in (200, 201)
+            assert response.status_code == 200
             result = response.json()
             entity_id = result["id"]
             test_logger.debug(f"Created entity: {entity_id}")

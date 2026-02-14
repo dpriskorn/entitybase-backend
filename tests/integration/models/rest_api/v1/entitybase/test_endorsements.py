@@ -29,7 +29,7 @@ class TestEndorsements:
             )
 
             # The response might be an error due to missing statement, but we test the endpoint exists
-            assert response.status_code in [200, 400, 404]  # Success or expected errors
+            assert response.status_code == 404
 
     @pytest.mark.asyncio
     @pytest.mark.integration
@@ -51,7 +51,7 @@ class TestEndorsements:
             )
 
             # Should return error since no endorsement exists, but endpoint should work
-            assert response.status_code in [200, 400, 404]
+            assert response.status_code == 404
 
     @pytest.mark.asyncio
     @pytest.mark.integration
