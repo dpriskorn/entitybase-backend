@@ -15,8 +15,7 @@ class IdResolver(BaseModel):
 
     vitess_client: Any  # VitessClient
 
-    def __init__(self, **data: Any) -> None:
-        super().__init__(**data)
+    def model_post_init(self, __context: Any) -> None:
         self._unique_id_generator: UniqueIdGenerator = UniqueIdGenerator()
 
     def resolve_id(self, entity_id: str) -> int:

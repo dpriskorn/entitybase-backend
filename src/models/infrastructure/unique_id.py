@@ -22,15 +22,19 @@ Example usage in tests:
 
 import uuid
 import logging
+from typing import Any
+
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 
 
-class UniqueIdGenerator:
+class UniqueIdGenerator(BaseModel):
     """Generates unique 64-bit IDs."""
 
-    def __init__(self) -> None:
-        self._counter = 0
+    model_config = {"arbitrary_types_allowed": True}
+
+    _counter: int = 0
 
     @property
     def counter(self) -> int:
