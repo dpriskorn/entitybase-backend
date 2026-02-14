@@ -1,9 +1,11 @@
 set -e
 
-# Check if test infrastructure is running (MySQL, S3, etc.)
-./check-docker-services.sh --clean-connections
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source test.env
+# Check if test infrastructure is running (MySQL, S3, etc.)
+"$SCRIPT_DIR/check-docker-services.sh" --clean-connections
+
+source "$SCRIPT_DIR/test.env"
 
 echo "Running E2E tests (ASGITransport - no API server required)"
 # sdt out / logs
