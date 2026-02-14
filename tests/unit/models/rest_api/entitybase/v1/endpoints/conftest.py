@@ -17,5 +17,7 @@ def mock_entity_read_state():
 
     mock_vitess.entity_exists.return_value = True
     mock_vitess.get_head.return_value = 12345
+    mock_vitess.is_entity_deleted.return_value = False
+    mock_vitess.is_entity_locked.return_value = False
 
     yield mock_state, mock_vitess, mock_s3

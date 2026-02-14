@@ -862,9 +862,6 @@ class TestLemmasEndpoints:
 
     @pytest.mark.asyncio
     async def test_update_form_representation(self, mock_entity_read_state):
-        from models.rest_api.entitybase.v1.endpoints.lexeme_forms import (
-            update_form_representation,
-        )
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
@@ -905,9 +902,13 @@ class TestLemmasEndpoints:
         mock_req.app.state.state_handler = mock_state
 
         with patch(
-            "models.rest_api.entitybase.v1.endpoints.lexemes.EntityUpdateHandler",
+            "models.rest_api.entitybase.v1.endpoints.lexeme_forms.EntityUpdateHandler",
             return_value=mock_update_handler,
         ):
+            from models.rest_api.entitybase.v1.endpoints.lexeme_forms import (
+                update_form_representation,
+            )
+
             result = await update_form_representation(
                 "L42-F1",
                 "en",
@@ -1167,7 +1168,7 @@ class TestLemmasEndpoints:
         from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
 
         with patch(
-            "models.rest_api.entitybase.v1.endpoints.lexeme_senses.EntityUpdateHandler",
+            "models.rest_api.entitybase.v1.endpoints.lexeme_forms.EntityUpdateHandler",
             return_value=mock_update_handler,
         ):
             result = await add_sense_gloss(
