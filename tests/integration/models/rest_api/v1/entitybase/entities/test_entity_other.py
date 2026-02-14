@@ -68,6 +68,13 @@ async def test_lexeme_lemmas_endpoints(api_prefix: str) -> None:
         assert isinstance(result["hash"], int)
         logger.info("✓ Update lemma works correctly")
 
+        delete_lemma_response = await client.delete(
+            f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas/de",
+            headers={"X-Edit-Summary": "delete lemma", "X-User-ID": "0"},
+        )
+        assert delete_lemma_response.status_code == 200
+        assert delete_lemma_response.json()["success"] is True
+
         delete_last_lemma_response = await client.delete(
             f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas/en",
             headers={"X-Edit-Summary": "delete lemma", "X-User-ID": "0"},
@@ -78,14 +85,7 @@ async def test_lexeme_lemmas_endpoints(api_prefix: str) -> None:
         )
         logger.info("✓ Delete last lemma correctly fails")
 
-        delete_lemma_response = await client.delete(
-            f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas/de",
-            headers={"X-Edit-Summary": "delete lemma", "X-User-ID": "0"},
-        )
-        assert delete_lemma_response.status_code == 200
-        assert delete_lemma_response.json()["success"] is True
-
-        # Verify only en lemma remains
+        # Verify: de was deleted in step 1, en still exists (step 2 failed)
         verify_response = await client.get(
             f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas",
         )
