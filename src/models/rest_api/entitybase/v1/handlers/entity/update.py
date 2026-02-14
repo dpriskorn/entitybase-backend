@@ -15,7 +15,7 @@ from models.data.rest_api.v1.entitybase.request.entity.context import (
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.infrastructure.s3.exceptions import S3NotFoundError
-from models.rest_api.utils import raise_validation_error
+from models.rest_api.utils import infer_entity_type_from_id, raise_validation_error
 from .handler import EntityHandler
 from .update_transaction import UpdateTransaction
 from .update_terms import EntityUpdateTermsMixin
@@ -52,9 +52,15 @@ class EntityUpdateHandler(
         6. Activity logging
         7. Commit/Rollback
         """
-        logger.info(f"_update_with_transaction START: entity={entity_id}, type={entity_type}")
-        logger.debug(f"_update_with_transaction: modified_data keys: {list(modified_data.keys())}")
-        logger.debug(f"[_update_with_transaction] vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}")
+        logger.info(
+            f"_update_with_transaction START: entity={entity_id}, type={entity_type}"
+        )
+        logger.debug(
+            f"_update_with_transaction: modified_data keys: {list(modified_data.keys())}"
+        )
+        logger.debug(
+            f"[_update_with_transaction] vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}"
+        )
 
         if not self.state.vitess_client.entity_exists(entity_id):
             logger.warning(f"_update_with_transaction: entity not found: {entity_id}")
@@ -72,16 +78,24 @@ class EntityUpdateHandler(
         tx.entity_id = entity_id
         try:
             head_revision_id = tx.state.vitess_client.get_head(entity_id)
-            logger.debug(f"_update_with_transaction: head_revision_id={head_revision_id}")
+            logger.debug(
+                f"_update_with_transaction: head_revision_id={head_revision_id}"
+            )
 
             modified_data["id"] = entity_id
             logger.debug(f"_update_with_transaction: creating PreparedRequestData")
             request_data = PreparedRequestData(**modified_data)
-            logger.debug(f"_update_with_transaction: PreparedRequestData created successfully")
+            logger.debug(
+                f"_update_with_transaction: PreparedRequestData created successfully"
+            )
 
-            logger.debug(f"_update_with_transaction: processing statements for {entity_id}")
+            logger.debug(
+                f"_update_with_transaction: processing statements for {entity_id}"
+            )
             hash_result = tx.process_statements(entity_id, request_data, validator)
-            logger.debug(f"_update_with_transaction: statements processed, hash_result has {len(hash_result.statements)} statements")
+            logger.debug(
+                f"_update_with_transaction: statements processed, hash_result has {len(hash_result.statements)} statements"
+            )
 
             logger.debug(f"_update_with_transaction: creating revision for {entity_id}")
             response = await tx.create_revision(
@@ -91,7 +105,9 @@ class EntityUpdateHandler(
                 edit_headers=edit_headers,
                 hash_result=hash_result,
             )
-            logger.debug(f"_update_with_transaction: revision created: {response.revision_id}")
+            logger.debug(
+                f"_update_with_transaction: revision created: {response.revision_id}"
+            )
 
             edit_context = EditContext(
                 user_id=edit_headers.x_user_id,
@@ -120,9 +136,13 @@ class EntityUpdateHandler(
                         f"Failed to log user activity: {activity_result.error}"
                     )
 
-            logger.debug(f"_update_with_transaction: committing transaction for {entity_id}")
+            logger.debug(
+                f"_update_with_transaction: committing transaction for {entity_id}"
+            )
             tx.commit()
-            logger.info(f"_update_with_transaction SUCCESS: entity={entity_id}, rev={response.revision_id}")
+            logger.info(
+                f"_update_with_transaction SUCCESS: entity={entity_id}, rev={response.revision_id}"
+            )
             return response
         except S3NotFoundError:
             logger.warning(f"Entity revision not found during update for {entity_id}")
@@ -135,20 +155,3 @@ class EntityUpdateHandler(
                 f"Update failed: {type(e).__name__}: {str(e)}", status_code=500
             )
 
-    @staticmethod
-    def _infer_entity_type_from_id(entity_id: str) -> EntityType | None:
-        """Infer entity type from ID format.
-
-        Returns:
-            EntityType.ITEM for Q\\d+
-            EntityType.PROPERTY for P\\d+
-            EntityType.LEXEME for L\\d+
-            None if invalid format
-        """
-        if re.match(r"^Q\d+$", entity_id):
-            return EntityType.ITEM
-        elif re.match(r"^P\d+$", entity_id):
-            return EntityType.PROPERTY
-        elif re.match(r"^L\d+$", entity_id):
-            return EntityType.LEXEME
-        return None

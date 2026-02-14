@@ -1,9 +1,8 @@
 """Lexeme endpoints for Entitybase v1 API."""
 
 import logging
-import re
 
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Request
 
 from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
@@ -34,27 +33,11 @@ from models.rest_api.entitybase.v1.endpoints.lexeme_utils import (
 )
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
+from models.rest_api.utils import validate_qid
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-
-QID_PATTERN = re.compile(r"^Q\d+$")
-
-
-def _validate_qid(value: str, field_name: str) -> str:
-    """Validate that a value is a valid QID format (Q followed by digits)."""
-    if not value:
-        raise HTTPException(
-            status_code=400, detail=f"{field_name} is required and cannot be empty"
-        )
-    if not QID_PATTERN.match(value):
-        raise HTTPException(
-            status_code=400,
-            detail=f"{field_name} must be a valid QID format (Q followed by digits), got: {value}",
-        )
-    return value
 
 
 @router.post("/entities/lexemes", response_model=EntityResponse)
@@ -101,7 +84,7 @@ async def update_lexeme_language(
     """Update the language of a lexeme."""
     logger.debug(f"Updating language for lexeme {lexeme_id}")
 
-    _validate_qid(request.language, "language")
+    validate_qid(request.language, "language")
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
@@ -157,7 +140,7 @@ async def update_lexeme_lexicalcategory(
     """Update the lexical category of a lexeme."""
     logger.debug(f"Updating lexical category for lexeme {lexeme_id}")
 
-    _validate_qid(request.lexical_category, "lexical_category")
+    validate_qid(request.lexical_category, "lexical_category")
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator

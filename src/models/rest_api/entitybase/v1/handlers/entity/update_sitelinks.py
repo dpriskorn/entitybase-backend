@@ -13,20 +13,9 @@ from models.data.rest_api.v1.entitybase.request.entity.context import (
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.infrastructure.s3.enums import EntityType
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-from models.rest_api.utils import raise_validation_error
+from models.rest_api.utils import infer_entity_type_from_id, raise_validation_error
 
 logger = logging.getLogger(__name__)
-
-
-def _infer_entity_type_from_id(entity_id: str) -> EntityType | None:
-    """Infer entity type from ID format."""
-    if re.match(r"^Q\d+$", entity_id):
-        return EntityType.ITEM
-    elif re.match(r"^P\d+$", entity_id):
-        return EntityType.PROPERTY
-    elif re.match(r"^L\d+$", entity_id):
-        return EntityType.LEXEME
-    return None
 
 
 class EntityUpdateSitelinksMixin(BaseModel):
@@ -47,7 +36,7 @@ class EntityUpdateSitelinksMixin(BaseModel):
         Returns EntityResponse (not OperationResult) for consistency with other methods.
         """
         logger.debug(f"Updating sitelink {ctx.site} for {ctx.entity_id}")
-        entity_type = _infer_entity_type_from_id(ctx.entity_id)
+        entity_type = infer_entity_type_from_id(ctx.entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
@@ -86,7 +75,7 @@ class EntityUpdateSitelinksMixin(BaseModel):
 
         Returns EntityResponse (not OperationResult) for consistency.
         """
-        entity_type = _infer_entity_type_from_id(entity_id)
+        entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 

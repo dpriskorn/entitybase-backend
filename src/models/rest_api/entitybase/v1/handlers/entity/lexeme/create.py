@@ -1,7 +1,6 @@
 """Lexeme creation handlers."""
 
 import logging
-import re
 from typing import Any
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
@@ -10,29 +9,10 @@ from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.entitybase.v1.services.enumeration_service import (
     EnumerationService,
 )
+from models.rest_api.utils import validate_qid
 from ..create import EntityCreateHandler
 
 logger = logging.getLogger(__name__)
-
-QID_PATTERN = re.compile(r"^Q\d+$")
-
-
-def _validate_qid(value: str, field_name: str) -> None:
-    """Validate that a value is a valid QID format."""
-    if not value:
-        from models.rest_api.utils import raise_validation_error
-
-        raise_validation_error(
-            f"{field_name} is required for lexeme creation.",
-            status_code=400,
-        )
-    if not QID_PATTERN.match(value):
-        from models.rest_api.utils import raise_validation_error
-
-        raise_validation_error(
-            f"{field_name} must be a valid QID format (Q followed by digits), got: {value}",
-            status_code=400,
-        )
 
 
 class LexemeCreateHandler(EntityCreateHandler):
@@ -59,8 +39,8 @@ class LexemeCreateHandler(EntityCreateHandler):
                 status_code=400,
             )
 
-        _validate_qid(request.language, "language")
-        _validate_qid(request.lexical_category, "lexical_category")
+        validate_qid(request.language, "language")
+        validate_qid(request.lexical_category, "lexical_category")
 
         response = await super().create_entity(
             request,

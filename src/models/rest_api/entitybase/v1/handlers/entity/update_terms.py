@@ -17,22 +17,9 @@ from models.data.infrastructure.stream.change_type import ChangeType
 from models.data.rest_api.v1.entitybase.request import UserActivityType
 from models.data.infrastructure.s3.enums import EntityType
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
-from models.rest_api.utils import raise_validation_error
+from models.rest_api.utils import infer_entity_type_from_id, raise_validation_error
 
 logger = logging.getLogger(__name__)
-
-
-def _infer_entity_type_from_id(entity_id: str) -> EntityType | None:
-    """Infer entity type from ID format."""
-    import re
-
-    if re.match(r"^Q\d+$", entity_id):
-        return EntityType.ITEM
-    elif re.match(r"^P\d+$", entity_id):
-        return EntityType.PROPERTY
-    elif re.match(r"^L\d+$", entity_id):
-        return EntityType.LEXEME
-    return None
 
 
 class EntityUpdateTermsMixin(BaseModel):
@@ -57,7 +44,7 @@ class EntityUpdateTermsMixin(BaseModel):
                 status_code=400,
             )
 
-        entity_type = _infer_entity_type_from_id(entity_id)
+        entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
@@ -91,7 +78,7 @@ class EntityUpdateTermsMixin(BaseModel):
         """Delete a label for a language (idempotent)."""
         from .update_transaction import UpdateTransaction
 
-        entity_type = _infer_entity_type_from_id(entity_id)
+        entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
@@ -179,7 +166,7 @@ class EntityUpdateTermsMixin(BaseModel):
                 status_code=400,
             )
 
-        entity_type = _infer_entity_type_from_id(entity_id)
+        entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
@@ -213,7 +200,7 @@ class EntityUpdateTermsMixin(BaseModel):
         """Delete a description for a language (idempotent)."""
         from .update_transaction import UpdateTransaction
 
-        entity_type = _infer_entity_type_from_id(entity_id)
+        entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
@@ -298,9 +285,13 @@ class EntityUpdateTermsMixin(BaseModel):
         validator: Any | None = None,
     ) -> EntityResponse:
         """Replace all aliases for a language."""
-        logger.info(f"update_aliases: entity={entity_id}, lang={language_code}, count={len(aliases)}")
-        logger.debug(f"[update_aliases] vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}")
-        entity_type = _infer_entity_type_from_id(entity_id)
+        logger.info(
+            f"update_aliases: entity={entity_id}, lang={language_code}, count={len(aliases)}"
+        )
+        logger.debug(
+            f"[update_aliases] vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}"
+        )
+        entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             logger.warning(f"update_aliases: invalid entity ID format: {entity_id}")
             raise_validation_error("Invalid entity ID format", status_code=400)
@@ -315,9 +306,13 @@ class EntityUpdateTermsMixin(BaseModel):
         if "aliases" not in entity_dict:
             entity_dict["aliases"] = {}
         entity_dict["aliases"][language_code] = [{"value": alias} for alias in aliases]
-        logger.debug(f"update_aliases: updated aliases for {language_code}: {entity_dict['aliases'].get(language_code)}")
+        logger.debug(
+            f"update_aliases: updated aliases for {language_code}: {entity_dict['aliases'].get(language_code)}"
+        )
 
-        logger.debug(f"update_aliases: calling _update_with_transaction for {entity_id}")
+        logger.debug(
+            f"update_aliases: calling _update_with_transaction for {entity_id}"
+        )
         return await self._update_with_transaction(  # type: ignore[no-any-return]
             entity_id,
             entity_dict,
@@ -350,7 +345,7 @@ class EntityUpdateTermsMixin(BaseModel):
             f"Adding alias '{alias}' for entity {entity_id}, language {language_code}"
         )
 
-        entity_type = _infer_entity_type_from_id(entity_id)
+        entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
@@ -445,7 +440,7 @@ class EntityUpdateTermsMixin(BaseModel):
         """Delete all aliases for a language (idempotent)."""
         from .update_transaction import UpdateTransaction
 
-        entity_type = _infer_entity_type_from_id(entity_id)
+        entity_type = infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 

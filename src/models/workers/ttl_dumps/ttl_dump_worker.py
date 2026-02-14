@@ -2,12 +2,11 @@
 
 import asyncio
 import gzip
-import hashlib
 import logging
 import tempfile
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from datetime import datetime, time, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from io import StringIO
 from pathlib import Path
 from typing import Any
@@ -21,6 +20,8 @@ except ImportError:
 
 from models.config.settings import settings
 from models.data.rest_api.v1.entitybase.response import WorkerHealthCheckResponse
+from models.utils.checksum import generate_file_sha256
+from models.workers.utils import calculate_seconds_until_next_run
 
 try:
     from models.infrastructure.s3.client import MyS3Client
@@ -113,7 +114,9 @@ class TtlDumpWorker(Worker):
 
             while self.running:
                 try:
-                    seconds_until_next = self._calculate_seconds_until_next_run()
+                    seconds_until_next = calculate_seconds_until_next_run(
+                        settings.ttl_dump_schedule, fallback_hour=3
+                    )
                     logger.info(f"Next TTL dump run in {seconds_until_next} seconds")
                     await asyncio.sleep(seconds_until_next)
 
@@ -249,7 +252,7 @@ class TtlDumpWorker(Worker):
 
             checksum = ""
             if settings.ttl_dump_generate_checksums:
-                checksum = self._generate_checksum(filepath)
+                checksum = generate_file_sha256(filepath)
 
             s3_key = f"weekly/{dump_date}/{filename}"
             await self._upload_to_s3(filepath, s3_key, checksum)
@@ -379,13 +382,6 @@ class TtlDumpWorker(Worker):
             logger.error(f"Error processing {record.entity_id}: {e}")
             return None
 
-    def _generate_checksum(self, filepath: Path) -> str:
-        sha256 = hashlib.sha256()
-        with open(filepath, "rb") as f:
-            for chunk in iter(lambda: f.read(8192), b""):
-                sha256.update(chunk)
-        return sha256.hexdigest()
-
     async def _upload_to_s3(self, filepath: Path, s3_key: str, checksum: str) -> None:
         if not self.s3_client or not self.s3_client.connection_manager:
             raise ValueError("S3 connection manager not initialized")
@@ -409,26 +405,6 @@ class TtlDumpWorker(Worker):
         logger.info(
             f"Uploaded {filepath.name} to s3://{settings.s3_dump_bucket}/{s3_key}"
         )
-
-    def _calculate_seconds_until_next_run(self) -> float:
-        schedule_str = settings.ttl_dump_schedule
-        schedule_parts = schedule_str.split()
-        if len(schedule_parts) >= 2:
-            minute = int(schedule_parts[0])
-            hour = int(schedule_parts[1])
-        else:
-            minute, hour = 0, 3
-
-        now = datetime.now(timezone.utc)
-        target_time = time(hour, minute, 0)
-
-        if now.time() < target_time:
-            next_run = datetime.combine(now.date(), target_time)
-        else:
-            next_run = datetime.combine(now.date() + timedelta(days=1), target_time)
-
-        seconds_until = (next_run - now).total_seconds()
-        return max(seconds_until, 0)
 
     def health_check(self) -> WorkerHealthCheckResponse:
         status = "healthy" if self.running else "unhealthy"

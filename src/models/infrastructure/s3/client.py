@@ -277,7 +277,7 @@ class MyS3Client(Client):
         """Store lemma text in terms bucket."""
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
 
-        if not hasattr(self, "lexeme_storage") or self.lexemes is None:
+        if not hasattr(self, "lexemes") or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
         result = self.lexemes.store_lemma(text, content_hash)
         if not result.success:
@@ -295,7 +295,7 @@ class MyS3Client(Client):
         """Store form representation text in terms bucket."""
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
 
-        if not hasattr(self, "lexeme_storage") or self.lexemes is None:
+        if not hasattr(self, "lexemes") or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
         result = self.lexemes.store_form_representation(text, content_hash)
         if not result.success:
@@ -305,7 +305,7 @@ class MyS3Client(Client):
         """Store sense gloss text in terms bucket."""
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
 
-        if not hasattr(self, "lexeme_storage") or self.lexemes is None:
+        if not hasattr(self, "lexemes") or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
         result = self.lexemes.store_sense_gloss(text, content_hash)
         if not result.success:
@@ -315,7 +315,7 @@ class MyS3Client(Client):
         """Load form representations by content hashes."""
         from models.infrastructure.s3.storage.lexeme_storage import LexemeStorage
 
-        if not hasattr(self, "lexeme_storage") or self.lexemes is None:
+        if not hasattr(self, "lexemes") or self.lexemes is None:
             self.lexemes = LexemeStorage(connection_manager=self.connection_manager)
         return cast(
             list[str | None], self.lexemes.load_form_representations_batch(hashes)
