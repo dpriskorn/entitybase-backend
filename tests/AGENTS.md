@@ -175,3 +175,31 @@ async def test_hash_resolution() -> None:
             )
             statement = response.json()  # Full statement data
 ```
+
+8. Status Code Assertions
+
+When testing API responses, assertions MUST check for a single expected status code,
+not multiple alternatives.
+
+**Incorrect (not allowed):**
+```python
+# Do NOT use this pattern
+assert response.status_code in [200, 201]
+assert response.status_code in (200, 201, 204)
+```
+
+**Correct:**
+```python
+# Always assert exactly one expected status code
+assert response.status_code == 201
+assert response.status_code == 404
+```
+
+**Rationale:**
+- Tests should verify a specific expected outcome
+- Multiple status codes in assertions mask which behavior actually occurred
+- Makes debugging harder when tests fail
+- Each test case should have a single, deterministic expectation
+
+If you need to test that an endpoint accepts multiple valid inputs with different outcomes,
+write separate test functions for each case.
