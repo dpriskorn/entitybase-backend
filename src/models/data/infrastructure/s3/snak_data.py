@@ -1,4 +1,4 @@
-"""S3 snak data model."""
+"""S3 snak data models."""
 
 from typing import Any
 
@@ -22,4 +22,43 @@ class S3SnakData(BaseModel):
     )
     created_at: str = Field(
         description="Timestamp when snak was created. Example: '2023-01-01T12:00:00Z'."
+    )
+
+
+class ProcessedSnakValue(BaseModel):
+    """Represents a processed snak value that can be either a hash or original value."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    value: int | str | dict[str, Any] | list[Any] | float | None = Field(
+        description="Processed snak value - can be hash, string, dict, list, float, or None."
+    )
+
+
+class ProcessedSnakList(BaseModel):
+    """Return type for _process_snak_list_value."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    key: str = Field(description="Property key for the snak list.")
+    values: list[ProcessedSnakValue] = Field(
+        description="List of processed snak values."
+    )
+
+
+class S3ReferenceSnaks(BaseModel):
+    """Model for processed reference data with snaks.
+
+    Used as return type for _process_reference_snaks function.
+    Contains the processed reference data with hash-referenced snaks.
+    """
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    snaks: dict[str, Any] = Field(
+        description="Processed snaks dict with property keys."
+    )
+    snaks_order: list[Any] = Field(
+        default_factory=list,
+        description="Order of snak properties."
     )

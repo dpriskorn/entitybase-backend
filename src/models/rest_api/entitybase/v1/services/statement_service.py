@@ -11,6 +11,11 @@ from models.data.common import OperationResult
 from models.config.settings import settings
 from models.data.infrastructure.s3.qualifier_data import S3QualifierData
 from models.data.infrastructure.s3.reference_data import S3ReferenceData
+from models.data.infrastructure.s3.snak_data import (
+    ProcessedSnakList,
+    ProcessedSnakValue,
+    S3ReferenceSnaks,
+)
 from models.data.infrastructure.s3.statement import S3Statement
 from models.data.rest_api.v1.entitybase.request import SnakRequest
 from models.data.rest_api.v1.entitybase.request.entity import PreparedRequestData
@@ -182,10 +187,14 @@ class StatementService(Service):
         # noinspection PyUnusedLocal
         s3_exists = False
         try:
-            logger.debug(f"[STMT_STORE] Checking if statement exists: hash={context.statement_hash}")
+            logger.debug(
+                f"[STMT_STORE] Checking if statement exists: hash={context.statement_hash}"
+            )
             self.state.s3_client.read_statement(context.statement_hash)
             s3_exists = True
-            logger.debug(f"[STMT_STORE] Statement {context.statement_hash} already exists in S3")
+            logger.debug(
+                f"[STMT_STORE] Statement {context.statement_hash} already exists in S3"
+            )
         except Exception as e:
             logger.debug(
                 f"[STMT_STORE] Statement {context.statement_hash} not found in S3, will write new object: {type(e).__name__}"
@@ -327,35 +336,37 @@ class StatementService(Service):
     @staticmethod
     def _process_snak_item(
         item: Any, snak_handler: SnakHandler
-    ) -> int | str | dict[str, Any] | list[Any] | float | None | Any:
+    ) -> ProcessedSnakValue:
         """Process a single snak item.
 
-        Returns snak hash if item is a dict with "property", otherwise original item.
+        Returns ProcessedSnakValue with snak hash if item is a dict with "property",
+        otherwise returns original item wrapped in ProcessedSnakValue.
         """
         if isinstance(item, dict) and "property" in item:
             snak_request = SnakRequest(
                 property=item["property"], datavalue=item.get("datavalue", {})
             )
-            return snak_handler.store_snak(snak_request)
-        return item
+            snak_hash = snak_handler.store_snak(snak_request)
+            return ProcessedSnakValue(value=snak_hash)
+        return ProcessedSnakValue(value=item)
 
     def _process_snak_list_value(
         self, snak_key: str, snak_list: list, snak_handler: SnakHandler
-    ) -> tuple[str, list[Any]]:
+    ) -> ProcessedSnakList:
         """Process snaks when value is a list."""
         new_snak_values = []
         for snak_item in snak_list:
             processed = self._process_snak_item(snak_item, snak_handler)
             new_snak_values.append(processed)
-        return snak_key, new_snak_values
+        return ProcessedSnakList(key=snak_key, values=new_snak_values)
 
     def _process_reference_snaks(
         self, ref: S3ReferenceData, snak_handler: SnakHandler
-    ) -> dict[str, Any]:
+    ) -> S3ReferenceSnaks:
         """Process all snaks within a reference.
 
         Returns:
-            dict[str, Any]: Modified reference data with hash-referenced snaks,
+            S3ReferenceSnaks: Modified reference data with hash-referenced snaks,
             ready to be used with S3ReferenceData.
         """
         ref_dict = ref.model_dump()
@@ -363,11 +374,11 @@ class StatementService(Service):
             new_snaks = []
             for snak_key, snak_value in ref_dict["snaks"].items():
                 if isinstance(snak_value, list):
-                    new_snaks.append(
-                        self._process_snak_list_value(
-                            snak_key, snak_value, snak_handler
-                        )
+                    processed_list = self._process_snak_list_value(
+                        snak_key, snak_value, snak_handler
                     )
+                    converted_values = [v.value for v in processed_list.values]
+                    new_snaks.append((processed_list.key, converted_values))
                 elif isinstance(snak_value, dict) and "property" in snak_value:
                     snak_request = SnakRequest(
                         property=snak_value["property"],
@@ -378,7 +389,8 @@ class StatementService(Service):
                 else:
                     new_snaks.append((snak_key, snak_value))
             ref_dict["snaks"] = dict(new_snaks)
-        return cast(dict[str, Any], ref_dict)
+        snaks_order = ref_dict.pop("snaks-order", [])
+        return S3ReferenceSnaks(snaks=ref_dict["snaks"], snaks_order=snaks_order)
 
     def _process_single_reference(
         self, ref: S3ReferenceData | dict | int, snak_handler: SnakHandler
@@ -411,7 +423,11 @@ class StatementService(Service):
             ref_hash = ReferenceHasher.compute_hash(ref_data)
             logger.debug(f"Reference hash: {ref_hash}")
             logger.debug("Processing reference snaks")
-            ref_dict = self._process_reference_snaks(ref_data, snak_handler)
+            processed_ref = self._process_reference_snaks(ref_data, snak_handler)
+            ref_dict: dict[str, Any] = {"snaks": processed_ref.snaks}
+            snaks_order_list = processed_ref.snaks_order
+            if snaks_order_list:
+                ref_dict["snaks-order"] = snaks_order_list
             ref_data = S3ReferenceData(
                 hash=ref_hash,
                 reference=ref_dict,
@@ -426,7 +442,10 @@ class StatementService(Service):
             logger.debug("Processing S3ReferenceData")
             ref_hash = ReferenceHasher.compute_hash(ref)
             logger.debug(f"Reference hash: {ref_hash}")
-            ref_dict = self._process_reference_snaks(ref, snak_handler)
+            processed_ref = self._process_reference_snaks(ref, snak_handler)
+            ref_dict: dict[str, Any] = {"snaks": processed_ref.snaks}
+            if processed_ref.snaks_order:
+                ref_dict["snaks-order"] = processed_ref.snaks_order
             ref_data = S3ReferenceData(
                 hash=ref_hash,
                 reference=ref_dict,
