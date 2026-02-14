@@ -2,6 +2,12 @@
 
 This document provides guidelines and commands for agentic coding assistants working on the Wikibase Backend project.
 
+## Specialized Documentation
+
+For domain-specific guidance, see these AGENTS.md files:
+- [tests/AGENTS.md](tests/AGENTS.md) - Testing patterns, conventions, and best practices
+- [scripts/linters/AGENTS.md](scripts/linters/AGENTS.md) - Creating and maintaining custom linters
+
 ## Code Style Guidelines
 
 ### Python Version and Dependencies
