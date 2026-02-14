@@ -31,8 +31,8 @@ def connection_manager() -> VitessConnectionManager:
         database=settings.vitess_database,
         user=settings.vitess_user,
         password=settings.vitess_password,
-        pool_size=5,
-        max_overflow=5,
+        pool_size=20,
+        max_overflow=20,
         pool_timeout=5,
     )
     manager = VitessConnectionManager(config=test_config)

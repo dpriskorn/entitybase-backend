@@ -291,9 +291,9 @@ def vitess_client():
         database=settings.vitess_database,
         user=settings.vitess_user,
         password=settings.vitess_password,
-        pool_size=5,
-        max_overflow=5,
-        pool_timeout=2,
+        pool_size=20,
+        max_overflow=20,
+        pool_timeout=5,
     )
     logger.debug(
         f"Vitess config: host='{vitess_config.host}', port={vitess_config.port}, database='{vitess_config.database}'"
@@ -324,9 +324,9 @@ def connection_manager():
         database=settings.vitess_database,
         user=settings.vitess_user,
         password=settings.vitess_password,
-        pool_size=2,
-        max_overflow=1,
-        pool_timeout=1,
+        pool_size=20,
+        max_overflow=20,
+        pool_timeout=5,
     )
     manager = VitessConnectionManager(config=test_config)
     yield manager
@@ -394,7 +394,9 @@ def create_s3_buckets(s3_config):
     logger.debug(
         f"=== create_s3_buckets fixture END total time: {(time_module.time() - start_time):.2f}s ==="
     )
-    print(f"S3 buckets ready: {len(required_buckets)} buckets ({created_count} created)")
+    print(
+        f"S3 buckets ready: {len(required_buckets)} buckets ({created_count} created)"
+    )
 
 
 @pytest.fixture(scope="session")
@@ -445,6 +447,7 @@ def initialized_app(vitess_client, s3_client, create_s3_buckets):
     Session-scoped to avoid redundant health checks for each test.
     """
     import time as time_module
+
     start_time = time_module.time()
     logger.info("=== initialized_app fixture START ===")
     from models.rest_api.main import app
@@ -457,8 +460,12 @@ def initialized_app(vitess_client, s3_client, create_s3_buckets):
     logger.debug("StateHandler started")
 
     app.state.state_handler = state_handler
-    logger.debug(f"app.state.state_handler set: {type(app.state.state_handler).__name__}")
-    logger.debug(f"initialized_app fixture ready in {(time_module.time() - start_time):.2f}s")
+    logger.debug(
+        f"app.state.state_handler set: {type(app.state.state_handler).__name__}"
+    )
+    logger.debug(
+        f"initialized_app fixture ready in {(time_module.time() - start_time):.2f}s"
+    )
 
     yield
 

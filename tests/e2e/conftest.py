@@ -120,9 +120,9 @@ def vitess_client():
         database=settings.vitess_database,
         user=settings.vitess_user,
         password=settings.vitess_password,
-        pool_size=5,
-        max_overflow=5,
-        pool_timeout=2,
+        pool_size=20,
+        max_overflow=20,
+        pool_timeout=5,
     )
     client = VitessClient(config=vitess_config)
     yield client
