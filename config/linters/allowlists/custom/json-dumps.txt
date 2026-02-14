@@ -64,7 +64,9 @@ src/models/internal_representation/metadata_extractor.py:25
 # qualifier_hasher.py - Canonical JSON for hashing (intentionally uses canonical form with sort_keys)
 src/models/internal_representation/qualifier_hasher.py:27
 
-# json_dumps worker - Import statements and pretty-print output
-src/models/workers/json_dumps/__main__.py:2
-src/models/workers/json_dumps/__init__.py:2
+# json_dumps worker - Pretty-print output (imports now filtered automatically)
 src/models/workers/json_dumps/json_dump_worker.py:302
+
+# revision.py - Serializes properties list (list[str]) to database storage
+src/models/infrastructure/vitess/repositories/revision.py:215
+src/models/infrastructure/vitess/repositories/revision.py:297

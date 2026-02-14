@@ -41,6 +41,12 @@ while IFS= read -r line; do
     filepath=$(echo "$line" | cut -d: -f1)
     linenum=$(echo "$line" | cut -d: -f2)
 
+    # Skip import statements (e.g., "from foo.json_dumps import main")
+    content_after_colon=$(echo "$line" | cut -d: -f3- | sed 's/^[[:space:]]*//')
+    if echo "$content_after_colon" | grep -q "^from\|^import"; then
+        continue
+    fi
+
     # Check if this entry is in the allowlist
     if [ -n "$ALLOWLIST_ENTRIES" ]; then
         if echo "$ALLOWLIST_ENTRIES" | grep -q "^${filepath}:${linenum}$"; then
