@@ -151,18 +151,26 @@ class EntityHandler(Handler):
         self, ctx: RevisionContext, hash_result: StatementHashResult
     ) -> RevisionResult:
         """Create revision using simplified logic."""
+        logger.info(f"_create_revision_new START: entity_id={ctx.entity_id}")
         try:
             # Get current head revision
             head_revision_id = ctx.vitess_client.get_head(ctx.entity_id)
+            logger.debug(f"_create_revision_new: head_revision_id={head_revision_id}")
 
             # Calculate new revision ID
             new_revision_id = head_revision_id + 1 if head_revision_id else 1
+            logger.debug(f"_create_revision_new: new_revision_id={new_revision_id}")
 
             # Process terms and sitelinks
+            logger.debug(f"_create_revision_new: hashing terms for {ctx.entity_id}")
             term_hashes = await self._hash_terms_new(ctx)
+            logger.debug(f"_create_revision_new: term_hashes keys: {term_hashes.hashes.keys() if term_hashes else 'None'}")
+
+            logger.debug(f"_create_revision_new: hashing sitelinks for {ctx.entity_id}")
             sitelink_hashes = await self._hash_sitelinks_new(ctx)
 
             # Build revision data
+            logger.debug(f"_create_revision_new: building revision data for {ctx.entity_id}")
             revision_data = self._build_revision_data(
                 ctx,
                 hash_result,
@@ -172,8 +180,11 @@ class EntityHandler(Handler):
             )
 
             # Store in database and S3 with same content hash
+            logger.debug(f"_create_revision_new: storing revision in S3 for {ctx.entity_id}")
             content_hash = await self._store_revision_s3_new(ctx, revision_data)
+            logger.debug(f"_create_revision_new: content_hash={content_hash}")
 
+            logger.debug(f"_create_revision_new: creating revision in Vitess for {ctx.entity_id}")
             ctx.vitess_client.create_revision(
                 entity_id=ctx.entity_id,
                 entity_data=revision_data,
@@ -181,10 +192,11 @@ class EntityHandler(Handler):
                 content_hash=content_hash,
             )
 
+            logger.info(f"_create_revision_new SUCCESS: entity_id={ctx.entity_id}, rev={new_revision_id}")
             return RevisionResult(success=True, revision_id=new_revision_id)
 
         except Exception as e:
-            logger.error(f"Failed to create revision for {ctx.entity_id}: {e}")
+            logger.error(f"Failed to create revision for {ctx.entity_id}: {e}", exc_info=True)
             return RevisionResult(success=False, error=str(e))
 
     async def _hash_terms_new(self, ctx: RevisionContext) -> HashMaps:

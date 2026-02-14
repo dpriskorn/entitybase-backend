@@ -183,7 +183,7 @@ not multiple alternatives.
 
 **Incorrect (not allowed):**
 ```python
-# Do NOT use this pattern
+# Do NOT use these patterns
 assert response.status_code in [200, 201]
 assert response.status_code in (200, 201, 204)
 ```

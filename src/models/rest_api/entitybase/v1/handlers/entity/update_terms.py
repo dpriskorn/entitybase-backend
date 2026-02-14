@@ -298,19 +298,25 @@ class EntityUpdateTermsMixin(BaseModel):
         validator: Any | None = None,
     ) -> EntityResponse:
         """Replace all aliases for a language."""
+        logger.info(f"update_aliases: entity={entity_id}, lang={language_code}, count={len(aliases)}")
         entity_type = _infer_entity_type_from_id(entity_id)
         if not entity_type:
+            logger.warning(f"update_aliases: invalid entity ID format: {entity_id}")
             raise_validation_error("Invalid entity ID format", status_code=400)
 
+        logger.debug(f"update_aliases: reading entity {entity_id}")
         read_handler = EntityReadHandler(state=self.state)
         current_entity = read_handler.get_entity(entity_id)
 
         entity_dict = current_entity.entity_data.revision
+        logger.debug(f"update_aliases: entity_dict keys: {list(entity_dict.keys())}")
 
         if "aliases" not in entity_dict:
             entity_dict["aliases"] = {}
         entity_dict["aliases"][language_code] = [{"value": alias} for alias in aliases]
+        logger.debug(f"update_aliases: updated aliases for {language_code}: {entity_dict['aliases'].get(language_code)}")
 
+        logger.debug(f"update_aliases: calling _update_with_transaction for {entity_id}")
         return await self._update_with_transaction(  # type: ignore[no-any-return]
             entity_id,
             entity_dict,

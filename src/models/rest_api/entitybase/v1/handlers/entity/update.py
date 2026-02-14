@@ -52,25 +52,37 @@ class EntityUpdateHandler(
         6. Activity logging
         7. Commit/Rollback
         """
+        logger.info(f"_update_with_transaction START: entity={entity_id}, type={entity_type}")
+        logger.debug(f"_update_with_transaction: modified_data keys: {list(modified_data.keys())}")
+
         if not self.state.vitess_client.entity_exists(entity_id):
+            logger.warning(f"_update_with_transaction: entity not found: {entity_id}")
             raise_validation_error("Entity not found", status_code=404)
 
         if self.state.vitess_client.is_entity_deleted(entity_id):
+            logger.warning(f"_update_with_transaction: entity deleted: {entity_id}")
             raise_validation_error("Entity deleted", status_code=410)
 
         if self.state.vitess_client.is_entity_locked(entity_id):
+            logger.warning(f"_update_with_transaction: entity locked: {entity_id}")
             raise_validation_error("Entity locked", status_code=423)
 
         tx = UpdateTransaction(state=self.state)
         tx.entity_id = entity_id
         try:
             head_revision_id = tx.state.vitess_client.get_head(entity_id)
+            logger.debug(f"_update_with_transaction: head_revision_id={head_revision_id}")
 
             modified_data["id"] = entity_id
+            logger.debug(f"_update_with_transaction: creating PreparedRequestData")
             request_data = PreparedRequestData(**modified_data)
+            logger.debug(f"_update_with_transaction: PreparedRequestData created successfully")
 
+            logger.debug(f"_update_with_transaction: processing statements for {entity_id}")
             hash_result = tx.process_statements(entity_id, request_data, validator)
+            logger.debug(f"_update_with_transaction: statements processed, hash_result.success={hash_result.success}")
 
+            logger.debug(f"_update_with_transaction: creating revision for {entity_id}")
             response = await tx.create_revision(
                 entity_id=entity_id,
                 request_data=request_data,
@@ -78,6 +90,7 @@ class EntityUpdateHandler(
                 edit_headers=edit_headers,
                 hash_result=hash_result,
             )
+            logger.debug(f"_update_with_transaction: revision created: {response.revision_id}")
 
             edit_context = EditContext(
                 user_id=edit_headers.x_user_id,
@@ -106,7 +119,9 @@ class EntityUpdateHandler(
                         f"Failed to log user activity: {activity_result.error}"
                     )
 
+            logger.debug(f"_update_with_transaction: committing transaction for {entity_id}")
             tx.commit()
+            logger.info(f"_update_with_transaction SUCCESS: entity={entity_id}, rev={response.revision_id}")
             return response
         except S3NotFoundError:
             logger.warning(f"Entity revision not found during update for {entity_id}")

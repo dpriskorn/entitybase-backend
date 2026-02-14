@@ -55,30 +55,32 @@ async def get_entity_aliases(
 async def update_entity_aliases(
     entity_id: str,
     language_code: str,
-    aliases_data: List[str],
+    aliases_data: list[str],
     req: Request,
     headers: EditHeadersType,
 ) -> TermHashesResponse:
     """Update entity aliases for language."""
-    logger.info(
-        f"📝 ALIASES UPDATE: Starting aliases update for entity={entity_id}, language={language_code}"
-    )
-    logger.debug(f"📝 ALIASES UPDATE: New aliases count: {len(aliases_data)}")
+    logger.info(f"ALIAS UPDATE START: entity={entity_id}, lang={language_code}, count={len(aliases_data)}")
+    logger.debug(f"ALIAS UPDATE: aliases={aliases_data}")
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 
     update_handler = EntityUpdateHandler(state=state)
-    await update_handler.update_aliases(
-        entity_id,
-        language_code,
-        aliases_data,
-        headers,
-        validator,
-    )
-
-    hashes = [MetadataExtractor.hash_string(alias) for alias in aliases_data]
-    return TermHashesResponse(hashes=hashes)
+    try:
+        result = await update_handler.update_aliases(
+            entity_id,
+            language_code,
+            aliases_data,
+            headers,
+            validator,
+        )
+        logger.info(f"ALIAS UPDATE SUCCESS: entity={entity_id}")
+        hashes = [MetadataExtractor.hash_string(alias) for alias in aliases_data]
+        return TermHashesResponse(hashes=hashes)
+    except Exception as e:
+        logger.error(f"ALIAS UPDATE FAILED: entity={entity_id}, error={type(e).__name__}: {e}", exc_info=True)
+        raise
 
 
 @router.post(
