@@ -33,7 +33,6 @@ def send_thank_endpoint(
     result = handler.send_thank(entity_id, revision_id, user_id)
     if not isinstance(result, ThankResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, ThankResponse)
     return result
 
 
@@ -58,7 +57,6 @@ def get_thanks_received_endpoint(
     result = handler.get_thanks_received(user_id, request)
     if not isinstance(result, ThanksListResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, ThanksListResponse)
     return result
 
 
@@ -81,7 +79,6 @@ def get_thanks_sent_endpoint(
     result = handler.get_thanks_sent(user_id, request)
     if not isinstance(result, ThanksListResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, ThanksListResponse)
     return result
 
 
@@ -100,5 +97,4 @@ def get_revision_thanks_endpoint(
     result = handler.get_revision_thanks(entity_id, revision_id)
     if not isinstance(result, ThanksListResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, ThanksListResponse)
     return result

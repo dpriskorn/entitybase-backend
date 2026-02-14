@@ -31,5 +31,4 @@ async def revert_entity(
     result = await handler.revert_entity(entity_id, request, edit_headers=headers)
     if not isinstance(result, EntityRevertResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, EntityRevertResponse)
     return result

@@ -60,7 +60,6 @@ def create_user(request: UserCreateRequest, req: Request) -> UserCreateResponse:
         result = handler.create_user(request)
         if not isinstance(result, UserCreateResponse):
             raise_validation_error("Invalid response type", status_code=500)
-        assert isinstance(result, UserCreateResponse)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -105,7 +104,6 @@ def toggle_watchlist(
         result = handler.toggle_watchlist(user_id, request)
         if not isinstance(result, WatchlistToggleResponse):
             raise_validation_error("Invalid response type", status_code=500)
-        assert isinstance(result, WatchlistToggleResponse)
         return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

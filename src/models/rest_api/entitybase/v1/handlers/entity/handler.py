@@ -98,7 +98,6 @@ class EntityHandler(Handler):
         # 2. Check idempotency
         if cached := await self._check_idempotency_new(rev_ctx):
             logger.debug(f"Returning cached revision for {ctx.entity_id}")
-            assert isinstance(cached, EntityResponse)
             return cached
         logger.debug(f"Idempotency check passed for {ctx.entity_id}")
 
@@ -356,7 +355,6 @@ class EntityHandler(Handler):
                     hash_operation.error or "Failed to hash statements", status_code=500
                 )
             hash_result = hash_operation.data
-            assert isinstance(hash_result, StatementHashResult)
             logger.info(
                 f"Entity {entity_id}: Statement hashing complete: {len(hash_result.statements)} hashes generated",
                 extra={

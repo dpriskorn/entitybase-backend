@@ -41,7 +41,6 @@ class EntityReadHandler(Handler):
 
         try:
             revision = self.state.s3_client.read_revision(entity_id, head_revision_id)
-            assert isinstance(revision, S3RevisionData)
             revision_dict = revision.revision
             state_data = revision_dict.get("state", {})
             logger.debug(f"Entity {entity_id} state_data: {state_data}")

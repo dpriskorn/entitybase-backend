@@ -39,7 +39,6 @@ class EntityCreateHandler(EntityHandler):
                 raise_validation_error(
                     "Enumeration service not available", status_code=500
                 )
-            assert self.enumeration_service is not None
             entity_id = self.enumeration_service.get_next_entity_id(request.type)
             request.id = entity_id
             # Add ID to request data
@@ -50,7 +49,6 @@ class EntityCreateHandler(EntityHandler):
                 raise_validation_error(
                     "id is required for entity creation", status_code=400
                 )
-            assert request.id is not None
             entity_id = request.id
             request_data = request.data
 

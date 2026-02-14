@@ -59,7 +59,6 @@ class ThanksHandler(Handler):
         if not created_thank:
             raise_validation_error("Failed to retrieve created thank", status_code=500)
 
-        assert created_thank is not None  # Already checked above
         return ThankResponse(
             thank_id=created_thank.id,
             from_user_id=created_thank.from_user_id,
@@ -86,7 +85,6 @@ class ThanksHandler(Handler):
             )
 
         data = result.data
-        assert isinstance(data, dict)
         return ThanksListResponse(
             user_id=user_id,
             thanks=data["thanks"],
@@ -111,7 +109,6 @@ class ThanksHandler(Handler):
             )
 
         data = result.data
-        assert isinstance(data, dict)
         return ThanksListResponse(
             user_id=user_id,
             thanks=data["thanks"],
@@ -131,7 +128,6 @@ class ThanksHandler(Handler):
                 result.error or "Failed to get thanks", status_code=500
             )
 
-        assert isinstance(result.data, list)
         return ThanksListResponse(
             user_id=0,  # Not user-specific
             thanks=result.data,

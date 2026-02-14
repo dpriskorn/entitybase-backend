@@ -42,7 +42,6 @@ class ItemCreateHandler(EntityCreateHandler):
                 raise_validation_error(
                     "Enumeration service not available", status_code=500
                 )
-            assert self.enumeration_service is not None
             entity_id = self.enumeration_service.get_next_entity_id("item")
             logger.info(f"🔍 HANDLER: Auto-assigned entity_id: {entity_id}")
         request.id = entity_id
@@ -131,7 +130,6 @@ class ItemCreateHandler(EntityCreateHandler):
             response = await self._execute_creation_transaction(tx_ctx)
 
             if self.enumeration_service:
-                assert self.enumeration_service is not None
                 self.enumeration_service.confirm_id_usage(entity_id)
 
             logger.info(f"Item creation successful for {entity_id}")

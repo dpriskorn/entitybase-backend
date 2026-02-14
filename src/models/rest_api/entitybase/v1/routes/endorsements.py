@@ -33,7 +33,6 @@ def endorse_statement_endpoint(
     result = handler.endorse_statement(statement_hash, user_id)
     if not isinstance(result, EndorsementResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, EndorsementResponse)
     return result
 
 
@@ -52,7 +51,6 @@ def withdraw_endorsement_endpoint(
     result = handler.withdraw_endorsement(statement_hash, user_id)
     if not isinstance(result, EndorsementResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, EndorsementResponse)
     return result
 
 
@@ -80,7 +78,6 @@ def get_statement_endorsements_endpoint(
     result = handler.get_statement_endorsements(statement_hash, request)
     if not isinstance(result, EndorsementListResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, EndorsementListResponse)
     return result
 
 
@@ -108,7 +105,6 @@ def get_user_endorsements_endpoint(
     result = handler.get_user_endorsements(user_id, request)
     if not isinstance(result, EndorsementListResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, EndorsementListResponse)
     return result
 
 
@@ -127,7 +123,6 @@ def get_user_endorsement_stats_endpoint(
     result = handler.get_user_endorsement_stats(user_id)
     if not isinstance(result, EndorsementStatsResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    assert isinstance(result, EndorsementStatsResponse)
     return result
 
 

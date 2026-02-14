@@ -94,7 +94,6 @@ class UpdateTransaction(EntityTransaction):
             )
 
         # Store new statements
-        assert hash_result.data is not None  # Guaranteed by success check above
         hash_data: StatementHashResult = hash_result.data
         store_result = ss.deduplicate_and_store_statements(hash_data, validator)
         if not store_result.success:
