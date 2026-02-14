@@ -27,6 +27,7 @@ class MetadataStorage(BaseS3Storage):
             MetadataType.ALIASES,
             MetadataType.FORM_REPRESENTATIONS,
             MetadataType.SENSE_GLOSSES,
+            MetadataType.LEMMAS,
         ):
             return settings.s3_terms_bucket
         elif metadata_type == MetadataType.SITELINKS:

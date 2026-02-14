@@ -49,7 +49,7 @@ class EntityCreateRequest(BaseModel):
     sitelinks: Dict[str, Any] = {}
     forms: List[Dict[str, Any]] = []
     senses: List[Dict[str, Any]] = []
-    lemmas: Dict[str, Dict[str, str]] = {}
+    lemmas: Dict[str, Any] = {}
     language: str = Field(default="", description="Lexeme language (QID)")
     lexical_category: str = Field(
         default="", description="Lexeme lexical category (QID)"
@@ -98,7 +98,7 @@ class LexemeUpdateRequest(BaseModel):
     sitelinks: Dict[str, Any] = {}
     forms: List[Dict[str, Any]] = []
     senses: List[Dict[str, Any]] = []
-    lemmas: Dict[str, Dict[str, str]] = {}
+    lemmas: Dict[str, Any] = {}
     language: str = Field(default="", description="Lexeme language (QID)")
     lexical_category: str = Field(
         default="", description="Lexeme lexical category (QID)"

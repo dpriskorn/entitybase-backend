@@ -21,11 +21,11 @@ async def test_get_qualifiers_by_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Test with non-existent hashes - should return empty dict
+        # Test with non-existent hashes - should return list of None values
         response = await client.get(f"{api_prefix}/resolve/qualifiers/123,456,789")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, dict)
+        assert isinstance(data, list)
 
 
 @pytest.mark.e2e
@@ -37,11 +37,11 @@ async def test_get_single_qualifier_by_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Test with non-existent hash - should return empty dict or null
+        # Test with non-existent hash - should return list with None
         response = await client.get(f"{api_prefix}/resolve/qualifiers/123")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, dict) or data is None
+        assert isinstance(data, list)
 
 
 @pytest.mark.e2e
@@ -53,11 +53,11 @@ async def test_get_references_by_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Test with non-existent hashes - should return empty dict
+        # Test with non-existent hashes - should return list of None values
         response = await client.get(f"{api_prefix}/resolve/references/123,456,789")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, dict)
+        assert isinstance(data, list)
 
 
 @pytest.mark.e2e
@@ -69,11 +69,11 @@ async def test_get_single_reference_by_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Test with non-existent hash - should return empty dict or null
+        # Test with non-existent hash - should return list with None
         response = await client.get(f"{api_prefix}/resolve/references/123")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, dict) or data is None
+        assert isinstance(data, list)
 
 
 @pytest.mark.e2e
@@ -85,11 +85,11 @@ async def test_get_snaks_by_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Test with non-existent hashes - should return empty dict
+        # Test with non-existent hashes - should return list of None values
         response = await client.get(f"{api_prefix}/resolve/snaks/123,456,789")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, dict)
+        assert isinstance(data, list)
 
 
 @pytest.mark.e2e
@@ -101,11 +101,11 @@ async def test_get_single_snak_by_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Test with non-existent hash - should return empty dict or null
+        # Test with non-existent hash - should return list with None
         response = await client.get(f"{api_prefix}/resolve/snaks/123")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, dict) or data is None
+        assert isinstance(data, list)
 
 
 @pytest.mark.e2e
@@ -117,11 +117,11 @@ async def test_get_glosses_by_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Test with non-existent hashes - should return empty dict
+        # Test with non-existent hashes - should return list of None values
         response = await client.get(f"{api_prefix}/resolve/glosses/123,456,789")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, dict)
+        assert isinstance(data, list)
 
 
 @pytest.mark.e2e
@@ -133,11 +133,11 @@ async def test_get_single_gloss_by_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Test with non-existent hash - should return empty dict or null
+        # Test with non-existent hash - should return list with None
         response = await client.get(f"{api_prefix}/resolve/glosses/123")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, dict) or data is None
+        assert isinstance(data, list)
 
 
 @pytest.mark.e2e
@@ -149,11 +149,11 @@ async def test_get_representations_by_hashes(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Test with non-existent hashes - should return empty dict
+        # Test with non-existent hashes - should return list of None values
         response = await client.get(f"{api_prefix}/resolve/representations/123,456,789")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, dict)
+        assert isinstance(data, list)
 
 
 @pytest.mark.e2e
@@ -165,11 +165,11 @@ async def test_get_single_representation_by_hash(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Test with non-existent hash - should return empty dict or null
+        # Test with non-existent hash - should return list with None
         response = await client.get(f"{api_prefix}/resolve/representations/123")
         assert response.status_code == 200
         data = response.json()
-        assert isinstance(data, dict) or data is None
+        assert isinstance(data, list)
 
 
 @pytest.mark.e2e
@@ -250,5 +250,5 @@ async def test_get_empty_hashes_result(api_prefix: str) -> None:
             response = await client.get(endpoint)
             assert response.status_code == 200
             data = response.json()
-            # Should return empty dict or dict with null values
-            assert isinstance(data, dict)
+            # Should return list with None values for non-existent hashes
+            assert isinstance(data, list)
