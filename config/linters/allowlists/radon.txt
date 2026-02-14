@@ -130,3 +130,12 @@ get_watches
 mark_checked
 vitess_client
 vitess_config
+generate_unique_id
+_infer_entity_type_from_id
+disconnect
+get_user_activity
+health
+load_lemmas_batch
+store_lemma
+_calculate_seconds_until_next_run
+_generate_checksum

@@ -47,7 +47,7 @@ class StatementService(Service):
     @staticmethod
     def hash_entity_statements(
         entity_data: PreparedRequestData,
-    ) -> OperationResult:
+    ) -> OperationResult[StatementHashResult]:
         """Extract and hash statements from entity data.
 
         Returns:
@@ -334,9 +334,7 @@ class StatementService(Service):
         return OperationResult(success=True)
 
     @staticmethod
-    def _process_snak_item(
-        item: Any, snak_handler: SnakHandler
-    ) -> ProcessedSnakValue:
+    def _process_snak_item(item: Any, snak_handler: SnakHandler) -> ProcessedSnakValue:
         """Process a single snak item.
 
         Returns ProcessedSnakValue with snak hash if item is a dict with "property",
@@ -424,13 +422,15 @@ class StatementService(Service):
             logger.debug(f"Reference hash: {ref_hash}")
             logger.debug("Processing reference snaks")
             processed_ref = self._process_reference_snaks(ref_data, snak_handler)
-            ref_dict: dict[str, Any] = {"snaks": processed_ref.snaks}
             snaks_order_list = processed_ref.snaks_order
-            if snaks_order_list:
-                ref_dict["snaks-order"] = snaks_order_list
             ref_data = S3ReferenceData(
                 hash=ref_hash,
-                reference=ref_dict,
+                reference={
+                    "snaks": processed_ref.snaks,
+                    "snaks-order": snaks_order_list,
+                }
+                if snaks_order_list
+                else {"snaks": processed_ref.snaks},
                 created_at=datetime.now(timezone.utc).isoformat() + "Z",
             )
             logger.debug("Storing reference to S3")
@@ -443,12 +443,15 @@ class StatementService(Service):
             ref_hash = ReferenceHasher.compute_hash(ref)
             logger.debug(f"Reference hash: {ref_hash}")
             processed_ref = self._process_reference_snaks(ref, snak_handler)
-            ref_dict: dict[str, Any] = {"snaks": processed_ref.snaks}
-            if processed_ref.snaks_order:
-                ref_dict["snaks-order"] = processed_ref.snaks_order
+            snaks_order_list = processed_ref.snaks_order
             ref_data = S3ReferenceData(
                 hash=ref_hash,
-                reference=ref_dict,
+                reference={
+                    "snaks": processed_ref.snaks,
+                    "snaks-order": snaks_order_list,
+                }
+                if snaks_order_list
+                else {"snaks": processed_ref.snaks},
                 created_at=datetime.now(timezone.utc).isoformat() + "Z",
             )
             self.state.s3_client.store_reference(ref_hash, ref_data)

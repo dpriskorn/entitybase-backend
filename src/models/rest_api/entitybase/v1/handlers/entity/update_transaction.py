@@ -94,7 +94,7 @@ class UpdateTransaction(EntityTransaction):
             )
 
         # Store new statements
-        hash_data: StatementHashResult = hash_result.data
+        hash_data = hash_result.get_data()
         store_result = ss.deduplicate_and_store_statements(hash_data, validator)
         if not store_result.success:
             from models.rest_api.utils import raise_validation_error
@@ -184,7 +184,9 @@ class UpdateTransaction(EntityTransaction):
         revision_json = json.dumps(revision_dict, sort_keys=True)
         content_hash = MetadataExtractor.hash_string(revision_json)
 
-        logger.debug(f"[UpdateTransaction.create_revision] entity_id={entity_id}, vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}")
+        logger.debug(
+            f"[UpdateTransaction.create_revision] entity_id={entity_id}, vitess_client={id(self.state.vitess_client)}, id_resolver={id(self.state.vitess_client.id_resolver)}"
+        )
         self.state.vitess_client.create_revision(
             entity_id=entity_id,
             entity_data=revision_data,

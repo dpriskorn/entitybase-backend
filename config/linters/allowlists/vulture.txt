@@ -323,3 +323,4 @@ models.workers.entity_diff_worker.diff_rdf_content
 models.workers.general_stats.general_stats_worker.GeneralStatsWorker
 models.workers.user_stats.user_stats_worker.UserStatsWorker
 models.workers.watchlist_consumer.main._should_notify
+models.data.rest_api.v1.entitybase.response.statement.StatementBatchResponse.not_found

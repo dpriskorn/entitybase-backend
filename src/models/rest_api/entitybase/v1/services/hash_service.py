@@ -41,7 +41,7 @@ class HashService(Service):
 
         # Deduplicate and store
         store_result = ss.deduplicate_and_store_statements(
-            hash_result.data,
+            hash_result.get_data(),
             validator,
         )
         if not store_result.success:
@@ -51,7 +51,7 @@ class HashService(Service):
                 f"Failed to store statements: {store_result.error}", status_code=500
             )
 
-        return StatementsHashes(root=hash_result.data.statements)
+        return StatementsHashes(root=hash_result.get_data().statements)
 
     def hash_sitelinks(
         self,
