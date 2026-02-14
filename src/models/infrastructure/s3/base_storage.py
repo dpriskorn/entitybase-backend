@@ -71,7 +71,10 @@ class BaseS3Storage(ABC, BaseModel):
     ) -> OperationResult[None]:
         """Store data in S3 with common error handling."""
         bucket_to_use = bucket if bucket is not None else self.bucket
-        logger.debug(f"Storing data to S3: bucket={bucket_to_use}, key={key}")
+        logger.debug(
+            f"[S3_STORE] Attempting store: bucket={bucket_to_use}, key={key}, "
+            f"content_type={content_type}, metadata={metadata}"
+        )
         self._ensure_connection()
 
         try:
@@ -80,6 +83,7 @@ class BaseS3Storage(ABC, BaseModel):
                 content_type = "text/plain"
             elif hasattr(data, "model_dump"):
                 body = json.dumps(data.model_dump(mode="json")).encode("utf-8")
+                logger.debug(f"[S3_STORE] Serialized via model_dump: key={key}")
             else:
                 body = (
                     json.dumps(data, default=str).encode("utf-8")
@@ -87,6 +91,8 @@ class BaseS3Storage(ABC, BaseModel):
                     else str(data).encode("utf-8")
                 )
 
+            logger.debug(f"[S3_STORE] Body size: {len(body)} bytes, key={key}")
+            
             assert self.connection_manager is not None  # For type checker
             self.connection_manager.boto_client.put_object(
                 Bucket=bucket_to_use,
@@ -96,15 +102,20 @@ class BaseS3Storage(ABC, BaseModel):
                 Metadata=metadata or {},
             )
 
-            logger.debug(f"S3 store successful: bucket={bucket_to_use}, key={key}")
+            logger.debug(f"[S3_STORE] SUCCESS: bucket={bucket_to_use}, key={key}")
             return OperationResult(success=True)
 
         except ClientError as e:
+            logger.error(
+                f"[S3_STORE] ClientError: bucket={bucket_to_use}, key={key}, "
+                f"error={type(e).__name__}: {e}"
+            )
             self._handle_client_error(e, "store", key, bucket_to_use)
             return OperationResult(success=False, error=str(e))  # Won't reach here
         except Exception as e:
             logger.error(
-                f"S3 store failed: bucket={bucket_to_use}, key={key}, error={e}",
+                f"[S3_STORE] FAILED: bucket={bucket_to_use}, key={key}, "
+                f"error={type(e).__name__}: {e}",
                 exc_info=True,
             )
             raise S3StorageError(f"Store failed: {e}")
@@ -112,6 +123,7 @@ class BaseS3Storage(ABC, BaseModel):
     def load(self, key: str, bucket: Optional[str] = None) -> LoadResponse | None:
         """Load data from S3 with common error handling."""
         bucket_to_use = bucket if bucket is not None else self.bucket
+        logger.debug(f"[S3_LOAD] Attempting load: bucket={bucket_to_use}, key={key}")
         self._ensure_connection()
 
         try:
@@ -123,19 +135,31 @@ class BaseS3Storage(ABC, BaseModel):
 
             if content_type == "text/plain":
                 data = response["Body"].read().decode("utf-8")
-                logger.debug(f"S3 load successful: bucket={bucket_to_use}, key={key}")
+                logger.debug(
+                    f"[S3_LOAD] SUCCESS (text): bucket={bucket_to_use}, key={key}, "
+                    f"data_length={len(data)}"
+                )
                 return StringLoadResponse(data=data)
             else:
                 data = json.loads(response["Body"].read().decode("utf-8"))
-                logger.debug(f"S3 load successful: bucket={bucket_to_use}, key={key}")
+                logger.debug(
+                    f"[S3_LOAD] SUCCESS (json): bucket={bucket_to_use}, key={key}, "
+                    f"data_type={type(data)}, data_keys={list(data.keys()) if isinstance(data, dict) else 'N/A'}"
+                )
                 return DictLoadResponse(data=data)
 
         except ClientError as e:
+            error_code = e.response.get("Error", {}).get("Code", "Unknown") if e.response else "Unknown"
+            logger.warning(
+                f"[S3_LOAD] ClientError: bucket={bucket_to_use}, key={key}, "
+                f"code={error_code}, error={type(e).__name__}"
+            )
             self._handle_client_error(e, "load", key, bucket_to_use)
             return None
         except Exception as e:
             logger.error(
-                f"S3 load failed: bucket={bucket_to_use}, key={key}, error={e}",
+                f"[S3_LOAD] FAILED: bucket={bucket_to_use}, key={key}, "
+                f"error={type(e).__name__}: {e}",
                 exc_info=True,
             )
             raise S3StorageError(f"Load failed: {e}")

@@ -123,15 +123,36 @@ class MyS3Client(Client):
         schema_version: str,
     ) -> None:
         """Write statement snapshot to S3."""
+        logger.debug(
+            f"[S3_CLIENT_WRITE_STMT] content_hash={content_hash}, "
+            f"schema_version={schema_version}, data_keys={list(statement_data.keys())}"
+        )
         result = self.statements.store_statement(
             content_hash, statement_data, schema_version
         )
-        if not result.success:
+        if result.success:
+            logger.debug(f"[S3_CLIENT_WRITE_STMT] SUCCESS: content_hash={content_hash}")
+        else:
+            logger.error(
+                f"[S3_CLIENT_WRITE_STMT] FAILED: content_hash={content_hash}, error={result.error}"
+            )
             raise_validation_error("S3 storage service unavailable", status_code=503)
 
     def read_statement(self, content_hash: int) -> "StatementResponse":
         """Read statement snapshot from S3."""
-        return cast(StatementResponse, self.statements.load_statement(content_hash))
+        logger.debug(f"[S3_CLIENT_READ_STMT] content_hash={content_hash}")
+        try:
+            response = cast(
+                StatementResponse, self.statements.load_statement(content_hash)
+            )
+            logger.debug(f"[S3_CLIENT_READ_STMT] SUCCESS: content_hash={content_hash}")
+            return response
+        except Exception as e:
+            logger.error(
+                f"[S3_CLIENT_READ_STMT] FAILED: content_hash={content_hash}, "
+                f"error={type(e).__name__}: {e}"
+            )
+            raise
 
     def delete_metadata(self, metadata_type: MetadataType, content_hash: int) -> None:
         """Delete metadata content from S3 when ref_count reaches 0."""

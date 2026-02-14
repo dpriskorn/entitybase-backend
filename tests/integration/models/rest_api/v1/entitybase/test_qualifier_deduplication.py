@@ -11,6 +11,7 @@ async def test_entity_creation_with_qualifiers_deduplicates(api_prefix: str) -> 
     from models.rest_api.main import app
 
     entity_data = {
+        "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
         "claims": {
             "P31": [
@@ -72,10 +73,11 @@ async def test_entity_creation_with_qualifiers_deduplicates(api_prefix: str) -> 
         assert response.status_code == 200
         entity = response.json()
 
-        # Check that the statement has qualifiers
-        p31_claims = entity["claims"]["P31"]
-        assert len(p31_claims) == 1
-        statement = p31_claims[0]
+        # Get statement hash and resolve to get statement content
+        statement_hash = entity["data"]["revision"]["hashes"]["statements"][0]
+        response = await client.get(f"{api_prefix}/resolve/statements/{statement_hash}")
+        assert response.status_code == 200
+        statement = response.json()[0]
 
         # Verify qualifiers field is an integer hash, not an object
         assert "qualifiers" in statement
@@ -90,6 +92,7 @@ async def test_qualifier_endpoint_single_fetch(api_prefix: str) -> None:
     from models.rest_api.main import app
 
     entity_data = {
+        "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
         "claims": {
             "P31": [
@@ -151,8 +154,11 @@ async def test_qualifier_endpoint_single_fetch(api_prefix: str) -> None:
         assert response.status_code == 200
         entity = response.json()
 
-        # Extract qualifier hash from response
-        statement = entity["claims"]["P31"][0]
+        # Get statement hash and resolve to get statement content
+        statement_hash = entity["data"]["revision"]["hashes"]["statements"][0]
+        response = await client.get(f"{api_prefix}/resolve/statements/{statement_hash}")
+        assert response.status_code == 200
+        statement = response.json()[0]
         qualifier_hash = statement["qualifiers"]
         assert isinstance(qualifier_hash, int)
 
@@ -174,6 +180,7 @@ async def test_qualifier_endpoint_batch_fetch(api_prefix: str) -> None:
     from models.rest_api.main import app
 
     entity_data = {
+        "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
         "claims": {
             "P31": [
@@ -307,9 +314,16 @@ async def test_qualifier_endpoint_batch_fetch(api_prefix: str) -> None:
         assert response.status_code == 200
         entity = response.json()
 
+        # Get statement hashes and resolve to get statement content
+        statement_hashes = entity["data"]["revision"]["hashes"]["statements"]
+        resolved_statements = []
+        for stmt_hash in statement_hashes:
+            response = await client.get(f"{api_prefix}/resolve/statements/{stmt_hash}")
+            assert response.status_code == 200
+            resolved_statements.append(response.json()[0])
+
         # Extract 2-3 different qualifier hashes
-        p31_claims = entity["claims"]["P31"]
-        qualifier_hashes = [claim["qualifiers"] for claim in p31_claims[:2]]
+        qualifier_hashes = [stmt["qualifiers"] for stmt in resolved_statements[:2]]
 
         # Convert to comma-separated string for batch API call
         hashes_str = ",".join(str(h) for h in qualifier_hashes)

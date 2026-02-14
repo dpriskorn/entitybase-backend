@@ -90,7 +90,10 @@ class StatementHandler(Handler):
         Efficiently fetches multiple statements in one request.
         Returns array with null for any hashes that don't exist.
         """
+        logger.debug(f"[STMT_GET_BATCH] Requested hashes: {hashes}")
+        
         if self.state.s3_client is None:
+            logger.error("[STMT_GET_BATCH] S3 client is None")
             if hashes:
                 raise_validation_error(
                     f"Statement {hashes[0]} not found", status_code=404
@@ -103,8 +106,12 @@ class StatementHandler(Handler):
         statements: list[StatementResponse | None] = []
 
         for content_hash in hashes:
+            logger.debug(f"[STMT_GET_BATCH] Processing hash: {content_hash}")
             try:
                 statement_data = self.state.s3_client.read_statement(content_hash)
+                logger.debug(
+                    f"[STMT_GET_BATCH] Successfully loaded statement: hash={content_hash}"
+                )
 
                 # Reconstruct mainsnak from hash
                 statement_dict = statement_data.statement.copy()
@@ -119,9 +126,12 @@ class StatementHandler(Handler):
                 retrieved_snak = snak_handler.get_snak(mainsnak_hash)
                 if retrieved_snak:
                     statement_dict["mainsnak"] = retrieved_snak
+                    logger.debug(
+                        f"[STMT_GET_BATCH] Reconstructed mainsnak {mainsnak_hash} for statement {content_hash}"
+                    )
                 else:
                     logger.warning(
-                        f"Snak {mainsnak_hash} not found for statement {content_hash}"
+                        f"[STMT_GET_BATCH] Snak {mainsnak_hash} not found for statement {content_hash}"
                     )
 
                 statements.append(
@@ -132,9 +142,18 @@ class StatementHandler(Handler):
                         created_at=statement_data.created_at,
                     )
                 )
-            except (ClientError, Exception):
+            except (ClientError, Exception) as e:
+                logger.warning(
+                    f"[STMT_GET_BATCH] Failed to load statement hash={content_hash}: "
+                    f"error={type(e).__name__}: {e}"
+                )
                 statements.append(None)
 
+        null_count = sum(1 for s in statements if s is None)
+        logger.debug(
+            f"[STMT_GET_BATCH] Completed: requested={len(hashes)}, "
+            f"found={len(statements) - null_count}, nulls={null_count}"
+        )
         return statements
 
     def get_entity_properties(self, entity_id: str) -> PropertyListResponse:

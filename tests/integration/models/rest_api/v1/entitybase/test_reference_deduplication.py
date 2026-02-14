@@ -11,6 +11,7 @@ async def test_entity_creation_with_references_deduplicates(api_prefix: str) -> 
     from models.rest_api.main import app
 
     entity_data = {
+        "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
         "claims": {
             "P31": [

@@ -122,7 +122,11 @@ class StatementService(Service):
             OperationResult indicating success/failure
         """
         logger.debug(
-            f"Processing statement {context.idx + 1}/{context.total_statements} with hash {context.statement_hash}"
+            f"[STMT_PROCESS] Starting: hash={context.statement_hash}, "
+            f"idx={context.idx + 1}/{context.total_statements}"
+        )
+        logger.debug(
+            f"[STMT_PROCESS] Initial statement data keys: {list(context.statement_data.keys())}"
         )
 
         # Extract and store mainsnak via SnakHandler
@@ -130,6 +134,9 @@ class StatementService(Service):
         snak_handler = SnakHandler(state=self.state)
         snak_hash = None
         if mainsnak:
+            logger.debug(
+                f"[STMT_PROCESS] Processing mainsnak for statement {context.statement_hash}"
+            )
             snak_request = SnakRequest(
                 property=mainsnak.get("property"),
                 datavalue=mainsnak.get("datavalue", {}),
@@ -138,17 +145,26 @@ class StatementService(Service):
             context.statement_data = context.statement_data.copy()
             context.statement_data["mainsnak"] = snak_hash
             logger.debug(
-                f"Stored mainsnak with hash {snak_hash} for statement {context.statement_hash}"
+                f"[STMT_PROCESS] Stored mainsnak with hash {snak_hash} for statement {context.statement_hash}"
             )
 
         # Process references before storing
+        logger.debug(
+            f"[STMT_PROCESS] Processing references for statement {context.statement_hash}"
+        )
         self._process_statement_references(context.statement_data, snak_handler)
         logger.debug(
-            f"After processing references: {context.statement_data.get('references')}"
+            f"[STMT_PROCESS] After references: keys={list(context.statement_data.keys())}"
         )
 
         # Process qualifiers before storing
+        logger.debug(
+            f"[STMT_PROCESS] Processing qualifiers for statement {context.statement_hash}"
+        )
         self._process_statement_qualifiers(context.statement_data, snak_handler)
+        logger.debug(
+            f"[STMT_PROCESS] After qualifiers: keys={list(context.statement_data.keys())}"
+        )
 
         statement_with_hash = S3Statement(
             schema=context.schema_version,
@@ -157,16 +173,23 @@ class StatementService(Service):
             created_at=datetime.now(timezone.utc).isoformat() + "Z",
         )
         s3_key = f"statements/{context.statement_hash}.json"
+        logger.debug(
+            f"[STMT_STORE] Preparing S3 write: hash={context.statement_hash}, "
+            f"s3_key={s3_key}, statement_keys={list(context.statement_data.keys())}"
+        )
 
         # Step 1: Check if S3 object exists
         # noinspection PyUnusedLocal
         s3_exists = False
         try:
+            logger.debug(f"[STMT_STORE] Checking if statement exists: hash={context.statement_hash}")
             self.state.s3_client.read_statement(context.statement_hash)
             s3_exists = True
-            logger.debug(f"Statement {context.statement_hash} already exists in S3")
-        except Exception:
+            logger.debug(f"[STMT_STORE] Statement {context.statement_hash} already exists in S3")
+        except Exception as e:
             logger.debug(
+                f"[STMT_STORE] Statement {context.statement_hash} not found in S3, will write new object: {type(e).__name__}"
+            )
                 f"Statement {context.statement_hash} not found in S3, will write new object"
             )
             s3_exists = False

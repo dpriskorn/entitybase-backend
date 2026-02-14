@@ -11,6 +11,7 @@ async def test_entity_creation_with_snaks_deduplicates(api_prefix: str) -> None:
     from models.rest_api.main import app
 
     entity_data = {
+        "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
         "claims": {
             "P31": [
@@ -72,18 +73,25 @@ async def test_entity_creation_with_snaks_deduplicates(api_prefix: str) -> None:
         assert response.status_code == 200
         entity = response.json()
 
-        # Check that statement has qualifiers
-        p31_claims = entity["claims"]["P31"]
-        assert len(p31_claims) == 1
-        statement = p31_claims[0]
+        # Get statement hash and resolve to get statement content
+        statement_hash = entity["data"]["revision"]["hashes"]["statements"][0]
+        response = await client.get(f"{api_prefix}/resolve/statements/{statement_hash}")
+        assert response.status_code == 200
+        statement = response.json()[0]
 
-        # Verify qualifiers are present
+        # Verify qualifiers field is an integer hash
         assert "qualifiers" in statement
-        assert "P580" in statement["qualifiers"]
-        assert len(statement["qualifiers"]["P580"]) == 1
+        assert isinstance(statement["qualifiers"], int)
+        qualifier_hash = statement["qualifiers"]
 
-        # The qualifiers should contain snaks with proper structure
-        qualifier_snak = statement["qualifiers"]["P580"][0]
+        # Resolve qualifier hash to get snak content
+        response = await client.get(f"{api_prefix}/resolve/qualifiers/{qualifier_hash}")
+        assert response.status_code == 200
+        qualifier_result = response.json()
+        assert isinstance(qualifier_result, list)
+        assert len(qualifier_result) == 1
+        qualifier_snak = qualifier_result[0]
+        assert qualifier_snak is not None
         assert qualifier_snak["snaktype"] == "value"
         assert qualifier_snak["property"] == "P580"
         assert "datavalue" in qualifier_snak
@@ -96,6 +104,7 @@ async def test_snak_endpoint_single_fetch(api_prefix: str) -> None:
     from models.rest_api.main import app
 
     entity_data = {
+        "type": "item",
         "labels": {"en": {"language": "en", "value": "Test Entity"}},
         "claims": {
             "P31": [
