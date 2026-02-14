@@ -2,7 +2,7 @@ from typing import Set, Any
 
 from pydantic import BaseModel
 from pyld import jsonld  # type: ignore[import-untyped]
-from rdflib import ConjunctiveGraph, Graph
+from rdflib import Dataset, Graph
 
 from models.workers.entity_diff.types import Triple
 from models.workers.entity_diff.enums import CanonicalizationMethod
@@ -27,7 +27,7 @@ class RDFCanonicalizer(BaseModel):
     def _canonicalize_urdna2015(self, rdf_content: str, format_: str) -> Set[Triple]:
         """Canonicalize using URDNA2015 algorithm."""
         # Parse RDF to JSON-LD
-        g = ConjunctiveGraph()
+        g = Dataset()
         g.parse(data=rdf_content, format=format_)
 
         # Serialize to N-Quads format for pyld compatibility
@@ -76,16 +76,17 @@ class RDFCanonicalizer(BaseModel):
     @staticmethod
     def _extract_triples_from_nquads(nquads: str) -> Set[Triple]:
         """Extract normalized triples from N-Quads/N-Triples format."""
-        g = ConjunctiveGraph()
+        g = Dataset()
         g.parse(data=nquads, format="nquads")
 
         triples = set()
-        for s, p, o in g:
-            subject = s.n3()
-            predicate = p.n3()
-            obj = o.n3()
+        for graph in g.graphs():
+            for s, p, o in graph:
+                subject = s.n3()
+                predicate = p.n3()
+                obj = o.n3()
 
-            triples.add((subject, predicate, obj))
+                triples.add((subject, predicate, obj))
 
         return triples
 
