@@ -34,5 +34,11 @@ src/models/infrastructure/vitess/repositories/entity.py:127
 src/models/rest_api/main.py:198
 src/models/rest_api/main.py:209
 src/models/rest_api/entitybase/v1/services/statement_service.py:307
+src/models/rest_api/entitybase/v1/services/statement_service.py:317
+src/models/rest_api/entitybase/v1/services/statement_service.py:319
+src/models/rest_api/entitybase/v1/services/statement_service.py:323
+src/models/rest_api/entitybase/v1/services/statement_service.py:324
+src/models/rest_api/entitybase/v1/services/statement_service.py:328
 src/models/rest_api/entitybase/v1/services/statement_service.py:331
+src/models/rest_api/entitybase/v1/services/statement_service.py:352
 src/models/rest_api/entitybase/v1/routes/resolve.py:176
