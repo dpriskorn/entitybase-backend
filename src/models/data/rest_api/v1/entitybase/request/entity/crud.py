@@ -41,7 +41,7 @@ class EntityCreateRequest(BaseModel):
         default="",
         description="Entity ID (e.g., Q42) - optional for creation, auto-assigned if not provided",
     )
-    type: str = Field(default="item", description="Entity type")
+    type: str = Field(..., description="Entity type (item, property, lexeme)")
     labels: Dict[str, Dict[str, str]] = {}
     descriptions: Dict[str, Dict[str, str]] = {}
     claims: Dict[str, Any] = {}

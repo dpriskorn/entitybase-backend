@@ -28,7 +28,7 @@ class ThanksHandler(Handler):
         )
         # Validate user exists
         if not self.state.vitess_client.user_repository.user_exists(from_user_id):
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         # Send thank via repository
         result = self.state.vitess_client.thanks_repository.send_thank(
@@ -75,7 +75,7 @@ class ThanksHandler(Handler):
         """Get thanks received by user."""
         # Validate user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         result = self.state.vitess_client.thanks_repository.get_thanks_received(
             user_id, request.hours, request.limit, request.offset
@@ -100,7 +100,7 @@ class ThanksHandler(Handler):
         """Get thanks sent by user."""
         # Validate user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         result = self.state.vitess_client.thanks_repository.get_thanks_sent(
             user_id, request.hours, request.limit, request.offset

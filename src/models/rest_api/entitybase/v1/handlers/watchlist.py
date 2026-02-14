@@ -27,7 +27,7 @@ class WatchlistHandler(Handler):
         """Add a watchlist entry."""
         # Check if user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         # Check if watchlist is enabled
         if not self.state.vitess_client.user_repository.is_watchlist_enabled(user_id):
@@ -65,7 +65,7 @@ class WatchlistHandler(Handler):
         """Remove a watchlist entry by ID."""
         # Check if user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         result = self.state.vitess_client.watchlist_repository.remove_watch_by_id(
             watch_id
@@ -80,7 +80,7 @@ class WatchlistHandler(Handler):
         """Get user's watchlist."""
         # Check if user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         # Check if watchlist is enabled
         if not self.state.vitess_client.user_repository.is_watchlist_enabled(user_id):
@@ -105,7 +105,7 @@ class WatchlistHandler(Handler):
         """Get user's recent notifications within time span."""
         # Check if user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         # Check if watchlist is enabled
         if not self.state.vitess_client.user_repository.is_watchlist_enabled(user_id):
@@ -126,9 +126,13 @@ class WatchlistHandler(Handler):
         self, user_id: int, request: MarkCheckedRequest
     ) -> MessageResponse:
         """Mark a notification as checked."""
-        self.state.vitess_client.watchlist_repository.mark_notification_checked(
-            request.notification_id, user_id
+        result = (
+            self.state.vitess_client.watchlist_repository.mark_notification_checked(
+                request.notification_id, user_id
+            )
         )
+        if not result:
+            raise_validation_error("Notification not found", status_code=404)
         return MessageResponse(message="Notification marked as checked")
 
     def get_watch_counts(self, user_id: int) -> WatchCounts:

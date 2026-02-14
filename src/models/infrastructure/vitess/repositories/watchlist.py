@@ -77,7 +77,9 @@ class WatchlistRepository(Repository):
         """
         with self._get_conn() as _:
             with self.vitess_client.cursor as cursor:
-                internal_entity_id = self.vitess_client.id_resolver.resolve_id(entity_id)
+                internal_entity_id = self.vitess_client.id_resolver.resolve_id(
+                    entity_id
+                )
                 if properties is None:
                     cursor.execute(
                         "DELETE FROM watchlist WHERE user_id = %s AND internal_entity_id = %s",
@@ -202,8 +204,8 @@ class WatchlistRepository(Repository):
 
         return notifications
 
-    def mark_notification_checked(self, notification_id: int, user_id: int) -> None:
-        """Mark a notification as checked."""
+    def mark_notification_checked(self, notification_id: int, user_id: int) -> bool:
+        """Mark a notification as checked. Returns True if notification was found and updated."""
         with self._get_conn() as _:
             with self.vitess_client.cursor as cursor:
                 cursor.execute(
@@ -214,6 +216,7 @@ class WatchlistRepository(Repository):
                     """,
                     (notification_id, user_id),
                 )
+                return cursor.rowcount > 0
 
     def _get_conn(self) -> pymysql.Connection:
         """Get database connection."""

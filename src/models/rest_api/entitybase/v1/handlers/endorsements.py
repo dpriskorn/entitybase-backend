@@ -29,7 +29,7 @@ class EndorsementHandler(Handler):
         logger.debug("Validating user exists")
         # Validate user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         # Create endorsement via repository
         result = self.state.vitess_client.endorsement_repository.create_endorsement(  # type: ignore[union-attr]
@@ -99,7 +99,7 @@ class EndorsementHandler(Handler):
         logger.debug("Validating user exists")
         # Validate user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         # Withdraw endorsement via repository
         result = self.state.vitess_client.endorsement_repository.withdraw_endorsement(
@@ -221,7 +221,7 @@ class EndorsementHandler(Handler):
         """Get endorsements given by a user."""
         # Validate user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         result = self.state.vitess_client.endorsement_repository.get_user_endorsements(
             user_id, request.limit, request.offset, request.include_removed
@@ -244,7 +244,7 @@ class EndorsementHandler(Handler):
         """Get endorsement statistics for a user."""
         # Validate user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         result = (
             self.state.vitess_client.endorsement_repository.get_user_endorsement_stats(

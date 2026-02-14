@@ -17,7 +17,7 @@ class UserPreferencesHandler(Handler):
         """Get user's notification preferences."""
         # Check if user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         result = self.state.vitess_client.user_repository.get_user_preferences(user_id)  # type: ignore[union-attr]
         if not result.success:
@@ -46,7 +46,7 @@ class UserPreferencesHandler(Handler):
         """Update user's notification preferences."""
         # Check if user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         result = self.state.vitess_client.user_repository.update_user_preferences(  # type: ignore[union-attr]
             user_id=user_id,

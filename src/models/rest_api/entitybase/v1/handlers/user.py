@@ -63,7 +63,7 @@ class UserHandler(Handler):
         """Enable or disable watchlist for user."""
         # Check if user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         result = self.state.vitess_client.user_repository.set_watchlist_enabled(
             user_id, request.enabled

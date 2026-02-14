@@ -34,7 +34,7 @@ class UserActivityHandler(Handler):
         # Validate user exists
         if not self.state.vitess_client.user_repository.user_exists(user_id):
             logger.warning(f"User {user_id} not found")
-            raise_validation_error("User not registered", status_code=400)
+            raise_validation_error("User not registered", status_code=404)
 
         logger.debug(f"Validating activity_type={activity_type}")
         # Validate activity_type
