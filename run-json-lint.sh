@@ -32,6 +32,11 @@ while IFS= read -r line; do
         continue
     fi
 
+    # Skip if uses sort_keys=True (deterministic/canonical output, not model serialization)
+    if echo "$line" | grep -q "sort_keys=True"; then
+        continue
+    fi
+
     # Parse line: get filepath:linenum
     filepath=$(echo "$line" | cut -d: -f1)
     linenum=$(echo "$line" | cut -d: -f2)
