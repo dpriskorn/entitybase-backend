@@ -313,6 +313,14 @@ class JsonDumpWorker(Worker):
             logger.error(f"Error fetching {record.entity_id}: {e}")
             return None
 
+    def _calculate_seconds_until_next_run(self) -> int:
+        """Calculate seconds until next scheduled run."""
+        return calculate_seconds_until_next_run(settings.json_dump_schedule)
+
+    def _generate_checksum(self, filepath: Path) -> str:
+        """Generate SHA256 checksum for a file."""
+        return generate_file_sha256(filepath)
+
     async def _upload_to_s3(self, filepath: Path, s3_key: str, checksum: str) -> None:
         if not self.s3_client or not self.s3_client.connection_manager:
             raise ValueError("S3 connection manager not initialized")

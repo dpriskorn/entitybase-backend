@@ -25,6 +25,18 @@ from .update_lexeme import EntityUpdateLexemeMixin
 logger = logging.getLogger(__name__)
 
 
+def _infer_entity_type_from_id(entity_id: str) -> EntityType | None:
+    """Infer entity type from ID format.
+
+    Returns:
+        EntityType.ITEM for Q\\d+
+        EntityType.PROPERTY for P\\d+
+        EntityType.LEXEME for L\\d+
+        None if invalid format
+    """
+    return infer_entity_type_from_id(entity_id)
+
+
 class EntityUpdateHandler(
     EntityUpdateTermsMixin,
     EntityUpdateSitelinksMixin,
@@ -32,6 +44,11 @@ class EntityUpdateHandler(
     EntityHandler,
 ):
     """Handler for entity update operations."""
+
+    @staticmethod
+    def _infer_entity_type_from_id(entity_id: str) -> EntityType | None:
+        """Infer entity type from ID format."""
+        return infer_entity_type_from_id(entity_id)
 
     async def _update_with_transaction(
         self,
@@ -154,4 +171,3 @@ class EntityUpdateHandler(
             raise_validation_error(
                 f"Update failed: {type(e).__name__}: {str(e)}", status_code=500
             )
-

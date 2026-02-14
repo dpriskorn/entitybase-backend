@@ -71,7 +71,7 @@ class TestJsonDumpWorker:
         ) as mock_settings:
             mock_settings.json_dump_schedule = "0 2 * * *"
             with patch(
-                "models.workers.json_dumps.json_dump_worker.datetime"
+                "models.workers.utils.datetime"
             ) as mock_datetime:
                 # Mock to return current time at 10 AM
                 now = datetime(2025, 1, 15, 10, 0, 0, tzinfo=timezone.utc)

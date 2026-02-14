@@ -2,7 +2,7 @@
 
 import logging
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, HTTPException, Request
 
 from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
@@ -38,6 +38,12 @@ from models.rest_api.utils import validate_qid
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
+
+
+def _validate_qid(value: str, field_name: str) -> str:
+    """Validate and return QID, raising HTTPException if invalid."""
+    validate_qid(value, field_name)
+    return value
 
 
 @router.post("/entities/lexemes", response_model=EntityResponse)
