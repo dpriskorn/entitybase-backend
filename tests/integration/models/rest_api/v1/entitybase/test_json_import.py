@@ -44,6 +44,15 @@ class TestJsonImportIntegration:
         return content, entities
 
     @pytest.mark.integration
+    @pytest.mark.skip(reason="Requires FastAPI app fixture which is not available")
+    def test_json_import_endpoint_exists(self) -> None:
+        """Test that /json-import endpoint exists and accepts requests."""
+        # TODO: Implement JSON import endpoint or remove this test
+        # This test just verifies the endpoint is registered
+        # The actual functionality would require database setup
+        pass
+
+    @pytest.mark.integration
     def test_jsonl_file_creation(
         self, sample_jsonl_content: Tuple[str, List[Dict[str, Any]]]
     ) -> None:
@@ -171,3 +180,16 @@ class TestJsonImportIntegration:
             assert not parsed_successfully
         else:
             assert parsed_successfully
+
+
+# Integration test for the full import flow (requires database setup)
+@pytest.mark.skip(reason="Requires database setup")
+class TestFullImportFlow:
+    """Full integration tests for import workflow."""
+
+    async def test_full_import_workflow(self) -> None:
+        """Test complete import workflow from JSONL to database."""
+        # TODO: Implement JSON import endpoint and create integration test
+        # This would test the actual endpoint with a test database
+        # Requires significant test infrastructure setup
+        pass
