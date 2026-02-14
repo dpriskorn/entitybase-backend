@@ -146,6 +146,8 @@ class TestEntityUpdateHandler:
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -323,6 +325,8 @@ class TestEntityUpdateHandler:
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -492,6 +496,8 @@ class TestEntityUpdateHandler:
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -552,6 +558,8 @@ class TestEntityUpdateHandler:
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -597,6 +605,8 @@ class TestEntityUpdateHandler:
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
@@ -658,6 +668,8 @@ class TestEntityUpdateHandler:
         mock_vitess = MagicMock()
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
 
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()

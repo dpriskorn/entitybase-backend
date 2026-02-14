@@ -100,7 +100,9 @@ class TestEntityStatementService:
         """Test recalculating removes property when count is 0."""
         mock_revision = MagicMock()
         mock_revision.properties = ["P31", "P279"]
-        mock_revision.property_counts = {"P31": 1, "P279": 3}
+        mock_property_counts = MagicMock()
+        mock_property_counts.root = {"P31": 1, "P279": 3}
+        mock_revision.property_counts = mock_property_counts
 
         result = _PropertyCountHelper.recalculate_property_counts(mock_revision, 0)
 

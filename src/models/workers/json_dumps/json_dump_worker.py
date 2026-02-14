@@ -209,9 +209,7 @@ class JsonDumpWorker(Worker):
 
         with tempfile.TemporaryDirectory() as tmpdir:
             tmppath = Path(tmpdir)
-            filename = f"{dump_type}.json"
-            if settings.json_dump_compression:
-                filename += ".gz"
+            filename = f"{dump_type}.json.gz"
             filepath = tmppath / filename
 
             await self._generate_json_dump(entities, filepath, week_start, week_end)
@@ -234,7 +232,7 @@ class JsonDumpWorker(Worker):
                 file=filename,
                 size_bytes=filepath.stat().st_size,
                 sha256=checksum,
-                compression=settings.json_dump_compression,
+                compression=True,
                 dump_type=dump_type,
             )
             with open(metadata_file, "w") as f:
@@ -294,14 +292,8 @@ class JsonDumpWorker(Worker):
             "entities": entity_data_list,
         }
 
-        opener = gzip.open if settings.json_dump_compression else open
-        mode = "wb" if settings.json_dump_compression else "w"
-
-        with opener(output_path, mode, encoding="utf-8") as f:
-            if settings.json_dump_compression:
-                f.write(json.dumps(dump_data, indent=2).encode("utf-8"))  # type: ignore[arg-type]
-            else:
-                json.dump(dump_data, f, indent=2)  # type: ignore[arg-type]
+        with gzip.open(output_path, "wb") as f:
+            f.write(json.dumps(dump_data, indent=2).encode("utf-8"))  # type: ignore[arg-type]
 
     async def _fetch_entity_data(
         self, record: EntityDumpRecord

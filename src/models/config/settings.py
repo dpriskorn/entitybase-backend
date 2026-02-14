@@ -95,7 +95,6 @@ class Settings(BaseModel):
     s3_dump_bucket: str = "wikibase-dumps"
     json_dump_batch_size: int = 1000
     json_dump_parallel_workers: int = 50
-    json_dump_compression: bool = True
     json_dump_generate_checksums: bool = True
 
     # TTL dump worker
@@ -250,10 +249,6 @@ class Settings(BaseModel):
             os.getenv(
                 "JSON_DUMP_PARALLEL_WORKERS", str(self.json_dump_parallel_workers)
             )
-        )
-        self.json_dump_compression = (
-            os.getenv("JSON_DUMP_COMPRESSION", str(self.json_dump_compression)).lower()
-            == "true"
         )
         self.json_dump_generate_checksums = (
             os.getenv(

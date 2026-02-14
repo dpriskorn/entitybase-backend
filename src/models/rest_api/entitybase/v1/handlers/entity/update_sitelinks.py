@@ -35,7 +35,6 @@ class EntityUpdateSitelinksMixin(BaseModel):
     model_config = {"extra": "allow"}
 
     state: Any
-    _update_with_transaction: Any
 
     async def update_sitelink(
         self,

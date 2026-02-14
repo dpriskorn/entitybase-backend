@@ -306,14 +306,14 @@ class TestJsonDumpWorker:
             with patch(
                 "models.workers.json_dumps.json_dump_worker.settings"
             ) as mock_settings:
-                mock_settings.json_dump_compression = False
                 mock_settings.json_dump_batch_size = 1000
                 mock_settings.s3_dump_bucket = "test-bucket"
 
                 with tempfile.TemporaryDirectory() as tmpdir:
                     from pathlib import Path
+                    import gzip
 
-                    output_path = Path(tmpdir) / "test.json"
+                    output_path = Path(tmpdir) / "test.json.gz"
 
                     week_start = datetime.now(timezone.utc)
                     week_end = datetime.now(timezone.utc)
@@ -324,7 +324,7 @@ class TestJsonDumpWorker:
 
                     import json
 
-                    with open(output_path, "r") as f:
+                    with gzip.open(output_path, "rt") as f:
                         dump_data = json.load(f)
 
                 assert "dump_metadata" in dump_data
@@ -354,12 +354,12 @@ class TestJsonDumpWorker:
             ) as mock_settings:
                 mock_settings.s3_dump_bucket = "test-bucket"
                 mock_settings.json_dump_batch_size = 1000
-                mock_settings.json_dump_compression = False
 
                 with tempfile.TemporaryDirectory() as tmpdir:
                     from pathlib import Path
+                    import gzip
 
-                    output_path = Path(tmpdir) / "test.json"
+                    output_path = Path(tmpdir) / "test.json.gz"
 
                     week_start = datetime.now(timezone.utc)
                     week_end = datetime.now(timezone.utc)
@@ -370,7 +370,7 @@ class TestJsonDumpWorker:
 
                     import json
 
-                    with open(output_path, "r") as f:
+                    with gzip.open(output_path, "rt") as f:
                         dump_data = json.load(f)
 
                     assert len(dump_data["entities"]) == 1
@@ -400,7 +400,6 @@ class TestJsonDumpWorker:
             with patch(
                 "models.workers.json_dumps.json_dump_worker.settings"
             ) as mock_settings:
-                mock_settings.json_dump_compression = True
                 mock_settings.json_dump_batch_size = 1000
                 mock_settings.s3_dump_bucket = "test-bucket"
 
@@ -421,51 +420,6 @@ class TestJsonDumpWorker:
                     with gzip.open(output_path, "rt") as f:
                         import json
 
-                        data = json.load(f)
-                        assert "dump_metadata" in data
-
-    @pytest.mark.asyncio
-    async def test_generate_json_dump_compression_disabled(self):
-        """Test dump uses plain JSON when compression is disabled."""
-        import tempfile
-
-        worker = JsonDumpWorker()
-
-        mock_s3_client = MagicMock()
-        worker.s3_client = mock_s3_client
-
-        entities = [EntityDumpRecord(entity_id="Q1", internal_id=100, revision_id=1)]
-
-        with patch.object(
-            worker, "_fetch_entity_data", return_value={"id": "Q1", "type": "item"}
-        ):
-            with patch(
-                "models.workers.json_dumps.json_dump_worker.settings"
-            ) as mock_settings:
-                mock_settings.json_dump_compression = False
-                mock_settings.json_dump_batch_size = 1000
-                mock_settings.s3_dump_bucket = "test-bucket"
-
-                with tempfile.TemporaryDirectory() as tmpdir:
-                    from pathlib import Path
-
-                    output_path = Path(tmpdir) / "test.json"
-
-                    week_start = datetime.now(timezone.utc)
-                    week_end = datetime.now(timezone.utc)
-
-                    await worker._generate_json_dump(
-                        entities, output_path, week_start, week_end
-                    )
-
-                    assert output_path.exists()
-
-                    gz_path = Path(tmpdir) / "test.json.gz"
-                    assert not gz_path.exists()
-
-                    import json
-
-                    with open(output_path, "r") as f:
                         data = json.load(f)
                         assert "dump_metadata" in data
 
@@ -492,13 +446,13 @@ class TestJsonDumpWorker:
                 "models.workers.json_dumps.json_dump_worker.settings"
             ) as mock_settings:
                 mock_settings.json_dump_batch_size = 3
-                mock_settings.json_dump_compression = False
                 mock_settings.s3_dump_bucket = "test-bucket"
 
                 with tempfile.TemporaryDirectory() as tmpdir:
                     from pathlib import Path
+                    import gzip
 
-                    output_path = Path(tmpdir) / "test.json"
+                    output_path = Path(tmpdir) / "test.json.gz"
 
                     week_start = datetime.now(timezone.utc)
                     week_end = datetime.now(timezone.utc)
@@ -509,7 +463,7 @@ class TestJsonDumpWorker:
 
                     import json
 
-                    with open(output_path, "r") as f:
+                    with gzip.open(output_path, "rt") as f:
                         data = json.load(f)
 
                     assert data["dump_metadata"]["entity_count"] == 10
@@ -541,12 +495,12 @@ class TestJsonDumpWorker:
             ) as mock_settings:
                 mock_settings.s3_dump_bucket = "test-bucket"
                 mock_settings.json_dump_batch_size = 1000
-                mock_settings.json_dump_compression = False
 
                 with tempfile.TemporaryDirectory() as tmpdir:
                     from pathlib import Path
+                    import gzip
 
-                    output_path = Path(tmpdir) / "test.json"
+                    output_path = Path(tmpdir) / "test.json.gz"
 
                     week_start = datetime.now(timezone.utc)
                     week_end = datetime.now(timezone.utc)
@@ -557,7 +511,7 @@ class TestJsonDumpWorker:
 
                     import json
 
-                    with open(output_path, "r") as f:
+                    with gzip.open(output_path, "rt") as f:
                         data = json.load(f)
 
                     assert data["dump_metadata"]["entity_count"] == 2
@@ -611,25 +565,21 @@ class TestJsonDumpWorker:
                 "models.workers.json_dumps.json_dump_worker.settings"
             ) as mock_settings:
                 mock_settings.s3_dump_bucket = "test-bucket"
-                mock_settings.json_dump_compression = False
                 mock_settings.json_dump_generate_checksums = False
                 mock_settings.json_dump_batch_size = 1000
 
-                with patch(
-                    "models.workers.json_dumps.json_dump_worker.json.dump",
-                    side_effect=mock_json_dump,
-                ):
-                    with tempfile.TemporaryDirectory() as tmpdir:
-                        from pathlib import Path
+                with tempfile.TemporaryDirectory() as tmpdir:
+                    from pathlib import Path
+                    import gzip
 
-                        output_path = Path(tmpdir) / "test.json"
+                    output_path = Path(tmpdir) / "test.json.gz"
 
-                        week_start = datetime.now(timezone.utc)
-                        week_end = datetime.now(timezone.utc)
+                    week_start = datetime.now(timezone.utc)
+                    week_end = datetime.now(timezone.utc)
 
-                        await worker._generate_and_upload_dump(
-                            entities, "2025-01-15", "full", week_start, week_end
-                        )
+                    await worker._generate_and_upload_dump(
+                        entities, "2025-01-15", "full", week_start, week_end
+                    )
 
         mock_boto.upload_file.assert_called()
         assert mock_boto.upload_file.call_count == 2
@@ -659,7 +609,6 @@ class TestJsonDumpWorker:
                 "models.workers.json_dumps.json_dump_worker.settings"
             ) as mock_settings:
                 mock_settings.s3_dump_bucket = "test-bucket"
-                mock_settings.json_dump_compression = False
                 mock_settings.json_dump_generate_checksums = True
 
                 checksum = worker._generate_checksum(filepath)
@@ -708,7 +657,6 @@ class TestJsonDumpWorker:
                 "models.workers.json_dumps.json_dump_worker.settings"
             ) as mock_settings:
                 mock_settings.s3_dump_bucket = "test-bucket"
-                mock_settings.json_dump_compression = False
                 mock_settings.json_dump_generate_checksums = False
 
                 await worker._upload_to_s3(json_path, "weekly/test.json", "")
@@ -720,7 +668,6 @@ class TestJsonDumpWorker:
                 "models.workers.json_dumps.json_dump_worker.settings"
             ) as mock_settings:
                 mock_settings.s3_dump_bucket = "test-bucket"
-                mock_settings.json_dump_compression = True
                 mock_settings.json_dump_generate_checksums = False
 
                 await worker._upload_to_s3(gz_path, "weekly/test.json.gz", "")
