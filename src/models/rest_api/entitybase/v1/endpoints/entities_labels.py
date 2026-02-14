@@ -8,7 +8,12 @@ from starlette.responses import JSONResponse
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
 from models.data.rest_api.v1.entitybase.request.entity import TermUpdateContext
-from models.data.rest_api.v1.entitybase.response import LabelResponse, EntityResponse
+from models.data.rest_api.v1.entitybase.response import (
+    LabelResponse,
+    TermHashResponse,
+    DeleteResponse,
+)
+from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
@@ -47,7 +52,7 @@ async def get_entity_label(
 
 
 @router.put(
-    "/entities/{entity_id}/labels/{language_code}", response_model=EntityResponse
+    "/entities/{entity_id}/labels/{language_code}", response_model=TermHashResponse
 )
 async def update_entity_label(
     entity_id: str,
@@ -55,7 +60,7 @@ async def update_entity_label(
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> TermHashResponse:
     """Update entity label for language."""
     logger.info(
         f"📝 LABEL UPDATE: Starting label update for entity={entity_id}, language={language_code}"
@@ -71,25 +76,26 @@ async def update_entity_label(
     )
 
     update_handler = EntityUpdateHandler(state=state)
-    result = await update_handler.update_label(
+    await update_handler.update_label(
         entity_id,
         context,
         headers,
         validator,
     )
 
-    return result
+    hash_value = MetadataExtractor.hash_string(request.value)
+    return TermHashResponse(hash=hash_value)
 
 
 @router.delete(
-    "/entities/{entity_id}/labels/{language_code}", response_model=EntityResponse
+    "/entities/{entity_id}/labels/{language_code}", response_model=DeleteResponse
 )
 async def delete_entity_label(
     entity_id: str,
     language_code: str,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> DeleteResponse:
     """Delete entity label for language."""
     logger.info(
         f"🗑️ LABEL DELETE: Starting label deletion for entity={entity_id}, language={language_code}"
@@ -99,18 +105,18 @@ async def delete_entity_label(
     validator = req.app.state.state_handler.validator
 
     update_handler = EntityUpdateHandler(state=state)
-    result = await update_handler.delete_label(
+    await update_handler.delete_label(
         entity_id,
         language_code,
         headers,
         validator,
     )
 
-    return result
+    return DeleteResponse(success=True)
 
 
 @router.post(
-    "/entities/{entity_id}/labels/{language_code}", response_model=EntityResponse
+    "/entities/{entity_id}/labels/{language_code}", response_model=TermHashResponse
 )
 async def add_entity_label(
     entity_id: str,
@@ -118,7 +124,7 @@ async def add_entity_label(
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> TermHashResponse:
     """Add a new label to entity for language (alias for PUT)."""
     logger.info(
         f"📝 LABEL ADD: Starting label add for entity={entity_id}, language={language_code}"
@@ -134,11 +140,12 @@ async def add_entity_label(
     )
 
     update_handler = EntityUpdateHandler(state=state)
-    result = await update_handler.update_label(
+    await update_handler.update_label(
         entity_id,
         context,
         headers,
         validator,
     )
 
-    return result
+    hash_value = MetadataExtractor.hash_string(request.value)
+    return TermHashResponse(hash=hash_value)

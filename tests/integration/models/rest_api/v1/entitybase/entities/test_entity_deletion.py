@@ -45,7 +45,7 @@ async def test_hard_delete_entity(api_prefix: str) -> None:
         result = delete_response.json()
         assert result["id"] == "Q99002"
         assert result["is_deleted"] is True
-        assert result["deletion_type"] == "hard"
+        assert result["del_type"] == "hard"
 
         # Verify entity no longer accessible (hard delete hides)
         get_response = await client.get(f"{api_prefix}/entities/Q99002")

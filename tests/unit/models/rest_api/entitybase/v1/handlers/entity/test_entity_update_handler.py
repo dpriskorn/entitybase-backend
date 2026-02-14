@@ -12,6 +12,7 @@ from models.data.rest_api.v1.entitybase.request.entity.context import (
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.infrastructure.s3 import S3RevisionData
+from models.data.infrastructure.s3.enums import EntityType
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 
 
@@ -233,38 +234,50 @@ class TestEntityUpdateHandler:
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
 
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
+        mock_vitess.get_head.return_value = 2
+
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
         mock_entity.entity_data.revision = {
-            "labels": {"en": {"language": "en", "value": "Old"}}
+            "labels": {"en": {"language": "en", "value": "Old"}},
+            "hashes": {"labels": {"en": 12345}, "statements": []},
         }
 
         handler = EntityUpdateHandler(state=mock_state)
 
         with patch.object(
-            handler, "_update_with_transaction", new_callable=AsyncMock
-        ) as mock_update:
-            mock_update.return_value = mock_entity
-
-            with patch.object(
-                handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            handler, "_infer_entity_type_from_id", return_value=EntityType.ITEM
+        ):
+            with patch(
+                "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
                 with patch(
-                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
-                    return_value=MagicMock(
-                        get_entity=MagicMock(return_value=mock_entity)
-                    ),
-                ):
+                    "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+                ) as mock_tx_cls:
+                    mock_tx = MagicMock()
+                    mock_tx_cls.return_value = mock_tx
+                    mock_response = MagicMock()
+                    mock_response.revision_id = 3
+                    mock_tx.create_revision_with_hashes = AsyncMock(
+                        return_value=mock_response
+                    )
+                    mock_tx.state.vitess_client.get_head.return_value = 2
+                    mock_tx.state.vitess_client.user_repository.log_user_activity.return_value = MagicMock(
+                        success=True
+                    )
+
                     result = await handler.delete_label(
                         "Q42",
                         "en",
                         EditHeaders(x_user_id=1, x_edit_summary="Delete label"),
                     )
 
-                    assert mock_update.called
-                    # Verify label was removed from revision data
-                    call_args = mock_update.call_args[0]
-                    assert "en" not in call_args[1]["labels"]
+                    assert mock_tx.create_revision_with_hashes.called
+                    call_args = mock_tx.create_revision_with_hashes.call_args
+                    assert "en" not in call_args.kwargs["existing_hashes"]["labels"]
 
     @pytest.mark.asyncio
     async def test_delete_label_idempotent(self) -> None:
@@ -274,16 +287,20 @@ class TestEntityUpdateHandler:
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
 
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
+
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
         mock_entity.entity_data.revision = {
-            "labels": {"de": {"language": "de", "value": "Test"}}
+            "labels": {"de": {"language": "de", "value": "Test"}},
+            "hashes": {"labels": {"de": 12345}},
         }
 
         handler = EntityUpdateHandler(state=mock_state)
 
         with patch.object(
-            handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            handler, "_infer_entity_type_from_id", return_value=EntityType.ITEM
         ):
             with patch(
                 "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
@@ -383,39 +400,53 @@ class TestEntityUpdateHandler:
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
 
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
+        mock_vitess.get_head.return_value = 2
+
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
         mock_entity.entity_data.revision = {
             "labels": {},
             "descriptions": {"en": {"language": "en", "value": "Old desc"}},
+            "hashes": {"descriptions": {"en": 67890}, "statements": []},
         }
 
         handler = EntityUpdateHandler(state=mock_state)
 
         with patch.object(
-            handler, "_update_with_transaction", new_callable=AsyncMock
-        ) as mock_update:
-            mock_update.return_value = mock_entity
-
-            with patch.object(
-                handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            handler, "_infer_entity_type_from_id", return_value=EntityType.ITEM
+        ):
+            with patch(
+                "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
                 with patch(
-                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
-                    return_value=MagicMock(
-                        get_entity=MagicMock(return_value=mock_entity)
-                    ),
-                ):
+                    "models.rest_api.entitybase.v1.handlers.entity.update_transaction.UpdateTransaction"
+                ) as mock_tx_cls:
+                    mock_tx = MagicMock()
+                    mock_tx_cls.return_value = mock_tx
+                    mock_response = MagicMock()
+                    mock_response.revision_id = 3
+                    mock_tx.create_revision_with_hashes = AsyncMock(
+                        return_value=mock_response
+                    )
+                    mock_tx.state.vitess_client.get_head.return_value = 2
+                    mock_tx.state.vitess_client.user_repository.log_user_activity.return_value = MagicMock(
+                        success=True
+                    )
+
                     result = await handler.delete_description(
                         "Q42",
                         "en",
                         EditHeaders(x_user_id=1, x_edit_summary="Delete description"),
                     )
 
-                    assert mock_update.called
-                    # Verify description was removed
-                    call_args = mock_update.call_args[0]
-                    assert "en" not in call_args[1]["descriptions"]
+                    assert mock_tx.create_revision_with_hashes.called
+                    call_args = mock_tx.create_revision_with_hashes.call_args
+                    assert (
+                        "en" not in call_args.kwargs["existing_hashes"]["descriptions"]
+                    )
 
     @pytest.mark.asyncio
     async def test_delete_description_idempotent(self) -> None:
@@ -425,14 +456,21 @@ class TestEntityUpdateHandler:
         mock_state.vitess_client = mock_vitess
         mock_state.s3_client = MagicMock()
 
+        mock_vitess.is_entity_deleted.return_value = False
+        mock_vitess.is_entity_locked.return_value = False
+
         mock_entity = MagicMock()
         mock_entity.entity_data = MagicMock()
-        mock_entity.entity_data.revision = {"labels": {}, "descriptions": {}}
+        mock_entity.entity_data.revision = {
+            "labels": {},
+            "descriptions": {},
+            "hashes": {"descriptions": {}},
+        }
 
         handler = EntityUpdateHandler(state=mock_state)
 
         with patch.object(
-            handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            handler, "_infer_entity_type_from_id", return_value=EntityType.ITEM
         ):
             with patch(
                 "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
@@ -669,7 +707,7 @@ class TestEntityUpdateHandler:
         handler = EntityUpdateHandler(state=mock_state)
 
         with patch.object(
-            handler, "_infer_entity_type_from_id", return_value=MagicMock()
+            handler, "_infer_entity_type_from_id", return_value=EntityType.ITEM
         ):
             with patch(
                 "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",

@@ -9,8 +9,10 @@ from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
 from models.data.rest_api.v1.entitybase.request.entity import TermUpdateContext
 from models.data.rest_api.v1.entitybase.response import (
     DescriptionResponse,
-    EntityResponse,
+    TermHashResponse,
+    DeleteResponse,
 )
+from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
@@ -52,7 +54,8 @@ async def get_entity_description(
 
 
 @router.put(
-    "/entities/{entity_id}/descriptions/{language_code}", response_model=EntityResponse
+    "/entities/{entity_id}/descriptions/{language_code}",
+    response_model=TermHashResponse,
 )
 async def update_entity_description(
     entity_id: str,
@@ -60,7 +63,7 @@ async def update_entity_description(
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> TermHashResponse:
     """Update entity description for language."""
     logger.info(
         f"📝 DESCRIPTION UPDATE: Starting description update for entity={entity_id}, language={language_code}"
@@ -76,25 +79,26 @@ async def update_entity_description(
     )
 
     update_handler = EntityUpdateHandler(state=state)
-    result = await update_handler.update_description(
+    await update_handler.update_description(
         entity_id,
         context,
         headers,
         validator,
     )
 
-    return result
+    hash_value = MetadataExtractor.hash_string(request.value)
+    return TermHashResponse(hash=hash_value)
 
 
 @router.delete(
-    "/entities/{entity_id}/descriptions/{language_code}", response_model=EntityResponse
+    "/entities/{entity_id}/descriptions/{language_code}", response_model=DeleteResponse
 )
 async def delete_entity_description(
     entity_id: str,
     language_code: str,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> DeleteResponse:
     """Delete entity description for language."""
     logger.info(
         f"🗑️ DESCRIPTION DELETE: Starting description deletion for entity={entity_id}, language={language_code}"
@@ -104,18 +108,19 @@ async def delete_entity_description(
     validator = req.app.state.state_handler.validator
 
     update_handler = EntityUpdateHandler(state=state)
-    result = await update_handler.delete_description(
+    await update_handler.delete_description(
         entity_id,
         language_code,
         headers,
         validator,
     )
 
-    return result
+    return DeleteResponse(success=True)
 
 
 @router.post(
-    "/entities/{entity_id}/descriptions/{language_code}", response_model=EntityResponse
+    "/entities/{entity_id}/descriptions/{language_code}",
+    response_model=TermHashResponse,
 )
 async def add_entity_description(
     entity_id: str,
@@ -123,7 +128,7 @@ async def add_entity_description(
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> TermHashResponse:
     """Add a new description to entity for language (alias for PUT)."""
     logger.info(
         f"📝 DESCRIPTION ADD: Starting description add for entity={entity_id}, language={language_code}"
@@ -139,11 +144,12 @@ async def add_entity_description(
     )
 
     update_handler = EntityUpdateHandler(state=state)
-    result = await update_handler.update_description(
+    await update_handler.update_description(
         entity_id,
         context,
         headers,
         validator,
     )
 
-    return result
+    hash_value = MetadataExtractor.hash_string(request.value)
+    return TermHashResponse(hash=hash_value)

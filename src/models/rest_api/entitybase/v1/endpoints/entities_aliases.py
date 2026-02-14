@@ -7,7 +7,12 @@ from fastapi import APIRouter, HTTPException, Request
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
-from models.data.rest_api.v1.entitybase.response import EntityResponse
+from models.data.rest_api.v1.entitybase.response import (
+    TermHashResponse,
+    TermHashesResponse,
+    DeleteResponse,
+)
+from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
@@ -45,7 +50,7 @@ async def get_entity_aliases(
 
 
 @router.put(
-    "/entities/{entity_id}/aliases/{language_code}", response_model=EntityResponse
+    "/entities/{entity_id}/aliases/{language_code}", response_model=TermHashesResponse
 )
 async def update_entity_aliases(
     entity_id: str,
@@ -53,7 +58,7 @@ async def update_entity_aliases(
     aliases_data: List[str],
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> TermHashesResponse:
     """Update entity aliases for language."""
     logger.info(
         f"📝 ALIASES UPDATE: Starting aliases update for entity={entity_id}, language={language_code}"
@@ -64,7 +69,7 @@ async def update_entity_aliases(
     validator = req.app.state.state_handler.validator
 
     update_handler = EntityUpdateHandler(state=state)
-    result = await update_handler.update_aliases(
+    await update_handler.update_aliases(
         entity_id,
         language_code,
         aliases_data,
@@ -72,11 +77,12 @@ async def update_entity_aliases(
         validator,
     )
 
-    return result
+    hashes = [MetadataExtractor.hash_string(alias) for alias in aliases_data]
+    return TermHashesResponse(hashes=hashes)
 
 
 @router.post(
-    "/entities/{entity_id}/aliases/{language_code}", response_model=EntityResponse
+    "/entities/{entity_id}/aliases/{language_code}", response_model=TermHashResponse
 )
 async def add_entity_alias(
     entity_id: str,
@@ -84,7 +90,7 @@ async def add_entity_alias(
     request: TermUpdateRequest,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> TermHashResponse:
     """Add a single alias to entity for language."""
     logger.info(
         f"📝 ALIAS ADD: Starting alias add for entity={entity_id}, language={language_code}"
@@ -100,7 +106,7 @@ async def add_entity_alias(
     validator = req.app.state.state_handler.validator
 
     update_handler = EntityUpdateHandler(state=state)
-    result = await update_handler.add_alias(
+    await update_handler.add_alias(
         entity_id,
         language_code,
         request.value,
@@ -108,18 +114,19 @@ async def add_entity_alias(
         validator,
     )
 
-    return result
+    hash_value = MetadataExtractor.hash_string(request.value)
+    return TermHashResponse(hash=hash_value)
 
 
 @router.delete(
-    "/entities/{entity_id}/aliases/{language_code}", response_model=EntityResponse
+    "/entities/{entity_id}/aliases/{language_code}", response_model=DeleteResponse
 )
 async def delete_entity_aliases(
     entity_id: str,
     language_code: str,
     req: Request,
     headers: EditHeadersType,
-) -> EntityResponse:
+) -> DeleteResponse:
     """Delete all aliases for entity language."""
     logger.info(
         f"🗑️ ALIASES DELETE: Starting aliases deletion for entity={entity_id}, language={language_code}"
@@ -129,11 +136,11 @@ async def delete_entity_aliases(
     validator = req.app.state.state_handler.validator
 
     update_handler = EntityUpdateHandler(state=state)
-    result = await update_handler.delete_aliases(
+    await update_handler.delete_aliases(
         entity_id,
         language_code,
         headers,
         validator,
     )
 
-    return result
+    return DeleteResponse(success=True)

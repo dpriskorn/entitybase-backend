@@ -233,3 +233,21 @@ class BatchSitelinksResponse(BaseModel):
         default_factory=dict,
         description="Dictionary mapping hash strings to sitelink titles",
     )
+
+
+class TermHashResponse(BaseModel):
+    """Response for single term (label/description/alias/lemma) operations."""
+
+    hash: int = Field(description="Hash of the stored term.")
+
+
+class TermHashesResponse(BaseModel):
+    """Response for multi-term operations (e.g., aliases PUT)."""
+
+    hashes: list[int] = Field(description="Hashes of the stored terms.")
+
+
+class DeleteResponse(BaseModel):
+    """Response for DELETE operations."""
+
+    success: bool = Field(description="Whether the operation succeeded.")

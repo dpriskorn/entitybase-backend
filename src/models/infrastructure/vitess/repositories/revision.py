@@ -52,7 +52,7 @@ class RevisionRepository(Repository):
                 f"insert_revision: calling create_with_cas for {entity_id}, revision {revision_id}, expected {expected_revision_id}"
             )
             self.create_with_cas(
-                entity_id, revision_id, entity_data, expected_revision_id, content_hash
+                entity_id, revision_id, entity_data, content_hash, expected_revision_id
             )
 
     @validate_call
@@ -149,7 +149,9 @@ class RevisionRepository(Repository):
                 (internal_id,),
             )
             current_head = cursor.fetchone()
-            logger.debug(f"Current head_revision_id for entity {entity_id}: {current_head}")
+            logger.debug(
+                f"Current head_revision_id for entity {entity_id}: {current_head}"
+            )
 
             cursor.execute(
                 """UPDATE entity_head
