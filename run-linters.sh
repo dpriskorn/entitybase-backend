@@ -22,6 +22,7 @@ set -e
 #./run-description-lint.sh
 ./run-backslash-lint.sh
 ./run-json-lint.sh
+./run-status-code-lint.sh
 
 # == external linters ==
 ./run-ruff.sh
