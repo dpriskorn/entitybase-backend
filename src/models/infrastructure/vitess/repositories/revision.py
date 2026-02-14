@@ -166,8 +166,8 @@ class RevisionRepository(Repository):
     @validate_call
     def get_content_hash(
         self, internal_entity_id: int = Field(gt=0), revision_id: int = Field(..., gt=0)
-    ) -> int | None:
-        """Get the content_hash for a specific revision."""
+    ) -> int:
+        """Get the content_hash for a specific revision. Returns 0 if not found."""
         with self.vitess_client.cursor as cursor:
             cursor.execute(
                 "SELECT content_hash FROM entity_revisions WHERE internal_id = %s AND revision_id = %s",
@@ -176,7 +176,7 @@ class RevisionRepository(Repository):
             row = cursor.fetchone()
             if row and row[0] is not None:
                 return cast(int, row[0])
-            return None
+            return 0
 
     @validate_call
     def create_with_cas(

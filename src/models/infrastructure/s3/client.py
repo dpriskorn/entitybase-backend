@@ -102,7 +102,7 @@ class MyS3Client(Client):
 
         revision_repo = RevisionRepository(vitess_client=self.vitess_client)
         content_hash = revision_repo.get_content_hash(internal_id, revision_id)
-        if content_hash is None:
+        if content_hash == 0:
             raise_validation_error("Revision not found", status_code=404)
 
         return cast(S3RevisionData, self.revisions.load_revision(content_hash))

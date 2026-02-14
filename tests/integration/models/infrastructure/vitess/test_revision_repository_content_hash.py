@@ -126,7 +126,7 @@ class TestRevisionRepositoryContentHash:
         assert result == content_hash
 
     def test_get_content_hash_no_revision(self, db_conn):
-        """Test that get_content_hash() returns None for non-existent revision."""
+        """Test that get_content_hash() returns 0 for non-existent revision."""
         from models.infrastructure.vitess.repositories.revision import (
             RevisionRepository,
         )
@@ -138,7 +138,7 @@ class TestRevisionRepositoryContentHash:
 
         result = repo.get_content_hash(999, 999)
 
-        assert result is None
+        assert result == 0
 
     def test_create_with_cas_stores_content_hash(self, db_conn):
         """Test that create_with_cas() stores content_hash in database."""

@@ -119,6 +119,21 @@ def insert_backlink_statistics(self, conn, date, total_backlinks, ...):
         )
 ```
 
+#### Integer Sentinel Values
+**Use `0` instead of `None` for integer return types when `None` indicates "not found"**:
+```python
+# Good: Use 0 as sentinel value for "not found"
+def get_content_hash(...) -> int:  # Returns 0 if not found
+    ...
+    if row and row[0] is not None:
+        return cast(int, row[0])
+    return 0
+
+# Caller checks for 0
+if content_hash == 0:
+    raise_validation_error("Revision not found", status_code=404)
+```
+
 #### Exception Handling in Tests
 ```python
 # raise_validation_error always raises HTTPException
