@@ -318,6 +318,9 @@ class Settings(BaseModel):
             database=self.vitess_database,
             user=self.vitess_user,
             password=self.vitess_password,
+            pool_size=self.vitess_pool_size,
+            max_overflow=self.vitess_max_overflow,
+            pool_timeout=self.vitess_pool_timeout,
         )
 
     @property
