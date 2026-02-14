@@ -122,6 +122,7 @@ class Settings(BaseModel):
 
     def _load_s3_config(self) -> None:
         """Load S3 configuration from environment variables."""
+        logger.debug("Loading S3 configuration from environment variables")
         self.s3_endpoint = os.getenv("S3_ENDPOINT", self.s3_endpoint)
         self.s3_access_key = os.getenv("S3_ACCESS_KEY", self.s3_access_key)
         self.s3_secret_key = os.getenv("S3_SECRET_KEY", self.s3_secret_key)
@@ -219,6 +220,7 @@ class Settings(BaseModel):
 
     def _load_workers_config(self) -> None:
         """Load workers configuration from environment variables."""
+        logger.debug("Loading workers configuration from environment variables")
         self.backlink_stats_enabled = (
             os.getenv(
                 "BACKLINK_STATS_ENABLED", str(self.backlink_stats_enabled)
@@ -278,6 +280,10 @@ class Settings(BaseModel):
                 "TTL_DUMP_GENERATE_CHECKSUMS", str(self.ttl_dump_generate_checksums)
             ).lower()
             == "true"
+        )
+        logger.debug(
+            f"Workers config loaded: backlink_stats_enabled={self.backlink_stats_enabled}, "
+            f"user_stats_enabled={self.user_stats_enabled}, json_dump_enabled={self.json_dump_enabled}"
         )
 
     def get_log_level(self) -> int:
