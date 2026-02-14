@@ -63,3 +63,17 @@ class SenseGlossesResponse(BaseModel):
 class SenseGlossResponse(BaseModel):
     model_config = ConfigDict(extra="forbid")
     value: str
+
+
+class LexemeLanguageResponse(BaseModel):
+    """Response model for lexeme language endpoint."""
+
+    model_config = ConfigDict(extra="forbid")
+    language: str
+
+
+class LexemeLexicalCategoryResponse(BaseModel):
+    """Response model for lexeme lexical category endpoint."""
+
+    model_config = ConfigDict(extra="forbid")
+    lexical_category: str

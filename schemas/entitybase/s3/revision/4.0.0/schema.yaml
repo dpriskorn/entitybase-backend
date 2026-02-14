@@ -111,3 +111,11 @@ properties:
         pattern: ^[A-Z]\d+$
       type:
         type: string
+      language:
+        type: string
+        pattern: ^Q\d+$
+        description: Lexeme language as QID (e.g., Q1860 for English)
+      lexical_category:
+        type: string
+        pattern: ^Q\d+$
+        description: Lexeme lexical category as QID (e.g., Q1084 for noun)

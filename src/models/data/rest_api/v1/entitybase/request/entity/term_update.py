@@ -33,3 +33,21 @@ class DescriptionUpdateRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     description: str = Field(..., min_length=1, description="Description text value")
+
+
+class LexemeLanguageRequest(BaseModel):
+    """Request body for updating a lexeme's language."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    language: str = Field(..., description="Lexeme language as QID (e.g., 'Q1860')")
+
+
+class LexemeLexicalCategoryRequest(BaseModel):
+    """Request body for updating a lexeme's lexical category."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    lexical_category: str = Field(
+        ..., description="Lexeme lexical category as QID (e.g., 'Q1084')"
+    )

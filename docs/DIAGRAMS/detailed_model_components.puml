@@ -58,6 +58,8 @@ package "Models" as Models #LightCyan {
     "Labels" as LabelsResponse
     "Lemma" as LemmaResponse
     "Lemmas" as LemmasResponse
+    "LexemeLanguage" as LexemeLanguageResponse
+    "LexemeLexicalCategory" as LexemeLexicalCategoryResponse
     "Message" as MessageResponse
     "MetadataContent" as MetadataContent
     "MetadataData" as MetadataData

@@ -2,6 +2,87 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-02-14] Lexeme Language and Lexical Category Support
+
+### Summary
+
+Added full support for `language` and `lexical_category` fields in lexeme entities, enabling atomic create/update operations (CU-logic). Each lexeme must have exactly one language and one lexical category, both as QIDs.
+
+### Motivation
+
+- **Feature Parity**: Match Wikidata's lexeme model where language and lexical category are mandatory
+- **Atomic Updates**: Enable changing language and lexical category atomically via dedicated PUT endpoints
+- **Data Integrity**: Enforce QID validation for both fields at creation and update time
+
+### Changes
+
+#### Request/Response Models
+
+**Files Updated:**
+
+1. `src/models/data/rest_api/v1/entitybase/request/entity/crud.py`
+   - `EntityCreateRequest`: Added `language` and `lexical_category` fields
+   - `LexemeUpdateRequest`: Added `language` and `lexical_category` fields
+   - `PreparedRequestData`: Added `language` and `lexical_category` fields
+
+2. `src/models/data/rest_api/v1/entitybase/request/entity/term_update.py`
+   - Added `LexemeLanguageRequest` model for language updates
+   - Added `LexemeLexicalCategoryRequest` model for lexical category updates
+
+3. `src/models/data/rest_api/v1/entitybase/response/lexemes.py`
+   - Added `LexemeLanguageResponse` model
+   - Added `LexemeLexicalCategoryResponse` model
+
+#### API Endpoints
+
+**File:** `src/models/rest_api/entitybase/v1/endpoints/lexemes.py`
+
+- `GET /entities/lexemes/{lexeme_id}/language` - Get lexeme language
+- `PUT /entities/lexemes/{lexeme_id}/language` - Update lexeme language (with QID validation)
+- `GET /entities/lexemes/{lexeme_id}/lexicalcategory` - Get lexeme lexical category
+- `PUT /entities/lexemes/{lexeme_id}/lexicalcategory` - Update lexeme lexical category (with QID validation)
+
+#### Handlers and Transactions
+
+**Files Updated:**
+
+1. `src/models/rest_api/entitybase/v1/handlers/entity/handler.py`
+   - Renamed `_build_revision_data_new` to `_build_revision_data`
+   - Added `language` and `lexical_category` to `RevisionData` creation
+
+2. `src/models/rest_api/entitybase/v1/handlers/entity/creation_transaction.py`
+   - Passes `language` and `lexical_category` to `RevisionData`
+
+3. `src/models/rest_api/entitybase/v1/handlers/entity/update_transaction.py`
+   - Passes `language` and `lexical_category` to `RevisionData` in both `create_revision` and `create_revision_with_hashes`
+
+4. `src/models/rest_api/entitybase/v1/handlers/entity/lexeme/create.py`
+   - Added QID validation for `language` and `lexical_category` at lexeme creation
+
+#### Data Model
+
+**File:** `src/models/infrastructure/s3/revision/revision_data.py`
+
+- Added `language: str` field (default: "") - Lexeme language as QID (e.g., Q1860 for English)
+- Added `lexical_category: str` field (default: "") - Lexeme lexical category as QID (e.g., Q1084 for noun)
+
+#### Schema
+
+**File:** `schemas/entitybase/s3/revision/4.0.0/schema.yaml`
+- Updated to include `language` and `lexical_category` fields
+
+### Validation
+
+- QID format validation: Must match pattern `Q\d+` (e.g., Q1860, Q1084)
+- Both fields are mandatory for lexeme creation
+- Empty values rejected with 400 error
+
+### Test Coverage
+
+- **Unit tests**: 44 tests passing in `test_lexemes.py`
+- **Integration tests**: `test_lexeme_import.py` - Import and retrieval tests
+- **E2E tests**: `test_lexemes_e2e.py` - Full workflow tests including validation
+
 ## [2026-02-13] FastAPI response_model_by_alias Configuration
 
 ### Summary

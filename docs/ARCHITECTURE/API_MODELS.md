@@ -473,6 +473,22 @@ Response model for generated entity ID.
 
 - `lemmas` (Dict[str, RepresentationData]): No description
 
+### LexemeLanguageResponse
+
+Response model for lexeme language endpoint.
+
+**Fields**:
+
+- `language` (str): No description
+
+### LexemeLexicalCategoryResponse
+
+Response model for lexeme lexical category endpoint.
+
+**Fields**:
+
+- `lexical_category` (str): No description
+
 ### RepresentationData
 
 **Fields**:

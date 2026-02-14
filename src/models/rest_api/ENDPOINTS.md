@@ -30,11 +30,15 @@
 | ✅ | GET | `/entities/lexemes/{lexeme_id}/forms` | Get all forms for a lexeme, sorted by numeric suffix. |
 | ✅ | GET | `/entities/lexemes/{lexeme_id}/forms` | List all forms for a lexeme, sorted by numeric suffix. |
 | ✅ | POST | `/entities/lexemes/{lexeme_id}/forms` | Create a new form for a lexeme. |
+| ✅ | GET | `/entities/lexemes/{lexeme_id}/language` | Get the language of a lexeme. |
+| ✅ | PUT | `/entities/lexemes/{lexeme_id}/language` | Update the language of a lexeme. |
 | ✅ | GET | `/entities/lexemes/{lexeme_id}/lemmas` | Get all lemmas for a lexeme. |
 | ✅ | GET | `/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Get lemma for a lexeme in specific language. |
 | ✅ | POST | `/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Add a new lemma for language. |
 | ✅ | PUT | `/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Update lemma for language. |
 | ✅ | DELETE | `/entities/lexemes/{lexeme_id}/lemmas/{langcode}` | Delete lemma for language. |
+| ✅ | GET | `/entities/lexemes/{lexeme_id}/lexicalcategory` | Get the lexical category of a lexeme. |
+| ✅ | PUT | `/entities/lexemes/{lexeme_id}/lexicalcategory` | Update the lexical category of a lexeme. |
 | ✅ | GET | `/entities/lexemes/{lexeme_id}/senses` | Get all senses for a lexeme, sorted by numeric suffix. |
 | ✅ | GET | `/entities/lexemes/{lexeme_id}/senses` | List all senses for a lexeme, sorted by numeric suffix. |
 | ✅ | POST | `/entities/lexemes/{lexeme_id}/senses` | Create a new sense for a lexeme. |
@@ -117,6 +121,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 112 |
+| Implemented | 116 |
 | Not Implemented | 0 |
-| Total | 112 |
+| Total | 116 |

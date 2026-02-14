@@ -22,6 +22,8 @@ from .entity import (
 from .entity.term_update import (
     DescriptionUpdateRequest,
     LabelUpdateRequest,
+    LexemeLanguageRequest,
+    LexemeLexicalCategoryRequest,
     TermUpdateRequest,
 )
 from .entity.add_property import AddPropertyRequest
@@ -78,6 +80,8 @@ __all__ = [
     "FormCreateRequest",
     "LabelPatchRequest",
     "LabelUpdateRequest",
+    "LexemeLanguageRequest",
+    "LexemeLexicalCategoryRequest",
     "LexemeUpdateRequest",
     "MarkCheckedRequest",
     "MostUsedStatementsRequest",

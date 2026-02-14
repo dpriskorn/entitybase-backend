@@ -102,6 +102,11 @@ class CreationTransaction(EntityTransaction):
             ),
             state=EntityState(),
             schema_version=settings.s3_schema_revision_version,
+            lemmas=request_data.lemmas,
+            forms=request_data.forms,
+            senses=request_data.senses,
+            language=request_data.language,
+            lexical_category=request_data.lexical_category,
         )
 
         revision_dict = revision_data.model_dump(mode="json")

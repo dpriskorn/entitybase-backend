@@ -44,12 +44,16 @@ class EntityCreateRequest(BaseModel):
     type: str = Field(default="item", description="Entity type")
     labels: Dict[str, Dict[str, str]] = {}
     descriptions: Dict[str, Dict[str, str]] = {}
-    claims: Dict[str, Any] = {}  # this is Wikibase speak for statements
+    claims: Dict[str, Any] = {}
     aliases: Dict[str, Any] = {}
     sitelinks: Dict[str, Any] = {}
     forms: List[Dict[str, Any]] = []
     senses: List[Dict[str, Any]] = []
     lemmas: Dict[str, Dict[str, str]] = {}
+    language: str = Field(default="", description="Lexeme language (QID)")
+    lexical_category: str = Field(
+        default="", description="Lexeme lexical category (QID)"
+    )
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     edit_type: EditType = Field(
         default=EditType.UNSPECIFIED,
@@ -95,6 +99,10 @@ class LexemeUpdateRequest(BaseModel):
     forms: List[Dict[str, Any]] = []
     senses: List[Dict[str, Any]] = []
     lemmas: Dict[str, Dict[str, str]] = {}
+    language: str = Field(default="", description="Lexeme language (QID)")
+    lexical_category: str = Field(
+        default="", description="Lexeme lexical category (QID)"
+    )
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     state: EntityState = Field(default=EntityState(), description="Entity state")
     edit_type: EditType = Field(
@@ -126,7 +134,9 @@ class LexemeUpdateRequest(BaseModel):
 class EntityDeleteRequest(BaseModel):
     """Request to delete an entity."""
 
-    delete_type: DeleteType = Field(default=DeleteType.SOFT, description="Type of deletion")
+    delete_type: DeleteType = Field(
+        default=DeleteType.SOFT, description="Type of deletion"
+    )
 
 
 class EntityInsertDataRequest(BaseModel):
@@ -152,6 +162,10 @@ class PreparedRequestData(BaseModel):
     forms: List[Dict[str, Any]] = Field(default_factory=list)
     senses: List[Dict[str, Any]] = Field(default_factory=list)
     lemmas: Dict[str, Any] = Field(default_factory=dict)
+    language: str = Field(default="", description="Lexeme language (QID)")
+    lexical_category: str = Field(
+        default="", description="Lexeme lexical category (QID)"
+    )
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     edit_type: EditType = Field(
         default=EditType.UNSPECIFIED,

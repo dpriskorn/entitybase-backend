@@ -39,13 +39,17 @@ class RevisionData(BaseModel):
     properties: list[str] = Field(default_factory=list)
     lemmas: dict[str, Any] = Field(
         default_factory=dict,
-        description="Lexeme lemmas with language keys. E.g. {'en': {'language': 'en', 'value': 'test'}}"
+        description="Lexeme lemmas with language keys. E.g. {'en': {'language': 'en', 'value': 'test'}}",
     )
     forms: list[dict[str, Any]] = Field(
-        default_factory=list,
-        description="Lexeme forms data."
+        default_factory=list, description="Lexeme forms data."
     )
     senses: list[dict[str, Any]] = Field(
-        default_factory=list,
-        description="Lexeme senses data."
+        default_factory=list, description="Lexeme senses data."
+    )
+    language: str = Field(
+        default="", description="Lexeme language as QID. E.g. Q1860 for English"
+    )
+    lexical_category: str = Field(
+        default="", description="Lexeme lexical category as QID. E.g. Q1084 for noun"
     )

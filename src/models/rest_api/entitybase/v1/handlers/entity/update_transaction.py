@@ -169,6 +169,11 @@ class UpdateTransaction(EntityTransaction):
             ),
             state=EntityState(),
             schema_version=settings.s3_schema_revision_version,
+            lemmas=request_data.lemmas,
+            forms=request_data.forms,
+            senses=request_data.senses,
+            language=request_data.language,
+            lexical_category=request_data.lexical_category,
         )
 
         revision_dict = revision_data.model_dump(mode="json")
@@ -274,6 +279,8 @@ class UpdateTransaction(EntityTransaction):
             lemmas=existing_revision.get("lemmas", {}),
             forms=existing_revision.get("forms", []),
             senses=existing_revision.get("senses", []),
+            language=existing_revision.get("language", ""),
+            lexical_category=existing_revision.get("lexical_category", ""),
         )
 
         logger.debug("Converting revision to dict and computing hash")

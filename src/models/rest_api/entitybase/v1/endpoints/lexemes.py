@@ -7,6 +7,8 @@ from fastapi import APIRouter, HTTPException, Request
 
 from models.data.rest_api.v1.entitybase.request import (
     EntityCreateRequest,
+    LexemeLanguageRequest,
+    LexemeLexicalCategoryRequest,
     LexemeUpdateRequest,
     TermUpdateRequest,
 )
@@ -14,6 +16,8 @@ from models.data.rest_api.v1.entitybase.response import (
     EntityResponse,
     LemmaResponse,
     LemmasResponse,
+    LexemeLanguageResponse,
+    LexemeLexicalCategoryResponse,
 )
 from models.rest_api.entitybase.v1.handlers.entity.lexeme.create import (
     LexemeCreateHandler,
@@ -58,6 +62,23 @@ def _parse_sense_id(sense_id: str) -> tuple[str, str]:
     raise HTTPException(status_code=400, detail=f"Invalid sense ID format: {sense_id}")
 
 
+QID_PATTERN = re.compile(r"^Q\d+$")
+
+
+def _validate_qid(value: str, field_name: str) -> str:
+    """Validate that a value is a valid QID format (Q followed by digits)."""
+    if not value:
+        raise HTTPException(
+            status_code=400, detail=f"{field_name} is required and cannot be empty"
+        )
+    if not QID_PATTERN.match(value):
+        raise HTTPException(
+            status_code=400,
+            detail=f"{field_name} must be a valid QID format (Q followed by digits), got: {value}",
+        )
+    return value
+
+
 @router.post("/entities/lexemes", response_model=EntityResponse)
 async def create_lexeme(
     request: EntityCreateRequest,
@@ -71,6 +92,110 @@ async def create_lexeme(
     handler = LexemeCreateHandler(enumeration_service=enumeration_service, state=state)
     return await handler.create_entity(  # type: ignore[no-any-return]
         request=request,
+        edit_headers=headers,
+        validator=validator,
+    )
+
+
+@router.get(
+    "/entities/lexemes/{lexeme_id}/language", response_model=LexemeLanguageResponse
+)
+async def get_lexeme_language(lexeme_id: str, req: Request) -> LexemeLanguageResponse:
+    """Get the language of a lexeme."""
+    state = req.app.state.state_handler
+    handler = EntityReadHandler(state=state)
+    entity = handler.get_entity(lexeme_id)
+    language = entity.entity_data.revision.get("language", "")
+    if not language:
+        raise HTTPException(
+            status_code=404, detail=f"Language not found for lexeme {lexeme_id}"
+        )
+    return LexemeLanguageResponse(language=language)
+
+
+@router.put("/entities/lexemes/{lexeme_id}/language", response_model=EntityResponse)
+async def update_lexeme_language(
+    lexeme_id: str,
+    request: LexemeLanguageRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
+    """Update the language of a lexeme."""
+    logger.debug(f"Updating language for lexeme {lexeme_id}")
+
+    _validate_qid(request.language, "language")
+
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(lexeme_id)
+
+    revision_data = dict(current_entity.entity_data.revision)
+    revision_data["language"] = request.language
+
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = LexemeUpdateRequest(id=lexeme_id, type="lexeme", **revision_data)
+
+    return await update_handler.update_lexeme(
+        lexeme_id,
+        update_request,
+        edit_headers=headers,
+        validator=validator,
+    )
+
+
+@router.get(
+    "/entities/lexemes/{lexeme_id}/lexicalcategory",
+    response_model=LexemeLexicalCategoryResponse,
+)
+async def get_lexeme_lexicalcategory(
+    lexeme_id: str, req: Request
+) -> LexemeLexicalCategoryResponse:
+    """Get the lexical category of a lexeme."""
+    state = req.app.state.state_handler
+    handler = EntityReadHandler(state=state)
+    entity = handler.get_entity(lexeme_id)
+    lexical_category = entity.entity_data.revision.get("lexical_category", "")
+    if not lexical_category:
+        lexical_category = entity.entity_data.revision.get("lexicalCategory", "")
+    if not lexical_category:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Lexical category not found for lexeme {lexeme_id}",
+        )
+    return LexemeLexicalCategoryResponse(lexical_category=lexical_category)
+
+
+@router.put(
+    "/entities/lexemes/{lexeme_id}/lexicalcategory", response_model=EntityResponse
+)
+async def update_lexeme_lexicalcategory(
+    lexeme_id: str,
+    request: LexemeLexicalCategoryRequest,
+    req: Request,
+    headers: EditHeadersType,
+) -> EntityResponse:
+    """Update the lexical category of a lexeme."""
+    logger.debug(f"Updating lexical category for lexeme {lexeme_id}")
+
+    _validate_qid(request.lexical_category, "lexical_category")
+
+    state = req.app.state.state_handler
+    validator = req.app.state.state_handler.validator
+
+    handler = EntityReadHandler(state=state)
+    current_entity = handler.get_entity(lexeme_id)
+
+    revision_data = dict(current_entity.entity_data.revision)
+    revision_data["lexical_category"] = request.lexical_category
+
+    update_handler = EntityUpdateHandler(state=state)
+    update_request = LexemeUpdateRequest(id=lexeme_id, type="lexeme", **revision_data)
+
+    return await update_handler.update_lexeme(
+        lexeme_id,
+        update_request,
         edit_headers=headers,
         validator=validator,
     )

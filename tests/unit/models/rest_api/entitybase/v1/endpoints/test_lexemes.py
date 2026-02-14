@@ -9,6 +9,7 @@ from models.rest_api.entitybase.v1.endpoints.lexemes import (
     _extract_numeric_suffix,
     _parse_form_id,
     _parse_sense_id,
+    _validate_qid,
     delete_form_representation,
     delete_sense_gloss,
 )
@@ -48,6 +49,372 @@ class TestFormAndSenseHelpers:
         assert _extract_numeric_suffix("F12") == 12
         assert _extract_numeric_suffix("S1") == 1
         assert _extract_numeric_suffix("S42") == 42
+
+
+class TestQidValidation:
+    """Test QID validation helper."""
+
+    def test_validate_qid_valid_qid(self):
+        result = _validate_qid("Q1860", "language")
+        assert result == "Q1860"
+
+    def test_validate_qid_valid_qid_large_number(self):
+        result = _validate_qid("Q123456789", "lexical_category")
+        assert result == "Q123456789"
+
+    def test_validate_qid_empty_string(self):
+        with pytest.raises(HTTPException) as exc:
+            _validate_qid("", "language")
+        assert exc.value.status_code == 400
+        assert "required" in exc.value.detail.lower()
+
+    def test_validate_qid_invalid_format_no_q(self):
+        with pytest.raises(HTTPException) as exc:
+            _validate_qid("1860", "language")
+        assert exc.value.status_code == 400
+        assert "valid QID format" in exc.value.detail
+
+    def test_validate_qid_invalid_format_lowercase(self):
+        with pytest.raises(HTTPException) as exc:
+            _validate_qid("q1860", "language")
+        assert exc.value.status_code == 400
+        assert "valid QID format" in exc.value.detail
+
+    def test_validate_qid_invalid_format_no_digits(self):
+        with pytest.raises(HTTPException) as exc:
+            _validate_qid("Q", "language")
+        assert exc.value.status_code == 400
+        assert "valid QID format" in exc.value.detail
+
+    def test_validate_qid_invalid_format_letters(self):
+        with pytest.raises(HTTPException) as exc:
+            _validate_qid("Qabc", "language")
+        assert exc.value.status_code == 400
+        assert "valid QID format" in exc.value.detail
+
+
+class TestLanguageEndpoints:
+    """Test language GET/PUT endpoints."""
+
+    @pytest.mark.asyncio
+    async def test_get_lexeme_language(self, mock_entity_read_state):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_language
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "language": "Q1860",
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        result = await get_lexeme_language("L42", mock_req)
+
+        assert result.language == "Q1860"
+
+    @pytest.mark.asyncio
+    async def test_get_lexeme_language_not_found(self, mock_entity_read_state):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_language
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "language": "",
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        with pytest.raises(HTTPException) as exc:
+            await get_lexeme_language("L42", mock_req)
+
+        assert exc.value.status_code == 404
+        assert "not found" in exc.value.detail.lower()
+
+    @pytest.mark.asyncio
+    async def test_update_lexeme_language_valid(self, mock_entity_read_state):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+            update_lexeme_language,
+        )
+        from models.data.rest_api.v1.entitybase.request import LexemeLanguageRequest
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_update_handler = AsyncMock()
+        mock_entity = Mock()
+        mock_entity.id = "L42"
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "language": "Q1860",
+                "lexical_category": "Q1084",
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_state.validator = Mock()
+        mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        with patch(
+            "models.rest_api.entitybase.v1.endpoints.lexemes.EntityUpdateHandler",
+            return_value=mock_update_handler,
+        ):
+            await update_lexeme_language(
+                "L42",
+                LexemeLanguageRequest(language="Q150"),
+                mock_req,
+                headers=Mock(x_user_id=123, x_edit_summary="change language"),
+            )
+
+            assert mock_update_handler.update_lexeme.called
+            call_args = mock_update_handler.update_lexeme.call_args
+            update_request = call_args[0][1]
+            assert update_request.language == "Q150"
+
+    @pytest.mark.asyncio
+    async def test_update_lexeme_language_invalid_qid(self, mock_entity_read_state):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+            update_lexeme_language,
+        )
+        from models.data.rest_api.v1.entitybase.request import LexemeLanguageRequest
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "language": "Q1860",
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        with pytest.raises(HTTPException) as exc:
+            await update_lexeme_language(
+                "L42",
+                LexemeLanguageRequest(language="invalid"),
+                mock_req,
+                headers=Mock(x_user_id=123, x_edit_summary="change language"),
+            )
+
+        assert exc.value.status_code == 400
+        assert "valid QID format" in exc.value.detail
+
+
+class TestLexicalCategoryEndpoints:
+    """Test lexical category GET/PUT endpoints."""
+
+    @pytest.mark.asyncio
+    async def test_get_lexeme_lexicalcategory(self, mock_entity_read_state):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+            get_lexeme_lexicalcategory,
+        )
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "lexical_category": "Q1084",
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        result = await get_lexeme_lexicalcategory("L42", mock_req)
+
+        assert result.lexical_category == "Q1084"
+
+    @pytest.mark.asyncio
+    async def test_get_lexeme_lexicalcategory_with_camel_case_fallback(
+        self, mock_entity_read_state
+    ):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+            get_lexeme_lexicalcategory,
+        )
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "lexicalCategory": "Q1084",
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        result = await get_lexeme_lexicalcategory("L42", mock_req)
+
+        assert result.lexical_category == "Q1084"
+
+    @pytest.mark.asyncio
+    async def test_get_lexeme_lexicalcategory_not_found(self, mock_entity_read_state):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+            get_lexeme_lexicalcategory,
+        )
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "lexical_category": "",
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        with pytest.raises(HTTPException) as exc:
+            await get_lexeme_lexicalcategory("L42", mock_req)
+
+        assert exc.value.status_code == 404
+        assert "not found" in exc.value.detail.lower()
+
+    @pytest.mark.asyncio
+    async def test_update_lexeme_lexicalcategory_valid(self, mock_entity_read_state):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+            update_lexeme_lexicalcategory,
+        )
+        from models.data.rest_api.v1.entitybase.request import (
+            LexemeLexicalCategoryRequest,
+        )
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_update_handler = AsyncMock()
+        mock_entity = Mock()
+        mock_entity.id = "L42"
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "language": "Q1860",
+                "lexical_category": "Q1084",
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_state.validator = Mock()
+        mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        with patch(
+            "models.rest_api.entitybase.v1.endpoints.lexemes.EntityUpdateHandler",
+            return_value=mock_update_handler,
+        ):
+            await update_lexeme_lexicalcategory(
+                "L42",
+                LexemeLexicalCategoryRequest(lexical_category="Q24905"),
+                mock_req,
+                headers=Mock(x_user_id=123, x_edit_summary="change category"),
+            )
+
+            assert mock_update_handler.update_lexeme.called
+            call_args = mock_update_handler.update_lexeme.call_args
+            update_request = call_args[0][1]
+            assert update_request.lexical_category == "Q24905"
+
+    @pytest.mark.asyncio
+    async def test_update_lexeme_lexicalcategory_invalid_qid(
+        self, mock_entity_read_state
+    ):
+        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+            update_lexeme_lexicalcategory,
+        )
+        from models.data.rest_api.v1.entitybase.request import (
+            LexemeLexicalCategoryRequest,
+        )
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "lexical_category": "Q1084",
+                "forms": [],
+                "senses": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        with pytest.raises(HTTPException) as exc:
+            await update_lexeme_lexicalcategory(
+                "L42",
+                LexemeLexicalCategoryRequest(lexical_category="not-a-qid"),
+                mock_req,
+                headers=Mock(x_user_id=123, x_edit_summary="change category"),
+            )
+
+        assert exc.value.status_code == 400
+        assert "valid QID format" in exc.value.detail
 
 
 class TestFormsAndSensesEndpoints:
@@ -439,9 +806,7 @@ class TestLemmasEndpoints:
         assert "not found" in exc.value.detail.lower()
 
     @pytest.mark.asyncio
-    async def test_delete_lexeme_lemma_last_lemma_fails(
-        self, mock_entity_read_state
-    ):
+    async def test_delete_lexeme_lemma_last_lemma_fails(self, mock_entity_read_state):
         from models.rest_api.entitybase.v1.endpoints.lexemes import delete_lexeme_lemma
         from models.data.infrastructure.s3 import S3RevisionData
 
@@ -464,7 +829,10 @@ class TestLemmasEndpoints:
 
         with pytest.raises(HTTPException) as exc:
             await delete_lexeme_lemma(
-                "L42", "en", mock_req, headers=Mock(x_user_id=123, x_edit_summary="test edit")
+                "L42",
+                "en",
+                mock_req,
+                headers=Mock(x_user_id=123, x_edit_summary="test edit"),
             )
 
         assert exc.value.status_code == 400

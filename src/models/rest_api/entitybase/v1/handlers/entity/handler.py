@@ -164,7 +164,7 @@ class EntityHandler(Handler):
             sitelink_hashes = await self._hash_sitelinks_new(ctx)
 
             # Build revision data
-            revision_data = self._build_revision_data_new(
+            revision_data = self._build_revision_data(
                 ctx,
                 hash_result,
                 term_hashes,
@@ -199,12 +199,11 @@ class EntityHandler(Handler):
         return await hashing_service.hash_sitelinks(ctx.request_data)
 
     @staticmethod
-    def _build_revision_data_new(
+    def _build_revision_data(
         ctx: RevisionContext,
         hash_result: StatementHashResult,
         term_hashes: HashMaps,
         sitelink_hashes: Any,
-        # content_hash: int,
         new_revision_id: int,
     ) -> RevisionData:
         """Build RevisionData object."""
@@ -247,6 +246,8 @@ class EntityHandler(Handler):
             lemmas=ctx.request_data.get("lemmas", {}),
             forms=ctx.request_data.get("forms", []),
             senses=ctx.request_data.get("senses", []),
+            language=ctx.request_data.get("language", ""),
+            lexical_category=ctx.request_data.get("lexical_category", ""),
         )
 
     @staticmethod

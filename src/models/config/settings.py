@@ -47,6 +47,9 @@ class Settings(BaseModel):
     vitess_database: str = ""
     vitess_user: str = ""
     vitess_password: str = ""
+    vitess_pool_size: int = 20
+    vitess_max_overflow: int = 20
+    vitess_pool_timeout: int = 30
 
     # rdf
     wikibase_repository_name: str = "wikidata"
@@ -226,25 +229,30 @@ class Settings(BaseModel):
             os.getenv("JSON_DUMP_ENABLED", str(self.json_dump_enabled)).lower()
             == "true"
         )
-        self.json_dump_schedule = os.getenv("JSON_DUMP_SCHEDULE", self.json_dump_schedule)
+        self.json_dump_schedule = os.getenv(
+            "JSON_DUMP_SCHEDULE", self.json_dump_schedule
+        )
         self.s3_dump_bucket = os.getenv("S3_DUMP_BUCKET", self.s3_dump_bucket)
         self.json_dump_batch_size = int(
             os.getenv("JSON_DUMP_BATCH_SIZE", str(self.json_dump_batch_size))
         )
         self.json_dump_parallel_workers = int(
-            os.getenv("JSON_DUMP_PARALLEL_WORKERS", str(self.json_dump_parallel_workers))
+            os.getenv(
+                "JSON_DUMP_PARALLEL_WORKERS", str(self.json_dump_parallel_workers)
+            )
         )
         self.json_dump_compression = (
             os.getenv("JSON_DUMP_COMPRESSION", str(self.json_dump_compression)).lower()
             == "true"
         )
         self.json_dump_generate_checksums = (
-            os.getenv("JSON_DUMP_GENERATE_CHECKSUMS", str(self.json_dump_generate_checksums)).lower()
+            os.getenv(
+                "JSON_DUMP_GENERATE_CHECKSUMS", str(self.json_dump_generate_checksums)
+            ).lower()
             == "true"
         )
         self.ttl_dump_enabled = (
-            os.getenv("TTL_DUMP_ENABLED", str(self.ttl_dump_enabled)).lower()
-            == "true"
+            os.getenv("TTL_DUMP_ENABLED", str(self.ttl_dump_enabled)).lower() == "true"
         )
         self.ttl_dump_schedule = os.getenv("TTL_DUMP_SCHEDULE", self.ttl_dump_schedule)
         self.ttl_dump_batch_size = int(
@@ -258,7 +266,9 @@ class Settings(BaseModel):
             == "true"
         )
         self.ttl_dump_generate_checksums = (
-            os.getenv("TTL_DUMP_GENERATE_CHECKSUMS", str(self.ttl_dump_generate_checksums)).lower()
+            os.getenv(
+                "TTL_DUMP_GENERATE_CHECKSUMS", str(self.ttl_dump_generate_checksums)
+            ).lower()
             == "true"
         )
 
