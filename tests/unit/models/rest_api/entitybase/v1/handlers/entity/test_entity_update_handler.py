@@ -173,7 +173,7 @@ class TestEntityUpdateHandler:
                 handler, "_infer_entity_type_from_id", return_value=MagicMock()
             ):
                 with patch(
-                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    "models.rest_api.entitybase.v1.handlers.entity.read.EntityReadHandler",
                     return_value=MagicMock(
                         get_entity=MagicMock(return_value=mock_entity)
                     ),
@@ -251,7 +251,7 @@ class TestEntityUpdateHandler:
             handler, "_infer_entity_type_from_id", return_value=EntityType.ITEM
         ):
             with patch(
-                "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                "models.rest_api.entitybase.v1.handlers.entity.read.EntityReadHandler",
                 return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
                 with patch(
@@ -303,7 +303,7 @@ class TestEntityUpdateHandler:
             handler, "_infer_entity_type_from_id", return_value=EntityType.ITEM
         ):
             with patch(
-                "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                "models.rest_api.entitybase.v1.handlers.entity.read.EntityReadHandler",
                 return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
                 result = await handler.delete_label(
@@ -339,7 +339,7 @@ class TestEntityUpdateHandler:
                 handler, "_infer_entity_type_from_id", return_value=MagicMock()
             ):
                 with patch(
-                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    "models.rest_api.entitybase.v1.handlers.entity.read.EntityReadHandler",
                     return_value=MagicMock(
                         get_entity=MagicMock(return_value=mock_entity)
                     ),
@@ -418,7 +418,7 @@ class TestEntityUpdateHandler:
             handler, "_infer_entity_type_from_id", return_value=EntityType.ITEM
         ):
             with patch(
-                "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                "models.rest_api.entitybase.v1.handlers.entity.read.EntityReadHandler",
                 return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
                 with patch(
@@ -473,7 +473,7 @@ class TestEntityUpdateHandler:
             handler, "_infer_entity_type_from_id", return_value=EntityType.ITEM
         ):
             with patch(
-                "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                "models.rest_api.entitybase.v1.handlers.entity.read.EntityReadHandler",
                 return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
                 result = await handler.delete_description(
@@ -508,7 +508,7 @@ class TestEntityUpdateHandler:
                 handler, "_infer_entity_type_from_id", return_value=MagicMock()
             ):
                 with patch(
-                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    "models.rest_api.entitybase.v1.handlers.entity.read.EntityReadHandler",
                     return_value=MagicMock(
                         get_entity=MagicMock(return_value=mock_entity)
                     ),
@@ -568,7 +568,7 @@ class TestEntityUpdateHandler:
                 handler, "_infer_entity_type_from_id", return_value=MagicMock()
             ):
                 with patch(
-                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    "models.rest_api.entitybase.v1.handlers.entity.read.EntityReadHandler",
                     return_value=MagicMock(
                         get_entity=MagicMock(return_value=mock_entity)
                     ),
@@ -615,7 +615,7 @@ class TestEntityUpdateHandler:
                 handler, "_infer_entity_type_from_id", return_value=MagicMock()
             ):
                 with patch(
-                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    "models.rest_api.entitybase.v1.handlers.entity.read.EntityReadHandler",
                     return_value=MagicMock(
                         get_entity=MagicMock(return_value=mock_entity)
                     ),
@@ -676,7 +676,7 @@ class TestEntityUpdateHandler:
                 handler, "_infer_entity_type_from_id", return_value=MagicMock()
             ):
                 with patch(
-                    "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                    "models.rest_api.entitybase.v1.handlers.entity.read.EntityReadHandler",
                     return_value=MagicMock(
                         get_entity=MagicMock(return_value=mock_entity)
                     ),
@@ -710,7 +710,7 @@ class TestEntityUpdateHandler:
             handler, "_infer_entity_type_from_id", return_value=EntityType.ITEM
         ):
             with patch(
-                "models.rest_api.entitybase.v1.handlers.entity.update.EntityReadHandler",
+                "models.rest_api.entitybase.v1.handlers.entity.read.EntityReadHandler",
                 return_value=MagicMock(get_entity=MagicMock(return_value=mock_entity)),
             ):
                 result = await handler.delete_sitelink(

@@ -6,11 +6,18 @@ import pytest
 from fastapi import HTTPException
 
 from models.rest_api.entitybase.v1.endpoints.lexeme_forms import (
+    delete_form,
     delete_form_representation,
+    get_form_by_id,
+    get_lexeme_forms,
+    update_form_representation,
 )
 from models.rest_api.entitybase.v1.endpoints.lexeme_senses import (
     add_sense_gloss,
+    delete_sense,
     delete_sense_gloss,
+    get_lexeme_senses,
+    get_sense_by_id,
 )
 from models.rest_api.entitybase.v1.endpoints.lexemes import (
     _extract_numeric_suffix,
@@ -427,7 +434,9 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_lexeme_forms_returns_sorted_forms(self, mock_entity_read_state):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_forms
+        from models.rest_api.entitybase.v1.endpoints.lexeme_forms import (
+            get_lexeme_forms,
+        )
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
@@ -465,7 +474,9 @@ class TestFormsAndSensesEndpoints:
     async def test_get_lexeme_senses_returns_sorted_senses(
         self, mock_entity_read_state
     ):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import get_lexeme_senses
+        from models.rest_api.entitybase.v1.endpoints.lexeme_senses import (
+            get_lexeme_senses,
+        )
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
@@ -501,7 +512,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_form_by_id_full_format(self, mock_entity_read_state):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import get_form_by_id
+        from models.rest_api.entitybase.v1.endpoints.lexeme_forms import get_form_by_id
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
@@ -534,7 +545,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_form_by_id_not_found(self, mock_entity_read_state):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import get_form_by_id
+        from models.rest_api.entitybase.v1.endpoints.lexeme_forms import get_form_by_id
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
@@ -557,7 +568,9 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_sense_by_id_full_format(self, mock_entity_read_state):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_by_id
+        from models.rest_api.entitybase.v1.endpoints.lexeme_senses import (
+            get_sense_by_id,
+        )
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
@@ -588,7 +601,9 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_get_sense_by_id_not_found(self, mock_entity_read_state):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_by_id
+        from models.rest_api.entitybase.v1.endpoints.lexeme_senses import (
+            get_sense_by_id,
+        )
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
@@ -613,7 +628,7 @@ class TestFormsAndSensesEndpoints:
     async def test_update_form_representation_missing_language(
         self, mock_entity_read_state
     ):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+        from models.rest_api.entitybase.v1.endpoints.lexeme_forms import (
             update_form_representation,
         )
         from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
@@ -658,7 +673,7 @@ class TestFormsAndSensesEndpoints:
     async def test_update_form_representation_language_mismatch(
         self, mock_entity_read_state
     ):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+        from models.rest_api.entitybase.v1.endpoints.lexeme_forms import (
             update_form_representation,
         )
         from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
@@ -701,7 +716,7 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_form_id_short_format_not_implemented(self):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import get_form_by_id
+        from models.rest_api.entitybase.v1.endpoints.lexeme_forms import get_form_by_id
 
         mock_req = Mock()
 
@@ -713,7 +728,9 @@ class TestFormsAndSensesEndpoints:
 
     @pytest.mark.asyncio
     async def test_sense_id_short_format_not_implemented(self):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import get_sense_by_id
+        from models.rest_api.entitybase.v1.endpoints.lexeme_senses import (
+            get_sense_by_id,
+        )
 
         mock_req = Mock()
 
@@ -845,7 +862,7 @@ class TestLemmasEndpoints:
 
     @pytest.mark.asyncio
     async def test_update_form_representation(self, mock_entity_read_state):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import (
+        from models.rest_api.entitybase.v1.endpoints.lexeme_forms import (
             update_form_representation,
         )
         from models.data.infrastructure.s3 import S3RevisionData
@@ -1217,7 +1234,7 @@ class TestLemmasEndpoints:
 
     @pytest.mark.asyncio
     async def test_delete_form_not_found(self, mock_entity_read_state):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import delete_form
+        from models.rest_api.entitybase.v1.endpoints.lexeme_forms import delete_form
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
@@ -1246,7 +1263,7 @@ class TestLemmasEndpoints:
 
     @pytest.mark.asyncio
     async def test_delete_sense_not_found(self, mock_entity_read_state):
-        from models.rest_api.entitybase.v1.endpoints.lexemes import delete_sense
+        from models.rest_api.entitybase.v1.endpoints.lexeme_senses import delete_sense
         from models.data.infrastructure.s3 import S3RevisionData
 
         mock_state, mock_vitess, mock_s3 = mock_entity_read_state
