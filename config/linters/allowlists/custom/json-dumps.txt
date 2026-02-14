@@ -71,3 +71,9 @@ src/models/workers/json_dumps/json_dump_worker.py:302
 # revision.py - Serializes properties list (list[str]) to database storage
 src/models/infrastructure/vitess/repositories/revision.py:215
 src/models/infrastructure/vitess/repositories/revision.py:297
+
+# base_storage.py - Uses default=str for non-model objects (else branch)
+src/models/infrastructure/s3/base_storage.py:89
+
+# revision.py - Serializes properties to database storage
+src/models/infrastructure/vitess/repositories/revision.py:299
