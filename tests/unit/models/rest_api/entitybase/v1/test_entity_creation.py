@@ -74,7 +74,7 @@ class TestItemCreateHandler:
         """Test item creation fails if entity already exists"""
         mock_vitess_client.id_resolver.entity_exists.return_value = True
 
-        request = EntityCreateRequest(id="Q123", edit_summary="test")
+        request = EntityCreateRequest(id="Q123", type="item")
 
         with pytest.raises(Exception) as exc_info:
             await handler.create_entity(

@@ -330,10 +330,13 @@ class TestWatchlistRepository:
         mock_connection_manager.connect.return_value = mock_connection
         mock_connection.__enter__ = MagicMock(return_value=mock_connection)
         mock_connection.__exit__ = MagicMock(return_value=None)
+        mock_cursor.rowcount = 1
         mock_vitess_client.cursor = mock_cursor
         mock_vitess_client.connection_manager = mock_connection_manager
 
         repo = WatchlistRepository(vitess_client=mock_vitess_client)
 
         # Should not raise
-        repo.mark_notification_checked(1, 123)
+        result = repo.mark_notification_checked(1, 123)
+
+        assert result is True

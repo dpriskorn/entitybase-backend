@@ -149,8 +149,8 @@ class TestEntityJsonImportHandler:
 
             mock_transform.return_value = EntityCreateRequest(
                 id="Q123",
+                type="item",
                 labels={},
-                edit_summary="test",
             )
             self.state.vitess_client.create_entity = AsyncMock()
             self.state.vitess_client.entity_exists.return_value = False
