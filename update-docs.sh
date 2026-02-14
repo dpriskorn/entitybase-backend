@@ -1,4 +1,5 @@
 ./run-scc.sh
+git log --date=short --format='%ad' | sort | uniq -c | awk '{sum+=$1; count++} END {print "Average commits per day:", sum/count}' >> STATISTICS.md
 # python scripts/doc/generate_git_stats.py >> STATISTICS.md
 ./count-tests.sh >> STATISTICS.md
 ./count-words.sh
