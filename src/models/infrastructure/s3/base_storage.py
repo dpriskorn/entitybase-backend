@@ -3,7 +3,7 @@
 import json
 import logging
 from abc import ABC
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 from botocore.exceptions import ClientError
 from pydantic import BaseModel, Field
@@ -92,8 +92,7 @@ class BaseS3Storage(ABC, BaseModel):
                 )
 
             logger.debug(f"[S3_STORE] Body size: {len(body)} bytes, key={key}")
-            
-            assert self.connection_manager is not None  # For type checker
+
             self.connection_manager.boto_client.put_object(
                 Bucket=bucket_to_use,
                 Key=key,
@@ -127,7 +126,6 @@ class BaseS3Storage(ABC, BaseModel):
         self._ensure_connection()
 
         try:
-            assert self.connection_manager is not None  # For type checker
             response = self.connection_manager.boto_client.get_object(
                 Bucket=bucket_to_use, Key=key
             )
@@ -149,7 +147,11 @@ class BaseS3Storage(ABC, BaseModel):
                 return DictLoadResponse(data=data)
 
         except ClientError as e:
-            error_code = e.response.get("Error", {}).get("Code", "Unknown") if e.response else "Unknown"
+            error_code = (
+                e.response.get("Error", {}).get("Code", "Unknown")
+                if e.response
+                else "Unknown"
+            )
             logger.warning(
                 f"[S3_LOAD] ClientError: bucket={bucket_to_use}, key={key}, "
                 f"code={error_code}, error={type(e).__name__}"
@@ -170,8 +172,7 @@ class BaseS3Storage(ABC, BaseModel):
         self._ensure_connection()
 
         try:
-            assert self.connection_manager is not None  # For type checker
-            self.connection_manager.boto_client.delete_object(
+            cast(Any, self.connection_manager).boto_client.delete_object(
                 Bucket=bucket_to_use, Key=key
             )
             logger.debug(f"S3 delete successful: bucket={bucket_to_use}, key={key}")
@@ -193,7 +194,6 @@ class BaseS3Storage(ABC, BaseModel):
         self._ensure_connection()
 
         try:
-            assert self.connection_manager is not None  # For type checker
             self.connection_manager.boto_client.head_object(
                 Bucket=bucket_to_use, Key=key
             )
