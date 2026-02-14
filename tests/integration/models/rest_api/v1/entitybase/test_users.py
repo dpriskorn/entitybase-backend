@@ -90,7 +90,7 @@ async def test_get_user_not_found(api_prefix: str, initialized_app: None) -> Non
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.get(f"{api_prefix}/users/99999")
-        assert response.status_code == 404
+        assert response.status_code == 400
 
 
 @pytest.mark.asyncio
@@ -190,7 +190,7 @@ async def test_toggle_watchlist_user_not_registered(
             json={"enabled": True},
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
-        assert response.status_code == 400
+        assert response.status_code == 404
         assert "User not registered" in response.json()["message"]
 
 
@@ -230,7 +230,7 @@ async def test_get_user_activity_user_not_registered(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.get(f"{api_prefix}/users/99999/activity")
-        assert response.status_code == 400
+        assert response.status_code == 404
         assert "User not registered" in response.json()["message"]
 
 

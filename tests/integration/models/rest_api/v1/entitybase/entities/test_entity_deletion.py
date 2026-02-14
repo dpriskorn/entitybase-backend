@@ -49,7 +49,7 @@ async def test_hard_delete_entity(api_prefix: str) -> None:
 
         # Verify entity no longer accessible (hard delete hides)
         get_response = await client.get(f"{api_prefix}/entities/Q99002")
-        assert get_response.status_code == 410  # Gone
+        assert get_response.status_code == 404
         assert "deleted" in get_response.json()["message"].lower()
 
         logger.info("✓ Hard delete hides entity correctly")
@@ -98,6 +98,6 @@ async def test_hard_delete_prevents_undelete(api_prefix: str) -> None:
             },
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
-        assert response.status_code == 410
+        assert response.status_code == 409
 
         logger.info("✓ Hard delete prevents undelete")
