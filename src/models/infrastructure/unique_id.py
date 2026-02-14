@@ -1,11 +1,13 @@
 import uuid
+import logging
 
-from pydantic import BaseModel, Field
+logger = logging.getLogger(__name__)
+
+_counter = 0
 
 
-class UniqueIdGenerator(BaseModel):
-    counter: int = Field(default=0)
-
-    def generate_unique_id(self) -> int:
-        self.counter += 1
-        return (uuid.uuid4().int + self.counter) & ((1 << 64) - 1)
+def generate_unique_id() -> int:
+    """Generate a unique 64-bit ID."""
+    global _counter
+    _counter += 1
+    return (uuid.uuid4().int + _counter) & ((1 << 64) - 1)

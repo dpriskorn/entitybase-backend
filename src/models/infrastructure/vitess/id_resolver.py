@@ -3,6 +3,8 @@ from typing import Any
 
 from pydantic import BaseModel
 
+from models.infrastructure.unique_id import generate_unique_id
+
 logger = logging.getLogger(__name__)
 
 
@@ -18,13 +20,18 @@ class IdResolver(BaseModel):
             )
             result = cursor.fetchone()
             internal_id = result[0] if result else 0
-            logger.debug(f"[IdResolver] resolve_id({entity_id}) result: {internal_id}")
+            logger.debug(
+                f"[IdResolver] resolve_id({entity_id}) result: {internal_id}, "
+                f"found={result is not None}"
+            )
             return internal_id
 
     def entity_exists(self, entity_id: str) -> bool:
         internal_id = self.resolve_id(entity_id)
         exists = internal_id != 0
-        logger.debug(f"[IdResolver] entity_exists({entity_id}): {exists} (internal_id={internal_id})")
+        logger.debug(
+            f"[IdResolver] entity_exists({entity_id}): {exists} (internal_id={internal_id})"
+        )
         return exists
 
     def resolve_entity_id(self, internal_id: int) -> str:
@@ -37,16 +44,25 @@ class IdResolver(BaseModel):
             return result[0] if result else ""
 
     def register_entity(self, entity_id: str) -> None:
-        from models.infrastructure.unique_id import UniqueIdGenerator
-
         # Check if entity already exists
         if self.entity_exists(entity_id):
+            logger.debug(f"[IdResolver] register_entity: {entity_id} already exists")
             return  # Already registered, idempotent
 
-        generator = UniqueIdGenerator()
-        internal_id = generator.generate_unique_id()
-        with self.vitess_client.cursor as cursor:
-            cursor.execute(
-                "INSERT INTO entity_id_mapping (entity_id, internal_id) VALUES (%s, %s)",
-                (entity_id, internal_id),
-            )
+        internal_id = generate_unique_id()
+
+        logger.debug(
+            f"[IdResolver] register_entity: Attempting to insert {entity_id} "
+            f"with internal_id={internal_id}"
+        )
+
+        try:
+            with self.vitess_client.cursor as cursor:
+                cursor.execute(
+                    "INSERT INTO entity_id_mapping (entity_id, internal_id) VALUES (%s, %s)",
+                    (entity_id, internal_id),
+                )
+            logger.debug(f"[IdResolver] register_entity: INSERT successful for {entity_id}")
+        except Exception as e:
+            logger.error(f"[IdResolver] register_entity: INSERT FAILED for {entity_id}: {e}")
+            raise
