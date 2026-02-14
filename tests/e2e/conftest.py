@@ -192,6 +192,8 @@ def s3_client(s3_config, vitess_client):
 
     client = MyS3Client(config=s3_config, vitess_client=vitess_client)
     yield client
+    client.disconnect()
+    logger.debug("S3Client disconnected in s3_client fixture")
 
 
 @pytest.fixture(scope="session", autouse=True)

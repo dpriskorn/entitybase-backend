@@ -1,7 +1,7 @@
 set -e
 
 # Check if test infrastructure is running (MySQL, S3, etc.)
-./check-docker-services.sh
+./check-docker-services.sh --clean-connections
 
 source test.env
 
