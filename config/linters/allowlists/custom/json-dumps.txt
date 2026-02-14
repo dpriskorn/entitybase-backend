@@ -65,6 +65,7 @@ src/models/internal_representation/metadata_extractor.py:25
 src/models/internal_representation/qualifier_hasher.py:27
 
 # json_dumps worker - Pretty-print output (imports now filtered automatically)
+src/models/workers/json_dumps/json_dump_worker.py:296
 src/models/workers/json_dumps/json_dump_worker.py:302
 
 # revision.py - Serializes properties list (list[str]) to database storage
