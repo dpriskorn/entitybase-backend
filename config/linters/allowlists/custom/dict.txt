@@ -42,3 +42,5 @@ src/models/rest_api/entitybase/v1/services/statement_service.py:328
 src/models/rest_api/entitybase/v1/services/statement_service.py:331
 src/models/rest_api/entitybase/v1/services/statement_service.py:352
 src/models/rest_api/entitybase/v1/routes/resolve.py:176
+src/models/rest_api/entitybase/v1/endpoints/debug.py:14
+src/models/rest_api/entitybase/v1/endpoints/debug.py:43
