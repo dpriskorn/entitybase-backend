@@ -174,9 +174,9 @@ async def test_list_entities_by_type(api_prefix: str) -> None:
         assert "count" in result
         assert result["count"] > 0
         for entity in result["entities"]:
-            assert "id" in entity
-            assert "revision_id" in entity
-            assert entity["id"].startswith("Q")
+            assert "entity_id" in entity
+            assert "head_revision_id" in entity
+            assert entity["entity_id"].startswith("Q")
 
         # List lexemes
         response = await client.get(f"{api_prefix}/entities?entity_type=lexeme")
@@ -184,7 +184,7 @@ async def test_list_entities_by_type(api_prefix: str) -> None:
         result = response.json()
         assert result["count"] > 0
         for entity in result["entities"]:
-            assert entity["id"].startswith("L")
+            assert entity["entity_id"].startswith("L")
 
         logger.info("✓ List entities by type works")
 
