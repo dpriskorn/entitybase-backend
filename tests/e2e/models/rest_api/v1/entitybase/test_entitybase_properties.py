@@ -75,8 +75,7 @@ async def test_get_entity_property_hashes_nonexistent_entity(api_prefix: str) ->
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.get(f"{api_prefix}/entity/Q99999999/properties/P31")
-        # Should return 404 or empty result
-        assert response.status_code in [200, 404]
+        assert response.status_code == 404
 
 
 @pytest.mark.e2e

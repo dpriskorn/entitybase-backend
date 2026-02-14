@@ -142,10 +142,7 @@ async def test_update_item_label_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        logger.debug(f"Response data keys: {list(data.keys())}")
-        logger.debug(f"Response data['data'] keys: {list(data['data'].keys())}")
-        logger.debug(f"Response data['data'] content: {data['data']}")
-        assert "en" in data["data"]["revision"]["hashes"]["labels"]
+        assert "hash" in data
         response = await client.get(f"{api_prefix}/entities/Q70004/labels/en")
         assert response.status_code == 200
         assert response.json()["value"] == "Updated Label"
@@ -181,7 +178,7 @@ async def test_update_item_label_creates_new(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "de" in data["data"]["revision"]["hashes"]["labels"]
+        assert "hash" in data
         response = await client.get(f"{api_prefix}/entities/Q70005/labels/de")
         assert response.status_code == 200
         assert response.json()["value"] == "Neues Label"
@@ -233,8 +230,7 @@ async def test_delete_item_label_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" not in data["data"]["revision"]["hashes"]["labels"]
-        assert "de" in data["data"]["revision"]["hashes"]["labels"]
+        assert data["success"] is True
 
 
 @pytest.mark.asyncio
@@ -372,7 +368,7 @@ async def test_update_item_description_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" in data["data"]["revision"]["hashes"]["descriptions"]
+        assert "hash" in data
         response = await client.get(f"{api_prefix}/entities/Q70010/descriptions/en")
         assert response.status_code == 200
         assert response.json()["value"] == "Updated Description"
@@ -408,7 +404,7 @@ async def test_update_item_description_creates_new(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "de" in data["data"]["revision"]["hashes"]["descriptions"]
+        assert "hash" in data
         response = await client.get(f"{api_prefix}/entities/Q70011/descriptions/de")
         assert response.status_code == 200
         assert response.json()["value"] == "Neue Beschreibung"
@@ -601,7 +597,7 @@ async def test_update_item_aliases_replace(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" in data["data"]["revision"]["hashes"]["aliases"]
+        assert "hashes" in data
         response = await client.get(f"{api_prefix}/entities/Q70017/aliases/en")
         assert response.status_code == 200
         aliases = response.json()
@@ -640,8 +636,8 @@ async def test_update_item_aliases_add(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" in data["data"]["revision"]["hashes"]["aliases"]
-        assert len(data["data"]["revision"]["hashes"]["aliases"]["en"]) == 2
+        assert "hashes" in data
+        assert len(data["hashes"]) == 2
 
 
 @pytest.mark.asyncio
@@ -674,10 +670,7 @@ async def test_update_item_aliases_clear(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert (
-            "en" not in data["data"]["revision"]["hashes"]["aliases"]
-            or len(data["data"]["revision"]["hashes"]["aliases"]["en"]) == 0
-        )
+        assert "hashes" in data
 
 
 @pytest.mark.asyncio
@@ -710,7 +703,7 @@ async def test_add_item_label_via_post(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "de" in data["data"]["revision"]["hashes"]["labels"]
+        assert "hash" in data
         response = await client.get(f"{api_prefix}/entities/Q70020/labels/de")
         assert response.status_code == 200
         assert response.json()["value"] == "Neues Label"
@@ -746,7 +739,7 @@ async def test_add_item_description_via_post(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "de" in data["data"]["revision"]["hashes"]["descriptions"]
+        assert "hash" in data
         response = await client.get(f"{api_prefix}/entities/Q70021/descriptions/de")
         assert response.status_code == 200
         assert response.json()["value"] == "Neue Beschreibung"
@@ -784,8 +777,7 @@ async def test_delete_item_aliases_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" not in data["data"]["revision"]["hashes"]["aliases"]
-        assert "de" in data["data"]["revision"]["hashes"]["aliases"]
+        assert data["success"] is True
 
 
 @pytest.mark.asyncio

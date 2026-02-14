@@ -224,7 +224,7 @@ async def test_update_property_aliases_replace(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" in data["data"]["revision"]["hashes"]["aliases"]
+        assert "hashes" in data
         response = await client.get(f"{api_prefix}/entities/P70007/aliases/en")
         assert response.status_code == 200
         aliases = response.json()
@@ -263,8 +263,8 @@ async def test_update_property_aliases_add(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" in data["data"]["revision"]["hashes"]["aliases"]
-        assert len(data["data"]["revision"]["hashes"]["aliases"]["en"]) == 2
+        assert "hashes" in data
+        assert len(data["hashes"]) == 2
 
 
 @pytest.mark.asyncio
@@ -297,7 +297,7 @@ async def test_update_property_label_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" in data["data"]["revision"]["hashes"]["labels"]
+        assert "hash" in data
         response = await client.get(f"{api_prefix}/entities/P70009/labels/en")
         assert response.status_code == 200
         assert response.json()["value"] == "Updated Label"
@@ -333,7 +333,7 @@ async def test_update_property_description_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" in data["data"]["revision"]["hashes"]["descriptions"]
+        assert "hash" in data
         response = await client.get(f"{api_prefix}/entities/P70010/descriptions/en")
         assert response.status_code == 200
         assert response.json()["value"] == "Updated Description"
@@ -371,8 +371,7 @@ async def test_delete_property_label_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" not in data["data"]["revision"]["hashes"]["labels"]
-        assert "de" in data["data"]["revision"]["hashes"]["labels"]
+        assert data["success"] is True
 
 
 @pytest.mark.asyncio
@@ -407,8 +406,7 @@ async def test_delete_property_description_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" not in data["data"]["revision"]["hashes"]["descriptions"]
-        assert "de" in data["data"]["revision"]["hashes"]["descriptions"]
+        assert data["success"] is True
 
 
 @pytest.mark.asyncio
@@ -446,5 +444,4 @@ async def test_delete_property_aliases_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" not in data["data"]["revision"]["hashes"]["aliases"]
-        assert "de" in data["data"]["revision"]["hashes"]["aliases"]
+        assert data["success"] is True

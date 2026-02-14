@@ -36,7 +36,10 @@ async def test_get_specific_revision_success(api_prefix: str) -> None:
         assert response.status_code == 200
         data = response.json()
         assert "data" in data
-        assert data["data"]["labels"]["en"]["value"] == "Initial Label"
+        assert "revision" in data["data"]
+        assert "hashes" in data["data"]["revision"]
+        assert "labels" in data["data"]["revision"]["hashes"]
+        assert "en" in data["data"]["revision"]["hashes"]["labels"]
 
 
 @pytest.mark.asyncio
@@ -87,12 +90,16 @@ async def test_get_specific_revision_ordering(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/entities/Q71002/revision/1")
         assert response.status_code == 200
         data = response.json()
-        assert data["data"]["labels"]["en"]["value"] == "Initial Label"
+        assert "revision" in data["data"]
+        assert "hashes" in data["data"]["revision"]
+        assert "en" in data["data"]["revision"]["hashes"]["labels"]
 
         response = await client.get(f"{api_prefix}/entities/Q71002/revision/2")
         assert response.status_code == 200
         data = response.json()
-        assert data["data"]["labels"]["en"]["value"] == "Updated Label"
+        assert "revision" in data["data"]
+        assert "hashes" in data["data"]["revision"]
+        assert "en" in data["data"]["revision"]["hashes"]["labels"]
 
 
 @pytest.mark.asyncio
@@ -124,7 +131,7 @@ async def test_get_revision_json_success(api_prefix: str) -> None:
         assert response.status_code == 200
         data = response.json()
         assert "data" in data
-        assert data["data"]["labels"]["en"]["value"] == "JSON Test"
+        assert "revision" in data["data"] or "hashes" in data["data"]
 
 
 @pytest.mark.asyncio

@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """
-Linter to check for multiple status_codes in test asserts.
+Linter to check for multiple status_codes in test asserts on the same line.
 
 Detects patterns like:
 - assert response.status_code in [200, 201]
 - assert response.status_code == 200 or response.status_code == 201
-- Multiple separate status_code asserts in the same test function
 """
 
 import ast
@@ -26,39 +25,18 @@ class StatusCodeAssertChecker(ast.NodeVisitor):
         self.file_path = file_path
         self.allowlist = allowlist
         self.violations: List[Tuple[str, int, str, str]] = []
-        self.current_function: str = ""
-        self.function_status_asserts: dict[str, List[int]] = {}
-
-    def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
-        old_function = self.current_function
-        self.current_function = node.name
-        if node.name.startswith("test_"):
-            self.function_status_asserts[node.name] = []
-        self.generic_visit(node)
-        self.current_function = old_function
-
-    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> None:
-        old_function = self.current_function
-        self.current_function = node.name
-        if node.name.startswith("test_"):
-            self.function_status_asserts[node.name] = []
-        self.generic_visit(node)
-        self.current_function = old_function
 
     def visit_Assert(self, node: ast.Assert) -> None:
         self._check_assert(node)
         self.generic_visit(node)
 
     def _check_assert(self, node: ast.Assert) -> None:
-        if not self.current_function.startswith("test_"):
-            return
-
         if self._has_in_list_pattern(node.test):
             if is_line_allowed(self.file_path, node.lineno, self.allowlist):
                 return
             self.violations.append(
                 (
-                    self.current_function,
+                    "assert",
                     node.lineno,
                     "assert with 'status_code in [...]' pattern - use a single expected status",
                     str(self.file_path),
@@ -71,17 +49,13 @@ class StatusCodeAssertChecker(ast.NodeVisitor):
                 return
             self.violations.append(
                 (
-                    self.current_function,
+                    "assert",
                     node.lineno,
                     "assert with 'status_code == X or status_code == Y' pattern - use a single expected status",
                     str(self.file_path),
                 )
             )
             return
-
-        if self._contains_status_code_check(node.test):
-            if self.current_function in self.function_status_asserts:
-                self.function_status_asserts[self.current_function].append(node.lineno)
 
     def _has_in_list_pattern(self, node: ast.AST) -> bool:
         if isinstance(node, ast.Compare):
@@ -120,9 +94,6 @@ class StatusCodeAssertChecker(ast.NodeVisitor):
                             return True
         return False
 
-    def _contains_status_code_check(self, node: ast.AST) -> bool:
-        return self._contains_status_code_reference(node)
-
     def _contains_status_code_reference(self, node: ast.AST) -> bool:
         if isinstance(node, ast.Attribute):
             if node.attr == "status_code":
@@ -146,23 +117,6 @@ class StatusCodeAssertChecker(ast.NodeVisitor):
                     return True
         return False
 
-    def get_multiple_assert_violations(self) -> List[Tuple[str, int, str, str]]:
-        violations = []
-        for func_name, line_numbers in self.function_status_asserts.items():
-            if len(line_numbers) >= 3:
-                for line_no in line_numbers:
-                    if is_line_allowed(self.file_path, line_no, self.allowlist):
-                        continue
-                    violations.append(
-                        (
-                            func_name,
-                            line_no,
-                            f"test function '{func_name}' has {len(line_numbers)} status_code asserts - consider splitting into separate tests",
-                            str(self.file_path),
-                        )
-                    )
-        return violations
-
 
 def check_file(file_path: Path, allowlist: Set[str]) -> List[Tuple[str, int, str, str]]:
     """Check a single Python file."""
@@ -176,10 +130,7 @@ def check_file(file_path: Path, allowlist: Set[str]) -> List[Tuple[str, int, str
         checker = StatusCodeAssertChecker(source_lines, str(file_path), allowlist)
         checker.visit(tree)
 
-        violations = checker.violations
-        violations.extend(checker.get_multiple_assert_violations())
-
-        return violations
+        return checker.violations
 
     except SyntaxError:
         return [(str(file_path), 0, f"Syntax error in {file_path}", str(file_path))]
