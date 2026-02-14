@@ -32,7 +32,9 @@ async def test_get_sitelink(api_prefix: str, sample_sitelink) -> None:
         entity_id = response.json()["id"]
 
         # Get sitelink
-        response = await client.get(f"{api_prefix}/entities/{entity_id}/sitelinks/enwiki")
+        response = await client.get(
+            f"{api_prefix}/entities/{entity_id}/sitelinks/enwiki"
+        )
         assert response.status_code == 200
         data = response.json()
         assert "title" in data
@@ -64,10 +66,12 @@ async def test_add_sitelink(api_prefix: str, sample_item_data) -> None:
             json=sitelink_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 201]
+        assert response.status_code == 200
 
         # Verify addition
-        response = await client.get(f"{api_prefix}/entities/{entity_id}/sitelinks/enwiki")
+        response = await client.get(
+            f"{api_prefix}/entities/{entity_id}/sitelinks/enwiki"
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["title"] == "New Article"
@@ -86,7 +90,9 @@ async def test_update_sitelink(api_prefix: str) -> None:
         create_data = {
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Sitelink Update Test"}},
-            "sitelinks": {"enwiki": {"site": "enwiki", "title": "Old Title", "badges": []}},
+            "sitelinks": {
+                "enwiki": {"site": "enwiki", "title": "Old Title", "badges": []}
+            },
         }
         response = await client.post(
             f"{api_prefix}/entities/items",
@@ -106,7 +112,9 @@ async def test_update_sitelink(api_prefix: str) -> None:
         assert response.status_code == 200
 
         # Verify update
-        response = await client.get(f"{api_prefix}/entities/{entity_id}/sitelinks/enwiki")
+        response = await client.get(
+            f"{api_prefix}/entities/{entity_id}/sitelinks/enwiki"
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["title"] == "Updated Title"
@@ -125,7 +133,9 @@ async def test_delete_sitelink(api_prefix: str) -> None:
         create_data = {
             "type": "item",
             "labels": {"en": {"language": "en", "value": "Sitelink Delete Test"}},
-            "sitelinks": {"enwiki": {"site": "enwiki", "title": "To Delete", "badges": []}},
+            "sitelinks": {
+                "enwiki": {"site": "enwiki", "title": "To Delete", "badges": []}
+            },
         }
         response = await client.post(
             f"{api_prefix}/entities/items",
@@ -140,4 +150,4 @@ async def test_delete_sitelink(api_prefix: str) -> None:
             f"{api_prefix}/entities/{entity_id}/sitelinks/enwiki",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 204]
+        assert response.status_code == 200

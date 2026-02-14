@@ -35,7 +35,9 @@ async def test_add_watch(api_prefix: str) -> None:
 
         # Add watch
         watch_data = {"entity_id": entity_id, "properties": ["P31"]}
-        response = await client.post(f"{api_prefix}/users/90006/watchlist", json=watch_data)
+        response = await client.post(
+            f"{api_prefix}/users/90006/watchlist", json=watch_data
+        )
         assert response.status_code == 200
 
 
@@ -111,7 +113,7 @@ async def test_remove_watch_by_id(api_prefix: str) -> None:
 
         # Remove by ID
         response = await client.delete(f"{api_prefix}/users/90008/watchlist/{watch_id}")
-        assert response.status_code in [200, 204]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -232,4 +234,4 @@ async def test_mark_notification_checked(api_prefix: str) -> None:
             f"{api_prefix}/users/90013/watchlist/notifications/123/check"
         )
         # May succeed even if notification doesn't exist (idempotent)
-        assert response.status_code in [200, 404]
+        assert response.status_code == 404

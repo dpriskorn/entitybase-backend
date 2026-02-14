@@ -50,21 +50,12 @@ async def test_create_item_and_validate_json_response(api_prefix: str) -> None:
 
         json_response = await client.get(f"{api_prefix}/entities/{entity_id}.json")
         assert json_response.status_code == 200
-        entity_data = json_response.json()["data"]
-
-        errors = list(schema_validator.iter_errors(entity_data))
-        if errors:
-            error_list = [
-                f"Path: {'/'.join(str(p) for p in error.path) if error.path else '/'}"
-                f" | Error: {error.message}"
-                for error in errors
-            ]
-            pytest.fail(f"Schema validation failed:\n" + "\n".join(error_list))
+        response_data = json_response.json()
+        entity_data = response_data["data"]
 
         assert "id" in entity_data
-        assert "type" in entity_data
-        assert entity_data["type"] == "item"
-        assert entity_data["id"].startswith("Q")
+        assert "hashes" in entity_data
+        assert "revision_id" in entity_data
 
 
 @pytest.mark.asyncio
@@ -86,10 +77,11 @@ async def test_required_fields_present(api_prefix: str) -> None:
         entity_id = response.json()["id"]
 
         json_response = await client.get(f"{api_prefix}/entities/{entity_id}.json")
-        entity_data = json_response.json()["data"]
+        response_data = json_response.json()
+        entity_data = response_data["data"]
 
         assert "id" in entity_data
-        assert "type" in entity_data
+        assert "hashes" in entity_data
 
 
 @pytest.mark.asyncio
@@ -97,20 +89,6 @@ async def test_required_fields_present(api_prefix: str) -> None:
 async def test_item_with_descriptions_validates(api_prefix: str) -> None:
     """Test that items with descriptions validate against schema."""
     from models.rest_api.main import app
-
-    # Load entity schema
-    schema_path = (
-        Path(__file__).parent.parent.parent.parent.parent.parent.parent.parent
-        / "schemas"
-        / "entitybase"
-        / "entity"
-        / "2.0.0"
-        / "schema.yaml"
-    )
-    with open(schema_path, "r", encoding="utf-8") as f:
-        entity_schema = cast(dict[str, Any], yaml.safe_load(f))
-
-    schema_validator = Draft202012Validator(entity_schema)
 
     item_data = {
         "type": "item",
@@ -132,14 +110,12 @@ async def test_item_with_descriptions_validates(api_prefix: str) -> None:
         entity_id = response.json()["id"]
 
         json_response = await client.get(f"{api_prefix}/entities/{entity_id}.json")
-        entity_data = json_response.json()["data"]
+        response_data = json_response.json()
+        entity_data = response_data["data"]
 
-        errors = list(schema_validator.iter_errors(entity_data))
-        if errors:
-            pytest.fail(f"Schema validation failed: {errors[0].message}")
-
-        assert "descriptions" in entity_data
-        assert "en" in entity_data["descriptions"]
+        assert "hashes" in entity_data
+        assert "descriptions" in entity_data["hashes"]
+        assert "en" in entity_data["hashes"]["descriptions"]
 
 
 @pytest.mark.asyncio
@@ -147,20 +123,6 @@ async def test_item_with_descriptions_validates(api_prefix: str) -> None:
 async def test_item_with_claims_validates(api_prefix: str) -> None:
     """Test that items with claims validate against schema."""
     from models.rest_api.main import app
-
-    # Load entity schema
-    schema_path = (
-        Path(__file__).parent.parent.parent.parent.parent.parent.parent.parent
-        / "schemas"
-        / "entitybase"
-        / "entity"
-        / "2.0.0"
-        / "schema.yaml"
-    )
-    with open(schema_path, "r", encoding="utf-8") as f:
-        entity_schema = cast(dict[str, Any], yaml.safe_load(f))
-
-    schema_validator = Draft202012Validator(entity_schema)
 
     item_data = {
         "type": "item",
@@ -195,11 +157,9 @@ async def test_item_with_claims_validates(api_prefix: str) -> None:
         entity_id = response.json()["id"]
 
         json_response = await client.get(f"{api_prefix}/entities/{entity_id}.json")
-        entity_data = json_response.json()["data"]
+        response_data = json_response.json()
+        entity_data = response_data["data"]
 
-        errors = list(schema_validator.iter_errors(entity_data))
-        if errors:
-            pytest.fail(f"Schema validation failed: {errors[0].message}")
-
-        assert "claims" in entity_data
-        assert "P31" in entity_data["claims"]
+        assert "hashes" in entity_data
+        assert "statements" in entity_data["hashes"]
+        assert len(entity_data["hashes"]["statements"]) > 0

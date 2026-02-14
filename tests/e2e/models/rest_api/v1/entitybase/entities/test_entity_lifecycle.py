@@ -31,10 +31,14 @@ async def test_general_stats(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.get(f"{api_prefix}/stats")
-        assert response.status_code in [200, 400]
+        assert response.status_code == 200
         if response.status_code == 200:
             data = response.json()
-            assert "total_entities" in data or "entities" in data or "total_statements" in data
+            assert (
+                "total_entities" in data
+                or "entities" in data
+                or "total_statements" in data
+            )
 
 
 @pytest.mark.e2e
@@ -60,7 +64,7 @@ async def test_json_import_endpoint(api_prefix: str) -> None:
             json=import_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 202, 400, 404, 409]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e

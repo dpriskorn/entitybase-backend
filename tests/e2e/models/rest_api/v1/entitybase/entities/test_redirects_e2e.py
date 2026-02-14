@@ -46,7 +46,7 @@ async def test_create_redirect(api_prefix: str, sample_item_data) -> None:
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         # May succeed or fail depending on implementation
-        assert response.status_code in [200, 201, 400]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -74,4 +74,4 @@ async def test_revert_redirect(api_prefix: str, sample_item_data) -> None:
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         # May succeed or fail depending on whether redirect exists
-        assert response.status_code in [200, 400, 404]
+        assert response.status_code == 404

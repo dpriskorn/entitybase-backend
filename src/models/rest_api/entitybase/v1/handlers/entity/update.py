@@ -181,35 +181,86 @@ class EntityUpdateHandler(EntityHandler):
         validator: Any | None = None,
     ) -> EntityResponse:
         """Delete a label for a language (idempotent)."""
-        # Validate entity ID format
+        from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            EventPublishContext,
+        )
+        from models.data.infrastructure.stream.change_type import ChangeType
+        from models.data.rest_api.v1.entitybase.request.enums import UserActivityType
+        from .update_transaction import UpdateTransaction
+
         entity_type = self._infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
-        # Fetch current entity
+        if self.state.vitess_client.is_entity_deleted(entity_id):
+            raise_validation_error("Entity deleted", status_code=410)
+
+        if self.state.vitess_client.is_entity_locked(entity_id):
+            raise_validation_error("Entity locked", status_code=423)
+
         read_handler = EntityReadHandler(state=self.state)
         current_entity = read_handler.get_entity(entity_id)
 
-        # Get the revision data dictionary
-        entity_dict = current_entity.entity_data.revision
-
-        # Check if label exists
-        labels = entity_dict.get("labels", {})
-        if language_code not in labels:
-            # Idempotent - return current entity if label doesn't exist
+        existing_hashes = current_entity.entity_data.revision.get("hashes", {})
+        labels_hashes = existing_hashes.get("labels", {})
+        if language_code not in labels_hashes:
             return current_entity
 
-        # Remove label
-        del entity_dict["labels"][language_code]
+        updated_labels_hashes = dict(labels_hashes)
+        del updated_labels_hashes[language_code]
 
-        # Update with transaction
-        return await self._update_with_transaction(
-            entity_id,
-            entity_dict,
-            entity_type,
-            edit_headers,
-            validator,
-        )
+        updated_hashes = dict(existing_hashes)
+        updated_hashes["labels"] = updated_labels_hashes
+
+        tx = UpdateTransaction(state=self.state)
+        tx.entity_id = entity_id
+        try:
+            head_revision_id = tx.state.vitess_client.get_head(entity_id)
+
+            response = await tx.create_revision_with_hashes(
+                entity_id=entity_id,
+                entity_type=entity_type,
+                edit_headers=edit_headers,
+                existing_hashes=updated_hashes,
+                existing_revision=current_entity.entity_data.revision,
+            )
+
+            edit_context = EditContext(
+                user_id=edit_headers.x_user_id,
+                edit_summary=edit_headers.x_edit_summary,
+            )
+            event_context = EventPublishContext(
+                entity_id=entity_id,
+                revision_id=response.revision_id,
+                change_type=ChangeType.EDIT,
+                from_revision_id=head_revision_id,
+                changed_at=None,
+            )
+            tx.publish_event(event_context, edit_context)
+
+            if edit_headers.x_user_id:
+                activity_result = (
+                    self.state.vitess_client.user_repository.log_user_activity(
+                        user_id=edit_headers.x_user_id,
+                        activity_type=UserActivityType.ENTITY_EDIT,
+                        entity_id=entity_id,
+                        revision_id=response.revision_id,
+                    )
+                )
+                if not activity_result.success:
+                    logger.warning(
+                        f"Failed to log user activity: {activity_result.error}"
+                    )
+
+            tx.commit()
+            return response
+        except Exception as e:
+            logger.error(f"Delete label failed for {entity_id}: {e}", exc_info=True)
+            tx.rollback()
+            raise_validation_error(
+                f"Delete label failed: {type(e).__name__}: {str(e)}", status_code=500
+            )
 
     async def update_description(
         self,
@@ -264,35 +315,89 @@ class EntityUpdateHandler(EntityHandler):
         validator: Any | None = None,
     ) -> EntityResponse:
         """Delete a description for a language (idempotent)."""
-        # Validate entity ID format
+        from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            EventPublishContext,
+        )
+        from models.data.infrastructure.stream.change_type import ChangeType
+        from models.data.rest_api.v1.entitybase.request.enums import UserActivityType
+        from .update_transaction import UpdateTransaction
+
         entity_type = self._infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
-        # Fetch current entity
+        if self.state.vitess_client.is_entity_deleted(entity_id):
+            raise_validation_error("Entity deleted", status_code=410)
+
+        if self.state.vitess_client.is_entity_locked(entity_id):
+            raise_validation_error("Entity locked", status_code=423)
+
         read_handler = EntityReadHandler(state=self.state)
         current_entity = read_handler.get_entity(entity_id)
 
-        # Get the revision data dictionary
-        entity_dict = current_entity.entity_data.revision
-
-        # Check if description exists
-        descriptions = entity_dict.get("descriptions", {})
-        if language_code not in descriptions:
-            # Idempotent - return current entity if description doesn't exist
+        existing_hashes = current_entity.entity_data.revision.get("hashes", {})
+        descriptions_hashes = existing_hashes.get("descriptions", {})
+        if language_code not in descriptions_hashes:
             return current_entity
 
-        # Remove description
-        del entity_dict["descriptions"][language_code]
+        updated_descriptions_hashes = dict(descriptions_hashes)
+        del updated_descriptions_hashes[language_code]
 
-        # Update with transaction
-        return await self._update_with_transaction(
-            entity_id,
-            entity_dict,
-            entity_type,
-            edit_headers,
-            validator,
-        )
+        updated_hashes = dict(existing_hashes)
+        updated_hashes["descriptions"] = updated_descriptions_hashes
+
+        tx = UpdateTransaction(state=self.state)
+        tx.entity_id = entity_id
+        try:
+            head_revision_id = tx.state.vitess_client.get_head(entity_id)
+
+            response = await tx.create_revision_with_hashes(
+                entity_id=entity_id,
+                entity_type=entity_type,
+                edit_headers=edit_headers,
+                existing_hashes=updated_hashes,
+                existing_revision=current_entity.entity_data.revision,
+            )
+
+            edit_context = EditContext(
+                user_id=edit_headers.x_user_id,
+                edit_summary=edit_headers.x_edit_summary,
+            )
+            event_context = EventPublishContext(
+                entity_id=entity_id,
+                revision_id=response.revision_id,
+                change_type=ChangeType.EDIT,
+                from_revision_id=head_revision_id,
+                changed_at=None,
+            )
+            tx.publish_event(event_context, edit_context)
+
+            if edit_headers.x_user_id:
+                activity_result = (
+                    self.state.vitess_client.user_repository.log_user_activity(
+                        user_id=edit_headers.x_user_id,
+                        activity_type=UserActivityType.ENTITY_EDIT,
+                        entity_id=entity_id,
+                        revision_id=response.revision_id,
+                    )
+                )
+                if not activity_result.success:
+                    logger.warning(
+                        f"Failed to log user activity: {activity_result.error}"
+                    )
+
+            tx.commit()
+            return response
+        except Exception as e:
+            logger.error(
+                f"Delete description failed for {entity_id}: {e}", exc_info=True
+            )
+            tx.rollback()
+            raise_validation_error(
+                f"Delete description failed: {type(e).__name__}: {str(e)}",
+                status_code=500,
+            )
 
     async def update_aliases(
         self,
@@ -448,28 +553,86 @@ class EntityUpdateHandler(EntityHandler):
         validator: Any | None = None,
     ) -> EntityResponse:
         """Delete all aliases for a language (idempotent)."""
+        from models.data.rest_api.v1.entitybase.request.edit_context import EditContext
+        from models.data.rest_api.v1.entitybase.request.entity.context import (
+            EventPublishContext,
+        )
+        from models.data.infrastructure.stream.change_type import ChangeType
+        from models.data.rest_api.v1.entitybase.request.enums import UserActivityType
+        from .update_transaction import UpdateTransaction
+
         entity_type = self._infer_entity_type_from_id(entity_id)
         if not entity_type:
             raise_validation_error("Invalid entity ID format", status_code=400)
 
+        if self.state.vitess_client.is_entity_deleted(entity_id):
+            raise_validation_error("Entity deleted", status_code=410)
+
+        if self.state.vitess_client.is_entity_locked(entity_id):
+            raise_validation_error("Entity locked", status_code=423)
+
         read_handler = EntityReadHandler(state=self.state)
         current_entity = read_handler.get_entity(entity_id)
 
-        entity_dict = current_entity.entity_data.revision
-
-        aliases = entity_dict.get("aliases", {})
-        if language_code not in aliases:
+        existing_hashes = current_entity.entity_data.revision.get("hashes", {})
+        aliases_hashes = existing_hashes.get("aliases", {})
+        if language_code not in aliases_hashes:
             return current_entity
 
-        del entity_dict["aliases"][language_code]
+        updated_aliases_hashes = dict(aliases_hashes)
+        del updated_aliases_hashes[language_code]
 
-        return await self._update_with_transaction(
-            entity_id,
-            entity_dict,
-            entity_type,
-            edit_headers,
-            validator,
-        )
+        updated_hashes = dict(existing_hashes)
+        updated_hashes["aliases"] = updated_aliases_hashes
+
+        tx = UpdateTransaction(state=self.state)
+        tx.entity_id = entity_id
+        try:
+            head_revision_id = tx.state.vitess_client.get_head(entity_id)
+
+            response = await tx.create_revision_with_hashes(
+                entity_id=entity_id,
+                entity_type=entity_type,
+                edit_headers=edit_headers,
+                existing_hashes=updated_hashes,
+                existing_revision=current_entity.entity_data.revision,
+            )
+
+            edit_context = EditContext(
+                user_id=edit_headers.x_user_id,
+                edit_summary=edit_headers.x_edit_summary,
+            )
+            event_context = EventPublishContext(
+                entity_id=entity_id,
+                revision_id=response.revision_id,
+                change_type=ChangeType.EDIT,
+                from_revision_id=head_revision_id,
+                changed_at=None,
+            )
+            tx.publish_event(event_context, edit_context)
+
+            if edit_headers.x_user_id:
+                activity_result = (
+                    self.state.vitess_client.user_repository.log_user_activity(
+                        user_id=edit_headers.x_user_id,
+                        activity_type=UserActivityType.ENTITY_EDIT,
+                        entity_id=entity_id,
+                        revision_id=response.revision_id,
+                    )
+                )
+                if not activity_result.success:
+                    logger.warning(
+                        f"Failed to log user activity: {activity_result.error}"
+                    )
+
+            tx.commit()
+            return response
+        except Exception as e:
+            logger.error(f"Delete aliases failed for {entity_id}: {e}", exc_info=True)
+            tx.rollback()
+            raise_validation_error(
+                f"Delete aliases failed: {type(e).__name__}: {str(e)}", status_code=500
+            )
 
     async def update_sitelink(
         self,

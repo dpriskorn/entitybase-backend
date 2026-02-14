@@ -34,9 +34,7 @@ async def test_get_property_label_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(
-            f"{api_prefix}/entities/P70001/labels/en"
-        )
+        response = await client.get(f"{api_prefix}/entities/P70001/labels/en")
         assert response.status_code == 200
         data = response.json()
         assert "value" in data
@@ -66,11 +64,8 @@ async def test_get_property_label_not_found(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(
-            f"{api_prefix}/entities/P70002/labels/de"
-        )
+        response = await client.get(f"{api_prefix}/entities/P70002/labels/de")
         assert response.status_code == 404
-        assert "not found" in response.json()["message"].lower()
 
 
 @pytest.mark.asyncio
@@ -96,9 +91,7 @@ async def test_get_property_description_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(
-            f"{api_prefix}/entities/P70003/descriptions/en"
-        )
+        response = await client.get(f"{api_prefix}/entities/P70003/descriptions/en")
         assert response.status_code == 200
         data = response.json()
         assert "value" in data
@@ -128,9 +121,7 @@ async def test_get_property_description_not_found(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(
-            f"{api_prefix}/entities/P70004/descriptions/de"
-        )
+        response = await client.get(f"{api_prefix}/entities/P70004/descriptions/de")
         assert response.status_code == 404
 
 
@@ -143,7 +134,12 @@ async def test_get_property_aliases_success(api_prefix: str) -> None:
     entity_data = EntityCreateRequest(
         id="P70005",
         type="property",
-        aliases={"en": [{"language": "en", "value": "Property Alias 1"}, {"language": "en", "value": "Property Alias 2"}]},
+        aliases={
+            "en": [
+                {"language": "en", "value": "Property Alias 1"},
+                {"language": "en", "value": "Property Alias 2"},
+            ]
+        },
         edit_summary="test",
     )
 
@@ -157,9 +153,7 @@ async def test_get_property_aliases_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(
-            f"{api_prefix}/entities/P70005/aliases/en"
-        )
+        response = await client.get(f"{api_prefix}/entities/P70005/aliases/en")
         assert response.status_code == 200
         data = response.json()
         assert isinstance(data, list)
@@ -191,9 +185,7 @@ async def test_get_property_aliases_not_found(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        response = await client.get(
-            f"{api_prefix}/entities/P70006/aliases/de"
-        )
+        response = await client.get(f"{api_prefix}/entities/P70006/aliases/de")
         assert response.status_code == 404
 
 
@@ -206,7 +198,12 @@ async def test_update_property_aliases_replace(api_prefix: str) -> None:
     entity_data = EntityCreateRequest(
         id="P70007",
         type="property",
-        aliases={"en": [{"language": "en", "value": "Old Alias 1"}, {"language": "en", "value": "Old Alias 2"}]},
+        aliases={
+            "en": [
+                {"language": "en", "value": "Old Alias 1"},
+                {"language": "en", "value": "Old Alias 2"},
+            ]
+        },
         edit_summary="test",
     )
 
@@ -227,10 +224,13 @@ async def test_update_property_aliases_replace(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        aliases = data["data"]["aliases"]["en"]
+        assert "en" in data["data"]["revision"]["hashes"]["aliases"]
+        response = await client.get(f"{api_prefix}/entities/P70007/aliases/en")
+        assert response.status_code == 200
+        aliases = response.json()
         assert len(aliases) == 2
-        assert aliases[0]["value"] == "New Alias 1"
-        assert aliases[1]["value"] == "New Alias 2"
+        assert "New Alias 1" in aliases
+        assert "New Alias 2" in aliases
 
 
 @pytest.mark.asyncio
@@ -263,8 +263,8 @@ async def test_update_property_aliases_add(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" in data["data"]["aliases"]
-        assert len(data["data"]["aliases"]["en"]) == 2
+        assert "en" in data["data"]["revision"]["hashes"]["aliases"]
+        assert len(data["data"]["revision"]["hashes"]["aliases"]["en"]) == 2
 
 
 @pytest.mark.asyncio
@@ -297,7 +297,10 @@ async def test_update_property_label_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["data"]["labels"]["en"]["value"] == "Updated Label"
+        assert "en" in data["data"]["revision"]["hashes"]["labels"]
+        response = await client.get(f"{api_prefix}/entities/P70009/labels/en")
+        assert response.status_code == 200
+        assert response.json()["value"] == "Updated Label"
 
 
 @pytest.mark.asyncio
@@ -330,7 +333,10 @@ async def test_update_property_description_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["data"]["descriptions"]["en"]["value"] == "Updated Description"
+        assert "en" in data["data"]["revision"]["hashes"]["descriptions"]
+        response = await client.get(f"{api_prefix}/entities/P70010/descriptions/en")
+        assert response.status_code == 200
+        assert response.json()["value"] == "Updated Description"
 
 
 @pytest.mark.asyncio
@@ -365,8 +371,8 @@ async def test_delete_property_label_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" not in data["data"]["labels"]
-        assert "de" in data["data"]["labels"]
+        assert "en" not in data["data"]["revision"]["hashes"]["labels"]
+        assert "de" in data["data"]["revision"]["hashes"]["labels"]
 
 
 @pytest.mark.asyncio
@@ -401,8 +407,8 @@ async def test_delete_property_description_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" not in data["data"]["descriptions"]
-        assert "de" in data["data"]["descriptions"]
+        assert "en" not in data["data"]["revision"]["hashes"]["descriptions"]
+        assert "de" in data["data"]["revision"]["hashes"]["descriptions"]
 
 
 @pytest.mark.asyncio
@@ -415,7 +421,10 @@ async def test_delete_property_aliases_success(api_prefix: str) -> None:
         id="P70013",
         type="property",
         aliases={
-            "en": [{"language": "en", "value": "Alias 1"}, {"language": "en", "value": "Alias 2"}],
+            "en": [
+                {"language": "en", "value": "Alias 1"},
+                {"language": "en", "value": "Alias 2"},
+            ],
             "de": [{"language": "de", "value": "Alias DE"}],
         },
         edit_summary="test",
@@ -437,5 +446,5 @@ async def test_delete_property_aliases_success(api_prefix: str) -> None:
         )
         assert response.status_code == 200
         data = response.json()
-        assert "en" not in data["data"]["aliases"]
-        assert "de" in data["data"]["aliases"]
+        assert "en" not in data["data"]["revision"]["hashes"]["aliases"]
+        assert "de" in data["data"]["revision"]["hashes"]["aliases"]

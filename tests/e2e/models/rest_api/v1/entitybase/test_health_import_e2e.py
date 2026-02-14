@@ -43,7 +43,7 @@ async def test_import_single_entity(api_prefix: str) -> None:
             "descriptions": {"en": {"language": "en", "value": "Imported via API"}},
         }
         response = await client.post(
-            "/import",
+            f"{api_prefix}/import",
             json=entity_data,
             headers={"X-Edit-Summary": "Import E2E test", "X-User-ID": "0"},
         )
@@ -163,4 +163,4 @@ async def test_import_validation_error(api_prefix: str) -> None:
             json=entity_data,
             headers={"X-Edit-Summary": "Import E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [400, 422]
+        assert response.status_code == 422

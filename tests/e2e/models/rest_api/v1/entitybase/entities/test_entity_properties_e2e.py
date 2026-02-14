@@ -71,7 +71,7 @@ async def test_add_property_to_entity(api_prefix: str, sample_item_data) -> None
             json=claim_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 201, 400]
+        assert response.status_code == 200
 
 
 @pytest.mark.asyncio
@@ -99,7 +99,12 @@ async def test_get_entity_property_hashes(
         assert response.status_code == 200
         data = response.json()
         # Response may be a list, or contain 'hashes', 'property_hashes', or 'statements'
-        assert isinstance(data, list) or "hashes" in data or "property_hashes" in data or "statements" in data
+        assert (
+            isinstance(data, list)
+            or "hashes" in data
+            or "property_hashes" in data
+            or "statements" in data
+        )
 
 
 @pytest.mark.asyncio
@@ -127,4 +132,9 @@ async def test_get_entity_property_hashes_alternative_endpoint(
         assert response.status_code == 200
         data = response.json()
         # Response may be a list, or contain 'hashes', 'property_hashes', or 'statements'
-        assert isinstance(data, list) or "hashes" in data or "property_hashes" in data or "statements" in data
+        assert (
+            isinstance(data, list)
+            or "hashes" in data
+            or "property_hashes" in data
+            or "statements" in data
+        )

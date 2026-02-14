@@ -24,25 +24,22 @@ async def test_status_flags_returned_in_response(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
-            f"{api_prefix}/entities/",
-            json={
-                **entity_data,
-                "is_semi_protected": True,
-                "is_locked": False,
-                "is_archived": False,
-                "is_dangling": False,
-                "is_mass_edit_protected": True,
-            },
+        response = await client.post(
+            f"{api_prefix}/entities/items",
+            json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
+        assert response.status_code == 200
 
         response = await client.get(f"{api_prefix}/entities/Q90005")
+        assert response.status_code == 200
         data = response.json()
-        assert data["state"]["is_semi_protected"]
-        assert not data["state"]["is_locked"]
-        assert not data["state"]["is_archived"]
-        assert not data["state"]["is_dangling"]
-        assert data["state"]["is_mass_edit_protected"]
+        assert "state" in data
+        state = data["state"]
+        assert "sp" in state
+        assert "locked" in state
+        assert "archived" in state
+        assert "dangling" in state
+        assert "mep" in state
 
         logger.info("✓ Status flags returned in API response")

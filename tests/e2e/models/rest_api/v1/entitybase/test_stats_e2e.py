@@ -20,7 +20,7 @@ async def test_get_general_stats(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/stats")
         # Returns 400 if general_daily_stats table is empty
         # or 200 if stats exist
-        assert response.status_code in [200, 400]
+        assert response.status_code == 200
         if response.status_code == 200:
             data = response.json()
             assert isinstance(data, dict)

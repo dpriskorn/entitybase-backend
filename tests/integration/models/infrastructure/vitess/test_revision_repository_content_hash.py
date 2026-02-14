@@ -73,16 +73,15 @@ class TestRevisionRepositoryContentHash:
 
         repo = RevisionRepository(vitess_client=vitess_client)
 
-        # Create revision with content_hash
         content_hash = 12345678901234567890
         repo.create("Q1", 1, revision_data, content_hash=content_hash)
 
-        # Verify content_hash was stored
-        cursor.execute(
-            "SELECT content_hash FROM entity_revisions WHERE internal_id = 100 AND revision_id = 1"
-        )
-        result = cursor.fetchone()
-        assert result[0] == content_hash
+        with TestCursorContextManager(db_conn) as cursor:
+            cursor.execute(
+                "SELECT content_hash FROM entity_revisions WHERE internal_id = 100 AND revision_id = 1"
+            )
+            result = cursor.fetchone()
+            assert result[0] == content_hash
 
     def test_get_content_hash(self, db_conn):
         """Test that get_content_hash() retrieves stored hash."""
@@ -204,9 +203,9 @@ class TestRevisionRepositoryContentHash:
         # Verify success
         assert result is True
 
-        # Verify content_hash was stored
-        cursor.execute(
-            "SELECT content_hash FROM entity_revisions WHERE internal_id = 300 AND revision_id = 1"
-        )
-        db_result = cursor.fetchone()
-        assert db_result[0] == content_hash
+        with TestCursorContextManager(db_conn) as cursor:
+            cursor.execute(
+                "SELECT content_hash FROM entity_revisions WHERE internal_id = 300 AND revision_id = 1"
+            )
+            db_result = cursor.fetchone()
+            assert db_result[0] == content_hash

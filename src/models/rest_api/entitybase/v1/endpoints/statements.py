@@ -36,7 +36,7 @@ def get_most_used_statements(
         ge=0,
         description="Minimum ref_count threshold (default 1)",
     ),
-) -> MostUsedStatementsResponse:  # type: ignore[no-any-return]
+) -> MostUsedStatementsResponse:
     """Get most used statements based on reference count."""
     state = req.app.state.state_handler
     if not isinstance(state, StateHandler):
@@ -45,30 +45,7 @@ def get_most_used_statements(
     result = handler.get_most_used_statements(limit, min_ref_count)
     if not isinstance(result, MostUsedStatementsResponse):
         raise_validation_error("Invalid response type", status_code=500)
-    return result  # type: ignore[no-any-return]
-
-
-@router.get("/statements/{content_hash}", response_model=StatementResponse)
-def get_statement(content_hash: int, req: Request) -> StatementResponse:
-    """Retrieve a single statement by its content hash."""
-    state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
-        raise HTTPException(status_code=500, detail="Invalid clients type")
-    handler = StatementHandler(state=state)
-    return handler.get_statement(content_hash)  # type: ignore[no-any-return]
-
-
-# todo convert this into a worker instead
-@router.post("/statements/cleanup-orphaned", response_model=CleanupOrphanedResponse)
-def cleanup_orphaned_statements(  # type: ignore[no-any-return]
-    request: CleanupOrphanedRequest, req: Request
-) -> CleanupOrphanedResponse:
-    """Clean up orphaned statements that are no longer referenced."""
-    state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
-        raise HTTPException(status_code=500, detail="Invalid clients type")
-    handler = StatementHandler(state=state)
-    return handler.cleanup_orphaned_statements(request)  # type: ignore[no-any-return]
+    return result
 
 
 @router.get(
@@ -119,3 +96,25 @@ async def get_batch_statements(
         except Exception:
             result[raw_entity_id] = {}
     return BatchStatementsResponse(statements=result)
+
+
+@router.get("/statements/{content_hash}", response_model=StatementResponse)
+def get_statement(content_hash: int, req: Request) -> StatementResponse:
+    """Retrieve a single statement by its content hash."""
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
+        raise HTTPException(status_code=500, detail="Invalid clients type")
+    handler = StatementHandler(state=state)
+    return handler.get_statement(content_hash)
+
+
+@router.post("/statements/cleanup-orphaned", response_model=CleanupOrphanedResponse)
+def cleanup_orphaned_statements(
+    request: CleanupOrphanedRequest, req: Request
+) -> CleanupOrphanedResponse:
+    """Clean up orphaned statements that are no longer referenced."""
+    state = req.app.state.state_handler
+    if not isinstance(state, StateHandler):
+        raise HTTPException(status_code=500, detail="Invalid clients type")
+    handler = StatementHandler(state=state)
+    return handler.cleanup_orphaned_statements(request)

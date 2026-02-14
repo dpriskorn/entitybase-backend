@@ -22,8 +22,12 @@ logger = logging.getLogger(__name__)
 class TestUnifiedLabelEndpoints:
     """Test unified label endpoints work for both items and properties."""
 
-    @pytest.mark.parametrize("entity_type,entity_prefix", [("item", "Q"), ("property", "P")])
-    async def test_get_label_success(self, api_prefix: str, entity_type: str, entity_prefix: str) -> None:
+    @pytest.mark.parametrize(
+        "entity_type,entity_prefix", [("item", "Q"), ("property", "P")]
+    )
+    async def test_get_label_success(
+        self, api_prefix: str, entity_type: str, entity_prefix: str
+    ) -> None:
         """Test getting label for language works for both items and properties."""
         from models.rest_api.main import app
 
@@ -39,7 +43,8 @@ class TestUnifiedLabelEndpoints:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            create_url = f"{api_prefix}/entities/{entity_type}s"
+            plural = "properties" if entity_type == "property" else f"{entity_type}s"
+            create_url = f"{api_prefix}/entities/{plural}"
             response = await client.post(
                 create_url,
                 json=entity_data.model_dump(mode="json", exclude_none=True),
@@ -52,8 +57,12 @@ class TestUnifiedLabelEndpoints:
             data = response.json()
             assert "value" in data
 
-    @pytest.mark.parametrize("entity_type,entity_prefix", [("item", "Q"), ("property", "P")])
-    async def test_update_label_via_put(self, api_prefix: str, entity_type: str, entity_prefix: str) -> None:
+    @pytest.mark.parametrize(
+        "entity_type,entity_prefix", [("item", "Q"), ("property", "P")]
+    )
+    async def test_update_label_via_put(
+        self, api_prefix: str, entity_type: str, entity_prefix: str
+    ) -> None:
         """Test updating label via PUT works for both items and properties."""
         from models.rest_api.main import app
 
@@ -69,7 +78,8 @@ class TestUnifiedLabelEndpoints:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            create_url = f"{api_prefix}/entities/{entity_type}s"
+            plural = "properties" if entity_type == "property" else f"{entity_type}s"
+            create_url = f"{api_prefix}/entities/{plural}"
             response = await client.post(
                 create_url,
                 json=entity_data.model_dump(mode="json", exclude_none=True),
@@ -84,8 +94,12 @@ class TestUnifiedLabelEndpoints:
             )
             assert response.status_code == 200
 
-    @pytest.mark.parametrize("entity_type,entity_prefix", [("item", "Q"), ("property", "P")])
-    async def test_add_label_via_post(self, api_prefix: str, entity_type: str, entity_prefix: str) -> None:
+    @pytest.mark.parametrize(
+        "entity_type,entity_prefix", [("item", "Q"), ("property", "P")]
+    )
+    async def test_add_label_via_post(
+        self, api_prefix: str, entity_type: str, entity_prefix: str
+    ) -> None:
         """Test adding label via POST works for both items and properties."""
         from models.rest_api.main import app
 
@@ -101,7 +115,8 @@ class TestUnifiedLabelEndpoints:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            create_url = f"{api_prefix}/entities/{entity_type}s"
+            plural = "properties" if entity_type == "property" else f"{entity_type}s"
+            create_url = f"{api_prefix}/entities/{plural}"
             response = await client.post(
                 create_url,
                 json=entity_data.model_dump(mode="json", exclude_none=True),
@@ -116,8 +131,12 @@ class TestUnifiedLabelEndpoints:
             )
             assert response.status_code == 200
 
-    @pytest.mark.parametrize("entity_type,entity_prefix", [("item", "Q"), ("property", "P")])
-    async def test_delete_label(self, api_prefix: str, entity_type: str, entity_prefix: str) -> None:
+    @pytest.mark.parametrize(
+        "entity_type,entity_prefix", [("item", "Q"), ("property", "P")]
+    )
+    async def test_delete_label(
+        self, api_prefix: str, entity_type: str, entity_prefix: str
+    ) -> None:
         """Test deleting label works for both items and properties."""
         from models.rest_api.main import app
 
@@ -133,7 +152,8 @@ class TestUnifiedLabelEndpoints:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            create_url = f"{api_prefix}/entities/{entity_type}s"
+            plural = "properties" if entity_type == "property" else f"{entity_type}s"
+            create_url = f"{api_prefix}/entities/{plural}"
             response = await client.post(
                 create_url,
                 json=entity_data.model_dump(mode="json", exclude_none=True),
@@ -153,8 +173,12 @@ class TestUnifiedLabelEndpoints:
 class TestUnifiedDescriptionEndpoints:
     """Test unified description endpoints work for both items and properties."""
 
-    @pytest.mark.parametrize("entity_type,entity_prefix", [("item", "Q"), ("property", "P")])
-    async def test_get_description_success(self, api_prefix: str, entity_type: str, entity_prefix: str) -> None:
+    @pytest.mark.parametrize(
+        "entity_type,entity_prefix", [("item", "Q"), ("property", "P")]
+    )
+    async def test_get_description_success(
+        self, api_prefix: str, entity_type: str, entity_prefix: str
+    ) -> None:
         """Test getting description works for both items and properties."""
         from models.rest_api.main import app
 
@@ -170,7 +194,8 @@ class TestUnifiedDescriptionEndpoints:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            create_url = f"{api_prefix}/entities/{entity_type}s"
+            plural = "properties" if entity_type == "property" else f"{entity_type}s"
+            create_url = f"{api_prefix}/entities/{plural}"
             response = await client.post(
                 create_url,
                 json=entity_data.model_dump(mode="json", exclude_none=True),
@@ -178,13 +203,19 @@ class TestUnifiedDescriptionEndpoints:
             )
             assert response.status_code == 200
 
-            response = await client.get(f"{api_prefix}/entities/{entity_id}/descriptions/en")
+            response = await client.get(
+                f"{api_prefix}/entities/{entity_id}/descriptions/en"
+            )
             assert response.status_code == 200
             data = response.json()
             assert "value" in data
 
-    @pytest.mark.parametrize("entity_type,entity_prefix", [("item", "Q"), ("property", "P")])
-    async def test_add_description_via_post(self, api_prefix: str, entity_type: str, entity_prefix: str) -> None:
+    @pytest.mark.parametrize(
+        "entity_type,entity_prefix", [("item", "Q"), ("property", "P")]
+    )
+    async def test_add_description_via_post(
+        self, api_prefix: str, entity_type: str, entity_prefix: str
+    ) -> None:
         """Test adding description via POST works for both items and properties."""
         from models.rest_api.main import app
 
@@ -200,7 +231,8 @@ class TestUnifiedDescriptionEndpoints:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            create_url = f"{api_prefix}/entities/{entity_type}s"
+            plural = "properties" if entity_type == "property" else f"{entity_type}s"
+            create_url = f"{api_prefix}/entities/{plural}"
             response = await client.post(
                 create_url,
                 json=entity_data.model_dump(mode="json", exclude_none=True),
@@ -221,8 +253,12 @@ class TestUnifiedDescriptionEndpoints:
 class TestUnifiedAliasEndpoints:
     """Test unified alias endpoints work for both items and properties."""
 
-    @pytest.mark.parametrize("entity_type,entity_prefix", [("item", "Q"), ("property", "P")])
-    async def test_get_aliases_success(self, api_prefix: str, entity_type: str, entity_prefix: str) -> None:
+    @pytest.mark.parametrize(
+        "entity_type,entity_prefix", [("item", "Q"), ("property", "P")]
+    )
+    async def test_get_aliases_success(
+        self, api_prefix: str, entity_type: str, entity_prefix: str
+    ) -> None:
         """Test getting aliases works for both items and properties."""
         from models.rest_api.main import app
 
@@ -238,7 +274,8 @@ class TestUnifiedAliasEndpoints:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            create_url = f"{api_prefix}/entities/{entity_type}s"
+            plural = "properties" if entity_type == "property" else f"{entity_type}s"
+            create_url = f"{api_prefix}/entities/{plural}"
             response = await client.post(
                 create_url,
                 json=entity_data.model_dump(mode="json", exclude_none=True),
@@ -252,8 +289,12 @@ class TestUnifiedAliasEndpoints:
             assert isinstance(data, list)
             assert len(data) == 2
 
-    @pytest.mark.parametrize("entity_type,entity_prefix", [("item", "Q"), ("property", "P")])
-    async def test_update_aliases_via_put(self, api_prefix: str, entity_type: str, entity_prefix: str) -> None:
+    @pytest.mark.parametrize(
+        "entity_type,entity_prefix", [("item", "Q"), ("property", "P")]
+    )
+    async def test_update_aliases_via_put(
+        self, api_prefix: str, entity_type: str, entity_prefix: str
+    ) -> None:
         """Test updating aliases via PUT works for both items and properties."""
         from models.rest_api.main import app
 
@@ -269,7 +310,8 @@ class TestUnifiedAliasEndpoints:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            create_url = f"{api_prefix}/entities/{entity_type}s"
+            plural = "properties" if entity_type == "property" else f"{entity_type}s"
+            create_url = f"{api_prefix}/entities/{plural}"
             response = await client.post(
                 create_url,
                 json=entity_data.model_dump(mode="json", exclude_none=True),
@@ -284,8 +326,12 @@ class TestUnifiedAliasEndpoints:
             )
             assert response.status_code == 200
 
-    @pytest.mark.parametrize("entity_type,entity_prefix", [("item", "Q"), ("property", "P")])
-    async def test_add_single_alias_via_post(self, api_prefix: str, entity_type: str, entity_prefix: str) -> None:
+    @pytest.mark.parametrize(
+        "entity_type,entity_prefix", [("item", "Q"), ("property", "P")]
+    )
+    async def test_add_single_alias_via_post(
+        self, api_prefix: str, entity_type: str, entity_prefix: str
+    ) -> None:
         """Test adding single alias via POST works for both items and properties."""
         from models.rest_api.main import app
 
@@ -301,7 +347,8 @@ class TestUnifiedAliasEndpoints:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            create_url = f"{api_prefix}/entities/{entity_type}s"
+            plural = "properties" if entity_type == "property" else f"{entity_type}s"
+            create_url = f"{api_prefix}/entities/{plural}"
             response = await client.post(
                 create_url,
                 json=entity_data.model_dump(mode="json", exclude_none=True),
@@ -316,8 +363,12 @@ class TestUnifiedAliasEndpoints:
             )
             assert response.status_code == 200
 
-    @pytest.mark.parametrize("entity_type,entity_prefix", [("item", "Q"), ("property", "P")])
-    async def test_delete_aliases(self, api_prefix: str, entity_type: str, entity_prefix: str) -> None:
+    @pytest.mark.parametrize(
+        "entity_type,entity_prefix", [("item", "Q"), ("property", "P")]
+    )
+    async def test_delete_aliases(
+        self, api_prefix: str, entity_type: str, entity_prefix: str
+    ) -> None:
         """Test deleting aliases works for both items and properties."""
         from models.rest_api.main import app
 
@@ -336,7 +387,8 @@ class TestUnifiedAliasEndpoints:
         async with AsyncClient(
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
-            create_url = f"{api_prefix}/entities/{entity_type}s"
+            plural = "properties" if entity_type == "property" else f"{entity_type}s"
+            create_url = f"{api_prefix}/entities/{plural}"
             response = await client.post(
                 create_url,
                 json=entity_data.model_dump(mode="json", exclude_none=True),

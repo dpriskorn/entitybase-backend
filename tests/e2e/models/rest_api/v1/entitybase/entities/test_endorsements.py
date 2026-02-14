@@ -36,7 +36,7 @@ async def test_endorsement_full_workflow(api_prefix: str) -> None:
         endorse_response = await client.post(
             f"{api_prefix}/statements/999999999/endorse", headers={"X-User-ID": "1001"}
         )
-        assert endorse_response.status_code in [400, 404, 500]
+        assert endorse_response.status_code == 404
 
         # Step 3: Test getting endorsements for non-existent statement
         list_response = await client.get(
@@ -86,7 +86,7 @@ async def test_endorsement_full_workflow(api_prefix: str) -> None:
             f"{api_prefix}/statements/999999999/endorse", headers={"X-User-ID": "1001"}
         )
         # Should fail since no endorsement exists
-        assert withdraw_response.status_code in [400, 404]
+        assert withdraw_response.status_code == 404
 
 
 @pytest.mark.asyncio
@@ -114,7 +114,7 @@ async def test_endorsement_error_handling(api_prefix: str) -> None:
             f"{api_prefix}/statements/999999999/endorse",
             headers={"X-User-ID": "999999"},
         )
-        assert response.status_code in [400, 404]  # User not found
+        assert response.status_code == 404
 
         # Test invalid statement hash
         response = await client.get(f"{api_prefix}/statements/0/endorsements/stats")
@@ -137,7 +137,7 @@ async def test_endorsement_api_structure(api_prefix: str) -> None:
 
         for endpoint in endpoints_to_test:
             response = await client.get(endpoint)
-            assert response.status_code in [200, 500]
+            assert response.status_code == 200
 
             data = response.json()
             assert isinstance(data, dict)
@@ -194,7 +194,7 @@ async def test_get_single_statement(api_prefix: str) -> None:
         # Get non-existent statement
         response = await client.get(f"{api_prefix}/statements/123456789")
         # May return 404 or 200 with empty data
-        assert response.status_code in [200, 404]
+        assert response.status_code == 200
 
 
 @pytest.mark.asyncio
@@ -214,14 +214,14 @@ async def test_endorse_and_withdraw_statement(api_prefix: str) -> None:
             f"{api_prefix}/statements/123456789/endorse", headers={"X-User-ID": "1003"}
         )
         # Will fail but endpoint works
-        assert endorse_response.status_code in [400, 404]
+        assert endorse_response.status_code == 404
 
         # Try to withdraw (endpoint test)
         withdraw_response = await client.delete(
             f"{api_prefix}/statements/123456789/endorse", headers={"X-User-ID": "1003"}
         )
         # Will fail but endpoint works
-        assert withdraw_response.status_code in [400, 404]
+        assert withdraw_response.status_code == 404
 
 
 @pytest.mark.asyncio

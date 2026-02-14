@@ -10,23 +10,34 @@ sys.path.insert(0, "src")
 
 @pytest.mark.e2e
 @pytest.mark.asyncio
-async def test_add_statement(api_prefix: str, sample_item_data) -> None:
+async def test_add_statement(
+    api_prefix: str, sample_item_data, sample_property_data
+) -> None:
     from models.rest_api.main import app
 
     """E2E test: Add a single statement to an entity."""
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity
+        headers = {"X-Edit-Summary": "E2E test", "X-User-ID": "0"}
+
+        property_data = sample_property_data.copy()
+        property_data["id"] = "P31"
+        response = await client.post(
+            f"{api_prefix}/entities/properties",
+            json=property_data,
+            headers=headers,
+        )
+        assert response.status_code == 200
+
         response = await client.post(
             f"{api_prefix}/entities/items",
             json=sample_item_data,
-            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+            headers=headers,
         )
         assert response.status_code == 200
         entity_id = response.json()["id"]
 
-        # Add statement
         statement_data = {
             "claim": {
                 "property": {"id": "P31", "data_type": "wikibase-item"},
@@ -37,9 +48,9 @@ async def test_add_statement(api_prefix: str, sample_item_data) -> None:
         response = await client.post(
             f"{api_prefix}/entities/{entity_id}/statements",
             json=statement_data,
-            headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
+            headers=headers,
         )
-        assert response.status_code in [200, 201]
+        assert response.status_code == 200
 
         # Verify statement was added
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
@@ -88,9 +99,10 @@ async def test_remove_statement(api_prefix: str, sample_item_with_statements) ->
         # Remove statement
         response = await client.delete(
             f"{api_prefix}/entities/{entity_id}/statements/{statement_hash}",
+            json={},
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 204]
+        assert response.status_code == 200
 
         # Verify removal
         response = await client.get(f"{api_prefix}/entities/{entity_id}")

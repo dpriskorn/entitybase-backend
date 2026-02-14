@@ -202,7 +202,7 @@ async def test_get_batch_statements(api_prefix: str) -> None:
         entity_id = response.json()["id"]
 
         # Get batch statements
-        batch_data = {"entity_ids": [entity_id], "property_ids": ["P31"]}
+        batch_data = {"entity_ids": entity_id, "property_ids": "P31"}
         response = await client.get(
             f"{api_prefix}/statements/batch",
             params=batch_data,

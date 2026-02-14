@@ -76,7 +76,7 @@ async def test_create_lexeme_sense(api_prefix: str) -> None:
             json=sense_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 201, 500]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -109,13 +109,13 @@ async def test_get_single_sense(api_prefix: str) -> None:
 
         # Get sense by short ID (S1 format)
         response = await client.get(f"{api_prefix}/entities/lexemes/senses/S1")
-        assert response.status_code in [200, 404]
+        assert response.status_code == 200
 
         # Try full ID format
         response = await client.get(
             f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1"
         )
-        assert response.status_code in [200, 404]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -152,7 +152,7 @@ async def test_delete_sense(api_prefix: str) -> None:
             f"{api_prefix}/entities/lexemes/senses/S2",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 204, 404, 500]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -190,7 +190,7 @@ async def test_get_sense_glosses(api_prefix: str) -> None:
 
         # Get all glosses
         response = await client.get(f"{api_prefix}/entities/lexemes/senses/S1/glosses")
-        assert response.status_code in [200, 404]
+        assert response.status_code == 200
         if response.status_code == 200:
             data = response.json()
             assert "glosses" in data or isinstance(data, dict)
@@ -228,7 +228,7 @@ async def test_get_sense_gloss_by_language(api_prefix: str) -> None:
         response = await client.get(
             f"{api_prefix}/entities/lexemes/senses/S1/glosses/en"
         )
-        assert response.status_code in [200, 404]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -266,7 +266,7 @@ async def test_update_sense_gloss(api_prefix: str) -> None:
             json=updated_gloss,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 500]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -307,7 +307,7 @@ async def test_delete_sense_gloss(api_prefix: str) -> None:
             f"{api_prefix}/entities/lexemes/senses/S1/glosses/de",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 500]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -349,4 +349,4 @@ async def test_add_statement_to_sense(api_prefix: str) -> None:
             json=statement_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 201, 500]
+        assert response.status_code == 200

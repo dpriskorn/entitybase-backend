@@ -181,7 +181,8 @@ class EntityStatementService(Service):
         try:
             read_handler = EntityReadHandler(state=self.state)
             property_response = read_handler.get_entity(property_id)
-            if property_response.entity_type != "property":
+            entity_type = property_response.entity_data.revision.get("entity_type")
+            if entity_type != "property":
                 raise_validation_error("Entity is not a property", status_code=400)
         except Exception:
             raise_validation_error("Property does not exist", status_code=400)
@@ -355,7 +356,7 @@ class EntityStatementService(Service):
         ctx = ProcessEntityRevisionContext(
             entity_id=entity_id,
             request_data=current_data,
-            entity_type=entity_response.entity_type,
+            entity_type=entity_response.entity_data.revision.get("entity_type"),
             edit_type=EditType.UNSPECIFIED,
             edit_headers=edit_headers,
             is_creation=False,

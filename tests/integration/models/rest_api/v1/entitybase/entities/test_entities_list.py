@@ -60,7 +60,7 @@ async def test_list_locked_entities(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json={**entity_data, "is_locked": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -133,7 +133,7 @@ async def test_list_archived_entities(api_prefix: str) -> None:
     ) as client:
         await client.post(
             f"{api_prefix}/entities/items",
-            json={**entity_data, "is_archived": True},
+            json={**entity_data, "is_semi_protected": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
 
@@ -341,7 +341,7 @@ async def test_list_by_edit_type_soft_delete(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -373,12 +373,12 @@ async def test_list_by_edit_type_redirect_create(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json=entity_from,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json=entity_to,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
@@ -417,12 +417,12 @@ async def test_list_by_edit_type_redirect_revert(api_prefix: str) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json=entity_from,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
         await client.post(
-            f"{api_prefix}/entities",
+            f"{api_prefix}/entities/items",
             json=entity_to,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )

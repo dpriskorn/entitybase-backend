@@ -47,7 +47,9 @@ async def test_list_entities_with_limit_offset(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.get(f"{api_prefix}/entities?status=locked&limit=5&offset=0")
+        response = await client.get(
+            f"{api_prefix}/entities?status=locked&limit=5&offset=0"
+        )
         assert response.status_code == 200
         data = response.json()
         assert "entities" in data or isinstance(data, list)
@@ -78,7 +80,9 @@ async def test_get_single_entity(api_prefix: str, sample_item_data) -> None:
         assert data["id"] == entity_id
         assert "data" in data
         # Entity data is stored with hashes, not resolved terms
-        assert "hashes" in data["data"]["revision"] or "labels" in data["data"]["revision"]
+        assert (
+            "hashes" in data["data"]["revision"] or "labels" in data["data"]["revision"]
+        )
 
 
 @pytest.mark.asyncio
@@ -239,9 +243,9 @@ async def test_delete_entity(api_prefix: str) -> None:
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         # May return 204, 200, or even 404 if already deleted
-        assert response.status_code in [200, 204, 404]
+        assert response.status_code == 200
 
         # Verify deletion - soft delete may still return 200 with deletion flag
         response = await client.get(f"{api_prefix}/entities/{entity_id}")
         # Entity may be: 404 (hard delete), 410 (gone), or 200 (soft delete with flag)
-        assert response.status_code in [200, 404, 410]
+        assert response.status_code == 404

@@ -32,10 +32,11 @@ async def test_hard_delete_entity(api_prefix: str) -> None:
         )
 
         import json
-        # Hard delete
-        delete_response = await client.delete(
+
+        delete_response = await client.request(
+            "DELETE",
             f"{api_prefix}/entities/Q99002",
-            content=json.dumps({"delete_type": "hard"}),
+            json={"delete_type": "hard"},
             headers={
                 "X-Edit-Summary": "delete entity",
                 "X-User-ID": "0",
@@ -82,10 +83,11 @@ async def test_hard_delete_prevents_undelete(api_prefix: str) -> None:
         )
 
         import json
-        # Hard delete
-        await client.delete(
+
+        await client.request(
+            "DELETE",
             f"{api_prefix}/entities/Q99004",
-            content=json.dumps({"delete_type": "hard"}),
+            json={"delete_type": "hard"},
             headers={
                 "X-Edit-Summary": "delete entity",
                 "X-User-ID": "0",

@@ -85,7 +85,7 @@ async def test_create_lexeme_form(api_prefix: str) -> None:
             json=form_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 201, 500]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -121,13 +121,13 @@ async def test_get_single_form(api_prefix: str) -> None:
 
         # Get form by short ID (F1 format)
         response = await client.get(f"{api_prefix}/entities/lexemes/forms/F1")
-        assert response.status_code in [200, 404]
+        assert response.status_code == 200
 
         # Try full ID format (if form has ID)
         response = await client.get(
             f"{api_prefix}/entities/lexemes/forms/{lexeme_id}-F1"
         )
-        assert response.status_code in [200, 404]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -170,7 +170,7 @@ async def test_delete_form(api_prefix: str) -> None:
             f"{api_prefix}/entities/lexemes/forms/F2",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 204, 404, 500]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -211,7 +211,7 @@ async def test_get_form_representations(api_prefix: str) -> None:
         response = await client.get(
             f"{api_prefix}/entities/lexemes/forms/F1/representation"
         )
-        assert response.status_code in [200, 404]
+        assert response.status_code == 200
         if response.status_code == 200:
             data = response.json()
             assert "representations" in data or isinstance(data, dict)
@@ -252,7 +252,7 @@ async def test_get_form_representation_by_language(api_prefix: str) -> None:
         response = await client.get(
             f"{api_prefix}/entities/lexemes/forms/F1/representation/en"
         )
-        assert response.status_code in [200, 404]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -293,7 +293,7 @@ async def test_add_form_representation(api_prefix: str) -> None:
             json=new_rep,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 201, 500]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -334,7 +334,7 @@ async def test_update_form_representation(api_prefix: str) -> None:
             json=updated_rep,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 500]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -376,7 +376,7 @@ async def test_delete_form_representation(api_prefix: str) -> None:
             f"{api_prefix}/entities/lexemes/forms/F1/representation/de",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 500]
+        assert response.status_code == 200
 
 
 @pytest.mark.e2e
@@ -421,4 +421,4 @@ async def test_add_statement_to_form(api_prefix: str) -> None:
             json=statement_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        assert response.status_code in [200, 201, 500]
+        assert response.status_code == 200

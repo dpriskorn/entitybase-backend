@@ -2,6 +2,7 @@
 
 import json
 import logging
+import uuid
 import pytest
 from datetime import datetime, timezone
 from pathlib import Path
@@ -25,25 +26,29 @@ async def test_weekly_dump_full_workflow_e2e(api_prefix: str) -> None:
         headers = {"X-Edit-Summary": "E2E dump worker test", "X-User-ID": "0"}
 
         L42_data = {
-            "id": "L42",
             "type": "lexeme",
             "language": "Q1860",
-            "lexicalCategory": "Q1084",
-            "lemmas": {"en": {"language": "en", "value": "answer"}},
-            "labels": {"en": {"language": "en", "value": "answer"}},
+            "lexical_category": "Q1084",
+            "lemmas": {
+                "en": {"language": "en", "value": f"answer-{uuid.uuid4().hex[:8]}"}
+            },
         }
         response = await client.post(
             f"{api_prefix}/entities/lexemes",
             json=L42_data,
             headers=headers,
         )
-        assert response.status_code in [200, 409]
-        logger.info("Created L42 entity (or already exists)")
+        assert response.status_code == 200
+        logger.info("Created lexeme entity")
 
         Q42_data = {
-            "id": "Q42",
             "type": "item",
-            "labels": {"en": {"language": "en", "value": "Douglas Adams"}},
+            "labels": {
+                "en": {
+                    "language": "en",
+                    "value": f"Douglas Adams {uuid.uuid4().hex[:8]}",
+                }
+            },
             "descriptions": {
                 "en": {"language": "en", "value": "British science fiction writer"}
             },
@@ -53,22 +58,23 @@ async def test_weekly_dump_full_workflow_e2e(api_prefix: str) -> None:
             json=Q42_data,
             headers=headers,
         )
-        assert response.status_code in [200, 409]
-        logger.info("Created Q42 entity (or already exists)")
+        assert response.status_code == 200
+        logger.info("Created item entity")
 
         P31_data = {
-            "id": "P31",
             "type": "property",
             "datatype": "wikibase-item",
-            "labels": {"en": {"language": "en", "value": "instance of"}},
+            "labels": {
+                "en": {"language": "en", "value": f"instance of {uuid.uuid4().hex[:8]}"}
+            },
         }
         response = await client.post(
             f"{api_prefix}/entities/properties",
             json=P31_data,
             headers=headers,
         )
-        assert response.status_code in [200, 409]
-        logger.info("Created P31 entity (or already exists)")
+        assert response.status_code == 200
+        logger.info("Created property entity")
 
     logger.info("Entities created, running dump worker...")
 

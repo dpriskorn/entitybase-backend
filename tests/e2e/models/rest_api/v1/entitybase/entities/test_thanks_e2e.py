@@ -36,7 +36,7 @@ async def test_send_thank(api_prefix: str) -> None:
             headers={"X-User-ID": "99999"},
         )
         # May fail if user doesn't exist, but endpoint works
-        assert response.status_code in [200, 400, 404]
+        assert response.status_code == 404
 
 
 @pytest.mark.e2e

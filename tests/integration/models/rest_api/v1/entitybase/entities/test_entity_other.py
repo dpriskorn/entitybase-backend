@@ -19,8 +19,8 @@ async def test_update_lexeme(api_prefix: str) -> None:
     lexeme_data = {
         "type": "lexeme",
         "lemmas": {"en": {"language": "en", "value": "test"}},
-        "lexicalCategory": "Q1084",  # noun
-        "language": "Q1860",  # English
+        "lexical_category": "Q1084",
+        "language": "Q1860",
     }
 
     async with AsyncClient(
@@ -39,7 +39,7 @@ async def test_update_lexeme(api_prefix: str) -> None:
             "data": {
                 "type": "lexeme",
                 "lemmas": {"en": {"language": "en", "value": "updated test"}},
-                "lexicalCategory": "Q1084",
+                "lexical_category": "Q1084",
                 "language": "Q1860",
             }
         }
@@ -74,7 +74,7 @@ async def test_lexeme_lemmas_endpoints(api_prefix: str) -> None:
             "en": {"language": "en", "value": "answer"},
             "de": {"language": "de", "value": "Antwort"},
         },
-        "lexicalCategory": "Q1084",
+        "lexical_category": "Q1084",
         "language": "Q1860",
     }
 
@@ -118,16 +118,15 @@ async def test_lexeme_lemmas_endpoints(api_prefix: str) -> None:
         assert update_lemma_response.json()["data"]["lemmas"]["en"]["value"] == "reply"
         logger.info("✓ Update lemma works correctly")
 
-        # Try to delete last lemma (should fail)
-        try:
-            await client.delete(
-                f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas/en",
-                headers={"X-Edit-Summary": "delete lemma", "X-User-ID": "0"},
-            )
-            assert False, "Should have failed to delete last lemma"
-        except Exception as e:
-            assert "at least one lemma" in str(e).lower()
-            logger.info("✓ Delete last lemma correctly fails")
+        delete_last_lemma_response = await client.delete(
+            f"{api_prefix}/entities/lexemes/{lexeme_id}/lemmas/en",
+            headers={"X-Edit-Summary": "delete lemma", "X-User-ID": "0"},
+        )
+        assert delete_last_lemma_response.status_code == 400
+        assert (
+            "at least one lemma" in delete_last_lemma_response.json()["detail"].lower()
+        )
+        logger.info("✓ Delete last lemma correctly fails")
 
         # Delete one lemma (there are still 2, so should succeed)
         delete_lemma_response = await client.delete(
@@ -158,7 +157,7 @@ async def test_create_lexeme_without_lemmas_fails(api_prefix: str) -> None:
     lexeme_data = {
         "type": "lexeme",
         "lemmas": {},
-        "lexicalCategory": "Q1084",
+        "lexical_category": "Q1084",
         "language": "Q1860",
     }
 
