@@ -2,11 +2,16 @@
 """Linter to check for __init__ methods in Pydantic BaseModel subclasses, suggesting model_post_init instead."""
 
 import ast
+import sys
 from pathlib import Path
 from typing import List
 
+sys.path.append(str(Path(__file__).parent.resolve()))
 
-def check_file(file_path: Path) -> List[str]:
+from allowlist_utils import is_line_allowed
+
+
+def check_file(file_path: Path, allowlist: set) -> List[str]:
     """Check a file for __init__ methods in classes."""
     errors = []
     try:
@@ -18,6 +23,8 @@ def check_file(file_path: Path) -> List[str]:
 
     for node in ast.walk(tree):
         if isinstance(node, ast.FunctionDef) and node.name == "__init__":
+            if is_line_allowed(str(file_path), node.lineno, allowlist):
+                continue
             # Find the class name
             class_name = None
             for parent in ast.walk(tree):
@@ -32,6 +39,19 @@ def check_file(file_path: Path) -> List[str]:
     return errors
 
 
+def load_allowlist() -> set:
+    """Load the allowlist from config/linters/allowlists/custom/pydantic-init.txt."""
+    allowlist_path = Path("config/linters/allowlists/custom/pydantic-init.txt")
+    allowlist = set()
+    if allowlist_path.exists():
+        with open(allowlist_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith("#"):
+                    allowlist.add(line)
+    return allowlist
+
+
 def main() -> int:
     """Main entry point."""
     src_dir = Path("src")
@@ -41,11 +61,12 @@ def main() -> int:
         print("Error: src/ directory not found", file=sys.stderr)
         return 1
 
+    allowlist = load_allowlist()
     all_errors = []
     for py_file in src_dir.rglob("*.py"):
         if "tests" in py_file.parts or "__pycache__" in py_file.parts:
             continue
-        errors = check_file(py_file)
+        errors = check_file(py_file, allowlist)
         all_errors.extend(errors)
 
     for error in all_errors:

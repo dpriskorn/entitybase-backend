@@ -1,0 +1,4 @@
+# Allowlist for pydantic_init_linter.py
+# Line-specific (with tolerance of ±2 lines)
+
+src/models/infrastructure/vitess/connection.py:256
