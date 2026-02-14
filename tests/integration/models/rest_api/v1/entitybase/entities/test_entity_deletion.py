@@ -24,14 +24,11 @@ async def test_hard_delete_entity(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity
         await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
-
-        import json
 
         delete_response = await client.request(
             "DELETE",
@@ -75,14 +72,11 @@ async def test_hard_delete_prevents_undelete(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        # Create entity
         await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json=entity_data,
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
-
-        import json
 
         await client.request(
             "DELETE",
@@ -95,9 +89,8 @@ async def test_hard_delete_prevents_undelete(api_prefix: str) -> None:
             },
         )
 
-        # Try to undelete (should fail with 410)
         response = await client.post(
-            f"{api_prefix}/entities/",
+            f"{api_prefix}/entities/items",
             json={
                 "id": "Q99004",
                 "type": "item",
