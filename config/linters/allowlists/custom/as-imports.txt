@@ -11,3 +11,12 @@ tests/integration/conftest.py:386
 tests/integration/models/infrastructure/vitess/test_id_resolver_integration.py:2
 tests/integration/models/infrastructure/vitess/test_id_resolver_integration.py:19
 tests/integration/models/infrastructure/vitess/test_connection_pool_integration.py:18
+tests/integration/conftest.py:186
+tests/integration/conftest.py:207
+tests/integration/conftest.py:279
+tests/integration/conftest.py:351
+tests/integration/conftest.py:405
+tests/integration/conftest.py:449
+tests/integration/models/infrastructure/stream/test_redpanda_consumer.py:11
+tests/unit/models/workers/json_dumps/test_json_dump_worker.py:222
+tests/unit/models/workers/json_dumps/test_json_dump_worker.py:587
