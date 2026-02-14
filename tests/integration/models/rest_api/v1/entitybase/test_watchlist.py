@@ -34,12 +34,17 @@ async def test_add_watch(api_prefix: str, initialized_app: None) -> None:
         assert response.status_code == 200
 
         # Register user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
 
         # Add watch
         response = await client.post(
             f"{api_prefix}/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
@@ -60,6 +65,7 @@ async def test_add_watch_user_not_registered(
         response = await client.post(
             f"{api_prefix}/users/99999/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 400
         assert "User not registered" in response.json()["message"]
@@ -93,16 +99,22 @@ async def test_remove_watch(api_prefix: str, initialized_app: None) -> None:
         assert response.status_code == 200
 
         # Register user and add watch
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
         await client.post(
             f"{api_prefix}/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
 
         # Remove watch
         response = await client.post(
             f"{api_prefix}/users/12345/watchlist/remove",
             json={"entity_id": "Q42", "properties": ["P31"]},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
@@ -137,10 +149,15 @@ async def test_get_watchlist(api_prefix: str, initialized_app: None) -> None:
         assert response.status_code == 200
 
         # Register user and add watch
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
         await client.post(
             f"{api_prefix}/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
 
         # Get watchlist
@@ -197,10 +214,15 @@ async def test_remove_watch_by_id(api_prefix: str, initialized_app: None) -> Non
         assert response.status_code == 200
 
         # Register user and add watch
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
         await client.post(
             f"{api_prefix}/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
 
         # Get watchlist to obtain the watch ID
@@ -210,7 +232,10 @@ async def test_remove_watch_by_id(api_prefix: str, initialized_app: None) -> Non
         watch_id = data["watches"][0]["id"]
 
         # Remove watch by ID
-        response = await client.delete(f"{api_prefix}/users/12345/watchlist/{watch_id}")
+        response = await client.delete(
+            f"{api_prefix}/users/12345/watchlist/{watch_id}",
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["message"] == "Watch removed"
@@ -232,7 +257,11 @@ async def test_get_notifications(api_prefix: str, initialized_app: None) -> None
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
 
         # Get notifications (should be empty initially)
         response = await client.get(f"{api_prefix}/users/12345/watchlist/notifications")
@@ -270,11 +299,16 @@ async def test_mark_notification_checked(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
 
         # Mark notification checked (even if doesn't exist, should not error)
         response = await client.put(
             f"{api_prefix}/users/12345/watchlist/notifications/1/check",
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()

@@ -15,7 +15,11 @@ async def test_create_user_new(api_prefix: str, initialized_app: None) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        response = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        response = await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
         assert response.status_code == 200
         data = response.json()
         assert data["user_id"] == 12345
@@ -32,12 +36,20 @@ async def test_create_user_existing(api_prefix: str, initialized_app: None) -> N
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # First create
-        response1 = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        response1 = await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
         assert response1.status_code == 200
         assert response1.json()["created"] is True
 
         # Second create (should return created=False)
-        response2 = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        response2 = await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
         assert response2.status_code == 200
         data = response2.json()
         assert data["user_id"] == 12345
@@ -54,7 +66,11 @@ async def test_get_user_existing(api_prefix: str, initialized_app: None) -> None
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # First create user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
 
         # Then get user
         response = await client.get(f"{api_prefix}/users/12345")
@@ -87,7 +103,11 @@ async def test_create_user_invalid(api_prefix: str, initialized_app: None) -> No
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Invalid user_id (negative)
-        response = await client.post(f"{api_prefix}/users", json={"user_id": -1})
+        response = await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": -1},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
         assert response.status_code == 422  # Validation error
 
 
@@ -101,16 +121,24 @@ async def test_toggle_watchlist_enable(api_prefix: str, initialized_app: None) -
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
 
         # Toggle to disable first
         await client.put(
-            f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": False}
+            f"{api_prefix}/users/12345/watchlist/toggle",
+            json={"enabled": False},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
 
         # Then enable
         response = await client.put(
-            f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": True}
+            f"{api_prefix}/users/12345/watchlist/toggle",
+            json={"enabled": True},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
@@ -128,11 +156,17 @@ async def test_toggle_watchlist_disable(api_prefix: str, initialized_app: None) 
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
 
         # Disable
         response = await client.put(
-            f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": False}
+            f"{api_prefix}/users/12345/watchlist/toggle",
+            json={"enabled": False},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
@@ -152,7 +186,9 @@ async def test_toggle_watchlist_user_not_registered(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         response = await client.put(
-            f"{api_prefix}/users/99999/watchlist/toggle", json={"enabled": True}
+            f"{api_prefix}/users/99999/watchlist/toggle",
+            json={"enabled": True},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 400
         assert "User not registered" in response.json()["message"]
@@ -168,7 +204,11 @@ async def test_get_user_activity(api_prefix: str, initialized_app: None) -> None
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
 
         # Get activity (should be empty initially)
         response = await client.get(f"{api_prefix}/users/12345/activity")
@@ -206,7 +246,11 @@ async def test_get_user_activity_invalid_type(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
 
         response = await client.get(f"{api_prefix}/users/12345/activity?type=invalid")
         assert response.status_code == 400
@@ -225,7 +269,11 @@ async def test_get_user_activity_invalid_limit(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Register user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
 
         response = await client.get(f"{api_prefix}/users/12345/activity?limit=1000")
         assert response.status_code == 400
@@ -307,15 +355,22 @@ async def test_watchlist_add(api_prefix: str, initialized_app: None) -> None:
         assert response.status_code == 200
 
         # Create user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
         # Enable watchlist
         await client.put(
-            f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": True}
+            f"{api_prefix}/users/12345/watchlist/toggle",
+            json={"enabled": True},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
 
         response = await client.post(
             f"{api_prefix}/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
         data = response.json()
@@ -349,15 +404,22 @@ async def test_watchlist_get(api_prefix: str, initialized_app: None) -> None:
         )
 
         # Create user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
         # Enable watchlist
         await client.put(
-            f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": True}
+            f"{api_prefix}/users/12345/watchlist/toggle",
+            json={"enabled": True},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         # Add watch
         await client.post(
             f"{api_prefix}/users/12345/watchlist",
             json={"entity_id": "Q42", "properties": ["P31"]},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
 
         response = await client.get(f"{api_prefix}/users/12345/watchlist")
@@ -377,10 +439,16 @@ async def test_watchlist_notifications(api_prefix: str, initialized_app: None) -
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
         # Enable watchlist
         await client.put(
-            f"{api_prefix}/users/12345/watchlist/toggle", json={"enabled": True}
+            f"{api_prefix}/users/12345/watchlist/toggle",
+            json={"enabled": True},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
 
         response = await client.get(f"{api_prefix}/users/12345/watchlist/notifications")
@@ -400,7 +468,11 @@ async def test_watchlist_stats(api_prefix: str, initialized_app: None) -> None:
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         # Create user
-        await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+        await client.post(
+            f"{api_prefix}/users",
+            json={"user_id": 12345},
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
 
         response = await client.get(f"{api_prefix}/users/12345/watchlist/stats")
         assert response.status_code == 200

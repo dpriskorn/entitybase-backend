@@ -19,7 +19,11 @@ class TestEndorsements:
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
             # First create a user
-            response = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+            response = await client.post(
+                f"{api_prefix}/users",
+                json={"user_id": 12345},
+                headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            )
             assert response.status_code == 200
 
             # Try to endorse a statement (this might fail due to missing statement, but tests the endpoint)
@@ -41,7 +45,11 @@ class TestEndorsements:
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
             # Create a user
-            response = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+            response = await client.post(
+                f"{api_prefix}/users",
+                json={"user_id": 12345},
+                headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            )
             assert response.status_code == 200
 
             # Try to withdraw endorsement
@@ -104,7 +112,11 @@ class TestEndorsements:
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
             # Create a user first
-            response = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+            response = await client.post(
+                f"{api_prefix}/users",
+                json={"user_id": 12345},
+                headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            )
             assert response.status_code == 200
 
             # Get user endorsements
@@ -127,7 +139,11 @@ class TestEndorsements:
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
             # Create a user first
-            response = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+            response = await client.post(
+                f"{api_prefix}/users",
+                json={"user_id": 12345},
+                headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            )
             assert response.status_code == 200
 
             # Get user endorsements
@@ -150,7 +166,11 @@ class TestEndorsements:
             transport=ASGITransport(app=app), base_url="http://test"
         ) as client:
             # Create a user first
-            response = await client.post(f"{api_prefix}/users", json={"user_id": 12345})
+            response = await client.post(
+                f"{api_prefix}/users",
+                json={"user_id": 12345},
+                headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+            )
             assert response.status_code == 200
 
             # Get user endorsement stats
