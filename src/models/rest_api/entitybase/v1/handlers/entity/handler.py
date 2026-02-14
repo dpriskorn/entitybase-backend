@@ -164,7 +164,7 @@ class EntityHandler(Handler):
             # Process terms and sitelinks
             logger.debug(f"_create_revision_new: hashing terms for {ctx.entity_id}")
             term_hashes = await self._hash_terms_new(ctx)
-            logger.debug(f"_create_revision_new: term_hashes keys: {term_hashes.hashes.keys() if term_hashes else 'None'}")
+            logger.debug(f"_create_revision_new: term_hashes keys: {term_hashes.model_dump().keys() if term_hashes else 'None'}")
 
             logger.debug(f"_create_revision_new: hashing sitelinks for {ctx.entity_id}")
             sitelink_hashes = await self._hash_sitelinks_new(ctx)
