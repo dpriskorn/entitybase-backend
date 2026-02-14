@@ -190,8 +190,6 @@ class StatementService(Service):
             logger.debug(
                 f"[STMT_STORE] Statement {context.statement_hash} not found in S3, will write new object: {type(e).__name__}"
             )
-                f"Statement {context.statement_hash} not found in S3, will write new object"
-            )
             s3_exists = False
 
         # Step 2: Validate statement before storing
