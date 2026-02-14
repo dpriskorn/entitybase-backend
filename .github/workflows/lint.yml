@@ -4,30 +4,21 @@ on:
     branches: ["master"]
   pull_request:
     branches: ["master"]
-jobs:
-  ruff:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: pip install --user ruff
-    - run: ruff --target-version=py37 .
 
-  lint_python:
-    needs: ruff
+jobs:
+  lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install poetry
         run: pipx install poetry
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.x
+          python-version: "3.13"
           cache: 'poetry'
       - run: pip install --upgrade pip wheel
       - run: poetry install --with=dev
-      - run: poetry run black --check .
-      #- run: poetry run codespell src/ tests/ *.md *.py # --ignore-words-list="" --skip="*.css,*.js,*.lock"
-      - run: mkdir --parents --verbose .mypy_cache
-      - run: poetry run mypy --ignore-missing-imports --install-types --non-interactive
-      #- run: poetry run safety check
-      #- run: poetry run pytest .
+      - run: poetry run ruff check .
+      - run: poetry run mypy
+      - run: poetry run vulture
+      - run: poetry run radon cc -a -s src/

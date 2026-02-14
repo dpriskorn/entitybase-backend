@@ -7,35 +7,49 @@ on:
     branches: ["master"]
 
 jobs:
-  test:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: 'poetry'
+      - run: pip install --upgrade pip wheel
+      - run: poetry install --with=dev
+      - run: poetry run ruff check .
+      - run: poetry run mypy
+      - run: poetry run vulture
+      - run: poetry run radon cc -a -s src/
+
+  setup:
+    needs: lint
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      uuid: ${{ steps.uuid.outputs.value }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
       - name: Build docker images
         run: |
-          docker-compose -f docker-compose.ci.yml build \
+          docker-compose -f docker-compose.tests.yml build \
             api idworker integration e2e create-buckets create-tables
-
       - name: Start infrastructure services
-        timeout-minutes: 5
         run: |
-          docker-compose -f docker-compose.ci.yml up -d mysql minio
-
+          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
       - name: Wait for MySQL to be ready
         timeout-minutes: 2
         run: |
-          until docker-compose -f docker-compose.ci.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
             echo "Waiting for MySQL..."
             sleep 2
           done
           echo "MySQL is ready"
-
       - name: Wait for MinIO to be ready
         timeout-minutes: 2
         run: |
@@ -44,20 +58,23 @@ jobs:
             sleep 2
           done
           echo "MinIO is ready"
-
-      - name: Setup database tables
-        run: docker-compose -f docker-compose.ci.yml run --rm create-tables
-
-      - name: Setup S3 buckets
-        run: docker-compose -f docker-compose.ci.yml run --rm create-buckets
-
-      - name: Start idworker
-        run: docker-compose -f docker-compose.ci.yml up -d idworker
-
-      - name: Start API
-        run: docker-compose -f docker-compose.ci.yml up -d api
+      - name: Wait for Redpanda to be ready
         timeout-minutes: 2
-
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+            echo "Waiting for Redpanda..."
+            sleep 2
+          done
+          echo "Redpanda is ready"
+      - name: Setup database tables
+        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+      - name: Setup S3 buckets
+        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+      - name: Start idworker
+        run: docker-compose -f docker-compose.tests.yml up -d idworker
+      - name: Start API
+        run: docker-compose -f docker-compose.tests.yml up -d api
+        timeout-minutes: 2
       - name: Wait for API to be healthy
         timeout-minutes: 2
         run: |
@@ -66,15 +83,345 @@ jobs:
             sleep 2
           done
           echo "API is ready"
+      - name: Generate unique ID for this run
+        id: uuid
+        run: echo "value=${{ github.run_id }}-${{ github.run_attempt }}" >> $GITHUB_OUTPUT
+      - name: Save docker compose files
+        run: |
+          docker-compose -f docker-compose.tests.yml ps > services-status-before-tests.txt
 
-      - name: Run integration tests
-        run: docker-compose -f docker-compose.ci.yml run --rm integration
+  test-unit:
+    needs: setup
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Start infrastructure services
+        run: |
+          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+      - name: Wait for MySQL to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+      - name: Wait for MinIO to be ready
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:9000/minio/health/live; do
+            echo "Waiting for MinIO..."
+            sleep 2
+          done
+      - name: Wait for Redpanda to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+            echo "Waiting for Redpanda..."
+            sleep 2
+          done
+      - name: Setup database tables
+        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+      - name: Setup S3 buckets
+        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+      - name: Start idworker
+        run: docker-compose -f docker-compose.tests.yml up -d idworker
+      - name: Start API
+        run: docker-compose -f docker-compose.tests.yml up -d api
+        timeout-minutes: 2
+      - name: Wait for API to be healthy
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:8000/health; do
+            echo "Waiting for API..."
+            sleep 2
+          done
+      - name: Run unit tests
+        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/unit -m unit -v --tb=short
         timeout-minutes: 15
+      - name: Down containers
+        if: always()
+        run: docker-compose -f docker-compose.tests.yml down -v
 
+  test-e2e:
+    needs: test-unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Start infrastructure services
+        run: |
+          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+      - name: Wait for MySQL to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+      - name: Wait for MinIO to be ready
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:9000/minio/health/live; do
+            echo "Waiting for MinIO..."
+            sleep 2
+          done
+      - name: Wait for Redpanda to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+            echo "Waiting for Redpanda..."
+            sleep 2
+          done
+      - name: Setup database tables
+        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+      - name: Setup S3 buckets
+        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+      - name: Start idworker
+        run: docker-compose -f docker-compose.tests.yml up -d idworker
+      - name: Start API
+        run: docker-compose -f docker-compose.tests.yml up -d api
+        timeout-minutes: 2
+      - name: Wait for API to be healthy
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:8000/health; do
+            echo "Waiting for API..."
+            sleep 2
+          done
       - name: Run e2e tests
-        run: docker-compose -f docker-compose.ci.yml run --rm e2e
+        run: docker-compose -f docker-compose.tests.yml run --rm e2e pytest tests/e2e -v --tb=short
         timeout-minutes: 10
+      - name: Down containers
+        if: always()
+        run: docker-compose -f docker-compose.tests.yml down -v
 
+  test-integration-01:
+    needs: test-e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Start infrastructure services
+        run: |
+          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+      - name: Wait for MySQL to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+      - name: Wait for MinIO to be ready
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:9000/minio/health/live; do
+            echo "Waiting for MinIO..."
+            sleep 2
+          done
+      - name: Wait for Redpanda to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+            echo "Waiting for Redpanda..."
+            sleep 2
+          done
+      - name: Setup database tables
+        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+      - name: Setup S3 buckets
+        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+      - name: Start idworker
+        run: docker-compose -f docker-compose.tests.yml up -d idworker
+      - name: Start API
+        run: docker-compose -f docker-compose.tests.yml up -d api
+        timeout-minutes: 2
+      - name: Wait for API to be healthy
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:8000/health; do
+            echo "Waiting for API..."
+            sleep 2
+          done
+      - name: Run integration tests (01 - first 50)
+        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/integration -k "test_app or test_id_resolver or test_connection_pool" -v --tb=short
+        timeout-minutes: 10
+      - name: Down containers
+        if: always()
+        run: docker-compose -f docker-compose.tests.yml down -v
+
+  test-integration-02:
+    needs: test-integration-01
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Start infrastructure services
+        run: |
+          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+      - name: Wait for MySQL to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+      - name: Wait for MinIO to be ready
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:9000/minio/health/live; do
+            echo "Waiting for MinIO..."
+            sleep 2
+          done
+      - name: Wait for Redpanda to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+            echo "Waiting for Redpanda..."
+            sleep 2
+          done
+      - name: Setup database tables
+        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+      - name: Setup S3 buckets
+        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+      - name: Start idworker
+        run: docker-compose -f docker-compose.tests.yml up -d idworker
+      - name: Start API
+        run: docker-compose -f docker-compose.tests.yml up -d api
+        timeout-minutes: 2
+      - name: Wait for API to be healthy
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:8000/health; do
+            echo "Waiting for API..."
+            sleep 2
+          done
+      - name: Run integration tests (02 - mid 50)
+        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/integration -k "test_entity or test_item or test_property" -v --tb=short
+        timeout-minutes: 10
+      - name: Down containers
+        if: always()
+        run: docker-compose -f docker-compose.tests.yml down -v
+
+  test-integration-03:
+    needs: test-integration-02
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Start infrastructure services
+        run: |
+          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+      - name: Wait for MySQL to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+      - name: Wait for MinIO to be ready
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:9000/minio/health/live; do
+            echo "Waiting for MinIO..."
+            sleep 2
+          done
+      - name: Wait for Redpanda to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+            echo "Waiting for Redpanda..."
+            sleep 2
+          done
+      - name: Setup database tables
+        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+      - name: Setup S3 buckets
+        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+      - name: Start idworker
+        run: docker-compose -f docker-compose.tests.yml up -d idworker
+      - name: Start API
+        run: docker-compose -f docker-compose.tests.yml up -d api
+        timeout-minutes: 2
+      - name: Wait for API to be healthy
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:8000/health; do
+            echo "Waiting for API..."
+            sleep 2
+          done
+      - name: Run integration tests (03 - late 50a)
+        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/integration -k "test_qualifier or test_reference or test_snak" -v --tb=short
+        timeout-minutes: 10
+      - name: Down containers
+        if: always()
+        run: docker-compose -f docker-compose.tests.yml down -v
+
+  test-integration-04:
+    needs: test-integration-03
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Start infrastructure services
+        run: |
+          docker-compose -f docker-compose.tests.yml up -d mysql minio redpanda
+      - name: Wait for MySQL to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T mysql mysqladmin ping -h localhost --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+      - name: Wait for MinIO to be ready
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:9000/minio/health/live; do
+            echo "Waiting for MinIO..."
+            sleep 2
+          done
+      - name: Wait for Redpanda to be ready
+        timeout-minutes: 2
+        run: |
+          until docker-compose -f docker-compose.tests.yml exec -T redpanda rpk cluster health 2>/dev/null | grep -q 'Healthy'; do
+            echo "Waiting for Redpanda..."
+            sleep 2
+          done
+      - name: Setup database tables
+        run: docker-compose -f docker-compose.tests.yml run --rm create-tables
+      - name: Setup S3 buckets
+        run: docker-compose -f docker-compose.tests.yml run --rm create-buckets
+      - name: Start idworker
+        run: docker-compose -f docker-compose.tests.yml up -d idworker
+      - name: Start API
+        run: docker-compose -f docker-compose.tests.yml up -d api
+        timeout-minutes: 2
+      - name: Wait for API to be healthy
+        timeout-minutes: 2
+        run: |
+          until curl -f http://localhost:8000/health; do
+            echo "Waiting for API..."
+            sleep 2
+          done
+      - name: Run integration tests (04 - late 50b)
+        run: docker-compose -f docker-compose.tests.yml run --rm integration pytest tests/integration -k "test_statement or test_watchlist or test_user" -v --tb=short
+        timeout-minutes: 15
       - name: Upload test reports
         if: always()
         uses: actions/upload-artifact@v4
@@ -86,7 +433,6 @@ jobs:
             .coverage
             coverage.xml
           if-no-files-found: ignore
-
       - name: Upload logs on failure
         if: failure()
         uses: actions/upload-artifact@v4
@@ -94,15 +440,13 @@ jobs:
           name: docker-logs
           path: logs/
           if-no-files-found: ignore
-
       - name: Show container logs
         if: failure()
         run: |
-          docker-compose -f docker-compose.ci.yml logs --tail=100 mysql
-          docker-compose -f docker-compose.ci.yml logs --tail=100 api
-          docker-compose -f docker-compose.ci.yml logs --tail=100 integration
-          docker-compose -f docker-compose.ci.yml logs --tail=100 e2e
-
+          docker-compose -f docker-compose.tests.yml logs --tail=100 mysql
+          docker-compose -f docker-compose.tests.yml logs --tail=100 api
+          docker-compose -f docker-compose.tests.yml logs --tail=100 integration
+          docker-compose -f docker-compose.tests.yml logs --tail=100 e2e
       - name: Down containers
         if: always()
-        run: docker-compose -f docker-compose.ci.yml down -v
+        run: docker-compose -f docker-compose.tests.yml down -v
