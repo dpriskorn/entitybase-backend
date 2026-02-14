@@ -139,8 +139,13 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
     yield
     # Shutdown code
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(
+    lifespan=lifespan,
+    response_model_by_alias=True,  # Required: use field aliases in JSON responses
+)
 ```
+
+**Important:** Always include `response_model_by_alias=True` when creating FastAPI apps. This ensures Pydantic model field aliases (e.g., `@id`, `@type`) are used in serialized JSON responses instead of Python attribute names.
 
 #### Pydantic Models
 ```python
