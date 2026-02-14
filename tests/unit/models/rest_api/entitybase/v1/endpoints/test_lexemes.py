@@ -5,13 +5,18 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from fastapi import HTTPException
 
+from models.rest_api.entitybase.v1.endpoints.lexeme_forms import (
+    delete_form_representation,
+)
+from models.rest_api.entitybase.v1.endpoints.lexeme_senses import (
+    add_sense_gloss,
+    delete_sense_gloss,
+)
 from models.rest_api.entitybase.v1.endpoints.lexemes import (
     _extract_numeric_suffix,
     _parse_form_id,
     _parse_sense_id,
     _validate_qid,
-    delete_form_representation,
-    delete_sense_gloss,
 )
 
 
@@ -1024,8 +1029,7 @@ class TestLemmasEndpoints:
             headers=Mock(x_user_id=123, x_edit_summary="remove gloss"),
         )
 
-        # Should return current entity idempotently
-        assert result.id == mock_entity.id
+        assert result.success is True
 
     @pytest.mark.asyncio
     async def test_delete_sense_gloss_sense_not_found(self, mock_entity_read_state):
@@ -1055,6 +1059,161 @@ class TestLemmasEndpoints:
             )
 
         assert exc.value.status_code == 404
+
+    @pytest.mark.asyncio
+    async def test_delete_sense_gloss_last_gloss_fails(self, mock_entity_read_state):
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_entity = Mock()
+        mock_entity.id = "L42"
+        mock_entity.data = {
+            "senses": [
+                {
+                    "id": "L42-S1",
+                    "glosses": {"en": {"language": "en", "value": "reply"}},
+                }
+            ],
+            "forms": [],
+        }
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "senses": [
+                    {
+                        "id": "L42-S1",
+                        "glosses": {"en": {"language": "en", "value": "reply"}},
+                    }
+                ],
+                "forms": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        with pytest.raises(HTTPException) as exc:
+            await delete_sense_gloss(
+                "L42-S1",
+                "en",
+                mock_req,
+                headers=Mock(x_user_id=123, x_edit_summary="remove gloss"),
+            )
+
+        assert exc.value.status_code == 400
+        assert "cannot have 0 glosses" in exc.value.detail
+
+    @pytest.mark.asyncio
+    async def test_add_sense_gloss(self, mock_entity_read_state):
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_entity = Mock()
+        mock_entity.id = "L42"
+        mock_entity.data = {
+            "senses": [
+                {
+                    "id": "L42-S1",
+                    "glosses": {"en": {"language": "en", "value": "reply"}},
+                }
+            ],
+            "forms": [],
+        }
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "senses": [
+                    {
+                        "id": "L42-S1",
+                        "glosses": {"en": {"language": "en", "value": "reply"}},
+                    }
+                ],
+                "forms": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_state.validator = Mock()
+        mock_update_handler = AsyncMock()
+        mock_update_handler.update_lexeme = AsyncMock(return_value=mock_entity)
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
+
+        with patch(
+            "models.rest_api.entitybase.v1.endpoints.lexeme_senses.EntityUpdateHandler",
+            return_value=mock_update_handler,
+        ):
+            result = await add_sense_gloss(
+                "L42-S1",
+                "de",
+                TermUpdateRequest(language="de", value="Antwort"),
+                mock_req,
+                headers=Mock(x_user_id=123, x_edit_summary="add gloss"),
+            )
+
+        assert result.hash is not None
+
+    @pytest.mark.asyncio
+    async def test_add_sense_gloss_already_exists(self, mock_entity_read_state):
+        from models.data.infrastructure.s3 import S3RevisionData
+
+        mock_state, mock_vitess, mock_s3 = mock_entity_read_state
+        mock_entity = Mock()
+        mock_entity.id = "L42"
+        mock_entity.data = {
+            "senses": [
+                {
+                    "id": "L42-S1",
+                    "glosses": {"en": {"language": "en", "value": "reply"}},
+                }
+            ],
+            "forms": [],
+        }
+
+        mock_revision_data = S3RevisionData(
+            schema="1.0.0",
+            revision={
+                "senses": [
+                    {
+                        "id": "L42-S1",
+                        "glosses": {"en": {"language": "en", "value": "reply"}},
+                    }
+                ],
+                "forms": [],
+            },
+            hash=123456,
+            created_at="2023-01-01T12:00:00Z",
+        )
+        mock_s3.read_revision.return_value = mock_revision_data
+
+        mock_state.validator = Mock()
+
+        mock_req = Mock()
+        mock_req.app.state.state_handler = mock_state
+
+        from models.data.rest_api.v1.entitybase.request import TermUpdateRequest
+
+        with pytest.raises(HTTPException) as exc:
+            await add_sense_gloss(
+                "L42-S1",
+                "en",
+                TermUpdateRequest(language="en", value="reply"),
+                mock_req,
+                headers=Mock(x_user_id=123, x_edit_summary="add gloss"),
+            )
+
+        assert exc.value.status_code == 409
+        assert "already exists" in exc.value.detail
 
     @pytest.mark.asyncio
     async def test_delete_form_not_found(self, mock_entity_read_state):
