@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 from contextlib import contextmanager
 
 
-class TestCursorContextManager:
+class CursorContextManager:
     """Simple cursor context manager for testing."""
 
     def __init__(self, db_conn):
@@ -67,7 +67,7 @@ class TestRevisionRepositoryContentHash:
         )
 
         vitess_client = MagicMock()
-        vitess_client.cursor = TestCursorContextManager(db_conn)
+        vitess_client.cursor = CursorContextManager(db_conn)
         vitess_client.id_resolver = MagicMock()
         vitess_client.id_resolver.resolve_id.return_value = 100
 
@@ -76,7 +76,7 @@ class TestRevisionRepositoryContentHash:
         content_hash = 12345678901234567890
         repo.create("Q1", 1, revision_data, content_hash=content_hash)
 
-        with TestCursorContextManager(db_conn) as cursor:
+        with CursorContextManager(db_conn) as cursor:
             cursor.execute(
                 "SELECT content_hash FROM entity_revisions WHERE internal_id = 100 AND revision_id = 1"
             )
@@ -115,7 +115,7 @@ class TestRevisionRepositoryContentHash:
 
         # Query content_hash
         vitess_client = MagicMock()
-        vitess_client.cursor = TestCursorContextManager(db_conn)
+        vitess_client.cursor = CursorContextManager(db_conn)
         vitess_client.id_resolver = MagicMock()
         vitess_client.id_resolver.resolve_id.return_value = 200
 
@@ -132,7 +132,7 @@ class TestRevisionRepositoryContentHash:
         )
 
         vitess_client = MagicMock()
-        vitess_client.cursor = TestCursorContextManager(db_conn)
+        vitess_client.cursor = CursorContextManager(db_conn)
 
         repo = RevisionRepository(vitess_client=vitess_client)
 
@@ -188,7 +188,7 @@ class TestRevisionRepositoryContentHash:
         )
 
         vitess_client = MagicMock()
-        vitess_client.cursor = TestCursorContextManager(db_conn)
+        vitess_client.cursor = CursorContextManager(db_conn)
         vitess_client.id_resolver = MagicMock()
         vitess_client.id_resolver.resolve_id.return_value = 300
 
@@ -203,7 +203,7 @@ class TestRevisionRepositoryContentHash:
         # Verify success
         assert result is True
 
-        with TestCursorContextManager(db_conn) as cursor:
+        with CursorContextManager(db_conn) as cursor:
             cursor.execute(
                 "SELECT content_hash FROM entity_revisions WHERE internal_id = 300 AND revision_id = 1"
             )
