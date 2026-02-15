@@ -40,8 +40,13 @@ async def test_add_statement(
 
         statement_data = {
             "claim": {
-                "property": {"id": "P31", "data_type": "wikibase-item"},
-                "value": {"type": "value", "content": "Q5"},
+                "id": "TESTCLAIM123",
+                "mainsnak": {
+                    "snaktype": "value",
+                    "property": "P31",
+                    "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+                },
+                "type": "statement",
                 "rank": "normal",
             }
         }
@@ -149,8 +154,13 @@ async def test_replace_statement(api_prefix: str, sample_item_with_statements) -
 
         # Replace statement
         new_claim_data = {
-            "property": {"id": "P31", "data_type": "wikibase-item"},
-            "value": {"type": "value", "content": "Q5"},
+            "id": "TESTCLAIM456",
+            "mainsnak": {
+                "snaktype": "value",
+                "property": "P31",
+                "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+            },
+            "type": "statement",
             "rank": "preferred",
         }
         response = await client.patch(

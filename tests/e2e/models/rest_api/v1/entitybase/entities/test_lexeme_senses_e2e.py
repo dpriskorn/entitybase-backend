@@ -180,7 +180,9 @@ async def test_get_sense_glosses(api_prefix: str) -> None:
         lexeme_id = response.json()["id"]
 
         # Get all glosses
-        response = await client.get(f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1/glosses")
+        response = await client.get(
+            f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1/glosses"
+        )
         assert response.status_code == 200
         if response.status_code == 200:
             data = response.json()
@@ -432,8 +434,13 @@ async def test_add_statement_to_sense(api_prefix: str) -> None:
 
         # Add statement to sense
         statement_data = {
-            "property": {"id": "P31", "data_type": "wikibase-item"},
-            "value": {"type": "value", "content": "Q5"},
+            "id": "TESTCLAIM101",
+            "mainsnak": {
+                "snaktype": "value",
+                "property": "P31",
+                "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+            },
+            "type": "statement",
             "rank": "normal",
         }
         response = await client.post(
