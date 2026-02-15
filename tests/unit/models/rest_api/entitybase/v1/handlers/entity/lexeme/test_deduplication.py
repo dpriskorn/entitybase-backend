@@ -66,8 +66,18 @@ def test_lexeme_storage_error_handling():
     # Create request with forms/senses
     request = EntityCreateRequest(
         type="lexeme",
-        forms=[{"id": "L999-F1", "representations": {"en": {"value": "test"}}}],
-        senses=[{"id": "L999-S1", "glosses": {"en": {"value": "test definition"}}}],
+        forms=[
+            {
+                "id": "L999-F1",
+                "representations": {"en": {"language": "en", "value": "test"}},
+            }
+        ],
+        senses=[
+            {
+                "id": "L999-S1",
+                "glosses": {"en": {"language": "en", "value": "test definition"}},
+            }
+        ],
     )
 
     # Process terms - should not raise exceptions despite storage failures
