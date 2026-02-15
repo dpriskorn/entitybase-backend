@@ -22,6 +22,10 @@ help:
 	@echo "  make test-integration-03 - Run integration tests (late 50a)"
 	@echo "  make test-integration-04 - Run integration tests (late 50b)"
 	@echo "  make test-integration - Run all integration tests"
+	@echo "  make test-unit-01 - Run unit tests (config, data, services, validation, json_parser)"
+	@echo "  make test-unit-02 - Run unit tests (internal_representation, workers)"
+	@echo "  make test-unit-03 - Run unit tests (infrastructure, rdf_builder)"
+	@echo "  make test-unit-04 - Run unit tests (rest_api)"
 	@echo "  make coverage    - Run tests with coverage report"
 
 api:
@@ -42,8 +46,19 @@ radon:
 vulture:
 	./run-vulture.sh
 
-test-unit:
-	./run-unit-tests.sh
+test-unit: test-unit-01 test-unit-02 test-unit-03 test-unit-04
+
+test-unit-01:
+	./run-unit-01-config-data.sh
+
+test-unit-02:
+	./run-unit-02-internal-workers.sh
+
+test-unit-03:
+	./run-unit-03-infra-rdf.sh
+
+test-unit-04:
+	./run-unit-04-rest-api.sh
 
 test-e2e:
 	./run-e2e-tests.sh
