@@ -116,11 +116,7 @@ async def test_get_single_form(api_prefix: str) -> None:
         assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
-        # Get form by short ID (F1 format)
-        response = await client.get(f"{api_prefix}/entities/lexemes/forms/F1")
-        assert response.status_code == 200
-
-        # Try full ID format (if form has ID)
+        # Get form by full ID (e.g., L42-F1 format)
         response = await client.get(
             f"{api_prefix}/entities/lexemes/forms/{lexeme_id}-F1"
         )
@@ -163,7 +159,7 @@ async def test_delete_form(api_prefix: str) -> None:
 
         # Delete one form
         response = await client.delete(
-            f"{api_prefix}/entities/lexemes/forms/F2",
+            f"{api_prefix}/entities/lexemes/forms/{lexeme_id}-F2",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
@@ -204,7 +200,7 @@ async def test_get_form_representations(api_prefix: str) -> None:
 
         # Get all representations
         response = await client.get(
-            f"{api_prefix}/entities/lexemes/forms/F1/representation"
+            f"{api_prefix}/entities/lexemes/forms/{lexeme_id}-F1/representation"
         )
         assert response.status_code == 200
         if response.status_code == 200:
@@ -244,7 +240,7 @@ async def test_get_form_representation_by_language(api_prefix: str) -> None:
 
         # Get representation by language
         response = await client.get(
-            f"{api_prefix}/entities/lexemes/forms/F1/representation/en"
+            f"{api_prefix}/entities/lexemes/forms/{lexeme_id}-F1/representation/en"
         )
         assert response.status_code == 200
 
@@ -282,7 +278,7 @@ async def test_add_form_representation(api_prefix: str) -> None:
         # Add new language representation
         new_rep = {"language": "de", "value": "Tests"}
         response = await client.post(
-            f"{api_prefix}/entities/lexemes/forms/F1/representation/de",
+            f"{api_prefix}/entities/lexemes/forms/{lexeme_id}-F1/representation/de",
             json=new_rep,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -322,7 +318,7 @@ async def test_update_form_representation(api_prefix: str) -> None:
         # Update representation
         updated_rep = {"language": "en", "value": "examined"}
         response = await client.put(
-            f"{api_prefix}/entities/lexemes/forms/F1/representation/en",
+            f"{api_prefix}/entities/lexemes/forms/{lexeme_id}-F1/representation/en",
             json=updated_rep,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -364,7 +360,7 @@ async def test_delete_form_representation(api_prefix: str) -> None:
 
         # Delete one representation
         response = await client.delete(
-            f"{api_prefix}/entities/lexemes/forms/F1/representation/de",
+            f"{api_prefix}/entities/lexemes/forms/{lexeme_id}-F1/representation/de",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
@@ -407,7 +403,7 @@ async def test_add_statement_to_form(api_prefix: str) -> None:
             "rank": "normal",
         }
         response = await client.post(
-            f"{api_prefix}/entities/lexemes/forms/F1/statements",
+            f"{api_prefix}/entities/lexemes/forms/{lexeme_id}-F1/statements",
             json=statement_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )

@@ -2,6 +2,55 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-02-15] Auto-generate Form and Sense IDs for Lexemes
+
+### Summary
+
+Added automatic ID generation for lexeme forms and senses when creating or updating lexemes. This matches Wikibase behavior where deleted form/sense IDs are never reused.
+
+### Motivation
+
+- **Data Integrity**: Ensure every form and sense has a unique ID matching the pattern `L{lexeme_id}-F{n}` and `L{lexeme_id}-S{n}`
+- **Wikibase Compatibility**: Match Wikibase behavior where deleted IDs are never reused (e.g., deleting F1 doesn't allow creating a new F1)
+- **Test Fixes**: E2E tests were failing because forms/senses created without explicit IDs lacked the required `id` field
+
+### Changes
+
+#### Backend Logic
+
+**File:** `src/models/rest_api/entitybase/v1/endpoints/lexeme_utils.py`
+
+- Added `assign_form_ids(lexeme_id, forms)` - Auto-assigns IDs like `L42-F1`, `L42-F2` to forms missing IDs
+- Added `assign_sense_ids(lexeme_id, senses)` - Auto-assigns IDs like `L42-S1`, `L42-S2` to senses missing IDs
+
+**File:** `src/models/rest_api/entitybase/v1/handlers/entity/creation_transaction.py`
+
+- Now calls `assign_form_ids()` and `assign_sense_ids()` when creating new lexemes
+
+**File:** `src/models/rest_api/entitybase/v1/handlers/entity/update_transaction.py`
+
+- Now calls `assign_form_ids()` and `assign_sense_ids()` when updating lexemes
+
+#### E2E Test Fixes
+
+**File:** `tests/e2e/models/rest_api/v1/entitybase/entities/test_lexeme_forms_e2e.py`
+
+- Updated all short form ID references (e.g., `F1`) to full IDs (e.g., `{lexeme_id}-F1`)
+
+**File:** `tests/e2e/models/rest_api/v1/entitybase/entities/test_lexeme_senses_e2e.py`
+
+- Updated all short sense ID references (e.g., `S1`) to full IDs (e.g., `{lexeme_id}-S1`)
+
+**File:** `tests/e2e/models/rest_api/v1/entitybase/entities/test_watchlist_e2e.py`
+
+- Fixed `test_mark_notification_checked` to expect 200 (idempotent operation) instead of 404
+
+### Tests
+
+The auto-ID generation is implicitly tested via existing E2E tests that create lexemes with forms and senses. The tests now work correctly because:
+1. Forms/senses get auto-assigned IDs during lexeme creation
+2. Subsequent API calls using full IDs (e.g., `{lexeme_id}-F1`) work correctly
+
 ## [2026-02-14] Glosses Endpoints Full Coverage
 
 ### Summary

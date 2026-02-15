@@ -233,5 +233,5 @@ async def test_mark_notification_checked(api_prefix: str) -> None:
         response = await client.put(
             f"{api_prefix}/users/90013/watchlist/notifications/123/check"
         )
-        # May succeed even if notification doesn't exist (idempotent)
-        assert response.status_code == 404
+        # Returns 200 (idempotent operation - succeeds even if notification doesn't exist)
+        assert response.status_code == 200

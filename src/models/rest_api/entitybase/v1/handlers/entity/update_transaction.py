@@ -17,6 +17,10 @@ from models.data.rest_api.v1.entitybase.request.entity.context import (
 )
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.data.rest_api.v1.entitybase.response import StatementHashResult
+from models.rest_api.entitybase.v1.endpoints.lexeme_utils import (
+    assign_form_ids,
+    assign_sense_ids,
+)
 from models.rest_api.entitybase.v1.handlers.entity.entity_transaction import (
     EntityTransaction,
 )
@@ -174,8 +178,8 @@ class UpdateTransaction(EntityTransaction):
             state=EntityState(),
             schema_version=settings.s3_schema_revision_version,
             lemmas=request_data.lemmas,
-            forms=request_data.forms,
-            senses=request_data.senses,
+            forms=assign_form_ids(entity_id, request_data.forms),
+            senses=assign_sense_ids(entity_id, request_data.senses),
             language=request_data.language,
             lexical_category=request_data.lexical_category,
         )

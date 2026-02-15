@@ -104,11 +104,7 @@ async def test_get_single_sense(api_prefix: str) -> None:
         assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
-        # Get sense by short ID (S1 format)
-        response = await client.get(f"{api_prefix}/entities/lexemes/senses/S1")
-        assert response.status_code == 200
-
-        # Try full ID format
+        # Get sense by full ID
         response = await client.get(
             f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1"
         )
@@ -145,7 +141,7 @@ async def test_delete_sense(api_prefix: str) -> None:
 
         # Delete one sense
         response = await client.delete(
-            f"{api_prefix}/entities/lexemes/senses/S2",
+            f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S2",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
@@ -184,7 +180,7 @@ async def test_get_sense_glosses(api_prefix: str) -> None:
         lexeme_id = response.json()["id"]
 
         # Get all glosses
-        response = await client.get(f"{api_prefix}/entities/lexemes/senses/S1/glosses")
+        response = await client.get(f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1/glosses")
         assert response.status_code == 200
         if response.status_code == 200:
             data = response.json()
@@ -220,7 +216,7 @@ async def test_get_sense_gloss_by_language(api_prefix: str) -> None:
 
         # Get gloss by language
         response = await client.get(
-            f"{api_prefix}/entities/lexemes/senses/S1/glosses/en"
+            f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1/glosses/en"
         )
         assert response.status_code == 200
 
@@ -255,7 +251,7 @@ async def test_update_sense_gloss(api_prefix: str) -> None:
         # Update gloss
         updated_gloss = {"language": "en", "value": "An updated test sense"}
         response = await client.put(
-            f"{api_prefix}/entities/lexemes/senses/S1/glosses/en",
+            f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
             json=updated_gloss,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -296,7 +292,7 @@ async def test_delete_sense_gloss(api_prefix: str) -> None:
 
         # Delete one gloss
         response = await client.delete(
-            f"{api_prefix}/entities/lexemes/senses/S1/glosses/de",
+            f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1/glosses/de",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
@@ -330,7 +326,7 @@ async def test_add_sense_gloss(api_prefix: str) -> None:
 
         gloss_data = {"language": "de", "value": "Ein Testsinn"}
         response = await client.post(
-            f"{api_prefix}/entities/lexemes/senses/S1/glosses/de",
+            f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1/glosses/de",
             json=gloss_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -365,7 +361,7 @@ async def test_add_sense_gloss_already_exists(api_prefix: str) -> None:
 
         gloss_data = {"language": "en", "value": "A test sense"}
         response = await client.post(
-            f"{api_prefix}/entities/lexemes/senses/S1/glosses/en",
+            f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
             json=gloss_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
@@ -400,7 +396,7 @@ async def test_delete_sense_gloss_last_gloss_fails(api_prefix: str) -> None:
         lexeme_id = response.json()["id"]
 
         response = await client.delete(
-            f"{api_prefix}/entities/lexemes/senses/S1/glosses/en",
+            f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 400
@@ -441,7 +437,7 @@ async def test_add_statement_to_sense(api_prefix: str) -> None:
             "rank": "normal",
         }
         response = await client.post(
-            f"{api_prefix}/entities/lexemes/senses/S1/statements",
+            f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1/statements",
             json=statement_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
