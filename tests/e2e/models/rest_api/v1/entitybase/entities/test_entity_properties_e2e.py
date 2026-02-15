@@ -68,12 +68,17 @@ async def test_add_property_to_entity(
         assert response.status_code == 200
         entity_id = response.json()["id"]
 
-        # Add property claim
+        # Add property claim - use valid Wikibase statement JSON format
         claim_data = {
             "claims": [
                 {
-                    "property": {"id": "P31", "data_type": "wikibase-item"},
-                    "value": {"type": "value", "content": "Q5"},
+                    "id": "TESTCLAIM123",
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+                    },
+                    "type": "statement",
                     "rank": "normal",
                 }
             ]

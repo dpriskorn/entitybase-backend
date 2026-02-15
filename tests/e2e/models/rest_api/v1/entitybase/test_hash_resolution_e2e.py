@@ -187,8 +187,13 @@ async def test_get_batch_statements(api_prefix: str) -> None:
             "labels": {"en": {"language": "en", "value": "Batch Test"}},
             "statements": [
                 {
-                    "property": {"id": "P31", "data_type": "wikibase-item"},
-                    "value": {"type": "value", "content": "Q5"},
+                    "id": "TESTCLAIM131",
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+                    },
+                    "type": "statement",
                     "rank": "normal",
                 }
             ],

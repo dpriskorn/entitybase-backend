@@ -251,8 +251,13 @@ def sample_item_with_statements() -> dict[str, Any]:
         },
         "statements": [
             {
-                "property": {"id": "P31", "data_type": "wikibase-item"},
-                "value": {"type": "value", "content": "Q5"},
+                "id": "TESTCLAIM123",
+                "mainsnak": {
+                    "snaktype": "value",
+                    "property": "P31",
+                    "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+                },
+                "type": "statement",
                 "rank": "normal",
             }
         ],

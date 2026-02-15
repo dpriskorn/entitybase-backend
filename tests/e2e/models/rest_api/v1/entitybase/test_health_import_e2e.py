@@ -129,8 +129,13 @@ async def test_import_entity_with_statements(api_prefix: str) -> None:
             "labels": {"en": {"language": "en", "value": "Item with Statements"}},
             "statements": [
                 {
-                    "property": {"id": "P31", "data_type": "wikibase-item"},
-                    "value": {"type": "value", "content": "Q5"},
+                    "id": "TESTCLAIM112",
+                    "mainsnak": {
+                        "snaktype": "value",
+                        "property": "P31",
+                        "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+                    },
+                    "type": "statement",
                     "rank": "normal",
                 }
             ],
