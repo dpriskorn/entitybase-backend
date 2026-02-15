@@ -75,23 +75,23 @@ class EntityUpdateLexemeMixin(BaseModel):
         try:
             head_revision_id = tx.state.vitess_client.get_head(entity_id)
 
-            data = request.data.copy()
-            data["id"] = entity_id
+            request_data = request.data.model_copy()
+            request_data.id = entity_id
 
-            forms = data.get("forms", [])
-            senses = data.get("senses", [])
-            lemmas = data.get("lemmas", {})
+            forms = request_data.forms
+            senses = request_data.senses
+            lemmas = request_data.lemmas
             tx.process_lexeme_terms(forms, senses, lemmas)
 
-            data["forms"] = forms
-            data["senses"] = senses
-            request_data = PreparedRequestData(**data)
+            request_data.forms = forms
+            request_data.senses = senses
+            prepared = PreparedRequestData.model_validate(request_data.model_dump())
 
-            hash_result = tx.process_statements(entity_id, request_data, validator)
+            hash_result = tx.process_statements(entity_id, prepared, validator)
 
             response = await tx.create_revision(
                 entity_id=entity_id,
-                request_data=request_data,
+                request_data=prepared,
                 entity_type=EntityType(request.type),
                 edit_headers=edit_headers,
                 hash_result=hash_result,

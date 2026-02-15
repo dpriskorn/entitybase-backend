@@ -52,10 +52,10 @@ class ItemCreateHandler(EntityCreateHandler):
         request: EntityCreateRequest, entity_id: str
     ) -> PreparedRequestData:
         """Prepare request data for entity creation."""
-        request_data_dict = request.data.copy()
-        request_data_dict["id"] = entity_id
-        logger.debug(f"🔍 HANDLER: Prepared request data: {request_data_dict}")
-        return PreparedRequestData(**request_data_dict)
+        request_data = request.data.model_copy()
+        request_data.id = entity_id
+        logger.debug(f"🔍 HANDLER: Prepared request data: {request_data}")
+        return PreparedRequestData.model_validate(request_data.model_dump())
 
     @staticmethod
     async def _execute_creation_transaction(
