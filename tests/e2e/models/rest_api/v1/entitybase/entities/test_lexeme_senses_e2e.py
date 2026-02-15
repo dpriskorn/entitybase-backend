@@ -368,7 +368,7 @@ async def test_add_sense_gloss_already_exists(api_prefix: str) -> None:
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 409
-        assert "already exists" in response.json()["detail"]
+        assert "already exists" in response.json()["message"]
 
 
 @pytest.mark.e2e
@@ -402,7 +402,7 @@ async def test_delete_sense_gloss_last_gloss_fails(api_prefix: str) -> None:
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 400
-        assert "cannot have 0 glosses" in response.json()["detail"]
+        assert "cannot have 0 glosses" in response.json()["message"]
 
 
 @pytest.mark.e2e
@@ -434,14 +434,16 @@ async def test_add_statement_to_sense(api_prefix: str) -> None:
 
         # Add statement to sense
         statement_data = {
-            "id": "TESTCLAIM101",
-            "mainsnak": {
-                "snaktype": "value",
-                "property": "P31",
-                "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
-            },
-            "type": "statement",
-            "rank": "normal",
+            "claim": {
+                "id": "TESTCLAIM101",
+                "mainsnak": {
+                    "snaktype": "value",
+                    "property": "P31",
+                    "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+                },
+                "type": "statement",
+                "rank": "normal",
+            }
         }
         response = await client.post(
             f"{api_prefix}/entities/lexemes/senses/{lexeme_id}-S1/statements",
