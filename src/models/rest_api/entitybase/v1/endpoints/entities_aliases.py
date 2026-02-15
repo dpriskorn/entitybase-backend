@@ -60,7 +60,9 @@ async def update_entity_aliases(
     headers: EditHeadersType,
 ) -> TermHashesResponse:
     """Update entity aliases for language."""
-    logger.info(f"ALIAS UPDATE START: entity={entity_id}, lang={language_code}, count={len(aliases_data)}")
+    logger.info(
+        f"ALIAS UPDATE START: entity={entity_id}, lang={language_code}, count={len(aliases_data)}"
+    )
     logger.debug(f"ALIAS UPDATE: aliases={aliases_data}")
 
     state = req.app.state.state_handler
@@ -79,7 +81,10 @@ async def update_entity_aliases(
         hashes = [MetadataExtractor.hash_string(alias) for alias in aliases_data]
         return TermHashesResponse(hashes=hashes)
     except Exception as e:
-        logger.error(f"ALIAS UPDATE FAILED: entity={entity_id}, error={type(e).__name__}: {e}", exc_info=True)
+        logger.error(
+            f"ALIAS UPDATE FAILED: entity={entity_id}, error={type(e).__name__}: {e}",
+            exc_info=True,
+        )
         raise
 
 

@@ -91,7 +91,7 @@ class StatementHandler(Handler):
         Returns array with null for any hashes that don't exist.
         """
         logger.debug(f"[STMT_GET_BATCH] Requested hashes: {hashes}")
-        
+
         if self.state.s3_client is None:
             logger.error("[STMT_GET_BATCH] S3 client is None")
             if hashes:

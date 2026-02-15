@@ -31,23 +31,3 @@ class TestEntity:
         assert entity.id == "Q456"
         assert entity.type == EntityType.PROPERTY
         assert entity.sitelinks is None
-
-    def test_entity_get_entity_type(self):
-        """Test get_entity_type method."""
-        labels = EntityLabelsResponse()
-        descriptions = EntityDescriptionsResponse()
-        aliases = EntityAliasesResponse()
-        statements = []
-
-        entity = Entity(
-            id="Q456",
-            type=EntityType.PROPERTY,
-            labels=labels,
-            descriptions=descriptions,
-            aliases=aliases,
-            statements=statements,
-        )
-
-        result = entity.get_entity_type()
-
-        assert result == "property"

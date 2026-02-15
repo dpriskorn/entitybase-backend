@@ -32,11 +32,13 @@ def calculate_seconds_until_next_run(
     target_time_naive = target_time.replace(tzinfo=None)
 
     if now_time < target_time_naive:
-        next_run = datetime.combine(now.date(), target_time).replace(tzinfo=timezone.utc)
-    else:
-        next_run = datetime.combine(now.date() + timedelta(days=1), target_time).replace(
+        next_run = datetime.combine(now.date(), target_time).replace(
             tzinfo=timezone.utc
         )
+    else:
+        next_run = datetime.combine(
+            now.date() + timedelta(days=1), target_time
+        ).replace(tzinfo=timezone.utc)
 
     seconds_until = (next_run - now).total_seconds()
     return max(seconds_until, 0)

@@ -79,10 +79,16 @@ async def import_entity(
     logger.debug(f"IMPORT request data: {request.model_dump()}")
     try:
         result = await handler.create_entity(
-            request, edit_headers=edit_headers, validator=validator, auto_assign_id=False
+            request,
+            edit_headers=edit_headers,
+            validator=validator,
+            auto_assign_id=False,
         )
         logger.info(f"IMPORT SUCCESS: id={request.id}")
         return result
     except Exception as e:
-        logger.error(f"IMPORT FAILED: id={request.id}, error={type(e).__name__}: {e}", exc_info=True)
+        logger.error(
+            f"IMPORT FAILED: id={request.id}, error={type(e).__name__}: {e}",
+            exc_info=True,
+        )
         raise

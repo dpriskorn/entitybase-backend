@@ -85,9 +85,7 @@ class TestTtlDumpWorker:
             "models.workers.ttl_dumps.ttl_dump_worker.settings"
         ) as mock_settings:
             mock_settings.ttl_dump_schedule = "0 3 * * *"
-            with patch(
-                "models.workers.utils.datetime"
-            ) as mock_datetime:
+            with patch("models.workers.utils.datetime") as mock_datetime:
                 now = datetime(2025, 1, 15, 10, 0, 0, tzinfo=timezone.utc)
                 target = datetime(2025, 1, 16, 3, 0, 0, tzinfo=timezone.utc)
                 mock_datetime.now.return_value = now
