@@ -81,7 +81,7 @@ async def test_lexeme_lemmas_endpoints(api_prefix: str) -> None:
         )
         assert delete_last_lemma_response.status_code == 400
         assert (
-            "at least one lemma" in delete_last_lemma_response.json()["detail"].lower()
+            "at least one lemma" in delete_last_lemma_response.json()["message"].lower()
         )
         logger.info("✓ Delete last lemma correctly fails")
 
@@ -120,5 +120,5 @@ async def test_create_lexeme_without_lemmas_fails(api_prefix: str) -> None:
             headers={"X-Edit-Summary": "create lexeme", "X-User-ID": "0"},
         )
         assert response.status_code == 400
-        assert "at least one lemma" in str(response.json()["detail"]).lower()
+        assert "at least one lemma" in str(response.json()["message"]).lower()
         logger.info("✓ Create lexeme without lemmas correctly fails")

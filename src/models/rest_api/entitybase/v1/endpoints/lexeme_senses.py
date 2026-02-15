@@ -171,6 +171,12 @@ async def add_sense_gloss(
     logger.debug(f"Adding gloss for sense {sense_id}, language {langcode}")
     lexeme_id, sense_suffix = _parse_sense_id(sense_id)
 
+    if not lexeme_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Short format S1 not yet supported - use full L42-S1 format",
+        )
+
     if request.language != langcode:
         raise HTTPException(
             status_code=400,
@@ -233,6 +239,12 @@ async def update_sense_gloss(
     logger.debug(f"Updating gloss for sense {sense_id}, language {langcode}")
     lexeme_id, sense_suffix = _parse_sense_id(sense_id)
 
+    if not lexeme_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Short format S1 not yet supported - use full L42-S1 format",
+        )
+
     if request.language != langcode:
         raise HTTPException(
             status_code=400,
@@ -291,6 +303,12 @@ async def delete_sense(
     logger.debug(f"Deleting sense {sense_id}")
     lexeme_id, sense_suffix = _parse_sense_id(sense_id)
 
+    if not lexeme_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Short format S1 not yet supported - use full L42-S1 format",
+        )
+
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
 
@@ -336,6 +354,12 @@ async def delete_sense_gloss(
     """Delete sense gloss for language."""
     logger.debug(f"Deleting gloss for sense {sense_id}, language {langcode}")
     lexeme_id, sense_suffix = _parse_sense_id(sense_id)
+
+    if not lexeme_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Short format S1 not yet supported - use full L42-S1 format",
+        )
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
