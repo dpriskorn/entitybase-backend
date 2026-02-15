@@ -68,9 +68,6 @@ test-unit-03:
 test-unit-04:
 	./run-unit-04-rest-api.sh
 
-test-e2e:
-	./run-e2e-tests.sh
-
 test-e2e-01:
 	./run-e2e-01-basics.sh
 
@@ -82,6 +79,8 @@ test-e2e-03:
 
 test-e2e-04:
 	./run-e2e-04-advanced.sh
+
+test-e2e:test-e2e-01 test-e2e-02 test-e2e-03 test-e2e-04
 
 test-unit-e2e: test-unit test-e2e
 

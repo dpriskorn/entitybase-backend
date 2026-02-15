@@ -13,19 +13,19 @@ debug_router = APIRouter(tags=["debug"])
 @debug_router.get("/debug/entity/{entity_id}")
 async def debug_entity(entity_id: str, request: Request) -> dict:
     """Debug endpoint to check entity in database.
-    
+
     This endpoint queries the entity_id_mapping table directly to verify
     if an entity exists and what its internal_id is.
     """
     state = request.app.state.state_handler
-    
+
     with state.vitess_client.cursor as cursor:
         cursor.execute(
             "SELECT internal_id, entity_id FROM entity_id_mapping WHERE entity_id = %s",
             (entity_id,),
         )
         result = cursor.fetchone()
-    
+
     if result:
         return {
             "entity_id": result[1],
@@ -44,7 +44,7 @@ async def debug_entity_head(entity_id: str, request: Request) -> dict:
     """Debug endpoint to check entity_head table."""
     logger.info(f"Debug: Checking entity_head for entity_id={entity_id}")
     state = request.app.state.state_handler
-    
+
     internal_id = state.vitess_client.resolve_id(entity_id)
     if not internal_id:
         return {
@@ -52,7 +52,7 @@ async def debug_entity_head(entity_id: str, request: Request) -> dict:
             "found": False,
             "error": "Entity not found in entity_id_mapping",
         }
-    
+
     with state.vitess_client.cursor as cursor:
         cursor.execute(
             """SELECT internal_id, head_revision_id, is_semi_protected, is_locked, 
@@ -61,7 +61,7 @@ async def debug_entity_head(entity_id: str, request: Request) -> dict:
             (internal_id,),
         )
         result = cursor.fetchone()
-    
+
     if result:
         return {
             "entity_id": entity_id,

@@ -49,8 +49,10 @@ async def test_statement_storage_diagnostic(api_prefix: str) -> None:
         print(f"\n=== ENTITY CREATION ===")
         print(f"Status: {response.status_code}")
         print(f"Response: {response.json()}")
-        
-        assert response.status_code == 200, f"Failed to create entity: {response.status_code}"
+
+        assert response.status_code == 200, (
+            f"Failed to create entity: {response.status_code}"
+        )
         entity_response = response.json()
         entity_id = entity_response["id"]
         print(f"Entity ID: {entity_id}")
@@ -61,20 +63,20 @@ async def test_statement_storage_diagnostic(api_prefix: str) -> None:
         print(f"Status: {response.status_code}")
         entity = response.json()
         print(f"Entity keys: {list(entity.keys())}")
-        
+
         # Get statement hashes from revision
         if "data" in entity and "revision" in entity["data"]:
             revision = entity["data"]["revision"]
             print(f"Revision keys: {list(revision.keys())}")
-            
+
             if "hashes" in revision:
                 hashes = revision["hashes"]
                 print(f"Hashes keys: {list(hashes.keys())}")
-                
+
                 if "statements" in hashes:
                     statement_hashes = hashes["statements"]
                     print(f"Statement hashes: {statement_hashes}")
-                    
+
                     # Try to resolve each statement hash
                     print(f"\n=== STATEMENT RESOLUTION ===")
                     for stmt_hash in statement_hashes:

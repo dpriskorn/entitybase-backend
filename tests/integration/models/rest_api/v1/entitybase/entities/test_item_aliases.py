@@ -271,6 +271,4 @@ async def test_delete_item_aliases_not_found(api_prefix: str) -> None:
             f"{api_prefix}/entities/Q70023/aliases/de",
             headers={"X-Edit-Summary": "delete german aliases", "X-User-ID": "0"},
         )
-        assert (
-            response.status_code == 200
-        )
+        assert response.status_code == 200

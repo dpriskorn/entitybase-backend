@@ -59,6 +59,5 @@ class S3ReferenceSnaks(BaseModel):
         description="Processed snaks dict with property keys."
     )
     snaks_order: list[Any] = Field(
-        default_factory=list,
-        description="Order of snak properties."
+        default_factory=list, description="Order of snak properties."
     )

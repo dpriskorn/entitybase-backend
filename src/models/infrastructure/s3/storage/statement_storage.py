@@ -34,7 +34,7 @@ class StatementStorage(BaseS3Storage):
         logger.debug(
             f"[STATEMENT_STORE] Statement data keys: {list(statement_data.keys())}"
         )
-        
+
         stored = S3Statement(
             hash=content_hash,
             statement=statement_data["statement"],
@@ -48,12 +48,12 @@ class StatementStorage(BaseS3Storage):
             f"data_size={len(json.dumps(stored.model_dump(mode='json')))}"
         )
         result = self.store(key, stored, metadata=metadata)
-        
+
         if result.success:
             logger.debug(f"[STATEMENT_STORE] SUCCESS: key={key}")
         else:
             logger.error(f"[STATEMENT_STORE] FAILED: key={key}, error={result.error}")
-        
+
         return result
 
     def load_statement(self, content_hash: int) -> StatementResponse:
@@ -83,7 +83,9 @@ class StatementStorage(BaseS3Storage):
         except S3NotFoundError:
             raise  # Re-raise as is
         except Exception as e:
-            logger.error(f"[STATEMENT_LOAD] ERROR: key={key}, error={type(e).__name__}: {e}")
+            logger.error(
+                f"[STATEMENT_LOAD] ERROR: key={key}, error={type(e).__name__}: {e}"
+            )
             raise
 
     def delete_statement(self, content_hash: int) -> OperationResult[None]:
