@@ -111,10 +111,8 @@ Added full support for `language` and `lexical_category` fields in lexeme entiti
 
 **Files Updated:**
 
-1. `src/models/data/rest_api/v1/entitybase/request/entity/crud.py`
-   - `EntityCreateRequest`: Added `language` and `lexical_category` fields
-   - `LexemeUpdateRequest`: Added `language` and `lexical_category` fields
-   - `PreparedRequestData`: Added `language` and `lexical_category` fields
+1. `src/models/data/rest_api/v1/entitybase/request/entity/entity_create_request.py`, `lexeme_update_request.py`, `prepared_request_data.py`
+   - Consolidated from crud.py into separate files per class
 
 2. `src/models/data/rest_api/v1/entitybase/request/entity/term_update.py`
    - Added `LexemeLanguageRequest` model for language updates
@@ -578,10 +576,8 @@ Added full support for lexeme lemmas with S3-backed deduplication, validation ru
 - Added `LemmasResponse` model (all lemmas dict)
 - Exported new models in `__init__.py`
 
-**File: `src/models/data/rest_api/v1/entitybase/request/entity/crud.py`**
-- Added `lemmas: Dict[str, Dict[str, str]] = {}` to `EntityCreateRequest`
-- Added `lemmas: Dict[str, Dict[str, str]] = {}` to `LexemeUpdateRequest`
-- Added `lemmas: Dict[str, Dict[str, str]] = Field(default_factory=dict)` to `PreparedRequestData`
+**File:** `src/models/data/rest_api/v1/entitybase/request/entity/entity_create_request.py`, `lexeme_update_request.py`, `prepared_request_data.py`
+- Consolidated from crud.py into separate files per class
 
 #### Term Processing
 
