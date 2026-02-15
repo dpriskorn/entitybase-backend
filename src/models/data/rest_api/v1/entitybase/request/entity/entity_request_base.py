@@ -80,6 +80,8 @@ class EntityRequestBase(BaseModel):
         forms_with_defaults = []
         for form in self.forms:
             form_copy = form.copy()
+            if "id" not in form_copy:
+                form_copy["id"] = None
             if "grammaticalFeatures" not in form_copy:
                 form_copy["grammaticalFeatures"] = []
             if "claims" not in form_copy:
@@ -96,6 +98,8 @@ class EntityRequestBase(BaseModel):
         senses_with_defaults = []
         for sense in self.senses:
             sense_copy = sense.copy()
+            if "id" not in sense_copy:
+                sense_copy["id"] = None
             if "glosses" not in sense_copy:
                 sense_copy["glosses"] = {}
             if "claims" not in sense_copy:
