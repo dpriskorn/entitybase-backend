@@ -1,12 +1,10 @@
 """Vitess client for database operations."""
 
 import logging
-from contextlib import contextmanager
-from typing import Any, cast, Generator
+from typing import Any, cast
 from typing import Optional
 
 from pydantic import Field
-from pymysql.connections import Connection
 
 from models.infrastructure.client import Client
 from models.data.config.vitess import VitessConfig
@@ -44,18 +42,6 @@ class VitessClient(Client):
         self.id_resolver = IdResolver(vitess_client=self)
         logger.info("=== VitessClient.model_post_init() END ===")
         # self.create_tables()
-
-    @contextmanager
-    def get_connection(self) -> Generator[Connection, None, None]:
-        """Context manager for acquiring and releasing database connections."""
-        if self.connection_manager is None:
-            raise RuntimeError("Connection manager not initialized")
-
-        connection = self.connection_manager.acquire()
-        try:
-            yield connection
-        finally:
-            self.connection_manager.release(connection)
 
     @property
     def cursor(self) -> CursorContextManager:
@@ -168,19 +154,6 @@ class VitessClient(Client):
             referenced_internal_id, limit, offset
         )
 
-    def insert_statement_content(self, content_hash: int) -> bool:
-        """Insert statement content or increment ref count.
-
-        Args:
-            content_hash: Hash of the statement
-
-        Returns:
-            True if inserted, False if already existed (incremented)
-        """
-        stmt_repo = self.statement_repository
-        result = stmt_repo.increment_ref_count(content_hash=content_hash)
-        return result.success  # type: ignore[no-any-return]
-
     def create_revision(
         self,
         entity_id: str,
@@ -250,27 +223,6 @@ class VitessClient(Client):
 
     def is_entity_archived(self, entity_id: str) -> bool:
         return cast(bool, self.entity_repository.is_archived(entity_id))
-
-    def list_entities_by_type(
-        self, entity_type: str, limit: int = 100, offset: int = 0
-    ) -> list[str]:
-        """List entity IDs by type using pattern matching on entity_id."""
-        pattern_map = {
-            "item": "Q%",
-            "lexeme": "L%",
-            "property": "P%",
-        }
-        pattern = pattern_map.get(entity_type)
-        if not pattern:
-            return []
-        with self.cursor as cursor:
-            cursor.execute(
-                """SELECT entity_id FROM entity_id_mapping
-                   WHERE entity_id LIKE %s
-                   LIMIT %s OFFSET %s""",
-                (pattern, limit, offset),
-            )
-            return [row[0] for row in cursor.fetchall()]
 
     def get_redirect_target(self, entity_id: str) -> str:
         """Get the redirect target for an entity."""
