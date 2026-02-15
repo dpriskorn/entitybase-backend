@@ -1,8 +1,9 @@
-.PHONY: lint test test-fast coverage help ruff mypy radon vulture
+.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop
 
 help:
 	@echo "Available targets:"
 	@echo "  make api         - Run docker compose up and start the API locally using uvicorn with reload enabled"
+	@echo "  make stop        - Stop docker and remove everything"
 	@echo "  make lint         - Run all linters"
 	@echo "  make ruff         - Run ruff linter"
 	@echo "  make mypy         - Run mypy type checker"
@@ -30,6 +31,9 @@ help:
 
 api:
 	./run-api-local.sh
+
+stop:
+	./stop-docker-and-remove-everything.sh
 
 lint:
 	./run-linters.sh
