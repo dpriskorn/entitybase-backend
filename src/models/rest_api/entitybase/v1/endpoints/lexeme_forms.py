@@ -109,7 +109,7 @@ async def create_lexeme_form(
 @router.get("/entities/lexemes/forms/{form_id}", response_model=FormResponse)
 async def get_form_by_id(form_id: str, req: Request) -> FormResponse:
     """Get single form by ID (accepts L42-F1 or F1 format)."""
-    lexeme_id, form_suffix = _parse_form_id(form_id)
+    lexeme_id, _ = _parse_form_id(form_id)
 
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
@@ -173,7 +173,7 @@ async def add_form_representation(
 ) -> TermHashResponse:
     """Add a new form representation for language."""
     logger.debug(f"Adding representation for form {form_id}, language {langcode}")
-    lexeme_id, form_suffix = _parse_form_id(form_id)
+    lexeme_id, _ = _parse_form_id(form_id)
 
     if request.language != langcode:
         raise HTTPException(
@@ -240,7 +240,7 @@ async def update_form_representation(
 ) -> TermHashResponse:
     """Update form representation for language."""
     logger.debug(f"Updating representation for form {form_id}, language {langcode}")
-    lexeme_id, form_suffix = _parse_form_id(form_id)
+    lexeme_id, _ = _parse_form_id(form_id)
 
     if request.language != langcode:
         raise HTTPException(
@@ -306,7 +306,7 @@ async def delete_form(
 ) -> EntityResponse:
     """Delete a form by ID."""
     logger.debug(f"Deleting form {form_id}")
-    lexeme_id, form_suffix = _parse_form_id(form_id)
+    lexeme_id, _ = _parse_form_id(form_id)
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
@@ -352,7 +352,7 @@ async def delete_form_representation(
 ) -> DeleteResponse:
     """Delete form representation for language."""
     logger.debug(f"Deleting representation for form {form_id}, language {langcode}")
-    lexeme_id, form_suffix = _parse_form_id(form_id)
+    lexeme_id, _ = _parse_form_id(form_id)
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
@@ -408,7 +408,7 @@ async def add_form_statement(
 ) -> EntityResponse:
     """Add a statement to a form."""
     logger.debug(f"Adding statement to form {form_id}")
-    lexeme_id, form_suffix = _parse_form_id(form_id)
+    lexeme_id, _ = _parse_form_id(form_id)
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator

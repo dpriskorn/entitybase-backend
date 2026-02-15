@@ -108,7 +108,7 @@ async def create_lexeme_sense(
 @router.get("/entities/lexemes/senses/{sense_id}", response_model=SenseResponse)
 async def get_sense_by_id(sense_id: str, req: Request) -> SenseResponse:
     """Get single sense by ID (accepts L42-S1 or S1 format)."""
-    lexeme_id, sense_suffix = _parse_sense_id(sense_id)
+    lexeme_id, _ = _parse_sense_id(sense_id)
 
     state = req.app.state.state_handler
     handler = EntityReadHandler(state=state)
@@ -169,7 +169,7 @@ async def add_sense_gloss(
 ) -> TermHashResponse:
     """Add a new sense gloss for a language."""
     logger.debug(f"Adding gloss for sense {sense_id}, language {langcode}")
-    lexeme_id, sense_suffix = _parse_sense_id(sense_id)
+    lexeme_id, _ = _parse_sense_id(sense_id)
 
     if not lexeme_id:
         raise HTTPException(
@@ -237,7 +237,7 @@ async def update_sense_gloss(
 ) -> TermHashResponse:
     """Update sense gloss for language."""
     logger.debug(f"Updating gloss for sense {sense_id}, language {langcode}")
-    lexeme_id, sense_suffix = _parse_sense_id(sense_id)
+    lexeme_id, _ = _parse_sense_id(sense_id)
 
     if not lexeme_id:
         raise HTTPException(
@@ -301,7 +301,7 @@ async def delete_sense(
 ) -> EntityResponse:
     """Delete a sense by ID."""
     logger.debug(f"Deleting sense {sense_id}")
-    lexeme_id, sense_suffix = _parse_sense_id(sense_id)
+    lexeme_id, _ = _parse_sense_id(sense_id)
 
     if not lexeme_id:
         raise HTTPException(
@@ -353,7 +353,7 @@ async def delete_sense_gloss(
 ) -> DeleteResponse:
     """Delete sense gloss for language."""
     logger.debug(f"Deleting gloss for sense {sense_id}, language {langcode}")
-    lexeme_id, sense_suffix = _parse_sense_id(sense_id)
+    lexeme_id, _ = _parse_sense_id(sense_id)
 
     if not lexeme_id:
         raise HTTPException(
@@ -415,7 +415,7 @@ async def add_sense_statement(
 ) -> EntityResponse:
     """Add a statement to a sense."""
     logger.debug(f"Adding statement to sense {sense_id}")
-    lexeme_id, sense_suffix = _parse_sense_id(sense_id)
+    lexeme_id, _ = _parse_sense_id(sense_id)
 
     state = req.app.state.state_handler
     validator = req.app.state.state_handler.validator
