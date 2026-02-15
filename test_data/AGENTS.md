@@ -133,7 +133,7 @@ class EntityCreateRequest(BaseModel):
     )
 ```
 
-See `src/models/data/rest_api/v1/entitybase/request/entity/crud.py` for the implementation.
+See `src/models/data/rest_api/v1/entitybase/request/entity/entity_create_request.py` for the implementation.
 
 ## Adding New Test Data
 
