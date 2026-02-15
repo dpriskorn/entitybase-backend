@@ -222,6 +222,34 @@ class EntityHandler(Handler):
         return await hashing_service.hash_sitelinks(ctx.request_data)
 
     @staticmethod
+    def _get_forms_with_ids(ctx: RevisionContext) -> list[Any]:
+        """Get forms with IDs assigned for lexeme entities."""
+        from models.data.infrastructure.s3.enums import EntityType
+        from models.rest_api.entitybase.v1.endpoints.lexeme_utils import (
+            assign_form_ids,
+        )
+
+        forms: list[Any] = ctx.request_data.get("forms", [])
+        if not forms or ctx.entity_type != EntityType.LEXEME:
+            return forms
+
+        return assign_form_ids(ctx.entity_id, forms).get_json()  # type: ignore[no-any-return]
+
+    @staticmethod
+    def _get_senses_with_ids(ctx: RevisionContext) -> list[Any]:
+        """Get senses with IDs assigned for lexeme entities."""
+        from models.data.infrastructure.s3.enums import EntityType
+        from models.rest_api.entitybase.v1.endpoints.lexeme_utils import (
+            assign_sense_ids,
+        )
+
+        senses: list[Any] = ctx.request_data.get("senses", [])
+        if not senses or ctx.entity_type != EntityType.LEXEME:
+            return senses
+
+        return assign_sense_ids(ctx.entity_id, senses).get_json()  # type: ignore[no-any-return]
+
+    @staticmethod
     def _build_revision_data(
         ctx: RevisionContext,
         hash_result: StatementHashResult,
@@ -267,8 +295,8 @@ class EntityHandler(Handler):
             state=entity_state,
             schema_version=settings.s3_schema_revision_version,
             lemmas=ctx.request_data.get("lemmas", {}),
-            forms=ctx.request_data.get("forms", []),
-            senses=ctx.request_data.get("senses", []),
+            forms=EntityHandler._get_forms_with_ids(ctx),
+            senses=EntityHandler._get_senses_with_ids(ctx),
             language=ctx.request_data.get("language", ""),
             lexical_category=ctx.request_data.get("lexical_category", ""),
         )
