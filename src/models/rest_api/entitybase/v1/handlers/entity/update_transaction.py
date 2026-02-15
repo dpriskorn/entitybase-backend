@@ -178,8 +178,8 @@ class UpdateTransaction(EntityTransaction):
             state=EntityState(),
             schema_version=settings.s3_schema_revision_version,
             lemmas=request_data.lemmas,
-            forms=assign_form_ids(entity_id, request_data.forms),
-            senses=assign_sense_ids(entity_id, request_data.senses),
+            forms=assign_form_ids(entity_id, request_data.forms).get_json(),
+            senses=assign_sense_ids(entity_id, request_data.senses).get_json(),
             language=request_data.language,
             lexical_category=request_data.lexical_category,
         )
