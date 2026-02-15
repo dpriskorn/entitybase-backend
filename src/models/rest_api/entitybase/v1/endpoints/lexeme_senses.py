@@ -139,6 +139,23 @@ async def get_sense_glosses(sense_id: str, req: Request) -> SenseGlossesResponse
     return SenseGlossesResponse(glosses=sense.glosses)
 
 
+@router.get(
+    "/entities/lexemes/senses/{sense_id}/glosses/{langcode}",
+    response_model=SenseGlossResponse,
+)
+async def get_sense_gloss_by_language(
+    sense_id: str, langcode: str, req: Request
+) -> SenseGlossResponse:
+    """Get gloss for a sense in specific language."""
+    sense = await get_sense_by_id(sense_id, req)
+    gloss = sense.glosses.get(langcode)
+    if not gloss:
+        raise HTTPException(
+            status_code=404, detail=f"Gloss not found for language {langcode}"
+        )
+    return SenseGlossResponse(value=gloss.value)
+
+
 @router.post(
     "/entities/lexemes/senses/{sense_id}/glosses/{langcode}",
     response_model=TermHashResponse,

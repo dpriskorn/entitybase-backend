@@ -398,14 +398,16 @@ async def test_add_statement_to_form(api_prefix: str) -> None:
 
         # Add statement to form
         statement_data = {
-            "id": "TESTCLAIM789",
-            "mainsnak": {
-                "snaktype": "value",
-                "property": "P31",
-                "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
-            },
-            "type": "statement",
-            "rank": "normal",
+            "claim": {
+                "id": "TESTCLAIM789",
+                "mainsnak": {
+                    "snaktype": "value",
+                    "property": "P31",
+                    "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+                },
+                "type": "statement",
+                "rank": "normal",
+            }
         }
         response = await client.post(
             f"{api_prefix}/entities/lexemes/forms/{lexeme_id}-F1/statements",
