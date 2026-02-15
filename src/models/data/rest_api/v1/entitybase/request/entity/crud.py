@@ -1,6 +1,6 @@
 from typing import Dict, Any, List
 
-from pydantic import AliasChoices, BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field, model_validator
 
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType, DeleteType
@@ -15,6 +15,10 @@ from models.data.rest_api.v1.entitybase.request.entity.context import (
     CreationTransactionContext,
     SitelinkUpdateContext,
 )
+from models.rest_api.utils import raise_validation_error
+from wikibaseintegrator.models.claims import Claims
+from wikibaseintegrator.models.forms import Forms
+from wikibaseintegrator.models.senses import Senses
 
 __all__ = [
     "EntityCreateRequest",
@@ -88,6 +92,62 @@ class EntityCreateRequest(BaseModel):
     def data(self) -> Dict[str, Any]:
         return self.model_dump(exclude_unset=True)  # type: ignore[no-any-return]
 
+    def validate_claims_wbi(self) -> Claims:
+        """Validate claims using WBI model."""
+        if not self.claims:
+            return Claims()
+        return Claims().from_json(self.claims)
+
+    def validate_forms_wbi(self) -> Forms:
+        """Validate forms using WBI model."""
+        if not self.forms:
+            return Forms()
+        forms_with_defaults = []
+        for form in self.forms:
+            form_copy = form.copy()
+            if "grammaticalFeatures" not in form_copy:
+                form_copy["grammaticalFeatures"] = []
+            if "claims" not in form_copy:
+                form_copy["claims"] = {}
+            if "representations" not in form_copy:
+                form_copy["representations"] = {}
+            forms_with_defaults.append(form_copy)
+        return Forms().from_json(forms_with_defaults)
+
+    def validate_senses_wbi(self) -> Senses:
+        """Validate senses using WBI model."""
+        if not self.senses:
+            return Senses()
+        senses_with_defaults = []
+        for sense in self.senses:
+            sense_copy = sense.copy()
+            if "glosses" not in sense_copy:
+                sense_copy["glosses"] = {}
+            if "claims" not in sense_copy:
+                sense_copy["claims"] = {}
+            senses_with_defaults.append(sense_copy)
+        return Senses().from_json(senses_with_defaults)
+
+    @model_validator(mode="after")
+    def validate_wbi(self) -> "EntityCreateRequest":
+        """Validate all WBI components on instantiation."""
+        try:
+            self.validate_claims_wbi()
+        except Exception as e:
+            raise_validation_error(f"Invalid claims: {e}", status_code=400)
+
+        try:
+            self.validate_forms_wbi()
+        except Exception as e:
+            raise_validation_error(f"Invalid forms: {e}", status_code=400)
+
+        try:
+            self.validate_senses_wbi()
+        except Exception as e:
+            raise_validation_error(f"Invalid senses: {e}", status_code=400)
+
+        return self
+
 
 class LexemeUpdateRequest(BaseModel):
     """Request model for updating a lexeme entity."""
@@ -141,6 +201,62 @@ class LexemeUpdateRequest(BaseModel):
     @property
     def data(self) -> Dict[str, Any]:
         return self.model_dump(exclude_unset=True)  # type: ignore[no-any-return]
+
+    def validate_claims_wbi(self) -> Claims:
+        """Validate claims using WBI model."""
+        if not self.claims:
+            return Claims()
+        return Claims().from_json(self.claims)
+
+    def validate_forms_wbi(self) -> Forms:
+        """Validate forms using WBI model."""
+        if not self.forms:
+            return Forms()
+        forms_with_defaults = []
+        for form in self.forms:
+            form_copy = form.copy()
+            if "grammaticalFeatures" not in form_copy:
+                form_copy["grammaticalFeatures"] = []
+            if "claims" not in form_copy:
+                form_copy["claims"] = {}
+            if "representations" not in form_copy:
+                form_copy["representations"] = {}
+            forms_with_defaults.append(form_copy)
+        return Forms().from_json(forms_with_defaults)
+
+    def validate_senses_wbi(self) -> Senses:
+        """Validate senses using WBI model."""
+        if not self.senses:
+            return Senses()
+        senses_with_defaults = []
+        for sense in self.senses:
+            sense_copy = sense.copy()
+            if "glosses" not in sense_copy:
+                sense_copy["glosses"] = {}
+            if "claims" not in sense_copy:
+                sense_copy["claims"] = {}
+            senses_with_defaults.append(sense_copy)
+        return Senses().from_json(senses_with_defaults)
+
+    @model_validator(mode="after")
+    def validate_wbi(self) -> "LexemeUpdateRequest":
+        """Validate all WBI components on instantiation."""
+        try:
+            self.validate_claims_wbi()
+        except Exception as e:
+            raise_validation_error(f"Invalid claims: {e}", status_code=400)
+
+        try:
+            self.validate_forms_wbi()
+        except Exception as e:
+            raise_validation_error(f"Invalid forms: {e}", status_code=400)
+
+        try:
+            self.validate_senses_wbi()
+        except Exception as e:
+            raise_validation_error(f"Invalid senses: {e}", status_code=400)
+
+        return self
 
 
 class EntityDeleteRequest(BaseModel):
@@ -207,3 +323,59 @@ class PreparedRequestData(BaseModel):
     is_mass_edit_protected: bool = Field(
         default=False, description="Whether the entity is mass edit protected"
     )
+
+    def validate_claims_wbi(self) -> Claims:
+        """Validate claims using WBI model."""
+        if not self.claims:
+            return Claims()
+        return Claims().from_json(self.claims)
+
+    def validate_forms_wbi(self) -> Forms:
+        """Validate forms using WBI model."""
+        if not self.forms:
+            return Forms()
+        forms_with_defaults = []
+        for form in self.forms:
+            form_copy = form.copy()
+            if "grammaticalFeatures" not in form_copy:
+                form_copy["grammaticalFeatures"] = []
+            if "claims" not in form_copy:
+                form_copy["claims"] = {}
+            if "representations" not in form_copy:
+                form_copy["representations"] = {}
+            forms_with_defaults.append(form_copy)
+        return Forms().from_json(forms_with_defaults)
+
+    def validate_senses_wbi(self) -> Senses:
+        """Validate senses using WBI model."""
+        if not self.senses:
+            return Senses()
+        senses_with_defaults = []
+        for sense in self.senses:
+            sense_copy = sense.copy()
+            if "glosses" not in sense_copy:
+                sense_copy["glosses"] = {}
+            if "claims" not in sense_copy:
+                sense_copy["claims"] = {}
+            senses_with_defaults.append(sense_copy)
+        return Senses().from_json(senses_with_defaults)
+
+    @model_validator(mode="after")
+    def validate_wbi(self) -> "PreparedRequestData":
+        """Validate all WBI components on instantiation."""
+        try:
+            self.validate_claims_wbi()
+        except Exception as e:
+            raise_validation_error(f"Invalid claims: {e}", status_code=400)
+
+        try:
+            self.validate_forms_wbi()
+        except Exception as e:
+            raise_validation_error(f"Invalid forms: {e}", status_code=400)
+
+        try:
+            self.validate_senses_wbi()
+        except Exception as e:
+            raise_validation_error(f"Invalid senses: {e}", status_code=400)
+
+        return self
