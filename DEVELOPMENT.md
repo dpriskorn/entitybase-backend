@@ -56,6 +56,67 @@ The database is reset between tests, providing a clean state for each test run.
    ./run-e2e-tests.sh
    ```
 
+## Makefile Commands
+
+This project uses a Makefile for common development tasks. Run `make help` to see all available targets.
+
+### Running the API
+
+| Command | Description |
+|---------|-------------|
+| `make api` | Start the API locally using uvicorn with reload enabled (requires Docker for MySQL and MinIO) |
+
+### Linting and Code Quality
+
+| Command | Description |
+|---------|-------------|
+| `make lint` | Run all linters (ruff, mypy, radon, vulture) |
+| `make ruff` | Run ruff linter |
+| `make mypy` | Run mypy type checker |
+| `make radon` | Run radon complexity checker |
+| `make vulture` | Run vulture dead code checker |
+
+### Testing
+
+#### Unit Tests
+
+| Command | Description |
+|---------|-------------|
+| `make test-unit` | Run all unit tests |
+| `make test-unit-01` | Unit tests: config, data, services, validation, json_parser |
+| `make test-unit-02` | Unit tests: internal_representation, workers |
+| `make test-unit-03` | Unit tests: infrastructure, rdf_builder |
+| `make test-unit-04` | Unit tests: rest_api |
+
+#### End-to-End Tests
+
+| Command | Description |
+|---------|-------------|
+| `make test-e2e` | Run all e2e tests |
+| `make test-e2e-01` | E2E tests: basics |
+| `make test-e2e-02` | E2E tests: terms |
+| `make test-e2e-03` | E2E tests: user features |
+| `make test-e2e-04` | E2E tests: advanced |
+
+#### Integration Tests
+
+| Command | Description |
+|---------|-------------|
+| `make test-integration` | Run all integration tests |
+| `make test-integration-01` | Integration tests: first 50 |
+| `make test-integration-02` | Integration tests: mid 50 |
+| `make test-integration-03` | Integration tests: late 50a |
+| `make test-integration-04` | Integration tests: late 50b |
+
+#### Combined Commands
+
+| Command | Description |
+|---------|-------------|
+| `make tests` | Run all tests (unit → e2e → integration) |
+| `make lint-test-fast` | Run lint + unit tests + e2e tests |
+| `make lint-test-all` | Run lint + all tests (unit → e2e → integration) |
+| `make coverage` | Run tests with coverage report |
+
 ## Development Workflow
 
 - Make changes to the code
