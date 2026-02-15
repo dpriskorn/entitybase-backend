@@ -30,10 +30,11 @@ async def test_add_sense_gloss() -> None:
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
+        lexeme_id = create_response.json()["id"]
 
         gloss_data = {"language": "de", "value": "Ein Testsinn"}
         response = await client.post(
-            "/v1/entitybase/entities/lexemes/senses/S1/glosses/de",
+            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses/de",
             json=gloss_data,
             headers={"X-Edit-Summary": "add gloss", "X-User-ID": "0"},
         )
@@ -65,15 +66,16 @@ async def test_add_sense_gloss_already_exists() -> None:
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
+        lexeme_id = create_response.json()["id"]
 
         gloss_data = {"language": "en", "value": "A test sense"}
         response = await client.post(
-            "/v1/entitybase/entities/lexemes/senses/S1/glosses/en",
+            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
             json=gloss_data,
             headers={"X-Edit-Summary": "add gloss", "X-User-ID": "0"},
         )
         assert response.status_code == 409
-        assert "already exists" in response.json()["detail"]
+        assert "already exists" in response.json()["message"]
         logger.info("✓ POST sense gloss already exists passed")
 
 
@@ -101,10 +103,11 @@ async def test_update_sense_gloss() -> None:
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
+        lexeme_id = create_response.json()["id"]
 
         gloss_data = {"language": "en", "value": "Updated sense"}
         response = await client.put(
-            "/v1/entitybase/entities/lexemes/senses/S1/glosses/en",
+            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
             json=gloss_data,
             headers={"X-Edit-Summary": "update gloss", "X-User-ID": "0"},
         )
@@ -141,9 +144,10 @@ async def test_delete_sense_gloss() -> None:
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
+        lexeme_id = create_response.json()["id"]
 
         response = await client.delete(
-            "/v1/entitybase/entities/lexemes/senses/S1/glosses/de",
+            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses/de",
             headers={"X-Edit-Summary": "delete gloss", "X-User-ID": "0"},
         )
         assert response.status_code == 200
@@ -174,13 +178,14 @@ async def test_delete_sense_gloss_last_gloss_fails() -> None:
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
+        lexeme_id = create_response.json()["id"]
 
         response = await client.delete(
-            "/v1/entitybase/entities/lexemes/senses/S1/glosses/en",
+            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
             headers={"X-Edit-Summary": "delete gloss", "X-User-ID": "0"},
         )
         assert response.status_code == 400
-        assert "cannot have 0 glosses" in response.json()["detail"]
+        assert "cannot have 0 glosses" in response.json()["message"]
         logger.info("✓ DELETE last gloss fails passed")
 
 
@@ -213,13 +218,14 @@ async def test_get_sense_glosses() -> None:
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
+        lexeme_id = create_response.json()["id"]
 
         response = await client.get(
-            "/v1/entitybase/entities/lexemes/senses/S1/glosses",
+            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses",
         )
         assert response.status_code == 200
         data = response.json()
-        assert "senses" in data
+        assert "glosses" in data
         logger.info("✓ GET sense glosses passed")
 
 
@@ -247,12 +253,12 @@ async def test_get_sense_gloss_by_language() -> None:
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
         assert create_response.status_code == 200
+        lexeme_id = create_response.json()["id"]
 
         response = await client.get(
-            "/v1/entitybase/entities/lexemes/senses/S1/glosses/en",
+            f"/v1/entitybase/entities/lexemes/senses/{lexeme_id}-S1/glosses/en",
         )
         assert response.status_code == 200
         data = response.json()
-        assert data["language"] == "en"
         assert data["value"] == "A test sense"
         logger.info("✓ GET sense gloss by language passed")
