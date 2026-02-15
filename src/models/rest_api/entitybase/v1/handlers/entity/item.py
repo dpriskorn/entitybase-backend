@@ -55,7 +55,7 @@ class ItemCreateHandler(EntityCreateHandler):
         request_data = request.data.model_copy()
         request_data.id = entity_id
         logger.debug(f"🔍 HANDLER: Prepared request data: {request_data}")
-        return PreparedRequestData.model_construct(**request_data.model_dump())  # type: ignore[return-value]
+        return PreparedRequestData.model_construct(**request_data.model_dump())  # type: ignore[no-any-return]
 
     @staticmethod
     async def _execute_creation_transaction(
