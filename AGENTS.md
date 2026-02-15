@@ -370,3 +370,44 @@ poetry install --with dev
 
 Tell the user to start the API webserver if needed.
 ```
+
+### Makefile Commands
+
+Use `make help` to see all available targets. Key commands:
+
+```bash
+# Development
+make api         # Run docker compose up and start API locally with uvicorn reload
+make stop        # Stop docker and remove everything
+make help        # Show all available targets
+
+# Linting and Type Checking
+make lint        # Run all linters (ruff, mypy, radon, vulture)
+make ruff        # Run ruff linter
+make mypy        # Run mypy type checker
+make radon       # Run radon complexity checker
+make vulture     # Run vulture dead code checker
+
+# Testing
+make tests                    # Run all tests (unit -> E2E -> integration)
+make test-unit               # Run all unit tests
+make test-unit-01            # Run unit tests (config, data, services, validation, json_parser)
+make test-unit-02            # Run unit tests (internal_representation, workers)
+make test-unit-03            # Run unit tests (infrastructure, rdf_builder)
+make test-unit-04            # Run unit tests (rest_api)
+make test-e2e                # Run all e2e tests
+make test-e2e-01             # Run e2e tests (basics)
+make test-e2e-02             # Run e2e tests (terms)
+make test-e2e-03             # Run e2e tests (user features)
+make test-e2e-04             # Run e2e tests (advanced)
+make test-integration        # Run all integration tests
+make test-integration-01      # Run integration tests (first 50)
+make test-integration-02      # Run integration tests (mid 50)
+make test-integration-03      # Run integration tests (late 50a)
+make test-integration-04      # Run integration tests (late 50b)
+make coverage                 # Run tests with coverage report
+
+# Combined commands
+make lint-test-all   # Run lint + all tests (unit -> E2E -> integration)
+make lint-test-fast # Run lint + fast tests (unit -> e2e)
+```
