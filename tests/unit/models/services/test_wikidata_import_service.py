@@ -105,7 +105,29 @@ class TestWikidataImportServiceTransformToCreateRequest:
             "labels": {"en": {"language": "en", "value": "Test Item"}},
             "descriptions": {"en": {"language": "en", "value": "Test Description"}},
             "aliases": {"en": [{"language": "en", "value": "Test Alias"}]},
-            "claims": {"P31": [{"mainsnak": {"datavalue": {"value": "Q5"}}}]},
+            "claims": {
+                "P31": [
+                    {
+                        "id": "Q42$12345678-1234-1234-1234-123456789012",
+                        "type": "statement",
+                        "rank": "normal",
+                        "mainsnak": {
+                            "snaktype": "value",
+                            "property": "P31",
+                            "hash": "abc123",
+                            "datavalue": {
+                                "value": {
+                                    "entity-type": "item",
+                                    "numeric-id": 5,
+                                    "id": "Q5",
+                                },
+                                "type": "wikibase-entityid",
+                            },
+                            "datatype": "wikibase-item",
+                        },
+                    }
+                ]
+            },
             "sitelinks": {"enwiki": {"site": "enwiki", "title": "Test Title"}},
         }
 
