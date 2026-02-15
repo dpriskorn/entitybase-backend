@@ -53,7 +53,8 @@ models.internal_representation.values.quantity_value.QuantityValue.validate_boun
 models.internal_representation.values.time_value.TimeValue.validate_time_format
 models.internal_representation.values.time_value.TimeValue.validate_time_format.cls
 models.internal_representation.values.time_value.TimeValue.validate_calendarmodel
-models.internal_representation.values.time_value.TimeValue.validate_calendarmodel.cls
+models.internal_representation.values.time_value.TimeValue.before
+models.internal_representation.values.time_value.TimeValue.after
 models.internal_representation.vocab.WD
 models.internal_representation.vocab.WDT
 models.internal_representation.vocab.P
@@ -352,6 +353,7 @@ models.rest_api.entitybase.v1.endpoints.lexeme_forms.add_form_statement
 models.rest_api.entitybase.v1.endpoints.lexeme_senses.get_lexeme_senses
 models.rest_api.entitybase.v1.endpoints.lexeme_senses.create_lexeme_sense
 models.rest_api.entitybase.v1.endpoints.lexeme_senses.get_sense_glosses
+models.rest_api.entitybase.v1.endpoints.lexeme_senses.get_sense_gloss_by_language
 models.rest_api.entitybase.v1.endpoints.lexeme_senses.add_sense_gloss
 models.rest_api.entitybase.v1.endpoints.lexeme_senses.update_sense_gloss
 models.rest_api.entitybase.v1.endpoints.lexeme_senses.delete_sense
