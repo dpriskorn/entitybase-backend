@@ -2,8 +2,12 @@
 set -e
 
 echo "🚀 Starting docker containers..."
-./run-docker-build-tests.sh
-echo "✅ All dependencies ready"
+./run-docker-build-tests.sh "$@"
+echo "✅ Docker build completed"
+
+echo "🔍 Verifying services health..."
+./check-docker-services.sh
+echo "✅ All services are healthy"
 
 echo "📦 Exporting environment variables..."
 

@@ -1,6 +1,9 @@
 # Use Python 3.13 slim image for smaller size
 FROM python:3.13-slim
 
+ARG REQUIREMENTS_HASH=initial
+RUN echo "Building with requirements hash: $REQUIREMENTS_HASH"
+
 # Set working directory
 WORKDIR /app
 
