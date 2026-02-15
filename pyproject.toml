@@ -23,6 +23,7 @@ dependencies = [
     "pyld (>=2.0.0,<3.0.0)",
     "pyyaml (>=6.0.3,<7.0.0)",
     "mypy-boto3-s3 (>=1.42.21,<2.0.0)",
+    "wikibaseintegrator (>=0.12.0,<1.0.0)",
 ]
 
 
@@ -69,7 +70,48 @@ markers = [
 [tool.vulture]
 paths = ["src"]
 exclude = ["tests"]
-ignore_names = ["arbitrary_types_allowed", "model_config"]
+ignore_names = [
+    "arbitrary_types_allowed",
+    "model_config",
+    "__init__",
+    "model_post_init",
+    # Pydantic model fields (used at runtime)
+    "dump_id",
+    "generated_at",
+    "time_range_start",
+    "time_range_end",
+    "size_bytes",
+    "compression",
+    "entity_count",
+    "file",
+    "sha256",
+    "dump_type",
+    # Worker/dev variables
+    "buckets",
+    "buckets_created",
+    "setup_status",
+    "total_tables",
+    "tables_created",
+    "entity_map",
+    "cleanup_buckets",
+    "_calculate_seconds_until_next_run",
+    "_generate_checksum",
+    # Exception handler parameters (Python protocol)
+    "exc_type",
+    "exc_val",
+    "exc_tb",
+    "__context",
+    # Data classes/variables
+    "region",
+    "MASS_EDIT",
+    "watchlist_context",
+    "reason",
+    "write_entity_revision",
+    # Unused classes (placeholder/future use)
+    "CreateRevisionRequest",
+    "DescriptionsResponse",
+    "NewThankEvent",
+]
 # Note: Vulture whitelist is configured in run-vulture.sh, not here
 
 [tool.mypy]
@@ -78,7 +120,7 @@ python_version = "3.13"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
-ignore_missing_imports = false
+ignore_missing_imports = true
 follow_imports = "skip"
 strict = false # this makes the number of errors explode
 exclude = ["src/types/", "types/", ".venv/"]
@@ -94,6 +136,10 @@ warn_return_any = false
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "wikibaseintegrator.*"
+ignore_missing_imports = true
 
 [tool.ruff]
 # Max line length

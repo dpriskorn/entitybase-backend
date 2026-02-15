@@ -1,4 +1,4 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Self
 
 from pydantic import AliasChoices, BaseModel, Field, model_validator
 
@@ -89,8 +89,9 @@ class EntityCreateRequest(BaseModel):
     )
 
     @property
-    def data(self) -> Dict[str, Any]:
-        return self.model_dump(exclude_unset=True)  # type: ignore[no-any-return]
+    def data(self) -> Self:
+        """Returns the model itself for type safety."""
+        return self
 
     def validate_claims_wbi(self) -> Claims:
         """Validate claims using WBI model."""
@@ -199,8 +200,9 @@ class LexemeUpdateRequest(BaseModel):
     )
 
     @property
-    def data(self) -> Dict[str, Any]:
-        return self.model_dump(exclude_unset=True)  # type: ignore[no-any-return]
+    def data(self) -> Self:
+        """Returns the model itself for type safety."""
+        return self
 
     def validate_claims_wbi(self) -> Claims:
         """Validate claims using WBI model."""

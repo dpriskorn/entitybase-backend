@@ -44,3 +44,9 @@ src/models/rest_api/entitybase/v1/services/statement_service.py:352
 src/models/rest_api/entitybase/v1/routes/resolve.py:176
 src/models/rest_api/entitybase/v1/endpoints/debug.py:14
 src/models/rest_api/entitybase/v1/endpoints/debug.py:43
+# WBI models used for validation internally (returns dict for backward compatibility)
+src/models/data/rest_api/v1/entitybase/request/entity/crud.py:88
+src/models/data/rest_api/v1/entitybase/request/entity/crud.py:142
+src/models/data/rest_api/v1/entitybase/request/entity/crud.py:183
+src/models/rest_api/entitybase/v1/endpoints/lexeme_utils.py:69
+src/models/rest_api/entitybase/v1/endpoints/lexeme_utils.py:121
