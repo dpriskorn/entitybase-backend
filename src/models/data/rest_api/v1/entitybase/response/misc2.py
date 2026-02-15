@@ -1,6 +1,6 @@
 """Qualifier, reference, and data response models."""
 
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -40,6 +40,15 @@ class ReferenceResponse(BaseModel):
     created_at: str = Field(
         description="Timestamp when reference was created. Example: '2023-01-01T12:00:00Z'."
     )
+
+
+class ReferenceSnaks(BaseModel):
+    """Model for reference snaks structure (inner reference data)."""
+
+    model_config = {"extra": "allow"}
+
+    snaks: Dict[str, Any]
+    snaks_order: Optional[List[str]] = None
 
 
 class SnakResponse(BaseModel):

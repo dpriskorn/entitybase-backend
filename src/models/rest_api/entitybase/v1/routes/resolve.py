@@ -19,6 +19,7 @@ from models.data.rest_api.v1.entitybase.response import (
     StatementResponse,
 )
 from models.data.rest_api.v1.entitybase.response.misc2 import (
+    ReferenceSnaks,
     SerializableQualifierValue,
 )
 from models.infrastructure.s3.exceptions import S3NotFoundError
@@ -175,7 +176,7 @@ async def get_references(req: Request, hashes: str) -> List[ReferenceResponse | 
 
 def _reconstruct_reference_snaks(
     reference_dict: dict, snak_handler: SnakHandler
-) -> dict:
+) -> ReferenceSnaks:
     """Reconstruct snaks from hashes in a reference dictionary.
 
     Args:
