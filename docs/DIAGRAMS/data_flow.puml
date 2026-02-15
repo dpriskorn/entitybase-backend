@@ -9,12 +9,12 @@ rectangle "Service Layer" as Service
 rectangle "Vitess Client" as VitessClient
 database "Vitess DB" as Vitess
 rectangle "S3 Client" as S3Client
-storage "S3 Terms" as S3Terms
-storage "S3 Statements" as S3Statements
-storage "S3 References" as S3References
-storage "S3 Qualifiers" as S3Qualifiers
-storage "S3 Revisions" as S3Revisions
-storage "S3 Dumps" as S3Dumps
+storage "S3 Terms bucket" as S3Terms
+storage "S3 Statements bucket" as S3Statements
+storage "S3 References bucket" as S3References
+storage "S3 Qualifiers bucket" as S3Qualifiers
+storage "S3 Revisions bucket" as S3Revisions
+storage "S3 Dumps bucket" as S3Dumps
 rectangle "Workers" as Workers
 database "Kafka" as Kafka
 
