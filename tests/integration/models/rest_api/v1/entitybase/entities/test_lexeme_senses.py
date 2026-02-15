@@ -29,8 +29,7 @@ async def test_add_sense_gloss() -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
-        if create_response.status_code != 200:
-            pytest.skip("Lexeme creation with senses not fully implemented")
+        assert create_response.status_code == 200
 
         gloss_data = {"language": "de", "value": "Ein Testsinn"}
         response = await client.post(
@@ -65,8 +64,7 @@ async def test_add_sense_gloss_already_exists() -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
-        if create_response.status_code != 200:
-            pytest.skip("Lexeme creation with senses not fully implemented")
+        assert create_response.status_code == 200
 
         gloss_data = {"language": "en", "value": "A test sense"}
         response = await client.post(
@@ -102,8 +100,7 @@ async def test_update_sense_gloss() -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
-        if create_response.status_code != 200:
-            pytest.skip("Lexeme creation with senses not fully implemented")
+        assert create_response.status_code == 200
 
         gloss_data = {"language": "en", "value": "Updated sense"}
         response = await client.put(
@@ -143,8 +140,7 @@ async def test_delete_sense_gloss() -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
-        if create_response.status_code != 200:
-            pytest.skip("Lexeme creation with senses not fully implemented")
+        assert create_response.status_code == 200
 
         response = await client.delete(
             "/v1/entitybase/entities/lexemes/senses/S1/glosses/de",
@@ -177,8 +173,7 @@ async def test_delete_sense_gloss_last_gloss_fails() -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
-        if create_response.status_code != 200:
-            pytest.skip("Lexeme creation with senses not fully implemented")
+        assert create_response.status_code == 200
 
         response = await client.delete(
             "/v1/entitybase/entities/lexemes/senses/S1/glosses/en",
@@ -217,8 +212,7 @@ async def test_get_sense_glosses() -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
-        if create_response.status_code != 200:
-            pytest.skip("Lexeme creation with senses not fully implemented")
+        assert create_response.status_code == 200
 
         response = await client.get(
             "/v1/entitybase/entities/lexemes/senses/S1/glosses",
@@ -252,8 +246,7 @@ async def test_get_sense_gloss_by_language() -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
         )
-        if create_response.status_code != 200:
-            pytest.skip("Lexeme creation with senses not fully implemented")
+        assert create_response.status_code == 200
 
         response = await client.get(
             "/v1/entitybase/entities/lexemes/senses/S1/glosses/en",

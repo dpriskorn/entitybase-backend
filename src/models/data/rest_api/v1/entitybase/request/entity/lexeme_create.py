@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, List
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 
 class FormCreateRequest(BaseModel):
@@ -17,6 +17,7 @@ class FormCreateRequest(BaseModel):
     grammatical_features: List[str] = Field(
         default_factory=list,
         description="List of grammatical feature item IDs (e.g. ['Q123'])",
+        validation_alias=AliasChoices("grammatical_features", "grammaticalFeatures"),
     )
     claims: Dict[str, List[Dict[str, Any]]] = Field(
         default_factory=dict,

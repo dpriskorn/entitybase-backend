@@ -39,8 +39,7 @@ async def test_list_lexeme_forms(api_prefix: str) -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        if response.status_code != 200:
-            pytest.skip("Lexeme creation with forms not fully implemented")
+        assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
         # List forms
@@ -71,8 +70,7 @@ async def test_create_lexeme_form(api_prefix: str) -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        if response.status_code != 200:
-            pytest.skip("Lexeme creation not fully implemented")
+        assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
         # Create form
@@ -115,8 +113,7 @@ async def test_get_single_form(api_prefix: str) -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        if response.status_code != 200:
-            pytest.skip("Lexeme creation with forms not fully implemented")
+        assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
         # Get form by short ID (F1 format)
@@ -161,8 +158,7 @@ async def test_delete_form(api_prefix: str) -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        if response.status_code != 200:
-            pytest.skip("Lexeme creation with forms not fully implemented")
+        assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
         # Delete one form
@@ -203,8 +199,7 @@ async def test_get_form_representations(api_prefix: str) -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        if response.status_code != 200:
-            pytest.skip("Lexeme creation with forms not fully implemented")
+        assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
         # Get all representations
@@ -244,8 +239,7 @@ async def test_get_form_representation_by_language(api_prefix: str) -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        if response.status_code != 200:
-            pytest.skip("Lexeme creation with forms not fully implemented")
+        assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
         # Get representation by language
@@ -282,8 +276,7 @@ async def test_add_form_representation(api_prefix: str) -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        if response.status_code != 200:
-            pytest.skip("Lexeme creation with forms not fully implemented")
+        assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
         # Add new language representation
@@ -323,8 +316,7 @@ async def test_update_form_representation(api_prefix: str) -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        if response.status_code != 200:
-            pytest.skip("Lexeme creation with forms not fully implemented")
+        assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
         # Update representation
@@ -367,8 +359,7 @@ async def test_delete_form_representation(api_prefix: str) -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        if response.status_code != 200:
-            pytest.skip("Lexeme creation with forms not fully implemented")
+        assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
         # Delete one representation
@@ -406,8 +397,7 @@ async def test_add_statement_to_form(api_prefix: str) -> None:
             json=lexeme_data,
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
-        if response.status_code != 200:
-            pytest.skip("Lexeme creation with forms not fully implemented")
+        assert response.status_code == 200
         lexeme_id = response.json()["id"]
 
         # Add statement to form

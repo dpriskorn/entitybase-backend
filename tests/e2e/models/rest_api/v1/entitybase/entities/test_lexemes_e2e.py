@@ -45,8 +45,6 @@ async def test_lexeme_lemmas_workflow(api_prefix: str) -> None:
             headers={"X-Edit-Summary": "E2E test", "X-User-ID": "0"},
         )
         assert response.status_code == 200
-        if response.status_code != 200:
-            pytest.skip("Lexeme creation failed - handler error")
         lexeme_id = response.json()["id"]
         logger.info(f"✓ Created lexeme {lexeme_id}")
 

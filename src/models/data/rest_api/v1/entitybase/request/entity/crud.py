@@ -1,6 +1,6 @@
 from typing import Dict, Any, List
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 
 from models.data.infrastructure.s3.entity_state import EntityState
 from models.data.infrastructure.s3.enums import EditType, DeleteType
@@ -50,9 +50,15 @@ class EntityCreateRequest(BaseModel):
     forms: List[Dict[str, Any]] = []
     senses: List[Dict[str, Any]] = []
     lemmas: Dict[str, Any] = {}
-    language: str = Field(default="", description="Lexeme language (QID)")
+    language: str = Field(
+        default="",
+        description="Lexeme language (QID)",
+        validation_alias=AliasChoices("language", "Language"),
+    )
     lexical_category: str = Field(
-        default="", description="Lexeme lexical category (QID)"
+        default="",
+        description="Lexeme lexical category (QID)",
+        validation_alias=AliasChoices("lexical_category", "lexicalCategory"),
     )
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     edit_type: EditType = Field(
@@ -99,9 +105,15 @@ class LexemeUpdateRequest(BaseModel):
     forms: List[Dict[str, Any]] = []
     senses: List[Dict[str, Any]] = []
     lemmas: Dict[str, Any] = {}
-    language: str = Field(default="", description="Lexeme language (QID)")
+    language: str = Field(
+        default="",
+        description="Lexeme language (QID)",
+        validation_alias=AliasChoices("language", "Language"),
+    )
     lexical_category: str = Field(
-        default="", description="Lexeme lexical category (QID)"
+        default="",
+        description="Lexeme lexical category (QID)",
+        validation_alias=AliasChoices("lexical_category", "lexicalCategory"),
     )
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     state: EntityState = Field(default=EntityState(), description="Entity state")
@@ -162,9 +174,15 @@ class PreparedRequestData(BaseModel):
     forms: List[Dict[str, Any]] = Field(default_factory=list)
     senses: List[Dict[str, Any]] = Field(default_factory=list)
     lemmas: Dict[str, Any] = Field(default_factory=dict)
-    language: str = Field(default="", description="Lexeme language (QID)")
+    language: str = Field(
+        default="",
+        description="Lexeme language (QID)",
+        validation_alias=AliasChoices("language", "Language"),
+    )
     lexical_category: str = Field(
-        default="", description="Lexeme lexical category (QID)"
+        default="",
+        description="Lexeme lexical category (QID)",
+        validation_alias=AliasChoices("lexical_category", "lexicalCategory"),
     )
     is_mass_edit: bool = Field(default=False, description="Whether this is a mass edit")
     edit_type: EditType = Field(

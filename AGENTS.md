@@ -7,6 +7,7 @@ This document provides guidelines and commands for agentic coding assistants wor
 For domain-specific guidance, see these AGENTS.md files:
 - [tests/AGENTS.md](tests/AGENTS.md) - Testing patterns, conventions, and best practices
 - [scripts/linters/AGENTS.md](scripts/linters/AGENTS.md) - Creating and maintaining custom linters
+- [test_data/AGENTS.md](test_data/AGENTS.md) - Test data structure and golden Wikibase JSON format
 
 ## Code Style Guidelines
 
