@@ -1,3 +1,6 @@
 # Allowlist for dict return type violations
 # Format: file_path:line_number
 # These functions are allowed to return dict types
+
+src/models/rest_api/entitybase/v1/endpoints/debug.py:14
+src/models/rest_api/entitybase/v1/endpoints/debug.py:43
