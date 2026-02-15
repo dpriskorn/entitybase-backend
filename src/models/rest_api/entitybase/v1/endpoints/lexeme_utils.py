@@ -5,8 +5,8 @@ import re
 from typing import Any
 
 from fastapi import HTTPException
-from wikibaseintegrator.models.forms import Form
-from wikibaseintegrator.models.senses import Sense
+from wikibaseintegrator.models.forms import Form, Forms
+from wikibaseintegrator.models.senses import Sense, Senses
 
 logger = logging.getLogger(__name__)
 
@@ -66,9 +66,7 @@ def _extract_numeric_suffix(suffix: str) -> int:
     return int(suffix[1:])
 
 
-def assign_form_ids(
-    lexeme_id: str, forms: list[dict[str, Any]]
-) -> list[dict[str, Any]]:
+def assign_form_ids(lexeme_id: str, forms: list[dict[str, Any]]) -> Forms:
     """Assign IDs to forms missing them, using incrementing numbers.
 
     This mimics Wikibase behavior where deleted form IDs are never reused.
@@ -80,7 +78,7 @@ def assign_form_ids(
         forms: List of form dictionaries, some may lack "id"
 
     Returns:
-        List of form dictionaries with IDs assigned to those missing them
+        Forms object with IDs assigned to those missing them
     """
     logger.debug(f"Assigning form IDs to {len(forms)} forms for lexeme {lexeme_id}")
     max_form_num = 0
@@ -108,19 +106,17 @@ def assign_form_ids(
                     pass
         wbi_forms.append(form)
 
-    result = []
+    forms_list = []
     for form in wbi_forms:
         if not form.id:
             max_form_num += 1
             form.id = f"{lexeme_id}-F{max_form_num}"
-        result.append(form.get_json())
+        forms_list.append(form.get_json())
 
-    return result
+    return Forms().from_json(forms_list)
 
 
-def assign_sense_ids(
-    lexeme_id: str, senses: list[dict[str, Any]]
-) -> list[dict[str, Any]]:
+def assign_sense_ids(lexeme_id: str, senses: list[dict[str, Any]]) -> Senses:
     """Assign IDs to senses missing them, using incrementing numbers.
 
     This mimics Wikibase behavior where deleted sense IDs are never reused.
@@ -132,7 +128,7 @@ def assign_sense_ids(
         senses: List of sense dictionaries, some may lack "id"
 
     Returns:
-        List of sense dictionaries with IDs assigned to those missing them
+        Senses object with IDs assigned to those missing them
     """
     logger.debug(f"Assigning sense IDs to {len(senses)} senses for lexeme {lexeme_id}")
     max_sense_num = 0
@@ -158,11 +154,11 @@ def assign_sense_ids(
                     pass
         wbi_senses.append(sense)
 
-    result = []
+    senses_list = []
     for sense in wbi_senses:
         if not sense.id:
             max_sense_num += 1
             sense.id = f"{lexeme_id}-S{max_sense_num}"
-        result.append(sense.get_json())
+        senses_list.append(sense.get_json())
 
-    return result
+    return Senses().from_json(senses_list)

@@ -2,7 +2,9 @@
 
 import logging
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
+
+from wikibaseintegrator.models.snaks import Snak
 
 from models.data.infrastructure.s3.snak_data import S3SnakData
 from models.data.rest_api.v1.entitybase.request import SnakRequest
@@ -40,11 +42,13 @@ class SnakHandler(Handler):
 
         return content_hash
 
-    def get_snak(self, snak_hash: int) -> Dict[str, Any] | None:
+    def get_snak(self, snak_hash: int) -> Snak | None:
         """Retrieve snak from S3 by hash."""
         try:
             snak_data = self.state.s3_client.load_snak(snak_hash)
-            return snak_data.snak if snak_data else None
+            if snak_data and snak_data.snak:
+                return Snak().from_json(snak_data.snak)
+            return None
         except Exception as e:
             logger.warning(f"Failed to retrieve snak {snak_hash}: {e}")
             return None
