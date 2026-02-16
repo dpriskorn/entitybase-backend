@@ -2,17 +2,18 @@
 
 import logging
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from models.data.rest_api.v1.entitybase.response import (
     TopEntityByBacklinks,
     BacklinkStatisticsData,
 )
+from models.rest_api.entitybase.v1.service import Service
 
 logger = logging.getLogger(__name__)
 
 
-class BacklinkStatisticsService(BaseModel):
+class BacklinkStatisticsService(Service):
     """Service for computing backlink statistics."""
 
     top_limit: int = Field(default=100, description="Number of top entities to include")
@@ -46,9 +47,11 @@ class BacklinkStatisticsService(BaseModel):
         return result[0] if result else 0
 
     def get_top_entities_by_backlinks(
-        self, limit: int = 100
+        self, limit: int | None = None
     ) -> list[TopEntityByBacklinks]:
         """Get top entities ranked by backlink count."""
+        if limit is None:
+            limit = self.top_limit
         logger.debug("Getting top %d entities by backlinks", limit)
         cursor = self.state.vitess_client.cursor
         cursor.execute(
