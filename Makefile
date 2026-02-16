@@ -1,4 +1,4 @@
-.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache
+.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache docs
 
 help:
 	@echo "Available targets:"
@@ -10,6 +10,7 @@ help:
 	@echo "  make mypy         - Run mypy type checker"
 	@echo "  make radon        - Run radon complexity checker"
 	@echo "  make vulture      - Run vulture dead code checker"
+	@echo "  make docs         - Update documentation"
 	@echo "  make lint-test-all - Run all lint + tests (unit -> E2E -> integration)"
 	@echo "  make lint-test-fast        - Run lint + fast tests (unit -> E2E)"
 	@echo "  make tests        - Run all tests (unit -> E2E -> integration)"
@@ -31,70 +32,73 @@ help:
 	@echo "  make coverage    - Run tests with coverage report"
 
 api:
-	./run-api-local.sh
+	./scripts/shell/run-api-local.sh
 
 api-no-cache:
-	./run-api-local.sh --no-cache
+	./scripts/shell/run-api-local.sh --no-cache
 
 stop:
-	./stop-docker-and-remove-everything.sh
+	./scripts/shell/stop-docker-and-remove-everything.sh
 
 lint:
-	./run-linters.sh
+	./scripts/shell/run-linters.sh
 
 ruff:
-	./run-ruff.sh
+	./scripts/shell/run-ruff.sh
 
 mypy:
-	./run-mypy.sh
+	./scripts/shell/run-mypy.sh
 
 radon:
-	./run-radon.sh
+	./scripts/shell/run-radon.sh
 
 vulture:
-	./run-vulture.sh
+	./scripts/shell/run-vulture.sh
+
+docs:
+	./scripts/shell/update-docs.sh
 
 test-unit: test-unit-01 test-unit-02 test-unit-03 test-unit-04
 
 test-unit-01:
-	./run-unit-01-config-data.sh
+	./scripts/shell/run-unit-01-config-data.sh
 
 test-unit-02:
-	./run-unit-02-internal-workers.sh
+	./scripts/shell/run-unit-02-internal-workers.sh
 
 test-unit-03:
-	./run-unit-03-infra-rdf.sh
+	./scripts/shell/run-unit-03-infra-rdf.sh
 
 test-unit-04:
-	./run-unit-04-rest-api.sh
+	./scripts/shell/run-unit-04-rest-api.sh
 
 test-e2e-01:
-	./run-e2e-01-basics.sh
+	./scripts/shell/run-e2e-01-basics.sh
 
 test-e2e-02:
-	./run-e2e-02-terms.sh
+	./scripts/shell/run-e2e-02-terms.sh
 
 test-e2e-03:
-	./run-e2e-03-user.sh
+	./scripts/shell/run-e2e-03-user.sh
 
 test-e2e-04:
-	./run-e2e-04-advanced.sh
+	./scripts/shell/run-e2e-04-advanced.sh
 
 test-e2e:test-e2e-01 test-e2e-02 test-e2e-03 test-e2e-04
 
 test-unit-e2e: test-unit test-e2e
 
 test-integration-01:
-	./run-integration-01-first50.sh
+	./scripts/shell/run-integration-01-first50.sh
 
 test-integration-02:
-	./run-integration-02-mid50.sh
+	./scripts/shell/run-integration-02-mid50.sh
 
 test-integration-03:
-	./run-integration-03-late50a.sh
+	./scripts/shell/run-integration-03-late50a.sh
 
 test-integration-04:
-	./run-integration-04-late50b.sh
+	./scripts/shell/run-integration-04-late50b.sh
 
 test-integration: test-integration-01 test-integration-02 test-integration-03 test-integration-04
 
@@ -105,4 +109,4 @@ lint-test-all: lint tests
 lint-test-fast: lint test-unit-e2e
 
 coverage:
-	./run-coverage.sh
+	./scripts/shell/run-coverage.sh
