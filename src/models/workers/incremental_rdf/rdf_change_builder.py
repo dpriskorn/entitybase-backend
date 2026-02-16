@@ -11,7 +11,9 @@ class RDFDataField(BaseModel):
     """RDF data field with mime type and data."""
 
     data: str = Field(..., description="The RDF data encoded using mime_type")
-    mime_type: str = Field(default="text/turtle", description="Mime type of the RDF data")
+    mime_type: str = Field(
+        default="text/turtle", description="Mime type of the RDF data"
+    )
 
 
 class RDFChangeEvent(BaseModel):
@@ -27,14 +29,16 @@ class RDFChangeEvent(BaseModel):
 
     model_config = {"extra": "forbid"}
 
-    # Schema identifier
-    schema: str = Field(
+    # Schema identifier (aliased to $schema for JSON serialization)
+    schema_uri: str = Field(
         default="/mediawiki/wikibase/entity/rdf_change/2.0.0",
         alias="$schema",
     )
 
     # Timestamp
-    dt: str = Field(..., description="ISO-8601 formatted timestamp of when the event occurred")
+    dt: str = Field(
+        ..., description="ISO-8601 formatted timestamp of when the event occurred"
+    )
 
     # Entity identification
     entity_id: str = Field(..., description="Wikibase entity ID being modified")
@@ -52,7 +56,9 @@ class RDFChangeEvent(BaseModel):
     )
 
     # Revision
-    rev_id: int = Field(..., description="The (database) revision ID related to this change")
+    rev_id: int = Field(
+        ..., description="The (database) revision ID related to this change"
+    )
 
     # RDF data fields
     rdf_added_data: Optional[RDFDataField] = Field(
@@ -73,7 +79,9 @@ class RDFChangeEvent(BaseModel):
     )
 
     # Sequence for chunking
-    sequence: int = Field(default=0, description="Sequence number for multi-part events")
+    sequence: int = Field(
+        default=0, description="Sequence number for multi-part events"
+    )
     sequence_length: int = Field(
         default=1, description="Number of messages to reconstruct the event"
     )
