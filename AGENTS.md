@@ -307,6 +307,7 @@ tests/
 ├── integration/        # Integration tests
 │   └── models/
 │       └── rest_api/   # API integration tests
+├── contract/           # Contract tests (API schema validation)
 └── e2e/               # End-to-end tests
 ```
 
@@ -400,6 +401,7 @@ make test-e2e-01             # Run e2e tests (basics)
 make test-e2e-02             # Run e2e tests (terms)
 make test-e2e-03             # Run e2e tests (user features)
 make test-e2e-04             # Run e2e tests (advanced)
+make test-contract           # Run contract tests (API schema validation, requires docker)
 make test-integration        # Run all integration tests
 make test-integration-01      # Run integration tests (first 50)
 make test-integration-02      # Run integration tests (mid 50)
@@ -408,6 +410,6 @@ make test-integration-04      # Run integration tests (late 50b)
 make coverage                 # Run tests with coverage report
 
 # Combined commands
-make lint-test-all   # Run lint + all tests (unit -> E2E -> integration)
+make lint-test-all   # Run lint + all tests (unit -> E2E -> contract -> integration)
 make lint-test-fast # Run lint + fast tests (unit -> e2e)
 ```
