@@ -36,6 +36,11 @@ class UniqueIdGenerator(BaseModel):
 
     _counter: int = 0
 
+    @property
+    def counter(self) -> int:
+        """Return the current counter value."""
+        return self._counter
+
     def generate_unique_id(self) -> int:
         """Generate a unique 64-bit ID."""
         self._counter += 1

@@ -284,3 +284,31 @@ class VitessClient(Client):
             content_hash: Hash of the statement to delete
         """
         self.statement_repository.delete_content(content_hash=content_hash)
+
+    def list_entities_by_type(
+        self, entity_type: str, limit: int = 100, offset: int = 0
+    ) -> list[str]:
+        """List entities by type (item, property, or lexeme).
+
+        Args:
+            entity_type: The type of entity ('item', 'property', or 'lexeme')
+            limit: Maximum number of entities to return
+            offset: Number of entities to skip
+
+        Returns:
+            List of entity IDs matching the type
+        """
+        type_prefixes = {"item": "Q", "property": "P", "lexeme": "L"}
+
+        if entity_type not in type_prefixes:
+            return []
+
+        prefix = type_prefixes[entity_type]
+        with self.cursor as cur:
+            cur.execute(
+                """SELECT entity_id FROM entity_id_mapping
+                   WHERE entity_id LIKE %s
+                   LIMIT %s OFFSET %s""",
+                (f"{prefix}%", limit, offset),
+            )
+            return [row[0] for row in cur.fetchall()]
