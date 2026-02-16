@@ -1,15 +1,4 @@
-#!/usr/bin/env python3
-"""
-Generate PlantUML diagram for complete data flow from entity creation to RDF change event.
-Shows only internal components of the Wikibase Backend codebase.
-"""
-
-from pathlib import Path
-
-
-def generate_plantuml() -> str:
-    """Generate PlantUML diagram as string."""
-    return """@startuml detailed_data_flow
+@startuml detailed_data_flow
 
 title Complete Data Flow: Entity Creation → RDF Change Event
 note right
@@ -19,30 +8,30 @@ end note
 
 ' Entry Points
 package "REST API Layer" #LightBlue {
-    component [Entity Endpoints\\n/entities/{id}] as API
-    note right of API: POST, PATCH, DELETE\\nsrc/models/rest_api/entitybase/v1/endpoints/entities.py
+    component [Entity Endpoints\n/entities/{id}] as API
+    note right of API: POST, PATCH, DELETE\nsrc/models/rest_api/entitybase/v1/endpoints/entities.py
 }
 
 ' Processing
 package "Entity Processing" #LightGreen {
-    component [Request Validation\\n_validate_revision_request] as VALIDATE
-    component [Idempotency Check\\n_check_idempotency_new] as IDEMPOTENT
-    component [Entity Processing\\n_process_entity_data_new] as PROCESS
-    component [Hashing & Dedup\\nEntityHashingService] as HASH
+    component [Request Validation\n_validate_revision_request] as VALIDATE
+    component [Idempotency Check\n_check_idempotency_new] as IDEMPOTENT
+    component [Entity Processing\n_process_entity_data_new] as PROCESS
+    component [Hashing & Dedup\nEntityHashingService] as HASH
 }
 
 ' Storage
 package "Storage Layer" #LightYellow {
-    database "Vitess Repository\\n(Revision Metadata)" as DB
+    database "Vitess Repository\n(Revision Metadata)" as DB
     note right of DB: src/models/infrastructure/vitess/repositories/revision.py
 
-    storage "S3 Client\\n(Full Snapshots)" as S3
+    storage "S3 Client\n(Full Snapshots)" as S3
     note right of S3: src/models/infrastructure/s3/client.py
 }
 
 ' Event Publishing Step 1
-queue "Kafka/Redpanda\\nentitybase.entity_change" as KAFKA1
-note right of KAFKA1: EntityChangeEvent\\nsrc/models/infrastructure/stream/event.py
+queue "Kafka/Redpanda\nentitybase.entity_change" as KAFKA1
+note right of KAFKA1: EntityChangeEvent\nsrc/models/infrastructure/stream/event.py
 
 ' Legacy Entity Diff Worker (RDF canonicalization + full diff)
 package "Entity Diff Worker (Legacy)" #Lavender {
@@ -52,15 +41,15 @@ package "Entity Diff Worker (Legacy)" #Lavender {
     component [RDF Serializer] as RDF_CONV
     note right of RDF_CONV: entity_data_to_rdf()
 
-    component [RDF Canonicalizer\\nURDNA2015] as CANONICAL
+    component [RDF Canonicalizer\nURDNA2015] as CANONICAL
     note right of CANONICAL: src/models/workers/entity_diff/rdf_cannonicalizer.py
 
-    component [Diff Computation\\nAdded/Removed Triples] as DIFF
+    component [Diff Computation\nAdded/Removed Triples] as DIFF
 }
 
 ' Event Publishing Step 2 (Legacy)
-queue "Kafka/Redpanda\\nwikibase.entity_diff" as KAFKA2
-note right of KAFKA2: RDFChangeEvent\\nadded_triples, removed_triples
+queue "Kafka/Redpanda\nwikibase.entity_diff" as KAFKA2
+note right of KAFKA2: RDFChangeEvent\nadded_triples, removed_triples
 
 ' New Incremental RDF Worker (Diff-based updates)
 package "Incremental RDF Worker" #LightCyan {
@@ -75,8 +64,8 @@ package "Incremental RDF Worker" #LightCyan {
 }
 
 ' Event Publishing Step 2 (Incremental)
-queue "Kafka/Redpanda\\nincremental_rdf_diff" as KAFKA3
-note right of KAFKA3: RDFChangeEvent\\nrdf_added_data, rdf_deleted_data\\n(entity_diff/2.0.0)
+queue "Kafka/Redpanda\nincremental_rdf_diff" as KAFKA3
+note right of KAFKA3: RDFChangeEvent\nrdf_added_data, rdf_deleted_data\n(entity_diff/2.0.0)
 
 ' Internal Consumer
 package "Internal Consumers" #Coral {
@@ -107,7 +96,7 @@ KAFKA1 --> INCR_WORKER : 7b. EntityChangeEvent
 INCR_WORKER --> S3 : 8b. Fetch entity snapshots
 INCR_WORKER --> INCR_UPDATER : 9b. Compute diffs
 INCR_UPDATER --> RDF_BUILD : 10b. Build RDF event
-RDF_BUILD --> KAFKA3 : 11b. RDFChangeEvent\\n(entity_diff/2.0.0)
+RDF_BUILD --> KAFKA3 : 11b. RDFChangeEvent\n(entity_diff/2.0.0)
 
 KAFKA1 --> WATCHLIST : 12. EntityChangeEvent
 
@@ -127,23 +116,3 @@ note bottom of KAFKA3
 end note
 
 @enduml
-"""
-
-
-def main():
-    """Main entry point."""
-    output_dir = Path(__file__).parent.parent.parent / "doc" / "DIAGRAMS"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    output_file = output_dir / "detailed_data_flow.puml"
-    
-    plantuml_content = generate_plantuml()
-    
-    output_file.write_text(plantuml_content, encoding="utf-8")
-    
-    print(f"Generated PlantUML diagram: {output_file}")
-    print(f"To render, use: plantuml {output_file}")
-
-
-if __name__ == "__main__":
-    main()
