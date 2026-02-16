@@ -32,10 +32,11 @@ done
 
 # Load test environment variables
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-if [ -f "$SCRIPT_DIR/test.env" ]; then
-    source "$SCRIPT_DIR/test.env"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+if [ -f "$PROJECT_ROOT/test.env" ]; then
+    source "$PROJECT_ROOT/test.env"
 else
-    echo -e "${RED}❌ test.env not found at $SCRIPT_DIR/test.env${NC}"
+    echo -e "${RED}❌ test.env not found at $PROJECT_ROOT/test.env${NC}"
     exit 1
 fi
 

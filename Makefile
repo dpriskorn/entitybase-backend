@@ -1,7 +1,8 @@
-.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache docs
+.PHONY: lint test test-fast coverage help ruff mypy radon vulture stop api api-no-cache docs check
 
 help:
 	@echo "Available targets:"
+	@echo "  make check         - Check if Docker services are running"
 	@echo "  make api           - Run docker compose up and start the API locally using uvicorn with reload enabled"
 	@echo "  make api-no-cache  - Run docker compose up with --no-cache (force rebuild all layers)"
 	@echo "  make stop          - Stop docker and remove everything"
@@ -31,6 +32,9 @@ help:
 	@echo "  make test-unit-04 - Run unit tests (rest_api)"
 	@echo "  make coverage    - Run tests with coverage report"
 
+check:
+	./scripts/shell/check-docker-services.sh
+
 api:
 	./scripts/shell/run-api-local.sh
 
@@ -54,6 +58,9 @@ radon:
 
 vulture:
 	./scripts/shell/run-vulture.sh
+
+test-contract:
+	./scripts/shell/run-contract.sh
 
 docs:
 	./scripts/shell/update-docs.sh
