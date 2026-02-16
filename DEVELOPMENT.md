@@ -98,6 +98,12 @@ This project uses a Makefile for common development tasks. Run `make help` to se
 | `make test-e2e-03` | E2E tests: user features |
 | `make test-e2e-04` | E2E tests: advanced |
 
+#### Contract Tests
+
+| Command | Description |
+|---------|-------------|
+| `make test-contract` | Run contract tests (API schema validation) |
+
 #### Integration Tests
 
 | Command | Description |
@@ -112,9 +118,9 @@ This project uses a Makefile for common development tasks. Run `make help` to se
 
 | Command | Description |
 |---------|-------------|
-| `make tests` | Run all tests (unit → e2e → integration) |
+| `make tests` | Run all tests (unit → e2e → contract → integration) |
 | `make lint-test-fast` | Run lint + unit tests + e2e tests |
-| `make lint-test-all` | Run lint + all tests (unit → e2e → integration) |
+| `make lint-test-all` | Run lint + all tests (unit → e2e → contract → integration) |
 | `make coverage` | Run tests with coverage report |
 
 ## Development Workflow

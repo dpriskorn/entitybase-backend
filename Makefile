@@ -12,15 +12,16 @@ help:
 	@echo "  make radon        - Run radon complexity checker"
 	@echo "  make vulture      - Run vulture dead code checker"
 	@echo "  make docs         - Update documentation"
-	@echo "  make lint-test-all - Run all lint + tests (unit -> E2E -> integration)"
+	@echo "  make lint-test-all - Run all lint + tests (unit -> E2E -> contract -> integration)"
 	@echo "  make lint-test-fast        - Run lint + fast tests (unit -> E2E)"
-	@echo "  make tests        - Run all tests (unit -> E2E -> integration)"
+	@echo "  make tests        - Run all tests (unit -> E2E -> contract -> integration)"
 	@echo "  make test-unit   - Run unit tests only (fast feedback)"
 	@echo "  make test-e2e     - Run all e2e tests"
 	@echo "  make test-e2e-01 - Run e2e tests (basics)"
 	@echo "  make test-e2e-02 - Run e2e tests (terms)"
 	@echo "  make test-e2e-03 - Run e2e tests (user features)"
 	@echo "  make test-e2e-04 - Run e2e tests (advanced)"
+	@echo "  make test-contract - Run contract tests (API schema validation)"
 	@echo "  make test-integration-01 - Run integration tests (first 50)"
 	@echo "  make test-integration-02 - Run integration tests (mid 50)"
 	@echo "  make test-integration-03 - Run integration tests (late 50a)"
@@ -109,7 +110,7 @@ test-integration-04:
 
 test-integration: test-integration-01 test-integration-02 test-integration-03 test-integration-04
 
-tests: test-unit test-e2e test-integration-01 test-integration-02 test-integration-03 test-integration-04
+tests: test-unit test-e2e test-contract test-integration-01 test-integration-02 test-integration-03 test-integration-04
 
 lint-test-all: lint tests
 
