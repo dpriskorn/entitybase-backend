@@ -14,6 +14,7 @@ from models.infrastructure.s3.client import MyS3Client
 from models.infrastructure.stream.consumer import StreamConsumerClient
 from models.infrastructure.stream.producer import StreamProducerClient
 from models.infrastructure.vitess.client import VitessClient
+from models.internal_representation.entity_data import EntityData
 from models.rdf_builder.incremental_updater import IncrementalRDFUpdater
 from models.workers.worker import Worker
 from models.workers.incremental_rdf.rdf_change_builder import RDFChangeEventBuilder
@@ -68,7 +69,9 @@ class IncrementalRDFWorker(Worker):
         if kafka_brokers:
             await self._initialize_kafka(kafka_brokers)
         else:
-            logger.warning("Kafka not configured, worker will not be able to consume/produce events")
+            logger.warning(
+                "Kafka not configured, worker will not be able to consume/produce events"
+            )
 
         await self._initialize_storage_clients()
 
@@ -77,9 +80,7 @@ class IncrementalRDFWorker(Worker):
         if not settings.kafka_bootstrap_servers:
             return []
         return [
-            b.strip()
-            for b in settings.kafka_bootstrap_servers.split(",")
-            if b.strip()
+            b.strip() for b in settings.kafka_bootstrap_servers.split(",") if b.strip()
         ]
 
     async def _initialize_kafka(self, kafka_brokers: list[str]) -> None:
@@ -115,7 +116,9 @@ class IncrementalRDFWorker(Worker):
             self.vitess_client = VitessClient(config=vitess_config)
             logger.info("Vitess client initialized")
         else:
-            logger.warning("Vitess not configured, worker cannot fetch revision metadata")
+            logger.warning(
+                "Vitess not configured, worker cannot fetch revision metadata"
+            )
 
         s3_config = settings.get_s3_config
         if s3_config.endpoint:
@@ -156,7 +159,9 @@ class IncrementalRDFWorker(Worker):
             change_type = message.change_type
 
             if not entity_id or not revision_id:
-                logger.warning(f"Invalid event message: missing required fields {message}")
+                logger.warning(
+                    f"Invalid event message: missing required fields {message}"
+                )
                 return
 
             logger.info(
@@ -199,13 +204,19 @@ class IncrementalRDFWorker(Worker):
 
         updater = IncrementalRDFUpdater(entity_id=entity_id)
 
-        if old_entity_data:
-            diffs = IncrementalRDFUpdater.compute_diffs(old_entity_data, new_entity_data)
-            updater.apply_diffs(diffs)
+        if old_entity_data and new_entity_data:
+            try:
+                old_entity = self._convert_to_entity_data(old_entity_data)
+                new_entity = self._convert_to_entity_data(new_entity_data)
+                if old_entity and new_entity:
+                    diffs = IncrementalRDFUpdater.compute_diffs(old_entity, new_entity)
+                    updater.apply_diffs(diffs)
+            except Exception as e:
+                logger.warning(f"Failed to compute diffs: {e}")
 
         rdf_added = updater.get_updated_rdf() if operation == "diff" else ""
 
-        event_data = RDFChangeEventBuilder.build(
+        event_config = RDFChangeEventBuilder.EventConfig(
             entity_id=entity_id,
             rev_id=to_revision_id,
             operation=operation,
@@ -213,10 +224,13 @@ class IncrementalRDFWorker(Worker):
             rdf_deleted_data="",
             timestamp=datetime.now(timezone.utc).isoformat(),
         )
+        event_data = RDFChangeEventBuilder.build(event_config)
 
         if self.producer:
             await self.producer.publish_change(event_data)
-            logger.info(f"Published RDF change event for {entity_id} rev {to_revision_id}")
+            logger.info(
+                f"Published RDF change event for {entity_id} rev {to_revision_id}"
+            )
 
     async def _fetch_entity_data(
         self, entity_id: str, revision_id: int
@@ -230,12 +244,32 @@ class IncrementalRDFWorker(Worker):
             s3_revision = self.s3_client.read_revision(entity_id, revision_id)
             return s3_revision.revision
         except Exception as e:
-            logger.error(f"Failed to fetch entity data for {entity_id} rev {revision_id}: {e}")
+            logger.error(
+                f"Failed to fetch entity data for {entity_id} rev {revision_id}: {e}"
+            )
+            return None
+
+    def _convert_to_entity_data(
+        self, entity_data: dict[str, Any]
+    ) -> Optional[EntityData]:
+        """Convert S3 revision dict to EntityData for diff computation."""
+        try:
+            return EntityData(
+                id=entity_data.get("entity", {}).get("id", ""),
+                type=entity_data.get("entity", {}).get("type", "item"),
+                labels=entity_data.get("entity", {}).get("labels", {}),
+                descriptions=entity_data.get("entity", {}).get("descriptions", {}),
+                aliases=entity_data.get("entity", {}).get("aliases", {}),
+                statements=entity_data.get("entity", {}).get("statements", []),
+                sitelinks=entity_data.get("entity", {}).get("sitelinks"),
+            )
+        except Exception as e:
+            logger.warning(f"Failed to convert to EntityData: {e}")
             return None
 
     async def _handle_entity_deletion(self, entity_id: str, revision_id: int) -> None:
         """Handle entity deletion by publishing a delete event."""
-        event_data = RDFChangeEventBuilder.build(
+        event_config = RDFChangeEventBuilder.EventConfig(
             entity_id=entity_id,
             rev_id=revision_id,
             operation="delete",
@@ -243,6 +277,7 @@ class IncrementalRDFWorker(Worker):
             rdf_deleted_data="",
             timestamp=datetime.now(timezone.utc).isoformat(),
         )
+        event_data = RDFChangeEventBuilder.build(event_config)
 
         if self.producer:
             await self.producer.publish_change(event_data)
