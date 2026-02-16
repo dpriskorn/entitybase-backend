@@ -92,7 +92,9 @@ class BacklinkService(Service):
             logger.debug(f"No backlinks found for entity {entity_id}")
             return OperationResult(success=True)
 
-        result: OperationResult = self.vitess_client.backlink_repository.insert_backlinks(backlinks)
+        result: OperationResult = (
+            self.vitess_client.backlink_repository.insert_backlinks(backlinks)
+        )
 
         if result.success:
             logger.info(
