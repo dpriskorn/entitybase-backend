@@ -2,7 +2,6 @@
 
 from fastapi import APIRouter, Header, Query, Request
 
-from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.endorsements import EndorsementHandler
 from models.data.rest_api.v1.entitybase.request import EndorsementListRequest
 from models.data.rest_api.v1.entitybase.response import (
@@ -27,7 +26,7 @@ def endorse_statement_endpoint(
 ) -> EndorsementResponse:
     """Endorse a statement to signal trust."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler(state=state)
     result = handler.endorse_statement(statement_hash, user_id)
@@ -45,7 +44,7 @@ def withdraw_endorsement_endpoint(
 ) -> EndorsementResponse:
     """Withdraw endorsement from a statement."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler(state=state)
     result = handler.withdraw_endorsement(statement_hash, user_id)
@@ -69,7 +68,7 @@ def get_statement_endorsements_endpoint(
 ) -> EndorsementListResponse:
     """Get endorsements for a statement."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler(state=state)
     request = EndorsementListRequest(
@@ -96,7 +95,7 @@ def get_user_endorsements_endpoint(
 ) -> EndorsementListResponse:
     """Get endorsements given by a user."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler(state=state)
     request = EndorsementListRequest(
@@ -117,7 +116,7 @@ def get_user_endorsement_stats_endpoint(
 ) -> EndorsementStatsResponse:
     """Get endorsement statistics for a user."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EndorsementHandler(state=state)
     result = handler.get_user_endorsement_stats(user_id)
@@ -136,7 +135,7 @@ def get_statement_endorsement_stats(
 ) -> SingleEndorsementStatsResponse:
     """Get endorsement statistics for a statement."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
 
     handler = EndorsementHandler(state=state)

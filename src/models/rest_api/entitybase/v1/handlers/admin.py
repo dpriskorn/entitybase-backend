@@ -2,6 +2,8 @@
 
 import logging
 
+from typing import Any, cast
+
 from models.rest_api.entitybase.v1.handler import Handler
 from models.data.rest_api.v1.entitybase.response import EntityListResponse
 from models.data.rest_api.v1.entitybase.request.entity_filter import EntityFilterRequest
@@ -62,6 +64,33 @@ class AdminHandler(Handler):
 
         logger.debug(f"Successfully fetched {len(entities)} entities")
         return EntityListResponse(entities=entities, count=len(entities))
+
+    def list_entities_by_type(
+        self, entity_type: str, limit: int = 100, offset: int = 0
+    ) -> list[str]:
+        """List entity IDs by type (item, property, or lexeme).
+
+        Args:
+            entity_type: The type of entity ('item', 'property', or 'lexeme')
+            limit: Maximum number of entities to return
+            offset: Number of entities to skip
+
+        Returns:
+            List of entity IDs matching the type
+        """
+        logger.debug(
+            f"list_entities_by_type called with entity_type={entity_type}, "
+            f"limit={limit}, offset={offset}"
+        )
+        if self.state.vitess_client is None:
+            raise_validation_error("Vitess not initialized", status_code=503)
+
+        return cast(
+            list[str],
+            self.state.vitess_client.list_entities_by_type(
+                entity_type=entity_type, limit=limit, offset=offset
+            ),
+        )
 
     # def get_raw_revision(
     #     self,

@@ -2,7 +2,6 @@
 
 from fastapi import APIRouter, Request
 
-from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 from models.data.rest_api.v1.entitybase.response import (
     PropertyHashesResponse,
@@ -22,7 +21,7 @@ def get_entity_property_hashes(
 ) -> PropertyHashesResponse:
     """Get statement hashes for specified properties in an entity."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = StatementHandler(state=state)
     return handler.get_entity_property_hashes(entity_id, property_list)

@@ -339,12 +339,6 @@ All settings can be overridden using environment variables with the same name.
 - **Default**: `1000`
 - **Description**: No description available
 
-### `json_dump_compression`
-
-- **Type**: `bool`
-- **Default**: `True`
-- **Description**: No description available
-
 ### `json_dump_generate_checksums`
 
 - **Type**: `bool`

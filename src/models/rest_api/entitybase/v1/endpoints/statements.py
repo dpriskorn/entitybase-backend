@@ -17,7 +17,6 @@ from models.data.rest_api.v1.entitybase.response import (
     StatementResponse,
 )
 from models.rest_api.utils import raise_validation_error
-from models.rest_api.entitybase.v1.handlers.state import StateHandler
 
 router = APIRouter()
 
@@ -39,7 +38,7 @@ def get_most_used_statements(
 ) -> MostUsedStatementsResponse:
     """Get most used statements based on reference count."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
     result = handler.get_most_used_statements(limit, min_ref_count)
@@ -102,7 +101,7 @@ async def get_batch_statements(
 def get_statement(content_hash: int, req: Request) -> StatementResponse:
     """Retrieve a single statement by its content hash."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
     return handler.get_statement(content_hash)
@@ -114,7 +113,7 @@ def cleanup_orphaned_statements(
 ) -> CleanupOrphanedResponse:
     """Clean up orphaned statements that are no longer referenced."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise HTTPException(status_code=500, detail="Invalid clients type")
     handler = StatementHandler(state=state)
     return handler.cleanup_orphaned_statements(request)

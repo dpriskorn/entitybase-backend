@@ -2,8 +2,12 @@
 
 | Implemented | Method | Full Path | Description |
 |-------------|--------|-----------|-------------|
+| ✅ | GET | `/debug/entity/{entity_id}` | Debug endpoint to check entity in database. |
+| ✅ | GET | `/debug/entity_head/{entity_id}` | Debug endpoint to check entity_head table. |
 | ✅ | GET | `/entities` | List entities based on type, status, edit_type, limit, and offset. |
+| ✅ | GET | `/entities/items` | List all items (Q-prefixed entities). |
 | ✅ | POST | `/entities/items` | Create a new item entity. |
+| ✅ | GET | `/entities/lexemes` | List all lexemes (L-prefixed entities). |
 | ✅ | POST | `/entities/lexemes` | Create a new lexeme entity. |
 | ✅ | GET | `/entities/lexemes/forms/{form_id}` | Get single form by ID (accepts L42-F1 or F1 format). |
 | ✅ | DELETE | `/entities/lexemes/forms/{form_id}` | Delete a form by ID. |
@@ -16,6 +20,7 @@
 | ✅ | GET | `/entities/lexemes/senses/{sense_id}` | Get single sense by ID (accepts L42-S1 or S1 format). |
 | ✅ | DELETE | `/entities/lexemes/senses/{sense_id}` | Delete a sense by ID. |
 | ✅ | GET | `/entities/lexemes/senses/{sense_id}/glosses` | Get all glosses for a sense. |
+| ✅ | GET | `/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Get gloss for a sense in specific language. |
 | ✅ | POST | `/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Add a new sense gloss for a language. |
 | ✅ | PUT | `/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Update sense gloss for language. |
 | ✅ | DELETE | `/entities/lexemes/senses/{sense_id}/glosses/{langcode}` | Delete sense gloss for language. |
@@ -33,6 +38,7 @@
 | ✅ | PUT | `/entities/lexemes/{lexeme_id}/lexicalcategory` | Update the lexical category of a lexeme. |
 | ✅ | GET | `/entities/lexemes/{lexeme_id}/senses` | List all senses for a lexeme, sorted by numeric suffix. |
 | ✅ | POST | `/entities/lexemes/{lexeme_id}/senses` | Create a new sense for a lexeme. |
+| ✅ | GET | `/entities/properties` | List all properties (P-prefixed entities). |
 | ✅ | POST | `/entities/properties` | Create a new property entity. |
 | ✅ | GET | `/entities/{entity_id}` | Retrieve a single entity by its ID. |
 | ✅ | DELETE | `/entities/{entity_id}` | Delete an entity. |
@@ -47,7 +53,6 @@
 | ✅ | PUT | `/entities/{entity_id}/descriptions/{language_code}` | Update entity description for language. |
 | ✅ | DELETE | `/entities/{entity_id}/descriptions/{language_code}` | Delete entity description for language. |
 | ✅ | POST | `/entities/{entity_id}/descriptions/{language_code}` | Add a new description to entity for language (alias for PUT). |
-| ✅ | GET | `/entities/{entity_id}/history` | Get the revision history for an entity. |
 | ✅ | GET | `/entities/{entity_id}/labels/{language_code}` | Get entity label text for language. |
 | ✅ | PUT | `/entities/{entity_id}/labels/{language_code}` | Update entity label for language. |
 | ✅ | DELETE | `/entities/{entity_id}/labels/{language_code}` | Delete entity label for language. |
@@ -61,8 +66,10 @@
 | ✅ | GET | `/entities/{entity_id}/revision/{revision_id}` | Get a specific revision of an entity. |
 | ✅ | GET | `/entities/{entity_id}/revision/{revision_id}/json` | Get JSON representation of a specific entity revision. |
 | ✅ | GET | `/entities/{entity_id}/revision/{revision_id}/ttl` | Get Turtle (TTL) representation of a specific entity revision. |
+| ✅ | GET | `/entities/{entity_id}/revisions` | Get the revision history for an entity. |
 | ✅ | POST | `/entities/{entity_id}/revisions/{revision_id}/thank` | Send a thank for a specific revision. |
 | ✅ | GET | `/entities/{entity_id}/revisions/{revision_id}/thanks` | Get all thanks for a specific revision. |
+| ✅ | GET | `/entities/{entity_id}/sitelinks` | Get all sitelinks for an entity. |
 | ✅ | GET | `/entities/{entity_id}/sitelinks/{site}` | Get a single sitelink for an entity. |
 | ✅ | POST | `/entities/{entity_id}/sitelinks/{site}` | Add a new sitelink for an entity. |
 | ✅ | PUT | `/entities/{entity_id}/sitelinks/{site}` | Update an existing sitelink for an entity. |
@@ -112,6 +119,6 @@
 
 | Status | Count |
 |--------|-------|
-| Implemented | 107 |
+| Implemented | 114 |
 | Not Implemented | 0 |
-| Total | 107 |
+| Total | 114 |
