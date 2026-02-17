@@ -2,6 +2,7 @@
 
 import logging
 from datetime import datetime, timezone
+from typing import Any
 
 from models.data.infrastructure.stream.actions import EndorseAction
 from models.infrastructure.stream.event import EndorseChangeEvent
@@ -12,6 +13,7 @@ from models.data.rest_api.v1.entitybase.response import (
     EndorsementListResponse,
     EndorsementResponse,
     EndorsementStatsResponse,
+    StatementEndorsementResponse,
 )
 from models.rest_api.utils import raise_validation_error
 
@@ -93,7 +95,7 @@ class EndorsementHandler(Handler):
 
     def _get_and_validate_endorsement(
         self, statement_hash: int, user_id: int, must_be_active: bool
-    ) -> Any:
+    ) -> StatementEndorsementResponse:
         """Get and validate endorsement details."""
         endorsements_result = (
             self.state.vitess_client.endorsement_repository.get_statement_endorsements(
@@ -114,8 +116,8 @@ class EndorsementHandler(Handler):
         )
 
     def _find_endorsement_by_user(
-        self, endorsements: list[Any], user_id: int, must_be_active: bool
-    ) -> Any:
+        self, endorsements: list[StatementEndorsementResponse], user_id: int, must_be_active: bool
+    ) -> StatementEndorsementResponse:
         """Find endorsement by user ID."""
         filter_fn = (
             lambda e: e.user_id == user_id and not e.removed_at
