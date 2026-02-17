@@ -29,7 +29,7 @@ services:
       - MINIO_ROOT_PASSWORD=fakesecret
       - MINIO_DEFAULT_BUCKETS=testbucket
     volumes:
-      - minio-data:/data
+      - ./minio-data:/data
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 10s
@@ -307,5 +307,3 @@ services:
 
 volumes:
   redpanda-data: {}
-
-  minio-data:
