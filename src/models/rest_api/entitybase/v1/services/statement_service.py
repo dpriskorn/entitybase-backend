@@ -482,6 +482,50 @@ class StatementService(Service):
                 new_references.append(processed_ref)
             statement_data["references"] = new_references
 
+    def _process_qualifier_list(
+        self, qual_values: list, snak_handler: SnakHandler
+    ) -> list:
+        """Process a list of qualifiers with snak replacement.
+
+        Args:
+            qual_values: List of qualifier values
+            snak_handler: SnakHandler for storing snaks
+
+        Returns:
+            Processed qualifier list with snak hashes
+        """
+        new_qual_values = []
+        for qual_item in qual_values:
+            if isinstance(qual_item, dict) and "property" in qual_item:
+                snak_request = SnakRequest(
+                    property=qual_item["property"],
+                    datavalue=qual_item.get("datavalue", {}),
+                )
+                snak_hash = snak_handler.store_snak(snak_request)
+                new_qual_values.append(snak_hash)
+            else:
+                new_qual_values.append(qual_item)
+        return new_qual_values
+
+    def _process_qualifier_dict(
+        self, qual_values: dict, snak_handler: SnakHandler
+    ) -> list:
+        """Process a qualifier dict with snak replacement.
+
+        Args:
+            qual_values: Dict containing qualifier data
+            snak_handler: SnakHandler for storing snaks
+
+        Returns:
+            List with single snak hash
+        """
+        snak_request = SnakRequest(
+            property=qual_values["property"],
+            datavalue=qual_values.get("datavalue", {}),
+        )
+        snak_hash = snak_handler.store_snak(snak_request)
+        return [snak_hash]
+
     def _process_statement_qualifiers(
         self, statement_data: dict, snak_handler: SnakHandler
     ) -> None:
@@ -498,25 +542,13 @@ class StatementService(Service):
             # Process qualifiers and extract snaks
             for prop_key, qual_values in qualifiers_dict.items():
                 if isinstance(qual_values, list):
-                    new_qual_values = []
-                    for qual_item in qual_values:
-                        if isinstance(qual_item, dict) and "property" in qual_item:
-                            snak_request = SnakRequest(
-                                property=qual_item["property"],
-                                datavalue=qual_item.get("datavalue", {}),
-                            )
-                            snak_hash = snak_handler.store_snak(snak_request)
-                            new_qual_values.append(snak_hash)
-                        else:
-                            new_qual_values.append(qual_item)
-                    new_qualifiers[prop_key] = new_qual_values
-                elif isinstance(qual_values, dict) and "property" in qual_values:
-                    snak_request = SnakRequest(
-                        property=qual_values["property"],
-                        datavalue=qual_values.get("datavalue", {}),
+                    new_qualifiers[prop_key] = self._process_qualifier_list(
+                        qual_values, snak_handler
                     )
-                    snak_hash = snak_handler.store_snak(snak_request)
-                    new_qualifiers[prop_key] = [snak_hash]
+                elif isinstance(qual_values, dict) and "property" in qual_values:
+                    new_qualifiers[prop_key] = self._process_qualifier_dict(
+                        qual_values, snak_handler
+                    )
                 else:
                     new_qualifiers[prop_key] = qual_values
 
