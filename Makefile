@@ -60,7 +60,7 @@ radon:
 vulture:
 	./scripts/shell/run-vulture.sh
 
-test-contract:
+test-contract: check
 	./scripts/shell/run-contract.sh
 
 docs:
@@ -110,7 +110,7 @@ test-integration-04:
 
 test-integration: check test-integration-01 test-integration-02 test-integration-03 test-integration-04
 
-tests: test-unit test-e2e test-contract test-integration-01 test-integration-02 test-integration-03 test-integration-04
+tests: check test-unit test-e2e test-contract test-integration-01 test-integration-02 test-integration-03 test-integration-04
 
 lint-test-all: lint tests
 
