@@ -130,8 +130,8 @@ async def test_item_aliases_full_workflow(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/entities/{entity_id}/aliases/en")
         assert response.status_code == 200
         aliases_data = response.json()
-        assert len(aliases_data) == 1
-        assert "Alias 1" in aliases_data
+        assert len(aliases_data["aliases"]) == 1
+        assert "Alias 1" in aliases_data["aliases"]
 
         response = await client.put(
             f"{api_prefix}/entities/{entity_id}/aliases/en",
@@ -143,7 +143,7 @@ async def test_item_aliases_full_workflow(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/entities/{entity_id}/aliases/en")
         assert response.status_code == 200
         aliases_data = response.json()
-        assert len(aliases_data) == 3
+        assert len(aliases_data["aliases"]) == 3
 
 
 @pytest.mark.e2e
@@ -247,7 +247,7 @@ async def test_item_add_single_alias_via_post(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/entities/{entity_id}/aliases/en")
         assert response.status_code == 200
         aliases_data = response.json()
-        assert "New Alias" in aliases_data
+        assert "New Alias" in aliases_data["aliases"]
 
 
 @pytest.mark.e2e
@@ -286,7 +286,7 @@ async def test_item_delete_aliases(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/entities/{entity_id}/aliases/de")
         assert response.status_code == 200
         aliases_data = response.json()
-        assert "Alias DE" in aliases_data
+        assert "Alias DE" in aliases_data["aliases"]
 
 
 @pytest.mark.e2e

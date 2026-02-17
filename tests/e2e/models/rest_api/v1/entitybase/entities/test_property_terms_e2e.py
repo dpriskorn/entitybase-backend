@@ -55,8 +55,8 @@ async def test_get_property_aliases(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/entities/{property_id}/aliases/en")
         assert response.status_code == 200
         aliases_data = response.json()
-        assert isinstance(aliases_data, list)
-        assert "Alias 1" in aliases_data
+        assert isinstance(aliases_data, dict)
+        assert "Alias 1" in aliases_data["aliases"]
 
 
 @pytest.mark.e2e
@@ -94,7 +94,7 @@ async def test_update_property_aliases(api_prefix: str) -> None:
         response = await client.get(f"{api_prefix}/entities/{property_id}/aliases/en")
         assert response.status_code == 200
         aliases_data = response.json()
-        assert "New Alias 1" in aliases_data
+        assert "New Alias 1" in aliases_data["aliases"]
 
 
 @pytest.mark.e2e
