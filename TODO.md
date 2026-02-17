@@ -257,3 +257,4 @@ split large files approaching 1k lines
 move entity endpoints out of main.py
 ensure validation on post requests to /entity
 implement validate_recentchange usage in change streaming handlers when WMF recentchange events are consumed
+label batch
