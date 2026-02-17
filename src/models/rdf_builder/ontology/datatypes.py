@@ -34,6 +34,80 @@ ITEM_DATATYPES = frozenset(
 EXTERNAL_ID_DATATYPES = frozenset({"external-id"})
 
 
+def _build_item_predicates(base: dict[str, str]) -> PropertyPredicates:
+    """Build predicates for item-type datatypes.
+
+    Args:
+        base: Base predicate dictionary
+
+    Returns:
+        PropertyPredicates with base predicates only
+    """
+    return PropertyPredicates(**base)
+
+
+def _build_external_id_predicates(base: dict[str, str], pid: str) -> PropertyPredicates:
+    """Build predicates for external-id datatype.
+
+    Args:
+        base: Base predicate dictionary
+        pid: Property ID
+
+    Returns:
+        PropertyPredicates with all extra predicates
+    """
+    return PropertyPredicates(
+        **base,
+        value_node=f"psv:{pid}",
+        qualifier_value=f"pqv:{pid}",
+        reference_value=f"prv:{pid}",
+        statement_normalized=f"psn:{pid}",
+        qualifier_normalized=f"pqn:{pid}",
+        reference_normalized=f"prn:{pid}",
+        direct_normalized=f"wdtn:{pid}",
+    )
+
+
+def _build_time_predicates(base: dict[str, str], pid: str) -> PropertyPredicates:
+    """Build predicates for time datatype.
+
+    Args:
+        base: Base predicate dictionary
+        pid: Property ID
+
+    Returns:
+        PropertyPredicates with value node predicates
+    """
+    return PropertyPredicates(
+        **base,
+        value_node=f"psv:{pid}",
+        qualifier_value=f"pqv:{pid}",
+        reference_value=f"prv:{pid}",
+    )
+
+
+def _build_quantity_predicates(base: dict[str, str], pid: str) -> PropertyPredicates:
+    """Build predicates for quantity datatype.
+
+    Args:
+        base: Base predicate dictionary
+        pid: Property ID
+
+    Returns:
+        PropertyPredicates with all quantity-specific predicates
+    """
+    return PropertyPredicates(
+        **base,
+        value_node=f"psv:{pid}",
+        qualifier_value=f"pqv:{pid}",
+        reference_value=f"prv:{pid}",
+        statement_normalized=f"psn:{pid}",
+        qualifier_normalized=f"pqn:{pid}",
+        reference_normalized=f"prn:{pid}",
+        direct_normalized=f"wdtn:{pid}",
+    )
+
+
 def property_shape(
     pid: str,
     datatype: str,
@@ -60,67 +134,22 @@ def property_shape(
         "reference": f"pr:{pid}",
     }
 
-    logger.debug("Creating PropertyPredicates from base")
-    predicates = PropertyPredicates(**base)
-
     logger.debug(f"Checking datatype category for {datatype}")
     if datatype in ITEM_DATATYPES:
-        return PropertyShape(
-            pid=pid,
-            datatype=datatype,
-            predicates=predicates,
-            labels=labels or {},
-            descriptions=descriptions or {},
-        )
+        predicates = _build_item_predicates(base)
+    elif datatype in EXTERNAL_ID_DATATYPES:
+        predicates = _build_external_id_predicates(base, pid)
+    elif datatype in {"time", "globe-coordinate"}:
+        predicates = _build_time_predicates(base, pid)
+    elif datatype == "quantity":
+        predicates = _build_quantity_predicates(base, pid)
+    else:
+        raise_validation_error(f"Unsupported datatype: {datatype}")
 
-    if datatype in EXTERNAL_ID_DATATYPES:
-        return PropertyShape(
-            pid=pid,
-            datatype=datatype,
-            predicates=PropertyPredicates(
-                **base,
-                value_node=f"psv:{pid}",
-                qualifier_value=f"pqv:{pid}",
-                reference_value=f"prv:{pid}",
-                statement_normalized=f"psn:{pid}",
-                qualifier_normalized=f"pqn:{pid}",
-                reference_normalized=f"prn:{pid}",
-                direct_normalized=f"wdtn:{pid}",
-            ),
-            labels=labels or {},
-            descriptions=descriptions or {},
-        )
-
-    if datatype in {"time", "globe-coordinate"}:
-        return PropertyShape(
-            pid=pid,
-            datatype=datatype,
-            predicates=PropertyPredicates(
-                **base,
-                value_node=f"psv:{pid}",
-                qualifier_value=f"pqv:{pid}",
-                reference_value=f"prv:{pid}",
-            ),
-            labels=labels or {},
-            descriptions=descriptions or {},
-        )
-
-    if datatype == "quantity":
-        return PropertyShape(
-            pid=pid,
-            datatype=datatype,
-            predicates=PropertyPredicates(
-                **base,
-                value_node=f"psv:{pid}",
-                qualifier_value=f"pqv:{pid}",
-                reference_value=f"prv:{pid}",
-                statement_normalized=f"psn:{pid}",
-                qualifier_normalized=f"pqn:{pid}",
-                reference_normalized=f"prn:{pid}",
-                direct_normalized=f"wdtn:{pid}",
-            ),
-            labels=labels or {},
-            descriptions=descriptions or {},
-        )
-
-    raise_validation_error(f"Unsupported datatype: {datatype}")
+    return PropertyShape(
+        pid=pid,
+        datatype=datatype,
+        predicates=predicates,
+        labels=labels or {},
+        descriptions=descriptions or {},
+    )
