@@ -10,6 +10,7 @@ schemas-event-primary
 .idea
 deprecated/.env
 /seaweedfs_data/
+/minio-data/
 seaweedfs
 alarik_data
 deprecated
