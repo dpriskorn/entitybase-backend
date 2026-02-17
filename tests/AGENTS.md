@@ -6,14 +6,16 @@ Primary Test Framework:
 - pytest-mock for mocking
 - pytest-cov for coverage reporting
 Test Organization:
-- Three distinct test categories with pytest markers:
+- Four distinct test categories with pytest markers:
   - @pytest.mark.unit - Unit tests
   - @pytest.mark.integration - Integration tests
+  - @pytest.mark.contract - Contract tests (API schema validation)
   - @pytest.mark.e2e - End-to-end tests
 - Directory hierarchy mirrors src/models/ structure (see Section 4)
 Test Patterns:
 - Unit tests: Use mocks (unittest.mock, pytest-mock) for all external dependencies
 - Integration tests: Use ASGITransport with FastAPI app for API endpoint testing
+- Contract tests: Use ASGITransport to validate API responses match OpenAPI schema
 - E2E tests: Use ASGITransport with FastAPI app for end-to-end workflow testing
 2. Test Coverage Analysis
 Current Coverage Threshold:
@@ -53,9 +55,15 @@ E2E Tests (~4 test files):
 ├── User workflows
 └── Endorsements
 
+Contract Tests (New):
+├── API schema validation
+├── Response structure verification
+└── Endpoint contract testing
+
 Directory Hierarchy:
 - tests/unit/models/ mirrors src/models/ structure
 - tests/integration/models/ mirrors src/models/ structure
+- tests/contract/ - Contract tests (flat structure)
 - tests/e2e/models/ mirrors src/models/ structure
 - Each subdirectory in src/models/ has corresponding test directories
 - See Section 4 for detailed hierarchy guidelines
@@ -94,6 +102,10 @@ tests/integration/models/
 ├── rest_api/                 # Integration tests for API endpoints
 └── workers/                  # Integration tests for workers
 
+tests/contract/               # Contract tests (flat structure)
+├── conftest.py              # Contract test fixtures
+└── test_*_contract.py       # Contract test files
+
 tests/e2e/models/
 ├── infrastructure/           # E2E tests for infrastructure
 ├── internal_representation/  # E2E tests for business logic
@@ -109,15 +121,16 @@ tests/e2e/models/
 
 5. Test Configuration & Infrastructure
 Current Setup:
-- Separate conftest.py files for unit, integration, and e2e tests
+- Separate conftest.py files for unit, integration, contract, and e2e tests
 - Mock fixtures for external dependencies in unit tests
-- ASGITransport fixtures for integration and e2e tests
+- ASGITransport fixtures for integration, contract, and e2e tests
 - pytest-asyncio for async test support
 
 Key Fixtures:
 - `tests/conftest.py` - Global test configuration
 - `tests/unit/conftest.py` - Unit test fixtures and mocks
 - `tests/integration/conftest.py` - Integration test fixtures with ASGITransport
+- `tests/contract/conftest.py` - Contract test fixtures with ASGITransport
 - `tests/e2e/conftest.py` - E2E test fixtures with ASGITransport
 
 6. Test Documentation
@@ -183,7 +196,7 @@ not multiple alternatives.
 
 **Incorrect (not allowed):**
 ```python
-# Do NOT use these patterns
+# Do NOT use these patternsx
 assert response.status_code in [200, 201]
 assert response.status_code in (200, 201, 204)
 ```
