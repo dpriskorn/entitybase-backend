@@ -1,7 +1,6 @@
-docker stop $(docker ps -aq)
-cd "$(dirname "$0")/../.."
-docker rm $(docker ps -aq)
-docker volume rm $(docker volume ls -q)
+docker ps -aq | xargs -r docker stop
+docker ps -aq | xargs -r docker rm
+docker volume ls -q | xargs -r docker volume rm
 
 if [ ! -d "/tmp/minio-data" ]; then
     echo "❌ /tmp/minio-data not found"

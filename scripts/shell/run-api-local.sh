@@ -3,11 +3,14 @@ cd "$(dirname "$0")/../.."
 set -e
 
 echo "🚀 Starting docker containers..."
-./run-docker-build-tests.sh "$@"
+./scripts/shell/run-docker-build-tests.sh "$@"
 echo "✅ Docker build completed"
 
+echo "⏳ Waiting for services to initialize..."
+sleep 15
+
 echo "🔍 Verifying services health..."
-./check-docker-services.sh
+./scripts/shell/check-docker-services.sh
 echo "✅ All services are healthy"
 
 echo "📦 Exporting environment variables..."
