@@ -2,7 +2,6 @@
 
 import logging
 from datetime import datetime, timezone
-from typing import Any
 
 from models.data.infrastructure.stream.actions import EndorseAction
 from models.infrastructure.stream.event import EndorseChangeEvent
@@ -116,7 +115,10 @@ class EndorsementHandler(Handler):
         )
 
     def _find_endorsement_by_user(
-        self, endorsements: list[StatementEndorsementResponse], user_id: int, must_be_active: bool
+        self,
+        endorsements: list[StatementEndorsementResponse],
+        user_id: int,
+        must_be_active: bool,
     ) -> StatementEndorsementResponse:
         """Find endorsement by user ID."""
         filter_fn = (
