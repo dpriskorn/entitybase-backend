@@ -18,6 +18,7 @@ from models.config.settings import settings
 from models.rest_api.entitybase.v1.endpoints import v1_router
 from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.routes import include_routes
+from models.rest_api.utils import raise_validation_error
 
 aws_loggers = [
     "botocore",
@@ -120,9 +121,7 @@ async def _create_database_tables(state_handler: StateHandler) -> None:
 
 async def _initialize_app_state(app_: FastAPI, state_handler: StateHandler) -> None:
     """Initialize app state and log success."""
-    logger.info(
-        "Clients, validator, and enumeration service initialized successfully"
-    )
+    logger.info("Clients, validator, and enumeration service initialized successfully")
     app_.state.state_handler = state_handler
 
 
@@ -227,8 +226,9 @@ app.include_router(v1_router, prefix=settings.api_prefix)
 async def get_openapi() -> dict:
     """Retrieve the OpenAPI document."""
     openapi = app.openapi()
-    assert isinstance(openapi, dict)
-    return app.openapi()  # type: ignore
+    if not isinstance(openapi, dict):
+        raise_validation_error("OpenAPI schema generation failed", status_code=500)
+    return openapi
 
 
 @app.get("/")
