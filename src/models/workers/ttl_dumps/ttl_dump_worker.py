@@ -186,48 +186,42 @@ class TtlDumpWorker(Worker):
         if not self.vitess_client:
             raise ValueError("Vitess client not initialized")
 
-        with self.vitess_client.cursor as cursor:
-            cursor.execute(
-                """SELECT eim.entity_id, eh.internal_id, eh.head_revision_id
-                   FROM entity_id_mapping eim
-                   JOIN entity_head eh ON eim.internal_id = eh.internal_id
-                   WHERE eh.is_deleted = FALSE"""
-            )
-            results = cursor.fetchall()
-            entities = [
-                EntityDumpRecord(
-                    entity_id=row[0], internal_id=row[1], revision_id=row[2]
-                )
-                for row in results
-            ]
+        entities = await self._fetch_all_entities()
+        await self._filter_entities_by_week(entities, week_start, week_end)
+        return [e for e in entities if e.updated_at is not None]
 
+    async def _filter_entities_by_week(
+        self, entities: list[EntityDumpRecord], week_start: datetime, week_end: datetime
+    ) -> None:
+        """Filter entities updated within the given week."""
+        with self.vitess_client.cursor as cursor:
             for i in range(0, len(entities), settings.ttl_dump_batch_size):
                 batch = entities[i : i + settings.ttl_dump_batch_size]
-                entity_ids = [e.entity_id for e in batch]
-                entity_id_list = ",".join(f"'{eid}'" for eid in entity_ids)
+                await self._update_batch_with_revisions(cursor, batch, week_start, week_end)
 
-                cursor.execute(
-                    f"""SELECT revision_id, internal_id, updated_at
-                       FROM entity_revisions
-                       WHERE internal_id IN (
-                           SELECT internal_id FROM entity_id_mapping WHERE entity_id IN ({entity_id_list})
-                       )
-                       AND updated_at >= %s AND updated_at < %s""",
-                    (week_start, week_end),
-                )
-                revision_results = cursor.fetchall()
+    async def _update_batch_with_revisions(
+        self, cursor: Any, batch: list[EntityDumpRecord], week_start: datetime, week_end: datetime
+    ) -> None:
+        """Update a batch of entities with their revision timestamps."""
+        entity_ids = [e.entity_id for e in batch]
+        entity_id_list = ",".join(f"'{eid}'" for eid in entity_ids)
 
-                entity_map = {e.entity_id: e for e in batch}
-                for rev_id, internal_id, updated_at in revision_results:
-                    for entity in batch:
-                        if (
-                            entity.internal_id == internal_id
-                            and entity.revision_id == rev_id
-                        ):
-                            entity.updated_at = updated_at
-                            break
+        cursor.execute(
+            f"""SELECT revision_id, internal_id, updated_at
+               FROM entity_revisions
+               WHERE internal_id IN (
+                   SELECT internal_id FROM entity_id_mapping WHERE entity_id IN ({entity_id_list})
+               )
+               AND updated_at >= %s AND updated_at < %s""",
+            (week_start, week_end),
+        )
+        revision_results = cursor.fetchall()
 
-            return [e for e in entities if e.updated_at is not None]
+        for rev_id, internal_id, updated_at in revision_results:
+            for entity in batch:
+                if entity.internal_id == internal_id and entity.revision_id == rev_id:
+                    entity.updated_at = updated_at
+                    break
 
     async def _generate_and_upload_dump(
         self,
