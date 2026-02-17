@@ -26,68 +26,24 @@ class EndorsementHandler(Handler):
     ) -> EndorsementResponse:
         """Create an endorsement for a statement."""
         logger.debug(f"Endorsing statement {statement_hash} for user {user_id}")
-        logger.debug("Validating user exists")
-        # Validate user exists
-        if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
-            raise_validation_error("User not registered", status_code=404)
+        self._validate_user(user_id)
 
-        # Create endorsement via repository
-        result = self.state.vitess_client.endorsement_repository.create_endorsement(  # type: ignore[union-attr]
+        result = self.state.vitess_client.endorsement_repository.create_endorsement(
             user_id, statement_hash
         )
         if not result.success:
-            error_msg = result.error or "Failed to create endorsement"
-            if "not found" in error_msg.lower():
-                raise_validation_error(error_msg, status_code=404)
-            else:
-                raise_validation_error(error_msg, status_code=400)
+            self._handle_endorsement_error(result.error, "create")
 
-        # Get the endorsement details for response
-        endorsements_result = (
-            self.state.vitess_client.endorsement_repository.get_statement_endorsements(
-                statement_hash, limit=1, offset=0, include_removed=True
-            )
+        created_endorsement = self._get_and_validate_endorsement(
+            statement_hash, user_id, must_be_active=True
         )
-        if not endorsements_result.success:
-            raise_validation_error(
-                "Failed to retrieve endorsement details", status_code=500
-            )
-
-        endorsements_data = endorsements_result.data
-        if not endorsements_data["endorsements"]:  # type: ignore[index]
-            raise_validation_error(
-                "Failed to retrieve created endorsement", status_code=500
-            )
-
-        # Find the endorsement we just created
-        created_endorsement = next(
-            (
-                e
-                for e in endorsements_data["endorsements"]  # type: ignore[index]
-                if e.user_id == user_id and not e.removed_at
-            ),
-            None,
-        )
-        if not created_endorsement:
-            raise_validation_error(
-                "Failed to retrieve created endorsement", status_code=500
-            )
-
-        # Publish event
-        if self.state.vitess_client.stream_producer:
-            event = EndorseChangeEvent(
-                hash=str(statement_hash),
-                user=str(user_id),
-                act=EndorseAction.ENDORSE,
-                ts=datetime.now(timezone.utc),
-            )
-            self.state.vitess_client.stream_producer.publish_change(event)
+        self._publish_endorsement_event(statement_hash, user_id, EndorseAction.ENDORSE)
 
         return EndorsementResponse(
-            id=created_endorsement.id,  # type: ignore[union-attr]
-            user_id=created_endorsement.user_id,  # type: ignore[union-attr]
-            hash=created_endorsement.statement_hash,  # type: ignore[union-attr]
-            created_at=created_endorsement.created_at.isoformat(),  # type: ignore[union-attr]
+            id=created_endorsement.id,
+            user_id=created_endorsement.user_id,
+            hash=created_endorsement.statement_hash,
+            created_at=created_endorsement.created_at.isoformat(),
             removed_at="",
         )
 
@@ -98,23 +54,47 @@ class EndorsementHandler(Handler):
         logger.debug(
             f"Withdrawing endorsement for statement {statement_hash} by user {user_id}"
         )
-        logger.debug("Validating user exists")
-        # Validate user exists
-        if not self.state.vitess_client.user_repository.user_exists(user_id):  # type: ignore[union-attr]
-            raise_validation_error("User not registered", status_code=404)
+        self._validate_user(user_id)
 
-        # Withdraw endorsement via repository
         result = self.state.vitess_client.endorsement_repository.withdraw_endorsement(
             user_id, statement_hash
         )
         if not result.success:
-            error_msg = result.error or "Failed to withdraw endorsement"
-            if "not found" in error_msg.lower():
-                raise_validation_error(error_msg, status_code=404)
-            else:
-                raise_validation_error(error_msg, status_code=400)
+            self._handle_endorsement_error(result.error, "withdraw")
 
-        # Get the withdrawn endorsement details for response
+        withdrawn_endorsement = self._get_and_validate_endorsement(
+            statement_hash, user_id, must_be_active=False
+        )
+        self._publish_endorsement_event(statement_hash, user_id, EndorseAction.WITHDRAW)
+
+        return EndorsementResponse(
+            id=withdrawn_endorsement.id,
+            user_id=withdrawn_endorsement.user_id,
+            hash=withdrawn_endorsement.statement_hash,
+            created_at=withdrawn_endorsement.created_at.isoformat(),
+            removed_at=withdrawn_endorsement.removed_at.isoformat()
+            if withdrawn_endorsement.removed_at
+            else None,
+        )
+
+    def _validate_user(self, user_id: int) -> None:
+        """Validate that user exists."""
+        logger.debug("Validating user exists")
+        if not self.state.vitess_client.user_repository.user_exists(user_id):
+            raise_validation_error("User not registered", status_code=404)
+
+    def _handle_endorsement_error(self, error: str | None, action: str) -> None:
+        """Handle endorsement operation errors."""
+        error_msg = error or f"Failed to {action} endorsement"
+        if "not found" in error_msg.lower():
+            raise_validation_error(error_msg, status_code=404)
+        else:
+            raise_validation_error(error_msg, status_code=400)
+
+    def _get_and_validate_endorsement(
+        self, statement_hash: int, user_id: int, must_be_active: bool
+    ) -> Any:
+        """Get and validate endorsement details."""
         endorsements_result = (
             self.state.vitess_client.endorsement_repository.get_statement_endorsements(
                 statement_hash, limit=1, offset=0, include_removed=True
@@ -126,44 +106,39 @@ class EndorsementHandler(Handler):
             )
 
         endorsements_data = endorsements_result.data
-        if not endorsements_data["endorsements"]:  # type: ignore[index]
-            raise_validation_error(
-                "Failed to retrieve withdrawn endorsement", status_code=500
-            )
+        if not endorsements_data["endorsements"]:
+            raise_validation_error("Failed to retrieve endorsement", status_code=500)
 
-        # Find the endorsement we just withdrew
-        withdrawn_endorsement = next(
-            (
-                e
-                for e in endorsements_data["endorsements"]  # type: ignore[index]
-                if e.user_id == user_id and e.removed_at is not None
-            ),
-            None,
+        return self._find_endorsement_by_user(
+            endorsements_data["endorsements"], user_id, must_be_active
         )
-        if not withdrawn_endorsement:
-            raise_validation_error(
-                "Failed to retrieve withdrawn endorsement", status_code=500
-            )
 
-        # Publish event
+    def _find_endorsement_by_user(
+        self, endorsements: list[Any], user_id: int, must_be_active: bool
+    ) -> Any:
+        """Find endorsement by user ID."""
+        filter_fn = (
+            lambda e: e.user_id == user_id and not e.removed_at
+            if must_be_active
+            else e.user_id == user_id and e.removed_at is not None
+        )
+        endorsement = next((e for e in endorsements if filter_fn(e)), None)
+        if not endorsement:
+            raise_validation_error("Failed to retrieve endorsement", status_code=500)
+        return endorsement
+
+    def _publish_endorsement_event(
+        self, statement_hash: int, user_id: int, action: EndorseAction
+    ) -> None:
+        """Publish endorsement change event."""
         if self.state.vitess_client.stream_producer:
             event = EndorseChangeEvent(
                 hash=str(statement_hash),
                 user=str(user_id),
-                act=EndorseAction.WITHDRAW,
+                act=action,
                 ts=datetime.now(timezone.utc),
             )
             self.state.vitess_client.stream_producer.publish_change(event)
-
-        return EndorsementResponse(
-            id=withdrawn_endorsement.id,  # type: ignore[union-attr]
-            user_id=withdrawn_endorsement.user_id,  # type: ignore[union-attr]
-            hash=withdrawn_endorsement.statement_hash,  # type: ignore[union-attr]
-            created_at=withdrawn_endorsement.created_at.isoformat(),  # type: ignore[union-attr]
-            removed_at=withdrawn_endorsement.removed_at.isoformat()  # type: ignore[union-attr]
-            if withdrawn_endorsement.removed_at  # type: ignore[union-attr]
-            else None,
-        )
 
     def get_statement_endorsements(
         self,
