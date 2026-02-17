@@ -246,9 +246,11 @@ class TestBacklinkService:
 
         mock_state = MagicMock()
         mock_id_resolver = MagicMock()
-        mock_id_resolver.resolve_id.side_effect = lambda eid: {"Q1": 1, "Q2": 2, "Q5": 5}.get(
-            eid
-        )
+        mock_id_resolver.resolve_id.side_effect = lambda eid: {
+            "Q1": 1,
+            "Q2": 2,
+            "Q5": 5,
+        }.get(eid)
         mock_state.vitess_client.id_resolver = mock_id_resolver
         mock_state.vitess_client.backlink_repository = MagicMock()
 

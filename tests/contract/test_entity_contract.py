@@ -37,7 +37,7 @@ async def test_entity_response_required_fields(api_prefix: str) -> None:
 
         assert "id" in data
         assert "data" in data
-        assert "rev_id" in data
+        assert "revision" in data
 
 
 @pytest.mark.contract
@@ -64,8 +64,8 @@ async def test_entity_data_structure(api_prefix: str) -> None:
         assert get_resp.status_code == 200
         data = get_resp.json()
 
-        assert "id" in data
-        assert "rev_id" in data
+        assert "id" in data["data"]
+        assert "revision" in data
 
 
 @pytest.mark.contract
@@ -91,11 +91,8 @@ async def test_entity_type_field(api_prefix: str) -> None:
         assert get_resp.status_code == 200
         data = get_resp.json()
 
-        assert "rev_id" in data
-        assert (
-            "entity_type" in data["data"]["revision"]
-            or "type" in data["data"]["revision"]
-        )
+        assert "revision" in data
+        assert "entity_type" in data["revision"] or "type" in data["revision"]
 
 
 @pytest.mark.contract
@@ -148,7 +145,7 @@ async def test_entity_revision_is_integer(api_prefix: str) -> None:
         assert get_resp.status_code == 200
         data = get_resp.json()
 
-        assert isinstance(data["rev_id"], int)
+        assert isinstance(data["revision"], int)
 
 
 @pytest.mark.contract

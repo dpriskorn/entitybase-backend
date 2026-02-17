@@ -278,6 +278,30 @@ def sample_property_data() -> dict[str, Any]:
 
 
 @pytest.fixture
+def sample_item_with_entity_reference() -> dict[str, Any]:
+    """Sample item with statement referencing another entity for backlink testing."""
+    return {
+        "type": "item",
+        "labels": {"en": {"language": "en", "value": "Referencing Item"}},
+        "descriptions": {
+            "en": {"language": "en", "value": "Item that references another entity"}
+        },
+        "statements": [
+            {
+                "id": "TESTREF123",
+                "mainsnak": {
+                    "snaktype": "value",
+                    "property": "P31",
+                    "datavalue": {"value": {"id": "Q5"}, "type": "wikibase-item"},
+                },
+                "type": "statement",
+                "rank": "normal",
+            }
+        ],
+    }
+
+
+@pytest.fixture
 def sample_lexeme_data() -> dict[str, Any]:
     """Sample lexeme entity data for testing."""
     return {
