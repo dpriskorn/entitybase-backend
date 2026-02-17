@@ -10,6 +10,29 @@ from models.rdf_builder.property_registry.models import (
 
 logger = logging.getLogger(__name__)
 
+ITEM_DATATYPES = frozenset(
+    {
+        "wikibase-item",
+        "wikibase-lexeme",
+        "wikibase-form",
+        "wikibase-sense",
+        "wikibase-property",
+        "commonsmedia",
+        "commonsMedia",
+        "string",
+        "url",
+        "math",
+        "geo-shape",
+        "monolingualtext",
+        "external-id",
+        "tabular-data",
+        "musical-notation",
+        "entity-schema",
+    }
+)
+
+EXTERNAL_ID_DATATYPES = frozenset({"external-id"})
+
 
 def property_shape(
     pid: str,
@@ -41,22 +64,7 @@ def property_shape(
     predicates = PropertyPredicates(**base)
 
     logger.debug(f"Checking datatype category for {datatype}")
-    if datatype in {
-        "wikibase-item",
-        "wikibase-lexeme",
-        "wikibase-form",
-        "wikibase-sense",
-        "wikibase-property",
-        "commonsmedia",
-        "string",
-        "url",
-        "math",
-        "geo-shape",
-        "monolingualtext",
-        "tabular-data",
-        "musical-notation",
-        "entity-schema",
-    }:
+    if datatype in ITEM_DATATYPES:
         return PropertyShape(
             pid=pid,
             datatype=datatype,
@@ -65,7 +73,7 @@ def property_shape(
             descriptions=descriptions or {},
         )
 
-    if datatype == "external-id":
+    if datatype in EXTERNAL_ID_DATATYPES:
         return PropertyShape(
             pid=pid,
             datatype=datatype,
@@ -83,10 +91,7 @@ def property_shape(
             descriptions=descriptions or {},
         )
 
-    if datatype in {
-        "time",
-        "globe-coordinate",
-    }:
+    if datatype in {"time", "globe-coordinate"}:
         return PropertyShape(
             pid=pid,
             datatype=datatype,
