@@ -66,6 +66,43 @@ def _extract_numeric_suffix(suffix: str) -> int:
     return int(suffix[1:])
 
 
+def _prepare_form_defaults(form_dict: dict[str, Any]) -> dict[str, Any]:
+    """Set default values for form fields if missing.
+
+    Args:
+        form_dict: Form dictionary to add defaults to
+
+    Returns:
+        Form dictionary with all required fields
+    """
+    form_dict_copy = form_dict.copy()
+    form_dict_copy.setdefault("id", "")
+    form_dict_copy.setdefault("grammaticalFeatures", [])
+    form_dict_copy.setdefault("claims", {})
+    form_dict_copy.setdefault("representations", {})
+    return form_dict_copy
+
+
+def _extract_form_number(form_id: str | None) -> int:
+    """Extract numeric suffix from form ID (e.g., "L42-F5" -> 5).
+
+    Args:
+        form_id: Form ID string
+
+    Returns:
+        Numeric suffix, or 0 if not a valid form ID
+    """
+    if not form_id or "-" not in form_id:
+        return 0
+    suffix = form_id.split("-")[-1]
+    if not suffix.startswith("F"):
+        return 0
+    try:
+        return int(suffix[1:])
+    except ValueError:
+        return 0
+
+
 def assign_form_ids(lexeme_id: str, forms: list[dict[str, Any]]) -> Forms:
     """Assign IDs to forms missing them, using incrementing numbers.
 
@@ -85,25 +122,10 @@ def assign_form_ids(lexeme_id: str, forms: list[dict[str, Any]]) -> Forms:
 
     wbi_forms = []
     for form_dict in forms:
-        form_dict_copy = form_dict.copy()
-        if "id" not in form_dict_copy:
-            form_dict_copy["id"] = ""
-        if "grammaticalFeatures" not in form_dict_copy:
-            form_dict_copy["grammaticalFeatures"] = []
-        if "claims" not in form_dict_copy:
-            form_dict_copy["claims"] = {}
-        if "representations" not in form_dict_copy:
-            form_dict_copy["representations"] = {}
-
+        form_dict_copy = _prepare_form_defaults(form_dict)
         form = Form().from_json(form_dict_copy)
-        if form.id and "-" in form.id:
-            suffix = form.id.split("-")[-1]
-            if suffix.startswith("F"):
-                try:
-                    num = int(suffix[1:])
-                    max_form_num = max(max_form_num, num)
-                except ValueError:
-                    pass
+        form_num = _extract_form_number(form.id)
+        max_form_num = max(max_form_num, form_num)
         wbi_forms.append(form)
 
     forms_list = []
@@ -114,6 +136,42 @@ def assign_form_ids(lexeme_id: str, forms: list[dict[str, Any]]) -> Forms:
         forms_list.append(form.get_json())
 
     return Forms().from_json(forms_list)
+
+
+def _prepare_sense_defaults(sense_dict: dict[str, Any]) -> dict[str, Any]:
+    """Set default values for sense fields if missing.
+
+    Args:
+        sense_dict: Sense dictionary to add defaults to
+
+    Returns:
+        Sense dictionary with all required fields
+    """
+    sense_dict_copy = sense_dict.copy()
+    sense_dict_copy.setdefault("id", "")
+    sense_dict_copy.setdefault("glosses", {})
+    sense_dict_copy.setdefault("claims", {})
+    return sense_dict_copy
+
+
+def _extract_sense_number(sense_id: str | None) -> int:
+    """Extract numeric suffix from sense ID (e.g., "L42-S5" -> 5).
+
+    Args:
+        sense_id: Sense ID string
+
+    Returns:
+        Numeric suffix, or 0 if not a valid sense ID
+    """
+    if not sense_id or "-" not in sense_id:
+        return 0
+    suffix = sense_id.split("-")[-1]
+    if not suffix.startswith("S"):
+        return 0
+    try:
+        return int(suffix[1:])
+    except ValueError:
+        return 0
 
 
 def assign_sense_ids(lexeme_id: str, senses: list[dict[str, Any]]) -> Senses:
@@ -135,23 +193,10 @@ def assign_sense_ids(lexeme_id: str, senses: list[dict[str, Any]]) -> Senses:
 
     wbi_senses = []
     for sense_dict in senses:
-        sense_dict_copy = sense_dict.copy()
-        if "id" not in sense_dict_copy:
-            sense_dict_copy["id"] = ""
-        if "glosses" not in sense_dict_copy:
-            sense_dict_copy["glosses"] = {}
-        if "claims" not in sense_dict_copy:
-            sense_dict_copy["claims"] = {}
-
+        sense_dict_copy = _prepare_sense_defaults(sense_dict)
         sense = Sense().from_json(sense_dict_copy)
-        if sense.id and "-" in sense.id:
-            suffix = sense.id.split("-")[-1]
-            if suffix.startswith("S"):
-                try:
-                    num = int(suffix[1:])
-                    max_sense_num = max(max_sense_num, num)
-                except ValueError:
-                    pass
+        sense_num = _extract_sense_number(sense.id)
+        max_sense_num = max(max_sense_num, sense_num)
         wbi_senses.append(sense)
 
     senses_list = []
