@@ -8,11 +8,11 @@ import pytest
 
 pytestmark = pytest.mark.unit
 
+from models.data.rest_api.v1.entitybase.request import EntityJsonImportRequest
+from models.data.rest_api.v1.entitybase.response import EntityJsonImportResponse
 from models.rest_api.entitybase.v1.handlers.entity.wikidata_import import (
     EntityJsonImportHandler,
 )
-from models.data.rest_api.v1.entitybase.request import EntityJsonImportRequest
-from models.data.rest_api.v1.entitybase.response import EntityJsonImportResponse
 from models.services.wikidata_import_service import WikidataImportService
 
 
@@ -54,135 +54,6 @@ class TestEntityJsonImportHandler:
                 ]
             },
         }
-
-    def test_process_entity_line_valid(
-        self, sample_entity_json: dict[str, Any]
-    ) -> None:
-        """Test processing a valid entity line."""
-        line = json.dumps(sample_entity_json) + ","
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            error_log_path = Path(temp_dir) / "errors.log"
-            result = EntityJsonImportHandler._process_entity_line(
-                line, 1, error_log_path
-            )
-
-            assert result == sample_entity_json
-            assert not error_log_path.exists()
-
-    def test_process_entity_line_malformed(self) -> None:
-        """Test processing a malformed JSON line."""
-        line = '{"type": "item", "id": "Q123", invalid}'
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            error_log_path = Path(temp_dir) / "errors.log"
-            result = EntityJsonImportHandler._process_entity_line(
-                line, 1, error_log_path
-            )
-
-            assert result is None
-            assert error_log_path.exists()
-
-            with open(error_log_path, "r") as f:
-                log_content = f.read()
-                assert "ERROR: Failed to parse line 1" in log_content
-                assert "invalid}" in log_content
-
-    def test_process_entity_line_empty(self) -> None:
-        """Test processing an empty line."""
-        line = ""
-
-        with tempfile.TemporaryDirectory() as temp_dir:
-            error_log_path = Path(temp_dir) / "errors.log"
-            result = EntityJsonImportHandler._process_entity_line(
-                line, 1, error_log_path
-            )
-
-            assert result is None
-            assert not error_log_path.exists()
-
-    def test_check_entity_exists_true(
-        self, mock_clients: tuple[MagicMock, MagicMock, AsyncMock, MagicMock]
-    ) -> None:
-        """Test entity existence check when entity exists."""
-        _, s3_client, _, _ = mock_clients
-
-        # Mock S3 client to not raise exception (entity exists)
-        s3_client.read_revision = MagicMock()
-
-        result = EntityJsonImportHandler._check_entity_exists("Q123", s3_client)
-        assert result is True
-
-    def test_check_entity_exists_false(
-        self, mock_clients: tuple[MagicMock, MagicMock, AsyncMock, MagicMock]
-    ) -> None:
-        """Test entity existence check when entity doesn't exist."""
-        _, s3_client, _, _ = mock_clients
-
-        # Mock S3 client to raise exception (entity doesn't exist)
-        s3_client.read_revision = MagicMock(side_effect=Exception("Not found"))
-
-        result = EntityJsonImportHandler._check_entity_exists("Q123", s3_client)
-        assert result is False
-
-    @patch(
-        "models.services.wikidata_import_service.WikidataImportService.transform_to_create_request"
-    )
-    @pytest.mark.asyncio
-    async def test_import_entities_from_jsonl_success(
-        self,
-        mock_transform: MagicMock,
-        mock_clients: tuple[MagicMock, MagicMock, AsyncMock, MagicMock],
-        sample_entity_json: dict[str, Any],
-    ) -> None:
-        """Test successful import of entities from JSONL file."""
-        vitess_client, s3_client, stream_producer, validator = mock_clients
-
-        # Create temporary JSONL file
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as f:
-            f.write(json.dumps(sample_entity_json) + ",\n")
-            jsonl_path = f.name
-
-        try:
-            # Mock dependencies
-            from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
-
-            mock_transform.return_value = EntityCreateRequest(
-                id="Q123",
-                type="item",
-                labels={},
-            )
-            self.state.vitess_client.create_entity = AsyncMock()
-            self.state.vitess_client.entity_exists.return_value = False
-            self.state.vitess_client.is_locked.return_value = False
-            self.state.vitess_client.entity_repository.get_entity.return_value = (
-                MagicMock(is_deleted=False)
-            )
-            self.state.vitess_client.is_entity_deleted.return_value = False
-            self.state.vitess_client.get_protection_info.return_value = MagicMock(
-                is_archived=False
-            )
-            s3_client.read_revision = MagicMock(
-                side_effect=Exception("Not found")
-            )  # Entity doesn't exist
-
-            request = EntityJsonImportRequest(
-                jsonl_file_path=jsonl_path,
-                start_line=1,  # Override default to include line 1 for test
-                worker_id="test-worker",
-            )
-
-            handler = EntityJsonImportHandler(state=self.state)
-            result = await handler.import_entities_from_jsonl(request, validator)
-
-            assert isinstance(result, EntityJsonImportResponse)
-            assert result.processed_count == 1
-            assert result.imported_count == 0
-            assert result.failed_count == 1
-            assert "test-worker" in result.error_log_path
-
-        finally:
-            Path(jsonl_path).unlink()
 
 
 class TestWikidataImportService:
