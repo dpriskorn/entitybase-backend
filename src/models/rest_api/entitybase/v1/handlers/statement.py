@@ -221,6 +221,22 @@ class StatementHandler(Handler):
         Uses schema 1.2.0 architecture where statements are stored separately by hash.
         """
         logger.debug(f"get_entity_property_hashes called for entity {entity_id}")
+        self._validate_entity_access(entity_id)
+
+        head_revision_id = self.state.vitess_client.get_head(entity_id)
+        revision_metadata = self.state.s3_client.read_full_revision(entity_id, head_revision_id)
+
+        requested_property_ids = [p.strip() for p in property_list.split(",") if p.strip()]
+        statement_hashes = revision_metadata.revision.get("statements", [])
+
+        matching_hashes = self._filter_statements_by_property(
+            statement_hashes, requested_property_ids
+        )
+
+        return PropertyHashesResponse(property_hashes=matching_hashes)
+
+    def _validate_entity_access(self, entity_id: str) -> None:
+        """Validate entity exists and is accessible."""
         if self.state.vitess_client is None:
             raise_validation_error("Vitess not initialized", status_code=503)
 
@@ -231,50 +247,41 @@ class StatementHandler(Handler):
         if head_revision_id == 0:
             raise_validation_error("Entity has no revisions", status_code=404)
 
-        revision_metadata = self.state.s3_client.read_full_revision(
-            entity_id, head_revision_id
-        )
-
-        requested_property_ids = [
-            p.strip() for p in property_list.split(",") if p.strip()
-        ]
-        statement_hashes = revision_metadata.revision.get("statements", [])  # type: ignore[attr-defined]
-
+    def _filter_statements_by_property(
+        self, statement_hashes: list, requested_property_ids: list[str]
+    ) -> list[int]:
+        """Filter statement hashes by requested property IDs."""
         matching_hashes = []
-
-        # Initialize SnakHandler for batch processing
         snak_handler = SnakHandler(state=self.state)
 
         for statement_hash in statement_hashes:
             try:
-                statement_data = self.state.s3_client.read_statement(statement_hash)
-
-                # Reconstruct from hash to get property ID
-                mainsnak_hash_input = statement_data.statement["mainsnak"]
-                if (
-                    isinstance(mainsnak_hash_input, dict)
-                    and "hash" in mainsnak_hash_input
-                ):
-                    mainsnak_hash = cast(int, mainsnak_hash_input["hash"])
-                else:
-                    mainsnak_hash = cast(int, mainsnak_hash_input)
-                retrieved_snak = snak_handler.get_snak(mainsnak_hash)
-                if retrieved_snak:
-                    property_id = retrieved_snak["property"]
-                else:
-                    logger.warning(
-                        f"Snak {mainsnak_hash} not found for statement {statement_hash}"
-                    )
-                    continue
-
-                if property_id in requested_property_ids:
+                property_id = self._get_statement_property(statement_hash, snak_handler)
+                if property_id and property_id in requested_property_ids:
                     matching_hashes.append(statement_hash)
             except Exception as e:
                 raise_validation_error(
                     f"Failed to read statement {statement_hash}: {e}", status_code=500
                 )
 
-        return PropertyHashesResponse(property_hashes=matching_hashes)
+        return matching_hashes
+
+    def _get_statement_property(self, statement_hash: int, snak_handler: SnakHandler) -> str | None:
+        """Get property ID for a statement."""
+        statement_data = self.state.s3_client.read_statement(statement_hash)
+
+        mainsnak_hash_input = statement_data.statement["mainsnak"]
+        if isinstance(mainsnak_hash_input, dict) and "hash" in mainsnak_hash_input:
+            mainsnak_hash = cast(int, mainsnak_hash_input["hash"])
+        else:
+            mainsnak_hash = cast(int, mainsnak_hash_input)
+
+        retrieved_snak = snak_handler.get_snak(mainsnak_hash)
+        if retrieved_snak:
+            return retrieved_snak["property"]
+        else:
+            logger.warning(f"Snak {mainsnak_hash} not found for statement {statement_hash}")
+            return None
 
     def get_most_used_statements(
         self,
