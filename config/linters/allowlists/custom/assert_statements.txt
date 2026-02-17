@@ -14,6 +14,7 @@ src/models/workers/watchlist_consumer/main.py:94
 src/models/workers/watchlist_consumer/main.py:150
 src/models/rdf_builder/converter.py:154
 src/models/rest_api/main.py:212
+src/models/rest_api/main.py:230
 src/models/json_parser/value_parser.py:75
 src/models/infrastructure/s3/storage/reference_storage.py:35
 src/models/infrastructure/s3/storage/metadata_storage.py:50

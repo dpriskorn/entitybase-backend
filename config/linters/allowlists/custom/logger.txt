@@ -6,3 +6,4 @@
 
 # Pydantic model_post_init has complex init logic but minimal logging needed
 src/models/config/settings.py:109
+src/models/rest_api/entitybase/v1/handlers/entity/revert.py:126

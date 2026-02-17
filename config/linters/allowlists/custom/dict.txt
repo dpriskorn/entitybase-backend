@@ -5,3 +5,6 @@
 src/models/rest_api/entitybase/v1/endpoints/debug.py:14
 src/models/rest_api/entitybase/v1/endpoints/debug.py:43
 src/models/rest_api/main.py:209
+src/models/rest_api/main.py:228
+src/models/rest_api/entitybase/v1/handlers/entity/revert.py:83
+src/models/rest_api/entitybase/v1/handlers/entity/revert.py:91

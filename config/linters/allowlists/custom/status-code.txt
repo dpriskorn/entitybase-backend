@@ -1,1 +1,9 @@
 # Status code linter allowlist - currently empty
+tests/contract/test_statement_contract.py:84
+tests/contract/test_statement_contract.py:123
+tests/contract/test_watchlist_contract.py:27
+tests/contract/test_watchlist_contract.py:43
+tests/contract/test_watchlist_contract.py:56
+tests/contract/test_watchlist_contract.py:72
+tests/contract/test_sitelinks_contract.py:122
+tests/contract/test_revisions_contract.py:100
