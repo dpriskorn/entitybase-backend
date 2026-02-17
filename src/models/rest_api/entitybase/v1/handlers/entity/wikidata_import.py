@@ -58,24 +58,20 @@ class EntityJsonImportHandler(Handler):
         self,
         entity_data: dict[str, Any],
         line_num: int,
-        error_log_path: Path,
-        create_handler: Any,
-        request: EntityJsonImportRequest,
-        validator: Any | None,
     ) -> tuple[bool, bool]:
         """Process a single entity with all error handling.
 
         Args:
             entity_data: Parsed entity data
             line_num: Line number for error logging
-            error_log_path: Path to error log file
-            create_handler: EntityCreateHandler instance
-            request: Import request
-            validator: Optional validator
 
         Returns:
             Tuple of (success, failed)
         """
+        create_handler = self._import_create_handler
+        request = self._import_request
+        validator = self._import_validator
+        error_log_path = self._import_error_log_path
         try:
             create_request = WikidataImportService.transform_to_create_request(
                 entity_data
@@ -132,6 +128,10 @@ class EntityJsonImportHandler(Handler):
 
         error_log_path = self._create_error_log_path(request.worker_id)
 
+        self._import_request = request
+        self._import_validator = validator
+        self._import_error_log_path = error_log_path
+
         logger.info(
             f"Starting JSONL import from {request.jsonl_file_path}, lines {request.start_line}-{'end' if request.end_line == 0 else request.end_line}"
         )
@@ -139,6 +139,7 @@ class EntityJsonImportHandler(Handler):
         try:
             with open(request.jsonl_file_path, "r", encoding="utf-8") as f:
                 create_handler = EntityCreateHandler(state=self.state)
+                self._import_create_handler = create_handler
 
                 for line_num, line in enumerate(f, 1):
                     if not self._should_process_line(
@@ -158,10 +159,6 @@ class EntityJsonImportHandler(Handler):
                     success, failed = await self._process_single_entity(
                         entity_data,
                         line_num,
-                        error_log_path,
-                        create_handler,
-                        request,
-                        validator,
                     )
                     if success:
                         imported_count += 1
