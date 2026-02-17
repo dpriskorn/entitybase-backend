@@ -14,12 +14,23 @@ class RDFSerializer(BaseModel):
         entity_id = entity_data.get("id", "")
         entity_uri = URIRef(f"http://www.wikidata.org/entity/{entity_id}")
 
-        # Add entity type
-        entity_type = entity_data.get("type", "item")
+        RDFSerializer._add_entity_type(g, entity_uri, entity_data.get("type", "item"))
+        RDFSerializer._add_labels(g, entity_uri, entity_data.get("labels", {}))
+        RDFSerializer._add_descriptions(g, entity_uri, entity_data.get("descriptions", {}))
+        RDFSerializer._add_statements(g, entity_uri, entity_data.get("claims", {}))
+
+        return g.serialize(format=format_)  # type: ignore[no-any-return]
+
+    @staticmethod
+    def _add_entity_type(g: Graph, entity_uri: URIRef, entity_type: str) -> None:
+        """Add entity type triple to the graph."""
+        from rdflib import URIRef
+        from rdflib.namespace import RDF
+
         if entity_type == "item":
             g.add(
                 (entity_uri, RDF.type, URIRef("http://www.wikidata.org/entity/Q35120"))
-            )  # item
+            )
         elif entity_type == "property":
             g.add(
                 (
@@ -27,20 +38,25 @@ class RDFSerializer(BaseModel):
                     RDF.type,
                     URIRef("http://www.wikidata.org/entity/Q18616576"),
                 )
-            )  # property
+            )
 
-        # Add labels
-        labels = entity_data.get("labels", {})
+    @staticmethod
+    def _add_labels(g: Graph, entity_uri: URIRef, labels: dict) -> None:
+        """Add label triples to the graph."""
+        from rdflib import Literal
+        from rdflib.namespace import RDFS
+
         for lang, label_data in labels.items():
             if isinstance(label_data, dict) and "value" in label_data:
                 g.add((entity_uri, RDFS.label, Literal(label_data["value"], lang=lang)))
 
-        # Add descriptions
-        descriptions = entity_data.get("descriptions", {})
+    @staticmethod
+    def _add_descriptions(g: Graph, entity_uri: URIRef, descriptions: dict) -> None:
+        """Add description triples to the graph."""
+        from rdflib import Literal, URIRef
+
         for lang, desc_data in descriptions.items():
             if isinstance(desc_data, dict) and "value" in desc_data:
-                # Wikibase doesn't have a standard description property in RDF
-                # Using schema.org description for now
                 g.add(
                     (
                         entity_uri,
@@ -49,8 +65,11 @@ class RDFSerializer(BaseModel):
                     )
                 )
 
-        # Add claims/statements (simplified)
-        claims = entity_data.get("claims", {})
+    @staticmethod
+    def _add_statements(g: Graph, entity_uri: URIRef, claims: dict) -> None:
+        """Add statement/claim triples to the graph (simplified - strings only)."""
+        from rdflib import Literal, URIRef
+
         for prop_id, statements in claims.items():
             if isinstance(statements, list):
                 for statement in statements:
@@ -69,5 +88,3 @@ class RDFSerializer(BaseModel):
                                         Literal(value),
                                     )
                                 )
-
-        return g.serialize(format=format_)  # type: ignore[no-any-return]

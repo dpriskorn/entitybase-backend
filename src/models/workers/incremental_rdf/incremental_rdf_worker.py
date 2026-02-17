@@ -191,20 +191,40 @@ class IncrementalRDFWorker(Worker):
             await self._handle_entity_deletion(entity_id, to_revision_id)
             return
 
-        old_entity_data = None
-        if from_revision_id and from_revision_id > 0:
-            old_entity_data = await self._fetch_entity_data(entity_id, from_revision_id)
-
+        old_entity_data = await self._fetch_previous_entity_data(entity_id, from_revision_id)
         new_entity_data = await self._fetch_entity_data(entity_id, to_revision_id)
 
+        operation, rdf_added = self._compute_diff_and_rdf(entity_id, old_entity_data, new_entity_data)
+        await self._publish_rdf_change_event(entity_id, to_revision_id, operation, rdf_added)
+
+    async def _fetch_previous_entity_data(
+        self, entity_id: str, from_revision_id: Optional[int]
+    ) -> Optional[dict[str, Any]]:
+        """Fetch previous entity data if a from_revision_id is provided."""
+        if from_revision_id and from_revision_id > 0:
+            return await self._fetch_entity_data(entity_id, from_revision_id)
+        return None
+
+    def _compute_diff_and_rdf(
+        self, entity_id: str, old_entity_data: Optional[dict], new_entity_data: Optional[dict]
+    ) -> tuple[str, str]:
+        """Compute diff between old and new entity data and generate RDF."""
         if old_entity_data is None:
             operation = "import"
+            rdf_added = ""
         else:
             operation = "diff"
+            rdf_added = self._compute_rdf_diff(entity_id, old_entity_data, new_entity_data)
 
+        return operation, rdf_added
+
+    def _compute_rdf_diff(
+        self, entity_id: str, old_entity_data: dict, new_entity_data: Optional[dict]
+    ) -> str:
+        """Compute RDF diff between old and new entity data."""
         updater = IncrementalRDFUpdater(entity_id=entity_id)
 
-        if old_entity_data and new_entity_data:
+        if new_entity_data:
             try:
                 old_entity = self._convert_to_entity_data(old_entity_data)
                 new_entity = self._convert_to_entity_data(new_entity_data)
@@ -214,11 +234,15 @@ class IncrementalRDFWorker(Worker):
             except Exception as e:
                 logger.warning(f"Failed to compute diffs: {e}")
 
-        rdf_added = updater.get_updated_rdf() if operation == "diff" else ""
+        return updater.get_updated_rdf()
 
+    async def _publish_rdf_change_event(
+        self, entity_id: str, rev_id: int, operation: str, rdf_added: str
+    ) -> None:
+        """Publish RDF change event to Kafka."""
         event_config = RDFChangeEventBuilder.EventConfig(
             entity_id=entity_id,
-            rev_id=to_revision_id,
+            rev_id=rev_id,
             operation=operation,
             rdf_added_data=rdf_added,
             rdf_deleted_data="",
@@ -228,9 +252,7 @@ class IncrementalRDFWorker(Worker):
 
         if self.producer:
             await self.producer.publish_change(event_data)
-            logger.info(
-                f"Published RDF change event for {entity_id} rev {to_revision_id}"
-            )
+            logger.info(f"Published RDF change event for {entity_id} rev {rev_id}")
 
     async def _fetch_entity_data(
         self, entity_id: str, revision_id: int
