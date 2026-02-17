@@ -8,10 +8,10 @@ if [ "$1" = "--no-cache" ]; then
     echo "🔧 Building without cache"
 fi
 
-./update-docs.sh
-./stop-docker-and-remove-everything.sh
-./clean-pyc.sh
-./export-requirements.sh
+./scripts/shell/update-docs.sh
+./scripts/shell/stop-docker-and-remove-everything.sh
+./scripts/shell/clean-pyc.sh
+./scripts/shell/export-requirements.sh
 
 # Calculate hash of requirements.txt to force rebuild on dependency changes
 REQUIREMENTS_HASH=$(md5sum requirements.txt | awk '{print $1}')
