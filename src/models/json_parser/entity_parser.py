@@ -74,44 +74,40 @@ def parse_entity(raw_entity_data: dict[str, Any]) -> EntityMetadataResponse:
     return metadata
 
 
-def parse_entity_data(raw_entity_data: dict[str, Any]) -> EntityData:
-    """Parse entity from Wikidata JSON format into internal EntityData."""
-    logger.debug("Parsing entity data from raw data")
-    logger.debug(f"Raw data keys: {list(raw_entity_data.keys())}")
-    # Handle nested structure {"entities": {"Q42": {...}}}
+def _extract_entity_from_dict(raw_entity_data: dict[str, Any]) -> dict[str, Any]:
+    """Extract entity dict from potentially nested structure.
+
+    Args:
+        raw_entity_data: Raw entity data, may contain "entities" wrapper
+
+    Returns:
+        Flattened entity dictionary
+    """
     metadata_dict = raw_entity_data
     if "entities" in metadata_dict:
         entities = metadata_dict["entities"]
         entity_ids = list(entities.keys())
         if entity_ids:
             metadata_dict = entities[entity_ids[0]]
+    return metadata_dict
 
-    # Extract raw data
-    labels_dict = metadata_dict.get(JsonField.LABELS.value, {})
-    descriptions_dict = metadata_dict.get(JsonField.DESCRIPTIONS.value, {})
-    aliases_dict = metadata_dict.get(JsonField.ALIASES.value, {})
-    claims_json = metadata_dict.get(JsonField.CLAIMS.value, {})
-    sitelinks_json = metadata_dict.get(JsonField.SITELINKS.value, {})
 
-    entity_type = metadata_dict.get(JsonField.TYPE.value, EntityType.ITEM.value)
-    logger.debug(
-        f"Entity type: {entity_type}, ID: {metadata_dict.get(JsonField.ID.value)}"
-    )
+def _parse_lexeme_fields(
+    metadata_dict: dict[str, Any],
+) -> tuple[list[LexemeForm] | None, list[LexemeSense] | None, str, str]:
+    """Parse lexeme-specific fields from entity data.
 
-    statements = []
-    logger.debug("Parsing statements")
-    for prop_claims in claims_json.values():
-        for stmt in prop_claims:
-            statements.append(parse_statement(stmt))
+    Args:
+        metadata_dict: Entity metadata dictionary
 
-    # Lexeme-specific fields
+    Returns:
+        Tuple of (forms, senses, lexical_category, language)
+    """
+    forms = None
+    senses = None
     lemmas = metadata_dict.get("lemmas")
     lexical_category = metadata_dict.get("lexicalCategory") or ""
     language = metadata_dict.get("language") or ""
-
-    # Parse forms and senses if they exist
-    forms = None
-    senses = None
 
     if "forms" in metadata_dict:
         forms = []
@@ -133,6 +129,37 @@ def parse_entity_data(raw_entity_data: dict[str, Any]) -> EntityData:
                 claims=sense_data.get("claims", {}),
             )
             senses.append(sense)
+
+    return forms, senses, lexical_category, language
+
+
+def parse_entity_data(raw_entity_data: dict[str, Any]) -> EntityData:
+    """Parse entity from Wikidata JSON format into internal EntityData."""
+    logger.debug("Parsing entity data from raw data")
+    logger.debug(f"Raw data keys: {list(raw_entity_data.keys())}")
+
+    metadata_dict = _extract_entity_from_dict(raw_entity_data)
+
+    labels_dict = metadata_dict.get(JsonField.LABELS.value, {})
+    descriptions_dict = metadata_dict.get(JsonField.DESCRIPTIONS.value, {})
+    aliases_dict = metadata_dict.get(JsonField.ALIASES.value, {})
+    claims_json = metadata_dict.get(JsonField.CLAIMS.value, {})
+    sitelinks_json = metadata_dict.get(JsonField.SITELINKS.value, {})
+
+    entity_type = metadata_dict.get(JsonField.TYPE.value, EntityType.ITEM.value)
+    logger.debug(
+        f"Entity type: {entity_type}, ID: {metadata_dict.get(JsonField.ID.value)}"
+    )
+
+    statements = []
+    logger.debug("Parsing statements")
+    for prop_claims in claims_json.values():
+        for stmt in prop_claims:
+            statements.append(parse_statement(stmt))
+
+    forms, senses, lexical_category, language = _parse_lexeme_fields(metadata_dict)
+
+    lemmas = metadata_dict.get("lemmas", {})
 
     return EntityData(
         id=metadata_dict.get(JsonField.ID.value, ""),
