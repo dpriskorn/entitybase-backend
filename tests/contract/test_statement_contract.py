@@ -80,8 +80,23 @@ async def test_statement_batch_response(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        batch_resp = await client.get(f"{api_prefix}/statements/batch?hashes=1,2,3")
-        assert batch_resp.status_code in [200, 400]
+        create_resp = await client.post(
+            f"{api_prefix}/entities/items",
+            json={
+                "type": "item",
+                "labels": {"en": {"language": "en", "value": "Test"}},
+            },
+            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
+        )
+        assert create_resp.status_code == 200
+        entity_id = create_resp.json()["id"]
+
+        batch_resp = await client.get(
+            f"{api_prefix}/statements/batch?entity_ids={entity_id}"
+        )
+        assert batch_resp.status_code == 200
+        data = batch_resp.json()
+        assert "statements" in data
 
 
 @pytest.mark.contract
@@ -120,7 +135,10 @@ async def test_statements_by_property(api_prefix: str) -> None:
         prop_resp = await client.get(
             f"{api_prefix}/entities/{entity_id}/properties/P31"
         )
-        assert prop_resp.status_code in [200, 404]
+        assert prop_resp.status_code == 200
+        data = prop_resp.json()
+        assert "property_hashes" in data
+        assert data["property_hashes"] == []
 
 
 @pytest.mark.contract

@@ -1,6 +1,7 @@
 """General entity endpoints for Entitybase v1 API."""
 
 import logging
+from typing import Any
 
 from fastapi import APIRouter, Body, Query, Request, Response
 
@@ -35,12 +36,12 @@ from models.data.rest_api.v1.entitybase.response import (
 from models.data.rest_api.v1.entitybase.response import RevisionIdResult
 from models.data.rest_api.v1.entitybase.response import TurtleResponse
 from models.data.rest_api.v1.entitybase.response import BacklinksResponse
+from models.data.rest_api.v1.entitybase.response.misc import AllSitelinksResponse
 from models.rest_api.entitybase.v1.handlers.entity.delete import EntityDeleteHandler
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.handlers.entity.backlinks import BacklinkHandler
 from models.rest_api.entitybase.v1.handlers.export import ExportHandler
-from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.statement import StatementHandler
 from models.rest_api.entitybase.v1.services.entity_statement_service import (
     EntityStatementService,
@@ -89,7 +90,7 @@ def get_entity(entity_id: str, req: Request) -> EntityResponse:
     )
 
 
-@router.get("/entities/{entity_id}/history", response_model=list[EntityHistoryEntry])
+@router.get("/entities/{entity_id}/revisions", response_model=list[EntityHistoryEntry])
 def get_entity_history(
     entity_id: str,
     req: Request,
@@ -185,7 +186,7 @@ async def delete_entity(  # type: ignore[no-any-return]
 ) -> EntityDeleteResponse:
     """Delete an entity."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityDeleteHandler(state=state)
     result = await handler.delete_entity(entity_id, request, edit_headers=headers)
@@ -201,7 +202,7 @@ async def get_entity_properties(entity_id: str, req: Request) -> PropertyListRes
     Returns sorted list of properties used in entity statements.
     """
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = StatementHandler(state=state)
     return handler.get_entity_properties(entity_id)
@@ -218,7 +219,7 @@ async def get_entity_property_counts(
     Returns dict mapping property ID -> count of statements.
     """
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = StatementHandler(state=state)
     return handler.get_entity_property_counts(entity_id)
@@ -233,7 +234,7 @@ async def get_entity_property_hashes(
 ) -> PropertyHashesResponse:
     """Get entity property hashes for specified properties."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = StatementHandler(state=state)
     return handler.get_entity_property_hashes(entity_id, property_list)
@@ -252,7 +253,7 @@ async def add_entity_property(
 ) -> OperationResult[RevisionIdResult]:
     """Add claims for a single property to an entity."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityStatementService(state=state)
     result = await handler.add_property(
@@ -275,7 +276,7 @@ async def add_entity_statement(
 ) -> OperationResult[RevisionIdResult]:
     """Add a single statement to an entity."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityStatementService(state=state)
     result = await handler.add_statement(entity_id, request, edit_headers=headers)
@@ -297,7 +298,7 @@ async def remove_entity_statement(
 ) -> OperationResult[RevisionIdResult]:
     """Remove a statement by hash from an entity."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityStatementService(state=state)
     result = await handler.remove_statement(
@@ -323,7 +324,7 @@ async def patch_entity_statement(
 ) -> OperationResult[RevisionIdResult]:
     """Replace a statement by hash with new claim data."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = EntityStatementService(state=state)
     result = await handler.patch_statement(
@@ -337,12 +338,39 @@ async def patch_entity_statement(
     return result
 
 
+@router.get("/entities/{entity_id}/sitelinks", response_model=AllSitelinksResponse)
+async def get_all_sitelinks(entity_id: str, req: Request) -> AllSitelinksResponse:
+    """Get all sitelinks for an entity."""
+    logger.debug(f"Getting all sitelinks for entity {entity_id}")
+    state = req.app.state.state_handler
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
+        logger.error("Invalid state type")
+        raise_validation_error("Invalid clients type", status_code=500)
+
+    logger.debug(f"Getting entity {entity_id}")
+    handler = EntityReadHandler(state=state)
+    entity_response = handler.get_entity(entity_id)
+
+    logger.debug("Extracting sitelinks from entity")
+    sitelinks = entity_response.entity_data.revision.get("hashes", {}).get(
+        "sitelinks", {}
+    )
+
+    result: dict[str, Any] = {}
+    for site, hash_data in sitelinks.items():
+        title_hash = hash_data.get("title_hash")
+        badges = hash_data.get("badges", [])
+        result[site] = {"title_hash": title_hash, "badges": badges}
+
+    return AllSitelinksResponse(sitelinks=result)
+
+
 @router.get("/entities/{entity_id}/sitelinks/{site}", response_model=SitelinkData)
 async def get_entity_sitelink(entity_id: str, site: str, req: Request) -> SitelinkData:
     """Get a single sitelink for an entity."""
     logger.debug(f"Getting sitelink for entity {entity_id}, site {site}")
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         logger.error("Invalid state type")
         raise_validation_error("Invalid clients type", status_code=500)
     logger.debug(f"Getting entity {entity_id}")
@@ -401,7 +429,7 @@ async def post_entity_sitelink(
         f"Starting post_entity_sitelink for entity_id: {entity_id}, site: {site}"
     )
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
 
     handler = EntityReadHandler(state=state)
@@ -447,7 +475,7 @@ async def put_entity_sitelink(
         f"Starting put_entity_sitelink for entity_id: {entity_id}, site: {site}"
     )
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
 
     update_handler = EntityUpdateHandler(state=state)
@@ -483,7 +511,7 @@ async def delete_entity_sitelink(
         f"Starting delete_entity_sitelink for entity_id: {entity_id}, site: {site}"
     )
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
 
     update_handler = EntityUpdateHandler(state=state)

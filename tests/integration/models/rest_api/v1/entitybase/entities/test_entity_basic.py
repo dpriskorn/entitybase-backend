@@ -147,7 +147,7 @@ async def test_get_item_history() -> None:
             headers={"X-Edit-Summary": "update entity", "X-User-ID": "0"},
         )
 
-        response = await client.get(f"/v1/entitybase/entities/{entity_id}/history")
+        response = await client.get(f"/v1/entitybase/entities/{entity_id}/revisions")
         assert response.status_code == 200
 
         history = response.json()
