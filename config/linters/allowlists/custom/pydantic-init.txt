@@ -1,8 +1,1 @@
-# Allowlist for pydantic_init_linter.py
-# Line-specific (with tolerance of ±2 lines)
-
-src/models/infrastructure/vitess/connection.py:256
-src/models/infrastructure/vitess/connection.py:267
-src/models/infrastructure/unique_id.py:10
-src/models/infrastructure/unique_id.py:32
-src/models/infrastructure/vitess/id_resolver.py:18
+src/models/infrastructure/vitess/connection.py:278
