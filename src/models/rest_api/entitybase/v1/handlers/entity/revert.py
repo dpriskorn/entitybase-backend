@@ -6,8 +6,9 @@ from typing import cast
 
 from models.data.rest_api.v1.entitybase.request.headers import EditHeaders
 from models.data.infrastructure.s3.entity_state import EntityState
-from models.data.infrastructure.s3.enums import EditType, EditData
+from models.data.infrastructure.s3.enums import EditType, EditData, EntityType
 from models.data.infrastructure.s3.hashes.hash_maps import HashMaps
+from models.data.infrastructure.s3.revision_data import S3RevisionData
 
 from models.data.infrastructure.stream.change_type import ChangeType
 from models.infrastructure.s3.revision.revision_data import RevisionData
@@ -70,7 +71,9 @@ class EntityRevertHandler(Handler):
     async def _resolve_entity_id(self, entity_id: str) -> int:
         """Resolve internal entity ID from entity ID."""
         logger.debug("Resolving internal entity ID")
-        internal_entity_id = cast(int, self.state.vitess_client.id_resolver.resolve_id(entity_id))
+        internal_entity_id = cast(
+            int, self.state.vitess_client.id_resolver.resolve_id(entity_id)
+        )
         if internal_entity_id == 0:
             raise_validation_error(f"Entity {entity_id} not found", status_code=404)
         return internal_entity_id
@@ -79,9 +82,12 @@ class EntityRevertHandler(Handler):
         self, entity_id: str, to_revision_id: int, internal_entity_id: int
     ) -> RevisionData:
         """Get target revision from database."""
-        target_revision = cast(RevisionData, self.state.vitess_client.revision_repository.get_revision(
-            internal_entity_id, to_revision_id
-        ))
+        target_revision = cast(
+            RevisionData,
+            self.state.vitess_client.revision_repository.get_revision(
+                internal_entity_id, to_revision_id
+            ),
+        )
         if not target_revision:
             raise_validation_error(
                 f"Revision {to_revision_id} not found for entity {entity_id}",
@@ -91,15 +97,11 @@ class EntityRevertHandler(Handler):
 
     async def _read_target_revision_from_s3(
         self, entity_id: str, to_revision_id: int
-    ) -> dict:
+    ) -> S3RevisionData:
         """Read target revision content from S3."""
-        target_revision_data = cast(dict, self.state.s3_client.read_full_revision(
-            entity_id, to_revision_id
-        ))
-        return (
-            target_revision_data.revision
-            if hasattr(target_revision_data, "revision")
-            else target_revision_data
+        return cast(
+            S3RevisionData,
+            self.state.s3_client.read_full_revision(entity_id, to_revision_id),
         )
 
     async def _get_head_revision(self, internal_entity_id: int) -> int:
@@ -127,14 +129,16 @@ class EntityRevertHandler(Handler):
     async def _create_revision_data(
         self,
         entity_id: str,
-        target_data: dict,
+        target_data: S3RevisionData,
         new_revision_id: int,
         edit_headers: EditHeaders,
     ) -> RevisionData:
         """Create new revision data from target revision."""
         logger.debug("Creating new revision data from target revision")
 
-        target_hashes = target_data.get("hashes", {})
+        target_hashes = (
+            target_data.revision.get("hashes", {}) if target_data.revision else {}
+        )
         if isinstance(target_hashes, dict):
             hashes = HashMaps(
                 statements=target_hashes.get("statements"),
@@ -146,7 +150,9 @@ class EntityRevertHandler(Handler):
         else:
             hashes = HashMaps()
 
-        target_state = target_data.get("state", {})
+        target_state = (
+            target_data.revision.get("state", {}) if target_data.revision else {}
+        )
         if isinstance(target_state, dict):
             state = EntityState(
                 sp=target_state.get("sp", target_state.get("is_semi_protected", False)),
@@ -167,9 +173,9 @@ class EntityRevertHandler(Handler):
         else:
             state = EntityState()
 
-        return RevisionData(
+        revision_data = RevisionData(
             revision_id=new_revision_id,
-            entity_type=target_data.get("entity_type", "item"),
+            entity_type=EntityType.ITEM,
             edit=EditData(
                 type=EditType.MANUAL_UPDATE,
                 user_id=edit_headers.x_user_id,
@@ -179,10 +185,17 @@ class EntityRevertHandler(Handler):
             hashes=hashes,
             redirects_to="",
             state=state,
-            property_counts=target_data.get("property_counts"),
-            properties=target_data.get("properties", []),
+            property_counts=target_data.revision.get("property_counts")
+            if target_data.revision
+            else None,
+            properties=target_data.revision.get("properties", [])
+            if target_data.revision
+            else [],
         )
-        logger.debug(f"Created revision data for entity {entity_id}, revision {new_revision_id}")
+        logger.debug(
+            f"Created revision data for entity {entity_id}, revision {new_revision_id}"
+        )
+        return revision_data
 
     async def _store_revision(
         self, entity_id: str, new_revision_id: int, new_revision_data: RevisionData
