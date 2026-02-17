@@ -51,8 +51,16 @@ class AliasesResponse(BaseModel):
     )
 
 
+class AllSitelinksResponse(BaseModel):
+    """Response model for all entity sitelinks."""
+
+    sitelinks: dict[str, Any] = Field(
+        ..., description="Dictionary mapping site key to sitelink data"
+    )
+
+
 # class Aliases(BaseModel):
-#     """Model for extracted aliases dictionary."""
+#     """Model for extracted aliases dictionary.""""
 #
 #     aliases: dict[str, list[str]] = Field(..., description="Aliases per language")
 

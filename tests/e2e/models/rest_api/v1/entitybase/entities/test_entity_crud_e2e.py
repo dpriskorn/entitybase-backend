@@ -166,8 +166,8 @@ async def test_get_entity_history(api_prefix: str) -> None:
         )
         assert response.status_code == 200
 
-        # Get history
-        response = await client.get(f"{api_prefix}/entities/{entity_id}/history")
+        # Get revisions
+        response = await client.get(f"{api_prefix}/entities/{entity_id}/revisions")
         assert response.status_code == 200
         history = response.json()
         assert isinstance(history, list)

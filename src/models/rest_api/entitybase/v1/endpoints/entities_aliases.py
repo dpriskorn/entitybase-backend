@@ -11,6 +11,7 @@ from models.data.rest_api.v1.entitybase.response import (
     TermHashResponse,
     TermHashesResponse,
     DeleteResponse,
+    AliasesResponse,
 )
 from models.internal_representation.metadata_extractor import MetadataExtractor
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
@@ -24,11 +25,11 @@ router = APIRouter()
 
 @router.get(
     "/entities/{entity_id}/aliases/{language_code}",
-    response_model=List[str],
+    response_model=AliasesResponse,
 )
 async def get_entity_aliases(
     entity_id: str, language_code: str, req: Request
-) -> list[str]:
+) -> AliasesResponse:
     """Get entity alias texts for language."""
     logger.info(f"Getting aliases for entity {entity_id}, language {language_code}")
     state = req.app.state.state_handler
@@ -46,7 +47,7 @@ async def get_entity_aliases(
         alias_data = state.s3_client.load_metadata("labels", int(hash_value))
         if alias_data and alias_data.data:
             alias_texts.append(str(alias_data.data))
-    return alias_texts
+    return AliasesResponse(aliases=alias_texts)
 
 
 @router.put(

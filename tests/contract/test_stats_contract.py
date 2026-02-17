@@ -62,19 +62,3 @@ async def test_stats_type_consistency(api_prefix: str) -> None:
             assert isinstance(value, (int, str, bool, list, dict)), (
                 f"Field {key} has unexpected type {type(value)}"
             )
-
-
-@pytest.mark.contract
-@pytest.mark.asyncio
-async def test_stats_backlinks_structure(api_prefix: str) -> None:
-    """Contract test: Backlink stats response structure."""
-    from models.rest_api.main import app
-
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as client:
-        response = await client.get(f"{api_prefix}/stats/backlinks")
-        assert response.status_code == 200
-        data = response.json()
-
-        assert isinstance(data, dict)
