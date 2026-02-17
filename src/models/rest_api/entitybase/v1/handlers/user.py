@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import Any
+from typing import Any, cast
 
 from models.rest_api.entitybase.v1.handler import Handler
 
@@ -120,7 +120,9 @@ class UserHandler(Handler):
             cursor.close()
             self.state.vitess_client.connection_manager.release(connection)
 
-    def _parse_stats_terms(terms_data: Any, response_class: Any) -> Any:
+    def _parse_stats_terms(
+        self, terms_data: Any, response_class: type
+    ) -> TermsPerLanguage | TermsByType:
         """Parse stats terms with JSON validation.
 
         Args:
@@ -134,11 +136,17 @@ class UserHandler(Handler):
             json.loads(terms_data) if isinstance(terms_data, str) and terms_data else {}
         )
         if response_class == TermsPerLanguage:
-            return response_class(terms=parsed if isinstance(parsed, dict) else {})
+            return cast(
+                TermsPerLanguage,
+                response_class(terms=parsed if isinstance(parsed, dict) else {}),
+            )
         elif response_class == TermsByType:
-            return response_class(counts=parsed if isinstance(parsed, dict) else {})
+            return cast(
+                TermsByType,
+                response_class(counts=parsed if isinstance(parsed, dict) else {}),
+            )
         else:
-            return response_class()
+            return cast(TermsPerLanguage, response_class())
 
     def _compute_fallback_stats(self) -> GeneralStatsResponse:
         """Compute stats from service when database has no data.
@@ -146,6 +154,7 @@ class UserHandler(Handler):
         Returns:
             GeneralStatsResponse with computed statistics
         """
+        logger.debug("Computing fallback stats from service")
         from models.rest_api.entitybase.v1.services.general_stats_service import (
             GeneralStatsService,
         )
@@ -169,6 +178,9 @@ class UserHandler(Handler):
                 if isinstance(stats.terms_by_type, dict)
                 else {}
             )
+        )
+        logger.debug(
+            f"Computed fallback stats: statements={stats.total_statements}, items={stats.total_items}, properties={stats.total_properties}"
         )
         return GeneralStatsResponse(
             date="live",
@@ -206,10 +218,13 @@ class UserHandler(Handler):
                     total_properties=row[6],
                     total_sitelinks=row[7],
                     total_terms=row[8],
-                    terms_per_language=self._parse_stats_terms(
-                        row[9], TermsPerLanguage
+                    terms_per_language=cast(
+                        TermsPerLanguage,
+                        self._parse_stats_terms(row[9], TermsPerLanguage),
                     ),
-                    terms_by_type=self._parse_stats_terms(row[10], TermsByType),
+                    terms_by_type=cast(
+                        TermsByType, self._parse_stats_terms(row[10], TermsByType)
+                    ),
                 )
             else:
                 return self._compute_fallback_stats()
