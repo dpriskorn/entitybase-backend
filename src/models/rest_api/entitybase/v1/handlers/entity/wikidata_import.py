@@ -22,6 +22,96 @@ logger = logging.getLogger(__name__)
 class EntityJsonImportHandler(Handler):
     """Handler for importing entities from Wikidata JSONL dump files."""
 
+    def _create_error_log_path(self, worker_id: str | None) -> Path:
+        """Generate error log file path with timestamp and worker ID.
+
+        Args:
+            worker_id: Optional worker identifier
+
+        Returns:
+            Path for error log file
+        """
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        worker_suffix = f"_{worker_id}" if worker_id else ""
+        return Path(f"/tmp/wikidata_import_errors{worker_suffix}_{timestamp}.log")
+
+    def _should_process_line(
+        self, line_num: int, start_line: int, end_line: int
+    ) -> bool:
+        """Check if a line should be processed based on range.
+
+        Args:
+            line_num: Current line number
+            start_line: Starting line number (1-indexed)
+            end_line: Ending line number (0 means end of file)
+
+        Returns:
+            True if line should be processed, False otherwise
+        """
+        if line_num < start_line:
+            return False
+        if end_line != 0 and line_num > end_line:
+            return False
+        return True
+
+    async def _process_single_entity(
+        self,
+        entity_data: dict[str, Any],
+        line_num: int,
+        error_log_path: Path,
+        create_handler: Any,
+        request: EntityJsonImportRequest,
+        validator: Any | None,
+    ) -> tuple[bool, bool]:
+        """Process a single entity with all error handling.
+
+        Args:
+            entity_data: Parsed entity data
+            line_num: Line number for error logging
+            error_log_path: Path to error log file
+            create_handler: EntityCreateHandler instance
+            request: Import request
+            validator: Optional validator
+
+        Returns:
+            Tuple of (success, failed)
+        """
+        try:
+            create_request = WikidataImportService.transform_to_create_request(
+                entity_data
+            )
+
+            entity_exists = EntityJsonImportHandler._check_entity_exists(
+                entity_id=create_request.id, s3_client=self.state.s3_client
+            )
+
+            if entity_exists and not request.overwrite_existing:
+                logger.debug(f"Entity {create_request.id} already exists, skipping")
+                return False, False
+
+            edit_headers_data = {
+                "x_user_id": 0,
+                "x_edit_summary": "Wikidata import",
+            }
+
+            await create_handler.create_entity(
+                create_request,
+                EditHeaders(**edit_headers_data),
+                validator,
+                auto_assign_id=False,
+            )
+
+            return True, False
+        except Exception as e:
+            logger.error(f"Failed to import entity from line {line_num}: {str(e)}")
+            with open(error_log_path, "a", encoding="utf-8") as log_f:
+                log_f.write(
+                    f"[{datetime.now().isoformat()}] ERROR: Failed to import line {line_num}\n"
+                )
+                log_f.write(f"Entity ID: {entity_data.get('id', 'unknown')}\n")
+                log_f.write(f"Error: {str(e)}\n")
+            return False, True
+
     async def import_entities_from_jsonl(
         self,
         request: EntityJsonImportRequest,
@@ -40,32 +130,24 @@ class EntityJsonImportHandler(Handler):
         imported_count = 0
         failed_count = 0
 
-        # Create error log file
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        worker_suffix = f"_{request.worker_id}" if request.worker_id else ""
-        error_log_path = Path(
-            f"/tmp/wikidata_import_errors{worker_suffix}_{timestamp}.log"
-        )
+        error_log_path = self._create_error_log_path(request.worker_id)
 
         logger.info(
             f"Starting JSONL import from {request.jsonl_file_path}, lines {request.start_line}-{'end' if request.end_line == 0 else request.end_line}"
         )
+
         try:
             with open(request.jsonl_file_path, "r", encoding="utf-8") as f:
                 create_handler = EntityCreateHandler(state=self.state)
 
                 for line_num, line in enumerate(f, 1):
-                    # Skip lines before start_line
-                    if line_num < request.start_line:
+                    if not self._should_process_line(
+                        line_num, request.start_line, request.end_line
+                    ):
                         continue
-
-                    # Stop at end_line if specified
-                    if request.end_line != 0 and line_num > request.end_line:
-                        break
 
                     processed_count += 1
 
-                    # Process the line
                     entity_data = EntityJsonImportHandler._process_entity_line(
                         line, line_num, error_log_path
                     )
@@ -73,56 +155,21 @@ class EntityJsonImportHandler(Handler):
                         failed_count += 1
                         continue
 
-                    try:
-                        # Transform to create request
-                        create_request = (
-                            WikidataImportService.transform_to_create_request(
-                                entity_data
-                            )
-                        )
-
-                        # Check if entity already exists
-                        entity_exists = EntityJsonImportHandler._check_entity_exists(
-                            entity_id=create_request.id, s3_client=self.state.s3_client
-                        )
-
-                        if entity_exists and not request.overwrite_existing:
-                            logger.debug(
-                                f"Entity {create_request.id} already exists, skipping"
-                            )
-                            failed_count += 1
-                            continue
-
-                        # Create the entity using the existing handler
-                        # noinspection PyArgumentList
-                        await create_handler.create_entity(
-                            create_request,
-                            EditHeaders(x_user_id=0, x_edit_summary="Wikidata import"),
-                            validator,
-                            auto_assign_id=False,  # Use the Wikidata ID
-                        )
-
+                    success, failed = await self._process_single_entity(
+                        entity_data,
+                        line_num,
+                        error_log_path,
+                        create_handler,
+                        request,
+                        validator,
+                    )
+                    if success:
                         imported_count += 1
-
-                        # Log progress every 1000 entities
                         if imported_count % 1000 == 0:
                             logger.info(f"Imported {imported_count} entities so far")
-
-                    except Exception as e:
-                        logger.error(
-                            f"Failed to import entity from line {line_num}: {str(e)}"
-                        )
+                    elif failed:
                         failed_count += 1
 
-                        # Log error details
-                        with open(error_log_path, "a", encoding="utf-8") as log_f:
-                            log_f.write(
-                                f"[{datetime.now().isoformat()}] ERROR: Failed to import line {line_num}\n"
-                            )
-                            log_f.write(
-                                f"Entity ID: {entity_data.get('id', 'unknown')}\n"
-                            )
-                            log_f.write(f"Error: {str(e)}\n")
         except Exception as e:
             logger.error(f"Import failed: {str(e)}")
             raise HTTPException(status_code=500, detail=f"Import failed: {str(e)}")
@@ -137,40 +184,3 @@ class EntityJsonImportHandler(Handler):
             failed_count=failed_count,
             error_log_path=str(error_log_path),
         )
-
-    @staticmethod
-    def _process_entity_line(
-        line: str, line_num: int, error_log_path: Path
-    ) -> Optional[Any]:
-        """Process a single line from the JSONL file, handling trailing commas and parsing."""
-        logger.debug(f"Processing entity line {line_num}")
-        line = line.strip()
-        if not line:
-            return None
-
-        # Remove trailing comma if present
-        if line.endswith(","):
-            line = line[:-1]
-
-        try:
-            parsed: Dict[str, Any] = json.loads(line)
-            return parsed
-        except json.JSONDecodeError as e:
-            # Log malformed line
-            with open(error_log_path, "a", encoding="utf-8") as log_f:
-                log_f.write(
-                    f"[{datetime.now().isoformat()}] ERROR: Failed to parse line {line_num}\n"
-                )
-                log_f.write(f"Original line: {line}\n")
-                log_f.write(f"Error: {str(e)}\n")
-                log_f.write("---\n")
-            return None
-
-    @staticmethod
-    def _check_entity_exists(entity_id: str, s3_client: MyS3Client) -> bool:
-        """Check if an entity already exists by trying to read its latest revision."""
-        try:
-            s3_client.read_revision(entity_id, 1)  # Try to read revision 1
-            return True
-        except Exception:
-            return False
