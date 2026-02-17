@@ -47,10 +47,10 @@ class BacklinkStatisticsService(Service):
         return result[0] if result else 0
 
     def get_top_entities_by_backlinks(
-        self, limit: int | None = None
+        self, limit: int = 0
     ) -> list[TopEntityByBacklinks]:
         """Get top entities ranked by backlink count."""
-        if limit is None:
+        if not limit:
             limit = self.top_limit
         logger.debug("Getting top %d entities by backlinks", limit)
         cursor = self.state.vitess_client.cursor
