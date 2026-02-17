@@ -21,4 +21,4 @@ jobs:
       - run: poetry run ruff check .
       - run: poetry run mypy
       - run: poetry run vulture
-      - run: poetry run radon cc -a -s src/
+      - run: make radon

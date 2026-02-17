@@ -139,3 +139,4 @@ load_lemmas_batch
 store_lemma
 _calculate_seconds_until_next_run
 _generate_checksum
+list_entities_by_type
