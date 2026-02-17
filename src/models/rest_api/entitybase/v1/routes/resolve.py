@@ -174,9 +174,28 @@ async def get_references(req: Request, hashes: str) -> List[ReferenceResponse | 
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
+def _is_hash_value(value: Any) -> bool:
+    """Check if a value represents a hash (int or digit string)."""
+    return isinstance(value, int) or (isinstance(value, str) and value.isdigit())
+
+
+def _resolve_snak_or_value(value: Any, snak_handler: SnakHandler) -> Any:
+    """Resolve a snak from hash value, or return original value."""
+    if not _is_hash_value(value):
+        return value
+
+    hash_value = int(value)
+    reconstructed_snak = snak_handler.get_snak(hash_value)
+    if reconstructed_snak:
+        return reconstructed_snak
+    else:
+        logger.warning(f"Snak {value} not found")
+        return None
+
+
 def _reconstruct_reference_snaks(
     reference_dict: dict, snak_handler: SnakHandler
-) -> ReferenceSnaks:
+) -> dict:
     """Reconstruct snaks from hashes in a reference dictionary.
 
     Args:
@@ -194,27 +213,17 @@ def _reconstruct_reference_snaks(
         if isinstance(snak_values, list):
             new_snak_values = []
             for snak_item in snak_values:
-                if isinstance(snak_item, int) or (
-                    isinstance(snak_item, str) and snak_item.isdigit()
-                ):
-                    reconstructed_snak = snak_handler.get_snak(int(snak_item))
-                    if reconstructed_snak:
-                        new_snak_values.append(reconstructed_snak)
-                    else:
-                        logger.warning(f"Snak {snak_item} not found")
-                else:
-                    new_snak_values.append(snak_item)
-            reconstructed_snaks[prop_key] = new_snak_values
-        elif isinstance(snak_values, int) or (
-            isinstance(snak_values, str) and snak_values.isdigit()
-        ):
-            reconstructed_snak = snak_handler.get_snak(int(snak_values))
-            if reconstructed_snak:
-                reconstructed_snaks[prop_key] = [reconstructed_snak]
-            else:
-                logger.warning(f"Snak {snak_values} not found")
+                resolved = _resolve_snak_or_value(snak_item, snak_handler)
+                if resolved is not None:
+                    new_snak_values.append(resolved)
+            if new_snak_values:
+                reconstructed_snaks[prop_key] = new_snak_values
         else:
-            reconstructed_snaks[prop_key] = snak_values
+            resolved = _resolve_snak_or_value(snak_values, snak_handler)
+            if resolved is not None:
+                reconstructed_snaks[prop_key] = [resolved]
+            else:
+                reconstructed_snaks[prop_key] = snak_values
 
     reference_dict["snaks"] = reconstructed_snaks
     return reference_dict

@@ -282,6 +282,69 @@ class TtlDumpWorker(Worker):
             metadata_key = f"weekly/{dump_date}/metadata.json"
             await self._upload_to_s3(metadata_file, metadata_key, "")
 
+    def _write_content(self, file: Any, content: str, compressed: bool) -> None:
+        """Write content to file with optional compression.
+
+        Args:
+            file: File object to write to
+            content: String content to write
+            compressed: Whether to compress content
+        """
+        if compressed:
+            file.write(content.encode("utf-8"))  # type: ignore[arg-type]
+        else:
+            file.write(content)  # type: ignore[arg-type]
+
+    def _write_line(self, file: Any, line: str, compressed: bool) -> None:
+        """Write a line to file with appropriate line ending.
+
+        Args:
+            file: File object to write to
+            line: Line content to write
+            compressed: Whether to compress content
+        """
+        if compressed:
+            file.write(line.encode("utf-8"))  # type: ignore[arg-type]
+            file.write(b"\n")  # type: ignore[arg-type]
+        else:
+            file.write(line)  # type: ignore[arg-type]
+            file.write("\n")  # type: ignore[arg-type]
+
+    async def _process_entity_batch(
+        self,
+        batch: list[EntityDumpRecord],
+        writers: TripleWriters,
+        file: Any,
+        compressed: bool,
+    ) -> tuple[int, int]:
+        """Process a batch of entities and write to file.
+
+        Args:
+            batch: Batch of entity records to process
+            writers: TripleWriters instance for RDF conversion
+            file: File object to write to
+            compressed: Whether to compress output
+
+        Returns:
+            Tuple of (entity_count, triples_count)
+        """
+        tasks = [self._fetch_and_convert_entity(record, writers) for record in batch]
+        batch_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        entity_count = 0
+        triples_count = 0
+
+        for record, result in zip(batch, batch_results):
+            if isinstance(result, Exception):
+                logger.error(f"Failed to process {record.entity_id}: {result}")
+                continue
+            if isinstance(result, str) and result:
+                self._write_line(file, result, compressed)
+                entity_count += 1
+                triples_count += result.count(";")
+
+        return entity_count, triples_count
+
     async def _generate_ttl_dump(
         self,
         entities: list[EntityDumpRecord],
@@ -298,6 +361,7 @@ class TtlDumpWorker(Worker):
 
         opener = gzip.open if settings.ttl_dump_compression else open
         mode = "wb" if settings.ttl_dump_compression else "w"
+        compressed = settings.ttl_dump_compression
 
         entity_count = 0
         triples_count = 0
@@ -317,35 +381,22 @@ class TtlDumpWorker(Worker):
     schema:name "Wikibase Weekly RDF Dump" .
 
 """
-            if settings.ttl_dump_compression:
-                f.write(header_content.encode("utf-8"))  # type: ignore[arg-type]
-            else:
-                f.write(header_content)  # type: ignore[arg-type]
+            self._write_content(f, header_content, compressed)
 
             for i in range(0, len(entities), settings.ttl_dump_batch_size):
                 batch = entities[i : i + settings.ttl_dump_batch_size]
-                logger.info(
-                    f"Processing batch {i // settings.ttl_dump_batch_size + 1}/{(len(entities) + settings.ttl_dump_batch_size - 1) // settings.ttl_dump_batch_size}"
-                )
+                batch_num = i // settings.ttl_dump_batch_size + 1
+                total_batches = (
+                    len(entities) + settings.ttl_dump_batch_size - 1
+                ) // settings.ttl_dump_batch_size
+                logger.info(f"Processing batch {batch_num}/{total_batches}")
 
-                tasks = [
-                    self._fetch_and_convert_entity(record, writers) for record in batch
-                ]
-                batch_results = await asyncio.gather(*tasks, return_exceptions=True)
-
-                for record, result in zip(batch, batch_results):
-                    if isinstance(result, Exception):
-                        logger.error(f"Failed to process {record.entity_id}: {result}")
-                        continue
-                    if result:
-                        if settings.ttl_dump_compression:
-                            f.write(result.encode("utf-8"))  # type: ignore[arg-type,union-attr]
-                            f.write(b"\n")  # type: ignore[arg-type,union-attr]
-                        else:
-                            f.write(result)  # type: ignore[arg-type,union-attr]
-                            f.write("\n")  # type: ignore[arg-type,union-attr]
-                        entity_count += 1
-                        triples_count += result.count(";")  # type: ignore[union-attr]
+                (
+                    batch_entity_count,
+                    batch_triples_count,
+                ) = await self._process_entity_batch(batch, writers, f, compressed)
+                entity_count += batch_entity_count
+                triples_count += batch_triples_count
 
         return entity_count, triples_count
 
