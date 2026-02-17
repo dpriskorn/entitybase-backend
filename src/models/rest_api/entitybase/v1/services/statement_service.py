@@ -589,49 +589,7 @@ class StatementService(Service):
             if "qualifiers" in statement_data and isinstance(
                 statement_data["qualifiers"], dict
             ):
-                qualifiers_dict = statement_data["qualifiers"]
-                new_qualifiers = {}
-
-                # Process qualifiers and extract snaks
-                for prop_key, qual_values in qualifiers_dict.items():
-                    if isinstance(qual_values, list):
-                        new_qual_values = []
-                        for qual_item in qual_values:
-                            if isinstance(qual_item, dict) and "property" in qual_item:
-                                snak_request = SnakRequest(
-                                    property=qual_item["property"],
-                                    datavalue=qual_item.get("datavalue", {}),
-                                )
-                                snak_hash = snak_handler.store_snak(snak_request)
-                                new_qual_values.append(snak_hash)
-                            else:
-                                new_qual_values.append(qual_item)
-                        new_qualifiers[prop_key] = new_qual_values
-                    elif isinstance(qual_values, dict) and "property" in qual_values:
-                        snak_request = SnakRequest(
-                            property=qual_values["property"],
-                            datavalue=qual_values.get("datavalue", {}),
-                        )
-                        snak_hash = snak_handler.store_snak(snak_request)
-                        new_qualifiers[prop_key] = [snak_hash]
-                    else:
-                        new_qualifiers[prop_key] = qual_values
-
-                # Compute rapidhash
-                qual_hash = QualifierHasher.compute_hash(new_qualifiers)
-                # Store in S3 (idempotent)
-                try:
-                    qual_data = S3QualifierData(
-                        qualifier=new_qualifiers,
-                        hash=qual_hash,
-                        created_at=datetime.now(timezone.utc).isoformat() + "Z",
-                    )
-                    self.state.s3_client.store_qualifier(qual_hash, qual_data)
-                except Exception as e:
-                    logger.warning(f"Failed to store qualifiers {qual_hash}: {e}")
-                    # Continue, perhaps already exists
-                # Replace with hash
-                statement_data["qualifiers"] = qual_hash
+                self._process_statement_qualifiers(statement_data, snak_handler)
 
         logger.info(
             f"Qualifier deduplication completed for {len(hash_result.full_statements)} statements"

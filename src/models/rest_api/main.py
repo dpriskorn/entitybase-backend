@@ -84,29 +84,9 @@ class StartupMiddleware(BaseHTTPMiddleware):
 async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan manager for startup and shutdown tasks."""
     try:
-        state_handler = StateHandler(settings=settings)
-        state_handler.start()
-        # Create database tables on startup (only if vitess is available)
-        try:
-            logger.debug("Creating database tables...")
-            from models.infrastructure.vitess.repositories.schema import (
-                SchemaRepository,
-            )
-
-            schema_repository = SchemaRepository(
-                vitess_client=state_handler.vitess_client
-            )
-            schema_repository.create_tables()
-            logger.info("Database tables created/verified")
-        except Exception as e:
-            logger.warning(f"Could not create database tables on startup: {e}")
-            logger.info("Tables will be created when first accessed or in tests")
-
-        logger.info(
-            "Clients, validator, and enumeration service initialized successfully"
-        )
-        # Add state_handler to starlette
-        app_.state.state_handler = state_handler
+        state_handler = await _initialize_state_handler()
+        await _create_database_tables(state_handler)
+        await _initialize_app_state(app_, state_handler)
         yield
     except Exception as e:
         logger.error(
@@ -114,27 +94,65 @@ async def lifespan(app_: FastAPI) -> AsyncGenerator[None, None]:
         )
         raise
     finally:
-        if hasattr(app_.state, "state_handler") and app_.state.state_handler:
-            app_.state.state_handler.disconnect()
-            logger.info("All clients disconnected")
+        await _cleanup_app_state(app_)
 
-        if (
-            hasattr(app_.state, "state_handler")
-            and app_.state.state_handler
-            and settings.streaming_enabled
-            and app_.state.state_handler.entity_change_stream_producer
-        ):
-            await app_.state.state_handler.entity_change_stream_producer.stop()
-            logger.info("entitychange_stream_producer stopped")
 
-        if (
-            hasattr(app_.state, "state_handler")
-            and app_.state.state_handler
-            and settings.streaming_enabled
-            and app_.state.state_handler.entitydiff_stream_producer
-        ):
-            await app_.state.state_handler.entitydiff_stream_producer.stop()
-            logger.info("entitydiff_stream_producer stopped")
+async def _initialize_state_handler() -> StateHandler:
+    """Initialize the state handler."""
+    state_handler = StateHandler(settings=settings)
+    state_handler.start()
+    return state_handler
+
+
+async def _create_database_tables(state_handler: StateHandler) -> None:
+    """Create database tables on startup."""
+    try:
+        logger.debug("Creating database tables...")
+        from models.infrastructure.vitess.repositories.schema import SchemaRepository
+
+        schema_repository = SchemaRepository(vitess_client=state_handler.vitess_client)
+        schema_repository.create_tables()
+        logger.info("Database tables created/verified")
+    except Exception as e:
+        logger.warning(f"Could not create database tables on startup: {e}")
+        logger.info("Tables will be created when first accessed or in tests")
+
+
+async def _initialize_app_state(app_: FastAPI, state_handler: StateHandler) -> None:
+    """Initialize app state and log success."""
+    logger.info(
+        "Clients, validator, and enumeration service initialized successfully"
+    )
+    app_.state.state_handler = state_handler
+
+
+async def _cleanup_app_state(app_: FastAPI) -> None:
+    """Cleanup app state on shutdown."""
+    if hasattr(app_.state, "state_handler") and app_.state.state_handler:
+        app_.state.state_handler.disconnect()
+        logger.info("All clients disconnected")
+
+    await _stop_stream_producer(
+        app_, "entitychange_stream_producer", "entitychange_stream_producer stopped"
+    )
+    await _stop_stream_producer(
+        app_, "entitydiff_stream_producer", "entitydiff_stream_producer stopped"
+    )
+
+
+async def _stop_stream_producer(
+    app_: FastAPI, producer_attr: str, log_message: str
+) -> None:
+    """Stop a stream producer if it exists."""
+    if (
+        hasattr(app_.state, "state_handler")
+        and app_.state.state_handler
+        and settings.streaming_enabled
+        and getattr(app_.state.state_handler, producer_attr, None)
+    ):
+        producer = getattr(app_.state.state_handler, producer_attr)
+        await producer.stop()
+        logger.info(log_message)
 
 
 app = FastAPI(
