@@ -6,6 +6,27 @@ from pydantic import BaseModel, ConfigDict, Field
 
 logger = logging.getLogger(__name__)
 
+OBJECT_PROPERTY_DATATYPES = frozenset(
+    {
+        "wikibase-item",
+        "wikibase-lexeme",
+        "wikibase-form",
+        "wikibase-sense",
+        "wikibase-property",
+        "commonsmedia",
+        "commonsMedia",
+        "string",
+        "url",
+        "math",
+        "geo-shape",
+        "monolingualtext",
+        "external-id",
+        "tabular-data",
+        "musical-notation",
+        "entity-schema",
+    }
+)
+
 
 class PropertyPredicates(BaseModel):
     direct: str
@@ -30,27 +51,9 @@ def get_owl_type(datatype: str) -> str:
     'owl:ObjectProperty' for item-type properties.
     """
     logger.debug(f"Getting OWL type for datatype {datatype}")
-    object_properties = {
-        "wikibase-item",
-        "wikibase-lexeme",
-        "wikibase-form",
-        "wikibase-sense",
-        "wikibase-property",
-        "commonsmedia",
-        "commonsMedia",
-        "string",
-        "url",
-        "math",
-        "geo-shape",
-        "monolingualtext",
-        "external-id",
-        "tabular-data",
-        "musical-notation",
-        "entity-schema",
-    }
     return (
         "owl:ObjectProperty"
-        if datatype in object_properties
+        if datatype in OBJECT_PROPERTY_DATATYPES
         else "owl:DatatypeProperty"
     )
 

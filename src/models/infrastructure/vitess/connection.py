@@ -64,9 +64,8 @@ class VitessConnectionManager(BaseModel):
             )
             raise
 
-    def acquire(self) -> Connection:
-        """Acquire a connection from pool."""
-        logger.debug("=== acquire() START ===")
+    def _ensure_pool_initialized(self) -> None:
+        """Ensure connection pool and semaphore are initialized."""
         if self.pool is None:
             logger.debug("Creating new pool queue")
             self.pool = queue.Queue(maxsize=self.config.pool_size)
@@ -75,6 +74,30 @@ class VitessConnectionManager(BaseModel):
             self.connection_semaphore = threading.Semaphore(
                 self.config.pool_size + self.config.max_overflow
             )
+
+    def _acquire_connection_from_pool(self) -> Connection:
+        """Get a connection from pool or create new one."""
+        try:
+            logger.debug(
+                f"Attempting to get connection from pool, pool size: {self.pool.qsize()}"
+            )
+            connection = self.pool.get_nowait()
+            logger.debug(
+                f"Got connection from pool, checking if open: {connection.open}"
+            )
+            if not connection.open:
+                logger.warning("Acquired a closed connection, creating new one")
+                connection = self._create_new_connection()
+        except queue.Empty:
+            logger.debug("Pool empty, creating new connection")
+            connection = self._create_new_connection()
+
+        return connection
+
+    def acquire(self) -> Connection:
+        """Acquire a connection from pool."""
+        logger.debug("=== acquire() START ===")
+        self._ensure_pool_initialized()
 
         try:
             logger.debug(f"Acquiring semaphore (timeout={self.config.pool_timeout}s)")
@@ -93,23 +116,10 @@ class VitessConnectionManager(BaseModel):
 
         is_overflow = False
         try:
-            try:
-                logger.debug(
-                    f"Attempting to get connection from pool, pool size: {self.pool.qsize()}"
-                )
-                connection = self.pool.get_nowait()
-                logger.debug(
-                    f"Got connection from pool, checking if open: {connection.open}"
-                )
-                if not connection.open:
-                    logger.warning("Acquired a closed connection, creating new one")
-                    connection = self._create_new_connection()
-            except queue.Empty:
-                logger.debug("Pool empty, creating new connection")
-                connection = self._create_new_connection()
-                is_overflow = self.pool_slots_created >= self.config.pool_size
-                if not is_overflow:
-                    self.pool_slots_created += 1
+            connection = self._acquire_connection_from_pool()
+            is_overflow = self.pool_slots_created >= self.config.pool_size
+            if not is_overflow:
+                self.pool_slots_created += 1
 
             if is_overflow:
                 self.overflow_connections.add(connection)
@@ -121,7 +131,8 @@ class VitessConnectionManager(BaseModel):
             return connection
         except Exception:
             logger.debug("Exception during acquire, releasing semaphore")
-            self.connection_semaphore.release()
+            if self.connection_semaphore:
+                self.connection_semaphore.release()
             raise
 
     def release(self, connection: Connection) -> None:
