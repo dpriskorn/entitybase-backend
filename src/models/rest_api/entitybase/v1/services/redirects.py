@@ -27,18 +27,17 @@ logger = logging.getLogger(__name__)
 class RedirectService(Service):
     """Service for managing entity redirects"""
 
-    async def create_redirect(
-        self,
-        request: EntityRedirectRequest,
-        edit_headers: EditHeaders,
-    ) -> EntityRedirectResponse:
-        """Mark an entity as redirect to another entity"""
-        logger.debug(
-            "Creating redirect from %s to %s",
-            request.redirect_from_id,
-            request.redirect_to_id,
-        )
+    def _validate_redirect_request(self, request: EntityRedirectRequest) -> None:
+        """Validate redirect request constraints.
+
+        Args:
+            request: Redirect request to validate
+
+        Raises:
+            ValidationError: If any validation fails
+        """
         logger.debug("Validating redirect constraints")
+
         if request.redirect_from_id == request.redirect_to_id:
             raise_validation_error("Cannot redirect to self", status_code=400)
 
@@ -50,6 +49,7 @@ class RedirectService(Service):
 
         if self.vitess_client.is_entity_deleted(request.redirect_from_id):
             raise_validation_error("Source entity has been deleted", status_code=423)
+
         if self.vitess_client.is_entity_deleted(request.redirect_to_id):
             raise_validation_error("Target entity has been deleted", status_code=423)
 
@@ -60,12 +60,50 @@ class RedirectService(Service):
                 "Target entity is locked or archived", status_code=423
             )
 
+    def _validate_target_revisions(
+        self, redirect_to_id: str, redirect_from_id: str
+    ) -> tuple[int, int]:
+        """Validate target entity has revisions and get head revisions.
+
+        Args:
+            redirect_to_id: Target entity ID
+            redirect_from_id: Source entity ID
+
+        Returns:
+            Tuple of (from_head_revision_id, to_head_revision_id)
+
+        Raises:
+            ValidationError: If target has no revisions
+        """
         logger.debug("Getting head revisions for source and target entities")
-        to_head_revision_id = self.vitess_client.get_head(request.redirect_to_id)
+
+        to_head_revision_id = self.vitess_client.get_head(redirect_to_id)
         if to_head_revision_id == 0:
             raise_validation_error("Target entity has no revisions", status_code=404)
 
-        from_head_revision_id = self.vitess_client.get_head(request.redirect_from_id)
+        from_head_revision_id = self.vitess_client.get_head(redirect_from_id)
+        redirect_revision_id = from_head_revision_id + 1 if from_head_revision_id else 1
+
+        return from_head_revision_id, to_head_revision_id
+
+    def _create_redirect_revision(
+        self,
+        redirect_from_id: str,
+        redirect_to_id: str,
+        edit_headers: EditHeaders,
+        from_head_revision_id: int,
+    ) -> tuple[RevisionData, str]:
+        """Create revision data for redirect.
+
+        Args:
+            redirect_from_id: Source entity ID
+            redirect_to_id: Target entity ID
+            edit_headers: Edit headers
+            from_head_revision_id: Source head revision ID
+
+        Returns:
+            Tuple of (RevisionData, content_hash)
+        """
         redirect_revision_id = from_head_revision_id + 1 if from_head_revision_id else 1
 
         redirect_revision_data = RevisionData(
@@ -78,7 +116,7 @@ class RedirectService(Service):
                 user_id=edit_headers.x_user_id,
             ),
             hashes=HashMaps(),
-            redirects_to=request.redirect_to_id,
+            redirects_to=redirect_to_id,
             state=EntityState(),
         )
 
@@ -102,10 +140,36 @@ class RedirectService(Service):
         logger.debug("Storing revision to S3")
         self.state.s3_client.store_revision(content_hash, s3_revision_data)
 
+        return redirect_revision_data, content_hash
+
+    async def create_redirect(
+        self,
+        request: EntityRedirectRequest,
+        edit_headers: EditHeaders,
+    ) -> EntityRedirectResponse:
+        """Mark an entity as redirect to another entity"""
+        logger.debug(
+            "Creating redirect from %s to %s",
+            request.redirect_from_id,
+            request.redirect_to_id,
+        )
+
+        self._validate_redirect_request(request)
+        from_head_revision_id, to_head_revision_id = self._validate_target_revisions(
+            request.redirect_to_id, request.redirect_from_id
+        )
+
+        redirect_revision_data, content_hash = self._create_redirect_revision(
+            request.redirect_from_id,
+            request.redirect_to_id,
+            edit_headers,
+            from_head_revision_id,
+        )
+
         logger.debug("Creating revision in Vitess")
         self.vitess_client.create_revision(
             entity_id=request.redirect_from_id,
-            revision_id=redirect_revision_id,
+            revision_id=redirect_revision_data.revision_id,
             entity_data=redirect_revision_data,
             expected_revision_id=from_head_revision_id,
             content_hash=content_hash,

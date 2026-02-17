@@ -129,6 +129,69 @@ class EntityRepository(Repository):
                 "DELETE FROM entity_head WHERE internal_id = %s", (internal_id,)
             )
 
+    def _build_entity_query(
+        self,
+        edit_type: str | None,
+        entity_type: str | None,
+        status: str | None,
+    ) -> tuple[str, list[Any]]:
+        """Build dynamic SQL query for entity filtering.
+
+        Args:
+            edit_type: Optional edit type filter
+            entity_type: Optional entity type filter
+            status: Optional status filter
+
+        Returns:
+            Tuple of (query_string, parameters_list)
+        """
+        status_column_map = {
+            "locked": "is_locked",
+            "semi_protected": "is_semi_protected",
+            "archived": "is_archived",
+            "dangling": "is_dangling",
+        }
+
+        base_query = """SELECT e.entity_id, h.head_revision_id"""
+        if edit_type:
+            base_query += ", r.edit_type, r.revision_id"
+
+        base_query += " FROM entity_id_mapping e"
+        base_query += " JOIN entity_head h ON e.internal_id = h.internal_id"
+
+        if edit_type:
+            base_query += " JOIN entity_revisions r ON h.internal_id = r.internal_id AND h.head_revision_id = r.revision_id"
+
+        conditions = []
+        params: list[Any] = []
+
+        if entity_type:
+            pattern_map = {
+                "item": "Q%",
+                "lexeme": "L%",
+                "property": "P%",
+                "entityschema": "E%",
+            }
+            pattern = pattern_map.get(entity_type)
+            if pattern:
+                conditions.append("e.entity_id LIKE %s")
+                params.append(pattern)
+
+        if status:
+            if status not in status_column_map:
+                logger.warning(f"Invalid status filter: {status}")
+                return "", []
+            conditions.append(f"{status_column_map[status]} = TRUE")
+
+        if edit_type:
+            conditions.append("r.edit_type = %s")
+            params.append(edit_type)
+
+        if conditions:
+            base_query += " WHERE " + " AND ".join(conditions)
+
+        return base_query, params
+
     def list_entities_filtered(
         self, filter_request: EntityFilterRequest
     ) -> list[EntityListItem | EntityListItemWithEditType]:
@@ -143,50 +206,12 @@ class EntityRepository(Repository):
         )
 
         with self.vitess_client.cursor as cursor:
-            status_column_map = {
-                "locked": "is_locked",
-                "semi_protected": "is_semi_protected",
-                "archived": "is_archived",
-                "dangling": "is_dangling",
-            }
+            base_query, params = self._build_entity_query(
+                edit_type, entity_type, status
+            )
 
-            base_query = """SELECT e.entity_id, h.head_revision_id"""
-            if edit_type:
-                base_query += ", r.edit_type, r.revision_id"
-
-            base_query += " FROM entity_id_mapping e"
-            base_query += " JOIN entity_head h ON e.internal_id = h.internal_id"
-
-            if edit_type:
-                base_query += " JOIN entity_revisions r ON h.internal_id = r.internal_id AND h.head_revision_id = r.revision_id"
-
-            conditions = []
-            params: list[Any] = []
-
-            if entity_type:
-                pattern_map = {
-                    "item": "Q%",
-                    "lexeme": "L%",
-                    "property": "P%",
-                    "entityschema": "E%",
-                }
-                pattern = pattern_map.get(entity_type)
-                if pattern:
-                    conditions.append("e.entity_id LIKE %s")
-                    params.append(pattern)
-
-            if status:
-                if status not in status_column_map:
-                    logger.warning(f"Invalid status filter: {status}")
-                    return []
-                conditions.append(f"{status_column_map[status]} = TRUE")
-
-            if edit_type:
-                conditions.append("r.edit_type = %s")
-                params.append(edit_type)
-
-            if conditions:
-                base_query += " WHERE " + " AND ".join(conditions)
+            if not base_query:
+                return []
 
             base_query += " LIMIT %s OFFSET %s"
             params.extend([limit, offset])
