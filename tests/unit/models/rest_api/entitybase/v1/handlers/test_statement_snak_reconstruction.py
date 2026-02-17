@@ -198,16 +198,10 @@ class TestStatementHandlerSnakReconstruction:
             "models.rest_api.entitybase.v1.handlers.statement.SnakHandler"
         ) as MockSnakHandler:
             mock_snak_handler_instance = Mock()
-            reconstructed_snak_1 = {
-                "snaktype": "value",
-                "property": "P31",
-                "datavalue": {"value": "Q5", "type": "string"},
-            }
-            reconstructed_snak_2 = {
-                "snaktype": "value",
-                "property": "P569",
-                "datavalue": {"value": "1990-01-01", "type": "string"},
-            }
+            reconstructed_snak_1 = Mock()
+            reconstructed_snak_1.property = "P31"
+            reconstructed_snak_2 = Mock()
+            reconstructed_snak_2.property = "P569"
             mock_snak_handler_instance.get_snak.side_effect = [
                 reconstructed_snak_1,
                 reconstructed_snak_2,
