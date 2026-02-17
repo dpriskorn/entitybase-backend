@@ -127,16 +127,28 @@ class TripleWriters:
             f"Writing statement for entity {ctx.entity_id}, property {ctx.shape.pid}"
         )
         logger.debug("Importing RDF reference")
-        from models.rdf_builder.models.rdf_reference import RDFReference
 
         entity_uri = TripleWriters.uri.entity_prefixed(ctx.entity_id)
         stmt_uri_prefixed = TripleWriters.uri.statement_prefixed(ctx.rdf_statement.guid)
 
-        # Link entity → statement
+        TripleWriters._write_entity_statement_link(ctx, entity_uri, stmt_uri_prefixed)
+        TripleWriters._write_statement_rank(ctx, stmt_uri_prefixed)
+        TripleWriters._write_statement_value(ctx, stmt_uri_prefixed)
+        TripleWriters._write_statement_qualifiers(ctx, stmt_uri_prefixed)
+        TripleWriters._write_statement_references(ctx, stmt_uri_prefixed)
+
+    @staticmethod
+    def _write_entity_statement_link(
+        ctx: StatementWriteContext, entity_uri: str, stmt_uri_prefixed: str
+    ) -> None:
+        """Write link from entity to statement."""
         ctx.output.write(
             f"{entity_uri} p:{ctx.rdf_statement.property_id} {stmt_uri_prefixed} .\n"
         )
 
+    @staticmethod
+    def _write_statement_rank(ctx: StatementWriteContext, stmt_uri_prefixed: str) -> None:
+        """Write statement rank triple."""
         if ctx.rdf_statement.rank == "normal":
             ctx.output.write(
                 f"{stmt_uri_prefixed} a wikibase:Statement, wikibase:BestRank .\n"
@@ -149,7 +161,9 @@ class TripleWriters:
         else:
             ctx.output.write(f"{stmt_uri_prefixed} a wikibase:Statement .\n")
 
-        # Write statement value
+    @staticmethod
+    def _write_statement_value(ctx: StatementWriteContext, stmt_uri_prefixed: str) -> None:
+        """Write statement value triple."""
         if TripleWriters._needs_value_node(ctx.rdf_statement.value):
             TripleWriters._write_value_node_triple(
                 ctx.output,
@@ -164,7 +178,6 @@ class TripleWriters:
                 f"{stmt_uri_prefixed} {ctx.shape.predicates.statement} {value} .\n"
             )
 
-        # Rank
         rank = (
             "NormalRank"
             if ctx.rdf_statement.rank == "normal"
@@ -176,7 +189,11 @@ class TripleWriters:
         )
         ctx.output.write(f"{stmt_uri_prefixed} wikibase:rank wikibase:{rank} .\n")
 
-        # Qualifiers
+    @staticmethod
+    def _write_statement_qualifiers(
+        ctx: StatementWriteContext, stmt_uri_prefixed: str
+    ) -> None:
+        """Write statement qualifier triples."""
         for qual in ctx.rdf_statement.qualifiers:
             q_shape = ctx.property_registry.shape(qual.property)
 
@@ -194,7 +211,13 @@ class TripleWriters:
                     f"{stmt_uri_prefixed} {q_shape.predicates.qualifier} {qv} .\n"
                 )
 
-        # References
+    @staticmethod
+    def _write_statement_references(
+        ctx: StatementWriteContext, stmt_uri_prefixed: str
+    ) -> None:
+        """Write statement reference triples."""
+        from models.rdf_builder.models.rdf_reference import RDFReference
+
         for ref in ctx.rdf_statement.references:
             rdf_ref = RDFReference(reference=ref, statement_uri=stmt_uri_prefixed)
             ref_uri = rdf_ref.reference_uri
