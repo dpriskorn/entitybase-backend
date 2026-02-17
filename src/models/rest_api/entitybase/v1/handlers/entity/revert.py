@@ -34,8 +34,12 @@ class EntityRevertHandler(Handler):
         )
 
         internal_entity_id = await self._resolve_entity_id(entity_id)
-        target_revision = await self._get_target_revision(entity_id, request.to_revision_id, internal_entity_id)
-        target_revision_data = await self._read_target_revision_from_s3(entity_id, request.to_revision_id)
+        target_revision = await self._get_target_revision(
+            entity_id, request.to_revision_id, internal_entity_id
+        )
+        target_revision_data = await self._read_target_revision_from_s3(
+            entity_id, request.to_revision_id
+        )
         head_revision = await self._get_head_revision(internal_entity_id)
 
         self._validate_revert_target(entity_id, request.to_revision_id, head_revision)
@@ -47,9 +51,13 @@ class EntityRevertHandler(Handler):
             entity_id, target_revision_data, new_revision_id, edit_headers
         )
 
-        content_hash = await self._store_revision(entity_id, new_revision_id, new_revision_data)
+        content_hash = await self._store_revision(
+            entity_id, new_revision_id, new_revision_data
+        )
 
-        await self._publish_change_event(entity_id, new_revision_id, head_revision, edit_headers)
+        await self._publish_change_event(
+            entity_id, new_revision_id, head_revision, edit_headers
+        )
 
         return EntityRevertResponse(
             entity_id=entity_id,
@@ -210,7 +218,11 @@ class EntityRevertHandler(Handler):
         return content_hash
 
     async def _publish_change_event(
-        self, entity_id: str, new_revision_id: int, head_revision: int, edit_headers: EditHeaders
+        self,
+        entity_id: str,
+        new_revision_id: int,
+        head_revision: int,
+        edit_headers: EditHeaders,
     ) -> None:
         """Publish entity change event."""
         if self.state.entity_change_stream_producer:

@@ -224,9 +224,13 @@ class StatementHandler(Handler):
         self._validate_entity_access(entity_id)
 
         head_revision_id = self.state.vitess_client.get_head(entity_id)
-        revision_metadata = self.state.s3_client.read_full_revision(entity_id, head_revision_id)
+        revision_metadata = self.state.s3_client.read_full_revision(
+            entity_id, head_revision_id
+        )
 
-        requested_property_ids = [p.strip() for p in property_list.split(",") if p.strip()]
+        requested_property_ids = [
+            p.strip() for p in property_list.split(",") if p.strip()
+        ]
         statement_hashes = revision_metadata.revision.get("statements", [])
 
         matching_hashes = self._filter_statements_by_property(
@@ -266,7 +270,9 @@ class StatementHandler(Handler):
 
         return matching_hashes
 
-    def _get_statement_property(self, statement_hash: int, snak_handler: SnakHandler) -> str | None:
+    def _get_statement_property(
+        self, statement_hash: int, snak_handler: SnakHandler
+    ) -> str | None:
         """Get property ID for a statement."""
         statement_data = self.state.s3_client.read_statement(statement_hash)
 
@@ -280,7 +286,9 @@ class StatementHandler(Handler):
         if retrieved_snak:
             return retrieved_snak["property"]
         else:
-            logger.warning(f"Snak {mainsnak_hash} not found for statement {statement_hash}")
+            logger.warning(
+                f"Snak {mainsnak_hash} not found for statement {statement_hash}"
+            )
             return None
 
     def get_most_used_statements(

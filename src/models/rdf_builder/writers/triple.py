@@ -147,7 +147,9 @@ class TripleWriters:
         )
 
     @staticmethod
-    def _write_statement_rank(ctx: StatementWriteContext, stmt_uri_prefixed: str) -> None:
+    def _write_statement_rank(
+        ctx: StatementWriteContext, stmt_uri_prefixed: str
+    ) -> None:
         """Write statement rank triple."""
         if ctx.rdf_statement.rank == "normal":
             ctx.output.write(
@@ -162,7 +164,9 @@ class TripleWriters:
             ctx.output.write(f"{stmt_uri_prefixed} a wikibase:Statement .\n")
 
     @staticmethod
-    def _write_statement_value(ctx: StatementWriteContext, stmt_uri_prefixed: str) -> None:
+    def _write_statement_value(
+        ctx: StatementWriteContext, stmt_uri_prefixed: str
+    ) -> None:
         """Write statement value triple."""
         if TripleWriters._needs_value_node(ctx.rdf_statement.value):
             TripleWriters._write_value_node_triple(

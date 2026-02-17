@@ -191,11 +191,17 @@ class IncrementalRDFWorker(Worker):
             await self._handle_entity_deletion(entity_id, to_revision_id)
             return
 
-        old_entity_data = await self._fetch_previous_entity_data(entity_id, from_revision_id)
+        old_entity_data = await self._fetch_previous_entity_data(
+            entity_id, from_revision_id
+        )
         new_entity_data = await self._fetch_entity_data(entity_id, to_revision_id)
 
-        operation, rdf_added = self._compute_diff_and_rdf(entity_id, old_entity_data, new_entity_data)
-        await self._publish_rdf_change_event(entity_id, to_revision_id, operation, rdf_added)
+        operation, rdf_added = self._compute_diff_and_rdf(
+            entity_id, old_entity_data, new_entity_data
+        )
+        await self._publish_rdf_change_event(
+            entity_id, to_revision_id, operation, rdf_added
+        )
 
     async def _fetch_previous_entity_data(
         self, entity_id: str, from_revision_id: Optional[int]
@@ -206,7 +212,10 @@ class IncrementalRDFWorker(Worker):
         return None
 
     def _compute_diff_and_rdf(
-        self, entity_id: str, old_entity_data: Optional[dict], new_entity_data: Optional[dict]
+        self,
+        entity_id: str,
+        old_entity_data: Optional[dict],
+        new_entity_data: Optional[dict],
     ) -> tuple[str, str]:
         """Compute diff between old and new entity data and generate RDF."""
         if old_entity_data is None:
@@ -214,7 +223,9 @@ class IncrementalRDFWorker(Worker):
             rdf_added = ""
         else:
             operation = "diff"
-            rdf_added = self._compute_rdf_diff(entity_id, old_entity_data, new_entity_data)
+            rdf_added = self._compute_rdf_diff(
+                entity_id, old_entity_data, new_entity_data
+            )
 
         return operation, rdf_added
 
