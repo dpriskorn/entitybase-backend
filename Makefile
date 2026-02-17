@@ -92,7 +92,7 @@ test-e2e-03:
 test-e2e-04:
 	./scripts/shell/run-e2e-04-advanced.sh
 
-test-e2e:test-e2e-01 test-e2e-02 test-e2e-03 test-e2e-04
+test-e2e: check test-e2e-01 test-e2e-02 test-e2e-03 test-e2e-04
 
 test-unit-e2e: test-unit test-e2e
 
@@ -108,7 +108,7 @@ test-integration-03:
 test-integration-04:
 	./scripts/shell/run-integration-04-late50b.sh
 
-test-integration: test-integration-01 test-integration-02 test-integration-03 test-integration-04
+test-integration: check test-integration-01 test-integration-02 test-integration-03 test-integration-04
 
 tests: test-unit test-e2e test-contract test-integration-01 test-integration-02 test-integration-03 test-integration-04
 
