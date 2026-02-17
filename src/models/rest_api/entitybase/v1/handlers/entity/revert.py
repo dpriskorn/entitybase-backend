@@ -182,6 +182,7 @@ class EntityRevertHandler(Handler):
             property_counts=target_data.get("property_counts"),
             properties=target_data.get("properties", []),
         )
+        logger.debug(f"Created revision data for entity {entity_id}, revision {new_revision_id}")
 
     async def _store_revision(
         self, entity_id: str, new_revision_id: int, new_revision_data: RevisionData
