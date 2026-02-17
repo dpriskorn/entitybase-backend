@@ -16,7 +16,9 @@ class RDFSerializer(BaseModel):
 
         RDFSerializer._add_entity_type(g, entity_uri, entity_data.get("type", "item"))
         RDFSerializer._add_labels(g, entity_uri, entity_data.get("labels", {}))
-        RDFSerializer._add_descriptions(g, entity_uri, entity_data.get("descriptions", {}))
+        RDFSerializer._add_descriptions(
+            g, entity_uri, entity_data.get("descriptions", {})
+        )
         RDFSerializer._add_statements(g, entity_uri, entity_data.get("claims", {}))
 
         return g.serialize(format=format_)  # type: ignore[no-any-return]

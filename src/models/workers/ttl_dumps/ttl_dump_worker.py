@@ -197,10 +197,16 @@ class TtlDumpWorker(Worker):
         with self.vitess_client.cursor as cursor:
             for i in range(0, len(entities), settings.ttl_dump_batch_size):
                 batch = entities[i : i + settings.ttl_dump_batch_size]
-                await self._update_batch_with_revisions(cursor, batch, week_start, week_end)
+                await self._update_batch_with_revisions(
+                    cursor, batch, week_start, week_end
+                )
 
     async def _update_batch_with_revisions(
-        self, cursor: Any, batch: list[EntityDumpRecord], week_start: datetime, week_end: datetime
+        self,
+        cursor: Any,
+        batch: list[EntityDumpRecord],
+        week_start: datetime,
+        week_end: datetime,
     ) -> None:
         """Update a batch of entities with their revision timestamps."""
         entity_ids = [e.entity_id for e in batch]
