@@ -8,3 +8,8 @@ src/models/rest_api/main.py:209
 src/models/rest_api/main.py:228
 src/models/rest_api/entitybase/v1/handlers/entity/revert.py:83
 src/models/rest_api/entitybase/v1/handlers/entity/revert.py:91
+src/models/internal_representation/statement_backlink_extractor.py:13
+src/models/json_parser/entity_parser.py:77
+src/models/rest_api/entitybase/v1/endpoints/lexeme_utils.py:69
+src/models/rest_api/entitybase/v1/endpoints/lexeme_utils.py:141
+src/models/rest_api/entitybase/v1/routes/resolve.py:196
