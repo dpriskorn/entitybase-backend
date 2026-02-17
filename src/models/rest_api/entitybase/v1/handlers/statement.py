@@ -284,7 +284,7 @@ class StatementHandler(Handler):
 
         retrieved_snak = snak_handler.get_snak(mainsnak_hash)
         if retrieved_snak:
-            return retrieved_snak["property"]
+            return retrieved_snak.property  # type: ignore[no-any-return]
         else:
             logger.warning(
                 f"Snak {mainsnak_hash} not found for statement {statement_hash}"
