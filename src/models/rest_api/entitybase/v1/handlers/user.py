@@ -2,6 +2,7 @@
 
 import json
 import logging
+from typing import Any
 
 from models.rest_api.entitybase.v1.handler import Handler
 
@@ -119,6 +120,70 @@ class UserHandler(Handler):
             cursor.close()
             self.state.vitess_client.connection_manager.release(connection)
 
+    def _parse_stats_terms(terms_data: Any, response_class: Any) -> Any:
+        """Parse stats terms with JSON validation.
+
+        Args:
+            terms_data: Raw terms data from database
+            response_class: Response class to instantiate
+
+        Returns:
+            Parsed response object
+        """
+        parsed = (
+            json.loads(terms_data) if isinstance(terms_data, str) and terms_data else {}
+        )
+        if response_class == TermsPerLanguage:
+            return response_class(terms=parsed if isinstance(parsed, dict) else {})
+        elif response_class == TermsByType:
+            return response_class(counts=parsed if isinstance(parsed, dict) else {})
+        else:
+            return response_class()
+
+    def _compute_fallback_stats(self) -> GeneralStatsResponse:
+        """Compute stats from service when database has no data.
+
+        Returns:
+            GeneralStatsResponse with computed statistics
+        """
+        from models.rest_api.entitybase.v1.services.general_stats_service import (
+            GeneralStatsService,
+        )
+
+        service = GeneralStatsService(state=self.state)
+        stats = service.compute_daily_stats()
+        terms_per_lang = (
+            stats.terms_per_language
+            if isinstance(stats.terms_per_language, TermsPerLanguage)
+            else TermsPerLanguage(
+                terms=stats.terms_per_language
+                if isinstance(stats.terms_per_language, dict)
+                else {}
+            )
+        )
+        terms_by_t = (
+            stats.terms_by_type
+            if isinstance(stats.terms_by_type, TermsByType)
+            else TermsByType(
+                counts=stats.terms_by_type
+                if isinstance(stats.terms_by_type, dict)
+                else {}
+            )
+        )
+        return GeneralStatsResponse(
+            date="live",
+            total_statements=stats.total_statements,
+            total_qualifiers=stats.total_qualifiers,
+            total_references=stats.total_references,
+            total_items=stats.total_items,
+            total_lexemes=stats.total_lexemes,
+            total_properties=stats.total_properties,
+            total_sitelinks=stats.total_sitelinks,
+            total_terms=stats.total_terms,
+            terms_per_language=terms_per_lang,
+            terms_by_type=terms_by_t,
+        )
+
     def get_general_stats(self) -> GeneralStatsResponse:
         """Get general wiki statistics from the daily stats table."""
         logger.debug("Fetching general stats from database")
@@ -141,56 +206,13 @@ class UserHandler(Handler):
                     total_properties=row[6],
                     total_sitelinks=row[7],
                     total_terms=row[8],
-                    terms_per_language=TermsPerLanguage(
-                        terms=json.loads(row[9])
-                        if isinstance(row[9], str) and row[9]
-                        else {}
+                    terms_per_language=self._parse_stats_terms(
+                        row[9], TermsPerLanguage
                     ),
-                    terms_by_type=TermsByType(
-                        counts=json.loads(row[10])
-                        if isinstance(row[10], str) and row[10]
-                        else {}
-                    ),
+                    terms_by_type=self._parse_stats_terms(row[10], TermsByType),
                 )
             else:
-                # Fallback to live computation if no data
-                from models.rest_api.entitybase.v1.services.general_stats_service import (
-                    GeneralStatsService,
-                )
-
-                service = GeneralStatsService(state=self.state)
-                stats = service.compute_daily_stats()
-                terms_per_lang = (
-                    stats.terms_per_language
-                    if isinstance(stats.terms_per_language, TermsPerLanguage)
-                    else TermsPerLanguage(
-                        terms=stats.terms_per_language
-                        if isinstance(stats.terms_per_language, dict)
-                        else {}
-                    )
-                )
-                terms_by_t = (
-                    stats.terms_by_type
-                    if isinstance(stats.terms_by_type, TermsByType)
-                    else TermsByType(
-                        counts=stats.terms_by_type
-                        if isinstance(stats.terms_by_type, dict)
-                        else {}
-                    )
-                )
-                return GeneralStatsResponse(
-                    date="live",
-                    total_statements=stats.total_statements,
-                    total_qualifiers=stats.total_qualifiers,
-                    total_references=stats.total_references,
-                    total_items=stats.total_items,
-                    total_lexemes=stats.total_lexemes,
-                    total_properties=stats.total_properties,
-                    total_sitelinks=stats.total_sitelinks,
-                    total_terms=stats.total_terms,
-                    terms_per_language=terms_per_lang,
-                    terms_by_type=terms_by_t,
-                )
+                return self._compute_fallback_stats()
         finally:
             cursor.close()
             self.state.vitess_client.connection_manager.release(connection)
