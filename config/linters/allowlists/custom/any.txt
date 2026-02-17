@@ -56,3 +56,4 @@ src/models/infrastructure/vitess/client.py:141
 src/models/infrastructure/vitess/client.py:154
 src/models/rest_api/entitybase/v1/handlers/endorsements.py:92
 src/models/rest_api/entitybase/v1/handlers/endorsements.py:116
+src/models/rest_api/entitybase/v1/handlers/user.py:123
