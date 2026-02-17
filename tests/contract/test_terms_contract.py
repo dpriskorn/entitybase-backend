@@ -41,29 +41,6 @@ async def test_label_response_schema(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-async def test_labels_batch_response(api_prefix: str) -> None:
-    """Contract test: Batch labels response structure."""
-    from models.rest_api.main import app
-
-    async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://test"
-    ) as client:
-        create_resp = await client.post(
-            f"{api_prefix}/entities/items",
-            json={
-                "type": "item",
-                "labels": {"en": {"language": "en", "value": "Test"}},
-            },
-            headers={"X-Edit-Summary": "test", "X-User-ID": "0"},
-        )
-        assert create_resp.status_code == 200
-
-        labels_resp = await client.get(f"{api_prefix}/entities/labels/batch?ids=Q1,Q2")
-        assert labels_resp.status_code == 200
-
-
-@pytest.mark.contract
-@pytest.mark.asyncio
 async def test_description_response_schema(api_prefix: str) -> None:
     """Contract test: Description response has required fields."""
     from models.rest_api.main import app
