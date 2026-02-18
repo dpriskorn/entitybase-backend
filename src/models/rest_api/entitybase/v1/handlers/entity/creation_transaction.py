@@ -83,6 +83,10 @@ class CreationTransaction(EntityTransaction):
 
         created_at = datetime.now().isoformat()
 
+        # Auto-compute is_dangling from configurable property presence in claims
+        claims = request_data.claims if request_data.claims else {}
+        is_dangling = settings.dangling_property_id not in claims
+
         logger.debug("Creating RevisionData object")
         # noinspection PyArgumentList
         revision_data = RevisionData(
@@ -104,7 +108,7 @@ class CreationTransaction(EntityTransaction):
                 summary=edit_headers.x_edit_summary,
                 at=created_at,
             ),
-            state=EntityState(),
+            state=EntityState(dangling=is_dangling),
             schema_version=settings.s3_schema_revision_version,
             lemmas=request_data.lemmas,
             forms=assign_form_ids(entity_id, request_data.forms).get_json(),
