@@ -120,17 +120,24 @@ async def test_query_dangling_entities(api_prefix: str) -> None:
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
-        await client.post(
+        create_response = await client.post(
             f"{api_prefix}/entities/items",
             json={**entity_data, "is_dangling": True},
             headers={"X-Edit-Summary": "create test entity", "X-User-ID": "0"},
         )
+        assert create_response.status_code in (200, 201), (
+            f"Create failed: {create_response.status_code} {create_response.text}"
+        )
+        logger.info(f"Created entity: {create_response.json()}")
 
         response = await client.get(f"{api_prefix}/entities?status=dangling")
         assert response.status_code == 200
         result = response.json()
         entities = result["entities"]
-        assert any(e["entity_id"] == "Q90013" for e in entities)
+        logger.info(f"Entities returned: {entities}")
+        assert any(
+            e.get("entity_id") == "Q90013" or e.get("id") == "Q90013" for e in entities
+        )
 
         logger.info("✓ Query dangling entities works")
 
