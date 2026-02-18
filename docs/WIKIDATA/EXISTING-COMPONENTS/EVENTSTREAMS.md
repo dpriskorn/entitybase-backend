@@ -266,7 +266,7 @@ data: {"meta":{"stream":"mediawiki.revision-create"},"event":"..."}
 ```yaml
 stream-name:
   topics: [eqiad.topic, codfw.topic]
-  topics_allowed: [eqiad.topic, codfw.topic]  # Optional whitelist
+  topics_allowed: [eqiad.topic, codfw.topic]  # Optional allowlist
 ```
 
 - `topics`: Default/preferred topics for new connections
@@ -343,7 +343,7 @@ npm start
 3. **CSP**: Strict Content Security Policy (media, img, style allowed from any origin)
 4. **CORS**: Configurable (default `*`)
 5. **No Compression**: Disabled for streaming connections to avoid buffering issues
-6. **Header Whitelisting**: Logs only whitelisted request headers
+6. **Header Allowlisting**: Logs only allowed request headers
 
 ## Multi-Datacenter Support
 

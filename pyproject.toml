@@ -230,7 +230,7 @@ ignore_names = [
     "get_openapi",
     "redirect_to_docs",
 ]
-# Note: Vulture whitelist is configured in run-vulture.sh, not here
+# Note: Vulture allowlist is configured in run-vulture.sh, not here
 
 [tool.mypy]
 mypy_path = ["src"]
