@@ -28,6 +28,7 @@ from .entity.term_update import (
 )
 from .entity.add_property import AddPropertyRequest
 from .entity.add_statement import AddStatementRequest
+from .entity.entity_status import EntityStatusRequest
 from .entity.patch import (
     AliasPatchRequest,
     BasePatchRequest,
@@ -72,6 +73,7 @@ __all__ = [
     "EntityCreateRequest",
     "EntityDeleteRequest",
     "EntityFilterRequest",
+    "EntityStatusRequest",
     "EntityInsertDataRequest",
     "EntityJsonImportRequest",
     "EntityRedirectRequest",

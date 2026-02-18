@@ -2,6 +2,60 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-02-18] Entity Status Operations Endpoints
+
+### Summary
+
+Added new REST API endpoints for managing entity status operations: lock/unlock, archive/unarchive, semi-protect/unprotect, and mass-edit-protect/unprotect.
+
+### Motivation
+
+- **Protection Management**: Provide API endpoints to manage entity protection levels
+- **Idempotent Operations**: All status endpoints return success (HTTP 200) if entity is already in target state
+- **Wikibase Compatibility**: Match MediaWiki's protection system
+
+### Changes
+
+#### New Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/entities/{entity_id}/lock` | POST | Lock entity from edits |
+| `/entities/{entity_id}/lock` | DELETE | Remove lock from entity |
+| `/entities/{entity_id}/archive` | POST | Archive entity |
+| `/entities/{entity_id}/archive` | DELETE | Unarchive entity |
+| `/entities/{entity_id}/semi-protect` | POST | Semi-protect entity |
+| `/entities/{entity_id}/semi-protect` | DELETE | Remove semi-protection |
+| `/entities/{entity_id}/mass-edit-protect` | POST | Add mass edit protection |
+| `/entities/{entity_id}/mass-edit-protect` | DELETE | Remove mass edit protection |
+
+#### New Files
+
+- `src/models/data/rest_api/v1/entitybase/request/entity/entity_status.py` - Request model
+- `src/models/data/rest_api/v1/entitybase/response/entity/entity_status.py` - Response model
+- `src/models/rest_api/entitybase/v1/services/status_service.py` - Service with idempotent logic
+- `src/models/rest_api/entitybase/v1/handlers/entity/status.py` - Handler class
+
+#### Modified Files
+
+- `src/models/data/infrastructure/s3/enums.py` - Added `SEMI_PROTECT_ADDED`, `SEMI_PROTECT_REMOVED`, `MASS_EDIT_PROTECT_ADDED`, `MASS_EDIT_PROTECT_REMOVED`
+- `src/models/rest_api/entitybase/v1/endpoints/entities.py` - Added 8 new endpoints
+- `src/models/rest_api/entitybase/v1/handlers/entity/__init__.py` - Export handler
+- `src/models/data/rest_api/v1/entitybase/request/__init__.py` - Export request model
+- `src/models/data/rest_api/v1/entitybase/response/__init__.py` - Export response model
+
+### Response Model
+
+All endpoints return `EntityStatusResponse`:
+```json
+{
+  "id": "Q42",
+  "rev_id": 12345,
+  "status": "locked",
+  "idempotent": false
+}
+```
+
 ## [2026-02-15] Auto-generate Form and Sense IDs for Lexemes
 
 ### Summary

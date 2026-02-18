@@ -15,6 +15,9 @@ from models.data.rest_api.v1.entitybase.request import (
 from models.data.rest_api.v1.entitybase.request import (
     RemoveStatementRequest,
 )
+from models.data.rest_api.v1.entitybase.request.entity.entity_status import (
+    EntityStatusRequest,
+)
 from models.data.rest_api.v1.entitybase.request.entity.context import (
     SitelinkUpdateContext,
 )
@@ -22,6 +25,9 @@ from models.data.rest_api.v1.entitybase.request.entity.sitelink import SitelinkD
 from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.response import (
     EntityDeleteResponse,
+)
+from models.data.rest_api.v1.entitybase.response.entity.entity_status import (
+    EntityStatusResponse,
 )
 from models.data.rest_api.v1.entitybase.response import EntityHistoryEntry
 from models.data.rest_api.v1.entitybase.response import (
@@ -38,6 +44,7 @@ from models.data.rest_api.v1.entitybase.response import TurtleResponse
 from models.data.rest_api.v1.entitybase.response import BacklinksResponse
 from models.data.rest_api.v1.entitybase.response.misc import AllSitelinksResponse
 from models.rest_api.entitybase.v1.handlers.entity.delete import EntityDeleteHandler
+from models.rest_api.entitybase.v1.handlers.entity.status import EntityStatusHandler
 from models.rest_api.entitybase.v1.handlers.entity.read import EntityReadHandler
 from models.rest_api.entitybase.v1.handlers.entity.update import EntityUpdateHandler
 from models.rest_api.entitybase.v1.handlers.entity.backlinks import BacklinkHandler
@@ -193,6 +200,124 @@ async def delete_entity(  # type: ignore[no-any-return]
     if not isinstance(result, EntityDeleteResponse):
         raise_validation_error("Invalid response type", status_code=500)
     return result
+
+
+@router.post("/entities/{entity_id}/lock", response_model=EntityStatusResponse)
+async def lock_entity(
+    entity_id: str,
+    req: Request,
+    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+) -> EntityStatusResponse:
+    """Lock an entity from edits."""
+    state = req.app.state.state_handler
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityStatusHandler(state=state)
+    return handler.lock(entity_id, request)
+
+
+@router.delete("/entities/{entity_id}/lock", response_model=EntityStatusResponse)
+async def unlock_entity(
+    entity_id: str,
+    req: Request,
+    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+) -> EntityStatusResponse:
+    """Remove lock from an entity."""
+    state = req.app.state.state_handler
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityStatusHandler(state=state)
+    return handler.unlock(entity_id, request)
+
+
+@router.post("/entities/{entity_id}/archive", response_model=EntityStatusResponse)
+async def archive_entity(
+    entity_id: str,
+    req: Request,
+    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+) -> EntityStatusResponse:
+    """Archive an entity."""
+    state = req.app.state.state_handler
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityStatusHandler(state=state)
+    return handler.archive(entity_id, request)
+
+
+@router.delete("/entities/{entity_id}/archive", response_model=EntityStatusResponse)
+async def unarchive_entity(
+    entity_id: str,
+    req: Request,
+    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+) -> EntityStatusResponse:
+    """Unarchive an entity."""
+    state = req.app.state.state_handler
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityStatusHandler(state=state)
+    return handler.unarchive(entity_id, request)
+
+
+@router.post("/entities/{entity_id}/semi-protect", response_model=EntityStatusResponse)
+async def semi_protect_entity(
+    entity_id: str,
+    req: Request,
+    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+) -> EntityStatusResponse:
+    """Semi-protect an entity."""
+    state = req.app.state.state_handler
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityStatusHandler(state=state)
+    return handler.semi_protect(entity_id, request)
+
+
+@router.delete(
+    "/entities/{entity_id}/semi-protect", response_model=EntityStatusResponse
+)
+async def unsemi_protect_entity(
+    entity_id: str,
+    req: Request,
+    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+) -> EntityStatusResponse:
+    """Remove semi-protection from an entity."""
+    state = req.app.state.state_handler
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityStatusHandler(state=state)
+    return handler.unsemi_protect(entity_id, request)
+
+
+@router.post(
+    "/entities/{entity_id}/mass-edit-protect", response_model=EntityStatusResponse
+)
+async def mass_edit_protect_entity(
+    entity_id: str,
+    req: Request,
+    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+) -> EntityStatusResponse:
+    """Add mass edit protection to an entity."""
+    state = req.app.state.state_handler
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityStatusHandler(state=state)
+    return handler.mass_edit_protect(entity_id, request)
+
+
+@router.delete(
+    "/entities/{entity_id}/mass-edit-protect", response_model=EntityStatusResponse
+)
+async def mass_edit_unprotect_entity(
+    entity_id: str,
+    req: Request,
+    request: EntityStatusRequest = Body(default_factory=lambda: EntityStatusRequest()),
+) -> EntityStatusResponse:
+    """Remove mass edit protection from an entity."""
+    state = req.app.state.state_handler
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
+        raise_validation_error("Invalid clients type", status_code=500)
+    handler = EntityStatusHandler(state=state)
+    return handler.mass_edit_unprotect(entity_id, request)
 
 
 @router.get("/entities/{entity_id}/properties", response_model=PropertyListResponse)
