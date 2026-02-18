@@ -227,7 +227,9 @@ async def test_mass_edit_protect_response_schema(api_prefix: str) -> None:
 
 @pytest.mark.contract
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="Contract test mock doesn't persist entity state between revisions")
+@pytest.mark.xfail(
+    reason="Contract test mock doesn't persist entity state between revisions"
+)
 async def test_status_idempotent_flag(api_prefix: str) -> None:
     """Contract test: Idempotent flag is true when entity is already in target state."""
     from models.rest_api.main import app
