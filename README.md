@@ -193,6 +193,13 @@ Use either the setup script or dev worker CLI to create these buckets automatica
 - **Most-used analytics**: Query most used statements across the system for scientific analysis
 - **Orphaned cleanup**: Background job for cleaning up orphaned statements (ref_count=0)
 
+### Entity Protection
+- **Lock/Unlock**: `/entities/{entity_id}/lock` (POST/DELETE) - Full edit lock
+- **Archive/Unarchive**: `/entities/{entity_id}/archive` (POST/DELETE) - Archive entities
+- **Semi-protect/Unprotect**: `/entities/{entity_id}/semi-protect` (POST/DELETE) - Semi-protection
+- **Mass-edit-protect/Unprotect**: `/entities/{entity_id}/mass-edit-protect` (POST/DELETE) - Mass edit protection
+- **Idempotent**: All protection endpoints return success if entity is already in target state
+
 ### Type-Specific Endpoints
 - **Item endpoints**: `/item` for item entities (Q IDs)
 - **Property endpoints**: `/property` for property entities (P IDs)

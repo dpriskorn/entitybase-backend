@@ -42,6 +42,14 @@
 | ✅ | POST | `/entities/properties` | Create a new property entity. |
 | ✅ | GET | `/entities/{entity_id}` | Retrieve a single entity by its ID. |
 | ✅ | DELETE | `/entities/{entity_id}` | Delete an entity. |
+| ✅ | POST | `/entities/{entity_id}/archive` | Archive an entity. |
+| ✅ | DELETE | `/entities/{entity_id}/archive` | Unarchive an entity. |
+| ✅ | POST | `/entities/{entity_id}/lock` | Lock an entity from edits. |
+| ✅ | DELETE | `/entities/{entity_id}/lock` | Remove lock from an entity. |
+| ✅ | POST | `/entities/{entity_id}/mass-edit-protect` | Add mass edit protection. |
+| ✅ | DELETE | `/entities/{entity_id}/mass-edit-protect` | Remove mass edit protection. |
+| ✅ | POST | `/entities/{entity_id}/semi-protect` | Semi-protect an entity. |
+| ✅ | DELETE | `/entities/{entity_id}/semi-protect` | Remove semi-protection from an entity. |
 | ✅ | GET | `/entities/{entity_id}.json` | Get entity data in JSON format. |
 | ✅ | GET | `/entities/{entity_id}.ttl` | Get entity data in Turtle format. |
 | ✅ | GET | `/entities/{entity_id}/aliases/{language_code}` | Get entity alias texts for language. |

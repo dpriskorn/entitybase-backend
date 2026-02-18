@@ -37,6 +37,7 @@ from .entity.entitybase import (
     ProtectionResponse,
 )
 from .entity.revision_read_response import RevisionReadResponse
+from .entity.entity_status import EntityStatusResponse
 from .entity.wikibase import AliasValue, DescriptionValue, LabelValue, SitelinkValue
 from .events import RDFChangeEvent
 from .health import HealthCheckResponse, HealthResponse, WorkerHealthCheckResponse
@@ -166,6 +167,7 @@ __all__ = [
     "EntityRedirectResponse",
     "EntityResponse",
     "EntityRevertResponse",
+    "EntityStatusResponse",
     "EntitySitelinksResponse",
     "EntityStatementsResponse",
     "FullRevisionResponse",
