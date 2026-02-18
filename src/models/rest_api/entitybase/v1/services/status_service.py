@@ -302,6 +302,11 @@ class StatusService(Service):
                 new_mep = False
 
         logger.debug(
+            f"Status flags updated: sp={new_sp}, locked={new_locked}, "
+            f"archived={new_archived}, dangling={new_dangling}, mep={new_mep}"
+        )
+
+        logger.debug(
             f"Building status revision for {entity_id}, revision {new_revision_id}, "
             f"operation={operation.value}, edit_type={edit_type.value}"
         )
@@ -346,6 +351,10 @@ class StatusService(Service):
                 mep=new_mep,
                 deleted=current_state.get("deleted", False),
             ),
+        )
+
+        logger.debug(
+            f"Status revision built for {entity_id}, revision {new_revision_id}"
         )
 
         return revision
