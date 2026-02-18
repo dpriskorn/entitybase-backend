@@ -173,6 +173,9 @@ class MockVitessClient:
     def entity_exists(self, entity_id: str) -> bool:
         return self.id_resolver.entity_exists(entity_id)
 
+    def is_entity_deleted(self, entity_id: str) -> bool:
+        return False
+
     def get_head(self, entity_id: str) -> int:
         return 1 if self.entity_exists(entity_id) else 0
 
@@ -197,7 +200,7 @@ class MockVitessClient:
         pass
 
     def create_revision(
-        self, entity_id: str, entity_data: Any, revision_id: int, content_hash: int
+        self, entity_id: str, entity_data: Any, revision_id: int, content_hash: int, expected_revision_id: int | None = None
     ) -> None:
         self._pending_revisions[(entity_id, revision_id)] = content_hash
 
