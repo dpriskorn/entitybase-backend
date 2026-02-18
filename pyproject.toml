@@ -112,6 +112,123 @@ ignore_names = [
     "CreateRevisionRequest",
     "DescriptionsResponse",
     "NewThankEvent",
+    # FastAPI endpoints - used via router decorators
+    # admin endpoints
+    "list_items",
+    "list_properties",
+    "list_lexemes",
+    # debug endpoints
+    "debug_entity",
+    "debug_entity_head",
+    # entities endpoints
+    "get_entity_data_json",
+    "get_entity_ttl_revision",
+    "get_entity_json_revision",
+    "add_entity_property",
+    "add_entity_statement",
+    "remove_entity_statement",
+    "patch_entity_statement",
+    "get_all_sitelinks",
+    "get_entity_sitelink",
+    "post_entity_sitelink",
+    "put_entity_sitelink",
+    "delete_entity_sitelink",
+    "get_entity_backlinks",
+    # entities aliases
+    "get_entity_aliases",
+    "update_entity_aliases",
+    "add_entity_alias",
+    "delete_entity_aliases",
+    # entities descriptions
+    "get_entity_description",
+    "update_entity_description",
+    "delete_entity_description",
+    "add_entity_description",
+    # entities labels
+    "get_entity_label",
+    "update_entity_label",
+    "delete_entity_label",
+    "add_entity_label",
+    # import
+    "import_entity",
+    # items
+    "create_item",
+    # lexeme forms
+    "get_lexeme_forms",
+    "create_lexeme_form",
+    "get_form_representations",
+    "get_form_representation",
+    "add_form_representation",
+    "update_form_representation",
+    "delete_form",
+    "delete_form_representation",
+    "add_form_statement",
+    # lexeme senses
+    "get_lexeme_senses",
+    "create_lexeme_sense",
+    "get_sense_glosses",
+    "get_sense_gloss_by_language",
+    "add_sense_gloss",
+    "update_sense_gloss",
+    "delete_sense",
+    "delete_sense_gloss",
+    "add_sense_statement",
+    # lexemes
+    "_validate_qid",
+    "create_lexeme",
+    "get_lexeme_language",
+    "update_lexeme_language",
+    "get_lexeme_lexicalcategory",
+    "update_lexeme_lexicalcategory",
+    "get_lexeme_lemmas",
+    "get_lexeme_lemma",
+    "add_lexeme_lemma",
+    "update_lexeme_lemma",
+    "delete_lexeme_lemma",
+    # properties
+    "create_property",
+    # statements
+    "get_batch_statements",
+    # routes/endorsements
+    "endorse_statement_endpoint",
+    "withdraw_endorsement_endpoint",
+    "get_statement_endorsements_endpoint",
+    "get_user_endorsements_endpoint",
+    "get_user_endorsement_stats_endpoint",
+    "get_statement_endorsement_stats",
+    # routes/health
+    "health_check_endpoint",
+    # routes/resolve
+    "get_qualifiers",
+    "get_references",
+    "get_snaks",
+    "get_statements",
+    "get_glosses",
+    "get_representations",
+    "get_batch_labels",
+    "get_batch_descriptions",
+    "get_batch_aliases",
+    "get_batch_sitelinks",
+    # routes/thanks
+    "send_thank_endpoint",
+    "get_thanks_received_endpoint",
+    "get_thanks_sent_endpoint",
+    "get_revision_thanks_endpoint",
+    # handlers
+    "validate_protection_settings",
+    "_infer_entity_type_from_id",
+    "import_entities_from_jsonl",
+    "entitydiff_stream_producer",
+    "UserPreferencesHandler",
+    "get_preferences",
+    "update_preferences",
+    # main.py handlers
+    "dispatch",
+    "validation_error_handler",
+    "starlette_http_exception_handler",
+    "global_exception_handler",
+    "get_openapi",
+    "redirect_to_docs",
 ]
 # Note: Vulture whitelist is configured in run-vulture.sh, not here
 

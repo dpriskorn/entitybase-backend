@@ -257,7 +257,9 @@ class TestRDFSerializer:
 
         RDFSerializer._add_descriptions(g, entity_uri, descriptions)
 
-        triples = list(g.triples((entity_uri, URIRef("http://schema.org/description"), None)))
+        triples = list(
+            g.triples((entity_uri, URIRef("http://schema.org/description"), None))
+        )
         assert len(triples) == 2
 
     def test_add_descriptions_with_invalid_data(self):
@@ -273,7 +275,9 @@ class TestRDFSerializer:
 
         RDFSerializer._add_descriptions(g, entity_uri, descriptions)
 
-        triples = list(g.triples((entity_uri, URIRef("http://schema.org/description"), None)))
+        triples = list(
+            g.triples((entity_uri, URIRef("http://schema.org/description"), None))
+        )
         assert len(triples) == 0
 
     def test_add_statements(self):

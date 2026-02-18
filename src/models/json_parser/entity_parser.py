@@ -103,6 +103,7 @@ def _parse_lexeme_fields(
     Returns:
         Tuple of (forms, senses, lexical_category, language)
     """
+    logger.debug("Parsing lexeme-specific fields")
     forms = None
     senses = None
     lemmas = metadata_dict.get("lemmas")

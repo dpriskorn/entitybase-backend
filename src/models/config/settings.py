@@ -74,6 +74,9 @@ class Settings(BaseModel):
     # entity version
     entity_version: str = "2.0.0"
 
+    # entity dangling detection
+    dangling_property_id: str = "P6104"
+
     # API configuration
     api_prefix: str = "/v1/entitybase"
 
@@ -174,6 +177,9 @@ class Settings(BaseModel):
         """Load entity version and API config from environment variables."""
         self.entity_version = os.getenv("ENTITY_VERSION", self.entity_version)
         self.api_prefix = os.getenv("API_PREFIX", self.api_prefix)
+        self.dangling_property_id = os.getenv(
+            "DANGLING_PROPERTY_ID", self.dangling_property_id
+        )
 
     def _load_streaming_config(self) -> None:
         """Load streaming configuration from environment variables."""

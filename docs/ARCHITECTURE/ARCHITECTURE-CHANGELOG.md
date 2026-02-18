@@ -2,6 +2,39 @@
 
 This file tracks architectural changes, feature additions, and modifications to entitybase-backend.
 
+## [2026-02-18] Auto-compute Dangling Status from Property
+
+### Summary
+
+Changed entity revision handling to automatically compute `is_dangling` status from the presence of a configurable property in entity claims, instead of relying on the frontend to provide this value.
+
+### Motivation
+
+- **Backend Authority**: Backend now determines dangling status based on actual entity data
+- **Configurable Property**: The property used to detect dangling items is now configurable via `DANGLING_PROPERTY_ID` environment variable (default: `P6104`)
+- **Simpler Frontend**: Frontend no longer needs to compute and send `is_dangling` flag
+
+### Changes
+
+#### Modified Files
+
+- `src/models/config/settings.py` - Added `dangling_property_id` setting with env var support
+- `src/models/rest_api/entitybase/v1/handlers/entity/handler.py` - Auto-compute `is_dangling` from claims
+- `test.env` - Added `DANGLING_PROPERTY_ID` environment variable
+- `tests/unit/models/rest_api/entitybase/v1/handlers/entity/test_handler.py` - Added unit test
+
+#### Configuration
+
+| Environment Variable | Default | Description |
+|---------------------|---------|-------------|
+| `DANGLING_PROPERTY_ID` | `P6104` | Property ID used to determine if entity is dangling |
+
+#### Behavior
+
+- Entity is **dangling** if claims do not contain the configured property (default: P6104)
+- Entity is **not dangling** if claims contain the configured property
+- The `is_dangling` value from request body is now ignored
+
 ## [2026-02-18] Entity Status Operations Endpoints
 
 ### Summary

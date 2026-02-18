@@ -265,11 +265,13 @@ class EntityHandler(Handler):
         created_at = datetime.now(timezone.utc).isoformat()
 
         # Extract state fields from request data
+        # Auto-compute is_dangling from configurable property presence in claims
+        claims = ctx.request_data.get("claims", {})
         entity_state = EntityState(
             sp=ctx.request_data.get("is_semi_protected", False),
             locked=ctx.request_data.get("is_locked", False),
             archived=ctx.request_data.get("is_archived", False),
-            dangling=ctx.request_data.get("is_dangling", False),
+            dangling=settings.dangling_property_id not in claims,
             mep=ctx.request_data.get("is_mass_edit_protected", False),
         )
 

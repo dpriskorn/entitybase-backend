@@ -92,7 +92,7 @@ class RedirectService(Service):
         redirect_to_id: str,
         edit_headers: EditHeaders,
         from_head_revision_id: int,
-    ) -> tuple[RevisionData, str]:
+    ) -> tuple[RevisionData, int]:
         """Create revision data for redirect.
 
         Args:
@@ -189,7 +189,7 @@ class RedirectService(Service):
         if self.state.entity_change_stream_producer:
             event = EntityChangeEvent(
                 id=request.redirect_from_id,
-                rev=redirect_revision_id,
+                rev=redirect_revision_data.revision_id,
                 type=ChangeType.REDIRECT,
                 from_rev=from_head_revision_id if from_head_revision_id else None,
                 at=datetime.now(timezone.utc),
@@ -202,7 +202,7 @@ class RedirectService(Service):
             redirect_from_id=request.redirect_from_id,
             redirect_to_id=request.redirect_to_id,
             created_at=datetime.now(timezone.utc).isoformat(),
-            revision_id=redirect_revision_id,
+            revision_id=redirect_revision_data.revision_id,
         )
 
     async def revert_redirect(
