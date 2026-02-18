@@ -48,6 +48,7 @@ src/
     │           ├── services
     │           └── utils
     ├── services
+    ├── utils
     ├── validation
     └── workers
         ├── backlink_statistics
@@ -55,11 +56,12 @@ src/
         ├── entity_diff
         ├── general_stats
         ├── id_generation
+        ├── incremental_rdf
         ├── json_dumps
         ├── notification_cleanup
         ├── ttl_dumps
         ├── user_stats
         └── watchlist_consumer
 
-60 directories
+62 directories
 ```

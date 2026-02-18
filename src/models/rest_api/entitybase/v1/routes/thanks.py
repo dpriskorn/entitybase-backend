@@ -2,7 +2,6 @@
 
 from fastapi import APIRouter, Header, Query, Request
 
-from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.entitybase.v1.handlers.thanks import ThanksHandler
 from models.data.rest_api.v1.entitybase.request.thanks import ThanksListRequest
 from models.data.rest_api.v1.entitybase.response import (
@@ -27,7 +26,7 @@ def send_thank_endpoint(
 ) -> ThankResponse:
     """Send a thank for a specific revision."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler(state=state)
     result = handler.send_thank(entity_id, revision_id, user_id)
@@ -50,7 +49,7 @@ def get_thanks_received_endpoint(
 ) -> ThanksListResponse:
     """Get thanks received by user."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler(state=state)
     request = ThanksListRequest(limit=limit, offset=offset, hours=hours)
@@ -72,7 +71,7 @@ def get_thanks_sent_endpoint(
 ) -> ThanksListResponse:
     """Get thanks sent by user."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler(state=state)
     request = ThanksListRequest(limit=limit, offset=offset, hours=hours)
@@ -91,7 +90,7 @@ def get_revision_thanks_endpoint(
 ) -> ThanksListResponse:
     """Get all thanks for a specific revision."""
     state = req.app.state.state_handler
-    if not isinstance(state, StateHandler):
+    if not (hasattr(state, "vitess_client") and hasattr(state, "s3_client")):
         raise_validation_error("Invalid clients type", status_code=500)
     handler = ThanksHandler(state=state)
     result = handler.get_revision_thanks(entity_id, revision_id)

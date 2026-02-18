@@ -5,6 +5,7 @@ title Wikibase Backend - Detailed Model Components
 package "Models" as Models #LightCyan {
     "AliasValue" as AliasValue
     "Aliases" as AliasesResponse
+    "AllSitelinks" as AllSitelinksResponse
     "Backlink" as BacklinkResponse
     "BacklinkStatisticsData" as BacklinkStatisticsData
     "BacklinkStatistics" as BacklinkStatisticsResponse
@@ -80,6 +81,7 @@ package "Models" as Models #LightCyan {
     "ReconstructedSnakValue" as ReconstructedSnakValue
     "RedirectBatch" as RedirectBatchResponse
     "Reference" as ReferenceResponse
+    "ReferenceSnaks" as ReferenceSnaks
     "RepresentationData" as RepresentationData
     "RevisionIdResult" as RevisionIdResult
     "RevisionMetadata" as RevisionMetadataResponse

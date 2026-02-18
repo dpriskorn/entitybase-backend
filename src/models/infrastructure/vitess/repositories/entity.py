@@ -145,6 +145,10 @@ class EntityRepository(Repository):
         Returns:
             Tuple of (query_string, parameters_list)
         """
+        logger.debug(
+            f"Building entity query - type: {entity_type}, status: {status}, edit_type: {edit_type}"
+        )
+
         status_column_map = {
             "locked": "is_locked",
             "semi_protected": "is_semi_protected",
@@ -190,6 +194,7 @@ class EntityRepository(Repository):
         if conditions:
             base_query += " WHERE " + " AND ".join(conditions)
 
+        logger.debug(f"Built query with {len(conditions)} conditions")
         return base_query, params
 
     def list_entities_filtered(

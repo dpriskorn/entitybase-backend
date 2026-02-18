@@ -48,6 +48,14 @@
 
 **Health Checks**: Available via worker health endpoint
 
+## Incremental Rdf Worker
+
+**Class**: `IncrementalRDFWorker`
+**Location**: `models/workers/incremental_rdf/incremental_rdf_worker.py`
+**Purpose**: Worker that consumes entity change events and generates incremental RDF diffs. This worker: 1. Consumes entity change events from entitybase.entity_change Kafka topic 2. Looks up revision metadata in MySQL to get content hashes 3. Fetches entity snapshots from S3 for both old and new revisions 4. Computes RDF diffs using IncrementalRDFUpdater 5. Publishes RDF change events to incremental_rdf_diff Kafka topic
+
+**Health Checks**: Available via worker health endpoint
+
 ## Json Dumps Worker
 
 **Class**: ``

@@ -8,7 +8,6 @@ from models.data.rest_api.v1.entitybase.request.headers import EditHeadersType
 from models.data.rest_api.v1.entitybase.request import EntityCreateRequest
 from models.data.rest_api.v1.entitybase.response import EntityResponse
 from models.rest_api.entitybase.v1.handlers.entity.item import ItemCreateHandler
-from models.rest_api.entitybase.v1.handlers.state import StateHandler
 from models.rest_api.utils import raise_validation_error
 
 logger = logging.getLogger(__name__)
@@ -30,7 +29,7 @@ async def create_item(
 
     try:
         state = req.app.state.state_handler
-        if not isinstance(state, StateHandler):
+        if not hasattr(state, "vitess_client") or not hasattr(state, "validator"):
             raise_validation_error("State handler not available", status_code=503)
         validator = req.app.state.state_handler.validator
         enumeration_service = req.app.state.state_handler.enumeration_service

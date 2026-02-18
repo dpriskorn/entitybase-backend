@@ -30,6 +30,101 @@ class TestEntityHandler:
     """Unit tests for EntityHandler."""
 
     @pytest.mark.asyncio
+    async def test_build_revision_data_dangling_from_p6104(self) -> None:
+        """Test _build_revision_data auto-computes is_dangling from P6104 claims."""
+        mock_state = MagicMock()
+        mock_vitess = MagicMock()
+        mock_s3 = MagicMock()
+        mock_state.vitess_client = mock_vitess
+        mock_state.s3_client = mock_s3
+
+        handler = EntityHandler(state=mock_state)
+
+        request_data_no_p6104 = {
+            "id": "Q42",
+            "labels": {"en": {"language": "en", "value": "Test"}},
+            "descriptions": {},
+            "aliases": {},
+            "claims": {"P31": [{"id": "Q1"}]},
+        }
+
+        ctx_no_p6104 = RevisionContext(
+            entity_id="Q42",
+            request_data=request_data_no_p6104,
+            entity_type=EntityType.ITEM,
+            edit_type=EditType.MANUAL_UPDATE,
+            edit_summary="Test",
+            is_creation=True,
+            vitess_client=mock_vitess,
+            s3_client=mock_s3,
+        )
+
+        hash_result = StatementHashResult(
+            statements=[123456789],
+            properties=["P31"],
+            property_counts={},
+        )
+        term_hashes = HashMaps(
+            labels={"en": 123456789},
+            descriptions={"en": 123456790},
+            aliases={"en": [123456791]},
+        )
+        sitelink_hashes = SitelinkHashes(root={})
+
+        revision_data_no_p6104 = handler._build_revision_data(
+            ctx_no_p6104, hash_result, term_hashes, SitelinkHashes(root={}), 1
+        )
+        assert revision_data_no_p6104.state.is_dangling is True
+
+        request_data_with_p6104 = {
+            "id": "Q42",
+            "labels": {"en": {"language": "en", "value": "Test"}},
+            "descriptions": {},
+            "aliases": {},
+            "claims": {"P6104": [{"id": "Q123"}]},
+        }
+
+        ctx_with_p6104 = RevisionContext(
+            entity_id="Q42",
+            request_data=request_data_with_p6104,
+            entity_type=EntityType.ITEM,
+            edit_type=EditType.MANUAL_UPDATE,
+            edit_summary="Test",
+            is_creation=True,
+            vitess_client=mock_vitess,
+            s3_client=mock_s3,
+        )
+
+        revision_data_with_p6104 = handler._build_revision_data(
+            ctx_with_p6104, hash_result, term_hashes, SitelinkHashes(root={}), 1
+        )
+        assert revision_data_with_p6104.state.is_dangling is False
+
+        request_data_empty_claims = {
+            "id": "Q42",
+            "labels": {},
+            "descriptions": {},
+            "aliases": {},
+            "claims": {},
+        }
+
+        ctx_empty_claims = RevisionContext(
+            entity_id="Q42",
+            request_data=request_data_empty_claims,
+            entity_type=EntityType.ITEM,
+            edit_type=EditType.MANUAL_UPDATE,
+            edit_summary="Test",
+            is_creation=True,
+            vitess_client=mock_vitess,
+            s3_client=mock_s3,
+        )
+
+        revision_data_empty_claims = handler._build_revision_data(
+            ctx_empty_claims, hash_result, term_hashes, SitelinkHashes(root={}), 1
+        )
+        assert revision_data_empty_claims.state.is_dangling is True
+
+    @pytest.mark.asyncio
     async def test_build_entity_response(self) -> None:
         """Test _build_entity_response method."""
         mock_state = MagicMock()

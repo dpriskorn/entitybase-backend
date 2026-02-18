@@ -16,12 +16,17 @@ package "Workers" as Workers #LightYellow {
     "EntityDiffResponse" as EntityDiffResponse
     "EntityDiff" as EntityDiffWorker
     "EntityDumpRecord" as EntityDumpRecord
+    "EventConfig" as EventConfig
     "GeneralStats" as GeneralStatsWorker
     "IdGenerator" as IdGeneratorWorker
+    "IncrementalRDF" as IncrementalRDFWorker
     "JsonDump" as JsonDumpWorker
     "NotificationCleanup" as NotificationCleanupWorker
     "NotificationData" as NotificationData
     "RDFCanonicalizer" as RDFCanonicalizer
+    "RDFChangeEvent" as RDFChangeEvent
+    "RDFChangeEventBuilder" as RDFChangeEventBuilder
+    "RDFDataField" as RDFDataField
     "RDFSerializer" as RDFSerializer
     "TableHealthCheckResult" as TableHealthCheckResult
     "TableSetupResult" as TableSetupResult

@@ -544,6 +544,14 @@ Response model for entity aliases.
 
 - `aliases` (list[str]): List of alias texts for the specified language
 
+### AllSitelinksResponse
+
+Response model for all entity sitelinks.
+
+**Fields**:
+
+- `sitelinks` (dict[str, Any]): Dictionary mapping site key to sitelink data
+
 ### BatchAliasesResponse
 
 Response model for batch aliases lookup by hash.
@@ -836,6 +844,15 @@ Response model for reference data.
 - `reference` (Dict[str, Any]): Full reference JSON object. Example: {'snaks': {'P854': [{'value': 'https://example.com'}]}}.
 - `content_hash` (int): Hash of the reference content. Example: 123456789.
 - `created_at` (str): Timestamp when reference was created. Example: '2023-01-01T12:00:00Z'.
+
+### ReferenceSnaks
+
+Model for reference snaks structure (inner reference data).
+
+**Fields**:
+
+- `snaks` (Dict[str, Any]): No description
+- `snaks_order` (Optional[List[str]]): No description
 
 ### SerializableQualifierValue
 

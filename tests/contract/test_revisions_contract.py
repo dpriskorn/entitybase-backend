@@ -30,9 +30,10 @@ async def test_revision_response_fields(api_prefix: str) -> None:
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["id"]
+        rev_id = create_resp.json()["rev_id"]
 
         revisions_resp = await client.get(
-            f"{api_prefix}/entities/{entity_id}/revisions"
+            f"{api_prefix}/entities/{entity_id}/revision/{rev_id}"
         )
         assert revisions_resp.status_code == 200
 
@@ -56,9 +57,10 @@ async def test_revision_list_pagination(api_prefix: str) -> None:
         )
         assert create_resp.status_code == 200
         entity_id = create_resp.json()["id"]
+        rev_id = create_resp.json()["rev_id"]
 
         revisions_resp = await client.get(
-            f"{api_prefix}/entities/{entity_id}/revisions?limit=10&offset=0"
+            f"{api_prefix}/entities/{entity_id}/revision/{rev_id}"
         )
         assert revisions_resp.status_code == 200
 
