@@ -4,13 +4,6 @@ cd "$(dirname "$0")/../.."
 
 THRESHOLD=30
 
-if [ "$(docker ps -q | wc -l)" -gt 0 ]; then
-  echo "Containers are running"
-else
-  echo "No containers are running, run ./run-api-local.sh before this"
-  exit 1
-fi
-
 source test.env
 
 source .venv/bin/activate

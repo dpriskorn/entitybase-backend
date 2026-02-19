@@ -116,5 +116,5 @@ lint-test-all: lint tests
 
 lint-test-fast: lint test-unit-e2e
 
-coverage:
+coverage: check
 	./scripts/shell/run-coverage.sh
